@@ -216,6 +216,8 @@ html.js .rv.in{opacity:1;transform:none}
 .deed li{list-style:none;font-size:13.5px;color:#3A5A4B;padding:3px 0}
 .deed li::before{content:"✓";color:var(--ok);font-weight:700;margin-inline-end:8px}
 .util{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px}
+.amenlist{display:flex;flex-wrap:wrap;gap:10px}
+.amenchip{background:var(--ok-w);color:var(--ok);font-size:13px;font-weight:600;padding:6px 12px;border-radius:20px}
 .util div{border:1px solid var(--line);border-radius:6px;padding:11px 13px}
 .util b{display:block;font-size:15.5px;font-weight:700}
 .util span{font-size:12.5px;color:var(--grey)}
@@ -592,6 +594,17 @@ var $=function(sel,r){return (r||document).querySelector(sel)};
 var $$=function(sel,r){return [].slice.call((r||document).querySelectorAll(sel))};
 var t=function(k){return (D.I18N[L]&&D.I18N[L][k]!==undefined)?D.I18N[L][k]:k};
 var li=function(){return L==="ar"?0:L==="en"?1:2};
+var AMEN_LANGS=["ar","en","de"];
+function amenityLabel(saved){
+  var pools=[D.AMEN,D.LANDAMEN];
+  for(var p=0;p<pools.length;p++){
+    for(var i=0;i<AMEN_LANGS.length;i++){
+      var idx=pools[p][AMEN_LANGS[i]].indexOf(saved);
+      if(idx>-1) return pools[p][AMEN_LANGS[li()]][idx];
+    }
+  }
+  return saved; // not a recognized amenity string — show as-saved
+}
 var gN=function(g){return L==="ar"?g:(D.GOVN[g]?D.GOVN[g][L==="en"?0:1]:g)};
 var AR_LAT_MAP={"ا":"a","أ":"a","إ":"i","آ":"a","ب":"b","ت":"t","ث":"th","ج":"j","ح":"h","خ":"kh","د":"d","ذ":"dh","ر":"r","ز":"z","س":"s","ش":"sh","ص":"s","ض":"d","ط":"t","ظ":"z","ع":"a","غ":"gh","ف":"f","ق":"q","ك":"k","ل":"l","م":"m","ن":"n","ه":"h","و":"w","ي":"y","ى":"a","ة":"a","ء":"","ئ":"e","ؤ":"o","ال":"al-"," ":" ","٠":"0","١":"1","٢":"2","٣":"3","٤":"4","٥":"5","٦":"6","٧":"7","٨":"8","٩":"9"};
 function arLatin(s){
@@ -956,6 +969,8 @@ function listing(id){
    '<div><b class="ltr">'+x.amp+'A</b><span>'+t("uAmps")+'</span></div>'+
    '<div><b>'+(L==="ar"?"يومي":L==="en"?"Daily":"Täglich")+'</b><span>'+t("uWater")+'</span></div>'+
    '<div><b class="ltr">3 m³</b><span>'+t("uTank")+'</span></div></div>'):'')+
+ (x.am&&x.am.length?pan(t("amH"),'<div class="amenlist">'+x.am.map(function(a){
+   return '<span class="amenchip">\u2713 '+amenityLabel(a)+'</span>'}).join("")+'</div>'):'')+
  '</div><aside class="side2" style="display:flex;flex-direction:column;gap:14px">'+
   '<div class="panel pad"><div style="display:flex;gap:12px;align-items:center">'+
   avatar(x.oav,x.who||t("owner"),46)+
@@ -1070,7 +1085,9 @@ function post(){
   '<div class="row"><div class="fl"><label class="req">'+t("tel")+'</label>'+
    '<div class="pw">'+ccSelect("pcc", USER&&USER.phone?ccOf(USER.phone):"963")+
    '<input id="ptel" autocomplete="off" placeholder="" value="'+(USER&&USER.phone?ccStrip(USER.phone):"")+'"></div>'+
-   '<div class="hintx">'+t("telFromAccount")+'</div></div></div>'+
+   '<div class="hintx">'+t("telFromAccount")+'</div>'+
+   '<div class="hintx ltr" id="telPreview" style="font-weight:600;color:var(--ok);direction:ltr;text-align:start"></div>'+
+   '</div></div>'+
   '<div class="chkgrid"><label><input type="checkbox" id="pNegot" checked> '+t("negot")+'</label>'+
   '<label><input type="checkbox" id="pWaok" checked> '+t("waok")+'</label>'+
   '<label><input type="checkbox" id="pOwner" checked> '+t("iamowner")+'</label></div></div></div>'+
@@ -1757,6 +1774,12 @@ function fillGeo(gs,as,withAll){
 
 function checkPost(){
  var need=[],v=function(id){return ($("#"+id)||{}).value||""};
+ var telPrev=$("#telPreview");
+ if(telPrev){
+   var dRaw=v("ptel").replace(/\D/g,"");
+   var ccRaw=v("pcc")||(USER&&USER.phone?ccOf(USER.phone):"963");
+   telPrev.textContent = dRaw ? ("\u2192 +"+ccRaw+" "+dRaw) : "";
+ }
  if(!v("pm2"))need.push(t("areaM"));
  var isLand = secOf(v("ptype"))==="land";
  var isRent = ($('input[name=dl]:checked')||{}).value==="rent";
@@ -2624,6 +2647,7 @@ function fromRow(r){
     lm:r.landmark||"", lat:r.lat||null, lng:r.lng||null,
     lease:r.lease_months||null, adv:r.advance_months||null,
     dep:r.deposit_usd||null, bills:!!r.bills_included, furn:!!r.furnished,
+    am:r.amenities||[],
     photos:null,
     tel:r.contact_phone||"", wa:r.accepts_whatsapp!==false, negot:r.price_negotiable!==false,
     cover:r.cover_url||null,
