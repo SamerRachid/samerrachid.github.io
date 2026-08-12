@@ -23,7 +23,7 @@ jobs:
           node-version: 20
 
       - name: Install Supabase client
-        run: npm install @supabase/supabase-js
+        run: npm install @supabase/supabase-js ws
 
       - name: Generate listing pages + sitemap
         run: node scripts/generate-listings.mjs
