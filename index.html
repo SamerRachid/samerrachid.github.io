@@ -454,6 +454,18 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
 .lvl-vip{background:var(--gold-w);color:#8A6522}
 .lvl-partner{background:var(--navy-w);color:var(--navy)}
 
+/* ── admin: badge picker (pill buttons instead of a bare <select>) ── */
+.badgepick{display:flex;gap:5px;flex-wrap:wrap;max-width:200px}
+.badgebtn{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.02em;
+  cursor:pointer;border:1.5px solid transparent;opacity:.45;background:var(--page);color:var(--grey);
+  font-family:inherit;transition:opacity .12s}
+.badgebtn:hover{opacity:.8}
+.badgebtn.on{opacity:1;border-color:currentColor}
+.badgebtn.lvl-member.on{background:var(--line);color:var(--body)}
+.badgebtn.lvl-trusted.on{background:var(--ok-w);color:var(--ok)}
+.badgebtn.lvl-vip.on{background:var(--gold-w);color:#8A6522}
+.badgebtn.lvl-partner.on{background:var(--navy-w);color:var(--navy)}
+
 /* ── reviews / stars ── */
 .ratingline{display:flex;align-items:center;gap:8px;margin-top:5px;font-size:14px}
 .starsbig{color:var(--gold);font-size:17px;letter-spacing:1px}
@@ -1317,10 +1329,12 @@ function adminView(){
      '<td class="ltr">'+u.phone+'</td><td class="ltr">'+u.listings+'</td>'+
      '<td class="ltr">'+(u.rating?('\u2605 '+u.rating):"\u2014")+'</td>'+
      '<td>'+(u.role==="admin"?'<span class="lvl lvl-vip">Admin</span>':
-       '<select class="alevel" data-uid="'+u.id+'">'+
+       '<div class="badgepick" data-uid="'+u.id+'">'+
        ["member","trusted","vip","partner"].map(function(lv){
-         return '<option value="'+lv+'"'+(u.level===lv?" selected":"")+'>'+t("lv_"+lv)+'</option>'}).join("")+
-       '</select>')+'</td>'+
+         var cls = lv==="member" ? "lvl-member" : "lvl-"+lv;
+         return '<button type="button" class="badgebtn '+cls+(u.level===lv?" on":"")+'" data-lv="'+lv+'" data-uid="'+u.id+'">'+
+           t("lv_"+lv)+'</button>'}).join("")+
+       '</div>')+'</td>'+
      '<td>'+u.role+(u.blocked?' <span style="color:var(--danger)">'+t("blocked")+'</span>':'')+'</td>'+
      '<td style="white-space:nowrap">'+
        (u.avatar_url?'<button class="ab" data-clravatar="'+u.id+'">'+t("clearPhoto")+'</button>':'')+
@@ -2028,8 +2042,8 @@ function wireAdmin(){
   $$("[data-ablock]").forEach(function(e){ e.onclick=function(){
     act("bk_admin_block_user",{p_token:ADM.token,p_user:e.dataset.ablock,p_blocked:e.dataset.on==="1"}) }});
 
-  $$(".alevel").forEach(function(sel){ sel.onchange=function(){
-    act("bk_admin_set_level",{p_token:ADM.token,p_user:sel.dataset.uid,p_level:sel.value}) }});
+  $$(".badgebtn").forEach(function(b){ b.onclick=function(){
+    act("bk_admin_set_level",{p_token:ADM.token,p_user:this.dataset.uid,p_level:this.dataset.lv}) }});
 
   $$("[data-arate]").forEach(function(e){ e.onclick=function(){
     ADM.rateTarget=e.dataset.arate; ADM.rateStars=0; ADM.rateMsg=""; ADM.pwTarget=null; render() }});
