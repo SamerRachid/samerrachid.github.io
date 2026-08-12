@@ -1069,7 +1069,7 @@ function post(){
    '<div class="hintx">'+t("nameFromAccount")+'</div></div></div>'+
   '<div class="row"><div class="fl"><label class="req">'+t("tel")+'</label>'+
    '<div class="pw">'+ccSelect("pcc", USER&&USER.phone?ccOf(USER.phone):"963")+
-   '<input id="ptel" autocomplete="off" placeholder="" value="'+(USER&&USER.phone?USER.phone.replace(/^\+\d{1,3}/,""):"")+'"></div>'+
+   '<input id="ptel" autocomplete="off" placeholder="" value="'+(USER&&USER.phone?ccStrip(USER.phone):"")+'"></div>'+
    '<div class="hintx">'+t("telFromAccount")+'</div></div></div>'+
   '<div class="chkgrid"><label><input type="checkbox" id="pNegot" checked> '+t("negot")+'</label>'+
   '<label><input type="checkbox" id="pWaok" checked> '+t("waok")+'</label>'+
