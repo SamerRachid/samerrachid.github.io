@@ -332,7 +332,8 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
 .abar{background:var(--navy);color:#fff;padding:12px 0}
 .abar b{color:var(--gold)}
 .astats{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;margin-bottom:16px}
-.astat{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px 10px;text-align:center}
+.astat{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px 10px;text-align:center;font-family:inherit;cursor:pointer;display:block;width:100%}
+.astat:hover{border-color:var(--gold)}
 .astat b{display:block;font-size:20px;font-weight:700;color:var(--navy)}
 .astat span{font-size:12px;color:var(--grey)}
 .atabs{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
@@ -798,7 +799,7 @@ function card(x,i){
     (x.status==="rented"?t("st_rented"):t("st_sold"))+'</div>':'')+
   (cover ? '<img src="'+cover+'" alt="" loading="lazy">'
          : '<div class="nophoto"><span>'+t("photos")+'</span></div>')+
-  '<div class="bd"><span class="'+cls(x.tb)+'">'+D.TABU[x.tb][li()]+'</span>'+
+  '<div class="bd">'+(x.d==="rent"?'':'<span class="'+cls(x.tb)+'">'+D.TABU[x.tb][li()]+'</span>')+
   (x.ow?'<span class="gd">'+t("owner")+'</span>':'')+'</div></div><div class="cb">'+
   '<div class="p">'+priceBlock(x)+'</div>'+
   '<div class="pm">'+(x.d==="rent"?t("permo"):'<span class="ltr">$'+Math.round(x.p/x.m2)+'</span> '+t("perm"))+'</div>'+
@@ -851,7 +852,8 @@ function listing(id){
    '<div style="margin-top:18px"><button class="btn-n" data-go="search">'+t("browse")+'</button></div></div></div>';
  var IMGS = (x.photos&&x.photos.length) ? x.photos : [];
  if(GI>=IMGS.length) GI=0;
- var sp=[[t("kArea"),x.m2+" "+t("sqm")],[t("kCond"),D.COND[x.cd][li()]],[t("deed"),D.TABU[x.tb][li()]]];
+ var sp=[[t("kArea"),x.m2+" "+t("sqm")],[t("kCond"),D.COND[x.cd][li()]]];
+ if(x.d!=="rent") sp.push([t("deed"),D.TABU[x.tb][li()]]);
  if(x.r)sp.push([t("kRooms"),x.r],[t("kBaths"),x.b]);
 
  if(x.fl!==null&&x.fl!==undefined&&x.fl!=="")sp.push([t("kFloor"),floorLabel(x.fl)]);
@@ -989,7 +991,7 @@ function post(){
   '<div class="fl" style="margin-bottom:0"><label class="req">'+t("descL")+'</label>'+
    '<textarea id="pd" autocomplete="off" maxlength="1200" placeholder="'+t("descPH")+'"></textarea>'+
    '<div class="hintx" style="text-align:end"><span id="dc">0</span> / 1200</div></div></div></div>'+
- '<div class="blk"><h3><span class="n">4</span>'+t("p4")+'</h3><div class="in">'+
+ '<div class="blk saleonly" id="deedBlk"><h3><span class="n">4</span>'+t("p4")+'</h3><div class="in">'+
   '<div class="fl" style="margin-bottom:0"><label class="req">'+t("deed")+'</label>'+
   '<div class="pick" id="ptabu">'+pk(D.TABU,"tb2")+'</div>'+
   '<div class="deedbox g" id="dbG">'+t("deedG")+'</div>'+
@@ -1001,7 +1003,7 @@ function post(){
   '<input type="file" id="files" accept="image/*" multiple hidden><div class="shots" id="shots"></div>'+
   '<div class="tipbox">'+t("photoTips")+'</div></div></div>'+
  '<div class="blk"><h3><span class="n">6</span>'+t("p5")+'</h3><div class="in"><div class="row">'+
-  '<div class="fl"><label class="req">'+t("price")+'</label>'+
+  '<div class="fl"><label class="req" id="priceLabel">'+t("price")+'</label>'+
    '<div style="display:flex;gap:8px"><input type="number" id="pp" autocomplete="off" placeholder="78000" style="flex:1">'+
    '<select style="width:92px"><option>USD</option><option>SYP</option></select></div>'+
    '<div class="hintx" id="ppm"></div></div>'+
@@ -1224,8 +1226,8 @@ function adminView(){
 
  var d=ADM.data||{stats:{},listings:[],users:[],reports:[],feedback:[],reviews:[]};
  var s=d.stats||{};
- var stat=function(k,v,c){return '<div class="astat"><b class="ltr" '+(c?'style="color:'+c+'"':'')+'>'+
-   (v===undefined?0:v).toLocaleString("en")+'</b><span>'+k+'</span></div>'};
+ var stat=function(k,v,c,goto){return '<button type="button" class="astat" '+(goto?'data-goto="'+goto+'"':'')+'><b class="ltr" '+(c?'style="color:'+c+'"':'')+'>'+
+   (v===undefined?0:v).toLocaleString("en")+'</b><span>'+k+'</span></button>'};
  var tab=function(k,l,n2){return '<button class="atab'+(ADM.tab===k?" on":"")+'" data-atab="'+k+'">'+
    l+(n2?' <span class="ltr abadge">'+n2+'</span>':'')+'</button>'};
  var when=function(iso){ if(!iso) return "";
@@ -1294,7 +1296,10 @@ function adminView(){
         ((r.reporter_name||"")+" "+(r.listing_ref||"")+" "+(r.reason||"")+" "+(r.note||"")).toLowerCase()+'">'+
        '<div class="fbtop"><b>'+t("rListing")+' <span class="ltr">'+(r.listing_ref||r.listing_id)+'</span></b>'+
        '<span class="fbwhen">'+when(r.created_at)+'</span></div>'+
-       '<div class="fbwho">'+t("rBy")+' '+(r.reporter_name?r.reporter_name:t("anonGuest"))+
+       '<div class="fbwho">'+t("rBy")+' '+
+        (r.reporter_id
+          ? '<a data-byuser="'+r.reporter_id+'" data-name="'+(r.reporter_name||"")+'" style="text-decoration:underline;cursor:pointer">'+(r.reporter_name||t("anonGuest"))+'</a>'
+          : (r.reporter_name||t("anonGuest")))+
         (r.reporter_phone?' \u00b7 <span class="ltr">'+r.reporter_phone+'</span>':'')+'</div>'+
        '<div class="fbreason">'+(t("r"+capitalize(r.reason))||r.reason)+'</div>'+
        (r.note?'<div class="fbbody">'+r.note+'</div>':'')+
@@ -1316,7 +1321,10 @@ function adminView(){
         ((f.sender_name||"")+" "+f.kind+" "+f.body).toLowerCase()+'">'+
        '<div class="fbtop"><span class="fbkind fbkind-'+f.kind+'">'+t("k"+capitalize(f.kind))+'</span>'+
        '<span class="fbwhen">'+when(f.created_at)+'</span></div>'+
-       '<div class="fbwho">'+t("rBy")+' '+(f.sender_name||t("anonGuest"))+
+       '<div class="fbwho">'+t("rBy")+' '+
+        (f.sender_id
+          ? '<a data-byuser="'+f.sender_id+'" data-name="'+(f.sender_name||"")+'" style="text-decoration:underline;cursor:pointer">'+(f.sender_name||t("anonGuest"))+'</a>'
+          : (f.sender_name||t("anonGuest")))+
         (f.sender_contact?' \u00b7 <span class="ltr">'+f.sender_contact+'</span>':'')+'</div>'+
        '<div class="fbbody">'+f.body+'</div>'+
        (f.admin_reply
@@ -1349,10 +1357,10 @@ function adminView(){
   '</div></div>'+
  '<div class="wrap" style="padding:18px 18px 60px">'+
  '<div class="astats">'+
-  stat(t("st_live"),s.live,"var(--ok)")+stat(t("st_pending"),s.pending,"var(--gold)")+
-  stat(t("st_sold"),s.sold)+stat(t("deed"),s.green)+
-  stat(t("users"),s.users)+stat(t("photos"),s.photos)+
-  stat(t("thisWeek"),s.week)+stat(t("portfolioVal"),s.value?("$"+Math.round(s.value/1000)+"K"):"$0")+
+  stat(t("st_live"),s.live,"var(--ok)","listings:live")+stat(t("st_pending"),s.pending,"var(--gold)","listings:pending")+
+  stat(t("st_sold"),s.sold,null,"listings:sold")+stat(t("deed"),s.green,null,"listings")+
+  stat(t("users"),s.users,null,"users")+stat(t("photos"),s.photos,null,"listings")+
+  stat(t("thisWeek"),s.week,null,"listings")+stat(t("portfolioVal"),s.value?("$"+Math.round(s.value/1000)+"K"):"$0",null,"listings")+
  '</div>'+
  '<div class="atabs">'+tab("listings",t("listingsTab"),s.listings)+
   tab("users",t("usersTab"),s.users)+
@@ -1553,16 +1561,17 @@ function checkPost(){
  var need=[],v=function(id){return ($("#"+id)||{}).value||""};
  if(!v("pm2"))need.push(t("areaM"));
  var isLand = secOf(v("ptype"))==="land";
+ var isRent = ($('input[name=dl]:checked')||{}).value==="rent";
  if(!isLand && !v("pr"))need.push(t("kRooms"));
  if(!isLand && !v("pb"))need.push(t("kBaths"));
  if(!$('input[name=cd2]:checked'))need.push(t("cond"));
- if(!$('input[name=tb2]:checked'))need.push(t("deed"));
+ if(!isRent && !$('input[name=tb2]:checked'))need.push(t("deed"));
  if(v("pd").trim().length<30)need.push(t("descL"));
  if(NEW.photos.length<3)need.push(t("photos"));
  if(!v("pp"))need.push(t("price"));
  if(v("ptel").replace(/\D/g,"").length<9)need.push(t("tel"));
  [["k1",true],["k2",!!v("pg")||true],["k3",!!v("pm2")],
-  ["k4",!!$('input[name=tb2]:checked')],["k5",NEW.photos.length>=3],["k6",!!v("pp")]]
+  ["k4",isRent||!!$('input[name=tb2]:checked')],["k5",NEW.photos.length>=3],["k6",!!v("pp")]]
   .forEach(function(p){var e=$("#"+p[0]); if(e)e.classList.toggle("done",p[1])});
  var m=$("#msg"),b=$("#pub"); if(!m)return;
  if(need.length){m.className="msg bad";m.textContent=t("missing")+" "+need.slice(0,3).join("، ")+(need.length>3?" …":"");
@@ -1849,6 +1858,10 @@ function wire(){
      var m2=$("#pm2h"); if(m2){ var v=parseFloat(($("#pm2")||{}).value)||0,
        mult=parseInt(($("#pUnit")||{}).value,10)||1;
        m2.textContent = (isLand&&mult>1&&v)? (v*1000).toLocaleString("en")+" "+t("sqm") : "" }
+     // rentals don't ask about title deed status — it isn't relevant
+     // when you're renting rather than buying
+     var db=$("#deedBlk"); if(db) db.style.display = rent ? "none" : "";
+     var pl=$("#priceLabel"); if(pl) pl.textContent = rent ? t("monthlyRent") : t("price");
      checkPost();
    };
    $$('input[name=dl]').forEach(function(r){r.onchange=syncForm});
@@ -2010,6 +2023,17 @@ function wireAdmin(){
   if($("#aqU")) $("#aqU").oninput=function(){ filterRows("aUserBody", this.value, "") };
   if($("#aqR")) $("#aqR").oninput=function(){ filterCards("aRepList", this.value) };
   if($("#aqF")) $("#aqF").oninput=function(){ filterCards("aFbList", this.value) };
+
+  $$("[data-goto]").forEach(function(e){ e.onclick=function(){
+    var parts=e.dataset.goto.split(":");
+    ADM.tab=parts[0]; render();
+    if(parts[1]){
+      setTimeout(function(){
+        var sel=$("#afStatus"); if(sel){ sel.value=parts[1];
+          var ev=new Event("change"); sel.dispatchEvent(ev); }
+      },0);
+    }
+  }});
 }
 
 function wireAuth(){
@@ -2355,7 +2379,9 @@ async function savePost(){
       floor: val("pfl")===""?null:parseInt(val("pfl"),10),
       year_built: parseInt(val("py"),10)||null,
       power_hours: parseInt(val("pel"),10)||null,
-      tabu: $('input[name=tb2]:checked').value,
+      tabu: ($('input[name=dl]:checked')||{}).value==="rent"
+              ? "none"
+              : $('input[name=tb2]:checked').value,
       condition: $('input[name=cd2]:checked').value,
       description: val("pd"),
       contact_phone: (function(){
@@ -2448,12 +2474,30 @@ async function fetchPhotos(id){
   }catch(e){ return null }
 }
 
+var _FIRST_HISTORY_SYNC = true;
 function syncHash(){
   var h = VIEW==="home" ? "" :
           VIEW.indexOf("listing:")===0 ? "#/listing/"+VIEW.split(":")[1] :
           VIEW.indexOf("by:")===0 ? "#/seller/"+VIEW.split(":")[1] :
           "#/"+VIEW;
-  if(location.hash!==h){ try{ history.replaceState(null,"",h||location.pathname) }catch(e){} }
+  // Nothing to do if the address bar already matches — this covers both
+  // in-place re-renders (typing, toggling filters) and the moment right
+  // after the user pressed Back/Forward, when the browser has already
+  // moved the hash and we're just catching up to it.
+  if(location.hash===h) return;
+  try{
+    if(_FIRST_HISTORY_SYNC){
+      // The very first render (page load, or a shared listing link) just
+      // normalizes the URL — it shouldn't count as a "page" to go back to.
+      history.replaceState(null,"",h||location.pathname);
+    } else {
+      // Every real navigation after that gets its own history entry, so
+      // the browser's Back button steps back through the app instead of
+      // leaving the site entirely.
+      history.pushState(null,"",h||location.pathname);
+    }
+  }catch(e){}
+  _FIRST_HISTORY_SYNC = false;
 }
 function viewFromHash(){
   var h=(location.hash||"").replace(/^#\/?/,"");
