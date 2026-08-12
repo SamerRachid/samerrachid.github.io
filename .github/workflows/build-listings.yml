@@ -23,6 +23,11 @@ jobs:
           node-version: 20
 
       - name: Install Supabase client
+        # `ws` is required alongside supabase-js when running in plain
+        # Node.js (as opposed to a browser) — supabase-js tries to set
+        # up a realtime/WebSocket connection on startup, and Node has
+        # no built-in WebSocket the way browsers do. Without `ws`,
+        # createClient() throws before the script can even run.
         run: npm install @supabase/supabase-js ws
 
       - name: Generate listing pages + sitemap
