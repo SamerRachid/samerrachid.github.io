@@ -9,7 +9,6 @@
 //  serves whatever files exist in the repo, and this script is what
 //  keeps those files in sync with your database.
 // ════════════════════════════════════════════════════════════════════
-import { createClient } from "@supabase/supabase-js";
 import fs from "fs";
 import path from "path";
 
@@ -19,7 +18,24 @@ const SITE = "https://www.balkoun.com";
 const OUT_DIR = path.resolve("listing");
 const SITEMAP_PATH = path.resolve("sitemap.xml");
 
-const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+// Talking to Supabase over plain HTTP instead of the @supabase/supabase-js
+// SDK. The SDK also sets up a realtime/WebSocket connection on startup —
+// a browser feature that plain Node.js doesn't have — which is what was
+// crashing this script before any listing was even fetched. This script
+// only ever reads data, so a bare REST call is simpler and has zero
+// dependency on Node's WebSocket support either way.
+async function sb(endpoint) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, {
+    headers: {
+      apikey: SUPABASE_KEY,
+      Authorization: `Bearer ${SUPABASE_KEY}`
+    }
+  });
+  if (!res.ok) {
+    throw new Error(`Supabase request failed (${res.status}): ${endpoint}`);
+  }
+  return res.json();
+}
 
 const TYPE_AR = { apartment:"شقة", arab:"بيت عربي", villa:"فيلا", floor:"طابق كامل",
   building:"بناء كامل", shop:"محل تجاري", office:"مكتب", resid:"أرض سكنية",
@@ -127,13 +143,13 @@ ${wa ? `<a class="cta" href="${wa}?text=${encodeURIComponent("مرحبا، مه�
 
 async function main() {
   console.log("Fetching live listings from Supabase\u2026");
-  const { data: listings, error } = await db
-    .from("v_listings")
-    .select("*")
-    .eq("status", "live")
-    .order("created_at", { ascending: false });
-
-  if (error) { console.error("Fetch failed:", error.message); process.exit(1); }
+  let listings;
+  try {
+    listings = await sb("v_listings?select=*&status=eq.live&order=created_at.desc");
+  } catch (e) {
+    console.error("Fetch failed:", e.message);
+    process.exit(1);
+  }
   console.log(`Found ${listings.length} live listing(s).`);
 
   fs.rmSync(OUT_DIR, { recursive: true, force: true });
@@ -142,12 +158,13 @@ async function main() {
   const urls = [`${SITE}/`];
 
   for (const l of listings) {
-    const { data: photoRows } = await db
-      .from("listing_photos")
-      .select("url")
-      .eq("listing_id", l.id)
-      .order("sort_order");
-    const photos = (photoRows || []).map(p => p.url);
+    let photoRows = [];
+    try {
+      photoRows = await sb(`listing_photos?select=url&listing_id=eq.${l.id}&order=sort_order`);
+    } catch (e) {
+      console.warn(`Photos fetch failed for listing ${l.id}:`, e.message);
+    }
+    const photos = photoRows.map(p => p.url);
 
     const typeLabel = TYPE_AR[l.property_type] || l.property_type;
     const slug = `${l.id}-${slugify(typeLabel + " " + (l.area_ar||"") + " " + l.governorate_ar)}`;
