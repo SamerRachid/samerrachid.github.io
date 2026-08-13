@@ -808,7 +808,7 @@ function authModal(){
 
 /* ── home ── */
 function home(){
- var n=function(k){ return CNT.byType[k]||0 };
+ var n=function(k){ return CNT.byTypeDeal[k+":"+HOMEDEAL]!==undefined ? CNT.byTypeDeal[k+":"+HOMEDEAL] : (CNT.byType[k]||0) };
  var TYPESET=[["apartment"],["arab"],["villa"],["floor"],["building"],["chalet"],["farm"],
               ["shop"],["office"],["factory"],["warehouse"],["resid"],["agri"],["comm"]];
  var choice=function(deal){
@@ -2656,7 +2656,7 @@ function fromRow(r){
 }
 
 var DBCOUNT = 0, DBERR = "";
-var CNT = {total:0,green:0,week:0,byType:{},byGov:{},byDeal:{}};
+var CNT = {total:0,green:0,week:0,byType:{},byGov:{},byDeal:{},byTypeDeal:{}};
 async function loadCounts(){
   if(!DB) return;
   try{ var r=await DB.rpc("bk_counts"); if(r&&r.data) CNT=r.data }catch(e){}
