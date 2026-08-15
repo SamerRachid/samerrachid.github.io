@@ -2523,7 +2523,9 @@ function wireAuth(){
  if($("#bIn"))$("#bIn").onclick=function(){open("in")};
  if($("#bUp"))$("#bUp").onclick=function(){open("up")};
  if($("#chip")){
-   $("#chip").onclick=function(e){e.stopPropagation();$("#menu").classList.toggle("on")};
+   $("#chip").onclick=function(e){e.stopPropagation();
+     var nm=$("#notifMenu"); if(nm) nm.classList.remove("on"); NOTIF_OPEN=false;
+     $("#menu").classList.toggle("on")};
    document.addEventListener("click",function(){var m=$("#menu");if(m)m.classList.remove("on");
      var nm=$("#notifMenu");if(nm)nm.classList.remove("on");NOTIF_OPEN=false});
    if($("#out"))  $("#out").onclick  =function(){USER=null;clearSession();NOTIFS={items:[],unread:0};VIEW="home";render()};
@@ -2536,12 +2538,17 @@ function wireAuth(){
  if($("#bellBtn")){
    $("#bellBtn").onclick=function(e){
      e.stopPropagation();
+     var m=$("#menu"); if(m) m.classList.remove("on");
      NOTIF_OPEN=!NOTIF_OPEN;
      $("#notifMenu").classList.toggle("on",NOTIF_OPEN);
      if(NOTIF_OPEN && NOTIFS.unread){
-       rpc("bk_mark_notifications_read",{p_user:USER.id}).then(function(){
-         NOTIFS.items.forEach(function(n){n.is_read=true}); NOTIFS.unread=0; render();
-       }).catch(function(){});
+       // update local state immediately (no re-render, so it can't
+       // race with the user clicking a notification link right after
+       // opening the panel) — the server call just persists it
+       NOTIFS.items.forEach(function(n){n.is_read=true}); NOTIFS.unread=0;
+       $$(".notifitem.unread").forEach(function(el){el.classList.remove("unread")});
+       var badge=$(".bellbadge"); if(badge) badge.remove();
+       rpc("bk_mark_notifications_read",{p_user:USER.id}).catch(function(){});
      }
    };
    $$("[data-notiflink]").forEach(function(e){ e.onclick=function(){
