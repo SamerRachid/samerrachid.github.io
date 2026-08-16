@@ -131,8 +131,8 @@ html.js .rv.in{opacity:1;transform:none}
 .hscrim{position:absolute;inset:0;z-index:1;background:linear-gradient(to bottom,rgba(13,23,41,.42),rgba(13,23,41,.14) 34%,rgba(13,23,41,.30) 72%,rgba(13,23,41,.58))}
 .hero h1{color:#fff;font-size:clamp(24px,3.5vw,37px);font-weight:700;line-height:1.5;text-shadow:0 2px 14px rgba(9,14,26,.65);margin-bottom:16px}
 .hero h1 span{color:var(--gold)}
-.sbar{background:#fff;border-radius:10px;box-shadow:0 14px 40px -12px rgba(9,14,26,.45);overflow:hidden}
-.stabs{display:flex;border-bottom:1px solid var(--line);background:var(--page)}
+.sbar{background:#fff;border-radius:10px;box-shadow:0 14px 40px -12px rgba(9,14,26,.45)}
+.stabs{display:flex;border-bottom:1px solid var(--line);background:var(--page);border-radius:10px 10px 0 0;overflow:hidden}
 .stabs button{background:none;border:none;padding:13px 22px;font-size:14.5px;font-weight:600;color:var(--grey);cursor:pointer;border-bottom:3px solid transparent;flex:1;white-space:nowrap}
 .stabs button.on{color:var(--navy);background:#fff;border-bottom-color:var(--gold)}
 .srow{display:grid;grid-template-columns:1.4fr 1fr 1fr auto}
@@ -144,7 +144,7 @@ html.js .rv.in{opacity:1;transform:none}
 .sf .chip{font-size:11.5px;padding:3px 5px 3px 8px}
 .sf .chipsel-input{font-size:15px;font-weight:600;padding:1px 0}
 .sf .chipsel-drop{inset-inline-start:-16px;min-width:260px}
-.sgo{background:var(--gold);color:#1A1206;border:none;padding:0 30px;font-weight:700;font-size:15px;cursor:pointer;display:grid;place-items:center;text-align:center;line-height:1.4}
+.sgo{background:var(--gold);color:#1A1206;border:none;padding:0 30px;font-weight:700;font-size:15px;cursor:pointer;display:grid;place-items:center;text-align:center;line-height:1.4;border-radius:0 0 10px 10px}
 .sgo:hover{background:#D6952A}
 @media(max-width:900px){.srow{grid-template-columns:1fr 1fr}.sf:nth-child(even){border-inline-end:none}.sf{border-bottom:1px solid var(--line)}.sgo{grid-column:1/-1;padding:15px}}
 .hnote{color:rgba(255,255,255,.9);font-size:13.5px;margin-top:13px;text-shadow:0 1px 8px rgba(9,14,26,.7)}
@@ -2125,6 +2125,7 @@ var CS_CONFIGS={
   csTabu:{getOptions:csTabuOptions, arrKey:"tbs"}
 };
 var _csRefocus=null;
+var _csDocListenerAdded=false;
 function wireChipSelects(){
   Object.keys(CS_CONFIGS).forEach(function(id){
     var cfg=CS_CONFIGS[id], input=$("#"+id+"Input"), drop=$("#"+id+"Drop");
@@ -2157,9 +2158,12 @@ function wireChipSelects(){
     var el=$("#"+_csRefocus+"Input"); if(el) el.focus();
     _csRefocus=null;
   }
-  document.addEventListener("click",function(){
-    $$(".chipsel-drop.on").forEach(function(d){d.classList.remove("on")});
-  });
+  if(!_csDocListenerAdded){
+    _csDocListenerAdded=true;
+    document.addEventListener("click",function(){
+      $$(".chipsel-drop.on").forEach(function(d){d.classList.remove("on")});
+    });
+  }
 }
 function typeOptionsCollapsed(){
   // one "Land" entry replaces resid/agri/comm for search purposes —
