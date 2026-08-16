@@ -979,27 +979,41 @@ function card(x,i){
   '<div class="d"><span class="ltr">BK-'+x.id+'</span></div></div></a>'}
 
 /* ── search ── */
+// Single source of truth for whether a listing matches the CURRENT
+// filters in F. Used by search() for the actual results, by n() for
+// the per-option facet counts in the sidebar, and by heroCount() for
+// the home page preview — so all three can never show different
+// numbers for what is really the same underlying filter state.
+// skipField lets a facet count ask "how many would match if every
+// OTHER active filter stayed as-is" (excluding the one field being
+// previewed, so picking that option shows the right resulting count).
+function passesFilter(x, skipField){
+  if(skipField!=="g" && (F.govs&&F.govs.length ? F.govs.indexOf(x.g)===-1 : (F.g&&x.g!==F.g))) return false;
+  if(skipField!=="a" && (F.areas&&F.areas.length ? F.areas.indexOf(x.a)===-1 : (F.a&&x.a!==F.a))) return false;
+  if(skipField!=="tb" && F.deal!=="rent"){
+    if(F.tbs&&F.tbs.length ? F.tbs.indexOf(x.tb)===-1 : (F.tb&&x.tb!==F.tb)) return false;
+  }
+  if(skipField!=="cd" && F.cd&&x.cd!==F.cd) return false;
+  if(skipField!=="t"){
+    if(F.types&&F.types.length){
+      var typeMatch=F.types.some(function(ty){return ty==="land"?secOf(x.t)==="land":x.t===ty});
+      if(!typeMatch) return false;
+    } else if(F.t==="land"?secOf(x.t)!=="land":(F.t&&x.t!==F.t)) return false;
+  }
+  if(F.sec&&secOf(x.t)!==F.sec) return false;
+  if(skipField!=="deal" && F.deal&&x.d!==F.deal) return false;
+  if(skipField!=="price"){
+    if(F.pmin&&x.p<F.pmin) return false;
+    if(F.pmax&&x.p>F.pmax) return false;
+  }
+  return true;
+}
 function search(){
- var r=D.LIST.filter(function(x){
-   if(F.govs&&F.govs.length ? F.govs.indexOf(x.g)===-1 : (F.g&&x.g!==F.g))return false;
-   if(F.areas&&F.areas.length ? F.areas.indexOf(x.a)===-1 : (F.a&&x.a!==F.a))return false;
-   if(F.deal!=="rent"){
-     if(F.tbs&&F.tbs.length ? F.tbs.indexOf(x.tb)===-1 : (F.tb&&x.tb!==F.tb))return false;
-   }
-   if(F.cd&&x.cd!==F.cd)return false;
-   if(F.types&&F.types.length){
-     var typeMatch=F.types.some(function(ty){return ty==="land"?secOf(x.t)==="land":x.t===ty});
-     if(!typeMatch)return false;
-   } else if(F.t==="land"?secOf(x.t)!=="land":(F.t&&x.t!==F.t))return false;
-   if(F.sec&&secOf(x.t)!==F.sec)return false;
-   if(F.deal&&x.d!==F.deal)return false;
-   if(F.pmin&&x.p<F.pmin)return false;
-   if(F.pmax&&x.p>F.pmax)return false;
-   return true});
+ var r=D.LIST.filter(function(x){ return passesFilter(x,null) });
  if(F.sort==="lo")r.sort(function(a,b){return a.p-b.p});
  if(F.sort==="hi")r.sort(function(a,b){return b.p-a.p});
  if(F.sort==="area")r.sort(function(a,b){return b.m2-a.m2});
- var n=function(f,v){return D.LIST.filter(function(x){return x[f]===v}).length};
+ var n=function(f,v){return D.LIST.filter(function(x){return passesFilter(x,f) && x[f]===v}).length};
  var grp=function(obj,f){return Object.keys(obj).map(function(k){
    return '<label class="ck"><input type="radio" name="'+f+'" value="'+k+'"'+(F[f]===k?" checked":"")+'> '+
    obj[k][li()]+'<span class="c">'+n(f,k)+'</span></label>'}).join("")};
@@ -2096,7 +2110,9 @@ function paintShots(){
  checkPost()}
 
 function heroCount(deal){
-  var n = deal ? (CNT.byDeal[deal]||0) : (CNT.total||0);
+  var savedDeal=F.deal; F.deal=deal||F.deal;
+  var n = D.LIST.filter(function(x){ return passesFilter(x, deal?null:"deal") }).length;
+  F.deal=savedDeal;
   return n ? (n+" "+t("props")) : "";
 }
 var CS_OPEN=null; // which chip-select dropdown is currently open, if any
