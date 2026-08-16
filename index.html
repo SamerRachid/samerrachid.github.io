@@ -2117,8 +2117,12 @@ function heroCount(deal){
 }
 var CS_OPEN=null; // which chip-select dropdown is currently open, if any
 function csAllAreas(){
+  // when one or more governorates are picked, only offer areas that
+  // actually belong to those governorates — otherwise offer every
+  // area across the whole country (flat search, no governorate chosen yet)
+  var govs = (F.govs&&F.govs.length) ? F.govs.filter(function(g){return D.GEO[g]}) : Object.keys(D.GEO);
   var out=[];
-  Object.keys(D.GEO).forEach(function(g){ D.GEO[g].forEach(function(a){ out.push(a) }) });
+  govs.forEach(function(g){ D.GEO[g].forEach(function(a){ out.push(a) }) });
   return out;
 }
 function csTypeOptions(){
@@ -2144,7 +2148,6 @@ var CS_CONFIGS={
   csType:{getOptions:csTypeOptions, arrKey:"types"},
   csTabu:{getOptions:csTabuOptions, arrKey:"tbs"}
 };
-var _csRefocus=null;
 var _csDocListenerAdded=false;
 function positionDropUpOrDown(input,drop){
   try{
@@ -2173,7 +2176,7 @@ function wireChipSelects(){
         if(ev){ev.stopPropagation();if(ev.preventDefault)ev.preventDefault()}
         var v=this.dataset.csval;
         F[cfg.arrKey]=(F[cfg.arrKey]||[]).concat([v]);
-        _csRefocus=id; render();
+        render();
       }});
     };
     input.addEventListener("focus",function(){ renderDrop(this.value) });
@@ -2185,12 +2188,8 @@ function wireChipSelects(){
     var id=this.dataset.csremove, val=this.dataset.csval, cfg=CS_CONFIGS[id];
     if(!cfg) return;
     F[cfg.arrKey]=(F[cfg.arrKey]||[]).filter(function(v){return v!==val});
-    _csRefocus=id; render();
+    render();
   }});
-  if(_csRefocus){
-    var el=$("#"+_csRefocus+"Input"); if(el) el.focus();
-    _csRefocus=null;
-  }
   if(!_csDocListenerAdded){
     _csDocListenerAdded=true;
     document.addEventListener("click",function(){
