@@ -935,8 +935,8 @@ function home(){
  var G=D.GUIDES[L];
  return '<section class="hero"><div class="hv" id="hv"><img src="'+D.POS+'" alt=""></div>'+
   '<div class="hscrim"></div><div class="wrap"><h1>'+t("h1a")+' <span>'+t("h1b")+'</span></h1>'+
-  '<div class="sbar"><div class="stabs"><button class="on" data-d="sale">'+t("forsale")+
-   '</button><button data-d="rent">'+t("forrent")+'</button><button data-d="">'+t("dealAll")+'</button></div><div class="srow">'+
+  '<div class="sbar"><div class="stabs"><button class="'+(F.deal==="sale"?"on":"")+'" data-d="sale">'+t("forsale")+
+   '</button><button class="'+(F.deal==="rent"?"on":"")+'" data-d="rent">'+t("forrent")+'</button><button class="'+(F.deal===""?"on":"")+'" data-d="">'+t("dealAll")+'</button></div><div class="srow">'+
    '<div class="sf"><label>'+t("gov")+'</label>'+chipSelect("csGov",t("searchGovPH"),F.govs||[],gN)+'</div>'+
    '<div class="sf sf-area"><label>'+t("area")+'</label>'+chipSelect("csArea",t("searchAreasPH"),F.areas||[],aN)+'</div>'+
    '<div class="sf"><label>'+t("ptype")+'</label>'+chipSelect("csType",t("searchTypesPH"),F.types||[],function(v){
@@ -2264,9 +2264,8 @@ function wire(){
      F.sec=(F.types&&F.types.indexOf("land")>-1&&F.types.length===1)?"land":"";
      VIEW="search";scrollTo(0,0);render()};
    $$(".stabs button").forEach(function(b){b.onclick=function(){
-     $$(".stabs button").forEach(function(x){x.classList.remove("on")});
-     b.classList.add("on"); F.deal=b.dataset.d||"";
-     var cEl=$("#hgoCount"); if(cEl) cEl.textContent=heroCount(F.deal)}});
+     F.deal=b.dataset.d||"";
+     render()}});
    video()}
 
  if(VIEW==="search"){
