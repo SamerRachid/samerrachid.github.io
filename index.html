@@ -813,9 +813,14 @@ function detectLang(){
 var L=detectLang(), CUR="USD", VIEW="home", GI=0;
 var F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",sec:"",deal:"sale",sort:"new",page:1};
 var VIEWMODE = (function(){
+  // "map" is a situational tool, not a durable display preference —
+  // never restore it as the default on a fresh page load (that's
+  // exactly what silently landed a user on a stuck, unexplained map
+  // view after simply clicking "Search"). "list" is a genuine
+  // preference and still persists normally.
   try{
     var v=localStorage.getItem("balkoun_viewmode");
-    return (v==="list"||v==="map") ? v : "grid";
+    return v==="list" ? "list" : "grid";
   }catch(e){ return "grid" }
 })();
 var NEW={photos:[],lat:null,lng:null};
@@ -3216,7 +3221,7 @@ function wire(){
    $$("[data-mapdeal]").forEach(function(e){ e.onclick=function(){
      F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",
         sec:"",deal:this.dataset.mapdeal,sort:"new",page:1};
-     VIEWMODE="map"; try{localStorage.setItem("balkoun_viewmode","map")}catch(err){}
+     VIEWMODE="map"; // deliberately not persisted — see VIEWMODE init comment
      VIEW="search"; scrollTo(0,0); render();
    }});
    if(!window._heroMapMenuCloserAdded){
@@ -3242,7 +3247,7 @@ function wire(){
      VIEWMODE="list"; try{localStorage.setItem("balkoun_viewmode","list")}catch(e){} render();
    };
    if($("#vmMap")) $("#vmMap").onclick=function(){
-     VIEWMODE="map"; try{localStorage.setItem("balkoun_viewmode","map")}catch(e){} render();
+     VIEWMODE="map"; render(); // deliberately not persisted — see VIEWMODE init comment
    };
    if($("#mapBackToGrid")) $("#mapBackToGrid").onclick=function(){
      VIEWMODE="grid"; try{localStorage.setItem("balkoun_viewmode","grid")}catch(e){} render();
@@ -3250,17 +3255,14 @@ function wire(){
    if($("#searchMap")){
      // recompute fresh at execution time, not schedule time — closing
      // over a snapshot here risked a stale/empty result winning a race
-     // against a later render that already had the real data loaded
+     // against a later render that already had the real data loaded.
+     // Deliberately simple: no cross-render "should I skip" comparison
+     // here — that logic called methods on a possibly-already-removed
+     // Leaflet instance, which is exactly the kind of fragile edge case
+     // that leaves a page looking permanently stuck.
      setTimeout(function(){
+       if(!document.getElementById("searchMap")) return; // view changed before this fired
        var freshResults = D.LIST.filter(function(x){ return passesFilter(x,null) });
-       // avoid needlessly tearing down and rebuilding the whole map on
-       // every render while the user is just sitting on the map view
-       // (background polling, notifications, etc. all trigger renders) —
-       // only reinitialize when the actual result set has changed
-       var fingerprint = freshResults.map(function(x){return x.id+":"+x.lat+":"+x.lng}).join(",");
-       var sameContainer = _searchMapInstance && _searchMapInstance.getContainer && _searchMapInstance.getContainer()===document.getElementById("searchMap");
-       if(fingerprint === _searchMapFingerprint && sameContainer) return;
-       _searchMapFingerprint = fingerprint;
        initSearchMap(freshResults);
      }, 50);
    }
