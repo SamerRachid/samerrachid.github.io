@@ -276,10 +276,19 @@ html.js .rv.in{opacity:1;transform:none}
   background:#fff;border-radius:var(--r-s);cursor:pointer;color:var(--light)}
 .viewtoggle button.on{background:var(--navy);border-color:var(--navy);color:#fff}
 .res.list-view{display:flex;flex-direction:column;gap:10px}
-.res.list-view .card{display:flex;flex-direction:row;height:112px;overflow:hidden}
-.res.list-view .card .ph{width:min(var(--card-size,238px),260px);flex-shrink:0;height:100%;aspect-ratio:auto}
+.res.list-view .card{display:flex;flex-direction:row;height:128px;overflow:hidden}
+.res.list-view .card .ph{width:min(var(--card-size,238px),260px);flex-shrink:0;height:100%;aspect-ratio:auto;position:relative}
 .res.list-view .card .ph img,.res.list-view .card .ph .nophoto{height:100%;aspect-ratio:auto}
-.res.list-view .card .cb{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;overflow:hidden}
+.res.list-view .card .bd{top:6px;inset-inline-start:6px;gap:4px}
+.res.list-view .card .bd span{font-size:9.5px;padding:2px 6px}
+.res.list-view .card .cb{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;overflow:hidden;padding:10px 14px}
+.res.list-view .card .cb-toprow{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.res.list-view .card .cb-toprow .p{font-size:18px;white-space:nowrap}
+.res.list-view .card .cb-loc{font-size:12.5px;color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:end}
+.res.list-view .card .cb-divider{border-top:1px solid var(--line);margin:3px 0 6px}
+.res.list-view .card .cb-details{display:flex;align-items:center;gap:12px;font-size:12.5px;color:var(--grey);white-space:nowrap;overflow:hidden}
+.res.list-view .card .cb-type{font-weight:600;color:var(--ink)}
+.res.list-view .card .d{margin-top:auto;padding-top:4px}
 @media(max-width:640px){.res.list-view .card{flex-direction:column;height:auto}
   .res.list-view .card .ph{width:auto;height:160px}}
 .pg{display:flex;gap:6px;justify-content:center;margin-top:24px;flex-wrap:wrap}
@@ -1109,26 +1118,51 @@ function home(){
    '</div></section></div>'}
 
 /* ── listing card ── */
-function card(x,i){
+function card(x,i,isListView){
  var cover = (x.photos&&x.photos[0]) || x.cover || null;
  var closed = x.status==="sold"||x.status==="rented";
  var featBright = x.featured ? Math.max(0,Math.min(100,SITE.featured_brightness!=null?SITE.featured_brightness:20)) : 0;
  var featBadgeText = (SITE["featured_badge_"+L]&&SITE["featured_badge_"+L].trim()) ? SITE["featured_badge_"+L] : t("featuredBadgeDefault");
  var showFeatBadge = x.featured && SITE.featured_badge_enabled!==false;
- return '<a class="card'+(x.featured?' card-featured':'')+'"'+(x.featured?' style="--feat-bright:'+featBright+'%"':'')+' data-open="'+x.id+'"><div class="ph">'+
+ var badges = '<div class="bd">'+(x.d==="rent"?'':'<span class="'+cls(x.tb)+'">'+D.TABU[x.tb][li()]+'</span>')+
+  (x.ow?'<span class="gd">'+t("owner")+'</span>':'')+
+  (showFeatBadge?'<span class="gd card-featbadge">'+featBadgeText+'</span>':'')+'</div>';
+ // list view keeps the photo square clean — only the Featured badge
+ // shows there; deed status and owner are still visible once you
+ // open the listing itself, they just don't need to compete for
+ // space on an already-small thumbnail
+ var badgesListView = '<div class="bd">'+
+  (showFeatBadge?'<span class="gd card-featbadge">'+featBadgeText+'</span>':'')+'</div>';
+ var photoBlock = function(useBadges){ return '<div class="ph">'+
   (closed?'<div class="stamp'+(x.status==="rented"?" stamp-r":"")+'">'+
     (x.status==="rented"?t("st_rented"):t("st_sold"))+'</div>':'')+
   (cover ? '<img src="'+cover+'" alt="" loading="lazy">'
          : '<div class="nophoto"><span>'+t("photos")+'</span></div>')+
-  '<div class="bd">'+(x.d==="rent"?'':'<span class="'+cls(x.tb)+'">'+D.TABU[x.tb][li()]+'</span>')+
-  (x.ow?'<span class="gd">'+t("owner")+'</span>':'')+
-  (showFeatBadge?'<span class="gd card-featbadge">'+featBadgeText+'</span>':'')+'</div></div><div class="cb">'+
+  useBadges+'</div>' };
+ var roomsHtml = x.r ? '<span>'+ICON_BED+x.r+' '+t("rooms")+'</span><span>'+ICON_BATH+x.b+' '+t("baths")+'</span>'
+   : '<span>'+((D.COND[x.cd]||D.LANDC[x.cd]||["",""," "])[li()])+'</span>';
+ var powerHtml = x.el ? '<span><span class="ltr">'+x.el+'</span> '+t("power")+'</span>' : '';
+ if(isListView){
+   return '<a class="card'+(x.featured?' card-featured':'')+'"'+(x.featured?' style="--feat-bright:'+featBright+'%"':'')+
+    ' data-open="'+x.id+'">'+
+    photoBlock(badgesListView)+
+    '<div class="cb cb-list">'+
+     '<div class="cb-toprow"><div class="p">'+priceBlock(x)+'</div>'+
+      '<div class="cb-loc">'+aN(x.a)+(L==="ar"?'\u060c ':', ')+gN(x.g)+'</div></div>'+
+     '<div class="cb-divider"></div>'+
+     '<div class="cb-details">'+
+      '<span class="cb-type">'+D.TYPES[x.t][li()]+'</span>'+roomsHtml+powerHtml+
+     '</div>'+
+     '<div class="d"><span class="ltr">BK-'+x.id+'</span></div>'+
+    '</div></a>';
+ }
+ return '<a class="card'+(x.featured?' card-featured':'')+'"'+(x.featured?' style="--feat-bright:'+featBright+'%"':'')+' data-open="'+x.id+'">'+
+  photoBlock(badges)+'<div class="cb">'+
   '<div class="p">'+priceBlock(x)+'</div>'+
   '<div class="pm">'+(x.d==="rent"?t("monthlyRent"):'<span class="ltr">$'+Math.round(x.p/x.m2)+'</span> '+t("perm"))+'</div>'+
   '<div class="t">'+D.TYPES[x.t][li()]+' \u00b7 <span class="ltr">'+x.m2+'</span> '+t("sqm")+'</div>'+
   '<div class="l">'+aN(x.a)+(L==="ar"?'\u060c ':', ')+gN(x.g)+(x.lm?' \u00b7 '+x.lm:'')+'</div><div class="m">'+
-  (x.r?'<span>'+ICON_BED+x.r+' '+t("rooms")+'</span><span>'+ICON_BATH+x.b+' '+t("baths")+'</span>':'<span>'+((D.COND[x.cd]||D.LANDC[x.cd]||["",""," "])[li()])+'</span>')+
-  (x.el?'<span><span class="ltr">'+x.el+'</span> '+t("power")+'</span>':'')+'</div>'+
+  roomsHtml+powerHtml+'</div>'+
   '<div class="d"><span class="ltr">BK-'+x.id+'</span></div></div></a>'}
 
 /* ── search ── */
@@ -1226,7 +1260,7 @@ function search(){
    '<button type="button" class="'+(VIEWMODE==="list"?"on":"")+'" id="vmList" title="'+t("listView")+'">'+ICON_LIST+'</button></div>'+
   '<select id="sort"><option value="new">'+t("sortNew")+'</option><option value="lo">'+t("sortLo")+
    '</option><option value="hi">'+t("sortHi")+'</option><option value="area">'+t("sortA")+'</option></select></div>'+
-  '<div class="res'+(VIEWMODE==="list"?" list-view":"")+'">'+(pageItems.length?pageItems.map(card).join(""):
+  '<div class="res'+(VIEWMODE==="list"?" list-view":"")+'">'+(pageItems.length?pageItems.map(function(x,i){return card(x,i,VIEWMODE==="list")}).join(""):
    !LISTINGS_LOADED ? '<div style="grid-column:1/-1;background:#fff;border:1px dashed var(--line-2);border-radius:8px;padding:56px;text-align:center;color:var(--grey)"><b style="color:var(--ink)">'+t("loading")+'</b></div>' :
    '<div style="grid-column:1/-1;background:#fff;border:1px dashed var(--line-2);border-radius:8px;padding:56px;text-align:center;color:var(--grey)"><b style="color:var(--ink)">'+t("none")+'</b><br>'+t("none2")+'</div>')+
   '</div>'+(totalPages>1?'<div class="pg">'+
@@ -1591,7 +1625,7 @@ function byUserView(){
      (rr.body?'<p style="font-size:13.5px;color:var(--body);margin-top:3px">'+rr.body+'</p>':'')+'</div></div>'}).join("")+
   '</div></div>' : '')+
  (rows.length?'<h2 style="font-size:18px;font-weight:700;margin:20px 0 12px">'+t("theirAds")+'</h2>'+
-   '<div class="res">'+rows.map(card).join("")+'</div>'
+   '<div class="res">'+rows.map(function(x,i){return card(x,i,false)}).join("")+'</div>'
   :'<div class="done2" style="margin-top:16px"><b>'+t("noneMine")+'</b></div>')+'</div>'}
 
 /* ── who we are ── */
@@ -2358,7 +2392,7 @@ function savedView(){
  '<div class="topbar"><h1>'+t("mySaved")+'</h1>'+
  '<span class="n"><span class="ltr">'+SAVEDFULL.length+'</span> '+t("listings")+'</span></div>'+
  (SAVEDFULL.length
-  ? '<div class="res">'+SAVEDFULL.map(card).join("")+'</div>'
+  ? '<div class="res">'+SAVEDFULL.map(function(x,i){return card(x,i,false)}).join("")+'</div>'
   : '<div class="done2"><b style="font-size:17px">'+t("noSaved")+'</b>'+
     '<p style="color:var(--grey);font-size:14px;margin-top:6px">'+t("noSavedP")+'</p>'+
     '<div style="margin-top:16px"><button class="btn-n" data-go="search">'+t("browse")+'</button></div></div>')+
