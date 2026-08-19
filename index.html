@@ -103,7 +103,7 @@ header{background:var(--navy);color:#fff}
 .crumb{background:#fff;border-bottom:1px solid var(--line);font-size:13px;color:var(--grey);padding:9px 0}
 .crumb a:hover{color:var(--navy);text-decoration:underline}.crumb span{margin-inline:6px;color:var(--line-2)}
 .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh)}
-.pad{padding:20px 22px}
+.pad{padding:18px 20px}
 .panel h2{font-size:17px;font-weight:700;padding:14px 22px;border-bottom:1px solid var(--line)}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;display:block}
 .card:hover{box-shadow:var(--sh2);border-color:var(--line-2)}
@@ -116,8 +116,8 @@ header{background:var(--navy);color:#fff}
 .cb{padding:11px 13px 13px}
 .cb .p{font-size:19px;font-weight:700;color:var(--navy)}
 .cb .pm{font-size:11.5px;color:var(--light);margin-top:-2px}
-.cb .t{font-size:14.5px;font-weight:600;margin-top:5px}
-.cb .l{font-size:13px;color:var(--grey)}
+.cb .t{font-size:14.5px;font-weight:600;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cb .l{font-size:13px;color:var(--grey);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cb .m{display:flex;gap:12px;flex-wrap:wrap;margin-top:9px;padding-top:9px;border-top:1px solid var(--line);font-size:12px;color:var(--grey)}
 .cb .d{font-size:11.5px;color:var(--light);margin-top:6px}
 
@@ -197,7 +197,7 @@ html.js .rv.in{opacity:1;transform:none}
 .guide h3{font-size:16px;font-weight:700;margin-bottom:5px;line-height:1.6}
 .guide p{font-size:13.5px;color:var(--grey);line-height:1.8}
 /* search view */
-.lay{display:grid;grid-template-columns:250px 1fr;gap:22px;padding:18px 0 34px;align-items:start}
+.lay{display:grid;grid-template-columns:250px 1fr;gap:20px;padding:16px 0 30px;align-items:start}
 @media(max-width:940px){.lay{grid-template-columns:1fr}}
 .side2{position:sticky;top:14px}
 @media(max-width:940px){.side2{position:static}}
@@ -276,7 +276,7 @@ html.js .rv.in{opacity:1;transform:none}
 .viewtoggle button.on{background:var(--navy);border-color:var(--navy);color:#fff}
 .res.list-view{display:flex;flex-direction:column;gap:10px}
 .res.list-view .card{display:flex;flex-direction:row;align-items:stretch}
-.res.list-view .card .ph{width:220px;flex-shrink:0;aspect-ratio:auto}
+.res.list-view .card .ph{width:min(var(--card-size,238px),260px);flex-shrink:0;aspect-ratio:auto}
 .res.list-view .card .ph img,.res.list-view .card .ph .nophoto{height:100%;aspect-ratio:auto}
 .res.list-view .card .cb{flex:1;display:flex;flex-direction:column;justify-content:center}
 @media(max-width:640px){.res.list-view .card{flex-direction:column}
@@ -442,21 +442,22 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
 .astat b{display:block;font-size:20px;font-weight:700;color:var(--navy)}
 .astat span{font-size:12px;color:var(--grey)}
 .ashell{display:flex;align-items:flex-start;gap:0;max-width:1400px;margin:0 auto}
-.asidebar{width:236px;flex-shrink:0;background:#fff;border-inline-end:1px solid var(--line);
-  min-height:calc(100vh - 54px);padding:16px 10px;position:sticky;top:0}
-.asidebar-group{margin-bottom:18px}
-.asidebar-label{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--light);
-  text-transform:uppercase;padding:0 10px 6px}
-.asidebar a{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:6px;
-  font-size:14px;color:var(--ink);cursor:pointer;text-decoration:none;font-weight:500;
-  white-space:nowrap;position:relative}
+.asidebar{width:206px;flex-shrink:0;background:#fff;border-inline-end:1px solid var(--line);
+  min-height:calc(100vh - 54px);padding:12px 8px;position:sticky;top:0}
+.asidebar-group{margin-bottom:10px}
+.asidebar-label{font-size:10.5px;font-weight:700;letter-spacing:.04em;color:var(--light);
+  text-transform:uppercase;padding:6px 8px 3px}
+.asidebar a{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;
+  font-size:13.5px;color:var(--ink);cursor:pointer;text-decoration:none;font-weight:500;
+  white-space:nowrap;position:relative;line-height:1.3}
 .asidebar a:hover{background:var(--page)}
 .asidebar a.on{background:var(--navy-w);color:var(--navy);font-weight:700}
-.asidebar a .aicon{width:18px;height:18px;flex-shrink:0;display:grid;place-items:center;opacity:.75}
+.asidebar a .aicon{width:16px;height:16px;flex-shrink:0;display:grid;place-items:center;opacity:.75}
+.asidebar a .aicon svg{width:15px;height:15px}
 .asidebar a.on .aicon{opacity:1}
-.asidebar a .abadge2{margin-inline-start:auto;background:var(--danger);color:#fff;font-size:10.5px;
-  font-weight:700;border-radius:10px;padding:1px 6px;line-height:1.5}
-.acontent{flex:1;min-width:0;padding:18px 20px 60px}
+.asidebar a .abadge2{margin-inline-start:auto;background:var(--danger);color:#fff;font-size:10px;
+  font-weight:700;border-radius:10px;padding:1px 6px;line-height:1.4}
+.acontent{flex:1;min-width:0;padding:16px 18px 60px}
 .amobiletoggle{display:none}
 @media(max-width:900px){
   .ashell{flex-direction:column}
@@ -3446,7 +3447,9 @@ function wireAdmin(){
   $$("[data-atab]").forEach(function(e){ e.onclick=function(){
     ADM.tab=e.dataset.atab;
     var sb=$("#aSidebar"); if(sb) sb.classList.remove("on"); // auto-close on mobile after picking a section
-    render() } });
+    render();
+    try{ window.scrollTo({top:0,behavior:"instant"}) }catch(e2){ try{ window.scrollTo(0,0) }catch(e3){} }
+  } });
   if($("#aSidebarToggle")) $("#aSidebarToggle").onclick=function(){
     var sb=$("#aSidebar"); if(sb) sb.classList.toggle("on");
   };
@@ -4627,11 +4630,53 @@ async function fetchPhotos(id){
 }
 
 var _FIRST_HISTORY_SYNC = true;
+function filterToQuery(){
+  var q={};
+  if(F.deal) q.deal=F.deal;
+  if(F.govs&&F.govs.length) q.govs=F.govs.join(",");
+  else if(F.g) q.g=F.g;
+  if(F.areas&&F.areas.length) q.areas=F.areas.join(",");
+  else if(F.a) q.a=F.a;
+  if(F.types&&F.types.length) q.types=F.types.join(",");
+  else if(F.t) q.t=F.t;
+  if(F.tbs&&F.tbs.length) q.tbs=F.tbs.join(",");
+  else if(F.tb) q.tb=F.tb;
+  if(F.cd) q.cd=F.cd;
+  if(F.furn) q.furn=F.furn;
+  if(F.rentalPeriod) q.rp=F.rentalPeriod;
+  if(F.sort && F.sort!=="new") q.sort=F.sort;
+  if(F.page && F.page>1) q.page=F.page;
+  var parts=Object.keys(q).map(function(k){ return k+"="+encodeURIComponent(q[k]) });
+  return parts.length ? "?"+parts.join("&") : "";
+}
+function applyFilterFromQuery(qs){
+  if(!qs) return;
+  var params={};
+  qs.replace(/^\?/,"").split("&").forEach(function(pair){
+    if(!pair) return;
+    var kv=pair.split("=");
+    params[kv[0]]=decodeURIComponent(kv[1]||"");
+  });
+  if(params.deal!=null) F.deal=params.deal;
+  if(params.govs) F.govs=params.govs.split(",").filter(Boolean);
+  else if(params.g) F.g=params.g;
+  if(params.areas) F.areas=params.areas.split(",").filter(Boolean);
+  else if(params.a) F.a=params.a;
+  if(params.types) F.types=params.types.split(",").filter(Boolean);
+  else if(params.t) F.t=params.t;
+  if(params.tbs) F.tbs=params.tbs.split(",").filter(Boolean);
+  else if(params.tb) F.tb=params.tb;
+  if(params.cd) F.cd=params.cd;
+  if(params.furn) F.furn=params.furn;
+  if(params.rp) F.rentalPeriod=params.rp;
+  if(params.sort) F.sort=params.sort;
+  if(params.page) F.page=parseInt(params.page,10)||1;
+}
 function syncHash(){
   var h = VIEW==="home" ? "" :
           VIEW.indexOf("listing:")===0 ? "#/listing/"+VIEW.split(":")[1] :
           VIEW.indexOf("by:")===0 ? "#/seller/"+VIEW.split(":")[1] :
-          "#/"+VIEW;
+          "#/"+VIEW+(VIEW==="search"?filterToQuery():"");
   // Consume the "first render" flag exactly once, unconditionally — even
   // when this call is a no-op below (hash already matches). Otherwise a
   // Home-page load (whose hash already matches "") would leave the flag
@@ -4658,12 +4703,18 @@ function syncHash(){
   }catch(e){}
 }
 function viewFromHash(){
-  var h=(location.hash||"").replace(/^#\/?/,"");
+  var raw=(location.hash||"").replace(/^#\/?/,"");
+  var qIdx=raw.indexOf("?");
+  var h = qIdx>-1 ? raw.slice(0,qIdx) : raw;
+  var qs = qIdx>-1 ? raw.slice(qIdx) : "";
   if(!h) return "home";
   var p=h.split("/");
   if(p[0]==="listing"&&p[1]) return "listing:"+p[1];
   if(p[0]==="seller"&&p[1]) return "by:"+p[1];
-  if(["search","post","mine","saved","searches","msgs","account","about","contact","contactus","admin"].indexOf(p[0])>-1) return p[0];
+  if(["search","post","mine","saved","searches","msgs","account","about","contact","contactus","admin"].indexOf(p[0])>-1){
+    if(p[0]==="search" && qs) applyFilterFromQuery(qs);
+    return p[0];
+  }
   return "home";
 }
 
