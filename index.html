@@ -3214,7 +3214,8 @@ function wire(){
      var m=$("#heroMapMenu"); if(m) m.classList.toggle("on");
    };
    $$("[data-mapdeal]").forEach(function(e){ e.onclick=function(){
-     F.deal=this.dataset.mapdeal;
+     F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",
+        sec:"",deal:this.dataset.mapdeal,sort:"new",page:1};
      VIEWMODE="map"; try{localStorage.setItem("balkoun_viewmode","map")}catch(err){}
      VIEW="search"; scrollTo(0,0); render();
    }});
