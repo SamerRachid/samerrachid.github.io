@@ -1793,6 +1793,22 @@ var ADM={token:null, data:null, tab:"dashboard", msg:"", editId:null, editRow:nu
   dangerUnlocked:false, restoreUnlocked:false, restoreFileInfo:"", restoreData:null};
 function can(p){ return p==="dashboard" || ADM.isSuper || ADM.perms.indexOf(p)>-1 }
 
+function storageUsageCardBody(){
+  if(!ADM.storageUsage) return '<div class="adashempty">'+t("loading")+'</div>';
+  var mb = ADM.storageUsage.bytes/1048576;
+  var limitMb = SITE.storage_limit_mb||1024;
+  var pct = Math.min(100, Math.round(mb/limitMb*100));
+  var mbText = mb<1 ? (Math.round(mb*1024))+' KB' : (mb<1024 ? Math.round(mb*10)/10+' MB' : Math.round(mb/1024*100)/100+' GB');
+  var limitText = limitMb<1024 ? limitMb+' MB' : Math.round(limitMb/1024*100)/100+' GB';
+  var freeMb = Math.max(0, limitMb-mb);
+  var freeText = freeMb<1024 ? Math.round(freeMb*10)/10+' MB' : Math.round(freeMb/1024*100)/100+' GB';
+  return '<div class="abartrack" style="height:14px;margin-bottom:8px"><div class="abarfill" style="width:'+pct+'%;background:'+(pct>90?"var(--danger)":pct>70?"var(--gold)":"var(--ok)")+'"></div></div>'+
+   '<div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--grey)">'+
+    '<span>'+t("storageUsed")+': <b class="ltr" style="color:var(--ink)">'+mbText+'</b> / <span class="ltr">'+limitText+'</span></span>'+
+    '<span class="ltr">'+pct+'%</span></div>'+
+   '<div style="margin-top:6px;font-size:12.5px;color:var(--grey)">'+t("storageFree")+': <b class="ltr" style="color:var(--ink)">'+freeText+'</b> \u00b7 '+
+    '<span class="ltr">'+ADM.storageUsage.files+'</span> '+t("storageFiles")+'</div>';
+}
 function adminView(){
  if(!ADM.token) return ''+
   '<div class="wrap" style="max-width:420px;padding:56px 18px 80px"><div class="blk">'+
@@ -1897,21 +1913,7 @@ function adminView(){
      (st3 && Object.keys(st3.by_view||{}).length ? bar2(st3.by_view, st3.views_total) : '<div class="adashempty">'+(st3?t("noReports"):t("openStatsForMore"))+'</div>')+
     '</div>'+
     '<div class="adashcard"><h4>'+t("storageUsageH")+'</h4>'+
-     (ADM.storageUsage ? (function(){
-       var mb = ADM.storageUsage.bytes/1048576;
-       var limitMb = SITE.storage_limit_mb||1024;
-       var pct = Math.min(100, Math.round(mb/limitMb*100));
-       var mbText = mb<1 ? (Math.round(mb*1024))+' KB' : (mb<1024 ? Math.round(mb*10)/10+' MB' : Math.round(mb/1024*100)/100+' GB');
-       var limitText = limitMb<1024 ? limitMb+' MB' : Math.round(limitMb/1024*100)/100+' GB';
-       var freeMb = Math.max(0, limitMb-mb);
-       var freeText = freeMb<1024 ? Math.round(freeMb*10)/10+' MB' : Math.round(freeMb/1024*100)/100+' GB';
-       return '<div class="abartrack" style="height:14px;margin-bottom:8px"><div class="abarfill" style="width:'+pct+'%;background:'+(pct>90?"var(--danger)":pct>70?"var(--gold)":"var(--ok)")+'"></div></div>'+
-        '<div style="display:flex;justify-content:space-between;font-size:12.5px;color:var(--grey)">'+
-         '<span>'+t("storageUsed")+': <b class="ltr" style="color:var(--ink)">'+mbText+'</b> / <span class="ltr">'+limitText+'</span></span>'+
-         '<span class="ltr">'+pct+'%</span></div>'+
-        '<div style="margin-top:6px;font-size:12.5px;color:var(--grey)">'+t("storageFree")+': <b class="ltr" style="color:var(--ink)">'+freeText+'</b> \u00b7 '+
-         '<span class="ltr">'+ADM.storageUsage.files+'</span> '+t("storageFiles")+'</div>';
-     })() : '<div class="adashempty">'+t("loading")+'</div>')+
+     storageUsageCardBody()+
     '</div>'+
    '</div>'+
    '<button class="ab" data-atab="stats" style="margin-top:4px">'+t("openFullAnalytics")+'</button>';
@@ -2110,6 +2112,9 @@ function adminView(){
      (Object.keys(st.by_view||{}).length?bar(st.by_view, st.views_total):'<div class="done2"><b>'+t("noReports")+'</b></div>')+
     '</div></div>'+
    '</div>'+
+   '<div class="blk" style="margin-top:18px"><h3>'+t("storageUsageH")+'</h3><div class="in">'+
+    storageUsageCardBody()+
+   '</div></div>'+
    '<div class="blk" style="margin-top:18px"><h3>'+t("onlineUsersH")+' <span class="ltr" style="color:var(--grey);font-weight:400">('+(st.online_now||0)+')</span></h3><div class="in">'+
     ((st.online_list||[]).length
      ? '<div class="onlinelist">'+st.online_list.map(function(u){
@@ -3843,7 +3848,7 @@ function wireAdmin(){
       ADM.stats=null; ADM.statsErr=(e&&e.message)||"error"; render()
     });
   }
-  if(ADM.tab==="dashboard" && !ADM._storageUsageLoaded){
+  if((ADM.tab==="dashboard"||ADM.tab==="stats") && !ADM._storageUsageLoaded){
     ADM._storageUsageLoaded=true;
     rpc("bk_admin_storage_usage",{p_token:ADM.token}).then(function(r){
       ADM.storageUsage=r||null; render()
