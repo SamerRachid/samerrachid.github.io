@@ -584,9 +584,10 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
   border:1px solid rgba(255,255,255,.6);border-radius:10px;padding:11px 16px;font-size:14px;
   font-weight:600;color:var(--ink);cursor:pointer;box-shadow:0 6px 20px -8px rgba(9,14,26,.25)}
 .mapf-panel{margin-top:8px;padding:14px;border-radius:10px;
-  background:rgba(255,255,255,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  background:rgba(255,255,255,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   border:1px solid rgba(255,255,255,.6);box-shadow:0 12px 30px -10px rgba(9,14,26,.3);
   animation:mapfDown .22s cubic-bezier(.22,.61,.36,1)}
+.mapf-panel .fl select{background:#fff;opacity:1}
 .mapf-panel.mapf-closing{animation:mapfUp .2s cubic-bezier(.4,0,1,1) forwards}
 .autop{background:var(--navy);color:#fff;padding:15px 20px;display:flex;align-items:center}
 .autop b{font-size:16px}
@@ -3412,8 +3413,6 @@ function mapSearchPage(){
      '<button type="button" class="'+(MAPSEARCH.deal==="sale"?"on":"")+'" data-mapdeal2="sale">'+t("forsale")+'</button>'+
      '<button type="button" class="'+(MAPSEARCH.deal==="rent"?"on":"")+'" data-mapdeal2="rent">'+t("forrent")+'</button>'+
     '</div></div>'+
-   '<div style="text-align:center;color:var(--grey);font-size:13.5px;margin-bottom:10px">'+
-    t("mapSearchResultsCount").replace("{n}", totalForDeal)+'</div>'+
    (withLoc.length<totalForDeal ? '<div class="hintx" style="margin-bottom:8px;text-align:center">'+
      t("mapSearchCoverage").replace("{n}",withLoc.length).replace("{t}",totalForDeal)+'</div>' : '')+
    // the map itself, and the filter overlay on top of it, ALWAYS stay
@@ -3424,6 +3423,9 @@ function mapSearchPage(){
    // back to the map without a hard refresh. Zero results now show
    // as a small message layered ON the still-live map instead.
    '<div style="position:relative">'+
+    '<div style="position:absolute;top:14px;left:14px;z-index:500;pointer-events:auto">'+
+     '<div class="mapf-toggle" style="cursor:default;font-weight:600">'+t("mapSearchResultsCount").replace("{n}", totalForDeal)+'</div>'+
+    '</div>'+
     '<div style="position:absolute;top:14px;left:0;right:0;display:flex;justify-content:center;z-index:500;pointer-events:none">'+
      '<div style="width:100%;max-width:400px;padding:0 14px;pointer-events:auto">'+
       '<button type="button" class="mapf-toggle" id="mapFiltersToggle">'+
@@ -3474,6 +3476,23 @@ function initMapSearch(){
   LMap.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {maxZoom:19, attribution:"\u00a9 OpenStreetMap"}).addTo(map);
   var bounds = [];
+  // hovering a pin opens its popup; without care, moving the mouse
+  // from the small pin toward the (visually adjacent, but separate)
+  // popup element fires the pin's mouseout first and closes it before
+  // the mouse actually reaches the popup. A short grace-period timer
+  // fixes this: leaving the pin schedules a close, but entering the
+  // popup itself (bound once the popup DOM element actually exists,
+  // via Leaflet's popupopen event) cancels that pending close — so it
+  // only ever closes once the mouse has genuinely left both.
+  var closeTimer = null;
+  function cancelPopupClose(){ if(closeTimer){ clearTimeout(closeTimer); closeTimer=null; } }
+  function schedulePopupClose(){ cancelPopupClose(); closeTimer=setTimeout(function(){ map.closePopup() }, 200); }
+  map.on("popupopen", function(e){
+    var el = e.popup.getElement && e.popup.getElement();
+    if(!el) return;
+    el.addEventListener("mouseenter", cancelPopupClose);
+    el.addEventListener("mouseleave", schedulePopupClose);
+  });
   withLoc.forEach(function(x){
     var cover = (x.photos&&x.photos[0]) || x.cover || null;
     var priceText = x.d==="rent" ? (money(x.p)+" "+t("monthlyRent")) : money(x.p);
@@ -3488,8 +3507,8 @@ function initMapSearch(){
       '<div class="mappin-type">'+D.TYPES[x.t][li()]+(x.d!=="rent"&&x.tb&&D.TABU[x.tb]?' \u00b7 '+(x.tb==="green"?'<span class="tabu-green">'+D.TABU[x.tb][li()]+'</span>':D.TABU[x.tb][li()]):'')+'</div></div></div>';
     var marker = LMap.marker([x.lat,x.lng]).addTo(map);
     marker.bindPopup(popupHtml, {maxWidth:260, minWidth:220, className:"mappin-popup"});
-    marker.on("mouseover", function(){ this.openPopup() });
-    marker.on("mouseout", function(){ this.closePopup() });
+    marker.on("mouseover", function(){ cancelPopupClose(); this.openPopup() });
+    marker.on("mouseout", function(){ schedulePopupClose() });
     marker.on("click", function(){
       if(_mapSearchInstance){ try{ _mapSearchInstance.remove() }catch(e){} _mapSearchInstance=null; }
       VIEW="listing:"+x.id; scrollTo(0,0); render();
