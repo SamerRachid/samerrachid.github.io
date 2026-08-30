@@ -584,8 +584,8 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
   border:1px solid rgba(255,255,255,.6);border-radius:10px;padding:11px 16px;font-size:14px;
   font-weight:600;color:var(--ink);cursor:pointer;box-shadow:0 6px 20px -8px rgba(9,14,26,.25)}
 .mapf-panel{margin-top:8px;padding:14px;border-radius:10px;
-  background:rgba(255,255,255,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  border:1px solid rgba(255,255,255,.6);box-shadow:0 12px 30px -10px rgba(9,14,26,.3);
+  background:rgba(255,255,255,.32);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
+  border:1px solid rgba(255,255,255,.5);box-shadow:0 12px 30px -10px rgba(9,14,26,.3);
   animation:mapfDown .22s cubic-bezier(.22,.61,.36,1)}
 .mapf-panel .fl select{background:#fff;opacity:1}
 .mapf-panel.mapf-closing{animation:mapfUp .2s cubic-bezier(.4,0,1,1) forwards}
@@ -3405,10 +3405,9 @@ function mapSearchPage(){
   var totalForDeal = matches.length;
   var areaOptions = MAPSEARCH.gov && D.GEO[MAPSEARCH.gov] ? D.GEO[MAPSEARCH.gov] : [];
   var fCount = mapSearchActiveFilterCount();
-  return '<div class="wrap" style="padding:18px 18px 40px">'+
-   '<div class="crumb" style="padding:0 0 12px"><a data-go="home">'+t("home")+'</a><i>\u203a</i>'+t("searchOnMap")+'</div>'+
-   '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">'+
-    '<h1 style="font-size:20px;font-weight:700">'+t("searchOnMap")+'</h1>'+
+  return '<div class="wrap" style="padding:10px 18px 40px">'+
+   '<div class="crumb" style="padding:0 0 10px"><a data-go="home">'+t("home")+'</a><i>\u203a</i>'+t("searchOnMap")+'</div>'+
+   '<div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:10px">'+
     '<div class="stabs mapsearch-tabs" style="margin:0">'+
      '<button type="button" class="'+(MAPSEARCH.deal==="sale"?"on":"")+'" data-mapdeal2="sale">'+t("forsale")+'</button>'+
      '<button type="button" class="'+(MAPSEARCH.deal==="rent"?"on":"")+'" data-mapdeal2="rent">'+t("forrent")+'</button>'+
