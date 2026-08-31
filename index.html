@@ -583,9 +583,13 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
   background:rgba(255,255,255,.88);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
   border:1px solid rgba(255,255,255,.6);border-radius:10px;padding:11px 16px;font-size:14px;
   font-weight:600;color:var(--ink);cursor:pointer;box-shadow:0 6px 20px -8px rgba(9,14,26,.25)}
+.mapf-mainbtn{min-width:240px;display:flex;align-items:center;justify-content:center;gap:6px;
+  background:#fff;border:1.5px solid var(--navy);border-radius:10px;padding:13px 22px;font-size:15px;
+  font-weight:700;color:var(--navy);cursor:pointer;box-shadow:0 6px 16px -8px rgba(9,14,26,.3)}
+.mapf-mainbtn:hover{background:var(--page)}
 .mapf-panel{margin-top:8px;padding:14px;border-radius:10px;
-  background:rgba(255,255,255,.32);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
-  border:1px solid rgba(255,255,255,.5);box-shadow:0 12px 30px -10px rgba(9,14,26,.3);
+  background:rgba(255,255,255,.22);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
+  border:1px solid rgba(255,255,255,.45);box-shadow:0 12px 30px -10px rgba(9,14,26,.3);
   animation:mapfDown .22s cubic-bezier(.22,.61,.36,1)}
 .mapf-panel .fl select{background:#fff;opacity:1}
 .mapf-panel.mapf-closing{animation:mapfUp .2s cubic-bezier(.4,0,1,1) forwards}
@@ -3428,43 +3432,80 @@ function mapSearchPage(){
    // push the map down the page; it drops down and floats directly
    // over the top of the map instead, with a transparent background.
    '<div style="position:relative">'+
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;position:relative;z-index:1091">'+
+    '<div style="display:flex;align-items:center;margin-bottom:10px;position:relative;z-index:1091">'+
      '<div class="mapf-toggle" style="cursor:default;font-weight:600;width:auto;display:inline-flex">'+t("mapSearchResultsCount").replace("{n}", totalForDeal)+'</div>'+
-     '<div style="position:relative">'+
-      '<button type="button" class="mapf-toggle" id="mapFiltersToggle" style="width:auto">'+
-       t("filtersH")+(fCount?' <span class="filtercount">'+fCount+'</span>':'')+
-       '<span style="color:var(--grey);font-size:12px">'+(MAPSEARCH.filtersOpen?"\u25b4":"\u25be")+'</span></button>'+
-      (MAPSEARCH.filtersOpen ? '<div class="mapf-panel" id="mapFPanel" style="position:absolute;top:calc(100% + 8px);right:0;width:340px;z-index:1091;margin-top:0">'+
-       '<div class="row">'+
-        '<div class="fl"><label>'+t("gov")+'</label><select id="mapFGov">'+
-         '<option value="">'+t("dealAll")+'</option>'+
-         Object.keys(D.GEO).map(function(g){return '<option value="'+g+'"'+(MAPSEARCH.gov===g?" selected":"")+'>'+gN(g)+'</option>'}).join("")+
-        '</select></div>'+
-        '<div class="fl"><label>'+t("area")+'</label><select id="mapFArea"'+(areaOptions.length?"":" disabled")+'>'+
-         '<option value="">'+t("dealAll")+'</option>'+
-         areaOptions.map(function(a){return '<option value="'+a+'"'+(MAPSEARCH.area===a?" selected":"")+'>'+aN(a)+'</option>'}).join("")+
-        '</select></div></div>'+
-       '<div class="row" style="margin-top:10px">'+
-        '<div class="fl"><label>'+t("ptype")+'</label><select id="mapFType">'+
-         '<option value="">'+t("dealAll")+'</option>'+
-         Object.keys(D.TYPES).map(function(k){return '<option value="'+k+'"'+(MAPSEARCH.type===k?" selected":"")+'>'+D.TYPES[k][li()]+'</option>'}).join("")+
-        '</select></div>'+
-        '<div class="fl"><label>'+t("deed")+'</label><select id="mapFTabu">'+
-         '<option value="">'+t("dealAll")+'</option>'+
-         Object.keys(D.TABU).map(function(k){return '<option value="'+k+'"'+(MAPSEARCH.tabu===k?" selected":"")+'>'+D.TABU[k][li()]+'</option>'}).join("")+
-        '</select></div></div>'+
-       '<div style="display:flex;gap:10px;margin-top:12px">'+
-        (fCount ? '<button type="button" class="gh" id="mapFiltersClear" style="flex:1">'+t("clearFilters")+'</button>' : '')+
-        '<button type="button" class="btn-n" id="mapFiltersApply" style="flex:1">'+t("showResults")+'</button>'+
-       '</div>'+
-      '</div>' : '')+
-     '</div>'+
+     '<div id="mapFilterZone" style="position:absolute;left:50%;transform:translateX(-50%)">'+mapFilterZoneHtml()+'</div>'+
     '</div>'+
     (totalForDeal===0 ? '<div style="position:absolute;top:60px;left:0;right:0;display:flex;align-items:center;justify-content:center;z-index:400;pointer-events:none">'+
       '<div class="mapf-toggle" style="pointer-events:auto"><b>'+t("mapSearchNoMatches")+'</b></div></div>' : '')+
     '<div id="mapSearchBox" style="height:min(72vh,640px);border-radius:10px;overflow:hidden;border:1px solid var(--line-2)"></div>'+
    '</div>'+
   '</div>';
+}
+function mapFilterZoneHtml(){
+  var areaOptions = MAPSEARCH.gov && D.GEO[MAPSEARCH.gov] ? D.GEO[MAPSEARCH.gov] : [];
+  var fCount = mapSearchActiveFilterCount();
+  return '<div style="position:relative">'+
+    '<button type="button" class="mapf-mainbtn" id="mapFiltersToggle">'+
+     t("filtersH")+(fCount?' <span class="filtercount">'+fCount+'</span>':'')+
+     '<span style="color:var(--grey);font-size:12px">'+(MAPSEARCH.filtersOpen?"\u25b4":"\u25be")+'</span></button>'+
+    (MAPSEARCH.filtersOpen ? '<div class="mapf-panel" id="mapFPanel" style="position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);width:340px;z-index:1091;margin-top:0">'+
+     '<div class="row">'+
+      '<div class="fl"><label>'+t("gov")+'</label><select id="mapFGov">'+
+       '<option value="">'+t("dealAll")+'</option>'+
+       Object.keys(D.GEO).map(function(g){return '<option value="'+g+'"'+(MAPSEARCH.gov===g?" selected":"")+'>'+gN(g)+'</option>'}).join("")+
+      '</select></div>'+
+      '<div class="fl"><label>'+t("area")+'</label><select id="mapFArea"'+(areaOptions.length?"":" disabled")+'>'+
+       '<option value="">'+t("dealAll")+'</option>'+
+       areaOptions.map(function(a){return '<option value="'+a+'"'+(MAPSEARCH.area===a?" selected":"")+'>'+aN(a)+'</option>'}).join("")+
+      '</select></div></div>'+
+     '<div class="row" style="margin-top:10px">'+
+      '<div class="fl"><label>'+t("ptype")+'</label><select id="mapFType">'+
+       '<option value="">'+t("dealAll")+'</option>'+
+       Object.keys(D.TYPES).map(function(k){return '<option value="'+k+'"'+(MAPSEARCH.type===k?" selected":"")+'>'+D.TYPES[k][li()]+'</option>'}).join("")+
+      '</select></div>'+
+      '<div class="fl"><label>'+t("deed")+'</label><select id="mapFTabu">'+
+       '<option value="">'+t("dealAll")+'</option>'+
+       Object.keys(D.TABU).map(function(k){return '<option value="'+k+'"'+(MAPSEARCH.tabu===k?" selected":"")+'>'+D.TABU[k][li()]+'</option>'}).join("")+
+      '</select></div></div>'+
+     '<div style="display:flex;gap:10px;margin-top:12px">'+
+      (fCount ? '<button type="button" class="gh" id="mapFiltersClear" style="flex:1">'+t("clearFilters")+'</button>' : '')+
+      '<button type="button" class="btn-n" id="mapFiltersApply" style="flex:1">'+t("showResults")+'</button>'+
+     '</div>'+
+    '</div>' : '')+
+   '</div>';
+}
+// updates ONLY the filter button+panel's own small DOM subtree —
+// deliberately never calls the page-level render(). Opening or
+// closing the dropdown, or just browsing the select options, has no
+// effect on which listings are shown, so it has no business touching
+// the map at all. The previous version routed every one of these
+// through a full render(), which replaces the whole page's HTML —
+// destroying and recreating the map's container along with it, which
+// is exactly what made the map visibly "reload" on every click.
+function updateMapFilterZone(){
+  var zone = document.getElementById("mapFilterZone");
+  if(!zone) return;
+  zone.innerHTML = mapFilterZoneHtml();
+  wireMapFilterZone();
+}
+function wireMapFilterZone(){
+  if($("#mapFiltersToggle")) $("#mapFiltersToggle").onclick=function(){
+    if(MAPSEARCH.filtersOpen){ closeMapFilterPanel() }
+    else { MAPSEARCH.filtersOpen=true; updateMapFilterZone() }
+  };
+  if($("#mapFGov")) $("#mapFGov").onchange=function(){ MAPSEARCH.gov=this.value; MAPSEARCH.area=""; updateMapFilterZone() };
+  if($("#mapFArea")) $("#mapFArea").onchange=function(){ MAPSEARCH.area=this.value; updateMapFilterZone() };
+  if($("#mapFType")) $("#mapFType").onchange=function(){ MAPSEARCH.type=this.value; updateMapFilterZone() };
+  if($("#mapFTabu")) $("#mapFTabu").onchange=function(){ MAPSEARCH.tabu=this.value; updateMapFilterZone() };
+  if($("#mapFiltersClear")) $("#mapFiltersClear").onclick=function(){
+    MAPSEARCH.gov=""; MAPSEARCH.area=""; MAPSEARCH.type=""; MAPSEARCH.tabu="";
+    // clearing genuinely changes which pins should show, so — unlike
+    // just opening/browsing the panel — this legitimately does need
+    // to refresh the map and the results count together
+    MAPSEARCH.filtersOpen=false; render();
+  };
+  if($("#mapFiltersApply")) $("#mapFiltersApply").onclick=function(){ closeMapFilterPanel() };
 }
 function initMapSearch(){
   var container = document.getElementById("mapSearchBox");
@@ -3709,20 +3750,7 @@ function wire(){
      if(MAPSEARCH.deal===this.dataset.mapdeal2) return;
      MAPSEARCH.deal=this.dataset.mapdeal2; render();
    }});
-   if($("#mapFiltersToggle")) $("#mapFiltersToggle").onclick=function(){
-     if(MAPSEARCH.filtersOpen){ closeMapFilterPanel() }
-     else { MAPSEARCH.filtersOpen=true; render() }
-   };
-   if($("#mapFGov")) $("#mapFGov").onchange=function(){
-     MAPSEARCH.gov=this.value; MAPSEARCH.area=""; render();
-   };
-   if($("#mapFArea")) $("#mapFArea").onchange=function(){ MAPSEARCH.area=this.value; render() };
-   if($("#mapFType")) $("#mapFType").onchange=function(){ MAPSEARCH.type=this.value; render() };
-   if($("#mapFTabu")) $("#mapFTabu").onchange=function(){ MAPSEARCH.tabu=this.value; render() };
-   if($("#mapFiltersClear")) $("#mapFiltersClear").onclick=function(){
-     MAPSEARCH.gov=""; MAPSEARCH.area=""; MAPSEARCH.type=""; MAPSEARCH.tabu=""; render();
-   };
-   if($("#mapFiltersApply")) $("#mapFiltersApply").onclick=function(){ closeMapFilterPanel() };
+   wireMapFilterZone();
    if($("#mapSearchBox")){
      // clear any already-pending init before scheduling a new one —
      // guards against the exact race that broke the earlier attempt,
