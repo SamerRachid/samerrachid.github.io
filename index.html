@@ -3421,16 +3421,20 @@ function mapSearchPage(){
    // which took the filter controls down with it — leaving no way
    // back to the map without a hard refresh. Zero results now show
    // as a small message layered ON the still-live map instead.
+   //
+   // the filter toggle button itself now lives in normal page flow,
+   // NOT overlapping the map — but its expanding panel is deliberately
+   // pulled out of flow (position:absolute) so opening it doesn't
+   // push the map down the page; it drops down and floats directly
+   // over the top of the map instead, with a transparent background.
    '<div style="position:relative">'+
-    '<div style="position:absolute;top:14px;left:14px;z-index:500;pointer-events:auto">'+
-     '<div class="mapf-toggle" style="cursor:default;font-weight:600">'+t("mapSearchResultsCount").replace("{n}", totalForDeal)+'</div>'+
-    '</div>'+
-    '<div style="position:absolute;top:14px;left:0;right:0;display:flex;justify-content:center;z-index:500;pointer-events:none">'+
-     '<div style="width:100%;max-width:400px;padding:0 14px;pointer-events:auto">'+
-      '<button type="button" class="mapf-toggle" id="mapFiltersToggle">'+
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;position:relative;z-index:1091">'+
+     '<div class="mapf-toggle" style="cursor:default;font-weight:600;width:auto;display:inline-flex">'+t("mapSearchResultsCount").replace("{n}", totalForDeal)+'</div>'+
+     '<div style="position:relative">'+
+      '<button type="button" class="mapf-toggle" id="mapFiltersToggle" style="width:auto">'+
        t("filtersH")+(fCount?' <span class="filtercount">'+fCount+'</span>':'')+
        '<span style="color:var(--grey);font-size:12px">'+(MAPSEARCH.filtersOpen?"\u25b4":"\u25be")+'</span></button>'+
-      (MAPSEARCH.filtersOpen ? '<div class="mapf-panel" id="mapFPanel">'+
+      (MAPSEARCH.filtersOpen ? '<div class="mapf-panel" id="mapFPanel" style="position:absolute;top:calc(100% + 8px);right:0;width:340px;z-index:1091;margin-top:0">'+
        '<div class="row">'+
         '<div class="fl"><label>'+t("gov")+'</label><select id="mapFGov">'+
          '<option value="">'+t("dealAll")+'</option>'+
@@ -3454,8 +3458,9 @@ function mapSearchPage(){
         '<button type="button" class="btn-n" id="mapFiltersApply" style="flex:1">'+t("showResults")+'</button>'+
        '</div>'+
       '</div>' : '')+
-     '</div></div>'+
-    (totalForDeal===0 ? '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:400;pointer-events:none">'+
+     '</div>'+
+    '</div>'+
+    (totalForDeal===0 ? '<div style="position:absolute;top:60px;left:0;right:0;display:flex;align-items:center;justify-content:center;z-index:400;pointer-events:none">'+
       '<div class="mapf-toggle" style="pointer-events:auto"><b>'+t("mapSearchNoMatches")+'</b></div></div>' : '')+
     '<div id="mapSearchBox" style="height:min(72vh,640px);border-radius:10px;overflow:hidden;border:1px solid var(--line-2)"></div>'+
    '</div>'+
@@ -3486,16 +3491,28 @@ function initMapSearch(){
   var closeTimer = null;
   function cancelPopupClose(){ if(closeTimer){ clearTimeout(closeTimer); closeTimer=null; } }
   function schedulePopupClose(){ cancelPopupClose(); closeTimer=setTimeout(function(){ map.closePopup() }, 200); }
+  function goToMapListing(id){
+    if(_mapSearchInstance){ try{ _mapSearchInstance.remove() }catch(e){} _mapSearchInstance=null; }
+    VIEW="listing:"+id; scrollTo(0,0); render();
+    refreshListingsOnNavigate();
+  }
   map.on("popupopen", function(e){
     var el = e.popup.getElement && e.popup.getElement();
     if(!el) return;
     el.addEventListener("mouseenter", cancelPopupClose);
     el.addEventListener("mouseleave", schedulePopupClose);
+    // the pin itself is a tiny click target — clicking anywhere on the
+    // detail square that opens from it should navigate too, matching
+    // how a normal listing card is clickable anywhere on its surface
+    el.addEventListener("click", function(){
+      var host = el.querySelector("[data-pin-listing]");
+      if(host) goToMapListing(host.getAttribute("data-pin-listing"));
+    });
   });
   withLoc.forEach(function(x){
     var cover = (x.photos&&x.photos[0]) || x.cover || null;
     var priceText = x.d==="rent" ? (money(x.p)+" "+t("monthlyRent")) : money(x.p);
-    var popupHtml = '<div class="mappin-preview">'+
+    var popupHtml = '<div class="mappin-preview" data-pin-listing="'+x.id+'" style="cursor:pointer">'+
       (cover ? '<img src="'+cover+'" alt="">' : '<div class="mappin-nophoto">'+t("photos")+'</div>')+
       '<div class="mappin-body"><b class="mappin-price">'+priceText+'</b>'+
       '<div class="mappin-loc">'+ICON_PIN+aN(x.a)+(L==="ar"?'\u060c ':', ')+gN(x.g)+'</div>'+
@@ -3508,11 +3525,7 @@ function initMapSearch(){
     marker.bindPopup(popupHtml, {maxWidth:260, minWidth:220, className:"mappin-popup"});
     marker.on("mouseover", function(){ cancelPopupClose(); this.openPopup() });
     marker.on("mouseout", function(){ schedulePopupClose() });
-    marker.on("click", function(){
-      if(_mapSearchInstance){ try{ _mapSearchInstance.remove() }catch(e){} _mapSearchInstance=null; }
-      VIEW="listing:"+x.id; scrollTo(0,0); render();
-      refreshListingsOnNavigate();
-    });
+    marker.on("click", function(){ goToMapListing(x.id) });
     bounds.push([x.lat,x.lng]);
   });
   if(bounds.length>1){ try{ map.fitBounds(bounds, {padding:[30,30]}) }catch(e){} }
