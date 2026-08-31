@@ -3374,11 +3374,22 @@ function initViewMap(lat,lng){
    on its own dedicated, rarely-re-rendered view — and being strict
    about cleanup — avoids that whole class of failure. ═══ */
 var MAPSEARCH = {deal:"sale", gov:"", area:"", type:"", tabu:"", filtersOpen:false};
-function closeMapFilterPanel(){
-  // a direct render() here would instantly rip the panel out of the
-  // DOM — this plays the slide-up-and-fade animation on the actual
-  // element first, then commits the real state change and re-renders
-  // once the transition has actually finished, not before
+function closeMapFilterPanelLocally(){
+  // dismissing the dropdown without applying anything — e.g. clicking
+  // the toggle button again, or just clicking away — has no effect on
+  // which listings are shown, exactly like opening it. This plays the
+  // same slide-up-and-fade animation, but only updates the small
+  // filter zone afterward, never the whole page, so the map is never
+  // touched here either.
+  var panel = document.getElementById("mapFPanel");
+  if(!panel){ MAPSEARCH.filtersOpen=false; updateMapFilterZone(); return; }
+  panel.classList.add("mapf-closing");
+  setTimeout(function(){ MAPSEARCH.filtersOpen=false; updateMapFilterZone() }, 200);
+}
+function applyAndCloseMapFilterPanel(){
+  // "Show results" is a deliberate search — unlike dismissing the
+  // dropdown, this legitimately needs to refresh the map's pins and
+  // the results count together, so a full render() here is correct
   var panel = document.getElementById("mapFPanel");
   if(!panel){ MAPSEARCH.filtersOpen=false; render(); return; }
   panel.classList.add("mapf-closing");
@@ -3433,8 +3444,11 @@ function mapSearchPage(){
    // over the top of the map instead, with a transparent background.
    '<div style="position:relative">'+
     '<div style="display:flex;align-items:center;margin-bottom:10px;position:relative;z-index:1091">'+
-     '<div class="mapf-toggle" style="cursor:default;font-weight:600;width:auto;display:inline-flex">'+t("mapSearchResultsCount").replace("{n}", totalForDeal)+'</div>'+
-     '<div id="mapFilterZone" style="position:absolute;left:50%;transform:translateX(-50%)">'+mapFilterZoneHtml()+'</div>'+
+     '<div style="flex:1;display:flex">'+
+      '<div class="mapf-toggle" style="cursor:default;font-weight:600;width:auto;display:inline-flex">'+t("mapSearchResultsCount").replace("{n}", totalForDeal)+'</div>'+
+     '</div>'+
+     '<div id="mapFilterZone">'+mapFilterZoneHtml()+'</div>'+
+     '<div style="flex:1"></div>'+
     '</div>'+
     (totalForDeal===0 ? '<div style="position:absolute;top:60px;left:0;right:0;display:flex;align-items:center;justify-content:center;z-index:400;pointer-events:none">'+
       '<div class="mapf-toggle" style="pointer-events:auto"><b>'+t("mapSearchNoMatches")+'</b></div></div>' : '')+
@@ -3491,7 +3505,7 @@ function updateMapFilterZone(){
 }
 function wireMapFilterZone(){
   if($("#mapFiltersToggle")) $("#mapFiltersToggle").onclick=function(){
-    if(MAPSEARCH.filtersOpen){ closeMapFilterPanel() }
+    if(MAPSEARCH.filtersOpen){ closeMapFilterPanelLocally() }
     else { MAPSEARCH.filtersOpen=true; updateMapFilterZone() }
   };
   if($("#mapFGov")) $("#mapFGov").onchange=function(){ MAPSEARCH.gov=this.value; MAPSEARCH.area=""; updateMapFilterZone() };
@@ -3505,7 +3519,7 @@ function wireMapFilterZone(){
     // to refresh the map and the results count together
     MAPSEARCH.filtersOpen=false; render();
   };
-  if($("#mapFiltersApply")) $("#mapFiltersApply").onclick=function(){ closeMapFilterPanel() };
+  if($("#mapFiltersApply")) $("#mapFiltersApply").onclick=function(){ applyAndCloseMapFilterPanel() };
 }
 function initMapSearch(){
   var container = document.getElementById("mapSearchBox");
