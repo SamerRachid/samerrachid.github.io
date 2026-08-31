@@ -577,22 +577,23 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
 @keyframes auf{from{opacity:0}to{opacity:1}}
 .aubox{background:#fff;border-radius:10px;width:100%;max-width:396px;max-height:calc(100vh - 40px);overflow-y:auto;overflow-x:hidden;box-shadow:0 24px 60px -18px rgba(9,14,26,.5);animation:aup .26s cubic-bezier(.22,.61,.36,1)}
 @keyframes aup{from{transform:translateY(14px) scale(.98);opacity:0}to{transform:none;opacity:1}}
-@keyframes mapfDown{from{transform:translateY(-10px);opacity:0}to{transform:translateY(0);opacity:1}}
-@keyframes mapfUp{from{transform:translateY(0);opacity:1}to{transform:translateY(-10px);opacity:0}}
+@keyframes mapfDown{from{transform:scaleY(.35) translateY(-6px);opacity:0}to{transform:scaleY(1) translateY(0);opacity:1}}
+@keyframes mapfUp{from{transform:scaleY(1) translateY(0);opacity:1}to{transform:scaleY(.35) translateY(-6px);opacity:0}}
 .mapf-toggle{width:100%;display:flex;align-items:center;justify-content:center;gap:6px;
   background:rgba(255,255,255,.88);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
   border:1px solid rgba(255,255,255,.6);border-radius:10px;padding:11px 16px;font-size:14px;
   font-weight:600;color:var(--ink);cursor:pointer;box-shadow:0 6px 20px -8px rgba(9,14,26,.25)}
-.mapf-mainbtn{min-width:240px;display:flex;align-items:center;justify-content:center;gap:6px;
+.mapf-mainbtn{width:240px;display:flex;align-items:center;justify-content:center;gap:6px;
   background:#fff;border:1.5px solid var(--navy);border-radius:10px;padding:13px 22px;font-size:15px;
   font-weight:700;color:var(--navy);cursor:pointer;box-shadow:0 6px 16px -8px rgba(9,14,26,.3)}
 .mapf-mainbtn:hover{background:var(--page)}
 .mapf-panel{margin-top:8px;padding:14px;border-radius:10px;
   background:rgba(255,255,255,.22);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);
   border:1px solid rgba(255,255,255,.45);box-shadow:0 12px 30px -10px rgba(9,14,26,.3);
-  animation:mapfDown .22s cubic-bezier(.22,.61,.36,1)}
+  transform-origin:top center;
+  animation:mapfDown .24s cubic-bezier(.2,.9,.3,1.15)}
 .mapf-panel .fl select{background:#fff;opacity:1}
-.mapf-panel.mapf-closing{animation:mapfUp .2s cubic-bezier(.4,0,1,1) forwards}
+.mapf-panel.mapf-closing{animation:mapfUp .18s cubic-bezier(.4,0,1,1) forwards}
 .autop{background:var(--navy);color:#fff;padding:15px 20px;display:flex;align-items:center}
 .autop b{font-size:16px}
 .autop button{margin-inline-start:auto;background:none;border:none;color:rgba(255,255,255,.7);font-size:19px;cursor:pointer;line-height:1}
@@ -3463,7 +3464,7 @@ function mapFilterZoneHtml(){
     '<button type="button" class="mapf-mainbtn" id="mapFiltersToggle">'+
      t("filtersH")+(fCount?' <span class="filtercount">'+fCount+'</span>':'')+
      '<span style="color:var(--grey);font-size:12px">'+(MAPSEARCH.filtersOpen?"\u25b4":"\u25be")+'</span></button>'+
-    (MAPSEARCH.filtersOpen ? '<div class="mapf-panel" id="mapFPanel" style="position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);width:340px;z-index:1091;margin-top:0">'+
+    (MAPSEARCH.filtersOpen ? '<div class="mapf-panel" id="mapFPanel" style="position:absolute;top:calc(100% + 8px);left:50%;margin-left:-170px;width:340px;z-index:1091;margin-top:0">'+
      '<div class="row">'+
       '<div class="fl"><label>'+t("gov")+'</label><select id="mapFGov">'+
        '<option value="">'+t("dealAll")+'</option>'+
