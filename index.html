@@ -160,10 +160,9 @@ html.js .rv.in{opacity:1;transform:none}
 
 
 .topbanner-wrap{padding-top:8px;position:relative;z-index:2}
-.topbanner-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
-.topbanner-col{flex:1 1 0;min-width:220px}
+.topbanner-row{position:relative}
+.topbanner-col{position:absolute;top:0;left:calc((100% - min(var(--banner-w,728px),100%)) * var(--banner-hpos,.5));max-width:100%}
 .topbanner{display:block;width:var(--banner-w,728px);max-width:100%;
-  margin-left:calc((100% - min(var(--banner-w,728px),100%)) * var(--banner-hpos,.5));
   margin-bottom:var(--banner-gap,14px);aspect-ratio:var(--banner-ratio,728/90);
   border-radius:8px;overflow:hidden;background:#fff;box-shadow:0 2px 10px -4px rgba(9,14,26,.2);position:relative}
 .topbanner-media{width:100%;height:100%;position:relative;overflow:hidden}
@@ -1501,11 +1500,27 @@ function bannerCoreHtml(cfg, bIdx){
     '<div class="topbanner-media">'+itemsHtml+'</div>'+textHtml+'</div></div>';
 }
 function topBannerCoreRowHtml(){
-  // all enabled, populated banners side by side. Returns "" if none
-  // of the 3 slots actually has anything to show — no empty row.
+  // all enabled, populated banners, each independently positioned
+  // anywhere across the FULL width of the row (not confined to a
+  // fixed one-third share) — this is what gives the horizontal
+  // position control real, wide range, and lets banners sit right on
+  // top of each other if that's genuinely what's wanted, rather than
+  // being squeezed into equal columns that leave barely any room to
+  // actually move within.
   var banners = bannersConfig();
   var html = banners.map(function(cfg,i){ return bannerCoreHtml(cfg,i) }).join("");
-  return html ? '<div class="topbanner-row">'+html+'</div>' : "";
+  if(!html) return "";
+  // since every banner is now absolutely positioned, none of them
+  // contribute to the row's own height on their own — so it's
+  // computed here instead, tall enough for whichever enabled banner
+  // would be tallest at its own configured size
+  var maxH = banners.reduce(function(m,cfg){
+    if(!cfg.enabled || !cfg.items.length) return m;
+    var size = cfg.size==="custom" ? {w:cfg.customW||728,h:cfg.customH||90} : (BANNER_SIZES[cfg.size]||BANNER_SIZES["728x90"]);
+    var gap = cfg.gap!=null ? cfg.gap : 14;
+    return Math.max(m, size.h + gap);
+  }, 0);
+  return '<div class="topbanner-row" style="height:'+maxH+'px">'+html+'</div>';
 }
 function topBannerHtml(){
   // above-the-hero placement for however many of the 3 banners are
@@ -3637,11 +3652,23 @@ function adSlotsRow(){
   // when everything already fits in view
   var carouselSeconds = SITE.ad_carousel_seconds!=null ? SITE.ad_carousel_seconds : 3;
   var carouselDir = SITE.ad_carousel_direction || "left";
+  // the track holds THREE back-to-back copies of every ad — clone,
+  // real, clone — starting the visible position at the beginning of
+  // the middle (real) copy. Moving forward or back ever runs out of
+  // actual content to slide into (which is what looked like squares
+  // "going empty" on one side) — every direction always has more of
+  // the same content ready to slide in, and once the animation
+  // carries the view into one of the cloned copies, the code quietly
+  // snaps back to the identical spot in the middle copy right after,
+  // with no visible jump since every copy is pixel-identical. That's
+  // what makes it feel like a continuous wheel instead of a strip
+  // with two hard edges, however few or many ads there actually are.
+  var tripledHtml = slotsHtml + slotsHtml + slotsHtml;
   return '<div class="wrap"><div class="adcarousel" id="adCarousel" data-count="'+AD_SLOTS.length+
    '" data-seconds="'+carouselSeconds+'" data-direction="'+carouselDir+'" style="--ad-size:'+sqSize+'px">'+
-   '<button type="button" class="adcarousel-arrow adcarousel-prev" id="adCarouselPrev" aria-label="'+t("prevAd")+'">'+ICON_CHEV_LEFT+'</button>'+
-   '<div class="adcarousel-viewport"><div class="adcarousel-track" id="adCarouselTrack">'+slotsHtml+'</div></div>'+
-   '<button type="button" class="adcarousel-arrow adcarousel-next" id="adCarouselNext" aria-label="'+t("nextAd")+'">'+ICON_CHEV_RIGHT+'</button>'+
+   '<button type="button" class="adcarousel-arrow adcarousel-prev" id="adCarouselPrev" aria-label="'+t("prevAd")+'">'+ICON_CHEV_RIGHT+'</button>'+
+   '<div class="adcarousel-viewport"><div class="adcarousel-track" id="adCarouselTrack">'+tripledHtml+'</div></div>'+
+   '<button type="button" class="adcarousel-arrow adcarousel-next" id="adCarouselNext" aria-label="'+t("nextAd")+'">'+ICON_CHEV_LEFT+'</button>'+
    '</div></div>';
 }
 var _adRotateTimer=null;
@@ -3700,6 +3727,29 @@ function tickBannerRotation(elId){
 }
 
 var _adCarouselTimer=null;
+function initAdCarouselPosition(){
+  // every render rebuilds the whole page from scratch, so the
+  // carousel element is always brand-new with no dataset.currentIdx
+  // of its own yet — without this, the track would visually sit at
+  // the very start of the first cloned copy (untransformed) while
+  // moveAdCarousel() assumes it starts at the middle, REAL copy,
+  // causing a visible jump the first time it's used after any render
+  var el = document.getElementById("adCarousel");
+  var track = document.getElementById("adCarouselTrack");
+  if(!el || !track) return;
+  var count = parseInt(el.dataset.count,10)||0;
+  if(count<2) return;
+  var items = [].slice.call(track.querySelectorAll(".adslot"));
+  if(!items.length) return;
+  var itemW = items[0].getBoundingClientRect().width;
+  var step = itemW + 10;
+  el.dataset.currentIdx = count;
+  var rtl = document.documentElement.dir==="rtl";
+  track.style.transition = "none";
+  track.style.transform = "translateX("+(count * step * (rtl?1:-1))+"px)";
+  void track.offsetWidth;
+  track.style.transition = "";
+}
 function moveAdCarousel(dir){
   // dir: +1 moves forward (next ad revealed), -1 moves back. Shared
   // by both the auto-rotation timer and the manual arrow buttons, so
@@ -3709,20 +3759,40 @@ function moveAdCarousel(dir){
   var track = document.getElementById("adCarouselTrack");
   if(!el || !track) return;
   var count = parseInt(el.dataset.count,10)||0;
+  if(count<2) return; // one (or zero) ads — nothing to rotate through
   var items = [].slice.call(track.querySelectorAll(".adslot"));
   if(!items.length) return;
   var itemW = items[0].getBoundingClientRect().width;
   var gap = 10;
   var step = itemW + gap;
-  var curIdx = parseInt(el.dataset.currentIdx,10)||0;
-  var maxIdx = Math.max(0, count - 1);
+  var curIdx = parseInt(el.dataset.currentIdx,10);
+  // starts at the beginning of the middle (real) copy of three —
+  // see adSlotsRow() for why there are three copies in the track
+  if(isNaN(curIdx)) curIdx = count;
   curIdx = curIdx + dir;
-  if(curIdx < 0) curIdx = maxIdx;
-  if(curIdx > maxIdx) curIdx = 0;
   el.dataset.currentIdx = curIdx;
   var rtl = document.documentElement.dir==="rtl";
   var offset = curIdx * step * (rtl ? 1 : -1);
   track.style.transform = "translateX("+offset+"px)";
+  // once the view has slid into either cloned copy (past the real
+  // copy's own start or end), silently jump back to the equivalent
+  // position in the middle copy right after the slide animation
+  // finishes — since all three copies are pixel-identical, this
+  // jump is invisible, and it's what makes the rotation feel
+  // endless in either direction instead of hitting a hard edge
+  if(curIdx < count || curIdx >= count*2){
+    setTimeout(function(){
+      var stillEl = document.getElementById("adCarousel");
+      var stillTrack = document.getElementById("adCarouselTrack");
+      if(!stillEl || !stillTrack || +stillEl.dataset.currentIdx !== curIdx) return;
+      var normalized = ((curIdx - count) % count + count) % count + count;
+      stillEl.dataset.currentIdx = normalized;
+      stillTrack.style.transition = "none";
+      stillTrack.style.transform = "translateX("+(normalized * step * (rtl?1:-1))+"px)";
+      void stillTrack.offsetWidth; // forces the browser to apply transition:none before it's cleared below
+      stillTrack.style.transition = "";
+    }, 520);
+  }
 }
 function startAdCarouselRotation(){
   if(_adCarouselTimer) return;
@@ -4269,6 +4339,7 @@ function wire(){
  if(VIEW.indexOf("listing")!==0 && _simCarouselTimer){ clearInterval(_simCarouselTimer); _simCarouselTimer=null; }
  if(VIEW!=="mapsearch") stopMapSearch();
  wireAllCCPickers();
+ initAdCarouselPosition();
  if($("#adCarouselPrev")) $("#adCarouselPrev").onclick=function(){ moveAdCarousel(-1) };
  if($("#adCarouselNext")) $("#adCarouselNext").onclick=function(){ moveAdCarousel(1) };
  $$("[data-pwtoggle]").forEach(function(btn){ btn.onclick=function(){
