@@ -226,6 +226,11 @@ html.js .rv.in{opacity:1;transform:none}
 .mappin-type{margin-top:4px;font-size:12.5px;color:var(--light)}
 .leaflet-popup-content-wrapper{padding:0;overflow:hidden;border-radius:8px}
 .leaflet-popup-content{margin:0;width:auto!important}
+.mappin-popup-custom{position:absolute;z-index:1000;background:#fff;border-radius:8px;
+  box-shadow:0 6px 20px rgba(9,14,26,.22);overflow:hidden;cursor:pointer}
+.mappin-popup-custom::after{content:"";position:absolute;inset-inline-start:50%;margin-inline-start:-7px;
+  bottom:-7px;border:7px solid transparent;border-top-color:#fff}
+.mappin-popup-custom.flip-below::after{bottom:auto;top:-7px;border-top-color:transparent;border-bottom-color:#fff}
 .sf{padding:12px 16px;border-inline-end:1px solid var(--line);min-width:0}
 .sf label{display:block;font-size:11px;color:var(--light);font-weight:600;margin-bottom:2px}
 .sf select{border:none;background:none;width:100%;font-size:15px;font-weight:600;color:var(--ink);padding:0}
@@ -4446,35 +4451,58 @@ function initMapSearch(){
   LMap.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {maxZoom:19, attribution:"\u00a9 OpenStreetMap"}).addTo(map);
   var bounds = [];
-  // hovering a pin opens its popup; without care, moving the mouse
-  // from the small pin toward the (visually adjacent, but separate)
-  // popup element fires the pin's mouseout first and closes it before
-  // the mouse actually reaches the popup. A short grace-period timer
-  // fixes this: leaving the pin schedules a close, but entering the
-  // popup itself (bound once the popup DOM element actually exists,
-  // via Leaflet's popupopen event) cancels that pending close — so it
-  // only ever closes once the mouse has genuinely left both.
+  // hovering a pin used to open a native Leaflet popup, which by
+  // default auto-pans the MAP itself whenever the popup would
+  // otherwise be clipped near an edge — exactly the "map jumps around
+  // on hover" behavior reported. Professional map-search UIs (Zillow,
+  // Redfin, Bayut) never move the map for a hover preview; the card
+  // itself repositions instead. So this is a plain, custom-positioned
+  // div — not Leaflet's popup system at all — placed above the pin by
+  // default and flipped below it, or nudged sideways, only when there
+  // genuinely isn't room, measured against the map's own container,
+  // never the map's coordinate system (which is what panning would
+  // otherwise disturb).
+  var mapWrap = container;
+  if(getComputedStyle(mapWrap).position==="static") mapWrap.style.position="relative";
+  var previewEl = document.createElement("div");
+  previewEl.className = "mappin-popup-custom";
+  previewEl.style.display = "none";
+  mapWrap.appendChild(previewEl);
+  var activePinId = null;
+  function positionPreview(point){
+    var pw = previewEl.offsetWidth, ph = previewEl.offsetHeight;
+    var cw = mapWrap.clientWidth, ch = mapWrap.clientHeight;
+    var gap = 14;
+    var top = point.y - ph - gap; // default: above the pin
+    var flippedBelow = false;
+    if(top < 4){ top = point.y + gap; flippedBelow = true } // not enough room above — flip below instead
+    var left = point.x - pw/2; // default: centered on the pin
+    if(left < 4) left = 4;
+    if(left + pw > cw - 4) left = cw - 4 - pw;
+    previewEl.style.top = top + "px";
+    previewEl.style.left = left + "px";
+    previewEl.classList.toggle("flip-below", flippedBelow);
+  }
   var closeTimer = null;
   function cancelPopupClose(){ if(closeTimer){ clearTimeout(closeTimer); closeTimer=null; } }
-  function schedulePopupClose(){ cancelPopupClose(); closeTimer=setTimeout(function(){ map.closePopup() }, 200); }
+  function schedulePopupClose(){ cancelPopupClose(); closeTimer=setTimeout(function(){ previewEl.style.display="none"; activePinId=null }, 200); }
   function goToMapListing(id){
     if(_mapSearchInstance){ try{ _mapSearchInstance.remove() }catch(e){} _mapSearchInstance=null; }
     VIEW="listing:"+id; scrollTo(0,0); render();
     refreshListingsOnNavigate();
   }
-  map.on("popupopen", function(e){
-    var el = e.popup.getElement && e.popup.getElement();
-    if(!el) return;
-    el.addEventListener("mouseenter", cancelPopupClose);
-    el.addEventListener("mouseleave", schedulePopupClose);
-    // the pin itself is a tiny click target — clicking anywhere on the
-    // detail square that opens from it should navigate too, matching
-    // how a normal listing card is clickable anywhere on its surface
-    el.addEventListener("click", function(){
-      var host = el.querySelector("[data-pin-listing]");
-      if(host) goToMapListing(host.getAttribute("data-pin-listing"));
-    });
+  previewEl.addEventListener("mouseenter", cancelPopupClose);
+  previewEl.addEventListener("mouseleave", schedulePopupClose);
+  // the pin itself is a tiny click target — clicking anywhere on the
+  // detail card that opens from it should navigate too, matching how
+  // a normal listing card is clickable anywhere on its surface
+  previewEl.addEventListener("click", function(){
+    var host = previewEl.querySelector("[data-pin-listing]");
+    if(host) goToMapListing(host.getAttribute("data-pin-listing"));
   });
+  // panning/zooming moves every pin's screen position — the preview
+  // would otherwise sit frozen, visibly detached from its pin
+  map.on("movestart zoomstart", function(){ previewEl.style.display="none"; activePinId=null });
   withLoc.forEach(function(x){
     var cover = (x.photos&&x.photos[0]) || x.cover || null;
     var priceText = x.d==="rent" ? (money(x.p)+" "+t("monthlyRent")) : money(x.p);
@@ -4488,8 +4516,13 @@ function initMapSearch(){
       '</div>'+
       '<div class="mappin-type">'+D.TYPES[x.t][li()]+(x.d!=="rent"&&x.tb&&D.TABU[x.tb]?' \u00b7 '+(x.tb==="green"?'<span class="tabu-green">'+D.TABU[x.tb][li()]+'</span>':D.TABU[x.tb][li()]):'')+'</div></div></div>';
     var marker = LMap.marker([x.lat,x.lng]).addTo(map);
-    marker.bindPopup(popupHtml, {maxWidth:260, minWidth:220, className:"mappin-popup"});
-    marker.on("mouseover", function(){ cancelPopupClose(); this.openPopup() });
+    marker.on("mouseover", function(){
+      cancelPopupClose();
+      activePinId = x.id;
+      previewEl.innerHTML = popupHtml;
+      previewEl.style.display = "block";
+      positionPreview(map.latLngToContainerPoint([x.lat,x.lng]));
+    });
     marker.on("mouseout", function(){ schedulePopupClose() });
     marker.on("click", function(){ goToMapListing(x.id) });
     bounds.push([x.lat,x.lng]);
@@ -6302,11 +6335,10 @@ function wireAuth(){
  var err=function(k){var e=$("#auErr"); if(e)e.textContent=(D.I18N[L][k]||k)};
  var phoneOf=function(){ return "+"+$("#auCC").value+($("#auPhone").value||"").replace(/\D/g,"") };
 
- // the combined header button defaults to signup mode — the modal
- // itself already has its own "already have an account? Log in"
- // switch built in, so this doesn't cost anyone who actually wants to
- // log in an extra step, while still leading with account creation
- if($("#bIn"))$("#bIn").onclick=function(){open("up")};
+ // defaults to login mode, per the site owner's request — the modal
+ // itself already has its own "don't have an account? Sign up" switch
+ // built in, so anyone new can still get to signup in one extra click
+ if($("#bIn"))$("#bIn").onclick=function(){open("in")};
  if($("#navMoreChip")){
    $("#navMoreChip").onclick=function(e){e.stopPropagation();
      var m=$("#menu"); if(m) m.classList.remove("on");
