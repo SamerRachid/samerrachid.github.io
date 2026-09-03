@@ -1361,10 +1361,20 @@ async function sha(txt){
 
 async function rpc(fn,args){
   if(!DB) throw new Error("noDb");
+  args=args||{};
+  // member functions verify a session token server-side; attach the current one automatically
+  if(MEMBER_FNS[fn] && args.p_token===undefined) args.p_token=(USER&&USER.token)||null;
   var r=await DB.rpc(fn,args);
   if(r.error) throw r.error;
   if(r.data&&r.data.error) throw new Error(r.data.error);
+  // several functions hand back the caller's own profile without the token — keep the session
+  if(r.data && USER && USER.token && !r.data.token && r.data.id===USER.id && r.data.phone) r.data.token=USER.token;
   return r.data}
+var MEMBER_FNS={bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,
+  bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_own_delete:1,
+  bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
+  bk_search_del:1,bk_search_list:1,bk_search_save:1,bk_set_avatar:1,bk_set_bio:1,bk_set_currency:1,
+  bk_update_profile:1,bk_feedback:1,bk_report:1,bk_contact:1,bk_log_view:1};
 
 function fullName(u){ return u ? ((u.name||"")+(u.family_name?" "+u.family_name:"")).trim() : "" }
 
@@ -6461,7 +6471,9 @@ function wireAuth(){
    document.addEventListener("click",function(){var m=$("#menu");if(m)m.classList.remove("on");
      var nm=$("#notifMenu");if(nm)nm.classList.remove("on");NOTIF_OPEN=false;
      var nmr=$("#navMoreMenu"); if(nmr) nmr.classList.remove("on")});
-   if($("#out"))  $("#out").onclick  =function(){USER=null;clearSession();NOTIFS={items:[],unread:0};
+   if($("#out"))  $("#out").onclick  =function(){
+     if(DB&&USER&&USER.token){ DB.rpc("bk_logout",{p_token:USER.token}).then(null,function(){}) }
+     USER=null;clearSession();NOTIFS={items:[],unread:0};
      if(_notifPollTimer){clearInterval(_notifPollTimer);_notifPollTimer=null}
      VIEW="home";render()};
    if($("#mMine"))$("#mMine").onclick=function(){LOADED.mine=false;VIEW="mine";scrollTo(0,0);render()};
@@ -7145,8 +7157,8 @@ async function savePost(){
       user_id: (USER&&USER.id)?USER.id:null
     };
 
-    var ins = await DB.from("listings").insert(row).select().single();
-    if(ins.error) throw ins.error;
+    // the server takes the poster from the session token and forces status = pending
+    var ins = { data: await rpc("bk_post_listing",{p_token:(USER&&USER.token)||null, p_row:row}) };
     var id = ins.data.id;
 
     // photos: upload full + thumbnail, then one row each.
@@ -7326,7 +7338,7 @@ function logView(){
   if(!DB) return;
   resolveCountry().then(function(c){
     try{ DB.rpc("bk_log_view",{p_path:location.hash||"/",p_view:VIEW.split(":")[0],
-      p_user:(USER&&USER.id)||null,p_country:c||null}) }catch(e){}
+      p_user:(USER&&USER.id)||null,p_country:c||null,p_token:(USER&&USER.token)||null}) }catch(e){}
   });
 }
 var _lastRenderedView = null;
@@ -7386,7 +7398,7 @@ if(VIEW==="admin"&&ADM.token) adminLoad();
    row (each one re-running this same check) could eventually log
    someone out of a perfectly valid session for no real reason. */
 if(USER&&DB){
-  DB.rpc("bk_me",{p_id:USER.id}).then(function(r){
+  DB.rpc("bk_me",{p_id:USER.id, p_token:USER.token||null}).then(function(r){
     if(r && r.data && r.data.error){ USER=null; clearSession(); render(); return }
     if(!r || r.error || !r.data) return; // couldn't confirm either way — leave the existing session alone
     USER=r.data; saveSession(USER); render();
