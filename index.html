@@ -92,6 +92,18 @@ header{background:var(--navy);color:#fff}
 .hnav a:hover,.hnav a.on{color:var(--gold)}
 .navmore{position:relative;cursor:pointer}
 .navmore .menu{inset-inline-start:0;inset-inline-end:auto;top:calc(100% + 14px)}
+/* the language switcher reuses .navmore for its base positioning/
+   cursor behavior, but it does NOT sit in the same part of the
+   header as the "More" dropdown that inset-inline-start:0 above was
+   written for — it lives in .htools, the group pinned to the
+   opposite (outer) edge of the header. Inheriting that same rule
+   pushed the language dropdown toward the outer edge too — in RTL,
+   that's the LEFT edge, where .htools itself already sits, so the
+   panel had nowhere left to go but off the edge of the screen,
+   making every option unreachable. This puts it back in line with
+   every other .htools dropdown (account, notifications), which open
+   inward toward the center of the page instead. */
+#langMenu{inset-inline-start:auto;inset-inline-end:0}
 .htools{margin-inline-start:auto;display:flex;gap:9px;align-items:center}
 .mini{background:none;border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 12px;font-size:12.5px;border-radius:var(--r-s);cursor:pointer}
 #lang option{color:var(--ink);background:#fff}
@@ -4399,16 +4411,20 @@ function mapSearchPage(){
 function mapFilterZoneHtml(){
   var areaOptions = MAPSEARCH.gov && D.GEO[MAPSEARCH.gov] ? D.GEO[MAPSEARCH.gov] : [];
   var fCount = mapSearchActiveFilterCount();
-  // the panel below is positioned relative to the OUTER row (tabs +
-  // filter + count), not this button's own now-more-central spot in
-  // it — anchored to the row's start edge, which is exactly where
-  // the Sale/Rent tabs sit, so it always unfolds directly under them
-  // regardless of where the filter button itself ends up
-  return '<div>'+
+  // anchored to this button's OWN position, not the outer row — the
+  // row's own layout has changed since (the filter button now sits
+  // in the middle rather than at the row's start), and an earlier
+  // fix that anchored the panel to the row's start edge instead of
+  // the button itself meant the dropdown stayed pinned to the left
+  // side while the button moved to the middle — exactly the "opens
+  // from the side, not from the button" bug reported. Anchoring here
+  // instead means it always opens centered directly under wherever
+  // this button actually is, regardless of the row around it.
+  return '<div style="position:relative">'+
     '<button type="button" class="mapf-mainbtn" id="mapFiltersToggle">'+
      t("filtersH")+(fCount?' <span class="filtercount">'+fCount+'</span>':'')+
      '<span style="color:var(--grey);font-size:12px">'+(MAPSEARCH.filtersOpen?"\u25b4":"\u25be")+'</span></button>'+
-    (MAPSEARCH.filtersOpen ? '<div class="mapf-panel" id="mapFPanel" style="position:absolute;top:calc(100% + 8px);inset-inline-start:0;width:340px;z-index:1091;margin-top:0">'+
+    (MAPSEARCH.filtersOpen ? '<div class="mapf-panel" id="mapFPanel" style="position:absolute;top:calc(100% + 8px);left:50%;margin-left:-170px;width:340px;z-index:1091;margin-top:0">'+
      '<div class="row">'+
       '<div class="fl"><label>'+t("gov")+'</label><select id="mapFGov">'+
        '<option value="">'+t("dealAll")+'</option>'+
