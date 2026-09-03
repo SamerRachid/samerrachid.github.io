@@ -963,6 +963,79 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
 
 /* ── admin: clickable listing ref, review table ── */
 .adlink{color:var(--navy);text-decoration:underline;cursor:pointer;font-weight:600}
+
+/* ══ 2026-09 design refresh ═══════════════════════════════════════════
+   One type scale (16 body / 14 secondary / 12.5 smallest), three radii
+   (4 / 8 / 12), price as the only bold element on a card, grouped
+   property types, and a header that fits a phone. Kept as one block
+   at the end so it overrides the older rules above without editing
+   them one by one. ═══════════════════════════════════════════════════ */
+:root{--r:8px;--r-s:4px;--r-l:12px;--warn:#B45309}
+body{font-size:16px}
+.hnav{font-size:15px}
+.mini{font-size:13px;padding:7px 12px}
+.gold{font-size:14px}
+.crumb{font-size:13.5px}
+.sec{padding:40px 0 8px}
+.sec h2{font-size:24px}
+.sec .sub{font-size:15px}
+.hnote{font-size:14.5px}
+.stabs button{font-size:14.5px}
+.sf label{font-size:12.5px}
+.sgo{font-size:16px}
+/* cards: price is the one bold thing; everything else steps down in weight and colour */
+.cb .p{font-size:20px}
+.cb-loc{font-size:14px;font-weight:600;color:var(--ink)}
+.cb-details{font-size:13px;color:var(--grey)}
+.cb-type{font-weight:500;color:var(--grey)}
+.cb-poster{color:var(--grey)}
+.cb .d{font-size:12.5px}
+.cb-photoicons{font-size:13px}
+.bd span{font-size:12px;border-radius:var(--r-s)}
+.nph{font-size:12px;border-radius:var(--r-s)}
+.tabu-green{color:var(--ok);font-weight:600}
+/* property-type families on the home page */
+.typegroup{margin-top:18px}
+.typegroup h3{font-size:14.5px;font-weight:700;color:var(--grey);margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px}
+[dir="rtl"] .typegroup h3{text-transform:none;letter-spacing:0}
+.typegrid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.typecell{border-radius:var(--r);padding:14px 16px}
+.typecell b{font-size:15.5px}
+.typecell span{font-size:13px;background:var(--navy-w);color:var(--navy);padding:2px 9px;border-radius:12px;font-weight:600}
+/* radii: 4 / 8 / 12 only */
+.tile,.guide,.band,.sbar,.profcard,.mappin-popup-custom,.leaflet-popup-content-wrapper{border-radius:var(--r-l)}
+.stabs{border-radius:var(--r-l) var(--r-l) 0 0}
+.sgo{border-radius:0 0 var(--r-l) var(--r-l)}
+.govs a,.pg a,.fg select,.fg input,.chipsel-box,.topbar select,.card,.panel,.typecell{border-radius:var(--r)}
+.vbadge,.chip{border-radius:var(--r-s)}
+/* secondary text sizes across the home and search pages */
+.govs a{font-size:15px}.govs span{font-size:13px}
+.tile h3{font-size:17px}.tile p{font-size:14px}.tile .cnt{font-size:13px}
+.guide h3{font-size:17px}.guide p{font-size:14px}.guide .k{font-size:12.5px}
+.band h2{font-size:24px}.band p{font-size:15px}.bandlist{font-size:14px}
+footer{font-size:14px}
+.fg h4{font-size:12.5px}.fg select,.fg input,.ck{font-size:14.5px}.ck .c{font-size:12.5px}
+.topbar h1{font-size:22px}.topbar .n{font-size:14px}.topbar select{font-size:14px}
+.keys b{font-size:18px}.keys span{font-size:12.5px}
+.mappin-price{font-size:16px}.mappin-loc{font-size:12.5px}.mappin-type{font-size:13px}
+/* header on phones: short login label, smaller chips, the floating post button replaces the header one */
+.lbl-short{display:none}
+@media(max-width:640px){
+  .lbl-full{display:none}.lbl-short{display:inline}
+  .hbar{gap:8px;height:58px}
+  .htools{gap:6px}
+  .mini{padding:6px 9px;font-size:12.5px}
+  .logo{font-size:17px;padding:4px 10px}
+  .htools .gold{display:none}
+  .chip2{font-size:12.5px;padding:4px 9px 4px 5px}
+  .hero{min-height:0;padding:22px 0 18px}
+  .hero h1{font-size:22px;margin-bottom:12px}
+  .sec{padding:28px 0 6px}
+  .sec h2{font-size:21px}
+  .typegrid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .typecell{padding:12px 13px}
+  body{padding-bottom:78px} /* room under the content for the floating "post" button */
+}
 </style><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
@@ -1310,7 +1383,7 @@ function header(){
     '<a id="mMine">'+t("myAds")+'</a><a id="mSaved">'+t("mySaved")+'</a>'+
     '<a id="mSearch">'+t("mySearch")+'</a><a id="mMsgs">'+t("myMessages")+'</a><div class="sep"></div><a id="mSet">'+t("settings")+'</a>'+
     '<a class="out" id="out">'+t("logout")+'</a></div></div>'
-  : '<button class="mini" id="bIn">'+t("loginSignupCombo")+'</button>';
+  : '<button class="mini" id="bIn"><span class="lbl-full">'+t("loginSignupCombo")+'</span><span class="lbl-short">'+t("login")+'</span></button>';
  // Buy/Rent no longer live in the top nav — they're already the first
  // thing visible in the homepage's own search tabs, so keeping them
  // here too was showing the same choice twice. Grouped into the "More"
@@ -1775,19 +1848,24 @@ function bannerAdminBlockHtml(bIdx){
    '</div></div>';
 }
 function home(){
- var n=function(k){ return CNT.byTypeDeal[k+":"+HOMEDEAL]!==undefined ? CNT.byTypeDeal[k+":"+HOMEDEAL] : (CNT.byType[k]||0) };
- var TYPESET=[["apartment"],["arab"],["villa"],["floor"],["building"],["chalet"],["restaurant"],["farm"],
-              ["shop"],["office"],["factory"],["warehouse"],["resid"],["agri"],["comm"]];
- var choice=function(deal){
-   return '<div class="dealcard'+(HOMEDEAL===deal?" on":"")+'" data-deal2="'+deal+'">'+
-     '<b>'+(deal==="sale"?t("forsale"):t("forrent"))+'</b>'+
-     '<span>'+(deal==="sale"?t("buyHint"):t("rentHint"))+'</span>'+
-     '<span class="ltr" style="display:block;font-size:12px;opacity:.7;margin-top:4px">'+(CNT.byDeal[deal]||0)+' '+t("props")+'</span></div>' };
+ // Buy/rent is chosen once, in the hero tabs (F.deal); the type tiles follow it instead of
+ // asking the same question again with a second pair of cards.
+ var hd = F.deal || HOMEDEAL || "sale";
+ var n=function(k){ return CNT.byTypeDeal[k+":"+hd]!==undefined ? CNT.byTypeDeal[k+":"+hd] : (CNT.byType[k]||0) };
+ // three families instead of one flat list of 15 types
+ var GROUPS=[
+   {ar:"سكني", en:"Residential", de:"Wohnen", types:["apartment","arab","villa","floor","building","chalet"]},
+   {ar:"تجاري", en:"Commercial", de:"Gewerbe", types:["shop","office","restaurant","warehouse","factory"]},
+   {ar:"أراضٍ ومزارع", en:"Land & farms", de:"Grundstücke & Höfe", types:["resid","agri","comm","farm"]}];
  var typeList=function(){
-   return '<div class="typegrid">'+TYPESET.map(function(a){
-     var k=a[0];
-     return '<a class="typecell" data-go="search" data-type="'+k+'" data-deal="'+HOMEDEAL+'">'+
-       '<b>'+D.TYPES[k][li()]+'</b><span class="ltr">'+n(k)+'</span></a>'}).join("")+'</div>' };
+   return GROUPS.map(function(g){
+     return '<div class="typegroup"><h3>'+(g[L]||g.en)+'</h3><div class="typegrid">'+g.types.map(function(k){
+       if(!D.TYPES[k]) return '';
+       var c=n(k);
+       // a tile that says "0" or "3" makes the site look empty — counts only appear once they mean something
+       return '<a class="typecell" data-go="search" data-type="'+k+'" data-deal="'+hd+'">'+
+         '<b>'+D.TYPES[k][li()]+'</b>'+(c>=10?'<span class="ltr">'+c+'</span>':'')+'</a>'}).join("")+'</div></div>'}).join("") };
+ var NOCOMM={ar:"بدون أي عمولة — من المالك مباشرة", en:"no commission, direct from owners", de:"ohne Provision, direkt vom Eigentümer"};
  var G=D.GUIDES[L];
  var siteText=function(baseKey,fallbackKey){
    var v = SITE[baseKey+"_"+L];
@@ -1853,13 +1931,17 @@ function home(){
         return D.TABU[v]?D.TABU[v][li()]:v})+'</div>')+
    '<button class="sgo" id="hgo">'+t("search")+'<br><span id="hgoCount" style="font-size:11.5px;opacity:.75">'+heroCount(F.deal)+'</span></button>'+
    '</div></div>'+
-   (SITE.stats_enabled===false ? '' :
-     '<div class="hnote"><b>'+(SITE.stats_areas_num||"657")+'</b> '+siteText("stats1","note")+
-     ' <b>'+(SITE.stats_use_real_count?CNT.total.toLocaleString("en"):(SITE.stats_listings_num||"9,102"))+'</b> '+siteText("stats2","note2")+'</div>')+
+   (SITE.stats_enabled===false ? '' : (function(){
+     // never show an invented listing count: use the real one when enabled, a number the admin
+     // typed on purpose, or no number at all (the old default "9,102" was a placeholder)
+     var typed = (SITE.stats_listings_num && SITE.stats_listings_num!=="9,102") ? SITE.stats_listings_num : null;
+     var lnum = SITE.stats_use_real_count ? CNT.total.toLocaleString("en") : typed;
+     var s2 = (SITE["stats2_"+L]&&SITE["stats2_"+L].trim()) ? SITE["stats2_"+L] : (lnum ? t("note2") : (NOCOMM[L]||NOCOMM.en));
+     return '<div class="hnote"><b>'+(SITE.stats_areas_num||"657")+'</b> '+siteText("stats1","note")+
+       ' '+(lnum?'<b>'+lnum+'</b> ':'')+s2+'</div>' })())+
    '</div></section></div>'+
  adSlotsRow()+
- '<div class="wrap"><section class="sec"><h2>'+t("pickH")+'</h2><div class="sub">'+t("pickS")+'</div>'+
-  '<div class="deals">'+choice("sale")+choice("rent")+'</div>'+
+ '<div class="wrap"><section class="sec"><h2>'+t("pickH")+'</h2>'+
   typeList()+'</section>'+
   (USER ? '' :
   '<div class="band"><div><h2>'+t("bandH")+'</h2><p>'+t("bandP")+'</p><div class="bandlist">'+
