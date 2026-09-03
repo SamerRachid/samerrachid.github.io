@@ -1118,6 +1118,61 @@ body.has-cur .leaflet-container a,body.has-cur .leaflet-interactive{cursor:point
   .mkt-track{animation:none}.mkt-win{overflow-x:auto;-webkit-mask:none;mask:none}.mkt-lab i{animation:none}
   .hv.on img,.hv.on video{animation:none}.cur{display:none}
   .hnav a::after{transition:none}}
+
+/* ── opening curtain + hero choreography ── */
+.curtain{position:fixed;inset:0;z-index:100000;background:radial-gradient(120% 90% at 50% 30%,#1B2C52,var(--navy) 70%);display:grid;place-items:center;transition:transform .95s cubic-bezier(.76,0,.24,1);will-change:transform}
+.curtain.done{transform:translateY(-101%)}
+.curtain .cw{font-family:var(--fd);font-weight:700;font-size:clamp(44px,7vw,76px);color:var(--gold);line-height:1.1;overflow:hidden;position:relative;padding:0 6px 12px}
+.curtain .cw span{display:inline-block;transform:translateY(110%);animation:curRise .8s cubic-bezier(.2,.7,.2,1) .1s forwards}
+.curtain .cw::after{content:"";position:absolute;inset-inline-end:6px;bottom:4px;height:2px;width:0;background:var(--gold);animation:curLine .7s cubic-bezier(.2,.7,.2,1) .5s forwards}
+@keyframes curRise{to{transform:none}}
+@keyframes curLine{to{width:calc(100% - 12px)}}
+.choreo{animation:heroRise .9s cubic-bezier(.2,.7,.2,1) both}
+@keyframes heroRise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+
+/* ── header menus: frosted panel, pointer, slide-in, icons, rotating chevron ── */
+.menu{border:0;border-radius:12px;padding:6px;overflow:visible;background:rgba(255,255,255,.97);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 18px 44px -14px rgba(9,14,26,.42),0 0 0 1px rgba(20,33,61,.07)}
+.menu::before{content:"";position:absolute;top:-6px;inset-inline-end:18px;width:12px;height:12px;background:#fff;transform:rotate(45deg);border-radius:2px;box-shadow:-1px -1px 0 rgba(20,33,61,.07)}
+.navmore .menu::before{inset-inline-end:auto;inset-inline-start:18px}
+#langMenu::before{inset-inline-start:auto;inset-inline-end:18px}
+.menu.on{animation:menuIn .2s cubic-bezier(.2,.7,.2,1)}
+@keyframes menuIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.menu a{display:flex;align-items:center;gap:10px;border-radius:8px;padding:9px 12px;transition:background .15s,color .15s}
+.menu a:hover{background:var(--gold-w);color:var(--navy)}
+.menu a.menupost{border-radius:8px}
+.menu .sep{margin:6px 4px}
+.menu .mi{display:inline-flex;width:18px;height:18px;color:var(--grey);flex:none}
+.menu .mi svg{width:18px;height:18px}
+.menu a:hover .mi{color:var(--gold)}
+.menu .menupost .mi{color:#8A6522}
+.menu .out .mi{color:var(--danger)}
+.chev{width:14px;height:14px;margin-inline-start:4px;vertical-align:-2px;transition:transform .25s cubic-bezier(.2,.7,.2,1);flex:none}
+.navmore:has(.menu.on) .chev,.acct:has(.menu.on) .chev{transform:rotate(180deg)}
+
+/* ── field menus (governorate / area / type / deed): focus glow, grouped options, counts, keyboard, phone bottom sheet ── */
+.chipsel-box{border-radius:8px;transition:border-color .2s,box-shadow .2s}
+.chipsel-box:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px rgba(196,136,31,.16)}
+.sf:focus-within label{color:var(--gold)}
+.chipsel-drop{border:0;border-radius:12px;padding:6px;max-height:300px;box-shadow:0 18px 44px -14px rgba(9,14,26,.38),0 0 0 1px rgba(20,33,61,.07)}
+.chipsel-drop.on{animation:menuIn .18s cubic-bezier(.2,.7,.2,1)}
+.chipsel-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:8px;padding:9px 12px;transition:background .12s,color .12s}
+.chipsel-opt:hover,.chipsel-opt.act{background:var(--gold-w);color:var(--navy)}
+.cs-n{font-size:11.5px;font-weight:600;color:var(--grey);background:var(--page);padding:1px 8px;border-radius:10px;flex:none}
+.chipsel-opt:hover .cs-n,.chipsel-opt.act .cs-n{background:#fff;color:var(--navy)}
+.cs-h{font-size:11.5px;font-weight:700;color:var(--light);padding:10px 12px 4px}
+.cs-sheet-h{display:none}
+.chip{transition:background .15s}
+@keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
+@media(max-width:640px){
+  .chipsel-drop.on{position:fixed;left:0;right:0;bottom:0;top:auto;max-height:72vh;border-radius:18px 18px 0 0;padding:0 8px 14px;z-index:1300;animation:sheetUp .28s cubic-bezier(.2,.7,.2,1);box-shadow:0 -12px 40px rgba(9,14,26,.35)}
+  .chipsel-drop.flip-up{bottom:0}
+  .cs-sheet-h{display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1;background:#fff;padding:16px 6px 10px;margin-bottom:6px;font-weight:700;color:var(--navy);border-bottom:1px solid var(--line)}
+  .cs-sheet-h::before{content:"";position:absolute;top:6px;left:50%;width:40px;height:4px;margin-left:-20px;border-radius:2px;background:var(--line-2)}
+  .cs-close{border:0;background:var(--page);color:var(--ink);width:32px;height:32px;border-radius:50%;font-size:20px;line-height:1;cursor:pointer}
+  .chipsel-opt{padding:12px 10px;font-size:14px}
+  body:has(.chipsel-drop.on) .mobfab{display:none}
+}
+@media (prefers-reduced-motion:reduce){.curtain{display:none}.choreo{animation:none}.menu.on,.chipsel-drop.on{animation:none}}
 </style><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
@@ -1439,6 +1494,26 @@ function notifBellHTML(){
       : '<div class="notifempty">'+t("noNotifs")+'</div>')+
     '</div></div>';
 }
+// header menu icons + rotating chevron (2026-09 menus pass)
+var CHEV='<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+var MI=(function(){
+  var w=function(p){return '<span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg></span>'};
+  return {
+    buy:w('<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/>'),
+    rent:w('<circle cx="8" cy="15" r="4"/><path d="m10.9 12.1 9.1-9.1M15 5l3 3M18 2l3 3"/>'),
+    map:w('<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>'),
+    about:w('<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>'),
+    mail:w('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>'),
+    phone:w('<path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z"/>'),
+    post:w('<path d="M12 5v14M5 12h14"/>'),
+    mine:w('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h10M7 17h6"/>'),
+    saved:w('<path d="M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.4-7 10-7 10z"/>'),
+    search:w('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'),
+    msgs:w('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-5.1A8 8 0 1 1 21 12z"/>'),
+    settings:w('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
+    out:w('<path d="M10 17l5-5-5-5M15 12H3M21 4v16"/>')
+  };
+})();
 function header(){
  // a custom dropdown, not a native <select> — <option> elements can't
  // hold an icon or image at all, and the language names alone don't
@@ -1449,7 +1524,7 @@ function header(){
    return '<a data-langpick="'+k+'"'+(k===L?' class="on"':'')+'><span class="langflag">'+(LANG_FLAGS[k]||"")+'</span>'+D.I18N[k].name+'</a>'
  }).join("");
  var langs='<div class="navmore" id="langWrap"><a id="langChip" class="mini" style="display:inline-flex;align-items:center;gap:6px">'+
-   '<span class="langflag">'+currentFlag+'</span>'+D.I18N[L].name+' \u25be</a>'+
+   '<span class="langflag">'+currentFlag+'</span>'+D.I18N[L].name+CHEV+'</a>'+
    '<div class="menu" id="langMenu">'+langMenu+'</div></div>';
  // logged-out visitors get ONE combined, always-visible "Log in / Sign
  // up" action (this is how the region's own major property portals do
@@ -1460,11 +1535,11 @@ function header(){
  var right = USER
   ? notifBellHTML()+
     '<div class="acct"><div class="chip2" id="chip">'+
-    avatar(USER.avatar_url,USER.name,25,"av")+esc(fullName(USER))+' \u25be</div>'+
-    '<div class="menu" id="menu"><a data-go="post" class="menupost">+ '+t("post")+'</a><div class="sep"></div>'+
-    '<a id="mMine">'+t("myAds")+'</a><a id="mSaved">'+t("mySaved")+'</a>'+
-    '<a id="mSearch">'+t("mySearch")+'</a><a id="mMsgs">'+t("myMessages")+'</a><div class="sep"></div><a id="mSet">'+t("settings")+'</a>'+
-    '<a class="out" id="out">'+t("logout")+'</a></div></div>'
+    avatar(USER.avatar_url,USER.name,25,"av")+esc(fullName(USER))+CHEV+'</div>'+
+    '<div class="menu" id="menu"><a data-go="post" class="menupost">'+MI.post+t("post")+'</a><div class="sep"></div>'+
+    '<a id="mMine">'+MI.mine+t("myAds")+'</a><a id="mSaved">'+MI.saved+t("mySaved")+'</a>'+
+    '<a id="mSearch">'+MI.search+t("mySearch")+'</a><a id="mMsgs">'+MI.msgs+t("myMessages")+'</a><div class="sep"></div><a id="mSet">'+MI.settings+t("settings")+'</a>'+
+    '<a class="out" id="out">'+MI.out+t("logout")+'</a></div></div>'
   : '<button class="mini" id="bIn"><span class="lbl-full">'+t("loginSignupCombo")+'</span><span class="lbl-short">'+t("login")+'</span></button>';
  // Buy/Rent no longer live in the top nav — they're already the first
  // thing visible in the homepage's own search tabs, so keeping them
@@ -1474,15 +1549,15 @@ function header(){
  // want them.
  return '<header><div class="wrap hbar"><a class="logo" data-go="home">'+CONFIG.brand+'</a>'+
   '<nav class="hnav">'+
-  '<div class="navmore" id="navMoreWrap"><a id="navMoreChip">'+t("moreNavT")+' \u25be</a>'+
+  '<div class="navmore" id="navMoreWrap"><a id="navMoreChip">'+t("moreNavT")+CHEV+'</a>'+
    '<div class="menu" id="navMoreMenu">'+
-   '<a data-go="search" data-deal="sale">'+t("buy")+'</a>'+
-   '<a data-go="search" data-deal="rent" data-sec="">'+t("rent")+'</a>'+
+   '<a data-go="search" data-deal="sale">'+MI.buy+t("buy")+'</a>'+
+   '<a data-go="search" data-deal="rent" data-sec="">'+MI.rent+t("rent")+'</a>'+
    '<div class="sep"></div>'+
-   '<a data-go="mapsearch">'+t("searchOnMap")+'</a>'+
-   '<a data-go="about">'+t("about")+'</a>'+
-   '<a data-go="contactus">'+t("contactUsPageT")+'</a>'+
-   '<a data-go="contact">'+t("contactUs")+'</a>'+
+   '<a data-go="mapsearch">'+MI.map+t("searchOnMap")+'</a>'+
+   '<a data-go="about">'+MI.about+t("about")+'</a>'+
+   '<a data-go="contactus">'+MI.phone+t("contactUsPageT")+'</a>'+
+   '<a data-go="contact">'+MI.mail+t("contactUs")+'</a>'+
    '</div></div></nav>'+
   '<div class="htools"><button class="mini" id="cur">'+CUR+'</button>'+
   langs + right +
@@ -4948,12 +5023,22 @@ var CS_CONFIGS={
   csTabu:{getOptions:csTabuOptions, arrKey:"tbs"}
 };
 var _csDocListenerAdded=false;
+// live listing counts per governorate and per area, shown inside the field menus
+function csCounts(){
+  var g={},a={};
+  (D.LIST||[]).forEach(function(x){
+    if(x.status && x.status!=="live") return;
+    if(x.g) g[x.g]=(g[x.g]||0)+1;
+    if(x.a) a[x.a]=(a[x.a]||0)+1;
+  });
+  return {g:g,a:a};
+}
 function positionDropUpOrDown(input,drop){
   try{
     if(!input.getBoundingClientRect) return;
     var rect=input.getBoundingClientRect();
     var vh=window.innerHeight||document.documentElement.clientHeight||800;
-    var spaceBelow=vh-rect.bottom, needed=224;
+    var spaceBelow=vh-rect.bottom, needed=304;
     if(spaceBelow<needed && rect.top>needed){ drop.classList.add("flip-up") }
     else { drop.classList.remove("flip-up") }
   }catch(e){}
@@ -4963,12 +5048,32 @@ function wireChipSelects(){
     var cfg=CS_CONFIGS[id], input=$("#"+id+"Input"), drop=$("#"+id+"Drop");
     if(!input||!drop) return;
     var renderDrop=function(q){
-      var opts=cfg.getOptions().filter(function(o){return (F[cfg.arrKey]||[]).indexOf(o.value)===-1});
-      if(q) opts=opts.filter(function(o){return o.label.toLowerCase().indexOf(q.toLowerCase())>-1});
-      opts=opts.slice(0,40);
-      drop.innerHTML = opts.length ? opts.map(function(o){
-        return '<div class="chipsel-opt" data-cspick="'+id+'" data-csval="'+o.value.replace(/"/g,"&quot;")+'">'+o.label+'</div>'}).join("")
-        : '<div class="chipsel-empty">'+t("noResultsFor")+'</div>';
+      // options carry the live listing count (governorates and areas), areas are grouped
+      // under their governorate when more than one is in play, and on phones the list
+      // opens as a bottom sheet with its own title row and close button (CSS)
+      var sel=F[cfg.arrKey]||[], ql=(q||"").toLowerCase(), cnt=csCounts();
+      var opts=cfg.getOptions().filter(function(o){
+        return sel.indexOf(o.value)===-1 && (!ql || o.label.toLowerCase().indexOf(ql)>-1) });
+      var optHtml=function(o,n){
+        return '<div class="chipsel-opt" data-cspick="'+id+'" data-csval="'+o.value.replace(/"/g,"&quot;")+'">'+
+               '<span>'+o.label+'</span>'+(n?'<span class="cs-n ltr">'+n+'</span>':'')+'</div>' };
+      var html="", shown=0;
+      if(id==="csArea"){
+        var govs=(F.govs&&F.govs.length) ? F.govs.filter(function(g){return D.GEO[g]}) : Object.keys(D.GEO);
+        govs.forEach(function(g){
+          var inG=opts.filter(function(o){return D.GEO[g].indexOf(o.value)>-1});
+          if(!inG.length || shown>=120) return;
+          if(govs.length>1) html+='<div class="cs-h">'+gN(g)+'</div>';
+          inG.forEach(function(o){ if(shown<120){ html+=optHtml(o,cnt.a[o.value]); shown++ } });
+        });
+      } else {
+        opts.slice(0,60).forEach(function(o){ html+=optHtml(o, id==="csGov" ? cnt.g[o.value] : 0) });
+      }
+      drop.innerHTML = '<div class="cs-sheet-h"><span>'+input.placeholder+'</span><button type="button" class="cs-close" aria-label="close">×</button></div>'+
+        (html || '<div class="chipsel-empty">'+t("noResultsFor")+'</div>');
+      drop.onclick=function(ev){ ev.stopPropagation() };
+      var cl=drop.querySelector(".cs-close");
+      if(cl) cl.onclick=function(ev){ ev.stopPropagation(); drop.classList.remove("on"); input.blur() };
       $$(".chipsel-drop.on").forEach(function(d){ if(d!==drop) d.classList.remove("on") });
       var accMenu=$("#menu"); if(accMenu) accMenu.classList.remove("on");
       var notifMenu=$("#notifMenu"); if(notifMenu) notifMenu.classList.remove("on");
@@ -4985,6 +5090,19 @@ function wireChipSelects(){
     input.addEventListener("focus",function(){ renderDrop(this.value) });
     input.addEventListener("input",function(){ renderDrop(this.value) });
     input.addEventListener("click",function(e){ e.stopPropagation() });
+    // keyboard: arrows move the highlight, Enter picks, Escape closes
+    input.addEventListener("keydown",function(e){
+      if(e.key==="ArrowDown"||e.key==="ArrowUp"){
+        var arr=[].slice.call(drop.querySelectorAll(".chipsel-opt")); if(!arr.length) return;
+        e.preventDefault();
+        var i=-1; arr.forEach(function(el,k){ if(el.classList.contains("act")) i=k; el.classList.remove("act") });
+        i = e.key==="ArrowDown" ? (i+1)%arr.length : (i-1+arr.length)%arr.length;
+        arr[i].classList.add("act"); if(arr[i].scrollIntoView) arr[i].scrollIntoView({block:"nearest"});
+      } else if(e.key==="Enter"){
+        var a=drop.querySelector(".chipsel-opt.act")||drop.querySelector(".chipsel-opt");
+        if(a && drop.classList.contains("on")){ e.preventDefault(); a.click() }
+      } else if(e.key==="Escape"){ drop.classList.remove("on"); input.blur() }
+    });
   });
   $$("[data-csremove]").forEach(function(e){ e.onclick=function(ev){
     if(ev){ev.stopPropagation();if(ev.preventDefault)ev.preventDefault()}
@@ -7682,7 +7800,34 @@ function render(){
  document.body.classList.toggle("home-hero", VIEW==="home");
  updateHdr();
  applyReveals();
+ heroChoreo();
  wire()}
+
+/* opening: a navy curtain with the wordmark drawing in, lifted after ~1s to reveal the hero,
+   whose headline, search box and note then rise in sequence. Home page only, once per
+   browser session, never for a visitor who arrives on a listing link, and never when the
+   visitor asked for reduced motion. */
+var _openingActive=false,_openingT0=0;
+function initOpening(){
+  try{ if(sessionStorage.getItem("balkoun_opened")) return }catch(e){}
+  if(VIEW!=="home") return;
+  if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var c=document.createElement("div"); c.className="curtain";
+  c.innerHTML='<div class="cw"><span>'+CONFIG.brand+'</span></div>';
+  document.body.appendChild(c);
+  _openingActive=true; _openingT0=Date.now();
+  try{ sessionStorage.setItem("balkoun_opened","1") }catch(e){}
+  setTimeout(function(){ c.classList.add("done") },950);
+  setTimeout(function(){ _openingActive=false; if(c.parentNode) c.parentNode.removeChild(c) },2100);
+}
+function heroChoreo(){
+  if(!_openingActive || VIEW!=="home") return;
+  var base=Math.max(0, 850-(Date.now()-_openingT0));
+  [[".hero h1",0],[".sbar",160],[".hnote",300]].forEach(function(p){
+    var el=$(p[0]); if(!el) return;
+    el.classList.add("choreo"); el.style.animationDelay=(base+p[1])+"ms";
+  });
+}
 
 /* "market pulse" — real average asking price per m² by area (v_area_prices, live sale
    listings, 3+ per area). Rendered under the home hero; nothing shows until the data
@@ -7764,6 +7909,10 @@ USER = loadSession();
 if(USER && USER.preferred_currency){ CUR=USER.preferred_currency; try{localStorage.setItem("balkoun_cur",CUR)}catch(e){} }
 try{ ADM.token=localStorage.getItem("balkoun_adm")||null }catch(e){}
 var _h=viewFromHash(); if(_h) VIEW=_h;
+initOpening();
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape") $$(".menu.on,.chipsel-drop.on").forEach(function(m){ m.classList.remove("on") });
+});
 if(VIEW.indexOf("listing:")===0 && DB){
   fetchOne(VIEW.split(":")[1]).then(function(r){ if(r) render() }); }
 if(VIEW.indexOf("by:")===0 && DB){
