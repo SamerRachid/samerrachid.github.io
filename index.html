@@ -57,7 +57,7 @@
  ═══════════════════════════════════════════════════════════════════════
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=El+Messiri:wght@500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.114.0/dist/umd/supabase.js" integrity="sha384-UxmVkfpcoSCBn4QrHwxxZVlCbloMpP/2Ay2ByWcNy6TcMxC3JUgqa8Geipyl0tP7" crossorigin="anonymous"></script>
 <!-- Leaflet (maps) is loaded on demand by ensureLeaflet() the first time a map is shown,
      instead of on every page view — see the map initializers in the script below. -->
@@ -1066,6 +1066,58 @@ footer{font-size:14px}
   .thumbs::-webkit-scrollbar{display:none}
   .thumbs img{width:76px;flex:0 0 76px}
 }
+
+/* ══ 2026-09 motion & elegance pass (ported from the approved mockup) ══════
+   display face for the brand and headings, a quieter logo, animated nav
+   underline, slow zoom on the hero photo/video, a custom cursor on
+   desktop, scroll reveals (JS adds .rv only to elements below the fold,
+   only on a page change), and the "market pulse" ticker fed by v_area_prices */
+:root{--fd:'El Messiri','Cairo',system-ui,sans-serif}
+.hero h1,.sec h2,.band h2,.logo,.topbar h1{font-family:var(--fd)}
+.hero h1{letter-spacing:-.005em;line-height:1.35}
+.logo{border:0;padding:4px 0;font-size:24px;letter-spacing:.01em;line-height:1}
+@media(max-width:640px){.logo{padding:4px 0;font-size:21px}}
+.hnav a{position:relative;padding:4px 0}
+.hnav a::after{content:"";position:absolute;inset-inline:0;bottom:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:right;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+[dir=ltr] .hnav a::after{transform-origin:left}
+.hnav a:hover::after{transform:scaleX(1)}
+.gold,.sgo,.mini,.btn{transition:background .25s,color .25s,border-color .25s,transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s}
+.gold:hover{transform:translateY(-1px);box-shadow:0 8px 20px -10px rgba(196,136,31,.7)}
+/* hero: slow cinematic zoom */
+.hv img,.hv video{transform-origin:center;will-change:transform}
+.hv.on img,.hv.on video{animation:heroKb 26s ease-in-out infinite alternate}
+@keyframes heroKb{from{transform:scale(1)}to{transform:scale(1.07)}}
+/* cursor (desktop with a real mouse only; JS adds body.has-cur) */
+.cur{position:fixed;left:0;top:0;width:12px;height:12px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .25s cubic-bezier(.2,.7,.2,1),height .25s cubic-bezier(.2,.7,.2,1),opacity .25s}
+.cur.big{width:46px;height:46px}
+.cur.hide{opacity:0}
+body.has-cur *:not(input):not(textarea):not(select){cursor:none}
+body.has-cur .leaflet-container,body.has-cur .leaflet-container *{cursor:grab}
+body.has-cur .leaflet-container a,body.has-cur .leaflet-interactive{cursor:pointer}
+/* market pulse ticker (home, under the hero) */
+.mkt{display:flex;align-items:stretch;background:#fff;border-bottom:1px solid var(--line);font-size:13.5px;overflow:hidden}
+.mkt-lab{flex:none;display:flex;align-items:center;gap:8px;padding:11px 18px;font-weight:700;border-inline-end:1px solid var(--line);color:var(--navy);white-space:nowrap;background:#fff;z-index:1}
+.mkt-lab i{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 0 rgba(196,136,31,.5);animation:mktPulse 2s infinite}
+@keyframes mktPulse{70%{box-shadow:0 0 0 9px rgba(196,136,31,0)}100%{box-shadow:0 0 0 0 rgba(196,136,31,0)}}
+.mkt-win{flex:1;overflow:hidden;display:flex;align-items:center;-webkit-mask:linear-gradient(to left,transparent,#000 5%,#000 95%,transparent);mask:linear-gradient(to left,transparent,#000 5%,#000 95%,transparent)}
+.mkt-track{display:flex;width:max-content;animation:mktR 70s linear infinite}
+[dir=ltr] .mkt-track{animation-name:mktL}
+.mkt:hover .mkt-track{animation-play-state:paused}
+@keyframes mktR{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+@keyframes mktL{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.mkt-track ul{display:flex;list-style:none;margin:0;padding:0}
+.mkt-track li{display:flex;align-items:center;gap:8px;padding:11px 20px;white-space:nowrap;color:var(--grey)}
+.mkt-track li a{color:var(--ink);font-weight:600;cursor:pointer}
+.mkt-track li a:hover{color:var(--gold)}
+.mkt-track li small{color:var(--light);font-size:12px}
+.mkt-track li b{color:var(--navy);font-weight:700}
+.mkt-track li::after{content:"";width:3px;height:3px;border-radius:50%;background:var(--gold);margin-inline-start:14px;opacity:.75;flex:none}
+.mkt-note{color:var(--light)!important;font-size:12.5px}
+@media(max-width:640px){.mkt{font-size:12.5px}.mkt-lab{padding:9px 12px}.mkt-track li{padding:9px 14px}}
+@media (prefers-reduced-motion:reduce){
+  .mkt-track{animation:none}.mkt-win{overflow-x:auto;-webkit-mask:none;mask:none}.mkt-lab i{animation:none}
+  .hv.on img,.hv.on video{animation:none}.cur{display:none}
+  .hnav a::after{transition:none}}
 </style><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
@@ -1999,6 +2051,7 @@ function home(){
      return '<div class="hnote"><b>'+(SITE.stats_areas_num||"657")+'</b> '+siteText("stats1","note")+
        ' '+(lnum?'<b>'+lnum+'</b> ':'')+s2+'</div>' })())+
    '</div></section></div>'+
+ marketTickerHtml()+
  adSlotsRow()+
  '<div class="wrap"><section class="sec"><h2>'+t("pickH")+'</h2>'+
   typeList()+'</section>'+
@@ -7628,13 +7681,84 @@ function render(){
  // (Bayut-style) and turns solid once the page scrolls — see .home-hero CSS
  document.body.classList.toggle("home-hero", VIEW==="home");
  updateHdr();
+ applyReveals();
  wire()}
+
+/* "market pulse" — real average asking price per m² by area (v_area_prices, live sale
+   listings, 3+ per area). Rendered under the home hero; nothing shows until the data
+   has loaded or if fewer than four areas qualify. */
+function marketTickerHtml(){
+  var ids=Object.keys(AREA_PRICES||{}); if(!ids.length) return '';
+  var byAid={}; (D.LIST||[]).forEach(function(x){ if(x.aid && x.a && !byAid[x.aid]) byAid[x.aid]=x });
+  var items=ids.map(function(id){
+      var ap=AREA_PRICES[id], x=byAid[id];
+      if(!x || +ap.listings<3 || !+ap.avg_price_per_m2) return null;
+      return {n:aN(x.a), g:x.g, gn:gN(x.g), avg:Math.round(+ap.avg_price_per_m2), c:+ap.listings};
+    }).filter(Boolean).sort(function(a,b){return b.c-a.c}).slice(0,16);
+  if(items.length<4) return '';
+  var TT={ar:["نبض السوق","متوسط سعر المتر المعروض للبيع · إعلانات حيّة","إعلان"],
+          en:["Market pulse","average asking price per m² · live sale listings","listings"],
+          de:["Marktpuls","Ø Angebotspreis pro m² · aktive Kaufanzeigen","Anzeigen"]}[L]||["Market pulse","average asking price per m²","listings"];
+  var li=items.map(function(i){
+      return '<li><a data-go="search" data-gov="'+i.g+'">'+i.n+'</a><small>'+i.gn+'</small>'+
+             '<b class="ltr">$'+i.avg.toLocaleString("en")+'</b><span class="ltr">'+i.c+'</span> '+TT[2]+'</li>'}).join("")+
+    '<li class="mkt-note">'+TT[1]+'</li>';
+  return '<div class="mkt" aria-label="'+TT[0]+'"><div class="mkt-lab"><i></i>'+TT[0]+'</div>'+
+         '<div class="mkt-win"><div class="mkt-track"><ul>'+li+'</ul><ul aria-hidden="true">'+li+'</ul></div></div></div>';
+}
+
+/* scroll reveals: only when the page (VIEW) changes — re-renders caused by a filter click
+   or a lightbox must not make content blink — and only for elements still below the fold,
+   so nothing that is already visible ever fades. CSS is scoped to html.js. */
+var _revealView=null,_revealAt=0;
+function applyReveals(){
+  if(!("IntersectionObserver" in window)) return;
+  // the boot render is followed within a second or two by the render that brings the live
+  // data, so a short grace window keeps the reveals for that second pass as well
+  if(VIEW===_revealView && Date.now()-_revealAt>2500) return;
+  if(VIEW!==_revealView){ _revealView=VIEW; _revealAt=Date.now(); }
+  if(VIEW!=="home" && VIEW!=="search" && VIEW.indexOf("listing:")!==0) return;
+  var vh=window.innerHeight||800;
+  var io=new IntersectionObserver(function(es){ es.forEach(function(e){
+      if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target) } }) },{rootMargin:"0px 0px -6% 0px"});
+  var n=0;
+  document.querySelectorAll(".sec, .band, .card, .govs a, .guide, .mkt").forEach(function(el,i){
+    if(n>=80 || el.getBoundingClientRect().top < vh*0.92) return;
+    el.classList.add("rv"); el.style.transitionDelay=((i%3)*60)+"ms"; io.observe(el); n++;
+  });
+}
+
+/* custom cursor — desktop with a real mouse only; the native cursor stays on text fields
+   and the map, and everything reverts the moment a touch is detected */
+function initCursor(){
+  if(!window.matchMedia || !matchMedia("(pointer:fine)").matches || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var c=document.createElement("div"); c.className="cur hide"; document.body.appendChild(c);
+  var mx=0,my=0,cx=0,cy=0,raf=null,shown=false;
+  function loop(){
+    cx+=(mx-cx)*.22; cy+=(my-cy)*.22;
+    c.style.transform="translate3d("+cx+"px,"+cy+"px,0) translate(-50%,-50%)";
+    raf=(Math.abs(mx-cx)>.3||Math.abs(my-cy)>.3) ? requestAnimationFrame(loop) : null;
+  }
+  document.addEventListener("mousemove",function(e){
+    mx=e.clientX; my=e.clientY;
+    if(!shown){ shown=true; cx=mx; cy=my; document.body.classList.add("has-cur"); c.classList.remove("hide") }
+    if(!raf) raf=requestAnimationFrame(loop);
+    var el=e.target, hot=el.closest && el.closest("a,button,[data-go],label,.card,.chip,.stabs button,select,.thumbs img,.leaflet-marker-icon");
+    var txt=el.closest && el.closest("input,textarea");
+    c.classList.toggle("big",!!hot && !txt); c.classList.toggle("hide",!!txt);
+  },{passive:true});
+  document.documentElement.addEventListener("mouseleave",function(){ c.classList.add("hide") });
+  document.documentElement.addEventListener("mouseenter",function(){ if(shown) c.classList.remove("hide") });
+  window.addEventListener("touchstart",function(){ document.body.classList.remove("has-cur"); c.remove() },{once:true,passive:true});
+}
+document.documentElement.classList.add("js");
 function updateHdr(){
  var h=document.querySelector("header"); if(!h) return;
  var y=window.pageYOffset||document.documentElement.scrollTop||0;
  h.classList.toggle("hdr-solid", document.body.classList.contains("home-hero") && y>30);
 }
 window.addEventListener("scroll",updateHdr,{passive:true});
+initCursor();
 DEMO = D.LIST.slice();
 USER = loadSession();
 if(USER && USER.preferred_currency){ CUR=USER.preferred_currency; try{localStorage.setItem("balkoun_cur",CUR)}catch(e){} }
