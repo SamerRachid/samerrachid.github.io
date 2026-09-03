@@ -4340,18 +4340,20 @@ function mapSearchPage(){
   var fCount = mapSearchActiveFilterCount();
   return '<div class="wrap" style="padding:10px 18px 40px">'+
    '<div class="crumb" style="padding:0 0 10px"><a data-go="home">'+t("home")+'</a><i>\u203a</i>'+t("searchOnMap")+'</div>'+
-   // Sale/Rent, the results count, and the filter toggle now share
+   // Sale/Rent, the filter toggle, and the results count now share
    // one single row at the top of the page instead of being stacked
    // across two — this is the only thing standing between opening
    // the page and seeing the map: every row saved here is height the
-   // map gets back, which is the whole point of moving these up
+   // map gets back, which is the whole point of moving these up.
+   // Filters sit in the middle of the row, tabs and the count on
+   // either side of it.
    '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;position:relative;z-index:1091">'+
     '<div class="stabs mapsearch-tabs" style="margin:0">'+
      '<button type="button" class="'+(MAPSEARCH.deal==="sale"?"on":"")+'" data-mapdeal2="sale">'+t("forsale")+'</button>'+
      '<button type="button" class="'+(MAPSEARCH.deal==="rent"?"on":"")+'" data-mapdeal2="rent">'+t("forrent")+'</button>'+
     '</div>'+
-    '<div class="mapf-toggle" style="cursor:default;font-weight:600;width:auto;display:inline-flex;white-space:nowrap">'+t("mapSearchResultsCount").replace("{n}", totalForDeal)+'</div>'+
     '<div id="mapFilterZone">'+mapFilterZoneHtml()+'</div>'+
+    '<div class="mapf-toggle" style="cursor:default;font-weight:600;width:auto;display:inline-flex;white-space:nowrap">'+t("mapSearchResultsCount").replace("{n}", totalForDeal)+'</div>'+
    '</div>'+
    (withLoc.length<totalForDeal ? '<div class="hintx" style="margin-bottom:8px;text-align:center">'+
      t("mapSearchCoverage").replace("{n}",withLoc.length).replace("{t}",totalForDeal)+'</div>' : '')+
