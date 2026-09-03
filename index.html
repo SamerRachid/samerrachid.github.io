@@ -76,6 +76,16 @@ a{color:inherit;text-decoration:none} a[data-go],a[data-open]{cursor:pointer} bu
 .ltr{direction:ltr;display:inline-block;font-variant-numeric:tabular-nums}
 :focus-visible{outline:2px solid var(--navy);outline-offset:2px}
 header{background:var(--navy);color:#fff}
+/* 2026-09: on the home page the header floats transparent over the hero
+   (the way Bayut does it) and becomes a fixed, solid bar once the page
+   scrolls; the hero gets top padding equal to the header height so the
+   ad banner and headline are never hidden underneath it */
+.home-hero header{position:absolute;top:0;left:0;right:0;z-index:60;background:transparent;transition:background .35s ease,box-shadow .35s ease}
+.home-hero header.hdr-solid{position:fixed;background:rgba(20,33,61,.94);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 6px 24px -14px rgba(9,14,26,.6)}
+.home-hero .hero-outer{padding-top:62px}
+.home-hero .hscrim{background:linear-gradient(to bottom,rgba(13,23,41,.62),rgba(13,23,41,.30) 120px,rgba(13,23,41,.14) 34%,rgba(13,23,41,.30) 72%,rgba(13,23,41,.58))}
+@media(max-width:700px){.home-hero .hero-outer{padding-top:60px}}
+@media(max-width:640px){.home-hero .hero-outer{padding-top:58px}}
 .hbar{display:flex;align-items:center;gap:22px;height:62px}
 .logo{padding:5px 13px;border:1px dashed rgba(255,255,255,.35);border-radius:var(--r-s);font-weight:700;font-size:19px;color:var(--gold)}
 .hnav{display:flex;gap:20px;font-size:14.5px;color:rgba(255,255,255,.86)}
@@ -7613,7 +7623,18 @@ function render(){
  document.documentElement.lang=L; document.documentElement.dir=D.I18N[L].dir;
  var body= VIEW==="home"?home(): VIEW==="search"?search(): VIEW==="post"?post():
           VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): listing(VIEW.split(":")[1]);
- $("#app").innerHTML=header()+body+footer()+authModal()+reportModal(); wire()}
+ $("#app").innerHTML=header()+body+footer()+authModal()+reportModal();
+ // home page only: the header sits transparent over the hero photo/video
+ // (Bayut-style) and turns solid once the page scrolls — see .home-hero CSS
+ document.body.classList.toggle("home-hero", VIEW==="home");
+ updateHdr();
+ wire()}
+function updateHdr(){
+ var h=document.querySelector("header"); if(!h) return;
+ var y=window.pageYOffset||document.documentElement.scrollTop||0;
+ h.classList.toggle("hdr-solid", document.body.classList.contains("home-hero") && y>30);
+}
+window.addEventListener("scroll",updateHdr,{passive:true});
 DEMO = D.LIST.slice();
 USER = loadSession();
 if(USER && USER.preferred_currency){ CUR=USER.preferred_currency; try{localStorage.setItem("balkoun_cur",CUR)}catch(e){} }
