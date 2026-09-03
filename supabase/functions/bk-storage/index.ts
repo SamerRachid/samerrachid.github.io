@@ -49,7 +49,8 @@ Deno.serve(async (req: Request) => {
     if (!safePath(p)) return json({ error: "bad path" }, 400);
     if (isAdmin) continue;
     // members: only their own listing folders and their own avatar files
-    const m = p.match(/^(photos|videos)\/listings\/(\d+)\/[^/]+$/);
+    // new layout photos/listings/<id>/file and the legacy root layout <id>/file
+    const m = p.match(/^(?:(?:photos|videos)\/listings\/)?(\d+)\/[^/]+$/);
     if (m) {
       const { data: l } = await sb.from("listings").select("user_id").eq("id", Number(m[1])).maybeSingle();
       if (!l || l.user_id !== uid) return deny("not yours");
@@ -65,6 +66,8 @@ Deno.serve(async (req: Request) => {
     return json({ removed: (data ?? []).map((o: any) => o.name) });
   }
   if (action === "sign-upload") {
+    // NOTE: tokens from here are currently rejected by the storage server on this project
+    // ("InvalidSignature"); the client uploads directly for now and this stays for later.
     const { data, error } = await sb.storage.from(BUCKET).createSignedUploadUrl(path as string, { upsert: true });
     if (error) return json({ error: error.message }, 400);
     return json({ path: data.path, token: data.token });
