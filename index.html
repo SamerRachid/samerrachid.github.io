@@ -1027,6 +1027,35 @@ footer{font-size:14px}
   .typecell{padding:12px 13px}
   body{padding-bottom:78px} /* room under the content for the floating "post" button */
 }
+/* ── listing page ── */
+.page2{gap:22px;padding:18px 0 48px}
+.gal img.main{aspect-ratio:16/10;max-height:64vh}
+.thumbs{padding:8px}
+.keys{gap:8px;background:none;border:none;padding:14px 16px 4px}
+.keys div{border:1px solid var(--line);border-radius:var(--r);padding:12px 8px}
+.keys b{font-size:18px}.keys span{font-size:12.5px}
+.spec div{font-size:15px;padding:10px 0}
+.ldesc{font-size:16px;line-height:1.9;color:#3F444B;white-space:pre-line;overflow-wrap:anywhere}
+.pricecmp{display:inline-block;margin-top:8px;font-size:13px;font-weight:600;padding:4px 10px;border-radius:var(--r-s);background:var(--navy-w);color:var(--navy)}
+.pricecmp.good{background:var(--ok-w);color:var(--ok)}
+.pricecmp.high{background:#FBEAE7;color:var(--danger)}
+.contactbar{display:none}
+@media(max-width:960px){
+  .contactbar{display:flex;gap:10px;position:fixed;bottom:0;inset-inline:0;z-index:1090;background:#fff;
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);
+    box-shadow:0 -6px 18px -8px rgba(9,14,26,.25)}
+  .contactbar a,.contactbar button{flex:1;text-align:center;font:inherit;font-weight:700;font-size:15px;
+    padding:12px;border-radius:var(--r);border:none;cursor:pointer;text-decoration:none;display:block}
+  .cb-call{background:var(--navy);color:#fff}
+  .cb-wa{background:#1FA855;color:#fff}
+  .page2{padding-bottom:96px}
+}
+@media(max-width:640px){
+  /* thumbnails become one scrollable strip instead of wrapping into a second row */
+  .thumbs{display:flex;overflow-x:auto;gap:6px;scrollbar-width:none}
+  .thumbs::-webkit-scrollbar{display:none}
+  .thumbs img{width:76px;flex:0 0 76px}
+}
 </style><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
@@ -1397,7 +1426,9 @@ function header(){
   langs + right +
   '<a class="gold" data-go="post" style="text-decoration:none">'+t("post")+'</a>'+
   '</div></div></header>'+
-  (VIEW==="post" ? '' : '<a class="mobfab" data-go="post" aria-label="'+t("post")+'">+ '+t("post")+'</a>')}
+  // no floating post button on the post form itself, nor on a listing page where the
+  // fixed call / WhatsApp bar owns the bottom edge on phones
+  ((VIEW==="post" || VIEW.indexOf("listing:")===0) ? '' : '<a class="mobfab" data-go="post" aria-label="'+t("post")+'">+ '+t("post")+'</a>')}
 
 function footer(){
  return '<footer><div class="wrap"><div class="flinks">'+
@@ -2203,6 +2234,7 @@ function listing(id){
   '<div style="font-size:30px;font-weight:700;color:var(--navy)">'+priceBlock(x,1)+
    (x.negot?' <span style="font-size:12.5px;font-weight:600;color:var(--ok);vertical-align:middle">'+t("negot")+'</span>':'')+'</div>'+
   '<div style="font-size:13px;color:var(--grey)">'+(x.d==="rent"?t("monthlyRent"):'<span class="ltr">$'+Math.round(x.p/x.m2)+'</span> '+t("perm"))+'</div>'+
+  priceContextHtml(x)+
   '<h1 style="font-size:20px;font-weight:600;margin-top:10px">'+D.TYPES[x.t][li()]+' · <span class="ltr">'+x.m2+'</span> '+t("sqm")+'</h1>'+
   '<div style="font-size:14.5px;color:var(--grey)">'+aN(x.a)+(L==="ar"?'، ':', ')+gN(x.g)+
    (x.lm?' · '+x.lm:'')+'</div>'+
@@ -2217,7 +2249,7 @@ function listing(id){
   '<div><b>'+(D.COND[x.cd]||D.LANDC[x.cd]||["",""," "])[li()]+'</b><span>'+t("kCond")+'</span></div></div>'+
   '</div>'+
  (x.lat && x.lng ? pan(t("mapH"),'<div id="viewMap" data-lat="'+x.lat+'" data-lng="'+x.lng+'" style="height:280px;border-radius:8px;overflow:hidden"></div>') : '')+
- pan(t("descH"),'<div style="color:#3F444B">'+x.ds[li()]+'</div>')+
+ pan(t("descH"),'<div class="ldesc">'+x.ds[li()]+'</div>')+
  pan(t("detH"),'<div class="spec">'+sp.map(function(p){
    return '<div><span class="k2">'+p[0]+'</span><span class="v2">'+p[1]+'</span></div>'}).join("")+'</div>')+
  (x.am&&x.am.length?pan(t("amH"),'<div class="amenlist">'+x.am.map(function(a){
@@ -2254,7 +2286,27 @@ function listing(id){
   '<div class="panel pad"><div class="safe"><b style="display:block;margin-bottom:3px">'+t("safeT")+'</b>'+t("safeB")+'</div>'+
    '<button class="gh" id="rptOpen" style="margin-top:10px;color:var(--danger);border-color:#EBC9C6">'+t("reportListing")+'</button></div>'+
  '</aside></div>'+
+ // on phones the contact card ends up below everything, so a fixed bar keeps the two actions in reach
+ '<div class="contactbar">'+
+  (x.tel?'<a class="cb-call" id="callBtn2" href="tel:'+x.tel.replace(/\s/g,"")+'">'+t("callBtn")+'</a>':'')+
+  (x.wa?'<button class="cb-wa" id="wab2">'+t("waMsg")+'</button>':'<button class="cb-wa" id="ph2">'+t("showPhone")+'</button>')+
+ '</div>'+
  similarListingsSection(x)}
+
+// "12% below the area average · $455/m² · 7 listings" — only when the area has enough live
+// sale listings for an average to mean anything
+function priceContextHtml(x){
+  var ap = x.aid && AREA_PRICES[x.aid];
+  if(x.d==="rent" || !ap || +ap.listings < 3 || !x.m2 || !+ap.avg_price_per_m2) return '';
+  var avg = +ap.avg_price_per_m2, mine = x.p/x.m2, diff = Math.round((mine-avg)/avg*100);
+  var W = {ar:["أقل من متوسط المنطقة","أعلى من متوسط المنطقة","بسعر متوسط المنطقة","إعلان"],
+           en:["below the area average","above the area average","at the area average","listings"],
+           de:["unter dem Gebietsdurchschnitt","über dem Gebietsdurchschnitt","im Gebietsdurchschnitt","Anzeigen"]}[L] || {};
+  var w = W.length ? W : ["below the area average","above the area average","at the area average","listings"];
+  var main = Math.abs(diff) < 5 ? w[2] : '<span class="ltr">'+Math.abs(diff)+'%</span> '+(diff<0 ? w[0] : w[1]);
+  return '<div class="pricecmp'+(diff<=-5?' good':diff>=5?' high':'')+'">'+main+
+         ' · <span class="ltr">$'+Math.round(avg)+'</span>/'+t("sqm")+' · <span class="ltr">'+ap.listings+'</span> '+w[3]+'</div>';
+}
 
 function similarListingsSection(x){
   var sameCity = D.LIST.filter(function(l){
@@ -5081,7 +5133,19 @@ function wire(){
    if($("#gPrev")) $("#gPrev").onclick=function(){ set(GI-1) };
    if($("#gNext")) $("#gNext").onclick=function(){ set(GI+1) };
    $$("#gth img").forEach(function(im){ im.onclick=function(){ set(+im.dataset.i) } });
-   if($("#gmain")&&IM2.length) $("#gmain").onclick=function(){ LIGHTBOX_OPEN=true; render() };
+   // swipe through photos on touch screens (gallery and lightbox); a swipe must not also count as a tap
+   var swiped=false;
+   var addSwipe=function(el){
+     if(!el || IM2.length<2) return;
+     var x0=null;
+     el.addEventListener("touchstart",function(e){ x0=e.touches[0].clientX; swiped=false },{passive:true});
+     el.addEventListener("touchend",function(e){
+       if(x0===null) return; var dx=e.changedTouches[0].clientX-x0; x0=null;
+       if(Math.abs(dx)<40) return;
+       swiped=true; var fwd = dx<0; if(rtlNow()) fwd=!fwd; set(fwd?GI+1:GI-1) },{passive:true});
+   };
+   addSwipe($("#gmain")); addSwipe($("#lbImg"));
+   if($("#gmain")&&IM2.length) $("#gmain").onclick=function(){ if(swiped){ swiped=false; return } LIGHTBOX_OPEN=true; render() };
    if($("#lbClose")) $("#lbClose").onclick=function(){ LIGHTBOX_OPEN=false; render() };
    if($("#lightbox")) $("#lightbox").onclick=function(e){ if(e.target===this){ LIGHTBOX_OPEN=false; render() } };
    if($("#lbPrev")) $("#lbPrev").onclick=function(e){ e.stopPropagation(); set(GI-1) };
@@ -5104,6 +5168,14 @@ function wire(){
      log("whatsapp"); window.open(waLink(t("waHi")+" "+ctx),"_blank") };
 
    if($("#callBtn")) $("#callBtn").onclick=function(){ log("call") };
+   // the phone-only fixed contact bar mirrors the sidebar buttons
+   if($("#callBtn2")) $("#callBtn2").onclick=function(){ log("call") };
+   if($("#wab2")) $("#wab2").onclick=function(){
+     if(!dig){ alert(t("noPhone")); return }
+     log("whatsapp"); window.open(waLink(t("waHi")+" "+ctx),"_blank") };
+   if($("#ph2")) $("#ph2").onclick=function(){
+     if(!tel){ this.textContent=t("noPhone"); return }
+     this.innerHTML='<span class="ltr">'+tel+'</span>'; log("reveal_phone") };
 
    if($("#reqv")) $("#reqv").onclick=function(){
      if(!dig){ alert(t("noPhone")); return }
@@ -7015,6 +7087,7 @@ function video(){
 
 /* ── database ───────────────────────────────────────────────────── */
 var DEMO = null;          // the bundled sample listings
+var AREA_PRICES = {};     // area_id -> {listings, avg_price_per_m2} from v_area_prices (live sale listings)
 var ONLINE = false;
 
 function fromRow(r){
@@ -7029,6 +7102,7 @@ function fromRow(r){
     createdAt:r.created_at||null,
     uid:r.user_id||null, orig:r.orig_price||null, status:r.status||'live',
     ocity:r.owner_city||null, ocountry:r.owner_country||null, oav:r.owner_avatar||null,
+    aid:r.area_id||null,
     olevel:r.owner_level||"member", closedAt:r.closed_at||null, oJoined:r.owner_created_at||null,
     orAvg:r.owner_rating_avg||null, orCount:r.owner_rating_count||0, dir:r.direction||null,
     lm:r.landmark||"", lat:r.lat||null, lng:r.lng||null,
@@ -7255,6 +7329,9 @@ async function _loadListingsImpl(){
       console.error("Balkoun: cannot read listings.", e2); return }
   }
   ONLINE = true; DBERR = "";
+  // average asking price per m² by area, used on the listing page to put a price in context
+  try{ var ap = await DB.from("v_area_prices").select("*");
+       if(!ap.error && ap.data){ AREA_PRICES = {}; ap.data.forEach(function(r){ AREA_PRICES[r.area_id] = r }) } }catch(e){}
   DBCOUNT = rows ? rows.length : 0;
   var mapped = (rows||[]).map(fromRow);
 
