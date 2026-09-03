@@ -3017,7 +3017,7 @@ function adminView(){
           var canSelect = it.deletePath && !it.isUsed;
           return '<div style="position:relative">'+
             (canSelect ? '<input type="checkbox" class="msItemCheck" data-selpath="'+it.deletePath+'"'+(selSet[it.deletePath]?" checked":"")+
-              '" style="position:absolute;top:4px;inset-inline-start:4px;z-index:1;width:16px;height:16px">' : '')+
+              ' style="position:absolute;top:4px;inset-inline-start:4px;z-index:1;width:16px;height:16px">' : '')+
             '<a'+(it.viewerAttr||'')+' style="cursor:pointer;display:block;aspect-ratio:1/1;border-radius:8px;overflow:hidden;background:var(--page)">'+
              (it.isVideo ? '<video src="'+it.thumbUrl+'" muted style="width:100%;height:100%;object-fit:cover"></video>'
                          : '<img src="'+it.thumbUrl+'" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover">')+
@@ -5345,7 +5345,12 @@ function wireAdmin(){
     ADM.alertsUnread=0; ADM.alerts.forEach(function(n){n.is_read=true});
     rpc("bk_admin_mark_notifications_read",{p_token:ADM.token}).catch(function(){});
   }
-  if(ADM.tab==="ads" && !ADM._adSlotsLoaded){
+  // also needed for the Media Library's own "ads" category, not just
+  // the dedicated Ad Squares tab — without this, navigating straight
+  // to Photos > Ads never loads the slot data the "in use" check
+  // depends on, so every file looks unused regardless of whether it
+  // actually is (the exact bug reported: everything shown as unused)
+  if((ADM.tab==="ads" || (ADM.tab==="photos" && ADM.mediaCategory==="ads")) && !ADM._adSlotsLoaded){
     ADM._adSlotsLoaded=true;
     rpc("bk_admin_list_ads",{p_token:ADM.token}).then(function(r){
       ADM.adSlots=r||[]; render()
