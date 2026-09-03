@@ -451,18 +451,18 @@ html.js .rv.in{opacity:1;transform:none}
 .gh{width:100%;background:#fff;border:1px solid var(--line-2);padding:10px;border-radius:6px;font-size:14px;cursor:pointer;margin-top:8px}
 .safe{background:var(--gold-w);border:1px solid #EDDCB6;border-radius:6px;padding:12px 14px;font-size:12.5px;color:#6B5518;line-height:1.7}
 /* post view */
-.blk{background:#fff;border:1px solid var(--line);border-radius:8px;margin-bottom:14px}
+.blk{background:#fff;border:1px solid var(--line);border-radius:8px;margin-bottom:10px}
 .dzblk{border:1px solid var(--danger);background:#fff7f6}
 .dzconfirm{max-width:360px}
-.blk h3{font-size:16px;font-weight:700;padding:14px 20px;border-bottom:1px solid var(--line);display:flex;gap:9px;align-items:center}
+.blk h3{font-size:16px;font-weight:700;padding:12px 18px;border-bottom:1px solid var(--line);display:flex;gap:9px;align-items:center}
 .blk h3 .n{width:23px;height:23px;border-radius:50%;background:var(--navy);color:#fff;font-size:12.5px;display:grid;place-items:center}
-.blk .in{padding:18px 20px}
-.fl{margin-bottom:14px}
-.fl>label{display:block;font-size:13.5px;font-weight:600;margin-bottom:6px}
-.fl input,.fl select,.fl textarea{width:100%;border:1px solid var(--line-2);border-radius:6px;padding:10px 12px;font-size:14.5px;font-family:inherit}
-.fl textarea{min-height:100px;line-height:1.9}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.blk .in{padding:16px 18px}
+.fl{margin-bottom:10px}
+.fl>label{display:block;font-size:13.5px;font-weight:600;margin-bottom:4px}
+.fl input,.fl select,.fl textarea{width:100%;border:1px solid var(--line-2);border-radius:6px;padding:8px 11px;font-size:14px;font-family:inherit}
+.fl textarea{min-height:90px;line-height:1.6}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 @media(max-width:640px){.row,.row3{grid-template-columns:1fr}}
 .pick{display:flex;gap:8px;flex-wrap:wrap}
 .pick label{cursor:pointer;position:relative}
@@ -515,7 +515,7 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
 .agree{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--body);
   margin:4px 0 6px;cursor:pointer;line-height:1.6}
 .agree input{accent-color:var(--navy);width:17px;height:17px;flex:0 0 auto;margin-top:2px}
-.agreelist{margin:0 0 14px;padding-inline-start:26px;font-size:12.5px;color:var(--grey);line-height:1.9}
+.agreelist{margin:0 0 10px;padding-inline-start:24px;font-size:12.5px;color:var(--grey);line-height:1.55}
 /* phone-first polish */
 @media(max-width:700px){
   .wrap{padding-inline:14px}
@@ -665,8 +665,8 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
 .ccpick-item:hover{background:var(--page)}
 .ccpick-item.on{background:var(--navy-w);font-weight:600}
 .ccpick-empty{padding:14px;text-align:center;color:var(--grey);font-size:13.5px}
-.pw input{flex:1;border:1px solid var(--line-2);border-radius:0 6px 6px 0;padding:11px 13px;
-  font-size:15px;text-align:left;direction:ltr;letter-spacing:1px;width:100%}
+.pw input{flex:1;border:1px solid var(--line-2);border-radius:0 6px 6px 0;padding:9px 12px;
+  font-size:14px;text-align:left;direction:ltr;letter-spacing:1px;width:100%}
 
 /* auth */
 .au{position:fixed;inset:0;background:rgba(9,14,26,.62);backdrop-filter:blur(3px);z-index:1300;display:none;align-items:center;justify-content:center;padding:20px}
@@ -691,14 +691,14 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
   animation:mapfDown .24s cubic-bezier(.2,.9,.3,1.15)}
 .mapf-panel .fl select{background:#fff;opacity:1}
 .mapf-panel.mapf-closing{animation:mapfUp .18s cubic-bezier(.4,0,1,1) forwards}
-.autop{background:var(--navy);color:#fff;padding:15px 20px;display:flex;align-items:center}
+.autop{background:var(--navy);color:#fff;padding:12px 18px;display:flex;align-items:center}
 .autop b{font-size:16px}
 .autop button{margin-inline-start:auto;background:none;border:none;color:rgba(255,255,255,.7);font-size:19px;cursor:pointer;line-height:1}
 .autabs{display:flex;border-bottom:1px solid var(--line)}
-.autabs button{flex:1;background:none;border:none;padding:13px;font-size:14.5px;font-weight:600;color:var(--grey);cursor:pointer;border-bottom:2px solid transparent}
+.autabs button{flex:1;background:none;border:none;padding:10px;font-size:14.5px;font-weight:600;color:var(--grey);cursor:pointer;border-bottom:2px solid transparent}
 .autabs button.on{color:var(--navy);border-bottom-color:var(--gold)}
-.aubody{padding:20px}
-.auf{margin-bottom:14px}
+.aubody{padding:16px}
+.auf{margin-bottom:10px}
 .pwwrap{position:relative}
 .pwwrap input{width:100%;padding-inline-end:38px}
 /* every password field on the site already has its own custom
@@ -715,16 +715,16 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
 .pwtoggle{position:absolute;top:50%;transform:translateY(-50%);inset-inline-end:8px;
   background:none;border:none;padding:4px;cursor:pointer;color:var(--grey);display:flex;align-items:center}
 .pwtoggle:hover{color:var(--ink)}
-.auf label{display:block;font-size:12.5px;color:var(--grey);margin-bottom:5px}
-.auf input{width:100%;border:1px solid var(--line-2);border-radius:6px;padding:11px 13px;font-size:15px}
+.auf label{display:block;font-size:12.5px;color:var(--grey);margin-bottom:4px}
+.auf input{width:100%;border:1px solid var(--line-2);border-radius:6px;padding:9px 12px;font-size:14px}
 .auf input:focus{border-color:var(--navy);outline:none}
 .pw{display:flex;direction:ltr}
 .pw input{border-radius:0 6px 6px 0;text-align:left;letter-spacing:1px}
-.aub{width:100%;background:var(--navy);color:#fff;border:none;padding:12px;border-radius:6px;font-weight:600;font-size:15px;cursor:pointer}
+.aub{width:100%;background:var(--navy);color:#fff;border:none;padding:10px;border-radius:6px;font-weight:600;font-size:15px;cursor:pointer}
 .aub:hover{background:#1C2E52}
 .aub:disabled{background:var(--line-2);cursor:not-allowed}
 .auw{width:100%;background:#25976C;color:#fff;border:none;padding:12px;border-radius:6px;font-weight:600;font-size:15px;cursor:pointer;display:block;text-align:center;text-decoration:none}
-.aun{font-size:12px;color:var(--light);margin-top:12px;line-height:1.7;text-align:center}
+.aun{font-size:12px;color:var(--light);margin-top:8px;line-height:1.5;text-align:center}
 .aun a{color:var(--navy);font-weight:600;cursor:pointer}
 .auerr{color:var(--danger);font-size:12.5px;text-align:center;min-height:18px;margin-top:6px}
 .otp{display:flex;gap:8px;direction:ltr;justify-content:center;margin:6px 0}
@@ -4340,11 +4340,19 @@ function mapSearchPage(){
   var fCount = mapSearchActiveFilterCount();
   return '<div class="wrap" style="padding:10px 18px 40px">'+
    '<div class="crumb" style="padding:0 0 10px"><a data-go="home">'+t("home")+'</a><i>\u203a</i>'+t("searchOnMap")+'</div>'+
-   '<div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:10px">'+
+   // Sale/Rent, the results count, and the filter toggle now share
+   // one single row at the top of the page instead of being stacked
+   // across two — this is the only thing standing between opening
+   // the page and seeing the map: every row saved here is height the
+   // map gets back, which is the whole point of moving these up
+   '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;position:relative;z-index:1091">'+
     '<div class="stabs mapsearch-tabs" style="margin:0">'+
      '<button type="button" class="'+(MAPSEARCH.deal==="sale"?"on":"")+'" data-mapdeal2="sale">'+t("forsale")+'</button>'+
      '<button type="button" class="'+(MAPSEARCH.deal==="rent"?"on":"")+'" data-mapdeal2="rent">'+t("forrent")+'</button>'+
-    '</div></div>'+
+    '</div>'+
+    '<div class="mapf-toggle" style="cursor:default;font-weight:600;width:auto;display:inline-flex;white-space:nowrap">'+t("mapSearchResultsCount").replace("{n}", totalForDeal)+'</div>'+
+    '<div id="mapFilterZone">'+mapFilterZoneHtml()+'</div>'+
+   '</div>'+
    (withLoc.length<totalForDeal ? '<div class="hintx" style="margin-bottom:8px;text-align:center">'+
      t("mapSearchCoverage").replace("{n}",withLoc.length).replace("{t}",totalForDeal)+'</div>' : '')+
    // the map itself, and the filter overlay on top of it, ALWAYS stay
@@ -4361,14 +4369,7 @@ function mapSearchPage(){
    // push the map down the page; it drops down and floats directly
    // over the top of the map instead, with a transparent background.
    '<div style="position:relative">'+
-    '<div style="display:flex;align-items:center;margin-bottom:10px;position:relative;z-index:1091">'+
-     '<div style="flex:1;display:flex">'+
-      '<div class="mapf-toggle" style="cursor:default;font-weight:600;width:auto;display:inline-flex">'+t("mapSearchResultsCount").replace("{n}", totalForDeal)+'</div>'+
-     '</div>'+
-     '<div id="mapFilterZone">'+mapFilterZoneHtml()+'</div>'+
-     '<div style="flex:1"></div>'+
-    '</div>'+
-    (totalForDeal===0 ? '<div style="position:absolute;top:60px;left:0;right:0;display:flex;align-items:center;justify-content:center;z-index:400;pointer-events:none">'+
+    (totalForDeal===0 ? '<div style="position:absolute;top:12px;left:0;right:0;display:flex;align-items:center;justify-content:center;z-index:400;pointer-events:none">'+
       '<div class="mapf-toggle" style="pointer-events:auto"><b>'+t("mapSearchNoMatches")+'</b></div></div>' : '')+
     '<div id="mapSearchBox" style="height:min(72vh,640px);border-radius:10px;overflow:hidden;border:1px solid var(--line-2)"></div>'+
    '</div>'+
