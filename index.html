@@ -1370,6 +1370,34 @@ async function rpc(fn,args){
   // several functions hand back the caller's own profile without the token — keep the session
   if(r.data && USER && USER.token && !r.data.token && r.data.id===USER.id && r.data.phone) r.data.token=USER.token;
   return r.data}
+/* ── storage goes through the bk-storage Edge Function, which checks the admin or member
+   session token and the path before touching the bucket. The bucket itself no longer has
+   public delete/update/upload policies. Both helpers keep the {data,error} shape the
+   supabase-js calls they replace had, so every caller's error handling still applies. ── */
+async function storageCall(body){
+  var ctx = (ADM&&ADM.token) ? {role:"admin",token:ADM.token} : {role:"member",token:(USER&&USER.token)||null};
+  var r = await fetch(CONFIG.supabaseUrl+"/functions/v1/bk-storage",{method:"POST",
+    headers:{"Content-Type":"application/json","apikey":CONFIG.supabaseKey,"Authorization":"Bearer "+CONFIG.supabaseKey},
+    body:JSON.stringify(Object.assign({},body,ctx))});
+  var j = null; try{ j = await r.json() }catch(e){ j = {} }
+  // an admin whose panel session expired may still be a valid member — retry once as one
+  if(r.status===401 && ctx.role==="admin" && USER && USER.token){
+    r = await fetch(CONFIG.supabaseUrl+"/functions/v1/bk-storage",{method:"POST",
+      headers:{"Content-Type":"application/json","apikey":CONFIG.supabaseKey,"Authorization":"Bearer "+CONFIG.supabaseKey},
+      body:JSON.stringify(Object.assign({},body,{role:"member",token:USER.token}))});
+    try{ j = await r.json() }catch(e){ j = {} }
+  }
+  if(!r.ok || (j&&j.error)) throw new Error((j&&j.error) || ("storage "+r.status));
+  return j }
+async function storageRemove(paths){
+  try{ var j = await storageCall({action:"remove", paths:paths});
+       return {data:(j.removed||[]).map(function(n){ return {name:n} }), error:null} }
+  catch(e){ return {data:null, error:e} } }
+async function storageUpload(path, file, opts){
+  try{ var s = await storageCall({action:"sign-upload", path:path});
+       return await DB.storage.from("photos").uploadToSignedUrl(s.path, s.token, file, opts||{}) }
+  catch(e){ return {data:null, error:e} } }
+
 var MEMBER_FNS={bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,
   bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_own_delete:1,
   bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
@@ -1593,7 +1621,7 @@ function wireBannerItemsZone(bIdx){
         uploadFile = await shrink(raw, 1600, 0.85);
         uploadContentType = "image/jpeg";
       }
-      var up=await DB.storage.from("photos").upload(path, uploadFile,
+      var up=await storageUpload(path, uploadFile,
         {contentType:uploadContentType, upsert:false});
       if(up.error) throw up.error;
       var url=DB.storage.from("photos").getPublicUrl(path).data.publicUrl;
@@ -4971,9 +4999,9 @@ function wire(){
          var full=await shrink(raw,1200,0.80), thumb=await shrink(raw,400,0.72);
          var stamp=Date.now()+"-"+i+"-"+Math.random().toString(36).slice(2,8);
          var pF="photos/listings/"+EDIT.id+"/"+stamp+".jpg", pT="photos/listings/"+EDIT.id+"/"+stamp+"-t.jpg";
-         var uF=await DB.storage.from("photos").upload(pF,full,{contentType:"image/jpeg"});
+         var uF=await storageUpload(pF,full,{contentType:"image/jpeg"});
          if(uF.error) throw new Error(uF.error.message);
-         var tU=null; var uT=await DB.storage.from("photos").upload(pT,thumb,{contentType:"image/jpeg"});
+         var tU=null; var uT=await storageUpload(pT,thumb,{contentType:"image/jpeg"});
          if(!uT.error) tU=DB.storage.from("photos").getPublicUrl(pT).data.publicUrl;
          await rpc("bk_photo_add",{p_user:USER.id,p_listing:+EDIT.id,
            p_url:DB.storage.from("photos").getPublicUrl(pF).data.publicUrl,
@@ -5824,7 +5852,7 @@ function wireAdmin(){
             // regardless of the original file's format — the uploaded
             // bytes and the declared content-type must match
           }
-          var up=await DB.storage.from("photos").upload(path, uploadFile,
+          var up=await storageUpload(path, uploadFile,
             {contentType:uploadContentType, upsert:false});
           if(up.error) throw up.error;
           uploadedUrls.push(DB.storage.from("photos").getPublicUrl(path).data.publicUrl);
@@ -5876,7 +5904,7 @@ function wireAdmin(){
         uploadFile = await shrink(raw, 1600, 0.85);
         uploadContentType = "image/jpeg";
       }
-      var up=await DB.storage.from("photos").upload(path, uploadFile,
+      var up=await storageUpload(path, uploadFile,
         {contentType:uploadContentType, upsert:false});
       if(up.error) throw up.error;
       var url=DB.storage.from("photos").getPublicUrl(path).data.publicUrl;
@@ -6340,7 +6368,7 @@ function wireAdmin(){
     var failed = [];
     for(var i=0;i<paths.length;i++){
       try{
-        var r = await DB.storage.from("photos").remove([paths[i]]);
+        var r = await storageRemove([paths[i]]);
         // Supabase reports a storage RLS policy silently blocking a
         // delete as a normal-looking, error-free response with an
         // EMPTY data array — not an error. Checking only r.error, as
@@ -6400,7 +6428,7 @@ function wireAdmin(){
     // every other photo flashing/fading right after a single delete
     var card = this.parentElement;
     try{
-      var r = await DB.storage.from("photos").remove([path]);
+      var r = await storageRemove([path]);
       // an RLS policy silently blocking the delete looks identical to
       // success here — no error, just an empty data array — so the
       // real check is that r.data actually contains the removed file
@@ -6619,7 +6647,7 @@ function wireAuth(){
      var raw=await readFile(f);
      var sq=await shrink(raw,320,0.82);
      var path="avatars/"+USER.id+"-"+Date.now()+".jpg";
-     var up=await DB.storage.from("photos").upload(path,sq,{contentType:"image/jpeg"});
+     var up=await storageUpload(path,sq,{contentType:"image/jpeg"});
      if(up.error) throw new Error("storage: "+up.error.message);
      var url=DB.storage.from("photos").getPublicUrl(path).data.publicUrl;
      var res=await DB.rpc("bk_set_avatar",{p_id:USER.id,p_url:url});
@@ -6723,7 +6751,7 @@ async function replaceStorageFile(oldUrl){
   var path = storagePathFromUrl(oldUrl);
   if(!path) return false;
   try{
-    var r = await DB.storage.from("photos").remove([path]);
+    var r = await storageRemove([path]);
     return !(r && r.error) && !!(r && r.data && r.data.length);
   }catch(e){ return false }
 }
@@ -6733,7 +6761,7 @@ async function clearStorageFolder(folder){
     var listed = await DB.storage.from("photos").list(folder);
     if(listed.error || !listed.data || !listed.data.length) return;
     var paths = listed.data.map(function(f){ return folder+"/"+f.name });
-    await DB.storage.from("photos").remove(paths);
+    await storageRemove(paths);
   }catch(e){}
 }
 function readFile(f){
@@ -7170,12 +7198,12 @@ async function savePost(){
         var pF = "photos/listings/"+id+"/"+stamp+".jpg";
         var pT = "photos/listings/"+id+"/"+stamp+"-t.jpg";
 
-        var uF = await DB.storage.from("photos").upload(pF, ph.full,
+        var uF = await storageUpload(pF, ph.full,
                    {contentType:"image/jpeg", upsert:false});
         if(uF.error) throw new Error("full: "+uF.error.message);
 
         var tUrl=null;
-        var uT = await DB.storage.from("photos").upload(pT, ph.thumb,
+        var uT = await storageUpload(pT, ph.thumb,
                    {contentType:"image/jpeg", upsert:false});
         if(!uT.error) tUrl = DB.storage.from("photos").getPublicUrl(pT).data.publicUrl;
 
