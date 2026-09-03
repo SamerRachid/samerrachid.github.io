@@ -14,7 +14,7 @@ import path from "path";
 
 const SUPABASE_URL = "https://coajrqynjrptujmzjjdh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"; // public anon key — safe, RLS restricts it to live listings
-const SITE = "https://www.balkoun.com";
+const SITE = "https://balkoun.com";
 const OUT_DIR = path.resolve("listing");
 const SITEMAP_PATH = path.resolve("sitemap.xml");
 
