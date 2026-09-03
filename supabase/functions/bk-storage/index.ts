@@ -51,7 +51,7 @@ Deno.serve(async (req: Request) => {
     // members: only their own listing folders and their own avatar files
     const m = p.match(/^(photos|videos)\/listings\/(\d+)\/[^/]+$/);
     if (m) {
-      const { data: l } = await sb.from("listings").select("user_id").eq("id", Number(m[2])).maybeSingle();
+      const { data: l } = await sb.from("listings").select("user_id").eq("id", Number(m[1])).maybeSingle();
       if (!l || l.user_id !== uid) return deny("not yours");
       continue;
     }

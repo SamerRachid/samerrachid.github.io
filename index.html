@@ -1394,9 +1394,10 @@ async function storageRemove(paths){
        return {data:(j.removed||[]).map(function(n){ return {name:n} }), error:null} }
   catch(e){ return {data:null, error:e} } }
 async function storageUpload(path, file, opts){
-  try{ var s = await storageCall({action:"sign-upload", path:path});
-       return await DB.storage.from("photos").uploadToSignedUrl(s.path, s.token, file, opts||{}) }
-  catch(e){ return {data:null, error:e} } }
+  // Uploads still go straight to the bucket: its insert policy only allows the known folders.
+  // (Signed upload URLs from bk-storage are rejected by the storage server on this project —
+  // "InvalidSignature" — so that path is parked until Supabase resolves it.)
+  return DB.storage.from("photos").upload(path, file, opts||{}) }
 
 var MEMBER_FNS={bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,
   bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_own_delete:1,
