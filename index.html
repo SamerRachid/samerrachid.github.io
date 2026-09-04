@@ -1201,6 +1201,24 @@ footer{font-size:14px}
   .stabs button{font-size:13px;padding:6px 13px}
   .stabs-map{margin-inline-start:0}
 }
+/* home hero search in the Horizon shape: deal segment at the start, area field first,
+   no separate governorate field (areas are grouped by governorate in the list), no note line */
+.home-hero .sbar{display:flex;align-items:stretch}
+.home-hero .stabs{border:0;border-inline-end:1px solid var(--line);border-radius:0 14px 14px 0;padding:8px 8px 8px 16px;align-items:center;background:var(--page);flex:none}
+[dir=ltr] .home-hero .stabs{border-radius:14px 0 0 14px}
+.home-hero .stabs button{padding:7px 14px}
+.home-hero .stabs-map{display:none!important}
+.home-hero .srow{flex:1;grid-template-columns:1.8fr 1fr 1fr auto}
+.home-hero .srow .sf:first-child{display:none}
+.home-hero .hnote{display:none}
+.home-hero .sgo{border-radius:14px 0 0 14px}
+[dir=ltr] .home-hero .sgo{border-radius:0 14px 14px 0}
+@media(max-width:700px){
+  .home-hero .sbar{flex-direction:column}
+  .home-hero .stabs{border-radius:14px 14px 0 0;border-inline-end:0;border-bottom:1px solid var(--line)}
+  .home-hero .srow{grid-template-columns:1fr 1fr}
+  .home-hero .sgo{border-radius:0 0 14px 14px}
+}
 /* property-type picture tiles */
 .typegroup h3{font-size:13px;color:var(--grey);font-weight:600;margin:18px 0 10px}
 .typegrid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
@@ -1651,6 +1669,8 @@ function header(){
  // want them.
  return '<header><div class="wrap hbar"><a class="logo" data-go="home">'+CONFIG.brand+'</a>'+
   '<nav class="hnav">'+
+  // home page: editorial links first (they scroll to the page's own sections), "More" keeps the rest
+  (VIEW==="home" ? '<a data-scroll="collsSec">'+HX("navColl")+'</a><a data-scroll="explSec">'+HX("navAreas")+'</a><a data-scroll="guidesSec">'+HX("navGuide")+'</a><a data-go="post">'+HX("navAgencies")+'</a>' : '')+
   '<div class="navmore" id="navMoreWrap"><a id="navMoreChip">'+t("moreNavT")+CHEV+'</a>'+
    '<div class="menu" id="navMoreMenu">'+
    '<a data-go="search" data-deal="sale">'+MI.buy+t("buy")+'</a>'+
@@ -2237,7 +2257,7 @@ function home(){
   typeList()+'</section></div>'+
  homeTrustHtml()+
  '<div class="wrap">'+
-  '<section class="sec"><div class="expl"><div><div class="eyebrow">'+HX("govE")+'</div><h2>'+t("govH")+'</h2><div class="sub">'+t("govS")+'</div><div class="govs">'+
+  '<section class="sec" id="explSec"><div class="expl"><div><div class="eyebrow">'+HX("govE")+'</div><h2>'+t("govH")+'</h2><div class="sub">'+t("govS")+'</div><div class="govs">'+
    Object.keys(D.GEO).map(function(g){return '<a data-go="search" data-gov="'+g+'">'+gN(g)+
      '<span class="ltr">'+D.GEO[g].length+'</span></a>'}).join("")+'</div></div>'+syriaMapHtml()+'</div></section>'+
   (USER ? '' :
@@ -2245,7 +2265,7 @@ function home(){
    '<span>'+t("b1")+'</span><span>'+t("b2")+'</span><span>'+t("b3")+'</span></div>'+
    '<a class="gold" data-go="post" style="text-decoration:none">'+t("bandBtn")+'</a></div>'+
    '<div class="band-im"><img src="assets/home/umayyad.jpg" alt="" loading="lazy"></div></div>')+
-  '<section class="sec"><div class="eyebrow">'+HX("guideE")+'</div><h2>'+t("guideH")+'</h2><div class="sub">'+t("guideS")+'</div><div class="guides">'+
+  '<section class="sec" id="guidesSec"><div class="eyebrow">'+HX("guideE")+'</div><h2>'+t("guideH")+'</h2><div class="sub">'+t("guideS")+'</div><div class="guides">'+
    G.map(function(g){return '<div class="guide"><div class="k">'+g[0]+'</div><h3>'+g[1]+'</h3><p>'+g[2]+'</p></div>'}).join("")+
    '</div></section></div>'}
 
@@ -7914,6 +7934,10 @@ function render(){
 /* ── 2026-09-04 home page sections (Horizon restyle) ── */
 var HX_T={
   pickE:{ar:"ابدأ من هنا",en:"Start here",de:"Hier starten"},
+  navColl:{ar:"مجموعات مختارة",en:"Collections",de:"Sammlungen"},
+  navAreas:{ar:"استكشف المناطق",en:"Explore areas",de:"Gebiete"},
+  navGuide:{ar:"دليل المشتري",en:"Buyer's guide",de:"Leitfaden"},
+  navAgencies:{ar:"للمكاتب",en:"For agencies",de:"Für Büros"},
   govE:{ar:"استكشف المناطق",en:"Explore areas",de:"Gebiete entdecken"},
   guideE:{ar:"دليل المشتري",en:"Buyer's guide",de:"Käuferleitfaden"},
   ownE:{ar:"للمالكين والمكاتب",en:"For owners and agencies",de:"Für Eigentümer und Büros"},
@@ -7945,7 +7969,7 @@ function HX(k){ var o=HX_T[k]||{}; return o[L]||o.en||"" }
 
 function homeCollectionsHtml(){
   var cards=[["damascene","c1","c1s","دمشق"],["orchards","c2","c2s","دمشق"],["latakia","c3","c3s","اللاذقية"],["bloudan","c4","c4s","ريف دمشق"]];
-  return '<div class="wrap"><section class="sec"><div class="eyebrow">'+HX("collE")+'</div><h2>'+HX("collH")+'</h2><div class="sub">'+HX("collS")+'</div>'+
+  return '<div class="wrap"><section class="sec" id="collsSec"><div class="eyebrow">'+HX("collE")+'</div><h2>'+HX("collH")+'</h2><div class="sub">'+HX("collS")+'</div>'+
    '<div class="colls">'+cards.map(function(c){
      return '<a class="coll frame" data-go="search" data-gov="'+c[3]+'"><div class="ph"><img src="assets/home/'+c[0]+'.jpg" alt="" loading="lazy">'+
             '<div class="t"><b>'+HX(c[1])+'</b><small>'+HX(c[2])+'</small></div></div></a>' }).join("")+'</div>'+
@@ -7982,6 +8006,8 @@ function syriaMapHtml(){
 // map dots and governorate tiles highlight each other; clicking a dot opens that governorate's search
 function homeExtras(){
   if(VIEW!=="home") return;
+  $$("[data-scroll]").forEach(function(a){ a.addEventListener("click",function(e){
+    e.preventDefault(); var el=$("#"+a.dataset.scroll); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}) }) });
   var map=$("#smap"); if(!map) return;
   var hot=function(g){
     $$("#smap .dot").forEach(function(d){ d.classList.toggle("hot", !!g && d.dataset.g===g) });
