@@ -57,7 +57,7 @@
  ═══════════════════════════════════════════════════════════════════════
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=El+Messiri:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=El+Messiri:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.114.0/dist/umd/supabase.js" integrity="sha384-UxmVkfpcoSCBn4QrHwxxZVlCbloMpP/2Ay2ByWcNy6TcMxC3JUgqa8Geipyl0tP7" crossorigin="anonymous"></script>
 <!-- Leaflet (maps) is loaded on demand by ensureLeaflet() the first time a map is shown,
      instead of on every page view — see the map initializers in the script below. -->
@@ -66,8 +66,8 @@
 <style>
 :root{--navy:#14213D;--navy-2:#0D1729;--navy-w:#EEF1F7;--gold:#C4881F;--gold-w:#FDF5E7;
 --ink:#22252A;--grey:#6B7280;--light:#9CA3AF;--line:#E4E4E7;--line-2:#D3D4D8;
---page:#F6F6F7;--card:#FFF;--ok:#2E7D5B;--ok-w:#EAF5EF;--warn:#B5761F;--danger:#B3271E;
---f:'Cairo',system-ui,sans-serif;--r:8px;--r-s:5px;
+--page:#F4F2ED;--card:#FFF;--ok:#2E7D5B;--ok-w:#EAF5EF;--warn:#B5761F;--danger:#B3271E;
+--f:'IBM Plex Sans Arabic','Cairo',system-ui,sans-serif;--r:8px;--r-s:5px;
 --sh:0 1px 2px rgba(20,33,61,.06);--sh2:0 2px 8px rgba(20,33,61,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--page);color:var(--ink);font-family:var(--f);font-size:15px;line-height:1.8;-webkit-font-smoothing:antialiased}
@@ -1166,6 +1166,115 @@ footer{font-size:14px}
   body:has(.chipsel-drop.on) .mobfab{display:none}
 }
 @media (prefers-reduced-motion:reduce){.curtain{display:none}.choreo{animation:none}.menu.on,.chipsel-drop.on{animation:none}}
+
+/* ══ 2026-09-04 home page: Horizon restyle ═══════════════════════════════
+   warmer stone ground, one heading pattern (eyebrow + display title + grey line),
+   taller hero with a quieter search, picture tiles for property types, curated
+   collections, a trust band, the Syria explorer map and a framed owners band */
+.eyebrow{display:flex;align-items:center;gap:12px;font-size:12.5px;color:#8A6522;font-weight:600}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--gold)}
+.home-hero .sec{padding:84px 0 8px}
+.home-hero .sec h2{font-size:clamp(28px,3vw,36px);letter-spacing:-.005em;line-height:1.3;margin-top:6px;color:var(--navy)}
+.home-hero .sec .sub{font-size:15px;margin-bottom:26px}
+.frame{position:relative;padding:8px;border:1px solid rgba(20,33,61,.16);background:#fff}
+.frame::before{content:"";position:absolute;inset:4px;border:1px solid rgba(196,136,31,.55);pointer-events:none;z-index:2}
+/* hero */
+.home-hero .hero-outer{background:#0F1B33}
+.hv{overflow:hidden} /* the slow zoom on the hero video/photo must not widen the page */
+.home-hero .hero{min-height:min(78vh,760px);padding:130px 0 64px}
+.home-hero .hero h1{font-size:clamp(34px,4.8vw,66px);line-height:1.2;margin-bottom:26px;max-width:16ch;letter-spacing:-.005em}
+.home-hero .hscrim{background:linear-gradient(to bottom,rgba(15,27,51,.66),rgba(15,27,51,.22) 30%,rgba(15,27,51,.18) 60%,rgba(15,27,51,.82))}
+.home-hero .topbanner-wrap{padding:22px 0 0}
+/* search */
+.sbar{border-radius:14px;box-shadow:0 30px 60px -24px rgba(9,14,26,.6);max-width:1020px}
+.stabs{background:transparent;padding:10px 12px;gap:6px;border-radius:14px 14px 0 0}
+.stabs button{flex:0 0 auto;border:1px solid var(--line);border-radius:999px;padding:7px 16px;transition:.2s}
+.stabs button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.stabs-map{margin-inline-start:auto;border-color:transparent!important;background:transparent!important}
+.sf label{color:#8A6522;font-size:11.5px}
+@media(min-width:701px){
+  .srow{grid-template-columns:1.2fr 1.6fr 1fr 1fr auto}
+  .sf{padding:14px 20px}
+}
+@media(max-width:700px){
+  .stabs{flex-wrap:wrap;gap:6px}
+  .stabs button{font-size:13px;padding:6px 13px}
+  .stabs-map{margin-inline-start:0}
+}
+/* property-type picture tiles */
+.typegroup h3{font-size:13px;color:var(--grey);font-weight:600;margin:18px 0 10px}
+.typegrid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.typecell{--tile:none;position:relative;overflow:hidden;min-height:118px;display:flex;flex-direction:column;justify-content:flex-end;align-items:flex-start;color:#fff;border:0;padding:14px 16px;background-color:#14213D;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cpath d='M22 0L44 22L22 44L0 22Z M22 8L36 22L22 36L8 22Z' fill='none' stroke='%23ffffff' stroke-opacity='.08'/%3E%3C/svg%3E")}
+.typecell::before{content:"";position:absolute;inset:0;background:var(--tile) center/cover no-repeat;transition:transform 1s cubic-bezier(.2,.7,.2,1)}
+.typecell::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(15,27,51,.9),rgba(15,27,51,.2))}
+.typecell b,.typecell span{position:relative;z-index:1}
+.typecell b{font-family:var(--fd);font-size:19px;font-weight:600;color:#fff}
+.typecell span{background:rgba(255,255,255,.16)!important;color:#fff!important;margin-top:4px}
+.typecell:hover{border-color:transparent;box-shadow:0 18px 40px -22px rgba(9,14,26,.55)}
+.typecell:hover::before{transform:scale(1.06)}
+.typecell[data-type="apartment"]{--tile:url(assets/home/rooftop.jpg)}
+.typecell[data-type="arab"]{--tile:url(assets/home/damascene.jpg)}
+.typecell[data-type="villa"]{--tile:url(assets/home/zabadani.jpg)}
+.typecell[data-type="chalet"]{--tile:url(assets/home/bloudan.jpg)}
+.typecell[data-type="floor"]{--tile:url(assets/home/orchards.jpg)}
+.typecell[data-type="shop"]{--tile:url(assets/home/souq.jpg)}
+.typecell[data-type="agri"],.typecell[data-type="farm"]{--tile:url(assets/home/orchards.jpg)}
+/* collections */
+.colls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}
+.coll{display:block;color:#fff;cursor:pointer}
+.coll .ph{position:relative;aspect-ratio:3/4;overflow:hidden}
+.coll img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
+.coll:hover img{transform:scale(1.06)}
+.coll .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(15,27,51,.85),rgba(15,27,51,0) 55%)}
+.coll .t{position:absolute;inset-inline:20px;bottom:18px;z-index:1}
+.coll .t b{display:block;font-family:var(--fd);font-size:22px;font-weight:600;line-height:1.3}
+.coll .t small{display:block;font-size:13px;color:rgba(255,255,255,.75);margin-top:4px}
+.credit{font-size:11.5px;color:var(--light);margin-top:12px}
+/* trust band */
+.trustb{margin-top:84px;color:#fff;padding:84px 0;background-color:#0F1B33;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cpath d='M22 0L44 22L22 44L0 22Z M22 8L36 22L22 36L8 22Z' fill='none' stroke='%23ffffff' stroke-opacity='.07'/%3E%3C/svg%3E")}
+.trustb .wrap{display:grid;grid-template-columns:1.1fr 1fr;gap:60px;align-items:start}
+.trustb .eyebrow{color:var(--gold)}
+.trustb h2{font-family:var(--fd);font-size:clamp(30px,3.2vw,42px);color:#fff;margin-top:6px;line-height:1.3;font-weight:600}
+.trustb p.lead{color:rgba(255,255,255,.72);font-size:16px;max-width:52ch;margin-top:14px}
+.nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:40px;padding-top:28px;border-top:1px solid rgba(255,255,255,.14)}
+.nums b{display:block;font-family:var(--fd);font-size:clamp(32px,3.2vw,44px);font-weight:600;line-height:1}
+.nums b em{font-style:normal;font-size:20px;color:var(--gold);margin-inline-start:6px}
+.nums span{display:block;color:rgba(255,255,255,.65);font-size:13.5px;margin-top:8px}
+.tlist{display:grid;gap:14px}
+.tlist>div{display:flex;gap:18px;padding:22px 24px;border:1px solid rgba(255,255,255,.14);border-radius:12px;background:rgba(255,255,255,.04)}
+.tlist svg{width:26px;height:26px;flex:none;color:var(--gold)}
+.tlist b{display:block;font-family:var(--fd);font-size:18px;font-weight:600;line-height:1.4}
+.tlist p{color:rgba(255,255,255,.7);font-size:14px;margin-top:4px}
+/* area explorer */
+.expl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:60px;align-items:center}
+.expl .govs{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:22px}
+.govs a.hot{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 12px 24px -16px rgba(9,14,26,.3)}
+.smap svg{width:100%;display:block;direction:ltr}
+.smap .dot{cursor:pointer;transition:transform .3s;transform-box:fill-box;transform-origin:center}
+.smap .dot:hover,.smap .dot.hot{transform:scale(1.35)}
+.smap text{font-family:var(--f);font-size:13px;font-weight:600;fill:var(--navy);pointer-events:none}
+/* owners band */
+.band.frame{display:grid;grid-template-columns:1.2fr 1fr;gap:0;padding:8px;background:#fff;color:var(--ink);border-radius:2px;align-items:stretch;margin:84px 0 0}
+.band.frame .band-tx{padding:48px 52px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.band.frame h2{color:var(--navy);font-family:var(--fd);font-size:clamp(26px,3vw,38px);line-height:1.3;margin-top:6px}
+.band.frame p{color:var(--grey);font-size:16px;max-width:44ch}
+.band.frame .bandlist{color:var(--ink);margin-bottom:22px}
+.band.frame .band-im{position:relative;min-height:320px;overflow:hidden}
+.band.frame .band-im img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+@media(max-width:1024px){
+  .colls{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .expl{grid-template-columns:1fr;gap:30px}
+  .trustb .wrap{grid-template-columns:1fr;gap:30px}
+  .band.frame{grid-template-columns:1fr}.band.frame .band-tx{padding:30px 26px}.band.frame .band-im{min-height:240px}
+}
+@media(max-width:640px){
+  .colls{gap:12px}.coll .t b{font-size:17px}.coll .t{inset-inline:14px;bottom:12px}
+  .home-hero .sec{padding:60px 0 8px}
+  .home-hero .hero{padding:110px 0 40px;min-height:0}
+  .typegrid{grid-template-columns:repeat(2,minmax(0,1fr))}.typecell{min-height:96px}
+  .nums{gap:12px}.trustb{padding:60px 0}
+  .stabs-map{margin-inline-start:0}
+}
 </style><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
@@ -2089,8 +2198,7 @@ function home(){
  var hasBannerAbove = bannerAboveHtml!=="";
  return '<div class="hero-outer"><div class="hv" id="hv">'+heroBgHtml+'</div>'+
   '<div class="hscrim"></div>'+
-  bannerAboveHtml+
-  '<section class="hero'+(hasBannerAbove?' hero-banner-above':'')+'"><div class="wrap">'+
+  '<section class="hero"><div class="wrap">'+
   (heroOff ? bannerInHeroHtml : '<h1'+(SITE.hero_title_size||SITE.hero_title_color?' style="'+(SITE.hero_title_size?'font-size:'+SITE.hero_title_size+'px;':'')+(SITE.hero_title_color?'color:'+SITE.hero_title_color+';':'')+'"':'')+'>'+
     siteText("hero","h1a")+' <span'+(SITE.hero_sub_color?' style="color:'+SITE.hero_sub_color+'"':'')+'>'+siteText("hero_sub","h1b")+'</span></h1>')+
   '<div class="sbar"><div class="stabs"><button class="'+(F.deal==="sale"?"on":"")+'" data-d="sale">'+t("forsale")+
@@ -2119,19 +2227,25 @@ function home(){
      return '<div class="hnote"><b>'+(SITE.stats_areas_num||"657")+'</b> '+siteText("stats1","note")+
        ' '+(lnum?'<b>'+lnum+'</b> ':'')+s2+'</div>' })())+
    '</div></section></div>'+
+ // 2026-09-04 Horizon restyle: the ad banner now sits under the hero instead of inside it,
+ // curated collections lead the page, and trust / area explorer / owners band are new sections
+ bannerAboveHtml+
  marketTickerHtml()+
+ homeCollectionsHtml()+
  adSlotsRow()+
- '<div class="wrap"><section class="sec"><h2>'+t("pickH")+'</h2>'+
-  typeList()+'</section>'+
-  (USER ? '' :
-  '<div class="band"><div><h2>'+t("bandH")+'</h2><p>'+t("bandP")+'</p><div class="bandlist">'+
-   '<span>'+t("b1")+'</span><span>'+t("b2")+'</span><span>'+t("b3")+'</span></div></div>'+
-   '<a class="gold" data-go="post" style="text-decoration:none">'+t("bandBtn")+'</a></div>')+
-
-  '<section class="sec"><h2>'+t("govH")+'</h2><div class="sub">'+t("govS")+'</div><div class="govs">'+
+ '<div class="wrap"><section class="sec"><div class="eyebrow">'+HX("pickE")+'</div><h2>'+t("pickH")+'</h2>'+
+  typeList()+'</section></div>'+
+ homeTrustHtml()+
+ '<div class="wrap">'+
+  '<section class="sec"><div class="expl"><div><div class="eyebrow">'+HX("govE")+'</div><h2>'+t("govH")+'</h2><div class="sub">'+t("govS")+'</div><div class="govs">'+
    Object.keys(D.GEO).map(function(g){return '<a data-go="search" data-gov="'+g+'">'+gN(g)+
-     '<span class="ltr">'+D.GEO[g].length+'</span></a>'}).join("")+'</div></section>'+
-  '<section class="sec"><h2>'+t("guideH")+'</h2><div class="sub">'+t("guideS")+'</div><div class="guides">'+
+     '<span class="ltr">'+D.GEO[g].length+'</span></a>'}).join("")+'</div></div>'+syriaMapHtml()+'</div></section>'+
+  (USER ? '' :
+  '<div class="band frame"><div class="band-tx"><div class="eyebrow">'+HX("ownE")+'</div><h2>'+t("bandH")+'</h2><p>'+t("bandP")+'</p><div class="bandlist">'+
+   '<span>'+t("b1")+'</span><span>'+t("b2")+'</span><span>'+t("b3")+'</span></div>'+
+   '<a class="gold" data-go="post" style="text-decoration:none">'+t("bandBtn")+'</a></div>'+
+   '<div class="band-im"><img src="assets/home/umayyad.jpg" alt="" loading="lazy"></div></div>')+
+  '<section class="sec"><div class="eyebrow">'+HX("guideE")+'</div><h2>'+t("guideH")+'</h2><div class="sub">'+t("guideS")+'</div><div class="guides">'+
    G.map(function(g){return '<div class="guide"><div class="k">'+g[0]+'</div><h3>'+g[1]+'</h3><p>'+g[2]+'</p></div>'}).join("")+
    '</div></section></div>'}
 
@@ -7794,7 +7908,95 @@ function render(){
  updateHdr();
  applyReveals();
  heroChoreo();
+ homeExtras();
  wire()}
+
+/* ── 2026-09-04 home page sections (Horizon restyle) ── */
+var HX_T={
+  pickE:{ar:"ابدأ من هنا",en:"Start here",de:"Hier starten"},
+  govE:{ar:"استكشف المناطق",en:"Explore areas",de:"Gebiete entdecken"},
+  guideE:{ar:"دليل المشتري",en:"Buyer's guide",de:"Käuferleitfaden"},
+  ownE:{ar:"للمالكين والمكاتب",en:"For owners and agencies",de:"Für Eigentümer und Büros"},
+  collE:{ar:"مجموعات مختارة",en:"Curated collections",de:"Kuratierte Sammlungen"},
+  collH:{ar:"ليس بحثاً فقط، بل اكتشاف.",en:"Not just a search. A discovery.",de:"Nicht nur suchen. Entdecken."},
+  collS:{ar:"مجموعات من إعلانات موثّقة، لأن أجمل البيوت لا تُوصف بعدد الغرف.",en:"Collections of verified listings, because the best homes are not described by room counts.",de:"Sammlungen geprüfter Anzeigen – die schönsten Häuser lassen sich nicht in Zimmerzahlen fassen."},
+  c1:{ar:"بيوت عربية في دمشق القديمة",en:"Arab houses in Old Damascus",de:"Arabische Häuser in Alt-Damaskus"},
+  c1s:{ar:"أرض ديار وبحرة",en:"Courtyards and fountains",de:"Innenhöfe und Brunnen"},
+  c2:{ar:"إطلالة على قاسيون",en:"Views of Mount Qasioun",de:"Blick auf den Qasioun"},
+  c2s:{ar:"المزة، المالكي، دمر",en:"Mezzeh, Malki, Dummar",de:"Mezzeh, Malki, Dummar"},
+  c3:{ar:"شاليهات الساحل",en:"Coastal chalets",de:"Chalets an der Küste"},
+  c3s:{ar:"اللاذقية وطرطوس",en:"Latakia and Tartus",de:"Latakia und Tartus"},
+  c4:{ar:"بيوت الجبل",en:"Mountain homes",de:"Häuser in den Bergen"},
+  c4s:{ar:"بلودان والزبداني",en:"Bloudan and Zabadani",de:"Bloudan und Zabadani"},
+  credit:{ar:"صور المجموعات مؤقتة من ويكيميديا كومنز (CC BY-SA)",en:"Collection photos are temporary, from Wikimedia Commons (CC BY-SA)",de:"Sammlungsfotos vorläufig, von Wikimedia Commons (CC BY-SA)"},
+  trE:{ar:"لماذا بلكون",en:"Why Balkoun",de:"Warum Balkoun"},
+  trH:{ar:"سوقٌ نعرفه بيتاً بيتاً.",en:"A market we know house by house.",de:"Ein Markt, den wir Haus für Haus kennen."},
+  trP:{ar:"بلكون منصّة سورية بُنيت لسوق لا يشبه غيره: طابو أخضر وحكم محكمة، أسعار بالدولار وأخرى بالليرة، ومكاتب تعرف حارتها أفضل من أي خريطة.",en:"Balkoun is a Syrian platform built for a market like no other: green deeds and court rulings, prices in dollars and in pounds, and agencies that know their street better than any map.",de:"Balkoun ist eine syrische Plattform für einen Markt, der seinesgleichen sucht: grüne Grundbuchauszüge und Gerichtsurteile, Preise in Dollar und Lira, und Büros, die ihre Straße besser kennen als jede Karte."},
+  n1:{ar:"منطقة",en:"areas",de:"Gebiete"}, n2:{ar:"محافظة",en:"governorates",de:"Gouvernements"}, n3:{ar:"عمولة على المشتري",en:"buyer commission",de:"Käuferprovision"},
+  t1:{ar:"توثيق الملكية قبل النشر",en:"Ownership checked before publishing",de:"Eigentum vor Veröffentlichung geprüft"},
+  t1p:{ar:"نوع الملكية يظهر على كل إعلان، ولا يُنشر إعلان قبل مراجعة صور الأوراق.",en:"The ownership type shows on every listing, and nothing is published before the papers are reviewed.",de:"Die Eigentumsart steht auf jeder Anzeige; veröffentlicht wird erst nach Prüfung der Unterlagen."},
+  t2:{ar:"سعر في سياقه",en:"A price in context",de:"Preis im Kontext"},
+  t2p:{ar:"مع كل عقار، متوسط سعر المتر في منطقته خلال آخر ثلاثين يوماً.",en:"Every listing shows the average price per m² in its area over the last thirty days.",de:"Jede Anzeige zeigt den Durchschnittspreis pro m² im Gebiet der letzten dreißig Tage."},
+  t3:{ar:"تواصل مباشر",en:"Direct contact",de:"Direkter Kontakt"},
+  t3p:{ar:"اتصال أو واتساب مع المالك أو المكتب. لا وسطاء، ولا عمولة مخفية.",en:"Call or WhatsApp the owner or agency. No middlemen, no hidden commission.",de:"Anruf oder WhatsApp direkt an Eigentümer oder Büro. Keine Vermittler, keine versteckte Provision."},
+  mapNote:{ar:"خريطة تقريبية · حجم النقطة يعكس عدد الإعلانات الحيّة",en:"Approximate map · dot size reflects live listings",de:"Ungefähre Karte · Punktgröße zeigt aktive Anzeigen"}
+};
+function HX(k){ var o=HX_T[k]||{}; return o[L]||o.en||"" }
+
+function homeCollectionsHtml(){
+  var cards=[["damascene","c1","c1s","دمشق"],["orchards","c2","c2s","دمشق"],["latakia","c3","c3s","اللاذقية"],["bloudan","c4","c4s","ريف دمشق"]];
+  return '<div class="wrap"><section class="sec"><div class="eyebrow">'+HX("collE")+'</div><h2>'+HX("collH")+'</h2><div class="sub">'+HX("collS")+'</div>'+
+   '<div class="colls">'+cards.map(function(c){
+     return '<a class="coll frame" data-go="search" data-gov="'+c[3]+'"><div class="ph"><img src="assets/home/'+c[0]+'.jpg" alt="" loading="lazy">'+
+            '<div class="t"><b>'+HX(c[1])+'</b><small>'+HX(c[2])+'</small></div></div></a>' }).join("")+'</div>'+
+   '<div class="credit">'+HX("credit")+'</div></section></div>';
+}
+
+function homeTrustHtml(){
+  var areas=Object.keys(D.GEO).reduce(function(s,g){return s+D.GEO[g].length},0), govs=Object.keys(D.GEO).length;
+  var ic=function(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'};
+  return '<section class="trustb"><div class="wrap"><div><div class="eyebrow">'+HX("trE")+'</div><h2>'+HX("trH")+'</h2><p class="lead">'+HX("trP")+'</p>'+
+   '<div class="nums"><div><b><span class="ltr">'+areas.toLocaleString("en")+'</span></b><span>'+HX("n1")+'</span></div>'+
+   '<div><b><span class="ltr">'+govs+'</span></b><span>'+HX("n2")+'</span></div>'+
+   '<div><b><span class="ltr">0</span><em>%</em></b><span>'+HX("n3")+'</span></div></div></div>'+
+   '<div class="tlist">'+
+   '<div>'+ic('<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="m9 12 2 2 4-4"/>')+'<div><b>'+HX("t1")+'</b><p>'+HX("t1p")+'</p></div></div>'+
+   '<div>'+ic('<path d="M4 19V5m0 14h16M8 15l4-5 3 3 5-6"/>')+'<div><b>'+HX("t2")+'</b><p>'+HX("t2p")+'</p></div></div>'+
+   '<div>'+ic('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-5.1A8 8 0 1 1 21 12z"/>')+'<div><b>'+HX("t3")+'</b><p>'+HX("t3p")+'</p></div></div>'+
+   '</div></div></section>';
+}
+
+function syriaMapHtml(){
+  var pts=[["دمشق",186,392,200,397],["حلب",216,120,230,125],["حمص",196,268,210,273],["حماة",180,222,194,227],["اللاذقية",118,188,60,193],["طرطوس",110,252,56,257],["إدلب",150,150,106,145],["دير الزور",420,230,434,235],["الرقة",360,128,374,133],["الحسكة",500,112,514,117],["درعا",196,446,210,451],["السويداء",246,440,260,445]];
+  var cnt={}; (D.LIST||[]).forEach(function(x){ if(x.g&&(!x.status||x.status==="live")) cnt[x.g]=(cnt[x.g]||0)+1 });
+  var outline="M92 118 L150 86 L210 70 L280 62 L360 58 L440 66 L520 96 L560 150 L548 210 L500 262 L440 318 L392 382 L330 440 L280 468 L232 462 L180 430 L150 372 L120 300 L100 240 L84 180 Z";
+  return '<div class="frame smap" id="smap"><svg viewBox="0 0 600 520" aria-hidden="true"><defs><pattern id="sdots" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1" fill="#14213D" fill-opacity=".12"/></pattern></defs>'+
+   '<path d="'+outline+'" fill="url(#sdots)" stroke="#14213D" stroke-width="1.5" stroke-linejoin="round"/>'+
+   '<path d="'+outline+'" fill="none" stroke="#C4881F" stroke-width="1" stroke-dasharray="2 5" transform="translate(6 6)"/>'+
+   pts.map(function(p){ var c=cnt[p[0]]||0, r=3+Math.min(4,Math.sqrt(c));
+     return '<g class="dot" data-g="'+p[0]+'"><circle cx="'+p[1]+'" cy="'+p[2]+'" r="'+(r*2)+'" fill="#C4881F" fill-opacity=".18"/><circle cx="'+p[1]+'" cy="'+p[2]+'" r="'+r+'" fill="#C4881F"/></g>'+
+            '<text x="'+p[3]+'" y="'+p[4]+'">'+gN(p[0])+'</text>' }).join("")+
+   '<text x="20" y="500" style="font-size:11.5px;font-weight:400;fill:#9CA3AF">'+HX("mapNote")+'</text></svg></div>';
+}
+
+// map dots and governorate tiles highlight each other; clicking a dot opens that governorate's search
+function homeExtras(){
+  if(VIEW!=="home") return;
+  var map=$("#smap"); if(!map) return;
+  var hot=function(g){
+    $$("#smap .dot").forEach(function(d){ d.classList.toggle("hot", !!g && d.dataset.g===g) });
+    $$(".govs a[data-gov]").forEach(function(a){ a.classList.toggle("hot", !!g && a.dataset.gov===g) });
+  };
+  $$("#smap .dot").forEach(function(d){
+    d.addEventListener("mouseenter",function(){hot(d.dataset.g)});
+    d.addEventListener("mouseleave",function(){hot(null)});
+    d.addEventListener("click",function(){ var a=$('.govs a[data-gov="'+d.dataset.g+'"]'); if(a) a.click() });
+  });
+  $$(".govs a[data-gov]").forEach(function(a){
+    a.addEventListener("mouseenter",function(){hot(a.dataset.gov)});
+    a.addEventListener("mouseleave",function(){hot(null)});
+  });
+}
 
 /* opening: a navy curtain with the wordmark drawing in, lifted after ~1s to reveal the hero,
    whose headline, search box and note then rise in sequence. Home page only, once per
@@ -7860,7 +8062,7 @@ function applyReveals(){
   var io=new IntersectionObserver(function(es){ es.forEach(function(e){
       if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target) } }) },{rootMargin:"0px 0px -6% 0px"});
   var n=0;
-  document.querySelectorAll(".sec, .band, .card, .govs a, .guide, .mkt").forEach(function(el,i){
+  document.querySelectorAll(".sec, .band, .card, .govs a, .guide, .mkt, .coll, .typecell, .tlist>div, .nums>div").forEach(function(el,i){
     if(n>=80 || el.getBoundingClientRect().top < vh*0.92) return;
     el.classList.add("rv"); el.style.transitionDelay=((i%3)*60)+"ms"; io.observe(el); n++;
   });
