@@ -1087,13 +1087,6 @@ footer{font-size:14px}
 .hv img,.hv video{transform-origin:center;will-change:transform}
 .hv.on img,.hv.on video{animation:heroKb 26s ease-in-out infinite alternate}
 @keyframes heroKb{from{transform:scale(1)}to{transform:scale(1.07)}}
-/* cursor (desktop with a real mouse only; JS adds body.has-cur) */
-.cur{position:fixed;left:0;top:0;width:12px;height:12px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:width .25s cubic-bezier(.2,.7,.2,1),height .25s cubic-bezier(.2,.7,.2,1),opacity .25s}
-.cur.big{width:46px;height:46px}
-.cur.hide{opacity:0}
-body.has-cur *:not(input):not(textarea):not(select){cursor:none}
-body.has-cur .leaflet-container,body.has-cur .leaflet-container *{cursor:grab}
-body.has-cur .leaflet-container a,body.has-cur .leaflet-interactive{cursor:pointer}
 /* market pulse ticker (home, under the hero) */
 .mkt{display:flex;align-items:stretch;background:#fff;border-bottom:1px solid var(--line);font-size:13.5px;overflow:hidden}
 .mkt-lab{flex:none;display:flex;align-items:center;gap:8px;padding:11px 18px;font-weight:700;border-inline-end:1px solid var(--line);color:var(--navy);white-space:nowrap;background:#fff;z-index:1}
@@ -7903,7 +7896,7 @@ function updateHdr(){
  h.classList.toggle("hdr-solid", document.body.classList.contains("home-hero") && y>30);
 }
 window.addEventListener("scroll",updateHdr,{passive:true});
-initCursor();
+// custom cursor removed 2026-09-04 (confused visitors; hover states carry the affordance)
 DEMO = D.LIST.slice();
 USER = loadSession();
 if(USER && USER.preferred_currency){ CUR=USER.preferred_currency; try{localStorage.setItem("balkoun_cur",CUR)}catch(e){} }
