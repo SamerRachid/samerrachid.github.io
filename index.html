@@ -1213,8 +1213,12 @@ footer{font-size:14px}
 [dir=ltr] .home-hero .stabs{border-radius:14px 0 0 14px}
 .home-hero .stabs button{padding:7px 14px}
 .home-hero .stabs-map{display:none!important}
-.home-hero .srow{flex:1;grid-template-columns:1.8fr 1fr 1fr auto}
-.home-hero .srow .sf:first-child{display:none}
+.home-hero .srow{flex:1;grid-template-columns:1fr 1.4fr 1fr 1fr auto auto}
+.home-hero .sgo-map{display:inline-flex;align-items:center;justify-content:center;width:48px;border:0;border-inline-start:1px solid var(--line);background:var(--page);color:var(--navy);cursor:pointer;border-radius:14px 0 0 14px}
+[dir=ltr] .home-hero .sgo-map{border-radius:0 14px 14px 0}
+.home-hero .sgo-map svg{width:22px;height:22px}
+.home-hero .sgo-map:hover{background:var(--gold-w);color:var(--gold-dk)}
+.home-hero .srow .sgo{border-radius:0}
 .home-hero .hnote{display:none}
 .home-hero .sgo{border-radius:14px 0 0 14px}
 [dir=ltr] .home-hero .sgo{border-radius:0 14px 14px 0}
@@ -1222,7 +1226,9 @@ footer{font-size:14px}
   .home-hero .sbar{flex-direction:column}
   .home-hero .stabs{border-radius:14px 14px 0 0;border-inline-end:0;border-bottom:1px solid var(--line)}
   .home-hero .srow{grid-template-columns:1fr 1fr}
-  .home-hero .sgo{border-radius:0 0 14px 14px}
+  .home-hero .srow .sgo{border-radius:0}
+  .home-hero .sgo-map{grid-column:1/-1;width:auto;height:46px;border:0;border-top:1px solid var(--line);border-radius:0 0 14px 14px;gap:8px;font-size:14px;font-weight:600}
+  .home-hero .sgo-map::after{content:attr(title)}
 }
 /* property-type picture tiles */
 .typegroup h3{font-size:13px;color:var(--grey);font-weight:600;margin:18px 0 10px}
@@ -2245,6 +2251,7 @@ function home(){
      : '<div class="sf"><label>'+t("deed")+'</label>'+chipSelect("csTabu",t("searchDeedPH"),F.tbs||[],function(v){
         return D.TABU[v]?D.TABU[v][li()]:v})+'</div>')+
    '<button class="sgo" id="hgo">'+t("search")+'<br><span id="hgoCount" style="font-size:11.5px;opacity:.75">'+heroCount(F.deal)+'</span></button>'+
+   '<button type="button" class="sgo-map" data-go="mapsearch" title="'+t("searchOnMap")+'" aria-label="'+t("searchOnMap")+'">'+MI.map+'</button>'+
    '</div></div>'+
    (SITE.stats_enabled===false ? '' : (function(){
      // never show an invented listing count: use the real one when enabled, a number the admin
