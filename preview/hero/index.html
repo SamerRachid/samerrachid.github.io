@@ -1,0 +1,202 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>معاينة خلفية الصفحة الرئيسية | بلكون</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=El+Messiri:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#14213D;--navy-d:#0B1224;--gold:#C4881F;--gold-l:#E3B563;--gold-w:#FDF5E7;--cream:#F4F2ED;--line:#E6E2D9}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--navy-d);font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;color:#fff}
+.stage{position:relative;height:100vh;min-height:620px;overflow:hidden;background:radial-gradient(120% 80% at 50% 115%,#1C2D56 0%,#0B1224 62%)}
+.photo{position:absolute;inset:0;background:url(/assets/hero-default.jpg) center/cover no-repeat;opacity:0;transform:scale(1.06);filter:brightness(.35) saturate(.9);will-change:opacity,transform,filter}
+.scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(9,14,26,.62),rgba(9,14,26,.18) 42%,rgba(9,14,26,.55) 100%);opacity:0}
+.art{position:absolute;inset:0;will-change:opacity,transform}
+.art svg{width:100%;height:100%;display:block}
+.glow{filter:drop-shadow(0 0 6px rgba(227,181,99,.55))}
+header{position:absolute;top:0;left:0;right:0;z-index:6;display:flex;align-items:center;gap:26px;padding:14px 40px;color:rgba(255,255,255,.9);background:linear-gradient(180deg,rgba(9,14,26,.45),transparent)}
+.logo{font:700 30px/1 'El Messiri';color:var(--gold-l);letter-spacing:.01em}
+nav{display:flex;gap:22px;font-size:14.5px}
+.tools{margin-inline-start:auto;display:flex;gap:10px;align-items:center}
+.btn{border:1px solid rgba(255,255,255,.35);border-radius:7px;padding:8px 14px;font-size:13.5px;color:#fff;background:transparent}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#1A1206;font-weight:700}
+.copy{position:absolute;inset-inline:0;bottom:16vh;z-index:5;padding:0 40px;max-width:1180px;margin:0 auto;width:100%}
+h1{font:600 clamp(40px,5.4vw,70px)/1.18 'El Messiri';margin:0 0 26px;text-shadow:0 2px 26px rgba(0,0,0,.4)}
+h1 .w{display:inline-block;opacity:0;transform:translateY(26px)}
+h1 em{font-style:normal;color:var(--gold-l)}
+.sbar{display:flex;align-items:stretch;background:#fff;border-radius:14px;box-shadow:0 30px 60px -20px rgba(0,0,0,.65);opacity:0;transform:translateY(28px);color:var(--navy);max-width:1060px;overflow:hidden}
+.seg{display:flex;gap:4px;align-items:center;padding:8px 8px 8px 16px;background:var(--cream);border-inline-end:1px solid var(--line)}
+.seg span{padding:7px 14px;border-radius:999px;font-size:13.5px;color:#4B5563}
+.seg span.on{background:var(--navy);color:#fff;font-weight:600}
+.f{flex:1;padding:10px 16px;border-inline-end:1px solid var(--line);min-width:0}
+.f small{display:block;font-size:11px;color:#9CA3AF;font-weight:600;margin-bottom:2px}
+.f div{font-size:14px;color:#9CA3AF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.go{background:var(--gold);color:#1A1206;font-weight:700;display:grid;place-items:center;padding:0 30px;font-size:15px;line-height:1.4;text-align:center}
+.go small{font-weight:400;font-size:11.5px;opacity:.75}
+.mapb{width:48px;display:grid;place-items:center;background:var(--cream);color:var(--navy)}
+/* chooser */
+.dock{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:20;display:flex;gap:6px;align-items:center;background:rgba(11,18,36,.82);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px}
+.dock button{border:0;background:transparent;color:rgba(255,255,255,.85);font:inherit;font-size:13.5px;padding:9px 16px;border-radius:999px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.dock button b{font:600 13px 'El Messiri';color:var(--gold-l)}
+.dock button.on{background:var(--gold);color:#1A1206}.dock button.on b{color:#1A1206}
+.dock .rep{width:38px;height:38px;padding:0;justify-content:center;border-inline-start:1px solid rgba(255,255,255,.14);border-radius:0 999px 999px 0;margin-inline-start:2px}
+.tag{position:fixed;top:72px;inset-inline-start:40px;z-index:20;font-size:12px;color:rgba(255,255,255,.55);letter-spacing:.04em}
+.tag b{color:var(--gold-l);font-weight:600}
+.desc{position:fixed;bottom:74px;left:50%;transform:translateX(-50%);z-index:20;font-size:13px;color:rgba(255,255,255,.7);background:rgba(11,18,36,.55);padding:6px 14px;border-radius:999px;white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:760px){header{padding:12px 18px}nav{display:none}.copy{padding:0 18px;bottom:20vh}.sbar{flex-direction:column}.seg{border-inline-end:0;border-bottom:1px solid var(--line)}.f{border-inline-end:0;border-bottom:1px solid var(--line)}.go{padding:14px}.mapb{width:100%;height:44px}.tag{inset-inline-start:18px}.dock button{padding:9px 10px;font-size:12.5px}.dock button span{display:none}}
+@media(prefers-reduced-motion:reduce){.photo{opacity:1!important;transform:none!important;filter:none!important}.scrim{opacity:1!important}.art{display:none}h1 .w,.sbar{opacity:1!important;transform:none!important}}
+</style></head><body>
+<div class="stage" id="stage">
+  <div class="photo" id="photo"></div>
+  <div class="scrim" id="scrim"></div>
+  <div class="art" id="art"></div>
+  <header><a class="logo">بلكون</a><nav><span>المجموعات</span><span>استكشف المناطق</span><span>دليل المشتري</span><span>للوكالات</span><span>المزيد ▾</span></nav>
+    <div class="tools"><span class="btn">English</span><span class="btn">دخول</span><span class="btn gold">أضف إعلانك</span></div></header>
+  <div class="copy">
+    <h1 id="h1"><span class="w">بيتك</span> <span class="w">القادم</span> <span class="w"><em>يبدأ</em></span> <span class="w"><em>من</em></span> <span class="w"><em>الشرفة.</em></span></h1>
+    <div class="sbar" id="sbar"><div class="seg"><span class="on">للبيع</span><span>للإيجار</span><span>الكل</span></div>
+      <div class="f"><small>المحافظة</small><div>ابحث عن محافظة…</div></div><div class="f" style="flex:1.4"><small>المنطقة</small><div>ابحث عن مدينة أو حي…</div></div>
+      <div class="f"><small>نوع العقار</small><div>ابحث عن نوع…</div></div><div class="f"><small>الطابو</small><div>ابحث عن طابو…</div></div>
+      <div class="go">بحث<small>9 إعلانات</small></div><div class="mapb"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></div>
+    </div>
+  </div>
+</div>
+<div class="tag">معاينة · <b>غير منشورة</b> · الصورة والنصوص كما هي على الموقع</div>
+<div class="desc" id="desc"></div>
+<div class="dock" id="dock">
+  <button data-v="1"><b>١</b><span>شرفة الفجر</span></button>
+  <button data-v="2"><b>٢</b><span>سوريا تضيء</span></button>
+  <button data-v="3"><b>٣</b><span>النقش الدمشقي</span></button>
+  <button class="rep" id="rep" title="إعادة"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+</div>
+<script>
+(function(){
+var NS="http://www.w3.org/2000/svg", GOLD="#E3B563", GOLD2="#C4881F";
+var $=function(s){return document.querySelector(s)};
+var photo=$("#photo"), scrim=$("#scrim"), art=$("#art"), words=[].slice.call(document.querySelectorAll("#h1 .w")), sbar=$("#sbar"), desc=$("#desc");
+var anims=[];
+function A(el,kf,o){ var a=el.animate(kf,Object.assign({fill:"both"},o)); anims.push(a); return a }
+function svg(tag,attrs,parent){ var e=document.createElementNS(NS,tag); for(var k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e }
+function draw(el,delay,dur,ease){ // stroke "hand-drawing" via dash offset
+  var L=el.getTotalLength ? el.getTotalLength() : 300;
+  el.style.strokeDasharray=L; el.style.strokeDashoffset=L;
+  A(el,[{strokeDashoffset:L},{strokeDashoffset:0}],{delay:delay,duration:dur,easing:ease||"cubic-bezier(.4,0,.2,1)"});
+}
+function finish(tPhoto,tWords){ // shared ending: photo dawns, headline and search settle
+  A(photo,[{opacity:0,transform:"scale(1.06)",filter:"brightness(.35) saturate(.9)"},{opacity:1,transform:"scale(1)",filter:"brightness(1) saturate(1)"}],{delay:tPhoto,duration:1500,easing:"cubic-bezier(.3,0,.2,1)"});
+  A(scrim,[{opacity:0},{opacity:1}],{delay:tPhoto+200,duration:1000});
+  words.forEach(function(w,i){ A(w,[{opacity:0,transform:"translateY(26px)"},{opacity:1,transform:"translateY(0)"}],{delay:tWords+i*110,duration:700,easing:"cubic-bezier(.2,.7,.2,1)"}) });
+  A(sbar,[{opacity:0,transform:"translateY(28px)"},{opacity:1,transform:"translateY(0)"}],{delay:tWords+520,duration:800,easing:"cubic-bezier(.2,.7,.2,1)"});
+}
+
+/* ── 1 · Balcony dawn: gold line drawing of Damascus (Qasioun, Umayyad Mosque, Damascene houses with balconies) ── */
+function v1(){
+  desc.textContent="خطوط ذهبية ترسم دمشق: قاسيون، الجامع الأموي، وبيوت دمشقية بشرفاتها — ثم يطلع الفجر على الصورة الحقيقية.";
+  var s=svg("svg",{viewBox:"0 0 1600 560",preserveAspectRatio:"xMidYMax slice",class:"glow"},art);
+  var g=svg("g",{fill:"none",stroke:GOLD,"stroke-width":"1.7","stroke-linecap":"round","stroke-linejoin":"round"},s);
+  var P=function(d,t,dur,w){ var p=svg("path",{d:d},g); if(w) p.setAttribute("stroke-width",w); draw(p,t,dur); return p };
+  var C=function(cx,cy,r,t,dur){ var c=svg("circle",{cx:cx,cy:cy,r:r},g); draw(c,t,dur); return c };
+  // mountains
+  P("M0 292 C140 252 250 238 360 248 C470 258 560 202 660 216 C760 230 840 178 960 192 C1080 206 1170 152 1290 198 C1400 240 1500 228 1600 238",100,1000,"1.2").setAttribute("stroke-opacity",".55");
+  P("M0 342 C120 324 230 302 350 310 C470 318 560 282 680 294 C800 306 880 264 1000 280 C1120 296 1230 252 1330 292 C1430 332 1520 322 1600 328",260,1000,"1.4").setAttribute("stroke-opacity",".8");
+  P("M0 470 H1600",520,900,"1.2");
+  // Umayyad Mosque: prayer hall with arcade, Dome of the Eagle, three minarets
+  P("M640 470 V405 H960 V470",700,700);
+  for(var i=0;i<7;i++){ var x=666+i*40; P("M"+x+" 470 V440 A14 14 0 0 1 "+(x+28)+" 440 V470",900+i*60,420) }
+  P("M748 405 V382 H852 V405",1000,400); P("M740 382 A60 60 0 0 1 860 382",1150,600); P("M800 322 V302",1600,250); C(800,294,6,1700,300);
+  P("M926 470 V212 H954 V470",900,800); P("M920 300 H960",1400,200); P("M920 250 H960",1450,200); P("M926 212 L940 160 L954 212",1500,350); P("M940 160 V140",1750,180);
+  P("M646 470 V248 H674 V470",1000,750); P("M640 248 V222 H680 V248",1450,300); P("M640 222 L660 190 L680 222",1600,300); P("M640 300 H680",1350,200);
+  P("M608 470 V262 H632 V470",1100,750); P("M602 330 H638",1450,200); P("M602 290 H638",1500,200); C(620,248,13,1650,350); P("M620 235 V212",1850,180);
+  // Damascene houses (left)
+  var houses=[
+    ["M70 470 V360 H190 V470",  [["M95 430 V395 A12 12 0 0 1 119 395 V430",1],["M105 372 H155 V418 H105 Z",1],["M105 418 L112 430 H148 L155 418",1],["M105 372 L155 418 M155 372 L105 418 M130 372 V418 M105 395 H155",0]], 1200],
+    ["M200 470 V330 H330 V470", [["M215 398 H315 M215 420 H315",1],["M227 398 V420 M239 398 V420 M251 398 V420 M263 398 V420 M275 398 V420 M287 398 V420 M299 398 V420",0],["M222 380 V352 A10 10 0 0 1 242 352 V380 M255 380 V352 A10 10 0 0 1 275 352 V380 M288 380 V352 A10 10 0 0 1 308 352 V380",1]], 1350],
+    ["M340 470 V385 H430 V470", [["M370 470 V420 A15 15 0 0 1 400 420 V470",1],["M355 405 H415",0]], 1500],
+    ["M440 470 V350 H560 V470", [["M460 372 H520 V416 H460 Z",1],["M460 372 L520 416 M520 372 L460 416 M490 372 V416 M460 394 H520",0],["M460 416 L468 428 H512 L520 416",1],["M535 440 V405 A10 10 0 0 1 555 405 V440",1]], 1650],
+    ["M1000 470 V340 H1120 V470", [["M1020 365 H1080 V410 H1020 Z",1],["M1020 365 L1080 410 M1080 365 L1020 410 M1050 365 V410 M1020 387 H1080",0],["M1020 410 L1028 422 H1072 L1080 410",1],["M1092 440 V405 A10 10 0 0 1 1112 405 V440",1]], 1300],
+    ["M1130 470 V375 H1240 V470", [["M1165 470 V420 A15 15 0 0 1 1195 420 V470",1],["M1150 405 H1220",0]], 1450],
+    ["M1250 470 V320 H1400 V470", [["M1265 396 H1385 M1265 420 H1385",1],["M1277 396 V420 M1289 396 V420 M1301 396 V420 M1313 396 V420 M1325 396 V420 M1337 396 V420 M1349 396 V420 M1361 396 V420 M1373 396 V420",0],["M1275 378 V350 A10 10 0 0 1 1295 350 V378 M1315 378 V350 A10 10 0 0 1 1335 350 V378 M1355 378 V350 A10 10 0 0 1 1375 350 V378",1]], 1600],
+    ["M1410 470 V360 H1530 V470", [["M1430 380 H1490 V424 H1430 Z",1],["M1430 380 L1490 424 M1490 380 L1430 424 M1460 380 V424 M1430 402 H1490",0],["M1430 424 L1438 436 H1482 L1490 424",1],["M1502 440 V405 A10 10 0 0 1 1522 405 V440",1]], 1750]
+  ];
+  houses.forEach(function(h){ P(h[0],h[2],650); h[1].forEach(function(d,i){ var p=P(d[0],h[2]+300+i*120,450,d[1]?"1.6":"1"); if(!d[1]) p.setAttribute("stroke-opacity",".7") }) });
+  // cypresses
+  [585,975,1560,30].forEach(function(x,i){ P("M"+x+" 470 C"+(x-16)+" 432 "+(x-14)+" 400 "+x+" 352 C"+(x+14)+" 400 "+(x+16)+" 432 "+x+" 470",1500+i*120,600,"1.3") });
+  // horizon glow, then the drawing gives way to the photo
+  var hz=svg("rect",{x:0,y:440,width:1600,height:60,fill:"url(#hz)"},s);
+  var defs=svg("defs",{},s); var lg=svg("linearGradient",{id:"hz",x1:0,y1:0,x2:0,y2:1},defs);
+  svg("stop",{offset:"0",  "stop-color":GOLD,"stop-opacity":"0"},lg); svg("stop",{offset:".5","stop-color":GOLD,"stop-opacity":".28"},lg); svg("stop",{offset:"1","stop-color":GOLD,"stop-opacity":"0"},lg);
+  A(hz,[{opacity:0},{opacity:1,offset:.5},{opacity:0}],{delay:2200,duration:1300});
+  A(art,[{opacity:1,transform:"translateY(0)"},{opacity:1,transform:"translateY(0)",offset:.35},{opacity:0,transform:"translateY(-14px)"}],{delay:2500,duration:1400,easing:"ease-in-out"});
+  finish(2400,2900);
+}
+
+/* ── 2 · Syria lights up: the country outline draws, cities light one by one, the map recedes into a watermark ── */
+function v2(){
+  desc.textContent="خريطة سوريا ترسم نفسها، المدن تضيء واحدة بعد الأخرى، ثم تتراجع الخريطة كعلامة خافتة خلف العنوان.";
+  var wrap=document.createElement("div"); wrap.style.cssText="position:absolute;inset:0;display:grid;place-items:center"; art.appendChild(wrap);
+  var s=svg("svg",{viewBox:"0 0 600 520",style:"width:auto;height:74%;overflow:visible",class:"glow"},wrap);
+  var outline="M92 118 L150 86 L210 70 L280 62 L360 58 L440 66 L520 96 L560 150 L548 210 L500 262 L440 318 L392 382 L330 440 L280 468 L232 462 L180 430 L150 372 L120 300 L100 240 L84 180 Z";
+  var fill=svg("path",{d:outline,fill:GOLD,"fill-opacity":"0","stroke":"none"},s);
+  A(fill,[{fillOpacity:0},{fillOpacity:.07}],{delay:900,duration:900});
+  var o1=svg("path",{d:outline,fill:"none",stroke:GOLD,"stroke-width":"1.8","stroke-linejoin":"round"},s); draw(o1,100,1500,"cubic-bezier(.5,0,.3,1)");
+  var o2=svg("path",{d:outline,fill:"none",stroke:GOLD2,"stroke-width":"1","stroke-dasharray":"2 5",transform:"translate(7 7)",opacity:"0"},s);
+  A(o2,[{opacity:0},{opacity:.7}],{delay:1300,duration:600});
+  // the M5 spine and the coast road, as routes between cities
+  ["M186 392 L196 268 L180 222 L216 120","M110 252 L118 188 L150 150 L216 120","M216 120 L360 128 L420 230 L500 112"].forEach(function(d,i){
+    var p=svg("path",{d:d,fill:"none",stroke:GOLD,"stroke-width":".9","stroke-opacity":".45","stroke-dasharray":"3 4"},s); draw(p,1700+i*180,700) });
+  var pts=[["دمشق",186,392],["حمص",196,268],["حماة",180,222],["حلب",216,120],["اللاذقية",118,188],["طرطوس",110,252],["إدلب",150,150],["الرقة",360,128],["دير الزور",420,230],["الحسكة",500,112],["درعا",196,446],["السويداء",246,440]];
+  pts.forEach(function(p,i){
+    var t=1200+i*120, cap=i===0?7:i<4?5:4;
+    var ring=svg("circle",{cx:p[1],cy:p[2],r:cap,fill:"none",stroke:GOLD,"stroke-width":"1.2",opacity:"0"},s);
+    A(ring,[{opacity:.9,transform:"scale(.4)"},{opacity:0,transform:"scale(3.2)"}],{delay:t,duration:1100,easing:"cubic-bezier(.2,.6,.2,1)"}); ring.style.transformOrigin=p[1]+"px "+p[2]+"px";
+    var dot=svg("circle",{cx:p[1],cy:p[2],r:cap,fill:GOLD},s); dot.style.transformOrigin=p[1]+"px "+p[2]+"px";
+    A(dot,[{opacity:0,transform:"scale(0)"},{opacity:1,transform:"scale(1.25)",offset:.6},{opacity:1,transform:"scale(1)"}],{delay:t,duration:600,easing:"cubic-bezier(.2,.7,.2,1)"});
+    var lab=svg("text",{x:p[1]+(i===4||i===5||i===6?-12:14),y:p[2]+5,fill:"#F4F2ED","font-size":i<4?"15":"13","font-family":"'El Messiri'","font-weight":"600","text-anchor":(i===4||i===5||i===6)?"end":"start",opacity:"0"},s);
+    lab.textContent=p[0]; A(lab,[{opacity:0},{opacity:.95}],{delay:t+250,duration:450});
+  });
+  // recede: shrink toward the start side and dim to a watermark while the photo comes up
+  A(art,[{opacity:1,transform:"translate(0,0) scale(1)"},{opacity:.16,transform:"translate(-30vw,4vh) scale(.72)"}],{delay:2900,duration:1500,easing:"cubic-bezier(.4,0,.2,1)"});
+  [].slice.call(s.querySelectorAll("text")).forEach(function(t){ A(t,[{opacity:.95},{opacity:0}],{delay:3000,duration:600}) });
+  finish(2900,3300);
+}
+
+/* ── 3 · Damascene pattern: the eight-point star lattice of Damascene doors assembles in gold, then dissolves into the photo ── */
+function v3(){
+  desc.textContent="نقش النجمة الثمانية من الأبواب والأسقف الدمشقية يتشكّل بالذهب من المركز إلى الأطراف، ثم يذوب في الصورة.";
+  var W=1600,H=900,S=150,R=60,h=R/Math.SQRT2;
+  var s=svg("svg",{viewBox:"0 0 "+W+" "+H,preserveAspectRatio:"xMidYMid slice",class:"glow"},art);
+  var defs=svg("defs",{},s); var sh=svg("linearGradient",{id:"sheen",x1:"0",y1:"0",x2:"1",y2:"1"},defs);
+  svg("stop",{offset:"0","stop-color":"#fff","stop-opacity":"0"},sh); svg("stop",{offset:".5","stop-color":"#fff","stop-opacity":".16"},sh); svg("stop",{offset:"1","stop-color":"#fff","stop-opacity":"0"},sh);
+  var g=svg("g",{fill:"none",stroke:GOLD,"stroke-width":"1.4","stroke-linejoin":"miter"},s);
+  var cx=W/2, cy=H/2, maxD=Math.hypot(cx,cy);
+  var sq=function(x,y,half,rot){ var pts=[[-half,-half],[half,-half],[half,half],[-half,half]].map(function(p){ var a=rot*Math.PI/180, X=p[0]*Math.cos(a)-p[1]*Math.sin(a), Y=p[0]*Math.sin(a)+p[1]*Math.cos(a); return (x+X).toFixed(1)+" "+(y+Y).toFixed(1) }); return "M"+pts.join(" L")+" Z" };
+  for(var j=0;j<=H/S;j++) for(var i=0;i<=W/S;i++){
+    var x=i*S+S/2, y=j*S+S/2, d=Math.hypot(x-cx,y-cy), t=120+d/maxD*1500;
+    var a=svg("path",{d:sq(x,y,h,0)},g), b=svg("path",{d:sq(x,y,h,45)},g); draw(a,t,650); draw(b,t+120,650);
+    var f=svg("path",{d:sq(x,y,h*.42,45),fill:GOLD,"fill-opacity":"0",stroke:"none"},g); A(f,[{fillOpacity:0},{fillOpacity:.22}],{delay:t+500,duration:500});
+    // connectors to the neighbouring stars (the interlacing lattice)
+    var c1=svg("path",{d:"M"+(x+R)+" "+y+" H"+(x+S-R)},g); draw(c1,t+350,400); c1.setAttribute("stroke-opacity",".8");
+    var c2=svg("path",{d:"M"+x+" "+(y+R)+" V"+(y+S-R)},g); draw(c2,t+350,400); c2.setAttribute("stroke-opacity",".8");
+    // small rotated square in the cell centre where four crosses meet
+    var m=svg("path",{d:sq(x+S/2,y+S/2,14,45),fill:GOLD,"fill-opacity":"0"},g); draw(m,t+600,350); A(m,[{fillOpacity:0},{fillOpacity:.5}],{delay:t+800,duration:400});
+  }
+  var sheen=svg("rect",{x:-W,y:0,width:W,height:H,fill:"url(#sheen)"},s);
+  A(sheen,[{transform:"translateX(0)"},{transform:"translateX("+(2*W)+"px)"}],{delay:1900,duration:1400,easing:"cubic-bezier(.4,0,.2,1)"});
+  A(art,[{opacity:1,transform:"scale(1)",filter:"blur(0)"},{opacity:1,transform:"scale(1)",filter:"blur(0)",offset:.3},{opacity:0,transform:"scale(1.05)",filter:"blur(3px)"}],{delay:2500,duration:1500,easing:"ease-in-out"});
+  finish(2700,3100);
+}
+
+var V={1:v1,2:v2,3:v3}, cur=null;
+function play(n){
+  cur=n; location.hash=n; anims.forEach(function(a){ a.cancel() }); anims=[]; art.innerHTML=""; art.style.cssText="";
+  [].slice.call(document.querySelectorAll(".dock [data-v]")).forEach(function(b){ b.classList.toggle("on",b.dataset.v==String(n)) });
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches){ return }
+  photo.style.opacity=0; scrim.style.opacity=0; words.forEach(function(w){w.style.opacity=0}); sbar.style.opacity=0;
+  V[n]();
+}
+document.getElementById("dock").addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b) return; if(b.id==="rep") play(cur); else play(parseInt(b.dataset.v,10)) });
+document.addEventListener("keydown",function(e){ if(e.key>="1"&&e.key<="3") play(parseInt(e.key,10)); if(e.key===" "){ e.preventDefault(); play(cur) } });
+var start=parseInt((location.hash||"").replace("#",""),10); play(V[start]?start:1);
+})();
+</script>
+</body></html>
