@@ -12,6 +12,7 @@
 // ════════════════════════════════════════════════════════════════════════
 import fs from "fs";
 import path from "path";
+import vm from "vm";
 
 const SUPABASE_URL = "https://coajrqynjrptujmzjjdh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"; // public anon key
@@ -114,6 +115,12 @@ header{background:var(--navy);color:#fff}
 .gov ul{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
 .gov ul a{display:inline-block;padding:3px 10px;border:1px solid var(--line);border-radius:999px;font-size:12.5px}
 .gov ul a:hover{border-color:var(--gold)}
+.prose{max-width:760px;padding:8px 0 20px}.prose h1{font-size:clamp(26px,3.4vw,34px);margin-bottom:6px}.prose .lede{font-size:17px;color:var(--grey);margin-bottom:22px}
+.ab{background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px 20px;margin-bottom:12px}.ab h2{font-size:19px;margin-bottom:6px}.ab p{color:#3F444B;margin-bottom:8px;font-size:14.5px}
+.cta{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;background:var(--navy);color:#fff;border-radius:12px;padding:22px 24px;margin-top:18px}.cta h2{color:var(--gold);font-size:21px}.cta p{color:rgba(255,255,255,.8);font-size:14px}
+.chans{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:26px}.chan{display:flex;flex-direction:column;gap:2px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:12px 16px;font-weight:600;color:var(--navy)}.chan small{font-weight:400;color:var(--light);font-size:12px}.chan:hover{border-color:var(--gold)}
+.cform{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px 20px;display:grid;gap:12px}.cform h2{font-size:20px}.cform label{display:grid;gap:5px;font-size:13.5px;font-weight:600;color:var(--ink)}.cform input,.cform textarea{font:inherit;font-size:15px;padding:10px 12px;border:1px solid var(--line-2);border-radius:8px;background:#fff}.cform .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}.cform .req{color:#B4232C}.cform button{border:0;cursor:pointer;font:inherit}#cfMsg{font-size:13.5px;color:var(--grey)}
+@media(max-width:600px){.cform .row{grid-template-columns:1fr}}
 footer{background:var(--navy);color:rgba(255,255,255,.7);font-size:13.5px;padding:40px 0 22px;margin-top:64px}
 .fl{display:flex;flex-wrap:wrap;gap:8px 18px;margin-bottom:14px}
 .fl a:hover{color:#fff}
@@ -221,6 +228,51 @@ function areasIndex({ govs, areasByGov, counts, footLinks }) {
   return { url, html: shell({ title: title + " | بلكون", desc, canonical: url, jsonld: [c.ld], body }).replace("%FOOTLINKS%", footLinks) };
 }
 
+// ── About and Contact: same text the app shows (D.ABOUT inside index.html, contact details from site_content) ──
+function loadAboutText() {
+  const src = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  const line = src.split("\n").find((l) => /^var D\s*=\s*\{/.test(l));
+  if (!line) throw new Error("index.html: data line not found");
+  const sandbox = {};
+  vm.runInNewContext(line.replace(/^var D\s*=/, "D=").replace(/;\s*$/, ""), sandbox);
+  return sandbox.D.ABOUT.ar;
+}
+function aboutPage({ footLinks }) {
+  const A = loadAboutText();
+  const url = `${SITE}/about/`;
+  const desc = String(A.lede || "").replace(/<[^>]+>/g, "").slice(0, 160);
+  const c = crumbs([{ name: "عن بلكون" }]);
+  const body = `${c.html}<article class="prose"><h1>${A.h1}</h1><p class="lede">${A.lede}</p>
+${(A.blocks || []).map((b) => `<section class="ab"><h2>${b[0]}</h2>${b[1].map((p) => `<p>${p}</p>`).join("")}</section>`).join("")}
+<div class="cta"><div><h2>${A.ctaH}</h2><p>${A.ctaP}</p></div><a class="gold" href="${SITE}/post">أضف إعلانك</a></div></article>`;
+  const ld = [c.ld, { "@context":"https://schema.org", "@type":"AboutPage", name: "عن بلكون", url, description: desc },
+    { "@context":"https://schema.org", "@type":"Organization", name: "بلكون", alternateName: "Balkoun", url: SITE, areaServed: "SY" }];
+  return { url, html: shell({ title: "عن بلكون | Balkoun", desc, canonical: url, jsonld: ld, body }).replace("%FOOTLINKS%", footLinks) };
+}
+function contactPage({ site, footLinks }) {
+  const url = `${SITE}/contactus/`;
+  const s = site || {};
+  const chan = [];
+  if (s.phone_number) chan.push({ label: "هاتف", href: "tel:" + s.phone_number, text: s.phone_number });
+  if (s.wa_number) chan.push({ label: "واتساب", href: "https://wa.me/" + String(s.wa_number).replace(/\D/g, ""), text: s.wa_number });
+  if (s.email_address) chan.push({ label: "بريد", href: "mailto:" + s.email_address, text: s.email_address });
+  if (s.fb_url && s.fb_name) chan.push({ label: "فيسبوك", href: s.fb_url, text: s.fb_name });
+  if (s.ig_url && s.ig_name) chan.push({ label: "إنستغرام", href: s.ig_url, text: s.ig_name });
+  if (s.yt_url && s.yt_name) chan.push({ label: "يوتيوب", href: s.yt_url, text: s.yt_name });
+  if (s.tiktok_url && s.tiktok_name) chan.push({ label: "تيك توك", href: s.tiktok_url, text: s.tiktok_name });
+  const desc = "تواصل مع فريق بلكون: استفسارات، اقتراحات، أو مساعدة في نشر إعلانك. نرد خلال يوم عمل.";
+  const c = crumbs([{ name: "تواصل معنا" }]);
+  const body = `${c.html}<article class="prose"><h1>تواصل معنا</h1><p class="lede">${desc}</p>
+${chan.length ? `<div class="chans">${chan.map((x) => `<a class="chan" href="${esc(x.href)}" target="_blank" rel="noopener"><small>${x.label}</small><span class="ltr">${esc(x.text)}</span></a>`).join("")}</div>` : ""}
+<form class="cform" id="cf" novalidate><h2>أرسل رسالة</h2>
+<div class="row"><label>الاسم<input name="name" autocomplete="name"></label><label>رقم للتواصل أو بريد<input name="contact" autocomplete="tel"></label></div>
+<label>رسالتك <span class="req">*</span><textarea name="body" required minlength="10" maxlength="1500" rows="5"></textarea></label>
+<div class="row" style="align-items:center"><button class="gold" type="submit">إرسال</button><span id="cfMsg"></span></div></form></article>
+<script>(function(){var f=document.getElementById("cf"),m=document.getElementById("cfMsg");f.addEventListener("submit",async function(e){e.preventDefault();var b=f.body.value.trim();if(b.length<10){m.textContent="اكتب 10 أحرف على الأقل.";return}var btn=f.querySelector("button");btn.disabled=true;m.textContent="جارٍ الإرسال…";try{var r=await fetch("${SUPABASE_URL}/rest/v1/rpc/bk_feedback",{method:"POST",headers:{"Content-Type":"application/json",apikey:"${SUPABASE_KEY}",Authorization:"Bearer ${SUPABASE_KEY}"},body:JSON.stringify({p_kind:"inquiry",p_name:f.name.value||null,p_contact:f.contact.value||null,p_body:b,p_user:null})});if(!r.ok)throw new Error(await r.text());f.innerHTML='<h2>وصلتنا رسالتك ✓</h2><p>شكراً لك. سنرد في أقرب وقت.</p>'}catch(err){m.textContent="تعذّر الإرسال، حاول مرة أخرى أو استخدم واتساب.";btn.disabled=false}})})();</script>`;
+  const ld = [c.ld, { "@context":"https://schema.org", "@type":"ContactPage", name: "تواصل معنا", url, description: desc }];
+  return { url, html: shell({ title: "تواصل معنا | Balkoun", desc, canonical: url, jsonld: ld, body }).replace("%FOOTLINKS%", footLinks) };
+}
+
 function write(url, html) {
   const rel = url.replace(SITE, "").replace(/^\//, "");
   const dir = path.join(ROOT, rel);
@@ -253,7 +305,7 @@ async function main() {
   const footLinks = usableGovs.slice(0, 12).map((g) => `<a href="${SITE}/for-sale/${g.slug}/">عقارات في ${esc(g.name_ar)}</a>`).join("") + `<a href="${SITE}/areas/">كل المناطق</a>`;
 
   // remove previously generated trees so deleted areas/govs don't leave stale pages
-  for (const dir of ["for-sale", "for-rent", "areas"]) fs.rmSync(path.join(ROOT, dir), { recursive: true, force: true });
+  for (const dir of ["for-sale", "for-rent", "areas", "about", "contactus"]) fs.rmSync(path.join(ROOT, dir), { recursive: true, force: true });
 
   const urls = [];
   for (const deal of ["sale", "rent"]) {
@@ -275,6 +327,10 @@ async function main() {
   }
   const idx = areasIndex({ govs: usableGovs, areasByGov, counts, footLinks });
   write(idx.url, idx.html); urls.push({ loc: idx.url, priority: "0.6" });
+  const ab = aboutPage({ footLinks }); write(ab.url, ab.html); urls.push({ loc: ab.url, priority: "0.5" });
+  let site = null;
+  try { site = (await sb("site_content?select=phone_number,wa_number,email_address,fb_url,fb_name,ig_url,ig_name,yt_url,yt_name,tiktok_url,tiktok_name&limit=1"))[0]; } catch (e) { console.warn("site_content unreadable:", e.message); }
+  const ct = contactPage({ site, footLinks }); write(ct.url, ct.html); urls.push({ loc: ct.url, priority: "0.5" });
 
   // sitemap: home + these pages + every /listing/ page on disk
   const listingDirs = fs.existsSync(path.join(ROOT, "listing")) ? fs.readdirSync(path.join(ROOT, "listing")).filter((d) => fs.existsSync(path.join(ROOT, "listing", d, "index.html"))) : [];
