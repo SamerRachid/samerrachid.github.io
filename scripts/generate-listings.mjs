@@ -118,7 +118,7 @@ function renderPage(l, photos) {
   const slugLabel = TYPE_AR[l.property_type] || l.property_type;
   const slug = slugify(slugLabel + " " + (l.area_ar||"") + " " + l.governorate_ar);
   const url = `${SITE}/listing/${l.id}-${slug}/`;
-  const appUrl = `${SITE}/#/listing/${l.id}`;
+  const appUrl = `${SITE}/listing/${l.id}`;
 
   // Photos: what listing_photos gave us, falling back to the view's cover_url.
   const allPhotos = photos.length ? photos : (l.cover_url ? [l.cover_url] : []);
@@ -345,7 +345,7 @@ footer .note{width:100%;color:rgba(255,255,255,.5);font-size:13px}
 </style></head><body>
 <header class="top"><div class="wrap">
   <a class="logo" href="${SITE}/">بلكون</a>
-  <nav><a href="${SITE}/#/search">كل الإعلانات</a></nav>
+  <nav><a href="${SITE}/search">كل الإعلانات</a></nav>
 </div></header>
 
 <main class="wrap main">
@@ -395,7 +395,7 @@ footer .note{width:100%;color:rgba(255,255,255,.5);font-size:13px}
 
 <footer><div class="wrap">
   <span class="brand">بلكون — عقارات سوريا من المالك مباشرة</span>
-  <nav><a href="${SITE}/#/about">من نحن</a><a href="${SITE}/#/contactus">اتصل بنا</a></nav>
+  <nav><a href="${SITE}/about">من نحن</a><a href="${SITE}/contactus">اتصل بنا</a></nav>
   <span class="note">صفحات الإعلانات تُحدَّث تلقائياً من قاعدة بيانات بلكون. الرقم المرجعي ${ltr(refCode)}.</span>
 </div></footer>
 </body></html>`;

@@ -8,7 +8,7 @@
 //  and rewrites sitemap.xml with these pages plus the /listing/ pages that
 //  generate-listings.mjs produced. Runs in GitHub Actions after that script.
 //  Search, map, accounts, posting and admin stay in the app (index.html);
-//  every page links into it with the app's own #/search?… query format.
+//  every page links into it with the app's own /search?… query format.
 // ════════════════════════════════════════════════════════════════════════
 import fs from "fs";
 import path from "path";
@@ -45,7 +45,7 @@ const money = (v) => v == null ? "—" : "$" + Number(v).toLocaleString("en");
 const ltr = (s) => `<span class="ltr">${esc(s)}</span>`;
 const jsonForScript = (o) => JSON.stringify(o).replace(/</g, "\\u003c");
 const q = (o) => Object.entries(o).filter(([, v]) => v != null && v !== "").map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join("&");
-const searchUrl = (o) => `${SITE}/#/search?${q(o)}`;
+const searchUrl = (o) => `${SITE}/search?${q(o)}`;
 const listingSlug = (l) => { const t = TYPE[l.property_type] || l.property_type; return (t + " " + (l.area_ar || "") + " " + l.governorate_ar).replace(/[^\p{L}\p{N}\s-]/gu, "").trim().replace(/\s+/g, "-").slice(0, 60); };
 const listingUrl = (l) => `${SITE}/listing/${l.id}-${listingSlug(l)}/`;
 
@@ -139,10 +139,10 @@ ${image ? `<meta property="og:image" content="${esc(image)}">` : ""}
 ${jsonld.map((o) => `<script type="application/ld+json">${jsonForScript(o)}</script>`).join("\n")}
 <style>${CSS}</style></head><body>
 <header><div class="wrap hbar"><a class="logo" href="${SITE}/">بلكون</a>
-<nav class="hnav"><a href="${searchUrl({ deal: "sale" })}">للبيع</a><a href="${searchUrl({ deal: "rent" })}">للإيجار</a><a href="${SITE}/areas/">المناطق</a><a href="${SITE}/#/mapsearch">الخريطة</a><a href="${SITE}/#/about">عن بلكون</a></nav>
-<div class="htools"><a class="mini" href="${SITE}/#/account">دخول</a><a class="gold" href="${SITE}/#/post">أضف إعلانك</a></div></div></header>
+<nav class="hnav"><a href="${searchUrl({ deal: "sale" })}">للبيع</a><a href="${searchUrl({ deal: "rent" })}">للإيجار</a><a href="${SITE}/areas/">المناطق</a><a href="${SITE}/mapsearch">الخريطة</a><a href="${SITE}/about">عن بلكون</a></nav>
+<div class="htools"><a class="mini" href="${SITE}/account">دخول</a><a class="gold" href="${SITE}/post">أضف إعلانك</a></div></div></header>
 <main class="wrap">${body}</main>
-<footer><div class="wrap"><div class="fl">%FOOTLINKS%</div><div class="fb"><span>© 2026 بلكون · balkoun.com</span><span><a href="${SITE}/#/about">عن المنصّة</a> · <a href="${SITE}/#/contactus">تواصل معنا</a></span></div></div></footer>
+<footer><div class="wrap"><div class="fl">%FOOTLINKS%</div><div class="fb"><span>© 2026 بلكون · balkoun.com</span><span><a href="${SITE}/about">عن المنصّة</a> · <a href="${SITE}/contactus">تواصل معنا</a></span></div></div></footer>
 </body></html>`;
 }
 
@@ -176,7 +176,7 @@ function govPage({ deal, g, areas, listings, avg, footLinks }) {
   const body = `${c.html}
 <div class="pagehead"><h1>${esc(title)}</h1><p class="sub">${ltr(listings.length)} إعلاناً${avg ? ` · متوسط سعر المتر للبيع <b>${ltr(money(avg))}</b>` : ""} · <a href="${SITE}/${DEAL[other].slug}/${g.slug}/" style="color:var(--gold-dk)">${DEAL[other].ar} في ${esc(g.name_ar)}</a> · <a href="${searchUrl({ deal, govs: g.name_ar })}" style="color:var(--gold-dk)">بحث متقدّم</a></p></div>
 ${withL.length ? `<div class="chips">${withL.map((a) => `<a class="chip" href="${SITE}/${d.slug}/${g.slug}/${a.slug}/">${esc(a.name_ar)} <b>${ltr(a.count[deal])}</b></a>`).join("")}</div>` : ""}
-${listings.length ? `<div class="grid">${listings.map((l) => card(l, l.area_id ? avgByArea.get(l.area_id) : null)).join("")}</div>` : `<div class="none"><h2>لا إعلانات ${d.ar} في ${esc(g.name_ar)} حالياً</h2><p>كن أول من يعرض عقاره هنا.</p><a class="gold" href="${SITE}/#/post">أضف إعلانك مجاناً</a></div>`}
+${listings.length ? `<div class="grid">${listings.map((l) => card(l, l.area_id ? avgByArea.get(l.area_id) : null)).join("")}</div>` : `<div class="none"><h2>لا إعلانات ${d.ar} في ${esc(g.name_ar)} حالياً</h2><p>كن أول من يعرض عقاره هنا.</p><a class="gold" href="${SITE}/post">أضف إعلانك مجاناً</a></div>`}
 <section class="sec"><h2>مناطق ${esc(g.name_ar)}</h2><p class="sub">المناطق التي فيها إعلانات لها صفحتها الخاصة.</p>
 <ul class="areas">${areas.map((a) => a.count[deal] > 0 ? `<li><a href="${SITE}/${d.slug}/${g.slug}/${a.slug}/">${esc(a.name_ar)} <b>${ltr(a.count[deal])}</b></a></li>` : `<li>${esc(a.name_ar)}</li>`).join("")}</ul></section>`;
   const ld = [c.ld, { "@context":"https://schema.org", "@type":"CollectionPage", name: title, description: desc, url, numberOfItems: listings.length }];
