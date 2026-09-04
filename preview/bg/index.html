@@ -1,0 +1,219 @@
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>معاينة خلفية الهيرو | بلكون</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=El+Messiri:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#14213D;--navy-d:#0B1224;--gold:#C4881F;--gold-l:#E3B563;--cream:#F4F2ED;--line:#E6E2D9}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--navy-d);font-family:'IBM Plex Sans Arabic',system-ui,sans-serif;color:#fff}
+.stage{position:relative;height:100vh;min-height:620px;overflow:hidden;background:#0B1224}
+.bg{position:absolute;inset:0;overflow:hidden}
+.bg svg{width:100%;height:100%;display:block}
+.ph{position:absolute;inset:0;background-position:center;background-size:cover;background-repeat:no-repeat;will-change:transform,opacity}
+.scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(9,14,26,.5),rgba(9,14,26,.12) 40%,rgba(9,14,26,.62) 100%);pointer-events:none}
+header{position:absolute;top:0;left:0;right:0;z-index:6;display:flex;align-items:center;gap:26px;padding:14px 40px;color:rgba(255,255,255,.9)}
+.logo{font:700 30px/1 'El Messiri';color:var(--gold-l)}
+nav{display:flex;gap:22px;font-size:14.5px}
+.tools{margin-inline-start:auto;display:flex;gap:10px;align-items:center}
+.btn{border:1px solid rgba(255,255,255,.35);border-radius:7px;padding:8px 14px;font-size:13.5px;color:#fff}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#1A1206;font-weight:700}
+.copy{position:absolute;inset-inline:0;bottom:16vh;z-index:5;padding:0 40px;max-width:1180px;margin:0 auto;width:100%}
+h1{font:600 clamp(40px,5.4vw,70px)/1.18 'El Messiri';margin:0 0 26px;text-shadow:0 2px 26px rgba(0,0,0,.45)}
+h1 em{font-style:normal;color:var(--gold-l)}
+.sbar{display:flex;align-items:stretch;background:#fff;border-radius:14px;box-shadow:0 30px 60px -20px rgba(0,0,0,.65);color:var(--navy);max-width:1060px;overflow:hidden}
+.seg{display:flex;gap:4px;align-items:center;padding:8px 8px 8px 16px;background:var(--cream);border-inline-end:1px solid var(--line)}
+.seg span{padding:7px 14px;border-radius:999px;font-size:13.5px;color:#4B5563}.seg span.on{background:var(--navy);color:#fff;font-weight:600}
+.f{flex:1;padding:10px 16px;border-inline-end:1px solid var(--line);min-width:0}
+.f small{display:block;font-size:11px;color:#9CA3AF;font-weight:600;margin-bottom:2px}.f div{font-size:14px;color:#9CA3AF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.go{background:var(--gold);color:#1A1206;font-weight:700;display:grid;place-items:center;padding:0 30px;font-size:15px;line-height:1.4;text-align:center}.go small{font-weight:400;font-size:11.5px;opacity:.75}
+.mapb{width:48px;display:grid;place-items:center;background:var(--cream);color:var(--navy)}
+.dock{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:20;display:flex;gap:6px;align-items:center;background:rgba(11,18,36,.82);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:6px}
+.dock button{border:0;background:transparent;color:rgba(255,255,255,.85);font:inherit;font-size:13.5px;padding:9px 16px;border-radius:999px;cursor:pointer;display:flex;gap:8px;align-items:center}
+.dock button b{font:600 13px 'El Messiri';color:var(--gold-l)}
+.dock button.on{background:var(--gold);color:#1A1206}.dock button.on b{color:#1A1206}
+.dock .rep{width:38px;height:38px;padding:0;justify-content:center;border-inline-start:1px solid rgba(255,255,255,.14);border-radius:0 999px 999px 0;margin-inline-start:2px}
+.tag{position:fixed;top:72px;inset-inline-start:40px;z-index:20;font-size:12px;color:rgba(255,255,255,.6);letter-spacing:.04em}.tag b{color:var(--gold-l);font-weight:600}
+.desc{position:fixed;bottom:74px;left:50%;transform:translateX(-50%);z-index:20;font-size:13px;color:rgba(255,255,255,.75);background:rgba(11,18,36,.55);padding:6px 14px;border-radius:999px;white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis}
+.credit{position:fixed;bottom:6px;inset-inline-end:12px;z-index:20;font-size:10.5px;color:rgba(255,255,255,.45)}
+@media(max-width:760px){header{padding:12px 18px}nav{display:none}.copy{padding:0 18px;bottom:20vh}.sbar{flex-direction:column}.seg{border-inline-end:0;border-bottom:1px solid var(--line)}.f{border-inline-end:0;border-bottom:1px solid var(--line)}.go{padding:14px}.mapb{width:100%;height:44px}.tag{inset-inline-start:18px}.dock button{padding:9px 10px;font-size:12.5px}.dock button span{display:none}}
+</style></head><body>
+<div class="stage" id="stage">
+  <div class="bg" id="bg"></div>
+  <div class="scrim"></div>
+  <header><a class="logo">بلكون</a><nav><span>المجموعات</span><span>استكشف المناطق</span><span>دليل المشتري</span><span>للوكالات</span><span>المزيد ▾</span></nav>
+    <div class="tools"><span class="btn">English</span><span class="btn">دخول</span><span class="btn gold">أضف إعلانك</span></div></header>
+  <div class="copy">
+    <h1>بيتك القادم <em>يبدأ من الشرفة.</em></h1>
+    <div class="sbar"><div class="seg"><span class="on">للبيع</span><span>للإيجار</span><span>الكل</span></div>
+      <div class="f"><small>المحافظة</small><div>ابحث عن محافظة…</div></div><div class="f" style="flex:1.4"><small>المنطقة</small><div>ابحث عن مدينة أو حي…</div></div>
+      <div class="f"><small>نوع العقار</small><div>ابحث عن نوع…</div></div><div class="f"><small>الطابو</small><div>ابحث عن طابو…</div></div>
+      <div class="go">بحث<small>9 إعلانات</small></div><div class="mapb"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></div>
+    </div>
+  </div>
+</div>
+<div class="tag">معاينة خلفية الهيرو · <b>بدل الفيديو</b> · العنوان والبحث كما هما على الموقع</div>
+<div class="desc" id="desc"></div>
+<div class="credit" id="credit"></div>
+<div class="dock" id="dock">
+  <button data-v="1"><b>١</b><span>فجر دمشق (رسم)</span></button>
+  <button data-v="2"><b>٢</b><span>صورة حيّة</span></button>
+  <button data-v="3"><b>٣</b><span>من المخطّط إلى البيت</span></button>
+  <button class="rep" id="rep" title="إعادة"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></button>
+</div>
+<script>
+(function(){
+var NS="http://www.w3.org/2000/svg";
+var bg=document.getElementById("bg"), desc=document.getElementById("desc"), credit=document.getElementById("credit");
+var anims=[], reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+function A(el,kf,o){ if(reduce){ o=Object.assign({},o,{duration:1,delay:0}) } var a=el.animate(kf,Object.assign({fill:"both"},o)); anims.push(a); return a }
+function S(tag,attrs,parent){ var e=document.createElementNS(NS,tag); for(var k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e }
+function draw(el,delay,dur){ var L=el.getTotalLength?el.getTotalLength():300; el.style.strokeDasharray=L; el.style.strokeDashoffset=L; A(el,[{strokeDashoffset:L},{strokeDashoffset:0}],{delay:delay,duration:dur,easing:"cubic-bezier(.4,0,.2,1)"}) }
+function rnd(seed){ var s=seed; return function(){ s=(s*9301+49297)%233280; return s/233280 } }
+var EASE="cubic-bezier(.25,.1,.2,1)";
+
+/* ── 1 · Dawn over Damascus — layered illustration; the sky warms, layers drift, window lights go out, then it holds ── */
+function v1(){
+  desc.textContent="رسم بطبقات: قاسيون، المدينة القديمة بقبابها ومآذنها، وبيوت دمشقية بشرفاتها الخشبية. السماء تطلع من الليل إلى النهار خلال ٣ ثوانٍ ثم يثبت المشهد.";
+  credit.textContent="رسم أصلي لبلكون · ٤ كيلوبايت بدل فيديو ٦ ميغابايت";
+  var svg=S("svg",{viewBox:"0 0 1600 900",preserveAspectRatio:"xMidYMax slice"},bg);
+  var defs=S("defs",{},svg);
+  var grad=function(id,stops){ var g=S("linearGradient",{id:id,x1:0,y1:0,x2:0,y2:1},defs); stops.forEach(function(s){ S("stop",{offset:s[0],"stop-color":s[1]},g) }); return g };
+  grad("skyDay",[[0,"#5E7FAE"],[.55,"#B9CBDE"],[1,"#F1DDB6"]]);
+  grad("skyDawn",[[0,"#1B2650"],[.55,"#7B4E63"],[1,"#E89A4C"]]);
+  grad("skyNight",[[0,"#05091A"],[.6,"#0F1A3A"],[1,"#22284E"]]);
+  var glow=S("filter",{id:"sun",x:"-100%",y:"-100%",width:"300%",height:"300%"},defs); S("feGaussianBlur",{stdDeviation:"18"},glow);
+  var soft=S("filter",{id:"soft",x:"-20%",y:"-20%",width:"140%",height:"140%"},defs); S("feGaussianBlur",{stdDeviation:"1.2"},soft);
+  S("rect",{width:1600,height:900,fill:"url(#skyDay)"},svg);
+  var dawn=S("rect",{width:1600,height:900,fill:"url(#skyDawn)",opacity:0},svg);
+  var night=S("rect",{width:1600,height:900,fill:"url(#skyNight)"},svg);
+  A(night,[{opacity:1},{opacity:1,offset:.12},{opacity:0}],{duration:2600,easing:EASE});
+  A(dawn,[{opacity:0},{opacity:1,offset:.5},{opacity:0}],{duration:3400,easing:EASE});
+  // stars
+  var r=rnd(7); var stars=S("g",{fill:"#fff"},svg);
+  for(var i=0;i<70;i++) S("circle",{cx:(r()*1600).toFixed(0),cy:(r()*420).toFixed(0),r:(0.6+r()*1.3).toFixed(1),opacity:(0.4+r()*0.6).toFixed(2)},stars);
+  A(stars,[{opacity:1},{opacity:0}],{duration:1700,easing:"ease-in"});
+  // sun with halo
+  var halo=S("circle",{cx:1120,cy:640,r:70,fill:"#F6C77A",filter:"url(#sun)",opacity:.9},svg);
+  var sun=S("circle",{cx:1120,cy:640,r:38,fill:"#FBE0A6"},svg);
+  [halo,sun].forEach(function(e){ A(e,[{transform:"translateY(0)",opacity:0},{transform:"translateY(-40px)",opacity:1,offset:.25},{transform:"translateY(-250px)",opacity:1}],{duration:3300,easing:EASE}) });
+  // far mountains (Qasioun)
+  var far=S("g",{},svg);
+  S("path",{d:"M0 520 C120 470 230 452 340 468 C450 484 540 420 660 436 C780 452 850 396 980 412 C1110 428 1200 372 1320 420 C1440 468 1520 448 1600 456 V900 H0 Z",fill:"#59668F"},far);
+  S("path",{d:"M0 560 C140 536 260 512 380 522 C500 532 600 494 720 506 C840 518 930 486 1040 500 C1150 514 1260 478 1360 508 C1460 538 1540 530 1600 534 V900 H0 Z",fill:"#6F7CA3"},far);
+  // city (old Damascus): procedural blocks, domes, minarets
+  var mid=S("g",{},svg), rm=rnd(19), base=690, x=-40;
+  var midWins=S("g",{fill:"#F4C56E"},svg);
+  while(x<1700){ var w=34+rm()*52, h=60+rm()*130, c=["#8A94B0","#7F89A6","#949DB8","#7A85A3"][Math.floor(rm()*4)];
+    S("rect",{x:x.toFixed(0),y:(base-h).toFixed(0),width:w.toFixed(0),height:h.toFixed(0),fill:c},mid);
+    for(var wy=base-h+16; wy<base-14; wy+=26) for(var wx=x+8; wx<x+w-10; wx+=16) if(rm()>.45) S("rect",{x:wx.toFixed(0),y:wy.toFixed(0),width:6,height:10,rx:1,opacity:(.5+rm()*.5).toFixed(2)},midWins);
+    x+=w+(rm()>.7?14:2) }
+  [[520,110],[880,150],[1240,120]].forEach(function(d){ var cx=d[0], rr=d[1]/2, top=base-70;
+    S("rect",{x:cx-rr-8,y:top-14,width:rr*2+16,height:84,fill:"#6E7896"},mid); S("path",{d:"M"+(cx-rr)+" "+top+" A"+rr+" "+rr+" 0 0 1 "+(cx+rr)+" "+top+" Z",fill:"#5F6A8B"},mid);
+    S("path",{d:"M"+(cx-rr)+" "+top+" A"+rr+" "+rr+" 0 0 1 "+(cx+rr)+" "+top,fill:"none",stroke:"#8B95B3","stroke-width":"2"},mid);
+    S("rect",{x:cx-1.5,y:top-rr-28,width:3,height:28,fill:"#C4881F"},mid); S("circle",{cx:cx,cy:top-rr-32,r:5,fill:"#E3B563"},mid) });
+  [[300,300],[700,360],[1060,320],[1440,280]].forEach(function(m){ var cx=m[0], H=m[1];
+    S("rect",{x:cx-11,y:base-H,width:22,height:H,fill:"#AEB5C8"},mid); S("rect",{x:cx-16,y:base-H+70,width:32,height:6,fill:"#8E97B0"},mid); S("rect",{x:cx-16,y:base-H+120,width:32,height:6,fill:"#8E97B0"},mid);
+    S("path",{d:"M"+(cx-13)+" "+(base-H)+" L"+cx+" "+(base-H-38)+" L"+(cx+13)+" "+(base-H)+" Z",fill:"#7E88A4"},mid); S("circle",{cx:cx,cy:base-H-42,r:4,fill:"#E3B563"},mid) });
+  // front: Damascene houses with wooden balconies, cypresses
+  var front=S("g",{},svg), frontWins=S("g",{fill:"#F4C56E"},svg), rf=rnd(31);
+  var hx=-60, walls=["#CBB79A","#BFA98A","#D6C4A8","#B69F80"];
+  while(hx<1700){ var hw=130+rf()*70, hh=230+rf()*130, wall=walls[Math.floor(rf()*4)], top=900-hh;
+    S("rect",{x:hx,y:top,width:hw,height:hh,fill:wall},front);
+    S("rect",{x:hx-6,y:top-8,width:hw+12,height:12,fill:"#A9573F"},front);                 // tiled roof edge
+    S("rect",{x:hx,y:top+4,width:hw,height:10,fill:"rgba(0,0,0,.12)"},front);
+    var cols=Math.max(2,Math.floor(hw/48)), gap=hw/cols;
+    for(var f=0; f<2; f++){ var wy2=top+40+f*95; for(var k=0;k<cols;k++){ var wx2=hx+gap*k+gap/2-11;
+      S("path",{d:"M"+wx2+" "+(wy2+44)+" V"+(wy2+11)+" A11 11 0 0 1 "+(wx2+22)+" "+(wy2+11)+" V"+(wy2+44)+" Z",fill:"#4E4A5E"},front);
+      if(rf()>.35) S("path",{d:"M"+(wx2+3)+" "+(wy2+41)+" V"+(wy2+12)+" A8 8 0 0 1 "+(wx2+19)+" "+(wy2+12)+" V"+(wy2+41)+" Z",opacity:(.6+rf()*.4).toFixed(2)},frontWins) } }
+    if(rf()>.3){ // kishk: projecting wooden balcony with lattice
+      var bw=Math.min(96,hw*.55), bx=hx+(hw-bw)/2, by=top+126;
+      S("path",{d:"M"+(bx-4)+" "+(by+62)+" L"+(bx+6)+" "+(by+82)+" H"+(bx+bw-6)+" L"+(bx+bw+4)+" "+(by+62)+" Z",fill:"#5E3B21"},front);
+      S("rect",{x:bx-4,y:by,width:bw+8,height:64,fill:"#7A4E2A"},front); S("rect",{x:bx-8,y:by-8,width:bw+16,height:10,fill:"#5E3B21"},front);
+      var lat=S("g",{stroke:"#3E2814","stroke-width":"1.2",opacity:".8"},front);
+      for(var lx=bx+4; lx<bx+bw; lx+=10) S("line",{x1:lx,y1:by+6,x2:lx,y2:by+58},lat);
+      for(var ly=by+8; ly<by+62; ly+=10) S("line",{x1:bx,y1:ly,x2:bx+bw+4,y2:ly},lat);
+      S("rect",{x:bx+6,y:by+8,width:bw-12,height:46,fill:"#F4C56E",opacity:".55"},frontWins) }
+    if(rf()>.5){ var dx=hx+hw/2-18; S("path",{d:"M"+dx+" 900 V"+(900-58)+" A18 18 0 0 1 "+(dx+36)+" "+(900-58)+" V900 Z",fill:"#3A3547"},front) }
+    hx+=hw+(rf()>.6?26:4);
+    if(rf()>.55){ var tx=hx-14; S("path",{d:"M"+tx+" 900 C"+(tx-22)+" 840 "+(tx-20)+" 780 "+tx+" 700 C"+(tx+20)+" 780 "+(tx+22)+" 840 "+tx+" 900 Z",fill:"#3F5A3F"},front); hx+=18 } }
+  S("rect",{x:0,y:892,width:1600,height:8,fill:"#5A4A3A"},svg);
+  // birds
+  var birds=S("g",{fill:"none",stroke:"#2A2F45","stroke-width":"2","stroke-linecap":"round"},svg);
+  S("path",{d:"M0 0 q7 -8 14 0 q7 -8 14 0",transform:"translate(500 300)"},birds); S("path",{d:"M0 0 q5 -6 10 0 q5 -6 10 0",transform:"translate(560 330)"},birds);
+  A(birds,[{transform:"translate(0,0)",opacity:0},{transform:"translate(120px,-30px)",opacity:1,offset:.3},{transform:"translate(520px,-90px)",opacity:0}],{delay:1200,duration:2600,easing:"linear"});
+  // night → day on the land layers; lights go out; gentle parallax drift
+  [[far,.3,-16],[mid,.2,-38],[front,.14,-68]].forEach(function(L){
+    A(L[0],[{filter:"brightness("+L[1]+") saturate(.6)"},{filter:"brightness("+L[1]+") saturate(.6)",offset:.1},{filter:"brightness(1) saturate(1)"}],{duration:3200,easing:EASE});
+    A(L[0],[{transform:"translateX(0)"},{transform:"translateX("+L[2]+"px)"}],{duration:3600,easing:EASE}) });
+  A(midWins,[{transform:"translateX(0)",opacity:1},{transform:"translateX(-38px)",opacity:.08}],{duration:3600,easing:EASE});
+  A(frontWins,[{transform:"translateX(0)",opacity:1},{transform:"translateX(-68px)",opacity:.1}],{duration:3600,easing:EASE});
+}
+
+/* ── 2 · Living photograph — three real views cross-fade with a slow push-in and a light sweep, then hold ── */
+function v2(){
+  desc.textContent="ثلاث صور حقيقية: دمشق من الأعلى، قلعة حلب، وشاطئ اللاذقية — تنتقل ببطء مع تقريب خفيف ولمسة ضوء، ثم تثبت على الأخيرة.";
+  credit.textContent="صور مؤقتة من ويكيميديا كومنز (CC BY-SA) — تُستبدل بصورك الخاصة";
+  var shots=["/assets/hero-default.jpg","/preview/bg/img/aleppo.jpg","/preview/bg/img/latakia.jpg"];
+  shots.forEach(function(src,i){
+    var p=document.createElement("div"); p.className="ph"; p.style.backgroundImage="url("+src+")"; p.style.opacity=i===0?1:0; p.style.zIndex=i; bg.appendChild(p);
+    var t0=i*1300, hold=i===2?2600:1900;
+    A(p,[{transform:"scale(1.12)"},{transform:"scale("+(i===2?1:1.04)+")"}],{delay:t0,duration:hold+400,easing:EASE});
+    if(i>0) A(p,[{opacity:0},{opacity:1}],{delay:t0,duration:700,easing:"ease-in-out"});
+  });
+  var sweep=document.createElement("div"); sweep.style.cssText="position:absolute;inset:-20%;background:linear-gradient(105deg,transparent 40%,rgba(255,244,214,.22) 50%,transparent 60%);z-index:9;mix-blend-mode:screen"; bg.appendChild(sweep);
+  A(sweep,[{transform:"translateX(-60%)"},{transform:"translateX(60%)"}],{delay:2500,duration:1500,easing:EASE});
+}
+
+/* ── 3 · From plan to home — an architect's drawing of a Damascene facade, then the real house fades up through the lines ── */
+function v3(){
+  desc.textContent="رسم معماري لواجهة بيت دمشقي بشرفاته يُرسم خطاً خطاً، ثم تظهر الصورة الحقيقية من خلاله وتبقى الخطوط كملمس خافت.";
+  credit.textContent="صورة مؤقتة من ويكيميديا كومنز (CC BY-SA) — تُستبدل بصورتك";
+  var wrap=document.createElement("div"); wrap.style.cssText="position:absolute;inset:0;background:#0E1730"; bg.appendChild(wrap);
+  var photo=document.createElement("div"); photo.className="ph"; photo.style.backgroundImage="url(/preview/bg/img/house.jpg)"; photo.style.opacity=0; photo.style.transform="scale(1.06)"; wrap.appendChild(photo);
+  var svg=S("svg",{viewBox:"0 0 1600 900",preserveAspectRatio:"xMidYMid slice",style:"position:absolute;inset:0"},wrap);
+  var defs=S("defs",{},svg);
+  var pat=S("pattern",{id:"grid",width:40,height:40,patternUnits:"userSpaceOnUse"},defs); S("path",{d:"M40 0 H0 V40",fill:"none",stroke:"rgba(232,228,216,.07)","stroke-width":"1"},pat);
+  var pat2=S("pattern",{id:"grid2",width:200,height:200,patternUnits:"userSpaceOnUse"},defs); S("path",{d:"M200 0 H0 V200",fill:"none",stroke:"rgba(232,228,216,.14)","stroke-width":"1"},pat2);
+  var grid=S("g",{},svg); S("rect",{width:1600,height:900,fill:"url(#grid)"},grid); S("rect",{width:1600,height:900,fill:"url(#grid2)"},grid);
+  var g=S("g",{fill:"none",stroke:"#E8E4D8","stroke-width":"1.3","stroke-linecap":"round","stroke-linejoin":"round"},svg);
+  var P=function(d,t,dur,w,op){ var p=S("path",{d:d},g); if(w) p.setAttribute("stroke-width",w); if(op) p.setAttribute("stroke-opacity",op); draw(p,t,dur); return p };
+  var T=function(x,y,txt,t,size,anchor){ var e=S("text",{x:x,y:y,fill:"#E8E4D8","font-size":size||13,"font-family":"'IBM Plex Sans Arabic'","text-anchor":anchor||"middle",opacity:0},svg); e.textContent=txt; A(e,[{opacity:0},{opacity:.9}],{delay:t,duration:400}); return e };
+  var L=280, Rr=1330, G=760, F1=560, TOP=400;                 // facade box
+  P("M120 "+G+" H1480",100,700,"1.6");                          // ground
+  P("M"+L+" "+G+" V"+TOP+" H"+Rr+" V"+G,300,900,"1.6");           // walls
+  P("M"+(L-10)+" "+TOP+" H"+(Rr+10)+" M"+(L-10)+" "+(TOP-12)+" H"+(Rr+10),1000,500); // parapet
+  P("M"+L+" "+F1+" H"+Rr,700,700);                              // floor line
+  for(var i=0;i<8;i++){ var bx=L+40+i*128; P("M"+bx+" "+G+" V"+(F1+40)+" H"+(bx+92)+" V"+G,600+i*70,420); P("M"+(bx+8)+" "+(F1+48)+" H"+(bx+84)+" M"+(bx+8)+" "+(F1+62)+" H"+(bx+84),900+i*70,300,"1",".7") } // shop fronts
+  for(var j=0;j<9;j++){ var wx=L+46+j*116; if(j===1||j===7) continue; P("M"+wx+" "+(F1-24)+" V"+(TOP+62)+" A22 22 0 0 1 "+(wx+44)+" "+(TOP+62)+" V"+(F1-24)+" Z",1100+j*70,500); P("M"+(wx+22)+" "+(TOP+62)+" V"+(F1-24)+" M"+wx+" "+(TOP+110)+" H"+(wx+44),1300+j*70,300,"1",".6") } // arched windows
+  [1,7].forEach(function(j,k){ var wx=L+46+j*116-22, t=1600+k*250;                       // kishk balconies
+    P("M"+(wx-6)+" "+(F1-30)+" H"+(wx+94)+" V"+(TOP+70)+" H"+(wx-6)+" Z",t,600,"1.5");
+    P("M"+(wx-14)+" "+(TOP+62)+" H"+(wx+102),t+300,250);
+    P("M"+(wx-6)+" "+(F1-30)+" L"+(wx+8)+" "+(F1)+" H"+(wx+80)+" L"+(wx+94)+" "+(F1-30),t+350,350);
+    var lat=""; for(var lx=wx+4; lx<wx+90; lx+=11) lat+="M"+lx+" "+(TOP+78)+" V"+(F1-38)+" "; for(var ly=TOP+80; ly<F1-38; ly+=11) lat+="M"+(wx)+" "+ly+" H"+(wx+88)+" ";
+    P(lat,t+450,700,".7",".55") });
+  [2.5,5.5].forEach(function(b,k){ var cx=L+46+b*116+22, t=2000+k*200;                   // arched pediments on the roof
+    P("M"+(cx-70)+" "+TOP+" V"+(TOP-10)+" A70 70 0 0 1 "+(cx+70)+" "+(TOP-10)+" V"+TOP,t,600,"1.5"); P("M"+(cx-22)+" "+(TOP-16)+" V"+(TOP-40)+" A22 22 0 0 1 "+(cx+22)+" "+(TOP-40)+" V"+(TOP-16),t+400,350) });
+  // dimensions, north arrow, title block
+  P("M"+L+" "+(G+40)+" H"+Rr+" M"+L+" "+(G+30)+" V"+(G+50)+" M"+Rr+" "+(G+30)+" V"+(G+50),2300,500,"1",".8"); T((L+Rr)/2,G+62,"٢٦٫٢٠ م",2700,14);
+  P("M"+(Rr+40)+" "+G+" V"+TOP+" M"+(Rr+30)+" "+G+" H"+(Rr+50)+" M"+(Rr+30)+" "+TOP+" H"+(Rr+50),2400,500,"1",".8"); T(Rr+70,(G+TOP)/2,"٩٫٦٠ م",2800,14,"start");
+  P("M1450 200 L1450 130 M1440 145 L1450 130 L1460 145",2500,400,"1",".8"); T(1450,222,"ش",2800,13);
+  P("M1190 820 H1470 V880 H1190 Z M1190 850 H1470",2500,600,"1",".8"); T(1330,842,"بيت دمشقي · واجهة رئيسية",2900,13); T(1330,872,"مقياس ١:١٠٠ · بلكون",3000,12);
+  // the real house fades up through the drawing
+  A(photo,[{opacity:0,transform:"scale(1.06)"},{opacity:1,transform:"scale(1)"}],{delay:2800,duration:1500,easing:EASE});
+  A(grid,[{opacity:1},{opacity:0}],{delay:2800,duration:1200});
+  svg.style.mixBlendMode="screen";
+  A(g,[{opacity:1},{opacity:.28}],{delay:3200,duration:1200});
+  [].slice.call(svg.querySelectorAll("text")).forEach(function(t){ A(t,[{opacity:.9},{opacity:.35}],{delay:3200,duration:1000}) });
+}
+
+var V={1:v1,2:v2,3:v3}, cur=null;
+function play(n){ cur=n; location.hash=n; anims.forEach(function(a){a.cancel()}); anims=[]; bg.innerHTML="";
+  [].slice.call(document.querySelectorAll(".dock [data-v]")).forEach(function(b){ b.classList.toggle("on",b.dataset.v==String(n)) }); V[n]() }
+document.getElementById("dock").addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b) return; if(b.id==="rep") play(cur); else play(parseInt(b.dataset.v,10)) });
+document.addEventListener("keydown",function(e){ if(e.key>="1"&&e.key<="3") play(parseInt(e.key,10)); if(e.key===" "){ e.preventDefault(); play(cur) } });
+var start=parseInt((location.hash||"").replace("#",""),10); play(V[start]?start:1);
+})();
+</script>
+</body></html>
