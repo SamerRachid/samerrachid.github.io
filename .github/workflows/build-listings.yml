@@ -1,7 +1,8 @@
-name: Rebuild listing pages
+name: Rebuild static pages
 
-# Runs automatically every 4 hours, and any time you push to main.
-# You can also trigger it by hand from the Actions tab ("Run workflow").
+# Runs every 4 hours, on every push to main, and by hand from the Actions tab.
+# Generates the crawlable pages (listings, governorates, areas) from Supabase
+# and commits them, so Google always sees real HTML with real addresses.
 on:
   schedule:
     - cron: "0 */4 * * *"
@@ -11,6 +12,10 @@ on:
 
 permissions:
   contents: write
+
+concurrency:
+  group: rebuild-pages
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -22,17 +27,17 @@ jobs:
         with:
           node-version: 20
 
-      # No npm install needed: the generator talks to Supabase over
-      # plain HTTP using Node's built-in fetch, rather than loading the
-      # @supabase/supabase-js SDK — which tries to open a realtime
-      # WebSocket connection on startup and crashes in plain Node.js.
-      - name: Generate listing pages + sitemap
+      - name: Generate listing pages
         run: node scripts/generate-listings.mjs
+
+      - name: Generate governorate and area pages + sitemap
+        run: node scripts/generate-pages.mjs
 
       - name: Commit and push if anything changed
         run: |
           git config user.name "balkoun-bot"
           git config user.email "actions@github.com"
-          git add listing sitemap.xml
-          git diff --cached --quiet || git commit -m "Rebuild listing pages [auto]"
+          git add listing for-sale for-rent areas sitemap.xml
+          git diff --cached --quiet || git commit -m "Rebuild static pages [auto]"
+          git pull --rebase origin main || true
           git push

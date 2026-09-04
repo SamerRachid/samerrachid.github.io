@@ -1153,6 +1153,11 @@ footer{font-size:14px}
 .cs-n{font-size:11.5px;font-weight:600;color:var(--grey);background:var(--page);padding:1px 8px;border-radius:10px;flex:none}
 .chipsel-opt:hover .cs-n,.chipsel-opt.act .cs-n{background:#fff;color:var(--navy)}
 .cs-h{font-size:11.5px;font-weight:700;color:var(--light);padding:10px 12px 4px}
+.cs-h.cs-kind{font-size:10.5px;color:var(--gold-dk);letter-spacing:.04em;padding-top:6px}
+.geotable input,.geotable select,.geogov input{padding:6px 8px;border:1px solid var(--line-2);border-radius:6px;font:inherit;font-size:13px;min-width:0;width:100%;background:#fff}
+.geotable input.ltr,.geogov input.ltr{direction:ltr;text-align:left}
+.geotable b{font-size:12px;color:var(--grey)}
+@media(max-width:800px){.geotable{grid-template-columns:1fr 1fr!important}.geotable b{display:none}.geogov{grid-template-columns:1fr 1fr!important}}
 .cs-sheet-h{display:none}
 .chip{transition:background .15s}
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
@@ -1677,6 +1682,7 @@ function header(){
    '<a data-go="search" data-deal="rent" data-sec="">'+MI.rent+t("rent")+'</a>'+
    '<div class="sep"></div>'+
    '<a data-go="mapsearch">'+MI.map+t("searchOnMap")+'</a>'+
+   '<a href="/areas/">'+MI.map+GX("allAreas")+'</a>'+
    '<a data-go="about">'+MI.about+t("about")+'</a>'+
    '<a data-go="contactus">'+MI.phone+t("contactUsPageT")+'</a>'+
    '<a data-go="contact">'+MI.mail+t("contactUs")+'</a>'+
@@ -1692,8 +1698,10 @@ function header(){
 function footer(){
  return '<footer><div class="wrap"><div class="flinks">'+
   Object.keys(D.GEO).slice(0,12).map(function(g){
-    return '<a data-go="search" data-gov="'+g+'">'+
+    var gp=govPageUrl(g,"sale");
+    return '<a '+(gp?'href="'+gp+'"':'data-go="search" data-gov="'+g+'"')+'>'+
       (L==="ar"?"\u0639\u0642\u0627\u0631\u0627\u062a \u0641\u064a ":L==="en"?"Properties in ":"Immobilien in ")+gN(g)+'</a>'}).join("")+
+  '<a href="/areas/" style="font-weight:600">'+GX("allAreas")+'</a>'+
   '</div><div class="flinks" style="margin-bottom:14px">'+
   '<a data-go="about" style="font-weight:600">'+t("about")+'</a>'+
   '<a data-go="contact" style="font-weight:600">'+t("contactUs")+'</a>'+
@@ -3309,6 +3317,7 @@ function adminView(){
    '</div></div>';
  }
 
+ else if(ADM.tab==="geo"){ body = geoAdminBody(); }
  else if(ADM.tab==="settings"){
   var st2=ADM.settings;
   body = !st2 ? '<div class="done2"><b>'+t("loading")+'</b></div>' :
@@ -3896,6 +3905,7 @@ function adminView(){
      can("feedback")?tab("feedback",t("feedbackTab"),s.openFeedback,AICO.shield):"",
      can("msgs")?tab("msgs",t("msgsNotifTab"),ADM.alertsUnread,AICO.bell):""])+
    sec(t("navAdmin"),[
+     can("settings")?tab("geo",GX("geoTab"),null,AICO.home):"",
      can("settings")?tab("settings",t("settingsTab"),null,AICO.gear):"",
      ADM.isSuper?tab("admins",t("adminsTab"),null,AICO.key):"",
      ADM.isSuper?'<div class="asidebar-danger-sep">'+tab("danger",t("dangerTab"),null,AICO.lock)+'</div>':""])+
@@ -5191,7 +5201,12 @@ function wireChipSelects(){
           var inG=opts.filter(function(o){return D.GEO[g].indexOf(o.value)>-1});
           if(!inG.length || shown>=120) return;
           if(govs.length>1) html+='<div class="cs-h">'+gN(g)+'</div>';
-          inG.forEach(function(o){ if(shown<120){ html+=optHtml(o,cnt.a[o.value]); shown++ } });
+          // cities first (admin sets the kind in the Areas tab), then districts and villages
+          var cities=inG.filter(function(o){return geoKind(g,o.value)==="city"}), rest=inG.filter(function(o){return geoKind(g,o.value)!=="city"});
+          if(cities.length&&rest.length) html+='<div class="cs-h cs-kind">'+GX("cities")+'</div>';
+          cities.forEach(function(o){ if(shown<120){ html+=optHtml(o,cnt.a[o.value]); shown++ } });
+          if(cities.length&&rest.length) html+='<div class="cs-h cs-kind">'+GX("districts")+'</div>';
+          rest.forEach(function(o){ if(shown<120){ html+=optHtml(o,cnt.a[o.value]); shown++ } });
         });
       } else {
         opts.slice(0,60).forEach(function(o){ html+=optHtml(o, id==="csGov" ? cnt.g[o.value] : 0) });
@@ -6102,6 +6117,7 @@ function wireAdmin(){
       render();
     }catch(err){ alert(err.message||"error") }
   }});
+  wireGeoAdmin();
   if(ADM.tab==="settings" && !ADM._settingsLoaded){
     ADM._settingsLoaded=true;
     rpc("bk_admin_get_settings",{p_token:ADM.token}).then(function(r){
@@ -8118,6 +8134,92 @@ function initCursor(){
   window.addEventListener("touchstart",function(){ document.body.classList.remove("has-cur"); c.remove() },{once:true,passive:true});
 }
 document.documentElement.classList.add("js");
+
+/* ── geography from the database (admin-controlled) ─────────────────────
+   Governorates and areas used to live inside this file. They now load from
+   Supabase (bk_geo) so the admin can add, rename, order, hide and mark
+   cities vs. neighbourhoods; the built-in list is only the offline fallback. */
+var GEO_META={govId:{},govSlug:{},areaId:{},areaSlug:{},kind:{}};
+var GX_T={
+  geoTab:{ar:"المناطق",en:"Areas",de:"Gebiete"}, allAreas:{ar:"كل المناطق",en:"All areas",de:"Alle Gebiete"},
+  city:{ar:"مدينة",en:"City",de:"Stadt"}, area:{ar:"حي / منطقة",en:"District",de:"Bezirk"}, village:{ar:"قرية / بلدة",en:"Village",de:"Dorf"},
+  cities:{ar:"المدن",en:"Cities",de:"Städte"}, districts:{ar:"الأحياء والمناطق",en:"Districts and areas",de:"Bezirke"},
+  geoH:{ar:"المحافظات والمناطق",en:"Governorates and areas",de:"Gouvernements und Gebiete"},
+  geoHint:{ar:"ما تغيّره هنا يظهر فوراً في بحث الصفحة الرئيسية وصفحات المناطق. المدن تظهر أولاً في القوائم. لا يمكن حذف منطقة فيها إعلانات؛ أخفِها بدلاً من ذلك.",en:"Changes here appear immediately in the home search and area pages. Cities are listed first. An area with listings cannot be deleted; hide it instead.",de:"Änderungen erscheinen sofort in der Suche und auf den Gebietsseiten. Städte stehen zuerst. Gebiete mit Anzeigen können nicht gelöscht, nur ausgeblendet werden."},
+  pickGov:{ar:"اختر محافظة",en:"Choose a governorate",de:"Gouvernement wählen"}, nameAr:{ar:"الاسم بالعربية",en:"Arabic name",de:"Arabischer Name"}, nameEn:{ar:"الاسم بالإنكليزية",en:"English name",de:"Englischer Name"},
+  slug:{ar:"رابط الصفحة",en:"URL slug",de:"URL-Kürzel"}, kind:{ar:"النوع",en:"Kind",de:"Art"}, order:{ar:"الترتيب",en:"Order",de:"Reihenfolge"}, shown:{ar:"ظاهرة",en:"Shown",de:"Sichtbar"},
+  listings:{ar:"إعلانات",en:"listings",de:"Anzeigen"}, save:{ar:"حفظ",en:"Save",de:"Speichern"}, del:{ar:"حذف",en:"Delete",de:"Löschen"}, add:{ar:"إضافة منطقة",en:"Add area",de:"Gebiet hinzufügen"},
+  saved:{ar:"تم الحفظ",en:"Saved",de:"Gespeichert"}, hasListings:{ar:"لا يمكن الحذف: فيها إعلانات. أخفِها بدلاً من ذلك.",en:"Cannot delete: it has listings. Hide it instead.",de:"Löschen nicht möglich: enthält Anzeigen. Bitte ausblenden."},
+  slugTaken:{ar:"رابط الصفحة مستخدم في هذه المحافظة",en:"That URL slug is already used in this governorate",de:"Dieses URL-Kürzel ist im Gouvernement bereits vergeben"},
+  govRow:{ar:"إعدادات المحافظة",en:"Governorate settings",de:"Gouvernement-Einstellungen"}, confirmDel:{ar:"حذف هذه المنطقة نهائياً؟",en:"Delete this area permanently?",de:"Dieses Gebiet endgültig löschen?"},
+  pages:{ar:"صفحة المحافظة",en:"Governorate page",de:"Gouvernement-Seite"}
+};
+function GX(k){ var o=GX_T[k]||{}; return o[L]||o.en||k }
+function applyGeo(geo){
+  if(!geo||!geo.g||!geo.g.length) return;
+  var GEO={}, GOVN={}, meta={govId:{},govSlug:{},areaId:{},areaSlug:{},kind:{}};
+  geo.g.forEach(function(g){ GEO[g[1]]=[]; GOVN[g[1]]=[g[2]||g[1], g[2]||g[1]]; meta.govId[g[1]]=g[0]; meta.govSlug[g[1]]=g[3]; meta.kind[g[1]]={} });
+  var byId={}; geo.g.forEach(function(g){ byId[g[0]]=g[1] });
+  geo.a.forEach(function(a){ var gname=byId[a[1]]; if(!gname) return; GEO[gname].push(a[2]); meta.areaId[gname+"/"+a[2]]=a[0]; meta.areaSlug[gname+"/"+a[2]]=a[4]; meta.kind[gname][a[2]]=a[5]||"area" });
+  // keep the old English/German names where the database has none
+  Object.keys(GOVN).forEach(function(k){ if(D.GOVN&&D.GOVN[k]&&!(geo.g.find(function(g){return g[1]===k})||[])[2]) GOVN[k]=D.GOVN[k] });
+  D.GEO=GEO; D.GOVN=GOVN; GEO_META=meta;
+}
+function applyGeoCache(){ try{ var c=localStorage.getItem("balkoun_geo"); if(c) applyGeo(JSON.parse(c)) }catch(e){} }
+async function loadGeo(){
+  if(!DB) return;
+  try{ var r=await DB.rpc("bk_geo"); if(r&&r.data&&r.data.g&&r.data.g.length){ applyGeo(r.data); try{ localStorage.setItem("balkoun_geo", JSON.stringify(r.data)) }catch(e){} } }catch(e){}
+}
+function geoKind(gov, area){ return (GEO_META.kind[gov]||{})[area]||"area" }
+function govPageUrl(gov, deal){ var s=GEO_META.govSlug[gov]; return s ? "/"+(deal==="rent"?"for-rent":"for-sale")+"/"+s+"/" : null }
+function areaPageUrl(gov, area, deal){ var g=GEO_META.govSlug[gov], a=GEO_META.areaSlug[gov+"/"+area]; return g&&a ? "/"+(deal==="rent"?"for-rent":"for-sale")+"/"+g+"/"+a+"/" : null }
+
+/* admin › areas tab */
+function geoAdminBody(){
+  var G=ADM.geo; if(!G) return '<div class="done2"><b>'+t("loading")+'</b></div>';
+  var govs=G.governorates||[], areas=G.areas||[];
+  if(!ADM.geoGov && govs.length) ADM.geoGov=govs[0].id;
+  var g=govs.filter(function(x){return x.id===ADM.geoGov})[0]||govs[0];
+  var rows=areas.filter(function(a){return g&&a.governorate_id===g.id});
+  var kindSel=function(v,id){ return '<select data-gk="'+id+'">'+["city","area","village"].map(function(k){return '<option value="'+k+'"'+(v===k?" selected":"")+'>'+GX(k)+'</option>'}).join("")+'</select>' };
+  return '<div class="blk"><h3>'+GX("geoH")+'</h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+GX("geoHint")+'</div>'+
+   '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px"><select id="geoGov" style="padding:8px 12px;border:1px solid var(--line-2);border-radius:8px;font-size:14px">'+
+     govs.map(function(x){return '<option value="'+x.id+'"'+(g&&x.id===g.id?" selected":"")+'>'+esc(x.name_ar)+' ('+x.areas+' · '+x.listings+' '+GX("listings")+')'+(x.enabled?"":" · ✕")+'</option>'}).join("")+'</select>'+
+     (g&&g.slug?'<a class="mini" style="color:var(--navy);border-color:var(--line-2)" href="/for-sale/'+esc(g.slug)+'/" target="_blank" rel="noopener">'+GX("pages")+' ↗</a>':'')+
+     '<span id="geoMsg" style="font-size:12.5px;color:var(--ok)"></span></div>'+
+   (g?'<div class="geogov" style="display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:8px;align-items:center;padding:10px;background:var(--page);border-radius:8px;margin-bottom:12px">'+
+     '<input data-gg="name_ar" value="'+esc(g.name_ar)+'" placeholder="'+GX("nameAr")+'"><input data-gg="name_en" value="'+esc(g.name_en||"")+'" placeholder="'+GX("nameEn")+'"><input data-gg="slug" value="'+esc(g.slug||"")+'" placeholder="'+GX("slug")+'" class="ltr">'+
+     '<label style="display:flex;gap:6px;align-items:center;font-size:13px"><input type="checkbox" data-gg="enabled"'+(g.enabled?" checked":"")+'>'+GX("shown")+'</label><button class="ab ok" id="geoGovSave">'+GX("save")+'</button></div>':'')+
+   '<div class="geotable" style="display:grid;grid-template-columns:1.4fr 1fr 1fr .8fr .5fr .5fr auto auto;gap:6px 8px;align-items:center;font-size:13.5px">'+
+     '<b>'+GX("nameAr")+'</b><b>'+GX("nameEn")+'</b><b>'+GX("slug")+'</b><b>'+GX("kind")+'</b><b>'+GX("order")+'</b><b>'+GX("shown")+'</b><b>'+GX("listings")+'</b><b></b>'+
+     rows.map(function(a){ return '<input data-ga="name_ar:'+a.id+'" value="'+esc(a.name_ar)+'"><input data-ga="name_en:'+a.id+'" value="'+esc(a.name_en||"")+'"><input data-ga="slug:'+a.id+'" value="'+esc(a.slug||"")+'" class="ltr">'+kindSel(a.kind,a.id)+
+       '<input data-ga="sort_order:'+a.id+'" value="'+(a.sort_order||100)+'" type="number" style="width:64px"><input type="checkbox" data-ga="enabled:'+a.id+'"'+(a.enabled?" checked":"")+'><span class="ltr">'+a.listings+'</span>'+
+       '<span style="display:flex;gap:4px"><button class="ab ok" data-geosave="'+a.id+'">'+GX("save")+'</button>'+(a.listings>0?'':'<button class="ab" data-geodel="'+a.id+'" style="color:var(--danger)">'+GX("del")+'</button>')+'</span>' }).join("")+
+     '<input id="geoNewName" placeholder="'+GX("nameAr")+'" style="border-color:var(--gold)"><input id="geoNewEn" placeholder="'+GX("nameEn")+'"><input id="geoNewSlug" placeholder="'+GX("slug")+'" class="ltr">'+kindSel("area","new")+'<input id="geoNewOrder" type="number" value="100" style="width:64px"><span></span><span></span><button class="ab ok" id="geoAdd">'+GX("add")+'</button>'+
+   '</div></div></div>';
+}
+function wireGeoAdmin(){
+  if(ADM.tab!=="geo") return;
+  if(!ADM._geoLoaded){ ADM._geoLoaded=true; DB.rpc("bk_admin_geo_list",{p_token:ADM.token}).then(function(r){ if(r&&r.data){ ADM.geo=r.data; render() } }); return }
+  var msg=function(s,bad){ var m=$("#geoMsg"); if(m){ m.textContent=s; m.style.color=bad?"var(--danger)":"var(--ok)" } };
+  var reload=function(){ return DB.rpc("bk_admin_geo_list",{p_token:ADM.token}).then(function(r){ if(r&&r.data) ADM.geo=r.data; loadGeo(); render() }) };
+  var err=function(e){ var m=(e&&e.message)||""; msg(m.indexOf("slug_taken")>-1?GX("slugTaken"):m.indexOf("has_listings")>-1?GX("hasListings"):m||"error",true) };
+  if($("#geoGov")) $("#geoGov").onchange=function(){ ADM.geoGov=parseInt(this.value,10); render() };
+  if($("#geoGovSave")) $("#geoGovSave").onclick=function(){
+    var row={id:ADM.geoGov}; $$("[data-gg]").forEach(function(i){ row[i.dataset.gg]= i.type==="checkbox" ? i.checked : i.value });
+    DB.rpc("bk_admin_gov_save",{p_token:ADM.token,p_row:row}).then(function(r){ if(r.error) return err(r.error); msg(GX("saved")); reload() }) };
+  $$("[data-geosave]").forEach(function(b){ b.onclick=function(){
+    var id=b.dataset.geosave, row={id:parseInt(id,10), governorate_id:ADM.geoGov};
+    $$('[data-ga$=":'+id+'"]').forEach(function(i){ var k=i.dataset.ga.split(":")[0]; row[k]= i.type==="checkbox" ? i.checked : i.value });
+    var ks=$('[data-gk="'+id+'"]'); if(ks) row.kind=ks.value;
+    DB.rpc("bk_admin_area_save",{p_token:ADM.token,p_row:row}).then(function(r){ if(r.error) return err(r.error); msg(GX("saved")); reload() }) } });
+  $$("[data-geodel]").forEach(function(b){ b.onclick=function(){ if(!confirm(GX("confirmDel"))) return;
+    DB.rpc("bk_admin_area_delete",{p_token:ADM.token,p_id:parseInt(b.dataset.geodel,10)}).then(function(r){ if(r.error) return err(r.error); msg(GX("saved")); reload() }) } });
+  if($("#geoAdd")) $("#geoAdd").onclick=function(){
+    var name=($("#geoNewName").value||"").trim(); if(!name) return;
+    var row={governorate_id:ADM.geoGov, name_ar:name, name_en:$("#geoNewEn").value, slug:$("#geoNewSlug").value, kind:$('[data-gk="new"]').value, sort_order:$("#geoNewOrder").value, enabled:true};
+    DB.rpc("bk_admin_area_save",{p_token:ADM.token,p_row:row}).then(function(r){ if(r.error) return err(r.error); msg(GX("saved")); reload() }) };
+}
 function updateHdr(){
  var h=document.querySelector("header"); if(!h) return;
  var y=window.pageYOffset||document.documentElement.scrollTop||0;
@@ -8178,5 +8280,6 @@ if(USER&&DB){
     startNotifPolling();
   }).catch(function(){ /* network/connection failure — not a verdict on the session, so it stays as-is */ });
 }
-Promise.all([loadListings(),loadCounts(),loadSiteContent(),loadAdSlots()]).then(function(){ render(); startAdRotation(); startAdCarouselRotation(); startBannerRotation(); startFeaturedPolling(); startListingsPolling() });
+applyGeoCache();
+Promise.all([loadListings(),loadCounts(),loadSiteContent(),loadAdSlots(),loadGeo()]).then(function(){ render(); startAdRotation(); startAdCarouselRotation(); startBannerRotation(); startFeaturedPolling(); startListingsPolling() });
 </script></body></html>
