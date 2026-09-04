@@ -1,0 +1,8 @@
+-- 2026-09-04 · geography becomes admin-controlled (applied to the live project as migration "geo_admin_control")
+-- areas: enabled / sort_order / kind (city | area | village); governorates: enabled
+-- bk_geo()                      public compact feed loaded by index.html at boot
+-- bk_admin_geo_list(p_token)    admin: all governorates + areas with live-listing counts
+-- bk_admin_area_save(p_token, p_row jsonb)   insert (no id) or update; slug auto-derived with ar_slug(); raises 'slug_taken'
+-- bk_admin_area_delete(p_token, p_id)        raises 'has_listings' if any listing references the area
+-- bk_admin_gov_save(p_token, p_row jsonb)
+-- See the Supabase migration history for the full SQL (mcp apply_migration, name geo_admin_control).
