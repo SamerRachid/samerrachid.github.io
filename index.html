@@ -8277,20 +8277,20 @@ function sketchBuild(){
   var swP=plane(PZ.x,PZ.y,SWW,SH), swg=swP.g, swEl=swP.el; swEl.classList.add("sk-sword"); swg.setAttribute("stroke","none");
   var Y=function(p){ return f1(SH*p) }, X=function(p){ return f1(C0+SH*p) };
   var CONC="#EDE9E0", GRN="#2E8B57", WHT="#F4F2ED", BLK="#1A1E27", RED="#C8102E";
-  var starD="M"+X(0)+" 0 C"+X(0.016)+" "+Y(0.36)+" "+X(0.04)+" "+Y(0.73)+" "+X(0.21)+" "+Y(0.83)+" C"+X(0.09)+" "+Y(0.87)+" "+X(0.036)+" "+Y(0.93)+" "+X(0.026)+" "+Y(1)+" L"+X(-0.026)+" "+Y(1)+" C"+X(-0.036)+" "+Y(0.93)+" "+X(-0.09)+" "+Y(0.87)+" "+X(-0.21)+" "+Y(0.83)+" C"+X(-0.04)+" "+Y(0.73)+" "+X(-0.016)+" "+Y(0.36)+" "+X(0)+" 0 Z";
+  var starD="M"+X(0)+" 0 C"+X(0.011)+" "+Y(0.36)+" "+X(0.028)+" "+Y(0.74)+" "+X(0.15)+" "+Y(0.84)+" C"+X(0.065)+" "+Y(0.875)+" "+X(0.028)+" "+Y(0.935)+" "+X(0.02)+" "+Y(1)+" L"+X(-0.02)+" "+Y(1)+" C"+X(-0.028)+" "+Y(0.935)+" "+X(-0.065)+" "+Y(0.875)+" "+X(-0.15)+" "+Y(0.84)+" C"+X(-0.028)+" "+Y(0.74)+" "+X(-0.011)+" "+Y(0.36)+" "+X(0)+" 0 Z";
   var defsS=S("defs",{},swP.svg), clipG=S("clipPath",{id:"skGlass"},defsS); S("path",{d:starD},clipG);
   var glass=S("g",{"clip-path":"url(#skGlass)",opacity:0},swg);
-  S("rect",{x:0,y:0,width:SWW,height:Y(0.75),fill:GRN,opacity:".94"},glass);
-  S("rect",{x:0,y:Y(0.75),width:SWW,height:Y(0.15),fill:WHT,opacity:".96"},glass);
+  S("rect",{x:0,y:0,width:SWW,height:Y(0.77),fill:GRN,opacity:".94"},glass);
+  S("rect",{x:0,y:Y(0.77),width:SWW,height:Y(0.13),fill:WHT,opacity:".96"},glass);
   S("rect",{x:0,y:Y(0.90),width:SWW,height:Y(0.12),fill:BLK,opacity:".94"},glass);
-  [-0.115,0,0.115].forEach(function(dx){ var sx=+X(dx), sy=+Y(0.828), r1=SH*.024, r2=SH*.01, d="M"; for(var k5=0;k5<10;k5++){ var ang=-Math.PI/2+k5*Math.PI/5, rr=k5%2?r2:r1; d+=(k5?"L":"")+f1(sx+Math.cos(ang)*rr)+" "+f1(sy+Math.sin(ang)*rr)+" " } S("path",{d:d+"Z",fill:RED},glass) });
+  [-0.082,0,0.082].forEach(function(dx){ var sx=+X(dx), sy=+Y(0.838), r1=SH*.019, r2=SH*.008, d="M"; for(var k5=0;k5<10;k5++){ var ang=-Math.PI/2+k5*Math.PI/5, rr=k5%2?r2:r1; d+=(k5?"L":"")+f1(sx+Math.cos(ang)*rr)+" "+f1(sy+Math.sin(ang)*rr)+" " } S("path",{d:d+"Z",fill:RED},glass) });
   var mull=""; for(var mx=0; mx<=SWW; mx+=SH*.03) mull+="M"+f1(mx)+" 0 V"+SH+" "; for(var my=0; my<=SH; my+=SH*.05) mull+="M0 "+f1(my)+" H"+SWW+" "; S("path",{d:mull,stroke:"#0B1224",fill:"none","stroke-width":".6",opacity:".35"},glass);
   fades.push([glass,10600,800,1]);
   var conc=S("g",{opacity:0},swg);
-  S("path",{d:starD,fill:"none",stroke:CONC,"stroke-width":f1(SH*.012),"stroke-linejoin":"round"},conc);                      // the rim: the side blades
+  S("path",{d:starD,fill:"none",stroke:CONC,"stroke-width":f1(SH*.01),"stroke-linejoin":"round"},conc);                      // the rim: the side blades
   S("path",{d:"M"+X(-0.0035)+" 0 L"+X(0.0035)+" 0 L"+X(0.0055)+" "+Y(1)+" L"+X(-0.0055)+" "+Y(1)+" Z",fill:CONC},conc);      // the front blade, edge-on
   S("rect",{x:X(-0.05),y:Y(1),width:f1(SH*.10),height:f1(SH*.01),fill:CONC,opacity:".85"},conc);                                // footing
-  var lights=S("g",{fill:"#FFF3D0"},conc); [[.007,.12],[.011,.24],[.016,.36],[.022,.48],[.03,.60],[.045,.70]].forEach(function(l){ S("circle",{cx:X(-l[0]),cy:Y(l[1]),r:SH*.003},lights); S("circle",{cx:X(l[0]),cy:Y(l[1]),r:SH*.003},lights) });
+  var lights=S("g",{fill:"#FFF3D0"},conc); [[.005,.12],[.008,.24],[.011,.36],[.015,.48],[.021,.60],[.032,.72]].forEach(function(l){ S("circle",{cx:X(-l[0]),cy:Y(l[1]),r:SH*.003},lights); S("circle",{cx:X(l[0]),cy:Y(l[1]),r:SH*.003},lights) });
   fades.push([conc,10100,900,1]);
   // the drawing strokes that build it before the solids fade in
   var spire=P(swg,starD,9900,1200,"1.6",null,"#F4F2ED");
