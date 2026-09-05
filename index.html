@@ -1122,7 +1122,9 @@ footer{font-size:14px}
 @keyframes curLine{to{width:calc(100% - 12px)}}
 .choreo{animation:heroRise .9s cubic-bezier(.2,.7,.2,1) both}
 .choreo-hdr{animation:hdrIn .9s cubic-bezier(.2,.7,.2,1) both}
-@keyframes hdrIn{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+@keyframes hdrIn{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:none}}
+.sbar.choreo,.mkt.choreo{animation-name:heroRiseFar}
+@keyframes heroRiseFar{from{opacity:0;transform:translateY(90px)}to{opacity:1;transform:none}}
 /* illustrated "dawn over Damascus" hero background (hero_bg_type = dawn) */
 .hv .dawn{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 30%,#1B2C52,var(--navy) 70%);overflow:hidden}
 .hv .dawn svg{position:absolute;inset:0;width:100%;height:100%;display:block}
@@ -8119,7 +8121,8 @@ function heroChoreo(){
   if(!_openingActive || VIEW!=="home") return;
   var base=Math.max(0, 850-(Date.now()-_openingT0));
   var hd=document.querySelector("header"); if(hd){ hd.classList.add("choreo-hdr"); hd.style.animationDelay=base+"ms" }
-  [[".hero h1",260],[".sbar",460],[".hnote",620],[".mkt",760]].forEach(function(p){
+  // header from the top and search bar from the bottom first; the headline only once the drawing has shrunk into its place
+  [[".sbar",250],[".mkt",500],[".hero h1",2100],[".hnote",2300]].forEach(function(p){
     var el=$(p[0]); if(!el) return;
     el.classList.add("choreo"); el.style.animationDelay=(base+p[1])+"ms";
   });
@@ -8134,8 +8137,7 @@ function sketchMount(){
   var box=$("#sketchBox"); if(!box) return;
   if(!_sketch) _sketch=sketchBuild();
   if(_sketch.el.parentNode!==box){ box.innerHTML=""; box.appendChild(_sketch.el) }
-  // the composition is laid out for Arabic (headline on the right, square on the left); mirror it for LTR languages
-  _sketch.el.style.transform = rtlNow() ? "" : "scaleX(-1)";
+  if(_sketch.started && _sketch.refit) _sketch.refit();   // re-render: keep the finished picture fitted to the free space
   if(!_sketch.started){
     _sketch.started=true;
     var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -8145,115 +8147,149 @@ function sketchMount(){
   }
 }
 function sketchBuild(){
-  var NS="http://www.w3.org/2000/svg", GOLD="#E3B563";
+  var NS="http://www.w3.org/2000/svg", GOLD="#E3B563", SPD=.9;      // SPD < 1 makes the whole sequence quicker
   function S(tag,attrs,parent){ var e=document.createElementNS(NS,tag); for(var k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e }
-  var svg=S("svg",{viewBox:"0 0 1600 560",preserveAspectRatio:"xMidYMid slice","aria-hidden":"true"});
+  function rnd(seed){ var s=seed; return function(){ s=(s*9301+49297)%233280; return s/233280 } }
+  var svg=S("svg",{viewBox:"0 0 1600 900",preserveAspectRatio:"none","aria-hidden":"true"});
   var defs=S("defs",{},svg);
-  var sg=S("linearGradient",{id:"skShine",gradientUnits:"userSpaceOnUse",x1:"0",y1:"0",x2:"420",y2:"0"},defs);
+  var sg=S("linearGradient",{id:"skShine",gradientUnits:"userSpaceOnUse",x1:"0",y1:"0",x2:"260",y2:"0"},defs);
   S("stop",{offset:"0","stop-color":"#FFF3D0","stop-opacity":"0"},sg); S("stop",{offset:".5","stop-color":"#FFF3D0","stop-opacity":".95"},sg); S("stop",{offset:"1","stop-color":"#FFF3D0","stop-opacity":"0"},sg);
-  var at=S("animateTransform",{attributeName:"gradientTransform",type:"translate",from:"-500 0",to:"1700 0",dur:"2.4s",begin:"indefinite",fill:"freeze"},sg);
+  var at=S("animateTransform",{attributeName:"gradientTransform",type:"translate",from:"-300 0",to:"2000 0",dur:"2.4s",begin:"indefinite",fill:"freeze"},sg);
   var root=S("g",{fill:"none",stroke:GOLD,"stroke-width":"1.7","stroke-linecap":"round","stroke-linejoin":"round"},svg);
-  var items=[];                                    // [element, delay, duration] — stroke "hand drawing"
-  var fades=[];                                    // [element, delay, duration, targetOpacity]
+  var items=[], fades=[];
   function P(g,d,t,dur,w,op){ var p=S("path",{d:d},g); if(w) p.setAttribute("stroke-width",w); if(op) p.setAttribute("stroke-opacity",op); items.push([p,t,dur]); return p }
-  function C(g,cx,cy,r,t,dur){ var c=S("circle",{cx:cx,cy:cy,r:r},g); items.push([c,t,dur]); return c }
+  function C(g,cx,cy,r,t,dur,w,op){ var c=S("circle",{cx:cx,cy:cy,r:r},g); if(w) c.setAttribute("stroke-width",w); if(op) c.setAttribute("stroke-opacity",op); items.push([c,t,dur]); return c }
   function arch(g,x,yb,w,h,t,dur,sw){ var r=w/2; return P(g,"M"+x+" "+yb+" V"+(yb-h+r)+" A"+r+" "+r+" 0 0 1 "+(x+w)+" "+(yb-h+r)+" V"+yb,t,dur,sw) }
+  function scene(){ var g=S("g",{opacity:0},root); g.style.transformOrigin="0 0"; return g }
 
-  /* ── Scene 1: Mount Qasioun as seen from the city, and the Umayyad Mosque from the south ── */
-  var s1=S("g",{},root); s1.style.transformOrigin="0 0";
-  // Qasioun: the long ridge, its higher western shoulder, the gentler eastern slope, and a second ridge behind
-  P(s1,"M0 322 C120 300 210 262 300 236 C370 216 420 192 470 184 C520 176 560 182 610 190 C680 200 730 196 790 212 C880 236 980 262 1090 282 C1200 302 1320 318 1440 330 C1500 336 1560 340 1600 342",100,1300,"1.5",".9");
-  P(s1,"M0 262 C160 232 260 214 340 200 C420 186 470 166 520 160 C580 152 630 160 690 170 C780 186 900 216 1000 236 C1100 256 1200 270 1300 284 C1400 298 1520 308 1600 312",220,1300,"1.1",".4");
-  // the neighbourhoods climbing the lower slope (small houses, Muhajirin side)
-  var slope=S("g",{fill:GOLD,stroke:"none",opacity:0},s1); var rs=(function(seed){ var s=seed; return function(){ s=(s*9301+49297)%233280; return s/233280 } })(11);
-  for(var i=0;i<90;i++){ var sx=380+rs()*900, syBase=300+(sx-380)/900*44, sy=syBase-rs()*(90-(sx>1000?40:0)); S("rect",{x:sx.toFixed(0),y:sy.toFixed(0),width:(4+rs()*4).toFixed(0),height:(3+rs()*3).toFixed(0),opacity:(.25+rs()*.6).toFixed(2)},slope) }
-  fades.push([slope,700,900,1]);
-  P(s1,"M0 470 H1600",500,900,"1.2");
-  // prayer hall (south facade): long wall, pitched roof, row of arched windows
-  P(s1,"M540 470 V402 H1060 V470",700,800);
-  P(s1,"M534 402 L548 388 H1052 L1066 402",1200,500,"1.3");
-  for(var k=0;k<11;k++){ var wx=566+k*44; if(wx>716&&wx<868) continue; arch(s1,wx,456,20,28,1250+k*45,380,"1.2") }
-  // the transept: tall gable in the middle of the facade, big arched window, Dome of the Eagle on its octagonal drum
-  P(s1,"M736 470 V402 M864 470 V402",1300,400);
-  P(s1,"M730 402 L800 336 L870 402",1400,600,"1.6");
-  arch(s1,776,398,48,52,1700,450,"1.3");
-  P(s1,"M752 342 V304 L764 296 H836 L848 304 V342",1800,500);
-  P(s1,"M746 304 C746 254 774 234 800 230 C826 234 854 254 854 304",1950,700,"1.7");
-  P(s1,"M800 230 V208",2350,220); C(s1,800,201,5,2450,260);
-  // Minaret of Isa (south-east corner): tall square shaft, balcony, slimmer upper shaft, pencil spire
-  P(s1,"M1088 470 V252 H1118 V470",900,900);
-  P(s1,"M1080 252 H1126 M1080 300 H1126",1500,240,"1.4");
-  P(s1,"M1094 252 V176 H1112 V252",1650,450);
-  P(s1,"M1088 176 L1103 112 L1118 176",1900,420,"1.4"); P(s1,"M1103 112 V94",2200,160);
-  // Minaret of Qaytbay (south-west corner): octagonal Mamluk shaft, two bracketed balconies, bulb top
-  P(s1,"M486 470 V246 H514 V470",1000,850);
-  P(s1,"M478 336 H522 M478 278 H522",1500,240,"1.4");
-  P(s1,"M482 336 L486 328 M518 336 L514 328 M482 278 L486 270 M518 278 L514 270",1600,240,"1",".7");
-  P(s1,"M492 246 V214 H508 V246",1700,320);
-  P(s1,"M491 214 C484 198 490 184 500 180 C510 184 516 198 509 214",1900,380,"1.5"); P(s1,"M500 180 V164",2200,160);
-  // Minaret of the Bride (north side, seen rising behind the hall): square shaft, lantern, pointed cap
-  P(s1,"M652 402 V252 H678 V402",1100,700);
-  P(s1,"M646 300 H684",1500,200,"1.3");
-  P(s1,"M644 252 H686 V226 H644 Z",1700,360);
-  P(s1,"M644 226 L665 194 L686 226",1900,340,"1.4");
-  // the western riwaq (courtyard arcade) at the left of the hall, and a cypress in the courtyard garden
-  P(s1,"M400 470 V432 H540",1200,500);
-  for(var a=0;a<4;a++) arch(s1,410+a*32,470,24,30,1400+a*90,380,"1.2");
-  P(s1,"M370 470 C356 436 358 404 370 356 C382 404 384 436 370 470",1800,600,"1.3");
+  /* ── M · the Umayyad Mosque from the south (prayer hall, transept gable, Dome of the Eagle, three minarets, west riwaq) ── */
+  var M=scene(), MB={x:350,y:80,w:800,h:400};
+  P(M,"M360 470 H1140",0,600,"1.2");
+  P(M,"M540 470 V402 H1060 V470",200,800);
+  P(M,"M534 402 L548 388 H1052 L1066 402",700,500,"1.3");
+  for(var k=0;k<11;k++){ var wx=566+k*44; if(wx>716&&wx<868) continue; arch(M,wx,456,20,28,750+k*45,380,"1.2") }
+  P(M,"M736 470 V402 M864 470 V402",800,400);
+  P(M,"M730 402 L800 336 L870 402",900,600,"1.6");
+  arch(M,776,398,48,52,1200,450,"1.3");
+  P(M,"M752 342 V304 L764 296 H836 L848 304 V342",1300,500);
+  P(M,"M746 304 C746 254 774 234 800 230 C826 234 854 254 854 304",1450,700,"1.7");
+  P(M,"M800 230 V208",1850,220); C(M,800,201,5,1950,260);
+  P(M,"M1088 470 V252 H1118 V470",400,900); P(M,"M1080 252 H1126 M1080 300 H1126",1000,240,"1.4");
+  P(M,"M1094 252 V176 H1112 V252",1150,450); P(M,"M1088 176 L1103 112 L1118 176",1400,420,"1.4"); P(M,"M1103 112 V94",1700,160);
+  P(M,"M486 470 V246 H514 V470",500,850); P(M,"M478 336 H522 M478 278 H522",1000,240,"1.4");
+  P(M,"M482 336 L486 328 M518 336 L514 328 M482 278 L486 270 M518 278 L514 270",1100,240,"1",".7");
+  P(M,"M492 246 V214 H508 V246",1200,320); P(M,"M491 214 C484 198 490 184 500 180 C510 184 516 198 509 214",1400,380,"1.5"); P(M,"M500 180 V164",1700,160);
+  P(M,"M652 402 V252 H678 V402",600,700); P(M,"M646 300 H684",1000,200,"1.3"); P(M,"M644 252 H686 V226 H644 Z",1200,360); P(M,"M644 226 L665 194 L686 226",1400,340,"1.4");
+  P(M,"M400 470 V432 H540",700,500); for(var a=0;a<4;a++) arch(M,410+a*32,470,24,30,900+a*90,380,"1.2");
+  P(M,"M370 470 C356 436 358 404 370 356 C382 404 384 436 370 470",1300,600,"1.3");
 
-  /* ── Scene 2: Umayyad Square — the roundabout, the fountain, the Opera House, and the Damascus Sword ── */
-  var s2=S("g",{opacity:0},root);
-  var Q=620, GY=470;                               // square centre and ground
-  P(s2,"M"+(Q-420)+" "+GY+" H"+(Q+420),3400,700,"1.2");
-  P(s2,"M"+(Q-300)+" "+(GY-18)+" A300 26 0 1 0 "+(Q+300)+" "+(GY-18)+" A300 26 0 1 0 "+(Q-300)+" "+(GY-18),3500,900,"1.4"); // roundabout
-  P(s2,"M"+(Q-330)+" "+(GY-16)+" A330 30 0 1 0 "+(Q+330)+" "+(GY-16),3700,700,"1",".45");               // outer kerb
-  // Opera House (Dar al-Assad for Culture) behind the square, to the left
-  P(s2,"M"+(Q-380)+" "+(GY-40)+" V"+(GY-136)+" H"+(Q-60)+" V"+(GY-40),3600,800,"1.4");
-  P(s2,"M"+(Q-330)+" "+(GY-136)+" V"+(GY-160)+" H"+(Q-110)+" V"+(GY-136),3900,400);
-  var slits=""; for(var v=Q-360; v<Q-70; v+=22) slits+="M"+v+" "+(GY-126)+" V"+(GY-48)+" "; P(s2,slits,4000,700,".9",".55");
-  P(s2,"M"+(Q-240)+" "+(GY-40)+" V"+(GY-92)+" H"+(Q-200)+" V"+(GY-40),4200,300,"1.3");                     // entrance
-  // lamp posts and trees around the square
-  [[Q-360,GY-6],[Q+360,GY-6]].forEach(function(l,i){ P(s2,"M"+l[0]+" "+l[1]+" V"+(l[1]-70)+" M"+(l[0]-9)+" "+(l[1]-70)+" H"+(l[0]+9),4300+i*120,400,"1.2"); C(s2,l[0]-9,l[1]-74,3,4600+i*120,150); C(s2,l[0]+9,l[1]-74,3,4650+i*120,150) });
-  [[Q+300,GY-30,22],[Q+345,GY-26,17],[Q+390,GY-34,24]].forEach(function(t,i){ P(s2,"M"+t[0]+" "+(GY-8)+" V"+(t[1]+t[2]-4),4400+i*100,250,"1.3"); C(s2,t[0],t[1],t[2],4500+i*100,450) });
-  // the fountain: basin and water jets
-  P(s2,"M"+(Q-92)+" "+(GY-22)+" A92 13 0 1 0 "+(Q+92)+" "+(GY-22)+" A92 13 0 1 0 "+(Q-92)+" "+(GY-22),4300,600,"1.3");
-  [[-60,-70],[-30,-96],[30,-96],[60,-70]].forEach(function(j,i){ P(s2,"M"+Q+" "+(GY-26)+" C"+(Q+j[0]*.3)+" "+(GY-26+j[1])+" "+(Q+j[0]*.8)+" "+(GY-26+j[1])+" "+(Q+j[0])+" "+(GY-30),4600+i*80,500,"1",".7") });
-  // the Damascus Sword: pedestal, hilt, guard, tall tapering blade — it pops up from the fountain
-  var sword=S("g",{},s2); sword.style.transformOrigin=Q+"px "+(GY-26)+"px"; sword.style.transform="scaleY(0)";
-  var SW=[["M"+(Q-40)+" "+(GY-26)+" H"+(Q+40),"1.6"],["M"+(Q-24)+" "+(GY-26)+" V"+(GY-56)+" H"+(Q+24)+" V"+(GY-26),"1.6"],["M"+(Q-52)+" "+(GY-56)+" H"+(Q+52)+" V"+(GY-70)+" H"+(Q-52)+" Z","1.7"],
-            ["M"+(Q-22)+" "+(GY-70)+" L"+(Q-10)+" 132 L"+Q+" 110 L"+(Q+10)+" 132 L"+(Q+22)+" "+(GY-70),"1.9"],["M"+(Q-6)+" 150 V"+(GY-78)+" M"+(Q+6)+" 150 V"+(GY-78),"1",".55"],["M"+Q+" 138 V"+(GY-80),"1",".35"]];
+  /* ── Q · Mount Qasioun as seen from the city: the long ridge, the higher western shoulder, the TV and radio masts on top ── */
+  var Q=scene(), QB={x:0,y:60,w:1600,h:300};
+  P(Q,"M0 322 C120 300 210 262 300 236 C370 216 420 192 470 184 C520 176 560 182 610 190 C680 200 730 196 790 212 C880 236 980 262 1090 282 C1200 302 1320 318 1440 330 C1500 336 1560 340 1600 342",0,1300,"1.6",".95");
+  P(Q,"M0 262 C160 232 260 214 340 200 C420 186 470 166 520 160 C580 152 630 160 690 170 C780 186 900 216 1000 236 C1100 256 1200 270 1300 284 C1400 298 1520 308 1600 312",150,1300,"1.1",".4");
+  P(Q,"M440 186 V176 H500 V188",900,300,"1.2");                                   // transmitter buildings on the summit
+  P(Q,"M452 176 V72",1000,500,"1.5"); P(Q,"M446 96 H458 M446 118 H458 M447 140 H457",1300,250,"1.2"); P(Q,"M452 78 L430 176 M452 78 L474 176",1350,400,".9",".45");
+  P(Q,"M500 176 V104",1100,450,"1.4"); P(Q,"M495 122 H505 M496 144 H504",1350,220,"1.1"); P(Q,"M500 108 L486 176 M500 108 L514 176",1400,350,".9",".45");
+  P(Q,"M536 184 V126",1200,400,"1.3"); P(Q,"M532 142 H540 M533 160 H539",1400,200,"1.1");
+  C(Q,452,70,3,1500,200); C(Q,500,102,2.5,1550,200);
+  var slope=S("g",{fill:GOLD,stroke:"none",opacity:0},Q); var rs=rnd(11);
+  for(var i=0;i<110;i++){ var sx=300+rs()*1100, syBase=236+(sx-300)/1100*100, sy=syBase-rs()*(70-(sx>1000?30:0)); S("rect",{x:sx.toFixed(0),y:sy.toFixed(0),width:(4+rs()*4).toFixed(0),height:(3+rs()*3).toFixed(0),opacity:(.25+rs()*.6).toFixed(2)},slope) }
+  fades.push([slope,500,900,1]);
+
+  /* ── T · Umayyad Square from the sky: ring road, the round garden with its radial beds, the fountain, the radiating avenues ── */
+  var T=scene(), TB={x:-440,y:-440,w:880,h:880}; var Tr=S("g",{},T); Tr.style.transformOrigin="0px 0px";
+  C(Tr,0,0,330,0,900,"1.4"); C(Tr,0,0,300,100,900,"1.1",".7");
+  C(Tr,0,0,250,300,800,"1.3"); C(Tr,0,0,165,500,700,"1.2"); C(Tr,0,0,150,600,600,"1",".6");
+  var rays=""; for(var d=0; d<360; d+=12){ var r1=Math.PI*d/180; rays+="M"+(165*Math.cos(r1)).toFixed(1)+" "+(165*Math.sin(r1)).toFixed(1)+" L"+(250*Math.cos(r1)).toFixed(1)+" "+(250*Math.sin(r1)).toFixed(1)+" " } P(Tr,rays,700,900,".9",".6");
+  var rays2=""; for(var d2=15; d2<360; d2+=30){ var r2=Math.PI*d2/180; rays2+="M"+(72*Math.cos(r2)).toFixed(1)+" "+(72*Math.sin(r2)).toFixed(1)+" L"+(150*Math.cos(r2)).toFixed(1)+" "+(150*Math.sin(r2)).toFixed(1)+" " } P(Tr,rays2,1000,600,".9",".55");
+  C(Tr,0,0,70,1100,500,"1.3"); C(Tr,0,0,55,1200,400,"1",".7"); C(Tr,0,0,14,1350,300,"1.4");
+  for(var j=0;j<8;j++){ var rj=Math.PI*j/4; C(Tr,(34*Math.cos(rj)).toFixed(1),(34*Math.sin(rj)).toFixed(1),4,1400+j*40,200,"1",".8") }
+  var spokes=""; for(var s6=0; s6<360; s6+=60){ var r6=Math.PI*(s6+30)/180, cx6=Math.cos(r6), sy6=Math.sin(r6), px=-sy6*14, py=cx6*14;
+    spokes+="M"+(330*cx6+px).toFixed(1)+" "+(330*sy6+py).toFixed(1)+" L"+(440*cx6+px).toFixed(1)+" "+(440*sy6+py).toFixed(1)+" M"+(330*cx6-px).toFixed(1)+" "+(330*sy6-py).toFixed(1)+" L"+(440*cx6-px).toFixed(1)+" "+(440*sy6-py).toFixed(1)+" " }
+  P(Tr,spokes,400,900,"1.2");
+  var cars=S("g",{fill:GOLD,stroke:"none",opacity:0},Tr); var rc=rnd(5);
+  for(var c2=0;c2<26;c2++){ var ang=rc()*Math.PI*2, rr=305+rc()*18; S("rect",{x:(rr*Math.cos(ang)-4).toFixed(1),y:(rr*Math.sin(ang)-2.5).toFixed(1),width:8,height:5,rx:1,opacity:(.5+rc()*.5).toFixed(2),transform:"rotate("+(ang*180/Math.PI+90).toFixed(0)+" "+(rr*Math.cos(ang)).toFixed(1)+" "+(rr*Math.sin(ang)).toFixed(1)+")"},cars) }
+  fades.push([cars,900,700,1]);
+
+  /* ── G · the square at eye level: fountain and jets, the avenue and its overpass, the buildings around, Qasioun behind — and the Sword ── */
+  var G=scene(), GB={x:0,y:30,w:1600,h:400}, GY=400;
+  P(G,"M0 232 C150 206 260 178 380 162 C450 152 500 152 560 158 C660 168 760 188 880 206 C1000 224 1150 242 1300 256 C1420 266 1520 272 1600 276",0,1200,"1.2",".55");
+  P(G,"M470 160 V104 M462 122 H478 M463 140 H477 M470 108 L456 160 M470 108 L484 160",800,600,".9",".4"); P(G,"M512 158 V122 M508 136 H516",900,400,".9",".4");
+  P(G,"M120 "+GY+" V250 H420 V"+GY,300,800,"1.4");                                                     // the big hotel block
+  var win=""; for(var vx=140; vx<410; vx+=30) win+="M"+vx+" 262 V"+(GY-12)+" "; for(var vy=270; vy<GY-12; vy+=22) win+="M130 "+vy+" H410 "; P(G,win,700,900,".7",".35");
+  P(G,"M440 "+GY+" V214 H520 V"+GY,500,700,"1.3"); var win2=""; for(var vy2=228; vy2<GY-10; vy2+=20) win2+="M448 "+vy2+" H512 "; P(G,win2,900,600,".7",".35");
+  P(G,"M1180 "+GY+" V268 H1330 V"+GY+" M1340 "+GY+" V300 H1480 V"+GY,500,900,"1.3");
+  var win3=""; for(var vy3=282; vy3<GY-10; vy3+=20) win3+="M1190 "+vy3+" H1320 M1350 "+(vy3+16)+" H1470 "; P(G,win3,900,700,".7",".35");
+  P(G,"M700 "+GY+" L758 296 H842 L900 "+GY,600,700,"1.2");                                                // the avenue running away
+  P(G,"M800 "+(GY-4)+" L800 300",900,500,".9",".5"); P(G,"M736 296 H864 V282 H736 Z M744 282 V274 H856 V282",1000,600,"1.1");
+  [[150,GY],[1520,GY]].forEach(function(p,i){ P(G,"M"+p[0]+" "+p[1]+" C"+(p[0]-4)+" "+(p[1]-60)+" "+(p[0]+4)+" "+(p[1]-90)+" "+(p[0]+2)+" "+(p[1]-124),1200+i*150,500,"1.4");
+    P(G,"M"+(p[0]+2)+" "+(p[1]-124)+" C"+(p[0]-30)+" "+(p[1]-136)+" "+(p[0]-56)+" "+(p[1]-120)+" "+(p[0]-70)+" "+(p[1]-104)+" M"+(p[0]+2)+" "+(p[1]-124)+" C"+(p[0]+34)+" "+(p[1]-136)+" "+(p[0]+60)+" "+(p[1]-120)+" "+(p[0]+74)+" "+(p[1]-104)+" M"+(p[0]+2)+" "+(p[1]-124)+" C"+(p[0]-10)+" "+(p[1]-150)+" "+(p[0]-30)+" "+(p[1]-156)+" "+(p[0]-46)+" "+(p[1]-150)+" M"+(p[0]+2)+" "+(p[1]-124)+" C"+(p[0]+14)+" "+(p[1]-150)+" "+(p[0]+34)+" "+(p[1]-156)+" "+(p[0]+50)+" "+(p[1]-150),1500+i*150,600,"1.2") });
+  P(G,"M380 "+GY+" A420 34 0 1 0 1220 "+GY+" A420 34 0 1 0 380 "+GY,700,900,"1.4");                         // roundabout
+  P(G,"M470 "+(GY-4)+" A330 26 0 1 0 1130 "+(GY-4)+" A330 26 0 1 0 470 "+(GY-4),900,800,"1",".55");
+  var beds=""; for(var b=0;b<14;b++){ var ab=Math.PI*(b/14)*2, bx1=800+330*Math.cos(ab), by1=GY-4+26*Math.sin(ab), bx2=800+420*Math.cos(ab), by2=GY+34*Math.sin(ab); if(by1>GY-6) beds+="M"+bx1.toFixed(0)+" "+by1.toFixed(0)+" L"+bx2.toFixed(0)+" "+by2.toFixed(0)+" " } P(G,beds,1200,500,".9",".45");
+  P(G,"M670 "+(GY-28)+" A130 16 0 1 0 930 "+(GY-28)+" A130 16 0 1 0 670 "+(GY-28),1300,600,"1.3");        // fountain basin
+  var jets=S("g",{},G); [[-90,-70],[-60,-96],[-30,-118],[30,-118],[60,-96],[90,-70]].forEach(function(j,i){ P(jets,"M800 "+(GY-30)+" C"+(800+j[0]*.35)+" "+(GY-30+j[1])+" "+(800+j[0]*.85)+" "+(GY-30+j[1])+" "+(800+j[0])+" "+(GY-34),1500+i*70,500,"1",".7") });
+  [[380,GY-8],[1220,GY-8]].forEach(function(l,i){ P(G,"M"+l[0]+" "+l[1]+" V"+(l[1]-70)+" M"+(l[0]-9)+" "+(l[1]-70)+" H"+(l[0]+9),1300+i*120,400,"1.2"); C(G,l[0]-9,l[1]-74,3,1600+i*120,150); C(G,l[0]+9,l[1]-74,3,1650+i*120,150) });
+  // the Damascus Sword: tapering spire on a four-armed base with the stained-glass panel between the arms
+  var sword=S("g",{},G); sword.style.transformOrigin="800px "+(GY-28)+"px"; sword.style.transform="scaleY(0)";
+  var SW=[["M790 260 C793 190 797 110 800 40 C803 110 807 190 810 260","2"],["M790 260 C786 306 758 350 700 "+(GY-28),"1.8"],["M810 260 C814 306 842 350 900 "+(GY-28),"1.8"],
+          ["M694 "+(GY-28)+" H906","1.6"],["M760 "+(GY-28)+" L800 262 L840 "+(GY-28),"1.1",".75"],
+          ["M767 356 H833 M775 332 H825 M783 308 H817 M791 284 H809","1",".55"],["M780 "+(GY-28)+" L797 268 M820 "+(GY-28)+" L803 268 M800 "+(GY-28)+" V262","1",".45"],
+          ["M800 322 m-12 0 a12 12 0 1 0 24 0 a12 12 0 1 0 -24 0 M800 322 m-22 0 a22 22 0 1 0 44 0","1.1",".7"],["M800 60 V240","1",".35"]];
   SW.forEach(function(d){ var p=S("path",{d:d[0]},sword); p.setAttribute("stroke-width",d[1]); if(d[2]) p.setAttribute("stroke-opacity",d[2]) });
-  var flash=sword.cloneNode(true); flash.setAttribute("stroke","#FFF3D0"); flash.setAttribute("opacity","0"); flash.style.transformOrigin=sword.style.transformOrigin; flash.style.transform="none"; s2.appendChild(flash);
-  fades.push([s2,3300,400,1]);
+  var flash=sword.cloneNode(true); flash.setAttribute("stroke","#FFF3D0"); flash.setAttribute("opacity","0"); flash.style.transform="none"; G.appendChild(flash);
 
-  // brighter twin of everything, visible only where the shine band passes
-  var twin=root.cloneNode(true); twin.setAttribute("stroke","url(#skShine)"); twin.setAttribute("opacity","0"); svg.appendChild(twin);
-  [].slice.call(twin.querySelectorAll("[stroke-opacity]")).forEach(function(e){ e.removeAttribute("stroke-opacity") });
-  [].slice.call(twin.querySelectorAll("[fill]")).forEach(function(e){ e.setAttribute("fill","none") });
-  var twinS1=twin.firstChild, twinS2=twin.children[1];
-
-  var S1_END="translate(846px,24px) scale(.48)";     // scene 1 parks small at the top, on the side
+  /* ── camera ── */
+  var W=1600,H=900, band=null, hero=null;
+  function fit(box,target){ var s=Math.min(target.w/box.w,target.h/box.h); var tx=target.x+(target.w-box.w*s)/2-box.x*s, ty=target.y+(target.h-box.h*s)/2-box.y*s; return {t:"translate("+tx.toFixed(1)+"px,"+ty.toFixed(1)+"px) scale("+s.toFixed(4)+")",s:s} }
+  function measure(){
+    var hv=document.getElementById("hv"); if(!hv) return;
+    var r=hv.getBoundingClientRect(); W=Math.max(320,Math.round(r.width)); H=Math.max(240,Math.round(r.height)); svg.setAttribute("viewBox","0 0 "+W+" "+H);
+    var hd=document.querySelector("header"), top=(hd?hd.offsetHeight:64)+10;
+    var h1=document.querySelector(".hero h1"), bottom=H*.55;
+    if(h1){ var hr=h1.getBoundingClientRect(); bottom=Math.min(H*.7, hr.top-r.top-12) }
+    var rtl=typeof rtlNow==="function"?rtlNow():true;
+    band={x:rtl?W*.04:W*.42, y:top, w:W*.54, h:Math.max(60,bottom-top)};
+    hero={x:W*.05, y:top, w:W*.9, h:Math.max(120,H-top-24)};
+  }
   function prep(){ items.forEach(function(it){ var L=it[0].getTotalLength?it[0].getTotalLength():300; it[0].style.strokeDasharray=L; it[0].style.strokeDashoffset=L }) }
-  var shineTimer=null;
-  function shine(){ twin.setAttribute("opacity","1"); try{ at.beginElement() }catch(e){} }
-  function startShine(){ shine(); shineTimer=setInterval(shine, 6500) }
-  function parkTwin(){ twinS1.style.transformOrigin="0 0"; twinS1.style.transform=S1_END; twinS1.style.opacity=.6; twinS2.setAttribute("opacity","1"); [].slice.call(twinS2.querySelectorAll("g")).forEach(function(g){ g.style.transform="none" }) }
+  function place(g,f){ g.style.transform=f.t; g.style.strokeWidth=(1.7/f.s).toFixed(3) }
+  function tw(g,from,to,delay,dur,ease){ g.animate([{transform:from.t,strokeWidth:(1.7/from.s).toFixed(3)},{transform:to.t,strokeWidth:(1.7/to.s).toFixed(3)}],{delay:delay*SPD,duration:dur*SPD,fill:"both",easing:ease||"cubic-bezier(.5,0,.2,1)"}) }
+  function op(g,from,to,delay,dur){ g.animate([{opacity:from},{opacity:to}],{delay:delay*SPD,duration:dur*SPD,fill:"both"}) }
+  var twin=null, shineTimer=null;
+  function shine(){ if(twin) twin.setAttribute("opacity","1"); try{ at.beginElement() }catch(e){} }
+  function startShine(){ if(twin) return; twin=G.cloneNode(true); twin.setAttribute("stroke","url(#skShine)"); twin.setAttribute("opacity","0"); twin.setAttribute("fill","none"); twin.setAttribute("stroke-linecap","round"); twin.setAttribute("stroke-linejoin","round"); twin.style.transformOrigin="0 0"; twin.style.transform=G.style.transform; twin.style.strokeWidth=G.style.strokeWidth;
+    [].slice.call(twin.querySelectorAll("[stroke-opacity]")).forEach(function(e){ e.removeAttribute("stroke-opacity") }); [].slice.call(twin.querySelectorAll("g")).forEach(function(g){ g.style.transform="none"; g.removeAttribute("opacity") }); svg.appendChild(twin);
+    shine(); shineTimer=setInterval(shine,6500) }
+  var done=false;
   function play(){
-    prep();
-    items.forEach(function(it){ var L=parseFloat(it[0].style.strokeDasharray); it[0].animate([{strokeDashoffset:L},{strokeDashoffset:0}],{delay:it[1],duration:it[2],fill:"both",easing:"cubic-bezier(.4,0,.2,1)"}) });
-    fades.forEach(function(f){ f[0].animate([{opacity:0},{opacity:f[3]}],{delay:f[1],duration:f[2],fill:"both"}) });
-    // scene 1 slides to the side and shrinks, the square takes the centre
-    s1.animate([{transform:"translate(0,0) scale(1)",opacity:1},{transform:S1_END,opacity:.6}],{delay:3000,duration:1100,fill:"both",easing:"cubic-bezier(.6,0,.2,1)"});
-    // the sword pops up
-    sword.animate([{transform:"scaleY(0)"},{transform:"scaleY(1.08)",offset:.7},{transform:"scaleY(1)"}],{delay:5000,duration:800,fill:"both",easing:"cubic-bezier(.2,.8,.2,1)"});
-    flash.animate([{opacity:0},{opacity:.95,offset:.35},{opacity:0}],{delay:5500,duration:1100,fill:"both"});
-    setTimeout(function(){ parkTwin(); startShine() }, 6600);
+    measure(); prep();
+    var fM0=fit(MB,hero), fM1=fit(MB,band), fQ=fit(QB,band), fQ2=fit(QB,{x:band.x+band.w*.25,y:band.y-band.h*.6,w:band.w*.5,h:band.h*.5}), fT=fit(TB,band), fG=fit(GB,band);
+    var startAt=function(g,off){ items.forEach(function(it){ if(!g.contains(it[0])) return; var L=parseFloat(it[0].style.strokeDasharray); it[0].animate([{strokeDashoffset:L},{strokeDashoffset:0}],{delay:(it[1]+off)*SPD,duration:it[2]*SPD,fill:"both",easing:"cubic-bezier(.4,0,.2,1)"}) });
+      fades.forEach(function(f){ if(!g.contains(f[0])) return; f[0].animate([{opacity:0},{opacity:f[3]}],{delay:(f[1]+off)*SPD,duration:f[2]*SPD,fill:"both"}) }) };
+    // 1 · the mosque, full screen, drawing while it shrinks into the gap between header and headline
+    place(M,fM0); M.setAttribute("opacity","1"); startAt(M,0); tw(M,fM0,fM1,500,1700);
+    // 2 · camera pans up to Qasioun and its masts; the mosque drifts down and away
+    place(Q,fQ); Q.style.transform=fit(QB,{x:band.x,y:band.y+band.h*.7,w:band.w,h:band.h}).t; startAt(Q,2300); op(Q,0,1,2300,500); tw(Q,fit(QB,{x:band.x,y:band.y+band.h*.7,w:band.w,h:band.h}),fQ,2300,900);
+    M.animate([{transform:fM1.t,opacity:1},{transform:fit(MB,{x:band.x,y:band.y+band.h*.5,w:band.w,h:band.h}).t,opacity:0}],{delay:2400*SPD,duration:900*SPD,fill:"both",easing:"cubic-bezier(.5,0,.2,1)"});
+    // 3 · zoom out and turn down: the mountain lifts away, the square appears from the sky and spins
+    tw(Q,fQ,fQ2,3700,1000); op(Q,1,0,3900,800);
+    place(T,fT); T.style.transform=fit(TB,{x:band.x+band.w*.15,y:band.y+band.h*.15,w:band.w*.7,h:band.h*.7}).t; op(T,0,1,3900,600); tw(T,fit(TB,{x:band.x+band.w*.15,y:band.y+band.h*.15,w:band.w*.7,h:band.h*.7}),fT,3900,1200); startAt(T,4000);
+    Tr.animate([{transform:"rotate(0deg)"},{transform:"rotate(75deg)"}],{delay:3900*SPD,duration:3200*SPD,fill:"both",easing:"cubic-bezier(.3,0,.3,1)"});
+    // 4 · the camera comes down to street level: the disc flattens away, the fountain, avenue and buildings draw with Qasioun behind
+    T.animate([{transform:fT.t},{transform:fit(TB,{x:band.x,y:band.y+band.h*.3,w:band.w,h:band.h}).t+" scaleY(.1)"}],{delay:6100*SPD,duration:900*SPD,fill:"both",easing:"cubic-bezier(.6,0,.4,1)"}); op(T,1,0,6300,700);
+    place(G,fG); op(G,0,1,6400,600); startAt(G,6400);
+    // 5 · the Sword pops up and flashes; then the picture holds and shines every few seconds
+    sword.animate([{transform:"scaleY(0)"},{transform:"scaleY(1.07)",offset:.7},{transform:"scaleY(1)"}],{delay:8300*SPD,duration:800*SPD,fill:"both",easing:"cubic-bezier(.2,.8,.2,1)"});
+    flash.animate([{opacity:0},{opacity:.95,offset:.35},{opacity:0}],{delay:8800*SPD,duration:1100*SPD,fill:"both"});
+    setTimeout(function(){ done=true; startShine() }, 9900*SPD);
   }
-  function finish(){ // still end state for reduced motion or later renders
-    s1.style.transform=S1_END; s1.style.opacity=.6; s2.setAttribute("opacity","1"); slope.setAttribute("opacity","1"); sword.style.transform="none"; parkTwin(); startShine();
-  }
-  return {el:svg, play:play, finish:finish, started:false};
+  function finish(){ measure(); [M,Q,T].forEach(function(g){ g.setAttribute("opacity","0") }); slope.setAttribute("opacity","1"); cars.setAttribute("opacity","1"); place(G,fit(GB,band)); G.setAttribute("opacity","1"); sword.style.transform="none"; done=true; startShine() }
+  function refit(){ if(!done) return; measure(); place(G,fit(GB,band)); if(twin){ twin.style.transform=G.style.transform; twin.style.strokeWidth=G.style.strokeWidth } }
+  window.addEventListener("resize",refit);
+  return {el:svg, play:play, finish:finish, refit:refit, started:false};
 }
+
 /* ── "Dawn over Damascus": the illustrated hero background (hero_bg_type = dawn) ──
    One SVG is built once per page load and kept alive across re-renders, so the sunrise
    plays once (in step with the opening curtain when it shows) and then holds as a still
