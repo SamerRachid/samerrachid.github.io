@@ -8170,7 +8170,7 @@ function sketchBuild(){
   function P(g,d,t,dur,w,op,col){ var p=S("path",{d:d},g); if(w) p.setAttribute("stroke-width",w); if(op) p.setAttribute("stroke-opacity",op); if(col) p.setAttribute("stroke",col); items.push([p,t,dur]); return p }
   function Ci(g,cx,cy,r,t,dur,w,op){ var c=S("circle",{cx:cx,cy:cy,r:r},g); if(w) c.setAttribute("stroke-width",w); if(op) c.setAttribute("stroke-opacity",op); items.push([c,t,dur]); return c }
   // a vertical plane standing on the ground with its bottom edge at world (x,y), facing south (the camera side)
-  function plane(x,y,w,h,rz,z){ var d=D("sk-pl",pan); d.style.cssText="left:"+(500+x-w/2)+"px;top:"+(500+y-h)+"px;width:"+w+"px;height:"+h+"px;transform:translateZ("+(z!=null?z:5)+"px) "+(rz?"rotateZ("+rz+"deg) ":"")+"rotateX(-90deg)"; var s=S("svg",{viewBox:"0 0 "+w+" "+h,preserveAspectRatio:"none"},d); return {el:d,svg:s,g:G(s)} }
+  function plane(x,y,w,h,rz,z){ var d=D("sk-pl",pan); d.style.cssText="left:"+(500+x-w/2)+"px;top:"+(500+y-h)+"px;width:"+w+"px;height:"+h+"px;transform:translateZ("+(z!=null?z:1)+"px) "+(rz?"rotateZ("+rz+"deg) ":"")+"rotateX(-90deg)"; var s=S("svg",{viewBox:"0 0 "+w+" "+h,preserveAspectRatio:"none"},d); return {el:d,svg:s,g:G(s)} }
   // a horizontal plane (a roof) lifted z above the ground, centred on world (x,y)
   function flat(x,y,w,h,z){ var d=D("sk-pl",pan); d.style.cssText="left:"+(500+x-w/2)+"px;top:"+(500+y-h/2)+"px;width:"+w+"px;height:"+h+"px;transform-origin:50% 50%;transform:translateZ("+z+"px)"; var s=S("svg",{viewBox:"0 0 "+w+" "+h,preserveAspectRatio:"none"},d); return {el:d,svg:s,g:G(s)} }
 
@@ -8297,6 +8297,8 @@ function sketchBuild(){
   P(swg,"M"+X(0)+" "+Y(0.02)+" V"+Y(1),10300,600,"1",".85","#F4F2ED");
   var pulse=S("path",{d:starD,stroke:SOFT,"stroke-width":"2.6",fill:"none",opacity:0,"stroke-linecap":"round"},swg);
   var sparkle=S("path",{d:"M"+C0+" 0 m0 -12 l2.4 9.6 l9.6 2.4 l-9.6 2.4 l-2.4 9.6 l-2.4 -9.6 l-9.6 -2.4 l9.6 -2.4 z",fill:SOFT,stroke:"none",opacity:0},swg); sparkle.style.transformOrigin=C0+"px 0px";
+
+  pan.appendChild(ground);   // the ground goes last in DOM order: Chrome then sorts the standing planes in front of it cleanly
 
   /* ── stage measurement: the final picture fills the column beside the headline, from the header down to the search bar ── */
   var W=1600,H=900, band={x:0,y:0,w:640,h:420}, stageK=1, stageDX=0, stageDY=0, done=false, anims=[];
