@@ -1121,6 +1121,15 @@ footer{font-size:14px}
 @keyframes curRise{to{transform:none}}
 @keyframes curLine{to{width:calc(100% - 12px)}}
 .choreo{animation:heroRise .9s cubic-bezier(.2,.7,.2,1) both}
+.choreo-hdr{animation:hdrIn .9s cubic-bezier(.2,.7,.2,1) both}
+@keyframes hdrIn{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:none}}
+/* illustrated "dawn over Damascus" hero background (hero_bg_type = dawn) */
+.hv .dawn{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 30%,#1B2C52,var(--navy) 70%);overflow:hidden}
+.hv .dawn svg{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hv .dawn-shine{position:absolute;inset:-20% -40%;background:linear-gradient(105deg,transparent 42%,rgba(255,244,214,.16) 50%,transparent 58%);mix-blend-mode:screen;transform:translateX(-70%);opacity:0;pointer-events:none}
+.hv .dawn.day .dawn-shine{animation:dawnShine 7.5s cubic-bezier(.4,0,.2,1) 1.5s infinite}
+@keyframes dawnShine{0%{transform:translateX(-70%);opacity:0}4%{opacity:1}26%{opacity:1}30%{transform:translateX(70%);opacity:0}100%{transform:translateX(70%);opacity:0}}
+@media(prefers-reduced-motion:reduce){.hv .dawn.day .dawn-shine{animation:none}}
 @keyframes heroRise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
 
 /* ── header menus: frosted panel, pointer, slide-in, icons, rotating chevron ── */
@@ -2197,6 +2206,8 @@ function home(){
  var heroBgHtml;
  if(heroBgType==="photo" && SITE.hero_bg_photo_url){
    heroBgHtml = '<img src="'+SITE.hero_bg_photo_url+'" alt="">';
+ } else if(heroBgType==="dawn"){
+   heroBgHtml = '<div class="dawn" id="dawnBox"></div>'; // filled by dawnMount() in wire()
  } else if(heroBgType==="none"){
    heroBgHtml = ""; // intentionally empty — .hero's own background color shows through
  } else {
@@ -3470,6 +3481,7 @@ function adminView(){
     '<div class="admodepick" id="scBgTypeWrap" style="margin-bottom:12px'+(SITE.hero_bg_type==="none"?';display:none':'')+'">'+
      '<label><input type="radio" name="scBgType" value="video"'+((SITE.hero_bg_type||"video")==="video"?' checked':'')+'> '+t("heroBgVideoL")+'</label>'+
      '<label><input type="radio" name="scBgType" value="photo"'+(SITE.hero_bg_type==="photo"?' checked':'')+'> '+t("heroBgPhotoL")+'</label>'+
+     '<label><input type="radio" name="scBgType" value="dawn"'+(SITE.hero_bg_type==="dawn"?' checked':'')+'> '+GX("heroBgDawnL")+'</label>'+
     '</div>'+
     '<div class="fl" id="scBgSpeedWrap" style="'+((SITE.hero_bg_type||"video")==="video"?'':'display:none')+'">'+
      '<label>'+t("heroBgSpeedL")+' — <span id="scBgSpeedVal">'+(SITE.hero_bg_video_speed!=null?SITE.hero_bg_video_speed:100)+'%</span></label>'+
@@ -7384,6 +7396,7 @@ function video(){
  // "canplay" event to wait for — without this, the box would stay
  // stuck at opacity:0 forever, since nothing else would ever add
  // the fade-in class for these two cases
+ if(bgType==="dawn"){ dawnMount(); box.classList.add("on"); return }
  if(bgType!=="video"){ box.classList.add("on"); return }
  // wire() (and this function with it) runs on every render() — and
  // this app renders more than once at boot: an immediate first pass,
@@ -8097,10 +8110,110 @@ function initOpening(){
 function heroChoreo(){
   if(!_openingActive || VIEW!=="home") return;
   var base=Math.max(0, 850-(Date.now()-_openingT0));
-  [[".hero h1",0],[".sbar",160],[".hnote",300]].forEach(function(p){
+  var hd=document.querySelector("header"); if(hd){ hd.classList.add("choreo-hdr"); hd.style.animationDelay=base+"ms" }
+  [[".hero h1",260],[".sbar",460],[".hnote",620],[".mkt",760]].forEach(function(p){
     var el=$(p[0]); if(!el) return;
     el.classList.add("choreo"); el.style.animationDelay=(base+p[1])+"ms";
   });
+}
+
+/* ── "Dawn over Damascus": the illustrated hero background (hero_bg_type = dawn) ──
+   One SVG is built once per page load and kept alive across re-renders, so the sunrise
+   plays once (in step with the opening curtain when it shows) and then holds as a still
+   picture; a soft light sweep crosses it every few seconds. Layers: sky, stars, sun,
+   Qasioun, the old city with domes and minarets, Damascene houses with wooden balconies. */
+var _dawn=null;
+function dawnMount(){
+  var box=$("#dawnBox"); if(!box) return;
+  if(!_dawn) _dawn=dawnBuild();
+  if(_dawn.el.parentNode!==box){ box.innerHTML=""; box.appendChild(_dawn.el); box.appendChild(_dawn.shine) }
+  if(_dawn.done) box.classList.add("day");
+  if(!_dawn.started){
+    _dawn.started=true;
+    var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var delay = _openingActive ? Math.max(0, 1100-(Date.now()-_openingT0)) : 150;
+    if(reduce){ _dawn.finish(); box.classList.add("day"); return }
+    setTimeout(function(){ _dawn.play(); setTimeout(function(){ _dawn.done=true; var b=$("#dawnBox"); if(b) b.classList.add("day") }, 3600) }, delay);
+  }
+}
+function dawnBuild(){
+  var NS="http://www.w3.org/2000/svg", EASE="cubic-bezier(.25,.1,.2,1)", anims=[];
+  function S(tag,attrs,parent){ var e=document.createElementNS(NS,tag); for(var k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e }
+  function rnd(seed){ var s=seed; return function(){ s=(s*9301+49297)%233280; return s/233280 } }
+  var svg=S("svg",{viewBox:"0 0 1600 900",preserveAspectRatio:"xMidYMax slice","aria-hidden":"true"});
+  var defs=S("defs",{},svg);
+  var grad=function(id,stops){ var g=S("linearGradient",{id:id,x1:0,y1:0,x2:0,y2:1},defs); stops.forEach(function(s){ S("stop",{offset:s[0],"stop-color":s[1]},g) }) };
+  grad("dwSkyDay",[[0,"#5E7FAE"],[.55,"#B9CBDE"],[1,"#F1DDB6"]]);
+  grad("dwSkyDawn",[[0,"#1B2650"],[.55,"#7B4E63"],[1,"#E89A4C"]]);
+  var nightG=S("radialGradient",{id:"dwSkyNight",cx:"50%",cy:"30%",r:"90%"},defs); S("stop",{offset:"0","stop-color":"#1B2C52"},nightG); S("stop",{offset:".7","stop-color":"#14213D"},nightG); // same as the curtain
+  var glow=S("filter",{id:"dwSun",x:"-100%",y:"-100%",width:"300%",height:"300%"},defs); S("feGaussianBlur",{stdDeviation:"18"},glow);
+  S("rect",{width:1600,height:900,fill:"url(#dwSkyDay)"},svg);
+  var dawn=S("rect",{width:1600,height:900,fill:"url(#dwSkyDawn)",opacity:0},svg);
+  var night=S("rect",{width:1600,height:900,fill:"url(#dwSkyNight)"},svg);
+  var r=rnd(7), stars=S("g",{fill:"#fff"},svg);
+  for(var i=0;i<70;i++) S("circle",{cx:(r()*1600).toFixed(0),cy:(r()*420).toFixed(0),r:(0.6+r()*1.3).toFixed(1),opacity:(0.4+r()*0.6).toFixed(2)},stars);
+  var halo=S("circle",{cx:1120,cy:640,r:70,fill:"#F6C77A",filter:"url(#dwSun)",opacity:0},svg);
+  var sun=S("circle",{cx:1120,cy:640,r:38,fill:"#FBE0A6",opacity:0},svg);
+  var far=S("g",{},svg);
+  S("path",{d:"M0 520 C120 470 230 452 340 468 C450 484 540 420 660 436 C780 452 850 396 980 412 C1110 428 1200 372 1320 420 C1440 468 1520 448 1600 456 V900 H0 Z",fill:"#59668F"},far);
+  S("path",{d:"M0 560 C140 536 260 512 380 522 C500 532 600 494 720 506 C840 518 930 486 1040 500 C1150 514 1260 478 1360 508 C1460 538 1540 530 1600 534 V900 H0 Z",fill:"#6F7CA3"},far);
+  var mid=S("g",{},svg), rm=rnd(19), base=690, x=-40, midWins=S("g",{fill:"#F4C56E"},svg);
+  while(x<1700){ var w=34+rm()*52, h=60+rm()*130, c=["#8A94B0","#7F89A6","#949DB8","#7A85A3"][Math.floor(rm()*4)];
+    S("rect",{x:x.toFixed(0),y:(base-h).toFixed(0),width:w.toFixed(0),height:h.toFixed(0),fill:c},mid);
+    for(var wy=base-h+16; wy<base-14; wy+=26) for(var wx=x+8; wx<x+w-10; wx+=16) if(rm()>.45) S("rect",{x:wx.toFixed(0),y:wy.toFixed(0),width:6,height:10,rx:1,opacity:(.5+rm()*.5).toFixed(2)},midWins);
+    x+=w+(rm()>.7?14:2) }
+  [[520,110],[880,150],[1240,120]].forEach(function(d){ var cx=d[0], rr=d[1]/2, top=base-70;
+    S("rect",{x:cx-rr-8,y:top-14,width:rr*2+16,height:84,fill:"#6E7896"},mid); S("path",{d:"M"+(cx-rr)+" "+top+" A"+rr+" "+rr+" 0 0 1 "+(cx+rr)+" "+top+" Z",fill:"#5F6A8B"},mid);
+    S("path",{d:"M"+(cx-rr)+" "+top+" A"+rr+" "+rr+" 0 0 1 "+(cx+rr)+" "+top,fill:"none",stroke:"#8B95B3","stroke-width":"2"},mid);
+    S("rect",{x:cx-1.5,y:top-rr-28,width:3,height:28,fill:"#C4881F"},mid); S("circle",{cx:cx,cy:top-rr-32,r:5,fill:"#E3B563"},mid) });
+  [[300,300],[700,360],[1060,320],[1440,280]].forEach(function(m){ var cx=m[0], H=m[1];
+    S("rect",{x:cx-11,y:base-H,width:22,height:H,fill:"#AEB5C8"},mid); S("rect",{x:cx-16,y:base-H+70,width:32,height:6,fill:"#8E97B0"},mid); S("rect",{x:cx-16,y:base-H+120,width:32,height:6,fill:"#8E97B0"},mid);
+    S("path",{d:"M"+(cx-13)+" "+(base-H)+" L"+cx+" "+(base-H-38)+" L"+(cx+13)+" "+(base-H)+" Z",fill:"#7E88A4"},mid); S("circle",{cx:cx,cy:base-H-42,r:4,fill:"#E3B563"},mid) });
+  var front=S("g",{},svg), frontWins=S("g",{fill:"#F4C56E"},svg), rf=rnd(31), hx=-60, walls=["#CBB79A","#BFA98A","#D6C4A8","#B69F80"];
+  while(hx<1700){ var hw=130+rf()*70, hh=230+rf()*130, wall=walls[Math.floor(rf()*4)], top=900-hh;
+    S("rect",{x:hx,y:top,width:hw,height:hh,fill:wall},front);
+    S("rect",{x:hx-6,y:top-8,width:hw+12,height:12,fill:"#A9573F"},front);
+    S("rect",{x:hx,y:top+4,width:hw,height:10,fill:"rgba(0,0,0,.12)"},front);
+    var cols=Math.max(2,Math.floor(hw/48)), gap=hw/cols;
+    for(var f=0; f<2; f++){ var wy2=top+40+f*95; for(var k=0;k<cols;k++){ var wx2=hx+gap*k+gap/2-11;
+      S("path",{d:"M"+wx2+" "+(wy2+44)+" V"+(wy2+11)+" A11 11 0 0 1 "+(wx2+22)+" "+(wy2+11)+" V"+(wy2+44)+" Z",fill:"#4E4A5E"},front);
+      if(rf()>.35) S("path",{d:"M"+(wx2+3)+" "+(wy2+41)+" V"+(wy2+12)+" A8 8 0 0 1 "+(wx2+19)+" "+(wy2+12)+" V"+(wy2+41)+" Z",opacity:(.6+rf()*.4).toFixed(2)},frontWins) } }
+    if(rf()>.3){ var bw=Math.min(96,hw*.55), bx=hx+(hw-bw)/2, by=top+126;
+      S("path",{d:"M"+(bx-4)+" "+(by+62)+" L"+(bx+6)+" "+(by+82)+" H"+(bx+bw-6)+" L"+(bx+bw+4)+" "+(by+62)+" Z",fill:"#5E3B21"},front);
+      S("rect",{x:bx-4,y:by,width:bw+8,height:64,fill:"#7A4E2A"},front); S("rect",{x:bx-8,y:by-8,width:bw+16,height:10,fill:"#5E3B21"},front);
+      var lat=S("g",{stroke:"#3E2814","stroke-width":"1.2",opacity:".8"},front);
+      for(var lx=bx+4; lx<bx+bw; lx+=10) S("line",{x1:lx,y1:by+6,x2:lx,y2:by+58},lat);
+      for(var ly=by+8; ly<by+62; ly+=10) S("line",{x1:bx,y1:ly,x2:bx+bw+4,y2:ly},lat);
+      S("rect",{x:bx+6,y:by+8,width:bw-12,height:46,fill:"#F4C56E",opacity:".55"},frontWins) }
+    if(rf()>.5){ var dx=hx+hw/2-18; S("path",{d:"M"+dx+" 900 V"+(900-58)+" A18 18 0 0 1 "+(dx+36)+" "+(900-58)+" V900 Z",fill:"#3A3547"},front) }
+    hx+=hw+(rf()>.6?26:4);
+    if(rf()>.55){ var tx=hx-14; S("path",{d:"M"+tx+" 900 C"+(tx-22)+" 840 "+(tx-20)+" 780 "+tx+" 700 C"+(tx+20)+" 780 "+(tx+22)+" 840 "+tx+" 900 Z",fill:"#3F5A3F"},front); hx+=18 } }
+  S("rect",{x:0,y:892,width:1600,height:8,fill:"#5A4A3A"},svg);
+  var birds=S("g",{fill:"none",stroke:"#2A2F45","stroke-width":"2","stroke-linecap":"round",opacity:0},svg);
+  S("path",{d:"M0 0 q7 -8 14 0 q7 -8 14 0",transform:"translate(500 300)"},birds); S("path",{d:"M0 0 q5 -6 10 0 q5 -6 10 0",transform:"translate(560 330)"},birds);
+  // start in the night state (matches the curtain colour exactly)
+  var land=[[far,.3,-16],[mid,.2,-38],[front,.14,-68]];
+  land.forEach(function(L){ L[0].style.filter="brightness("+L[1]+") saturate(.6)" });
+  function A(el,kf,o){ anims.push(el.animate(kf,Object.assign({fill:"both"},o))) }
+  function play(){
+    A(night,[{opacity:1},{opacity:1,offset:.12},{opacity:0}],{duration:2600,easing:EASE});
+    A(dawn,[{opacity:0},{opacity:1,offset:.5},{opacity:0}],{duration:3400,easing:EASE});
+    A(stars,[{opacity:1},{opacity:0}],{duration:1700,easing:"ease-in"});
+    [halo,sun].forEach(function(e){ A(e,[{transform:"translateY(0)",opacity:0},{transform:"translateY(-40px)",opacity:1,offset:.25},{transform:"translateY(-250px)",opacity:1}],{duration:3300,easing:EASE}) });
+    A(birds,[{transform:"translate(0,0)",opacity:0},{transform:"translate(120px,-30px)",opacity:1,offset:.3},{transform:"translate(520px,-90px)",opacity:0}],{delay:1200,duration:2600,easing:"linear"});
+    land.forEach(function(L){ L[0].style.filter="";
+      A(L[0],[{filter:"brightness("+L[1]+") saturate(.6)"},{filter:"brightness("+L[1]+") saturate(.6)",offset:.1},{filter:"brightness(1) saturate(1)"}],{duration:3200,easing:EASE});
+      A(L[0],[{transform:"translateX(0)"},{transform:"translateX("+L[2]+"px)"}],{duration:3600,easing:EASE}) });
+    A(midWins,[{transform:"translateX(0)",opacity:1},{transform:"translateX(-38px)",opacity:.08}],{duration:3600,easing:EASE});
+    A(frontWins,[{transform:"translateX(0)",opacity:1},{transform:"translateX(-68px)",opacity:.1}],{duration:3600,easing:EASE});
+  }
+  function finish(){ // jump straight to the still daytime picture
+    night.setAttribute("opacity",0); stars.setAttribute("opacity",0); halo.setAttribute("opacity",1); sun.setAttribute("opacity",1);
+    halo.style.transform=sun.style.transform="translateY(-250px)"; land.forEach(function(L){ L[0].style.filter=""; L[0].style.transform="translateX("+L[2]+"px)" });
+    midWins.style.opacity=.08; frontWins.style.opacity=.1; midWins.style.transform="translateX(-38px)"; frontWins.style.transform="translateX(-68px)";
+  }
+  var shine=document.createElement("div"); shine.className="dawn-shine";
+  return {el:svg, shine:shine, play:play, finish:finish, started:false, done:false};
 }
 
 /* "market pulse" — real average asking price per m² by area (v_area_prices, live sale
@@ -8189,7 +8302,8 @@ var GX_T={
   saved:{ar:"تم الحفظ",en:"Saved",de:"Gespeichert"}, hasListings:{ar:"لا يمكن الحذف: فيها إعلانات. أخفِها بدلاً من ذلك.",en:"Cannot delete: it has listings. Hide it instead.",de:"Löschen nicht möglich: enthält Anzeigen. Bitte ausblenden."},
   slugTaken:{ar:"رابط الصفحة مستخدم في هذه المحافظة",en:"That URL slug is already used in this governorate",de:"Dieses URL-Kürzel ist im Gouvernement bereits vergeben"},
   govRow:{ar:"إعدادات المحافظة",en:"Governorate settings",de:"Gouvernement-Einstellungen"}, confirmDel:{ar:"حذف هذه المنطقة نهائياً؟",en:"Delete this area permanently?",de:"Dieses Gebiet endgültig löschen?"},
-  pages:{ar:"صفحة المحافظة",en:"Governorate page",de:"Gouvernement-Seite"}
+  pages:{ar:"صفحة المحافظة",en:"Governorate page",de:"Gouvernement-Seite"},
+  heroBgDawnL:{ar:"رسم فجر دمشق (متحرك، بلا فيديو)",en:"Damascus dawn illustration (animated, no video)",de:"Illustration Morgen in Damaskus (animiert, ohne Video)"}
 };
 function GX(k){ var o=GX_T[k]||{}; return o[L]||o.en||k }
 function applyGeo(geo){
