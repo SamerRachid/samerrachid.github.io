@@ -1130,6 +1130,10 @@ footer{font-size:14px}
 .hv .dawn.day .dawn-shine{animation:dawnShine 7.5s cubic-bezier(.4,0,.2,1) 1.5s infinite}
 @keyframes dawnShine{0%{transform:translateX(-70%);opacity:0}4%{opacity:1}26%{opacity:1}30%{transform:translateX(70%);opacity:0}100%{transform:translateX(70%);opacity:0}}
 @media(prefers-reduced-motion:reduce){.hv .dawn.day .dawn-shine{animation:none}}
+/* gold line drawing of Damascus on the curtain navy (hero_bg_type = sketch) */
+.hv .sketch{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 30%,#1B2C52,var(--navy) 70%);overflow:hidden}
+.hv .sketch svg{position:absolute;inset:0;width:100%;height:100%;display:block;filter:drop-shadow(0 0 6px rgba(227,181,99,.45))}
+.home-hero .hscrim{background:linear-gradient(180deg,rgba(9,14,26,.35),rgba(9,14,26,0) 45%,rgba(9,14,26,.45) 100%)}
 @keyframes heroRise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
 
 /* ── header menus: frosted panel, pointer, slide-in, icons, rotating chevron ── */
@@ -2208,6 +2212,8 @@ function home(){
    heroBgHtml = '<img src="'+SITE.hero_bg_photo_url+'" alt="">';
  } else if(heroBgType==="dawn"){
    heroBgHtml = '<div class="dawn" id="dawnBox"></div>'; // filled by dawnMount() in wire()
+ } else if(heroBgType==="sketch"){
+   heroBgHtml = '<div class="sketch" id="sketchBox"></div>'; // filled by sketchMount() in wire()
  } else if(heroBgType==="none"){
    heroBgHtml = ""; // intentionally empty — .hero's own background color shows through
  } else {
@@ -3482,6 +3488,7 @@ function adminView(){
      '<label><input type="radio" name="scBgType" value="video"'+((SITE.hero_bg_type||"video")==="video"?' checked':'')+'> '+t("heroBgVideoL")+'</label>'+
      '<label><input type="radio" name="scBgType" value="photo"'+(SITE.hero_bg_type==="photo"?' checked':'')+'> '+t("heroBgPhotoL")+'</label>'+
      '<label><input type="radio" name="scBgType" value="dawn"'+(SITE.hero_bg_type==="dawn"?' checked':'')+'> '+GX("heroBgDawnL")+'</label>'+
+     '<label><input type="radio" name="scBgType" value="sketch"'+(SITE.hero_bg_type==="sketch"?' checked':'')+'> '+GX("heroBgSketchL")+'</label>'+
     '</div>'+
     '<div class="fl" id="scBgSpeedWrap" style="'+((SITE.hero_bg_type||"video")==="video"?'':'display:none')+'">'+
      '<label>'+t("heroBgSpeedL")+' — <span id="scBgSpeedVal">'+(SITE.hero_bg_video_speed!=null?SITE.hero_bg_video_speed:100)+'%</span></label>'+
@@ -7397,6 +7404,7 @@ function video(){
  // stuck at opacity:0 forever, since nothing else would ever add
  // the fade-in class for these two cases
  if(bgType==="dawn"){ dawnMount(); box.classList.add("on"); return }
+ if(bgType==="sketch"){ sketchMount(); box.classList.add("on"); return }
  if(bgType!=="video"){ box.classList.add("on"); return }
  // wire() (and this function with it) runs on every render() — and
  // this app renders more than once at boot: an immediate first pass,
@@ -8117,6 +8125,135 @@ function heroChoreo(){
   });
 }
 
+/* ── "Damascus in gold lines": hero_bg_type = sketch ──
+   The curtain navy stays; gold lines draw Qasioun, the Umayyad Mosque and Damascene houses with
+   their balconies (~2.6s, timed to the curtain lift), the drawing stays, and a soft shine travels
+   along the lines every few seconds (SMIL, so it costs nothing while idle). Built once per load. */
+var _sketch=null;
+function sketchMount(){
+  var box=$("#sketchBox"); if(!box) return;
+  if(!_sketch) _sketch=sketchBuild();
+  if(_sketch.el.parentNode!==box){ box.innerHTML=""; box.appendChild(_sketch.el) }
+  // the composition is laid out for Arabic (headline on the right, square on the left); mirror it for LTR languages
+  _sketch.el.style.transform = rtlNow() ? "" : "scaleX(-1)";
+  if(!_sketch.started){
+    _sketch.started=true;
+    var reduce = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduce){ _sketch.finish(); return }
+    var delay = _openingActive ? Math.max(0, 1000-(Date.now()-_openingT0)) : 200;
+    setTimeout(function(){ _sketch.play() }, delay);
+  }
+}
+function sketchBuild(){
+  var NS="http://www.w3.org/2000/svg", GOLD="#E3B563";
+  function S(tag,attrs,parent){ var e=document.createElementNS(NS,tag); for(var k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e }
+  var svg=S("svg",{viewBox:"0 0 1600 560",preserveAspectRatio:"xMidYMid slice","aria-hidden":"true"});
+  var defs=S("defs",{},svg);
+  var sg=S("linearGradient",{id:"skShine",gradientUnits:"userSpaceOnUse",x1:"0",y1:"0",x2:"420",y2:"0"},defs);
+  S("stop",{offset:"0","stop-color":"#FFF3D0","stop-opacity":"0"},sg); S("stop",{offset:".5","stop-color":"#FFF3D0","stop-opacity":".95"},sg); S("stop",{offset:"1","stop-color":"#FFF3D0","stop-opacity":"0"},sg);
+  var at=S("animateTransform",{attributeName:"gradientTransform",type:"translate",from:"-500 0",to:"1700 0",dur:"2.4s",begin:"indefinite",fill:"freeze"},sg);
+  var root=S("g",{fill:"none",stroke:GOLD,"stroke-width":"1.7","stroke-linecap":"round","stroke-linejoin":"round"},svg);
+  var items=[];                                    // [element, delay, duration] — stroke "hand drawing"
+  var fades=[];                                    // [element, delay, duration, targetOpacity]
+  function P(g,d,t,dur,w,op){ var p=S("path",{d:d},g); if(w) p.setAttribute("stroke-width",w); if(op) p.setAttribute("stroke-opacity",op); items.push([p,t,dur]); return p }
+  function C(g,cx,cy,r,t,dur){ var c=S("circle",{cx:cx,cy:cy,r:r},g); items.push([c,t,dur]); return c }
+  function arch(g,x,yb,w,h,t,dur,sw){ var r=w/2; return P(g,"M"+x+" "+yb+" V"+(yb-h+r)+" A"+r+" "+r+" 0 0 1 "+(x+w)+" "+(yb-h+r)+" V"+yb,t,dur,sw) }
+
+  /* ── Scene 1: Mount Qasioun as seen from the city, and the Umayyad Mosque from the south ── */
+  var s1=S("g",{},root); s1.style.transformOrigin="0 0";
+  // Qasioun: the long ridge, its higher western shoulder, the gentler eastern slope, and a second ridge behind
+  P(s1,"M0 322 C120 300 210 262 300 236 C370 216 420 192 470 184 C520 176 560 182 610 190 C680 200 730 196 790 212 C880 236 980 262 1090 282 C1200 302 1320 318 1440 330 C1500 336 1560 340 1600 342",100,1300,"1.5",".9");
+  P(s1,"M0 262 C160 232 260 214 340 200 C420 186 470 166 520 160 C580 152 630 160 690 170 C780 186 900 216 1000 236 C1100 256 1200 270 1300 284 C1400 298 1520 308 1600 312",220,1300,"1.1",".4");
+  // the neighbourhoods climbing the lower slope (small houses, Muhajirin side)
+  var slope=S("g",{fill:GOLD,stroke:"none",opacity:0},s1); var rs=(function(seed){ var s=seed; return function(){ s=(s*9301+49297)%233280; return s/233280 } })(11);
+  for(var i=0;i<90;i++){ var sx=380+rs()*900, syBase=300+(sx-380)/900*44, sy=syBase-rs()*(90-(sx>1000?40:0)); S("rect",{x:sx.toFixed(0),y:sy.toFixed(0),width:(4+rs()*4).toFixed(0),height:(3+rs()*3).toFixed(0),opacity:(.25+rs()*.6).toFixed(2)},slope) }
+  fades.push([slope,700,900,1]);
+  P(s1,"M0 470 H1600",500,900,"1.2");
+  // prayer hall (south facade): long wall, pitched roof, row of arched windows
+  P(s1,"M540 470 V402 H1060 V470",700,800);
+  P(s1,"M534 402 L548 388 H1052 L1066 402",1200,500,"1.3");
+  for(var k=0;k<11;k++){ var wx=566+k*44; if(wx>716&&wx<868) continue; arch(s1,wx,456,20,28,1250+k*45,380,"1.2") }
+  // the transept: tall gable in the middle of the facade, big arched window, Dome of the Eagle on its octagonal drum
+  P(s1,"M736 470 V402 M864 470 V402",1300,400);
+  P(s1,"M730 402 L800 336 L870 402",1400,600,"1.6");
+  arch(s1,776,398,48,52,1700,450,"1.3");
+  P(s1,"M752 342 V304 L764 296 H836 L848 304 V342",1800,500);
+  P(s1,"M746 304 C746 254 774 234 800 230 C826 234 854 254 854 304",1950,700,"1.7");
+  P(s1,"M800 230 V208",2350,220); C(s1,800,201,5,2450,260);
+  // Minaret of Isa (south-east corner): tall square shaft, balcony, slimmer upper shaft, pencil spire
+  P(s1,"M1088 470 V252 H1118 V470",900,900);
+  P(s1,"M1080 252 H1126 M1080 300 H1126",1500,240,"1.4");
+  P(s1,"M1094 252 V176 H1112 V252",1650,450);
+  P(s1,"M1088 176 L1103 112 L1118 176",1900,420,"1.4"); P(s1,"M1103 112 V94",2200,160);
+  // Minaret of Qaytbay (south-west corner): octagonal Mamluk shaft, two bracketed balconies, bulb top
+  P(s1,"M486 470 V246 H514 V470",1000,850);
+  P(s1,"M478 336 H522 M478 278 H522",1500,240,"1.4");
+  P(s1,"M482 336 L486 328 M518 336 L514 328 M482 278 L486 270 M518 278 L514 270",1600,240,"1",".7");
+  P(s1,"M492 246 V214 H508 V246",1700,320);
+  P(s1,"M491 214 C484 198 490 184 500 180 C510 184 516 198 509 214",1900,380,"1.5"); P(s1,"M500 180 V164",2200,160);
+  // Minaret of the Bride (north side, seen rising behind the hall): square shaft, lantern, pointed cap
+  P(s1,"M652 402 V252 H678 V402",1100,700);
+  P(s1,"M646 300 H684",1500,200,"1.3");
+  P(s1,"M644 252 H686 V226 H644 Z",1700,360);
+  P(s1,"M644 226 L665 194 L686 226",1900,340,"1.4");
+  // the western riwaq (courtyard arcade) at the left of the hall, and a cypress in the courtyard garden
+  P(s1,"M400 470 V432 H540",1200,500);
+  for(var a=0;a<4;a++) arch(s1,410+a*32,470,24,30,1400+a*90,380,"1.2");
+  P(s1,"M370 470 C356 436 358 404 370 356 C382 404 384 436 370 470",1800,600,"1.3");
+
+  /* ── Scene 2: Umayyad Square — the roundabout, the fountain, the Opera House, and the Damascus Sword ── */
+  var s2=S("g",{opacity:0},root);
+  var Q=620, GY=470;                               // square centre and ground
+  P(s2,"M"+(Q-420)+" "+GY+" H"+(Q+420),3400,700,"1.2");
+  P(s2,"M"+(Q-300)+" "+(GY-18)+" A300 26 0 1 0 "+(Q+300)+" "+(GY-18)+" A300 26 0 1 0 "+(Q-300)+" "+(GY-18),3500,900,"1.4"); // roundabout
+  P(s2,"M"+(Q-330)+" "+(GY-16)+" A330 30 0 1 0 "+(Q+330)+" "+(GY-16),3700,700,"1",".45");               // outer kerb
+  // Opera House (Dar al-Assad for Culture) behind the square, to the left
+  P(s2,"M"+(Q-380)+" "+(GY-40)+" V"+(GY-136)+" H"+(Q-60)+" V"+(GY-40),3600,800,"1.4");
+  P(s2,"M"+(Q-330)+" "+(GY-136)+" V"+(GY-160)+" H"+(Q-110)+" V"+(GY-136),3900,400);
+  var slits=""; for(var v=Q-360; v<Q-70; v+=22) slits+="M"+v+" "+(GY-126)+" V"+(GY-48)+" "; P(s2,slits,4000,700,".9",".55");
+  P(s2,"M"+(Q-240)+" "+(GY-40)+" V"+(GY-92)+" H"+(Q-200)+" V"+(GY-40),4200,300,"1.3");                     // entrance
+  // lamp posts and trees around the square
+  [[Q-360,GY-6],[Q+360,GY-6]].forEach(function(l,i){ P(s2,"M"+l[0]+" "+l[1]+" V"+(l[1]-70)+" M"+(l[0]-9)+" "+(l[1]-70)+" H"+(l[0]+9),4300+i*120,400,"1.2"); C(s2,l[0]-9,l[1]-74,3,4600+i*120,150); C(s2,l[0]+9,l[1]-74,3,4650+i*120,150) });
+  [[Q+300,GY-30,22],[Q+345,GY-26,17],[Q+390,GY-34,24]].forEach(function(t,i){ P(s2,"M"+t[0]+" "+(GY-8)+" V"+(t[1]+t[2]-4),4400+i*100,250,"1.3"); C(s2,t[0],t[1],t[2],4500+i*100,450) });
+  // the fountain: basin and water jets
+  P(s2,"M"+(Q-92)+" "+(GY-22)+" A92 13 0 1 0 "+(Q+92)+" "+(GY-22)+" A92 13 0 1 0 "+(Q-92)+" "+(GY-22),4300,600,"1.3");
+  [[-60,-70],[-30,-96],[30,-96],[60,-70]].forEach(function(j,i){ P(s2,"M"+Q+" "+(GY-26)+" C"+(Q+j[0]*.3)+" "+(GY-26+j[1])+" "+(Q+j[0]*.8)+" "+(GY-26+j[1])+" "+(Q+j[0])+" "+(GY-30),4600+i*80,500,"1",".7") });
+  // the Damascus Sword: pedestal, hilt, guard, tall tapering blade — it pops up from the fountain
+  var sword=S("g",{},s2); sword.style.transformOrigin=Q+"px "+(GY-26)+"px"; sword.style.transform="scaleY(0)";
+  var SW=[["M"+(Q-40)+" "+(GY-26)+" H"+(Q+40),"1.6"],["M"+(Q-24)+" "+(GY-26)+" V"+(GY-56)+" H"+(Q+24)+" V"+(GY-26),"1.6"],["M"+(Q-52)+" "+(GY-56)+" H"+(Q+52)+" V"+(GY-70)+" H"+(Q-52)+" Z","1.7"],
+            ["M"+(Q-22)+" "+(GY-70)+" L"+(Q-10)+" 132 L"+Q+" 110 L"+(Q+10)+" 132 L"+(Q+22)+" "+(GY-70),"1.9"],["M"+(Q-6)+" 150 V"+(GY-78)+" M"+(Q+6)+" 150 V"+(GY-78),"1",".55"],["M"+Q+" 138 V"+(GY-80),"1",".35"]];
+  SW.forEach(function(d){ var p=S("path",{d:d[0]},sword); p.setAttribute("stroke-width",d[1]); if(d[2]) p.setAttribute("stroke-opacity",d[2]) });
+  var flash=sword.cloneNode(true); flash.setAttribute("stroke","#FFF3D0"); flash.setAttribute("opacity","0"); flash.style.transformOrigin=sword.style.transformOrigin; flash.style.transform="none"; s2.appendChild(flash);
+  fades.push([s2,3300,400,1]);
+
+  // brighter twin of everything, visible only where the shine band passes
+  var twin=root.cloneNode(true); twin.setAttribute("stroke","url(#skShine)"); twin.setAttribute("opacity","0"); svg.appendChild(twin);
+  [].slice.call(twin.querySelectorAll("[stroke-opacity]")).forEach(function(e){ e.removeAttribute("stroke-opacity") });
+  [].slice.call(twin.querySelectorAll("[fill]")).forEach(function(e){ e.setAttribute("fill","none") });
+  var twinS1=twin.firstChild, twinS2=twin.children[1];
+
+  var S1_END="translate(846px,24px) scale(.48)";     // scene 1 parks small at the top, on the side
+  function prep(){ items.forEach(function(it){ var L=it[0].getTotalLength?it[0].getTotalLength():300; it[0].style.strokeDasharray=L; it[0].style.strokeDashoffset=L }) }
+  var shineTimer=null;
+  function shine(){ twin.setAttribute("opacity","1"); try{ at.beginElement() }catch(e){} }
+  function startShine(){ shine(); shineTimer=setInterval(shine, 6500) }
+  function parkTwin(){ twinS1.style.transformOrigin="0 0"; twinS1.style.transform=S1_END; twinS1.style.opacity=.6; twinS2.setAttribute("opacity","1"); [].slice.call(twinS2.querySelectorAll("g")).forEach(function(g){ g.style.transform="none" }) }
+  function play(){
+    prep();
+    items.forEach(function(it){ var L=parseFloat(it[0].style.strokeDasharray); it[0].animate([{strokeDashoffset:L},{strokeDashoffset:0}],{delay:it[1],duration:it[2],fill:"both",easing:"cubic-bezier(.4,0,.2,1)"}) });
+    fades.forEach(function(f){ f[0].animate([{opacity:0},{opacity:f[3]}],{delay:f[1],duration:f[2],fill:"both"}) });
+    // scene 1 slides to the side and shrinks, the square takes the centre
+    s1.animate([{transform:"translate(0,0) scale(1)",opacity:1},{transform:S1_END,opacity:.6}],{delay:3000,duration:1100,fill:"both",easing:"cubic-bezier(.6,0,.2,1)"});
+    // the sword pops up
+    sword.animate([{transform:"scaleY(0)"},{transform:"scaleY(1.08)",offset:.7},{transform:"scaleY(1)"}],{delay:5000,duration:800,fill:"both",easing:"cubic-bezier(.2,.8,.2,1)"});
+    flash.animate([{opacity:0},{opacity:.95,offset:.35},{opacity:0}],{delay:5500,duration:1100,fill:"both"});
+    setTimeout(function(){ parkTwin(); startShine() }, 6600);
+  }
+  function finish(){ // still end state for reduced motion or later renders
+    s1.style.transform=S1_END; s1.style.opacity=.6; s2.setAttribute("opacity","1"); slope.setAttribute("opacity","1"); sword.style.transform="none"; parkTwin(); startShine();
+  }
+  return {el:svg, play:play, finish:finish, started:false};
+}
 /* ── "Dawn over Damascus": the illustrated hero background (hero_bg_type = dawn) ──
    One SVG is built once per page load and kept alive across re-renders, so the sunrise
    plays once (in step with the opening curtain when it shows) and then holds as a still
@@ -8303,7 +8440,8 @@ var GX_T={
   slugTaken:{ar:"رابط الصفحة مستخدم في هذه المحافظة",en:"That URL slug is already used in this governorate",de:"Dieses URL-Kürzel ist im Gouvernement bereits vergeben"},
   govRow:{ar:"إعدادات المحافظة",en:"Governorate settings",de:"Gouvernement-Einstellungen"}, confirmDel:{ar:"حذف هذه المنطقة نهائياً؟",en:"Delete this area permanently?",de:"Dieses Gebiet endgültig löschen?"},
   pages:{ar:"صفحة المحافظة",en:"Governorate page",de:"Gouvernement-Seite"},
-  heroBgDawnL:{ar:"رسم فجر دمشق (متحرك، بلا فيديو)",en:"Damascus dawn illustration (animated, no video)",de:"Illustration Morgen in Damaskus (animiert, ohne Video)"}
+  heroBgDawnL:{ar:"رسم فجر دمشق (متحرك، بلا فيديو)",en:"Damascus dawn illustration (animated, no video)",de:"Illustration Morgen in Damaskus (animiert, ohne Video)"},
+  heroBgSketchL:{ar:"رسم دمشق بخطوط ذهبية على الكحلي (يُرسم ثم يلمع)",en:"Gold line drawing of Damascus on navy (draws itself, then shines)",de:"Goldene Linienzeichnung von Damaskus auf Dunkelblau"}
 };
 function GX(k){ var o=GX_T[k]||{}; return o[L]||o.en||k }
 function applyGeo(geo){
