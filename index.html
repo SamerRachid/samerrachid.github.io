@@ -8249,17 +8249,37 @@ function sketchBuild(){
   var slope=S("g",{fill:GOLD,stroke:"none",opacity:0},qs); var rs=rnd(11);
   for(var i2=0;i2<240;i2++){ var sx=200+rs()*1200, top=170-(sx<660?(660-sx)*.06:-(sx-660)*.03), sy=top+30+rs()*(300-top-60)*.7; S("rect",{x:f1(sx),y:f1(sy),width:f1(4+rs()*6),height:f1(3+rs()*4),opacity:f1(.15+rs()*.5)},slope) }
   fades.push([slope,2400,1200,1]);
-  // Opera House (Dar al-Assad for Culture and Arts) — north-west of the square: long colonnade of tall slits, a higher central hall, wide steps
-  var opP=plane(SQ.x-86,SQ.y-240,180,78), op=opP.g;
-  P(op,"M4 78 V22 H176 V78",8600,700,"1.5"); P(op,"M52 22 V6 H128 V22",8900,400,"1.4"); P(op,"M0 78 H180 M6 72 H174 M10 66 H170",9000,500,"1",".5");
-  var sl=""; for(var v=12; v<176; v+=10) sl+="M"+v+" 28 V64 "; P(op,sl,9000,900,".8",".5"); P(op,"M78 64 V40 H102 V64",9300,300,"1.2");
+  // buildings as real boxes: front face (south), back, two sides and a roof — so they read in 3D from every camera angle
+  function box(x,y,w,d,h,t,draw){
+    var F=plane(x,y,w,h), Bk=plane(x,y-d,w,h,180), Lf=plane(x-w/2,y-d/2,d,h,90), Rt=plane(x+w/2,y-d/2,d,h,-90), Rf=flat(x,y-d/2,w,d,h);
+    P(F.g,"M0 "+h+" V2 H"+w+" V"+h,t,700,"1.4"); P(Bk.g,"M0 "+h+" V2 H"+w+" V"+h,t+100,700,"1",".55");
+    P(Lf.g,"M0 "+h+" V2 H"+d+" V"+h,t+150,600,"1.1",".8"); P(Rt.g,"M0 "+h+" V2 H"+d+" V"+h,t+150,600,"1.1",".8");
+    P(Rf.g,"M0 0 H"+w+" V"+d+" H0 Z",t+300,600,"1.1",".85");
+    if(draw) draw(F.g,Lf.g,Rt.g,Rf.g);
+  }
+  // Opera House (Dar al-Assad for Culture and Arts) — north-west of the square: colonnade of tall slits, a higher central hall, wide steps
+  box(SQ.x-86,SQ.y-240,180,70,78,8600,function(f,l,r,rf){
+    P(f,"M52 2 V-14 H128 V2",8900,400,"1.4"); P(f,"M0 78 H180 M6 72 H174 M10 66 H170",9000,500,"1",".5");
+    var sl=""; for(var v=12; v<176; v+=10) sl+="M"+v+" 28 V64 "; P(f,sl,9000,900,".8",".5"); P(f,"M78 64 V40 H102 V64",9300,300,"1.2");
+    var ss=""; for(var v2=8; v2<70; v2+=10) ss+="M"+v2+" 28 V64 "; P(l,ss,9100,700,".8",".4"); P(r,ss,9100,700,".8",".4");
+    P(rf,"M52 12 H128 V58 H52 Z",9200,500,"1",".7");
+  });
   // the Sheraton — north-east: long low block, arched arcade at ground, rows of small windows
-  var shP=plane(SQ.x+140,SQ.y-232,200,44), sh=shP.g;
-  P(sh,"M2 44 V8 H198 V44",8800,700,"1.4"); var arcs=""; for(var q=8; q<198; q+=14) arcs+="M"+q+" 44 V36 A5 5 0 0 1 "+(q+10)+" 36 V44 "; P(sh,arcs,9200,700,"1",".7");
-  var rows=""; for(var ry=14; ry<32; ry+=7) for(var rx=8; rx<196; rx+=8) rows+="M"+rx+" "+ry+" h4 "; P(sh,rows,9300,700,".8",".45");
+  box(SQ.x+140,SQ.y-232,200,60,44,8800,function(f,l,r,rf){
+    var arcs=""; for(var q=8; q<198; q+=14) arcs+="M"+q+" 44 V36 A5 5 0 0 1 "+(q+10)+" 36 V44 "; P(f,arcs,9200,700,"1",".7");
+    var rows=""; for(var ry=14; ry<32; ry+=7) for(var rx=8; rx<196; rx+=8) rows+="M"+rx+" "+ry+" h4 "; P(f,rows,9300,700,".8",".45");
+    var rows2=""; for(var ry2=14; ry2<32; ry2+=7) for(var rx2=6; rx2<58; rx2+=8) rows2+="M"+rx2+" "+ry2+" h4 "; P(l,rows2,9300,600,".8",".4"); P(r,rows2,9300,600,".8",".4");
+  });
   // the Syrian TV and Radio building — east of the square: tall slab with vertical strips
-  var tvP=plane(SQ.x+220,SQ.y-200,54,130), tv=tvP.g;
-  P(tv,"M6 130 V6 H48 V130",8700,800,"1.4"); var strips=""; for(var sxx=12; sxx<48; sxx+=8) strips+="M"+sxx+" 12 V124 "; P(tv,strips,9100,800,".8",".45"); P(tv,"M18 6 V0 H36 V6",9500,200,"1.2");
+  box(SQ.x+220,SQ.y-200,54,44,130,8700,function(f,l,r,rf){
+    var strips=""; for(var sxx=12; sxx<48; sxx+=8) strips+="M"+sxx+" 12 V124 "; P(f,strips,9100,800,".8",".45"); P(f,"M18 2 V-6 H36 V2",9500,200,"1.2");
+    var st2=""; for(var sy=12; sy<124; sy+=14) st2+="M6 "+sy+" H38 "; P(l,st2,9200,700,".8",".35"); P(r,st2,9200,700,".8",".35");
+  });
+  // the Assad National Library — west of the square: a wide block with a strong horizontal band
+  box(SQ.x-300,SQ.y-60,90,120,60,8900,function(f,l,r,rf){
+    P(f,"M0 20 H90 M0 30 H90",9200,500,"1",".5"); var lb=""; for(var v3=8; v3<90; v3+=9) lb+="M"+v3+" 36 V56 "; P(f,lb,9300,600,".8",".4");
+    var lb2=""; for(var v4=8; v4<120; v4+=9) lb2+="M"+v4+" 36 V56 "; P(l,lb2,9300,700,".8",".4"); P(r,lb2,9300,700,".8",".4"); P(l,"M0 20 H120 M0 30 H120",9200,500,"1",".5"); P(r,"M0 20 H120 M0 30 H120",9200,500,"1",".5");
+  });
   // palms around the ring
   [[-140,40],[140,60],[-135,-60],[130,-80],[-5,182]].forEach(function(t,i){ var pP=plane(SQ.x+t[0],SQ.y+t[1],36,54), pg=pP.g;
     P(pg,"M18 54 C16 40 17 28 18 14",9000+i*120,400,"1.4"); P(pg,"M18 14 C8 10 2 14 0 22 M18 14 C28 10 34 14 36 22 M18 14 C12 4 6 2 2 6 M18 14 C24 4 30 2 34 6 M18 14 C16 6 14 0 12 2 M18 14 C20 6 22 0 24 2",9300+i*120,500,"1.1") });
@@ -8270,35 +8290,32 @@ function sketchBuild(){
     P(jg,"M40 48 C38 34 36 22 30 12 M40 48 C42 34 44 22 50 12 M40 48 C36 32 30 22 20 18 M40 48 C44 32 50 22 60 18 M40 48 V6",9400+i*150,600,"1.1",".75");
     P(jg,"M12 48 C14 40 16 36 19 34 M68 48 C66 40 64 36 61 34 M26 48 C27 42 28 40 30 38 M54 48 C53 42 52 40 50 38",9700+i*150,300,"1",".55");
     var dg=S("g",{fill:"#DCE9F5",stroke:"none"},fg); drops.push(dg); [[30,14],[50,14],[20,20],[60,20],[40,8]].forEach(function(p){ S("circle",{cx:p[0],cy:p[1],r:1.3,opacity:0},dg) }) });
-  // the Damascus Sword on its plaza in front of the Opera — a four-pointed star in elevation (the approved shape):
-  // a slender tip, the edges curving out to two side points a quarter of the way up, then back in to a narrow foot.
-  // White concrete rim and front blade; stained glass in the flag's bands: green, white with the three red stars, black at the foot.
+  // the Damascus Sword on its plaza in front of the Opera — outline traced from the photograph (widths measured every 4 px):
+  // a slim white triangle to 63% of the height, a flare to the two side points at 83%, back to a narrow foot; the glass is a strip
+  // up the middle of the spire and a wide fan at the base, in the flag's bands: green, white with the three red stars, black at the foot.
   var SH=230, SWW=120, C0=SWW/2;
   var swP=plane(PZ.x,PZ.y,SWW,SH), swg=swP.g, swEl=swP.el; swEl.classList.add("sk-sword"); swg.setAttribute("stroke","none");
   var Y=function(p){ return f1(SH*p) }, X=function(p){ return f1(C0+SH*p) };
   var CONC="#EDE9E0", GRN="#2E8B57", WHT="#F4F2ED", BLK="#1A1E27", RED="#C8102E";
-  var starD="M"+X(0)+" 0 C"+X(0.011)+" "+Y(0.36)+" "+X(0.028)+" "+Y(0.74)+" "+X(0.15)+" "+Y(0.84)+" C"+X(0.065)+" "+Y(0.875)+" "+X(0.028)+" "+Y(0.935)+" "+X(0.02)+" "+Y(1)+" L"+X(-0.02)+" "+Y(1)+" C"+X(-0.028)+" "+Y(0.935)+" "+X(-0.065)+" "+Y(0.875)+" "+X(-0.15)+" "+Y(0.84)+" C"+X(-0.028)+" "+Y(0.74)+" "+X(-0.011)+" "+Y(0.36)+" "+X(0)+" 0 Z";
-  var defsS=S("defs",{},swP.svg), clipG=S("clipPath",{id:"skGlass"},defsS); S("path",{d:starD},clipG);
-  var glass=S("g",{"clip-path":"url(#skGlass)",opacity:0},swg);
-  S("rect",{x:0,y:0,width:SWW,height:Y(0.77),fill:GRN,opacity:".94"},glass);
-  S("rect",{x:0,y:Y(0.77),width:SWW,height:Y(0.13),fill:WHT,opacity:".96"},glass);
-  S("rect",{x:0,y:Y(0.90),width:SWW,height:Y(0.12),fill:BLK,opacity:".94"},glass);
-  [-0.082,0,0.082].forEach(function(dx){ var sx=+X(dx), sy=+Y(0.838), r1=SH*.019, r2=SH*.008, d="M"; for(var k5=0;k5<10;k5++){ var ang=-Math.PI/2+k5*Math.PI/5, rr=k5%2?r2:r1; d+=(k5?"L":"")+f1(sx+Math.cos(ang)*rr)+" "+f1(sy+Math.sin(ang)*rr)+" " } S("path",{d:d+"Z",fill:RED},glass) });
-  var mull=""; for(var mx=0; mx<=SWW; mx+=SH*.03) mull+="M"+f1(mx)+" 0 V"+SH+" "; for(var my=0; my<=SH; my+=SH*.05) mull+="M0 "+f1(my)+" H"+SWW+" "; S("path",{d:mull,stroke:"#0B1224",fill:"none","stroke-width":".6",opacity:".35"},glass);
-  fades.push([glass,10600,800,1]);
+  var bodyD="M"+X(0)+" 0 C"+X(0.017)+" "+Y(0.21)+" "+X(0.034)+" "+Y(0.42)+" "+X(0.05)+" "+Y(0.63)+" C"+X(0.06)+" "+Y(0.74)+" "+X(0.11)+" "+Y(0.80)+" "+X(0.21)+" "+Y(0.83)+" C"+X(0.10)+" "+Y(0.87)+" "+X(0.04)+" "+Y(0.93)+" "+X(0.026)+" "+Y(1)+" L"+X(-0.026)+" "+Y(1)+" C"+X(-0.04)+" "+Y(0.93)+" "+X(-0.10)+" "+Y(0.87)+" "+X(-0.21)+" "+Y(0.83)+" C"+X(-0.11)+" "+Y(0.80)+" "+X(-0.06)+" "+Y(0.74)+" "+X(-0.05)+" "+Y(0.63)+" C"+X(-0.034)+" "+Y(0.42)+" "+X(-0.017)+" "+Y(0.21)+" "+X(0)+" 0 Z";
+  var glassD="M"+X(0)+" "+Y(0.10)+" C"+X(0.007)+" "+Y(0.28)+" "+X(0.015)+" "+Y(0.46)+" "+X(0.022)+" "+Y(0.63)+" C"+X(0.026)+" "+Y(0.72)+" "+X(0.084)+" "+Y(0.79)+" "+X(0.19)+" "+Y(0.835)+" C"+X(0.09)+" "+Y(0.88)+" "+X(0.04)+" "+Y(0.94)+" "+X(0.012)+" "+Y(0.99)+" L"+X(-0.012)+" "+Y(0.99)+" C"+X(-0.04)+" "+Y(0.94)+" "+X(-0.09)+" "+Y(0.88)+" "+X(-0.19)+" "+Y(0.835)+" C"+X(-0.084)+" "+Y(0.79)+" "+X(-0.026)+" "+Y(0.72)+" "+X(-0.022)+" "+Y(0.63)+" C"+X(-0.015)+" "+Y(0.46)+" "+X(-0.007)+" "+Y(0.28)+" "+X(0)+" "+Y(0.10)+" Z";
+  var defsS=S("defs",{},swP.svg), clipG=S("clipPath",{id:"skGlass"},defsS); S("path",{d:glassD},clipG);
   var conc=S("g",{opacity:0},swg);
-  S("path",{d:starD,fill:"none",stroke:CONC,"stroke-width":f1(SH*.01),"stroke-linejoin":"round"},conc);                      // the rim: the side blades
-  S("path",{d:"M"+X(-0.0035)+" 0 L"+X(0.0035)+" 0 L"+X(0.0055)+" "+Y(1)+" L"+X(-0.0055)+" "+Y(1)+" Z",fill:CONC},conc);      // the front blade, edge-on
-  S("rect",{x:X(-0.05),y:Y(1),width:f1(SH*.10),height:"7",fill:CONC,opacity:".85"},conc);                                // footing
-  var lights=S("g",{fill:"#FFF3D0"},conc); [[.005,.12],[.008,.24],[.011,.36],[.015,.48],[.021,.60],[.032,.72]].forEach(function(l){ S("circle",{cx:X(-l[0]),cy:Y(l[1]),r:SH*.003},lights); S("circle",{cx:X(l[0]),cy:Y(l[1]),r:SH*.003},lights) });
-  fades.push([conc,10100,900,1]);
-  // the drawing strokes that build it before the solids fade in
-  var spire=P(swg,starD,9900,1200,"1.6",null,"#F4F2ED");
-  P(swg,"M"+X(0)+" "+Y(0.02)+" V"+Y(1),10300,600,"1",".85","#F4F2ED");
-  var pulse=S("path",{d:starD,stroke:SOFT,"stroke-width":"2.6",fill:"none",opacity:0,"stroke-linecap":"round"},swg);
+  S("path",{d:bodyD,fill:CONC},conc);
+  var glass=S("g",{"clip-path":"url(#skGlass)",opacity:0},swg);
+  S("rect",{x:0,y:0,width:SWW,height:Y(0.70),fill:GRN,opacity:".95"},glass);
+  S("rect",{x:0,y:Y(0.70),width:SWW,height:Y(0.20),fill:WHT,opacity:".97"},glass);
+  S("rect",{x:0,y:Y(0.90),width:SWW,height:Y(0.12),fill:BLK,opacity:".95"},glass);
+  [-0.118,0,0.118].forEach(function(dx){ var sx=+X(dx), sy=+Y(0.838), r1=SH*.027, r2=SH*.011, d="M"; for(var k5=0;k5<10;k5++){ var ang=-Math.PI/2+k5*Math.PI/5, rr=k5%2?r2:r1; d+=(k5?"L":"")+f1(sx+Math.cos(ang)*rr)+" "+f1(sy+Math.sin(ang)*rr)+" " } S("path",{d:d+"Z",fill:RED},glass) });
+  var mull=""; for(var mx=0; mx<=SWW; mx+=SH*.03) mull+="M"+f1(mx)+" 0 V"+SH+" "; for(var my=SH*.64; my<=SH; my+=SH*.04) mull+="M0 "+f1(my)+" H"+SWW+" "; S("path",{d:mull,stroke:"#0B1224",fill:"none","stroke-width":".6",opacity:".35"},glass);
+  var conc2=S("g",{opacity:0},swg);
+  S("path",{d:"M"+X(-0.0025)+" 0 L"+X(0.0025)+" 0 L"+X(0.004)+" "+Y(1)+" L"+X(-0.004)+" "+Y(1)+" Z",fill:"#FFFFFF",opacity:".9"},conc2);   // the front blade, edge-on
+  S("rect",{x:X(-0.06),y:Y(1),width:f1(SH*.12),height:"7",fill:CONC,opacity:".85"},conc2);                                            // footing
+  var lights=S("g",{fill:"#FFF3D0"},conc2); [[.012,.14],[.019,.24],[.026,.34],[.033,.44],[.041,.54]].forEach(function(l){ S("circle",{cx:X(-l[0]),cy:Y(l[1]),r:SH*.0026},lights); S("circle",{cx:X(l[0]),cy:Y(l[1]),r:SH*.0026},lights) });
+  fades.push([conc,10100,900,1]); fades.push([glass,10600,800,1]); fades.push([conc2,10700,600,1]);
+  var spire=P(swg,bodyD,9900,1200,"1.6",null,"#F4F2ED");
+  var pulse=S("path",{d:bodyD,stroke:SOFT,"stroke-width":"2.6",fill:"none",opacity:0,"stroke-linecap":"round"},swg);
   var sparkle=S("path",{d:"M"+C0+" 0 m0 -12 l2.4 9.6 l9.6 2.4 l-9.6 2.4 l-2.4 9.6 l-2.4 -9.6 l-9.6 -2.4 l9.6 -2.4 z",fill:SOFT,stroke:"none",opacity:0},swg); sparkle.style.transformOrigin=C0+"px 0px";
-
-  pan.appendChild(ground);   // the ground goes last in DOM order: Chrome then sorts the standing planes in front of it cleanly
 
   /* ── stage measurement: the final picture fills the column beside the headline, from the header down to the search bar ── */
   var W=1600,H=900, band={x:0,y:0,w:640,h:420}, stageK=1, stageDX=0, stageDY=0, done=false, anims=[];
@@ -8339,14 +8356,15 @@ function sketchBuild(){
     stage.style.transform="translate("+stageDX+"px,"+stageDY+"px) scale("+stageK+")";
     an(stage,[{transform:"translate("+stageDX+"px,"+stageDY+"px) scale("+stageK+")"},{transform:"translate(0,0) scale(1)"}],{delay:500,duration:1900,easing:EASE});
     // the camera — one path, four channels
-    an(tilt,kf([[0,"transform","rotateX(84deg)",EASE],[2800,"transform","rotateX(78deg)",EASE],[5400,"transform","rotateX(0deg)","cubic-bezier(.4,0,.2,1)"],[7800,"transform","rotateX(0deg)",EASE],[10400,"transform","rotateX(60deg)",EASE],[T,"transform","rotateX(60deg)"]]),{duration:T});
-    an(spin,kf([[0,"transform","rotateZ(0deg)"],[4400,"transform","rotateZ(0deg)","cubic-bezier(.4,0,.3,1)"],[7800,"transform","rotateZ(55deg)","cubic-bezier(.5,0,.3,1)"],[10400,"transform","rotateZ(0deg)"],[T,"transform","rotateZ(0deg)"]]),{duration:T});
-    an(zoom,kf([[0,"transform","scale(3.1)",EASE],[2800,"transform","scale(2.1)",EASE],[5400,"transform","scale(1.15)",EASE],[7800,"transform","scale(1.15)",EASE],[10400,"transform","scale(1.75)"],[T,"transform","scale(1.75)"]]),{duration:T});
-    var FX=-(SQ.x-44), FY=-(SQ.y-84);
+    var fc=finalCam(), FX=fc.x, FY=fc.y, FZ=fc.z, FS=fc.s;
+    an(tilt,kf([[0,"transform","rotateX(84deg)",EASE],[2800,"transform","rotateX(78deg)",EASE],[5400,"transform","rotateX(0deg)","cubic-bezier(.4,0,.2,1)"],[7800,"transform","rotateX(0deg)",EASE],[10400,"transform","rotateX("+fc.t+"deg)",EASE],[T,"transform","rotateX("+fc.t+"deg)"]]),{duration:T});
+    an(spin,kf([[0,"transform","rotateZ(0deg)"],[4400,"transform","rotateZ(0deg)","cubic-bezier(.4,0,.3,1)"],[7800,"transform","rotateZ(55deg)","cubic-bezier(.5,0,.3,1)"],[10400,"transform","rotateZ("+FS+"deg)"],[T,"transform","rotateZ("+FS+"deg)"]]),{duration:T});
+    an(zoom,kf([[0,"transform","scale(3.1)",EASE],[2800,"transform","scale(2.1)",EASE],[5400,"transform","scale(1.15)",EASE],[7800,"transform","scale(1.15)",EASE],[10400,"transform","scale("+FZ+")"],[T,"transform","scale("+FZ+")"]]),{duration:T});
     an(pan,kf([[0,"transform","translate(-300px,-62px)"],[3400,"transform","translate(-300px,-62px)",EASE],[6400,"transform","translate("+(-SQ.x)+"px,"+(-SQ.y)+"px)",EASE],[7800,"transform","translate("+(-SQ.x)+"px,"+(-SQ.y)+"px)",EASE],[10400,"transform","translate("+FX+"px,"+FY+"px)"],[T,"transform","translate("+FX+"px,"+FY+"px)"]]),{duration:T});
     setTimeout(function(){ done=true; rest() },T+300);
   }
-  function finish(){ measure(); stage.style.transform="none"; tilt.style.transform="rotateX(60deg)"; spin.style.transform="rotateZ(0deg)"; zoom.style.transform="scale(1.75)"; pan.style.transform="translate("+(-(SQ.x-44))+"px,"+(-(SQ.y-84))+"px)";
+  function finalCam(){ var phone=W<760; return phone ? {x:-(SQ.x-40), y:-(SQ.y-225), z:1.15, s:-14, t:52} : {x:-(SQ.x-20), y:-(SQ.y-96), z:1.7, s:-16, t:60} }
+  function finish(){ measure(); var fc=finalCam(); stage.style.transform="none"; tilt.style.transform="rotateX("+fc.t+"deg)"; spin.style.transform="rotateZ("+fc.s+"deg)"; zoom.style.transform="scale("+fc.z+")"; pan.style.transform="translate("+fc.x+"px,"+fc.y+"px)";
     items.forEach(function(it){ it[0].style.strokeDasharray="" }); fades.forEach(function(f){ f[0].setAttribute("opacity",f[3]) }); done=true; rest() }
   function refit(){ if(!done) return; measure(); stage.style.transform="none" }
   window.addEventListener("resize",refit);
