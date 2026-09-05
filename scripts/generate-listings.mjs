@@ -225,11 +225,11 @@ ${cover ? `<meta property="og:image" content="${esc(cover)}">` : ""}
 ${cover ? `<meta name="twitter:image" content="${esc(cover)}">` : ""}
 <script type="application/ld+json">${jsonForScript(jsonLd)}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root{--navy:#14213D;--navy-2:#0D1729;--navy-w:#EEF1F7;--gold:#C4881F;--gold-w:#FDF5E7;
 --ink:#22252A;--grey:#6B7280;--light:#9CA3AF;--line:#E4E4E7;--page:#F6F6F7;--card:#FFF;
---ok:#2E7D5B;--ok-w:#EAF5EF;--f:'Cairo',system-ui,sans-serif;
+--ok:#2E7D5B;--ok-w:#EAF5EF;--f:'Noto Kufi Arabic','Lato',system-ui,sans-serif;
 --sh:0 1px 2px rgba(20,33,61,.06);--sh2:0 2px 8px rgba(20,33,61,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}

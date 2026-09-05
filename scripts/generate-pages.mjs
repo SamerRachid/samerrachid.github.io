@@ -52,7 +52,7 @@ const listingUrl = (l) => `${SITE}/listing/${l.id}-${listingSlug(l)}/`;
 
 // ── page shell in the site's own style (same tokens as index.html) ───────
 const CSS = `
-:root{--navy:#14213D;--navy-2:#0D1729;--navy-w:#EEF1F7;--gold:#C4881F;--gold-dk:#8A6522;--gold-w:#FDF5E7;--ink:#22252A;--grey:#6B7280;--light:#9CA3AF;--line:#E6E2D9;--line-2:#D3D4D8;--page:#F4F2ED;--card:#FFF;--ok:#2E7D5B;--ok-w:#EAF5EF;--f:'IBM Plex Sans Arabic','Cairo',system-ui,sans-serif;--fd:'El Messiri','IBM Plex Sans Arabic',sans-serif;--r:8px;--sh2:0 12px 30px -12px rgba(9,14,26,.28)}
+:root{--navy:#14213D;--navy-2:#0D1729;--navy-w:#EEF1F7;--gold:#C4881F;--gold-dk:#8A6522;--gold-w:#FDF5E7;--ink:#22252A;--grey:#6B7280;--light:#9CA3AF;--line:#E6E2D9;--line-2:#D3D4D8;--page:#F4F2ED;--card:#FFF;--ok:#2E7D5B;--ok-w:#EAF5EF;--f:'Noto Kufi Arabic','Lato',system-ui,sans-serif;--fd:'Noto Kufi Arabic','Lato',sans-serif;--r:8px;--sh2:0 12px 30px -12px rgba(9,14,26,.28)}
 *{box-sizing:border-box;margin:0;padding:0}html{-webkit-text-size-adjust:100%}
 body{background:var(--page);color:var(--ink);font:15px/1.8 var(--f);-webkit-font-smoothing:antialiased;overflow-x:hidden}
 a{color:inherit;text-decoration:none}img{display:block;max-width:100%}ul{list-style:none}
@@ -142,7 +142,7 @@ ${image ? `<meta property="og:image" content="${esc(image)}">` : ""}
 <meta name="twitter:card" content="${image ? "summary_large_image" : "summary"}">
 <link rel="icon" href="${SITE}/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=El+Messiri:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
 ${jsonld.map((o) => `<script type="application/ld+json">${jsonForScript(o)}</script>`).join("\n")}
 <style>${CSS}</style></head><body>
 <header><div class="wrap hbar"><a class="logo" href="${SITE}/">بلكون</a>

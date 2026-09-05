@@ -57,7 +57,7 @@
  ═══════════════════════════════════════════════════════════════════════
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=El+Messiri:wght@500;600;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.114.0/dist/umd/supabase.js" integrity="sha384-UxmVkfpcoSCBn4QrHwxxZVlCbloMpP/2Ay2ByWcNy6TcMxC3JUgqa8Geipyl0tP7" crossorigin="anonymous"></script>
 <!-- Leaflet (maps) is loaded on demand by ensureLeaflet() the first time a map is shown,
      instead of on every page view — see the map initializers in the script below. -->
@@ -67,7 +67,7 @@
 :root{--navy:#14213D;--navy-2:#0D1729;--navy-w:#EEF1F7;--gold:#C4881F;--gold-w:#FDF5E7;
 --ink:#22252A;--grey:#6B7280;--light:#9CA3AF;--line:#E4E4E7;--line-2:#D3D4D8;
 --page:#F4F2ED;--card:#FFF;--ok:#2E7D5B;--ok-w:#EAF5EF;--warn:#B5761F;--danger:#B3271E;
---f:'IBM Plex Sans Arabic','Cairo',system-ui,sans-serif;--r:8px;--r-s:5px;
+--f:'Noto Kufi Arabic','Lato',system-ui,sans-serif;--r:8px;--r-s:5px;
 --sh:0 1px 2px rgba(20,33,61,.06);--sh2:0 2px 8px rgba(20,33,61,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--page);color:var(--ink);font-family:var(--f);font-size:15px;line-height:1.8;-webkit-font-smoothing:antialiased}
@@ -995,6 +995,8 @@ body{font-size:16px}
 .bd span{font-size:12px;border-radius:var(--r-s)}
 .nph{font-size:12px;border-radius:var(--r-s)}
 .tabu-green{color:var(--ok);font-weight:600}
+option[value="green"]{color:var(--ok);font-weight:600}
+.chipsel-opt .tabu-green,.cs-sum .tabu-green,.chip .tabu-green{color:var(--ok)}
 /* property-type families on the home page */
 .typegroup{margin-top:18px}
 .typegroup h3{font-size:14.5px;font-weight:700;color:var(--grey);margin-bottom:10px;text-transform:uppercase;letter-spacing:.4px}
@@ -1072,7 +1074,7 @@ footer{font-size:14px}
    underline, slow zoom on the hero photo/video, a custom cursor on
    desktop, scroll reveals (JS adds .rv only to elements below the fold,
    only on a page change), and the "market pulse" ticker fed by v_area_prices */
-:root{--fd:'El Messiri','Cairo',system-ui,sans-serif}
+:root{--fd:'Noto Kufi Arabic','Lato',system-ui,sans-serif}
 .hero h1,.sec h2,.band h2,.logo,.topbar h1{font-family:var(--fd)}
 .hero h1{letter-spacing:-.005em;line-height:1.35}
 .logo{border:0;padding:4px 0;font-size:24px;letter-spacing:.01em;line-height:1}
@@ -1130,6 +1132,29 @@ footer{font-size:14px}
 @keyframes hdrIn{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:none}}
 .sbar.choreo,.mkt.choreo{animation-name:heroRiseFar}
 @keyframes heroRiseFar{from{opacity:0;transform:translateY(90px)}to{opacity:1;transform:none}}
+/* headline: slides in from its reading side (left in English/German, right in Arabic) while the drawing moves aside */
+.choreo-slide{animation:heroSlide 1.7s cubic-bezier(.65,0,.25,1) both;--slide:-140px}
+[dir=rtl] .choreo-slide{--slide:140px}
+@keyframes heroSlide{from{opacity:0;transform:translateX(var(--slide))}60%{opacity:1}to{opacity:1;transform:none}}
+/* the last word of the headline flips to the brand every few seconds */
+.flipw{display:inline-grid;perspective:900px;vertical-align:bottom;white-space:nowrap}
+.flipw-in{grid-area:1/1;display:inline-grid;transform-style:preserve-3d;animation:flipWord 9s cubic-bezier(.7,0,.3,1) 4.5s infinite;transform-origin:50% 50%}
+.flipw .f1,.flipw .f2{grid-area:1/1;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.flipw .f2{transform:rotateX(180deg)}
+@keyframes flipWord{0%,40%{transform:rotateX(0)}48%,90%{transform:rotateX(-180deg)}98%,100%{transform:rotateX(-360deg)}}
+/* while the brand face shows (48%–90% of the 9s cycle): a double heartbeat runs through the letters, one after the other */
+.flipw .pl{display:inline-block;transform-origin:50% 85%;animation:letterBeat 9s cubic-bezier(.3,0,.2,1) infinite;animation-delay:calc(4.5s + var(--i)*.075s)}
+@keyframes letterBeat{0%,53%{transform:none;color:inherit}56.5%{transform:translateY(-12%) scale(1.3);color:#FFF6DC}61%{transform:none;color:inherit}100%{transform:none}}
+.flipw .plword{display:inline-block;white-space:nowrap;direction:rtl;unicode-bidi:isolate}
+.flipw .pla{display:inline-block;transform-origin:50% 86%;animation:letterBeatAr 9s cubic-bezier(.3,0,.2,1) infinite;animation-delay:calc(4.5s + var(--i)*.09s)}
+@keyframes letterBeatAr{0%,53%{transform:none;color:inherit;text-shadow:inherit}56.5%{transform:scale(1.22);color:#FFF6DC;text-shadow:0 0 16px rgba(255,246,220,.9)}61%{transform:none;color:inherit;text-shadow:inherit}100%{transform:none}}
+@keyframes letterGlow{0%,53%{color:inherit;text-shadow:inherit}56%{color:#FFF6DC;text-shadow:0 0 18px rgba(255,246,220,.95)}59.5%{color:inherit;text-shadow:inherit}62%{color:#FFF6DC;text-shadow:0 0 14px rgba(255,246,220,.9)}65.5%{color:inherit;text-shadow:inherit}100%{color:inherit}}
+@media(prefers-reduced-motion:reduce){.flipw .pl,.flipw .pla{animation:none}}
+/* map pin on the search bar: gold, spinning gently every few seconds */
+.home-hero .sgo-map svg{color:var(--gold);animation:pinSpin 5s cubic-bezier(.6,0,.3,1) 3s infinite;transform-style:preserve-3d}
+.home-hero .sgo-map:hover svg{color:var(--gold-l,#E3B563)}
+@keyframes pinSpin{0%,78%{transform:rotateY(0)}100%{transform:rotateY(360deg)}}
+@media(prefers-reduced-motion:reduce){.flipw-in,.home-hero .sgo-map svg{animation:none}}
 /* illustrated "dawn over Damascus" hero background (hero_bg_type = dawn) */
 .hv .dawn{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 30%,#1B2C52,var(--navy) 70%);overflow:hidden}
 .hv .dawn svg{position:absolute;inset:0;width:100%;height:100%;display:block}
@@ -1145,6 +1170,11 @@ footer{font-size:14px}
 .hv .sk-ground{position:absolute;left:0;top:0;width:1000px;height:1000px;display:block;overflow:visible}
 .hv .sk-pl{position:absolute;transform-origin:50% 100%;transform-style:preserve-3d;backface-visibility:visible}
 .hv .sk-pl svg{display:block;width:100%;height:100%;overflow:visible}
+.hv .sk-stage.sk-rest .sk-tilt,.hv .sk-stage.sk-rest .sk-spin{transition:transform 1.1s cubic-bezier(.2,.7,.2,1)}
+/* yesterday's cursor: a gold dot with a soft halo riding with the pointer; it disappears over buttons, links, fields and menus */
+.cur{position:fixed;left:0;top:0;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 6px rgba(196,136,31,.18),0 0 18px rgba(227,181,99,.55);pointer-events:none;z-index:200000;opacity:.95;transition:opacity .2s,width .2s,height .2s,box-shadow .2s;will-change:transform}
+.cur.hide{opacity:0}
+@media(hover:none),(pointer:coarse){.cur{display:none}}
 .hv .sk-sweep{position:absolute;inset:-20% -40%;background:linear-gradient(105deg,transparent 44%,rgba(255,243,208,.15) 50%,transparent 56%);mix-blend-mode:screen;opacity:0;pointer-events:none;transform:translateX(-70%)}
 .home-hero .hscrim{background:linear-gradient(180deg,rgba(9,14,26,.35),rgba(9,14,26,0) 45%,rgba(9,14,26,.45) 100%)}
 @keyframes heroRise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
@@ -1192,6 +1222,7 @@ footer{font-size:14px}
   .chipsel-drop.flip-up{bottom:0}
   .cs-sheet-h{display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1;background:#fff;padding:16px 6px 10px;margin-bottom:6px;font-weight:700;color:var(--navy);border-bottom:1px solid var(--line)}
   .cs-sheet-h::before{content:"";position:absolute;top:6px;left:50%;width:40px;height:4px;margin-left:-20px;border-radius:2px;background:var(--line-2)}
+  .chipsel-drop.on::before{content:"";position:fixed;inset:0;background:rgba(9,14,26,.42);z-index:-1}
   .cs-close{border:0;background:var(--page);color:var(--ink);width:32px;height:32px;border-radius:50%;font-size:20px;line-height:1;cursor:pointer}
   .chipsel-opt{padding:12px 10px;font-size:14px}
   body:has(.chipsel-drop.on) .mobfab{display:none}
@@ -1212,7 +1243,7 @@ footer{font-size:14px}
 /* hero */
 .home-hero .hero-outer{background:#0F1B33}
 .hv{overflow:hidden} /* the slow zoom on the hero video/photo must not widen the page */
-.home-hero .hero{min-height:min(78vh,760px);padding:130px 0 64px}
+.home-hero .hero{min-height:min(60vh,580px);padding:108px 0 28px}
 .home-hero .hero h1{font-size:clamp(34px,4.8vw,66px);line-height:1.2;margin-bottom:26px;max-width:16ch;letter-spacing:-.005em}
 .home-hero .hscrim{background:linear-gradient(to bottom,rgba(15,27,51,.66),rgba(15,27,51,.22) 30%,rgba(15,27,51,.18) 60%,rgba(15,27,51,.82))}
 .home-hero .topbanner-wrap{padding:22px 0 0}
@@ -1331,19 +1362,19 @@ footer{font-size:14px}
   .stabs-map{margin-inline-start:0}
 }
 /* ── 2026-09-05 hero search bar: one slim white bar, compact fields (name in the box until chosen), price range, clear map button ── */
-.home-hero .sbar{background:#fff;border:0;border-radius:16px;box-shadow:0 28px 64px -26px rgba(9,14,26,.7);padding:8px;gap:8px;align-items:stretch;max-width:1220px}
-.home-hero .stabs{background:var(--page);border:0;border-radius:11px;padding:4px;gap:2px;margin:0;align-items:center}
-.home-hero .stabs button{border:0;border-radius:8px;padding:0 13px;height:44px;font:600 15px var(--fd);color:var(--grey);background:transparent;transition:color .2s,background .2s,box-shadow .2s}
+.home-hero .sbar{background:#fff;border:0;border-radius:13px;box-shadow:0 28px 64px -26px rgba(9,14,26,.7);padding:5px;gap:5px;align-items:stretch;max-width:1220px;overflow:visible}
+.home-hero .stabs{background:var(--page);border:0;border-radius:10px;padding:3px;gap:2px;margin:0;align-items:center}
+.home-hero .stabs button{border:0;border-radius:8px;padding:0 13px;height:34px;font:600 15px var(--fd);color:var(--grey);background:transparent;transition:color .2s,background .2s,box-shadow .2s}
 .home-hero .stabs button.on{background:var(--navy);color:#fff;box-shadow:0 6px 14px -8px rgba(20,33,61,.7)}
 .home-hero .stabs button:not(.on):hover{color:var(--navy)}
 .home-hero .srow{grid-template-columns:1.05fr 1.3fr 1.15fr 1fr .9fr auto auto;gap:6px}
-.home-hero .sf{border:1px solid var(--line);border-radius:11px;padding:0;min-height:52px;height:52px;background:#fff;position:relative;transition:border-color .2s,box-shadow .2s;display:flex;align-items:stretch}
+.home-hero .sf{border:1px solid var(--line);border-radius:9px;padding:0;min-height:40px;height:40px;background:#fff;position:relative;transition:border-color .2s,box-shadow .2s;display:flex;align-items:stretch}
 .home-hero .sf:hover{border-color:#C3C8D2}
 .home-hero .sf:focus-within,.home-hero .sf:has(.chipsel-drop.on){border-color:var(--gold);box-shadow:0 0 0 3px rgba(196,136,31,.14)}
 .home-hero .sf label{display:none}
 .home-hero .chipsel,.home-hero .chipsel-box{height:100%;width:100%}
 .home-hero .cs-compact .chipsel-box{border:0;border-radius:11px;padding:0 10px 0 12px;background:transparent;cursor:pointer;display:flex;align-items:center;gap:8px;position:relative}
-.home-hero .cs-compact .cs-sum{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:600 14.5px/1.2 var(--f);color:var(--ink);letter-spacing:-.01em}
+.home-hero .cs-compact .cs-sum{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:600 14px/1.2 var(--f);color:var(--ink);letter-spacing:-.01em}
 .home-hero .cs-compact .cs-sum .ph{color:#6B7280;font-weight:500}
 .home-hero .cs-compact .cs-sum .cs-more{color:var(--gold-dk);font-weight:700;margin-inline-start:2px}
 .home-hero .cs-compact .chipsel-box>svg{width:12px;height:12px;opacity:.5;flex:none;transition:transform .2s}
@@ -1354,6 +1385,11 @@ footer{font-size:14px}
 .home-hero .cs-compact:has(.chipsel-drop.on) .cs-sum{opacity:0}
 .home-hero .cs-compact .chipsel-input::placeholder{color:#9CA3AF;font-weight:500}
 .home-hero .chipsel-drop{top:calc(100% + 8px);border-radius:14px;box-shadow:0 24px 50px -20px rgba(9,14,26,.45)}
+.chipsel-drop.on{animation:ddIn .22s cubic-bezier(.2,.7,.2,1)}
+@keyframes ddIn{from{opacity:0;transform:translateY(-8px) scale(.985)}to{opacity:1;transform:none}}
+.chipsel-opt{padding:10px 12px;font-size:13.5px}
+.chipsel-opt:hover,.chipsel-opt.act{background:var(--page);color:var(--navy)}
+@media(max-width:640px){.home-hero .chipsel-drop.on{top:auto;animation:sheetUp .28s cubic-bezier(.2,.7,.2,1)}}
 .home-hero .cs-selected{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--page)}
 .home-hero .cs-selected .chip{font-size:12.5px}
 .home-hero .sf-sel{padding:0 14px;align-items:center;gap:8px}
@@ -1371,24 +1407,32 @@ footer{font-size:14px}
 .home-hero .pp-foot{display:flex;justify-content:space-between;align-items:center;margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
 .home-hero .pp-clear{border:0;background:none;color:var(--grey);font:500 13px var(--f);cursor:pointer;padding:6px 2px}
 .home-hero .pp-done{border:0;background:var(--navy);color:#fff;border-radius:9px;padding:9px 18px;font:600 13.5px var(--f);cursor:pointer}
-.home-hero .srow .sgo{border-radius:11px;margin:0;padding:0 22px;min-width:128px;height:52px;background:var(--gold);box-shadow:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font:700 16px/1.1 var(--fd);transition:background .2s,transform .2s}
+.home-hero .srow .sgo{border-radius:9px;margin:0;padding:0 20px;min-width:120px;height:40px;background:var(--gold);box-shadow:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font:700 16px/1.1 var(--fd);transition:background .2s,transform .2s}
 .home-hero .srow .sgo:hover{background:#D6952A;transform:translateY(-1px)}
-.home-hero .sgo #hgoCount{font:500 11.5px var(--f);opacity:.8}
-.home-hero .sgo-map{display:inline-flex;align-items:center;gap:7px;width:auto;height:52px;padding:0 14px;border:1px solid var(--navy);background:#fff;border-radius:11px;margin:0;color:var(--navy);font:600 14px var(--f);cursor:pointer;transition:background .2s,color .2s}
+.home-hero .sgo #hgoCount{font:500 10.5px var(--f);opacity:.8}
+.home-hero .sgo-map{display:inline-flex;align-items:center;gap:7px;width:auto;height:40px;padding:0 14px;border:1px solid var(--navy);background:#fff;border-radius:11px;margin:0;color:var(--navy);font:600 14px var(--f);cursor:pointer;transition:background .2s,color .2s}
 .home-hero .sgo-map svg{width:20px;height:20px}
 .home-hero .sgo-map:hover{background:var(--navy);color:#fff}
 .home-hero .sgo-map::after{content:none}
+.home-hero .chipsel-drop.flip-up{top:auto;bottom:calc(100% + 8px)}
+.home-hero .hero-outer{z-index:1}
+.home-hero .hero-outer:has(.chipsel-drop.on),.home-hero .hero-outer:has(.pricepop:not([hidden])),.home-hero .hero-outer:has(.menu.on){z-index:55}
+.home-hero .srow,.home-hero .sf,.home-hero .chipsel,.home-hero .chipsel-box{overflow:visible}
+.home-hero .chipsel-drop{max-height:340px}
 @media(max-width:700px){
   .home-hero .sbar{padding:8px;border-radius:16px;gap:8px}
   .home-hero .stabs{margin:0;border-bottom:0}
   .home-hero .stabs button{flex:1;height:42px;padding:0}
   .home-hero .srow{grid-template-columns:1fr 1fr;gap:8px}
-  .home-hero .sf{height:52px;min-height:52px}
+  .home-hero .sf{height:48px;min-height:48px}
   .home-hero .sf-price{grid-column:1/-1}
   .home-hero .pricepop{width:100%}
-  .home-hero .srow .sgo{grid-column:1/-1;margin:0;height:54px;border-radius:11px}
-  .home-hero .sgo-map{grid-column:1/-1;margin:0;width:auto;height:48px;justify-content:center;border-radius:11px}
+  .home-hero .srow .sgo{grid-column:1/-1;margin:0;height:50px;border-radius:10px}
+  .home-hero .sgo-map{grid-column:1/-1;margin:0;width:auto;height:46px;justify-content:center;border-radius:10px}
 }
+/* type, as Bayut sets it: Noto Kufi Arabic (the open successor of Droid Arabic Kufi) for Arabic, Lato for English and German */
+[dir=ltr]{--f:'Lato','Noto Kufi Arabic',system-ui,sans-serif;--fd:'Lato','Noto Kufi Arabic',system-ui,sans-serif}
+h1,h2,h3,.logo,.hero h1{letter-spacing:0}
 </style><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
@@ -2323,30 +2367,9 @@ function home(){
   '<div class="hscrim"></div>'+
   '<section class="hero"><div class="wrap">'+
   (heroOff ? bannerInHeroHtml : '<h1'+(SITE.hero_title_size||SITE.hero_title_color?' style="'+(SITE.hero_title_size?'font-size:'+SITE.hero_title_size+'px;':'')+(SITE.hero_title_color?'color:'+SITE.hero_title_color+';':'')+'"':'')+'>'+
-    siteText("hero","h1a")+' <span'+(SITE.hero_sub_color?' style="color:'+SITE.hero_sub_color+'"':'')+'>'+siteText("hero_sub","h1b")+'</span></h1>')+
-  '<div class="sbar"><div class="stabs"><button class="'+(F.deal==="sale"?"on":"")+'" data-d="sale">'+t("forsale")+
-   '</button><button class="'+(F.deal==="rent"?"on":"")+'" data-d="rent">'+t("forrent")+'</button><button class="'+(F.deal===""?"on":"")+'" data-d="">'+t("dealAll")+
-   '</button><button type="button" data-go="mapsearch" class="stabs-map">'+ICON_PIN+t("searchOnMap")+'</button></div><div class="srow">'+
-   // compact fields: the field name sits in the box until something is chosen, then the chosen names replace it
-   '<div class="sf">'+chipSelect("csGov",t("gov"),F.govs||[],gN,true)+'</div>'+
-   '<div class="sf sf-area">'+chipSelect("csArea",t("area"),F.areas||[],aN,true)+'</div>'+
-   '<div class="sf">'+chipSelect("csType",t("ptype"),F.types||[],function(v){
-     return v==="land"?t("landGroup"):(D.TYPES[v]?D.TYPES[v][li()]:v)},true)+'</div>'+
-   (F.deal==="rent"
-     ? '<div class="sf sf-sel"><select id="hFurn" aria-label="'+t("furnishedL")+'">'+
-        '<option value=""'+(F.furn===""?" selected":"")+'>'+t("furnishedL")+'</option>'+
-        '<option value="yes"'+(F.furn==="yes"?" selected":"")+'>'+t("furnYes")+'</option>'+
-        '<option value="no"'+(F.furn==="no"?" selected":"")+'>'+t("furnNo")+'</option>'+
-       '</select>'+CHEV+'</div>'
-     : '<div class="sf">'+chipSelect("csTabu",t("deed"),F.tbs||[],function(v){
-        return D.TABU[v]?D.TABU[v][li()]:v},true)+'</div>')+
-   '<div class="sf sf-price"><button type="button" class="pricetrig" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
-     '<div class="pricepop" id="hPricePop" hidden><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(SITE.syp_rate||CONFIG.rate)):"")+'"></label>'+
-     '<label>'+GX("to")+'<input id="hPmax" type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(SITE.syp_rate||CONFIG.rate)):"")+'"></label></div>'+
-     '<div class="pp-foot"><button type="button" class="pp-clear" id="hPriceClear">'+GX("anyPrice")+'</button><button type="button" class="pp-done" id="hPriceDone">'+GX("done")+'</button></div></div></div>'+
-   '<button class="sgo" id="hgo">'+t("search")+'<span id="hgoCount">'+heroCount(F.deal)+'</span></button>'+
-   '<button type="button" class="sgo-map" data-go="mapsearch" title="'+t("searchOnMap")+'" aria-label="'+t("searchOnMap")+'">'+MI.map+'<span>'+GX("map")+'</span></button>'+
-   '</div></div>'+
+    siteText("hero","h1a")+' <span'+(SITE.hero_sub_color?' style="color:'+SITE.hero_sub_color+'"':'')+'>'+heroSubHtml(siteText("hero_sub","h1b"))+'</span></h1>')+
+  heroSearchBarHtml()+
+
    (SITE.stats_enabled===false ? '' : (function(){
      // never show an invented listing count: use the real one when enabled, a number the admin
      // typed on purpose, or no number at all (the old default "9,102" was a placeholder)
@@ -4985,27 +5008,16 @@ function applyAndCloseMapFilterPanel(){
 var _mapSearchInstance = null;
 var _mapSearchInitTimer = null;
 function mapSearchMatches(){
-  return D.LIST.filter(function(x){
-    return x.status==="live" && x.d===MAPSEARCH.deal &&
-      (!MAPSEARCH.gov || x.g===MAPSEARCH.gov) &&
-      (!MAPSEARCH.area || x.a===MAPSEARCH.area) &&
-      (!MAPSEARCH.type || x.t===MAPSEARCH.type) &&
-      (!MAPSEARCH.tabu || x.tb===MAPSEARCH.tabu);
-  });
+  // the map shows exactly what the search filters allow (governorates, areas, types, deed, furnished, price); its panel edits the same filters
+  return D.LIST.filter(function(x){ return x.status==="live" && x.d===MAPSEARCH.deal && passesFilter(x,"deal") });
 }
-function mapSearchActiveFilterCount(){
-  var n=0;
-  if(MAPSEARCH.gov) n++;
-  if(MAPSEARCH.area) n++;
-  if(MAPSEARCH.type) n++;
-  if(MAPSEARCH.tabu) n++;
-  return n;
-}
+function mapSearchActiveFilterCount(){ return activeFilterCount() }
+function mapF(key){ var a=F[key]; return (a&&a.length) ? a[0] : "" }   // first chosen value, for the map's single-value selects
 function mapSearchPage(){
   var matches = mapSearchMatches();
   var withLoc = matches.filter(function(x){ return x.lat && x.lng });
   var totalForDeal = matches.length;
-  var areaOptions = MAPSEARCH.gov && D.GEO[MAPSEARCH.gov] ? D.GEO[MAPSEARCH.gov] : [];
+  var mg0=mapF("govs"), areaOptions = mg0 && D.GEO[mg0] ? D.GEO[mg0] : [];
   var fCount = mapSearchActiveFilterCount();
   return '<div class="wrap" style="padding:10px 18px 40px">'+
    '<div class="crumb" style="padding:0 0 10px"><a data-go="home">'+t("home")+'</a><i>\u203a</i>'+t("searchOnMap")+'</div>'+
@@ -5047,7 +5059,7 @@ function mapSearchPage(){
   '</div>';
 }
 function mapFilterZoneHtml(){
-  var areaOptions = MAPSEARCH.gov && D.GEO[MAPSEARCH.gov] ? D.GEO[MAPSEARCH.gov] : [];
+  var mg=mapF("govs"), areaOptions = mg && D.GEO[mg] ? D.GEO[mg] : [];
   var fCount = mapSearchActiveFilterCount();
   // anchored to this button's OWN position, not the outer row — the
   // row's own layout has changed since (the filter button now sits
@@ -5066,21 +5078,24 @@ function mapFilterZoneHtml(){
      '<div class="row">'+
       '<div class="fl"><label>'+t("gov")+'</label><select id="mapFGov">'+
        '<option value="">'+t("dealAll")+'</option>'+
-       Object.keys(D.GEO).map(function(g){return '<option value="'+g+'"'+(MAPSEARCH.gov===g?" selected":"")+'>'+gN(g)+'</option>'}).join("")+
+       Object.keys(D.GEO).map(function(g){return '<option value="'+g+'"'+(mapF("govs")===g?" selected":"")+'>'+gN(g)+'</option>'}).join("")+
       '</select></div>'+
       '<div class="fl"><label>'+t("area")+'</label><select id="mapFArea"'+(areaOptions.length?"":" disabled")+'>'+
        '<option value="">'+t("dealAll")+'</option>'+
-       areaOptions.map(function(a){return '<option value="'+a+'"'+(MAPSEARCH.area===a?" selected":"")+'>'+aN(a)+'</option>'}).join("")+
+       areaOptions.map(function(a){return '<option value="'+a+'"'+(mapF("areas")===a?" selected":"")+'>'+aN(a)+'</option>'}).join("")+
       '</select></div></div>'+
      '<div class="row" style="margin-top:10px">'+
       '<div class="fl"><label>'+t("ptype")+'</label><select id="mapFType">'+
        '<option value="">'+t("dealAll")+'</option>'+
-       Object.keys(D.TYPES).map(function(k){return '<option value="'+k+'"'+(MAPSEARCH.type===k?" selected":"")+'>'+D.TYPES[k][li()]+'</option>'}).join("")+
+       Object.keys(D.TYPES).map(function(k){return '<option value="'+k+'"'+(mapF("types")===k?" selected":"")+'>'+D.TYPES[k][li()]+'</option>'}).join("")+
       '</select></div>'+
       '<div class="fl"><label>'+t("deed")+'</label><select id="mapFTabu">'+
        '<option value="">'+t("dealAll")+'</option>'+
-       Object.keys(D.TABU).map(function(k){return '<option value="'+k+'"'+(MAPSEARCH.tabu===k?" selected":"")+'>'+D.TABU[k][li()]+'</option>'}).join("")+
+       Object.keys(D.TABU).map(function(k){return '<option value="'+k+'"'+(mapF("tbs")===k?" selected":"")+'>'+D.TABU[k][li()]+'</option>'}).join("")+
       '</select></div></div>'+
+     '<div class="row" style="margin-top:10px">'+
+      '<div class="fl"><label>'+GX("price")+' · '+GX("from")+' ('+(CUR==="USD"?"$":"ل.س")+')</label><input id="mapFPmin" type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(SITE.syp_rate||CONFIG.rate)):"")+'"></div>'+
+      '<div class="fl"><label>'+GX("to")+'</label><input id="mapFPmax" type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(SITE.syp_rate||CONFIG.rate)):"")+'"></div></div>'+
      '<div style="display:flex;gap:10px;margin-top:12px">'+
       (fCount ? '<button type="button" class="gh" id="mapFiltersClear" style="flex:1">'+t("clearFilters")+'</button>' : '')+
       '<button type="button" class="btn-n" id="mapFiltersApply" style="flex:1">'+t("showResults")+'</button>'+
@@ -5107,12 +5122,16 @@ function wireMapFilterZone(){
     if(MAPSEARCH.filtersOpen){ closeMapFilterPanelLocally() }
     else { MAPSEARCH.filtersOpen=true; updateMapFilterZone() }
   };
-  if($("#mapFGov")) $("#mapFGov").onchange=function(){ MAPSEARCH.gov=this.value; MAPSEARCH.area=""; updateMapFilterZone() };
-  if($("#mapFArea")) $("#mapFArea").onchange=function(){ MAPSEARCH.area=this.value; updateMapFilterZone() };
-  if($("#mapFType")) $("#mapFType").onchange=function(){ MAPSEARCH.type=this.value; updateMapFilterZone() };
-  if($("#mapFTabu")) $("#mapFTabu").onchange=function(){ MAPSEARCH.tabu=this.value; updateMapFilterZone() };
+  var setF=function(key,v){ F[key]= v ? [v] : []; };
+  if($("#mapFGov")) $("#mapFGov").onchange=function(){ setF("govs",this.value); F.g=""; F.areas=[]; F.a=""; updateMapFilterZone() };
+  if($("#mapFArea")) $("#mapFArea").onchange=function(){ setF("areas",this.value); F.a=""; updateMapFilterZone() };
+  if($("#mapFType")) $("#mapFType").onchange=function(){ setF("types",this.value); F.t=""; updateMapFilterZone() };
+  if($("#mapFTabu")) $("#mapFTabu").onchange=function(){ setF("tbs",this.value); F.tb=""; updateMapFilterZone() };
+  var toUsdM=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/(SITE.syp_rate||CONFIG.rate)) };
+  if($("#mapFPmin")) $("#mapFPmin").onchange=function(){ F.pmin=toUsdM(this.value) };
+  if($("#mapFPmax")) $("#mapFPmax").onchange=function(){ F.pmax=toUsdM(this.value) };
   if($("#mapFiltersClear")) $("#mapFiltersClear").onclick=function(){
-    MAPSEARCH.gov=""; MAPSEARCH.area=""; MAPSEARCH.type=""; MAPSEARCH.tabu="";
+    F.govs=[]; F.areas=[]; F.types=[]; F.tbs=[]; F.g=""; F.a=""; F.t=""; F.tb=""; F.cd=""; F.furn=""; F.rentalPeriod=""; F.pmin=0; F.pmax=0;
     // clearing genuinely changes which pins should show, so — unlike
     // just opening/browsing the panel — this legitimately does need
     // to refresh the map and the results count together
@@ -5272,6 +5291,7 @@ function fitCompactSums(){
     }
     el.innerHTML=esc(names[0])+(names.length>1?' <b class="cs-more">+'+(names.length-1)+'</b>':'');
   });
+  $$(".cs-compact .cs-sum").forEach(function(el){ markGreenTabu(el) });
 }
 var CS_CONFIGS={
   csGov:{getOptions:function(){return Object.keys(D.GEO).map(function(g){return {value:g,label:gN(g)}})}, arrKey:"govs"},
@@ -5299,6 +5319,25 @@ function positionDropUpOrDown(input,drop){
     if(spaceBelow<needed && rect.top>needed){ drop.classList.add("flip-up") }
     else { drop.classList.remove("flip-up") }
   }catch(e){}
+}
+function markGreenTabu(root){
+  var labels=(D.TABU&&D.TABU.green)||[]; if(!labels.length) return;
+  var walker=document.createTreeWalker(root||document.body,NodeFilter.SHOW_TEXT,null), nodes=[], n;
+  while((n=walker.nextNode())){ var tx=n.nodeValue.trim(); if(!tx||labels.indexOf(tx)===-1) continue; var p=n.parentNode; if(!p||/^(SCRIPT|STYLE|TEXTAREA|OPTION|TITLE)$/.test(p.tagName)||p.classList.contains("tabu-green")) continue; nodes.push(n) }
+  nodes.forEach(function(tn){ var sp=document.createElement("span"); sp.className="tabu-green"; sp.textContent=tn.nodeValue; tn.parentNode.replaceChild(sp,tn) });
+}
+function closeAllMenus(except){
+  $$(".menu.on,.chipsel-drop.on").forEach(function(m){ if(m!==except) m.classList.remove("on") });
+  $$(".chipsel-input").forEach(function(i){ var d=$("#"+i.dataset.csfield+"Drop"); if(d && d!==except && document.activeElement===i) i.blur() });
+  var pp=$("#hPricePop"); if(pp && pp!==except) pp.hidden=true;
+  NOTIF_OPEN=false;
+}
+if(!window._menusEscAdded){ window._menusEscAdded=true;
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeAllMenus() });
+  document.addEventListener("pointerdown",function(e){
+    $$(".chipsel-drop.on").forEach(function(d){ var w=d.closest(".chipsel"); if(!w || !w.contains(e.target) || e.target===d) d.classList.remove("on") });
+    var pp=$("#hPricePop"); if(pp && !pp.hidden){ var sf=pp.closest(".sf"); if(!sf || !sf.contains(e.target)) pp.hidden=true }
+  },true);
 }
 function wireChipSelects(){
   fitCompactSums();
@@ -5337,25 +5376,25 @@ function wireChipSelects(){
       drop.innerHTML = '<div class="cs-sheet-h"><span>'+input.placeholder+'</span><button type="button" class="cs-close" aria-label="close">×</button></div>'+selHtml+
         (html || '<div class="chipsel-empty">'+t("noResultsFor")+'</div>');
       drop.onclick=function(ev){ ev.stopPropagation() };
-      $$("#"+id+"Drop [data-csremove]").forEach(function(e){ e.onclick=function(ev){ ev.stopPropagation(); ev.preventDefault(); var val=this.dataset.csval; F[cfg.arrKey]=(F[cfg.arrKey]||[]).filter(function(v){return v!==val}); render() } });
+      markGreenTabu(drop);
+      $$("#"+id+"Drop [data-csremove]").forEach(function(e){ e.onclick=function(ev){ ev.stopPropagation(); ev.preventDefault(); var val=this.dataset.csval; F[cfg.arrKey]=(F[cfg.arrKey]||[]).filter(function(v){return v!==val}); window._csReopen=id; softRenderHero() } });
       var cl=drop.querySelector(".cs-close");
       if(cl) cl.onclick=function(ev){ ev.stopPropagation(); drop.classList.remove("on"); input.blur() };
-      $$(".chipsel-drop.on").forEach(function(d){ if(d!==drop) d.classList.remove("on") });
-      var accMenu=$("#menu"); if(accMenu) accMenu.classList.remove("on");
-      var notifMenu=$("#notifMenu"); if(notifMenu) notifMenu.classList.remove("on");
-      NOTIF_OPEN=false;
+      closeAllMenus(drop);
       drop.classList.add("on");
       positionDropUpOrDown(input,drop);
       $$('[data-cspick="'+id+'"]').forEach(function(e){ e.onclick=function(ev){
         if(ev){ev.stopPropagation();if(ev.preventDefault)ev.preventDefault()}
         var v=this.dataset.csval;
         F[cfg.arrKey]=(F[cfg.arrKey]||[]).concat([v]);
-        render();
+        window._csReopen=id; softRenderHero();
       }});
     };
     input.addEventListener("focus",function(){ renderDrop(this.value) });
     input.addEventListener("input",function(){ renderDrop(this.value) });
-    input.addEventListener("click",function(e){ e.stopPropagation() });
+    // open on the click itself as well as on focus: in an unfocused window (embedded previews) the focus event never fires
+    input.addEventListener("click",function(e){ e.stopPropagation(); if(!drop.classList.contains("on")) renderDrop(this.value) });
+
     // keyboard: arrows move the highlight, Enter picks, Escape closes
     input.addEventListener("keydown",function(e){
       if(e.key==="ArrowDown"||e.key==="ArrowUp"){
@@ -5374,7 +5413,7 @@ function wireChipSelects(){
     if(ev){ev.stopPropagation();if(ev.preventDefault)ev.preventDefault()}
     var id=this.dataset.csremove, val=this.dataset.csval, cfg=CS_CONFIGS[id];
     if(!cfg) return;
-    F[cfg.arrKey]=(F[cfg.arrKey]||[]).filter(function(v){return v!==val});
+    window._csReopen=id; F[cfg.arrKey]=(F[cfg.arrKey]||[]).filter(function(v){return v!==val});
     render();
   }});
   if(!_csDocListenerAdded){
@@ -5383,6 +5422,8 @@ function wireChipSelects(){
       $$(".chipsel-drop.on").forEach(function(d){d.classList.remove("on")});
     });
   }
+  // after a pick or a removal the page re-renders; re-open the same list so the user can continue
+  if(window._csReopen){ var rid=window._csReopen; window._csReopen=null; var rin=$("#"+rid+"Input"); if(rin) setTimeout(function(){ try{ rin.focus({preventScroll:true}) }catch(e){ rin.focus() } },0) }
 }
 function typeOptionsCollapsed(){
   // one "Land" entry replaces resid/agri/comm for search purposes —
@@ -5392,7 +5433,65 @@ function typeOptionsCollapsed(){
       if(k==="resid") return '<option value="land">'+t("landGroup")+'</option>';
       return '<option value="'+k+'">'+D.TYPES[k][li()]+'</option>'}).join("");
 }
+/* the hero search bar renders and re-renders on its own: choosing a filter must not rebuild the whole page
+   (which restarted the ad carousel, the header and the drawing, and made the menu blink) */
+function heroSearchBarHtml(){
+  return '<div class="sbar"><div class="stabs"><button class="'+(F.deal==="sale"?"on":"")+'" data-d="sale">'+t("forsale")+
+   '</button><button class="'+(F.deal==="rent"?"on":"")+'" data-d="rent">'+t("forrent")+'</button><button class="'+(F.deal===""?"on":"")+'" data-d="">'+t("dealAll")+
+   '</button><button type="button" data-go="mapsearch" class="stabs-map">'+ICON_PIN+t("searchOnMap")+'</button></div><div class="srow">'+
+   // compact fields: the field name sits in the box until something is chosen, then the chosen names replace it
+   '<div class="sf">'+chipSelect("csGov",t("gov"),F.govs||[],gN,true)+'</div>'+
+   '<div class="sf sf-area">'+chipSelect("csArea",t("area"),F.areas||[],aN,true)+'</div>'+
+   '<div class="sf">'+chipSelect("csType",t("ptype"),F.types||[],function(v){
+     return v==="land"?t("landGroup"):(D.TYPES[v]?D.TYPES[v][li()]:v)},true)+'</div>'+
+   (F.deal==="rent"
+     ? '<div class="sf sf-sel"><select id="hFurn" aria-label="'+t("furnishedL")+'">'+
+        '<option value=""'+(F.furn===""?" selected":"")+'>'+t("furnishedL")+'</option>'+
+        '<option value="yes"'+(F.furn==="yes"?" selected":"")+'>'+t("furnYes")+'</option>'+
+        '<option value="no"'+(F.furn==="no"?" selected":"")+'>'+t("furnNo")+'</option>'+
+       '</select>'+CHEV+'</div>'
+     : '<div class="sf">'+chipSelect("csTabu",t("deed"),F.tbs||[],function(v){
+        return D.TABU[v]?D.TABU[v][li()]:v},true)+'</div>')+
+   '<div class="sf sf-price"><button type="button" class="pricetrig" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
+     '<div class="pricepop" id="hPricePop" hidden><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(SITE.syp_rate||CONFIG.rate)):"")+'"></label>'+
+     '<label>'+GX("to")+'<input id="hPmax" type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(SITE.syp_rate||CONFIG.rate)):"")+'"></label></div>'+
+     '<div class="pp-foot"><button type="button" class="pp-clear" id="hPriceClear">'+GX("anyPrice")+'</button><button type="button" class="pp-done" id="hPriceDone">'+GX("done")+'</button></div></div></div>'+
+   '<button class="sgo" id="hgo">'+t("search")+'<span id="hgoCount">'+heroCount(F.deal)+'</span></button>'+
+   '<button type="button" class="sgo-map" data-go="mapsearch" title="'+t("searchOnMap")+'" aria-label="'+t("searchOnMap")+'">'+MI.map+'<span>'+GX("map")+'</span></button>'+
+   '</div></div>';
+}
+function wireHeroBar(){
+   wireChipSelects();
+   if($("#hFurn")) $("#hFurn").addEventListener("change",function(){F.furn=this.value;softRenderHero()});
+   if($("#hPrice")){ // hero price range: popover with min / max and quick presets (values kept in USD like the rest of the filter)
+     var pop=$("#hPricePop"), rate=SITE.syp_rate||CONFIG.rate, toUsd=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/rate) };
+     var applyPrice=function(){ F.pmin=toUsd($("#hPmin").value); F.pmax=toUsd($("#hPmax").value); if(F.pmax&&F.pmin>F.pmax){ var sw=F.pmin; F.pmin=F.pmax; F.pmax=sw } softRenderHero() };
+     $("#hPrice").onclick=function(e){ e.stopPropagation(); closeAllMenus(pop); pop.hidden=!pop.hidden; if(!pop.hidden) setTimeout(function(){ var i=$("#hPmin"); if(i) i.focus() },30) };
+     pop.onclick=function(e){ e.stopPropagation() };
+     $("#hPriceDone").onclick=applyPrice; $("#hPriceClear").onclick=function(){ F.pmin=0; F.pmax=0; softRenderHero() };
+     $$("#hPricePop [data-pp]").forEach(function(b){ b.onclick=function(){ var p=b.dataset.pp.split("-"); F.pmin=parseInt(p[0],10)||0; F.pmax=parseInt(p[1],10)||0; render() } });
+     $$("#hPmin,#hPmax").forEach(function(i){ i.onkeydown=function(e){ if(e.key==="Enter") applyPrice() } });
+     document.addEventListener("click",function h(e){ if(!pop.isConnected){ document.removeEventListener("click",h); return } if(!pop.hidden) pop.hidden=true });
+   }
+   $("#hgo").onclick=function(){
+     F.sec=(F.types&&F.types.indexOf("land")>-1&&F.types.length===1)?"land":"";
+     VIEW="search";scrollTo(0,0);render()};
+   $$(".stabs button[data-d]").forEach(function(b){b.onclick=function(){
+     F.deal=b.dataset.d||"";
+     softRenderHero()}});
+   video()
+   // the map button inside the bar (the bar can be re-rendered on its own, so it is wired here)
+   $$(".sbar [data-go]").forEach(function(e){ e.onclick=function(ev){ ev.preventDefault(); MAPSEARCH.deal = F.deal==="rent" ? "rent" : "sale"; VIEW=e.dataset.go; scrollTo(0,0); render(); refreshListingsOnNavigate() } });
+}
+function softRenderHero(){
+  var old=$(".home-hero .sbar");
+  if(VIEW!=="home"||!old){ render(); return }
+  var tmp=document.createElement("div"); tmp.innerHTML=heroSearchBarHtml();
+  old.replaceWith(tmp.firstElementChild);
+  wireHeroBar(); syncHash();
+}
 function wire(){
+ markGreenTabu();
  if(VIEW.indexOf("listing")!==0 && _simCarouselTimer){ clearInterval(_simCarouselTimer); _simCarouselTimer=null; }
  if(VIEW!=="mapsearch") stopMapSearch();
  wireAllCCPickers();
@@ -5433,11 +5532,7 @@ function wire(){
    inp.addEventListener("focus", function(){ this.removeAttribute("readonly") });
  });
  if($("#langChip")){
-   $("#langChip").onclick=function(e){e.stopPropagation();
-     var m=$("#menu"); if(m) m.classList.remove("on");
-     var nm=$("#notifMenu"); if(nm) nm.classList.remove("on"); NOTIF_OPEN=false;
-     var nmr=$("#navMoreMenu"); if(nmr) nmr.classList.remove("on");
-     $("#langMenu").classList.toggle("on")};
+   $("#langChip").onclick=function(e){e.stopPropagation(); closeAllMenus($("#langMenu")); $("#langMenu").classList.toggle("on")};
    if(!window._langMenuDocListenerAdded){
      window._langMenuDocListenerAdded=true;
      document.addEventListener("click",function(){
@@ -5457,6 +5552,7 @@ function wire(){
  };
  $$("[data-go]").forEach(function(e){e.onclick=function(ev){ev.preventDefault();
    if(e.dataset.go==="post"){NEW={photos:[],lat:null,lng:null}}
+   if(e.dataset.go==="mapsearch"){ MAPSEARCH.deal = F.deal==="rent" ? "rent" : "sale" }   // the map starts on the deal chosen in the search bar
    if(e.dataset.go==="mine"){LOADED.mine=false}
    if(e.dataset.go==="mine"){loadListings().then(render)}
    if(e.dataset.gov){F.g=e.dataset.gov;F.a="";F.areas=[]}
@@ -5486,7 +5582,7 @@ function wire(){
  if(VIEW==="mapsearch"){
    $$("[data-mapdeal2]").forEach(function(e){ e.onclick=function(){
      if(MAPSEARCH.deal===this.dataset.mapdeal2) return;
-     MAPSEARCH.deal=this.dataset.mapdeal2; render();
+     MAPSEARCH.deal=this.dataset.mapdeal2; F.deal=MAPSEARCH.deal; render();
    }});
    wireMapFilterZone();
    if($("#mapSearchBox")){
@@ -5498,27 +5594,7 @@ function wire(){
      _mapSearchInitTimer = setTimeout(function(){ _mapSearchInitTimer=null; initMapSearch() }, 50);
    }
  }
- if(VIEW==="home"){
-   wireChipSelects();
-   if($("#hFurn")) $("#hFurn").addEventListener("change",function(){F.furn=this.value;render()});
-   if($("#hPrice")){ // hero price range: popover with min / max and quick presets (values kept in USD like the rest of the filter)
-     var pop=$("#hPricePop"), rate=SITE.syp_rate||CONFIG.rate, toUsd=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/rate) };
-     var applyPrice=function(){ F.pmin=toUsd($("#hPmin").value); F.pmax=toUsd($("#hPmax").value); if(F.pmax&&F.pmin>F.pmax){ var sw=F.pmin; F.pmin=F.pmax; F.pmax=sw } render() };
-     $("#hPrice").onclick=function(e){ e.stopPropagation(); pop.hidden=!pop.hidden; if(!pop.hidden) setTimeout(function(){ var i=$("#hPmin"); if(i) i.focus() },30) };
-     pop.onclick=function(e){ e.stopPropagation() };
-     $("#hPriceDone").onclick=applyPrice; $("#hPriceClear").onclick=function(){ F.pmin=0; F.pmax=0; render() };
-     $$("#hPricePop [data-pp]").forEach(function(b){ b.onclick=function(){ var p=b.dataset.pp.split("-"); F.pmin=parseInt(p[0],10)||0; F.pmax=parseInt(p[1],10)||0; render() } });
-     $$("#hPmin,#hPmax").forEach(function(i){ i.onkeydown=function(e){ if(e.key==="Enter") applyPrice() } });
-     document.addEventListener("click",function h(e){ if(!pop.isConnected){ document.removeEventListener("click",h); return } if(!pop.hidden) pop.hidden=true });
-   }
-   $("#hgo").onclick=function(){
-     F.sec=(F.types&&F.types.indexOf("land")>-1&&F.types.length===1)?"land":"";
-     VIEW="search";scrollTo(0,0);render()};
-   $$(".stabs button[data-d]").forEach(function(b){b.onclick=function(){
-     F.deal=b.dataset.d||"";
-     render()}});
-   video()}
-
+ if(VIEW==="home"){ wireHeroBar() }
  if(VIEW==="search"){
    wireChipSelects();
    if($("#fPMin")) $("#fPMin").addEventListener("change",function(){
@@ -6703,6 +6779,7 @@ function wireAdmin(){
       renderMatches(this.value);
     });
     input.addEventListener("click",function(e){ e.stopPropagation() });
+
   };
   wireAdListingSearch("New");
   (ADM.adSlots||[]).forEach(function(a){ wireAdListingSearch(String(a.id)) });
@@ -6732,6 +6809,7 @@ function wireAdmin(){
     input.addEventListener("focus",function(){ renderMatches(this.value.indexOf("BK-")===0?"":this.value) });
     input.addEventListener("input",function(){ hidden.value=""; renderMatches(this.value); });
     input.addEventListener("click",function(e){ e.stopPropagation() });
+
   })();
   if(!window._adListingDropCloserAdded){
     window._adListingDropCloserAdded=true;
@@ -7162,10 +7240,7 @@ function wireAuth(){
  // built in, so anyone new can still get to signup in one extra click
  if($("#bIn"))$("#bIn").onclick=function(){open("in")};
  if($("#navMoreChip")){
-   $("#navMoreChip").onclick=function(e){e.stopPropagation();
-     var m=$("#menu"); if(m) m.classList.remove("on");
-     var nm=$("#notifMenu"); if(nm) nm.classList.remove("on"); NOTIF_OPEN=false;
-     $("#navMoreMenu").classList.toggle("on")};
+   $("#navMoreChip").onclick=function(e){e.stopPropagation(); closeAllMenus($("#navMoreMenu")); $("#navMoreMenu").classList.toggle("on")};
    if(!window._navMoreDocListenerAdded){
      window._navMoreDocListenerAdded=true;
      document.addEventListener("click",function(){
@@ -7173,10 +7248,7 @@ function wireAuth(){
    }
  }
  if($("#chip")){
-   $("#chip").onclick=function(e){e.stopPropagation();
-     var nm=$("#notifMenu"); if(nm) nm.classList.remove("on"); NOTIF_OPEN=false;
-     var nmr=$("#navMoreMenu"); if(nmr) nmr.classList.remove("on");
-     $("#menu").classList.toggle("on")};
+   $("#chip").onclick=function(e){e.stopPropagation(); closeAllMenus($("#menu")); $("#menu").classList.toggle("on")};
    document.addEventListener("click",function(){var m=$("#menu");if(m)m.classList.remove("on");
      var nm=$("#notifMenu");if(nm)nm.classList.remove("on");NOTIF_OPEN=false;
      var nmr=$("#navMoreMenu"); if(nmr) nmr.classList.remove("on")});
@@ -8228,10 +8300,15 @@ function heroChoreo(){
   var base=Math.max(0, 1150-(Date.now()-_openingT0));   // the word has lifted before the header and the search bar start moving
   var hd=document.querySelector("header"); if(hd){ hd.classList.add("choreo-hdr"); hd.style.animationDelay=base+"ms" }
   // header from the top and search bar from the bottom first; the headline only once the drawing has shrunk into its place
-  [[".sbar",250],[".mkt",500],[".hero h1",2600],[".hnote",2800]].forEach(function(p){
+  // once an entrance animation has finished, drop it: an animated transform on the search bar would otherwise
+  // trap the phone's bottom-sheet menus (position:fixed) inside the bar
+  var settle=function(el,cls){ el.addEventListener("animationend",function(){ el.classList.remove(cls); el.style.animationDelay="" },{once:true}) };
+  [[".sbar",250],[".mkt",500],[".hnote",2800]].forEach(function(p){
     var el=$(p[0]); if(!el) return;
-    el.classList.add("choreo"); el.style.animationDelay=(base+p[1])+"ms";
+    el.classList.add("choreo"); el.style.animationDelay=(base+p[1])+"ms"; settle(el,"choreo");
   });
+  // the headline slides in from its own side while the drawing shrinks away from it (they run together)
+  var h1=$(".hero h1"); if(h1){ h1.classList.add("choreo-slide"); h1.style.animationDelay=(base+450)+"ms"; settle(h1,"choreo-slide") }
 }
 
 /* ── "Damascus in gold lines": hero_bg_type = sketch ──
@@ -8385,24 +8462,30 @@ function sketchBuild(){
     P(pg,"M18 54 C16 40 17 28 18 14",9000+i*120,400,"1.4"); P(pg,"M18 14 C8 10 2 14 0 22 M18 14 C28 10 34 14 36 22 M18 14 C12 4 6 2 2 6 M18 14 C24 4 30 2 34 6 M18 14 C16 6 14 0 12 2 M18 14 C20 6 22 0 24 2",9300+i*120,500,"1.1") });
   // the fountain: two crossed planes of jets at the centre of the square
   var jets=[], drops=[];
-  [0,90].forEach(function(rz,i){ var fP=plane(SQ.x,SQ.y,80,48,rz), fg=fP.g; fg.setAttribute("stroke","#DCE9F5");
-    var jg=S("g",{},fg); jg.style.transformOrigin="40px 48px"; jets.push(jg);
-    P(jg,"M40 48 C38 34 36 22 30 12 M40 48 C42 34 44 22 50 12 M40 48 C36 32 30 22 20 18 M40 48 C44 32 50 22 60 18 M40 48 V6",9400+i*150,600,"1.1",".75");
-    P(jg,"M12 48 C14 40 16 36 19 34 M68 48 C66 40 64 36 61 34 M26 48 C27 42 28 40 30 38 M54 48 C53 42 52 40 50 38",9700+i*150,300,"1",".55");
-    var dg=S("g",{fill:"#DCE9F5",stroke:"none"},fg); drops.push(dg); [[30,14],[50,14],[20,20],[60,20],[40,8]].forEach(function(p){ S("circle",{cx:p[0],cy:p[1],r:1.3,opacity:0},dg) }) });
+  P(gG,"M"+f1(SQ.x-SQ.r*.26)+" "+f1(SQ.y)+" a"+f1(SQ.r*.26)+" "+f1(SQ.r*.26)+" 0 1 0 "+f1(SQ.r*.52)+" 0 a"+f1(SQ.r*.26)+" "+f1(SQ.r*.26)+" 0 1 0 -"+f1(SQ.r*.52)+" 0",9300,600,"1.3");   // the basin rim on the ground
+  var pool=S("path",{d:"M"+f1(SQ.x-SQ.r*.24)+" "+f1(SQ.y)+" a"+f1(SQ.r*.24)+" "+f1(SQ.r*.24)+" 0 1 0 "+f1(SQ.r*.48)+" 0 a"+f1(SQ.r*.24)+" "+f1(SQ.r*.24)+" 0 1 0 -"+f1(SQ.r*.48)+" 0",fill:"#DCE9F5",stroke:"none",opacity:0},gG); fades.push([pool,9400,700,.14]);
+  [0,45,90,135].forEach(function(rz,i){ var W2=SQ.r*.52, H2=70, fP=plane(SQ.x,SQ.y,W2,H2,rz), fg=fP.g, cx=W2/2; fg.setAttribute("stroke","#DCE9F5");
+    var jg=S("g",{},fg); jg.style.transformOrigin=cx+"px "+H2+"px"; jets.push(jg);
+    // centre plume: a tall jet with two arcs falling either side
+    P(jg,"M"+cx+" "+H2+" C"+(cx-1)+" "+(H2*.5)+" "+(cx-1)+" "+(H2*.2)+" "+cx+" 4 M"+cx+" "+H2+" C"+(cx-3)+" "+(H2*.4)+" "+(cx-10)+" "+(H2*.25)+" "+(cx-16)+" "+(H2*.55)+" M"+cx+" "+H2+" C"+(cx+3)+" "+(H2*.4)+" "+(cx+10)+" "+(H2*.25)+" "+(cx+16)+" "+(H2*.55),9400+i*90,650,"1.2",".85");
+    // the ring of small jets along the rim, leaning towards the centre
+    var ring=""; [.06,.2,.34,.66,.8,.94].forEach(function(q){ var x=W2*q, lean=(q<.5?1:-1)*6; ring+="M"+f1(x)+" "+H2+" C"+f1(x+lean*.3)+" "+(H2-14)+" "+f1(x+lean)+" "+(H2-20)+" "+f1(x+lean*1.6)+" "+(H2-12)+" " });
+    P(jg,ring,9700+i*90,450,"1",".7");
+    var dg=S("g",{fill:"#DCE9F5",stroke:"none"},fg); drops.push(dg); [[cx-6,12],[cx+6,12],[cx-14,30],[cx+14,30],[cx,6],[W2*.2,H2-24],[W2*.8,H2-24]].forEach(function(p){ S("circle",{cx:f1(p[0]),cy:p[1],r:1.3,opacity:0},dg) }) });
   // the Damascus Sword on its plaza in front of the Opera — outline traced from the photograph (widths measured every 4 px):
   // a slim white triangle to 63% of the height, a flare to the two side points at 83%, back to a narrow foot; the glass is a strip
   // up the middle of the spire and a wide fan at the base, in the flag's bands: green, white with the three red stars, black at the foot.
-  var SH=230, SWW=120, C0=SWW/2;
-  var swP=plane(PZ.x,PZ.y,SWW,SH), swg=swP.g, swEl=swP.el; swEl.classList.add("sk-sword"); swg.setAttribute("stroke","none");
+  var SH=230, SWW=120, C0=SWW/2, pulse, sparkle;
+  function buildSword(rz){
+  var swP=plane(PZ.x,PZ.y,SWW,SH,rz), swg=swP.g, swEl=swP.el; swEl.classList.add("sk-sword"); swg.setAttribute("stroke","none");
   var Y=function(p){ return f1(SH*p) }, X=function(p){ return f1(C0+SH*p) };
   var CONC="#EDE9E0", GRN="#2E8B57", WHT="#F4F2ED", BLK="#1A1E27", RED="#C8102E";
   var bodyD="M"+X(0)+" 0 C"+X(0.017)+" "+Y(0.21)+" "+X(0.034)+" "+Y(0.42)+" "+X(0.05)+" "+Y(0.63)+" C"+X(0.06)+" "+Y(0.74)+" "+X(0.11)+" "+Y(0.80)+" "+X(0.21)+" "+Y(0.83)+" C"+X(0.10)+" "+Y(0.87)+" "+X(0.04)+" "+Y(0.93)+" "+X(0.026)+" "+Y(1)+" L"+X(-0.026)+" "+Y(1)+" C"+X(-0.04)+" "+Y(0.93)+" "+X(-0.10)+" "+Y(0.87)+" "+X(-0.21)+" "+Y(0.83)+" C"+X(-0.11)+" "+Y(0.80)+" "+X(-0.06)+" "+Y(0.74)+" "+X(-0.05)+" "+Y(0.63)+" C"+X(-0.034)+" "+Y(0.42)+" "+X(-0.017)+" "+Y(0.21)+" "+X(0)+" 0 Z";
   var glassD="M"+X(0)+" "+Y(0.10)+" C"+X(0.007)+" "+Y(0.28)+" "+X(0.015)+" "+Y(0.46)+" "+X(0.022)+" "+Y(0.63)+" C"+X(0.026)+" "+Y(0.72)+" "+X(0.084)+" "+Y(0.79)+" "+X(0.19)+" "+Y(0.835)+" C"+X(0.09)+" "+Y(0.88)+" "+X(0.04)+" "+Y(0.94)+" "+X(0.012)+" "+Y(0.99)+" L"+X(-0.012)+" "+Y(0.99)+" C"+X(-0.04)+" "+Y(0.94)+" "+X(-0.09)+" "+Y(0.88)+" "+X(-0.19)+" "+Y(0.835)+" C"+X(-0.084)+" "+Y(0.79)+" "+X(-0.026)+" "+Y(0.72)+" "+X(-0.022)+" "+Y(0.63)+" C"+X(-0.015)+" "+Y(0.46)+" "+X(-0.007)+" "+Y(0.28)+" "+X(0)+" "+Y(0.10)+" Z";
-  var defsS=S("defs",{},swP.svg), clipG=S("clipPath",{id:"skGlass"},defsS); S("path",{d:glassD},clipG);
+  var cid="skGlass"+rz, defsS=S("defs",{},swP.svg), clipG=S("clipPath",{id:cid},defsS); S("path",{d:glassD},clipG);
   var conc=S("g",{opacity:0},swg);
   S("path",{d:bodyD,fill:CONC},conc);
-  var glass=S("g",{"clip-path":"url(#skGlass)",opacity:0},swg);
+  var glass=S("g",{"clip-path":"url(#"+cid+")",opacity:0},swg);
   S("rect",{x:0,y:0,width:SWW,height:Y(0.70),fill:GRN,opacity:".95"},glass);
   S("rect",{x:0,y:Y(0.70),width:SWW,height:Y(0.20),fill:WHT,opacity:".97"},glass);
   S("rect",{x:0,y:Y(0.90),width:SWW,height:Y(0.12),fill:BLK,opacity:".95"},glass);
@@ -8414,8 +8497,11 @@ function sketchBuild(){
   var lights=S("g",{fill:"#FFF3D0"},conc2); [[.012,.14],[.019,.24],[.026,.34],[.033,.44],[.041,.54]].forEach(function(l){ S("circle",{cx:X(-l[0]),cy:Y(l[1]),r:SH*.0026},lights); S("circle",{cx:X(l[0]),cy:Y(l[1]),r:SH*.0026},lights) });
   fades.push([conc,10100,900,1]); fades.push([glass,10600,800,1]); fades.push([conc2,10700,600,1]);
   var spire=P(swg,bodyD,9900,1200,"1.6",null,"#F4F2ED");
-  var pulse=S("path",{d:bodyD,stroke:SOFT,"stroke-width":"2.6",fill:"none",opacity:0,"stroke-linecap":"round"},swg);
-  var sparkle=S("path",{d:"M"+C0+" 0 m0 -12 l2.4 9.6 l9.6 2.4 l-9.6 2.4 l-2.4 9.6 l-2.4 -9.6 l-9.6 -2.4 l9.6 -2.4 z",fill:SOFT,stroke:"none",opacity:0},swg); sparkle.style.transformOrigin=C0+"px 0px";
+  if(rz) return;
+  pulse=S("path",{d:bodyD,stroke:SOFT,"stroke-width":"2.6",fill:"none",opacity:0,"stroke-linecap":"round"},swg);
+  sparkle=S("path",{d:"M"+C0+" 0 m0 -12 l2.4 9.6 l9.6 2.4 l-9.6 2.4 l-2.4 9.6 l-2.4 -9.6 l-9.6 -2.4 l9.6 -2.4 z",fill:SOFT,stroke:"none",opacity:0},swg); sparkle.style.transformOrigin=C0+"px 0px";
+  }
+  buildSword(0); buildSword(90);
 
   /* ── stage measurement: the final picture fills the column beside the headline, from the header down to the search bar ── */
   var W=1600,H=900, band={x:0,y:0,w:640,h:420}, stageK=1, stageDX=0, stageDY=0, done=false, anims=[];
@@ -8437,9 +8523,22 @@ function sketchBuild(){
   function prep(){ items.forEach(function(it){ var L=it[0].getTotalLength?it[0].getTotalLength():300; it[0].style.strokeDasharray=L; it[0].style.strokeDashoffset=L }) }
   function startAll(){ items.forEach(function(it){ var L=parseFloat(it[0].style.strokeDasharray); anims.push(it[0].animate([{strokeDashoffset:L},{strokeDashoffset:0}],{delay:it[1],duration:it[2],fill:"both",easing:"cubic-bezier(.4,0,.2,1)"})) });
     fades.forEach(function(f){ anims.push(f[0].animate([{opacity:0},{opacity:f[3]}],{delay:f[1],duration:f[2],fill:"both"})) }) }
-  function an(el,kf,o){ anims.push(el.animate(kf,Object.assign({fill:"both"},o))) }
+  function an(el,kf,o){ var a=el.animate(kf,Object.assign({fill:"both"},o)); anims.push(a); return a }
+  var camTilt=null, camSpin=null, restCam=null;
   var restTimer=null, tick=0;
+  // at rest the square follows the pointer a little: a few degrees of turn and tilt, easing back when the pointer leaves
+  function hoverParallax(){
+    restCam=finalCam();
+    [camTilt,camSpin].forEach(function(a){ if(a){ try{ a.commitStyles() }catch(e){} a.cancel() } });
+    tilt.style.transform="rotateX("+restCam.t+"deg)"; spin.style.transform="rotateZ("+restCam.s+"deg)"; stage.classList.add("sk-rest");
+    var host=document.querySelector(".home-hero .hero-outer")||stage;
+    if(!(window.matchMedia&&matchMedia("(hover:hover)").matches)) return;
+    host.addEventListener("mousemove",function(e){ var r=stage.getBoundingClientRect(); var dx=((e.clientX-r.left)/r.width-.5)*2, dy=((e.clientY-r.top)/r.height-.5)*2; dx=Math.max(-1.4,Math.min(1.4,dx)); dy=Math.max(-1.4,Math.min(1.4,dy));
+      spin.style.transform="rotateZ("+(restCam.s+dx*7).toFixed(2)+"deg)"; tilt.style.transform="rotateX("+(restCam.t-dy*3).toFixed(2)+"deg)" });
+    host.addEventListener("mouseleave",function(){ spin.style.transform="rotateZ("+restCam.s+"deg)"; tilt.style.transform="rotateX("+restCam.t+"deg)" });
+  }
   function rest(){
+    hoverParallax();
     jets.forEach(function(j,i){ j.animate([{transform:"scaleY(.9)"},{transform:"scaleY(1.06)"}],{duration:1500+i*200,direction:"alternate",iterations:Infinity,easing:"ease-in-out"}) });
     drops.forEach(function(dg){ [].slice.call(dg.children).forEach(function(c,i){ c.animate([{opacity:0,transform:"translateY(6px)"},{opacity:.9,offset:.3},{opacity:0,transform:"translateY(-10px)"}],{duration:1400,delay:i*260,iterations:Infinity}) }) });
     var beat=function(){ tick++;
@@ -8457,8 +8556,8 @@ function sketchBuild(){
     an(stage,[{transform:"translate("+stageDX+"px,"+stageDY+"px) scale("+stageK+")"},{transform:"translate(0,0) scale(1)"}],{delay:500,duration:1900,easing:EASE});
     // the camera — one path, four channels
     var fc=finalCam(), FX=fc.x, FY=fc.y, FZ=fc.z, FS=fc.s;
-    an(tilt,kf([[0,"transform","rotateX(84deg)",EASE],[2800,"transform","rotateX(78deg)",EASE],[5400,"transform","rotateX(0deg)","cubic-bezier(.4,0,.2,1)"],[7800,"transform","rotateX(0deg)",EASE],[10400,"transform","rotateX("+fc.t+"deg)",EASE],[T,"transform","rotateX("+fc.t+"deg)"]]),{duration:T});
-    an(spin,kf([[0,"transform","rotateZ(0deg)"],[4400,"transform","rotateZ(0deg)","cubic-bezier(.4,0,.3,1)"],[7800,"transform","rotateZ(55deg)","cubic-bezier(.5,0,.3,1)"],[10400,"transform","rotateZ("+FS+"deg)"],[T,"transform","rotateZ("+FS+"deg)"]]),{duration:T});
+    camTilt=an(tilt,kf([[0,"transform","rotateX(84deg)",EASE],[2800,"transform","rotateX(78deg)",EASE],[5400,"transform","rotateX(0deg)","cubic-bezier(.4,0,.2,1)"],[7800,"transform","rotateX(0deg)",EASE],[10400,"transform","rotateX("+fc.t+"deg)",EASE],[T,"transform","rotateX("+fc.t+"deg)"]]),{duration:T});
+    camSpin=an(spin,kf([[0,"transform","rotateZ(0deg)"],[4400,"transform","rotateZ(0deg)","cubic-bezier(.4,0,.3,1)"],[7800,"transform","rotateZ(55deg)","cubic-bezier(.5,0,.3,1)"],[10400,"transform","rotateZ("+FS+"deg)"],[T,"transform","rotateZ("+FS+"deg)"]]),{duration:T});
     an(zoom,kf([[0,"transform","scale(3.1)",EASE],[2800,"transform","scale(2.1)",EASE],[5400,"transform","scale(1.15)",EASE],[7800,"transform","scale(1.15)",EASE],[10400,"transform","scale("+FZ+")"],[T,"transform","scale("+FZ+")"]]),{duration:T});
     an(pan,kf([[0,"transform","translate(-300px,-62px)"],[3400,"transform","translate(-300px,-62px)",EASE],[6400,"transform","translate("+(-SQ.x)+"px,"+(-SQ.y)+"px)",EASE],[7800,"transform","translate("+(-SQ.x)+"px,"+(-SQ.y)+"px)",EASE],[10400,"transform","translate("+FX+"px,"+FY+"px)"],[T,"transform","translate("+FX+"px,"+FY+"px)"]]),{duration:T});
     setTimeout(function(){ done=true; rest() },T+300);
@@ -8616,6 +8715,17 @@ function applyReveals(){
 
 /* custom cursor — desktop with a real mouse only; the native cursor stays on text fields
    and the map, and everything reverts the moment a touch is detected */
+function initCursorRing(){
+  if(!(window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches)) return;
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  var ring=document.createElement("div"); ring.className="cur-ring"; document.body.appendChild(ring);
+  var x=innerWidth/2,y=innerHeight/2,tx=x,ty=y, shown=false;
+  var INTER="a,button,input,select,textarea,label,[data-go],[role=button],.menu,.chipsel-drop,.pricepop,.sbar,.adslot,.adcarousel-arrow,.chip,.mapf-panel,.leaflet-container";
+  document.addEventListener("mousemove",function(e){ tx=e.clientX; ty=e.clientY; if(!shown){ shown=true; ring.classList.add("show") } ring.classList.toggle("hide", !!(e.target.closest&&e.target.closest(INTER))) },{passive:true});
+  document.addEventListener("mouseleave",function(){ ring.classList.remove("show") });
+  document.addEventListener("mouseenter",function(){ if(shown) ring.classList.add("show") });
+  (function tick(){ x+=(tx-x)*.22; y+=(ty-y)*.22; ring.style.left=x.toFixed(1)+"px"; ring.style.top=y.toFixed(1)+"px"; requestAnimationFrame(tick) })();
+}
 function initCursor(){
   if(!window.matchMedia || !matchMedia("(pointer:fine)").matches || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   var c=document.createElement("div"); c.className="cur hide"; document.body.appendChild(c);
@@ -8629,9 +8739,8 @@ function initCursor(){
     mx=e.clientX; my=e.clientY;
     if(!shown){ shown=true; cx=mx; cy=my; document.body.classList.add("has-cur"); c.classList.remove("hide") }
     if(!raf) raf=requestAnimationFrame(loop);
-    var el=e.target, hot=el.closest && el.closest("a,button,[data-go],label,.card,.chip,.stabs button,select,.thumbs img,.leaflet-marker-icon");
-    var txt=el.closest && el.closest("input,textarea");
-    c.classList.toggle("big",!!hot && !txt); c.classList.toggle("hide",!!txt);
+    var el=e.target, hot=el.closest && el.closest("a,button,[data-go],[role=button],label,input,select,textarea,.chip,.stabs,.sbar,.menu,.chipsel-drop,.pricepop,.mapf-panel,.adslot,.adcarousel-arrow,.leaflet-container,.thumbs img");
+    c.classList.toggle("hide",!!hot);
   },{passive:true});
   document.documentElement.addEventListener("mouseleave",function(){ c.classList.add("hide") });
   document.documentElement.addEventListener("mouseenter",function(){ if(shown) c.classList.remove("hide") });
@@ -8662,6 +8771,21 @@ var GX_T={
   price:{ar:"السعر",en:"Price",de:"Preis"}, anyPrice:{ar:"أي سعر",en:"Any price",de:"Jeder Preis"}, from:{ar:"من",en:"From",de:"Von"}, to:{ar:"إلى",en:"To",de:"Bis"}, done:{ar:"تم",en:"Done",de:"Fertig"},
   upTo:{ar:"حتى",en:"Up to",de:"Bis"}, andUp:{ar:"وأكثر",en:"and up",de:"und mehr"}, map:{ar:"الخريطة",en:"Map",de:"Karte"}
 };
+/* the headline's last word flips every few seconds to the brand: الشرفة → منصة بلكون, balcony → Balkoun.com */
+function heroSubHtml(txt){
+  // the brand face: the letters of "balkoun" / "بلكون" light up one after the other like a wave.
+  // Latin letters can also rise (inline-block); Arabic letters stay inline so they remain joined, and glow instead.
+  var AR=["ﺑ","ﻠ","ﻜ","ﻮ","ﻥ"]; // ب ل ك و ن in their contextual shapes (initial, medial, medial, final, isolated)
+  var alt = L==="ar" ? 'منصة <span class="plword" aria-label="بلكون">'+AR.map(function(ch,i){ return '<span class="pla" style="--i:'+i+'">'+ch+'</span>' }).join("")+'</span>'
+          : 'www.'+"balkoun".split("").map(function(ch,i){ return '<span class="pl" style="--i:'+i+'">'+ch+'</span>' }).join("")+'.com';
+  var m=String(txt||"").match(/^(.*?)(\S+?)([.!؟?]*)\s*$/);
+  if(!m||!m[2]) return txt;
+  var before=m[1], face1=m[2]+m[3];
+  // "from the balcony" → "from www.balkoun.com": the article flips away together with the noun
+  var art=L!=="ar" ? before.match(/(^|\s)(the|a|an|dem|der|die|das|den|vom|am|im|zum|zur)\s*$/i) : null;
+  if(art){ before=before.slice(0,art.index+art[1].length); face1=art[2]+" "+face1 }
+  return before+'<span class="flipw"><span class="flipw-in"><span class="f1">'+face1+'</span><span class="f2">'+alt+'</span></span></span>';
+}
 /* hero price field: label text and quick presets in the current currency */
 function heroPriceLabel(){
   // short numbers so a range fits in the box: $50k – $120k, 1.2M ل.س
@@ -8804,5 +8928,5 @@ if(USER&&DB){
   }).catch(function(){ /* network/connection failure — not a verdict on the session, so it stays as-is */ });
 }
 applyGeoCache();
-Promise.all([loadListings(),loadCounts(),loadSiteContent(),loadAdSlots(),loadGeo()]).then(function(){ render(); startAdRotation(); startAdCarouselRotation(); startBannerRotation(); startFeaturedPolling(); startListingsPolling() });
+Promise.all([loadListings(),loadCounts(),loadSiteContent(),loadAdSlots(),loadGeo()]).then(function(){ render(); initCursor(); startAdRotation(); startAdCarouselRotation(); startBannerRotation(); startFeaturedPolling(); startListingsPolling() });
 </script></body></html>
