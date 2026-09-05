@@ -8170,7 +8170,7 @@ function sketchBuild(){
   function P(g,d,t,dur,w,op,col){ var p=S("path",{d:d},g); if(w) p.setAttribute("stroke-width",w); if(op) p.setAttribute("stroke-opacity",op); if(col) p.setAttribute("stroke",col); items.push([p,t,dur]); return p }
   function Ci(g,cx,cy,r,t,dur,w,op){ var c=S("circle",{cx:cx,cy:cy,r:r},g); if(w) c.setAttribute("stroke-width",w); if(op) c.setAttribute("stroke-opacity",op); items.push([c,t,dur]); return c }
   // a vertical plane standing on the ground with its bottom edge at world (x,y), facing south (the camera side)
-  function plane(x,y,w,h,rz,z){ var d=D("sk-pl",pan); d.style.cssText="left:"+(500+x-w/2)+"px;top:"+(500+y-h)+"px;width:"+w+"px;height:"+h+"px;transform:"+(z?"translateZ("+z+"px) ":"")+(rz?"rotateZ("+rz+"deg) ":"")+"rotateX(-90deg)"; var s=S("svg",{viewBox:"0 0 "+w+" "+h,preserveAspectRatio:"none"},d); return {el:d,svg:s,g:G(s)} }
+  function plane(x,y,w,h,rz,z){ var d=D("sk-pl",pan); d.style.cssText="left:"+(500+x-w/2)+"px;top:"+(500+y-h)+"px;width:"+w+"px;height:"+h+"px;transform:translateZ("+(z!=null?z:5)+"px) "+(rz?"rotateZ("+rz+"deg) ":"")+"rotateX(-90deg)"; var s=S("svg",{viewBox:"0 0 "+w+" "+h,preserveAspectRatio:"none"},d); return {el:d,svg:s,g:G(s)} }
   // a horizontal plane (a roof) lifted z above the ground, centred on world (x,y)
   function flat(x,y,w,h,z){ var d=D("sk-pl",pan); d.style.cssText="left:"+(500+x-w/2)+"px;top:"+(500+y-h/2)+"px;width:"+w+"px;height:"+h+"px;transform-origin:50% 50%;transform:translateZ("+z+"px)"; var s=S("svg",{viewBox:"0 0 "+w+" "+h,preserveAspectRatio:"none"},d); return {el:d,svg:s,g:G(s)} }
 
@@ -8289,7 +8289,7 @@ function sketchBuild(){
   var conc=S("g",{opacity:0},swg);
   S("path",{d:starD,fill:"none",stroke:CONC,"stroke-width":f1(SH*.01),"stroke-linejoin":"round"},conc);                      // the rim: the side blades
   S("path",{d:"M"+X(-0.0035)+" 0 L"+X(0.0035)+" 0 L"+X(0.0055)+" "+Y(1)+" L"+X(-0.0055)+" "+Y(1)+" Z",fill:CONC},conc);      // the front blade, edge-on
-  S("rect",{x:X(-0.05),y:Y(1),width:f1(SH*.10),height:f1(SH*.01),fill:CONC,opacity:".85"},conc);                                // footing
+  S("rect",{x:X(-0.05),y:Y(1),width:f1(SH*.10),height:"7",fill:CONC,opacity:".85"},conc);                                // footing
   var lights=S("g",{fill:"#FFF3D0"},conc); [[.005,.12],[.008,.24],[.011,.36],[.015,.48],[.021,.60],[.032,.72]].forEach(function(l){ S("circle",{cx:X(-l[0]),cy:Y(l[1]),r:SH*.003},lights); S("circle",{cx:X(l[0]),cy:Y(l[1]),r:SH*.003},lights) });
   fades.push([conc,10100,900,1]);
   // the drawing strokes that build it before the solids fade in
