@@ -1278,7 +1278,8 @@ footer{font-size:14px}
 /* hero */
 .home-hero .hero-outer{background:#0F1B33}
 .hv{overflow:hidden} /* the slow zoom on the hero video/photo must not widen the page */
-.home-hero .hero{min-height:min(46vh,440px);padding:100px 0 6px}
+/* the hero takes the screen height minus the header and the ad section, so the ad row always ends inside the first screen, on any monitor */
+.home-hero .hero{min-height:clamp(380px,calc(100vh - 290px),640px);padding:100px 0 6px}
 .home-hero .hero h1{font-size:clamp(34px,4.8vw,66px);line-height:1.2;margin-bottom:26px;max-width:16ch;letter-spacing:-.005em}
 .home-hero .hscrim{background:linear-gradient(to bottom,rgba(15,27,51,.66),rgba(15,27,51,.22) 30%,rgba(15,27,51,.18) 60%,rgba(15,27,51,.82))}
 .home-hero .topbanner-wrap{padding:22px 0 0}
@@ -8522,7 +8523,7 @@ function sketchBuild(){
   // a slim white triangle to 63% of the height, a flare to the two side points at 83%, back to a narrow foot; the glass is a strip
   // up the middle of the spire and a wide fan at the base, in the flag's bands: green, white with the three red stars, black at the foot.
   var SH=230, SWW=120, C0=SWW/2, pulse, sparkle;
-  var swordRig=D("sk-rig",pan); swordRig.style.cssText="left:"+(500+PZ.x)+"px;top:"+(500+PZ.y)+"px;width:0;height:0;position:absolute;transform-style:preserve-3d;transform-origin:0 0";
+  var swordRig=D("sk-rig",pan); swordRig.style.cssText="left:"+(500+PZ.x)+"px;top:"+(500+PZ.y)+"px;width:0;height:0;position:absolute;transform-style:preserve-3d;transform-origin:0 0"; var SWORD_REST=0;
   function buildSword(rz,off,back){
   var swP=plane(rz?off:0,rz?0:off,SWW,SH,rz,1,swordRig), swg=swP.g, swEl=swP.el; if(back) swEl.style.filter="brightness(.72)"; swEl.classList.add("sk-sword"); swg.setAttribute("stroke","none");
   var Y=function(p){ return f1(SH*p) }, X=function(p){ return f1(C0+SH*p) };
@@ -8548,7 +8549,7 @@ function sketchBuild(){
   pulse=S("path",{d:bodyD,stroke:SOFT,"stroke-width":"2.6",fill:"none",opacity:0,"stroke-linecap":"round"},swg);
   sparkle=S("path",{d:"M"+C0+" 0 m0 -12 l2.4 9.6 l9.6 2.4 l-9.6 2.4 l-2.4 9.6 l-2.4 -9.6 l-9.6 -2.4 l9.6 -2.4 z",fill:SOFT,stroke:"none",opacity:0},swg); sparkle.style.transformOrigin=C0+"px 0px";
   }
-  buildSword(0,-2.5,false); buildSword(0,2.5,true); buildSword(90,-2.5,false); buildSword(90,2.5,true);
+  buildSword(0,-2.5,false); buildSword(0,2.5,true);
 
   /* ── stage measurement: the final picture fills the column beside the headline, from the header down to the search bar ── */
   var W=1600,H=900, band={x:0,y:0,w:640,h:420}, stageK=1, stageDX=0, stageDY=0, done=false, anims=[];
@@ -8592,12 +8593,7 @@ function sketchBuild(){
         var dx=Math.max(-1.4,Math.min(1.4,((e.clientX-r.left)/r.width-.5)*2)), dy=Math.max(-1.4,Math.min(1.4,((e.clientY-r.top)/r.height-.5)*2));
         spin.style.transform="rotateZ("+(restCam.s+dx*7).toFixed(2)+"deg)"; tilt.style.transform="rotateX("+(restCam.t-dy*3).toFixed(2)+"deg)";
         // the Sword spins when the pointer is on it
-        // the Sword spins when the pointer is over it (hit-tested on the blades' screen box, since an overlay sits above the scene)
-        var sr=null; [].slice.call(swordRig.querySelectorAll(".sk-pl")).forEach(function(p){ var b=p.getBoundingClientRect(); if(!b.width) return; sr = sr ? {left:Math.min(sr.left,b.left),top:Math.min(sr.top,b.top),right:Math.max(sr.right,b.right),bottom:Math.max(sr.bottom,b.bottom)} : {left:b.left,top:b.top,right:b.right,bottom:b.bottom} });
-        var onSword = sr && e.clientX>=sr.left-10 && e.clientX<=sr.right+10 && e.clientY>=sr.top-10 && e.clientY<=sr.bottom+10;
-        if(onSword){ swordHover=true; var sx=((e.clientX-sr.left)/Math.max(40,sr.right-sr.left)-.5)*2; swordAngle=sx*110; swordRig.style.transform="rotateZ("+swordAngle.toFixed(1)+"deg)" }
-        else if(swordHover){ swordHover=false; swordRig.style.transform="rotateZ(0deg)" }
-      } else if(inside){ inside=false; spin.style.transform="rotateZ("+restCam.s+"deg)"; tilt.style.transform="rotateX("+restCam.t+"deg)"; swordRig.style.transform="rotateZ(0deg)" }
+      } else if(inside){ inside=false; spin.style.transform="rotateZ("+restCam.s+"deg)"; tilt.style.transform="rotateX("+restCam.t+"deg)" }
     },{passive:true});
   }
   function rest(){
