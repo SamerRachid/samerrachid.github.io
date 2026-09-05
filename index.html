@@ -1169,12 +1169,14 @@ footer{font-size:14px}
 .hv .sk-tilt,.hv .sk-spin,.hv .sk-zoom,.hv .sk-pan{position:absolute;left:0;top:0;width:1000px;height:1000px;transform-origin:500px 500px;transform-style:preserve-3d;will-change:transform}
 .hv .sk-ground{position:absolute;left:0;top:0;width:1000px;height:1000px;display:block;overflow:visible}
 .hv .sk-pl{position:absolute;transform-origin:50% 100%;transform-style:preserve-3d;backface-visibility:visible}
+.hv .sk-rig{transition:transform .35s cubic-bezier(.2,.7,.2,1);will-change:transform}
+.hv .sk-rig .sk-pl{pointer-events:auto}
 .hv .sk-pl svg{display:block;width:100%;height:100%;overflow:visible}
 .hv .sk-stage.sk-rest .sk-tilt,.hv .sk-stage.sk-rest .sk-spin{transition:transform 1.1s cubic-bezier(.2,.7,.2,1)}
 /* ── the sponsored row: a framed navy section under the hero, gliding cards with sponsor chips, one featured wide card, a progress line ── */
-.adsec{background:radial-gradient(120% 90% at 50% 20%,#1B2C52,#14213D 70%);padding:14px 0 22px;margin-top:-1px}
+.adsec{background:radial-gradient(120% 90% at 50% 20%,#1B2C52,#14213D 70%);padding:6px 0 18px;margin-top:-1px}
 .adsec .wrap{max-width:1220px}
-.ad-eyebrow{display:flex;align-items:center;gap:10px;color:#E3B563;font-size:12.5px;font-weight:600;margin-bottom:12px}
+.ad-eyebrow{display:flex;align-items:center;gap:10px;color:#E3B563;font-size:12.5px;font-weight:600;margin-bottom:8px}
 .ad-eyebrow::before{content:"";width:28px;height:2px;background:var(--gold)}
 .ad-eyebrow small{color:rgba(255,255,255,.55);font-weight:400}
 .adsec .adcarousel{padding:0;margin:0}
@@ -1276,7 +1278,7 @@ footer{font-size:14px}
 /* hero */
 .home-hero .hero-outer{background:#0F1B33}
 .hv{overflow:hidden} /* the slow zoom on the hero video/photo must not widen the page */
-.home-hero .hero{min-height:min(60vh,580px);padding:108px 0 28px}
+.home-hero .hero{min-height:min(46vh,440px);padding:100px 0 6px}
 .home-hero .hero h1{font-size:clamp(34px,4.8vw,66px);line-height:1.2;margin-bottom:26px;max-width:16ch;letter-spacing:-.005em}
 .home-hero .hscrim{background:linear-gradient(to bottom,rgba(15,27,51,.66),rgba(15,27,51,.22) 30%,rgba(15,27,51,.18) 60%,rgba(15,27,51,.82))}
 .home-hero .topbanner-wrap{padding:22px 0 0}
@@ -1465,6 +1467,9 @@ footer{font-size:14px}
 }
 /* type, as Bayut sets it: Noto Kufi Arabic (the open successor of Droid Arabic Kufi) for Arabic, Lato for English and German */
 [dir=ltr]{--f:'Lato','Noto Kufi Arabic',system-ui,sans-serif;--fd:'Lato','Noto Kufi Arabic',system-ui,sans-serif}
+/* English and German headlines are longer: a slightly smaller size and a wider column keep them to two lines, so the hero stays the same height as in Arabic */
+[dir=ltr] .home-hero .hero h1{font-size:clamp(32px,4.3vw,58px);max-width:62%}
+@media(max-width:900px){[dir=ltr] .home-hero .hero h1{max-width:none}}
 h1,h2,h3,.logo,.hero h1{letter-spacing:0}
 </style><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
@@ -4564,7 +4569,7 @@ function adSlotsRow(){
        'frameborder="0" allow="autoplay; encrypted-media" allowfullscreen="0"></iframe>' :
        '<div class="adslot-empty">'+(a.label||t("adPlaceholder"))+'</div>';
    } else if(isUploadedVideo){
-     media = overlayTop+overlayBottom+'<video src="'+a.image_url+'" muted loop playsinline preload="metadata" data-hoverplay></video><span class="adplay" aria-hidden="true"></span>';
+     media = overlayTop+overlayBottom+'<video src="'+a.image_url+'" autoplay muted loop playsinline data-hoverplay></video>';
    } else if(manualImgs){
      media = overlayTop+overlayBottom+'<img class="adslot-rotimg" src="'+manualImgs[0]+'" data-photos="'+
        encodeURIComponent(JSON.stringify(manualImgs))+'" data-idx="0" alt="'+((a.label||"").replace(/"/g,"&quot;"))+'" loading="lazy">';
@@ -8388,7 +8393,7 @@ function sketchBuild(){
   function P(g,d,t,dur,w,op,col){ var p=S("path",{d:d},g); if(w) p.setAttribute("stroke-width",w); if(op) p.setAttribute("stroke-opacity",op); if(col) p.setAttribute("stroke",col); items.push([p,t,dur]); return p }
   function Ci(g,cx,cy,r,t,dur,w,op){ var c=S("circle",{cx:cx,cy:cy,r:r},g); if(w) c.setAttribute("stroke-width",w); if(op) c.setAttribute("stroke-opacity",op); items.push([c,t,dur]); return c }
   // a vertical plane standing on the ground with its bottom edge at world (x,y), facing south (the camera side)
-  function plane(x,y,w,h,rz,z){ var d=D("sk-pl",pan); d.style.cssText="left:"+(500+x-w/2)+"px;top:"+(500+y-h)+"px;width:"+w+"px;height:"+h+"px;transform:translateZ("+(z!=null?z:1)+"px) "+(rz?"rotateZ("+rz+"deg) ":"")+"rotateX(-90deg)"; var s=S("svg",{viewBox:"0 0 "+w+" "+h,preserveAspectRatio:"none"},d); return {el:d,svg:s,g:G(s)} }
+  function plane(x,y,w,h,rz,z,parent){ var d=D("sk-pl",parent||pan), ox=parent?0:500, oy=parent?0:500; d.style.cssText="left:"+(ox+x-w/2)+"px;top:"+(oy+y-h)+"px;width:"+w+"px;height:"+h+"px;transform:translateZ("+(z!=null?z:1)+"px) "+(rz?"rotateZ("+rz+"deg) ":"")+"rotateX(-90deg)"; var s=S("svg",{viewBox:"0 0 "+w+" "+h,preserveAspectRatio:"none"},d); return {el:d,svg:s,g:G(s)} }
   // a horizontal plane (a roof) lifted z above the ground, centred on world (x,y)
   function flat(x,y,w,h,z){ var d=D("sk-pl",pan); d.style.cssText="left:"+(500+x-w/2)+"px;top:"+(500+y-h/2)+"px;width:"+w+"px;height:"+h+"px;transform-origin:50% 50%;transform:translateZ("+z+"px)"; var s=S("svg",{viewBox:"0 0 "+w+" "+h,preserveAspectRatio:"none"},d); return {el:d,svg:s,g:G(s)} }
 
@@ -8517,8 +8522,9 @@ function sketchBuild(){
   // a slim white triangle to 63% of the height, a flare to the two side points at 83%, back to a narrow foot; the glass is a strip
   // up the middle of the spire and a wide fan at the base, in the flag's bands: green, white with the three red stars, black at the foot.
   var SH=230, SWW=120, C0=SWW/2, pulse, sparkle;
-  function buildSword(rz){
-  var swP=plane(PZ.x,PZ.y,SWW,SH,rz), swg=swP.g, swEl=swP.el; swEl.classList.add("sk-sword"); swg.setAttribute("stroke","none");
+  var swordRig=D("sk-rig",pan); swordRig.style.cssText="left:"+(500+PZ.x)+"px;top:"+(500+PZ.y)+"px;width:0;height:0;position:absolute;transform-style:preserve-3d;transform-origin:0 0";
+  function buildSword(rz,off,back){
+  var swP=plane(rz?off:0,rz?0:off,SWW,SH,rz,1,swordRig), swg=swP.g, swEl=swP.el; if(back) swEl.style.filter="brightness(.72)"; swEl.classList.add("sk-sword"); swg.setAttribute("stroke","none");
   var Y=function(p){ return f1(SH*p) }, X=function(p){ return f1(C0+SH*p) };
   var CONC="#EDE9E0", GRN="#2E8B57", WHT="#F4F2ED", BLK="#1A1E27", RED="#C8102E";
   var bodyD="M"+X(0)+" 0 C"+X(0.017)+" "+Y(0.21)+" "+X(0.034)+" "+Y(0.42)+" "+X(0.05)+" "+Y(0.63)+" C"+X(0.06)+" "+Y(0.74)+" "+X(0.11)+" "+Y(0.80)+" "+X(0.21)+" "+Y(0.83)+" C"+X(0.10)+" "+Y(0.87)+" "+X(0.04)+" "+Y(0.93)+" "+X(0.026)+" "+Y(1)+" L"+X(-0.026)+" "+Y(1)+" C"+X(-0.04)+" "+Y(0.93)+" "+X(-0.10)+" "+Y(0.87)+" "+X(-0.21)+" "+Y(0.83)+" C"+X(-0.11)+" "+Y(0.80)+" "+X(-0.06)+" "+Y(0.74)+" "+X(-0.05)+" "+Y(0.63)+" C"+X(-0.034)+" "+Y(0.42)+" "+X(-0.017)+" "+Y(0.21)+" "+X(0)+" 0 Z";
@@ -8538,11 +8544,11 @@ function sketchBuild(){
   var lights=S("g",{fill:"#FFF3D0"},conc2); [[.012,.14],[.019,.24],[.026,.34],[.033,.44],[.041,.54]].forEach(function(l){ S("circle",{cx:X(-l[0]),cy:Y(l[1]),r:SH*.0026},lights); S("circle",{cx:X(l[0]),cy:Y(l[1]),r:SH*.0026},lights) });
   fades.push([conc,10100,900,1]); fades.push([glass,10600,800,1]); fades.push([conc2,10700,600,1]);
   var spire=P(swg,bodyD,9900,1200,"1.6",null,"#F4F2ED");
-  if(rz) return;
+  if(rz||back) return;
   pulse=S("path",{d:bodyD,stroke:SOFT,"stroke-width":"2.6",fill:"none",opacity:0,"stroke-linecap":"round"},swg);
   sparkle=S("path",{d:"M"+C0+" 0 m0 -12 l2.4 9.6 l9.6 2.4 l-9.6 2.4 l-2.4 9.6 l-2.4 -9.6 l-9.6 -2.4 l9.6 -2.4 z",fill:SOFT,stroke:"none",opacity:0},swg); sparkle.style.transformOrigin=C0+"px 0px";
   }
-  buildSword(0); buildSword(90);
+  buildSword(0,-2.5,false); buildSword(0,2.5,true); buildSword(90,-2.5,false); buildSword(90,2.5,true);
 
   /* ── stage measurement: the final picture fills the column beside the headline, from the header down to the search bar ── */
   var W=1600,H=900, band={x:0,y:0,w:640,h:420}, stageK=1, stageDX=0, stageDY=0, done=false, anims=[];
@@ -8568,15 +8574,31 @@ function sketchBuild(){
   var camTilt=null, camSpin=null, restCam=null;
   var restTimer=null, tick=0;
   // at rest the square follows the pointer a little: a few degrees of turn and tilt, easing back when the pointer leaves
+  // at rest the square follows the pointer a little; over the Sword, the Sword itself turns with the pointer
+  var swordAngle=0, swordHover=false;
   function hoverParallax(){
     restCam=finalCam();
     [camTilt,camSpin].forEach(function(a){ if(a){ try{ a.commitStyles() }catch(e){} a.cancel() } });
     tilt.style.transform="rotateX("+restCam.t+"deg)"; spin.style.transform="rotateZ("+restCam.s+"deg)"; stage.classList.add("sk-rest");
-    var host=document.querySelector(".home-hero .hero-outer")||stage;
     if(!(window.matchMedia&&matchMedia("(hover:hover)").matches)) return;
-    host.addEventListener("mousemove",function(e){ var r=stage.getBoundingClientRect(); var dx=((e.clientX-r.left)/r.width-.5)*2, dy=((e.clientY-r.top)/r.height-.5)*2; dx=Math.max(-1.4,Math.min(1.4,dx)); dy=Math.max(-1.4,Math.min(1.4,dy));
-      spin.style.transform="rotateZ("+(restCam.s+dx*7).toFixed(2)+"deg)"; tilt.style.transform="rotateX("+(restCam.t-dy*3).toFixed(2)+"deg)" });
-    host.addEventListener("mouseleave",function(){ spin.style.transform="rotateZ("+restCam.s+"deg)"; tilt.style.transform="rotateX("+restCam.t+"deg)" });
+    if(window._skParallaxBound) return; window._skParallaxBound=true;
+    var inside=false;
+    document.addEventListener("mousemove",function(e){
+      if(!done || !stage.isConnected) return;
+      var host=document.querySelector(".home-hero .hero-outer"); if(!host) return;
+      var hr=host.getBoundingClientRect(), r=stage.getBoundingClientRect();
+      var over = e.clientX>=hr.left && e.clientX<=hr.right && e.clientY>=hr.top && e.clientY<=hr.bottom;
+      if(over){ inside=true;
+        var dx=Math.max(-1.4,Math.min(1.4,((e.clientX-r.left)/r.width-.5)*2)), dy=Math.max(-1.4,Math.min(1.4,((e.clientY-r.top)/r.height-.5)*2));
+        spin.style.transform="rotateZ("+(restCam.s+dx*7).toFixed(2)+"deg)"; tilt.style.transform="rotateX("+(restCam.t-dy*3).toFixed(2)+"deg)";
+        // the Sword spins when the pointer is on it
+        // the Sword spins when the pointer is over it (hit-tested on the blades' screen box, since an overlay sits above the scene)
+        var sr=null; [].slice.call(swordRig.querySelectorAll(".sk-pl")).forEach(function(p){ var b=p.getBoundingClientRect(); if(!b.width) return; sr = sr ? {left:Math.min(sr.left,b.left),top:Math.min(sr.top,b.top),right:Math.max(sr.right,b.right),bottom:Math.max(sr.bottom,b.bottom)} : {left:b.left,top:b.top,right:b.right,bottom:b.bottom} });
+        var onSword = sr && e.clientX>=sr.left-10 && e.clientX<=sr.right+10 && e.clientY>=sr.top-10 && e.clientY<=sr.bottom+10;
+        if(onSword){ swordHover=true; var sx=((e.clientX-sr.left)/Math.max(40,sr.right-sr.left)-.5)*2; swordAngle=sx*110; swordRig.style.transform="rotateZ("+swordAngle.toFixed(1)+"deg)" }
+        else if(swordHover){ swordHover=false; swordRig.style.transform="rotateZ(0deg)" }
+      } else if(inside){ inside=false; spin.style.transform="rotateZ("+restCam.s+"deg)"; tilt.style.transform="rotateX("+restCam.t+"deg)"; swordRig.style.transform="rotateZ(0deg)" }
+    },{passive:true});
   }
   function rest(){
     hoverParallax();
