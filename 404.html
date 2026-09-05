@@ -2206,7 +2206,7 @@ function home(){
    var v = SITE[baseKey+"_"+L];
    return (v && v.trim()) ? v : t(fallbackKey);
  };
- var heroBgType = SITE.hero_bg_type || "video"; // "video" | "photo" | "none" — default preserves prior behavior
+ var heroBgType = SITE.hero_bg_type || "sketch"; // "video" | "photo" | "dawn" | "sketch" | "none" — sketch is the default when settings have not loaded
  var heroBgHtml;
  if(heroBgType==="photo" && SITE.hero_bg_photo_url){
    heroBgHtml = '<img src="'+SITE.hero_bg_photo_url+'" alt="">';
@@ -7398,7 +7398,7 @@ function heroVideoSpeed(){
 }
 function video(){
  var c=navigator.connection||{},box=$("#hv"); if(!box)return;
- var bgType = SITE.hero_bg_type || "video";
+ var bgType = SITE.hero_bg_type || "sketch";
  // a static photo (or an intentionally empty background) has no
  // "canplay" event to wait for — without this, the box would stay
  // stuck at opacity:0 forever, since nothing else would ever add
