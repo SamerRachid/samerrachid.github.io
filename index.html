@@ -1171,6 +1171,39 @@ footer{font-size:14px}
 .hv .sk-pl{position:absolute;transform-origin:50% 100%;transform-style:preserve-3d;backface-visibility:visible}
 .hv .sk-pl svg{display:block;width:100%;height:100%;overflow:visible}
 .hv .sk-stage.sk-rest .sk-tilt,.hv .sk-stage.sk-rest .sk-spin{transition:transform 1.1s cubic-bezier(.2,.7,.2,1)}
+/* ── the sponsored row: a framed navy section under the hero, gliding cards with sponsor chips, one featured wide card, a progress line ── */
+.adsec{background:radial-gradient(120% 90% at 50% 20%,#1B2C52,#14213D 70%);padding:14px 0 22px;margin-top:-1px}
+.adsec .wrap{max-width:1220px}
+.ad-eyebrow{display:flex;align-items:center;gap:10px;color:#E3B563;font-size:12.5px;font-weight:600;margin-bottom:12px}
+.ad-eyebrow::before{content:"";width:28px;height:2px;background:var(--gold)}
+.ad-eyebrow small{color:rgba(255,255,255,.55);font-weight:400}
+.adsec .adcarousel{padding:0;margin:0}
+.adsec .adcarousel.glide .adcarousel-arrow{display:none}
+.adsec .adcarousel-viewport{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.adsec .adcarousel.glide .adcarousel-track{transition:none;animation:adGlide var(--glide-dur,30s) linear infinite;will-change:transform}
+[dir=rtl] .adsec .adcarousel.glide .adcarousel-track{animation-name:adGlideRtl}
+.adsec:hover .adcarousel-track,.adsec:hover .ad-prog i{animation-play-state:paused}
+@keyframes adGlide{from{transform:translateX(0)}to{transform:translateX(-33.3333%)}}
+@keyframes adGlideRtl{from{transform:translateX(0)}to{transform:translateX(33.3333%)}}
+.adsec .adcarousel-track{align-items:flex-start}
+.adsec .adslot{width:var(--ad-size,130px);height:var(--ad-size,130px);aspect-ratio:auto;flex:none;border-radius:14px;box-shadow:0 14px 30px -14px rgba(0,0,0,.65);background:#0F1B33;transition:transform .25s,box-shadow .25s}
+.adsec .adslot:hover{transform:translateY(-4px);box-shadow:0 22px 40px -16px rgba(0,0,0,.75);z-index:2}
+.adsec .adslot-feat{width:calc(var(--ad-size,130px)*2 + 10px);height:var(--ad-size,130px)}
+.adsec .adslot-feat .adfeat-t{position:absolute;inset-inline:0;bottom:0;padding:34px 14px 12px;background:linear-gradient(to top,rgba(9,14,26,.88),transparent);color:#fff;text-align:start}
+.adsec .adfeat-t b{display:block;font-size:14.5px;line-height:1.3}.adsec .adfeat-t span{font-size:12px;color:rgba(255,255,255,.8)}
+.adsec .adfeat-tag{position:absolute;top:10px;inset-inline-start:10px;background:var(--gold);color:#1A1206;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px}
+.adsec .adslot-feat .adchip{display:none}
+.adsec .adchip{position:absolute;top:8px;inset-inline-start:8px;background:rgba(255,255,255,.93);color:var(--navy);font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;max-width:80%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2}
+.adsec .adtag{display:none}
+.adsec .adplay{position:absolute;left:50%;top:50%;width:36px;height:36px;margin:-18px 0 0 -18px;border-radius:50%;background:rgba(255,255,255,.88);transition:opacity .25s}
+.adsec .adplay::after{content:"";position:absolute;left:14px;top:11px;border-style:solid;border-width:7px 0 7px 11px;border-color:transparent transparent transparent var(--navy)}
+.adsec .adslot.playing .adplay{opacity:0}
+.ad-prog{height:3px;background:rgba(255,255,255,.16);border-radius:2px;margin:14px auto 0;max-width:420px;position:relative;overflow:hidden}
+.ad-prog i{position:absolute;inset-inline-start:0;top:0;height:100%;width:100%;background:var(--gold);border-radius:2px;transform-origin:0 50%;animation:adProg var(--glide-dur,30s) linear infinite}
+[dir=rtl] .ad-prog i{transform-origin:100% 50%}
+@keyframes adProg{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(prefers-reduced-motion:reduce){.adsec .adcarousel.glide .adcarousel-track,.ad-prog i{animation:none}.adsec .adcarousel.glide .adcarousel-arrow{display:grid}}
+@media(max-width:700px){.adsec .adslot-feat{width:calc(var(--ad-size,130px)*1.6)}}
 /* yesterday's cursor: a gold dot with a soft halo riding with the pointer; it disappears over buttons, links, fields and menus */
 .cur{position:fixed;left:0;top:0;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 6px rgba(196,136,31,.18),0 0 18px rgba(227,181,99,.55);pointer-events:none;z-index:200000;opacity:.95;transition:opacity .2s,width .2s,height .2s,box-shadow .2s;will-change:transform}
 .cur.hide{opacity:0}
@@ -4501,7 +4534,11 @@ function adSlotsRow(){
   // no more slicing to the first 16 — every active ad is rendered
   // into the track, and the carousel scrolls/rotates through however
   // many there actually are, showing only a handful at a time
-  var slotsHtml = AD_SLOTS.map(function(a){
+  var slotsHtml = AD_SLOTS.map(function(a,ai){
+   var chipName = a.sponsor_name || a.label || "";
+   var chip = chipName ? '<span class="adchip">'+esc(chipName)+'</span>' : '';
+   var featCls = ai===0 ? ' adslot-feat' : '';
+   var featText = ai===0 && (a.label||a.sponsor_name) ? '<div class="adfeat-t"><span class="adfeat-tag">'+GX("featured")+'</span><b>'+esc(a.label||a.sponsor_name)+'</b>'+(a.label&&a.sponsor_name?'<span>'+esc(a.sponsor_name)+'</span>':'')+'</div>' : '';
    var isLinked = a.linked_listing_id && a.l_photos && a.l_photos.length;
    var isVideoEmbed = !isLinked && a.video_embed_url;
    var isUploadedVideo = a.media_type==="video" && a.image_url;
@@ -4527,7 +4564,7 @@ function adSlotsRow(){
        'frameborder="0" allow="autoplay; encrypted-media" allowfullscreen="0"></iframe>' :
        '<div class="adslot-empty">'+(a.label||t("adPlaceholder"))+'</div>';
    } else if(isUploadedVideo){
-     media = overlayTop+overlayBottom+'<video src="'+a.image_url+'" autoplay muted loop playsinline></video>';
+     media = overlayTop+overlayBottom+'<video src="'+a.image_url+'" muted loop playsinline preload="metadata" data-hoverplay></video><span class="adplay" aria-hidden="true"></span>';
    } else if(manualImgs){
      media = overlayTop+overlayBottom+'<img class="adslot-rotimg" src="'+manualImgs[0]+'" data-photos="'+
        encodeURIComponent(JSON.stringify(manualImgs))+'" data-idx="0" alt="'+((a.label||"").replace(/"/g,"&quot;"))+'" loading="lazy">';
@@ -4540,13 +4577,13 @@ function adSlotsRow(){
      // the video itself isn't wrapped in a clickable link, so clicks
      // reach the player — but an optional small corner badge can
      // still take visitors somewhere else if a destination was set
-     return '<div class="adslot">'+media+
+     return '<div class="adslot'+featCls+'">'+media+chip+featText+
        (a.link_url ? '<a class="adslot-visit" href="'+a.link_url+'" target="_blank" rel="noopener sponsored" style="color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+t("adVisitLink")+'</a>' : '')+
        (showTag?'<span class="adtag" style="font-size:'+tagSize+'px;color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+tagText+'</span>':'')+'</div>';
    }
-   return '<a class="adslot" '+
+   return '<a class="adslot'+featCls+'" '+
      (isLinked ? 'data-open="'+a.linked_listing_id+'"' : 'href="'+(a.link_url||"#")+'"'+(external?' target="_blank" rel="noopener sponsored"':' onclick="return false"'))+'>'+
-     media+(showTag?'<span class="adtag" style="font-size:'+tagSize+'px;color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+tagText+'</span>':'')+'</a>'}).join("");
+     media+chip+featText+(showTag?'<span class="adtag" style="font-size:'+tagSize+'px;color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+tagText+'</span>':'')+'</a>'}).join("");
   // the carousel only actually needs to rotate/scroll if there are
   // more ads than comfortably fit — but the arrows and track markup
   // stay the same shape either way, they just have nothing to do
@@ -4575,12 +4612,15 @@ function adSlotsRow(){
   var rtlNow = D.I18N[L].dir==="rtl";
   var prevIcon = rtlNow ? ICON_CHEV_RIGHT : ICON_CHEV_LEFT;
   var nextIcon = rtlNow ? ICON_CHEV_LEFT : ICON_CHEV_RIGHT;
-  return '<div class="wrap"><div class="adcarousel" id="adCarousel" data-count="'+AD_SLOTS.length+
-   '" data-seconds="'+carouselSeconds+'" data-direction="'+carouselDir+'" style="--ad-size:'+sqSize+'px">'+
+  var glideDur = Math.max(18, AD_SLOTS.length*5);
+  return '<section class="adsec"><div class="wrap">'+
+   '<div class="ad-eyebrow">'+GX("adsH")+'<small>· '+GX("sponsored")+'</small></div>'+
+   '<div class="adcarousel glide" id="adCarousel" data-count="'+AD_SLOTS.length+
+   '" data-seconds="'+carouselSeconds+'" data-direction="'+carouselDir+'" style="--ad-size:'+sqSize+'px;--glide-dur:'+glideDur+'s">'+
    '<button type="button" class="adcarousel-arrow adcarousel-prev" id="adCarouselPrev" aria-label="'+t("prevAd")+'">'+prevIcon+'</button>'+
    '<div class="adcarousel-viewport"><div class="adcarousel-track" id="adCarouselTrack">'+tripledHtml+'</div></div>'+
    '<button type="button" class="adcarousel-arrow adcarousel-next" id="adCarouselNext" aria-label="'+t("nextAd")+'">'+nextIcon+'</button>'+
-   '</div></div>';
+   '</div><div class="ad-prog" aria-hidden="true" style="--glide-dur:'+glideDur+'s"><i></i></div></div></section>';
 }
 var _adRotateTimer=null;
 var _bannerRotateTimer=null;
@@ -4639,6 +4679,7 @@ function tickBannerRotation(elId){
 
 var _adCarouselTimer=null;
 function initAdCarouselPosition(){
+  var gl=document.getElementById("adCarousel"); if(gl && gl.classList.contains("glide")) return;
   // every render rebuilds the whole page from scratch, so the
   // carousel element is always brand-new with no dataset.currentIdx
   // of its own yet — without this, the track would visually sit at
@@ -4709,7 +4750,7 @@ function startAdCarouselRotation(){
   if(_adCarouselTimer) return;
   _adCarouselTimer=setInterval(function(){
     var el = document.getElementById("adCarousel");
-    if(!el) return;
+    if(!el || el.classList.contains("glide")) return;
     var count = parseInt(el.dataset.count,10)||0;
     if(count<2) return; // nothing to rotate through
     var now = Date.now();
@@ -8715,6 +8756,10 @@ function applyReveals(){
 
 /* custom cursor — desktop with a real mouse only; the native cursor stays on text fields
    and the map, and everything reverts the moment a touch is detected */
+if(!window._adHoverPlay){ window._adHoverPlay=true;
+  document.addEventListener("mouseover",function(e){ var v=e.target.closest&&e.target.closest(".adsec .adslot"); if(v){ var vid=v.querySelector("video[data-hoverplay]"); if(vid){ vid.play().catch(function(){}); v.classList.add("playing") } } });
+  document.addEventListener("mouseout",function(e){ var v=e.target.closest&&e.target.closest(".adsec .adslot"); if(v && !(e.relatedTarget&&v.contains(e.relatedTarget))){ var vid=v.querySelector("video[data-hoverplay]"); if(vid){ vid.pause(); v.classList.remove("playing") } } });
+}
 function initCursorRing(){
   if(!(window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches)) return;
   if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -8769,7 +8814,8 @@ var GX_T={
   heroBgDawnL:{ar:"رسم فجر دمشق (متحرك، بلا فيديو)",en:"Damascus dawn illustration (animated, no video)",de:"Illustration Morgen in Damaskus (animiert, ohne Video)"},
   heroBgSketchL:{ar:"رسم دمشق بخطوط ذهبية على الكحلي (يُرسم ثم يلمع)",en:"Gold line drawing of Damascus on navy (draws itself, then shines)",de:"Goldene Linienzeichnung von Damaskus auf Dunkelblau"},
   price:{ar:"السعر",en:"Price",de:"Preis"}, anyPrice:{ar:"أي سعر",en:"Any price",de:"Jeder Preis"}, from:{ar:"من",en:"From",de:"Von"}, to:{ar:"إلى",en:"To",de:"Bis"}, done:{ar:"تم",en:"Done",de:"Fertig"},
-  upTo:{ar:"حتى",en:"Up to",de:"Bis"}, andUp:{ar:"وأكثر",en:"and up",de:"und mehr"}, map:{ar:"الخريطة",en:"Map",de:"Karte"}
+  upTo:{ar:"حتى",en:"Up to",de:"Bis"}, andUp:{ar:"وأكثر",en:"and up",de:"und mehr"}, map:{ar:"الخريطة",en:"Map",de:"Karte"},
+  adsH:{ar:"إعلانات مميزة",en:"Featured adverts",de:"Anzeigen"}, sponsored:{ar:"إعلان مدفوع",en:"Sponsored",de:"Gesponsert"}, featured:{ar:"مميز",en:"Featured",de:"Top"}
 };
 /* the headline's last word flips every few seconds to the brand: الشرفة → منصة بلكون, balcony → Balkoun.com */
 function heroSubHtml(txt){
