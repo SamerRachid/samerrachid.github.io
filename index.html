@@ -1951,6 +1951,62 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 }
 .home-hero .sf-sel select{flex:1;min-width:0;width:auto;font-size:14px;color:var(--navy)}
 .home-hero .sf-sel select:has(option:checked[value=""]){color:var(--grey);font-weight:500}
+/* ☰ button and the phone drawer */
+.hmb{display:none;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;place-items:center;cursor:pointer;padding:0;flex:none}
+.hmb svg{width:21px;height:21px}
+.hmb:hover{border-color:var(--gold);color:var(--gold)}
+body.nav-menu-desk .hmb{display:grid}
+@media(max-width:860px){
+  .hmb{display:grid}
+  #cur,#langWrap,.chipname,.chip2 .chev{display:none}
+  .chip2{padding:2px;gap:0;border-radius:50%}
+  .chip2 .av{width:32px;height:32px}
+  body.nav-nobell-m .notifwrap{display:none}
+  body.nav-nologin-m #bIn{display:none}
+}
+.mdw{position:fixed;inset:0;z-index:1180;display:none}
+.mdw.on{display:block}
+.mdw-bg{position:absolute;inset:0;background:rgba(9,14,26,.55);animation:mdwfade .25s ease}
+.mdw-p{position:absolute;top:0;bottom:0;inset-inline-end:0;width:min(86vw,360px);background:#fff;overflow-y:auto;display:flex;flex-direction:column;box-shadow:0 0 60px -10px rgba(9,14,26,.6);animation:mdwin .32s cubic-bezier(.22,.61,.36,1);padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+[dir=rtl] .mdw-p{animation-name:mdwin-r}
+@keyframes mdwin{from{transform:translateX(100%)}to{transform:none}}
+@keyframes mdwin-r{from{transform:translateX(-100%)}to{transform:none}}
+@keyframes mdwfade{from{opacity:0}to{opacity:1}}
+.mdw-top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--navy);color:#fff}
+.mdw-top .logo{font-size:17px;padding:4px 10px}
+.mdw-x{width:36px;height:36px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:transparent;color:#fff;cursor:pointer;display:grid;place-items:center;padding:0}
+.mdw-x svg{width:18px;height:18px}
+.mdw-acct{display:flex;align-items:center;gap:12px;padding:14px 16px 18px;background:var(--navy);color:#fff}
+.mdw-acct .av{width:44px;height:44px;border-radius:50%;background:var(--gold);color:#1A1206;display:grid;place-items:center;font-weight:700;flex:none;object-fit:cover}
+.mdw-acct b{display:block;font-size:15px}
+.mdw-acct span{display:block;font-size:12.5px;color:rgba(255,255,255,.7);margin-top:2px}
+.mdw-acct.guest{display:block;padding:14px 16px 18px}
+.mdw-in{width:100%;height:46px;font-size:15px;border-radius:10px}
+.mdw-sec{padding:8px 10px;border-bottom:1px solid var(--line)}
+.mdw-sec:last-child{border-bottom:0}
+.mdw-h{font-size:11.5px;font-weight:700;color:var(--gold);letter-spacing:.05em;text-transform:uppercase;padding:8px 10px 4px}
+.mdw-a{display:flex;align-items:center;gap:12px;padding:12px 10px;border-radius:10px;font-size:15px;color:var(--ink);cursor:pointer;text-decoration:none;min-height:46px}
+.mdw-a:active,.mdw-a:hover{background:var(--page);color:var(--ink)}
+.mdw-a .mi{display:inline-flex;width:20px;height:20px;color:var(--navy);opacity:.8;flex:none}
+.mdw-a .mi svg{width:20px;height:20px}
+.mdw-a.out{color:var(--danger)}
+.mdw-a.out .mi{color:var(--danger)}
+.mdw-badge{margin-inline-start:auto;background:var(--danger);color:#fff;font-style:normal;font-size:11px;font-weight:700;min-width:20px;height:20px;border-radius:10px;display:grid;place-items:center;padding:0 6px}
+.mdw-chips{display:flex;gap:8px;padding:6px 10px 10px;flex-wrap:wrap}
+.mdw-chip{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border:1px solid var(--line);border-radius:20px;font-size:13.5px;color:var(--ink);cursor:pointer;min-height:38px}
+.mdw-chip.on{border-color:var(--navy);background:var(--navy);color:#fff}
+body.mdw-open{overflow:hidden}
+body.mdw-open .mobfab{display:none}
+@media(prefers-reduced-motion:reduce){.mdw-p,.mdw-bg{animation:none}}
+/* admin: the menu card */
+.adm .navrows{display:grid;gap:8px;margin-bottom:6px}
+.adm .navrow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:6px 8px 6px 12px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.adm .navrow .xcheck{margin:0}
+.adm .navrow .xcheck .mi{display:inline-flex;width:18px;height:18px;color:var(--grey);margin-inline-end:6px;vertical-align:-3px}
+.adm .navrow .xcheck .mi svg{width:18px;height:18px}
+.adm .navord-w{display:inline-flex;align-items:center;gap:8px;flex:none}
+.adm .navord-w small{font-size:12px;color:var(--grey)}
+.adm .navrow .navord{width:74px!important;min-width:0!important;height:36px!important;text-align:center;padding:0 6px!important}
 /* a small on/off switch for table rows */
 .xswitch{position:relative;display:inline-block;width:36px;height:20px;cursor:pointer;vertical-align:middle}
 .xswitch input{opacity:0;width:0;height:0;position:absolute}
@@ -2298,6 +2354,55 @@ function notifBellHTML(){
       : '<div class="notifempty">'+t("noNotifs")+'</div>')+
     '</div></div>';
 }
+// every navigation link in one place: key, group, label, icon, target, default order
+var NAVI=[
+  {k:"buy",g:"search",lab:function(){return t("buy")},ico:"buy",attrs:'data-go="search" data-deal="sale"',o:10},
+  {k:"rent",g:"search",lab:function(){return t("rent")},ico:"rent",attrs:'data-go="search" data-deal="rent" data-sec=""',o:20},
+  {k:"map",g:"search",lab:function(){return t("searchOnMap")},ico:"map",attrs:'data-go="mapsearch"',o:30},
+  {k:"areas",g:"search",lab:function(){return GX("allAreas")},ico:"areas",attrs:'href="/areas/"',o:40},
+  {k:"coll",g:"discover",lab:function(){return HX("navColl")},ico:"coll",attrs:'data-mdscroll="collsSec"',o:50},
+  {k:"expl",g:"discover",lab:function(){return HX("navAreas")},ico:"expl",attrs:'data-mdscroll="explSec"',o:60},
+  {k:"guide",g:"discover",lab:function(){return HX("navGuide")},ico:"guide",attrs:'data-mdscroll="guidesSec"',o:70},
+  {k:"about",g:"site",lab:function(){return t("about")},ico:"about",attrs:'href="/about/" data-go="about"',o:80},
+  {k:"contactus",g:"site",lab:function(){return t("contactUsPageT")},ico:"phone",attrs:'href="/contactus/" data-go="contactus"',o:90},
+  {k:"contact",g:"site",lab:function(){return t("contactUs")},ico:"mail",attrs:'data-go="contact"',o:100},
+  {k:"agencies",g:"site",lab:function(){return HX("navAgencies")},ico:"post",attrs:'data-go="post"',o:110}
+];
+function navOn(k){ return SX("nav_"+k,true)!==false }
+function navItems(){ return NAVI.filter(function(i){ return navOn(i.k) }).map(function(i){ var o=SX("nav_"+i.k+"_o",""); return {i:i,o:o===""?i.o:+o} }).sort(function(a,b){ return a.o-b.o }).map(function(x){ return x.i }) }
+// the phone drawer: account, then the link groups, then language and currency
+function mdrawer(){
+  var items=navItems(); var grp=function(g){ return items.filter(function(i){ return i.g===g }) };
+  var link=function(i){ return '<a class="mdw-a" '+i.attrs+'>'+(MI[i.ico]||'')+'<span>'+i.lab()+'</span></a>' };
+  var sec=function(title,list){ return list.length ? '<div class="mdw-sec"><div class="mdw-h">'+title+'</div>'+list.map(link).join("")+'</div>' : '' };
+  var acct = USER
+    ? '<div class="mdw-acct">'+avatar(USER.avatar_url,USER.name,44,"av")+'<div><b>'+esc(fullName(USER))+'</b><span dir="ltr">'+esc(USER.phone||USER.email||"")+'</span></div></div>'+
+      '<div class="mdw-sec"><div class="mdw-h">'+GX("mdAccount")+'</div>'+[["mMine","mine","myAds"],["mSaved","saved","mySaved"],["mSearch","search","mySearch"],["mMsgs","msgs","myMessages"],["mSet","settings","settings"]].map(function(x){
+        return '<a class="mdw-a" data-md="'+x[0]+'">'+MI[x[1]]+'<span>'+t(x[2])+'</span>'+(x[0]==="mMsgs"&&NOTIFS.unread?'<i class="mdw-badge">'+(NOTIFS.unread>9?"9+":NOTIFS.unread)+'</i>':'')+'</a>' }).join("")+'</div>'
+    : '<div class="mdw-acct guest"><button class="gold mdw-in" id="mdIn">'+t("loginSignupCombo")+'</button></div>';
+  var prefs = (SX("nav_lang_drawer",true)!==false ? '<div class="mdw-chips">'+Object.keys(D.I18N).map(function(k){ return '<a class="mdw-chip'+(k===L?' on':'')+'" data-langpick="'+k+'"><span class="langflag">'+(LANG_FLAGS[k]||"")+'</span>'+D.I18N[k].name+'</a>' }).join("")+'</div>' : '')+
+    (SX("nav_cur_drawer",true)!==false ? '<div class="mdw-chips">'+["USD","SYP"].map(function(c){ return '<a class="mdw-chip'+(c===CUR?' on':'')+'" data-mdcur="'+c+'">'+c+'</a>' }).join("")+'</div>' : '');
+  return '<div class="mdw" id="mdw"><div class="mdw-bg" id="mdwBg"></div><aside class="mdw-p" role="dialog" aria-label="'+GX("mdMenu")+'">'+
+    '<div class="mdw-top"><span class="logo">'+CONFIG.brand+'</span><button class="mdw-x" id="mdwX" aria-label="'+GX("mdClose")+'">'+
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>'+
+    acct+sec(GX("mdSearch"),grp("search"))+sec(GX("mdDiscover"),grp("discover"))+sec(GX("mdSite"),grp("site"))+
+    (prefs?'<div class="mdw-sec"><div class="mdw-h">'+GX("mdPrefs")+'</div>'+prefs+'</div>':'')+
+    (USER?'<div class="mdw-sec"><a class="mdw-a out" data-md="out">'+MI.out+'<span>'+t("logout")+'</span></a></div>':'')+
+  '</aside></div>' }
+function mdwOpen(){ var d=$("#mdw"); if(!d) return; closeAllMenus(); d.classList.add("on"); document.body.classList.add("mdw-open") }
+function mdwClose(){ var d=$("#mdw"); if(d) d.classList.remove("on"); document.body.classList.remove("mdw-open") }
+function wireDrawer(){
+  var d=$("#mdw"); if(!d) return;
+  if($("#hmb")) $("#hmb").onclick=function(e){ e.stopPropagation(); mdwOpen() };
+  $("#mdwX").onclick=mdwClose; $("#mdwBg").onclick=mdwClose;
+  if(!window._mdwEsc){ window._mdwEsc=true; document.addEventListener("keydown",function(e){ if(e.key==="Escape") mdwClose() }) }
+  if($("#mdIn")) $("#mdIn").onclick=function(){ mdwClose(); var b=$("#bIn"); if(b) b.click() };
+  $$("[data-md]").forEach(function(a){ a.onclick=function(){ var el=$("#"+this.dataset.md); mdwClose(); if(el) el.click() } });
+  $$("[data-mdcur]").forEach(function(a){ a.onclick=function(){ if(this.dataset.mdcur!==CUR){ var c=$("#cur"); if(c) c.click() } else mdwClose() } });
+  $$("[data-mdscroll]").forEach(function(a){ a.onclick=function(e){ e.preventDefault(); var id=this.dataset.mdscroll; mdwClose();
+    var go=function(){ var el=$("#"+id); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}) };
+    if(VIEW==="home") go(); else { VIEW="home"; scrollTo(0,0); render(); setTimeout(go,400) } } });
+}
 // header menu icons + rotating chevron (2026-09 menus pass)
 var CHEV='<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
 var MI=(function(){
@@ -2315,9 +2420,14 @@ var MI=(function(){
     search:w('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'),
     msgs:w('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-5.1A8 8 0 1 1 21 12z"/>'),
     settings:w('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
-    out:w('<path d="M10 17l5-5-5-5M15 12H3M21 4v16"/>')
+    out:w('<path d="M10 17l5-5-5-5M15 12H3M21 4v16"/>'),
+    areas:w('<path d="M3 6.5 9 4l6 2.5 6-2.5v13.5L15 20l-6-2.5-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>'),
+    coll:w('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>'),
+    expl:w('<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>'),
+    guide:w('<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 19a2.5 2.5 0 0 1 2.5-2.5H20"/>')
   };
 })();
+var ICON_HMB='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
 function header(){
  // a custom dropdown, not a native <select> — <option> elements can't
  // hold an icon or image at all, and the language names alone don't
@@ -2339,7 +2449,7 @@ function header(){
  var right = USER
   ? notifBellHTML()+
     '<div class="acct"><div class="chip2" id="chip">'+
-    avatar(USER.avatar_url,USER.name,25,"av")+esc(fullName(USER))+CHEV+'</div>'+
+    avatar(USER.avatar_url,USER.name,25,"av")+'<span class="chipname">'+esc(fullName(USER))+'</span>'+CHEV+'</div>'+
     '<div class="menu" id="menu"><a data-go="post" class="menupost">'+MI.post+t("post")+'</a><div class="sep"></div>'+
     '<a id="mMine">'+MI.mine+t("myAds")+'</a><a id="mSaved">'+MI.saved+t("mySaved")+'</a>'+
     '<a id="mSearch">'+MI.search+t("mySearch")+'</a><a id="mMsgs">'+MI.msgs+t("myMessages")+'</a><div class="sep"></div><a id="mSet">'+MI.settings+t("settings")+'</a>'+
@@ -2354,22 +2464,18 @@ function header(){
  return '<header><div class="wrap hbar"><a class="logo" data-go="home">'+CONFIG.brand+'</a>'+
   '<nav class="hnav">'+
   // home page: editorial links first (they scroll to the page's own sections), "More" keeps the rest
-  (VIEW==="home" ? '<a data-scroll="collsSec">'+HX("navColl")+'</a><a data-scroll="explSec">'+HX("navAreas")+'</a><a data-scroll="guidesSec">'+HX("navGuide")+'</a><a data-go="post">'+HX("navAgencies")+'</a>' : '')+
+  (VIEW==="home" ? (navOn("coll")?'<a data-scroll="collsSec">'+HX("navColl")+'</a>':'')+(navOn("expl")?'<a data-scroll="explSec">'+HX("navAreas")+'</a>':'')+(navOn("guide")?'<a data-scroll="guidesSec">'+HX("navGuide")+'</a>':'')+(navOn("agencies")?'<a data-go="post">'+HX("navAgencies")+'</a>':'') : '')+
   '<div class="navmore" id="navMoreWrap"><a id="navMoreChip">'+t("moreNavT")+CHEV+'</a>'+
    '<div class="menu" id="navMoreMenu">'+
-   '<a data-go="search" data-deal="sale">'+MI.buy+t("buy")+'</a>'+
-   '<a data-go="search" data-deal="rent" data-sec="">'+MI.rent+t("rent")+'</a>'+
+   navItems().filter(function(i){ return i.g==="search" }).map(function(i){ return '<a '+i.attrs+'>'+MI[i.ico]+i.lab()+'</a>' }).join("")+
    '<div class="sep"></div>'+
-   '<a data-go="mapsearch">'+MI.map+t("searchOnMap")+'</a>'+
-   '<a href="/areas/">'+MI.map+GX("allAreas")+'</a>'+
-   '<a href="/about/" data-go="about">'+MI.about+t("about")+'</a>'+
-   '<a href="/contactus/" data-go="contactus">'+MI.phone+t("contactUsPageT")+'</a>'+
-   '<a data-go="contact">'+MI.mail+t("contactUs")+'</a>'+
+   navItems().filter(function(i){ return i.g==="site" && i.k!=="agencies" }).map(function(i){ return '<a '+i.attrs+'>'+MI[i.ico]+i.lab()+'</a>' }).join("")+
    '</div></div></nav>'+
   '<div class="htools"><button class="mini" id="cur">'+CUR+'</button>'+
   langs + right +
   '<a class="gold" data-go="post" style="text-decoration:none">'+t("post")+'</a>'+
-  '</div></div></header>'+
+  '<button class="hmb" id="hmb" aria-label="'+GX("mdMenu")+'">'+ICON_HMB+'</button>'+
+  '</div></div></header>'+mdrawer()+
   // no floating post button on the post form itself, nor on a listing page where the
   // fixed call / WhatsApp bar owns the bottom edge on phones
   ((VIEW==="post" || VIEW.indexOf("listing:")===0) ? '' : '<a class="mobfab" data-go="post" aria-label="'+t("post")+'">+ '+t("post")+'</a>')}
@@ -7805,6 +7911,7 @@ function wireAuth(){
  // itself already has its own "don't have an account? Sign up" switch
  // built in, so anyone new can still get to signup in one extra click
  if($("#bIn"))$("#bIn").onclick=function(){open("in")};
+ wireDrawer();
  if($("#navMoreChip")){
    $("#navMoreChip").onclick=function(e){e.stopPropagation(); closeAllMenus($("#navMoreMenu")); $("#navMoreMenu").classList.toggle("on")};
    if(!window._navMoreDocListenerAdded){
@@ -7814,7 +7921,7 @@ function wireAuth(){
    }
  }
  if($("#chip")){
-   $("#chip").onclick=function(e){e.stopPropagation(); closeAllMenus($("#menu")); $("#menu").classList.toggle("on")};
+   $("#chip").onclick=function(e){e.stopPropagation(); if(matchMedia("(max-width:860px)").matches && $("#mdw")){ mdwOpen(); return } closeAllMenus($("#menu")); $("#menu").classList.toggle("on")};
    document.addEventListener("click",function(){var m=$("#menu");if(m)m.classList.remove("on");
      var nm=$("#notifMenu");if(nm)nm.classList.remove("on");NOTIF_OPEN=false;
      var nmr=$("#navMoreMenu"); if(nmr) nmr.classList.remove("on")});
@@ -8756,6 +8863,7 @@ function render(){
  document.documentElement.lang=L; document.documentElement.dir=D.I18N[L].dir;
  var body= VIEW==="home"?home(): VIEW==="search"?search(): VIEW==="post"?post():
           VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): listing(VIEW.split(":")[1]);
+ document.body.classList.remove("mdw-open");
  $("#app").innerHTML=header()+body+footer()+authModal()+reportModal();
  // home page only: the header sits transparent over the hero photo/video
  // (Bayut-style) and turns solid once the page scrolls — see .home-hero CSS
@@ -9438,6 +9546,18 @@ document.documentElement.classList.add("js");
    cities vs. neighbourhoods; the built-in list is only the offline fallback. */
 var GEO_META={govId:{},govSlug:{},areaId:{},areaSlug:{},kind:{}};
 var GX_T={
+  mdMenu:{ar:"القائمة",en:"Menu",de:"Menü"}, mdClose:{ar:"إغلاق",en:"Close",de:"Schließen"},
+  mdAccount:{ar:"حسابي",en:"My account",de:"Mein Konto"}, mdSearch:{ar:"البحث",en:"Search",de:"Suche"},
+  mdDiscover:{ar:"اكتشف",en:"Discover",de:"Entdecken"}, mdSite:{ar:"بلكون",en:"Balkoun",de:"Balkoun"},
+  mdPrefs:{ar:"اللغة والعملة",en:"Language and currency",de:"Sprache und Währung"},
+  navH:{ar:"القائمة وروابط الرأس",en:"Menu and header links",de:"Menü und Kopfzeilen-Links"},
+  navHint:{ar:"كل رابط له مفتاح إظهار ورقم ترتيب (الأصغر أولاً). على الجوال تظهر الروابط داخل قائمة ☰، وعلى الكمبيوتر في شريط الرأس وقائمة «المزيد».",en:"Each link has a show switch and an order number (smallest first). On phones the links live inside the ☰ menu; on desktop in the header bar and the “More” menu.",de:"Jeder Link hat einen Anzeige-Schalter und eine Reihenfolge (kleinste zuerst). Auf dem Handy liegen die Links im ☰-Menü, am Desktop in der Kopfzeile und im „Mehr“-Menü."},
+  navOrder:{ar:"الترتيب",en:"Order",de:"Reihenfolge"}, navPhoneH:{ar:"رأس الصفحة على الجوال",en:"Phone header",de:"Kopfzeile am Handy"},
+  navBellPhone:{ar:"إظهار جرس الإشعارات في رأس الجوال (للمسجّلين)",en:"Show the notification bell in the phone header (members)",de:"Benachrichtigungsglocke in der Handy-Kopfzeile zeigen (Mitglieder)"},
+  navLoginPhone:{ar:"إظهار زر تسجيل الدخول في رأس الجوال (للزوار)",en:"Show the Log in button in the phone header (guests)",de:"Anmelde-Button in der Handy-Kopfzeile zeigen (Gäste)"},
+  navLangDrawer:{ar:"اختيار اللغة داخل القائمة",en:"Language chips inside the menu",de:"Sprachauswahl im Menü"},
+  navCurDrawer:{ar:"اختيار العملة داخل القائمة",en:"Currency toggle inside the menu",de:"Währungsumschalter im Menü"},
+  navMenuDesk:{ar:"إظهار زر القائمة ☰ على الكمبيوتر أيضاً",en:"Show the ☰ menu button on desktop too",de:"☰-Menü-Button auch am Desktop zeigen"},
   geoTab:{ar:"المناطق",en:"Areas",de:"Gebiete"}, allAreas:{ar:"كل المناطق",en:"All areas",de:"Alle Gebiete"},
   city:{ar:"مدينة",en:"City",de:"Stadt"}, area:{ar:"حي / منطقة",en:"District",de:"Bezirk"}, village:{ar:"قرية / بلدة",en:"Village",de:"Dorf"},
   cities:{ar:"المدن",en:"Cities",de:"Städte"}, districts:{ar:"الأحياء والمناطق",en:"Districts and areas",de:"Bezirke"},
@@ -9636,6 +9756,9 @@ function applySiteExtras(){ try{ var R=document.documentElement.style;
   setOr("--ad-ris-m",SX("ad_roominfo_size_m","")); setOr("--ad-los-m",SX("ad_location_size_m","")); setOr("--ad-tgs-m",SX("ad_tag_size_m",""));
   ["sk_x","sk_y","h1_x","h1_y","sbar_y","sbar_w","sbar_h"].forEach(function(k){ setOr("--"+k.replace(/_/g,"-"),SX(k,"")); setOr("--"+k.replace(/_/g,"-")+"-m",SX(k+"_m","")) });
   var sc=SX("sk_scale",""), scm=SX("sk_scale_m",""); setOr("--sk-scale",sc===""?"":(+sc/100),""); setOr("--sk-scale-m",scm===""?"":(+scm/100),"");
+  document.body.classList.toggle("nav-menu-desk", SX("nav_menu_desktop",false)===true);
+  document.body.classList.toggle("nav-nobell-m", SX("nav_bell_phone",true)===false);
+  document.body.classList.toggle("nav-nologin-m", SX("nav_login_phone",true)===false);
 }catch(e){} }
 /* admin: one settings card = xForm(id, title, hint, fields); every control carries data-xkey/data-xtype and one save button writes them all */
 function xForm(id,title,hint,fields){ return '<div class="blk" data-xform="'+id+'"><h3>'+title+'</h3><div class="in">'+(hint?'<div class="hintx" style="margin-bottom:10px">'+hint+'</div>':'')+fields+
@@ -9676,7 +9799,18 @@ function adminAdsExtrasHtml(){
 }
 function adminDesignExtrasHtml(){
   return xForm("xDesign",GX("xDesignH"),GX("xDefaultHint"),
-    '<div class="row">'+xNum("search_page_size",GX("xPageSize"),24,6,96,1)+xNum("similar_count",GX("xSimilar"),12,0,24,1)+'</div>');
+    '<div class="row">'+xNum("search_page_size",GX("xPageSize"),24,6,96,1)+xNum("similar_count",GX("xSimilar"),12,0,24,1)+'</div>')+adminNavHtml();
+}
+function adminNavHtml(){
+  var row=function(i){ return '<div class="navrow"><label class="xcheck"><input type="checkbox" data-xkey="nav_'+i.k+'" data-xtype="bool"'+(navOn(i.k)?' checked':'')+'><span>'+(MI[i.ico]||'')+i.lab()+'</span></label>'+
+    '<span class="navord-w"><small>'+GX("navOrder")+'</small><input type="number" class="navord" data-xkey="nav_'+i.k+'_o" data-xtype="num" value="'+SX("nav_"+i.k+"_o","")+'" placeholder="'+i.o+'" min="0" max="999"></span></div>' };
+  var g=function(gk,title){ return '<div class="fsub">'+title+'</div><div class="navrows">'+NAVI.filter(function(i){ return i.g===gk }).map(row).join("")+'</div>' };
+  return '<div style="margin-top:16px"></div>'+xForm("xNav",GX("navH"),GX("navHint"),
+    g("search",GX("mdSearch"))+g("discover",GX("mdDiscover"))+g("site",GX("mdSite"))+
+    '<div class="fsub">'+GX("navPhoneH")+'</div>'+
+    xCheck("nav_bell_phone",GX("navBellPhone"),true)+xCheck("nav_login_phone",GX("navLoginPhone"),true)+
+    xCheck("nav_lang_drawer",GX("navLangDrawer"),true)+xCheck("nav_cur_drawer",GX("navCurDrawer"),true)+
+    xCheck("nav_menu_desktop",GX("navMenuDesk"),false));
 }
 function adminSystemExtrasHtml(){ return ''; }
 /* ── Ad squares page: performance, the row, the square design with a live preview ── */
