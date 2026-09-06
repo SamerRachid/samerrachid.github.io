@@ -1882,6 +1882,16 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .ltable .lacts{white-space:nowrap;text-align:end}
 .ltable .lacts .ab{margin:2px}
 .ltable .tag{white-space:nowrap}
+.adlook{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
+.adlook-f{display:flex;flex-direction:column;gap:14px;min-width:0}
+.fsub{font-size:11.5px;font-weight:700;color:var(--gold);letter-spacing:.04em;text-transform:uppercase;padding-top:4px;border-top:1px solid var(--line);margin-top:2px}
+.fsub:first-child{border-top:0;padding-top:0;margin-top:0}
+.adprev{position:sticky;top:76px;background:radial-gradient(120% 90% at 50% 20%,#1B2C52,#14213D 70%);border-radius:14px;padding:16px;display:flex;flex-direction:column;align-items:center;gap:12px}
+.adprev-h{color:#E3B563;font-size:12.5px;font-weight:700;align-self:flex-start}
+.adprev .adslot{position:relative;overflow:hidden;border-radius:14px;flex:none;background:#0F1B33;display:block;max-width:100%}
+.adprev .adslot img{width:100%;height:100%;object-fit:cover;display:block}
+.adprev .adslot .nophoto{height:100%}
+@media(max-width:900px){.adlook{grid-template-columns:1fr}.adprev{position:static}}
 /* a small on/off switch for table rows */
 .xswitch{position:relative;display:inline-block;width:36px;height:20px;cursor:pointer;vertical-align:middle}
 .xswitch input{opacity:0;width:0;height:0;position:absolute}
@@ -4185,55 +4195,7 @@ function adminView(){
  }
 
  else if(ADM.tab==="ads"){
-  body = adminAdsExtrasHtml()+'<div class="blk" style="margin-top:16px"><h3>'+t("adLayoutH")+'</h3><div class="in">'+
-    '<div class="hintx" style="margin-bottom:10px">'+t("adSlotsHint")+'</div>'+
-    '<div class="fl"><label>'+t("adSquareSizeL")+'</label>'+
-     '<input id="adSqSize" type="number" min="70" max="300" value="'+(SITE.ad_square_size||130)+'"></div>'+
-
-    '<div class="fl">'+
-     '<label>'+t("adRowGapL")+' — <span id="adRowGapVal">'+(SITE.ad_carousel_gap!=null?SITE.ad_carousel_gap:0)+'px</span></label>'+
-     '<input type="range" id="adRowGap" min="-60" max="80" step="2" value="'+(SITE.ad_carousel_gap!=null?SITE.ad_carousel_gap:0)+'" style="width:100%">'+
-     '<div class="hintx">'+t("heroGapHint")+'</div>'+
-    '</div>'+
-    '<button class="ab ok" id="adLayoutSave">'+t("save")+'</button>'+
-    '<span id="adLayoutMsg" style="font-size:12.5px;color:var(--ok);margin-inline-start:8px"></span>'+
-   '</div></div>'+
-   '<div class="blk" style="margin-top:16px"><h3>'+t("adColorsH")+'</h3><div class="in">'+
-    '<div class="hintx" style="margin-bottom:10px">'+t("adColorsHint")+'</div>'+
-    '<div class="row"><div class="fl"><label>'+t("adTextColorL")+'</label>'+
-     '<input id="adTextColor" type="color" value="'+(SITE.ad_text_color||"#ffffff")+'"></div>'+
-     '<div class="fl"><label>'+t("adShadeColorL")+'</label>'+
-     '<input id="adShadeColor" type="color" value="'+(SITE.ad_shade_color||"#090e1a")+'"></div></div>'+
-    '<button class="ab ok" id="adColorsSave">'+t("save")+'</button>'+
-    '<span id="adColorsMsg" style="font-size:12.5px;color:var(--ok);margin-inline-start:8px"></span>'+
-   '</div></div>'+
-   '<div class="blk" style="margin-top:16px"><h3>'+t("adRoomInfoH")+'</h3><div class="in">'+
-    '<div class="row"><div class="fl"><label>'+t("adRoomInfoStyleL")+'</label><select id="adUseIcons">'+
-      '<option value="1"'+(SITE.ad_use_icons!==false?' selected':'')+'>'+t("adStyleIcons")+'</option>'+
-      '<option value="0"'+(SITE.ad_use_icons===false?' selected':'')+'>'+t("adStyleText")+'</option></select></div>'+
-     '<div class="fl"><label>'+t("adTextSizeL")+'</label><input id="adRoomInfoSize" type="number" min="7" max="20" value="'+(SITE.ad_roominfo_size||9)+'"></div></div>'+
-    '<button class="ab ok" id="adRoomInfoSave">'+t("save")+'</button>'+
-    '<span id="adRoomInfoMsg" style="font-size:12.5px;color:var(--ok);margin-inline-start:8px"></span>'+
-   '</div></div>'+
-   '<div class="blk" style="margin-top:16px"><h3>'+t("adLocationH")+'</h3><div class="in">'+
-    '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:10px">'+
-     '<input type="checkbox" id="adLocOn"'+(SITE.ad_location_enabled!==false?' checked':'')+'>'+
-     '<span>'+t("showAdLocation")+'</span></label>'+
-    '<div class="fl"><label>'+t("adTextSizeL")+'</label><input id="adLocSize" type="number" min="7" max="20" value="'+(SITE.ad_location_size||9)+'"></div>'+
-    '<button class="ab ok" id="adLocSave">'+t("save")+'</button>'+
-    '<span id="adLocMsg" style="font-size:12.5px;color:var(--ok);margin-inline-start:8px"></span>'+
-   '</div></div>'+
-   '<div class="blk" style="margin-top:16px"><h3>'+t("adTagH")+'</h3><div class="in">'+
-    '<label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:10px">'+
-     '<input type="checkbox" id="adTagOn"'+(SITE.ad_tag_enabled!==false?' checked':'')+'>'+
-     '<span>'+t("showAdTag")+'</span></label>'+
-    '<div class="row">'+
-     ["ar","en","de"].map(function(lg){return '<div class="fl"><label>'+t("adTagTextL")+' ('+lg.toUpperCase()+')</label>'+
-      '<input id="adTag_'+lg+'" value="'+(SITE["ad_tag_"+lg]||"").replace(/"/g,"&quot;")+'" placeholder="'+t("leaveBlankDefault")+'"></div>'}).join("")+
-     '<div class="fl"><label>'+t("adTextSizeL")+'</label><input id="adTagSize" type="number" min="7" max="20" value="'+(SITE.ad_tag_size||9)+'"></div></div>'+
-    '<button class="ab ok" id="adTagSave">'+t("save")+'</button>'+
-    '<span id="adTagMsg" style="font-size:12.5px;color:var(--ok);margin-inline-start:8px"></span>'+
-   '</div></div>'+
+  body = adminAdsPageHtml()+
    '<div class="blk" style="margin-top:16px"><h3>'+t("adSlotsListH")+'</h3><div class="in">'+
     (ADM.adSlots&&ADM.adSlots.length ? '<div class="adminadlist">'+ADM.adSlots.map(function(a,idx){
       var isFirst=idx===0, isLast=idx===ADM.adSlots.length-1;
@@ -6947,6 +6909,21 @@ function wireAdmin(){
     saveSiteContent(patch,"adTagMsg",this);
   };
 
+  // ad squares page: one save per card; the preview follows every edit
+  var adSaveForm=function(formId,msgId,btn){
+    var f=$("#"+formId); if(!f) return; var v=adFormValues(f), patch={}, ex={};
+    Object.keys(v).forEach(function(k){ if(k.indexOf("x:")===0){ ex[k.slice(2)] = (v[k]===""||v[k]===null) ? null : v[k] } else if(v[k]!==null) patch[k]=v[k] });
+    if(Object.keys(ex).length) patch.extras=ex;
+    saveSiteContent(patch,msgId,btn).then(function(){ applySectionGapVars(); applySiteExtras(); });
+  };
+  if($("#adRowSave")) $("#adRowSave").onclick=function(){ adSaveForm("adRowForm","adRowMsg",this) };
+  if($("#adLookSave")) $("#adLookSave").onclick=function(){ adSaveForm("adLookForm","adLookMsg",this) };
+  if($("#ar_gap")) $("#ar_gap").oninput=function(){ var l=$("#ar_gapVal"); if(l) l.textContent=this.value+"px" };
+  var lookForm=$("#adLookForm"), rowForm=$("#adRowForm");
+  var refreshPrev=function(){ var pv=$("#adPrev"); if(!pv) return; var v=Object.assign({},SITE,adFormValues(lookForm),{ad_square_size:(adFormValues(rowForm).ad_square_size||SITE.ad_square_size)}); pv.innerHTML=adPreviewHtml(v) };
+  if(lookForm){ lookForm.addEventListener("input",refreshPrev); lookForm.addEventListener("change",refreshPrev) }
+  if(rowForm){ rowForm.addEventListener("input",refreshPrev) }
+
   var reloadAdSlots=async function(){
     try{ var r=await rpc("bk_admin_list_ads",{p_token:ADM.token}); ADM.adSlots=r||[] }catch(e){}
     loadAdSlots(); // also refresh the public list, so the home page reflects the change immediately
@@ -9487,6 +9464,10 @@ var GX_T={
   noData:{ar:"لا توجد بيانات في هذه الفترة بعد.",en:"No data for this period yet.",de:"Noch keine Daten für diesen Zeitraum."},
   sortNewest:{ar:"الأحدث",en:"Newest",de:"Neueste"}, sortViews:{ar:"الأكثر مشاهدة",en:"Most viewed",de:"Meistgesehen"}, sortContacts:{ar:"الأكثر تواصلاً",en:"Most contacted",de:"Meiste Kontakte"},
   adsPerfHint:{ar:"الظهور يُسجَّل مرة لكل تحميل للصفحة الرئيسية، والنقرة عند فتح المربع. «من أين» = الصفحة والدولة التي جاءت منها النقرات.",en:"An impression is logged once per homepage load, a click when the square is opened. “From where” = page and country the clicks came from.",de:"Eine Impression wird pro Startseiten-Aufruf gezählt, ein Klick beim Öffnen. „Woher“ = Seite und Land der Klicks."},
+  adRowH:{ar:"صف المربعات",en:"The ad row",de:"Die Werbereihe"}, adLookH:{ar:"شكل المربع",en:"Square design",de:"Gestaltung des Quadrats"},
+  adPreview:{ar:"معاينة مباشرة",en:"Live preview",de:"Live-Vorschau"}, adPreviewHint:{ar:"تتغير المعاينة فور تعديل أي حقل؛ اضغط حفظ لتطبيقها على الموقع.",en:"The preview updates as you edit; press Save to apply it to the site.",de:"Die Vorschau folgt jeder Änderung; mit Speichern wird sie auf der Website aktiv."},
+  adSizeHint:{ar:"100 إلى 260 بكسل. على الجوال يُصغَّر المربع تلقائياً حتى 130 ليبقى الصف داخل الشاشة.",en:"100 to 260 px. On phones the square is capped at 130 so the row still fits.",de:"100 bis 260 px. Auf dem Handy wird auf 130 begrenzt, damit die Reihe passt."},
+  adColorsSub:{ar:"الألوان",en:"Colours",de:"Farben"}, adInfoSub:{ar:"معلومات العقار على الصورة",en:"Property info on the photo",de:"Objektinfos auf dem Foto"}, adTagSub:{ar:"شارة «إعلان»",en:"“Ad” tag",de:"„Anzeige“-Marke"},
   xDefaultHint:{ar:"اتركه فارغاً لاستخدام القيمة الافتراضية.",en:"Leave empty to use the default.",de:"Leer lassen für den Standardwert."},
   xHomeH:{ar:"الحركة والسلوك",en:"Motion & behaviour",de:"Bewegung & Verhalten"},
   xOpening:{ar:"مشهد الافتتاح (كلمة بلكون تصعد ثم يهبط الرأس)",en:"Opening scene (the brand word lifts, then the header comes down)",de:"Eröffnungsszene (Markenwort hebt sich, dann kommt der Header)"},
@@ -9575,6 +9556,58 @@ function adminDesignExtrasHtml(){
     '<div class="row">'+xNum("search_page_size",GX("xPageSize"),24,6,96,1)+xNum("similar_count",GX("xSimilar"),12,0,24,1)+'</div>');
 }
 function adminSystemExtrasHtml(){ return ''; }
+/* ── Ad squares page: performance, the row, the square design with a live preview ── */
+function adF(key,type,label,val,attrs,extra){ return '<div class="fl"><label>'+label+'</label><input data-adk="'+key+'" data-adt="'+type+'" type="'+(type==="color"?"color":type==="num"?"number":"text")+'" value="'+esc(String(val==null?"":val))+'"'+(attrs||"")+'>'+(extra||"")+'</div>' }
+function adC(key,label,on){ return '<label class="xcheck"><input type="checkbox" data-adk="'+key+'" data-adt="bool"'+(on?" checked":"")+'><span>'+label+'</span></label>' }
+function adSampleImage(){ var a=(ADM.adSlots||[]).filter(function(x){ return x.image_url && x.media_type!=="video" })[0]; if(a) return a.image_url; var l=(D.LIST||[]).filter(function(x){ return x.photos&&x.photos[0] })[0]; return l?l.photos[0]:"" }
+function adPreviewHtml(v){
+  var size=Math.max(100,Math.min(260,+v.ad_square_size||130)), tc=v.ad_text_color||"#ffffff", sh=hexToRgb(v.ad_shade_color||"#090e1a");
+  var icons=v.ad_use_icons!==false, ris=+v.ad_roominfo_size||9, los=+v.ad_location_size||9, tgs=+v.ad_tag_size||9;
+  var tag=(v["ad_tag_"+L]&&String(v["ad_tag_"+L]).trim())||t("adTag");
+  var img=adSampleImage();
+  return '<div class="adslot" style="width:'+size+'px;height:'+size+'px">'+
+    (img?'<img src="'+img+'" alt="">':'<div class="nophoto"><span>'+t("photos")+'</span></div>')+
+    '<div class="adslot-foot" style="font-size:'+ris+'px;color:'+tc+';background:linear-gradient(to top,rgba('+sh+',.85) 0%,rgba('+sh+',.55) 55%,transparent 100%)">'+
+      '<span>'+(icons?ICON_BED:"")+'3'+(icons?"":" "+t("rooms"))+'</span><span>'+(icons?ICON_BATH:"")+'2'+(icons?"":" "+t("baths"))+'</span><span class="ltr">'+(icons?ICON_AREA:"")+'140'+(icons?"":" "+t("sqm"))+'</span></div>'+
+    (v.ad_location_enabled!==false?'<div class="adslot-place" style="font-size:'+los+'px;color:'+tc+';background:rgba('+sh+',.6)">'+(L==="ar"?"المزة، دمشق":"Mazzeh, Damascus")+'</div>':'')+
+    (v.ad_tag_enabled!==false?'<span class="adtag" style="font-size:'+tgs+'px;color:'+tc+';background:rgba('+sh+',.75)">'+esc(tag)+'</span>':'')+
+  '</div>' }
+function adFormValues(form){
+  var v={}; if(!form) return v;
+  form.querySelectorAll("[data-adk]").forEach(function(i){ var k=i.dataset.adk, ty=i.dataset.adt;
+    v[k] = ty==="bool" ? !!i.checked : ty==="bool01" ? i.value!=="0" : ty==="num" ? (i.value===""?null:+i.value) : String(i.value) });
+  return v }
+function adminAdsPageHtml(){
+  var perf='<div class="blk"><h3>'+GX("topAdsH")+'</h3><div class="in"><div class="dash-top" style="margin-bottom:0">'+rangeTabs()+'</div><div class="hintx">'+GX("adsPerfHint")+'</div>'+(ADM.an?adsPerfTable(ADM.an,true):'<div class="adashempty">'+t("loading")+'</div>')+'</div></div>';
+  var gap=SITE.ad_carousel_gap!=null?SITE.ad_carousel_gap:0, size=SITE.ad_square_size||130;
+  var row='<div class="blk" id="adRowForm" style="margin-top:16px"><h3>'+GX("adRowH")+'</h3><div class="in">'+
+    adC("x:ads_row_enabled",GX("xAdsOn"),SX("ads_row_enabled",true)!==false)+
+    '<div class="row3x">'+["ar","en","de"].map(function(lg){ return adF("x:ads_row_title_"+lg,"str",GX("xAdsTitle")+' ('+lg.toUpperCase()+')',SX("ads_row_title_"+lg,""),' placeholder="'+esc(GX_T.adsH[lg])+'"') }).join("")+'</div>'+
+    '<div class="row3x">'+["ar","en","de"].map(function(lg){ return adF("x:ads_sponsored_"+lg,"str",GX("xAdsSponsored")+' ('+lg.toUpperCase()+')',SX("ads_sponsored_"+lg,""),' placeholder="'+esc(GX_T.sponsored[lg])+'"') }).join("")+'</div>'+
+    '<div class="row3x">'+
+      adF("ad_square_size","num",t("adSquareSizeL"),size,' min="100" max="260"','<div class="hintx">'+GX("adSizeHint")+'</div>')+
+      adF("x:ad_glide_seconds","num",GX("xAdGlide"),SX("ad_glide_seconds",""),' min="1" max="15" step="0.5" placeholder="3.5"')+
+      adF("x:ad_video_max_mb","num",GX("xAdVideoMax"),SX("ad_video_max_mb",""),' min="1" max="100" placeholder="8"')+
+    '</div>'+
+    '<div class="fl"><label>'+t("adRowGapL")+' — <span id="ar_gapVal" class="ltr">'+gap+'px</span></label><input type="range" data-adk="ad_carousel_gap" data-adt="num" id="ar_gap" min="-60" max="80" step="2" value="'+gap+'"><div class="hintx">'+t("heroGapHint")+'</div></div>'+
+    '<div class="xactions"><button class="ab ok" id="adRowSave">'+t("save")+'</button><span class="xmsg" id="adRowMsg"></span></div>'+
+  '</div></div>';
+  var look='<div class="blk" id="adLookForm" style="margin-top:16px"><h3>'+GX("adLookH")+'</h3><div class="in"><div class="adlook"><div class="adlook-f">'+
+    '<div class="fsub">'+GX("adColorsSub")+'</div>'+
+    '<div class="row">'+adF("ad_text_color","color",t("adTextColorL"),SITE.ad_text_color||"#ffffff")+adF("ad_shade_color","color",t("adShadeColorL"),SITE.ad_shade_color||"#090e1a")+'</div>'+
+    '<div class="fsub">'+GX("adInfoSub")+'</div>'+
+    '<div class="row"><div class="fl"><label>'+t("adRoomInfoStyleL")+'</label><select data-adk="ad_use_icons" data-adt="bool01"><option value="1"'+(SITE.ad_use_icons!==false?' selected':'')+'>'+t("adStyleIcons")+'</option><option value="0"'+(SITE.ad_use_icons===false?' selected':'')+'>'+t("adStyleText")+'</option></select></div>'+
+      adF("ad_roominfo_size","num",t("adTextSizeL"),SITE.ad_roominfo_size||9,' min="7" max="20"')+'</div>'+
+    adC("ad_location_enabled",t("showAdLocation"),SITE.ad_location_enabled!==false)+
+    adF("ad_location_size","num",t("adTextSizeL")+' — '+t("adLocationH"),SITE.ad_location_size||9,' min="7" max="20"')+
+    '<div class="fsub">'+GX("adTagSub")+'</div>'+
+    adC("ad_tag_enabled",t("showAdTag"),SITE.ad_tag_enabled!==false)+
+    '<div class="row3x">'+["ar","en","de"].map(function(lg){ return adF("ad_tag_"+lg,"str",t("adTagTextL")+' ('+lg.toUpperCase()+')',SITE["ad_tag_"+lg]||"",' placeholder="'+esc(t("leaveBlankDefault"))+'"') }).join("")+'</div>'+
+    adF("ad_tag_size","num",t("adTextSizeL")+' — '+GX("adTagSub"),SITE.ad_tag_size||9,' min="7" max="20"')+
+    '<div class="xactions"><button class="ab ok" id="adLookSave">'+t("save")+'</button><span class="xmsg" id="adLookMsg"></span></div>'+
+    '</div><div class="adprev"><div class="adprev-h">'+GX("adPreview")+'</div><div id="adPrev">'+adPreviewHtml(SITE)+'</div><div class="hintx" style="color:rgba(255,255,255,.7)">'+GX("adPreviewHint")+'</div></div></div></div></div>';
+  return perf+row+look;
+}
 /* ── analytics helpers: range tabs, KPI cards with deltas, SVG line chart, bar lists ── */
 function rangeTabs(){ var cur=ADM.range||7; return '<div class="arange">'+[1,7,30,90,365].map(function(d){ return '<button type="button" class="'+(cur===d?"on":"")+'" data-arange="'+d+'">'+GX("r"+d)+'</button>' }).join("")+'</div>' }
 function fmtN(v){ v=+v||0; return v>=1000000?(Math.round(v/100000)/10)+"M":v>=10000?Math.round(v/1000)+"K":v.toLocaleString("en") }
