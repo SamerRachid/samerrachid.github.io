@@ -1,7 +1,12 @@
-// bk-storage: the only way the Balkoun client may delete or upload files in the "photos" bucket.
+// bk-storage: the only way the Balkoun client may delete, move or upload files in the "photos" bucket.
 // verify_jwt is off because the site uses a publishable (non-JWT) key; authentication is done here
 // with the site's own admin / member session tokens (bk_admin_uid / bk_member_uid).
 // Deployed with the Supabase MCP deploy_edge_function tool; this copy is the source of record.
+//
+// actions:
+//   remove      { paths[] }            delete for good (admins: anything; members: own listing files / own avatar)
+//   move        { paths[], to }        move into a folder, used for the trash: "<to>/<original path>"
+//   sign-upload { path }               parked (storage server rejects the tokens on this project)
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -26,7 +31,7 @@ Deno.serve(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "method" }, 405);
   let body: any;
   try { body = await req.json(); } catch { return json({ error: "bad json" }, 400); }
-  const { token, role, action, paths, path } = body ?? {};
+  const { token, role, action, paths, path, to } = body ?? {};
   if (typeof token !== "string" || token.length < 20) return deny();
 
   const sb = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
@@ -43,7 +48,7 @@ Deno.serve(async (req: Request) => {
     uid = data as string;
   }
 
-  const list: unknown[] = action === "remove" ? (Array.isArray(paths) ? paths : []) : [path];
+  const list: unknown[] = (action === "remove" || action === "move") ? (Array.isArray(paths) ? paths : []) : [path];
   if (!list.length || list.length > 200) return json({ error: "no paths" }, 400);
   for (const p of list) {
     if (!safePath(p)) return json({ error: "bad path" }, 400);
@@ -64,6 +69,18 @@ Deno.serve(async (req: Request) => {
     const { data, error } = await sb.storage.from(BUCKET).remove(list as string[]);
     if (error) return json({ error: error.message }, 400);
     return json({ removed: (data ?? []).map((o: any) => o.name) });
+  }
+  if (action === "move") {
+    // only into the trash folder; members may not move anything out of it or elsewhere
+    const dest = typeof to === "string" && /^[a-z0-9_-]{1,40}$/.test(to) ? to : "trash";
+    if (dest !== "trash") return json({ error: "bad destination" }, 400);
+    const moved: string[] = []; const failed: string[] = [];
+    for (const p of list as string[]) {
+      if (p.startsWith(dest + "/")) { moved.push(p); continue; }
+      const { error } = await sb.storage.from(BUCKET).move(p, dest + "/" + p);
+      if (error) failed.push(p); else moved.push(p);
+    }
+    return json({ moved, failed });
   }
   if (action === "sign-upload") {
     // NOTE: tokens from here are currently rejected by the storage server on this project
