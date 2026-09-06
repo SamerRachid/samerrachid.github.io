@@ -1870,6 +1870,15 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .adm .starpick{display:flex;gap:4px;font-size:26px;color:#D6D8DE;cursor:pointer}
 .adm .starpick span.on{color:var(--gold)}
 @media(max-width:640px){.adm .row,.adm .row3,.adm .row3x{grid-template-columns:1fr}}
+.ltable td{vertical-align:middle;padding:12px}
+.ltable .lcell b{display:block;font-size:14px}
+.ltable .lsub{font-size:12px;color:var(--grey);margin-top:3px;white-space:nowrap}
+.ltable .lperf{display:flex;flex-direction:column;gap:2px;font-size:12px;color:var(--grey);white-space:nowrap}
+.ltable .lperf b{color:var(--ink);font-size:13px}
+.ltable .lperf small{color:var(--light)}
+.ltable .lacts{white-space:nowrap;text-align:end}
+.ltable .lacts .ab{margin:2px}
+.ltable .tag{white-space:nowrap}
 /* a small on/off switch for table rows */
 .xswitch{position:relative;display:inline-block;width:36px;height:20px;cursor:pointer;vertical-align:middle}
 .xswitch input{opacity:0;width:0;height:0;position:absolute}
@@ -3744,26 +3753,27 @@ function adminView(){
    '<select id="afSort"><option value="new"'+(ADM.listSort!=="views"&&ADM.listSort!=="contacts"?" selected":"")+'>'+GX("sortNewest")+'</option><option value="views"'+(ADM.listSort==="views"?" selected":"")+'>'+GX("sortViews")+'</option><option value="contacts"'+(ADM.listSort==="contacts"?" selected":"")+'>'+GX("sortContacts")+'</option></select></div>'+
   '<div class="dash-top" style="margin:8px 0">'+rangeTabs()+'</div>'+
   '<div style="font-size:12.5px;color:var(--grey);margin:8px 0"><span id="aListCount"><span class="ltr">'+(d.listings||[]).length+'</span> '+t("listingsTab")+'</span></div>'+
-  '<div class="atable"><table><thead><tr>'+
-   ['#',t("gov"),t("price"),t("deed"),t("photos"),GX("colViews"),GX("colContacts"),t("postedBy"),t("status"),''].map(function(h){return '<th>'+h+'</th>'}).join("")+
+  '<div class="atable ltable"><table><thead><tr>'+
+   [t("listingsTab"),t("deed"),GX("colViews"),t("postedBy"),t("status"),''].map(function(h){return '<th>'+h+'</th>'}).join("")+
    '</tr></thead><tbody id="aListBody">'+
-   (d.listings||[]).slice().sort(function(a,b){ var A=(ADM.lstats||{})[a.id]||{}, B=(ADM.lstats||{})[b.id]||{}; if(ADM.listSort==="views") return (+B.views||0)-(+A.views||0); if(ADM.listSort==="contacts") return (+B.contacts||0)-(+A.contacts||0); return 0 }).map(function(l){ var ls=(ADM.lstats||{})[l.id]||{};
+   (d.listings||[]).slice().sort(function(a,b){ var A=(ADM.lstats||{})[a.id]||{}, B=(ADM.lstats||{})[b.id]||{}; if(ADM.listSort==="views") return (+B.views||0)-(+A.views||0); if(ADM.listSort==="contacts") return (+B.contacts||0)-(+A.contacts||0); return 0 }).map(function(l){
+     var ls=(ADM.lstats||{})[l.id]||{}, typeName=(D.TYPES[l.property_type]?D.TYPES[l.property_type][li()]:(l.property_type||""));
+     var stLabel = l.status==="hidden"?GX("st_hidden"):(t("st_"+l.status)||l.status);
      return '<tr data-row-status="'+l.status+'" data-row-tabu="'+(l.tabu||"")+'" data-row-deal="'+(l.deal||"")+'" data-row-text="'+((l.gov||"")+" "+(l.area||"")+" "+(l.poster_name||"")+" "+l.ref).toLowerCase()+'">'+
-     '<td class="ltr adlink" data-open="'+l.id+'">'+(l.ref||l.id)+'</td>'+
-     '<td>'+(l.area?l.area+"، ":"")+l.gov+'</td>'+
-     '<td class="ltr">$'+Number(l.price_usd).toLocaleString("en")+'</td>'+
-     '<td><span class="tag '+cls(l.tabu)+'">'+(D.TABU[l.tabu]?D.TABU[l.tabu][li()]:l.tabu)+'</span></td>'+
-     '<td class="ltr">'+l.photos+'</td>'+
-     '<td class="ltr"><b>'+(ls.views!=null?ls.views:"…")+'</b>'+(ls.views_total!=null?' <small style="color:var(--light)">/ '+ls.views_total+'</small>':'')+'</td>'+
-     '<td class="ltr">'+(ls.contacts!=null?ls.contacts:"…")+(ls.saves?' <small style="color:var(--light)">♡'+ls.saves+'</small>':'')+'</td>'+
-     '<td>'+(l.poster_id?'<a data-byuser="'+l.poster_id+'" data-name="'+(l.poster_name||"")+'" style="color:var(--navy);text-decoration:underline;cursor:pointer">'+(l.poster_name||"—")+'</a>':(l.poster_name||"—"))+(l.poster_phone?'<div class="ltr" style="font-size:11px;color:var(--light)">'+l.poster_phone+'</div>':'')+'</td>'+
-     '<td><span class="st st-'+l.status+'">'+(l.status==="hidden"?GX("st_hidden"):(t("st_"+l.status)||l.status))+'</span></td>'+
-     '<td style="white-space:nowrap">'+
+     '<td><div class="lcell"><b class="ltr adlink" data-open="'+l.id+'">'+(l.ref||l.id)+'</b>'+
+       '<div class="lsub">'+typeName+' · <span class="ltr">$'+Number(l.price_usd).toLocaleString("en")+'</span>'+(l.deal==="rent"?' · '+t("rent"):'')+'</div>'+
+       '<div class="lsub">'+(l.area?l.area+"، ":"")+(l.gov||"")+'</div></div></td>'+
+     '<td><span class="tag '+cls(l.tabu)+'">'+(D.TABU[l.tabu]?D.TABU[l.tabu][li()]:(l.tabu||"—"))+'</span><div class="lsub"><span class="ltr">'+(l.photos||0)+'</span> '+t("photos")+'</div></td>'+
+     '<td><div class="lperf"><span><b class="ltr">'+(ls.views!=null?ls.views:"…")+'</b> '+GX("colViews")+(ls.views_total!=null?' <small class="ltr">/ '+ls.views_total+'</small>':'')+'</span>'+
+       '<span><b class="ltr">'+(ls.contacts!=null?ls.contacts:"…")+'</b> '+GX("colContacts")+'</span>'+
+       '<span><b class="ltr">'+(ls.saves!=null?ls.saves:"…")+'</b> '+GX("colSaves")+'</span></div></td>'+
+     '<td>'+(l.poster_id?'<a data-byuser="'+l.poster_id+'" data-name="'+(l.poster_name||"")+'" class="uname">'+(l.poster_name||"—")+'</a>':'<span>'+(l.poster_name||"—")+'</span>')+(l.poster_phone?'<div class="lsub ltr">'+l.poster_phone+'</div>':'')+'</td>'+
+     '<td><span class="st st-'+l.status+'">'+stLabel+'</span>'+(l.is_featured?'<div class="lsub" style="color:#8A6522">★ '+t("featuredBadgeDefault")+'</div>':'')+'</td>'+
+     '<td class="lacts">'+
        '<button class="ab" data-adopen="'+l.id+'">'+t("edit")+'</button>'+
        (l.status==="pending"?'<button class="ab ok" data-alive="'+l.id+'">'+t("approve")+'</button>':'')+
        (l.status==="hidden"?'<button class="ab ok" data-alive="'+l.id+'">'+GX("unhide")+'</button>':'')+
        (l.status==="live"?'<button class="ab" data-apend="'+l.id+'">'+t("hide")+'</button>':'')+
-       (l.is_featured?'<span class="st st-live" style="margin-inline-end:6px">'+t("featuredBadgeDefault")+'</span>':'')+
        '<button class="ab bad" data-adel="'+l.id+'">'+t("del")+'</button></td></tr>'}).join("")+
    '</tbody></table></div>';
  }
