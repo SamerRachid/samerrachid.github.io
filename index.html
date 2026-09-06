@@ -173,8 +173,13 @@ html.js .rv.in{opacity:1;transform:none}
 
 
 .topbanner-wrap{padding-top:8px;position:relative;z-index:2}
-.topbanner-row{position:relative}
-.topbanner-col{position:absolute;top:0;left:calc((100% - min(var(--banner-w,728px),100%)) * var(--banner-hpos,.5));max-width:100%}
+.topbanner-row{position:relative;height:var(--row-h,auto)}
+.topbanner-col{position:absolute;top:var(--banner-voff,0px);left:calc((100% - min(var(--banner-w,728px),100%)) * var(--banner-hpos,.5));max-width:100%}
+@media(max-width:700px){
+  .topbanner-row{height:var(--row-h-m,var(--row-h,auto))}
+  .topbanner-col{top:var(--banner-voff-m,var(--banner-voff,0px));left:calc((100% - min(var(--banner-w-m,var(--banner-w,728px)),100%)) * var(--banner-hpos-m,var(--banner-hpos,.5)))}
+  .topbanner{width:var(--banner-w-m,var(--banner-w,728px));aspect-ratio:var(--banner-ratio-m,var(--banner-ratio,728/90))}
+}
 .topbanner{display:block;width:var(--banner-w,728px);max-width:100%;
   margin-bottom:var(--banner-gap,14px);aspect-ratio:var(--banner-ratio,728/90);
   border-radius:8px;overflow:hidden;background:#fff;box-shadow:0 2px 10px -4px rgba(9,14,26,.2);position:relative}
@@ -1100,6 +1105,10 @@ footer{font-size:14px}
 .csince{margin-inline-start:2px}
 .cref{margin-inline-start:auto}
 .cdesc{display:none}
+.resalt{margin-top:22px}
+.resalt-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.resalt-h h3{font-size:16px;font-weight:700;color:var(--navy);margin:0}
+.resalt-h .ab{margin:0}
 .resempty{grid-column:1/-1;background:#fff;border:1px dashed var(--line-2);border-radius:16px;padding:56px 20px;text-align:center;color:var(--grey);display:flex;flex-direction:column;align-items:center;gap:8px}
 .resempty svg{color:var(--gold)}
 .resempty b{color:var(--ink);font-size:16px}
@@ -1450,10 +1459,17 @@ footer{font-size:14px}
 @media(max-width:800px){.geotable{grid-template-columns:1fr 1fr!important}.geotable b{display:none}.geogov{grid-template-columns:1fr 1fr!important}}
 .cs-sheet-h{display:none}
 .cs-sheet-q{display:none}
+.cs-sheet-f{display:none}
 .chip{transition:background .15s}
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
 @media(max-width:640px){
-  .chipsel-drop.on{position:fixed;left:0;right:0;bottom:0;top:auto;max-height:72vh;border-radius:18px 18px 0 0;padding:0 8px 14px;z-index:1300;animation:sheetUp .28s cubic-bezier(.2,.7,.2,1);box-shadow:0 -12px 40px rgba(9,14,26,.35)}
+  .chipsel-drop.on{position:fixed;left:0!important;right:0!important;inset-inline:0!important;width:auto!important;min-width:0!important;max-width:100vw;box-sizing:border-box;bottom:0;top:auto;max-height:72vh;border-radius:18px 18px 0 0;padding:0 8px 0;z-index:1300;animation:sheetUp .28s cubic-bezier(.2,.7,.2,1);box-shadow:0 -12px 40px rgba(9,14,26,.35);display:flex;flex-direction:column}
+  .chipsel-drop.on>.chipsel-opt,.chipsel-drop.on>.cs-h,.chipsel-drop.on>.chipsel-empty,.chipsel-drop.on>.cs-selected{flex:none}
+  .cs-sheet-f{position:sticky;bottom:0;margin-top:auto;padding:10px 6px calc(12px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center}
+  .cs-done{flex:1;height:46px;border:0;border-radius:12px;background:var(--navy);color:#fff;font:inherit;font-size:15px;font-weight:700;cursor:pointer}
+  .cs-done b{font-weight:800;color:#E3B563;margin-inline-start:6px}
+  .cs-clear{height:46px;padding:0 14px;border:1px solid var(--line-2);border-radius:12px;background:#fff;color:var(--grey);font:inherit;font-size:13.5px;cursor:pointer}
+  body:has(.chipsel-drop.on){overflow-x:hidden}
   .chipsel-drop.flip-up{bottom:0}
   .cs-sheet-h{display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1;background:#fff;padding:16px 6px 10px;margin-bottom:6px;font-weight:700;color:var(--navy);border-bottom:1px solid var(--line)}
   .cs-sheet-h::before{content:"";position:absolute;top:6px;left:50%;width:40px;height:4px;margin-left:-20px;border-radius:2px;background:var(--line-2)}
@@ -1492,6 +1508,8 @@ footer{font-size:14px}
 .home-hero .hero h1{font-size:clamp(34px,4.8vw,66px);line-height:1.2;margin-bottom:26px;max-width:16ch;letter-spacing:-.005em}
 .home-hero .hscrim{background:linear-gradient(to bottom,rgba(15,27,51,.66),rgba(15,27,51,.22) 30%,rgba(15,27,51,.18) 60%,rgba(15,27,51,.82))}
 .home-hero .topbanner-wrap{padding:22px 0 0}
+.home-hero .hero .topbanner-wrap.tb-inhero{padding:0 0 18px;position:relative;z-index:3}
+.home-hero .hero .topbanner-wrap.tb-inhero .topbanner-row{height:var(--row-h,auto)}
 /* search */
 .sbar{border-radius:14px;box-shadow:0 30px 60px -24px rgba(9,14,26,.6);max-width:1020px}
 .stabs{background:transparent;padding:10px 12px;gap:6px;border-radius:14px 14px 0 0}
@@ -1521,7 +1539,10 @@ footer{font-size:14px}
 .home-hero .sgo-map svg{width:22px;height:22px}
 .home-hero .sgo-map:hover{background:var(--gold-w);color:var(--gold-dk)}
 .home-hero .srow .sgo{border-radius:0}
-.home-hero .hnote{display:none}
+.home-hero .hnote{position:relative;z-index:3;margin:calc(14px + max(var(--sbar-y,0px),0px)) 0 max(calc(0px - var(--adcarousel-gap,0px)),0px);font-size:13px;color:rgba(255,255,255,.82);text-align:center;text-shadow:0 1px 8px rgba(9,14,26,.6)}
+@media(max-width:700px){.home-hero .hnote{margin-top:calc(12px + max(var(--sbar-y-m,var(--sbar-y,0px)),0px));margin-bottom:max(calc(0px - var(--adcarousel-gap-m,var(--adcarousel-gap,0px))),0px);font-size:12px}}
+.home-hero .hnote b{color:#E3B563}
+
 .home-hero .sgo{border-radius:14px 0 0 14px}
 [dir=ltr] .home-hero .sgo{border-radius:0 14px 14px 0}
 @media(max-width:700px){
@@ -2009,6 +2030,19 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .adm .hs-up .ab{margin:0;height:38px}
 .hs-card{border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:12px;background:#FBFBFD}
 .hs-card>b{font-size:12.5px;color:var(--navy);text-transform:uppercase;letter-spacing:.03em}
+.hs-th img{width:22px;height:22px;border-radius:5px;object-fit:cover;display:block}
+.hs-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);margin-inline-start:6px;vertical-align:1px}
+.hs-sub{display:block;font-size:11px;color:var(--light);font-weight:500}
+.hs-count{font-size:11px;background:#EEF0F4;color:var(--grey);padding:1px 7px;border-radius:999px;margin-inline-start:6px}
+.adm .hs-outbtn{margin:8px 12px 4px;width:calc(100% - 24px);height:38px;border-style:dashed}
+.hs-unsaved{font-style:normal;font-size:10.5px;font-weight:700;color:#fff;background:var(--gold);padding:2px 7px;border-radius:999px}
+.hs-thumbs{display:flex;flex-wrap:wrap;gap:6px}.hs-thumbs img,.hs-thumbs video{width:64px;height:64px;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:#0F1B33}
+.hs-items{display:flex;flex-direction:column;gap:8px}
+.hs-item-row{display:flex;align-items:center;gap:8px}.hs-item-row img,.hs-item-row video{width:56px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--line);flex:none;background:#0F1B33}
+.adm .hs-item-row input{flex:1;min-width:0;height:38px!important}.adm .hs-item-row .ab{margin:0;height:38px;padding:0 10px}
+.adm .hs-insp .pick label{flex:1 1 auto;justify-content:center}
+.adm .hs-insp .adperf{font-size:12px}.adm .hs-insp .in>.adperf{margin:0 -18px;width:auto}
+.hs-eye:disabled,.hs-mv:disabled{opacity:.3;cursor:default}
 .adm .hs-insp .in>.ab{align-self:flex-start}
 @media(max-width:1260px){.hs-grid{grid-template-columns:220px minmax(0,1fr) 330px}}
 @media(max-width:1000px){.hs-grid{grid-template-columns:1fr}.hs-out{position:static;max-height:none}.hs-out #hsOutline{display:flex;flex-wrap:wrap;gap:4px;padding:4px 8px}.hs-item{margin:0}.hs-item.child{margin-inline-start:0;padding-block:8px}.hs-pv{position:static;height:600px}.hs-insp{position:static;max-height:none}.hs-bar{position:static}}
@@ -2937,6 +2971,14 @@ function wireBannerItemsZone(bIdx){
     }catch(e){ if(msgEl) msgEl.textContent=e.message||"error" }
   };
 }
+// a banner's box on desktop and on the phone (phone: same as desktop, full width, or its own size)
+function bannerDims(cfg,phone){
+  var size = cfg.size==="custom" ? {w:cfg.customW||728,h:cfg.customH||90} : (BANNER_SIZES[cfg.size]||BANNER_SIZES["728x90"]);
+  if(!phone) return size;
+  if(cfg.sizeM==="custom") return {w:cfg.customWM||300,h:cfg.customHM||100};
+  if(cfg.sizeM==="full") return {w:362,h:Math.round(362*size.h/size.w),full:true};
+  return size;
+}
 function bannerCoreHtml(cfg, bIdx){
   // one banner's own markup — callers place this in whichever
   // context applies (see home()): either its own strip above the
@@ -2959,9 +3001,11 @@ function bannerCoreHtml(cfg, bIdx){
     return (itLink ? '<a href="'+itLink+'" target="_blank" rel="noopener" class="topbanner-item'+(i===0?" on":"")+'" data-idx="'+i+'">'+mediaHtml+'</a>'
                     : '<div class="topbanner-item'+(i===0?" on":"")+'" data-idx="'+i+'">'+mediaHtml+'</div>');
   }).join("");
-  var size = cfg.size==="custom" ? {w:cfg.customW||728,h:cfg.customH||90} : (BANNER_SIZES[cfg.size]||BANNER_SIZES["728x90"]);
-  var hPos = cfg.hPosition!=null ? cfg.hPosition : 50;
-  return '<div class="topbanner-col" style="--banner-w:'+size.w+'px;--banner-ratio:'+size.w+'/'+size.h+';--banner-gap:'+(cfg.gap!=null?cfg.gap:14)+'px;--banner-hpos:'+(hPos/100)+'">'+
+  var size = bannerDims(cfg,false), sizeM = bannerDims(cfg,true);
+  var hPos = cfg.hPosition!=null ? cfg.hPosition : 50, hPosM = cfg.hPositionM!=null ? cfg.hPositionM : hPos;
+  var vOff = cfg.vOffset!=null ? cfg.vOffset : 0, vOffM = cfg.vOffsetM!=null ? cfg.vOffsetM : vOff;
+  return '<div class="topbanner-col" style="--banner-w:'+size.w+'px;--banner-ratio:'+size.w+'/'+size.h+';--banner-gap:'+(cfg.gap!=null?cfg.gap:14)+'px;--banner-hpos:'+(hPos/100)+';--banner-voff:'+vOff+'px;'+
+    '--banner-w-m:'+(sizeM.full?'100%':sizeM.w+'px')+';--banner-ratio-m:'+sizeM.w+'/'+sizeM.h+';--banner-hpos-m:'+(hPosM/100)+';--banner-voff-m:'+vOffM+'px">'+
     '<div class="topbanner" id="topBanner'+bIdx+'" data-rotate-seconds="'+(cfg.rotationSeconds||5)+'" data-transition="'+(cfg.transition||"fade")+'" data-count="'+cfg.items.length+'">'+
     '<div class="topbanner-media">'+itemsHtml+'</div>'+textHtml+'</div></div>';
 }
@@ -2980,13 +3024,15 @@ function topBannerCoreRowHtml(){
   // contribute to the row's own height on their own — so it's
   // computed here instead, tall enough for whichever enabled banner
   // would be tallest at its own configured size
-  var maxH = banners.reduce(function(m,cfg){
-    if(!cfg.enabled || !cfg.items.length) return m;
-    var size = cfg.size==="custom" ? {w:cfg.customW||728,h:cfg.customH||90} : (BANNER_SIZES[cfg.size]||BANNER_SIZES["728x90"]);
-    var gap = cfg.gap!=null ? cfg.gap : 14;
-    return Math.max(m, size.h + gap);
-  }, 0);
-  return '<div class="topbanner-row" style="height:'+maxH+'px">'+html+'</div>';
+  var maxH = 0, maxHM = 0;
+  banners.forEach(function(cfg){
+    if(!cfg.enabled || !cfg.items.length) return;
+    var gap = cfg.gap!=null ? cfg.gap : 14, d = bannerDims(cfg,false), dm = bannerDims(cfg,true);
+    maxH = Math.max(maxH, d.h + gap + (cfg.vOffset||0));
+    var wm = Math.min(dm.w,362), hm = Math.round(wm*dm.h/dm.w);
+    maxHM = Math.max(maxHM, hm + gap + (cfg.vOffsetM!=null?cfg.vOffsetM:(cfg.vOffset||0)));
+  });
+  return '<div class="topbanner-row" style="--row-h:'+maxH+'px;--row-h-m:'+maxHM+'px">'+html+'</div>';
 }
 function topBannerHtml(){
   // above-the-hero placement for however many of the 3 banners are
@@ -3112,9 +3158,11 @@ function home(){
  // that margin, which is exactly why 0px still left a visible gap
  var hasBannerAbove = bannerAboveHtml!=="";
  var adsInHero = homeOrder()[0]==="ads";   // first section under the hero → rendered inside the hero block
+ var bannersTop = SX("banners_slot","flow")==="top" && HSON("banners");   // the banner strip sits above the headline, inside the hero
  return '<div class="hero-outer"><div class="hv" id="hv">'+heroBgHtml+'</div>'+
   '<div class="hscrim"></div>'+
   '<section class="hero"><div class="wrap">'+
+  (bannersTop && !heroOff ? (function(){ var row=topBannerCoreRowHtml(); return row ? '<div class="topbanner-wrap tb-inhero">'+row+'</div>' : '' })() : '')+
   (heroOff ? bannerInHeroHtml : '<h1'+(SITE.hero_title_size||SITE.hero_title_color?' style="'+(SITE.hero_title_size?'font-size:'+SITE.hero_title_size+'px;':'')+(SITE.hero_title_color?'color:'+SITE.hero_title_color+';':'')+'"':'')+'>'+
     siteText("hero","h1a")+' <span'+(SITE.hero_sub_color?' style="color:'+SITE.hero_sub_color+'"':'')+'>'+heroSubHtml(siteText("hero_sub","h1b"))+'</span></h1>')+
   heroSearchBarHtml()+
@@ -3285,13 +3333,27 @@ function search(){
   '<div class="res'+(VIEWMODE==="list"?" list-view":"")+'">'+(pageItems.length?pageItems.map(function(x,i){return card(x,i,VIEWMODE==="list")}).join(""):
    !LISTINGS_LOADED ? '<div class="resempty"><b>'+t("loading")+'</b></div>' :
    '<div class="resempty">'+LICON.search+'<b>'+t("none")+'</b><span>'+t("none2")+'</span></div>')+
-  '</div>'+(totalPages>1?'<div class="pg">'+
+  '</div>'+(pageItems.length||!LISTINGS_LOADED ? '' : searchAlternatives())+(totalPages>1?'<div class="pg">'+
     (F.page>1?'<a data-pg="'+(F.page-1)+'">‹</a>':'')+
     Array.from({length:totalPages},function(_,idx){return idx+1}).map(function(p){
       return '<a class="'+(p===F.page?"on":"")+'" data-pg="'+p+'">'+p+'</a>'}).join("")+
     (F.page<totalPages?'<a data-pg="'+(F.page+1)+'">›</a>':'')+
    '</div>':'')+'</div></div>'}
 
+// when a search finds nothing: the same search anywhere in the country, or failing that the newest listings
+function searchAlternatives(){
+  var saved=F, alt=[], title="";
+  try{
+    F=Object.assign({},saved,{govs:[],areas:[],g:"",a:""});
+    alt=D.LIST.filter(function(x){ return passesFilter(x,null) });
+    title=GX("altResH");
+    if(!alt.length){ F=Object.assign({},saved,{govs:[],areas:[],g:"",a:"",types:[],t:"",tbs:[],tb:"",cd:"",pmin:0,pmax:0,furn:"",rentalPeriod:"",ownerOnly:false}); alt=D.LIST.filter(function(x){ return passesFilter(x,null) }); title=GX("altResH2") }
+  }finally{ F=saved }
+  if(!alt.length) return '';
+  alt.sort(function(a,b){ return (b.featured?1:0)-(a.featured?1:0) || new Date(b.createdAt||0)-new Date(a.createdAt||0) });
+  return '<div class="resalt"><div class="resalt-h"><h3>'+title+'</h3><a class="ab" data-go="search" data-deal="'+(F.deal||"")+'" data-sec="'+(F.sec||"")+'">'+GX("altResBtn")+'</a></div>'+
+    '<div class="res'+(VIEWMODE==="list"?" list-view":"")+'">'+alt.slice(0,6).map(function(x,i){ return card(x,i,VIEWMODE==="list") }).join("")+'</div></div>';
+}
 /* ── listing detail ── */
 function listing(id){
  var x=D.LIST.filter(function(l){return String(l.id)===String(id)})[0];
@@ -4089,66 +4151,9 @@ function adminView(){
  else if(ADM.tab==="stats"){ body = adminAnalyticsBody(); }
 
  else if(ADM.tab==="geo"){ body = geoAdminBody(); }
- else if(ADM.tab==="banners"){
-  body = '<div class="hintx" style="background:var(--gold-w);border:1px solid #EDDCB6;border-radius:12px;padding:12px 14px;color:#6B5518;margin-bottom:4px">'+GX("bannersNote")+'</div>'+[0,1,2].map(function(bIdx){ return bannerAdminBlockHtml(bIdx) }).join("");
- }
- else if(ADM.tab==="contact"){
-  body = '<div class="blk"><h3>'+t("contactInfoH")+'</h3><div class="in">'+
-    '<div class="hintx" style="margin-bottom:10px">'+t("socialNameHint")+'</div>'+
-    '<div class="row"><div class="fl"><label>Facebook — '+t("linkL")+'</label><input id="scFb" value="'+(SITE.fb_url||"")+'" placeholder="https://facebook.com/..."></div>'+
-     '<div class="fl"><label>Facebook — '+t("accountNameL")+'</label><input id="scFbName" value="'+(SITE.fb_name||"").replace(/"/g,"&quot;")+'" placeholder="@balkoun"></div></div>'+
-    '<div class="row"><div class="fl"><label>Instagram — '+t("linkL")+'</label><input id="scIg" value="'+(SITE.ig_url||"")+'" placeholder="https://instagram.com/..."></div>'+
-     '<div class="fl"><label>Instagram — '+t("accountNameL")+'</label><input id="scIgName" value="'+(SITE.ig_name||"").replace(/"/g,"&quot;")+'" placeholder="@balkoun"></div></div>'+
-    '<div class="row"><div class="fl"><label>YouTube — '+t("linkL")+'</label><input id="scYt" value="'+(SITE.yt_url||"")+'" placeholder="https://youtube.com/..."></div>'+
-     '<div class="fl"><label>YouTube — '+t("accountNameL")+'</label><input id="scYtName" value="'+(SITE.yt_name||"").replace(/"/g,"&quot;")+'" placeholder="Balkoun"></div></div>'+
-    '<div class="row"><div class="fl"><label>TikTok — '+t("linkL")+'</label><input id="scTiktok" value="'+(SITE.tiktok_url||"")+'" placeholder="https://tiktok.com/@..."></div>'+
-     '<div class="fl"><label>TikTok — '+t("accountNameL")+'</label><input id="scTiktokName" value="'+(SITE.tiktok_name||"").replace(/"/g,"&quot;")+'" placeholder="@balkoun"></div></div>'+
-    '<div class="row"><div class="fl"><label>'+t("waNumberL")+'</label><input id="scWa" value="'+(SITE.wa_number||"")+'" placeholder="+9639xxxxxxxx"></div>'+
-     '<div class="fl"><label>'+t("phoneNumberL")+'</label><input id="scPhone" value="'+(SITE.phone_number||"")+'" placeholder="+9639xxxxxxxx"></div></div>'+
-    '<div class="fl"><label>'+t("emailAddressL")+'</label><input id="scEmail" value="'+(SITE.email_address||"")+'" placeholder="info@balkoun.com"></div>'+
-    '<button class="ab ok" id="scContactSave" style="margin-top:6px">'+t("save")+'</button>'+
-    '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="scContactMsg"></span>'+
-   '</div></div>'+
-   '<div class="blk" style="margin-top:16px"><h3>'+t("sypRateH")+'</h3><div class="in">'+
-    '<div class="hintx" style="margin-bottom:10px">'+t("sypRateHint")+'</div>'+
-    '<div class="fl"><label>'+t("sypRateL")+'</label>'+
-     '<input id="scSypRate" type="number" min="1" value="'+(SITE.syp_rate!=null?SITE.syp_rate:13500)+'"></div>'+
-    '<button class="ab ok" id="scSypRateSave">'+t("save")+'</button>'+
-    '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="scSypRateMsg"></span>'+
-   '</div></div>';
- }
- else if(ADM.tab==="design"){
-  body = '<div class="blk"><h3>'+t("featuredH")+'</h3><div class="in">'+
-    '<div class="hintx" style="margin-bottom:10px">'+t("featuredHint")+'</div>'+
-    '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:10px">'+
-     '<input type="checkbox" id="scFeatBadgeOn"'+(SITE.featured_badge_enabled!==false?' checked':'')+'>'+
-     '<span>'+t("showFeaturedBadge")+'</span></label>'+
-    '<div class="row">'+
-     ["ar","en","de"].map(function(lg){return '<div class="fl"><label>'+t("featuredBadgeTextL")+' ('+lg.toUpperCase()+')</label>'+
-      '<input id="scFeatBadge_'+lg+'" value="'+(SITE["featured_badge_"+lg]||"").replace(/"/g,"&quot;")+'"></div>'}).join("")+
-    '</div>'+
-    '<div class="fl"><label>'+t("featuredBrightnessL")+'</label>'+
-     '<input id="scFeatBright" type="number" min="0" max="100" value="'+(SITE.featured_brightness!=null?SITE.featured_brightness:20)+'"></div>'+
-    '<div class="hintx" style="margin-bottom:8px">'+t("featuredBrightnessHint")+'</div>'+
-    '<button class="ab ok" id="scFeatSave">'+t("save")+'</button>'+
-    '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="scFeatMsg"></span>'+
-   '</div></div>'+
-   '<div class="blk" style="margin-top:16px"><h3>'+t("cardSizeH")+'</h3><div class="in">'+
-    '<div class="hintx">'+t("cardSizeHintDesktop")+' '+GX("dHint")+'</div>'+
-    '<div class="fl"><label>'+GX("cardSizeDual")+'</label><div class="dual">'+
-      '<span class="dual-i" title="'+GX("dDesk")+'">'+AICO.desk+'<input id="scCardSize" type="number" min="200" max="500" value="'+(SITE.card_min_width||250)+'"></span>'+
-      '<span class="dual-i" title="'+GX("dPhone")+'">'+AICO.phone+'<input id="scCardSizeMobile" type="number" min="90" max="300" value="'+(SITE.card_min_width_mobile||160)+'"></span></div></div>'+
-    '<div class="xactions"><button class="ab ok" id="scCardSizeSave">'+t("save")+'</button><span class="xmsg" id="scCardSizeMsg"></span></div>'+
-   '</div></div>'+
-   '<div class="blk" style="margin-top:16px"><h3>'+t("newBadgeH")+'</h3><div class="in">'+
-    '<div class="hintx" style="margin-bottom:10px">'+t("newBadgeHint")+'</div>'+
-    '<div class="fl"><label>'+t("newBadgeHoursL")+'</label>'+
-     '<input id="scNewBadgeHours" type="number" min="0" max="720" value="'+(SITE.new_badge_hours!=null?SITE.new_badge_hours:24)+'"></div>'+
-    '<button class="ab ok" id="scNewBadgeSave">'+t("save")+'</button>'+
-    '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="scNewBadgeMsg"></span>'+
-   '</div></div>'+
-   adminDesignExtrasHtml();
- }
+ else if(ADM.tab==="banners"){ body = hsStudioHtml("banners"); }
+ else if(ADM.tab==="contact"){ body = hsStudioHtml("contact"); }
+ else if(ADM.tab==="design"){ body = hsStudioHtml("design"); }
  else if(ADM.tab==="storage"){
   body = adminStorageBody('<div class="blk" style="margin-top:16px"><h3>'+t("storageLimitH")+'</h3><div class="in">'+
     '<div class="hintx" style="margin-bottom:10px">'+t("storageLimitHint")+'</div>'+
@@ -4171,6 +4176,11 @@ function adminView(){
    '</div></div>'+
    '<div class="blk" style="margin-top:16px"><h3>'+t("perMemberApproval")+'</h3><div class="in">'+
     '<div class="hintx">'+t("perMemberApprovalH")+'</div>'+
+   '</div></div>'+
+   '<div class="blk" style="margin-top:16px"><h3>'+t("sypRateH")+'</h3><div class="in">'+
+    '<div class="hintx">'+t("sypRateHint")+'</div>'+
+    '<div class="fl"><label>'+t("sypRateL")+'</label><input id="scSypRate" type="number" min="1" value="'+(SITE.syp_rate!=null?SITE.syp_rate:13500)+'"></div>'+
+    '<div class="xactions"><button class="ab ok" id="scSypRateSave">'+t("save")+'</button><span class="xmsg" id="scSypRateMsg"></span></div>'+
    '</div></div>'+
    adminSystemExtrasHtml();
  }
@@ -4206,7 +4216,7 @@ function adminView(){
  }
 
  else if(ADM.tab==="mainpage"){
-  body = hsStudioHtml();
+  body = hsStudioHtml("home");
  }
  else if(ADM.tab==="photos"){
   // one media library covering every category the site stores files
@@ -4343,44 +4353,7 @@ function adminView(){
   }
  }
 
- else if(ADM.tab==="ads"){
-  body = adminAdsPageHtml()+
-   '<div class="blk" style="margin-top:16px"><h3>'+t("adSlotsListH")+'</h3><div class="in">'+
-    (ADM.adSlots&&ADM.adSlots.length ? '<div class="adminadlist">'+ADM.adSlots.map(function(a,idx){
-      var isFirst=idx===0, isLast=idx===ADM.adSlots.length-1;
-      var editing = String(ADM.editAdId)===String(a.id);
-      var row = '<div class="adminadrow">'+
-        '<div class="adminadmove">'+
-         '<button type="button" class="ab" id="adMoveUp_'+a.id+'" data-moveadslot="'+a.id+':up"'+(isFirst?' disabled':'')+'>↑</button>'+
-         '<button type="button" class="ab" id="adMoveDown_'+a.id+'" data-moveadslot="'+a.id+':down"'+(isLast?' disabled':'')+'>↓</button>'+
-        '</div>'+
-        '<div class="adminadthumb">'+(a.linked_listing_id?'<span>'+t("adLinkedTag")+'</span>':a.image_url?'<img src="'+a.image_url+'" alt="">':'<span>'+t("adPlaceholder")+'</span>')+'</div>'+
-        '<div class="adminadinfo"><b class="ltr">#'+(idx+1)+'</b> '+(a.label||(a.linked_listing_id?refFor(a.linked_listing_id):'—'))+
-         (a.enabled?'':' <span style="color:var(--danger)">('+t("disabled")+')</span>')+
-         (a.sponsor_name?' <span style="color:var(--grey)">— '+a.sponsor_name+'</span>':'')+
-         (function(){
-           if(!a.starts_at && !a.expires_at) return '';
-           var now=Date.now();
-           var starts=a.starts_at?new Date(a.starts_at).getTime():null;
-           var expires=a.expires_at?new Date(a.expires_at).getTime():null;
-           var isActive = (!starts||now>=starts) && (!expires||now<=expires);
-           var isExpired = expires && now>expires;
-           var statusClass = isActive?"live":isExpired?"expired":"pending";
-           var statusText = isActive?t("featureActiveNow"):isExpired?t("featureExpired"):t("featureScheduled");
-           return ' <span class="st st-'+statusClass+'" style="margin-inline-start:4px">'+statusText+'</span>';
-         })()+
-         '<div style="font-size:11px;color:var(--light)" class="ltr">'+(a.linked_listing_id?'':(a.link_url||''))+'</div></div>'+
-        '<div style="white-space:nowrap"><button class="ab" data-editad="'+a.id+'">'+t("edit")+'</button>'+
-        '<button class="ab bad" data-deladslot="'+a.id+'">'+t("del")+'</button></div>'+
-      '</div>';
-      if(editing) row += adEditorForm(String(a.id), a, d.listings||[]);
-      return row}).join("")+'</div>'
-     : '<div class="done2"><b>'+t("noAdSlots")+'</b></div>')+
-    '<button class="btn-n" id="adAddBtn" style="margin-top:12px">'+t("addAdSlot")+'</button>'+
-    (ADM.newAdOpen ? adEditorForm("New", {position:(ADM.adSlots?ADM.adSlots.length:0)+1, enabled:true}, d.listings||[]) : '')+
-    '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="adSlotMsg"></span>'+
-   '</div></div>';
- }
+ else if(ADM.tab==="ads"){ body = hsStudioHtml("ads"); }
 
  else if(ADM.tab==="featured"){
   var flist = ADM.featuredList||[];
@@ -5930,12 +5903,15 @@ function wireChipSelects(){
       var selHtml = (compact && sel.length) ? '<div class="cs-selected">'+sel.map(function(v){ var o=cfg.getOptions().filter(function(x){return x.value===v})[0]; return '<span class="chip">'+(o?o.label:v)+'<button type="button" class="chip-x" data-csremove="'+id+'" data-csval="'+String(v).replace(/"/g,"&quot;")+'">×</button></span>' }).join("")+'</div>' : '';
       drop.innerHTML = '<div class="cs-sheet-h"><span>'+input.placeholder+'</span><button type="button" class="cs-close" aria-label="close">×</button>'+
         '<input class="cs-sheet-q" type="search" placeholder="'+input.placeholder+'" autocomplete="off" enterkeyhint="search"></div>'+selHtml+
-        (html || '<div class="chipsel-empty">'+t("noResultsFor")+'</div>');
+        (html || '<div class="chipsel-empty">'+t("noResultsFor")+'</div>')+
+        '<div class="cs-sheet-f">'+(sel.length?'<button type="button" class="cs-clear" data-csclearall="'+id+'">'+GX("csClear")+'</button>':'')+'<button type="button" class="cs-done">'+GX("csDone")+(sel.length?' <b class="ltr">'+sel.length+'</b>':'')+'</button></div>';
       drop.onclick=function(ev){ ev.stopPropagation() };
       markGreenTabu(drop);
       $$("#"+id+"Drop [data-csremove]").forEach(function(e){ e.onclick=function(ev){ ev.stopPropagation(); ev.preventDefault(); var val=this.dataset.csval; F[cfg.arrKey]=(F[cfg.arrKey]||[]).filter(function(v){return v!==val}); window._csReopen=id; softRenderHero() } });
-      var cl=drop.querySelector(".cs-close");
-      if(cl) cl.onclick=function(ev){ ev.stopPropagation(); drop.classList.remove("on"); input.blur() };
+      var closeSheet=function(ev){ if(ev){ ev.stopPropagation(); ev.preventDefault() } drop.classList.remove("on"); input.blur() };
+      var cl=drop.querySelector(".cs-close"); if(cl) cl.onclick=closeSheet;
+      var dn=drop.querySelector(".cs-done"); if(dn) dn.onclick=closeSheet;
+      var ca=drop.querySelector("[data-csclearall]"); if(ca) ca.onclick=function(ev){ ev.stopPropagation(); ev.preventDefault(); F[cfg.arrKey]=[]; window._csReopen=id; softRenderHero() };
       // phone sheet search: filters the list in place (no re-render, so the keyboard stays), and while the
       // keyboard is up the sheet hangs from the top of the visible area instead of hiding behind the keyboard
       var sq=drop.querySelector(".cs-sheet-q");
@@ -8484,6 +8460,7 @@ async function loadAdSlots(){
   try{
     var r = await DB.rpc("bk_public_ad_slots",{});
     if(r && r.data) AD_SLOTS = r.data;
+    if(PREVIEW && _pvLast && _pvLast.adSlots) applyPreview(_pvLast);
   }catch(e){}
 }
 async function loadCounts(){
@@ -8790,6 +8767,7 @@ function viewFromHash(){
   // Prefer the real path (/search?…); still understand old #/search links and convert them.
   var raw=(location.hash||"").replace(/^#\/?/,"");
   if(!raw) raw=location.pathname.replace(/^\/+/,"").replace(/\/+$/,"").replace(/^index\.html$/,"")+location.search;
+  if(PREVIEW){ var pvv=(location.search.match(/[?&]view=([a-z]+)/)||[])[1]; if(pvv) raw=pvv }
   var qIdx=raw.indexOf("?");
   var h = qIdx>-1 ? raw.slice(0,qIdx) : raw;
   var qs = qIdx>-1 ? raw.slice(qIdx) : "";
@@ -8819,11 +8797,17 @@ var VID=(function(){ try{ var v=localStorage.getItem("balkoun_vid"); if(!v){ v=M
 var _refLogged=false;
 function deviceKind(){ return (window.innerWidth<=700 || /Mobi|Android|iPhone/i.test(navigator.userAgent)) ? "mobile" : "desktop" }
 function applyPreview(m){
+  if(m.reloadAds){ loadAdSlots().then(function(){ if(_pvLast) delete _pvLast.adSlots; render() }); return }
   _pvLast=m;
   if(m.site) Object.keys(m.site).forEach(function(k){ if(k!=="extras") SITE[k]=m.site[k] });
   if(m.extras) SITE.extras=m.extras;
   applyCardSizeVar(); applyBannerSizeVar(); applySectionGapVars(); applySiteExtras();
   var rer=!!m.rerender; if(m.lang && m.lang!==L){ L=m.lang; rer=true }
+  if(m.adSlots){ var now=Date.now();
+    AD_SLOTS=m.adSlots.filter(function(a){ return a.enabled!==false && (!a.starts_at||new Date(a.starts_at).getTime()<=now) && (!a.expires_at||new Date(a.expires_at).getTime()>=now) }).map(function(a){ a=Object.assign({},a);
+      if(a.linked_listing_id){ var x=(D.LIST||[]).filter(function(l){ return String(l.id)===String(a.linked_listing_id) })[0]; if(x){ a.l_photos=x.photos||[]; a.l_rooms=x.r; a.l_baths=x.b; a.l_area=x.m2; a.l_gov=x.g; a.l_area_name=x.a; a.l_ref=x.ref } }
+      return a });
+    rer=true }
   if(rer) render();
 }
 if(PREVIEW){
@@ -8929,7 +8913,7 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
   var G=D.GUIDES[L];
   var S={
     ads:function(){ return adsInHero ? "" : adSlotsRow() },
-    banners:function(){ return HSON("banners") ? bannerAboveHtml : "" },
+    banners:function(){ return HSON("banners") && SX("banners_slot","flow")!=="top" ? bannerAboveHtml : "" },
     ticker:function(){ return HSON("ticker") ? marketTickerHtml() : "" },
     colls:function(){ return HSON("colls") ? homeCollectionsHtml() : "" },
     types:function(){ return HSON("types") ? '<div class="wrap"><section class="sec" id="typesSec"><div class="eyebrow">'+HT("types_eyebrow",HX("pickE"))+'</div><h2>'+HT("types_h",t("pickH"))+'</h2>'+typeList()+'</section></div>' : "" },
@@ -9597,6 +9581,10 @@ var GX_T={
   navLangDrawer:{ar:"اختيار اللغة داخل القائمة",en:"Language chips inside the menu",de:"Sprachauswahl im Menü"},
   navCurDrawer:{ar:"اختيار العملة داخل القائمة",en:"Currency toggle inside the menu",de:"Währungsumschalter im Menü"},
   navMenuDesk:{ar:"إظهار زر القائمة ☰ على الكمبيوتر أيضاً",en:"Show the ☰ menu button on desktop too",de:"☰-Menü-Button auch am Desktop zeigen"},
+  csDone:{ar:"تم",en:"Done",de:"Fertig"}, csClear:{ar:"مسح الاختيار",en:"Clear",de:"Leeren"},
+  altResH:{ar:"لا توجد إعلانات مطابقة هنا — إليك إعلانات مشابهة في مناطق أخرى",en:"Nothing matches here — similar listings elsewhere",de:"Hier passt nichts – ähnliche Anzeigen anderswo"},
+  altResH2:{ar:"لا توجد إعلانات مطابقة — إليك أحدث الإعلانات",en:"Nothing matches — here are the latest listings",de:"Nichts passt – die neuesten Anzeigen"},
+  altResBtn:{ar:"عرض كل الإعلانات",en:"Show all listings",de:"Alle Anzeigen zeigen"},
   geoTab:{ar:"المناطق",en:"Areas",de:"Gebiete"}, allAreas:{ar:"كل المناطق",en:"All areas",de:"Alle Gebiete"},
   city:{ar:"مدينة",en:"City",de:"Stadt"}, area:{ar:"حي / منطقة",en:"District",de:"Bezirk"}, village:{ar:"قرية / بلدة",en:"Village",de:"Dorf"},
   cities:{ar:"المدن",en:"Cities",de:"Städte"}, districts:{ar:"الأحياء والمناطق",en:"Districts and areas",de:"Bezirke"},
@@ -9623,7 +9611,7 @@ var GX_T={
   navListings:{ar:"الإعلانات",en:"Listings",de:"Anzeigen"}, navMarketing:{ar:"التسويق والإيرادات",en:"Marketing & revenue",de:"Marketing & Umsatz"},
   navWebsite:{ar:"الموقع",en:"Website",de:"Website"}, navSystem:{ar:"النظام",en:"System",de:"System"},
   tBanners:{ar:"البانرات",en:"Banners",de:"Banner"}, tDesign:{ar:"البحث والبطاقات",en:"Search & cards",de:"Suche & Karten"},
-  tContact:{ar:"التواصل والعملة",en:"Contact & currency",de:"Kontakt & Währung"}, tSystem:{ar:"إعدادات النظام",en:"System settings",de:"Systemeinstellungen"},
+  tContact:{ar:"التواصل",en:"Contact",de:"Kontakt"}, tSystem:{ar:"إعدادات النظام",en:"System settings",de:"Systemeinstellungen"},
   tMedia:{ar:"مكتبة الوسائط",en:"Media library",de:"Medienbibliothek"}, aLang:{ar:"لغة اللوحة",en:"Panel language",de:"Panelsprache"},
   desc_dashboard:{ar:"نظرة سريعة على اليوم: الإعلانات، الأعضاء، التنبيهات والتخزين.",en:"Today at a glance: listings, members, alerts and storage.",de:"Der Tag auf einen Blick: Anzeigen, Mitglieder, Hinweise und Speicher."},
   desc_stats:{ar:"الزوّار، الصفحات الأكثر زيارة، الدول، والمتصلون الآن.",en:"Visitors, most viewed pages, countries and who is online now.",de:"Besucher, meistgesehene Seiten, Länder und wer gerade online ist."},
@@ -9632,16 +9620,16 @@ var GX_T={
   desc_photos:{ar:"كل الصور والفيديوهات المرفوعة: الإعلانات، المربعات، البانرات والخلفية.",en:"Every uploaded photo and video: listings, ad squares, banners and background.",de:"Alle hochgeladenen Fotos und Videos: Anzeigen, Werbequadrate, Banner, Hintergrund."},
   desc_users:{ar:"الأعضاء، مستوياتهم وشاراتهم، الحظر، إعادة تعيين كلمة المرور.",en:"Members, their levels and badges, blocking and password resets.",de:"Mitglieder, Stufen und Abzeichen, Sperren und Passwort-Resets."},
   desc_reviews:{ar:"تقييمات الأعضاء لبعضهم، مع إمكانية الحذف.",en:"Member-to-member reviews, with deletion.",de:"Bewertungen zwischen Mitgliedern, mit Löschmöglichkeit."},
-  desc_ads:{ar:"صف المربعات الإعلانية تحت شريط البحث: الإعدادات العامة ثم كل مربع.",en:"The ad-square row under the search bar: row settings, then each square.",de:"Die Werbequadrate unter der Suchleiste: Reiheneinstellungen, dann jedes Quadrat."},
-  desc_banners:{ar:"ثلاثة مواضع للبانرات في الصفحة الرئيسية، لكل منها وسائطه ونصه ورابطه.",en:"Three banner positions on the homepage, each with its media, text and link.",de:"Drei Bannerplätze auf der Startseite, jeweils mit Medien, Text und Link."},
+  desc_ads:{ar:"المربعات الإعلانية مع معاينة حيّة: إعدادات الصف، شكل المربع، الأداء، ثم كل مربع على حدة. التغييرات تظهر فوراً وتُحفظ بزر واحد.",en:"Ad squares with a live preview: row settings, square design, performance, then each square. Changes show instantly and save with one button.",de:"Werbekacheln mit Live-Vorschau: Reihe, Kachel-Design, Leistung, dann jede Kachel. Änderungen sofort sichtbar, ein Speichern-Button."},
+  desc_banners:{ar:"ثلاثة بانرات مع معاينة حيّة: الوسائط، الحجم، الموضع الأفقي والرأسي، النص والرابط — لكل من الكمبيوتر والجوال.",en:"Three banners with a live preview: media, size, horizontal and vertical position, text and link, for desktop and phone.",de:"Drei Banner mit Live-Vorschau: Medien, Größe, Position, Text und Link – für Desktop und Handy."},
   desc_mainpage:{ar:"معاينة حيّة للصفحة الرئيسية مع كل أقسامها: اختر قسماً، عدّله، شاهد النتيجة فوراً على الكمبيوتر أو الجوال، ثم احفظ.",en:"A live preview of the homepage with all its sections: pick a section, edit it, see the result instantly on desktop or phone, then save.",de:"Live-Vorschau der Startseite mit allen Abschnitten: Abschnitt wählen, bearbeiten, sofort am Desktop oder Handy sehen, dann speichern."},
-  desc_design:{ar:"شكل بطاقات الإعلانات، الشارات، وعدد النتائج في الصفحة.",en:"How listing cards look, the badges, and how many results a page shows.",de:"Aussehen der Anzeigenkarten, Abzeichen und Ergebnisse pro Seite."},
+  desc_design:{ar:"صفحة النتائج مع معاينة حيّة: حجم البطاقات، الشارات، عدد النتائج، وروابط الرأس والقائمة.",en:"The results page with a live preview: card size, badges, results per page, and the header and menu links.",de:"Ergebnisseite mit Live-Vorschau: Kartengröße, Abzeichen, Ergebnisse pro Seite, Kopfzeile und Menü."},
   desc_geo:{ar:"المحافظات والمناطق: الأسماء، الترتيب، الإظهار والإخفاء.",en:"Governorates and areas: names, order, shown or hidden.",de:"Provinzen und Gebiete: Namen, Reihenfolge, sichtbar oder verborgen."},
-  desc_contact:{ar:"أرقام التواصل وحسابات التواصل الاجتماعي وسعر صرف الليرة.",en:"Contact numbers, social accounts and the SYP exchange rate.",de:"Kontaktnummern, soziale Konten und der SYP-Wechselkurs."},
+  desc_contact:{ar:"حسابات التواصل الاجتماعي وأرقام التواصل كما تظهر في أسفل الموقع، مع معاينة حيّة.",en:"Social accounts and contact numbers as they appear in the site footer, with a live preview.",de:"Soziale Konten und Kontaktnummern wie im Footer, mit Live-Vorschau."},
   desc_reports:{ar:"بلاغات الزوّار عن الإعلانات: الرد، الأولوية، الإغلاق.",en:"Visitor reports about listings: reply, prioritise, close.",de:"Meldungen zu Anzeigen: antworten, priorisieren, schließen."},
   desc_feedback:{ar:"الشكاوى والاقتراحات المرسلة من صفحة التواصل.",en:"Complaints and suggestions sent from the contact page.",de:"Beschwerden und Vorschläge von der Kontaktseite."},
   desc_msgs:{ar:"تنبيهات اللوحة، وإرسال إشعارات إلى عضو أو إلى الجميع.",en:"Panel alerts, and notifications sent to one member or everyone.",de:"Panel-Hinweise und Benachrichtigungen an ein Mitglied oder alle."},
-  desc_settings:{ar:"الموافقة على الإعلانات، حد التخزين، وإعدادات عامة.",en:"Listing approval, storage limit and general settings.",de:"Anzeigenfreigabe, Speicherlimit und allgemeine Einstellungen."},
+  desc_settings:{ar:"الموافقة على الإعلانات وسعر صرف الليرة وإعدادات عامة.",en:"Listing approval, the SYP exchange rate and general settings.",de:"Anzeigenfreigabe, SYP-Wechselkurs und allgemeine Einstellungen."},
   desc_admins:{ar:"حسابات المشرفين وصلاحيات كل منهم.",en:"Admin accounts and what each one may do.",de:"Administratorkonten und ihre Berechtigungen."},
   desc_danger:{ar:"نسخة احتياطية كاملة، الاستعادة، وعمليات الحذف الشامل.",en:"Full backup, restore, and the bulk delete operations.",de:"Vollständiges Backup, Wiederherstellung und Massenlöschungen."},
   cardLogoCol:{ar:"شعار على البطاقات",en:"Logo on cards",de:"Logo auf Karten"},
@@ -9811,7 +9799,9 @@ function xText(key,label,def){ return '<div class="fl"><label>'+label+'</label><
 function xSelect(key,label,def,opts){ return '<div class="fl"><label>'+label+'</label><select data-xkey="'+key+'" data-xtype="str">'+opts.map(function(o){ return '<option value="'+o[0]+'"'+(SX(key,def)===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select></div>' }
 function xLangs(prefix,label,defFn){ return '<div class="row3x">'+["ar","en","de"].map(function(lg){ return xText(prefix+lg,label+' ('+lg.toUpperCase()+')',defFn(lg)) }).join("")+'</div>' }
 /* ═══════════ Homepage studio: live preview + section outline + inspector; one Desktop/Phone switch drives both ═══════════ */
-var HS={sel:"hero_text",device:"desk",lang:null,draft:{site:{},extras:{}}};
+var HS={page:"home",sel:"hero_text",selBy:{},device:"desk",lang:null,draft:{site:{},extras:{}},adDraft:{},adNew:null,adPendingDel:{},bDraft:null,bPendingDel:[]};
+var HS_PAGES={home:{url:"/",sel:"hero_text"},ads:{url:"/",sel:"row"},banners:{url:"/",sel:"b:0"},design:{url:"/search?deal=sale",sel:"cards"},contact:{url:"/?view=contactus",sel:"social"}};
+function hsPvUrl(){ var u=HS_PAGES[HS.page].url; return u+(u.indexOf("?")>-1?"&":"?")+"preview=1&lang="+hsLang() }
 var HS_T={
  desk:{ar:"كمبيوتر",en:"Desktop",de:"Desktop"}, phone:{ar:"جوال",en:"Phone",de:"Handy"},
  saveAll:{ar:"حفظ التغييرات",en:"Save changes",de:"Änderungen speichern"}, discard:{ar:"تراجع",en:"Discard",de:"Verwerfen"},
@@ -9857,32 +9847,71 @@ var HS_T={
  f_p:{ar:"النص",en:"Text",de:"Text"}, point:{ar:"النقطة",en:"Point",de:"Punkt"}, f_map:{ar:"إظهار خريطة سوريا بجانب القائمة",en:"Show the Syria map beside the list",de:"Syrien-Karte neben der Liste zeigen"},
  f_b:{ar:"العبارة",en:"Phrase",de:"Phrase"}, f_btn:{ar:"نص الزر",en:"Button text",de:"Button-Text"}, bandHint:{ar:"يظهر هذا الشريط للزوار غير المسجّلين فقط.",en:"This band shows to visitors who are not logged in.",de:"Dieses Band sehen nur nicht angemeldete Besucher."},
  tickerHint:{ar:"يظهر فقط عندما تتوفر أسعار كافية (٤ مناطق على الأقل بثلاثة إعلانات فأكثر).",en:"Shows only when enough prices exist (at least 4 areas with 3+ listings).",de:"Erscheint nur bei genug Preisen (mind. 4 Gebiete mit 3+ Anzeigen)."},
+ devOnlyHint:{ar:"تظهر هنا خيارات الجهاز المختار في الأعلى فقط؛ بدّل إلى الجوال لترى خياراته.",en:"Only the options for the device chosen above are shown; switch to Phone to see its options.",de:"Nur die Optionen des oben gewählten Geräts werden gezeigt; auf Handy umschalten für dessen Optionen."},
  f_opening:{ar:"مشهد الافتتاح (كلمة بلكون تصعد ثم يهبط الرأس)",en:"Opening scene (the word rises, then the header drops in)",de:"Eröffnungsszene (Wort steigt, Kopfzeile fällt ein)"}, f_cursor:{ar:"نقطة المؤشر الذهبية (كمبيوتر)",en:"Gold cursor dot (desktop)",de:"Goldener Cursorpunkt (Desktop)"},
  f_phMode:{ar:"العنوان على الجوال",en:"Headline on the phone",de:"Überschrift am Handy"}, ph_after:{ar:"يدخل بعد انتهاء الرسم ويدفعه جانباً",en:"Enters after the drawing rests and pushes it aside",de:"Kommt nach der Zeichnung und schiebt sie beiseite"}, ph_now:{ar:"يظهر مباشرة فوق الرسم",en:"Shows immediately over the drawing",de:"Sofort über der Zeichnung"},
  f_secPad:{ar:"المسافة بين الأقسام (px)",en:"Space between sections (px)",de:"Abstand zwischen Abschnitten (px)"}, g_motion:{ar:"الحركة",en:"Motion",de:"Bewegung"}, g_spacing:{ar:"المسافات",en:"Spacing",de:"Abstände"},
  upload:{ar:"رفع ملف…",en:"Upload…",de:"Hochladen…"}, uploading:{ar:"جارٍ الرفع…",en:"Uploading…",de:"Lädt hoch…"}, clearImg:{ar:"الافتراضية",en:"Default",de:"Standard"},
- previewNote:{ar:"المعاينة هي الصفحة الحقيقية بإعداداتك غير المحفوظة. لا تُسجَّل زياراتها في الإحصائيات.",en:"The preview is the real page with your unsaved settings. Its visits are not counted in analytics.",de:"Die Vorschau ist die echte Seite mit ungespeicherten Einstellungen. Ihre Aufrufe zählen nicht."}
+ previewNote:{ar:"المعاينة هي الصفحة الحقيقية بإعداداتك غير المحفوظة. لا تُسجَّل زياراتها في الإحصائيات.",en:"The preview is the real page with your unsaved settings. Its visits are not counted in analytics.",de:"Die Vorschau ist die echte Seite mit ungespeicherten Einstellungen. Ihre Aufrufe zählen nicht."},
+ row:{ar:"إعدادات الصف",en:"Row settings",de:"Reihe"}, look:{ar:"شكل المربع",en:"Square design",de:"Kachel-Design"}, perf:{ar:"الأداء",en:"Performance",de:"Leistung"},
+ squares:{ar:"المربعات",en:"The squares",de:"Die Kacheln"}, adNew:{ar:"مربع جديد",en:"New square",de:"Neue Kachel"}, addSquare:{ar:"+ إضافة مربع",en:"+ Add a square",de:"+ Kachel hinzufügen"},
+ delSquare:{ar:"حذف هذا المربع",en:"Delete this square",de:"Diese Kachel löschen"}, unsaved:{ar:"غير محفوظ",en:"unsaved",de:"ungespeichert"},
+ adMedia:{ar:"الوسائط",en:"Media",de:"Medien"}, adSchedule:{ar:"الجدولة",en:"Schedule",de:"Zeitplan"}, adTexts:{ar:"النصوص",en:"Texts",de:"Texte"}, adInfo:{ar:"الأساسيات",en:"Basics",de:"Grundlagen"},
+ adClearMedia:{ar:"إزالة الوسائط",en:"Remove media",de:"Medien entfernen"}, adSaveHint:{ar:"يُحفظ المربع مع زر «حفظ التغييرات» في الأعلى. المعاينة تعرضه فوراً.",en:"The square is saved with the “Save changes” button at the top. The preview shows it right away.",de:"Die Kachel wird mit „Änderungen speichern“ oben gespeichert. Die Vorschau zeigt sie sofort."},
+ adMoveHint:{ar:"الأسهم تغيّر ترتيب المربعات فوراً (بعد الحفظ للمربع الجديد).",en:"The arrows reorder the squares immediately (a new square must be saved first).",de:"Die Pfeile ändern die Reihenfolge sofort (neue Kachel zuerst speichern)."},
+ strip:{ar:"شريط البانرات في الصفحة",en:"Banner strip on the page",de:"Bannerleiste auf der Seite"}, banner:{ar:"بانر",en:"Banner",de:"Banner"},
+ bSlot:{ar:"مكان الشريط",en:"Where the strip sits",de:"Position der Leiste"}, bSlotFlow:{ar:"بين أقسام الصفحة (حسب الترتيب بالأسهم)",en:"Between the page sections (ordered with the arrows)",de:"Zwischen den Abschnitten (Reihenfolge per Pfeile)"}, bSlotTop:{ar:"أعلى الصفحة، فوق العنوان الرئيسي",en:"Top of the page, above the headline",de:"Ganz oben, über der Überschrift"},
+ bItems:{ar:"الصور والفيديوهات (تتبدّل بالتناوب)",en:"Photos and videos (rotate in turn)",de:"Fotos und Videos (wechseln ab)"}, bItemLink:{ar:"رابط هذه الصورة",en:"Link for this item",de:"Link für dieses Element"},
+ bSize:{ar:"الحجم",en:"Size",de:"Größe"}, bSizeM:{ar:"الحجم على الجوال",en:"Size on the phone",de:"Größe am Handy"}, bFull:{ar:"بعرض الشاشة",en:"Full width",de:"Volle Breite"}, bCustom:{ar:"مخصص",en:"Custom",de:"Eigene Größe"},
+ bPos:{ar:"الموضع",en:"Position",de:"Position"}, bHPos:{ar:"الموضع الأفقي (%)",en:"Horizontal position (%)",de:"Horizontale Position (%)"}, bVOff:{ar:"الإزاحة الرأسية (px)",en:"Vertical offset (px)",de:"Vertikaler Versatz (px)"},
+ bRot:{ar:"التناوب والحركة",en:"Rotation and motion",de:"Wechsel und Bewegung"}, bText:{ar:"نص فوق البانر",en:"Text over the banner",de:"Text über dem Banner"}, bLink:{ar:"الرابط الافتراضي عند الضغط",en:"Default link on click",de:"Standard-Link beim Klick"},
+ stripHint:{ar:"يظهر شريط البانرات بين أقسام الصفحة الرئيسية؛ موضعه بينها يُضبط بالأسهم في استوديو الصفحة الرئيسية.",en:"The banner strip sits between the homepage sections; its place among them is set with the arrows in the homepage studio.",de:"Die Bannerleiste liegt zwischen den Startseiten-Abschnitten; ihre Position wird im Startseiten-Studio festgelegt."},
+ goHome:{ar:"استوديو الصفحة الرئيسية",en:"Homepage studio",de:"Startseiten-Studio"}, bEmptyHint:{ar:"ارفع صورة أو فيديو ليظهر البانر في المعاينة.",en:"Upload a photo or video and the banner appears in the preview.",de:"Foto oder Video hochladen, dann erscheint das Banner in der Vorschau."},
+ cards:{ar:"بطاقات النتائج",en:"Result cards",de:"Ergebniskarten"}, badges:{ar:"الشارات",en:"Badges",de:"Abzeichen"}, results:{ar:"صفحة النتائج",en:"Results page",de:"Ergebnisseite"}, nav:{ar:"الرأس والقائمة",en:"Header and menu",de:"Kopfzeile und Menü"},
+ cardW:{ar:"أصغر عرض للبطاقة (px)",en:"Minimum card width (px)",de:"Mindestbreite der Karte (px)"}, cardHint:{ar:"كلما صغُر الرقم زاد عدد البطاقات في الصف.",en:"The smaller the number, the more cards fit in a row.",de:"Je kleiner die Zahl, desto mehr Karten pro Reihe."},
+ social:{ar:"حسابات التواصل",en:"Social accounts",de:"Soziale Konten"}, numbers:{ar:"أرقام التواصل",en:"Contact numbers",de:"Kontaktnummern"},
+ contactHint:{ar:"تظهر في صفحة «تواصل معنا» (المعاينة) وفي أزرار الاتصال عبر الموقع. يظهر الحساب فقط عندما يُملأ الرابط والاسم معاً.",en:"Shown on the “Contact us” page (the preview) and in the contact buttons across the site. An account appears only when both its link and name are filled.",de:"Erscheint auf der Kontaktseite (Vorschau) und in den Kontakt-Buttons. Ein Konto erscheint nur mit Link und Name."}
 };
 function hsT(k){ var o=HS_T[k]||{}; return o[L]||o.en||k }
-var HS_SEL={hero_text:".hero h1",hero_bg:".hero-outer",hero_search:".sbar",hero_stats:".hnote",ads:".adsec",banners:".topbanner-wrap",ticker:".mkt",colls:"#collsSec",types:"#typesSec",trust:"#trustSec",expl:"#explSec",band:"#bandSec",guides:"#guidesSec",page:".hero-outer"};
+var HS_SEL={hero_text:".hero h1",hero_bg:".hero-outer",hero_search:".sbar",hero_stats:".hnote",ads:".adsec",banners:".topbanner-wrap",ticker:".mkt",colls:"#collsSec",types:"#typesSec",trust:"#trustSec",expl:"#explSec",band:"#bandSec",guides:"#guidesSec",page:".hero-outer",
+  row:".adsec",look:".adsec",perf:".adsec",strip:".topbanner-wrap",cards:".res",badges:".res",results:".res",nav:"header",social:".changrid",numbers:".changrid"};
 var HS_EYE={ads:"x:ads_row_enabled"};
-var HS_VARKEYS=/^(sk_|h1_|sbar_|hero_gap|ad_carousel_gap|ad_square_size|hero_title_size_m|sec_pad|hero_max_height|ad_(roominfo|location|tag)_size)/;
+var HS_VARKEYS=/^(sk_|h1_|sbar_|hero_gap|ad_carousel_gap|ad_square_size|hero_title_size_m|sec_pad|hero_max_height|card_min_width)/;
 var HS_ICO_EYEOFF='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.2 4.2M9.9 5.2A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6C3.8 8.6 2 12 2 12s3.5 6 10 6c1.4 0 2.6-.3 3.7-.7"/></svg>';
 function hsParts(key){ return {col:key.indexOf("c:")===0,name:key.slice(2)} }
 function hsBase(key){ var p=hsParts(key); if(p.col){ var v=SITE[p.name]; return v==null?"":v } return SX(p.name,"") }
 function hsVal(key){ var p=hsParts(key), d=p.col?HS.draft.site:HS.draft.extras; if(Object.prototype.hasOwnProperty.call(d,p.name)){ var v=d[p.name]; return v==null?"":v } return hsBase(key) }
 function hsSet(key,val){ var p=hsParts(key); (p.col?HS.draft.site:HS.draft.extras)[p.name]=val; hsDirtyUI() }
-function hsDirty(){ return Object.keys(HS.draft.site).length+Object.keys(HS.draft.extras).length>0 }
+function hsDirty(){ return Object.keys(HS.draft.site).length+Object.keys(HS.draft.extras).length+Object.keys(HS.adDraft).length>0 || !!HS.adNew }
+/* ad squares: drafts on top of ADM.adSlots, previewed live, saved with the page's one Save button */
+function hsAdBase(id){ return (ADM.adSlots||[]).filter(function(a){ return String(a.id)===String(id) })[0] }
+function hsAdRow(id){ if(id==="new") return HS.adNew; var b=hsAdBase(id); return b ? Object.assign({},b,HS.adDraft[id]||{}) : null }
+function hsAdSet(id,field,val){ if(id==="new"){ if(!HS.adNew) HS.adNew={id:"new",enabled:true}; HS.adNew[field]=val } else { (HS.adDraft[id]=HS.adDraft[id]||{})[field]=val } hsDirtyUI() }
+function hsAdList(){ var rows=(ADM.adSlots||[]).map(function(a){ return Object.assign({},a,HS.adDraft[a.id]||{}) }); if(HS.adNew) rows.push(Object.assign({id:"new",position:rows.length+1},HS.adNew)); return rows }
+function hsAdMode(a){ return a._mode||(a.linked_listing_id?"linked":a.video_embed_url?"video_embed":"upload") }
+function hsAdName(a,i){ var lst=a.linked_listing_id?((ADM.data&&ADM.data.listings||[]).filter(function(l){ return String(l.id)===String(a.linked_listing_id) })[0]):null; return a.label||a.sponsor_name||(lst&&lst.ref)||(a.linked_listing_id?"BK "+a.linked_listing_id:"")||(a.id==="new"?hsT("adNew"):"#"+(i+1)) }
+function hsAdPayload(a){
+  var mode=hsAdMode(a), p={p_token:ADM.token,p_id:a.id==="new"?null:+a.id,p_position:null,p_enabled:a.enabled!==false,p_label:a.label||"",p_image_url:null,p_link_url:null,p_media_type:"image",p_linked_listing_id:null,p_image_urls:[],p_video_embed_url:null,
+    p_sponsor_name:a.sponsor_name||null,p_overlay_top:a.overlay_top||null,p_overlay_bottom:a.overlay_bottom||null,p_starts_at:a.starts_at||null,p_expires_at:a.expires_at||null};
+  if(mode==="linked"){ if(!a.linked_listing_id) throw new Error(t("adPickListingL")); p.p_linked_listing_id=+a.linked_listing_id }
+  else if(mode==="video_embed"){ if(!a.video_embed_url || !videoEmbedInfo(a.video_embed_url)) throw new Error(t("adInvalidVideoUrl")); p.p_video_embed_url=a.video_embed_url; p.p_link_url=a.link_url||null }
+  else { p.p_image_url=a.image_url||null; p.p_image_urls=a.image_urls||[]; p.p_link_url=a.link_url||null; p.p_media_type=a.media_type||"image" }
+  return p }
+/* banners: the working copy of all 3 banners; every edit is serialized into the site draft so the same Save writes it */
+function hsBDraft(){ if(!HS.bDraft){ HS.bDraft=JSON.parse(JSON.stringify(bannersConfig())) } return HS.bDraft }
+function hsBSet(i,field,val){ var cfg=hsBDraft()[i]; if(val===null||val===undefined) delete cfg[field]; else cfg[field]=val; HS.draft.site.banners_config=JSON.stringify(HS.bDraft); hsDirtyUI() }
 function hsLang(){ return HS.lang||L }
 function hsLK(key){ return key+"_"+hsLang() }
 function hsDK(desk,phone){ return HS.device==="phone" ? phone : desk }
 function hsMerged(){ var ex=SITE.extras; if(typeof ex==="string"){ try{ ex=JSON.parse(ex) }catch(e){ ex={} } } ex=Object.assign({},ex||{},HS.draft.extras); Object.keys(ex).forEach(function(k){ if(ex[k]===null||ex[k]===""||ex[k]===undefined) delete ex[k] }); var site={}; Object.keys(SITE).forEach(function(k){ if(k!=="extras") site[k]=SITE[k] }); Object.assign(site,HS.draft.site); return {site:site,extras:ex} }
 function hsOrder(ex){ var o=ex.home_order; if(typeof o==="string"){ try{ o=JSON.parse(o) }catch(e){ o=null } } var r=Array.isArray(o)?o.filter(function(k){ return HOME_SECS.indexOf(k)>-1 }):[]; HOME_SECS.forEach(function(k){ if(r.indexOf(k)<0) r.push(k) }); return r }
 var _hsPushT=null;
-function hsPush(rerender,delay){ clearTimeout(_hsPushT); _hsPushT=setTimeout(function(){ var f=$("#hsFrame"); if(!f||!f.contentWindow) return; var m=hsMerged(); try{ f.contentWindow.postMessage({type:"bk-preview",site:m.site,extras:m.extras,lang:hsLang(),rerender:!!rerender},location.origin) }catch(e){} }, delay||0) }
-function hsScrollTo(){ var f=$("#hsFrame"), sel=HS_SEL[HS.sel]; if(!f||!f.contentWindow||!sel) return; try{ f.contentWindow.postMessage({type:"bk-preview-scroll",sel:sel},location.origin) }catch(e){} }
+function hsPush(rerender,delay){ clearTimeout(_hsPushT); _hsPushT=setTimeout(function(){ var f=$("#hsFrame"); if(!f||!f.contentWindow) return; var m=hsMerged(); var msg={type:"bk-preview",site:m.site,extras:m.extras,lang:hsLang(),rerender:!!rerender};
+  if(HS.page==="ads" || Object.keys(HS.adDraft).length || HS.adNew) msg.adSlots=hsAdList();
+  try{ f.contentWindow.postMessage(msg,location.origin) }catch(e){} }, delay||0) }
+function hsScrollTo(){ var f=$("#hsFrame"), sel=HS_SEL[HS.sel]||(HS.sel.indexOf("ad:")===0?".adsec":HS.sel.indexOf("b:")===0?".topbanner-wrap":null); if(!f||!f.contentWindow||!sel) return; try{ f.contentWindow.postMessage({type:"bk-preview-scroll",sel:sel},location.origin) }catch(e){} }
 /* field renderers — every control carries data-hsk (c:column | x:extra) and data-hst (str|num|bool|color); data-hsr="1" = the preview must re-render */
-function hsIn(key,type,attrs,val){ return '<input data-hsk="'+key+'" data-hst="'+type+'" type="'+(type==="num"?"number":type==="color"?"color":"text")+'" value="'+esc(String(val==null?"":val))+'"'+(attrs||"")+'>' }
+function hsIn(key,type,attrs,val){ return '<input data-allow-autofill data-hsk="'+key+'" data-hst="'+type+'" type="'+(type==="num"?"number":type==="color"?"color":"text")+'" value="'+esc(String(val==null?"":val))+'"'+(attrs||"")+'>' }
 function fText(label,key,ph,noLang){ var k=noLang?key:hsLK(key); return '<div class="fl"><label>'+label+(noLang?'':' <i class="hs-lg">'+hsLang().toUpperCase()+'</i>')+'</label>'+hsIn(k,"str",' placeholder="'+esc(String(ph||""))+'" data-hsr="1"',hsVal(k))+'</div>' }
 function fArea(label,key,ph){ var k=hsLK(key); return '<div class="fl"><label>'+label+' <i class="hs-lg">'+hsLang().toUpperCase()+'</i></label><textarea data-hsk="'+k+'" data-hst="str" data-hsr="1" rows="3" placeholder="'+esc(String(ph||""))+'">'+esc(String(hsVal(k)))+'</textarea></div>' }
 function fNum(label,key,min,max,step,ph,rer){ return '<div class="fl"><label>'+label+'</label>'+hsIn(key,"num",' min="'+min+'" max="'+max+'" step="'+(step||1)+'" placeholder="'+esc(String(ph==null?"":ph))+'"'+(rer?' data-hsr="1"':''),hsVal(key))+'</div>' }
@@ -9896,10 +9925,111 @@ function fColor(label,key,def){ var v=hsVal(key)||def; return '<div class="fl"><
 function fUpload(label,key,folder,accept,fallback){ var v=hsVal(key), url=v||fallback||"", isV=/\.(mp4|webm|mov)(\?|$)/i.test(String(url)); var src=esc(safeUrl(unesc(String(url))));
   return '<div class="fl"><label>'+label+'</label><div class="hs-up">'+(src?(isV?'<video src="'+src+'" muted></video>':'<img src="'+src+'" alt="">'):'')+'<input type="file" accept="'+accept+'" data-hsup="'+key+'" data-hsfolder="'+folder+'">'+(v?'<button type="button" class="ab" data-hsclear="'+key+'" data-hsr="1">'+hsT("clearImg")+'</button>':'')+'</div><div class="hintx hs-upmsg"></div></div>' }
 function fGrp(title){ return '<div class="fsub">'+title+'</div>' }
+function aIn(field,type,val,attrs){ return '<input data-allow-autofill data-hsa="'+field+'" data-hst="'+type+'" type="'+(type==="num"?"number":type==="date"?"date":type==="color"?"color":"text")+'" value="'+esc(String(val==null?"":val))+'"'+(attrs||"")+'>' }
+function aText(label,field,val,ph){ return '<div class="fl"><label>'+label+'</label>'+aIn(field,"str",val,' placeholder="'+esc(String(ph||""))+'"')+'</div>' }
+function aSwitch(label,field,on){ return '<label class="hs-sw"><input type="checkbox" data-hsa="'+field+'" data-hst="bool"'+(on?' checked':'')+'><span>'+label+'</span></label>' }
+function aDate(label,field,iso,end){ return '<div class="fl"><label>'+label+'</label><input type="date" data-hsa="'+field+'" data-hst="date"'+(end?' data-hsend="1"':'')+' value="'+(iso?new Date(iso).toISOString().slice(0,10):'')+'"></div>' }
+function bIn(field,type,val,attrs){ return '<input data-allow-autofill data-hsb="'+field+'" data-hst="'+type+'" type="'+(type==="num"?"number":type==="color"?"color":"text")+'" value="'+esc(String(val==null?"":val))+'"'+(attrs||"")+'>' }
+function bText(label,field,val,ph){ return '<div class="fl"><label>'+label+'</label>'+bIn(field,"str",val,' placeholder="'+esc(String(ph||""))+'"')+'</div>' }
+function bNum(label,field,val,min,max,step,ph){ return '<div class="fl"><label>'+label+'</label>'+bIn(field,"num",val,' min="'+min+'" max="'+max+'" step="'+(step||1)+'" placeholder="'+esc(String(ph==null?"":ph))+'"')+'</div>' }
+function bSwitch(label,field,on){ return '<label class="hs-sw"><input type="checkbox" data-hsb="'+field+'" data-hst="bool"'+(on?' checked':'')+'><span>'+label+'</span></label>' }
+function bSel(label,field,val,opts){ return '<div class="fl"><label>'+label+'</label><select data-hsb="'+field+'" data-hst="str">'+opts.map(function(o){ return '<option value="'+o[0]+'"'+(String(val)===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select></div>' }
+/* a banner value stored twice (desktop field, phone field): the device switch decides which one is edited */
+function bDual(label,cfg,fD,fM,min,max,step,unit,def,slider){ var ph=HS.device==="phone", f=ph?fM:fD, v=cfg[f], dv=cfg[fD]; var shown=(v==null)?(ph?(dv==null?def:dv):def):v;
+  var inp = slider ? '<input type="range" data-hsb="'+f+'" data-hst="num" data-hsunit="'+unit+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+shown+'">' : bIn(f,"num",v==null?"":v,' min="'+min+'" max="'+max+'" step="'+step+'" placeholder="'+(ph?shown:def)+'"');
+  return '<div class="fl'+(slider?' hs-sl':'')+'">'+(slider?'<div class="hs-sl-h">':'')+'<label>'+label+' <i class="hs-dev">'+(ph?AICO.phone:AICO.desk)+'</i></label>'+(slider?'<span class="hs-sl-v ltr" data-hsv="b:'+f+'">'+(ph&&v==null?hsT("same"):shown+unit)+'</span></div>':'')+
+    '<div class="hs-dualrow">'+inp+(ph?'<button type="button" class="ab hs-reset" data-hsbclear="'+f+'" title="'+hsT("useDesk")+'">↺</button>':'')+'</div>'+(ph&&v==null&&!slider?'<small class="hs-same">'+hsT("same")+'</small>':'')+'</div>' }
 function fHint(tx){ return '<div class="hintx">'+tx+'</div>' }
 function fGo(label,tab){ return '<button type="button" class="ab" data-hsgo="'+tab+'">'+label+' ↗</button>' }
 function fSecTexts(k,e,h,sub){ var a=[fText(hsT("f_eyebrow"),"x:"+k+"_eyebrow",e),fText(hsT("f_h"),"x:"+k+"_h",h)]; if(sub!==undefined) a.push(fText(hsT("f_sub"),"x:"+k+"_sub",sub)); return a.join("") }
 function hsInspectorHtml(){
+  var phone=HS.device==="phone", r = HS.page==="ads"?hsInspAds():HS.page==="banners"?hsInspBanners():HS.page==="design"?hsInspDesign():HS.page==="contact"?hsInspContact():hsInspHome();
+  return '<h3>'+r.title+(r.badge||'')+'<span class="hs-badge">'+(phone?AICO.phone:AICO.desk)+' '+hsT(phone?"phone":"desk")+'</span></h3><div class="in">'+r.H.join("")+'</div>';
+}
+function hsInspAds(){
+  var sd=HS.sel, H=[], title=hsT(sd);
+  if(sd==="row"){
+    H.push(fSwitch(hsT("f_adsOn"),"x:ads_row_enabled",true,true), fHint(hsT("textsHint")),
+      fText(hsT("f_adsTitle"),"x:ads_row_title",GX_T.adsH[hsLang()]), fText(hsT("f_adsSponsored"),"x:ads_sponsored",GX_T.sponsored[hsLang()]),
+      fGrp(hsT("g_look")), fHint(hsT("dualHint")),
+      fDual(hsT("f_adSize"),"c:ad_square_size","x:ad_square_size_m",90,260,5,true), fHint(GX("adSizeHint")),
+      fSlider(hsT("f_adGap"),"c:ad_carousel_gap","x:ad_carousel_gap_m",-60,80,2,"px",0),
+      '<div class="row">'+fNum(hsT("f_adGlide"),"x:ad_glide_seconds",1,15,0.5,3.5,true)+fNum(GX("xAdVideoMax"),"x:ad_video_max_mb",1,100,1,8)+'</div>');
+  } else if(sd==="look"){
+    H.push(fGrp(GX("adColorsSub")), '<div class="row">'+fColor(t("adTextColorL"),"c:ad_text_color","#ffffff")+fColor(t("adShadeColorL"),"c:ad_shade_color","#090e1a")+'</div>',
+      fGrp(GX("adInfoSub")), fHint(hsT("dualHint")), fSwitch(t("adStyleIcons"),"c:ad_use_icons",true,true), fDual(t("adTextSizeL"),"c:ad_roominfo_size","x:ad_roominfo_size_m",7,20,1,true),
+      fSwitch(t("showAdLocation"),"c:ad_location_enabled",true,true), fDual(t("adTextSizeL")+" — "+t("adLocationH"),"c:ad_location_size","x:ad_location_size_m",7,20,1,true),
+      fGrp(GX("adTagSub")), fSwitch(t("showAdTag"),"c:ad_tag_enabled",true,true), fHint(hsT("textsHint")), fText(t("adTagTextL"),"c:ad_tag",t("adTag")), fDual(t("adTextSizeL")+" — "+GX("adTagSub"),"c:ad_tag_size","x:ad_tag_size_m",7,20,1,true));
+  } else if(sd==="perf"){
+    H.push('<div class="dash-top" style="margin-bottom:0">'+rangeTabs()+'</div>', fHint(GX("adsPerfHint")), ADM.an?adsPerfTable(ADM.an,true):'<div class="adashempty">'+t("loading")+'</div>');
+  } else if(sd.indexOf("ad:")===0){
+    var id=sd.slice(3), a=hsAdRow(id); if(!a){ HS.sel="row"; return hsInspAds() }
+    var idx=hsAdList().findIndex(function(x){ return String(x.id)===String(id) }); title=hsAdName(a,idx); var mode=hsAdMode(a);
+    var imgs=(a.image_urls&&a.image_urls.length)?a.image_urls:(a.image_url?[a.image_url]:[]);
+    var lst=(ADM.data&&ADM.data.listings)||[];
+    H.push(fHint(hsT("adSaveHint")), fGrp(hsT("adInfo")), aSwitch(t("enabled"),"enabled",a.enabled!==false),
+      '<div class="row">'+aText(t("adLabelL"),"label",a.label,"")+aText(t("adSponsorNameL"),"sponsor_name",a.sponsor_name,t("adSponsorNamePH"))+'</div>',
+      fGrp(hsT("adMedia")),
+      '<div class="pick">'+[["upload",t("adModeUpload")],["linked",t("adModeLinked")],["video_embed",t("adModeVideoEmbed")]].map(function(m){ return '<label><input type="radio" name="hsAdMode" data-hsa="_mode" data-hst="str" value="'+m[0]+'"'+(mode===m[0]?' checked':'')+'><span>'+m[1]+'</span></label>' }).join("")+'</div>');
+    if(mode==="upload"){
+      H.push((imgs.length?'<div class="hs-thumbs">'+imgs.map(function(u){ return a.media_type==="video"&&u===a.image_url?'<video src="'+esc(u)+'" muted></video>':'<img src="'+esc(u)+'" alt="">' }).join("")+'</div>':''),
+        '<div class="fl"><label>'+t("adModeUpload")+'</label><div class="hs-up"><input type="file" accept="image/*,video/mp4,video/webm" multiple data-hsaup="1">'+(imgs.length?'<button type="button" class="ab" data-hsaclear="1">'+hsT("adClearMedia")+'</button>':'')+'</div><div class="hintx hs-upmsg"></div></div>',
+        fHint(GX("adVideoHint").replace("{max}",adVideoMaxMb())+" "+t("adMultiUploadHint")), aText(t("adLinkUrlL"),"link_url",a.link_url,"https://..."));
+    } else if(mode==="linked"){
+      H.push('<div class="fl"><label>'+t("adPickListingL")+'</label><select data-hsa="linked_listing_id" data-hst="str"><option value="">—</option>'+lst.map(function(l){ return '<option value="'+l.id+'"'+(String(l.id)===String(a.linked_listing_id||"")?' selected':'')+'>'+esc(String(l.ref||l.id))+' — '+esc(String(l.poster_name||""))+' ($'+Number(l.price_usd||0).toLocaleString("en")+')</option>' }).join("")+'</select></div>', fHint(t("adLinkedHint")));
+    } else {
+      H.push(aText(t("adVideoUrlL"),"video_embed_url",a.video_embed_url,"https://www.youtube.com/watch?v=..."), fHint(t("adVideoEmbedHint")), aText(t("adVideoLinkL"),"link_url",a.link_url,"https://..."));
+    }
+    H.push(fGrp(hsT("adTexts")), '<div class="row">'+aText(t("adTopTextL"),"overlay_top",a.overlay_top,t("adOverlayPH"))+aText(t("adBottomTextL"),"overlay_bottom",a.overlay_bottom,t("adOverlayPH"))+'</div>', fHint(t("adOverlayHint")),
+      fGrp(hsT("adSchedule")), '<div class="row">'+aDate(t("featureStartL"),"starts_at",a.starts_at,false)+aDate(t("adExpiresL"),"expires_at",a.expires_at,true)+'</div>', fHint(t("adScheduleHint")));
+    if(id!=="new") H.push('<button type="button" class="ab bad" id="hsAdDel">'+hsT("delSquare")+'</button>');
+    return {title:title,H:H,badge:(id==="new"||HS.adDraft[id])?'<i class="hs-unsaved">'+hsT("unsaved")+'</i>':''};
+  }
+  return {title:title,H:H};
+}
+function hsInspBanners(){
+  var sd=HS.sel, H=[], title=hsT(sd);
+  if(sd==="strip"){ H.push(fSwitch(hsT("showSec"),"x:home_banners_on",true,true), fSel(hsT("bSlot"),"x:banners_slot",[["flow",hsT("bSlotFlow")],["top",hsT("bSlotTop")]],"flow",true), fHint(hsT("stripHint")), fGo(hsT("goHome"),"mainpage")); return {title:title,H:H} }
+  var i=+sd.slice(2), cfg=hsBDraft()[i]; title=hsT("banner")+" "+(i+1);
+  var sizeOpts=Object.keys(BANNER_SIZES).map(function(k){ return [k,k+" — "+t("bannerSizeLabel_"+k)] }).concat([["custom",t("bannerSizeCustomL")]]);
+  H.push(bSwitch(t("topBannerEnableL"),"enabled",!!cfg.enabled), fGrp(hsT("bItems")),
+    (cfg.items.length ? '<div class="hs-items">'+cfg.items.map(function(it,k){ return '<div class="hs-item-row">'+(it.type==="video"?'<video src="'+esc(it.url)+'" muted></video>':'<img src="'+esc(it.url)+'" alt="">')+'<input type="text" data-allow-autofill data-hsbi="'+k+'" value="'+esc(it.link||"")+'" placeholder="'+esc(hsT("bItemLink"))+'"><button type="button" class="ab" data-hsbrm="'+k+'" title="'+t("del")+'">✕</button></div>' }).join("")+'</div>' : fHint(hsT("bEmptyHint"))),
+    '<div class="fl"><label>'+t("adModeUpload")+'</label><div class="hs-up"><input type="file" accept="image/*,video/mp4,video/webm" multiple data-hsbup="1"></div><div class="hintx hs-upmsg"></div></div>', fHint(t("topBannerUploadHint")),
+    fGrp(hsT("bSize")), fHint(hsT("dualHint")), bSel(hsT("bSize"),"size",cfg.size||"728x90",sizeOpts));
+  if(cfg.size==="custom") H.push('<div class="row">'+bNum(t("bannerWidthL"),"customW",cfg.customW||728,120,1400,1)+bNum(t("bannerHeightL"),"customH",cfg.customH||90,30,600,1)+'</div>');
+  H.push(bSel(hsT("bSizeM"),"sizeM",cfg.sizeM||"same",[["same",hsT("same")],["full",hsT("bFull")],["custom",hsT("bCustom")]]));
+  if(cfg.sizeM==="custom") H.push('<div class="row">'+bNum(t("bannerWidthL"),"customWM",cfg.customWM||300,80,430,1)+bNum(t("bannerHeightL"),"customHM",cfg.customHM||100,30,600,1)+'</div>');
+  H.push(fGrp(hsT("bPos")), bDual(hsT("bHPos"),cfg,"hPosition","hPositionM",0,100,5,"%",50,true), bDual(hsT("bVOff"),cfg,"vOffset","vOffsetM",-80,300,2,"px",0,false), bNum(t("bannerGapL"),"gap",cfg.gap!=null?cfg.gap:14,0,80,2),
+    fGrp(hsT("bRot")), '<div class="row">'+bNum(t("bannerRotateSecL"),"rotationSeconds",cfg.rotationSeconds||5,2,60,1)+bSel(t("bannerTransitionL"),"transition",cfg.transition||"fade",["fade","slide-left","slide-right","slide-up","slide-down"].map(function(tr){ return [tr,t("bannerTransition_"+tr.replace(/-/g,"_"))] }))+'</div>',
+    bText(hsT("bLink"),"link",cfg.link,"https://..."),
+    fGrp(hsT("bText")), bSwitch(t("bannerTextEnableL"),"textEnabled",!!cfg.textEnabled));
+  if(cfg.textEnabled) H.push(fHint(hsT("textsHint")), '<div class="fl"><label>'+t("bannerTextL")+' <i class="hs-lg">'+hsLang().toUpperCase()+'</i></label>'+bIn("text_"+hsLang(),"str",cfg["text_"+hsLang()]||"",'')+'</div>',
+    '<div class="row">'+bNum(t("adTextSizeL"),"textSize",cfg.textSize||14,9,40,1)+'<div class="fl"><label>'+t("adTextColorL")+'</label>'+bIn("textColor","color",cfg.textColor||"#ffffff",'')+'</div></div>');
+  return {title:title,H:H};
+}
+function hsInspDesign(){
+  var sd=HS.sel, H=[], title=hsT(sd);
+  if(sd==="cards"){ H.push(fHint(hsT("dualHint")), fDual(hsT("cardW"),"c:card_min_width","c:card_min_width_mobile",90,500,10), fHint(hsT("cardHint"))); }
+  else if(sd==="badges"){ H.push(fGrp(t("featuredH")), fSwitch(t("showFeaturedBadge"),"c:featured_badge_enabled",true,true), fHint(hsT("textsHint")), fText(t("featuredBadgeTextL"),"c:featured_badge",t("featuredBadgeDefault")),
+      fSlider(t("featuredBrightnessL"),"c:featured_brightness",null,0,100,5,"%",20,true), fHint(t("featuredBrightnessHint")), fGrp(t("newBadgeH")), fNum(t("newBadgeHoursL"),"c:new_badge_hours",0,720,1,24,true), fHint(t("newBadgeHint"))); }
+  else if(sd==="results"){ H.push('<div class="row">'+fNum(GX("xPageSize"),"x:search_page_size",6,96,1,24,true)+fNum(GX("xSimilar"),"x:similar_count",0,24,1,12)+'</div>'); }
+  else if(sd==="nav"){
+    var row=function(i){ return '<div class="navrow"><label class="xcheck"><input type="checkbox" data-hsk="x:nav_'+i.k+'" data-hst="bool" data-hsr="1"'+(navOn(i.k)?' checked':'')+'><span>'+(MI[i.ico]||'')+i.lab()+'</span></label><span class="navord-w"><small>'+GX("navOrder")+'</small><input type="number" data-allow-autofill class="navord" data-hsk="x:nav_'+i.k+'_o" data-hst="num" data-hsr="1" value="'+esc(String(hsVal("x:nav_"+i.k+"_o")))+'" placeholder="'+i.o+'" min="0" max="999"></span></div>' };
+    var g=function(gk,ttl){ return fGrp(ttl)+'<div class="navrows">'+NAVI.filter(function(i){ return i.g===gk }).map(row).join("")+'</div>' };
+    H.push(fHint(GX("navHint")), g("search",GX("mdSearch")), g("discover",GX("mdDiscover")), g("site",GX("mdSite")), fGrp(GX("navPhoneH")),
+      fSwitch(GX("navLangHeader"),"x:nav_lang_header",true,true), fSwitch(GX("navBellPhone"),"x:nav_bell_phone",true,true), fSwitch(GX("navLoginPhone"),"x:nav_login_phone",false,true), fSwitch(GX("navAvatarPhone"),"x:nav_avatar_phone",false,true),
+      fSwitch(GX("navLangDrawer"),"x:nav_lang_drawer",true,true), fSwitch(GX("navCurDrawer"),"x:nav_cur_drawer",true,true), fSwitch(GX("navMenuDesk"),"x:nav_menu_desktop",false,true));
+  }
+  return {title:title,H:H};
+}
+function hsInspContact(){
+  var sd=HS.sel, H=[], title=hsT(sd);
+  var pair=function(name,uk,nk,ph){ return fGrp(name)+'<div class="row">'+fText(t("linkL"),"c:"+uk,ph,true)+fText(t("accountNameL"),"c:"+nk,"@balkoun",true)+'</div>' };
+  if(sd==="social") H.push(fHint(hsT("contactHint")), pair("Facebook","fb_url","fb_name","https://facebook.com/..."), pair("Instagram","ig_url","ig_name","https://instagram.com/..."), pair("YouTube","yt_url","yt_name","https://youtube.com/..."), pair("TikTok","tiktok_url","tiktok_name","https://tiktok.com/@..."));
+  else H.push(fHint(hsT("contactHint")), '<div class="row">'+fText(t("waNumberL"),"c:wa_number","+9639xxxxxxxx",true)+fText(t("phoneNumberL"),"c:phone_number","+9639xxxxxxxx",true)+'</div>', fText(t("emailAddressL"),"c:email_address","info@balkoun.com",true));
+  return {title:title,H:H};
+}
+function hsInspHome(){
   var sd=HS.sel, H=[], title=hsT(sd), phone=HS.device==="phone";
   var govOpts=Object.keys(D.GEO).map(function(g){ return [g,gN(g)] });
   if(sd==="hero_text"){
@@ -9919,7 +10049,7 @@ function hsInspectorHtml(){
     if(bt==="sketch") H.push(fGrp(hsT("g_draw")), fHint(hsT("dualHint")),
       '<div class="row">'+fDual(hsT("f_x"),"x:sk_x","x:sk_x_m",-600,600,1)+fDual(hsT("f_y"),"x:sk_y","x:sk_y_m",-400,400,1)+'</div>',
       fSlider(hsT("f_scale"),"x:sk_scale","x:sk_scale_m",30,250,5,"%",100));
-    H.push(fGrp(hsT("g_spacing")), fNum(hsT("f_heroMax"),"x:hero_max_height",420,900,10,640));
+    if(!phone) H.push(fGrp(hsT("g_spacing")), fNum(hsT("f_heroMax"),"x:hero_max_height",420,900,10,640));
   } else if(sd==="hero_search"){
     H.push(fHint(hsT("dualHint")), fDual(hsT("f_sbY"),"x:sbar_y","x:sbar_y_m",-300,300,1), fDual(hsT("f_sbW"),"x:sbar_w","x:sbar_w_m",320,1600,10), fDual(hsT("f_sbH"),"x:sbar_h","x:sbar_h_m",32,72,1));
   } else if(sd==="hero_stats"){
@@ -9933,7 +10063,7 @@ function hsInspectorHtml(){
       fDual(hsT("f_adSize"),"c:ad_square_size","x:ad_square_size_m",100,260,5), fSlider(hsT("f_adGap"),"c:ad_carousel_gap","x:ad_carousel_gap_m",-60,80,2,"px",0),
       fNum(hsT("f_adGlide"),"x:ad_glide_seconds",1,15,0.5,3.5,true), fGo(hsT("go_ads"),"ads"));
   } else if(sd==="banners"){
-    H.push(fSwitch(hsT("showSec"),"x:home_banners_on",true,true), fHint(hsT("bannersHint")), fGo(hsT("go_banners"),"banners"));
+    H.push(fSwitch(hsT("showSec"),"x:home_banners_on",true,true), fSel(hsT("bSlot"),"x:banners_slot",[["flow",hsT("bSlotFlow")],["top",hsT("bSlotTop")]],"flow",true), fHint(hsT("bannersHint")), fGo(hsT("go_banners"),"banners"));
   } else if(sd==="ticker"){
     H.push(fSwitch(hsT("showSec"),"x:home_ticker_on",true,true), fHint(hsT("tickerHint")), fText(hsT("f_h"),"x:ticker_h",""), fText(hsT("f_sub"),"x:ticker_sub",""));
   } else if(sd==="colls"){
@@ -9955,32 +10085,57 @@ function hsInspectorHtml(){
   } else if(sd==="guides"){
     H.push(fSwitch(hsT("showSec"),"x:home_guides_on",true,true), fHint(hsT("textsHint")), fSecTexts("guides",HX("guideE"),t("guideH"),t("guideS")));
   } else if(sd==="page"){
-    H.push(fGrp(hsT("g_motion")), fSwitch(hsT("f_opening"),"x:opening_enabled",true), fSwitch(hsT("f_cursor"),"x:cursor_dot_enabled",true,true),
-      fSel(hsT("f_phMode"),"x:phone_headline_mode",[["after",hsT("ph_after")],["immediate",hsT("ph_now")]],"after",true),
-      fGrp(hsT("g_spacing")), fHint(hsT("dualHint")), fSlider(hsT("f_secPad"),"x:sec_pad","x:sec_pad_m",0,120,2,"px",phone?22:40));
+    H.push(fGrp(hsT("g_motion")), fHint(hsT("devOnlyHint")), fSwitch(hsT("f_opening"),"x:opening_enabled",true));
+    if(!phone) H.push(fSwitch(hsT("f_cursor"),"x:cursor_dot_enabled",true,true));
+    if(phone) H.push(fSel(hsT("f_phMode"),"x:phone_headline_mode",[["after",hsT("ph_after")],["immediate",hsT("ph_now")]],"after",true));
+    H.push(fGrp(hsT("g_spacing")), fHint(hsT("dualHint")), fSlider(hsT("f_secPad"),"x:sec_pad","x:sec_pad_m",0,120,2,"px",phone?22:40));
   }
-  return '<h3>'+title+'<span class="hs-badge">'+(phone?AICO.phone:AICO.desk)+' '+hsT(phone?"phone":"desk")+'</span></h3><div class="in">'+H.join("")+'</div>';
+  return {title:title,H:H};
 }
+/* the contact fields must re-render the footer, the text fields in every studio are already marked; contact fields are columns without a language */
 function hsOutlineHtml(){
+  if(HS.page==="ads") return hsOutlineAds();
+  if(HS.page==="banners") return hsOutlineBanners();
+  if(HS.page==="design") return hsOutlineSimple([["cards",ICON_GRID],["badges",AICO.star],["results",AICO.search],["nav",AICO.home2]]);
+  if(HS.page==="contact") return hsOutlineSimple([["social",AICO.users],["numbers",AICO.contact]]);
+  return hsOutlineHome();
+}
+function hsOutlineSimple(list){ return list.map(function(x){ return '<div class="hs-item'+(HS.sel===x[0]?' on':'')+'" data-hssel="'+x[0]+'"><span class="hs-ico">'+x[1]+'</span><span class="hs-name">'+hsT(x[0])+'</span></div>' }).join("") }
+function hsOutlineAds(){
+  var rows=hsAdList(), n=rows.length;
+  var fixed=[["row",AICO.ads],["look",AICO.palette],["perf",AICO.chart]].map(function(x){ return '<div class="hs-item'+(HS.sel===x[0]?' on':'')+'" data-hssel="'+x[0]+'"><span class="hs-ico">'+x[1]+'</span><span class="hs-name">'+hsT(x[0])+'</span></div>' }).join("");
+  var items=rows.map(function(a,i){ var on=a.enabled!==false, k="ad:"+a.id, th=a.image_url||(a.image_urls&&a.image_urls[0]); var isNew=a.id==="new";
+    return '<div class="hs-item'+(HS.sel===k?' on':'')+(on?'':' off')+'" data-hssel="'+k+'"><span class="hs-ico hs-th">'+(th&&a.media_type!=="video"?'<img src="'+esc(th)+'" alt="">':AICO.image)+'</span><span class="hs-name">'+esc(String(hsAdName(a,i)))+(isNew||HS.adDraft[a.id]?' <i class="hs-dot"></i>':'')+'</span>'+
+      (isNew?'':'<button type="button" class="hs-mv" data-hsamv="'+a.id+':up"'+(i===0?' disabled':'')+' title="'+hsT("up")+'">▲</button><button type="button" class="hs-mv" data-hsamv="'+a.id+':down"'+(i>=n-1||rows[i+1].id==="new"?' disabled':'')+' title="'+hsT("down")+'">▼</button>')+
+      '<button type="button" class="hs-eye'+(on?'':' off')+'" data-hsaeye="'+a.id+'" title="'+hsT("show")+'">'+(on?AICO.eye:HS_ICO_EYEOFF)+'</button></div>' }).join("");
+  return fixed+'<div class="hs-out-h">'+hsT("squares")+' <span class="hs-count ltr">'+n+'</span></div>'+items+(HS.adNew?'':'<button type="button" class="ab hs-outbtn" id="hsAdNew">'+hsT("addSquare")+'</button>')+'<div class="hintx" style="padding:4px 14px 0">'+hsT("adMoveHint")+'</div>';
+}
+function hsOutlineBanners(){
+  var d=hsBDraft();
+  return '<div class="hs-item'+(HS.sel==="strip"?' on':'')+'" data-hssel="strip"><span class="hs-ico">'+AICO.banner+'</span><span class="hs-name">'+hsT("strip")+'</span></div>'+
+    d.map(function(cfg,i){ var k="b:"+i, on=!!cfg.enabled; return '<div class="hs-item'+(HS.sel===k?' on':'')+(on?'':' off')+'" data-hssel="'+k+'"><span class="hs-ico hs-th">'+(cfg.items[0]?(cfg.items[0].type==="video"?AICO.image:'<img src="'+esc(cfg.items[0].url)+'" alt="">'):AICO.image)+'</span><span class="hs-name">'+hsT("banner")+' '+(i+1)+' <small class="hs-sub">'+cfg.items.length+' · '+(cfg.size==="custom"?(cfg.customW||728)+"×"+(cfg.customH||90):(cfg.size||"728x90"))+'</small></span>'+
+      '<button type="button" class="hs-eye'+(on?'':' off')+'" data-hsbeye="'+i+'" title="'+hsT("show")+'">'+(on?AICO.eye:HS_ICO_EYEOFF)+'</button></div>' }).join("");
+}
+function hsOutlineHome(){
   var m=hsMerged(), ex=m.extras, site=m.site;
   var isOn=function(key){ var p=hsParts(key), v=p.col?site[p.name]:ex[p.name]; return v==null||v===""?true:(v!==false&&v!=="false") };
   var ICO={ads:AICO.ads,banners:AICO.banner,ticker:AICO.chart,colls:ICON_GRID,types:AICO.listings,trust:AICO.shield,expl:AICO.map,band:AICO.users,guides:AICO.star};
   var item=function(k,o){ o=o||{}; var on=o.eye?isOn(o.eye):o.bgEye?((site.hero_bg_type||"sketch")!=="none"):true; var selK=o.selAs||k; var isSel=HS.sel===selK || (k==="hero" && HS.sel.indexOf("hero_")===0);
-    return '<div class="hs-item'+(isSel?' on':'')+(o.child?' child':'')+(on?'':' off')+'" data-hssel="'+selK+'">'+(o.ico?'<span class="hs-ico">'+o.ico+'</span>':'')+'<span class="hs-name">'+hsT(k)+'</span>'+
+    return '<div class="hs-item'+(isSel?' on':'')+(o.child?' child':'')+(on?'':' off')+'" data-hssel="'+selK+'">'+(o.ico?'<span class="hs-ico">'+o.ico+'</span>':'')+'<span class="hs-name">'+hsT(k)+(o.sub?'<small class="hs-sub">'+o.sub+'</small>':'')+'</span>'+
       (o.mv?'<button type="button" class="hs-mv" data-hsmv="'+k+':-1" title="'+hsT("up")+'">▲</button><button type="button" class="hs-mv" data-hsmv="'+k+':1" title="'+hsT("down")+'">▼</button>':'')+
       ((o.eye||o.bgEye)?'<button type="button" class="hs-eye'+(on?'':' off')+'" data-hseye="'+k+'" title="'+hsT("show")+'">'+(on?AICO.eye:HS_ICO_EYEOFF)+'</button>':'')+'</div>' };
   return item("hero",{ico:AICO.home2,selAs:"hero_text"})+item("hero_text",{child:true,eye:"c:hero_enabled"})+item("hero_bg",{child:true,bgEye:true})+item("hero_search",{child:true})+item("hero_stats",{child:true,eye:"c:stats_enabled"})+
-    hsOrder(ex).map(function(k){ return item(k,{eye:HS_EYE[k]||("x:home_"+k+"_on"),mv:true,ico:ICO[k]}) }).join("")+item("page",{ico:AICO.gear});
+    hsOrder(ex).map(function(k){ return item(k,{eye:HS_EYE[k]||("x:home_"+k+"_on"),mv:k!=="banners"||ex.banners_slot!=="top",ico:ICO[k],sub:k==="banners"&&ex.banners_slot==="top"?hsT("bSlotTop"):""}) }).join("")+item("page",{ico:AICO.gear});
 }
-function hsStudioHtml(){
-  if(!HS.lang) HS.lang=L;
+function hsStudioHtml(page){
+  HS.page=page||"home"; if(!HS.lang) HS.lang=L; HS.sel=HS.selBy[HS.page]||HS_PAGES[HS.page].sel;
   return '<div class="hs">'+
    '<div class="hs-bar"><div class="hs-seg" id="hsDev">'+[["desk",AICO.desk],["phone",AICO.phone]].map(function(d){ return '<button type="button" data-dev="'+d[0]+'" class="'+(HS.device===d[0]?"on":"")+'">'+d[1]+' '+hsT(d[0])+'</button>' }).join("")+'</div>'+
    '<div class="hs-seg" id="hsLang">'+["ar","en","de"].map(function(l){ return '<button type="button" data-lang="'+l+'" class="'+(HS.lang===l?"on":"")+'">'+(LANG_SHORT[l]||l)+'</button>' }).join("")+'</div>'+
    '<span class="hs-state" id="hsState"><i></i><span></span></span>'+
    '<div class="hs-actions"><button type="button" class="ab" id="hsReload" title="'+hsT("reload")+'">'+AICO.refresh+'</button><a class="ab" href="/" target="_blank" rel="noopener">'+AICO.eye+' '+hsT("openSite")+'</a><button type="button" class="ab" id="hsDiscard">'+hsT("discard")+'</button><button type="button" class="ab ok" id="hsSave">'+hsT("saveAll")+'</button><span class="xmsg" id="hsMsg"></span></div></div>'+
    '<div class="hs-grid"><aside class="hs-out"><div class="hs-out-h">'+hsT("sections")+'</div><div id="hsOutline">'+hsOutlineHtml()+'</div><div class="hintx" style="padding:8px 14px 12px">'+hsT("sectionsHint")+'</div></aside>'+
-   '<div class="hs-pv '+HS.device+'" id="hsPv"><div class="hs-pvwrap" id="hsPvWrap"><iframe id="hsFrame" src="/?preview=1&lang='+HS.lang+'" title="preview"></iframe></div><div class="hs-pvnote">'+hsT("previewNote")+'</div></div>'+
+   '<div class="hs-pv '+HS.device+'" id="hsPv"><div class="hs-pvwrap" id="hsPvWrap"><iframe id="hsFrame" src="'+hsPvUrl()+'" title="preview"></iframe></div><div class="hs-pvnote">'+hsT("previewNote")+'</div></div>'+
    '<div class="blk hs-insp" id="hsInsp">'+hsInspectorHtml()+'</div></div></div>';
 }
 function hsFit(){ var pv=$("#hsPv"), w=$("#hsPvWrap"), f=$("#hsFrame"); if(!pv||!w||!f) return; var W=pv.clientWidth-24, H=pv.clientHeight-52;
@@ -10002,35 +10157,79 @@ function hsWire(){
   hsFit(); if(HS._onResize) window.removeEventListener("resize",HS._onResize); HS._onResize=hsFit; window.addEventListener("resize",hsFit);
   $("#hsDev").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; HS.device=b.dataset.dev; $$("#hsDev button").forEach(function(x){ x.classList.toggle("on",x===b) }); $("#hsPv").className="hs-pv "+HS.device; hsFit(); hsRenderInsp() };
   $("#hsLang").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; HS.lang=b.dataset.lang; $$("#hsLang button").forEach(function(x){ x.classList.toggle("on",x===b) }); hsPush(true); hsRenderInsp() };
-  $("#hsReload").onclick=function(){ frame.src="/?preview=1&lang="+hsLang()+"&r="+Date.now() };
-  $("#hsDiscard").onclick=function(){ HS.draft={site:{},extras:{}}; hsPush(true); hsRenderInsp(); hsRenderOutline(); hsDirtyUI() };
+  $("#hsReload").onclick=function(){ frame.src=hsPvUrl()+"&r="+Date.now() };
+  $("#hsDiscard").onclick=function(){ HS.draft={site:{},extras:{}}; HS.adDraft={}; HS.adNew=null; HS.bDraft=null; HS.adPendingDel={}; HS.bPendingDel=[]; if(HS.sel==="ad:new") HS.sel="row"; hsPush(true); hsRenderInsp(); hsRenderOutline(); hsDirtyUI() };
   $("#hsSave").onclick=async function(){ var btn=this, msg=$("#hsMsg"); var patch=Object.assign({},HS.draft.site); var ex={}; Object.keys(HS.draft.extras).forEach(function(k){ var v=HS.draft.extras[k]; ex[k]=(v===""||v===undefined)?null:v }); if(Object.keys(ex).length) patch.extras=ex;
     btn.disabled=true; btn.textContent=t("saving");
-    try{ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:patch});
-      Object.keys(patch).forEach(function(k){ if(k==="extras"){ var cur=SITE.extras; if(typeof cur==="string"){ try{ cur=JSON.parse(cur) }catch(e){ cur={} } } cur=Object.assign({},cur||{},patch.extras); Object.keys(cur).forEach(function(kk){ if(cur[kk]===null) delete cur[kk] }); SITE.extras=cur } else SITE[k]=patch[k] });
-      try{ localStorage.setItem("balkoun_site",JSON.stringify(SITE)) }catch(e){}
-      HS.draft={site:{},extras:{}}; applySectionGapVars(); applySiteExtras(); if(msg) msg.textContent=t("savedOk"); hsRenderOutline(); hsRenderInsp();
+    try{
+      if(Object.keys(patch).length){ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:patch});
+        Object.keys(patch).forEach(function(k){ if(k==="extras"){ var cur=SITE.extras; if(typeof cur==="string"){ try{ cur=JSON.parse(cur) }catch(e){ cur={} } } cur=Object.assign({},cur||{},patch.extras); Object.keys(cur).forEach(function(kk){ if(cur[kk]===null) delete cur[kk] }); SITE.extras=cur } else SITE[k]=patch[k] });
+        try{ localStorage.setItem("balkoun_site",JSON.stringify(SITE)) }catch(e){} }
+      var adsChanged=false, ids=Object.keys(HS.adDraft);
+      for(var i=0;i<ids.length;i++){ var a=hsAdRow(ids[i]); if(!a) continue; await rpc("bk_admin_save_ad",hsAdPayload(a)); adsChanged=true; (HS.adPendingDel[ids[i]]||[]).forEach(function(u){ replaceStorageFile(u) }) }
+      if(HS.adNew){ await rpc("bk_admin_save_ad",hsAdPayload(Object.assign({id:"new"},HS.adNew))); adsChanged=true }
+      if(adsChanged){ try{ ADM.adSlots=(await rpc("bk_admin_list_ads",{p_token:ADM.token}))||[] }catch(e){} HS.adDraft={}; HS.adNew=null; HS.adPendingDel={}; if(HS.sel==="ad:new") HS.sel="row"; try{ await loadAdSlots() }catch(e){}
+        var f=$("#hsFrame"); if(f&&f.contentWindow){ try{ f.contentWindow.postMessage({type:"bk-preview",reloadAds:true},location.origin) }catch(e){} } }
+      HS.bPendingDel.forEach(function(u){ replaceStorageFile(u) }); HS.bPendingDel=[]; HS.bDraft=null;
+      HS.draft={site:{},extras:{}}; applySectionGapVars(); applySiteExtras(); applyBannerSizeVar(); if(msg) msg.textContent=t("savedOk"); hsRenderOutline(); hsRenderInsp(); if(!adsChanged) hsPush(true);
     }catch(e){ if(msg) msg.textContent=e.message||"error" }
     btn.textContent=hsT("saveAll"); hsDirtyUI() };
   /* outline: select, eye, move */
-  $("#hsOutline").onclick=function(e){
+  $("#hsOutline").onpointerdown=async function(e){
+    if(e.button!==0 || e.target.closest("input,select,textarea")) return;
     var eye=e.target.closest("[data-hseye]"), mv=e.target.closest("[data-hsmv]"), it=e.target.closest("[data-hssel]");
+    var aeye=e.target.closest("[data-hsaeye]"), amv=e.target.closest("[data-hsamv]"), beye=e.target.closest("[data-hsbeye]"), anew=e.target.closest("#hsAdNew");
+    if(anew){ HS.adNew={id:"new",enabled:true,_mode:"upload"}; HS.sel="ad:new"; HS.selBy[HS.page]=HS.sel; hsDirtyUI(); hsRenderOutline(); hsRenderInsp(); hsPush(true); return }
+    if(aeye){ var id=aeye.dataset.hsaeye, a=hsAdRow(id); if(a){ hsAdSet(id,"enabled",a.enabled===false); hsPush(true); hsRenderOutline(); hsRenderInsp() } return }
+    if(amv){ var p2=amv.dataset.hsamv.split(":"); amv.disabled=true; try{ await rpc("bk_admin_move_ad",{p_token:ADM.token,p_id:+p2[0],p_dir:p2[1]}); ADM.adSlots=(await rpc("bk_admin_list_ads",{p_token:ADM.token}))||[]; try{ await loadAdSlots() }catch(e2){} }catch(err){} hsRenderOutline(); hsPush(true); return }
+    if(beye){ var bi=+beye.dataset.hsbeye; hsBSet(bi,"enabled",!hsBDraft()[bi].enabled); hsPush(true); hsRenderOutline(); hsRenderInsp(); return }
     if(eye){ var k=eye.dataset.hseye; if(k==="hero_bg"){ var cur=hsVal("c:hero_bg_type")||"sketch"; if(cur!=="none"){ hsSet("x:hero_bg_prev",cur); hsSet("c:hero_bg_type","none") } else hsSet("c:hero_bg_type",hsVal("x:hero_bg_prev")||"sketch") }
       else { var key=k==="hero_text"?"c:hero_enabled":k==="hero_stats"?"c:stats_enabled":(HS_EYE[k]||("x:home_"+k+"_on")); var v=hsVal(key); var on=v===""?true:(v!==false&&v!=="false"); hsSet(key,!on) }
       hsPush(true); hsRenderOutline(); hsRenderInsp(); return }
     if(mv){ var p=mv.dataset.hsmv.split(":"), key2=p[0], dir=+p[1]; var ord=hsOrder(hsMerged().extras), i=ord.indexOf(key2), j=i+dir; if(i<0||j<0||j>=ord.length) return; ord.splice(i,1); ord.splice(j,0,key2); hsSet("x:home_order",ord); hsPush(true); hsRenderOutline(); return }
-    if(it){ HS.sel=it.dataset.hssel; hsRenderOutline(); hsRenderInsp(); hsScrollTo() }
+    if(it){ HS.sel=it.dataset.hssel; HS.selBy[HS.page]=HS.sel; hsRenderOutline(); hsRenderInsp(); hsScrollTo() }
   };
   /* inspector: every control writes the draft and updates the preview */
   var insp=$("#hsInsp"), tmr=null;
-  var read=function(el){ var ty=el.dataset.hst, col=el.dataset.hsk.indexOf("c:")===0; if(ty==="bool") return el.checked; if(ty==="num") return el.value===""?null:+el.value; var v=String(el.value); return v.trim()==="" ? (col?"":null) : v };
-  var apply=function(el,now){ var k=el.dataset.hsk; hsSet(k,read(el)); var lbl=insp.querySelector('[data-hsv="'+k+'"]'); if(lbl) lbl.textContent=el.value+(el.dataset.hsunit||""); var rer=el.dataset.hsr==="1"; clearTimeout(tmr); tmr=setTimeout(function(){ hsPush(rer) }, now?0:(rer?220:40)) };
-  insp.oninput=function(e){ var el=e.target.closest("[data-hsk]"); if(el && el.type!=="checkbox" && el.tagName!=="SELECT") apply(el,false) };
-  insp.onchange=function(e){ var el=e.target.closest("[data-hsk]"); if(el){ apply(el,true); if(el.dataset.hsk==="c:hero_bg_type") hsRenderInsp(); hsRenderOutline() }
+  var readEl=function(el,col){ var ty=el.dataset.hst; if(ty==="bool") return el.checked; if(ty==="num") return el.value===""?null:+el.value;
+    if(ty==="date") return el.value ? new Date(el.value+(el.dataset.hsend==="1"?"T23:59:59":"T00:00:00")).toISOString() : null;
+    var v=String(el.value); return v.trim()==="" ? (col?"":null) : v };
+  var onEdit=function(el,now){ var rer=el.dataset.hsr==="1", k;
+    if(el.dataset.hsk!==undefined){ k=el.dataset.hsk; hsSet(k,readEl(el,k.indexOf("c:")===0)) }
+    else if(el.dataset.hsa!==undefined){ k="a:"+el.dataset.hsa; hsAdSet(HS.sel.slice(3),el.dataset.hsa,readEl(el,true)); rer=true }
+    else if(el.dataset.hsb!==undefined){ k="b:"+el.dataset.hsb; var bv=readEl(el,true); if(bv==="") bv=null; hsBSet(+HS.sel.slice(2),el.dataset.hsb,bv); rer=true }
+    else if(el.dataset.hsbi!==undefined){ var cfg=hsBDraft()[+HS.sel.slice(2)]; if(cfg.items[+el.dataset.hsbi]) cfg.items[+el.dataset.hsbi].link=el.value; hsBSet(+HS.sel.slice(2),"items",cfg.items); rer=true; k="bi" }
+    else return;
+    var lbl=insp.querySelector('[data-hsv="'+k+'"]'); if(lbl) lbl.textContent=el.value+(el.dataset.hsunit||"");
+    clearTimeout(tmr); tmr=setTimeout(function(){ hsPush(rer) }, now?0:(rer?220:40)) };
+  var SEL="[data-hsk],[data-hsa],[data-hsb],[data-hsbi]";
+  insp.oninput=function(e){ var el=e.target.closest(SEL); if(el && el.type!=="checkbox" && el.type!=="radio" && el.tagName!=="SELECT") onEdit(el,false) };
+  insp.onchange=function(e){ var el=e.target.closest(SEL);
+    if(el){ onEdit(el,true); var d=el.dataset; if(d.hsk==="c:hero_bg_type"||d.hsa==="_mode"||d.hsa==="enabled"||d.hsa==="linked_listing_id"||d.hsb==="size"||d.hsb==="sizeM"||d.hsb==="textEnabled"||d.hsb==="enabled") hsRenderInsp(); hsRenderOutline() }
     var up=e.target.closest("[data-hsup]"); if(up && up.files && up.files[0]){ var key=up.dataset.hsup, msg=up.closest(".fl").querySelector(".hs-upmsg"); if(msg) msg.textContent=hsT("uploading"); up.disabled=true;
-      hsUpload(up.files[0],up.dataset.hsfolder).then(function(url){ hsSet(key,url); hsPush(true); hsRenderInsp() }).catch(function(err){ if(msg) msg.textContent=err.message||"error"; up.disabled=false }) } };
-  insp.onclick=function(e){ var c=e.target.closest("[data-hsclear]"); if(c){ hsSet(c.dataset.hsclear,null); hsPush(true); hsRenderInsp(); return }
-    var g=e.target.closest("[data-hsgo]"); if(g){ if(hsDirty() && !confirm(hsT("dirty"))) return; HS.draft={site:{},extras:{}}; window.onbeforeunload=null; ADM.tab=g.dataset.hsgo; render() } };
+      hsUpload(up.files[0],up.dataset.hsfolder).then(function(url){ hsSet(key,url); hsPush(true); hsRenderInsp() }).catch(function(err){ if(msg) msg.textContent=err.message||"error"; up.disabled=false }); return }
+    var aup=e.target.closest("[data-hsaup]"); if(aup && aup.files && aup.files.length){ var files=Array.prototype.slice.call(aup.files), amsg=aup.closest(".fl").querySelector(".hs-upmsg"), id=HS.sel.slice(3); aup.disabled=true;
+      (async function(){ try{ if(files.length>1 && files.some(function(f){ return /^video\//.test(f.type) })) throw new Error(t("adNoMultiVideo"));
+          var urls=[], anyVideo=false; for(var i=0;i<files.length;i++){ var f=files[i], isV=/^video\//.test(f.type); if(isV) anyVideo=true; if(isV && f.size>adVideoMaxMb()*1048576) throw new Error(GX("adVideoTooBig").replace("{mb}",(f.size/1048576).toFixed(0)).replace("{max}",adVideoMaxMb()));
+            if(amsg) amsg.textContent=hsT("uploading")+" "+(i+1)+"/"+files.length; urls.push(await hsUpload(f,"ads")) }
+          var a=hsAdRow(id)||{}; var old=[].concat(a.image_url?[a.image_url]:[],a.image_urls||[]); if(old.length && id!=="new") (HS.adPendingDel[id]=HS.adPendingDel[id]||[]).push.apply(HS.adPendingDel[id],old);
+          var single=anyVideo&&urls.length===1; hsAdSet(id,"image_url",urls[0]||null); hsAdSet(id,"image_urls",single?[]:urls); hsAdSet(id,"media_type",single?"video":"image"); hsAdSet(id,"_mode","upload");
+          hsPush(true); hsRenderInsp(); hsRenderOutline() }catch(err){ if(amsg) amsg.textContent=err.message||"error"; aup.disabled=false } })(); return }
+    var bup=e.target.closest("[data-hsbup]"); if(bup && bup.files && bup.files.length){ var bfiles=Array.prototype.slice.call(bup.files), bmsg=bup.closest(".fl").querySelector(".hs-upmsg"), bi=+HS.sel.slice(2); bup.disabled=true;
+      (async function(){ try{ for(var i=0;i<bfiles.length;i++){ var f=bfiles[i], isV=/^video\//.test(f.type), isGif=f.type==="image/gif"; if(bmsg) bmsg.textContent=hsT("uploading")+" "+(i+1)+"/"+bfiles.length;
+            var path=(isV?"videos/banners/":"photos/banners/")+Date.now()+"_"+i+"_"+f.name.replace(/[^a-zA-Z0-9._-]/g,"_"), body=f, ct=f.type;
+            if(!isV && !isGif){ var raw=await new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){res(r.result)}; r.onerror=function(){rej(new Error("read"))}; r.readAsDataURL(f) }); body=await shrink(raw,1600,0.85); ct="image/jpeg" }
+            var upr=await storageUpload(path,body,{contentType:ct,upsert:false}); if(upr.error) throw upr.error;
+            hsBDraft()[bi].items.push({type:isV?"video":"image",url:DB.storage.from("photos").getPublicUrl(path).data.publicUrl,link:""}) }
+          hsBSet(bi,"items",hsBDraft()[bi].items); hsPush(true); hsRenderInsp(); hsRenderOutline() }catch(err){ if(bmsg) bmsg.textContent=err.message||"error"; bup.disabled=false } })(); return } };
+  insp.onclick=async function(e){
+    var c=e.target.closest("[data-hsclear]"); if(c){ hsSet(c.dataset.hsclear,null); hsPush(true); hsRenderInsp(); return }
+    var bc=e.target.closest("[data-hsbclear]"); if(bc){ hsBSet(+HS.sel.slice(2),bc.dataset.hsbclear,null); hsPush(true); hsRenderInsp(); return }
+    var brm=e.target.closest("[data-hsbrm]"); if(brm){ var bi=+HS.sel.slice(2), removed=hsBDraft()[bi].items.splice(+brm.dataset.hsbrm,1); if(removed[0]) HS.bPendingDel.push(removed[0].url); hsBSet(bi,"items",hsBDraft()[bi].items); hsPush(true); hsRenderInsp(); hsRenderOutline(); return }
+    var ac=e.target.closest("[data-hsaclear]"); if(ac){ var id=HS.sel.slice(3), a=hsAdRow(id)||{}; var old=[].concat(a.image_url?[a.image_url]:[],a.image_urls||[]); if(old.length && id!=="new") (HS.adPendingDel[id]=HS.adPendingDel[id]||[]).push.apply(HS.adPendingDel[id],old); hsAdSet(id,"image_url",null); hsAdSet(id,"image_urls",[]); hsAdSet(id,"media_type","image"); hsPush(true); hsRenderInsp(); hsRenderOutline(); return }
+    var del=e.target.closest("#hsAdDel"); if(del){ if(!confirm(t("confirmDel"))) return; var did=HS.sel.slice(3); del.disabled=true; try{ await rpc("bk_admin_delete_ad",{p_token:ADM.token,p_id:+did}); delete HS.adDraft[did]; ADM.adSlots=(await rpc("bk_admin_list_ads",{p_token:ADM.token}))||[]; try{ await loadAdSlots() }catch(e2){} HS.sel="row"; HS.selBy[HS.page]=HS.sel; hsRenderOutline(); hsRenderInsp(); hsPush(true); hsDirtyUI() }catch(err){ alert(err.message||"error"); del.disabled=false } return }
+    var ar=e.target.closest("[data-arange]"); if(ar){ ADM.range=+ar.dataset.arange; ADM._anLoaded=false; render(); return }
+    var g=e.target.closest("[data-hsgo]"); if(g){ if(hsDirty() && !confirm(hsT("dirty"))) return; HS.draft={site:{},extras:{}}; HS.adDraft={}; HS.adNew=null; HS.bDraft=null; window.onbeforeunload=null; ADM.tab=g.dataset.hsgo; render() } };
   hsDirtyUI();
 }
 function adminHomeLayoutHtml(){
