@@ -1651,13 +1651,14 @@ footer{font-size:14px}
 h1,h2,h3,.logo,.hero h1{letter-spacing:0}
 /* phones: the first screen holds the drawing, the headline, the search bar and the ad row */
 @media(max-width:700px){
-  .home-hero .hero{min-height:0;transition:padding-top 1s cubic-bezier(.2,.7,.2,1)}
-  .home-hero .hero h1{font-size:clamp(26px,7.4vw,34px);line-height:1.25;position:relative;z-index:2}
-  .home-hero .hero.ph-wait h1{opacity:0;transform:translateX(-64px);animation:none!important}
-  [dir=rtl] .home-hero .hero.ph-wait h1{transform:translateX(64px)}
-  .home-hero .hero.ph-over{padding-top:18px}
-  .home-hero .hero.ph-over h1{opacity:1;transform:none;transition:opacity .8s ease,transform .9s cubic-bezier(.2,.7,.2,1);text-shadow:0 2px 18px rgba(9,14,26,.9),0 0 40px rgba(9,14,26,.7)}
-  .home-hero .hero-outer.ph-over .sk-stage{opacity:.38;transition:opacity 1s ease}
+  .home-hero .hero{min-height:0;padding-top:clamp(16px,calc(16px + (100svh - 640px) * .3),52px);padding-bottom:40px}
+  .home-hero .hero h1{font-size:clamp(24px,6.6vw,30px);line-height:1.3;position:relative;z-index:2;max-width:64%;margin-bottom:14px;text-shadow:0 2px 18px rgba(9,14,26,.9),0 0 40px rgba(9,14,26,.7)}
+  [dir=ltr] .home-hero .hero h1{max-width:64%;font-size:clamp(22px,6vw,28px)}
+  .home-hero .hero.ph-wait h1{opacity:0;transform:translateX(70px);animation:none!important}
+  [dir=ltr] .home-hero .hero.ph-wait h1{transform:translateX(-70px)}
+  .home-hero .hero.ph-over h1{opacity:1;transform:none;transition:opacity .8s ease,transform .9s cubic-bezier(.2,.7,.2,1)}
+  .home-hero .hero-outer.ph-over .sk-stage{transform:translateX(-24vw)!important;opacity:.92;transition:transform 1s cubic-bezier(.2,.7,.2,1),opacity .8s}
+  [dir=ltr] .home-hero .hero-outer.ph-over .sk-stage{transform:translateX(24vw)!important}
   .home-hero .srow .sgo{grid-column:auto;height:48px}
   .home-hero .sgo-map{grid-column:auto;height:48px}
   .adsec{padding:6px 0 10px}
@@ -8847,7 +8848,7 @@ function sketchBuild(){
     if(h1){ var hr=h1.getBoundingClientRect(); hx0=hr.left-r.left; hx1=hr.right-r.left }
     var bw = rtl ? Math.max(W*.3, Math.min(W*.52, hx0-W*.03-20)) : Math.max(W*.3, Math.min(W*.52, W-hx1-W*.03-20));
     band={x:rtl?W*.03:W-W*.03-bw, y:top, w:bw, h:Math.max(120,sbTop-top)};
-    if(W<760){ band={x:W*.04,y:top,w:W*.92,h:Math.max(100,Math.min(H*.42,(h1?h1.getBoundingClientRect().top-r.top:H*.5)-top-10))} }
+    if(W<760){ band={x:W*.04,y:top,w:W*.92,h:Math.max(100,Math.min(H*.42,sbTop-top-6))} }
     stage.style.left=band.x+"px"; stage.style.top=band.y+"px"; stage.style.width=band.w+"px"; stage.style.height=band.h+"px";
     var k=band.w/1000; fit.style.transform="translate("+(-500*k)+"px,"+(-500*k)+"px) scale("+k+")";
     stageK=Math.min((W*.94)/band.w,(sbTop-top)/band.h); stageDX=(W/2)-(band.x+band.w/2); stageDY=((top+sbTop)/2)-(band.y+band.h/2);
