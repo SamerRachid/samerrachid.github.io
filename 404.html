@@ -1427,6 +1427,7 @@ footer{font-size:14px}
 .geotable b{font-size:12px;color:var(--grey)}
 @media(max-width:800px){.geotable{grid-template-columns:1fr 1fr!important}.geotable b{display:none}.geogov{grid-template-columns:1fr 1fr!important}}
 .cs-sheet-h{display:none}
+.cs-sheet-q{display:none}
 .chip{transition:background .15s}
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
 @media(max-width:640px){
@@ -1436,6 +1437,15 @@ footer{font-size:14px}
   .cs-sheet-h::before{content:"";position:absolute;top:6px;left:50%;width:40px;height:4px;margin-left:-20px;border-radius:2px;background:var(--line-2)}
   .chipsel-drop.on::before{content:"";position:fixed;inset:0;background:rgba(9,14,26,.42);z-index:-1}
   .cs-close{border:0;background:var(--page);color:var(--ink);width:32px;height:32px;border-radius:50%;font-size:20px;line-height:1;cursor:pointer}
+  .cs-sheet-h{flex-wrap:wrap;gap:8px 0}
+  .cs-sheet-q{display:block;flex:1 1 100%;order:3;height:42px;border:1px solid var(--line-2);border-radius:10px;padding:0 12px;font:inherit;font-size:16px;background:var(--page);color:var(--ink);-webkit-appearance:none;appearance:none}
+  .cs-sheet-q:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(196,136,31,.15)}
+  .chipsel-drop.on.kb{top:8px;bottom:auto;max-height:calc(var(--vvh,60vh) - 16px);border-radius:16px;animation:none}
+  /* the dim backdrop is a spread shadow outside the sheet, so the sheet itself stays solid white */
+  .chipsel-drop.on{background:#fff;box-shadow:0 -12px 40px rgba(9,14,26,.35),0 0 0 100vmax rgba(9,14,26,.42)}
+  .chipsel-drop.on::before{content:none}
+  .chipsel-opt[hidden],.cs-h[hidden],.chipsel-empty[hidden]{display:none!important}
+  .home-hero .chipsel-drop.on.kb{top:8px}
   .chipsel-opt{padding:12px 10px;font-size:14px}
   body:has(.chipsel-drop.on) .mobfab{display:none}
 }
@@ -1666,6 +1676,7 @@ h1,h2,h3,.logo,.hero h1{letter-spacing:0}
   .adsec .adcarousel{--ad-size:128px!important}
   .ad-prog{display:none}
 }
+@media(max-width:640px){.home-hero .hero-outer:has(.chipsel-drop.on){z-index:70}}   /* an open filter sheet and its backdrop sit above the page header */
 </style><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
@@ -5614,6 +5625,9 @@ var CS_CONFIGS={
   csTabu:{getOptions:csTabuOptions, arrKey:"tbs"}
 };
 var _csDocListenerAdded=false;
+// height of the visible area (shrinks when the phone keyboard is up) for the filter sheets
+function csVvh(){ var vv=window.visualViewport; var h=vv?vv.height:Math.round(window.innerHeight*.6); document.documentElement.style.setProperty("--vvh",Math.round(h)+"px") }
+if(window.visualViewport && !window._vvBound){ window._vvBound=true; window.visualViewport.addEventListener("resize",function(){ if(document.querySelector(".chipsel-drop.on.kb")) csVvh() }) }
 // live listing counts per governorate and per area, shown inside the field menus
 function csCounts(){
   var g={},a={};
@@ -5687,13 +5701,35 @@ function wireChipSelects(){
       }
       var wrapEl=$("#"+id+"Wrap"), compact=wrapEl&&wrapEl.classList.contains("cs-compact");
       var selHtml = (compact && sel.length) ? '<div class="cs-selected">'+sel.map(function(v){ var o=cfg.getOptions().filter(function(x){return x.value===v})[0]; return '<span class="chip">'+(o?o.label:v)+'<button type="button" class="chip-x" data-csremove="'+id+'" data-csval="'+String(v).replace(/"/g,"&quot;")+'">×</button></span>' }).join("")+'</div>' : '';
-      drop.innerHTML = '<div class="cs-sheet-h"><span>'+input.placeholder+'</span><button type="button" class="cs-close" aria-label="close">×</button></div>'+selHtml+
+      drop.innerHTML = '<div class="cs-sheet-h"><span>'+input.placeholder+'</span><button type="button" class="cs-close" aria-label="close">×</button>'+
+        '<input class="cs-sheet-q" type="search" placeholder="'+input.placeholder+'" autocomplete="off" enterkeyhint="search"></div>'+selHtml+
         (html || '<div class="chipsel-empty">'+t("noResultsFor")+'</div>');
       drop.onclick=function(ev){ ev.stopPropagation() };
       markGreenTabu(drop);
       $$("#"+id+"Drop [data-csremove]").forEach(function(e){ e.onclick=function(ev){ ev.stopPropagation(); ev.preventDefault(); var val=this.dataset.csval; F[cfg.arrKey]=(F[cfg.arrKey]||[]).filter(function(v){return v!==val}); window._csReopen=id; softRenderHero() } });
       var cl=drop.querySelector(".cs-close");
       if(cl) cl.onclick=function(ev){ ev.stopPropagation(); drop.classList.remove("on"); input.blur() };
+      // phone sheet search: filters the list in place (no re-render, so the keyboard stays), and while the
+      // keyboard is up the sheet hangs from the top of the visible area instead of hiding behind the keyboard
+      var sq=drop.querySelector(".cs-sheet-q");
+      if(sq){
+        var refilter=function(){
+          var v=sq.value.trim().toLowerCase();
+          drop.querySelectorAll(".chipsel-opt").forEach(function(o){ o.hidden = !!v && o.textContent.toLowerCase().indexOf(v)===-1 });
+          [].slice.call(drop.querySelectorAll(".cs-h")).forEach(function(h){
+            var kind=h.classList.contains("cs-kind"), n=h.nextElementSibling, any=false;
+            while(n){ if(n.classList.contains("cs-h")){ if(kind || !n.classList.contains("cs-kind")) break } else if(n.classList.contains("chipsel-opt") && !n.hidden){ any=true; break } n=n.nextElementSibling }
+            h.hidden=!any });
+          var em=drop.querySelector(".cs-sheet-empty"); var none=!drop.querySelector(".chipsel-opt:not([hidden])");
+          if(none && !em){ em=document.createElement("div"); em.className="chipsel-empty cs-sheet-empty"; em.textContent=t("noResultsFor"); drop.appendChild(em) }
+          if(em) em.hidden=!none;
+        };
+        sq.addEventListener("input",refilter);
+        sq.addEventListener("focus",function(){ drop.classList.add("kb"); csVvh() });
+        sq.addEventListener("blur",function(){ setTimeout(function(){ if(document.activeElement!==sq) drop.classList.remove("kb") },160) });
+        sq.addEventListener("click",function(e){ e.stopPropagation() });
+        sq.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); var a=drop.querySelector(".chipsel-opt:not([hidden])"); if(a) a.click() } if(e.key==="Escape"){ drop.classList.remove("on"); sq.blur() } });
+      }
       closeAllMenus(drop);
       drop.classList.add("on");
       positionDropUpOrDown(input,drop);
@@ -5704,6 +5740,8 @@ function wireChipSelects(){
         window._csReopen=id; softRenderHero();
       }});
     };
+    // on phones the field only opens the sheet; typing happens in the sheet's own search box
+    if(window.innerWidth<=640 && input.closest(".cs-compact")){ input.readOnly=true; input.setAttribute("inputmode","none") }
     input.addEventListener("focus",function(){ renderDrop(this.value) });
     input.addEventListener("input",function(){ renderDrop(this.value) });
     // open on the click itself as well as on focus: in an unfocused window (embedded previews) the focus event never fires
