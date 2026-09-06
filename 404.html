@@ -1063,7 +1063,7 @@ footer{font-size:14px}
 .rtop .viewtoggle button{width:auto;height:30px;padding:0 12px;border:none;border-radius:999px;background:transparent;color:var(--grey);display:flex;align-items:center;gap:6px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
 .rtop .viewtoggle button.on{background:var(--navy);color:#fff}
 .rtop select{margin-inline-start:0;border-radius:999px;padding:7px 14px;font-weight:600;color:var(--navy)}
-.res{gap:18px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.res{gap:18px;grid-template-columns:repeat(auto-fill,minmax(max(var(--card-size,250px),200px),1fr))}
 .card.c2{border-radius:16px;border-color:var(--line);box-shadow:0 1px 2px rgba(20,33,61,.04);text-decoration:none;color:inherit;display:flex;flex-direction:column}
 .card.c2:hover{box-shadow:0 22px 40px -26px rgba(20,33,61,.45);border-color:#d9dbe1;transform:translateY(-3px)}
 .card.c2 .ph{position:relative;overflow:hidden;background:#0D1729}
@@ -1117,7 +1117,7 @@ footer{font-size:14px}
 .res.list-view .cdesc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;line-height:1.7;color:var(--grey);margin:2px 0 0}
 .res.list-view .cfoot{font-size:12px}
 @media(max-width:640px){
-  .res{grid-template-columns:1fr;gap:14px}
+  .res{grid-template-columns:repeat(auto-fill,minmax(var(--card-size-mobile,160px),1fr));gap:12px}
   .rtop{padding:8px 10px;gap:8px}
   .rtop .viewtoggle button span{display:none}
   .rtop .viewtoggle button{padding:0 10px}
@@ -1361,7 +1361,7 @@ footer{font-size:14px}
 .hv .sk-pl svg{display:block;width:100%;height:100%;overflow:visible}
 .hv .sk-stage.sk-rest .sk-tilt,.hv .sk-stage.sk-rest .sk-spin{transition:transform 1.1s cubic-bezier(.2,.7,.2,1)}
 /* ── the sponsored row: a framed navy section under the hero, gliding cards with sponsor chips, one featured wide card, a progress line ── */
-.adsec{background:radial-gradient(120% 90% at 50% 20%,#1B2C52,#14213D 70%);padding:6px 0 18px;margin-top:-1px}
+.adsec{background:radial-gradient(120% 90% at 50% 20%,#1B2C52,#14213D 70%);padding:6px 0 18px;margin-top:var(--adcarousel-gap,0px);position:relative;z-index:2}
 .adsec .wrap{max-width:1220px}
 .ad-eyebrow{display:flex;align-items:center;gap:10px;color:#E3B563;font-size:12.5px;font-weight:600;margin-bottom:8px}
 .ad-eyebrow::before{content:"";width:28px;height:2px;background:var(--gold)}
@@ -1802,6 +1802,74 @@ h1,h2,h3,.logo,.hero h1{letter-spacing:0}
 .ubtns{display:flex;flex-wrap:wrap;gap:6px}
 .ubtns .ab{margin:0}
 @media(max-width:640px){.udetail td{padding:0 6px 10px!important}.ucell{min-width:0}}
+.dash-top{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.adm .atable td.ltr{white-space:nowrap}
+.arange{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.arange button{border:0;background:transparent;font:inherit;font-size:12.5px;font-weight:600;color:var(--grey);padding:6px 12px;border-radius:999px;cursor:pointer}
+.arange button.on{background:var(--navy);color:#fff}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 14px 10px;box-shadow:0 1px 2px rgba(20,33,61,.04);display:flex;flex-direction:column;gap:4px;min-width:0}
+.kpi-l{font-size:12px;color:var(--grey);font-weight:600}
+.kpi-v{font-size:26px;font-weight:800;color:var(--navy);font-family:var(--fd);line-height:1.1}
+.kpi-d{font-size:11.5px;font-weight:700}.kpi-d.up{color:var(--ok)}.kpi-d.down{color:var(--danger)}.kpi-d small{font-weight:500;color:var(--light)}
+.kpi-spark{width:100%;height:34px;margin-top:4px;display:block}
+.chart{width:100%;height:220px;display:block}
+.chlegend{display:flex;gap:16px;font-size:12.5px;color:var(--grey);margin-bottom:6px}
+.chlegend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-inline-end:6px;vertical-align:-1px}
+.agrid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+.agrid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.agrid2>.blk,.agrid3>.blk{margin-top:0!important}
+.health{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.hitem{background:#F8F9FB;border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:start;font:inherit;cursor:default;display:flex;flex-direction:column;gap:2px}
+button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
+.hitem b{font-size:18px;color:var(--navy)}.hitem span{font-size:11.5px;color:var(--grey)}
+.hitem.warn{background:var(--gold-w);border-color:#EDDCB6}.hitem.warn b{color:#8A6522}
+.useen{font-size:12.5px;color:var(--grey)}.useen-fresh{font-size:12.5px;color:var(--ok);font-weight:700}
+.adm .blk h3 .ab{margin-inline-start:auto}
+/* admin forms: one rhythm for every card — 14px gaps, 42px controls, two columns where fields are short */
+.adm .blk .in{display:flex;flex-direction:column;gap:14px}
+.adm .blk .in>*{margin:0!important}
+.adm .blk .in>br{display:none}
+.adm .fl{display:flex;flex-direction:column;gap:6px;min-width:0}
+.adm .fl label{font-size:12.5px;font-weight:600;color:var(--grey);line-height:1.4}
+.adm .row{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.adm .row3{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.adm .row3x{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.adm .fl input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),.adm .fl select,.adm .blk .in>input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]):not([type=file]),.adm .blk .in>select{height:42px;padding:0 12px;border:1px solid var(--line-2);border-radius:10px;font:inherit;font-size:14px;background:#fff;width:100%;color:var(--ink)}
+.adm .fl textarea,.adm .blk .in>textarea{min-height:96px;padding:10px 12px;border:1px solid var(--line-2);border-radius:10px;font:inherit;font-size:14px;background:#fff;width:100%}
+.adm .fl input[type=color]{height:42px;width:100%;padding:4px 6px;border:1px solid var(--line-2);border-radius:10px;background:#fff;cursor:pointer}
+.adm .fl input[type=range],.adm .blk .in>input[type=range]{width:100%;accent-color:var(--navy);height:28px}
+.adm .fl input[type=file],.adm .blk .in>input[type=file]{height:auto;padding:10px 12px;border:1px dashed var(--line-2);border-radius:10px;font-size:13px;background:#F8F9FB;width:100%}
+.adm .blk .in label:has(>input[type=checkbox]),.adm .blk .in label:has(>input[type=radio]){display:flex;align-items:center;gap:10px;font-size:14px;cursor:pointer;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#F8F9FB}
+.adm .blk .in label:has(>input[type=checkbox]:checked),.adm .blk .in label:has(>input[type=radio]:checked){border-color:var(--navy);background:var(--navy-w)}
+.adm .blk .in input[type=checkbox],.adm .blk .in input[type=radio]{width:17px;height:17px;accent-color:var(--navy);margin:0;flex:none}
+.adm .admodepick{display:flex;flex-wrap:wrap;gap:8px}
+.adm .admodepick label{flex:1 1 200px}
+.adm .hintx{font-size:12.5px;line-height:1.7;color:var(--grey)}
+.adm .blk .in>.ab,.adm .blk .in>button,.adm .blk .in>a.ab{align-self:flex-start;width:auto}
+.adm .blk .in>span[id$="Msg"]{font-size:12.5px;color:var(--ok);margin-top:-8px!important}
+.adm .blk .in>.xactions{margin-top:-4px!important}
+.adm .blk .in>.atable{margin:0 -18px -16px!important;border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none}
+.adm .adminadlist{display:flex;flex-direction:column;gap:10px}
+.adm .adminadrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.adm .adminadinfo{flex:1;min-width:200px}
+.adm .adminadthumbs{display:flex;gap:8px;flex-wrap:wrap}
+.adm .adminadthumb{width:64px;height:64px;border-radius:10px}
+.adm .adglobalctl{display:flex;flex-wrap:wrap;gap:8px}
+.adm .chkgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:8px}
+.adm .dzconfirm{max-width:420px;display:flex;flex-direction:column;gap:10px}
+.adm .dzconfirm input{height:42px;padding:0 12px;border:1px solid #EBC9C6;border-radius:10px;font:inherit;width:100%}
+.adm .geogov{display:grid!important;grid-template-columns:repeat(auto-fit,minmax(160px,1fr))!important;gap:10px!important;padding:12px!important}
+.adm .geotable{display:grid!important;gap:8px 10px!important;align-items:center;overflow-x:auto}
+.adm .thumbs{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(120px,1fr))!important;gap:10px!important}
+.adm .pick{display:flex;flex-wrap:wrap;gap:8px}
+.adm .pick label{padding:8px 14px;border-radius:999px;border:1px solid var(--line-2);background:#fff;cursor:pointer;font-size:13.5px}
+.adm .pick label:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy)}
+.adm .pick input{display:none}
+.adm .msgfilters{display:flex;gap:8px;flex-wrap:wrap}
+.adm .starpick{display:flex;gap:4px;font-size:26px;color:#D6D8DE;cursor:pointer}
+.adm .starpick span.on{color:var(--gold)}
+@media(max-width:640px){.adm .row,.adm .row3,.adm .row3x{grid-template-columns:1fr}}
 /* a small on/off switch for table rows */
 .xswitch{position:relative;display:inline-block;width:36px;height:20px;cursor:pointer;vertical-align:middle}
 .xswitch input{opacity:0;width:0;height:0;position:absolute}
@@ -1824,7 +1892,7 @@ h1,h2,h3,.logo,.hero h1{letter-spacing:0}
   .home-hero .sgo-map{grid-column:auto;height:48px}
   .adsec{padding:6px 0 10px}
   .ad-eyebrow{margin-bottom:6px;font-size:12px}
-  .adsec .adcarousel{--ad-size:128px!important}
+  .adsec .adcarousel{--ad-size:min(var(--ad-size-set,170px),130px)!important}
   .ad-prog{display:none}
 }
 @media(max-width:640px){.home-hero .hero-outer:has(.chipsel-drop.on){z-index:70}}   /* an open filter sheet and its backdrop sit above the page header */
@@ -3662,47 +3730,7 @@ function adminView(){
 
  var body="";
 
- if(ADM.tab==="dashboard"){
-  var st3=ADM.stats;
-  var bar2=function(obj,total){ return Object.keys(obj||{}).slice(0,6).map(function(k){
-    var v=obj[k], pct=total?Math.round(v/total*100):0;
-    return '<div class="abarrow"><span class="abarlabel">'+(k||"—")+'</span>'+
-      '<div class="abartrack"><div class="abarfill" style="width:'+pct+'%"></div></div>'+
-      '<span class="abarval ltr">'+v+'</span></div>'}).join("") };
-  body = '<div class="astats">'+
-    stat(t("st_live"),s.live,"var(--ok)","listings:live")+stat(t("st_pending"),s.pending,"var(--gold)","listings:pending")+
-    stat(t("st_sold"),s.sold,null,"listings:sold")+stat(t("deed"),s.green,null,"listings::green")+
-    stat(t("users"),s.users,null,"users")+stat(t("photos"),s.photos,null,"photos")+
-    stat(t("thisWeek"),s.week,null,"listings")+stat(t("portfolioVal"),s.value?("$"+Math.round(s.value/1000)+"K"):"$0",null,"listings")+
-   '</div>'+
-   '<div class="adashgrid">'+
-    '<div class="adashcard"><h4>'+t("todayAtGlanceH")+'</h4>'+
-     (st3 ? '<div class="astats" style="grid-template-columns:1fr 1fr">'+
-       stat(t("todayViews"),st3.views_today)+stat(t("onlineNow"),st3.online_now,"var(--ok)")+'</div>'
-     : '<div class="adashempty">'+t("openStatsForMore")+'</div>')+
-    '</div>'+
-    '<div class="adashcard"><h4>'+t("recentAlertsH")+'</h4>'+
-     ((ADM.alerts&&ADM.alerts.length) ? '<div class="onlinelist">'+ADM.alerts.slice(0,4).map(function(n){
-       var lbl = n.title==="new_feedback"?t("newFeedbackAlert"):n.title==="new_report"?t("newReportAlert"):n.title;
-       return '<a class="onlinerow" data-goto="'+(n.link||"").replace("/#/admin:","")+'">'+
-         '<span class="onlinedot" style="background:'+(n.is_read?"var(--light)":"var(--danger)")+'"></span>'+
-         '<span style="font-size:13px">'+lbl+'</span>'+
-         '<span class="ltr" style="margin-inline-start:auto;color:var(--light);font-size:11px">'+when(n.created_at)+'</span></a>'}).join("")+'</div>'
-      : '<div class="adashempty">'+t("noAlerts")+'</div>')+
-    '</div>'+
-    '<div class="adashcard"><h4>'+t("topCountries")+'</h4>'+
-     (st3 && Object.keys(st3.by_country||{}).length ? bar2(st3.by_country, st3.views_total) : '<div class="adashempty">'+(st3?t("noReports"):t("openStatsForMore"))+'</div>')+
-    '</div>'+
-    '<div class="adashcard"><h4>'+t("topPages")+'</h4>'+
-     (st3 && Object.keys(st3.by_view||{}).length ? bar2(st3.by_view, st3.views_total) : '<div class="adashempty">'+(st3?t("noReports"):t("openStatsForMore"))+'</div>')+
-    '</div>'+
-    '<div class="adashcard"><h4>'+t("storageUsageH")+'</h4>'+
-     storageUsageCardBody()+
-    '</div>'+
-   '</div>'+
-   '<button class="ab" data-atab="stats" style="margin-top:4px">'+t("openFullAnalytics")+'</button>';
- }
-
+ if(ADM.tab==="dashboard"){ body = adminDashboardBody(s); }
  else if(ADM.tab==="listings"){
   body='<div class="afilters"><input id="aqL" placeholder="'+t("searchPH")+'" class="asearch">'+
    '<select id="afStatus"><option value="">'+t("allStatus")+'</option>'+
@@ -3712,18 +3740,22 @@ function adminView(){
    '<option value="sale">'+t("buy")+'</option><option value="rent">'+t("rent")+'</option></select>'+
    '<select id="afTabu"><option value="">'+t("allDeeds")+'</option>'+
    Object.keys(D.TABU).map(function(k){
-     return '<option value="'+k+'">'+D.TABU[k][li()]+'</option>'}).join("")+'</select></div>'+
+     return '<option value="'+k+'">'+D.TABU[k][li()]+'</option>'}).join("")+'</select>'+
+   '<select id="afSort"><option value="new"'+(ADM.listSort!=="views"&&ADM.listSort!=="contacts"?" selected":"")+'>'+GX("sortNewest")+'</option><option value="views"'+(ADM.listSort==="views"?" selected":"")+'>'+GX("sortViews")+'</option><option value="contacts"'+(ADM.listSort==="contacts"?" selected":"")+'>'+GX("sortContacts")+'</option></select></div>'+
+  '<div class="dash-top" style="margin:8px 0">'+rangeTabs()+'</div>'+
   '<div style="font-size:12.5px;color:var(--grey);margin:8px 0"><span id="aListCount"><span class="ltr">'+(d.listings||[]).length+'</span> '+t("listingsTab")+'</span></div>'+
   '<div class="atable"><table><thead><tr>'+
-   ['#',t("gov"),t("price"),t("deed"),t("photos"),t("postedBy"),t("status"),''].map(function(h){return '<th>'+h+'</th>'}).join("")+
+   ['#',t("gov"),t("price"),t("deed"),t("photos"),GX("colViews"),GX("colContacts"),t("postedBy"),t("status"),''].map(function(h){return '<th>'+h+'</th>'}).join("")+
    '</tr></thead><tbody id="aListBody">'+
-   (d.listings||[]).map(function(l){
+   (d.listings||[]).slice().sort(function(a,b){ var A=(ADM.lstats||{})[a.id]||{}, B=(ADM.lstats||{})[b.id]||{}; if(ADM.listSort==="views") return (+B.views||0)-(+A.views||0); if(ADM.listSort==="contacts") return (+B.contacts||0)-(+A.contacts||0); return 0 }).map(function(l){ var ls=(ADM.lstats||{})[l.id]||{};
      return '<tr data-row-status="'+l.status+'" data-row-tabu="'+(l.tabu||"")+'" data-row-deal="'+(l.deal||"")+'" data-row-text="'+((l.gov||"")+" "+(l.area||"")+" "+(l.poster_name||"")+" "+l.ref).toLowerCase()+'">'+
      '<td class="ltr adlink" data-open="'+l.id+'">'+(l.ref||l.id)+'</td>'+
      '<td>'+(l.area?l.area+"، ":"")+l.gov+'</td>'+
      '<td class="ltr">$'+Number(l.price_usd).toLocaleString("en")+'</td>'+
      '<td><span class="tag '+cls(l.tabu)+'">'+(D.TABU[l.tabu]?D.TABU[l.tabu][li()]:l.tabu)+'</span></td>'+
      '<td class="ltr">'+l.photos+'</td>'+
+     '<td class="ltr"><b>'+(ls.views!=null?ls.views:"…")+'</b>'+(ls.views_total!=null?' <small style="color:var(--light)">/ '+ls.views_total+'</small>':'')+'</td>'+
+     '<td class="ltr">'+(ls.contacts!=null?ls.contacts:"…")+(ls.saves?' <small style="color:var(--light)">♡'+ls.saves+'</small>':'')+'</td>'+
      '<td>'+(l.poster_id?'<a data-byuser="'+l.poster_id+'" data-name="'+(l.poster_name||"")+'" style="color:var(--navy);text-decoration:underline;cursor:pointer">'+(l.poster_name||"—")+'</a>':(l.poster_name||"—"))+(l.poster_phone?'<div class="ltr" style="font-size:11px;color:var(--light)">'+l.poster_phone+'</div>':'')+'</td>'+
      '<td><span class="st st-'+l.status+'">'+(l.status==="hidden"?GX("st_hidden"):(t("st_"+l.status)||l.status))+'</span></td>'+
      '<td style="white-space:nowrap">'+
@@ -3805,41 +3837,7 @@ function adminView(){
    : '<div class="done2"><b>'+t("noReviewsAdmin")+'</b></div>';
  }
 
- else if(ADM.tab==="stats"){
-  var st=ADM.stats;
-  var bar=function(obj,total){ return Object.keys(obj||{}).map(function(k){
-    var v=obj[k], pct=total?Math.round(v/total*100):0;
-    return '<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:3px">'+
-      '<span>'+(k||"—")+'</span><span class="ltr" style="color:var(--grey)">'+v+'</span></div>'+
-      '<div style="height:6px;background:var(--line);border-radius:4px;overflow:hidden">'+
-      '<div style="height:100%;width:'+pct+'%;background:var(--gold)"></div></div></div>'}).join("") };
-  body = !st ? '<div class="done2"><b>'+(ADM.statsErr?t("statsSetupNeeded"):t("loading"))+'</b>'+
-    (ADM.statsErr?'<div style="margin-top:8px;font-size:12.5px;color:var(--grey)" class="ltr">'+ADM.statsErr+'</div>':'')+'</div>' :
-   '<div class="astats">'+
-    stat(t("todayViews"),st.views_today)+stat(t("weekViews"),st.views_week)+stat(t("totalViews"),st.views_total)+
-    stat(t("weeklyVisitors"),st.visitors_week)+stat(t("users"),st.members_total)+stat(t("newMembersWeek"),st.members_week)+
-    stat(t("onlineNow"),st.online_now,"var(--ok)")+
-   '</div>'+
-   '<div style="display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:18px" class="astatgrid">'+
-    '<div class="blk"><h3>'+t("topCountries")+'</h3><div class="in">'+
-     (Object.keys(st.by_country||{}).length?bar(st.by_country, st.views_total):'<div class="done2"><b>'+t("noReports")+'</b></div>')+
-    '</div></div>'+
-    '<div class="blk"><h3>'+t("topPages")+'</h3><div class="in">'+
-     (Object.keys(st.by_view||{}).length?bar(st.by_view, st.views_total):'<div class="done2"><b>'+t("noReports")+'</b></div>')+
-    '</div></div>'+
-   '</div>'+
-   '<div class="blk" style="margin-top:18px"><h3>'+t("storageUsageH")+'</h3><div class="in">'+
-    storageUsageCardBody()+
-   '</div></div>'+
-   '<div class="blk" style="margin-top:18px"><h3>'+t("onlineUsersH")+' <span class="ltr" style="color:var(--grey);font-weight:400">('+(st.online_now||0)+')</span></h3><div class="in">'+
-    ((st.online_list||[]).length
-     ? '<div class="onlinelist">'+st.online_list.map(function(u){
-        return '<a data-byuser="'+u.id+'" data-name="'+(u.name||"")+'" class="onlinerow">'+
-          '<span class="onlinedot"></span>'+(u.name||t("anonGuest"))+
-          '<span class="ltr" style="margin-inline-start:auto;color:var(--light);font-size:11.5px">'+when(u.last_seen)+'</span></a>'}).join("")+'</div>'
-     : '<div class="done2"><b>'+t("noOneOnline")+'</b></div>')+
-   '</div></div>';
- }
+ else if(ADM.tab==="stats"){ body = adminAnalyticsBody(); }
 
  else if(ADM.tab==="geo"){ body = geoAdminBody(); }
  else if(ADM.tab==="banners"){
@@ -3889,14 +3887,14 @@ function adminView(){
    '<div class="blk" style="margin-top:16px"><h3>'+t("cardSizeH")+'</h3><div class="in">'+
     '<div class="hintx" style="margin-bottom:10px">'+t("cardSizeHintDesktop")+'</div>'+
     '<div class="fl"><label>'+t("cardSizeL")+'</label>'+
-     '<input id="scCardSize" type="number" min="160" max="500" value="'+(SITE.card_min_width||190)+'"></div>'+
+     '<input id="scCardSize" type="number" min="200" max="500" value="'+(SITE.card_min_width||250)+'"></div>'+
     '<button class="ab ok" id="scCardSizeSave">'+t("save")+'</button>'+
     '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="scCardSizeMsg"></span>'+
    '</div></div>'+
    '<div class="blk" style="margin-top:16px"><h3>'+t("cardSizeMobileH")+'</h3><div class="in">'+
     '<div class="hintx" style="margin-bottom:10px">'+t("cardSizeMobileHint")+'</div>'+
     '<div class="fl"><label>'+t("cardSizeMobileL")+'</label>'+
-     '<input id="scCardSizeMobile" type="number" min="90" max="300" value="'+(SITE.card_min_width_mobile||150)+'"></div>'+
+     '<input id="scCardSizeMobile" type="number" min="90" max="300" value="'+(SITE.card_min_width_mobile||160)+'"></div>'+
     '<button class="ab ok" id="scCardSizeMobileSave">'+t("save")+'</button>'+
     '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="scCardSizeMobileMsg"></span>'+
    '</div></div>'+
@@ -3971,10 +3969,10 @@ function adminView(){
      '<input type="checkbox" id="scHeroOn"'+(SITE.hero_enabled!==false?" checked":"")+'>'+
      '<span>'+t("showHero")+'</span></label>'+
     '<div class="hintx" style="margin-bottom:8px">'+t("perLangHint")+'</div>'+
-    ["ar","en","de"].map(function(lg){return '<div class="fl"><label>'+t("headlineL")+' ('+lg.toUpperCase()+')</label>'+
+    '<div class="row3x">'+["ar","en","de"].map(function(lg){return '<div class="fl"><label>'+t("headlineL")+' ('+lg.toUpperCase()+')</label>'+
       '<input id="scHero_'+lg+'" value="'+(SITE["hero_"+lg]||"").replace(/"/g,"&quot;")+'" placeholder="'+t("leaveBlankDefault")+'"></div>'+
      '<div class="fl"><label>'+t("headlineHighlightL")+' ('+lg.toUpperCase()+')</label>'+
-      '<input id="scHeroSub_'+lg+'" value="'+(SITE["hero_sub_"+lg]||"").replace(/"/g,"&quot;")+'" placeholder="'+t("leaveBlankDefault")+'"></div>'}).join("")+
+      '<input id="scHeroSub_'+lg+'" value="'+(SITE["hero_sub_"+lg]||"").replace(/"/g,"&quot;")+'" placeholder="'+t("leaveBlankDefault")+'"></div>'}).join("")+'</div>'+
     '<div class="row" style="margin-top:6px">'+
      '<div class="fl"><label>'+t("heroTitleSizeL")+'</label><select id="scHeroSize">'+
       '<option value=""'+(!SITE.hero_title_size?" selected":"")+'>'+t("defaultSize")+'</option>'+
@@ -4029,10 +4027,10 @@ function adminView(){
      '<div class="fl"><label>'+t("statsListingsNumL")+'</label>'+
      '<input id="scListingsNum" value="'+(SITE.stats_listings_num||"9,102")+'"'+(SITE.stats_use_real_count?" disabled":"")+'></div></div>'+
     '<div class="hintx" style="margin-bottom:8px">'+t("perLangHint")+'</div>'+
-    ["ar","en","de"].map(function(lg){return '<div class="fl"><label>'+t("statsPhrase1L")+' ('+lg.toUpperCase()+')</label>'+
+    '<div class="row3x">'+["ar","en","de"].map(function(lg){return '<div class="fl"><label>'+t("statsPhrase1L")+' ('+lg.toUpperCase()+')</label>'+
       '<input id="scStats1_'+lg+'" value="'+(SITE["stats1_"+lg]||"").replace(/"/g,"&quot;")+'" placeholder="'+t("leaveBlankDefault")+'"></div>'+
      '<div class="fl"><label>'+t("statsPhrase2L")+' ('+lg.toUpperCase()+')</label>'+
-      '<input id="scStats2_'+lg+'" value="'+(SITE["stats2_"+lg]||"").replace(/"/g,"&quot;")+'" placeholder="'+t("leaveBlankDefault")+'"></div>'}).join("")+
+      '<input id="scStats2_'+lg+'" value="'+(SITE["stats2_"+lg]||"").replace(/"/g,"&quot;")+'" placeholder="'+t("leaveBlankDefault")+'"></div>'}).join("")+'</div>'+
     '<button class="ab ok" id="scStatsSave" style="margin-top:6px">'+t("save")+'</button>'+
     '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="scStatsMsg"></span>'+
    '</div></div>'+adminHomeExtrasHtml();
@@ -4178,13 +4176,7 @@ function adminView(){
     '<div class="hintx" style="margin-bottom:10px">'+t("adSlotsHint")+'</div>'+
     '<div class="fl"><label>'+t("adSquareSizeL")+'</label>'+
      '<input id="adSqSize" type="number" min="70" max="300" value="'+(SITE.ad_square_size||130)+'"></div>'+
-    '<div class="fl"><label>'+t("adCarouselSecL")+'</label>'+
-     '<input id="adCarouselSec" type="number" min="1" max="30" step="0.5" value="'+(SITE.ad_carousel_seconds!=null?SITE.ad_carousel_seconds:3)+'"></div>'+
-    '<div class="fl"><label>'+t("adCarouselDirL")+'</label><select id="adCarouselDir">'+
-     '<option value="left"'+((SITE.ad_carousel_direction||"left")==="left"?" selected":"")+'>'+t("adCarouselDir_left")+'</option>'+
-     '<option value="right"'+(SITE.ad_carousel_direction==="right"?" selected":"")+'>'+t("adCarouselDir_right")+'</option>'+
-    '</select></div>'+
-    '<div class="hintx" style="margin-bottom:10px">'+t("adCarouselHint")+'</div>'+
+
     '<div class="fl">'+
      '<label>'+t("adRowGapL")+' — <span id="adRowGapVal">'+(SITE.ad_carousel_gap!=null?SITE.ad_carousel_gap:0)+'px</span></label>'+
      '<input type="range" id="adRowGap" min="-60" max="80" step="2" value="'+(SITE.ad_carousel_gap!=null?SITE.ad_carousel_gap:0)+'" style="width:100%">'+
@@ -4403,9 +4395,9 @@ function adminView(){
 
  var NAV=[
    {g:t("navOverview"), items:[["dashboard",t("dashboardTab"),null,AICO.dash,true],["stats",t("visitorStats"),null,AICO.chart,can("stats")]]},
-   {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["featured",t("featuredTab"),null,AICO.star,can("featured")],["photos",GX("tMedia"),null,AICO.image,can("listings")]]},
+   {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["photos",GX("tMedia"),null,AICO.image,can("listings")]]},
    {g:t("navPeople"), items:[["users",t("usersTab"),s.users,AICO.users,can("users")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")]]},
-   {g:GX("navMarketing"), items:[["ads",t("adsTab"),null,AICO.ads,can("ads")],["banners",GX("tBanners"),null,AICO.banner,can("homepage")]]},
+   {g:GX("navMarketing"), items:[["ads",t("adsTab"),null,AICO.ads,can("ads")],["featured",t("featuredTab"),null,AICO.star,can("featured")],["banners",GX("tBanners"),null,AICO.banner,can("homepage")]]},
    {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")]]},
    {g:t("navInboxH"), items:[["reports",t("reportsTab"),s.openReports,AICO.shield,can("reports")],["feedback",t("feedbackTab"),s.openFeedback,AICO.shield,can("feedback")],["msgs",t("msgsNotifTab"),ADM.alertsUnread,AICO.bell,can("msgs")]]},
    {g:GX("navSystem"), items:[["settings",GX("tSystem"),null,AICO.gear,can("settings")],["storage",GX("tStorage"),null,AICO.disk,can("settings")],["admins",t("adminsTab"),null,AICO.key,ADM.isSuper],["danger",t("dangerTab"),null,AICO.lock,ADM.isSuper]]}
@@ -4943,11 +4935,11 @@ function adSlotsRow(){
      // the video itself isn't wrapped in a clickable link, so clicks
      // reach the player — but an optional small corner badge can
      // still take visitors somewhere else if a destination was set
-     return '<div class="adslot'+featCls+'">'+media+chip+featText+
+     return '<div class="adslot'+featCls+'" data-adid="'+a.id+'">'+media+chip+featText+
        (a.link_url ? '<a class="adslot-visit" href="'+a.link_url+'" target="_blank" rel="noopener sponsored" style="color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+t("adVisitLink")+'</a>' : '')+
        (showTag?'<span class="adtag" style="font-size:'+tagSize+'px;color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+tagText+'</span>':'')+'</div>';
    }
-   return '<a class="adslot'+featCls+'" '+
+   return '<a class="adslot'+featCls+'" data-adid="'+a.id+'" '+
      (isLinked ? 'data-open="'+a.linked_listing_id+'"' : 'href="'+(a.link_url||"#")+'"'+(external?' target="_blank" rel="noopener sponsored"':' onclick="return false"'))+'>'+
      media+chip+featText+(showTag?'<span class="adtag" style="font-size:'+tagSize+'px;color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+tagText+'</span>':'')+'</a>'}).join("");
   // the carousel only actually needs to rotate/scroll if there are
@@ -4999,6 +4991,9 @@ function fitAdGlide(el){
   while(copies<need && copies<12){ for(var i=0;i<n;i++) track.appendChild(cards[i].cloneNode(true)); copies++; }
   track.style.setProperty("--set-w",setW+"px");
   watchAdVideos();
+  if(window._adViewsLoggedFor!==VIEW){ window._adViewsLoggedFor=VIEW; var seen={}, ev=[];
+    [].slice.call(track.children).slice(0,n).forEach(function(c){ var id=c.dataset&&c.dataset.adid; if(id && !seen[id]){ seen[id]=1; ev.push({slot:id,kind:"view",page:VIEW.split(":")[0]}) } });
+    logAds(ev) }
 }
 if(!window._adGlideResize){ window._adGlideResize=true; var _agT; addEventListener("resize",function(){ clearTimeout(_agT); _agT=setTimeout(function(){ var el=document.getElementById("adCarousel"); if(el&&el.classList.contains("glide")) fitAdGlide(el) },150) }) }
 var _adRotateTimer=null;
@@ -6458,7 +6453,7 @@ function wire(){
    paintShots();checkPost()}}
 
 async function adminLoad(){
-  ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._featuredListLoaded=false;
+  ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._anLoaded=false; ADM._uactLoaded=false; ADM._lstatsLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._featuredListLoaded=false;
   ADM._storageUsageLoaded=false;
   ADM.dangerUnlocked=false;
   ADM.restoreUnlocked=false; ADM.restoreFileInfo=""; ADM.restoreData=null;
@@ -6679,6 +6674,22 @@ function wireAdmin(){
       ADM.stats=null; ADM.statsErr=(e&&e.message)||"error"; render()
     });
   }
+  if(!ADM.range) ADM.range=7;
+  if((ADM.tab==="dashboard"||ADM.tab==="stats"||ADM.tab==="ads") && (!ADM._anLoaded || ADM._anRange!==ADM.range)){
+    ADM._anLoaded=true; ADM._anRange=ADM.range;
+    rpc("bk_admin_analytics",{p_token:ADM.token,p_days:ADM.range}).then(function(r){ ADM.an=r; render() }).catch(function(e){ ADM.anErr=e.message||String(e); render() });
+  }
+  if(ADM.tab==="users" && !ADM._uactLoaded){
+    ADM._uactLoaded=true;
+    rpc("bk_admin_user_activity",{p_token:ADM.token}).then(function(r){ var m={}; (r||[]).forEach(function(u){ m[u.id]=u }); ADM.uact=m; render() }).catch(function(){});
+  }
+  if(ADM.tab==="listings" && (!ADM._lstatsLoaded || ADM._lstatsRange!==ADM.range)){
+    ADM._lstatsLoaded=true; ADM._lstatsRange=ADM.range;
+    rpc("bk_admin_listing_stats",{p_token:ADM.token,p_days:ADM.range}).then(function(r){ var m={}; (r||[]).forEach(function(x){ m[x.id]=x }); ADM.lstats=m; render() }).catch(function(){});
+  }
+  $$("[data-arange]").forEach(function(b){ b.onclick=function(){ ADM.range=+this.dataset.arange; render() } });
+  if($("#afSort")) $("#afSort").onchange=function(){ ADM.listSort=this.value; render() };
+  if($("#uActPick")) $("#uActPick").onchange=function(){ ADM.userActFilter=this.value; render() };
   if(ADM.tab==="storage" && !ADM._storageReportLoaded){
     ADM._storageReportLoaded=true;
     rpc("bk_admin_storage_report",{p_token:ADM.token}).then(function(r){ ADM.storageReport=r; render() }).catch(function(e){ console.warn("storage report:",e.message||e) });
@@ -6891,12 +6902,10 @@ function wireAdmin(){
     gapVal = isNaN(gapVal) ? 0 : gapVal;
     saveSiteContent({
       ad_square_size: parseInt(($("#adSqSize")||{}).value,10)||130,
-      ad_carousel_seconds: parseFloat(($("#adCarouselSec")||{}).value)||3,
-      ad_carousel_direction: ($("#adCarouselDir")||{}).value||"left",
       ad_carousel_gap: gapVal
     },"adLayoutMsg",this);
-    SITE.ad_carousel_gap = gapVal;
-    applySectionGapVars();
+    SITE.ad_carousel_gap = gapVal; SITE.ad_square_size = parseInt(($("#adSqSize")||{}).value,10)||130;
+    applySectionGapVars(); applySiteExtras();
   };
   if($("#adColorsSave")) $("#adColorsSave").onclick=function(){
     saveSiteContent({
@@ -8182,8 +8191,8 @@ function applySectionGapVars(){
 }
 function applyCardSizeVar(){
   try{
-    document.documentElement.style.setProperty("--card-size", (SITE.card_min_width||190)+"px");
-    document.documentElement.style.setProperty("--card-size-mobile", (SITE.card_min_width_mobile||150)+"px");
+    document.documentElement.style.setProperty("--card-size", (SITE.card_min_width||250)+"px");
+    document.documentElement.style.setProperty("--card-size-mobile", (SITE.card_min_width_mobile||160)+"px");
   }catch(e){}
 }
 var BANNER_SIZES = {
@@ -8655,14 +8664,29 @@ async function resolveCountry(){
   }catch(e){ _viewCountry = "" }
   return _viewCountry;
 }
+// one anonymous id per browser so visitors can be counted (never shared with other services)
+var VID=(function(){ try{ var v=localStorage.getItem("balkoun_vid"); if(!v){ v=Math.random().toString(36).slice(2,10)+Date.now().toString(36); localStorage.setItem("balkoun_vid",v) } return v }catch(e){ return null } })();
+var _refLogged=false;
+function deviceKind(){ return (window.innerWidth<=700 || /Mobi|Android|iPhone/i.test(navigator.userAgent)) ? "mobile" : "desktop" }
 function logView(){
   if(VIEW===_lastLoggedView) return;
   _lastLoggedView = VIEW;
-  if(!DB) return;
+  if(!DB || (ADM&&ADM.token&&VIEW==="admin")) return;
+  var ref=""; if(!_refLogged){ _refLogged=true; ref=(document.referrer||"").replace(/^https?:\/\//,"").split("/")[0]; if(ref===location.host) ref="" }
   resolveCountry().then(function(c){
-    try{ DB.rpc("bk_log_view",{p_path:location.pathname+location.search,p_view:VIEW.split(":")[0],
-      p_user:(USER&&USER.id)||null,p_country:c||null,p_token:(USER&&USER.token)||null}) }catch(e){}
+    try{ DB.rpc("bk_log_view2",{p_path:location.pathname+location.search,p_view:VIEW.split(":")[0],
+      p_user:(USER&&USER.id)||null,p_country:c||null,p_token:(USER&&USER.token)||null,p_visitor:VID,p_device:deviceKind(),p_referrer:ref}) }catch(e){}
   });
+}
+// ad squares: impressions once per page load, clicks when a square is opened
+function logAds(events){
+  if(!DB || !events || !events.length) return;
+  resolveCountry().then(function(c){
+    try{ DB.rpc("bk_log_ads",{p_events:events,p_country:c||null,p_visitor:VID,p_user:(USER&&USER.id)||null,p_token:(USER&&USER.token)||null}) }catch(e){}
+  });
+}
+if(!window._adClickLog){ window._adClickLog=true;
+  document.addEventListener("click",function(e){ var a=e.target.closest&&e.target.closest(".adsec .adslot[data-adid]"); if(a) logAds([{slot:a.dataset.adid,kind:"click",page:VIEW.split(":")[0]}]) },true);
 }
 var _lastRenderedView = null;
 function render(){
@@ -9427,6 +9451,29 @@ var GX_T={
   uAutoHint:{ar:"نشر تلقائي: إعلانات هذا العضو تُنشر بدون مراجعة.",en:"Auto-publish: this member's listings go live without review.",de:"Auto-Veröffentlichung: Anzeigen dieses Mitglieds gehen ohne Prüfung online."},
   uCount:{ar:"عضو",en:"members",de:"Mitglieder"}, uNoPhone:{ar:"بدون رقم",en:"no number",de:"keine Nummer"},
   uSummary:{ar:"ملخص",en:"Summary",de:"Zusammenfassung"}, uModeration:{ar:"إشراف",en:"Moderation",de:"Moderation"}, uDanger:{ar:"حساب",en:"Account",de:"Konto"},
+  r1:{ar:"آخر 24 ساعة",en:"Last 24 hours",de:"Letzte 24 Stunden"}, r7:{ar:"آخر 7 أيام",en:"Last 7 days",de:"Letzte 7 Tage"}, r30:{ar:"آخر 30 يوماً",en:"Last 30 days",de:"Letzte 30 Tage"}, r90:{ar:"آخر 90 يوماً",en:"Last 90 days",de:"Letzte 90 Tage"}, r365:{ar:"آخر سنة",en:"Last year",de:"Letztes Jahr"},
+  vsPrev:{ar:"مقارنة بالفترة السابقة",en:"vs previous period",de:"ggü. Vorperiode"},
+  kViews:{ar:"مشاهدات الصفحات",en:"Page views",de:"Seitenaufrufe"}, kVisitors:{ar:"الزوّار",en:"Visitors",de:"Besucher"}, kListingViews:{ar:"مشاهدات الإعلانات",en:"Listing views",de:"Anzeigenaufrufe"},
+  kNewUsers:{ar:"أعضاء جدد",en:"New members",de:"Neue Mitglieder"}, kNewListings:{ar:"إعلانات جديدة",en:"New listings",de:"Neue Anzeigen"}, kContacts:{ar:"تواصل (اتصال/واتساب)",en:"Contacts (call/WhatsApp)",de:"Kontakte (Anruf/WhatsApp)"},
+  kAdClicks:{ar:"نقرات المربعات الإعلانية",en:"Ad clicks",de:"Anzeigenklicks"}, kAdViews:{ar:"ظهور المربعات",en:"Ad impressions",de:"Anzeigen-Impressionen"}, kSaves:{ar:"حفظ الإعلانات",en:"Saves",de:"Gespeichert"},
+  kActiveUsers:{ar:"أعضاء نشطون",en:"Active members",de:"Aktive Mitglieder"},
+  chVisits:{ar:"الزيارات والزوّار",en:"Visits and visitors",de:"Besuche und Besucher"}, chGrowth:{ar:"النمو: أعضاء وإعلانات جديدة",en:"Growth: new members and listings",de:"Wachstum: neue Mitglieder und Anzeigen"},
+  chEngage:{ar:"التفاعل: تواصل ونقرات إعلانات",en:"Engagement: contacts and ad clicks",de:"Interaktion: Kontakte und Anzeigenklicks"},
+  topListingsH:{ar:"الإعلانات الأكثر مشاهدة",en:"Most viewed listings",de:"Meistgesehene Anzeigen"}, topAdsH:{ar:"أداء المربعات الإعلانية",en:"Ad square performance",de:"Leistung der Werbequadrate"},
+  colViews:{ar:"مشاهدات",en:"Views",de:"Aufrufe"}, colContacts:{ar:"تواصل",en:"Contacts",de:"Kontakte"}, colSaves:{ar:"حفظ",en:"Saves",de:"Gespeichert"}, colClicks:{ar:"نقرات",en:"Clicks",de:"Klicks"}, colCtr:{ar:"نسبة النقر",en:"CTR",de:"CTR"},
+  colImpr:{ar:"ظهور",en:"Impressions",de:"Impressionen"}, colFrom:{ar:"من أين",en:"From where",de:"Woher"}, colLastSeen:{ar:"آخر نشاط",en:"Last active",de:"Zuletzt aktiv"}, colTotal:{ar:"الإجمالي",en:"Total",de:"Gesamt"},
+  pagesH:{ar:"الصفحات الأكثر زيارة",en:"Most visited pages",de:"Meistbesuchte Seiten"}, countriesH:{ar:"الدول",en:"Countries",de:"Länder"}, devicesH:{ar:"الأجهزة",en:"Devices",de:"Geräte"}, referrersH:{ar:"مصادر الزيارات",en:"Traffic sources",de:"Besucherquellen"},
+  contactKindsH:{ar:"أنواع التواصل",en:"Contact types",de:"Kontaktarten"}, usersActH:{ar:"نشاط الأعضاء",en:"Member activity",de:"Mitgliederaktivität"}, listingsStatusH:{ar:"الإعلانات حسب الحالة",en:"Listings by status",de:"Anzeigen nach Status"},
+  healthH:{ar:"صحة الموقع",en:"Site health",de:"Zustand der Website"},
+  hPending:{ar:"بانتظار المراجعة",en:"Pending review",de:"Wartet auf Prüfung"}, hReports:{ar:"بلاغات مفتوحة",en:"Open reports",de:"Offene Meldungen"}, hFeedback:{ar:"شكاوى مفتوحة",en:"Open feedback",de:"Offenes Feedback"},
+  hNoPhotos:{ar:"إعلانات بلا صور",en:"Listings without photos",de:"Anzeigen ohne Fotos"}, hFeatExp:{ar:"تمييز ينتهي خلال 3 أيام",en:"Featured ending in 3 days",de:"Hervorhebung endet in 3 Tagen"}, hBlocked:{ar:"أعضاء محظورون",en:"Blocked members",de:"Gesperrte Mitglieder"},
+  hLastView:{ar:"آخر زيارة مسجّلة",en:"Last recorded visit",de:"Letzter Besuch"}, hStorage:{ar:"التخزين",en:"Storage",de:"Speicher"}, hOk:{ar:"كل شيء بخير",en:"All good",de:"Alles in Ordnung"},
+  act24:{ar:"نشط خلال 24 ساعة",en:"Active in 24h",de:"Aktiv in 24h"}, act7:{ar:"نشط خلال 7 أيام",en:"Active in 7 days",de:"Aktiv in 7 Tagen"}, act30:{ar:"نشط خلال 30 يوماً",en:"Active in 30 days",de:"Aktiv in 30 Tagen"}, actOld:{ar:"غير نشط",en:"Inactive",de:"Inaktiv"},
+  never:{ar:"لم يدخل بعد",en:"never",de:"nie"}, device_mobile:{ar:"جوال",en:"Mobile",de:"Mobil"}, device_desktop:{ar:"كمبيوتر",en:"Desktop",de:"Desktop"}, direct:{ar:"مباشر",en:"Direct",de:"Direkt"},
+  ck_call:{ar:"اتصال",en:"Call",de:"Anruf"}, ck_whatsapp:{ar:"واتساب",en:"WhatsApp",de:"WhatsApp"}, ck_reveal_phone:{ar:"إظهار الرقم",en:"Show number",de:"Nummer anzeigen"}, ck_visit_request:{ar:"طلب معاينة",en:"Visit request",de:"Besichtigung"},
+  noData:{ar:"لا توجد بيانات في هذه الفترة بعد.",en:"No data for this period yet.",de:"Noch keine Daten für diesen Zeitraum."},
+  sortNewest:{ar:"الأحدث",en:"Newest",de:"Neueste"}, sortViews:{ar:"الأكثر مشاهدة",en:"Most viewed",de:"Meistgesehen"}, sortContacts:{ar:"الأكثر تواصلاً",en:"Most contacted",de:"Meiste Kontakte"},
+  adsPerfHint:{ar:"الظهور يُسجَّل مرة لكل تحميل للصفحة الرئيسية، والنقرة عند فتح المربع. «من أين» = الصفحة والدولة التي جاءت منها النقرات.",en:"An impression is logged once per homepage load, a click when the square is opened. “From where” = page and country the clicks came from.",de:"Eine Impression wird pro Startseiten-Aufruf gezählt, ein Klick beim Öffnen. „Woher“ = Seite und Land der Klicks."},
   xDefaultHint:{ar:"اتركه فارغاً لاستخدام القيمة الافتراضية.",en:"Leave empty to use the default.",de:"Leer lassen für den Standardwert."},
   xHomeH:{ar:"الحركة والسلوك",en:"Motion & behaviour",de:"Bewegung & Verhalten"},
   xOpening:{ar:"مشهد الافتتاح (كلمة بلكون تصعد ثم يهبط الرأس)",en:"Opening scene (the brand word lifts, then the header comes down)",de:"Eröffnungsszene (Markenwort hebt sich, dann kommt der Header)"},
@@ -9485,7 +9532,7 @@ var AD_VIDEO_MAX_MB=8;
 /* extra site settings live in site_content.extras (JSON): SX(key, default) reads one */
 function SX(k,d){ var ex=SITE&&SITE.extras; if(ex&&typeof ex==="string"){ try{ ex=JSON.parse(ex) }catch(e){ ex=null } } var v=ex?ex[k]:undefined; return (v===undefined||v===null||v==="") ? d : v }
 function adVideoMaxMb(){ return +SX("ad_video_max_mb",AD_VIDEO_MAX_MB)||AD_VIDEO_MAX_MB }
-function applySiteExtras(){ try{ document.documentElement.style.setProperty("--hero-max",(+SX("hero_max_height",640)||640)+"px") }catch(e){} }
+function applySiteExtras(){ try{ document.documentElement.style.setProperty("--hero-max",(+SX("hero_max_height",640)||640)+"px"); document.documentElement.style.setProperty("--ad-size-set",(SITE.ad_square_size||130)+"px") }catch(e){} }
 /* admin: one settings card = xForm(id, title, hint, fields); every control carries data-xkey/data-xtype and one save button writes them all */
 function xForm(id,title,hint,fields){ return '<div class="blk" data-xform="'+id+'"><h3>'+title+'</h3><div class="in">'+(hint?'<div class="hintx" style="margin-bottom:10px">'+hint+'</div>':'')+fields+
   '<div class="xactions"><button class="ab ok" data-xsave="'+id+'">'+t("save")+'</button><span class="xmsg" id="'+id+'Msg"></span></div></div></div>' }
@@ -9503,7 +9550,8 @@ function adminHomeExtrasHtml(){
     xNum("hero_max_height",GX("xHeroMax"),640,420,900,10));
 }
 function adminAdsExtrasHtml(){
-  return xForm("xAds",GX("xAdsH"),GX("xDefaultHint"),
+  var perf='<div class="blk"><h3>'+GX("topAdsH")+'</h3><div class="in"><div class="dash-top" style="margin-bottom:10px">'+rangeTabs()+'</div><div class="hintx" style="margin-bottom:10px">'+GX("adsPerfHint")+'</div>'+(ADM.an?adsPerfTable(ADM.an,true):'<div class="adashempty">'+t("loading")+'</div>')+'</div></div><div style="margin-top:16px"></div>';
+  return perf+xForm("xAds",GX("xAdsH"),GX("xDefaultHint"),
     xCheck("ads_row_enabled",GX("xAdsOn"),true)+
     xLangs("ads_row_title_",GX("xAdsTitle"),function(lg){ return GX_T.adsH[lg] })+
     xLangs("ads_sponsored_",GX("xAdsSponsored"),function(lg){ return GX_T.sponsored[lg] })+
@@ -9514,6 +9562,117 @@ function adminDesignExtrasHtml(){
     '<div class="row">'+xNum("search_page_size",GX("xPageSize"),24,6,96,1)+xNum("similar_count",GX("xSimilar"),12,0,24,1)+'</div>');
 }
 function adminSystemExtrasHtml(){ return ''; }
+/* ── analytics helpers: range tabs, KPI cards with deltas, SVG line chart, bar lists ── */
+function rangeTabs(){ var cur=ADM.range||7; return '<div class="arange">'+[1,7,30,90,365].map(function(d){ return '<button type="button" class="'+(cur===d?"on":"")+'" data-arange="'+d+'">'+GX("r"+d)+'</button>' }).join("")+'</div>' }
+function fmtN(v){ v=+v||0; return v>=1000000?(Math.round(v/100000)/10)+"M":v>=10000?Math.round(v/1000)+"K":v.toLocaleString("en") }
+function kpiCard(label,cur,prev,color,sparkKey){
+  var c=+cur||0, p=+prev||0, pct = p ? Math.round((c-p)/p*100) : (c?100:0), up=c>=p;
+  var spark = sparkKey && ADM.an && ADM.an.series ? svgSpark(ADM.an.series, sparkKey, color||"var(--navy)") : "";
+  return '<div class="kpi"><div class="kpi-l">'+label+'</div><div class="kpi-v ltr" '+(color?'style="color:'+color+'"':'')+'>'+fmtN(c)+'</div>'+
+    (prev!==undefined && prev!==null ? '<div class="kpi-d '+(up?"up":"down")+'"><span class="ltr">'+(up?"▲":"▼")+' '+Math.abs(pct)+'%</span> <small>'+GX("vsPrev")+'</small></div>' : '')+spark+'</div>' }
+function bucketLabel(b){ var d=new Date(b); if(ADM.an && ADM.an.bucket==="hour") return d.getHours().toString().padStart(2,"0")+":00"; return d.getDate()+"/"+(d.getMonth()+1) }
+function svgSpark(series,key,color){
+  var vals=(series||[]).map(function(x){ return +x[key]||0 }); if(vals.length<2) return "";
+  var W=140,H=34,max=Math.max.apply(null,vals)||1, pts=vals.map(function(v,i){ return [(i/(vals.length-1))*W, H-2-(v/max)*(H-6)] });
+  var d=pts.map(function(p,i){ return (i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1) }).join(" ");
+  return '<svg class="kpi-spark" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none"><path d="'+d+' L'+W+' '+H+' L0 '+H+' Z" fill="'+color+'" opacity=".12"/><path d="'+d+'" fill="none" stroke="'+color+'" stroke-width="1.8"/></svg>' }
+function svgLine(series,keys,colors,labels){
+  series=series||[]; if(!series.length) return '<div class="adashempty">'+GX("noData")+'</div>';
+  var W=720,H=220,padL=36,padR=10,padT=10,padB=26, iw=W-padL-padR, ih=H-padT-padB;
+  var max=1; keys.forEach(function(k){ series.forEach(function(x){ max=Math.max(max,+x[k]||0) }) });
+  var nice=Math.pow(10,Math.floor(Math.log10(max))); max=Math.ceil(max/nice)*nice||1;
+  var xs=function(i){ return padL+(series.length>1?(i/(series.length-1))*iw:iw/2) }, ys=function(v){ return padT+ih-(v/max)*ih };
+  var grid=[0,.25,.5,.75,1].map(function(f){ var y=padT+ih-f*ih; return '<line x1="'+padL+'" x2="'+(W-padR)+'" y1="'+y+'" y2="'+y+'" stroke="#E6E8EE" stroke-dasharray="2 3"/><text x="'+(padL-6)+'" y="'+(y+4)+'" text-anchor="end" font-size="10" fill="#8A8F98">'+fmtN(max*f)+'</text>' }).join("");
+  var step=Math.max(1,Math.ceil(series.length/8));
+  var xl=series.map(function(x,i){ return (i%step===0||i===series.length-1)?'<text x="'+xs(i)+'" y="'+(H-8)+'" text-anchor="middle" font-size="10" fill="#8A8F98">'+bucketLabel(x.b)+'</text>':"" }).join("");
+  var paths=keys.map(function(k,ki){ var d=series.map(function(x,i){ return (i?"L":"M")+xs(i).toFixed(1)+" "+ys(+x[k]||0).toFixed(1) }).join(" ");
+    return (ki===0?'<path d="'+d+' L'+xs(series.length-1)+' '+(padT+ih)+' L'+xs(0)+' '+(padT+ih)+' Z" fill="'+colors[ki]+'" opacity=".10"/>':'')+
+      '<path d="'+d+'" fill="none" stroke="'+colors[ki]+'" stroke-width="2.2" stroke-linejoin="round"/>'+
+      series.map(function(x,i){ return '<circle cx="'+xs(i)+'" cy="'+ys(+x[k]||0)+'" r="2.6" fill="'+colors[ki]+'"><title>'+bucketLabel(x.b)+': '+(+x[k]||0)+'</title></circle>' }).join("") }).join("");
+  var legend='<div class="chlegend">'+keys.map(function(k,i){ return '<span><i style="background:'+colors[i]+'"></i>'+labels[i]+'</span>' }).join("")+'</div>';
+  return legend+'<svg class="chart" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+grid+xl+paths+'</svg>' }
+function barList(items,labelFn,valKey,color){
+  items=items||[]; if(!items.length) return '<div class="adashempty">'+GX("noData")+'</div>';
+  var max=Math.max.apply(null,items.map(function(x){ return +x[valKey]||0 }))||1;
+  return items.map(function(x){ var v=+x[valKey]||0; return '<div class="abarrow"><span class="abarlabel" title="'+esc(String(labelFn(x)))+'">'+esc(String(labelFn(x)))+'</span><div class="abartrack"><div class="abarfill" style="width:'+Math.round(v/max*100)+'%'+(color?';background:'+color:'')+'"></div></div><span class="abarval ltr">'+fmtN(v)+'</span></div>' }).join("") }
+function kpiGrid(an,full){
+  var k=an.kpi||{};
+  return '<div class="kpis">'+
+    kpiCard(GX("kViews"),k.views,k.views_prev,"var(--navy)","views")+
+    kpiCard(GX("kVisitors"),k.visitors,k.visitors_prev,"#2563EB","visitors")+
+    kpiCard(GX("kListingViews"),k.listing_views,k.listing_views_prev,"#7C3AED")+
+    kpiCard(GX("kNewUsers"),k.new_users,k.new_users_prev,"var(--ok)","new_users")+
+    kpiCard(GX("kNewListings"),k.new_listings,k.new_listings_prev,"var(--gold)","new_listings")+
+    kpiCard(GX("kContacts"),k.contacts,k.contacts_prev,"#0EA5A0","contacts")+
+    kpiCard(GX("kAdClicks"),k.ad_clicks,k.ad_clicks_prev,"#D9463A","ad_clicks")+
+    (full ? kpiCard(GX("kAdViews"),k.ad_views,null,"#8A6522")+kpiCard(GX("kSaves"),k.saves,null,"#DB2777")+kpiCard(GX("kActiveUsers"),k.active_users,null,"var(--ok)") : '')+
+  '</div>' }
+function healthStrip(an){
+  var h=(an&&an.health)||{}; var items=[
+    [GX("hPending"),h.pending,"listings:pending",h.pending>0?"warn":""],[GX("hReports"),h.open_reports,"reports",h.open_reports>0?"warn":""],[GX("hFeedback"),h.open_feedback,"feedback",h.open_feedback>0?"warn":""],
+    [GX("hNoPhotos"),h.listings_without_photos,"listings",h.listings_without_photos>0?"warn":""],[GX("hFeatExp"),h.expiring_featured,"featured",""],[GX("hBlocked"),h.blocked_users,"users",""],
+    [GX("hStorage"),(h.storage_mb!=null?h.storage_mb+" MB":"—"),"storage",""],[GX("hLastView"),h.last_view_at?when(h.last_view_at):"—",null,""]];
+  return '<div class="blk"><h3>'+GX("healthH")+(items.some(function(i){return i[3]==="warn"})?'':' <span class="lvl" style="background:var(--ok-w);color:var(--ok)">'+GX("hOk")+'</span>')+'</h3><div class="in"><div class="health">'+
+    items.map(function(i){ return '<'+(i[2]?'button type="button" data-goto="'+i[2]+'"':'div')+' class="hitem '+i[3]+'"><b class="ltr">'+(i[1]==null?"—":i[1])+'</b><span>'+i[0]+'</span></'+(i[2]?'button':'div')+'>' }).join("")+'</div></div></div>' }
+function topListingsTable(an,limit){
+  var rows=(an.top_listings||[]).slice(0,limit||8);
+  if(!rows.length) return '<div class="adashempty">'+GX("noData")+'</div>';
+  return '<div class="atable"><table><thead><tr><th>#</th><th>'+t("gov")+'</th><th>'+t("price")+'</th><th>'+GX("colViews")+'</th><th>'+GX("colContacts")+'</th><th>'+GX("colSaves")+'</th></tr></thead><tbody>'+
+    rows.map(function(l){ return '<tr><td class="ltr adlink" data-open="'+l.id+'">'+(l.ref||l.id)+'</td><td>'+(l.area?l.area+"، ":"")+(l.gov||"")+'</td><td class="ltr">$'+Number(l.price_usd||0).toLocaleString("en")+'</td><td class="ltr"><b>'+l.views+'</b></td><td class="ltr">'+l.contacts+'</td><td class="ltr">'+l.saves+'</td></tr>' }).join("")+'</tbody></table></div>' }
+function adsPerfTable(an,full){
+  var rows=(an.ads||[]); if(!rows.length) return '<div class="adashempty">'+GX("noData")+'</div>';
+  var obj=function(o){ return Object.keys(o||{}).map(function(k){ return (GX_T["device_"+k]?GX("device_"+k):k)+' <span class="ltr">'+o[k]+'</span>' }).join(" · ")||"—" };
+  return '<div class="atable"><table><thead><tr><th>'+t("adsTab")+'</th><th>'+GX("colImpr")+'</th><th>'+GX("colClicks")+'</th><th>'+GX("colCtr")+'</th>'+(full?'<th>'+GX("colFrom")+'</th>':'')+'</tr></thead><tbody>'+
+    rows.map(function(a){ var ctr=a.views?Math.round(a.clicks/a.views*1000)/10:0; return '<tr><td>'+esc(a.label||a.sponsor_name||("#"+a.id))+(a.enabled===false?' <span class="st st-removed">off</span>':'')+'</td><td class="ltr">'+a.views+'</td><td class="ltr"><b>'+a.clicks+'</b></td><td class="ltr">'+ctr+'%</td>'+
+      (full?'<td style="font-size:12px;color:var(--grey)">'+obj(a.click_pages)+'<br>'+obj(a.click_countries)+'</td>':'')+'</tr>' }).join("")+'</tbody></table></div>' }
+function adminDashboardBody(s){
+  var an=ADM.an;
+  var head='<div class="dash-top">'+rangeTabs()+'<span class="hintx">'+(an?'':(ADM.anErr?ADM.anErr:t("loading")))+'</span></div>';
+  if(!an) return head+'<div class="blk"><div class="in adashempty">'+t("loading")+'</div></div>';
+  var alerts='<div class="blk"><h3>'+t("recentAlertsH")+'</h3><div class="in">'+((ADM.alerts&&ADM.alerts.length) ? '<div class="onlinelist">'+ADM.alerts.slice(0,5).map(function(n){
+       var lbl = n.title==="new_feedback"?t("newFeedbackAlert"):n.title==="new_report"?t("newReportAlert"):n.title;
+       return '<a class="onlinerow" data-goto="'+(n.link||"").replace("/#/admin:","")+'"><span class="onlinedot" style="background:'+(n.is_read?"var(--light)":"var(--danger)")+'"></span><span style="font-size:13px">'+lbl+'</span><span class="ltr" style="margin-inline-start:auto;color:var(--light);font-size:11px">'+when(n.created_at)+'</span></a>' }).join("")+'</div>' : '<div class="adashempty">'+t("noAlerts")+'</div>')+'</div></div>';
+  return head+kpiGrid(an,false)+
+    '<div class="blk" style="margin-top:16px"><h3>'+GX("chVisits")+'</h3><div class="in">'+svgLine(an.series,["views","visitors"],["#14213D","#2563EB"],[GX("kViews"),GX("kVisitors")])+'</div></div>'+
+    '<div class="agrid2" style="margin-top:16px">'+
+      '<div class="blk"><h3>'+GX("topListingsH")+'<button class="ab" data-atab="stats" style="margin-inline-start:auto">'+t("openFullAnalytics")+'</button></h3><div class="in" style="padding:0">'+topListingsTable(an,6)+'</div></div>'+
+      '<div class="blk"><h3>'+GX("topAdsH")+'</h3><div class="in" style="padding:0">'+adsPerfTable(an,false)+'</div></div>'+
+    '</div>'+
+    '<div class="agrid3" style="margin-top:16px">'+
+      '<div class="blk"><h3>'+GX("pagesH")+'</h3><div class="in">'+barList(an.pages,function(x){ return x.view },"n")+'</div></div>'+
+      '<div class="blk"><h3>'+GX("countriesH")+'</h3><div class="in">'+barList(an.countries,function(x){ return x.country },"n","var(--gold)")+'</div></div>'+
+      '<div class="blk"><h3>'+GX("usersActH")+'</h3><div class="in">'+barList([{k:GX("act24"),n:an.users_activity.last_24h},{k:GX("act7"),n:an.users_activity.last_7d},{k:GX("act30"),n:an.users_activity.last_30d},{k:GX("actOld"),n:an.users_activity.older}],function(x){ return x.k },"n","var(--ok)")+'</div></div>'+
+    '</div>'+
+    '<div class="agrid2" style="margin-top:16px">'+healthStrip(an)+alerts+'</div>'+
+    '<div class="blk" style="margin-top:16px"><h3>'+t("storageUsageH")+'</h3><div class="in">'+storageUsageCardBody()+'</div></div>';
+}
+function adminAnalyticsBody(){
+  var an=ADM.an, st=ADM.stats;
+  var head='<div class="dash-top">'+rangeTabs()+'</div>';
+  if(!an) return head+'<div class="blk"><div class="in adashempty">'+(ADM.anErr||t("loading"))+'</div></div>';
+  var ls=an.listings_status||{};
+  return head+kpiGrid(an,true)+
+    '<div class="blk" style="margin-top:16px"><h3>'+GX("chVisits")+'</h3><div class="in">'+svgLine(an.series,["views","visitors"],["#14213D","#2563EB"],[GX("kViews"),GX("kVisitors")])+'</div></div>'+
+    '<div class="agrid2" style="margin-top:16px">'+
+      '<div class="blk"><h3>'+GX("chGrowth")+'</h3><div class="in">'+svgLine(an.series,["new_users","new_listings"],["#2E7D5B","#C4881F"],[GX("kNewUsers"),GX("kNewListings")])+'</div></div>'+
+      '<div class="blk"><h3>'+GX("chEngage")+'</h3><div class="in">'+svgLine(an.series,["contacts","ad_clicks"],["#0EA5A0","#D9463A"],[GX("kContacts"),GX("kAdClicks")])+'</div></div>'+
+    '</div>'+
+    '<div class="blk" style="margin-top:16px"><h3>'+GX("topListingsH")+'</h3><div class="in" style="padding:0">'+topListingsTable(an,15)+'</div></div>'+
+    '<div class="blk" style="margin-top:16px"><h3>'+GX("topAdsH")+'</h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+GX("adsPerfHint")+'</div>'+adsPerfTable(an,true)+'</div></div>'+
+    '<div class="agrid3" style="margin-top:16px">'+
+      '<div class="blk"><h3>'+GX("pagesH")+'</h3><div class="in">'+barList(an.pages,function(x){ return x.view },"n")+'</div></div>'+
+      '<div class="blk"><h3>'+GX("countriesH")+'</h3><div class="in">'+barList(an.countries,function(x){ return x.country },"n","var(--gold)")+'</div></div>'+
+      '<div class="blk"><h3>'+GX("devicesH")+'</h3><div class="in">'+barList(an.devices,function(x){ return GX_T["device_"+x.device]?GX("device_"+x.device):x.device },"n","#7C3AED")+'</div></div>'+
+      '<div class="blk"><h3>'+GX("referrersH")+'</h3><div class="in">'+barList(an.referrers,function(x){ return x.referrer==="direct"?GX("direct"):x.referrer },"n","#2563EB")+'</div></div>'+
+      '<div class="blk"><h3>'+GX("contactKindsH")+'</h3><div class="in">'+barList(an.contact_kinds,function(x){ return GX_T["ck_"+x.kind]?GX("ck_"+x.kind):x.kind },"n","#0EA5A0")+'</div></div>'+
+      '<div class="blk"><h3>'+GX("listingsStatusH")+'</h3><div class="in">'+barList(Object.keys(ls).map(function(k){ return {k:(k==="hidden"?GX("st_hidden"):t("st_"+k)||k), n:ls[k]} }),function(x){ return x.k },"n","var(--navy)")+'</div></div>'+
+    '</div>'+
+    '<div class="agrid2" style="margin-top:16px">'+
+      '<div class="blk"><h3>'+GX("usersActH")+'</h3><div class="in">'+barList([{k:GX("act24"),n:an.users_activity.last_24h},{k:GX("act7"),n:an.users_activity.last_7d},{k:GX("act30"),n:an.users_activity.last_30d},{k:GX("actOld"),n:an.users_activity.older}],function(x){ return x.k },"n","var(--ok)")+'</div></div>'+
+      '<div class="blk"><h3>'+t("onlineUsersH")+' <span class="ltr" style="color:var(--grey);font-weight:400">('+((an.kpi||{}).online_now||0)+')</span></h3><div class="in">'+
+        ((st&&st.online_list&&st.online_list.length) ? '<div class="onlinelist">'+st.online_list.map(function(u){ return '<a data-byuser="'+u.id+'" data-name="'+(u.name||"")+'" class="onlinerow"><span class="onlinedot"></span>'+(u.name||t("anonGuest"))+'<span class="ltr" style="margin-inline-start:auto;color:var(--light);font-size:11.5px">'+when(u.last_seen)+'</span></a>' }).join("")+'</div>' : '<div class="adashempty">'+t("noOneOnline")+'</div>')+'</div></div>'+
+    '</div>'+healthStrip(an);
+}
 var LEVELS_ALL=["member","silver","gold","trusted","vip","partner","trusted_agency"];
 function adminUsersBody(d){
   var list=(d.users||[]).slice();
@@ -9521,12 +9680,15 @@ function adminUsersBody(d){
   if(ADM.userLevelFilter) list=list.filter(function(u){ return u.level===ADM.userLevelFilter });
   if(ADM.userBlockedFilter==="blocked") list=list.filter(function(u){ return u.blocked });
   if(ADM.userBlockedFilter==="active") list=list.filter(function(u){ return !u.blocked });
+  var uact=ADM.uact||{}, lastSeen=function(u){ var a=uact[u.id]; return a&&a.last_seen_at?new Date(a.last_seen_at):null };
+  if(ADM.userActFilter){ var lim=ADM.userActFilter==="old"?null:Date.now()-(+ADM.userActFilter)*86400000; list=list.filter(function(u){ var d=lastSeen(u); return lim===null ? (!d || d.getTime()<Date.now()-30*86400000) : (d && d.getTime()>=lim) }) }
   var sw=function(cls,uid,on,title){ return '<label class="xswitch" title="'+esc(title||"")+'"><input type="checkbox" class="'+cls+'" data-uid="'+uid+'"'+(on?" checked":"")+'><i></i></label>' };
   var toolbar='<div class="rtop" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
     '<input id="aqU" placeholder="'+t("searchPH")+'" class="asearch" style="flex:1;min-width:200px;width:auto">'+
     '<select id="uSortPick" class="lvlpick"><option value="newer"'+(ADM.userSort!=="older"?" selected":"")+'>'+t("sortNewerUsers")+'</option><option value="older"'+(ADM.userSort==="older"?" selected":"")+'>'+t("sortOlderUsers")+'</option></select>'+
     '<select id="uLevelPick" class="lvlpick"><option value="">'+t("allLevels")+'</option>'+LEVELS_ALL.map(function(lv){ return '<option value="'+lv+'"'+(ADM.userLevelFilter===lv?" selected":"")+'>'+t("lv_"+lv)+'</option>' }).join("")+'</select>'+
     '<select id="uBlockPick" class="lvlpick"><option value="">'+t("allUsers")+'</option><option value="active"'+(ADM.userBlockedFilter==="active"?" selected":"")+'>'+t("activeOnly")+'</option><option value="blocked"'+(ADM.userBlockedFilter==="blocked"?" selected":"")+'>'+t("blockedOnly")+'</option></select>'+
+    '<select id="uActPick" class="lvlpick"><option value="">'+GX("colLastSeen")+'</option><option value="1"'+(ADM.userActFilter==="1"?" selected":"")+'>'+GX("act24")+'</option><option value="7"'+(ADM.userActFilter==="7"?" selected":"")+'>'+GX("act7")+'</option><option value="30"'+(ADM.userActFilter==="30"?" selected":"")+'>'+GX("act30")+'</option><option value="old"'+(ADM.userActFilter==="old"?" selected":"")+'>'+GX("actOld")+'</option></select>'+
     '<span class="n" style="font-size:13px;color:var(--grey)"><span class="ltr">'+list.length+'</span> '+GX("uCount")+'</span></div>';
   var rows=list.map(function(u){
     var nm=((u.name||"")+" "+(u.family_name||"")).trim()||"—", isAdmin=u.role==="admin", open=ADM.userOpen===u.id;
@@ -9534,7 +9696,8 @@ function adminUsersBody(d){
     var html='<tr data-row-text="'+esc((nm+" "+(u.phone||"")).toLowerCase())+'" class="'+(open?"uopen":"")+'">'+
       '<td data-label="'+t("contactName")+'"><div class="ucell">'+avatar(u.avatar_url,u.name,36)+'<div><a data-byuser="'+u.id+'" data-name="'+esc(nm)+'" class="uname">'+esc(nm)+'</a>'+levelBadge(u.level)+
         '<div class="usub"><span class="ltr">'+(u.phone||GX("uNoPhone"))+'</span>'+(joined?' · '+GX("uJoined")+' '+joined:'')+'</div></div></div></td>'+
-      '<td data-label="'+t("myAds")+'" class="ltr unum">'+(u.listings||0)+'</td>'+
+      '<td data-label="'+GX("colLastSeen")+'">'+(function(){ var d=lastSeen(u), a=uact[u.id]||{}; var fresh=d && (Date.now()-d.getTime())<86400000; return '<span class="'+(fresh?"useen-fresh":"useen")+'">'+(d?when(d.toISOString()):GX("never"))+'</span>'+(a.views_30d?'<div class="usub"><span class="ltr">'+a.views_30d+'</span> '+GX("kViews")+' · 30d</div>':'') })()+'</td>'+
+      '<td data-label="'+t("myAds")+'" class="ltr unum">'+(u.listings||0)+(uact[u.id]&&uact[u.id].live_listings!=null?' <small style="color:var(--light)">('+uact[u.id].live_listings+' '+t("st_live")+')</small>':'')+'</td>'+
       '<td data-label="'+t("ratingCol")+'" class="ltr unum">'+(u.rating?'★ '+u.rating:'—')+'</td>'+
       '<td data-label="'+t("levelCol")+'">'+(isAdmin?'<span class="lvl lvl-vip">Admin</span>':'<select class="lvlpick" data-uid="'+u.id+'" title="'+GX("uLevelHint")+'">'+LEVELS_ALL.map(function(lv){ return '<option value="'+lv+'"'+(u.level===lv?" selected":"")+'>'+t("lv_"+lv)+'</option>' }).join("")+'</select>')+'</td>'+
       '<td data-label="'+t("autoApprove")+'">'+(isAdmin?'':sw("skipRev",u.id,u.skip_review,GX("uAutoHint")))+'</td>'+
@@ -9542,7 +9705,7 @@ function adminUsersBody(d){
       '<td data-label="'+t("role")+'"><span class="st '+(u.blocked?"st-removed":"st-live")+'">'+(u.blocked?GX("uBlocked"):GX("uActive"))+'</span></td>'+
       '<td data-label="">'+(isAdmin?'':'<button class="ab" data-uopen="'+u.id+'">'+(open?GX("uClose"):GX("uActions")+' ▾')+'</button>')+'</td></tr>';
     if(open && !isAdmin){
-      html+='<tr class="udetail"><td colspan="8"><div class="udrawer">'+
+      html+='<tr class="udetail"><td colspan="9"><div class="udrawer">'+
         '<div class="ugroup"><b>'+GX("uSummary")+'</b><div class="ubtns">'+
           '<button class="ab" data-byuser="'+u.id+'" data-name="'+esc(nm)+'">'+GX("uViewListings")+' ('+(u.listings||0)+')</button>'+
           '<button class="ab" data-umsg="'+u.id+'">'+GX("uMessage")+'</button>'+
@@ -9557,14 +9720,14 @@ function adminUsersBody(d){
         '</div></td></tr>';
     }
     if(ADM.rateTarget===u.id){
-      html+='<tr class="udetail"><td colspan="8"><div class="udrawer" style="display:block">'+
+      html+='<tr class="udetail"><td colspan="9"><div class="udrawer" style="display:block">'+
         '<b style="font-size:13.5px">'+t("rateMember")+' — '+esc(nm)+'</b>'+
         '<div class="starpick" id="astarpick" style="margin-top:8px">'+[1,2,3,4,5].map(function(nS){ return '<span data-astar="'+nS+'" class="'+(nS<=ADM.rateStars?"on":"")+'">★</span>' }).join("")+'</div>'+
         '<textarea id="aRevBody" maxlength="300" placeholder="'+t("reviewPH")+'" style="margin-top:8px;width:100%;max-width:420px"></textarea>'+
         '<div class="xactions"><button class="ab ok" id="aRevSave">'+t("submitReview")+'</button><button class="ab" id="aRevCancel">'+t("cancel")+'</button><span class="xmsg">'+(ADM.rateMsg||"")+'</span></div></div></td></tr>';
     }
     if(ADM.pwTarget===u.id){
-      html+='<tr class="udetail"><td colspan="8"><div class="udrawer" style="display:block">'+
+      html+='<tr class="udetail"><td colspan="9"><div class="udrawer" style="display:block">'+
         '<b style="font-size:13.5px">'+t("resetPass")+' — '+esc(nm)+'</b>'+
         '<div class="xactions" style="flex-wrap:wrap"><input id="aNewPass" type="text" placeholder="'+t("min6")+'" style="max-width:220px">'+
         '<button class="ab ok" id="aPwSave">'+t("savePass")+'</button><button class="ab" id="aPwCancel">'+t("cancel")+'</button><span class="xmsg">'+(ADM.pwMsg||"")+'</span></div>'+
@@ -9572,7 +9735,7 @@ function adminUsersBody(d){
     }
     return html }).join("");
   return toolbar+'<div class="atable atable-stack utable"><table><thead><tr>'+
-    [t("contactName"),t("myAds"),t("ratingCol"),t("levelCol"),t("autoApprove"),GX("cardLogoCol"),t("role"),''].map(function(h){ return '<th>'+h+'</th>' }).join("")+
+    [t("contactName"),GX("colLastSeen"),t("myAds"),t("ratingCol"),t("levelCol"),t("autoApprove"),GX("cardLogoCol"),t("role"),''].map(function(h){ return '<th>'+h+'</th>' }).join("")+
     '</tr></thead><tbody id="aUserBody">'+rows+'</tbody></table></div>';
 }
 var ST_PLANS={free:{storage:1024,egress:5120}, pro:{storage:102400,egress:256000}};
