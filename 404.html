@@ -439,7 +439,7 @@ html.js .rv.in{opacity:1;transform:none}
 .simcarousel{overflow-x:auto;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .simcarousel::-webkit-scrollbar{display:none}
 .simtrack{display:flex;gap:14px}
-.simtrack .card{flex:0 0 220px;width:220px}
+.simtrack .card{flex:0 0 260px;width:260px}
 @media(max-width:640px){.simtrack .card{flex-basis:150px;width:150px}}
 .keys div{background:#fff;padding:13px 8px;text-align:center}
 .keys b{display:block;font-size:17px;font-weight:700;color:var(--navy)}
@@ -1051,6 +1051,189 @@ footer{font-size:14px}
 .pricecmp{display:inline-block;margin-top:8px;font-size:13px;font-weight:600;padding:4px 10px;border-radius:var(--r-s);background:var(--navy-w);color:var(--navy)}
 .pricecmp.good{background:var(--ok-w);color:var(--ok)}
 .pricecmp.high{background:#FBEAE7;color:var(--danger)}
+/* ── results 2026-09: toolbar, grid cards, list cards ── */
+@media(min-width:961px){.lay{grid-template-columns:270px minmax(0,1fr);gap:24px;padding:18px 0 40px}}
+.lay>.side2.panel{border-radius:16px;overflow:hidden}
+.fg h4{font-size:12px;color:var(--gold);font-weight:700;letter-spacing:.02em}
+.rtop{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px;gap:14px;margin-bottom:16px}
+.rtop .rtitle{display:flex;align-items:baseline;gap:10px}
+.rtop h1{font-size:19px}
+.rtop .viewtoggle{margin-inline-start:auto;margin-inline-end:0;background:var(--page);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.rtop .viewtoggle button{width:auto;height:30px;padding:0 12px;border:none;border-radius:999px;background:transparent;color:var(--grey);display:flex;align-items:center;gap:6px;font:inherit;font-size:12.5px;font-weight:600;cursor:pointer}
+.rtop .viewtoggle button.on{background:var(--navy);color:#fff}
+.rtop select{margin-inline-start:0;border-radius:999px;padding:7px 14px;font-weight:600;color:var(--navy)}
+.res{gap:18px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.card.c2{border-radius:16px;border-color:var(--line);box-shadow:0 1px 2px rgba(20,33,61,.04);text-decoration:none;color:inherit;display:flex;flex-direction:column}
+.card.c2:hover{box-shadow:0 22px 40px -26px rgba(20,33,61,.45);border-color:#d9dbe1;transform:translateY(-3px)}
+.card.c2 .ph{position:relative;overflow:hidden;background:#0D1729}
+.card.c2 .ph img{aspect-ratio:4/3;width:100%;height:auto;object-fit:cover;display:block}
+.card.c2 .ph::after{content:"";position:absolute;inset:auto 0 0 0;height:46%;background:linear-gradient(to top,rgba(9,14,26,.55),transparent);pointer-events:none}
+.card.c2 .bd{top:10px;inset-inline-start:10px;gap:5px;z-index:2}
+.cbg{font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.95);color:var(--navy)}
+.cbg.gold{background:var(--gold);color:#1A1206}.cbg.ok{background:var(--ok);color:#fff}
+.cfav{position:absolute;top:10px;inset-inline-end:10px;z-index:3;width:34px;height:34px;border-radius:50%;border:none;background:rgba(255,255,255,.92);color:var(--navy);display:grid;place-items:center;cursor:pointer;transition:transform .2s,background .2s}
+.cfav:hover{background:#fff;transform:scale(1.06)}
+.cfav.on{color:#D9463A}.cfav.on svg{fill:#D9463A}
+.cfav.pop{animation:favpop .4s}
+@keyframes favpop{0%{transform:scale(1)}40%{transform:scale(1.3)}100%{transform:scale(1)}}
+.cpc{position:absolute;bottom:10px;inset-inline-end:10px;z-index:2;display:flex;align-items:center;gap:4px;background:rgba(9,14,26,.55);color:#fff;font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:999px;backdrop-filter:blur(4px)}
+.card.c2 .cb{padding:12px 14px 12px;display:flex;flex-direction:column;gap:5px;flex:1}
+.cprice{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.cprice .p{font-size:20px;font-weight:800;color:var(--navy);white-space:nowrap}
+.cpm{font-size:12px;color:var(--grey);white-space:nowrap}
+.ctitle{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cloc{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--grey);white-space:nowrap;overflow:hidden}
+.cloc svg{color:var(--gold);flex:none}
+.cloc span{overflow:hidden;text-overflow:ellipsis}
+.cfacts{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--ink);margin-top:2px}
+.cfacts span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.cfacts svg{color:var(--navy);opacity:.75;width:16px;height:16px}
+.cfacts b{font-weight:700}
+.cfoot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--light)}
+.cpill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--navy-w);color:var(--navy)}
+.cpill.green{background:var(--ok-w)}
+.cpill.soft{background:#F1F2F4;color:var(--grey)}
+.csince{margin-inline-start:2px}
+.cref{margin-inline-start:auto}
+.cdesc{display:none}
+.resempty{grid-column:1/-1;background:#fff;border:1px dashed var(--line-2);border-radius:16px;padding:56px 20px;text-align:center;color:var(--grey);display:flex;flex-direction:column;align-items:center;gap:8px}
+.resempty svg{color:var(--gold)}
+.resempty b{color:var(--ink);font-size:16px}
+/* list view: photo at the start, everything else beside it, description included */
+.res.list-view{gap:14px}
+.res.list-view .card.c2{flex-direction:row;height:auto;min-height:200px}
+.res.list-view .card.c2 .ph{width:min(36%,320px);flex:none;height:auto;aspect-ratio:auto}
+.res.list-view .card.c2 .ph img{height:100%;aspect-ratio:auto;position:absolute;inset:0}
+.res.list-view .card.c2 .ph .nophoto{height:100%}
+.res.list-view .card.c2 .cb{padding:16px 20px 14px;gap:6px}
+.res.list-view .cprice{justify-content:flex-start;gap:12px}
+.res.list-view .cprice .p{font-size:22px}
+.res.list-view .ctitle{font-size:16.5px;white-space:normal}
+.res.list-view .cfacts{font-size:13px;gap:8px 18px;margin-top:4px}
+.res.list-view .cdesc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;line-height:1.7;color:var(--grey);margin:2px 0 0}
+.res.list-view .cfoot{font-size:12px}
+@media(max-width:640px){
+  .res{grid-template-columns:1fr;gap:14px}
+  .rtop{padding:8px 10px;gap:8px}
+  .rtop .viewtoggle button span{display:none}
+  .rtop .viewtoggle button{padding:0 10px}
+  .res.list-view .card.c2{flex-direction:column;min-height:0}
+  .res.list-view .card.c2 .ph{width:100%}
+  .res.list-view .card.c2 .ph img{position:static;aspect-ratio:16/10;height:auto}
+  .res.list-view .card.c2 .cb{padding:12px 14px}
+  .res.list-view .ctitle{font-size:15px}
+}
+/* ── listing page 2026-09: mosaic gallery, title block, fact tiles, grouped details, sticky price card ── */
+.lpage{max-width:1180px;padding:16px 18px 48px}
+.lgal{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:8px;height:clamp(320px,44vw,520px);border-radius:18px;overflow:hidden;position:relative;background:#0D1729}
+.lgal.n1{grid-template-columns:1fr}
+.lg-main{position:relative;height:100%;margin:0;min-width:0}
+.lg-main::before{content:"";position:absolute;inset:-24px;background:var(--bg) center/cover no-repeat;filter:blur(22px) saturate(.9);opacity:.6}
+.lg-main img{position:relative;width:100%;height:100%;object-fit:contain;cursor:zoom-in;display:block}
+.lg-none{height:100%;display:grid;place-items:center;color:rgba(255,255,255,.6)}
+.lg-side{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:8px;height:100%;min-width:0}
+.lg-side img{width:100%;height:100%;object-fit:cover;cursor:pointer;opacity:.9;transition:opacity .2s;display:block;min-height:0}
+.lg-side img:hover,.lg-side img.sel{opacity:1}
+.lg-side img.sel{outline:2px solid var(--gold);outline-offset:-2px}
+.lg-side img:nth-child(n+5){display:none}
+/* fewer than five photos: the extra ones sit in a narrow rail of small thumbnails beside the main photo */
+.lgal.n2,.lgal.n3,.lgal.n4{grid-template-columns:minmax(0,1fr) 200px;background:transparent;overflow:visible;border-radius:0}
+.lgal.n2 .lg-main,.lgal.n3 .lg-main,.lgal.n4 .lg-main{border-radius:18px;overflow:hidden;background:#0D1729}
+.lgal.n2 .lg-side,.lgal.n3 .lg-side,.lgal.n4 .lg-side{grid-template-columns:1fr;grid-auto-rows:auto;align-content:start;gap:10px}
+.lgal.n2 .lg-side img,.lgal.n3 .lg-side img,.lgal.n4 .lg-side img{aspect-ratio:4/3;height:auto;border-radius:12px;opacity:1}
+.lgal.n2 .lg-side img:not(.sel),.lgal.n3 .lg-side img:not(.sel),.lgal.n4 .lg-side img:not(.sel){opacity:.85}
+.lgal.n2 .lg-all,.lgal.n3 .lg-all,.lgal.n4 .lg-all{inset-inline-end:auto;inset-inline-start:14px}
+.lgal .gcount{position:absolute;top:12px;inset-inline-start:12px;background:rgba(9,14,26,.6);color:#fff;font-size:12px;padding:4px 10px;border-radius:999px;backdrop-filter:blur(4px)}
+.lgal .gnav{display:none}
+.lg-all{position:absolute;bottom:14px;inset-inline-end:14px;background:rgba(255,255,255,.95);color:var(--navy);border:none;border-radius:999px;padding:8px 14px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;display:flex;gap:7px;align-items:center;box-shadow:0 8px 22px -10px rgba(0,0,0,.6)}
+.lg-all:hover{background:#fff}
+.lgrid{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:28px;margin-top:22px;align-items:start}
+.lmain{min-width:0}
+.lside{position:sticky;top:14px;display:flex;flex-direction:column;gap:14px}
+.lhead h1{font-size:26px;line-height:1.35;font-weight:800;color:var(--navy);margin:10px 0 6px;text-wrap:balance}
+.ltags{display:flex;flex-wrap:wrap;gap:6px}
+.ltag{font-size:12px;font-weight:700;padding:4px 11px;border-radius:999px;background:var(--navy-w);color:var(--navy)}
+.ltag.deal{background:var(--navy);color:#fff}.ltag.green{background:var(--ok-w)}.ltag.gold{background:var(--gold-w);color:#8A6522}
+.lloc{display:flex;align-items:center;gap:6px;color:var(--grey);font-size:14.5px}
+.lloc svg{color:var(--gold);flex:none}
+.lmeta{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;font-size:12.5px;color:var(--light)}
+.lfacts{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,1fr));gap:10px;margin-top:18px}
+.lf{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 12px 10px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.lf i{color:var(--gold);display:block;height:20px}
+.lf b{font-size:17px;font-weight:800;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lf>span{font-size:12px;color:var(--grey)}.lf b .ltr{font-size:inherit}
+.lsec{background:var(--card);border:1px solid var(--line);border-radius:16px;margin-top:16px;padding:20px 22px}
+.lsec h2{font-size:16.5px;font-weight:800;color:var(--navy);margin:0 0 14px;display:flex;align-items:center;gap:10px;padding:0;border:0}
+.lsec h2::before{content:"";width:22px;height:3px;border-radius:2px;background:var(--gold);flex:none}
+.lsec .ldesc{font-size:15.5px}
+.ldl{display:grid;grid-template-columns:1fr 1fr;gap:0 32px}
+.ldl .lgh{grid-column:1/-1;font-size:12px;font-weight:700;color:var(--gold);letter-spacing:.03em;margin:12px 0 2px;text-transform:uppercase}
+.ldl .lgh:first-child{margin-top:0}
+.ldl div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+.ldl .k2{color:var(--grey)}.ldl .v2{font-weight:700;color:var(--ink);text-align:end}
+.lamen{list-style:none;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px 18px;margin:0;padding:0}
+.lamen li{display:flex;align-items:center;gap:9px;font-size:14px;color:var(--ink)}
+.lamen li i{width:22px;height:22px;border-radius:50%;background:var(--ok-w);color:var(--ok);display:grid;place-items:center;flex:none}
+.ldeed{background:var(--ok-w);border-color:#CFE5D9}
+.ldeed h2::before{background:var(--ok)}
+.ldeed ul{list-style:none;margin:0;padding:0}
+.ldeed li{font-size:13.5px;color:#3A5A4B;padding:3px 0}
+.ldeed li::before{content:"✓";color:var(--ok);font-weight:700;margin-inline-end:8px}
+.lutil{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.lutil div{border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+.lutil b{display:block;font-size:15.5px;font-weight:700;color:var(--navy)}
+.lutil span{font-size:12.5px;color:var(--grey)}
+.lsec #viewMap{height:340px;border-radius:12px;overflow:hidden}
+.lmapnote{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--grey);margin-top:10px}
+.lmapnote svg{color:var(--gold)}
+.lprice{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px 20px 18px;box-shadow:0 18px 44px -30px rgba(20,33,61,.5)}
+.lprice .big{font-size:30px;font-weight:800;color:var(--navy);line-height:1.2}
+.lprice .negot{font-size:12.5px;font-weight:600;color:var(--ok);vertical-align:middle}
+.lprice .sub{font-size:13px;color:var(--grey);margin-top:4px}
+.lprice .pricecmp{margin-top:10px}
+.lowner{display:flex;gap:12px;align-items:center;margin-top:16px;padding-top:16px;border-top:1px solid var(--line)}
+.lowner>div{min-width:0}
+.lowner .nm{display:block;font-size:15px;font-weight:700;color:var(--navy);text-decoration:none}
+.lowner a.nm:hover{text-decoration:underline}
+.lowner .sm{font-size:12.5px;color:var(--grey);margin-top:2px}
+.lbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border-radius:12px;padding:12px;font:inherit;font-weight:700;font-size:14.5px;cursor:pointer;margin-top:8px;text-decoration:none;border:1px solid transparent;transition:background .2s}
+.lbtn svg{flex:none}
+.lbtn.navy{background:var(--navy);color:#fff;margin-top:16px}.lbtn.navy:hover{background:#1C2E52}
+.lbtn.wa{background:#1FA855;color:#fff}.lbtn.wa:hover{background:#178f47}
+.lbtn.line{background:#fff;color:var(--navy);border-color:var(--line-2)}.lbtn.line:hover{background:var(--navy-w)}
+.lacts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.lacts button{background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 4px;font:inherit;font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.lacts button span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.lacts button svg{color:var(--navy)}
+.lacts button:hover{background:var(--navy-w)}
+.lacts button.danger,.lacts button.danger svg{color:var(--danger)}
+.lown{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.lsafe{background:var(--gold-w);border:1px solid #EDDCB6;border-radius:14px;padding:14px 16px;font-size:12.5px;color:#6B5518;line-height:1.7}
+.lsafe b{display:block;margin-bottom:3px;color:#5A4410}
+@media(max-width:960px){.lgrid{grid-template-columns:1fr;gap:16px}.lside{position:static}.lpage{padding-bottom:96px}}
+@media(max-width:700px){
+  .lpage{padding:0 0 96px}
+  .lgal,.lgal.n2,.lgal.n3,.lgal.n4{height:auto;grid-template-columns:1fr;border-radius:0;gap:0;background:#fff}
+  .lgal.n2 .lg-main,.lgal.n3 .lg-main,.lgal.n4 .lg-main{border-radius:0}
+  .lgal.n2 .lg-side,.lgal.n3 .lg-side,.lgal.n4 .lg-side{gap:6px}
+  .lgal.n2 .lg-side img,.lgal.n3 .lg-side img,.lgal.n4 .lg-side img{aspect-ratio:auto;height:54px;border-radius:6px}
+  .lgal.n2 .lg-all,.lgal.n3 .lg-all,.lgal.n4 .lg-all{inset-inline-start:auto;inset-inline-end:12px}
+  .lg-main{aspect-ratio:4/3;height:auto;background:#0D1729}
+  .lgal .gnav{display:grid;place-items:center;position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,.9);color:var(--navy);font-size:20px}
+  .lgal #gPrev{inset-inline-start:10px}.lgal #gNext{inset-inline-end:10px}
+  .lg-side{display:flex;overflow-x:auto;gap:6px;padding:8px 12px;height:auto;scrollbar-width:none}
+  .lg-side::-webkit-scrollbar{display:none}
+  .lg-side img,.lg-side img:nth-child(n+2),.lg-side img:nth-child(n+3),.lg-side img:nth-child(n+5){display:block;width:72px;height:54px;flex:0 0 72px;border-radius:6px;grid-column:auto}
+  .lg-all{bottom:auto;top:12px;inset-inline-end:12px;padding:6px 10px;font-size:12px}
+  .lgal .gcount{top:auto;bottom:12px}
+  .lgrid{padding:0 14px;margin-top:12px}
+  .lhead h1{font-size:21px}
+  .lfacts{grid-template-columns:repeat(3,1fr);gap:8px}
+  .lf{padding:10px 10px 8px}.lf b{font-size:15px}
+  .lsec{padding:16px;border-radius:14px}
+  .ldl{grid-template-columns:1fr}
+  .lsec #viewMap{height:260px}
+}
 .contactbar{display:none}
 @media(max-width:960px){
   .contactbar{display:flex;gap:10px;position:fixed;bottom:0;inset-inline:0;z-index:1090;background:#fff;
@@ -1466,6 +1649,22 @@ footer{font-size:14px}
 [dir=ltr] .home-hero .hero h1{font-size:clamp(32px,4.3vw,58px);max-width:62%}
 @media(max-width:900px){[dir=ltr] .home-hero .hero h1{max-width:none}}
 h1,h2,h3,.logo,.hero h1{letter-spacing:0}
+/* phones: the first screen holds the drawing, the headline, the search bar and the ad row */
+@media(max-width:700px){
+  .home-hero .hero{min-height:0;transition:padding-top 1s cubic-bezier(.2,.7,.2,1)}
+  .home-hero .hero h1{font-size:clamp(26px,7.4vw,34px);line-height:1.25;position:relative;z-index:2}
+  .home-hero .hero.ph-wait h1{opacity:0;transform:translateX(-64px);animation:none!important}
+  [dir=rtl] .home-hero .hero.ph-wait h1{transform:translateX(64px)}
+  .home-hero .hero.ph-over{padding-top:18px}
+  .home-hero .hero.ph-over h1{opacity:1;transform:none;transition:opacity .8s ease,transform .9s cubic-bezier(.2,.7,.2,1);text-shadow:0 2px 18px rgba(9,14,26,.9),0 0 40px rgba(9,14,26,.7)}
+  .home-hero .hero-outer.ph-over .sk-stage{opacity:.38;transition:opacity 1s ease}
+  .home-hero .srow .sgo{grid-column:auto;height:48px}
+  .home-hero .sgo-map{grid-column:auto;height:48px}
+  .adsec{padding:6px 0 10px}
+  .ad-eyebrow{margin-bottom:6px;font-size:12px}
+  .adsec .adcarousel{--ad-size:128px!important}
+  .ad-prog{display:none}
+}
 </style><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
@@ -2436,52 +2635,54 @@ function home(){
 
 /* ── listing card ── */
 function card(x,i,isListView){
- var cover = (x.photos&&x.photos[0]) || x.cover || null;
+ var I=LICON, ar=L==="ar";
+ var photos = (x.photos&&x.photos.length) ? x.photos : (x.cover ? [x.cover] : []);
+ var cover = photos[0] || null;
  var closed = x.status==="sold"||x.status==="rented";
  var featBright = x.featured ? Math.max(0,Math.min(100,SITE.featured_brightness!=null?SITE.featured_brightness:20)) : 0;
  var featBadgeText = (SITE["featured_badge_"+L]&&SITE["featured_badge_"+L].trim()) ? SITE["featured_badge_"+L] : t("featuredBadgeDefault");
  var showFeatBadge = x.featured && SITE.featured_badge_enabled!==false;
  var newHours = SITE.new_badge_hours!=null ? SITE.new_badge_hours : 24;
  var isNew = x.createdAt && newHours>0 && (Date.now()-new Date(x.createdAt).getTime()) < newHours*3600000;
- // the photo square stays clean — only Featured and New show there;
- // deed status and owner/agency move down into the details line
- // instead of crowding an already-small thumbnail with badges
- var photoBadges = '<div class="bd">'+
-  (showFeatBadge?'<span class="gd card-featbadge">'+featBadgeText+'</span>':'')+
-  (isNew?'<span class="gd card-newbadge">'+t("newBadge")+'</span>':'')+'</div>';
- // "1 baths" / "1 Living rooms" style text labels are gone entirely —
- // just an icon and a number, matching how most real estate sites
- // show this. Placed directly on the photo itself (a small overlay
- // strip along its bottom edge) instead of occupying its own block of
- // vertical space below — this is what actually keeps a card compact,
- // since text labels wrapping onto extra lines was exactly what made
- // cards taller than intended.
- var roomIconsHtml = x.r ? '<span>'+ICON_BED+x.r+'</span><span>'+ICON_BATH+x.b+'</span>'+
-   (x.living?'<span>'+ICON_SOFA+x.living+'</span>':'') : '';
- var photoOverlayHtml = roomIconsHtml ? '<div class="cb-photoicons">'+roomIconsHtml+'</div>' : '';
- // land-type listings have no rooms at all — the condition text
- // (e.g. "New", "Needs repair") they used to show instead stays,
- // just moved into the still-visible text line below the photo
- var condHtml = !x.r ? '<span>'+((D.COND[x.cd]||D.LANDC[x.cd]||["",""," "])[li()])+'</span>' : '';
- var photoBlock = '<div class="ph">'+
-  (closed?'<div class="stamp'+(x.status==="rented"?" stamp-r":"")+'">'+
-    (x.status==="rented"?t("st_rented"):t("st_sold"))+'</div>':'')+
-  (cover ? '<img src="'+cover+'" alt="" loading="lazy">'
-         : '<div class="nophoto"><span>'+t("photos")+'</span></div>')+
-  photoBadges+photoOverlayHtml+'</div>';
- var powerHtml = x.el ? '<span><span class="ltr">'+x.el+'</span> '+t("power")+'</span>' : '';
- var deedHtml = x.d!=="rent" ? '<span class="cb-deed'+(x.tb==="green"?" tabu-green":"")+'">'+D.TABU[x.tb][li()]+'</span>' : '';
- var posterHtml = '<span class="cb-poster">'+(x.ow?t("owner"):t("agent"))+'</span>';
- return '<a class="card'+(x.featured?' card-featured':'')+'"'+(x.featured?' style="--feat-bright:'+featBright+'%"':'')+
-  ' data-open="'+x.id+'">'+
-  photoBlock+
-  '<div class="cb'+(isListView?' cb-list':'')+'">'+
-   '<div class="cb-toprow"><div class="p">'+priceBlock(x)+'</div></div>'+
-   '<div class="cb-loc">'+ICON_PIN+aN(x.a)+(L==="ar"?'\u060c ':', ')+gN(x.g)+'</div>'+
-   '<div class="cb-details">'+
-    '<span class="cb-type">'+D.TYPES[x.t][li()]+'</span>'+condHtml+powerHtml+deedHtml+posterHtml+
-   '</div>'+
-   '<div class="d"><span class="ltr">'+(x.ref||x.id)+'</span></div>'+
+ var typeName = D.TYPES[x.t]?D.TYPES[x.t][li()]:"", condName=(D.COND[x.cd]||D.LANDC[x.cd]||["",""," "])[li()];
+ var isLand = secOf(x.t)==="land";
+ var saved = SAVED.indexOf(String(x.id))>-1;
+
+ /* photo: badges at the start, save heart at the end, photo count at the bottom */
+ var badges = (showFeatBadge?'<span class="cbg gold">'+featBadgeText+'</span>':'')+(isNew?'<span class="cbg ok">'+t("newBadge")+'</span>':'');
+ var photo = '<div class="ph">'+
+   (closed?'<div class="stamp'+(x.status==="rented"?" stamp-r":"")+'">'+(x.status==="rented"?t("st_rented"):t("st_sold"))+'</div>':'')+
+   (cover ? '<img src="'+cover+'" alt="'+esc(typeName)+'" loading="lazy">' : '<div class="nophoto"><span>'+t("photos")+'</span></div>')+
+   (badges?'<div class="bd">'+badges+'</div>':'')+
+   '<button type="button" class="cfav'+(saved?' on':'')+'" data-fav="'+x.id+'" aria-label="'+t("saveL")+'">'+I.heart+'</button>'+
+   (photos.length>1?'<span class="cpc">'+I.cam+' <span class="ltr">'+photos.length+'</span></span>':'')+
+  '</div>';
+
+ /* facts: icon + number, no labels */
+ var f=function(icon,v,unit){ return '<span>'+icon+'<b class="ltr">'+v+'</b>'+(unit?' '+unit:'')+'</span>' };
+ var facts = '<div class="cfacts">'+
+   (x.r?f(I.bed,x.r):'')+(x.b?f(I.bath,x.b):'')+(x.living&&isListView?f(I.sofa,x.living):'')+
+   f(I.area,x.m2,t("sqm"))+
+   ((isListView && x.fl!==null&&x.fl!==undefined&&x.fl!=="")?'<span>'+I.floor+floorLabel(x.fl)+'</span>':'')+
+   (isLand&&condName?'<span>'+I.cond+condName+'</span>':'')+
+  '</div>';
+
+ var title = ar ? typeName+' '+'<span class="ltr">'+x.m2+'</span> '+t("sqm")+' '+GX("lIn")+' '+aN(x.a)
+               : typeName+', <span class="ltr">'+x.m2+'</span> '+t("sqm")+' '+GX("lIn")+' '+aN(x.a);
+ var perm2 = (x.d!=="rent" && x.m2) ? '<span class="cpm"><span class="ltr">$'+Math.round(x.p/x.m2)+'</span>/'+t("sqm")+'</span>' : (x.d==="rent"?'<span class="cpm">'+t("monthlyRent")+'</span>':'');
+ var deedPill = (x.d!=="rent" && D.TABU[x.tb]) ? '<span class="cpill'+(x.tb==="green"?' green':'')+'">'+(x.tb==="green"?'<span class="tabu-green">'+D.TABU[x.tb][li()]+'</span>':D.TABU[x.tb][li()])+'</span>' : '';
+ var poster = '<span class="cpill soft">'+(x.ow?t("owner"):t("agent"))+'</span>';
+ var since = '<span class="csince">'+GX("cSince").replace("{d}",'<span class="ltr">'+x.days+'</span>')+'</span>';
+ var desc = isListView && x.ds && x.ds[li()] ? '<p class="cdesc">'+x.ds[li()]+'</p>' : '';
+
+ return '<a class="card c2'+(isListView?' c2-list':'')+(x.featured?' card-featured':'')+'"'+(x.featured?' style="--feat-bright:'+featBright+'%"':'')+' data-open="'+x.id+'">'+
+  photo+
+  '<div class="cb">'+
+   '<div class="cprice"><span class="p">'+priceBlock(x)+'</span>'+perm2+'</div>'+
+   '<div class="ctitle">'+title+'</div>'+
+   '<div class="cloc">'+I.pin+'<span>'+aN(x.a)+(ar?'، ':', ')+gN(x.g)+'</span></div>'+
+   facts+desc+
+   '<div class="cfoot">'+deedPill+poster+since+'<span class="cref ltr">'+(x.ref||x.id)+'</span></div>'+
   '</div></a>'}
 
 /* ── search ── */
@@ -2578,15 +2779,15 @@ function search(){
    '<input id="fPMax" type="number" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(SITE.syp_rate||CONFIG.rate)):"")+'" placeholder="'+t("to")+'"></div>'+
   '<div class="fg"><h4>'+t("extras")+'</h4><label class="ck"><input type="checkbox" id="fOwnerOnly"'+(F.ownerOnly?" checked":"")+'> '+t("owneronly")+'</label></div>'+
   '<div class="fg"><button class="gh" id="saveSearch" style="margin:0 0 8px">'+t("saveSearch")+'</button>'+
-  '</div></aside><div><div class="topbar"><h1>'+(F.g?gN(F.g):t("results"))+'</h1>'+
-  '<span class="n"><span class="ltr">'+r.length+'</span> '+t("listings")+'</span>'+
-  '<div class="viewtoggle"><button type="button" class="'+(VIEWMODE==="grid"?"on":"")+'" id="vmGrid" title="'+t("gridView")+'">'+ICON_GRID+'</button>'+
-   '<button type="button" class="'+(VIEWMODE==="list"?"on":"")+'" id="vmList" title="'+t("listView")+'">'+ICON_LIST+'</button></div>'+
+  '</div></aside><div><div class="topbar rtop"><div class="rtitle"><h1>'+(F.g?gN(F.g):t("results"))+'</h1>'+
+  '<span class="n"><span class="ltr">'+r.length+'</span> '+t("listings")+'</span></div>'+
+  '<div class="viewtoggle"><button type="button" class="'+(VIEWMODE==="grid"?"on":"")+'" id="vmGrid" title="'+t("gridView")+'">'+ICON_GRID+'<span>'+t("gridView")+'</span></button>'+
+   '<button type="button" class="'+(VIEWMODE==="list"?"on":"")+'" id="vmList" title="'+t("listView")+'">'+ICON_LIST+'<span>'+t("listView")+'</span></button></div>'+
   '<select id="sort"><option value="new">'+t("sortNew")+'</option><option value="lo">'+t("sortLo")+
    '</option><option value="hi">'+t("sortHi")+'</option><option value="area">'+t("sortA")+'</option></select></div>'+
   '<div class="res'+(VIEWMODE==="list"?" list-view":"")+'">'+(pageItems.length?pageItems.map(function(x,i){return card(x,i,VIEWMODE==="list")}).join(""):
-   !LISTINGS_LOADED ? '<div style="grid-column:1/-1;background:#fff;border:1px dashed var(--line-2);border-radius:8px;padding:56px;text-align:center;color:var(--grey)"><b style="color:var(--ink)">'+t("loading")+'</b></div>' :
-   '<div style="grid-column:1/-1;background:#fff;border:1px dashed var(--line-2);border-radius:8px;padding:56px;text-align:center;color:var(--grey)"><b style="color:var(--ink)">'+t("none")+'</b><br>'+t("none2")+'</div>')+
+   !LISTINGS_LOADED ? '<div class="resempty"><b>'+t("loading")+'</b></div>' :
+   '<div class="resempty">'+LICON.search+'<b>'+t("none")+'</b><span>'+t("none2")+'</span></div>')+
   '</div>'+(totalPages>1?'<div class="pg">'+
     (F.page>1?'<a data-pg="'+(F.page-1)+'">\u2039</a>':'')+
     Array.from({length:totalPages},function(_,idx){return idx+1}).map(function(p){
@@ -2610,118 +2811,176 @@ function listing(id){
  if(x.status && x.status!=="live" && x.status!=="sold" && x.status!=="rented" &&
     !(USER && x.uid && x.uid===USER.id)){
    return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2">'+
-     '<div class="tk" style="background:var(--gold-w);color:#8A6522">\u23F3</div>'+
+     '<div class="tk" style="background:var(--gold-w);color:#8A6522">⏳</div>'+
      '<b style="font-size:18px">'+t("pendingApprovalT")+'</b>'+
      '<p style="color:var(--grey);font-size:14.5px;margin-top:6px">'+t("pendingApprovalP")+'</p>'+
      '<div style="margin-top:18px"><button class="btn-n" data-go="search">'+t("browse")+'</button></div></div></div>';
  }
  var IMGS = (x.photos&&x.photos.length) ? x.photos : [];
+ // a newly opened listing always starts at its first photo
+ if(window._lastLid!==String(x.id)){ window._lastLid=String(x.id); GI=0 }
  if(GI>=IMGS.length) GI=0;
- var sp=[[t("kArea"),x.m2+" "+t("sqm")],[t("kCond"),(D.COND[x.cd]||D.LANDC[x.cd]||["",""," "])[li()]]];
- if(x.d!=="rent") sp.push([t("deed"),x.tb==="green"?'<span class="tabu-green">'+D.TABU[x.tb][li()]+'</span>':D.TABU[x.tb][li()]]);
- if(x.r)sp.push([t("kRooms"),x.r],[t("kBaths"),x.b]);
- if(x.living)sp.push([t("kLiving"),x.living]);
+ var I=LICON, ar=L==="ar", isRent=x.d==="rent", hasFl=(x.fl!==null&&x.fl!==undefined&&x.fl!=="");
+ var typeName=D.TYPES[x.t]?D.TYPES[x.t][li()]:"", condName=(D.COND[x.cd]||D.LANDC[x.cd]||["",""," "])[li()];
+ var deedName=D.TABU[x.tb]?D.TABU[x.tb][li()]:"";
+ var m2=function(){ return '<span class="ltr">'+x.m2+'</span> '+t("sqm") };
 
- if(x.fl!==null&&x.fl!==undefined&&x.fl!=="")sp.push([t("kFloor"),floorLabel(x.fl)]);
- if(x.y)sp.push([t("kYear"),x.y]);
- if(x.dir&&D.DIR[x.dir])sp.push([t("directionL"),D.DIR[x.dir][li()]]);
- sp.push([t("type"),D.TYPES[x.t][li()]],[t("gov"),gN(x.g)],[t("area"),aN(x.a)]);
- if(x.lm) sp.push([t("landmark"),x.lm]);
- if(x.d==="rent"){
-   if(x.lease) sp.push([t("leaseM"),x.lease+" "+t("months")]);
-   if(x.adv)   sp.push([t("advanceM"),x.adv+" "+t("months")]);
-   if(x.dep)   sp.push([t("depositL"),money(x.dep)]);
-   sp.push([t("billsL"), x.bills?t("yes"):t("no")]);
-   sp.push([t("furnishedL"), x.furn?t("yes"):t("no")]);
- }
- var pan=function(h,b){return '<div class="panel" style="margin-top:14px"><h2 style="font-size:17px;font-weight:700;padding:14px 20px;border-bottom:1px solid var(--line)">'+h+'</h2><div class="pad">'+b+'</div></div>'};
- return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+
-  '<a data-go="search" data-gov="'+x.g+'">'+gN(x.g)+'</a><i>›</i>'+aN(x.a)+'</div></div>'+
- '<div class="wrap page2"><div><div class="panel" style="overflow:hidden"><div class="gal">'+
-  (IMGS.length
-    ? '<img class="main" id="gmain" src="'+IMGS[GI]+'" alt="">'+
-      (IMGS.length>1
-        ? '<button class="gnav" id="gPrev" style="'+(rtlNow()?"right":"left")+':12px">‹</button>'+
-          '<button class="gnav" id="gNext" style="'+(rtlNow()?"left":"right")+':12px">›</button>'
-        : '')+
-      '<div class="gcount"><span class="ltr">'+(GI+1)+' / '+IMGS.length+'</span></div>'
-    : '<div class="nophoto" style="aspect-ratio:4/3"><span>'+t("photos")+'</span></div>')+
-  '</div>'+
-  (IMGS.length>1
-    ? '<div class="thumbs" id="gth">'+IMGS.map(function(src,i){
-        return '<img src="'+src+'" data-i="'+i+'"'+(i===GI?' class="sel"':'')+'>'}).join("")+'</div>'
-    : '')+'</div>'+
- (LIGHTBOX_OPEN && IMGS.length ?
-   '<div class="lightbox" id="lightbox"><button class="lb-close" id="lbClose">\u00d7</button>'+
-    '<div class="lb-count"><span class="ltr">'+(GI+1)+' / '+IMGS.length+'</span></div>'+
-    (IMGS.length>1
-      ? '<button class="lb-nav" id="lbPrev" style="'+(rtlNow()?"right":"left")+':16px">\u2039</button>'+
-        '<button class="lb-nav" id="lbNext" style="'+(rtlNow()?"left":"right")+':16px">\u203a</button>'
+ /* ── gallery: one large photo and a mosaic of the next ones; every photo opens the lightbox ── */
+ var n=IMGS.length, galCls="lgal n"+Math.min(n,5);
+ var gal='<div class="'+galCls+'">'+
+  (n
+    ? '<figure class="lg-main" style="--bg:url(&quot;'+IMGS[GI]+'&quot;)"><img class="main" id="gmain" src="'+IMGS[GI]+'" alt="'+esc(typeName)+'">'+
+      (n>1 ? '<button class="gnav" id="gPrev" aria-label="prev">'+(rtlNow()?'›':'‹')+'</button><button class="gnav" id="gNext" aria-label="next">'+(rtlNow()?'‹':'›')+'</button>' : '')+
+      '<div class="gcount"><span class="ltr">'+(GI+1)+' / '+n+'</span></div></figure>'+
+      (n>1 ? '<div class="lg-side" id="gth">'+IMGS.map(function(src,i){
+          return '<img src="'+src+'" data-i="'+i+'" alt=""'+(i===GI?' class="sel"':'')+' loading="lazy">'}).join("")+'</div>' : '')+
+      (n>1 ? '<button class="lg-all" id="gAll">'+I.grid+GX("lAllPhotos")+' <span class="ltr">('+n+')</span></button>' : '')
+    : '<div class="nophoto lg-none"><span>'+t("photos")+'</span></div>')+
+ '</div>';
+
+ /* ── lightbox (unchanged behaviour) ── */
+ var lb = (LIGHTBOX_OPEN && n) ?
+   '<div class="lightbox" id="lightbox"><button class="lb-close" id="lbClose">×</button>'+
+    '<div class="lb-count"><span class="ltr">'+(GI+1)+' / '+n+'</span></div>'+
+    (n>1
+      ? '<button class="lb-nav" id="lbPrev" style="'+(rtlNow()?"right":"left")+':16px">‹</button>'+
+        '<button class="lb-nav" id="lbNext" style="'+(rtlNow()?"left":"right")+':16px">›</button>'
       : '')+
     '<img class="lb-img" id="lbImg" src="'+IMGS[GI]+'" alt="">'+
-   '</div>' : '')+
- '<div class="panel" style="margin-top:14px"><div class="pad">'+
-  '<div style="font-size:30px;font-weight:700;color:var(--navy)">'+priceBlock(x,1)+
-   (x.negot?' <span style="font-size:12.5px;font-weight:600;color:var(--ok);vertical-align:middle">'+t("negot")+'</span>':'')+'</div>'+
-  '<div style="font-size:13px;color:var(--grey)">'+(x.d==="rent"?t("monthlyRent"):'<span class="ltr">$'+Math.round(x.p/x.m2)+'</span> '+t("perm"))+'</div>'+
-  priceContextHtml(x)+
-  '<h1 style="font-size:20px;font-weight:600;margin-top:10px">'+D.TYPES[x.t][li()]+' · <span class="ltr">'+x.m2+'</span> '+t("sqm")+'</h1>'+
-  '<div style="font-size:14.5px;color:var(--grey)">'+aN(x.a)+(L==="ar"?'، ':', ')+gN(x.g)+
-   (x.lm?' · '+x.lm:'')+'</div>'+
-  '<div style="display:flex;gap:18px;flex-wrap:wrap;margin-top:14px;padding-top:13px;border-top:1px solid var(--line);font-size:12.5px;color:var(--light)">'+
-  '<span>'+t("ref")+' <span class="ltr">'+(x.ref||x.id)+'</span></span><span>'+t("posted")+' <span class="ltr">'+x.days+'d</span></span>'+
-  '<span><span class="ltr">'+x.vw+'</span> '+t("views")+'</span><span><span class="ltr">'+x.sv+'</span> '+t("saved")+'</span></div></div>'+
-  '<div class="keys"><div><b class="ltr">'+x.m2+'</b><span>'+t("sqm")+'</span></div>'+
-  (x.r?'<div><b class="ltr">'+x.r+'</b><span>'+ICON_BED+t("kRooms")+'</span></div><div><b class="ltr">'+x.b+'</b><span>'+ICON_BATH+t("kBaths")+'</span></div>':'')+
-  (x.living?'<div><b class="ltr">'+x.living+'</b><span>'+ICON_SOFA+t("kLiving")+'</span></div>':'')+
-  ((x.fl!==null&&x.fl!==undefined&&x.fl!=="")?'<div><b'+(x.fl>0?' class="ltr"':'')+'>'+floorLabel(x.fl)+'</b><span>'+t("kFloor")+'</span></div>':'')+
-  (x.y?'<div><b class="ltr">'+x.y+'</b><span>'+t("kYear")+'</span></div>':'')+
-  '<div><b>'+(D.COND[x.cd]||D.LANDC[x.cd]||["",""," "])[li()]+'</b><span>'+t("kCond")+'</span></div></div>'+
-  '</div>'+
- (x.lat && x.lng ? pan(t("mapH"),'<div id="viewMap" data-lat="'+x.lat+'" data-lng="'+x.lng+'" style="height:280px;border-radius:8px;overflow:hidden"></div>') : '')+
- pan(t("descH"),'<div class="ldesc">'+x.ds[li()]+'</div>')+
- pan(t("detH"),'<div class="spec">'+sp.map(function(p){
-   return '<div><span class="k2">'+p[0]+'</span><span class="v2">'+p[1]+'</span></div>'}).join("")+'</div>')+
- (x.am&&x.am.length?pan(t("amH"),'<div class="amenlist">'+x.am.map(function(a){
+   '</div>' : '';
+
+ /* ── title block ── */
+ var tags='<div class="ltags"><span class="ltag deal">'+(isRent?t("forrent"):t("forsale"))+'</span>'+
+   '<span class="ltag">'+typeName+'</span>'+
+   (!isRent && deedName ? '<span class="ltag'+(x.tb==="green"?' green':'')+'">'+(x.tb==="green"?'<span class="tabu-green">'+deedName+'</span>':deedName)+'</span>' : '')+
+   (x.ow ? '<span class="ltag gold">'+GX("byOwner")+'</span>' : '')+
+   (x.furn ? '<span class="ltag">'+t("furnishedL")+'</span>' : '')+'</div>';
+ var h1 = ar ? typeName+' '+m2()+' '+GX("lIn")+' '+aN(x.a)
+            : typeName+', '+m2()+' '+GX("lIn")+' '+aN(x.a);
+ var head='<div class="lhead">'+tags+'<h1>'+h1+'</h1>'+
+   '<div class="lloc">'+I.pin+'<span>'+aN(x.a)+(ar?'، ':', ')+gN(x.g)+(x.lm?' · '+x.lm:'')+'</span></div>'+
+   '<div class="lmeta"><span>'+t("ref")+' <span class="ltr">'+(x.ref||x.id)+'</span></span><span>'+t("posted")+' <span class="ltr">'+x.days+'d</span></span>'+
+   '<span><span class="ltr">'+x.vw+'</span> '+t("views")+'</span><span><span class="ltr">'+x.sv+'</span> '+t("saved")+'</span></div></div>';
+
+ /* ── key facts ── */
+ var fact=function(icon,val,lab){ return '<div class="lf"><i>'+icon+'</i><b>'+val+'</b><span>'+lab+'</span></div>' };
+ var facts='<section class="lfacts">'+
+   fact(I.area,'<span class="ltr">'+x.m2+'</span>',t("sqm"))+
+   (x.r?fact(I.bed,'<span class="ltr">'+x.r+'</span>',t("kRooms")):'')+
+   (x.b?fact(I.bath,'<span class="ltr">'+x.b+'</span>',t("kBaths")):'')+
+   (x.living?fact(I.sofa,'<span class="ltr">'+x.living+'</span>',t("kLiving")):'')+
+   (hasFl?fact(I.floor,(x.fl>0?'<span class="ltr">'+x.fl+'</span>':floorLabel(x.fl)),t("kFloor")):'')+
+   (x.y?fact(I.cal,'<span class="ltr">'+x.y+'</span>',t("kYear")):'')+
+   (condName?fact(I.cond,condName,t("kCond")):'')+
+  '</section>';
+
+ /* ── full details, grouped ── */
+ var row=function(k,v){ return (v===""||v===null||v===undefined)?'':'<div><span class="k2">'+k+'</span><span class="v2">'+v+'</span></div>' };
+ var grp=function(title,rows){ var b=rows.join(""); return b?'<div class="lgh">'+title+'</div>'+b:'' };
+ var prop=[row(t("type"),typeName),row(t("kArea"),m2()),row(t("kCond"),condName)];
+ if(!isRent && deedName) prop.push(row(t("deed"),x.tb==="green"?'<span class="tabu-green">'+deedName+'</span>':deedName));
+ if(x.r) prop.push(row(t("kRooms"),'<span class="ltr">'+x.r+'</span>'),row(t("kBaths"),'<span class="ltr">'+x.b+'</span>'));
+ if(x.living) prop.push(row(t("kLiving"),'<span class="ltr">'+x.living+'</span>'));
+ if(hasFl) prop.push(row(t("kFloor"),floorLabel(x.fl)));
+ if(x.y) prop.push(row(t("kYear"),'<span class="ltr">'+x.y+'</span>'));
+ if(x.dir&&D.DIR[x.dir]) prop.push(row(t("directionL"),D.DIR[x.dir][li()]));
+ var loc=[row(t("gov"),gN(x.g)),row(t("area"),aN(x.a)),row(t("landmark"),x.lm||"")];
+ var rent=[];
+ if(isRent){
+   if(x.lease) rent.push(row(t("leaseM"),'<span class="ltr">'+x.lease+'</span> '+t("months")));
+   if(x.adv)   rent.push(row(t("advanceM"),'<span class="ltr">'+x.adv+'</span> '+t("months")));
+   if(x.dep)   rent.push(row(t("depositL"),money(x.dep)));
+   rent.push(row(t("billsL"), x.bills?t("yes"):t("no")), row(t("furnishedL"), x.furn?t("yes"):t("no")));
+ }
+ var details='<section class="lsec"><h2>'+t("detH")+'</h2><div class="ldl">'+
+   grp(GX("lgProp"),prop)+grp(GX("lgLoc"),loc)+(isRent?grp(GX("lgRent"),rent):'')+'</div></section>';
+
+ /* ── amenities ── */
+ var amen = (x.am&&x.am.length) ? '<section class="lsec"><h2>'+t("amH")+'</h2><ul class="lamen">'+x.am.map(function(a){
    var isSolar = ["طاقة بديلة","Alternative energy","Alternative Energie"].indexOf(a)>-1;
-   return '<span class="amenchip">'+(isSolar?ICON_SOLAR:'\u2713 ')+amenityLabel(a)+'</span>'}).join("")+'</div>'):'')+
- (x.tb==="green"?pan('<span class="tabu-green">'+t("deedH")+'</span>','<div class="deed"><ul><li>'+t("d1")+
-   '</li><li>'+t("d2")+'</li><li>'+t("d3")+'</li><li>'+t("d4")+'</li></ul></div>'):'')+
- (x.el?pan(t("utilH"),'<div class="util"><div><b class="ltr">'+x.el+'h</b><span>'+t("uPower")+'</span></div>'+
+   return '<li><i>'+(isSolar?I.sun:I.check)+'</i>'+amenityLabel(a)+'</li>'}).join("")+'</ul></section>' : '';
+
+ var deed = x.tb==="green" ? '<section class="lsec ldeed"><h2><span class="tabu-green">'+t("deedH")+'</span></h2><ul>'+
+   '<li>'+t("d1")+'</li><li>'+t("d2")+'</li><li>'+t("d3")+'</li><li>'+t("d4")+'</li></ul></section>' : '';
+
+ var util = x.el ? '<section class="lsec"><h2>'+t("utilH")+'</h2><div class="lutil">'+
+   '<div><b class="ltr">'+x.el+'h</b><span>'+t("uPower")+'</span></div>'+
    '<div><b class="ltr">'+x.amp+'A</b><span>'+t("uAmps")+'</span></div>'+
-   '<div><b>'+(L==="ar"?"يومي":L==="en"?"Daily":"Täglich")+'</b><span>'+t("uWater")+'</span></div>'+
-   '<div><b class="ltr">3 m³</b><span>'+t("uTank")+'</span></div></div>'):'')+
- '</div><aside class="side2" style="display:flex;flex-direction:column;gap:14px">'+
-  '<div class="panel pad"><div style="display:flex;gap:12px;align-items:center">'+
-  avatar(x.oav,x.who||t("owner"),46)+
-  '<div>'+(x.uid?'<a data-byuser="'+x.uid+'" data-name="'+(x.who||"")+
-   '" style="display:block;font-size:15.5px;font-weight:700;color:var(--navy);cursor:pointer;text-decoration:underline">'+
-   (x.who||t("owner"))+levelBadge(x.olevel)+'</a>':'<b style="display:block;font-size:15.5px">'+(x.who||(x.ow?t("owner"):t("agent")))+levelBadge(x.olevel)+'</b>')+
-  (x.oJoined?'<span style="font-size:12.5px;color:var(--grey)">'+t("memberSince")+' <span class="ltr">'+new Date(x.oJoined).getFullYear()+'</span></span>':'')+
-   (x.orCount?'<div class="ratingline" style="margin-top:3px"><span class="ltr" style="color:var(--gold);font-size:13px">'+stars(x.orAvg)+'</span> <b class="ltr" style="font-size:12.5px">'+x.orAvg+'</b><span class="ltr" style="font-size:12px;color:var(--grey)">('+x.orCount+')</span></div>'
-    :'<div class="ratingline" style="margin-top:3px;color:var(--light);font-size:12px">'+t("noReviews")+'</div>')+
-   '</div></div>'+
-  '<div style="font-size:12.5px;color:var(--grey);margin-top:9px">'+t("replies")+'</div>'+
-  '<button class="phone" id="ph">'+t("showPhone")+'</button>'+
-  (x.tel?'<a class="phone" id="callBtn" href="tel:'+x.tel.replace(/\s/g,"")+'" style="text-decoration:none;text-align:center;display:inline-block">'+t("callBtn")+'</a>':'')+
-  (x.wa?'<button class="wa2" id="wab">'+t("waMsg")+'</button>':'')+
-  ((USER&&x.uid===USER.id)
-    ? '<button class="btn-n" id="edt" style="width:100%;margin-top:10px">'+t("editListing")+'</button>'+
-      '<button class="gh" id="mark">'+t("markSold")+'</button>'+
-      '<button class="gh" id="delOwn" style="color:var(--danger);border-color:#EBC9C6">'+t("del")+'</button>'
-    : '')+
-  '<button class="gh" id="shr">'+t("shareL")+'</button>'+
-  '<button class="gh" id="reqv">'+t("reqVisit")+'</button>'+
-  '<button class="gh" id="savl">'+(SAVED.indexOf(String(x.id))>-1?t("savedL"):t("saveL"))+'</button></div>'+
-  '<div class="panel pad"><div class="safe"><b style="display:block;margin-bottom:3px">'+t("safeT")+'</b>'+t("safeB")+'</div>'+
-   '<button class="gh" id="rptOpen" style="margin-top:10px;color:var(--danger);border-color:#EBC9C6">'+t("reportListing")+'</button></div>'+
- '</aside></div>'+
+   '<div><b>'+(ar?"يومي":L==="en"?"Daily":"Täglich")+'</b><span>'+t("uWater")+'</span></div>'+
+   '<div><b class="ltr">3 m³</b><span>'+t("uTank")+'</span></div></div></section>' : '';
+
+ var map = (x.lat && x.lng) ? '<section class="lsec"><h2>'+t("mapH")+'</h2>'+
+   '<div id="viewMap" data-lat="'+x.lat+'" data-lng="'+x.lng+'"></div>'+
+   '<div class="lmapnote">'+I.pin+' '+aN(x.a)+(ar?'، ':', ')+gN(x.g)+(x.lm?' · '+x.lm:'')+'</div></section>' : '';
+
+ /* ── sticky side: price and contact ── */
+ var ownerName = x.who||(x.ow?t("owner"):t("agent"));
+ var side='<aside class="lside">'+
+  '<div class="lprice">'+
+   '<div class="big">'+priceBlock(x,1)+(x.negot?' <span class="negot">'+t("negot")+'</span>':'')+'</div>'+
+   '<div class="sub">'+(isRent?t("monthlyRent"):'<span class="ltr">$'+Math.round(x.p/x.m2)+'</span> '+t("perm"))+'</div>'+
+   priceContextHtml(x)+
+   '<div class="lowner">'+avatar(x.oav,ownerName,48)+'<div>'+
+    (x.uid?'<a class="nm" data-byuser="'+x.uid+'" data-name="'+(x.who||"")+'" style="cursor:pointer">'+ownerName+levelBadge(x.olevel)+'</a>'
+          :'<b class="nm">'+ownerName+levelBadge(x.olevel)+'</b>')+
+    '<div class="sm">'+(x.oJoined?t("memberSince")+' <span class="ltr">'+new Date(x.oJoined).getFullYear()+'</span> · ':'')+
+     (x.orCount?'<span class="ltr" style="color:var(--gold)">'+stars(x.orAvg)+'</span> <b class="ltr">'+x.orAvg+'</b> <span class="ltr">('+x.orCount+')</span>':t("noReviews"))+'</div>'+
+    '<div class="sm">'+t("replies")+'</div></div></div>'+
+   '<button class="lbtn navy" id="ph">'+I.phone+t("showPhone")+'</button>'+
+   (x.tel?'<a class="lbtn line" id="callBtn" href="tel:'+x.tel.replace(/\s/g,"")+'">'+I.phone+t("callBtn")+'</a>':'')+
+   (x.wa?'<button class="lbtn wa" id="wab">'+I.wa+t("waMsg")+'</button>':'')+
+   '<button class="lbtn line" id="reqv">'+I.cal+t("reqVisit")+'</button>'+
+   '<div class="lacts">'+
+    '<button id="savl">'+I.heart+'<span>'+(SAVED.indexOf(String(x.id))>-1?t("savedL"):t("saveL"))+'</span></button>'+
+    '<button id="shr">'+I.share+'<span>'+t("shareL")+'</span></button>'+
+    '<button id="rptOpen" class="danger">'+I.flag+'<span>'+t("reportListing")+'</span></button></div>'+
+   ((USER&&x.uid===USER.id)
+     ? '<div class="lown"><button class="lbtn line" id="edt">'+t("editListing")+'</button>'+
+       '<button class="lbtn line" id="mark">'+t("markSold")+'</button>'+
+       '<button class="lbtn line" id="delOwn" style="color:var(--danger);border-color:#EBC9C6">'+t("del")+'</button></div>'
+     : '')+
+  '</div>'+
+  '<div class="lsafe"><b>'+t("safeT")+'</b>'+t("safeB")+'</div>'+
+ '</aside>';
+
+ return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+
+  '<a data-go="search" data-gov="'+x.g+'">'+gN(x.g)+'</a><i>›</i>'+aN(x.a)+'</div></div>'+
+ '<div class="wrap lpage">'+gal+lb+
+  '<div class="lgrid"><main class="lmain">'+head+facts+
+   '<section class="lsec"><h2>'+t("descH")+'</h2><div class="ldesc">'+x.ds[li()]+'</div></section>'+
+   details+amen+deed+util+map+
+  '</main>'+side+'</div></div>'+
  // on phones the contact card ends up below everything, so a fixed bar keeps the two actions in reach
  '<div class="contactbar">'+
   (x.tel?'<a class="cb-call" id="callBtn2" href="tel:'+x.tel.replace(/\s/g,"")+'">'+t("callBtn")+'</a>':'')+
   (x.wa?'<button class="cb-wa" id="wab2">'+t("waMsg")+'</button>':'<button class="cb-wa" id="ph2">'+t("showPhone")+'</button>')+
  '</div>'+
  similarListingsSection(x)}
+
+/* line icons for the listing page (18px, current colour) */
+var LICON=(function(){
+  var w=function(p,extra){ return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"'+(extra||'')+'>'+p+'</svg>' };
+  return {
+    area:w('<path d="M4 4h16v16H4z"/><path d="M4 9h5M4 15h5M15 4v5M15 15v5"/>'),
+    bed:w('<path d="M3 18v-7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7"/><path d="M3 14h18M6 9V6a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v3"/>'),
+    bath:w('<path d="M4 12h16v3a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/><path d="M6 12V6a2 2 0 0 1 4 0M7 19l-1 2M17 19l1 2"/>'),
+    sofa:w('<path d="M4 11V8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/><path d="M2 12a2 2 0 0 1 4 0v1h12v-1a2 2 0 1 1 4 0v5H2z"/><path d="M5 17v2M19 17v2"/>'),
+    floor:w('<path d="M3 20h18M5 20V9l7-5 7 5v11"/><path d="M9 20v-5h6v5"/>'),
+    cal:w('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>'),
+    cond:w('<path d="M12 3l1.8 4.6L18 9l-4 3.4L15 17l-3-1.8L9 17l1-4.6L6 9l4.2-1.4z"/>'),
+    pin:w('<path d="M12 21s-6-5.4-6-11a6 6 0 0 1 12 0c0 5.6-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/>',' width="16" height="16"'),
+    check:w('<path d="M5 12.5l4.2 4L19 7"/>',' width="13" height="13" stroke-width="2.4"'),
+    sun:w('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',' width="13" height="13"'),
+    grid:w('<rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/>',' width="15" height="15"'),
+    cam:w('<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.2"/>',' width="13" height="13"'),
+    search:w('<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>',' width="34" height="34" stroke-width="1.4"'),
+    share:w('<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.6M8.2 13.2l7.6 4.6"/>'),
+    heart:w('<path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.9c0 5.4-7.5 10-7.5 10z"/>'),
+    flag:w('<path d="M5 21V4h10l1 2h4v10h-9l-1-2H5"/>'),
+    phone:w('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>'),
+    wa:w('<path d="M4 20l1.3-4A8 8 0 1 1 8 19.2z"/><path d="M9.5 9.5c0 3 2 5 5 5l1-1.5-1.8-.8-.8.8a3.5 3.5 0 0 1-2-2l.8-.8-.8-1.8z"/>')
+  };
+})();
 
 // "12% below the area average · $455/m² · 7 listings" — only when the area has enough live
 // sale listings for an average to mean anything
@@ -4968,7 +5227,7 @@ function initPickerMap(containerId, state, govSelectIdOrCoords, wrapId, clearBtn
       if(wrap) wrap.insertAdjacentHTML("beforeend",'<button type="button" class="ab bad" id="'+clearBtnId+'" style="margin-top:8px">'+t("removeLocationBtn")+'</button>');
     }
   });
-  setTimeout(function(){ map.invalidateSize() }, 120);
+  setTimeout(function(){ if(container.isConnected){ try{ map.invalidateSize() }catch(e){} } }, 120);
   return map;
 }
 function initPostMap(){
@@ -5023,7 +5282,7 @@ function initViewMap(lat,lng){
     {maxZoom:19, attribution:"\u00a9 OpenStreetMap"}).addTo(map);
   LMap.marker([lat,lng]).addTo(map);
   _viewMapInstance = map;
-  setTimeout(function(){ map.invalidateSize() }, 120);
+  setTimeout(function(){ if(container.isConnected){ try{ map.invalidateSize() }catch(e){} } }, 120);
 }
 
 /* ═══ MAP SEARCH — a standalone page (not embedded in the regular
@@ -5712,6 +5971,7 @@ function wire(){
      if(!IM2.length) return;
      GI=(n+IM2.length)%IM2.length;
      var g=$("#gmain"); if(g) g.src=IM2[GI];
+     var fg=$(".lg-main"); if(fg) fg.style.setProperty("--bg",'url("'+IM2[GI]+'")');
      var c=$(".gcount span"); if(c) c.textContent=(GI+1)+" / "+IM2.length;
      $$("#gth img").forEach(function(im,i){ im.classList.toggle("sel", i===GI) });
      var lb=$("#lbImg"); if(lb) lb.src=IM2[GI];
@@ -5734,6 +5994,7 @@ function wire(){
    addSwipe($("#gmain")); addSwipe($("#lbImg"));
    if($("#gmain")&&IM2.length) $("#gmain").onclick=function(){ if(swiped){ swiped=false; return } LIGHTBOX_OPEN=true; render() };
    if($("#lbClose")) $("#lbClose").onclick=function(){ LIGHTBOX_OPEN=false; render() };
+   if($("#gAll")) $("#gAll").onclick=function(){ LIGHTBOX_OPEN=true; render() };
    if($("#lightbox")) $("#lightbox").onclick=function(e){ if(e.target===this){ LIGHTBOX_OPEN=false; render() } };
    if($("#lbPrev")) $("#lbPrev").onclick=function(e){ e.stopPropagation(); set(GI-1) };
    if($("#lbNext")) $("#lbNext").onclick=function(e){ e.stopPropagation(); set(GI+1) };
@@ -8236,7 +8497,7 @@ function render(){
  document.body.classList.toggle("home-hero", VIEW==="home");
  updateHdr();
  applyReveals();
- heroChoreo();
+ heroChoreo(); phoneHeadline();
  homeExtras();
  wire()}
 
@@ -8350,6 +8611,21 @@ function initOpening(){
   setTimeout(function(){ c.classList.add("done") },950);
   setTimeout(function(){ _openingActive=false; if(c.parentNode) c.parentNode.removeChild(c) },2100);
 }
+var PH_STATE=null, _phTimer=null, PH_WAIT_MAX=13500;
+function phoneHeadline(){
+  var hero=document.querySelector(".home-hero .hero"), outer=document.querySelector(".home-hero .hero-outer");
+  if(!hero || !outer || VIEW!=="home") return;
+  if(!(window.innerWidth<=700)) return;
+  if(PH_STATE==="over"){ hero.classList.add("ph-over"); outer.classList.add("ph-over"); return }
+  hero.classList.add("ph-wait"); PH_STATE="wait";
+  var go=function(){
+    if(PH_STATE==="over") return; PH_STATE="over"; clearTimeout(_phTimer);
+    var h=document.querySelector(".home-hero .hero"), o=document.querySelector(".home-hero .hero-outer");
+    if(h){ h.classList.remove("ph-wait"); h.classList.add("ph-over") } if(o) o.classList.add("ph-over");
+  };
+  document.addEventListener("sk-rest", function(){ setTimeout(go,600) }, {once:true});
+  if(!_phTimer) _phTimer=setTimeout(go, PH_WAIT_MAX);   // if the scene never reports (another background type), the headline still comes
+}
 function heroChoreo(){
   if(!_openingActive || VIEW!=="home") return;
   var base=Math.max(0, 1150-(Date.now()-_openingT0));   // the word has lifted before the header and the search bar start moving
@@ -8363,7 +8639,7 @@ function heroChoreo(){
     el.classList.add("choreo"); el.style.animationDelay=(base+p[1])+"ms"; settle(el,"choreo");
   });
   // the headline slides in from its own side while the drawing shrinks away from it (they run together)
-  var h1=$(".hero h1"); if(h1){ h1.classList.add("choreo-slide"); h1.style.animationDelay=(base+450)+"ms"; settle(h1,"choreo-slide") }
+  var h1=$(".hero h1"); if(h1 && !(window.innerWidth<=700)){ h1.classList.add("choreo-slide"); h1.style.animationDelay=(base+450)+"ms"; settle(h1,"choreo-slide") }
 }
 
 /* ── "Damascus in gold lines": hero_bg_type = sketch ──
@@ -8606,6 +8882,7 @@ function sketchBuild(){
   }
   function rest(){
     hoverParallax();
+    try{ document.dispatchEvent(new Event("sk-rest")) }catch(e){}
     jets.forEach(function(j,i){ j.animate([{transform:"scaleY(.9)"},{transform:"scaleY(1.06)"}],{duration:1500+i*200,direction:"alternate",iterations:Infinity,easing:"ease-in-out"}) });
     drops.forEach(function(dg){ [].slice.call(dg.children).forEach(function(c,i){ c.animate([{opacity:0,transform:"translateY(6px)"},{opacity:.9,offset:.3},{opacity:0,transform:"translateY(-10px)"}],{duration:1400,delay:i*260,iterations:Infinity}) }) });
     var beat=function(){ tick++;
@@ -8782,6 +9059,18 @@ function applyReveals(){
 
 /* custom cursor — desktop with a real mouse only; the native cursor stays on text fields
    and the map, and everything reverts the moment a touch is detected */
+if(!window._cardFavBound){ window._cardFavBound=true;
+  document.addEventListener("click",async function(e){
+    var btn=e.target.closest&&e.target.closest(".cfav"); if(!btn) return;
+    e.preventDefault(); e.stopPropagation();
+    if(!USER){ AU.open=true; AU.mode="up"; AU.step=1; render(); return }
+    var id=String(btn.dataset.fav), on=SAVED.indexOf(id)===-1;
+    btn.classList.toggle("on",on); btn.classList.add("pop"); setTimeout(function(){ btn.classList.remove("pop") },400);
+    try{ if(DB) await DB.rpc("bk_save",{p_user:USER.id,p_listing:+id,p_on:on});
+         if(on) SAVED.push(id); else SAVED=SAVED.filter(function(v){return v!==id});
+    }catch(err){ btn.classList.toggle("on",!on); console.warn("save failed:",err.message||err) }
+  },true);
+}
 // ad videos load and play only while their card is on screen (a little before it glides in), and pause once it has left
 function watchAdVideos(){
   var vids=document.querySelectorAll(".adsec video[data-src]"); if(!vids.length) return;
@@ -8812,6 +9101,8 @@ function initCursor(){
     raf=(Math.abs(mx-cx)>.3||Math.abs(my-cy)>.3) ? requestAnimationFrame(loop) : null;
   }
   document.addEventListener("mousemove",function(e){
+    if(typeof VIEW!=="undefined" && VIEW!=="home"){ c.classList.add("hide"); document.body.classList.remove("has-cur"); return }
+    if(shown) document.body.classList.add("has-cur");
     mx=e.clientX; my=e.clientY;
     if(!shown){ shown=true; cx=mx; cy=my; document.body.classList.add("has-cur"); c.classList.remove("hide") }
     if(!raf) raf=requestAnimationFrame(loop);
@@ -8846,6 +9137,10 @@ var GX_T={
   heroBgSketchL:{ar:"رسم دمشق بخطوط ذهبية على الكحلي (يُرسم ثم يلمع)",en:"Gold line drawing of Damascus on navy (draws itself, then shines)",de:"Goldene Linienzeichnung von Damaskus auf Dunkelblau"},
   price:{ar:"السعر",en:"Price",de:"Preis"}, anyPrice:{ar:"أي سعر",en:"Any price",de:"Jeder Preis"}, from:{ar:"من",en:"From",de:"Von"}, to:{ar:"إلى",en:"To",de:"Bis"}, done:{ar:"تم",en:"Done",de:"Fertig"},
   upTo:{ar:"حتى",en:"Up to",de:"Bis"}, andUp:{ar:"وأكثر",en:"and up",de:"und mehr"}, map:{ar:"الخريطة",en:"Map",de:"Karte"},
+  cSince:{ar:"منذ {d} يوم",en:"{d} days ago",de:"vor {d} Tagen"},
+  lAllPhotos:{ar:"كل الصور",en:"All photos",de:"Alle Fotos"}, lIn:{ar:"في",en:"in",de:"in"},
+  byOwner:{ar:"من المالك مباشرة",en:"Direct from owner",de:"Direkt vom Eigentümer"},
+  lgProp:{ar:"العقار",en:"The property",de:"Das Objekt"}, lgLoc:{ar:"الموقع",en:"Location",de:"Lage"}, lgRent:{ar:"شروط الإيجار",en:"Rental terms",de:"Mietbedingungen"},
   adsH:{ar:"إعلانات مميزة",en:"Featured adverts",de:"Anzeigen"}, sponsored:{ar:"إعلان مدفوع",en:"Sponsored",de:"Gesponsert"}, featured:{ar:"مميز",en:"Featured",de:"Top"},
   adVideoTooBig:{ar:"الفيديو كبير جداً ({mb} MB). الحد الأقصى {max} MB — صدّره بدقة 720p أو أقل ومدة قصيرة، ثم أعد الرفع.",en:"This video is too large ({mb} MB). The limit is {max} MB — export it at 720p or smaller and keep it short, then upload again.",de:"Dieses Video ist zu groß ({mb} MB). Maximal {max} MB — in 720p oder kleiner und kurz exportieren, dann erneut hochladen."},
   adVideoHint:{ar:"الفيديو: حتى {max} MB، يُفضّل 720p ومدة 10–20 ثانية",en:"Video: up to {max} MB, ideally 720p and 10–20 seconds",de:"Video: bis {max} MB, ideal 720p und 10–20 Sekunden"}
