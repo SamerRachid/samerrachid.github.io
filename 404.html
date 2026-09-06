@@ -1882,6 +1882,8 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .ltable .lacts{white-space:nowrap;text-align:end}
 .ltable .lacts .ab{margin:2px}
 .ltable .tag{white-space:nowrap}
+.adperf-id{display:flex;align-items:center;gap:10px;min-width:180px}
+.adperf-id .adminadthumb span{font-size:10px;color:var(--grey);text-align:center;display:grid;place-items:center;height:100%}
 .adlook{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
 .adlook-f{display:flex;flex-direction:column;gap:14px;min-width:0}
 .fsub{font-size:11.5px;font-weight:700;color:var(--gold);letter-spacing:.04em;text-transform:uppercase;padding-top:4px;border-top:1px solid var(--line);margin-top:2px}
@@ -9464,6 +9466,7 @@ var GX_T={
   noData:{ar:"لا توجد بيانات في هذه الفترة بعد.",en:"No data for this period yet.",de:"Noch keine Daten für diesen Zeitraum."},
   sortNewest:{ar:"الأحدث",en:"Newest",de:"Neueste"}, sortViews:{ar:"الأكثر مشاهدة",en:"Most viewed",de:"Meistgesehen"}, sortContacts:{ar:"الأكثر تواصلاً",en:"Most contacted",de:"Meiste Kontakte"},
   adsPerfHint:{ar:"الظهور يُسجَّل مرة لكل تحميل للصفحة الرئيسية، والنقرة عند فتح المربع. «من أين» = الصفحة والدولة التي جاءت منها النقرات.",en:"An impression is logged once per homepage load, a click when the square is opened. “From where” = page and country the clicks came from.",de:"Eine Impression wird pro Startseiten-Aufruf gezählt, ein Klick beim Öffnen. „Woher“ = Seite und Land der Klicks."},
+  adSlotN:{ar:"مربع رقم {n}",en:"Square {n}",de:"Quadrat {n}"}, adVideoOnly:{ar:"فيديو",en:"video",de:"Video"},
   adRowH:{ar:"صف المربعات",en:"The ad row",de:"Die Werbereihe"}, adLookH:{ar:"شكل المربع",en:"Square design",de:"Gestaltung des Quadrats"},
   adPreview:{ar:"معاينة مباشرة",en:"Live preview",de:"Live-Vorschau"}, adPreviewHint:{ar:"تتغير المعاينة فور تعديل أي حقل؛ اضغط حفظ لتطبيقها على الموقع.",en:"The preview updates as you edit; press Save to apply it to the site.",de:"Die Vorschau folgt jeder Änderung; mit Speichern wird sie auf der Website aktiv."},
   adSizeHint:{ar:"100 إلى 260 بكسل. على الجوال يُصغَّر المربع تلقائياً حتى 130 ليبقى الصف داخل الشاشة.",en:"100 to 260 px. On phones the square is capped at 130 so the row still fits.",de:"100 bis 260 px. Auf dem Handy wird auf 130 begrenzt, damit die Reihe passt."},
@@ -9669,7 +9672,10 @@ function adsPerfTable(an,full){
   var rows=(an.ads||[]); if(!rows.length) return '<div class="adashempty">'+GX("noData")+'</div>';
   var obj=function(o){ return Object.keys(o||{}).map(function(k){ return (GX_T["device_"+k]?GX("device_"+k):k)+' <span class="ltr">'+o[k]+'</span>' }).join(" · ")||"—" };
   return '<div class="atable"><table><thead><tr><th>'+t("adsTab")+'</th><th>'+GX("colImpr")+'</th><th>'+GX("colClicks")+'</th><th>'+GX("colCtr")+'</th>'+(full?'<th>'+GX("colFrom")+'</th>':'')+'</tr></thead><tbody>'+
-    rows.map(function(a){ var ctr=a.views?Math.round(a.clicks/a.views*1000)/10:0; return '<tr><td>'+esc(a.label||a.sponsor_name||("#"+a.id))+(a.enabled===false?' <span class="st st-removed">off</span>':'')+'</td><td class="ltr">'+a.views+'</td><td class="ltr"><b>'+a.clicks+'</b></td><td class="ltr">'+ctr+'%</td>'+
+    rows.map(function(a){ var ctr=a.views?Math.round(a.clicks/a.views*1000)/10:0;
+      var name=a.label||a.sponsor_name||a.listing_ref||GX("adSlotN").replace("{n}",a.position||a.id);
+      var thumb=a.image_url?'<img src="'+esc(a.image_url)+'" alt="">':'<span>'+(a.media_type==="video"?GX("adVideoOnly"):(a.listing_ref||"—"))+'</span>';
+      return '<tr><td><div class="adperf-id"><div class="adminadthumb" style="width:40px;height:40px;border-radius:8px">'+thumb+'</div><div><b>'+esc(name)+'</b>'+(a.sponsor_name&&a.label?'<div class="lsub">'+esc(a.sponsor_name)+'</div>':'')+(a.enabled===false?'<div class="lsub" style="color:var(--danger)">off</div>':'')+'</div></div></td><td class="ltr">'+a.views+'</td><td class="ltr"><b>'+a.clicks+'</b></td><td class="ltr">'+ctr+'%</td>'+
       (full?'<td style="font-size:12px;color:var(--grey)">'+obj(a.click_pages)+'<br>'+obj(a.click_countries)+'</td>':'')+'</tr>' }).join("")+'</tbody></table></div>' }
 function adminDashboardBody(s){
   var an=ADM.an;
