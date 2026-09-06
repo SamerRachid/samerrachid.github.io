@@ -5854,7 +5854,8 @@ function wire(){
    }
  }
  $$("[data-langpick]").forEach(function(e){ e.onclick=function(){
-   L=this.dataset.langpick; try{localStorage.setItem("balkoun_lang",L)}catch(err){} render();
+   var nl=this.dataset.langpick;
+   phoneLangSwitch(L, nl, function(){ L=nl; try{localStorage.setItem("balkoun_lang",L)}catch(err){} render(); });
  }});
  $("#cur").onclick=function(){
    CUR=CUR==="USD"?"SYP":"USD";
@@ -8612,12 +8613,27 @@ function initOpening(){
   setTimeout(function(){ c.classList.add("done") },950);
   setTimeout(function(){ _openingActive=false; if(c.parentNode) c.parentNode.removeChild(c) },2100);
 }
-var PH_STATE=null, _phTimer=null, PH_WAIT_MAX=13500;
+var PH_STATE=null, _phTimer=null, PH_WAIT_MAX=13500, PH_ENTER=false;
+function phoneLangSwitch(oldL,newL,apply){
+  var phone=window.innerWidth<=700, h1=document.querySelector(".home-hero .hero.ph-over h1"), st=document.querySelector(".home-hero .sk-stage");
+  if(!phone || PH_STATE!=="over" || VIEW!=="home" || oldL===newL || !h1 || !st || !st.animate){ apply(); return }
+  var od = oldL==="ar"?-1:1, nd = newL==="ar"?-1:1;   // -1: the drawing sits on the left, beside an Arabic headline on the right
+  h1.style.transition="none";
+  try{ h1.animate([{transform:"translateX(0)",opacity:1},{transform:"translateX("+(od*-110)+"%)",opacity:0}],{duration:520,easing:"cubic-bezier(.4,0,.8,.4)",fill:"forwards"}) }catch(e){}
+  if(od!==nd){ try{ st.animate([{transform:"translateX("+(od*24)+"vw)"},{transform:"translateX("+(nd*24)+"vw)"}],{duration:1300,delay:150,easing:"cubic-bezier(.3,.05,.2,1)",fill:"forwards"}) }catch(e){} }
+  PH_ENTER=true;
+  setTimeout(apply, 480);
+}
 function phoneHeadline(){
   var hero=document.querySelector(".home-hero .hero"), outer=document.querySelector(".home-hero .hero-outer");
   if(!hero || !outer || VIEW!=="home") return;
   if(!(window.innerWidth<=700)) return;
-  if(PH_STATE==="over"){ hero.classList.add("ph-over"); outer.classList.add("ph-over"); return }
+  if(PH_STATE==="over"){
+    outer.classList.add("ph-over");
+    if(PH_ENTER){ PH_ENTER=false; hero.classList.add("ph-wait");   // the new headline starts off-screen on its own side, then slides in
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ var h=document.querySelector(".home-hero .hero"); if(h){ h.classList.remove("ph-wait"); h.classList.add("ph-over") } }) }) }
+    else hero.classList.add("ph-over");
+    return }
   hero.classList.add("ph-wait"); PH_STATE="wait";
   var go=function(){
     if(PH_STATE==="over") return; PH_STATE="over"; clearTimeout(_phTimer);
