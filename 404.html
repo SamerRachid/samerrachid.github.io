@@ -1378,7 +1378,7 @@ footer{font-size:14px}
 .ad-eyebrow small{color:rgba(255,255,255,.55);font-weight:400}
 .adsec .adcarousel{padding:0;margin:0}
 .adsec .adcarousel.glide .adcarousel-arrow{display:none}
-.adsec .adcarousel-viewport{overflow:hidden;padding:14px 0 16px;margin:-14px 0 -16px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);cursor:grab}
+.adsec .adcarousel-viewport{overflow:hidden;touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;padding:14px 0 16px;margin:-14px 0 -16px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);cursor:grab}
 .adsec .adcarousel-viewport.dragging{cursor:grabbing}
 .adsec .adcarousel-viewport.dragging .adslot{pointer-events:none}
 .adsec .adcarousel.glide .adcarousel-track{transition:none;animation:adGlide var(--glide-dur,30s) linear infinite;will-change:transform}
@@ -1389,6 +1389,7 @@ footer{font-size:14px}
 .adsec .adcarousel-track{align-items:flex-start}
 .adsec .adslot{width:var(--ad-size,130px);height:var(--ad-size,130px);aspect-ratio:auto;flex:none;border-radius:14px;box-shadow:0 14px 30px -14px rgba(0,0,0,.65);background:#0F1B33;transition:transform .25s,box-shadow .25s}
 .adsec .adslot{border:0}
+.adsec .adslot img,.adsec .adslot video{-webkit-user-drag:none;user-drag:none;pointer-events:none}
 .adsec .adslot:hover{transform:translateY(-6px) scale(1.07);box-shadow:0 26px 44px -16px rgba(0,0,0,.8);z-index:2}
 .adsec .adchip{position:absolute;top:8px;inset-inline-start:8px;background:rgba(255,255,255,.93);color:var(--navy);font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;max-width:80%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2}
 .adsec .adtag{display:none}
@@ -9491,8 +9492,10 @@ function adGlideDrag(el, track, setW){
     if(e.button!==0 && e.pointerType==="mouse") return;
     active=true; moved=false; startX=e.clientX; startTx=curTx();
     track.style.animation="none"; track.style.transform="translateX("+startTx+"px)";
-    vp.setPointerCapture(e.pointerId);
+    try{ vp.setPointerCapture(e.pointerId) }catch(err){}
   });
+  // a finger that starts scrolling the page vertically hands the row back to the animation
+  vp.addEventListener("pointercancel",function(){ if(active && !moved){ active=false; track.style.animation=""; track.style.transform="" } });
   vp.addEventListener("pointermove",function(e){
     if(!active) return; var dx=e.clientX-startX; if(Math.abs(dx)>4){ moved=true; vp.classList.add("dragging") }
     track.style.transform="translateX("+(startTx+dx)+"px)";
@@ -9735,14 +9738,14 @@ function heroSubHtml(txt){
   // the brand face: the letters of "balkoun" / "بلكون" light up one after the other like a wave.
   // Latin letters can also rise (inline-block); Arabic letters stay inline so they remain joined, and glow instead.
   var AR=["ﺑ","ﻠ","ﻜ","ﻮ","ﻥ"]; // ب ل ك و ن in their contextual shapes (initial, medial, medial, final, isolated)
-  var latin=String(SX("brand_flip_latin","www.balkoun.com")), lm=latin.match(/^(.*?)(balkoun)(.*)$/i);
+  var latin=String(SX("brand_flip_latin","Balkoun.com")), lm=latin.match(/^(.*?)(balkoun)(.*)$/i);
   var wave=function(word){ return word.split("").map(function(ch,i){ return '<span class="pl" style="--i:'+i+'">'+ch+'</span>' }).join("") };
   var alt = L==="ar" ? esc(String(SX("brand_flip_prefix_ar","منصة")))+' <span class="plword" aria-label="بلكون">'+AR.map(function(ch,i){ return '<span class="pla" style="--i:'+i+'">'+ch+'</span>' }).join("")+'</span>'
           : (lm ? esc(lm[1])+wave(lm[2])+esc(lm[3]) : wave(latin));
   var m=String(txt||"").match(/^(.*?)(\S+?)([.!؟?]*)\s*$/);
   if(!m||!m[2]) return txt;
   var before=m[1], face1=m[2]+m[3];
-  // "from the balcony" → "from www.balkoun.com": the article flips away together with the noun
+  // "from the balcony" → "from Balkoun.com": the article flips away together with the noun
   var art=L!=="ar" ? before.match(/(^|\s)(the|a|an|dem|der|die|das|den|vom|am|im|zum|zur)\s*$/i) : null;
   if(art){ before=before.slice(0,art.index+art[1].length); face1=art[2]+" "+face1 }
   return before+'<span class="flipw"><span class="flipw-in"><span class="f1">'+face1+'</span><span class="f2">'+alt+'</span></span></span>';
@@ -9806,7 +9809,7 @@ function adminHomeExtrasHtml(){
     xCheck("opening_enabled",GX("xOpening"),true)+
     xCheck("cursor_dot_enabled",GX("xCursor"),true)+
     xSelect("phone_headline_mode",GX("xPhoneMode"),"after",[["after",GX("xPhoneAfter")],["immediate",GX("xPhoneNow")]])+
-    '<div class="row">'+xText("brand_flip_prefix_ar",GX("xFlipAr"),"منصة")+xText("brand_flip_latin",GX("xFlipLatin"),"www.balkoun.com")+'</div>'+
+    '<div class="row">'+xText("brand_flip_prefix_ar",GX("xFlipAr"),"منصة")+xText("brand_flip_latin",GX("xFlipLatin"),"Balkoun.com")+'</div>'+
     xNum("hero_max_height",GX("xHeroMax"),640,420,900,10));
 }
 function adminAdsExtrasHtml(){
