@@ -1378,7 +1378,9 @@ footer{font-size:14px}
 .ad-eyebrow small{color:rgba(255,255,255,.55);font-weight:400}
 .adsec .adcarousel{padding:0;margin:0}
 .adsec .adcarousel.glide .adcarousel-arrow{display:none}
-.adsec .adcarousel-viewport{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+.adsec .adcarousel-viewport{overflow:hidden;padding:14px 0 16px;margin:-14px 0 -16px;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);cursor:grab}
+.adsec .adcarousel-viewport.dragging{cursor:grabbing}
+.adsec .adcarousel-viewport.dragging .adslot{pointer-events:none}
 .adsec .adcarousel.glide .adcarousel-track{transition:none;animation:adGlide var(--glide-dur,30s) linear infinite;will-change:transform}
 [dir=rtl] .adsec .adcarousel.glide .adcarousel-track{animation-name:adGlideRtl}
 .adsec:hover .adcarousel-track,.adsec:hover .ad-prog i{animation-play-state:paused}
@@ -1386,7 +1388,7 @@ footer{font-size:14px}
 @keyframes adGlideRtl{from{transform:translateX(0)}to{transform:translateX(var(--set-w,33.3333%))}}
 .adsec .adcarousel-track{align-items:flex-start}
 .adsec .adslot{width:var(--ad-size,130px);height:var(--ad-size,130px);aspect-ratio:auto;flex:none;border-radius:14px;box-shadow:0 14px 30px -14px rgba(0,0,0,.65);background:#0F1B33;transition:transform .25s,box-shadow .25s}
-.adsec .adslot:hover{transform:translateY(-4px);box-shadow:0 22px 40px -16px rgba(0,0,0,.75);z-index:2}
+.adsec .adslot:hover{transform:translateY(-6px) scale(1.07);box-shadow:0 26px 44px -16px rgba(0,0,0,.8);z-index:2}
 .adsec .adchip{position:absolute;top:8px;inset-inline-start:8px;background:rgba(255,255,255,.93);color:var(--navy);font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;max-width:80%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:2}
 .adsec .adtag{display:none}
 .adsec .adplay{position:absolute;left:50%;top:50%;width:36px;height:36px;margin:-18px 0 0 -18px;border-radius:50%;background:rgba(255,255,255,.88);transition:opacity .25s}
@@ -3086,7 +3088,7 @@ function search(){
   '<div class="fg"><h4>'+t("ptype")+'</h4>'+chipSelect("csType",t("searchTypesPH"),F.types||[],function(v){
     return v==="land"?t("landGroup"):(D.TYPES[v]?D.TYPES[v][li()]:v)})+'</div>'+
   (F.deal==="rent"
-    ? '<div class="fg"><h4>'+t("furnishedL")+'</h4>'+
+    ? '<div class="fg"><h4>'+(L==="ar"?GX("furnField"):t("furnishedL"))+'</h4>'+
        ["","yes","no"].map(function(v){
          return '<label class="ck"><input type="radio" name="furn" value="'+v+'"'+(F.furn===v?" checked":"")+'> '+
          (v===""?t("anyFurn"):v==="yes"?t("furnYes"):t("furnNo"))+
@@ -3104,7 +3106,7 @@ function search(){
   '<div class="fg"><h4>'+(F.deal==="rent"?t("monthlyRent"):t("price"))+' <span class="ltr">'+(CUR==="USD"?"USD":(L==="ar"?"ل.س":"SYP"))+'</span></h4>'+
    '<input id="fPMin" type="number" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(SITE.syp_rate||CONFIG.rate)):"")+'" placeholder="'+t("from")+'">'+
    '<input id="fPMax" type="number" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(SITE.syp_rate||CONFIG.rate)):"")+'" placeholder="'+t("to")+'"></div>'+
-  '<div class="fg"><h4>'+t("extras")+'</h4><label class="ck"><input type="checkbox" id="fOwnerOnly"'+(F.ownerOnly?" checked":"")+'> '+t("owneronly")+'</label></div>'+
+  (F.deal==="rent" ? '' : '<div class="fg"><h4>'+t("extras")+'</h4><label class="ck"><input type="checkbox" id="fOwnerOnly"'+(F.ownerOnly?" checked":"")+'> '+t("owneronly")+'</label></div>')+
   '<div class="fg"><button class="gh" id="saveSearch" style="margin:0 0 8px">'+t("saveSearch")+'</button>'+
   '</div></aside><div><div class="topbar rtop"><div class="rtitle"><h1>'+(F.g?gN(F.g):t("results"))+'</h1>'+
   '<span class="n"><span class="ltr">'+r.length+'</span> '+t("listings")+'</span></div>'+
@@ -5016,6 +5018,7 @@ function fitAdGlide(el){
   var copies=track.children.length/n, need=Math.ceil(vw/setW)+1;
   while(copies<need && copies<12){ for(var i=0;i<n;i++) track.appendChild(cards[i].cloneNode(true)); copies++; }
   track.style.setProperty("--set-w",setW+"px");
+  if(!track._dragBound){ track._dragBound=true; adGlideDrag(el, track, setW); }
   watchAdVideos();
   if(window._adViewsLoggedFor!==VIEW){ window._adViewsLoggedFor=VIEW; var seen={}, ev=[];
     [].slice.call(track.children).slice(0,n).forEach(function(c){ var id=c.dataset&&c.dataset.adid; if(id && !seen[id]){ seen[id]=1; ev.push({slot:id,kind:"view",page:VIEW.split(":")[0]}) } });
@@ -5925,8 +5928,8 @@ function heroSearchBarHtml(){
    '<div class="sf">'+chipSelect("csType",t("ptype"),F.types||[],function(v){
      return v==="land"?t("landGroup"):(D.TYPES[v]?D.TYPES[v][li()]:v)},true)+'</div>'+
    (F.deal==="rent"
-     ? '<div class="sf sf-sel"><select id="hFurn" aria-label="'+t("furnishedL")+'">'+
-        '<option value=""'+(F.furn===""?" selected":"")+'>'+t("furnishedL")+'</option>'+
+     ? '<div class="sf sf-sel"><select id="hFurn" aria-label="'+(L==="ar"?GX("furnField"):t("furnishedL"))+'">'+
+        '<option value=""'+(F.furn===""?" selected":"")+'>'+(L==="ar"?GX("furnField"):t("furnishedL"))+'</option>'+
         '<option value="yes"'+(F.furn==="yes"?" selected":"")+'>'+t("furnYes")+'</option>'+
         '<option value="no"'+(F.furn==="no"?" selected":"")+'>'+t("furnNo")+'</option>'+
        '</select>'+CHEV+'</div>'
@@ -9353,6 +9356,36 @@ if(!window._cardFavBound){ window._cardFavBound=true;
     }catch(err){ btn.classList.toggle("on",!on); console.warn("save failed:",err.message||err) }
   },true);
 }
+// the ad row can be dragged; the animation is frozen, moved by hand, then restarted from the new spot
+function adGlideDrag(el, track, setW){
+  var vp=el.querySelector(".adcarousel-viewport"), rtl=document.documentElement.dir==="rtl";
+  var startX=0, startTx=0, moved=false, active=false;
+  var curTx=function(){ var m=getComputedStyle(track).transform; if(!m||m==="none") return 0; var p=m.match(/matrix\(([^)]+)\)/); return p ? parseFloat(p[1].split(",")[4]) : 0 };
+  var dur=function(){ return parseFloat(getComputedStyle(track).animationDuration)||30 };
+  vp.addEventListener("pointerdown",function(e){
+    if(e.button!==0 && e.pointerType==="mouse") return;
+    active=true; moved=false; startX=e.clientX; startTx=curTx();
+    track.style.animation="none"; track.style.transform="translateX("+startTx+"px)";
+    vp.setPointerCapture(e.pointerId);
+  });
+  vp.addEventListener("pointermove",function(e){
+    if(!active) return; var dx=e.clientX-startX; if(Math.abs(dx)>4){ moved=true; vp.classList.add("dragging") }
+    track.style.transform="translateX("+(startTx+dx)+"px)";
+  });
+  var end=function(e){
+    if(!active) return; active=false; vp.classList.remove("dragging");
+    var tx=curTx(); if(!moved){ track.style.animation=""; track.style.transform=""; return }
+    // progress along one set (0..1) in the animation's own direction, then hand back to the animation at that point
+    var w=parseFloat(getComputedStyle(track).getPropertyValue("--set-w"))||setW;
+    var prog = rtl ? (tx/w) : (-tx/w); prog = ((prog % 1) + 1) % 1;
+    track.style.transform=""; track.style.animation=""; track.style.animationDelay="-"+(prog*dur()).toFixed(2)+"s";
+    setTimeout(function(){ if(vp.classList.contains("dragging")) return }, 0);
+    e.preventDefault && e.preventDefault();
+  };
+  vp.addEventListener("pointerup",end); vp.addEventListener("pointercancel",end); vp.addEventListener("lostpointercapture",end);
+  // a drag must not open the square underneath when the finger lifts
+  vp.addEventListener("click",function(e){ if(moved){ e.stopPropagation(); e.preventDefault(); moved=false } },true);
+}
 // ad videos load and play only while their card is on screen (a little before it glides in), and pause once it has left
 function watchAdVideos(){
   var vids=document.querySelectorAll(".adsec video[data-src]"); if(!vids.length) return;
@@ -9532,6 +9565,7 @@ var GX_T={
   hlHead:{ar:"العنوان",en:"Headline",de:"Überschrift"}, hlBar:{ar:"شريط البحث",en:"Search bar",de:"Suchleiste"},
   hlX:{ar:"إزاحة أفقية (px)",en:"Horizontal offset (px)",de:"Horizontaler Versatz (px)"}, hlY:{ar:"إزاحة رأسية (px)",en:"Vertical offset (px)",de:"Vertikaler Versatz (px)"},
   hlScale:{ar:"المقياس (%)",en:"Scale (%)",de:"Skalierung (%)"}, hlW:{ar:"أقصى عرض (px)",en:"Maximum width (px)",de:"Maximale Breite (px)"}, hlFieldH:{ar:"ارتفاع الحقول (px)",en:"Field height (px)",de:"Feldhöhe (px)"},
+  furnField:{ar:"الفرش",en:"",de:""},
   adRowH:{ar:"صف المربعات",en:"The ad row",de:"Die Werbereihe"}, adLookH:{ar:"شكل المربع",en:"Square design",de:"Gestaltung des Quadrats"},
   adPreview:{ar:"معاينة مباشرة",en:"Live preview",de:"Live-Vorschau"}, adPreviewHint:{ar:"تتغير المعاينة فور تعديل أي حقل؛ اضغط حفظ لتطبيقها على الموقع.",en:"The preview updates as you edit; press Save to apply it to the site.",de:"Die Vorschau folgt jeder Änderung; mit Speichern wird sie auf der Website aktiv."},
   adSizeHint:{ar:"100 إلى 260 بكسل. على الجوال يُصغَّر المربع تلقائياً حتى 130 ليبقى الصف داخل الشاشة.",en:"100 to 260 px. On phones the square is capped at 130 so the row still fits.",de:"100 bis 260 px. Auf dem Handy wird auf 130 begrenzt, damit die Reihe passt."},
