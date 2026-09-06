@@ -1956,21 +1956,36 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .hmb svg{width:21px;height:21px}
 .hmb:hover{border-color:var(--gold);color:var(--gold)}
 body.nav-menu-desk .hmb{display:grid}
+.hmb{position:relative}
+.hmb-dot{position:absolute;top:5px;inset-inline-end:5px;width:10px;height:10px;border-radius:50%;background:var(--danger);border:2px solid #1B2C52}
+.lg-globe,.lg-code{display:none}
 @media(max-width:860px){
-  .hmb{display:grid}
-  #cur,#langWrap,.chipname,.chip2 .chev{display:none}
+  .hbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+  .hbar .hmb{display:grid;justify-self:start;grid-column:1;width:40px;height:40px;background:transparent;border-color:transparent}
+  .hbar .hmb svg{width:26px;height:26px}
+  .hbar .logo{grid-column:2;justify-self:center}
+  .hbar .hnav{display:none}
+  .hbar .htools{grid-column:3;justify-self:end;margin-inline-start:0;gap:10px}
+  #cur,.chipname,.chip2 .chev,.htools .gold{display:none}
+  #bIn{display:none} body.nav-login-m #bIn{display:inline-block}
+  .acct{display:none} body.nav-avatar-m .acct{display:block}
   .chip2{padding:2px;gap:0;border-radius:50%}
   .chip2 .av{width:32px;height:32px}
   body.nav-nobell-m .notifwrap{display:none}
-  body.nav-nologin-m #bIn{display:none}
+  body.nav-nolang-m #langWrap{display:none}
+  #langWrap{order:5}
+  #langChip{background:none!important;border:0!important;padding:0 2px!important;gap:6px!important;font-size:15px;font-weight:600;color:#fff;letter-spacing:.02em}
+  #langChip .langflag,#langChip .lg-name,#langChip .chev{display:none}
+  #langChip .lg-globe,#langChip .lg-code{display:inline-flex;align-items:center}
+  #langChip .lg-globe svg{width:24px;height:24px}
 }
 .mdw{position:fixed;inset:0;z-index:1180;display:none}
 .mdw.on{display:block}
 .mdw-bg{position:absolute;inset:0;background:rgba(9,14,26,.55);animation:mdwfade .25s ease}
-.mdw-p{position:absolute;top:0;bottom:0;inset-inline-end:0;width:min(86vw,360px);background:#fff;overflow-y:auto;display:flex;flex-direction:column;box-shadow:0 0 60px -10px rgba(9,14,26,.6);animation:mdwin .32s cubic-bezier(.22,.61,.36,1);padding-bottom:calc(20px + env(safe-area-inset-bottom))}
+.mdw-p{position:absolute;top:0;bottom:0;inset-inline-start:0;width:min(86vw,360px);background:#fff;overflow-y:auto;display:flex;flex-direction:column;box-shadow:0 0 60px -10px rgba(9,14,26,.6);animation:mdwin .32s cubic-bezier(.22,.61,.36,1);padding-bottom:calc(20px + env(safe-area-inset-bottom))}
 [dir=rtl] .mdw-p{animation-name:mdwin-r}
-@keyframes mdwin{from{transform:translateX(100%)}to{transform:none}}
-@keyframes mdwin-r{from{transform:translateX(-100%)}to{transform:none}}
+@keyframes mdwin{from{transform:translateX(-100%)}to{transform:none}}
+@keyframes mdwin-r{from{transform:translateX(100%)}to{transform:none}}
 @keyframes mdwfade{from{opacity:0}to{opacity:1}}
 .mdw-top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--navy);color:#fff}
 .mdw-top .logo{font-size:17px;padding:4px 10px}
@@ -2427,6 +2442,8 @@ var MI=(function(){
     guide:w('<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 19a2.5 2.5 0 0 1 2.5-2.5H20"/>')
   };
 })();
+var ICON_GLOBE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>';
+var LANG_SHORT={ar:"عربي",en:"EN",de:"DE"};
 var ICON_HMB='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
 function header(){
  // a custom dropdown, not a native <select> — <option> elements can't
@@ -2438,7 +2455,7 @@ function header(){
    return '<a data-langpick="'+k+'"'+(k===L?' class="on"':'')+'><span class="langflag">'+(LANG_FLAGS[k]||"")+'</span>'+D.I18N[k].name+'</a>'
  }).join("");
  var langs='<div class="navmore" id="langWrap"><a id="langChip" class="mini" style="display:inline-flex;align-items:center;gap:6px">'+
-   '<span class="langflag">'+currentFlag+'</span>'+D.I18N[L].name+CHEV+'</a>'+
+   '<span class="langflag">'+currentFlag+'</span><span class="lg-name">'+D.I18N[L].name+'</span>'+CHEV+'<span class="lg-globe">'+ICON_GLOBE+'</span><span class="lg-code">'+(LANG_SHORT[L]||L.toUpperCase())+'</span></a>'+
    '<div class="menu" id="langMenu">'+langMenu+'</div></div>';
  // logged-out visitors get ONE combined, always-visible "Log in / Sign
  // up" action (this is how the region's own major property portals do
@@ -2461,7 +2478,7 @@ function header(){
  // menu instead, first — since they're still the most-used items in
  // it — followed by the rest in the order a visitor is likeliest to
  // want them.
- return '<header><div class="wrap hbar"><a class="logo" data-go="home">'+CONFIG.brand+'</a>'+
+ return '<header><div class="wrap hbar"><button class="hmb" id="hmb" aria-label="'+GX("mdMenu")+'">'+ICON_HMB+(USER&&NOTIFS.unread?'<i class="hmb-dot"></i>':'')+'</button><a class="logo" data-go="home">'+CONFIG.brand+'</a>'+
   '<nav class="hnav">'+
   // home page: editorial links first (they scroll to the page's own sections), "More" keeps the rest
   (VIEW==="home" ? (navOn("coll")?'<a data-scroll="collsSec">'+HX("navColl")+'</a>':'')+(navOn("expl")?'<a data-scroll="explSec">'+HX("navAreas")+'</a>':'')+(navOn("guide")?'<a data-scroll="guidesSec">'+HX("navGuide")+'</a>':'')+(navOn("agencies")?'<a data-go="post">'+HX("navAgencies")+'</a>':'') : '')+
@@ -2474,7 +2491,6 @@ function header(){
   '<div class="htools"><button class="mini" id="cur">'+CUR+'</button>'+
   langs + right +
   '<a class="gold" data-go="post" style="text-decoration:none">'+t("post")+'</a>'+
-  '<button class="hmb" id="hmb" aria-label="'+GX("mdMenu")+'">'+ICON_HMB+'</button>'+
   '</div></div></header>'+mdrawer()+
   // no floating post button on the post form itself, nor on a listing page where the
   // fixed call / WhatsApp bar owns the bottom edge on phones
@@ -9551,10 +9567,12 @@ var GX_T={
   mdDiscover:{ar:"اكتشف",en:"Discover",de:"Entdecken"}, mdSite:{ar:"بلكون",en:"Balkoun",de:"Balkoun"},
   mdPrefs:{ar:"اللغة والعملة",en:"Language and currency",de:"Sprache und Währung"},
   navH:{ar:"القائمة وروابط الرأس",en:"Menu and header links",de:"Menü und Kopfzeilen-Links"},
-  navHint:{ar:"كل رابط له مفتاح إظهار ورقم ترتيب (الأصغر أولاً). على الجوال تظهر الروابط داخل قائمة ☰، وعلى الكمبيوتر في شريط الرأس وقائمة «المزيد».",en:"Each link has a show switch and an order number (smallest first). On phones the links live inside the ☰ menu; on desktop in the header bar and the “More” menu.",de:"Jeder Link hat einen Anzeige-Schalter und eine Reihenfolge (kleinste zuerst). Auf dem Handy liegen die Links im ☰-Menü, am Desktop in der Kopfzeile und im „Mehr“-Menü."},
+  navHint:{ar:"كل رابط له مفتاح إظهار ورقم ترتيب (الأصغر أولاً). على الجوال: زر ☰ في البداية، الشعار في الوسط، اللغة في النهاية، وكل الروابط داخل القائمة. على الكمبيوتر تظهر في شريط الرأس وقائمة «المزيد».",en:"Each link has a show switch and an order number (smallest first). On phones the links live inside the ☰ menu; on desktop in the header bar and the “More” menu.",de:"Jeder Link hat einen Anzeige-Schalter und eine Reihenfolge (kleinste zuerst). Auf dem Handy liegen die Links im ☰-Menü, am Desktop in der Kopfzeile und im „Mehr“-Menü."},
   navOrder:{ar:"الترتيب",en:"Order",de:"Reihenfolge"}, navPhoneH:{ar:"رأس الصفحة على الجوال",en:"Phone header",de:"Kopfzeile am Handy"},
   navBellPhone:{ar:"إظهار جرس الإشعارات في رأس الجوال (للمسجّلين)",en:"Show the notification bell in the phone header (members)",de:"Benachrichtigungsglocke in der Handy-Kopfzeile zeigen (Mitglieder)"},
-  navLoginPhone:{ar:"إظهار زر تسجيل الدخول في رأس الجوال (للزوار)",en:"Show the Log in button in the phone header (guests)",de:"Anmelde-Button in der Handy-Kopfzeile zeigen (Gäste)"},
+  navLoginPhone:{ar:"إظهار زر تسجيل الدخول في رأس الجوال أيضاً (للزوار؛ الزر الكبير داخل القائمة يبقى)",en:"Also show a Log in button in the phone header (guests; the big button inside the menu stays)",de:"Zusätzlich einen Anmelde-Button in der Handy-Kopfzeile zeigen (Gäste; der große Button im Menü bleibt)"},
+  navAvatarPhone:{ar:"إظهار صورة الحساب في رأس الجوال أيضاً (للمسجّلين)",en:"Also show the avatar in the phone header (members)",de:"Zusätzlich das Profilbild in der Handy-Kopfzeile zeigen (Mitglieder)"},
+  navLangHeader:{ar:"إظهار اللغة (رمز الكرة الأرضية) في رأس الجوال",en:"Show the language (globe) in the phone header",de:"Sprache (Globus) in der Handy-Kopfzeile zeigen"},
   navLangDrawer:{ar:"اختيار اللغة داخل القائمة",en:"Language chips inside the menu",de:"Sprachauswahl im Menü"},
   navCurDrawer:{ar:"اختيار العملة داخل القائمة",en:"Currency toggle inside the menu",de:"Währungsumschalter im Menü"},
   navMenuDesk:{ar:"إظهار زر القائمة ☰ على الكمبيوتر أيضاً",en:"Show the ☰ menu button on desktop too",de:"☰-Menü-Button auch am Desktop zeigen"},
@@ -9758,7 +9776,9 @@ function applySiteExtras(){ try{ var R=document.documentElement.style;
   var sc=SX("sk_scale",""), scm=SX("sk_scale_m",""); setOr("--sk-scale",sc===""?"":(+sc/100),""); setOr("--sk-scale-m",scm===""?"":(+scm/100),"");
   document.body.classList.toggle("nav-menu-desk", SX("nav_menu_desktop",false)===true);
   document.body.classList.toggle("nav-nobell-m", SX("nav_bell_phone",true)===false);
-  document.body.classList.toggle("nav-nologin-m", SX("nav_login_phone",true)===false);
+  document.body.classList.toggle("nav-login-m", SX("nav_login_phone",false)===true);
+  document.body.classList.toggle("nav-avatar-m", SX("nav_avatar_phone",false)===true);
+  document.body.classList.toggle("nav-nolang-m", SX("nav_lang_header",true)===false);
 }catch(e){} }
 /* admin: one settings card = xForm(id, title, hint, fields); every control carries data-xkey/data-xtype and one save button writes them all */
 function xForm(id,title,hint,fields){ return '<div class="blk" data-xform="'+id+'"><h3>'+title+'</h3><div class="in">'+(hint?'<div class="hintx" style="margin-bottom:10px">'+hint+'</div>':'')+fields+
@@ -9808,7 +9828,8 @@ function adminNavHtml(){
   return '<div style="margin-top:16px"></div>'+xForm("xNav",GX("navH"),GX("navHint"),
     g("search",GX("mdSearch"))+g("discover",GX("mdDiscover"))+g("site",GX("mdSite"))+
     '<div class="fsub">'+GX("navPhoneH")+'</div>'+
-    xCheck("nav_bell_phone",GX("navBellPhone"),true)+xCheck("nav_login_phone",GX("navLoginPhone"),true)+
+    xCheck("nav_lang_header",GX("navLangHeader"),true)+xCheck("nav_bell_phone",GX("navBellPhone"),true)+
+    xCheck("nav_login_phone",GX("navLoginPhone"),false)+xCheck("nav_avatar_phone",GX("navAvatarPhone"),false)+
     xCheck("nav_lang_drawer",GX("navLangDrawer"),true)+xCheck("nav_cur_drawer",GX("navCurDrawer"),true)+
     xCheck("nav_menu_desktop",GX("navMenuDesk"),false));
 }
