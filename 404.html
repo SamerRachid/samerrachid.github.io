@@ -1363,6 +1363,11 @@ footer{font-size:14px}
 /* ── the sponsored row: a framed navy section under the hero, gliding cards with sponsor chips, one featured wide card, a progress line ── */
 .adsec{background:radial-gradient(120% 90% at 50% 20%,#1B2C52,#14213D 70%);padding:6px 0 18px;margin-top:var(--adcarousel-gap,0px);position:relative;z-index:2}
 .adsec .wrap{max-width:1220px}
+.adsec{--ris:var(--ad-ris,9px);--los:var(--ad-los,9px);--tgs:var(--ad-tgs,9px)}
+@media(max-width:700px){
+  .adsec{--ris:var(--ad-ris-m,var(--ad-ris,9px));--los:var(--ad-los-m,var(--ad-los,9px));--tgs:var(--ad-tgs-m,var(--ad-tgs,9px));margin-top:var(--adcarousel-gap-m,var(--adcarousel-gap,0px))}
+  .hero-outer{margin-bottom:var(--hero-gap-m,var(--hero-gap,0px))}
+}
 .ad-eyebrow{display:flex;align-items:center;gap:10px;color:#E3B563;font-size:12.5px;font-weight:600;margin-bottom:8px}
 .ad-eyebrow::before{content:"";width:28px;height:2px;background:var(--gold)}
 .ad-eyebrow small{color:rgba(255,255,255,.55);font-weight:400}
@@ -1894,6 +1899,36 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .adprev .adslot img{width:100%;height:100%;object-fit:cover;display:block}
 .adprev .adslot .nophoto{height:100%}
 @media(max-width:900px){.adlook{grid-template-columns:1fr}.adprev{position:static}}
+.dual{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dual-i{display:flex;align-items:center;gap:8px;border:1px solid var(--line-2);border-radius:10px;background:#fff;padding-inline-start:10px;color:var(--grey)}
+.dual-i svg{flex:none}
+.dual-i input{border:0!important;height:40px!important;padding:0 10px 0 0!important;background:transparent!important;flex:1;min-width:0;border-radius:0 10px 10px 0!important}
+[dir=ltr] .dual-i input{border-radius:0 10px 10px 0!important}
+.dual-i:focus-within{border-color:var(--gold);box-shadow:0 0 0 3px rgba(196,136,31,.14)}
+.dual-i:focus-within input{box-shadow:none!important}
+.dual-r{display:flex;flex-direction:column;gap:4px;border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:#F8F9FB}
+.dual-r b{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--grey);font-weight:600}
+.dual-r input[type=range]{width:100%;accent-color:var(--navy)}
+.adperf{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.adperf-h,.adperf-r{display:grid;grid-template-columns:minmax(180px,1.6fr) .7fr .7fr .7fr;gap:12px;align-items:center;padding:10px 14px}
+.adperf.full .adperf-h,.adperf.full .adperf-r{grid-template-columns:minmax(180px,1.4fr) .6fr .6fr .6fr 1.8fr}
+.adperf-h{background:#F8F9FB;font-size:11.5px;letter-spacing:.03em;text-transform:uppercase;color:var(--grey);font-weight:600}
+.adperf-r{border-top:1px solid var(--line);font-size:13.5px;min-height:56px}
+.adperf-id{display:flex;align-items:center;gap:10px;min-width:0}
+.adperf-th{width:40px;height:40px;border-radius:8px;background:var(--page);overflow:hidden;flex:none;display:grid;place-items:center;font-size:10px;color:var(--grey);font-style:normal}
+.adperf-th img{width:100%;height:100%;object-fit:cover;display:block}
+.adperf-n{display:flex;flex-direction:column;min-width:0}
+.adperf-n b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adperf-n small{font-size:11.5px;color:var(--grey)}
+.adperf-n small.off{color:var(--danger)}
+.adperf .num{font-weight:600;color:var(--ink);white-space:nowrap}
+.adperf-from{display:flex;flex-wrap:wrap;gap:4px}
+.pchip{font-size:11px;background:#F1F2F4;border-radius:999px;padding:2px 8px;color:var(--grey);white-space:nowrap}
+.pchip b{color:var(--ink)}
+.pchip.muted{opacity:.6}
+.adm .blk .in>.fl{max-width:560px}
+.adm .blk .in>.fl:has(input[type=range]),.adm .blk .in>.fl:has(.dual),.adm .blk .in>.fl:has(textarea){max-width:none}
+@media(max-width:640px){.dual{grid-template-columns:1fr}.adperf-h{display:none}.adperf-r,.adperf.full .adperf-r{grid-template-columns:1fr 1fr;row-gap:6px}.adperf-id{grid-column:1/-1}}
 /* a small on/off switch for table rows */
 .xswitch{position:relative;display:inline-block;width:36px;height:20px;cursor:pointer;vertical-align:middle}
 .xswitch input{opacity:0;width:0;height:0;position:absolute}
@@ -1905,8 +1940,8 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 /* phones: the first screen holds the drawing, the headline, the search bar and the ad row */
 @media(max-width:700px){
   .home-hero .hero{min-height:0;padding-top:clamp(16px,calc(16px + (100svh - 640px) * .3),52px);padding-bottom:40px}
-  .home-hero .hero h1{font-size:clamp(24px,6.6vw,30px);line-height:1.3;position:relative;z-index:2;max-width:64%;margin-bottom:14px;text-shadow:0 2px 18px rgba(9,14,26,.9),0 0 40px rgba(9,14,26,.7)}
-  [dir=ltr] .home-hero .hero h1{max-width:64%;font-size:clamp(22px,6vw,28px)}
+  .home-hero .hero h1{font-size:var(--hero-title-m,clamp(24px,6.6vw,30px))!important;line-height:1.3;position:relative;z-index:2;max-width:64%;margin-bottom:14px;text-shadow:0 2px 18px rgba(9,14,26,.9),0 0 40px rgba(9,14,26,.7)}
+  [dir=ltr] .home-hero .hero h1{max-width:64%;font-size:var(--hero-title-m,clamp(22px,6vw,28px))!important}
   /* the headline comes in from its side; when its edge reaches the drawing, the drawing gives way and settles beside it */
   .home-hero .hero.ph-wait h1{opacity:0;transform:translateX(110%);animation:none!important}
   [dir=ltr] .home-hero .hero.ph-wait h1{transform:translateX(-110%)}
@@ -1916,7 +1951,7 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
   .home-hero .sgo-map{grid-column:auto;height:48px}
   .adsec{padding:6px 0 10px}
   .ad-eyebrow{margin-bottom:6px;font-size:12px}
-  .adsec .adcarousel{--ad-size:min(var(--ad-size-set,170px),130px)!important}
+  .adsec .adcarousel{--ad-size:min(var(--ad-size-set-m,min(var(--ad-size-set,170px),130px)),200px)!important}
   .ad-prog{display:none}
 }
 @media(max-width:640px){.home-hero .hero-outer:has(.chipsel-drop.on){z-index:70}}   /* an open filter sheet and its backdrop sit above the page header */
@@ -3910,18 +3945,11 @@ function adminView(){
     '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="scFeatMsg"></span>'+
    '</div></div>'+
    '<div class="blk" style="margin-top:16px"><h3>'+t("cardSizeH")+'</h3><div class="in">'+
-    '<div class="hintx" style="margin-bottom:10px">'+t("cardSizeHintDesktop")+'</div>'+
-    '<div class="fl"><label>'+t("cardSizeL")+'</label>'+
-     '<input id="scCardSize" type="number" min="200" max="500" value="'+(SITE.card_min_width||250)+'"></div>'+
-    '<button class="ab ok" id="scCardSizeSave">'+t("save")+'</button>'+
-    '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="scCardSizeMsg"></span>'+
-   '</div></div>'+
-   '<div class="blk" style="margin-top:16px"><h3>'+t("cardSizeMobileH")+'</h3><div class="in">'+
-    '<div class="hintx" style="margin-bottom:10px">'+t("cardSizeMobileHint")+'</div>'+
-    '<div class="fl"><label>'+t("cardSizeMobileL")+'</label>'+
-     '<input id="scCardSizeMobile" type="number" min="90" max="300" value="'+(SITE.card_min_width_mobile||160)+'"></div>'+
-    '<button class="ab ok" id="scCardSizeMobileSave">'+t("save")+'</button>'+
-    '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="scCardSizeMobileMsg"></span>'+
+    '<div class="hintx">'+t("cardSizeHintDesktop")+' '+GX("dHint")+'</div>'+
+    '<div class="fl"><label>'+GX("cardSizeDual")+'</label><div class="dual">'+
+      '<span class="dual-i" title="'+GX("dDesk")+'">'+AICO.desk+'<input id="scCardSize" type="number" min="200" max="500" value="'+(SITE.card_min_width||250)+'"></span>'+
+      '<span class="dual-i" title="'+GX("dPhone")+'">'+AICO.phone+'<input id="scCardSizeMobile" type="number" min="90" max="300" value="'+(SITE.card_min_width_mobile||160)+'"></span></div></div>'+
+    '<div class="xactions"><button class="ab ok" id="scCardSizeSave">'+t("save")+'</button><span class="xmsg" id="scCardSizeMsg"></span></div>'+
    '</div></div>'+
    '<div class="blk" style="margin-top:16px"><h3>'+t("newBadgeH")+'</h3><div class="in">'+
     '<div class="hintx" style="margin-bottom:10px">'+t("newBadgeHint")+'</div>'+
@@ -3999,16 +4027,18 @@ function adminView(){
      '<div class="fl"><label>'+t("headlineHighlightL")+' ('+lg.toUpperCase()+')</label>'+
       '<input id="scHeroSub_'+lg+'" value="'+(SITE["hero_sub_"+lg]||"").replace(/"/g,"&quot;")+'" placeholder="'+t("leaveBlankDefault")+'"></div>'}).join("")+'</div>'+
     '<div class="row" style="margin-top:6px">'+
-     '<div class="fl"><label>'+t("heroTitleSizeL")+'</label><select id="scHeroSize">'+
+     '<div class="fl"><label>'+t("heroTitleSizeL")+' <small style="color:var(--light)">('+GX("dDesk")+')</small></label><select id="scHeroSize">'+
       '<option value=""'+(!SITE.hero_title_size?" selected":"")+'>'+t("defaultSize")+'</option>'+
       [22,26,30,34,37,42,48].map(function(n){return '<option value="'+n+'"'+(SITE.hero_title_size==n?" selected":"")+'>'+n+'px</option>'}).join("")+
      '</select></div>'+
+     '<div class="fl"><label>'+t("heroTitleSizeL")+' <small style="color:var(--light)">('+GX("dPhone")+')</small></label><input type="number" id="scHeroSizeM" min="18" max="48" value="'+esc(String(SX("hero_title_size_m","")))+'" placeholder="'+esc(GX("dSame"))+'"></div>'+
      '<div class="fl"><label>'+t("heroTitleColorL")+'</label><input type="color" id="scHeroColor" value="'+(SITE.hero_title_color||"#ffffff")+'" style="height:41px;padding:4px"></div>'+
      '<div class="fl"><label>'+t("heroSubColorL")+'</label><input type="color" id="scHeroSubColor" value="'+(SITE.hero_sub_color||"#C4881F")+'" style="height:41px;padding:4px"></div>'+
     '</div>'+
     '<div class="fl">'+
-     '<label>'+t("heroGapL")+' — <span id="scHeroGapVal">'+(SITE.hero_gap!=null?SITE.hero_gap:0)+'px</span></label>'+
-     '<input type="range" id="scHeroGap" min="-60" max="80" step="2" value="'+(SITE.hero_gap!=null?SITE.hero_gap:0)+'" style="width:100%">'+
+     '<label>'+t("heroGapL")+'</label><div class="dual dual-ranges">'+
+      '<span class="dual-r"><b>'+AICO.desk+' <span id="scHeroGapVal" class="ltr">'+(SITE.hero_gap!=null?SITE.hero_gap:0)+'px</span></b><input type="range" id="scHeroGap" min="-60" max="80" step="2" value="'+(SITE.hero_gap!=null?SITE.hero_gap:0)+'"></span>'+
+      '<span class="dual-r"><b>'+AICO.phone+' <span id="scHeroGapMVal" class="ltr">'+(SX("hero_gap_m","")===""?GX("dSame"):SX("hero_gap_m","")+"px")+'</span></b><input type="range" id="scHeroGapM" min="-60" max="80" step="2" value="'+(SX("hero_gap_m","")===""?0:SX("hero_gap_m",""))+'"'+(SX("hero_gap_m","")===""?' data-empty="1"':'')+'></span></div>'+
      '<div class="hintx">'+t("heroGapHint")+'</div>'+
     '</div>'+
     '<button class="ab ok" id="scHeroSave" style="margin-top:6px">'+t("save")+'</button>'+
@@ -4880,19 +4910,19 @@ function adSlotsRow(){
    var manualImgs = (!isLinked && !isVideoEmbed && !isUploadedVideo && a.image_urls && a.image_urls.length) ? a.image_urls : null;
    var external = !isLinked && !isVideoEmbed && a.link_url;
    var media;
-   var overlayTop = a.overlay_top ? '<div class="adslot-overtext adslot-overtop" style="font-size:'+roomInfoSize+'px;color:'+textColor+';background:linear-gradient(to bottom,rgba('+shadeRgb+',.85) 0%,transparent 100%)">'+a.overlay_top+'</div>' : '';
-   var overlayBottom = a.overlay_bottom ? '<div class="adslot-overtext adslot-overbottom" style="font-size:'+roomInfoSize+'px;color:'+textColor+';background:linear-gradient(to top,rgba('+shadeRgb+',.85) 0%,transparent 100%)">'+a.overlay_bottom+'</div>' : '';
+   var overlayTop = a.overlay_top ? '<div class="adslot-overtext adslot-overtop" style="font-size:var(--ris);color:'+textColor+';background:linear-gradient(to bottom,rgba('+shadeRgb+',.85) 0%,transparent 100%)">'+a.overlay_top+'</div>' : '';
+   var overlayBottom = a.overlay_bottom ? '<div class="adslot-overtext adslot-overbottom" style="font-size:var(--ris);color:'+textColor+';background:linear-gradient(to top,rgba('+shadeRgb+',.85) 0%,transparent 100%)">'+a.overlay_bottom+'</div>' : '';
    if(isLinked){
      var place=[a.l_area_name?aN(a.l_area_name):"", a.l_gov?gN(a.l_gov):""].filter(Boolean).join(", ");
      media = '<img class="adslot-rotimg" src="'+a.l_photos[0]+'" data-photos="'+
        encodeURIComponent(JSON.stringify(a.l_photos))+'" data-idx="0" alt="" loading="lazy">'+
-       '<div class="adslot-foot" style="font-size:'+roomInfoSize+'px;color:'+textColor+';'+
+       '<div class="adslot-foot" style="font-size:var(--ris);color:'+textColor+';'+
          'background:linear-gradient(to top,rgba('+shadeRgb+',.85) 0%,rgba('+shadeRgb+',.55) 55%,transparent 100%)">'+
         (a.l_rooms?'<span>'+(showIcons?ICON_BED:"")+a.l_rooms+(showIcons?"":" "+t("rooms"))+'</span>':'')+
         (a.l_baths?'<span>'+(showIcons?ICON_BATH:"")+a.l_baths+(showIcons?"":" "+t("baths"))+'</span>':'')+
         (a.l_area?'<span class="ltr">'+(showIcons?ICON_AREA:"")+a.l_area+(showIcons?"":" "+t("sqm"))+'</span>':'')+
        '</div>'+
-       (place&&showLoc?'<div class="adslot-place" style="font-size:'+locSize+'px;color:'+textColor+';background:rgba('+shadeRgb+',.6)">'+place+'</div>':'');
+       (place&&showLoc?'<div class="adslot-place" style="font-size:var(--los);color:'+textColor+';background:rgba('+shadeRgb+',.6)">'+place+'</div>':'');
    } else if(isVideoEmbed){
      var vInfo = videoEmbedInfo(a.video_embed_url);
      media = vInfo ? '<iframe class="adslot-embed" src="'+vInfo.embedUrl+'" '+
@@ -4914,11 +4944,11 @@ function adSlotsRow(){
      // still take visitors somewhere else if a destination was set
      return '<div class="adslot'+featCls+'" data-adid="'+a.id+'">'+media+chip+featText+
        (a.link_url ? '<a class="adslot-visit" href="'+a.link_url+'" target="_blank" rel="noopener sponsored" style="color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+t("adVisitLink")+'</a>' : '')+
-       (showTag?'<span class="adtag" style="font-size:'+tagSize+'px;color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+tagText+'</span>':'')+'</div>';
+       (showTag?'<span class="adtag" style="font-size:var(--tgs);color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+tagText+'</span>':'')+'</div>';
    }
    return '<a class="adslot'+featCls+'" data-adid="'+a.id+'" '+
      (isLinked ? 'data-open="'+a.linked_listing_id+'"' : 'href="'+(a.link_url||"#")+'"'+(external?' target="_blank" rel="noopener sponsored"':' onclick="return false"'))+'>'+
-     media+chip+featText+(showTag?'<span class="adtag" style="font-size:'+tagSize+'px;color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+tagText+'</span>':'')+'</a>'}).join("");
+     media+chip+featText+(showTag?'<span class="adtag" style="font-size:var(--tgs);color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+tagText+'</span>':'')+'</a>'}).join("");
   // the carousel only actually needs to rotate/scroll if there are
   // more ads than comfortably fit — but the arrows and track markup
   // stay the same shape either way, they just have nothing to do
@@ -4948,7 +4978,7 @@ function adSlotsRow(){
   var prevIcon = rtlNow ? ICON_CHEV_RIGHT : ICON_CHEV_LEFT;
   var nextIcon = rtlNow ? ICON_CHEV_LEFT : ICON_CHEV_RIGHT;
   var glideDur = Math.max(12, Math.round(AD_SLOTS.length*(+SX("ad_glide_seconds",3.5)||3.5)));
-  return '<section class="adsec"><div class="wrap">'+
+  return '<section class="adsec" style="--ad-ris:'+roomInfoSize+'px;--ad-los:'+locSize+'px;--ad-tgs:'+tagSize+'px"><div class="wrap">'+
    '<div class="ad-eyebrow">'+(SX("ads_row_title_"+L,"")||GX("adsH"))+'<small>· '+(SX("ads_sponsored_"+L,"")||GX("sponsored"))+'</small></div>'+
    '<div class="adcarousel glide" id="adCarousel" data-count="'+AD_SLOTS.length+
    '" data-seconds="'+carouselSeconds+'" data-direction="'+carouselDir+'" style="--ad-size:'+sqSize+'px;--glide-dur:'+glideDur+'s">'+
@@ -5169,6 +5199,8 @@ AICO.search='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke=
 AICO.eye='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
 AICO.out='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M15 8l5 4-5 4M20 12H9"/></svg>';
 AICO.disk='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>';
+AICO.desk='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>';
+AICO.phone='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>';
 AICO.refresh='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg>';
 var ICON_GRID = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>';
 // real, drawn flags rather than the Unicode flag emoji — the emoji
@@ -6920,7 +6952,7 @@ function wireAdmin(){
   };
   if($("#adRowSave")) $("#adRowSave").onclick=function(){ adSaveForm("adRowForm","adRowMsg",this) };
   if($("#adLookSave")) $("#adLookSave").onclick=function(){ adSaveForm("adLookForm","adLookMsg",this) };
-  if($("#ar_gap")) $("#ar_gap").oninput=function(){ var l=$("#ar_gapVal"); if(l) l.textContent=this.value+"px" };
+  $$(".dual-r input[type=range]").forEach(function(r){ r.oninput=function(){ this.removeAttribute("data-empty"); var l=$("#"+this.id+"Val"); if(l) l.textContent=this.value+"px" } });
   var lookForm=$("#adLookForm"), rowForm=$("#adRowForm");
   var refreshPrev=function(){ var pv=$("#adPrev"); if(!pv) return; var v=Object.assign({},SITE,adFormValues(lookForm),{ad_square_size:(adFormValues(rowForm).ad_square_size||SITE.ad_square_size)}); pv.innerHTML=adPreviewHtml(v) };
   if(lookForm){ lookForm.addEventListener("input",refreshPrev); lookForm.addEventListener("change",refreshPrev) }
@@ -7392,6 +7424,8 @@ function wireAdmin(){
   if($("#scHeroGap")) $("#scHeroGap").oninput=function(){
     var lbl=$("#scHeroGapVal"); if(lbl) lbl.textContent=this.value+"px";
   };
+  if($("#scHeroGapM")) $("#scHeroGapM").oninput=function(){ this.removeAttribute("data-empty"); var lbl=$("#scHeroGapMVal"); if(lbl) lbl.textContent=this.value+"px";
+  };
   if($("#scHeroSave")) $("#scHeroSave").onclick=function(){
     var patch={hero_enabled: !!($("#scHeroOn")&&$("#scHeroOn").checked)};
     ["ar","en","de"].forEach(function(lg){
@@ -7403,7 +7437,9 @@ function wireAdmin(){
     patch.hero_sub_color = ($("#scHeroSubColor")||{}).value||"";
     var gapVal = parseInt(($("#scHeroGap")||{}).value,10);
     patch.hero_gap = isNaN(gapVal) ? 0 : gapVal;
-    saveSiteContent(patch,"scHeroMsg",this);
+    var gm=$("#scHeroGapM"), tm=$("#scHeroSizeM");
+    patch.extras = { hero_gap_m: (gm && gm.dataset.empty!=="1" && gm.value!=="") ? +gm.value : null, hero_title_size_m: (tm && tm.value!=="") ? +tm.value : null };
+    saveSiteContent(patch,"scHeroMsg",this).then(function(){ applySectionGapVars(); applySiteExtras() });
     SITE.hero_gap = patch.hero_gap;
     applySectionGapVars();
   };
@@ -7440,9 +7476,9 @@ function wireAdmin(){
     saveSiteContent(patch,"scFeatMsg",this);
   };
   if($("#scCardSizeSave")) $("#scCardSizeSave").onclick=function(){
-    var size=parseInt(($("#scCardSize")||{}).value,10)||238;
-    saveSiteContent({card_min_width:size},"scCardSizeMsg",this);
-    try{ document.documentElement.style.setProperty("--card-size", size+"px") }catch(e){}
+    var size=parseInt(($("#scCardSize")||{}).value,10)||250, sizeM=parseInt(($("#scCardSizeMobile")||{}).value,10)||160;
+    saveSiteContent({card_min_width:size, card_min_width_mobile:sizeM},"scCardSizeMsg",this);
+    try{ document.documentElement.style.setProperty("--card-size", size+"px"); document.documentElement.style.setProperty("--card-size-mobile", sizeM+"px") }catch(e){}
   };
   if($("#scCardSizeMobileSave")) $("#scCardSizeMobileSave").onclick=function(){
     var size=parseInt(($("#scCardSizeMobile")||{}).value,10)||150;
@@ -9467,6 +9503,9 @@ var GX_T={
   sortNewest:{ar:"الأحدث",en:"Newest",de:"Neueste"}, sortViews:{ar:"الأكثر مشاهدة",en:"Most viewed",de:"Meistgesehen"}, sortContacts:{ar:"الأكثر تواصلاً",en:"Most contacted",de:"Meiste Kontakte"},
   adsPerfHint:{ar:"الظهور يُسجَّل مرة لكل تحميل للصفحة الرئيسية، والنقرة عند فتح المربع. «من أين» = الصفحة والدولة التي جاءت منها النقرات.",en:"An impression is logged once per homepage load, a click when the square is opened. “From where” = page and country the clicks came from.",de:"Eine Impression wird pro Startseiten-Aufruf gezählt, ein Klick beim Öffnen. „Woher“ = Seite und Land der Klicks."},
   adSlotN:{ar:"مربع رقم {n}",en:"Square {n}",de:"Quadrat {n}"}, adVideoOnly:{ar:"فيديو",en:"video",de:"Video"},
+  dDesk:{ar:"كمبيوتر",en:"Desktop",de:"Desktop"}, dPhone:{ar:"جوال",en:"Phone",de:"Handy"}, dSame:{ar:"مثل الكمبيوتر",en:"same as desktop",de:"wie Desktop"},
+  dHint:{ar:"كل حقل له قيمتان: للكمبيوتر وللجوال. اترك حقل الجوال فارغاً ليأخذ قيمة الكمبيوتر.",en:"Each field has two values: desktop and phone. Leave the phone one empty to reuse the desktop value.",de:"Jedes Feld hat zwei Werte: Desktop und Handy. Handy leer lassen, um den Desktop-Wert zu übernehmen."},
+  cardSizeDual:{ar:"أصغر عرض لبطاقة النتائج (بكسل)",en:"Minimum result card width (px)",de:"Mindestbreite der Ergebniskarte (px)"},
   adRowH:{ar:"صف المربعات",en:"The ad row",de:"Die Werbereihe"}, adLookH:{ar:"شكل المربع",en:"Square design",de:"Gestaltung des Quadrats"},
   adPreview:{ar:"معاينة مباشرة",en:"Live preview",de:"Live-Vorschau"}, adPreviewHint:{ar:"تتغير المعاينة فور تعديل أي حقل؛ اضغط حفظ لتطبيقها على الموقع.",en:"The preview updates as you edit; press Save to apply it to the site.",de:"Die Vorschau folgt jeder Änderung; mit Speichern wird sie auf der Website aktiv."},
   adSizeHint:{ar:"100 إلى 260 بكسل. على الجوال يُصغَّر المربع تلقائياً حتى 130 ليبقى الصف داخل الشاشة.",en:"100 to 260 px. On phones the square is capped at 130 so the row still fits.",de:"100 bis 260 px. Auf dem Handy wird auf 130 begrenzt, damit die Reihe passt."},
@@ -9529,7 +9568,12 @@ var AD_VIDEO_MAX_MB=8;
 /* extra site settings live in site_content.extras (JSON): SX(key, default) reads one */
 function SX(k,d){ var ex=SITE&&SITE.extras; if(ex&&typeof ex==="string"){ try{ ex=JSON.parse(ex) }catch(e){ ex=null } } var v=ex?ex[k]:undefined; return (v===undefined||v===null||v==="") ? d : v }
 function adVideoMaxMb(){ return +SX("ad_video_max_mb",AD_VIDEO_MAX_MB)||AD_VIDEO_MAX_MB }
-function applySiteExtras(){ try{ document.documentElement.style.setProperty("--hero-max",(+SX("hero_max_height",640)||640)+"px"); document.documentElement.style.setProperty("--ad-size-set",(SITE.ad_square_size||130)+"px") }catch(e){} }
+function applySiteExtras(){ try{ var R=document.documentElement.style;
+  R.setProperty("--hero-max",(+SX("hero_max_height",640)||640)+"px"); R.setProperty("--ad-size-set",(SITE.ad_square_size||130)+"px");
+  var setOr=function(name,v,unit){ if(v===""||v===null||v===undefined) R.removeProperty(name); else R.setProperty(name,v+(unit||"px")) };
+  setOr("--ad-size-set-m",SX("ad_square_size_m","")); setOr("--adcarousel-gap-m",SX("ad_carousel_gap_m","")); setOr("--hero-gap-m",SX("hero_gap_m","")); setOr("--hero-title-m",SX("hero_title_size_m",""));
+  setOr("--ad-ris-m",SX("ad_roominfo_size_m","")); setOr("--ad-los-m",SX("ad_location_size_m","")); setOr("--ad-tgs-m",SX("ad_tag_size_m",""));
+}catch(e){} }
 /* admin: one settings card = xForm(id, title, hint, fields); every control carries data-xkey/data-xtype and one save button writes them all */
 function xForm(id,title,hint,fields){ return '<div class="blk" data-xform="'+id+'"><h3>'+title+'</h3><div class="in">'+(hint?'<div class="hintx" style="margin-bottom:10px">'+hint+'</div>':'')+fields+
   '<div class="xactions"><button class="ab ok" data-xsave="'+id+'">'+t("save")+'</button><span class="xmsg" id="'+id+'Msg"></span></div></div></div>' }
@@ -9562,6 +9606,12 @@ function adminSystemExtrasHtml(){ return ''; }
 /* ── Ad squares page: performance, the row, the square design with a live preview ── */
 function adF(key,type,label,val,attrs,extra){ return '<div class="fl"><label>'+label+'</label><input data-adk="'+key+'" data-adt="'+type+'" type="'+(type==="color"?"color":type==="num"?"number":"text")+'" value="'+esc(String(val==null?"":val))+'"'+(attrs||"")+'>'+(extra||"")+'</div>' }
 function adC(key,label,on){ return '<label class="xcheck"><input type="checkbox" data-adk="'+key+'" data-adt="bool"'+(on?" checked":"")+'><span>'+label+'</span></label>' }
+function adDual(label,deskKey,deskVal,phoneKey,phoneVal,attrs,type){
+  type=type||"num"; var inp=function(k,v,ph){ return '<input data-adk="'+k+'" data-adt="'+type+'" type="'+(type==="num"?"number":"text")+'" value="'+esc(String(v==null?"":v))+'"'+(attrs||"")+(ph?' placeholder="'+esc(ph)+'"':'')+'>' };
+  return '<div class="fl"><label>'+label+'</label><div class="dual"><span class="dual-i" title="'+GX("dDesk")+'">'+AICO.desk+inp(deskKey,deskVal,"")+'</span><span class="dual-i" title="'+GX("dPhone")+'">'+AICO.phone+inp(phoneKey,phoneVal,GX("dSame"))+'</span></div></div>' }
+function adDualRange(label,deskKey,deskVal,phoneKey,phoneVal,min,max,step,idBase){
+  var one=function(k,v,id,ph){ return '<span class="dual-r"><b>'+(k===deskKey?AICO.desk:AICO.phone)+' <span id="'+id+'Val" class="ltr">'+(v===""||v==null?ph:v+"px")+'</span></b><input type="range" data-adk="'+k+'" data-adt="num" id="'+id+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+(v===""||v==null?0:v)+'"'+(v===""||v==null?' data-empty="1"':'')+'></span>' };
+  return '<div class="fl"><label>'+label+'</label><div class="dual dual-ranges">'+one(deskKey,deskVal,idBase+"D","0px")+one(phoneKey,phoneVal,idBase+"M",GX("dSame"))+'</div></div>' }
 function adSampleImage(){ var a=(ADM.adSlots||[]).filter(function(x){ return x.image_url && x.media_type!=="video" })[0]; if(a) return a.image_url; var l=(D.LIST||[]).filter(function(x){ return x.photos&&x.photos[0] })[0]; return l?l.photos[0]:"" }
 function adPreviewHtml(v){
   var size=Math.max(100,Math.min(260,+v.ad_square_size||130)), tc=v.ad_text_color||"#ffffff", sh=hexToRgb(v.ad_shade_color||"#090e1a");
@@ -9578,7 +9628,7 @@ function adPreviewHtml(v){
 function adFormValues(form){
   var v={}; if(!form) return v;
   form.querySelectorAll("[data-adk]").forEach(function(i){ var k=i.dataset.adk, ty=i.dataset.adt;
-    v[k] = ty==="bool" ? !!i.checked : ty==="bool01" ? i.value!=="0" : ty==="num" ? (i.value===""?null:+i.value) : String(i.value) });
+    v[k] = i.dataset.empty==="1" ? null : ty==="bool" ? !!i.checked : ty==="bool01" ? i.value!=="0" : ty==="num" ? (i.value===""?null:+i.value) : String(i.value) });
   return v }
 function adminAdsPageHtml(){
   var perf='<div class="blk"><h3>'+GX("topAdsH")+'</h3><div class="in"><div class="dash-top" style="margin-bottom:0">'+rangeTabs()+'</div><div class="hintx">'+GX("adsPerfHint")+'</div>'+(ADM.an?adsPerfTable(ADM.an,true):'<div class="adashempty">'+t("loading")+'</div>')+'</div></div>';
@@ -9588,11 +9638,13 @@ function adminAdsPageHtml(){
     '<div class="row3x">'+["ar","en","de"].map(function(lg){ return adF("x:ads_row_title_"+lg,"str",GX("xAdsTitle")+' ('+lg.toUpperCase()+')',SX("ads_row_title_"+lg,""),' placeholder="'+esc(GX_T.adsH[lg])+'"') }).join("")+'</div>'+
     '<div class="row3x">'+["ar","en","de"].map(function(lg){ return adF("x:ads_sponsored_"+lg,"str",GX("xAdsSponsored")+' ('+lg.toUpperCase()+')',SX("ads_sponsored_"+lg,""),' placeholder="'+esc(GX_T.sponsored[lg])+'"') }).join("")+'</div>'+
     '<div class="row3x">'+
-      adF("ad_square_size","num",t("adSquareSizeL"),size,' min="100" max="260"','<div class="hintx">'+GX("adSizeHint")+'</div>')+
+      adDual(t("adSquareSizeL"),"ad_square_size",size,"x:ad_square_size_m",SX("ad_square_size_m",""),' min="90" max="260"')+
       adF("x:ad_glide_seconds","num",GX("xAdGlide"),SX("ad_glide_seconds",""),' min="1" max="15" step="0.5" placeholder="3.5"')+
       adF("x:ad_video_max_mb","num",GX("xAdVideoMax"),SX("ad_video_max_mb",""),' min="1" max="100" placeholder="8"')+
     '</div>'+
-    '<div class="fl"><label>'+t("adRowGapL")+' — <span id="ar_gapVal" class="ltr">'+gap+'px</span></label><input type="range" data-adk="ad_carousel_gap" data-adt="num" id="ar_gap" min="-60" max="80" step="2" value="'+gap+'"><div class="hintx">'+t("heroGapHint")+'</div></div>'+
+    '<div class="hintx">'+GX("adSizeHint")+' '+GX("dHint")+'</div>'+
+    adDualRange(t("adRowGapL"),"ad_carousel_gap",gap,"x:ad_carousel_gap_m",SX("ad_carousel_gap_m",""),-60,80,2,"ar_gap")+
+    '<div class="hintx">'+t("heroGapHint")+'</div>'+
     '<div class="xactions"><button class="ab ok" id="adRowSave">'+t("save")+'</button><span class="xmsg" id="adRowMsg"></span></div>'+
   '</div></div>';
   var look='<div class="blk" id="adLookForm" style="margin-top:16px"><h3>'+GX("adLookH")+'</h3><div class="in"><div class="adlook"><div class="adlook-f">'+
@@ -9600,13 +9652,13 @@ function adminAdsPageHtml(){
     '<div class="row">'+adF("ad_text_color","color",t("adTextColorL"),SITE.ad_text_color||"#ffffff")+adF("ad_shade_color","color",t("adShadeColorL"),SITE.ad_shade_color||"#090e1a")+'</div>'+
     '<div class="fsub">'+GX("adInfoSub")+'</div>'+
     '<div class="row"><div class="fl"><label>'+t("adRoomInfoStyleL")+'</label><select data-adk="ad_use_icons" data-adt="bool01"><option value="1"'+(SITE.ad_use_icons!==false?' selected':'')+'>'+t("adStyleIcons")+'</option><option value="0"'+(SITE.ad_use_icons===false?' selected':'')+'>'+t("adStyleText")+'</option></select></div>'+
-      adF("ad_roominfo_size","num",t("adTextSizeL"),SITE.ad_roominfo_size||9,' min="7" max="20"')+'</div>'+
+      adDual(t("adTextSizeL"),"ad_roominfo_size",SITE.ad_roominfo_size||9,"x:ad_roominfo_size_m",SX("ad_roominfo_size_m",""),' min="7" max="20"')+'</div>'+
     adC("ad_location_enabled",t("showAdLocation"),SITE.ad_location_enabled!==false)+
-    adF("ad_location_size","num",t("adTextSizeL")+' — '+t("adLocationH"),SITE.ad_location_size||9,' min="7" max="20"')+
+    adDual(t("adTextSizeL")+' — '+t("adLocationH"),"ad_location_size",SITE.ad_location_size||9,"x:ad_location_size_m",SX("ad_location_size_m",""),' min="7" max="20"')+
     '<div class="fsub">'+GX("adTagSub")+'</div>'+
     adC("ad_tag_enabled",t("showAdTag"),SITE.ad_tag_enabled!==false)+
     '<div class="row3x">'+["ar","en","de"].map(function(lg){ return adF("ad_tag_"+lg,"str",t("adTagTextL")+' ('+lg.toUpperCase()+')',SITE["ad_tag_"+lg]||"",' placeholder="'+esc(t("leaveBlankDefault"))+'"') }).join("")+'</div>'+
-    adF("ad_tag_size","num",t("adTextSizeL")+' — '+GX("adTagSub"),SITE.ad_tag_size||9,' min="7" max="20"')+
+    adDual(t("adTextSizeL")+' — '+GX("adTagSub"),"ad_tag_size",SITE.ad_tag_size||9,"x:ad_tag_size_m",SX("ad_tag_size_m",""),' min="7" max="20"')+
     '<div class="xactions"><button class="ab ok" id="adLookSave">'+t("save")+'</button><span class="xmsg" id="adLookMsg"></span></div>'+
     '</div><div class="adprev"><div class="adprev-h">'+GX("adPreview")+'</div><div id="adPrev">'+adPreviewHtml(SITE)+'</div><div class="hintx" style="color:rgba(255,255,255,.7)">'+GX("adPreviewHint")+'</div></div></div></div></div>';
   return perf+row+look;
@@ -9670,13 +9722,14 @@ function topListingsTable(an,limit){
     rows.map(function(l){ return '<tr><td class="ltr adlink" data-open="'+l.id+'">'+(l.ref||l.id)+'</td><td>'+(l.area?l.area+"، ":"")+(l.gov||"")+'</td><td class="ltr">$'+Number(l.price_usd||0).toLocaleString("en")+'</td><td class="ltr"><b>'+l.views+'</b></td><td class="ltr">'+l.contacts+'</td><td class="ltr">'+l.saves+'</td></tr>' }).join("")+'</tbody></table></div>' }
 function adsPerfTable(an,full){
   var rows=(an.ads||[]); if(!rows.length) return '<div class="adashempty">'+GX("noData")+'</div>';
-  var obj=function(o){ return Object.keys(o||{}).map(function(k){ return (GX_T["device_"+k]?GX("device_"+k):k)+' <span class="ltr">'+o[k]+'</span>' }).join(" · ")||"—" };
-  return '<div class="atable"><table><thead><tr><th>'+t("adsTab")+'</th><th>'+GX("colImpr")+'</th><th>'+GX("colClicks")+'</th><th>'+GX("colCtr")+'</th>'+(full?'<th>'+GX("colFrom")+'</th>':'')+'</tr></thead><tbody>'+
+  var chips=function(o){ var ks=Object.keys(o||{}); return ks.length ? ks.map(function(k){ return '<span class="pchip">'+esc(GX_T["device_"+k]?GX("device_"+k):k)+' <b class="ltr">'+o[k]+'</b></span>' }).join("") : '<span class="pchip muted">—</span>' };
+  return '<div class="adperf'+(full?' full':'')+'"><div class="adperf-h"><span>'+t("adsTab")+'</span><span>'+GX("colImpr")+'</span><span>'+GX("colClicks")+'</span><span>'+GX("colCtr")+'</span>'+(full?'<span>'+GX("colFrom")+'</span>':'')+'</div>'+
     rows.map(function(a){ var ctr=a.views?Math.round(a.clicks/a.views*1000)/10:0;
       var name=a.label||a.sponsor_name||a.listing_ref||GX("adSlotN").replace("{n}",a.position||a.id);
-      var thumb=a.image_url?'<img src="'+esc(a.image_url)+'" alt="">':'<span>'+(a.media_type==="video"?GX("adVideoOnly"):(a.listing_ref||"—"))+'</span>';
-      return '<tr><td><div class="adperf-id"><div class="adminadthumb" style="width:40px;height:40px;border-radius:8px">'+thumb+'</div><div><b>'+esc(name)+'</b>'+(a.sponsor_name&&a.label?'<div class="lsub">'+esc(a.sponsor_name)+'</div>':'')+(a.enabled===false?'<div class="lsub" style="color:var(--danger)">off</div>':'')+'</div></div></td><td class="ltr">'+a.views+'</td><td class="ltr"><b>'+a.clicks+'</b></td><td class="ltr">'+ctr+'%</td>'+
-      (full?'<td style="font-size:12px;color:var(--grey)">'+obj(a.click_pages)+'<br>'+obj(a.click_countries)+'</td>':'')+'</tr>' }).join("")+'</tbody></table></div>' }
+      var thumb=a.image_url?'<img src="'+esc(a.image_url)+'" alt="">':'<i>'+(a.media_type==="video"?GX("adVideoOnly"):(a.listing_ref?"BK":"—"))+'</i>';
+      return '<div class="adperf-r"><span class="adperf-id"><span class="adperf-th">'+thumb+'</span><span class="adperf-n"><b>'+esc(name)+'</b>'+(a.sponsor_name&&a.label?'<small>'+esc(a.sponsor_name)+'</small>':'')+(a.enabled===false?'<small class="off">off</small>':'')+'</span></span>'+
+        '<span class="ltr num">'+a.views+'</span><span class="ltr num"><b>'+a.clicks+'</b></span><span class="ltr num">'+ctr+'%</span>'+
+        (full?'<span class="adperf-from">'+chips(a.click_pages)+chips(a.click_countries)+'</span>':'')+'</div>' }).join("")+'</div>' }
 function adminDashboardBody(s){
   var an=ADM.an;
   var head='<div class="dash-top">'+rangeTabs()+'<span class="hintx">'+(an?'':(ADM.anErr?ADM.anErr:t("loading")))+'</span></div>';
