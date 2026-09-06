@@ -1654,11 +1654,11 @@ h1,h2,h3,.logo,.hero h1{letter-spacing:0}
   .home-hero .hero{min-height:0;padding-top:clamp(16px,calc(16px + (100svh - 640px) * .3),52px);padding-bottom:40px}
   .home-hero .hero h1{font-size:clamp(24px,6.6vw,30px);line-height:1.3;position:relative;z-index:2;max-width:64%;margin-bottom:14px;text-shadow:0 2px 18px rgba(9,14,26,.9),0 0 40px rgba(9,14,26,.7)}
   [dir=ltr] .home-hero .hero h1{max-width:64%;font-size:clamp(22px,6vw,28px)}
-  .home-hero .hero.ph-wait h1{opacity:0;transform:translateX(70px);animation:none!important}
-  [dir=ltr] .home-hero .hero.ph-wait h1{transform:translateX(-70px)}
-  .home-hero .hero.ph-over h1{opacity:1;transform:none;transition:opacity .8s ease,transform .9s cubic-bezier(.2,.7,.2,1)}
-  .home-hero .hero-outer.ph-over .sk-stage{transform:translateX(-24vw)!important;opacity:.92;transition:transform 1s cubic-bezier(.2,.7,.2,1),opacity .8s}
-  [dir=ltr] .home-hero .hero-outer.ph-over .sk-stage{transform:translateX(24vw)!important}
+  /* the headline comes in from its side; when its edge reaches the drawing, the drawing gives way and settles beside it */
+  .home-hero .hero.ph-wait h1{opacity:0;transform:translateX(110%);animation:none!important}
+  [dir=ltr] .home-hero .hero.ph-wait h1{transform:translateX(-110%)}
+  .home-hero .hero.ph-over h1{opacity:1;transform:none;transition:opacity .45s ease,transform 1.05s cubic-bezier(.22,.75,.25,1)}
+  .home-hero .hero-outer.ph-over .sk-stage{opacity:.92;transition:opacity .8s}
   .home-hero .srow .sgo{grid-column:auto;height:48px}
   .home-hero .sgo-map{grid-column:auto;height:48px}
   .adsec{padding:6px 0 10px}
@@ -8623,6 +8623,8 @@ function phoneHeadline(){
     if(PH_STATE==="over") return; PH_STATE="over"; clearTimeout(_phTimer);
     var h=document.querySelector(".home-hero .hero"), o=document.querySelector(".home-hero .hero-outer");
     if(h){ h.classList.remove("ph-wait"); h.classList.add("ph-over") } if(o) o.classList.add("ph-over");
+    // the drawing gives way once the headline's edge reaches it (the scene's own camera animation is on this element, so the push is a WAAPI animation too)
+    var st=document.querySelector(".home-hero .sk-stage"); if(st && st.animate){ var dir=(typeof rtlNow==="function"&&rtlNow())?-1:1; try{ st.animate([{transform:"translateX(0)"},{transform:"translateX("+(dir*24)+"vw)"}],{duration:1200,delay:340,easing:"cubic-bezier(.25,.1,.2,1.06)",fill:"forwards"}) }catch(e){} }
   };
   document.addEventListener("sk-rest", function(){ setTimeout(go,600) }, {once:true});
   if(!_phTimer) _phTimer=setTimeout(go, PH_WAIT_MAX);   // if the scene never reports (another background type), the headline still comes
