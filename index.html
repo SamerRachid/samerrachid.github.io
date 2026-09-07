@@ -9677,23 +9677,28 @@ function adGlideDrag(el, track, setW){
     if(e.button!==0 && e.pointerType==="mouse") return;
     active=true; moved=false; startX=e.clientX; startTx=curTx();
     track.style.animation="none"; track.style.transform="translateX("+startTx+"px)";
-    try{ vp.setPointerCapture(e.pointerId) }catch(err){}
   });
   // a finger that starts scrolling the page vertically hands the row back to the animation
   vp.addEventListener("pointercancel",function(){ if(active && !moved){ active=false; track.style.animation=""; track.style.transform="" } });
   vp.addEventListener("pointermove",function(e){
-    if(!active) return; var dx=e.clientX-startX; if(Math.abs(dx)>4){ moved=true; vp.classList.add("dragging") }
+    if(!active) return; var dx=e.clientX-startX;
+    // the row takes the pointer only once a real drag starts; a plain tap or click still reaches the square itself
+    if(!moved && Math.abs(dx)>4){ moved=true; vp.classList.add("dragging"); try{ vp.setPointerCapture(e.pointerId) }catch(err){} }
     track.style.transform="translateX("+(startTx+dx)+"px)";
   });
   var end=function(e){
-    if(!active) return; active=false; vp.classList.remove("dragging");
-    var tx=curTx(); if(!moved){ track.style.animation=""; track.style.transform=""; return }
+    if(!active) return;
+    // when the row takes the pointer from the square underneath, the square reports a lost capture — that is not the end of the drag
+    if(e && e.type==="lostpointercapture" && e.target!==vp) return;
+    active=false; vp.classList.remove("dragging");
+    // a plain tap resumes the glide exactly where it was too — restarting it from the beginning made the row jump under the finger,
+    // so the click landed on the neighbouring square
+    var tx=curTx();
     // progress along one set (0..1) in the animation's own direction, then hand back to the animation at that point
     var w=parseFloat(getComputedStyle(track).getPropertyValue("--set-w"))||setW;
     var prog = rtl ? (tx/w) : (-tx/w); prog = ((prog % 1) + 1) % 1;
     track.style.transform=""; track.style.animation=""; track.style.animationDelay="-"+(prog*dur()).toFixed(2)+"s";
-    setTimeout(function(){ if(vp.classList.contains("dragging")) return }, 0);
-    e.preventDefault && e.preventDefault();
+    if(moved && e && e.preventDefault) e.preventDefault();
   };
   vp.addEventListener("pointerup",end); vp.addEventListener("pointercancel",end); vp.addEventListener("lostpointercapture",end);
   // a drag must not open the square underneath when the finger lifts
