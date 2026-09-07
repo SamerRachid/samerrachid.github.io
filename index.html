@@ -2263,6 +2263,58 @@ body.rs-lock{overflow:hidden}
 .soon-acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .soon-acts .gold{text-decoration:none;border-radius:999px;padding:10px 18px}
 .soon-acts .gh{border-radius:999px;padding:10px 18px;margin:0}
+/* new projects */
+.pjdir{padding:22px 18px 60px}
+.pj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px}
+.pj-row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(280px,320px);gap:16px;overflow-x:auto;padding:4px 2px 12px;scroll-snap-type:x mandatory;scrollbar-width:thin}
+.pj-row .pjcard{scroll-snap-align:start}
+.pjmore{margin-top:6px}.pjmore .gh{width:auto;display:inline-block;margin:0}
+.pjcard{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:18px;overflow:hidden;text-decoration:none;color:inherit;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s}
+.pjcard:hover{box-shadow:0 24px 44px -26px rgba(20,33,61,.5);border-color:#d9dbe1;transform:translateY(-3px)}
+.pjph{position:relative;aspect-ratio:16/10;background:#0D1729;overflow:hidden}.pjph img,.pjph .nophoto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}.pjph .nophoto{display:grid;place-items:center;color:rgba(255,255,255,.6);font-size:13px}
+.pjst{position:absolute;top:10px;inset-inline-start:10px;font-size:11px;font-weight:800;border-radius:999px;padding:4px 10px;color:#fff;background:var(--navy);letter-spacing:.02em}
+.pjst.st-soon{background:var(--gold);color:#1A1206}.pjst.st-construction{background:var(--navy)}.pjst.st-handover{background:#0EA5A0}.pjst.st-ready{background:var(--ok)}
+.pjfeat{position:absolute;top:10px;inset-inline-end:10px;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#1A1206;display:grid;place-items:center;font-size:13px}
+.pjb{padding:14px 16px 16px;display:flex;flex-direction:column;gap:6px}
+.pjname{font-size:16.5px;color:var(--navy);font-weight:800}.pjdev{font-size:12.5px;color:var(--grey)}
+.pjloc{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink)}.pjloc .mi{display:inline-flex;color:var(--gold-dk,#8A6522)}.pjloc svg{width:15px;height:15px}
+.pjfacts{display:flex;gap:18px;margin-top:6px}.pjfacts span{display:flex;flex-direction:column;gap:2px}.pjfacts small{font-size:11px;color:var(--light)}.pjfacts b{font-size:14px;color:var(--navy)}
+.pjplan{margin-top:6px;padding-top:10px;border-top:1px dashed var(--line);font-size:12.5px;color:var(--gold-dk,#8A6522);font-weight:700}
+.pjpage{padding:18px 18px 60px}
+.pjgal{display:grid;gap:10px;margin-bottom:18px}
+.pjmain{position:relative;border-radius:18px;overflow:hidden;background:#0D1729;aspect-ratio:21/9}.pjmain img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}.pjmain .pjst{top:14px;inset-inline-start:14px;font-size:12.5px;padding:6px 12px}
+.pjthumbs{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}.pjthumbs img{width:96px;height:64px;object-fit:cover;border-radius:10px;border:2px solid transparent;cursor:pointer;flex:none;opacity:.8}.pjthumbs img.on{border-color:var(--gold);opacity:1}
+.pjhead{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px}
+.pjhead h1{font-size:26px;font-weight:800;color:var(--navy);margin:0 0 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}.pjhead h1 .pjst{position:static}
+.pjloc.big{font-size:14.5px}.pjdevline{margin-top:8px;font-size:14px;color:var(--grey)}.pjdevline b{color:var(--ink)}
+.pjtiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;min-width:min(100%,420px)}
+.pjtiles>div{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}.pjtiles>div.wide{grid-column:1/-1}
+.pjtiles small{font-size:11.5px;color:var(--light)}.pjtiles b{font-size:15px;color:var(--navy)}
+.pjcols{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:20px;align-items:start}
+.pjdesc{margin:0;font-size:15px;line-height:1.9;color:var(--ink)}
+.pjunits{overflow-x:auto}.pjunits table{width:100%;border-collapse:collapse;font-size:13.5px}.pjunits th,.pjunits td{white-space:nowrap}.pjunits th{text-align:start;font-size:11.5px;color:var(--grey);text-transform:uppercase;letter-spacing:.03em;padding:10px 14px;background:#F8F9FB;border-bottom:1px solid var(--line)}.pjunits td{padding:11px 14px;border-bottom:1px solid var(--line)}.pjunits tr:last-child td{border-bottom:0}
+.pjplans{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.pjplanc{border:1px solid var(--line);border-radius:14px;padding:12px 14px;cursor:pointer;display:flex;flex-direction:column;gap:4px}.pjplanc.on{border-color:var(--gold);background:var(--gold-w)}.pjplanc b{font-size:14px;color:var(--navy)}.pjplanc span{font-size:12.5px;color:var(--grey)}
+.pjmap{height:300px}
+.pjside{position:sticky;top:76px;display:flex;flex-direction:column}
+.pjcalc .in,.pjlead .in{display:flex;flex-direction:column;gap:12px}
+.pjcalc .fl input,.pjcalc .fl select,.pjlead .fl input,.pjlead .fl select{height:44px;border:1px solid var(--line-2);border-radius:11px;padding:0 12px;font:inherit;font-size:14px;background:#fff;width:100%}
+.pjcalc .fl label,.pjlead .fl label{display:block;font-size:12.5px;font-weight:600;color:var(--grey);margin-bottom:5px}
+.pjres{display:grid;gap:8px;margin-top:4px}.pjres>div{display:flex;align-items:center;justify-content:space-between;background:var(--page);border-radius:12px;padding:10px 12px}.pjres small{font-size:12.5px;color:var(--grey)}.pjres b{font-size:16px;color:var(--navy)}
+.pjres>div.hi{background:var(--navy);color:#fff}.pjres>div.hi small,.pjres>div.hi b{color:#fff}.pjres>div.hi b{color:#E3B563;font-size:20px}
+.pjsendbtn{width:100%;height:48px;border-radius:12px;font-size:15px;border:0;cursor:pointer}
+.pjsent{background:var(--ok-w);color:var(--ok);border-radius:12px;padding:14px;font-weight:700;text-align:center}
+.pjdevc{border-top:1px solid var(--line);padding-top:12px}.pjdevc b{display:block;font-size:13px;color:var(--grey);margin-bottom:8px}.pjdevc .agcontact{margin-top:0}
+.pjdevc .agcontact a{flex:1;justify-content:center}
+@media(max-width:900px){.pjcols{grid-template-columns:1fr}.pjside{position:static}.pjmain{aspect-ratio:16/10}.pjhead h1{font-size:22px}.pj-row{grid-auto-columns:minmax(250px,280px)}}
+/* admin */
+.pjthumb{position:relative;display:inline-block}.pjthumb img{width:72px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}.pjthumb button{position:absolute;top:-6px;inset-inline-end:-6px;width:20px;height:20px;border-radius:50%;border:0;background:var(--danger);color:#fff;font-size:12px;cursor:pointer;line-height:1}
+.pjtbl{display:flex;flex-direction:column;gap:6px}.pjtr{display:grid;grid-template-columns:1.6fr 1fr 1fr 1.2fr 1fr 40px;gap:6px;align-items:center}.pjtbl.plans .pjtr{grid-template-columns:1.6fr 1fr 1fr 1fr 40px}
+.pjtr.h span{font-size:11px;color:var(--grey);font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.adm .pjtr input{height:38px!important;padding:0 10px!important;font-size:13px!important;min-width:0;width:100%;box-sizing:border-box}.pjtr>*{min-width:0}.adm .pjtr .ab{margin:0;padding:6px 8px}.adm .pjtbl>.ab{align-self:flex-start;margin-top:4px}
+.adm .erow.pjrow{grid-template-columns:minmax(220px,1.4fr) minmax(150px,1.1fr) minmax(110px,.8fr) 150px 120px auto}.pjtitle{display:flex;align-items:center;gap:10px;min-width:0}.pjtitle b{display:block;font-size:14px;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pjtitle small{display:block;font-size:12px;color:var(--grey)}.pjtitle>div{min-width:0}
+.adm .pjlrow{grid-template-columns:minmax(160px,1.2fr) minmax(140px,1fr) minmax(160px,1.3fr) 130px 90px auto}.adm .pjlrow.done{opacity:.6}
+.adm .pjrow .eclient small,.adm .pjlrow .eclient small{display:block;color:var(--grey);font-weight:500}
 /* agencies directory */
 .agdir{padding:22px 18px 60px}
 .ag-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
@@ -2338,8 +2390,8 @@ body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
 .mdw2-row>.mi{width:22px;height:22px;display:grid;place-items:center;color:var(--navy);flex:none}
 .mdw2-row>.mi svg{width:20px;height:20px}
 .mdw2-row>span:not(.mi){flex:1;min-width:0}
-.mdw2-row::after{content:"‹";color:var(--light);font-size:20px;line-height:1;margin-inline-start:4px}
-[dir=ltr] .mdw2-row::after{content:"›"}
+.mdw2-row::after{content:"";width:7px;height:7px;border-top:1.6px solid var(--light);border-right:1.6px solid var(--light);transform:rotate(-135deg);margin-inline-start:4px;flex:none;opacity:.9}
+[dir=ltr] .mdw2-row::after{transform:rotate(45deg)}
 .mdw2-row.soon>span:not(.mi){color:var(--grey)}
 .mdw2-row .mdw-soon,.mdw2-row .mdw-badge{margin-inline-start:0}
 .mdw2-row.out{color:var(--danger)}.mdw2-row.out>.mi{color:var(--danger)}.mdw2-row.out::after{content:none}
@@ -2348,6 +2400,62 @@ body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
 .mdw2-seg a{flex:1;text-align:center;padding:9px 6px;border-radius:9px;font-size:13px;font-weight:600;color:var(--grey);cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px}
 .mdw2-seg a.on{background:#fff;color:var(--navy);box-shadow:0 1px 2px rgba(20,33,61,.12)}
 .mdw2-seg .langflag{display:inline-flex;width:18px;height:12px;overflow:hidden;border-radius:2px}.mdw2-seg .langflag svg{width:18px;height:12px}
+/* menu: compact sizing */
+.mdw-p.mdw2{width:min(84vw,320px)}
+.mdw2 .mdw-top{padding:10px 14px}.mdw2 .mdw-top .logo{font-size:15px;padding:3px 8px}.mdw2 .mdw-x{width:32px;height:32px}.mdw2 .mdw-x svg{width:16px;height:16px}
+.mdw2-acct{padding:12px 14px;gap:10px}.mdw2-acct .av{width:40px;height:40px;font-size:15px}.mdw2-acct b{font-size:14px}.mdw2-acct span{font-size:12px;margin-top:2px}
+.mdw2-acct.guest{gap:10px}.mdw2-acct.guest .mdw-in{height:40px;font-size:14px;border-radius:10px}
+.mdw2-acctlink{font-size:12.5px}
+.mdw2-quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;padding:12px 12px 4px}
+.mdw2-q{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 4px 8px;border-radius:12px;background:var(--page);border:1px solid var(--line);color:var(--navy);text-decoration:none;cursor:pointer;font-weight:600;font-size:11.5px;text-align:center;line-height:1.3;transition:border-color .15s,transform .15s}
+.mdw2-q:hover{border-color:var(--navy)}.mdw2-q:active{transform:scale(.97)}
+.mdw2-q .mi{width:30px;height:30px;border-radius:9px;background:#fff;display:grid;place-items:center;color:var(--navy);box-shadow:0 1px 2px rgba(20,33,61,.08)}
+.mdw2-q .mi svg{width:17px;height:17px}
+.mdw2-q.map .mi svg{color:var(--gold);animation:pinSpin 5s cubic-bezier(.6,0,.3,1) 3s infinite;transform-style:preserve-3d}
+.mdw2-q.post{background:var(--gold);border-color:var(--gold);color:#1A1206}.mdw2-q.post .mi{background:rgba(255,255,255,.75);color:#1A1206}
+.mdw2-q .mdw2-new{top:-6px;inset-inline-end:-4px;font-size:9px;padding:0 5px}
+.mdw2-sec{padding:2px 12px}.mdw2-h{font-size:10.5px;padding:10px 6px 2px}
+.mdw2-row{padding:8px 6px;min-height:38px;font-size:13.5px;gap:10px}.mdw2-row>.mi{width:20px;height:20px}.mdw2-row>.mi svg{width:18px;height:18px}.mdw2-row::after{width:6px;height:6px}
+.mdw2-row .mdw-soon{font-size:9.5px;padding:1px 7px}.mdw2-row .mdw-badge{min-width:18px;height:18px;font-size:10.5px}
+.mdw2-foot{margin:6px 12px 0;padding:10px 0 2px;gap:8px}.mdw2-seg{padding:2px}.mdw2-seg a{padding:7px 4px;font-size:12.5px}
+/* sign-in / sign-up */
+.aubox.au2{max-width:820px;border-radius:20px;display:grid;grid-template-columns:300px minmax(0,1fr);overflow:hidden;max-height:calc(100vh - 32px)}
+.au-brand{background:radial-gradient(120% 90% at 20% 10%,#1E3160,#14213D 60%,#0F1B33);color:#fff;padding:28px 26px;display:flex;flex-direction:column;gap:14px}
+.au-brand .logo{align-self:flex-start;font-size:22px}
+.au-brand h3{font-size:22px;font-weight:800;line-height:1.35;margin:6px 0 0;font-family:var(--fd)}
+.au-brand p{font-size:13.5px;color:rgba(255,255,255,.75);line-height:1.8;margin:0}
+.au-brand ul{list-style:none;padding:0;margin:auto 0 0;display:flex;flex-direction:column;gap:10px;font-size:13px;color:rgba(255,255,255,.9)}
+.au-brand li{display:flex;align-items:center;gap:8px}.au-brand li::before{content:"✓";width:20px;height:20px;border-radius:50%;background:var(--gold);color:#1A1206;font-size:11px;font-weight:800;display:grid;place-items:center;flex:none}
+.au-main{display:flex;flex-direction:column;min-width:0;overflow-y:auto;max-height:calc(100vh - 32px)}
+.au2 .autop{background:transparent;color:var(--navy);padding:18px 22px 0;display:flex;align-items:center;justify-content:space-between}
+.au2 .autop b{font-size:20px;font-weight:800}
+.au2 #auX{width:34px;height:34px;border-radius:50%;border:0;background:var(--page);color:var(--ink);font-size:20px;line-height:1;cursor:pointer;padding:0;display:grid;place-items:center}
+.au2 .autabs{margin:14px 22px 4px;border:0;background:var(--page);border-radius:12px;padding:3px;gap:2px}
+.au2 .autabs button{padding:9px;border-radius:9px;border:0;font-size:13.5px;color:var(--grey)}
+.au2 .autabs button.on{background:#fff;color:var(--navy);box-shadow:0 1px 2px rgba(20,33,61,.12);border:0}
+.au2 .aubody{padding:14px 22px 6px}
+.au2 .auf{margin-bottom:12px}.au2 .auf label{font-size:12.5px;font-weight:600;color:var(--grey);margin-bottom:5px}
+.au2 .auf input,.au2 .auf select{height:46px;border:1px solid var(--line-2);border-radius:12px;padding:0 14px;font:inherit;font-size:14.5px;background:#fff;width:100%}
+.au2 .auf input:focus,.au2 .auf select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(196,136,31,.14)}
+.au2 .pw{display:flex;gap:8px;direction:ltr}.au2 .pw select{width:auto;flex:none;padding:0 10px}.au2 .pw input{flex:1;min-width:0}
+.au2 .pw .eye,.au2 .pw button{height:46px;border-radius:12px}
+.au2 .aub{height:48px;border-radius:12px;font-size:15px;margin-top:4px}
+.au2 .auw{height:48px;border-radius:12px;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px;background:#1D9E5A;margin-top:4px}
+.au2 .auw::before{content:"";width:18px;height:18px;background:currentColor;-webkit-mask:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="M20 3.9A11.8 11.8 0 0 0 1.6 18.2L0 24l5.9-1.6A11.8 11.8 0 0 0 20 3.9zm-8 18a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.5 1 1-3.4-.2-.4A9.8 9.8 0 1 1 12 21.9zm5.4-7.3c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1l-.9 1.2c-.2.2-.3.2-.6.1a8 8 0 0 1-4-3.5c-.3-.5.3-.5.9-1.6.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6a1.1 1.1 0 0 0-.8.4 3.4 3.4 0 0 0-1 2.5 6 6 0 0 0 1.2 3.1 13.4 13.4 0 0 0 5.2 4.6c1.9.8 2.7.9 3.6.7a3.1 3.1 0 0 0 2-1.4 2.5 2.5 0 0 0 .2-1.4c-.1-.2-.3-.2-.6-.4z"/></svg>') center/contain no-repeat;mask:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black"><path d="M20 3.9A11.8 11.8 0 0 0 1.6 18.2L0 24l5.9-1.6A11.8 11.8 0 0 0 20 3.9zm-8 18a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.5 1 1-3.4-.2-.4A9.8 9.8 0 1 1 12 21.9zm5.4-7.3c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1l-.9 1.2c-.2.2-.3.2-.6.1a8 8 0 0 1-4-3.5c-.3-.5.3-.5.9-1.6.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6a1.1 1.1 0 0 0-.8.4 3.4 3.4 0 0 0-1 2.5 6 6 0 0 0 1.2 3.1 13.4 13.4 0 0 0 5.2 4.6c1.9.8 2.7.9 3.6.7a3.1 3.1 0 0 0 2-1.4 2.5 2.5 0 0 0 .2-1.4c-.1-.2-.3-.2-.6-.4z"/></svg>') center/contain no-repeat}
+.au2 .agree{font-size:13px;margin:2px 0 4px}.au2 .agree input{width:18px;height:18px;border-radius:5px}
+.au-terms{margin:0 0 12px;font-size:12.5px}.au-terms summary{cursor:pointer;color:var(--navy);font-weight:600;list-style:none;display:inline-flex;align-items:center;gap:6px}.au-terms summary::before{content:"›";display:inline-block;transition:transform .15s;color:var(--light)}
+.au-terms[open] summary::before{transform:rotate(90deg)}.au-terms .agreelist{margin:8px 0 0;color:var(--grey)}
+.au2 .aun{margin-top:10px}.au2 .auerr{min-height:16px}
+.au-switch{padding:10px 22px 20px;text-align:center;font-size:13.5px;color:var(--grey);border-top:1px solid var(--line);margin-top:auto}
+.au-switch a{color:var(--navy);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.au2 .aucode{font-size:36px;letter-spacing:6px;background:var(--gold-w);border:1px dashed var(--gold);border-radius:14px;padding:10px;margin:8px 0 14px}
+.au2 .audone .tk{width:56px;height:56px;border-radius:50%;background:var(--ok-w);color:var(--ok);font-size:26px;display:grid;place-items:center;margin:0 auto 10px}
+@media(max-width:760px){
+  .au{padding:0;align-items:flex-end}
+  .aubox.au2{grid-template-columns:1fr;max-width:none;border-radius:22px 22px 0 0;max-height:94vh}
+  .au-brand{flex-direction:row;align-items:center;gap:12px;padding:14px 18px}.au-brand h3{font-size:15px;margin:0}.au-brand p,.au-brand ul{display:none}.au-brand .logo{font-size:18px}
+  .au-main{max-height:none}.au2 .autop{padding:14px 18px 0}.au2 .autabs{margin:12px 18px 4px}.au2 .aubody{padding:12px 18px 4px}.au-switch{padding:10px 18px calc(18px + env(safe-area-inset-bottom))}
+}
 /* ☰ button and the phone drawer */
 .hmb{display:none;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;place-items:center;cursor:pointer;padding:0;flex:none}
 .hmb svg{width:21px;height:21px}
@@ -2799,6 +2907,7 @@ var NAVI=[
   {k:"rent",g:"search",lab:function(){return t("rent")},ico:"rent",attrs:'data-go="search" data-deal="rent" data-sec=""',o:20},
   {k:"map",g:"search",lab:function(){return t("searchOnMap")},ico:"map",attrs:'data-go="mapsearch"',o:30},
   {k:"areas",g:"search",lab:function(){return GX("allAreas")},ico:"areas",attrs:'href="/areas/"',o:40},
+  {k:"projects",g:"discover",lab:function(){return GX("pjDirShort")},ico:"tower",attrs:'data-go="projects"',o:48},
   {k:"coll",g:"discover",lab:function(){return HX("navColl")},ico:"coll",attrs:'data-mdscroll="collsSec"',o:50},
   {k:"expl",g:"discover",lab:function(){return HX("navAreas")},ico:"expl",attrs:'data-mdscroll="explSec"',o:60},
   {k:"guide",g:"discover",lab:function(){return HX("navGuide")},ico:"guide",attrs:'data-mdscroll="guidesSec"',o:70},
@@ -2815,10 +2924,10 @@ function mdrawer(){
   var items=navItems(); var grp=function(g){ return items.filter(function(i){ return i.g===g }) };
   var row=function(i,extra){ return '<a class="mdw2-row'+(i.soon?' soon':'')+'" '+i.attrs+'>'+'<span class="mi">'+(MI[i.ico]||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span>'+i.lab()+'</span>'+(i.soon?'<i class="mdw-soon">'+GX("soon")+'</i>':'')+(extra||'')+'</a>' };
   var sec=function(title,html){ return html ? '<div class="mdw2-sec"><div class="mdw2-h">'+title+'</div>'+html+'</div>' : '' };
-  var tile=function(i,cls,extra){ return '<a class="mdw2-tile '+cls+'" '+i.attrs+'>'+(MI[i.ico]||'')+'<span>'+i.lab()+'</span>'+(extra||'')+'</a>' };
+  var tile=function(i,cls,extra,lab){ return '<a class="mdw2-q '+cls+'" '+i.attrs+'>'+(MI[i.ico]||'')+'<span>'+(lab||i.lab())+'</span>'+(extra||'')+'</a>' };
   var byK=function(k){ return items.filter(function(i){ return i.k===k })[0] };
-  var tiles=[byK("buy")?tile(byK("buy"),"buy"):"", byK("rent")?tile(byK("rent"),"rent"):"", byK("map")?tile(byK("map"),"map",SX("nav_map_new",true)!==false?'<i class="mdw2-new">'+GX("newTag")+'</i>':''):"",
-    '<a class="mdw2-tile post" data-go="post">'+MI.post+'<span>'+t("post")+'</span></a>'].join("");
+  var tiles=[byK("buy")?tile(byK("buy"),"buy"):"", byK("rent")?tile(byK("rent"),"rent"):"", byK("map")?tile(byK("map"),"map",SX("nav_map_new",true)!==false?'<i class="mdw2-new">'+GX("newTag")+'</i>':'',GX("map")):"",
+    '<a class="mdw2-q post" data-go="post">'+MI.post+'<span>'+t("post")+'</span></a>'].join("");
   var discover=grp("discover").map(function(i){ return row(i) }).join("")+(byK("areas")?row(byK("areas")):"")+(byK("agencies")?row(byK("agencies")):"");
   var services=grp("services").map(function(i){ return row(i) }).join("");
   var site=grp("site").filter(function(i){ return i.k!=="agencies" }).map(function(i){ return row(i) }).join("");
@@ -2832,7 +2941,7 @@ function mdrawer(){
   return '<div class="mdw" id="mdw"><div class="mdw-bg" id="mdwBg"></div><aside class="mdw-p mdw2" role="dialog" aria-label="'+GX("mdMenu")+'">'+
     '<div class="mdw-top"><span class="logo">'+CONFIG.brand+'</span><button class="mdw-x" id="mdwX" aria-label="'+GX("mdClose")+'">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>'+
-    acct+'<div class="mdw2-tiles">'+tiles+'</div>'+
+    acct+'<div class="mdw2-quick">'+tiles+'</div>'+
     sec(GX("mdDiscover"),discover)+sec(GX("mdServices"),services)+mine+sec(GX("mdSite"),site)+
     ((langs||curs)?'<div class="mdw2-foot">'+langs+curs+'</div>':'')+
     (USER?'<div class="mdw2-sec"><a class="mdw2-row out" data-md="out"><span class="mi">'+(MI.out||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span>'+t("logout")+'</span></a></div>':'')+
@@ -2892,6 +3001,7 @@ var MI=(function(){
     legal:w('<path d="M12 3v18M6 21h12M5 7h14M5 7l-3 6a3 3 0 0 0 6 0L5 7M19 7l-3 6a3 3 0 0 0 6 0l-3-6"/>'),
     legaltx:w('<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>'),
     agency:w('<path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/>'),
+    tower:w('<path d="M4 21h16M6 21V9l6-6 6 6v12"/><path d="M10 21v-4h4v4M9 12h.01M15 12h.01M9 16h.01M15 16h.01M12 3v3"/>'),
     team:w('<circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0"/><circle cx="17" cy="9" r="3"/><path d="M15.5 20a5.5 5.5 0 0 1 6.5-4"/>'),
     areas:w('<path d="M3 6.5 9 4l6 2.5 6-2.5v13.5L15 20l-6-2.5-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>'),
     coll:w('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>'),
@@ -2942,6 +3052,7 @@ function header(){
   '<nav class="hnav">'+
   // home page: editorial links first (they scroll to the page's own sections), "More" keeps the rest
   (VIEW==="home" ? (navOn("coll")?'<a data-scroll="collsSec">'+HX("navColl")+'</a>':'')+(navOn("expl")?'<a data-scroll="explSec">'+HX("navAreas")+'</a>':'')+(navOn("guide")?'<a data-scroll="guidesSec">'+HX("navGuide")+'</a>':'')+(navOn("agencies")?'<a data-go="agencies">'+GX("agDirShort")+'</a>':'') : '')+
+  (navOn("projects")?'<a data-go="projects" class="hsoon">'+GX("pjDirShort")+(SX("nav_map_new",true)!==false?'<i>'+GX("newTag")+'</i>':'')+'</a>':'')+
   (SX("nav_soon_header",true)!==false ? NAVI.filter(function(i){ return i.soon && navOn(i.k) }).map(function(i){ return '<a class="hsoon" data-soon="'+i.k+'">'+i.lab()+'<i>'+GX("soon")+'</i></a>' }).join("") : '')+
   '<div class="navmore" id="navMoreWrap"><a id="navMoreChip">'+t("moreNavT")+CHEV+'</a>'+
    '<div class="menu" id="navMoreMenu">'+
@@ -3151,9 +3262,9 @@ function authModal(){
     '</select></div>'+
    '<label class="agree"><input type="checkbox" id="auAgree">'+
    '<span>'+t("agreeIntro")+'</span></label>'+
-   '<ul class="agreelist">'+
+   '<details class="au-terms"><summary>'+GX("auTerms")+'</summary><ul class="agreelist">'+
     ['agree1','agree2','agree3','agree4'].map(function(k){return '<li>'+t(k)+'</li>'}).join("")+
-   '</ul>'+
+   '</ul></details>'+
    '<a class="auw" id="auStart">'+t("viaWa")+'</a>'+
    '<div class="auerr" id="auErr"></div>'+
    '<div class="aun">'+t("whyWa")+'</div></form>';
@@ -3195,12 +3306,16 @@ function authModal(){
    '<button class="aub" id="auGo" style="margin-top:14px">'+t("okBtn2")+'</button></div>';
  }
 
- return '<div class="au'+(AU.open?" on":"")+'" id="au"><div class="aubox">'+
- '<div class="autop"><b>'+(AU.step>=5?t("forgot"):AU.mode==="up"?t("signupH"):t("loginH"))+'</b>'+
- '<button id="auX">✕</button></div>'+
- (AU.step<5&&AU.step!==4?'<div class="autabs"><button data-m="in" class="'+(AU.mode==="in"?"on":"")+'">'+t("login")+
- '</button><button data-m="up" class="'+(AU.mode==="up"?"on":"")+'">'+t("signup")+'</button></div>':'')+
- body+'</div></div>'}
+ var title=(AU.step>=5?t("forgot"):AU.mode==="up"?t("signupH"):t("loginH"));
+ return '<div class="au'+(AU.open?" on":"")+'" id="au"><div class="aubox au2">'+
+  '<aside class="au-brand"><span class="logo">'+CONFIG.brand+'</span><h3>'+GX("auBrandH")+'</h3><p>'+GX("auBrandP")+'</p>'+
+   '<ul><li>'+GX("auB1")+'</li><li>'+GX("auB2")+'</li><li>'+GX("auB3")+'</li></ul></aside>'+
+  '<div class="au-main"><div class="autop"><b>'+title+'</b><button id="auX" aria-label="'+GX("mdClose")+'">×</button></div>'+
+  (AU.step<5&&AU.step!==4?'<div class="autabs"><button type="button" data-m="in" class="'+(AU.mode==="in"?"on":"")+'">'+t("login")+
+  '</button><button type="button" data-m="up" class="'+(AU.mode==="up"?"on":"")+'">'+t("signup")+'</button></div>':'')+
+  body+
+  (AU.step===1?'<div class="au-switch">'+(AU.mode==="in"?GX("auNoAcct")+' <a data-m="up">'+t("signup")+'</a>':GX("auHaveAcct")+' <a data-m="in">'+t("login")+'</a>')+'</div>':'')+
+  '</div></div></div>'}
 
 /* ── home ── */
 function bannersConfig(){
@@ -4840,6 +4955,7 @@ function adminView(){
 
  else if(ADM.tab==="engage"){ body = adminEngageBody(); }
  else if(ADM.tab==="agencies_adm"){ body = adminAgenciesBody(); }
+ else if(ADM.tab==="projects_adm"){ body = adminProjectsBody(); }
  else if(ADM.tab==="featured"){
   var flist = ADM.featuredList||[];
   var now = new Date();
@@ -4980,7 +5096,7 @@ function adminView(){
    {g:t("navOverview"), items:[["dashboard",t("dashboardTab"),null,AICO.dash,true],["stats",t("visitorStats"),null,AICO.chart,can("stats")]]},
    {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["photos",GX("tMedia"),null,AICO.image,can("listings")]]},
    {g:t("navPeople"), items:[["users",t("usersTab"),s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")]]},
-   {g:GX("navMarketing"), items:[["engage",GX("tEngage"),null,AICO.ledger,can("ads")||can("featured")],["ads",t("adsTab"),null,AICO.ads,can("ads")],["featured",t("featuredTab"),null,AICO.star,can("featured")],["banners",GX("tBanners"),null,AICO.banner,can("homepage")]]},
+   {g:GX("navMarketing"), items:[["engage",GX("tEngage"),null,AICO.ledger,can("ads")||can("featured")],["projects_adm",GX("tProjects"),null,AICO.building,can("listings")||can("ads")],["ads",t("adsTab"),null,AICO.ads,can("ads")],["featured",t("featuredTab"),null,AICO.star,can("featured")],["banners",GX("tBanners"),null,AICO.banner,can("homepage")]]},
    {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")]]},
    {g:t("navInboxH"), items:[["reports",t("reportsTab"),s.openReports,AICO.shield,can("reports")],["feedback",t("feedbackTab"),s.openFeedback,AICO.shield,can("feedback")],["msgs",t("msgsNotifTab"),ADM.alertsUnread,AICO.bell,can("msgs")]]},
    {g:GX("navSystem"), items:[["settings",GX("tSystem"),null,AICO.gear,can("settings")],["storage",GX("tStorage"),null,AICO.disk,can("settings")],["admins",t("adminsTab"),null,AICO.key,ADM.isSuper],["danger",t("dangerTab"),null,AICO.lock,ADM.isSuper]]}
@@ -6001,7 +6117,141 @@ function initViewMap(lat,lng){
    on its own dedicated, rarely-re-rendered view — and being strict
    about cleanup — avoids that whole class of failure. ═══ */
 var MAPSEARCH = {deal:"sale", gov:"", area:"", type:"", tabu:"", filtersOpen:false};
-/* ═══ agencies directory ═══ */
+/* ═══ new projects (off-plan, payment plans) ═══ */
+var PROJECTS=null, PROJECT=null, PJF={status:"",g:""}, ADM_PJ=null, ADM_PJL=null, PJ_STATUSES=["soon","construction","handover","ready"];
+function pjSt(k){ return GX("pjst_"+(k||"soon")) }
+function pjFmt(n){ n=+n||0; return "$"+n.toLocaleString("en") }
+function pjPlanText(p){ var parts=[]; if(p.down_pct) parts.push(GX("pjDown")+" "+p.down_pct+"٪"); if(p.months) parts.push(GX("pjMonths").replace("{n}",p.months)); if(p.handover_pct) parts.push(p.handover_pct+"٪ "+GX("pjHandover")); return parts.join(" · ") }
+function pjMonthly(price,plan){ var m=+plan.months||0; if(!m) return 0; var rest=price*(1-((+plan.down_pct||0)+(+plan.handover_pct||0))/100); return Math.max(0,Math.round(rest/m)) }
+function pjPlans(p){ var pl=Array.isArray(p.plans)&&p.plans.length?p.plans:[]; if(!pl.length && (p.down_pct||p.months)) pl=[{name:GX("pjPlan"),down_pct:p.down_pct,months:p.months,handover_pct:p.handover_pct}]; return pl }
+async function loadProjects(){ if(!DB){ PROJECTS=[]; return } try{ var r=await DB.rpc("bk_public_projects"); PROJECTS=(r&&r.data)||[] }catch(e){ PROJECTS=[] } }
+async function loadProject(id){ if(!DB){ PROJECT={missing:true,id:id}; return } try{ var r=await DB.rpc("bk_project_get",{p_id:+id}); PROJECT=(r&&r.data)||{missing:true,id:id} }catch(e){ PROJECT={missing:true,id:id} } }
+function pjCard(p){
+  var ar=L==="ar", ph=(p.photos&&p.photos[0])||null, loc=[p.area_name?aN(p.area_name):"",p.gov_name?gN(p.gov_name):""].filter(Boolean).join(ar?"، ":", ");
+  return '<a class="pjcard" href="/project/'+p.id+'" data-pjopen="'+p.id+'">'+
+    '<div class="pjph">'+(ph?'<img src="'+esc(ph)+'" alt="" loading="lazy">':'<div class="nophoto"><span>'+t("photos")+'</span></div>')+'<span class="pjst st-'+esc(p.status)+'">'+pjSt(p.status)+'</span>'+(p.featured?'<span class="pjfeat">★</span>':'')+'</div>'+
+    '<div class="pjb"><b class="pjname">'+esc(p.name)+'</b>'+(p.developer_name?'<span class="pjdev">'+esc(p.developer_name)+'</span>':'')+
+     (loc?'<span class="pjloc">'+MI.map+esc(loc)+'</span>':'')+
+     '<div class="pjfacts">'+(p.price_from?'<span><small>'+GX("pjFrom")+'</small><b class="ltr">'+pjFmt(p.price_from)+'</b></span>':'')+(p.delivery?'<span><small>'+GX("pjDelivery")+'</small><b>'+esc(p.delivery)+'</b></span>':'')+'</div>'+
+     (pjPlanText(p)?'<div class="pjplan">'+pjPlanText(p)+'</div>':'')+
+    '</div></a>' }
+function projectsPage(){
+  var list=PROJECTS, govs=[]; (list||[]).forEach(function(p){ if(p.gov_name && govs.indexOf(p.gov_name)<0) govs.push(p.gov_name) });
+  var rows=(list||[]).filter(function(p){ return (!PJF.status||p.status===PJF.status) && (!PJF.g||p.gov_name===PJF.g) });
+  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("pjDirShort")+'</div></div>'+
+   '<div class="wrap pjdir">'+
+    '<div class="ag-hero"><div><div class="eyebrow">'+GX("pjSecEyebrow")+'</div><h1>'+GX("pjDir")+'</h1><p>'+GX("pjDirP")+'</p></div></div>'+
+    '<div class="ag-filters"><div class="ag-pills"><button type="button" class="'+(PJF.status?"":"on")+'" data-pjs="">'+GX("pjAll")+'</button>'+PJ_STATUSES.map(function(k){ return '<button type="button" class="'+(PJF.status===k?"on":"")+'" data-pjs="'+k+'">'+pjSt(k)+'</button>' }).join("")+'</div>'+
+     (govs.length>1?'<div class="ag-pills"><button type="button" class="'+(PJF.g?"":"on")+'" data-pjg="">'+GX("agAllGov")+'</button>'+govs.map(function(g){ return '<button type="button" class="'+(PJF.g===g?"on":"")+'" data-pjg="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div>':'')+'</div>'+
+    (list===null ? '<div class="resempty"><b>'+t("loading")+'</b></div>' : rows.length ? '<div class="pj-grid">'+rows.map(pjCard).join("")+'</div>' : '<div class="resempty">'+LICON.search+'<b>'+GX("pjEmpty")+'</b></div>')+
+   '</div>' }
+function projectPage(id){
+  var p=PROJECT;
+  if(!p || String(p.id)!==String(id)) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>';
+  if(p.missing) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:18px">'+t("notFound")+'</b><div style="margin-top:18px"><button class="btn-n" data-go="projects">'+GX("pjDirShort")+'</button></div></div></div>';
+  var ar=L==="ar", photos=p.photos||[], gi=Math.min(PROJECT._gi||0,Math.max(0,photos.length-1)), loc=[p.address,p.area_name?aN(p.area_name):"",p.gov_name?gN(p.gov_name):""].filter(Boolean).join(ar?"، ":", ");
+  var units=Array.isArray(p.units)?p.units:[], plans=pjPlans(p), wa=(p.developer_phone||"").replace(/\D/g,"");
+  var calcPrice = PROJECT._price!=null ? PROJECT._price : (units[0]&&units[0].price_usd) || p.price_from || 0, calcPlan=plans[PROJECT._plan||0]||plans[0]||{};
+  var down=Math.round(calcPrice*(+calcPlan.down_pct||0)/100), hand=Math.round(calcPrice*(+calcPlan.handover_pct||0)/100), monthly=pjMonthly(calcPrice,calcPlan);
+  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a data-go="projects">'+GX("pjDirShort")+'</a><i>›</i>'+esc(p.name)+'</div></div>'+
+   '<div class="wrap pjpage">'+
+    (photos.length?'<div class="pjgal"><div class="pjmain"><img src="'+esc(photos[gi])+'" alt=""><span class="pjst st-'+esc(p.status)+'">'+pjSt(p.status)+'</span></div>'+(photos.length>1?'<div class="pjthumbs">'+photos.map(function(u,i){ return '<img src="'+esc(u)+'" class="'+(i===gi?"on":"")+'" data-pjimg="'+i+'" alt="">' }).join("")+'</div>':'')+'</div>':'')+
+    '<div class="pjhead"><div><h1>'+esc(p.name)+(photos.length?'':' <span class="pjst st-'+esc(p.status)+'">'+pjSt(p.status)+'</span>')+'</h1>'+(loc?'<div class="pjloc big">'+MI.map+esc(loc)+'</div>':'')+
+      (p.developer_name?'<div class="pjdevline">'+GX("pjDev")+': <b>'+esc(p.developer_name)+'</b>'+(p.agency_id?' · <a data-agopen="'+p.agency_id+'" class="elink">'+GX("pjDevPage")+'</a>':'')+'</div>':'')+'</div>'+
+     '<div class="pjtiles">'+(p.price_from?'<div><small>'+GX("pjFrom")+'</small><b class="ltr">'+pjFmt(p.price_from)+'</b></div>':'')+(p.delivery?'<div><small>'+GX("pjDelivery")+'</small><b>'+esc(p.delivery)+'</b></div>':'')+(units.length?'<div><small>'+GX("pjUnits")+'</small><b class="ltr">'+units.reduce(function(a,u){ return a+(+u.count||0) },0)+'</b></div>':'')+(pjPlanText(p)?'<div class="wide"><small>'+GX("pjPlan")+'</small><b>'+pjPlanText(p)+'</b></div>':'')+'</div></div>'+
+    '<div class="pjcols"><div class="pjmaincol">'+
+     (p.description?'<div class="blk"><h3>'+GX("pjAbout")+'</h3><div class="in"><p class="pjdesc">'+esc(p.description).replace(/\n/g,"<br>")+'</p></div></div>':'')+
+     (units.length?'<div class="blk" style="margin-top:16px"><h3>'+GX("pjUnits")+'</h3><div class="in" style="padding:0"><div class="pjunits"><table><thead><tr><th>'+GX("pjUnitType")+'</th><th>'+GX("pjArea")+'</th><th>'+GX("pjRooms")+'</th><th>'+GX("pjPrice")+'</th><th>'+GX("pjCount")+'</th></tr></thead><tbody>'+
+       units.map(function(u){ return '<tr><td>'+esc(u.type||"")+'</td><td class="ltr">'+(u.area_m2?u.area_m2+' '+t("sqm"):"—")+'</td><td class="ltr">'+(u.rooms||"—")+'</td><td class="ltr"><b>'+(u.price_usd?pjFmt(u.price_usd):"—")+'</b></td><td class="ltr">'+(u.count||"—")+'</td></tr>' }).join("")+'</tbody></table></div></div></div>':'')+
+     (plans.length?'<div class="blk" style="margin-top:16px"><h3>'+GX("pjPlan")+'</h3><div class="in"><div class="pjplans">'+plans.map(function(pl,i){ return '<div class="pjplanc'+(i===(PROJECT._plan||0)?' on':'')+'" data-pjplan="'+i+'"><b>'+esc(pl.name||GX("pjPlan")+" "+(i+1))+'</b><span>'+pjPlanText(pl)+'</span></div>' }).join("")+'</div></div></div>':'')+
+     (p.lat&&p.lng?'<div class="blk" style="margin-top:16px"><h3>'+GX("pjLocation")+'</h3><div class="in" style="padding:0"><div id="viewMap" class="pjmap"></div></div></div>':'')+
+    '</div><aside class="pjside">'+
+     (plans.length?'<div class="blk pjcalc"><h3>'+GX("pjCalc")+'</h3><div class="in"><div class="hintx">'+GX("pjCalcP")+'</div>'+
+       (units.length?'<div class="fl"><label>'+GX("pjCalcUnit")+'</label><select id="pjUnitSel">'+units.map(function(u,i){ return '<option value="'+(u.price_usd||0)+'"'+(+u.price_usd===+calcPrice?' selected':'')+'>'+esc(u.type||"")+(u.area_m2?' · '+u.area_m2+' '+t("sqm"):'')+(u.price_usd?' · '+pjFmt(u.price_usd):'')+'</option>' }).join("")+'<option value="custom"'+(PROJECT._custom?' selected':'')+'>'+GX("pjCustom")+'</option></select></div>':'')+
+       '<div class="fl"><label>'+GX("pjCalcPrice")+'</label><input id="pjPrice" type="number" inputmode="numeric" class="ltr" data-allow-autofill value="'+calcPrice+'"></div>'+
+       (plans.length>1?'<div class="fl"><label>'+GX("pjCalcPlan")+'</label><select id="pjPlanSel">'+plans.map(function(pl,i){ return '<option value="'+i+'"'+(i===(PROJECT._plan||0)?' selected':'')+'>'+esc(pl.name||GX("pjPlan")+" "+(i+1))+'</option>' }).join("")+'</select></div>':'')+
+       '<div class="pjres"><div><small>'+GX("pjDown")+(calcPlan.down_pct?' ('+calcPlan.down_pct+'٪)':'')+'</small><b class="ltr">'+pjFmt(down)+'</b></div><div class="hi"><small>'+GX("pjInstall")+(calcPlan.months?' × '+calcPlan.months:'')+'</small><b class="ltr">'+pjFmt(monthly)+'</b></div>'+(calcPlan.handover_pct?'<div><small>'+GX("pjHandover")+' ('+calcPlan.handover_pct+'٪)</small><b class="ltr">'+pjFmt(hand)+'</b></div>':'')+'</div>'+
+      '</div></div>':'')+
+     '<div class="blk pjlead" style="margin-top:16px"><h3>'+(p.status==="soon"?GX("pjLeadSoon"):GX("pjLead"))+'</h3><div class="in">'+
+      (PROJECT._sent?'<div class="pjsent">✓ '+GX("pjSent")+'</div>':
+       '<div class="hintx">'+GX("pjLeadP")+'</div>'+
+       '<div class="fl"><label>'+GX("pjName")+'</label><input id="pjLName" data-allow-autofill value="'+esc(USER?fullName(USER):"")+'"></div>'+
+       '<div class="fl"><label>'+t("mobile")+'</label><input id="pjLPhone" class="ltr" data-allow-autofill inputmode="tel" value="'+esc((USER&&USER.phone)||"")+'" placeholder="+963"></div>'+
+       (units.length?'<div class="fl"><label>'+GX("pjCalcUnit")+'</label><select id="pjLUnit"><option value=""></option>'+units.map(function(u){ return '<option>'+esc(u.type||"")+(u.area_m2?' · '+u.area_m2+' '+t("sqm"):'')+'</option>' }).join("")+'</select></div>':'')+
+       '<div class="fl"><label>'+GX("pjNote")+'</label><input id="pjLNote" data-allow-autofill></div>'+
+       '<button class="gold pjsendbtn" id="pjLSend">'+GX("pjSend")+'</button><div class="auerr" id="pjLErr"></div>')+
+      (wa||p.developer_phone?'<div class="pjdevc"><b>'+GX("pjContact")+'</b><div class="agcontact">'+(p.developer_phone?'<a class="btn-n" href="tel:'+esc(p.developer_phone)+'">'+MI.phone+GX("agCall")+'</a>':'')+(wa?'<a class="btn-n wa" href="https://wa.me/'+wa+'?text='+encodeURIComponent(p.name)+'" target="_blank" rel="noopener">'+MI.msgs+GX("agWa")+'</a>':'')+'</div></div>':'')+
+     '</div></div>'+
+    '</aside></div>'+
+   '</div>' }
+function homeProjectsHtml(){
+  if(!HSON("projects")) return "";
+  var n=+SX("home_projects_n",6)||6, list=(PROJECTS||[]).slice(0,n);
+  var inner = PROJECTS===null ? '<div id="projectsSlot"></div>' : (!list.length ? '' : '<div class="pj-row">'+list.map(pjCard).join("")+'</div><div class="pjmore"><a class="gh" data-go="projects">'+GX("pjSeeAll")+'</a></div>');
+  if(PROJECTS!==null && !list.length) return "";
+  return '<div class="wrap"><section class="sec" id="projectsSec"><div class="eyebrow">'+HT("projects_eyebrow",GX("pjSecEyebrow"))+'</div><h2>'+HT("projects_h",GX("pjSecH"))+'</h2><div class="sub">'+HT("projects_sub",GX("pjSecSub"))+'</div>'+inner+'</section></div>' }
+function wireProjects(){
+  if(VIEW==="home" && HSON("projects") && PROJECTS===null){ loadProjects().then(function(){ var sl=document.getElementById("projectsSlot"); if(!sl) return; var sec=sl.closest("section"); if(!PROJECTS.length){ var w=sec&&sec.parentElement; if(w) w.remove(); return } sl.outerHTML='<div class="pj-row">'+PROJECTS.slice(0,+SX("home_projects_n",6)||6).map(pjCard).join("")+'</div><div class="pjmore"><a class="gh" data-go="projects">'+GX("pjSeeAll")+'</a></div>'; $$("#projectsSec [data-go]").forEach(function(e){ e.onclick=function(ev){ ev.preventDefault(); VIEW=e.dataset.go; scrollTo(0,0); render() } }) }) }
+  if(VIEW==="projects"){ if(PROJECTS===null) loadProjects().then(render);
+    $$("[data-pjs]").forEach(function(b){ b.onclick=function(){ PJF.status=this.dataset.pjs; render() } }); $$("[data-pjg]").forEach(function(b){ b.onclick=function(){ PJF.g=this.dataset.pjg; render() } }) }
+  if(!window._pjDelegated){ window._pjDelegated=true; document.addEventListener("click",function(e){ var a=e.target.closest("[data-pjopen]"); if(!a) return; e.preventDefault(); PROJECT=null; VIEW="project:"+a.dataset.pjopen; scrollTo(0,0); render() }) }
+  if(VIEW.indexOf("project:")===0){ var id=VIEW.split(":")[1]; if(!PROJECT || String(PROJECT.id)!==String(id)){ loadProject(id).then(render); return }
+    var p=PROJECT;
+    $$("[data-pjimg]").forEach(function(im){ im.onclick=function(){ PROJECT._gi=+this.dataset.pjimg; render() } });
+    $$("[data-pjplan]").forEach(function(c){ c.onclick=function(){ PROJECT._plan=+this.dataset.pjplan; render() } });
+    var us=$("#pjUnitSel"); if(us) us.onchange=function(){ if(this.value==="custom"){ PROJECT._custom=true } else { PROJECT._custom=false; PROJECT._price=+this.value } render(); var pi=$("#pjPrice"); if(pi&&PROJECT._custom) pi.focus() };
+    var pi=$("#pjPrice"); if(pi) pi.oninput=function(){ PROJECT._price=+this.value||0; PROJECT._custom=true; var pl=pjPlans(p)[PROJECT._plan||0]||{}; var pr=PROJECT._price; var r=$(".pjres"); if(r){ var b=r.querySelectorAll("b"); if(b[0]) b[0].textContent=pjFmt(Math.round(pr*(+pl.down_pct||0)/100)); if(b[1]) b[1].textContent=pjFmt(pjMonthly(pr,pl)); if(b[2]) b[2].textContent=pjFmt(Math.round(pr*(+pl.handover_pct||0)/100)) } };
+    var ps=$("#pjPlanSel"); if(ps) ps.onchange=function(){ PROJECT._plan=+this.value; render() };
+    if($("#pjLSend")) $("#pjLSend").onclick=async function(){ var err=$("#pjLErr"), phone=($("#pjLPhone")||{}).value||""; if(phone.replace(/\D/g,"").length<8){ if(err) err.textContent=t("mobile"); return } this.disabled=true;
+      try{ var r=await DB.rpc("bk_project_lead",{p_project:+p.id,p_name:($("#pjLName")||{}).value||null,p_phone:phone,p_unit:($("#pjLUnit")||{}).value||null,p_plan:(pjPlans(p)[PROJECT._plan||0]||{}).name||null,p_note:($("#pjLNote")||{}).value||null}); if(r&&r.error) throw r.error; PROJECT._sent=true; render() }
+      catch(e){ if(err) err.textContent=e.message||"error"; this.disabled=false } };
+    if($("#viewMap") && p.lat && p.lng){ setTimeout(function(){ initViewMap(+p.lat,+p.lng) },60) }
+  }
+}
+/* admin */
+function adminProjectsBody(){
+  var list=ADM_PJ, ed=ADM.pjEdit;
+  var editor = ed ? adminProjectEditor(ed) : '';
+  var rows = !list ? '<div class="adashempty">'+t("loading")+'</div>' : !list.length ? '<div class="adashempty">'+GX("pjEmpty")+'</div>' :
+    '<div class="elist">'+list.map(function(p){ var ph=(p.photos&&p.photos[0])||null; return '<div class="erow pjrow"><div class="pjtitle">'+(ph?'<img class="aglogo" src="'+esc(ph)+'" alt="">':'<span class="aglogo">'+AICO.building+'</span>')+'<div><b>'+esc(p.name)+'</b><small class="usub">'+esc(p.developer_name||"")+'</small></div></div>'+
+      '<div class="ewho">'+[p.area_name?aN(p.area_name):"",p.gov_name?gN(p.gov_name):""].filter(Boolean).join("، ")+'<small>'+pjSt(p.status)+(p.delivery?' · '+esc(p.delivery):'')+'</small></div>'+
+      '<div class="eclient">'+(p.price_from?'<span class="ltr">'+pjFmt(p.price_from)+'</span>':'—')+'<small>'+(Array.isArray(p.units)?p.units.length:0)+' '+GX("pjUnits")+'</small></div>'+
+      '<div class="eperiod"><span class="ltr">'+(p.leads||0)+'</span> '+GX("pjLeads")+(p.new_leads?' <b class="mdw-badge" style="display:inline-grid">'+p.new_leads+'</b>':'')+'</div>'+
+      '<div class="est"><span class="st st-'+(p.published?"live":"pending")+'">'+(p.published?GX("pjPublished"):GX("pjDraft"))+'</span>'+(p.featured?' <span class="vbadge">★</span>':'')+'</div>'+
+      '<div class="eacts"><button type="button" class="ab" data-pjedit="'+p.id+'">'+t("edit")+'</button>'+(p.published?'<a class="ab" href="/project/'+p.id+'" target="_blank" rel="noopener">'+GX("agView")+'</a>':'')+'<button type="button" class="ab bad" data-pjdel="'+p.id+'">'+t("del")+'</button></div></div>' }).join("")+'</div>';
+  var leads = ADM_PJL===null ? '' : '<div class="blk" style="margin-top:16px"><h3>'+GX("pjLeads")+(ADM_PJL.filter(function(l){ return !l.handled }).length?' <span class="n">'+ADM_PJL.filter(function(l){ return !l.handled }).length+'</span>':'')+'</h3><div class="in eng-in">'+
+    (ADM_PJL.length?'<div class="elist">'+ADM_PJL.map(function(l){ return '<div class="erow pjlrow'+(l.handled?' done':'')+'"><div class="ewho"><b>'+esc(l.project_name||"")+'</b><small>'+esc(l.unit||"")+(l.plan?' · '+esc(l.plan):'')+'</small></div><div class="eclient">'+esc(l.name||"—")+'<small class="ltr">'+esc(l.phone||"")+'</small></div><div class="ewho"><small>'+esc(l.note||"")+'</small></div><div class="eperiod"><span class="ltr">'+String(l.created_at||"").slice(0,16).replace("T"," ")+'</span></div><div class="est"><span class="st st-'+(l.handled?"expired":"live")+'">'+(l.handled?GX("pjHandled"):GX("pjUnhandled"))+'</span></div><div class="eacts">'+(l.phone?'<a class="ab" href="https://wa.me/'+esc(l.phone.replace(/\D/g,""))+'" target="_blank" rel="noopener">WhatsApp</a>':'')+'<button type="button" class="ab" data-pjlead="'+l.id+':'+(l.handled?"0":"1")+'">'+(l.handled?GX("pjUnhandled"):GX("pjHandled"))+'</button></div></div>' }).join("")+'</div>':'<div class="adashempty">'+GX("pjNoLeads")+'</div>')+'</div></div>';
+  return '<div class="dash-top"><button type="button" class="ab ok" id="pjNewBtn">'+GX("pjNew")+'</button></div>'+editor+'<div class="blk" style="margin-top:16px"><h3>'+GX("tProjects")+(list?' <span class="n">'+list.length+'</span>':'')+'</h3><div class="in eng-in">'+rows+'</div></div>'+leads;
+}
+function adminProjectEditor(p){
+  var govs=Object.keys(D.GEO), areas=p.gov_name&&D.GEO[p.gov_name]?D.GEO[p.gov_name]:[];
+  var f=function(label,key,type,attrs){ return '<div class="fl"><label>'+label+'</label><input data-allow-autofill data-pj="'+key+'" type="'+(type||"text")+'" value="'+esc(String(p[key]==null?"":p[key]))+'"'+(attrs||"")+'></div>' };
+  var units=Array.isArray(p.units)?p.units:[], plans=Array.isArray(p.plans)?p.plans:[];
+  return '<div class="blk" id="pjEditor" style="margin-top:16px"><h3>'+GX("pjEditT")+(p.id?' <small class="ltr" style="color:var(--light)">#'+p.id+'</small>':'')+'</h3><div class="in">'+
+    '<div class="row">'+f(GX("pjName")+" *","name")+f(GX("pjDevName"),"developer_name")+'</div>'+
+    '<div class="row"><div class="fl"><label>'+GX("pjDevLink")+'</label><select data-pj="developer_user_id"><option value="">—</option>'+(ADM_AG||[]).filter(function(a){ return a.status==="approved" }).map(function(a){ return '<option value="'+a.user_id+'"'+(p.developer_user_id===a.user_id?' selected':'')+'>'+esc(a.name)+'</option>' }).join("")+'</select></div>'+
+     '<div class="fl"><label>'+GX("engStatus")+'</label><select data-pj="status">'+PJ_STATUSES.map(function(k){ return '<option value="'+k+'"'+((p.status||"soon")===k?' selected':'')+'>'+pjSt(k)+'</option>' }).join("")+'</select></div></div>'+
+    '<div class="row3x"><div class="fl"><label>'+t("gov")+'</label><select data-pj="gov_name"><option value="">—</option>'+govs.map(function(g){ return '<option value="'+esc(g)+'"'+(p.gov_name===g?' selected':'')+'>'+gN(g)+'</option>' }).join("")+'</select></div>'+
+     '<div class="fl"><label>'+t("area")+'</label><select data-pj="area_name"><option value="">—</option>'+areas.map(function(a){ return '<option value="'+esc(a)+'"'+(p.area_name===a?' selected':'')+'>'+aN(a)+'</option>' }).join("")+'</select></div>'+f(GX("f_agAddress"),"address")+'</div>'+
+    '<div class="row3x">'+f("Lat","lat","number",' step="any" class="ltr"')+f("Lng","lng","number",' step="any" class="ltr"')+f(GX("pjDelivery"),"delivery",'text',' placeholder="'+(L==="ar"?"مثال: الربع الأول 2027":"e.g. Q1 2027")+'"')+'</div>'+
+    '<div class="fsub">'+GX("pjHeadPlan")+'</div>'+
+    '<div class="row3x">'+f(GX("pjFrom")+" (USD)","price_from","number",' min="0" class="ltr"')+f(GX("pjDown")+" ٪","down_pct","number",' min="0" max="100" class="ltr"')+f(GX("pjMonths").replace("{n}","").trim(),"months","number",' min="0" class="ltr"')+f(GX("pjHandover")+" ٪","handover_pct","number",' min="0" max="100" class="ltr"')+'</div>'+
+    '<div class="fl"><label>'+GX("pjAbout")+'</label><textarea data-pj="description" data-allow-autofill>'+esc(p.description||"")+'</textarea></div>'+
+    '<div class="fsub">'+GX("pjPhotos")+'</div>'+
+    '<div class="hs-thumbs">'+(p.photos||[]).map(function(u,i){ return '<span class="pjthumb"><img src="'+esc(u)+'" alt=""><button type="button" data-pjrm="'+i+'">×</button></span>' }).join("")+'</div>'+
+    '<div class="fl"><div class="hs-up"><input type="file" accept="image/*" multiple id="pjPhotoUp"></div><div class="hintx" id="pjUpMsg"></div></div>'+
+    '<div class="fsub">'+GX("pjUnits")+'</div>'+
+    '<div class="pjtbl"><div class="pjtr h"><span>'+GX("pjUnitType")+'</span><span>'+GX("pjArea")+'</span><span>'+GX("pjRooms")+'</span><span>'+GX("pjPrice")+' USD</span><span>'+GX("pjCount")+'</span><span></span></div>'+
+     units.map(function(u,i){ return '<div class="pjtr"><input data-allow-autofill data-pju="'+i+':type" value="'+esc(u.type||"")+'"><input data-allow-autofill data-pju="'+i+':area_m2" type="number" class="ltr" value="'+esc(String(u.area_m2||""))+'"><input data-allow-autofill data-pju="'+i+':rooms" type="number" class="ltr" value="'+esc(String(u.rooms||""))+'"><input data-allow-autofill data-pju="'+i+':price_usd" type="number" class="ltr" value="'+esc(String(u.price_usd||""))+'"><input data-allow-autofill data-pju="'+i+':count" type="number" class="ltr" value="'+esc(String(u.count||""))+'"><button type="button" class="ab" data-pjurm="'+i+'">×</button></div>' }).join("")+
+     '<button type="button" class="ab" id="pjAddUnit">'+GX("pjAddUnit")+'</button></div>'+
+    '<div class="fsub">'+GX("pjPlan")+'</div>'+
+    '<div class="pjtbl plans"><div class="pjtr h"><span>'+GX("pjPlanName")+'</span><span>'+GX("pjDown")+' ٪</span><span>'+GX("pjMonths").replace("{n}","").trim()+'</span><span>'+GX("pjHandover")+' ٪</span><span></span></div>'+
+     plans.map(function(u,i){ return '<div class="pjtr"><input data-allow-autofill data-pjp="'+i+':name" value="'+esc(u.name||"")+'"><input data-allow-autofill data-pjp="'+i+':down_pct" type="number" class="ltr" value="'+esc(String(u.down_pct||""))+'"><input data-allow-autofill data-pjp="'+i+':months" type="number" class="ltr" value="'+esc(String(u.months||""))+'"><input data-allow-autofill data-pjp="'+i+':handover_pct" type="number" class="ltr" value="'+esc(String(u.handover_pct||""))+'"><button type="button" class="ab" data-pjprm="'+i+'">×</button></div>' }).join("")+
+     '<button type="button" class="ab" id="pjAddPlan">'+GX("pjAddPlan")+'</button></div>'+
+    '<div class="row"><label class="xcheck"><input type="checkbox" data-pj="published" data-pjbool="1"'+(p.published?' checked':'')+'><span>'+GX("pjPublished")+'</span></label><label class="xcheck"><input type="checkbox" data-pj="featured" data-pjbool="1"'+(p.featured?' checked':'')+'><span>'+GX("pjFeatured")+'</span></label></div>'+
+    '<div class="xactions"><button class="ab ok" id="pjSave">'+t("save")+'</button><button class="ab" id="pjCancel">'+t("cancel")+'</button><span class="xmsg" id="pjMsg"></span></div>'+
+   '</div></div>' }
+
 var AGENCIES=null, AGENCY=null, MYAGENCY=null, AGF={g:"",spec:"",q:""}, ADM_AG=null, AG_SPECS=["sale","rent","commercial","land"];
 function agSpecLabel(k){ return GX("spec_"+k) }
 async function loadAgencies(){ if(!DB){ AGENCIES=[]; return } try{ var r=await DB.rpc("bk_public_agencies"); AGENCIES=(r&&r.data)||[] }catch(e){ AGENCIES=[] } }
@@ -6707,7 +6957,7 @@ function wire(){
    if(it){ it.photos = ph || []; GI=0; render() } }});
 
  $$("[data-soon]").forEach(function(a){ a.onclick=function(e){ e.preventDefault(); e.stopPropagation(); mdwClose(); soonOpen(this.dataset.soon) } });
- wireAgencies();
+ wireAgencies(); wireProjects();
  $$("[data-deal2]").forEach(function(e){ e.onclick=function(){
    HOMEDEAL=e.dataset.deal2; F.deal=HOMEDEAL; render() }});
  wireAuth();
@@ -7430,6 +7680,30 @@ function wireAdmin(){
   // the agencies and engagements lists reload every time their tab is opened, so a request made a minute ago is there
   wireAdminBell();
   if(ADM.tab!=="agencies_adm"){ ADM._agLoaded=false } if(ADM.tab!=="engage"){ ADM._engDays=null }
+  if(ADM.tab!=="projects_adm"){ ADM._pjLoaded=false }
+  if(ADM.tab==="projects_adm"){
+    if(!ADM._pjLoaded){ ADM._pjLoaded=true; rpc("bk_admin_projects",{p_token:ADM.token}).then(function(r){ ADM_PJ=r||[]; render() }).catch(function(){ ADM_PJ=[]; render() }); rpc("bk_admin_project_leads",{p_token:ADM.token}).then(function(r){ ADM_PJL=r||[]; render() }).catch(function(){ ADM_PJL=[] }); if(!ADM_AG) rpc("bk_admin_agencies",{p_token:ADM.token}).then(function(r){ ADM_AG=r||[] }).catch(function(){}) }
+    if($("#pjNewBtn")) $("#pjNewBtn").onclick=function(){ ADM.pjEdit={status:"soon",photos:[],units:[],plans:[],published:false}; render(); var ed=$("#pjEditor"); if(ed) ed.scrollIntoView({behavior:"smooth"}) };
+    $$("[data-pjedit]").forEach(function(b){ b.onclick=function(){ var p=(ADM_PJ||[]).filter(function(x){ return String(x.id)===this.dataset.pjedit }.bind(this))[0]; if(p){ ADM.pjEdit=JSON.parse(JSON.stringify(p)); render(); var ed=$("#pjEditor"); if(ed) ed.scrollIntoView({behavior:"smooth"}) } } });
+    $$("[data-pjdel]").forEach(function(b){ b.onclick=async function(){ if(!confirm(GX("pjDelConfirm"))) return; try{ await rpc("bk_admin_project_delete",{p_token:ADM.token,p_id:+this.dataset.pjdel}); ADM._pjLoaded=false; PROJECTS=null; render() }catch(e){ alert(e.message||"error") } } });
+    $$("[data-pjlead]").forEach(function(b){ b.onclick=async function(){ var q=this.dataset.pjlead.split(":"); try{ await rpc("bk_admin_project_lead_set",{p_token:ADM.token,p_id:+q[0],p_handled:q[1]==="1"}); ADM._pjLoaded=false; render() }catch(e){ alert(e.message||"error") } } });
+    var ed=$("#pjEditor"); if(ed && ADM.pjEdit){ var P=ADM.pjEdit;
+      ed.oninput=function(e){ var el=e.target; if(el.dataset.pj){ P[el.dataset.pj]=el.dataset.pjbool?el.checked:el.value } var u=el.dataset.pju, q=el.dataset.pjp; if(u){ var a=u.split(":"); P.units[+a[0]][a[1]]=el.type==="number"?(el.value===""?"":+el.value):el.value } if(q){ var c=q.split(":"); P.plans[+c[0]][c[1]]=el.type==="number"?(el.value===""?"":+el.value):el.value } };
+      ed.onchange=function(e){ var el=e.target; if(el.dataset.pj){ P[el.dataset.pj]=el.dataset.pjbool?el.checked:el.value; if(el.dataset.pj==="gov_name"){ P.area_name=""; render() } }
+        if(el.id==="pjPhotoUp" && el.files && el.files.length){ var files=Array.prototype.slice.call(el.files), msg=$("#pjUpMsg"); el.disabled=true;
+          (async function(){ try{ for(var i=0;i<files.length;i++){ if(msg) msg.textContent=hsT("uploading")+" "+(i+1)+"/"+files.length; var url=await hsUpload(files[i],"projects"); P.photos=(P.photos||[]).concat([url]) } render() }catch(err){ if(msg) msg.textContent=err.message||"error"; el.disabled=false } })() } };
+      ed.onclick=async function(e){ var rm=e.target.closest("[data-pjrm]"); if(rm){ P.photos.splice(+rm.dataset.pjrm,1); render(); return }
+        var urm=e.target.closest("[data-pjurm]"); if(urm){ P.units.splice(+urm.dataset.pjurm,1); render(); return }
+        var prm=e.target.closest("[data-pjprm]"); if(prm){ P.plans.splice(+prm.dataset.pjprm,1); render(); return }
+        if(e.target.closest("#pjAddUnit")){ P.units.push({type:"",area_m2:"",rooms:"",price_usd:"",count:""}); render(); return }
+        if(e.target.closest("#pjAddPlan")){ P.plans.push({name:"",down_pct:P.down_pct||"",months:P.months||"",handover_pct:P.handover_pct||""}); render(); return }
+        if(e.target.closest("#pjCancel")){ ADM.pjEdit=null; render(); return }
+        if(e.target.closest("#pjSave")){ var m=$("#pjMsg"); if(!P.name||!String(P.name).trim()){ if(m){ m.style.color="var(--danger)"; m.textContent=GX("pjName") } return }
+          var data=Object.assign({},P); delete data.leads; delete data.new_leads; delete data.created_at; delete data.updated_at; delete data.id;
+          var N=function(v){ return v===""||v==null?null:(isNaN(+v)?null:+v) }; ["price_from","down_pct","months","handover_pct","lat","lng"].forEach(function(k){ data[k]=N(data[k]) }); if(!data.developer_user_id) data.developer_user_id=null;
+          data.units=(P.units||[]).filter(function(u){ return u.type||u.price_usd }).map(function(u){ return {type:u.type||"",area_m2:N(u.area_m2),rooms:N(u.rooms),price_usd:N(u.price_usd),count:N(u.count)} }); data.plans=(P.plans||[]).filter(function(x){ return x.name||x.months }).map(function(x){ return {name:x.name||"",down_pct:N(x.down_pct),months:N(x.months),handover_pct:N(x.handover_pct)} });
+          try{ await rpc("bk_admin_project_save",{p_token:ADM.token,p_id:P.id||null,p_data:data}); ADM.pjEdit=null; ADM._pjLoaded=false; PROJECTS=null; render() }catch(err){ if(m){ m.style.color="var(--danger)"; m.textContent=err.message||"error" } } } } }
+  }
   if(ADM.tab==="agencies_adm"){
     if(!ADM._agLoaded){ ADM._agLoaded=true; ADM.agErr=null; rpc("bk_admin_agencies",{p_token:ADM.token}).then(function(r){ ADM_AG=r||[]; render() }).catch(function(e){ ADM_AG=[]; ADM.agErr=e.message||"error"; render() }) }
     $$("[data-agset]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.agset.split(":"); try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+p[0],p_status:p[1]}); ADM._agLoaded=false; render() }catch(e){ alert(e.message||"error") } } });
@@ -8490,7 +8764,7 @@ function wireAuth(){
  }
  wireNotifBell();
  if($("#auX"))$("#auX").onclick=function(){AU.open=false;render()};
- $$(".autabs button").forEach(function(b){b.onclick=function(){AU.mode=b.dataset.m;AU.step=1;render()}});
+ $$(".autabs button,.au-switch a[data-m]").forEach(function(b){b.onclick=function(){AU.mode=b.dataset.m;AU.step=1;render()}});
  if($("#au"))$("#au").onclick=function(e){if(e.target.id==="au"){AU.open=false;render()}};
 
  /* ── sign in ── */
@@ -9304,6 +9578,7 @@ function routePath(){
          VIEW.indexOf("listing:")===0 ? "/listing/"+VIEW.split(":")[1] :
          VIEW.indexOf("by:")===0 ? "/seller/"+VIEW.split(":")[1] :
          VIEW.indexOf("agency:")===0 ? "/agency/"+VIEW.split(":")[1] :
+         VIEW.indexOf("project:")===0 ? "/project/"+VIEW.split(":")[1] :
          (VIEW==="about"||VIEW==="contactus") ? "/"+VIEW+"/" :   // these also exist as static pages
          "/"+VIEW+(VIEW==="search"?filterToQuery():"");
 }
@@ -9314,7 +9589,8 @@ var PAGE_T={
   msgs:{ar:"الرسائل",en:"Messages",de:"Nachrichten"}, account:{ar:"حسابي",en:"My account",de:"Mein Konto"},
   about:{ar:"عن بلكون",en:"About Balkoun",de:"Über Balkoun"}, contact:{ar:"تواصل معنا",en:"Contact us",de:"Kontakt"}, contactus:{ar:"تواصل معنا",en:"Contact us",de:"Kontakt"},
   admin:{ar:"لوحة الإدارة",en:"Admin",de:"Verwaltung"}, listing:{ar:"تفاصيل العقار",en:"Property details",de:"Immobiliendetails"}, by:{ar:"إعلانات المعلن",en:"Seller listings",de:"Anzeigen des Anbieters"},
-  agencies:{ar:"دليل المكاتب العقارية",en:"Real estate agencies",de:"Immobilienbüros"}, agency:{ar:"مكتب عقاري",en:"Agency",de:"Immobilienbüro"}, agencyform:{ar:"بيانات المكتب",en:"Agency profile",de:"Büroprofil"}
+  agencies:{ar:"دليل المكاتب العقارية",en:"Real estate agencies",de:"Immobilienbüros"}, agency:{ar:"مكتب عقاري",en:"Agency",de:"Immobilienbüro"}, agencyform:{ar:"بيانات المكتب",en:"Agency profile",de:"Büroprofil"},
+  projects:{ar:"مشاريع جديدة وقيد الإنشاء",en:"New projects",de:"Neubauprojekte"}, project:{ar:"مشروع",en:"Project",de:"Projekt"}
 };
 var _HOME_TITLE=document.title;
 function setPageMeta(){
@@ -9342,7 +9618,8 @@ function viewFromHash(){
   if(p[0]==="listing"&&p[1]) return "listing:"+(p[1].match(/^\d+/)||[p[1]])[0];
   if(p[0]==="seller"&&p[1]) return "by:"+p[1];
   if(p[0]==="agency"&&p[1]) return "agency:"+(p[1].match(/^\d+/)||[p[1]])[0];
-  if(["search","post","mine","saved","searches","msgs","account","about","contact","contactus","admin","mapsearch","agencies","agencyform"].indexOf(p[0])>-1){
+  if(p[0]==="project"&&p[1]) return "project:"+(p[1].match(/^\d+/)||[p[1]])[0];
+  if(["search","post","mine","saved","searches","msgs","account","about","contact","contactus","admin","mapsearch","agencies","agencyform","projects"].indexOf(p[0])>-1){
     if(p[0]==="search" && qs) applyFilterFromQuery(qs);
     return p[0];
   }
@@ -9420,7 +9697,7 @@ function render(){
  if(VIEW!==_lastRenderedView){ _lastRenderedView=VIEW; refreshListingsOnNavigate(); }
  document.documentElement.lang=L; document.documentElement.dir=D.I18N[L].dir;
  var body= VIEW==="home"?home(): VIEW==="search"?search(): VIEW==="post"?post():
-          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): listing(VIEW.split(":")[1]);
+          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): listing(VIEW.split(":")[1]);
  document.body.classList.remove("mdw-open");
  $("#app").innerHTML=header()+body+footer()+authModal()+reportModal();
  // home page only: the header sits transparent over the hero photo/video
@@ -9471,7 +9748,7 @@ var HX_T={
 function HX(k){ var o=HX_T[k]||{}; return o[L]||o.en||"" }
 
 /* every homepage section below the hero, in the admin's order; each has a show switch (home_<k>_on) and text overrides (<k>_<field>_<lang>) */
-var HOME_SECS=["ads","banners","ticker","colls","types","trust","expl","band","guides"];
+var HOME_SECS=["ads","banners","ticker","projects","colls","types","trust","expl","band","guides"];
 function homeOrder(){ var o=SX("home_order",null); if(typeof o==="string"){ try{ o=JSON.parse(o) }catch(e){ o=null } } var r=Array.isArray(o)?o.filter(function(k){ return HOME_SECS.indexOf(k)>-1 }):[]; HOME_SECS.forEach(function(k){ if(r.indexOf(k)<0) r.push(k) }); return r }
 function HSON(k){ return SX("home_"+k+"_on",true)!==false }
 function HT(k,fb){ var v=SX(k+"_"+L,""); return (v===""||v==null) ? fb : esc(unesc(String(v))) }
@@ -9482,6 +9759,7 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
     ads:function(){ return adsInHero ? "" : adSlotsRow() },
     banners:function(){ return HSON("banners") && SX("banners_slot","flow")!=="top" ? bannerAboveHtml : "" },
     ticker:function(){ return HSON("ticker") ? marketTickerHtml() : "" },
+    projects:function(){ return homeProjectsHtml() },
     colls:function(){ return HSON("colls") ? homeCollectionsHtml() : "" },
     types:function(){ return HSON("types") ? '<div class="wrap"><section class="sec" id="typesSec"><div class="eyebrow">'+HT("types_eyebrow",HX("pickE"))+'</div><h2>'+HT("types_h",t("pickH"))+'</h2>'+typeList()+'</section></div>' : "" },
     trust:function(){ return HSON("trust") ? homeTrustHtml() : "" },
@@ -10165,7 +10443,28 @@ var GX_T={
   rsClearAll:{ar:"مسح الكل",en:"Clear all",de:"Alle löschen"}, rsFilters:{ar:"الفلاتر",en:"Filters",de:"Filter"}, rsSort:{ar:"الترتيب",en:"Sort",de:"Sortieren"},
   rsOnMap:{ar:"{n} على الخريطة",en:"{n} on the map",de:"{n} auf der Karte"}, rsList:{ar:"القائمة",en:"List",de:"Liste"},
   tEngage:{ar:"الحملات والحجوزات",en:"Engagements",de:"Buchungen"},
-  newTag:{ar:"جديد",en:"New",de:"Neu"}, mdWelcome:{ar:"مرحباً بك في بلكون",en:"Welcome to Balkoun",de:"Willkommen bei Balkoun"},
+  newTag:{ar:"جديد",en:"New",de:"Neu"},
+  pjDir:{ar:"مشاريع جديدة وقيد الإنشاء",en:"New and under-construction projects",de:"Neubauprojekte"}, pjDirShort:{ar:"مشاريع جديدة",en:"New projects",de:"Neubau"},
+  pjDirP:{ar:"اشترِ من المطوّر مباشرة بخطة دفع واضحة: دفعة أولى، أقساط شهرية، ودفعة عند التسليم. كل مشروع هنا راجعه فريق بلكون.",en:"Buy directly from the developer with a clear payment plan: a down payment, monthly installments and a handover payment. Every project here is reviewed by Balkoun.",de:"Direkt vom Bauträger mit klarem Zahlungsplan kaufen: Anzahlung, Monatsraten und Zahlung bei Übergabe. Jedes Projekt wurde von Balkoun geprüft."},
+  pjAll:{ar:"كل المشاريع",en:"All projects",de:"Alle Projekte"}, pjst_soon:{ar:"قريباً",en:"Coming soon",de:"Bald"}, pjst_construction:{ar:"قيد الإنشاء",en:"Under construction",de:"Im Bau"}, pjst_handover:{ar:"تسليم قريب",en:"Handover soon",de:"Übergabe bald"}, pjst_ready:{ar:"جاهز للتسليم",en:"Ready",de:"Bezugsfertig"},
+  pjDelivery:{ar:"التسليم",en:"Delivery",de:"Übergabe"}, pjFrom:{ar:"يبدأ من",en:"From",de:"Ab"}, pjPlan:{ar:"خطة الدفع",en:"Payment plan",de:"Zahlungsplan"}, pjDown:{ar:"دفعة أولى",en:"Down payment",de:"Anzahlung"},
+  pjMonths:{ar:"{n} شهراً",en:"{n} months",de:"{n} Monate"}, pjInstall:{ar:"قسط شهري",en:"Monthly installment",de:"Monatsrate"}, pjHandover:{ar:"عند التسليم",en:"At handover",de:"Bei Übergabe"},
+  pjUnits:{ar:"الوحدات المتاحة",en:"Available units",de:"Verfügbare Einheiten"}, pjUnitType:{ar:"النوع",en:"Type",de:"Typ"}, pjArea:{ar:"المساحة",en:"Area",de:"Fläche"}, pjRooms:{ar:"الغرف",en:"Rooms",de:"Zimmer"}, pjPrice:{ar:"السعر",en:"Price",de:"Preis"}, pjCount:{ar:"المتاح",en:"Available",de:"Verfügbar"},
+  pjCalc:{ar:"احسب قسطك",en:"Calculate your installment",de:"Rate berechnen"}, pjCalcP:{ar:"اختر وحدة وخطة، أو أدخل السعر بنفسك.",en:"Pick a unit and a plan, or type a price.",de:"Einheit und Plan wählen oder Preis eingeben."}, pjCalcUnit:{ar:"الوحدة",en:"Unit",de:"Einheit"}, pjCalcPlan:{ar:"الخطة",en:"Plan",de:"Plan"}, pjCalcPrice:{ar:"السعر (USD)",en:"Price (USD)",de:"Preis (USD)"}, pjCustom:{ar:"سعر آخر",en:"Other price",de:"Anderer Preis"},
+  pjLead:{ar:"اطلب عرضاً",en:"Request an offer",de:"Angebot anfragen"}, pjLeadSoon:{ar:"سجّل اهتمامك",en:"Register your interest",de:"Interesse vormerken"}, pjLeadP:{ar:"اترك رقمك وسيتواصل معك المطوّر أو فريق بلكون بالتفاصيل وخطة الدفع.",en:"Leave your number and the developer or the Balkoun team will call you with details and the payment plan.",de:"Hinterlassen Sie Ihre Nummer; der Bauträger oder Balkoun meldet sich mit Details und Zahlungsplan."},
+  pjName:{ar:"الاسم",en:"Name",de:"Name"}, pjNote:{ar:"ملاحظة (اختياري)",en:"Note (optional)",de:"Notiz (optional)"}, pjSend:{ar:"إرسال الطلب",en:"Send request",de:"Anfrage senden"}, pjSent:{ar:"تم الإرسال. سنتواصل معك قريباً.",en:"Sent. We will contact you soon.",de:"Gesendet. Wir melden uns bald."},
+  pjDev:{ar:"المطوّر",en:"Developer",de:"Bauträger"}, pjDevPage:{ar:"صفحة المطوّر",en:"Developer page",de:"Seite des Bauträgers"}, pjEmpty:{ar:"لا مشاريع مطابقة بعد.",en:"No matching projects yet.",de:"Noch keine passenden Projekte."},
+  pjSecEyebrow:{ar:"مشاريع جديدة",en:"New projects",de:"Neubau"}, pjSecH:{ar:"اشترِ بالتقسيط من المطوّر مباشرة.",en:"Buy in installments, directly from the developer.",de:"In Raten kaufen, direkt vom Bauträger."}, pjSecSub:{ar:"مشاريع قيد الإنشاء وجاهزة، بخطط دفع واضحة وأسعار من المصدر.",en:"Projects under construction and ready, with clear payment plans and prices from the source.",de:"Projekte im Bau und bezugsfertig, mit klaren Zahlungsplänen und Preisen vom Bauträger."},
+  pjSeeAll:{ar:"كل المشاريع",en:"See all projects",de:"Alle Projekte"}, pjLocation:{ar:"الموقع",en:"Location",de:"Lage"}, pjAbout:{ar:"عن المشروع",en:"About the project",de:"Über das Projekt"}, pjContact:{ar:"تواصل مع المطوّر",en:"Contact the developer",de:"Bauträger kontaktieren"},
+  tProjects:{ar:"المشاريع",en:"Projects",de:"Projekte"}, desc_projects_adm:{ar:"المشاريع الجديدة وقيد الإنشاء: البيانات، الصور، الوحدات، خطط الدفع، والنشر. وطلبات العروض الواردة من الزوار.",en:"New and under-construction projects: details, photos, units, payment plans and publishing. Plus the offer requests from visitors.",de:"Neubauprojekte: Daten, Fotos, Einheiten, Zahlungspläne, Veröffentlichung. Dazu die Anfragen der Besucher."},
+  pjNew:{ar:"+ مشروع جديد",en:"+ New project",de:"+ Neues Projekt"}, pjEditT:{ar:"بيانات المشروع",en:"Project details",de:"Projektdaten"}, pjPublished:{ar:"منشور",en:"Published",de:"Veröffentlicht"}, pjDraft:{ar:"مسودة",en:"Draft",de:"Entwurf"}, pjFeatured:{ar:"مميز",en:"Featured",de:"Hervorgehoben"},
+  pjLeads:{ar:"طلبات العروض",en:"Offer requests",de:"Anfragen"}, pjHandled:{ar:"تمت المعالجة",en:"Handled",de:"Erledigt"}, pjUnhandled:{ar:"جديد",en:"New",de:"Neu"}, pjAddUnit:{ar:"+ وحدة",en:"+ Unit",de:"+ Einheit"}, pjAddPlan:{ar:"+ خطة",en:"+ Plan",de:"+ Plan"}, pjPlanName:{ar:"اسم الخطة",en:"Plan name",de:"Planname"},
+  pjPhotos:{ar:"الصور والمخططات",en:"Photos and renders",de:"Fotos und Renderings"}, pjDelConfirm:{ar:"حذف هذا المشروع نهائياً؟",en:"Delete this project permanently?",de:"Dieses Projekt endgültig löschen?"}, pjHeadPlan:{ar:"الخطة الرئيسية (تظهر على البطاقة)",en:"Headline plan (shown on the card)",de:"Hauptplan (auf der Karte)"},
+  pjDevName:{ar:"اسم المطوّر / الشركة",en:"Developer / company name",de:"Bauträger / Firma"}, pjDevLink:{ar:"ربط بمكتب معتمد (اختياري)",en:"Link to an approved agency (optional)",de:"Mit geprüftem Büro verknüpfen (optional)"}, pjNoLeads:{ar:"لا طلبات بعد.",en:"No requests yet.",de:"Noch keine Anfragen."},
+  auBrandH:{ar:"بيتك القادم يبدأ من الشرفة.",en:"Your next home starts from the balcony.",de:"Ihr nächstes Zuhause beginnt auf dem Balkon."},
+  auBrandP:{ar:"حساب واحد لحفظ الإعلانات، نشر عروضك، والتواصل مباشرة مع المالكين والمكاتب.",en:"One account to save listings, publish your offers and talk directly to owners and agencies.",de:"Ein Konto zum Speichern von Anzeigen, Veröffentlichen von Angeboten und direkten Kontakt mit Eigentümern und Büros."},
+  auB1:{ar:"توثيق الملكية قبل النشر",en:"Ownership checked before publishing",de:"Eigentum vor Veröffentlichung geprüft"}, auB2:{ar:"لا عمولة على المشتري",en:"No buyer commission",de:"Keine Käuferprovision"}, auB3:{ar:"تواصل مباشر عبر واتساب",en:"Direct contact on WhatsApp",de:"Direkter Kontakt per WhatsApp"},
+  auTerms:{ar:"شروط النشر",en:"Publishing terms",de:"Veröffentlichungsregeln"}, auNoAcct:{ar:"ليس لديك حساب؟",en:"No account yet?",de:"Noch kein Konto?"}, auHaveAcct:{ar:"لديك حساب؟",en:"Already a member?",de:"Schon Mitglied?"}, mdWelcome:{ar:"مرحباً بك في بلكون",en:"Welcome to Balkoun",de:"Willkommen bei Balkoun"},
   mdWelcomeP:{ar:"سجّل الدخول لحفظ الإعلانات ومتابعة عروضك.",en:"Sign in to save listings and manage your offers.",de:"Anmelden, um Anzeigen zu speichern und Angebote zu verwalten."},
   mdMyAccount:{ar:"حسابي",en:"My account",de:"Mein Konto"},
   navMapNew:{ar:"شارة «جديد» على زر الخريطة (الصفحة الرئيسية، النتائج، القائمة)",en:"“New” tag on the map button (homepage, results, menu)",de:"„Neu“-Marke am Kartenbutton (Startseite, Ergebnisse, Menü)"},
@@ -10460,6 +10759,7 @@ var HS_T={
  types:{ar:"أنواع العقارات",en:"Property types",de:"Objektarten"},
  trust:{ar:"لماذا بلكون",en:"Why Balkoun",de:"Warum Balkoun"}, expl:{ar:"استكشف المناطق",en:"Explore areas",de:"Gebiete entdecken"},
  band:{ar:"شريط المالكين",en:"Owners band",de:"Eigentümer-Band"}, guides:{ar:"دليل المشتري",en:"Buyer's guide",de:"Käuferratgeber"},
+ projects:{ar:"مشاريع جديدة",en:"New projects",de:"Neubau"}, f_pjN:{ar:"عدد المشاريع في القسم",en:"Projects shown in the section",de:"Projekte im Abschnitt"},
  page:{ar:"الحركة والمسافات",en:"Motion and spacing",de:"Bewegung und Abstände"},
  editing:{ar:"القيم الآن لـ",en:"Editing values for",de:"Werte für"}, same:{ar:"مثل الكمبيوتر",en:"Same as desktop",de:"Wie Desktop"},
  useDesk:{ar:"استخدم قيمة الكمبيوتر",en:"Use the desktop value",de:"Desktop-Wert verwenden"},
@@ -10519,7 +10819,7 @@ var HS_T={
  contactHint:{ar:"تظهر في صفحة «تواصل معنا» (المعاينة) وفي أزرار الاتصال عبر الموقع. يظهر الحساب فقط عندما يُملأ الرابط والاسم معاً.",en:"Shown on the “Contact us” page (the preview) and in the contact buttons across the site. An account appears only when both its link and name are filled.",de:"Erscheint auf der Kontaktseite (Vorschau) und in den Kontakt-Buttons. Ein Konto erscheint nur mit Link und Name."}
 };
 function hsT(k){ var o=HS_T[k]||{}; return o[L]||o.en||k }
-var HS_SEL={hero_text:".hero h1",hero_bg:".hero-outer",hero_search:".sbar",hero_stats:".hnote",ads:".adsec",banners:".topbanner-wrap",ticker:".mkt",colls:"#collsSec",types:"#typesSec",trust:"#trustSec",expl:"#explSec",band:"#bandSec",guides:"#guidesSec",page:".hero-outer",
+var HS_SEL={hero_text:".hero h1",hero_bg:".hero-outer",hero_search:".sbar",hero_stats:".hnote",ads:".adsec",banners:".topbanner-wrap",ticker:".mkt",projects:"#projectsSec",colls:"#collsSec",types:"#typesSec",trust:"#trustSec",expl:"#explSec",band:"#bandSec",guides:"#guidesSec",page:".hero-outer",
   row:".adsec",look:".adsec",perf:".adsec",strip:".topbanner-wrap",cards:".res",badges:".res",results:".rs-head",nav:"header",social:".changrid",numbers:".changrid"};
 var HS_EYE={ads:"x:ads_row_enabled"};
 var HS_VARKEYS=/^(sk_|h1_|sbar_|hero_gap|ad_carousel_gap|ad_square_size|hero_title_size_m|sec_pad|hero_max_height|card_min_width)/;
@@ -10732,6 +11032,8 @@ function hsInspHome(){
       fUpload(hsT("f_img"),"x:band_img","home","image/*","/assets/home/umayyad.jpg"));
   } else if(sd==="guides"){
     H.push(fSwitch(hsT("showSec"),"x:home_guides_on",true,true), fHint(hsT("textsHint")), fSecTexts("guides",HX("guideE"),t("guideH"),t("guideS")));
+  } else if(sd==="projects"){
+    H.push(fSwitch(hsT("showSec"),"x:home_projects_on",true,true), fNum(hsT("f_pjN"),"x:home_projects_n",1,12,1,6,true), fHint(hsT("textsHint")), fSecTexts("projects",GX("pjSecEyebrow"),GX("pjSecH"),GX("pjSecSub")));
   } else if(sd==="page"){
     H.push(fGrp(hsT("g_motion")), fHint(hsT("devOnlyHint")), fSwitch(hsT("f_opening"),"x:opening_enabled",true));
     if(!phone) H.push(fSwitch(hsT("f_cursor"),"x:cursor_dot_enabled",true,true));
@@ -10767,7 +11069,7 @@ function hsOutlineBanners(){
 function hsOutlineHome(){
   var m=hsMerged(), ex=m.extras, site=m.site;
   var isOn=function(key){ var p=hsParts(key), v=p.col?site[p.name]:ex[p.name]; return v==null||v===""?true:(v!==false&&v!=="false") };
-  var ICO={ads:AICO.ads,banners:AICO.banner,ticker:AICO.chart,colls:ICON_GRID,types:AICO.listings,trust:AICO.shield,expl:AICO.map,band:AICO.users,guides:AICO.star};
+  var ICO={ads:AICO.ads,banners:AICO.banner,ticker:AICO.chart,projects:AICO.building,colls:ICON_GRID,types:AICO.listings,trust:AICO.shield,expl:AICO.map,band:AICO.users,guides:AICO.star};
   var item=function(k,o){ o=o||{}; var on=o.eye?isOn(o.eye):o.bgEye?((site.hero_bg_type||"sketch")!=="none"):true; var selK=o.selAs||k; var isSel=HS.sel===selK || (k==="hero" && HS.sel.indexOf("hero_")===0);
     return '<div class="hs-item'+(isSel?' on':'')+(o.child?' child':'')+(on?'':' off')+'" data-hssel="'+selK+'">'+(o.ico?'<span class="hs-ico">'+o.ico+'</span>':'')+'<span class="hs-name">'+hsT(k)+(o.sub?'<small class="hs-sub">'+o.sub+'</small>':'')+'</span>'+
       (o.mv?'<button type="button" class="hs-mv" data-hsmv="'+k+':-1" title="'+hsT("up")+'">▲</button><button type="button" class="hs-mv" data-hsmv="'+k+':1" title="'+hsT("down")+'">▼</button>':'')+
