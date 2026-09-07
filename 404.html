@@ -1687,7 +1687,20 @@ footer{font-size:14px}
 .home-hero .hero-outer{z-index:1}
 .home-hero .hero-outer:has(.chipsel-drop.on),.home-hero .hero-outer:has(.pricepop:not([hidden])),.home-hero .hero-outer:has(.menu.on){z-index:70}
 .home-hero .srow,.home-hero .sf,.home-hero .chipsel,.home-hero .chipsel-box{overflow:visible}
-.home-hero .chipsel-drop{max-height:340px}
+.home-hero .chipsel-drop{max-height:380px}
+@media(min-width:641px){
+  .home-hero .chipsel-drop,.rs-f .chipsel-drop{width:380px;min-width:0;max-width:min(380px,92vw);padding:10px;border-radius:16px;box-shadow:0 26px 60px -22px rgba(9,14,26,.45),0 0 0 1px rgba(20,33,61,.06);display:none;grid-template-columns:1fr 1fr;gap:2px 6px;align-content:start}
+  .home-hero .chipsel-drop.on,.rs-f .chipsel-drop.on{display:grid}
+  .home-hero .chipsel-drop .cs-h,.home-hero .chipsel-drop .cs-selected,.home-hero .chipsel-drop .chipsel-empty,.home-hero .chipsel-drop .cs-sheet-h,.home-hero .chipsel-drop .cs-sheet-f,
+  .rs-f .chipsel-drop .cs-h,.rs-f .chipsel-drop .cs-selected,.rs-f .chipsel-drop .chipsel-empty,.rs-f .chipsel-drop .cs-sheet-h,.rs-f .chipsel-drop .cs-sheet-f{grid-column:1/-1}
+  .home-hero .chipsel-drop .chipsel-opt,.rs-f .chipsel-drop .chipsel-opt{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:9px;font-size:13.5px;line-height:1.4;min-width:0}
+  .home-hero .chipsel-drop .chipsel-opt span:first-child,.rs-f .chipsel-drop .chipsel-opt span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .home-hero .chipsel-drop .chipsel-opt:hover,.rs-f .chipsel-drop .chipsel-opt:hover{background:var(--navy-w)}
+  .home-hero .chipsel-drop .cs-n,.rs-f .chipsel-drop .cs-n{font-size:11px;color:var(--light);background:transparent;padding:0;min-width:0;font-weight:600}
+  .home-hero .chipsel-drop .cs-h,.rs-f .chipsel-drop .cs-h{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--gold-dk);padding:10px 10px 4px;position:sticky;top:-10px;background:rgba(255,255,255,.97);z-index:1}
+  .home-hero .chipsel-drop .cs-h.cs-kind,.rs-f .chipsel-drop .cs-h.cs-kind{color:var(--light);font-weight:700;position:static}
+  .home-hero .chipsel-drop .cs-selected,.rs-f .chipsel-drop .cs-selected{display:flex;flex-wrap:wrap;gap:6px;padding:4px 4px 8px;border-bottom:1px solid var(--line);margin-bottom:4px}
+}
 @media(max-width:700px){
   .home-hero .sbar{padding:8px;border-radius:16px;gap:8px}
   .home-hero .stabs{margin:0;border-bottom:0}
@@ -1729,6 +1742,21 @@ h1,h2,h3,.logo,.hero h1{letter-spacing:0}
 .adm-me-n{font-size:13px;font-weight:600}
 .adm-super{font-style:normal;font-size:10.5px;background:rgba(255,255,255,.14);padding:2px 7px;border-radius:999px}
 .adm-burger{display:none}
+.adbell-w{position:relative}
+.adm .adm-top .adbell{position:relative;padding:0 10px}
+.adm .adm-top .adbell.has{border-color:rgba(227,181,99,.6)}
+.adbell-n{position:absolute;top:-6px;inset-inline-end:-6px;min-width:18px;height:18px;border-radius:999px;background:var(--danger);color:#fff;font-size:10.5px;font-weight:800;display:grid;place-items:center;padding:0 5px;border:2px solid var(--navy)}
+.adbell-m{display:none;position:absolute;top:calc(100% + 10px);inset-inline-end:0;width:min(92vw,360px);background:#fff;color:var(--ink);border-radius:14px;box-shadow:0 24px 60px -18px rgba(9,14,26,.5),0 0 0 1px rgba(20,33,61,.08);padding:8px;z-index:1200;text-align:start}
+.adbell-m.on{display:block;animation:ddIn .2s cubic-bezier(.2,.7,.2,1)}
+.adbell-h{font-size:12px;font-weight:800;color:var(--gold-dk);letter-spacing:.04em;text-transform:uppercase;padding:8px 10px 6px}
+.adbell-r{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;cursor:pointer;text-decoration:none;color:var(--ink);font-size:13.5px}
+.adbell-r:hover{background:#F3F4F7}
+.adbell-r .adbell-i{width:30px;height:30px;border-radius:9px;background:var(--navy-w);color:var(--navy);display:grid;place-items:center;flex:none}
+.adbell-r .adbell-l{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adbell-r>b{background:var(--danger);color:#fff;border-radius:999px;font-size:11.5px;padding:2px 8px}
+.adbell-r.small{padding:7px 10px;font-size:12.5px;color:var(--grey)}.adbell-r.small small{color:var(--light);font-size:11px}
+.adbell-sub{font-size:11px;font-weight:700;color:var(--light);letter-spacing:.04em;text-transform:uppercase;padding:10px 10px 4px;border-top:1px solid var(--line);margin-top:4px}
+.adbell-empty{padding:14px 10px;color:var(--grey);font-size:13px}
 .adm-acct{max-width:720px;margin:16px auto 0;padding:0 18px}
 .adm .ashell{max-width:none;margin:0;align-items:stretch}
 .adm .asidebar{width:240px;min-height:calc(100vh - 58px);top:58px;background:#fff;border-inline-end:1px solid var(--line);padding:14px 10px}
@@ -2220,6 +2248,15 @@ body.rs-lock{overflow:hidden}
 .soon-ico .mi{display:grid;place-items:center}.soon-ico svg{width:28px;height:28px}
 .soon-tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;color:#8A6522;background:var(--gold-w);border-radius:999px;padding:3px 10px;margin-bottom:8px}
 .soon-c h3{font-size:21px;font-weight:800;color:var(--navy);margin:0 0 8px}
+.soon-c.soon-wide{width:min(94vw,560px);padding:28px 26px 22px}
+.soon-intro{margin:0 0 14px!important}
+.soon-two{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:start;margin-bottom:14px}
+.soon-item{background:var(--page);border:1px solid var(--line);border-radius:14px;padding:14px}
+.soon-item .soon-ico{width:42px;height:42px;margin:0 0 10px}.soon-item .soon-ico svg{width:20px;height:20px}
+.soon-item b{display:block;font-size:14.5px;color:var(--navy);margin-bottom:4px}.soon-item p{margin:0!important;font-size:13px!important;line-height:1.7!important}
+.soon-team{display:flex;align-items:flex-start;gap:10px;text-align:start;background:var(--gold-w);border:1px solid #EDDCB6;border-radius:12px;padding:10px 12px;margin-bottom:16px;font-size:13px;color:#6B5518;line-height:1.7}
+.soon-team .mi{flex:none;display:inline-flex;color:var(--gold-dk);margin-top:2px}.soon-team svg{width:18px;height:18px}
+@media(max-width:560px){.soon-two{grid-template-columns:1fr}}
 .soon-c p{color:var(--grey);font-size:14px;line-height:1.85;margin:0 0 18px}
 .soon-acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .soon-acts .gold{text-decoration:none;border-radius:999px;padding:10px 18px}
@@ -2715,8 +2752,7 @@ var NAVI=[
   {k:"coll",g:"discover",lab:function(){return HX("navColl")},ico:"coll",attrs:'data-mdscroll="collsSec"',o:50},
   {k:"expl",g:"discover",lab:function(){return HX("navAreas")},ico:"expl",attrs:'data-mdscroll="explSec"',o:60},
   {k:"guide",g:"discover",lab:function(){return HX("navGuide")},ico:"guide",attrs:'data-mdscroll="guidesSec"',o:70},
-  {k:"legal",g:"services",lab:function(){return GX("navLegal")},ico:"legal",attrs:'data-soon="legal"',o:72,soon:true},
-  {k:"legaltx",g:"services",lab:function(){return GX("navLegalTx")},ico:"legaltx",attrs:'data-soon="legaltx"',o:74,soon:true},
+  {k:"legal",g:"services",lab:function(){return GX("navLegalBoth")},ico:"legal",attrs:'data-soon="legal"',o:72,soon:true},
   {k:"about",g:"site",lab:function(){return t("about")},ico:"about",attrs:'href="/about/" data-go="about"',o:80},
   {k:"contactus",g:"site",lab:function(){return t("contactUsPageT")},ico:"phone",attrs:'href="/contactus/" data-go="contactus"',o:90},
   {k:"contact",g:"site",lab:function(){return t("contactUs")},ico:"mail",attrs:'data-go="contact"',o:100},
@@ -2747,11 +2783,16 @@ function mdrawer(){
 function soonOpen(k){
   var i=NAVI.filter(function(x){ return x.k===k })[0]; if(!i) return;
   var old=$("#soonM"); if(old) old.remove();
-  var wa=(SITE.wa_number||"").replace(/\D/g,""), txt=GX(k==="legal"?"soonLegalP":"soonLegalTxP");
+  var wa=(SITE.wa_number||"").replace(/\D/g,"");
   var d=document.createElement("div"); d.className="soon-m"; d.id="soonM";
-  d.innerHTML='<div class="soon-bg"></div><div class="soon-c" role="dialog" aria-modal="true"><button type="button" class="soon-x" aria-label="'+GX("mdClose")+'">×</button>'+
-    '<div class="soon-ico">'+(MI[i.ico]||'')+'</div><span class="soon-tag">'+GX("soon")+'</span><h3>'+i.lab()+'</h3><p>'+txt+'</p>'+
-    '<div class="soon-acts">'+(wa?'<a class="gold" target="_blank" rel="noopener" href="https://wa.me/'+wa+'?text='+encodeURIComponent(i.lab())+'">'+GX("soonAsk")+'</a>':'')+'<button type="button" class="gh soon-ok">'+GX("soonOk")+'</button></div></div>';
+  d.innerHTML='<div class="soon-bg"></div><div class="soon-c soon-wide" role="dialog" aria-modal="true"><button type="button" class="soon-x" aria-label="'+GX("mdClose")+'">×</button>'+
+    '<span class="soon-tag">'+GX("soon")+'</span><h3>'+GX("soonBothT")+'</h3><p class="soon-intro">'+GX("soonBothIntro")+'</p>'+
+    '<div class="soon-two">'+
+      '<div class="soon-item"><div class="soon-ico">'+MI.legal+'</div><b>'+GX("navLegal")+'</b><p>'+GX("soonLegalP")+'</p></div>'+
+      '<div class="soon-item"><div class="soon-ico">'+MI.legaltx+'</div><b>'+GX("navLegalTx")+'</b><p>'+GX("soonLegalTxP")+'</p></div>'+
+    '</div>'+
+    '<div class="soon-team">'+MI.team+'<span>'+GX("soonTeam")+'</span></div>'+
+    '<div class="soon-acts">'+(wa?'<a class="gold" target="_blank" rel="noopener" href="https://wa.me/'+wa+'?text='+encodeURIComponent(GX("soonBothT"))+'">'+GX("soonAsk")+'</a>':'')+'<button type="button" class="gh soon-ok">'+GX("soonOk")+'</button></div></div>';
   document.body.appendChild(d);
   var close=function(){ d.remove() };
   d.querySelector(".soon-bg").onclick=close; d.querySelector(".soon-x").onclick=close; d.querySelector(".soon-ok").onclick=close;
@@ -2793,6 +2834,7 @@ var MI=(function(){
     legal:w('<path d="M12 3v18M6 21h12M5 7h14M5 7l-3 6a3 3 0 0 0 6 0L5 7M19 7l-3 6a3 3 0 0 0 6 0l-3-6"/>'),
     legaltx:w('<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>'),
     agency:w('<path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/>'),
+    team:w('<circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0"/><circle cx="17" cy="9" r="3"/><path d="M15.5 20a5.5 5.5 0 0 1 6.5-4"/>'),
     areas:w('<path d="M3 6.5 9 4l6 2.5 6-2.5v13.5L15 20l-6-2.5-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>'),
     coll:w('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>'),
     expl:w('<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>'),
@@ -4329,6 +4371,30 @@ function storageUsageCardBody(){
    '<div style="margin-top:6px;font-size:12.5px;color:var(--grey)">'+t("storageFree")+': <b class="ltr" style="color:var(--ink)">'+freeText+'</b> · '+
     '<span class="ltr">'+ADM.storageUsage.files+'</span> '+t("storageFiles")+'</div>';
 }
+/* ═══ the admin bell: everything waiting for a decision, in one place ═══ */
+function adminTodoTotal(){ var td=ADM.todo||{}; return (+td.pending_listings||0)+(+td.pending_agencies||0)+(+td.open_reports||0)+(+td.open_feedback||0)+(+td.unread_alerts||0) }
+function adminBellHtml(){
+  var td=ADM.todo||{}, n=adminTodoTotal();
+  var rows=[["listings:pending",AICO.listings,GX("bellListings"),td.pending_listings],["agencies_adm",AICO.building,GX("bellAgencies"),td.pending_agencies],["reports",AICO.shield,GX("bellReports"),td.open_reports],["feedback",AICO.chart,GX("bellFeedback"),td.open_feedback],["msgs",AICO.bell,GX("bellAlerts"),td.unread_alerts]].filter(function(r){ return +r[3]>0 });
+  var latest=(td.latest||[]).slice(0,6);
+  var kindTab={listing:"listings:pending",agency:"agencies_adm",report:"reports",feedback:"feedback"};
+  return '<div class="adbell-w"><button class="ab adbell'+(n?' has':'')+'" id="adBell" title="'+GX("bellT")+'" aria-label="'+GX("bellT")+'">'+AICO.bell+(n?'<b class="adbell-n ltr">'+(n>99?"99+":n)+'</b>':'')+'</button>'+
+    '<div class="adbell-m'+(ADM.bellOpen?' on':'')+'" id="adBellMenu"><div class="adbell-h">'+GX("bellT")+(n?' <span class="ltr">('+n+')</span>':'')+'</div>'+
+    (rows.length ? rows.map(function(r){ return '<a class="adbell-r" data-goto="'+r[0]+'"><span class="adbell-i">'+r[1]+'</span><span class="adbell-l">'+r[2]+'</span><b class="ltr">'+r[3]+'</b></a>' }).join("") : '<div class="adbell-empty">'+GX("bellNone")+'</div>')+
+    (latest.length ? '<div class="adbell-sub">'+GX("bellLatest")+'</div>'+latest.map(function(x){ return '<a class="adbell-r small" data-goto="'+(kindTab[x.kind]||"dashboard")+'"><span class="adbell-l">'+esc(String(x.label||"")).slice(0,60)+'</span><small class="ltr">'+when(x.at)+'</small></a>' }).join("") : '')+
+    '</div></div>' }
+function syncAdminTodo(){
+  if(!DB || !ADM.token) return Promise.resolve();
+  return rpc("bk_admin_todo",{p_token:ADM.token}).then(function(r){ if(!r) return; var before=adminTodoTotal(); ADM.todo=r; var after=adminTodoTotal();
+    var w=$(".adbell-w"); if(w){ var tmp=document.createElement("div"); tmp.innerHTML=adminBellHtml(); w.replaceWith(tmp.firstElementChild); wireAdminBell() }
+    if(before!==after && document.title.indexOf("(")!==0) document.title = (after?"("+after+") ":"")+document.title.replace(/^\(\d+\+?\) /,"") }).catch(function(){}) }
+function wireAdminBell(){
+  var b=$("#adBell"), m=$("#adBellMenu"); if(!b||!m) return;
+  b.onclick=function(e){ e.stopPropagation(); ADM.bellOpen=!m.classList.contains("on"); m.classList.toggle("on",ADM.bellOpen); if(ADM.bellOpen) syncAdminTodo() };
+  m.onclick=function(e){ e.stopPropagation() };
+  $$("#adBellMenu [data-goto]").forEach(function(a){ a.onclick=function(){ ADM.bellOpen=false; var g=this.dataset.goto.split(":"); ADM.tab=g[0]; if(g[0]==="listings" && g[1]) ADM.lstatus=g[1]; if(g[0]==="agencies_adm") ADM._agLoaded=false; render() } });
+  if(!window._adBellDoc){ window._adBellDoc=true; document.addEventListener("click",function(){ var mm=$("#adBellMenu"); if(mm){ mm.classList.remove("on"); ADM.bellOpen=false } }) }
+}
 function adminView(){
  if(!ADM.token) return ''+
   '<div class="wrap" style="max-width:420px;padding:56px 18px 80px"><div class="blk">'+
@@ -4870,6 +4936,7 @@ function adminView(){
    '<label class="adm-q">'+AICO.search+'<input id="aNavQ" placeholder="'+GX("aNavSearch")+'" autocomplete="off"></label>'+
    '<div class="adm-actions">'+
     '<select class="adm-lang" id="aLang" aria-label="'+GX("aLang")+'">'+["ar","en","de"].map(function(k){ return '<option value="'+k+'"'+(k===L?' selected':'')+'>'+D.I18N[k].name+'</option>' }).join("")+'</select>'+
+    adminBellHtml()+
     '<button class="ab" id="adViewSite" title="'+t("viewSiteAsUser")+'">'+AICO.eye+'<span>'+t("viewSiteAsUser")+'</span></button>'+
     '<button class="ab" id="adRefresh" title="'+t("refresh")+'">'+AICO.refresh+'</button>'+
     '<button class="adm-me" id="aMyAccount" title="'+t("myAdminAccount")+'"><span class="ava2">'+initial+'</span><span class="adm-me-n">'+(ADM.meName||"")+'</span>'+(ADM.isSuper?'<i class="adm-super">'+t("superAdmin")+'</i>':'')+'</button>'+
@@ -6983,6 +7050,8 @@ async function adminLoad(){
       }).catch(function(){});
       startAdminAlertsPolling();
     }
+    if(ADM.token){ syncAdminTodo();
+    }
   }
   catch(e){ ADM.token=null; ADM.msg=e.message||"error"; try{localStorage.removeItem("balkoun_adm")}catch(x){} }
   render();
@@ -7299,6 +7368,7 @@ function wireAdmin(){
     }).catch(function(){ if(ADM._mediaLoading===cat) ADM._mediaLoading=null; render() });
   }
   // the agencies and engagements lists reload every time their tab is opened, so a request made a minute ago is there
+  wireAdminBell();
   if(ADM.tab!=="agencies_adm"){ ADM._agLoaded=false } if(ADM.tab!=="engage"){ ADM._engDays=null }
   if(ADM.tab==="agencies_adm"){
     if(!ADM._agLoaded){ ADM._agLoaded=true; ADM.agErr=null; rpc("bk_admin_agencies",{p_token:ADM.token}).then(function(r){ ADM_AG=r||[]; render() }).catch(function(e){ ADM_AG=[]; ADM.agErr=e.message||"error"; render() }) }
@@ -8868,6 +8938,7 @@ function startListingsPolling(){
 var _adminAlertsPollTimer=null;
 function syncAdminAlerts(){
   if(!DB || !ADM.token) return;
+  syncAdminTodo();
   rpc("bk_admin_notifications",{p_token:ADM.token}).then(function(r){
     if(!r) return;
     var newUnread = r.unread||0;
@@ -10034,6 +10105,16 @@ var GX_T={
   rsClearAll:{ar:"مسح الكل",en:"Clear all",de:"Alle löschen"}, rsFilters:{ar:"الفلاتر",en:"Filters",de:"Filter"}, rsSort:{ar:"الترتيب",en:"Sort",de:"Sortieren"},
   rsOnMap:{ar:"{n} على الخريطة",en:"{n} on the map",de:"{n} auf der Karte"}, rsList:{ar:"القائمة",en:"List",de:"Liste"},
   tEngage:{ar:"الحملات والحجوزات",en:"Engagements",de:"Buchungen"},
+  bellT:{ar:"ما يحتاج انتباهك",en:"Needs your attention",de:"Braucht Ihre Aufmerksamkeit"}, bellNone:{ar:"لا شيء معلّق. كل شيء تحت السيطرة.",en:"Nothing pending. All clear.",de:"Nichts offen. Alles erledigt."},
+  bellListings:{ar:"إعلانات بانتظار الموافقة",en:"Listings awaiting approval",de:"Anzeigen warten auf Freigabe"}, bellAgencies:{ar:"مكاتب بانتظار الاعتماد",en:"Agencies awaiting approval",de:"Büros warten auf Freigabe"},
+  bellReports:{ar:"بلاغات مفتوحة",en:"Open reports",de:"Offene Meldungen"}, bellFeedback:{ar:"شكاوى واقتراحات جديدة",en:"New complaints and suggestions",de:"Neue Beschwerden und Vorschläge"}, bellAlerts:{ar:"إشعارات غير مقروءة",en:"Unread notifications",de:"Ungelesene Benachrichtigungen"},
+  bellLatest:{ar:"آخر ما وصل",en:"Latest",de:"Zuletzt"}, bellOpen:{ar:"افتح",en:"Open",de:"Öffnen"},
+  navLegalBoth:{ar:"استشارات ومعاملات",en:"Legal advice & paperwork",de:"Rechtsberatung & Abwicklung"},
+  soonBothT:{ar:"استشارات ومعاملات قانونية",en:"Legal advice and property paperwork",de:"Rechtsberatung und Immobilien-Abwicklung"},
+  soonBothIntro:{ar:"خدمتان قيد الإعداد على بلكون، ستُطلقان قريباً:",en:"Two services in preparation on Balkoun, launching soon:",de:"Zwei Dienste in Vorbereitung auf Balkoun, bald verfügbar:"},
+  soonLegalP:{ar:"استشارة قانونية موثوقة قبل أي خطوة: عقود البيع والإيجار، الطابو، التوكيلات والنزاعات العقارية.",en:"Trusted legal advice before any step: sale and rental contracts, title deeds, powers of attorney and property disputes.",de:"Verlässliche Rechtsberatung vor jedem Schritt: Kauf- und Mietverträge, Grundbuch, Vollmachten und Immobilienstreitigkeiten."},
+  soonLegalTxP:{ar:"إتمام المعاملات العقارية: نقل الملكية، التوثيق، والمتابعة أمام الدوائر الرسمية.",en:"Property paperwork done for you: title transfer, notarization and follow-up with the authorities.",de:"Immobilien-Formalitäten: Eigentumsübertragung, Beurkundung und Behördengänge."},
+  soonTeam:{ar:"تُقدَّم هذه الخدمات عبر مجموعة من المحامين ومعقّبي المعاملات المحترفين والمعتمدين.",en:"These services are delivered by a team of professional, accredited lawyers and licensed paperwork agents.",de:"Diese Dienste erbringt ein Team professioneller, zugelassener Anwälte und Abwicklungsagenten."},
   agDir:{ar:"دليل المكاتب العقارية",en:"Real estate agencies",de:"Immobilienbüros"}, agDirShort:{ar:"دليل المكاتب",en:"Agencies",de:"Büros"},
   agDirP:{ar:"اختر مكتباً يعرف منطقتك بيتاً بيتاً. كل مكتب هنا راجعه فريق بلكون، والمكاتب الموثّقة تحمل العلامة الذهبية.",en:"Choose an agency that knows your area house by house. Every agency here was reviewed by the Balkoun team; verified ones carry the gold mark.",de:"Wählen Sie ein Büro, das Ihr Gebiet Haus für Haus kennt. Jedes Büro wurde vom Balkoun-Team geprüft; verifizierte tragen das goldene Zeichen."},
   agRegister:{ar:"سجّل مكتبك",en:"Register your agency",de:"Büro registrieren"}, agEditBtn:{ar:"تعديل بيانات المكتب",en:"Edit agency profile",de:"Büroprofil bearbeiten"},
@@ -10073,8 +10154,6 @@ var GX_T={
   desc_engage:{ar:"كل ما هو مفعّل الآن من إعلانات مميزة ومربعات وبانرات، مع كود لكل حجز وسجل كامل بحسب الفترة.",en:"Everything currently engaged, featured listings, ad squares and banners, with a code per booking and the full history by period.",de:"Alles derzeit Aktive – Hervorhebungen, Kacheln, Banner – mit Code pro Buchung und vollständigem Verlauf."},
   navLegal:{ar:"استشارات قانونية",en:"Legal consultations",de:"Rechtsberatung"}, navLegalTx:{ar:"معاملات قانونية",en:"Legal transactions",de:"Rechtliche Abwicklung"},
   soon:{ar:"قريباً",en:"Soon",de:"Bald"}, mdServices:{ar:"الخدمات",en:"Services",de:"Dienste"},
-  soonLegalP:{ar:"استشارة قانونية موثوقة قبل أي خطوة: عقود البيع والإيجار، الطابو، التوكيلات والنزاعات العقارية. الخدمة قيد الإعداد وستُطلق قريباً على بلكون.",en:"Trusted legal advice before any step: sale and rental contracts, title deeds, powers of attorney and property disputes. The service is being prepared and launches soon on Balkoun.",de:"Verlässliche Rechtsberatung vor jedem Schritt: Kauf- und Mietverträge, Grundbuch, Vollmachten und Immobilienstreitigkeiten. Der Dienst wird vorbereitet und startet bald auf Balkoun."},
-  soonLegalTxP:{ar:"إتمام المعاملات العقارية عبر بلكون: نقل الملكية، التوثيق، والمتابعة أمام الدوائر الرسمية. قيد الإعداد وستُطلق قريباً.",en:"Property paperwork handled through Balkoun: title transfer, notarization and follow-up with the authorities. In preparation, launching soon.",de:"Immobilien-Formalitäten über Balkoun: Eigentumsübertragung, Beurkundung und Behördengänge. In Vorbereitung, startet bald."},
   soonAsk:{ar:"اسألنا الآن عبر واتساب",en:"Ask us now on WhatsApp",de:"Jetzt per WhatsApp fragen"}, soonOk:{ar:"حسناً",en:"OK",de:"OK"},
   navSoonHeader:{ar:"إظهار خدمات «قريباً» في شريط رأس الكمبيوتر (تبقى داخل القائمة دائماً)",en:"Show the “coming soon” services in the desktop header bar (always inside the menu too)",de:"„Bald“-Dienste in der Desktop-Kopfzeile zeigen (im Menü immer vorhanden)"},
   altResH:{ar:"لا توجد إعلانات مطابقة هنا — إليك إعلانات مشابهة في مناطق أخرى",en:"Nothing matches here — similar listings elsewhere",de:"Hier passt nichts – ähnliche Anzeigen anderswo"},
