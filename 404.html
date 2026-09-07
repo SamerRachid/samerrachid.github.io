@@ -5973,7 +5973,7 @@ function wireAgencies(){
 }
 function adminAgenciesBody(){
   var list=ADM_AG; if(!list) return '<div class="blk"><div class="in adashempty">'+t("loading")+'</div></div>';
-  if(!list.length) return '<div class="blk"><div class="in adashempty">'+GX("agNone")+'</div></div>';
+  if(!list.length) return '<div class="blk"><div class="in adashempty">'+(ADM.agErr?'<span style="color:var(--danger)">'+esc(ADM.agErr)+'</span>':GX("agNone"))+'</div></div>';
   var pend=list.filter(function(a){ return a.status==="pending" }).length;
   return '<div class="blk"><h3>'+GX("tAgencies")+(pend?' <span class="n">'+pend+'</span>':'')+'</h3><div class="in eng-in"><div class="elist">'+list.map(function(a){
     return '<div class="erow agrow"><div class="ecode">'+avatar(a.logo_url,a.name,40,"aglogo")+'<div><b>'+esc(a.name)+'</b><small class="usub">'+esc(a.user_name||"")+' · <span class="ltr">'+esc(a.user_phone||"")+'</span></small></div></div>'+
@@ -7298,8 +7298,10 @@ function wireAdmin(){
       render();
     }).catch(function(){ if(ADM._mediaLoading===cat) ADM._mediaLoading=null; render() });
   }
+  // the agencies and engagements lists reload every time their tab is opened, so a request made a minute ago is there
+  if(ADM.tab!=="agencies_adm"){ ADM._agLoaded=false } if(ADM.tab!=="engage"){ ADM._engDays=null }
   if(ADM.tab==="agencies_adm"){
-    if(!ADM._agLoaded){ ADM._agLoaded=true; rpc("bk_admin_agencies",{p_token:ADM.token}).then(function(r){ ADM_AG=r||[]; render() }).catch(function(){ ADM_AG=[]; render() }) }
+    if(!ADM._agLoaded){ ADM._agLoaded=true; ADM.agErr=null; rpc("bk_admin_agencies",{p_token:ADM.token}).then(function(r){ ADM_AG=r||[]; render() }).catch(function(e){ ADM_AG=[]; ADM.agErr=e.message||"error"; render() }) }
     $$("[data-agset]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.agset.split(":"); try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+p[0],p_status:p[1]}); ADM._agLoaded=false; render() }catch(e){ alert(e.message||"error") } } });
     $$("[data-agver]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.agver.split(":"); try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+p[0],p_verified:p[1]==="1"}); ADM._agLoaded=false; render() }catch(e){ alert(e.message||"error") } } });
   }
