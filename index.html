@@ -1536,7 +1536,10 @@ footer{font-size:14px}
 .home-hero .srow{flex:1;grid-template-columns:1fr 1.4fr 1fr 1fr auto auto}
 .home-hero .sgo-map{display:inline-flex;align-items:center;justify-content:center;width:48px;border:0;border-inline-start:1px solid var(--line);background:var(--page);color:var(--navy);cursor:pointer;border-radius:14px 0 0 14px}
 [dir=ltr] .home-hero .sgo-map{border-radius:0 14px 14px 0}
-.home-hero .sgo-map svg{width:22px;height:22px}
+.home-hero .sgo-map svg{width:22px;height:22px;display:block}
+.home-hero .sgo-map .mi{display:flex;align-items:center;justify-content:center;height:22px}
+/* Arabic letters sit lower in their line box than the Latin ones; the pin follows them */
+[dir=rtl] .home-hero .sgo-map .mi{transform:translateY(2px)}
 .home-hero .sgo-map:hover{background:var(--gold-w);color:var(--gold-dk)}
 .home-hero .srow .sgo{border-radius:0}
 .home-hero .hnote{position:relative;z-index:3;margin:calc(14px + max(var(--sbar-y,0px),0px)) 0 max(calc(0px - var(--adcarousel-gap,0px)),0px);font-size:13px;color:rgba(255,255,255,.82);text-align:center;text-shadow:0 1px 8px rgba(9,14,26,.6)}
@@ -2166,17 +2169,128 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
   body:has(.rs-mbar) .mobfab{bottom:78px}
 }
 body.rs-lock{overflow:hidden}
+/* map page on the same system */
+.rs-mapwrap{padding:18px 0 40px}
+.rs-maphead{margin-bottom:14px}
+.rs-bigmap{height:min(72vh,680px);min-height:360px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#EEF0F4}
+.rs-mapempty{position:absolute;top:12px;left:0;right:0;z-index:500;display:flex;justify-content:center;pointer-events:none}
+.rs-mapempty span{background:rgba(255,255,255,.95);border-radius:999px;padding:8px 16px;font-weight:700;color:var(--navy);box-shadow:0 6px 20px rgba(9,14,26,.18)}
+.rs-tolist svg,.rs-tolist2 svg{width:16px;height:16px}
+.rs-tolist2{display:inline-flex!important;text-decoration:none}
+@media(max-width:900px){
+  .rs-mappage .rs-tools{display:none}
+  .rs-mappage .rs-mapwrap{padding:10px 0 96px}
+  .rs-mappage .rs-bigmap{height:calc(100vh - 250px);min-height:320px}
+  .rs-mbar #rsMList svg{width:16px;height:16px}
+}
 /* map search on phones: the filter panel is a bottom sheet that never leaves the screen */
 @media(max-width:640px){
   .mapf-panel,#mapFPanel{position:fixed!important;left:12px!important;right:12px!important;width:auto!important;margin:0!important;top:auto!important;bottom:calc(12px + env(safe-area-inset-bottom))!important;max-height:72vh;overflow:auto;z-index:1300!important;box-shadow:0 18px 50px rgba(9,14,26,.45)}
   .mapf-mainbtn{width:auto;min-width:0}
 }
+/* engagement ledger */
+.eng-in{padding:0!important;gap:0!important}
+.esub{font-size:11.5px;font-weight:700;color:var(--gold-dk);letter-spacing:.04em;text-transform:uppercase;padding:12px 18px 8px;border-bottom:1px solid var(--line);background:#FBFBFD}
+.elist{display:flex;flex-direction:column}
+.erow{display:grid;grid-template-columns:minmax(170px,1.1fr) minmax(160px,1.4fr) minmax(140px,1fr) minmax(190px,1.2fr) minmax(120px,.9fr) 90px auto;gap:10px 14px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line);font-size:13px}
+.erow:last-child{border-bottom:0}
+.erow.open{background:#F8F9FB}
+.ecode{display:flex;align-items:center;gap:8px}.ecode b{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:var(--navy);background:var(--gold-w);border:1px solid #EDDCB6;border-radius:8px;padding:3px 8px;white-space:nowrap}
+.ecode .ab,.eacts .ab{margin:0;padding:5px 9px;font-size:12px}
+.ewho{font-weight:600;color:var(--ink)}.ewho small{display:block;font-weight:500;color:var(--grey);margin-top:2px}.ewho small.off{display:inline;color:var(--danger);margin-inline-start:6px}
+.eclient small{display:block;color:var(--grey);font-weight:500}
+.eperiod{color:var(--grey)}.eperiod .eleft{display:block;color:var(--ok);font-weight:700;margin-top:2px}
+.estats{color:var(--grey);white-space:nowrap}
+.eacts{display:flex;gap:6px;justify-content:flex-end;white-space:nowrap}
+.eedit{grid-column:1/-1;display:flex;flex-direction:column;gap:12px;padding:6px 0 4px}
+.ecodebox{display:inline-flex;align-items:center;gap:8px;background:var(--gold-w);border:1px solid #EDDCB6;border-radius:10px;padding:8px 12px;font-size:13px;color:#6B5518;margin-top:8px}
+.ecodebox b{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--navy);font-size:14px}
+.ecodebox .ab{margin:0;padding:4px 9px;font-size:12px}
+@media(max-width:1100px){.erow{grid-template-columns:1fr 1fr;padding:12px 14px}.eacts{justify-content:flex-start}.estats{white-space:normal}}
+/* coming-soon services */
+.hnav .hsoon{display:inline-flex;align-items:center;gap:6px}
+.hnav .hsoon i{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#1A1206;background:var(--gold);border-radius:999px;padding:1px 6px;line-height:1.5;transform:translateY(-7px)}
+.mdw-a.soon span{color:var(--grey)}
+.mdw-soon{margin-inline-start:auto;font-style:normal;font-size:10px;font-weight:800;color:#8A6522;background:var(--gold-w);border-radius:999px;padding:2px 8px}
+.soon-m{position:fixed;inset:0;z-index:1400;display:grid;place-items:center;padding:16px}
+.soon-bg{position:absolute;inset:0;background:rgba(9,14,26,.6);animation:mdwfade .25s ease}
+.soon-c{position:relative;background:#fff;border-radius:20px;padding:30px 26px 22px;width:min(92vw,440px);text-align:center;box-shadow:0 30px 80px -20px rgba(9,14,26,.6);animation:ddIn .25s cubic-bezier(.2,.7,.2,1)}
+.soon-x{position:absolute;top:10px;inset-inline-end:10px;width:34px;height:34px;border-radius:50%;border:0;background:var(--page);color:var(--ink);font-size:22px;line-height:1;cursor:pointer}
+.soon-ico{width:60px;height:60px;border-radius:50%;background:var(--navy-w);color:var(--navy);display:grid;place-items:center;margin:0 auto 12px}
+.soon-ico .mi{display:grid;place-items:center}.soon-ico svg{width:28px;height:28px}
+.soon-tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;color:#8A6522;background:var(--gold-w);border-radius:999px;padding:3px 10px;margin-bottom:8px}
+.soon-c h3{font-size:21px;font-weight:800;color:var(--navy);margin:0 0 8px}
+.soon-c p{color:var(--grey);font-size:14px;line-height:1.85;margin:0 0 18px}
+.soon-acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.soon-acts .gold{text-decoration:none;border-radius:999px;padding:10px 18px}
+.soon-acts .gh{border-radius:999px;padding:10px 18px;margin:0}
+/* agencies directory */
+.agdir{padding:22px 18px 60px}
+.ag-hero{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
+.ag-hero h1{font-size:26px;font-weight:800;color:var(--navy);margin:4px 0 6px}.ag-hero p{color:var(--grey);font-size:14.5px;max-width:62ch;margin:0;line-height:1.7}
+.ag-hero .gold{text-decoration:none;border-radius:999px;padding:11px 20px;white-space:nowrap}
+.ag-filters{display:flex;flex-direction:column;gap:10px;margin-bottom:18px}
+.ag-filters input{height:44px;border:1px solid var(--line-2);border-radius:12px;padding:0 14px;font:inherit;font-size:14px;background:#fff;max-width:420px}
+.ag-pills{display:flex;flex-wrap:wrap;gap:6px}
+.ag-pills button{border:1px solid var(--line-2);background:#fff;border-radius:999px;padding:7px 13px;font:600 13px var(--f);color:var(--ink);cursor:pointer}
+.ag-pills button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.ag-pills.sel button.on{background:var(--gold-w);border-color:var(--gold);color:#6B5518}
+.ag-pills.wrap{max-height:220px;overflow:auto;padding:4px;border:1px solid var(--line);border-radius:12px}
+.ag-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.agcard{display:flex;flex-direction:column;gap:10px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;text-decoration:none;color:inherit;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s}
+.agcard:hover{box-shadow:0 22px 40px -26px rgba(20,33,61,.45);border-color:#d9dbe1;transform:translateY(-3px)}
+.aghead{display:flex;gap:12px;align-items:center}
+.aglogo{width:56px;height:56px;border-radius:14px;object-fit:cover;flex:none;display:grid;place-items:center;background:var(--navy-w);color:var(--navy);font-weight:800;font-size:18px}
+.agname b{display:block;font-size:16px;color:var(--navy)}
+.agspecs{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.agspecs i{font-style:normal;font-size:11px;font-weight:700;background:var(--gold-w);color:#6B5518;border-radius:999px;padding:2px 8px}
+.agspecs.big{margin:4px 0 6px}.agspecs.big i{font-size:12px;padding:3px 10px}
+.agdesc{margin:0;font-size:13.5px;color:var(--grey);line-height:1.7}
+.agareas{display:flex;gap:6px;align-items:flex-start;font-size:13px;color:var(--ink)}.agareas .mi{flex:none;color:var(--gold-dk);display:inline-flex}.agareas b{color:var(--gold-dk)}
+.agfoot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:10px;border-top:1px solid var(--line);font-size:13px;color:var(--grey)}
+.agacts{display:flex;gap:6px}.agbtn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--page);color:var(--navy)}.agbtn.wa{background:#E8F7EE;color:#1D9E5A}.agbtn .mi{display:grid;place-items:center}
+.agbtn svg,.agareas svg,.agcontact svg{width:16px;height:16px;display:block}
+.agprof{padding:22px 18px 50px}
+.agcontact{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.agcontact a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;width:auto;margin:0;border-radius:999px;padding:10px 16px;cursor:pointer}
+.agcontact .wa{background:#1D9E5A;border-color:#1D9E5A;color:#fff}
+.agcontact .mi{display:inline-flex}
+.agchips{display:flex;flex-wrap:wrap;gap:6px}.agchips .chip{cursor:pointer;text-decoration:none}.agchips .chip.soft{background:#F1F2F4;color:var(--grey)}
+.agform .in{display:flex;flex-direction:column;gap:14px}.aglogo-row{display:flex;align-items:center;gap:14px}
+.agstatus{display:flex;align-items:center;gap:12px;margin-bottom:14px}.agviewlink{color:var(--navy);text-decoration:underline;cursor:pointer;font-size:13.5px}
+.adm .agrow{grid-template-columns:minmax(210px,1.3fr) minmax(160px,1.4fr) minmax(120px,.8fr) 110px 150px auto}
+.adm .agrow .ecode{align-items:center}.adm .agrow .usub{display:block;font-weight:500;color:var(--grey);font-size:12px}
+@media(max-width:700px){.ag-hero h1{font-size:22px}.ag-filters input{max-width:none}.agcontact a{flex:1 1 44%;justify-content:center}}
 /* ☰ button and the phone drawer */
 .hmb{display:none;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;place-items:center;cursor:pointer;padding:0;flex:none}
 .hmb svg{width:21px;height:21px}
 .hmb:hover{border-color:var(--gold);color:var(--gold)}
-body.nav-menu-desk .hmb{display:grid}
 .hmb{position:relative}
+.hpill{display:none}
+/* desktop header: logo · three links · globe · bell · gold Post · one pill (☰ + avatar) that opens the drawer */
+@media(min-width:861px){
+  .htools{gap:14px}
+  #cur{display:none} body.nav-cur-h #cur{display:inline-block}
+  #bIn{display:none} body.nav-login-h #bIn{display:inline-block}
+  .acct{display:none} body.nav-nomenu-d .acct{display:block}
+  #navMoreWrap{display:none} body.nav-more-d #navMoreWrap{display:block}
+  .hnav a[data-go="agencies"]{display:none} body.nav-more-d .hnav a[data-go="agencies"]{display:inline}
+  body.nav-nolinks-d .hnav{display:none}
+  #langChip{background:none!important;border:0!important;padding:0 4px!important;font-size:14px;font-weight:600;color:#fff}
+  #langChip:hover{color:var(--gold)}
+  #langChip .langflag{display:none} #langChip .lg-globe{display:inline-flex;align-items:center} #langChip .lg-globe svg{width:22px;height:22px}
+  #langChip .chev{width:12px;height:12px;opacity:.6}
+  .htools .gold{border-radius:999px;padding:9px 18px}
+  .hpill{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 6px;padding-inline-start:12px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;position:relative;font:inherit}
+  .hpill:hover{border-color:var(--gold);background:rgba(255,255,255,.1)}
+  .hpill>svg{width:20px;height:20px}
+  .hpill .av{width:28px;height:28px;border-radius:50%;object-fit:cover;font-size:12px;display:grid;place-items:center}
+  .hpill .huser{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.14);display:grid;place-items:center} .hpill .huser svg{width:16px;height:16px}
+  .hpill .hmb-dot{top:4px;inset-inline-end:4px}
+  body.nav-nomenu-d .hpill{display:none}
+  .hbar .hmb{display:none!important}
+  .mdw .mdw-p{inset-inline-start:auto;inset-inline-end:0;animation-name:mdwin-r}
+  [dir=rtl] .mdw .mdw-p{animation-name:mdwin}
+}
 .hmb-dot{position:absolute;top:5px;inset-inline-end:5px;width:10px;height:10px;border-radius:50%;background:var(--danger);border:2px solid #1B2C52}
 .lg-globe,.lg-code{display:none}
 @media(max-width:860px){
@@ -2601,17 +2715,19 @@ var NAVI=[
   {k:"coll",g:"discover",lab:function(){return HX("navColl")},ico:"coll",attrs:'data-mdscroll="collsSec"',o:50},
   {k:"expl",g:"discover",lab:function(){return HX("navAreas")},ico:"expl",attrs:'data-mdscroll="explSec"',o:60},
   {k:"guide",g:"discover",lab:function(){return HX("navGuide")},ico:"guide",attrs:'data-mdscroll="guidesSec"',o:70},
+  {k:"legal",g:"services",lab:function(){return GX("navLegal")},ico:"legal",attrs:'data-soon="legal"',o:72,soon:true},
+  {k:"legaltx",g:"services",lab:function(){return GX("navLegalTx")},ico:"legaltx",attrs:'data-soon="legaltx"',o:74,soon:true},
   {k:"about",g:"site",lab:function(){return t("about")},ico:"about",attrs:'href="/about/" data-go="about"',o:80},
   {k:"contactus",g:"site",lab:function(){return t("contactUsPageT")},ico:"phone",attrs:'href="/contactus/" data-go="contactus"',o:90},
   {k:"contact",g:"site",lab:function(){return t("contactUs")},ico:"mail",attrs:'data-go="contact"',o:100},
-  {k:"agencies",g:"site",lab:function(){return HX("navAgencies")},ico:"post",attrs:'data-go="post"',o:110}
+  {k:"agencies",g:"site",lab:function(){return GX("agDirShort")},ico:"agency",attrs:'data-go="agencies"',o:110}
 ];
 function navOn(k){ return SX("nav_"+k,true)!==false }
 function navItems(){ return NAVI.filter(function(i){ return navOn(i.k) }).map(function(i){ var o=SX("nav_"+i.k+"_o",""); return {i:i,o:o===""?i.o:+o} }).sort(function(a,b){ return a.o-b.o }).map(function(x){ return x.i }) }
 // the phone drawer: account, then the link groups, then language and currency
 function mdrawer(){
   var items=navItems(); var grp=function(g){ return items.filter(function(i){ return i.g===g }) };
-  var link=function(i){ return '<a class="mdw-a" '+i.attrs+'>'+(MI[i.ico]||'')+'<span>'+i.lab()+'</span></a>' };
+  var link=function(i){ return '<a class="mdw-a'+(i.soon?' soon':'')+'" '+i.attrs+'>'+(MI[i.ico]||'')+'<span>'+i.lab()+'</span>'+(i.soon?'<i class="mdw-soon">'+GX("soon")+'</i>':'')+'</a>' };
   var sec=function(title,list){ return list.length ? '<div class="mdw-sec"><div class="mdw-h">'+title+'</div>'+list.map(link).join("")+'</div>' : '' };
   var acct = USER
     ? '<div class="mdw-acct">'+avatar(USER.avatar_url,USER.name,44,"av")+'<div><b>'+esc(fullName(USER))+'</b><span dir="ltr">'+esc(USER.phone||USER.email||"")+'</span></div></div>'+
@@ -2623,15 +2739,30 @@ function mdrawer(){
   return '<div class="mdw" id="mdw"><div class="mdw-bg" id="mdwBg"></div><aside class="mdw-p" role="dialog" aria-label="'+GX("mdMenu")+'">'+
     '<div class="mdw-top"><span class="logo">'+CONFIG.brand+'</span><button class="mdw-x" id="mdwX" aria-label="'+GX("mdClose")+'">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>'+
-    acct+sec(GX("mdSearch"),grp("search"))+sec(GX("mdDiscover"),grp("discover"))+sec(GX("mdSite"),grp("site"))+
+    acct+sec(GX("mdSearch"),grp("search"))+sec(GX("mdDiscover"),grp("discover"))+sec(GX("mdServices"),grp("services"))+sec(GX("mdSite"),grp("site"))+
     (prefs?'<div class="mdw-sec"><div class="mdw-h">'+GX("mdPrefs")+'</div>'+prefs+'</div>':'')+
     (USER?'<div class="mdw-sec"><a class="mdw-a out" data-md="out">'+MI.out+'<span>'+t("logout")+'</span></a></div>':'')+
   '</aside></div>' }
+// a "coming soon" service: a small card with what the service is and a WhatsApp line to ask now
+function soonOpen(k){
+  var i=NAVI.filter(function(x){ return x.k===k })[0]; if(!i) return;
+  var old=$("#soonM"); if(old) old.remove();
+  var wa=(SITE.wa_number||"").replace(/\D/g,""), txt=GX(k==="legal"?"soonLegalP":"soonLegalTxP");
+  var d=document.createElement("div"); d.className="soon-m"; d.id="soonM";
+  d.innerHTML='<div class="soon-bg"></div><div class="soon-c" role="dialog" aria-modal="true"><button type="button" class="soon-x" aria-label="'+GX("mdClose")+'">×</button>'+
+    '<div class="soon-ico">'+(MI[i.ico]||'')+'</div><span class="soon-tag">'+GX("soon")+'</span><h3>'+i.lab()+'</h3><p>'+txt+'</p>'+
+    '<div class="soon-acts">'+(wa?'<a class="gold" target="_blank" rel="noopener" href="https://wa.me/'+wa+'?text='+encodeURIComponent(i.lab())+'">'+GX("soonAsk")+'</a>':'')+'<button type="button" class="gh soon-ok">'+GX("soonOk")+'</button></div></div>';
+  document.body.appendChild(d);
+  var close=function(){ d.remove() };
+  d.querySelector(".soon-bg").onclick=close; d.querySelector(".soon-x").onclick=close; d.querySelector(".soon-ok").onclick=close;
+  document.addEventListener("keydown",function h(e){ if(e.key==="Escape"){ close(); document.removeEventListener("keydown",h) } });
+}
 function mdwOpen(){ var d=$("#mdw"); if(!d) return; closeAllMenus(); d.classList.add("on"); document.body.classList.add("mdw-open") }
 function mdwClose(){ var d=$("#mdw"); if(d) d.classList.remove("on"); document.body.classList.remove("mdw-open") }
 function wireDrawer(){
   var d=$("#mdw"); if(!d) return;
   if($("#hmb")) $("#hmb").onclick=function(e){ e.stopPropagation(); mdwOpen() };
+  if($("#hpill")) $("#hpill").onclick=function(e){ e.stopPropagation(); mdwOpen() };
   $("#mdwX").onclick=mdwClose; $("#mdwBg").onclick=mdwClose;
   if(!window._mdwEsc){ window._mdwEsc=true; document.addEventListener("keydown",function(e){ if(e.key==="Escape") mdwClose() }) }
   if($("#mdIn")) $("#mdIn").onclick=function(){ mdwClose(); var b=$("#bIn"); if(b) b.click() };
@@ -2659,6 +2790,9 @@ var MI=(function(){
     msgs:w('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-5.1A8 8 0 1 1 21 12z"/>'),
     settings:w('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
     out:w('<path d="M10 17l5-5-5-5M15 12H3M21 4v16"/>'),
+    legal:w('<path d="M12 3v18M6 21h12M5 7h14M5 7l-3 6a3 3 0 0 0 6 0L5 7M19 7l-3 6a3 3 0 0 0 6 0l-3-6"/>'),
+    legaltx:w('<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>'),
+    agency:w('<path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/>'),
     areas:w('<path d="M3 6.5 9 4l6 2.5 6-2.5v13.5L15 20l-6-2.5-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>'),
     coll:w('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>'),
     expl:w('<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>'),
@@ -2667,6 +2801,7 @@ var MI=(function(){
 })();
 var ICON_GLOBE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>';
 var LANG_SHORT={ar:"عربي",en:"EN",de:"DE"};
+var ICON_USER='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>';
 var ICON_HMB='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
 function header(){
  // a custom dropdown, not a native <select> — <option> elements can't
@@ -2678,7 +2813,7 @@ function header(){
    return '<a data-langpick="'+k+'"'+(k===L?' class="on"':'')+'><span class="langflag">'+(LANG_FLAGS[k]||"")+'</span>'+D.I18N[k].name+'</a>'
  }).join("");
  var langs='<div class="navmore" id="langWrap"><a id="langChip" class="mini" style="display:inline-flex;align-items:center;gap:6px">'+
-   '<span class="langflag">'+currentFlag+'</span><span class="lg-name">'+D.I18N[L].name+'</span>'+CHEV+'<span class="lg-globe">'+ICON_GLOBE+'</span><span class="lg-code">'+(LANG_SHORT[L]||L.toUpperCase())+'</span></a>'+
+   '<span class="lg-globe">'+ICON_GLOBE+'</span><span class="langflag">'+currentFlag+'</span><span class="lg-name">'+D.I18N[L].name+'</span><span class="lg-code">'+(LANG_SHORT[L]||L.toUpperCase())+'</span>'+CHEV+'</a>'+
    '<div class="menu" id="langMenu">'+langMenu+'</div></div>';
  // logged-out visitors get ONE combined, always-visible "Log in / Sign
  // up" action (this is how the region's own major property portals do
@@ -2704,7 +2839,8 @@ function header(){
  return '<header><div class="wrap hbar"><button class="hmb" id="hmb" aria-label="'+GX("mdMenu")+'">'+ICON_HMB+(USER&&NOTIFS.unread?'<i class="hmb-dot"></i>':'')+'</button><a class="logo" data-go="home">'+CONFIG.brand+'</a>'+
   '<nav class="hnav">'+
   // home page: editorial links first (they scroll to the page's own sections), "More" keeps the rest
-  (VIEW==="home" ? (navOn("coll")?'<a data-scroll="collsSec">'+HX("navColl")+'</a>':'')+(navOn("expl")?'<a data-scroll="explSec">'+HX("navAreas")+'</a>':'')+(navOn("guide")?'<a data-scroll="guidesSec">'+HX("navGuide")+'</a>':'')+(navOn("agencies")?'<a data-go="post">'+HX("navAgencies")+'</a>':'') : '')+
+  (VIEW==="home" ? (navOn("coll")?'<a data-scroll="collsSec">'+HX("navColl")+'</a>':'')+(navOn("expl")?'<a data-scroll="explSec">'+HX("navAreas")+'</a>':'')+(navOn("guide")?'<a data-scroll="guidesSec">'+HX("navGuide")+'</a>':'')+(navOn("agencies")?'<a data-go="agencies">'+GX("agDirShort")+'</a>':'') : '')+
+  (SX("nav_soon_header",true)!==false ? NAVI.filter(function(i){ return i.soon && navOn(i.k) }).map(function(i){ return '<a class="hsoon" data-soon="'+i.k+'">'+i.lab()+'<i>'+GX("soon")+'</i></a>' }).join("") : '')+
   '<div class="navmore" id="navMoreWrap"><a id="navMoreChip">'+t("moreNavT")+CHEV+'</a>'+
    '<div class="menu" id="navMoreMenu">'+
    navItems().filter(function(i){ return i.g==="search" }).map(function(i){ return '<a '+i.attrs+'>'+MI[i.ico]+i.lab()+'</a>' }).join("")+
@@ -2714,6 +2850,7 @@ function header(){
   '<div class="htools"><button class="mini" id="cur">'+CUR+'</button>'+
   langs + right +
   '<a class="gold" data-go="post" style="text-decoration:none">'+t("post")+'</a>'+
+  '<button class="hpill" id="hpill" aria-label="'+GX("mdMenu")+'">'+ICON_HMB+(USER?avatar(USER.avatar_url,USER.name,28,"av"):'<span class="huser">'+ICON_USER+'</span>')+(USER&&NOTIFS.unread?'<i class="hmb-dot"></i>':'')+'</button>'+
   '</div></div></header>'+mdrawer()+
   // no floating post button on the post form itself, nor on a listing page where the
   // fixed call / WhatsApp bar owns the bottom edge on phones
@@ -3518,7 +3655,7 @@ function rsMapInit(){
   if(b.length>1){ try{ map.fitBounds(b,{padding:[40,40]}) }catch(e){} }
   RS.map=map; setTimeout(function(){ if(RS.map===map) map.invalidateSize() },150);
 }
-function rsWire(){
+function rsWire(opts){
   wireChipSelects();
   $$("[data-rsdeal]").forEach(function(b){ b.onclick=function(){ F.deal=this.dataset.rsdeal||""; if(F.deal!=="rent"){ F.furn=""; F.rentalPeriod="" } F.page=1; render() } });
   if($("#hFurn")) $("#hFurn").onchange=function(){ F.furn=this.value; F.page=1; render() };
@@ -3559,7 +3696,7 @@ function rsWire(){
     catch(e){ sp.textContent=(e.message||"error"); b.style.color="var(--danger)" } };
   // cards ↔ pins
   $$(".res .card[data-open]").forEach(function(cd){ cd.addEventListener("mouseenter",function(){ var m=RS.pins[cd.dataset.open]; if(m&&m._icon){ m._icon.classList.add("on"); m.setZIndexOffset(1000) } }); cd.addEventListener("mouseleave",function(){ var m=RS.pins[cd.dataset.open]; if(m&&m._icon){ m._icon.classList.remove("on"); m.setZIndexOffset(0) } }) });
-  if(rsMapOn() && window.innerWidth>=1100) setTimeout(rsMapInit,60); else rsMapStop();
+  if(!(opts&&opts.map) && rsMapOn() && window.innerWidth>=1100) setTimeout(rsMapInit,60); else rsMapStop();
 }
 // when a search finds nothing: the same search anywhere in the country, or failing that the newest listings
 function searchAlternatives(){
@@ -4576,6 +4713,8 @@ function adminView(){
 
  else if(ADM.tab==="ads"){ body = hsStudioHtml("ads"); }
 
+ else if(ADM.tab==="engage"){ body = adminEngageBody(); }
+ else if(ADM.tab==="agencies_adm"){ body = adminAgenciesBody(); }
  else if(ADM.tab==="featured"){
   var flist = ADM.featuredList||[];
   var now = new Date();
@@ -4592,6 +4731,7 @@ function adminView(){
    '</div>'+
    '<button class="ab ok" id="ftSave">'+t("featureBtn")+'</button>'+
    '<span id="ftMsg" style="font-size:12.5px;color:var(--danger);margin-inline-start:8px"></span>'+
+   (ADM._featCode?'<div class="ecodebox">'+GX("engCodeIs")+' <b class="ltr" data-ecopy="'+esc(ADM._featCode)+'">'+esc(ADM._featCode)+'</b> <button type="button" class="ab" data-ecopy="'+esc(ADM._featCode)+'">'+GX("engCopy")+'</button></div>':'')+
   '</div></div>'+
   '<div class="blk" style="margin-top:16px"><h3>'+t("featuredListH")+'</h3><div class="in">'+
    (flist.length ? '<div class="atable"><table><thead><tr><th>BK</th><th>'+t("postedBy")+'</th><th>'+t("featureStartL")+'</th><th>'+t("featureEndL")+'</th><th>'+t("status")+'</th><th></th></tr></thead><tbody>'+
@@ -4714,8 +4854,8 @@ function adminView(){
  var NAV=[
    {g:t("navOverview"), items:[["dashboard",t("dashboardTab"),null,AICO.dash,true],["stats",t("visitorStats"),null,AICO.chart,can("stats")]]},
    {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["photos",GX("tMedia"),null,AICO.image,can("listings")]]},
-   {g:t("navPeople"), items:[["users",t("usersTab"),s.users,AICO.users,can("users")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")]]},
-   {g:GX("navMarketing"), items:[["ads",t("adsTab"),null,AICO.ads,can("ads")],["featured",t("featuredTab"),null,AICO.star,can("featured")],["banners",GX("tBanners"),null,AICO.banner,can("homepage")]]},
+   {g:t("navPeople"), items:[["users",t("usersTab"),s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")]]},
+   {g:GX("navMarketing"), items:[["engage",GX("tEngage"),null,AICO.ledger,can("ads")||can("featured")],["ads",t("adsTab"),null,AICO.ads,can("ads")],["featured",t("featuredTab"),null,AICO.star,can("featured")],["banners",GX("tBanners"),null,AICO.banner,can("homepage")]]},
    {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")]]},
    {g:t("navInboxH"), items:[["reports",t("reportsTab"),s.openReports,AICO.shield,can("reports")],["feedback",t("feedbackTab"),s.openFeedback,AICO.shield,can("feedback")],["msgs",t("msgsNotifTab"),ADM.alertsUnread,AICO.bell,can("msgs")]]},
    {g:GX("navSystem"), items:[["settings",GX("tSystem"),null,AICO.gear,can("settings")],["storage",GX("tStorage"),null,AICO.disk,can("settings")],["admins",t("adminsTab"),null,AICO.key,ADM.isSuper],["danger",t("dangerTab"),null,AICO.lock,ADM.isSuper]]}
@@ -5042,6 +5182,9 @@ function account(){
   '<button class="btn-n" id="npSave">'+t("changePhone")+'</button>'+
   '<span id="npMsg" style="font-size:13.5px"></span></div>'+
   '<div class="hintx">'+t("phoneWarn")+'</div></div></div>'+
+ '<div class="blk"><h3><span class="n">5</span>'+GX("agFormT")+'</h3><div class="in">'+
+  '<p class="hintx">'+GX("agAccountP")+'</p>'+
+  '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn-n" data-go="agencyform" style="width:auto">'+(MYAGENCY&&MYAGENCY.id?GX("agEditBtn"):GX("agRegister"))+'</button>'+(MYAGENCY&&MYAGENCY.id?agStatusPill(MYAGENCY.status):'')+'</div></div></div>'+
  '</div>'}
 
 function gate(){
@@ -5513,6 +5656,8 @@ AICO.out='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="cu
 AICO.disk='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>';
 AICO.desk='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>';
 AICO.phone='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>';
+AICO.building='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg>';
+AICO.ledger='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14v18l-3-2-2 2-2-2-2 2-2-2-3 2z"/><path d="M9 8h6M9 12h6M9 16h4"/></svg>';
 AICO.refresh='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></svg>';
 var ICON_GRID = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>';
 // real, drawn flags rather than the Unicode flag emoji — the emoji
@@ -5730,6 +5875,115 @@ function initViewMap(lat,lng){
    on its own dedicated, rarely-re-rendered view — and being strict
    about cleanup — avoids that whole class of failure. ═══ */
 var MAPSEARCH = {deal:"sale", gov:"", area:"", type:"", tabu:"", filtersOpen:false};
+/* ═══ agencies directory ═══ */
+var AGENCIES=null, AGENCY=null, MYAGENCY=null, AGF={g:"",spec:"",q:""}, ADM_AG=null, AG_SPECS=["sale","rent","commercial","land"];
+function agSpecLabel(k){ return GX("spec_"+k) }
+async function loadAgencies(){ if(!DB){ AGENCIES=[]; return } try{ var r=await DB.rpc("bk_public_agencies"); AGENCIES=(r&&r.data)||[] }catch(e){ AGENCIES=[] } }
+async function loadAgency(id){ if(!DB){ AGENCY={missing:true,id:id}; return } try{ var r=await DB.rpc("bk_agency_get",{p_id:+id}); AGENCY=(r&&r.data)||{missing:true,id:id} }catch(e){ AGENCY={missing:true,id:id} } }
+async function loadMyAgency(){ if(!DB||!USER){ MYAGENCY=false; return } try{ var r=await DB.rpc("bk_agency_mine",{p_token:USER.token||null}); MYAGENCY=(r&&r.data)||false }catch(e){ MYAGENCY=false } }
+function agStatusPill(st){ var m={pending:["pending","st_pending"],approved:["live","st_approved"],rejected:["expired","st_rejected"],hidden:["expired","st_hidden"]}[st]||["pending","st_pending"]; return '<span class="st st-'+m[0]+'">'+GX(m[1])+'</span>' }
+function agCard(a){
+  var ar=L==="ar", areas=(a.area_names||[]).slice(0,3).map(aN), more=(a.area_names||[]).length-3;
+  return '<div class="agcard" data-agopen="'+a.id+'" role="link" tabindex="0">'+
+    '<div class="aghead">'+avatar(a.logo_url,a.name,56,"aglogo")+'<div class="agname"><b>'+esc(a.name)+(a.verified?' <span class="vbadge">✓ '+GX("agVerified")+'</span>':'')+'</b>'+
+      '<span class="agspecs">'+(a.specialties||[]).map(function(k){ return '<i>'+agSpecLabel(k)+'</i>' }).join("")+'</span></div></div>'+
+    (a.description?'<p class="agdesc">'+esc(a.description).slice(0,150)+(a.description.length>150?"…":"")+'</p>':'')+
+    '<div class="agareas">'+MI.map+'<span>'+((a.gov_names||[]).map(gN).join(ar?"، ":", ")||"—")+(areas.length?' · '+areas.join(ar?"، ":", ")+(more>0?' <b>+'+more+'</b>':''):'')+'</span></div>'+
+    '<div class="agfoot"><span class="agcount">'+GX("agLive").replace("{n}",'<b class="ltr">'+(a.live||0)+'</b>')+'</span>'+
+      '<span class="agacts">'+((a.whatsapp||a.phone)?'<a class="agbtn wa" href="https://wa.me/'+esc(String(a.whatsapp||a.phone).replace(/\D/g,""))+'" target="_blank" rel="noopener" data-stop>'+MI.msgs+'</a>':'')+(a.phone?'<a class="agbtn" href="tel:'+esc(a.phone)+'" data-stop>'+MI.phone+'</a>':'')+'</span></div></div>' }
+function agenciesPage(){
+  var list=AGENCIES, govs=Object.keys(D.GEO);
+  var rows=(list||[]).filter(function(a){ if(AGF.g && (a.gov_names||[]).indexOf(AGF.g)===-1) return false; if(AGF.spec && (a.specialties||[]).indexOf(AGF.spec)===-1) return false;
+    if(AGF.q){ var q=AGF.q.toLowerCase(), hay=[a.name,a.description,(a.gov_names||[]).map(gN).join(" "),(a.area_names||[]).map(aN).join(" ")].join(" ").toLowerCase(); if(hay.indexOf(q)===-1) return false } return true });
+  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("agDirShort")+'</div></div>'+
+   '<div class="wrap agdir">'+
+    '<div class="ag-hero"><div><div class="eyebrow">'+HX("ownE")+'</div><h1>'+GX("agDir")+'</h1><p>'+GX("agDirP")+'</p></div><a class="gold" data-go="agencyform">'+GX("agRegister")+'</a></div>'+
+    '<div class="ag-filters"><input id="agQ" data-allow-autofill placeholder="'+esc(GX("agSearchPH"))+'" value="'+esc(AGF.q)+'">'+
+     '<div class="ag-pills" id="agGov"><button type="button" class="'+(AGF.g?"":"on")+'" data-agg="">'+GX("agAllGov")+'</button>'+govs.map(function(g){ return '<button type="button" class="'+(AGF.g===g?"on":"")+'" data-agg="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div>'+
+     '<div class="ag-pills"><button type="button" class="'+(AGF.spec?"":"on")+'" data-ags="">'+GX("agAllSpec")+'</button>'+AG_SPECS.map(function(k){ return '<button type="button" class="'+(AGF.spec===k?"on":"")+'" data-ags="'+k+'">'+agSpecLabel(k)+'</button>' }).join("")+'</div></div>'+
+    (list===null ? '<div class="resempty"><b>'+t("loading")+'</b></div>' : rows.length ? '<div class="ag-grid">'+rows.map(agCard).join("")+'</div>' :
+      '<div class="resempty">'+LICON.search+'<b>'+GX("agEmpty")+'</b><span>'+GX("agEmptyCta")+'</span><a class="gold" data-go="agencyform" style="margin-top:12px;text-decoration:none">'+GX("agRegister")+'</a></div>')+
+   '</div>' }
+function agencyPage(id){
+  var a=AGENCY;
+  if(!a || String(a.id)!==String(id)) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>';
+  if(a.missing) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:18px">'+t("notFound")+'</b><div style="margin-top:18px"><button class="btn-n" data-go="agencies">'+GX("agDirShort")+'</button></div></div></div>';
+  var mine=D.LIST.filter(function(x){ return x.uid===a.user_id && (!x.status||x.status==="live") });
+  var wa=(a.whatsapp||a.phone||"").replace(/\D/g,"");
+  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a data-go="agencies">'+GX("agDirShort")+'</a><i>›</i>'+esc(a.name)+'</div></div>'+
+   '<div class="wrap agprof">'+
+    '<div class="profcard"><div class="profhead">'+avatar(a.logo_url,a.name,86,"big")+'<div class="profmeta"><h1>'+esc(a.name)+(a.verified?' <span class="vbadge">✓ '+GX("agVerified")+'</span>':'')+'</h1>'+
+      '<div class="agspecs big">'+(a.specialties||[]).map(function(k){ return '<i>'+agSpecLabel(k)+'</i>' }).join("")+'</div>'+
+      (a.address?'<div class="pl">'+esc(a.address)+'</div>':'')+(a.member_since?'<div class="pl">'+GX("agSince").replace("{y}",'<span class="ltr">'+new Date(a.member_since).getFullYear()+'</span>')+'</div>':'')+
+      (a.description?'<p class="bio">'+esc(a.description)+'</p>':'')+'</div>'+
+     '<div class="profstats"><div><b class="ltr">'+(a.live||0)+'</b><span>'+t("liveAds")+'</span></div><div><b class="ltr">'+(a.closed||0)+'</b><span>'+t("soldAds")+'</span></div><div><b class="ltr">'+((a.area_names||[]).length)+'</b><span>'+GX("f_agAreas")+'</span></div></div></div>'+
+    '<div class="agcontact">'+(a.phone?'<a class="btn-n" href="tel:'+esc(a.phone)+'">'+MI.phone+GX("agCall")+'</a>':'')+(wa?'<a class="btn-n wa" href="https://wa.me/'+wa+'" target="_blank" rel="noopener">'+MI.msgs+GX("agWa")+'</a>':'')+
+      (a.email?'<a class="gh" href="mailto:'+esc(a.email)+'">'+MI.mail+GX("agEmail")+'</a>':'')+(a.website?'<a class="gh" href="'+esc(a.website)+'" target="_blank" rel="noopener">'+MI.about+GX("agWeb")+'</a>':'')+
+      '<a class="gh" data-agseller="'+esc(a.user_id)+'">'+MI.mine+GX("agMemberPage")+'</a></div>'+
+    ((a.gov_names||[]).length||(a.area_names||[]).length ? '<div class="blk" style="margin-top:16px"><h3>'+GX("agAreasServed")+'</h3><div class="in"><div class="agchips">'+
+      (a.gov_names||[]).map(function(g){ return '<a class="chip" data-go="search" data-gov="'+esc(g)+'">'+gN(g)+'</a>' }).join("")+(a.area_names||[]).map(function(x){ return '<a class="chip soft" data-agarea="'+esc(x)+'">'+aN(x)+'</a>' }).join("")+'</div></div></div>' : '')+
+    '<h2 style="font-size:18px;font-weight:700;margin:22px 0 12px">'+GX("agListingsH")+' <span class="ltr" style="color:var(--grey);font-weight:500">('+mine.length+')</span></h2>'+
+    (mine.length?'<div class="res">'+mine.map(function(x,i){ return card(x,i,false) }).join("")+'</div>':'<div class="resempty"><b>'+GX("agNoListings")+'</b></div>')+
+   '</div>' }
+function agencyFormPage(){
+  if(!USER) return gate();
+  var a=MYAGENCY||{}, govs=Object.keys(D.GEO), selG=a.gov_names||[], selA=a.area_names||[], specs=a.specialties||[];
+  var areaOpts=selG.reduce(function(acc,g){ return acc.concat((D.GEO[g]||[]).map(function(x){ return [g,x] })) },[]);
+  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a data-go="agencies">'+GX("agDirShort")+'</a><i>›</i>'+GX("agFormT")+'</div></div>'+
+   '<div class="wrap" style="max-width:760px;padding:22px 18px 60px">'+
+    '<h1 style="font-size:22px;font-weight:700;margin-bottom:6px">'+GX("agFormT")+'</h1><p class="hintx" style="margin-bottom:16px">'+GX("agFormP")+'</p>'+
+    (MYAGENCY===null?'<div class="hintx" style="margin-bottom:12px">'+t("loading")+'</div>':'')+
+    (MYAGENCY&&MYAGENCY.id?'<div class="agstatus">'+agStatusPill(MYAGENCY.status)+(MYAGENCY.status==="approved"?' <a data-agopen="'+MYAGENCY.id+'" class="agviewlink">'+GX("agView")+'</a>':'')+'</div>':'')+
+    '<div class="blk agform"><div class="in">'+
+     '<div class="aglogo-row">'+avatar(USER.avatar_url,a.name||USER.name,64,"big")+'<div class="hintx">'+GX("agLogoHint")+' <a data-go="account" style="color:var(--navy);text-decoration:underline;cursor:pointer">'+t("settings")+'</a></div></div>'+
+     '<div class="row"><div class="fl"><label class="req">'+GX("f_agName")+'</label><input data-allow-autofill id="agName" value="'+esc(a.name||"")+'"></div><div class="fl"><label>'+GX("f_agPhone")+'</label><input data-allow-autofill id="agPhone" class="ltr" value="'+esc(a.phone||USER.phone||"")+'"></div></div>'+
+     '<div class="row"><div class="fl"><label>'+GX("f_agWa")+'</label><input data-allow-autofill id="agWa" class="ltr" value="'+esc(a.whatsapp||"")+'"></div><div class="fl"><label>'+GX("f_agEmail")+'</label><input data-allow-autofill id="agEmail" class="ltr" value="'+esc(a.email||"")+'"></div></div>'+
+     '<div class="row"><div class="fl"><label>'+GX("f_agWeb")+'</label><input data-allow-autofill id="agWeb" class="ltr" value="'+esc(a.website||"")+'" placeholder="https://"></div><div class="fl"><label>'+GX("f_agAddress")+'</label><input data-allow-autofill id="agAddress" value="'+esc(a.address||"")+'"></div></div>'+
+     '<div class="fl"><label>'+GX("f_agDesc")+'</label><textarea id="agDesc" maxlength="600">'+esc(a.description||"")+'</textarea></div>'+
+     '<div class="fl"><label>'+GX("f_agSpecs")+'</label><div class="ag-pills sel" id="agSpecs">'+AG_SPECS.map(function(k){ return '<button type="button" class="'+(specs.indexOf(k)>-1?"on":"")+'" data-agspec="'+k+'">'+agSpecLabel(k)+'</button>' }).join("")+'</div></div>'+
+     '<div class="fl"><label>'+GX("f_agGovs")+'</label><div class="ag-pills sel" id="agGovs">'+govs.map(function(g){ return '<button type="button" class="'+(selG.indexOf(g)>-1?"on":"")+'" data-aggov="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
+     (areaOpts.length?'<div class="fl"><label>'+GX("f_agAreas")+'</label><div class="ag-pills sel wrap" id="agAreas">'+areaOpts.map(function(p){ return '<button type="button" class="'+(selA.indexOf(p[1])>-1?"on":"")+'" data-agarea2="'+esc(p[1])+'">'+aN(p[1])+'</button>' }).join("")+'</div></div>':'')+
+     '<div class="xactions"><button class="btn-n" id="agSave" style="width:auto">'+t("saveChanges")+'</button><span class="xmsg" id="agMsg"></span></div>'+
+    '</div></div></div>' }
+function wireAgencies(){
+  if(VIEW==="agencies"){
+    if(AGENCIES===null) loadAgencies().then(render);
+    var q=$("#agQ"); if(q) q.oninput=function(){ AGF.q=this.value; clearTimeout(window._agT); window._agT=setTimeout(function(){ var pos=q.selectionStart; render(); var n=$("#agQ"); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos) }catch(e){} } },220) };
+    $$("[data-agg]").forEach(function(b){ b.onclick=function(){ AGF.g=this.dataset.agg; render() } });
+    $$("[data-ags]").forEach(function(b){ b.onclick=function(){ AGF.spec=this.dataset.ags; render() } });
+  }
+  $$("[data-agopen]").forEach(function(a){ a.onclick=function(e){ if(e.target.closest("[data-stop]")) return; e.preventDefault(); AGENCY=null; VIEW="agency:"+this.dataset.agopen; scrollTo(0,0); render() } });
+  $$("[data-stop]").forEach(function(a){ a.onclick=function(e){ e.stopPropagation() } });
+  if(VIEW.indexOf("agency:")===0){ var id=VIEW.split(":")[1]; if(!AGENCY || String(AGENCY.id)!==String(id)) loadAgency(id).then(render);
+    $$("[data-agseller]").forEach(function(a){ a.onclick=function(){ var uid=this.dataset.agseller; BYUSER={id:uid,name:"",rows:[]}; VIEW="by:"+uid; scrollTo(0,0); render(); loadByUser(uid).then(render) } });
+    $$("[data-agarea]").forEach(function(a){ a.onclick=function(){ F.areas=[this.dataset.agarea]; F.govs=[]; F.g=""; F.a=""; F.page=1; VIEW="search"; scrollTo(0,0); render() } }) }
+  if(VIEW==="agencyform" && USER){
+    if(MYAGENCY===null) loadMyAgency().then(render);
+    var collectAg=function(){ MYAGENCY=Object.assign({},MYAGENCY||{},{name:$("#agName").value,phone:$("#agPhone").value,whatsapp:$("#agWa").value,email:$("#agEmail").value,website:$("#agWeb").value,address:$("#agAddress").value,description:$("#agDesc").value,
+      specialties:$$("#agSpecs .on").map(function(b){ return b.dataset.agspec }),gov_names:$$("#agGovs .on").map(function(b){ return b.dataset.aggov }),area_names:$$("#agAreas .on").map(function(b){ return b.dataset.agarea2 })}) };
+    $$("[data-agspec],[data-agarea2]").forEach(function(b){ b.onclick=function(){ this.classList.toggle("on") } });
+    $$("[data-aggov]").forEach(function(b){ b.onclick=function(){ this.classList.toggle("on"); collectAg(); render() } });
+    if($("#agSave")) $("#agSave").onclick=async function(){ collectAg(); var m=$("#agMsg"), a=MYAGENCY;
+      if(!a.name||!a.name.trim()){ if(m){ m.style.color="var(--danger)"; m.textContent=GX("f_agName") } return }
+      this.disabled=true;
+      try{ var r=await DB.rpc("bk_agency_save",{p_token:USER.token||null,p_name:a.name,p_description:a.description||null,p_phone:a.phone||null,p_whatsapp:a.whatsapp||null,p_email:a.email||null,p_website:a.website||null,p_address:a.address||null,p_govs:a.gov_names||[],p_areas:a.area_names||[],p_specialties:a.specialties||[]});
+        if(r.error) throw r.error; MYAGENCY=r.data||a; AGENCIES=null; render(); var m2=$("#agMsg"); if(m2){ m2.style.color="var(--ok)"; m2.textContent = MYAGENCY.status==="approved" ? GX("agSavedOk") : GX("agSaved") } }
+      catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } this.disabled=false } };
+  }
+}
+function adminAgenciesBody(){
+  var list=ADM_AG; if(!list) return '<div class="blk"><div class="in adashempty">'+t("loading")+'</div></div>';
+  if(!list.length) return '<div class="blk"><div class="in adashempty">'+GX("agNone")+'</div></div>';
+  var pend=list.filter(function(a){ return a.status==="pending" }).length;
+  return '<div class="blk"><h3>'+GX("tAgencies")+(pend?' <span class="n">'+pend+'</span>':'')+'</h3><div class="in eng-in"><div class="elist">'+list.map(function(a){
+    return '<div class="erow agrow"><div class="ecode">'+avatar(a.logo_url,a.name,40,"aglogo")+'<div><b>'+esc(a.name)+'</b><small class="usub">'+esc(a.user_name||"")+' · <span class="ltr">'+esc(a.user_phone||"")+'</span></small></div></div>'+
+      '<div class="ewho">'+((a.gov_names||[]).map(gN).join("، ")||"—")+'<small>'+(a.specialties||[]).map(agSpecLabel).join(" · ")+((a.area_names||[]).length?' · '+a.area_names.length+' '+GX("f_agAreas"):'')+'</small></div>'+
+      '<div class="eclient"><span class="ltr">'+(a.live||0)+'</span> '+t("liveAds")+(a.phone?'<small class="ltr">'+esc(a.phone)+'</small>':'')+'</div>'+
+      '<div class="eperiod"><span class="ltr">'+String(a.created_at||"").slice(0,10)+'</span></div>'+
+      '<div class="est">'+agStatusPill(a.status)+(a.verified?' <span class="vbadge">✓</span>':'')+'</div>'+
+      '<div class="eacts">'+(a.status!=="approved"?'<button type="button" class="ab ok" data-agset="'+a.id+':approved">'+GX("agApprove")+'</button>':'')+(a.status==="approved"?'<button type="button" class="ab" data-agset="'+a.id+':hidden">'+GX("agHide")+'</button>':'')+
+        (a.status==="pending"?'<button type="button" class="ab bad" data-agset="'+a.id+':rejected">'+GX("agReject")+'</button>':'')+
+        '<button type="button" class="ab" data-agver="'+a.id+':'+(a.verified?"0":"1")+'">'+(a.verified?GX("agUnverify"):GX("agVerify"))+'</button>'+(a.status==="approved"?'<a class="ab" href="/agency/'+a.id+'" target="_blank" rel="noopener">'+GX("agView")+'</a>':'')+'</div></div>' }).join("")+'</div></div></div>' }
 function closeMapFilterPanelLocally(){
   // dismissing the dropdown without applying anything — e.g. clicking
   // the toggle button again, or just clicking away — has no effect on
@@ -5755,53 +6009,25 @@ var _mapSearchInstance = null;
 var _mapSearchInitTimer = null;
 function mapSearchMatches(){
   // the map shows exactly what the search filters allow (governorates, areas, types, deed, furnished, price); its panel edits the same filters
-  return D.LIST.filter(function(x){ return x.status==="live" && x.d===MAPSEARCH.deal && passesFilter(x,"deal") });
+  return D.LIST.filter(function(x){ return (!x.status || x.status==="live") && passesFilter(x,null) });
 }
 function mapSearchActiveFilterCount(){ return activeFilterCount() }
 function mapF(key){ var a=F[key]; return (a&&a.length) ? a[0] : "" }   // first chosen value, for the map's single-value selects
 function mapSearchPage(){
-  var matches = mapSearchMatches();
-  var withLoc = matches.filter(function(x){ return x.lat && x.lng });
-  var totalForDeal = matches.length;
-  var mg0=mapF("govs"), areaOptions = mg0 && D.GEO[mg0] ? D.GEO[mg0] : [];
-  var fCount = mapSearchActiveFilterCount();
-  return '<div class="wrap" style="padding:10px 18px 40px">'+
-   '<div class="crumb" style="padding:0 0 10px"><a data-go="home">'+t("home")+'</a><i>›</i>'+t("searchOnMap")+'</div>'+
-   // Sale/Rent, the filter toggle, and the results count now share
-   // one single row at the top of the page instead of being stacked
-   // across two — this is the only thing standing between opening
-   // the page and seeing the map: every row saved here is height the
-   // map gets back, which is the whole point of moving these up.
-   // Filters sit in the middle of the row, tabs and the count on
-   // either side of it.
-   '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;position:relative;z-index:1091">'+
-    '<div class="stabs mapsearch-tabs" style="margin:0">'+
-     '<button type="button" class="'+(MAPSEARCH.deal==="sale"?"on":"")+'" data-mapdeal2="sale">'+t("forsale")+'</button>'+
-     '<button type="button" class="'+(MAPSEARCH.deal==="rent"?"on":"")+'" data-mapdeal2="rent">'+t("forrent")+'</button>'+
+  var matches = mapSearchMatches(), withLoc = matches.filter(function(x){ return x.lat && x.lng }), fc = activeFilterCount();
+  return '<div class="rs rs-mappage">'+
+   '<div class="rs-bar"><div class="wrap rs-barin">'+rsFiltersHtml(matches.length)+
+    '<a class="rs-save rs-tolist" data-go="search">'+ICON_LIST+'<span>'+GX("rsList")+'</span></a></div>'+rsChipsHtml()+'</div>'+
+   '<div class="wrap rs-mapwrap">'+
+    '<div class="rs-head rs-maphead"><div class="rs-ttl"><div class="crumb-lite"><a data-go="home">'+t("home")+'</a> › '+t("searchOnMap")+'</div><h1>'+rsTitle()+'</h1>'+
+     '<div class="rs-sub"><b class="ltr">'+matches.length+'</b> '+t("listings")+(withLoc.length<matches.length ? ' · '+GX("rsOnMap").replace("{n}",'<span class="ltr">'+withLoc.length+'</span>') : '')+'</div></div>'+
+     '<div class="rs-tools"><a class="rs-maptg on rs-tolist2" data-go="search">'+ICON_LIST+'<span>'+GX("rsList")+'</span></a></div></div>'+
+    '<div style="position:relative">'+
+     (matches.length===0 ? '<div class="rs-mapempty"><span>'+t("mapSearchNoMatches")+'</span></div>' : '')+
+     '<div id="mapSearchBox" class="rs-bigmap"></div>'+
     '</div>'+
-    '<div id="mapFilterZone">'+mapFilterZoneHtml()+'</div>'+
-    '<div class="mapf-toggle" style="cursor:default;font-weight:600;width:auto;display:inline-flex;white-space:nowrap">'+t("mapSearchResultsCount").replace("{n}", totalForDeal)+'</div>'+
    '</div>'+
-   (withLoc.length<totalForDeal ? '<div class="hintx" style="margin-bottom:8px;text-align:center">'+
-     t("mapSearchCoverage").replace("{n}",withLoc.length).replace("{t}",totalForDeal)+'</div>' : '')+
-   // the map itself, and the filter overlay on top of it, ALWAYS stay
-   // mounted together — regardless of whether the current filters
-   // happen to match zero listings. Previously, hitting zero results
-   // replaced this entire block with a plain "no reports" message,
-   // which took the filter controls down with it — leaving no way
-   // back to the map without a hard refresh. Zero results now show
-   // as a small message layered ON the still-live map instead.
-   //
-   // the filter toggle button itself now lives in normal page flow,
-   // NOT overlapping the map — but its expanding panel is deliberately
-   // pulled out of flow (position:absolute) so opening it doesn't
-   // push the map down the page; it drops down and floats directly
-   // over the top of the map instead, with a transparent background.
-   '<div style="position:relative">'+
-    (totalForDeal===0 ? '<div style="position:absolute;top:12px;left:0;right:0;display:flex;align-items:center;justify-content:center;z-index:400;pointer-events:none">'+
-      '<div class="mapf-toggle" style="pointer-events:auto"><b>'+t("mapSearchNoMatches")+'</b></div></div>' : '')+
-    '<div id="mapSearchBox" style="height:min(72vh,640px);border-radius:10px;overflow:hidden;border:1px solid var(--line-2)"></div>'+
-   '</div>'+
+   '<div class="rs-mbar"><button type="button" id="rsMFilters">'+GX("rsFilters")+(fc?' <b class="ltr">'+fc+'</b>':'')+'</button><button type="button" id="rsMList">'+ICON_LIST+GX("rsList")+'</button></div>'+
   '</div>';
 }
 function mapFilterZoneHtml(){
@@ -6353,21 +6579,16 @@ function wire(){
    console.log("Balkoun: listing "+id+" has "+(ph?ph.length:0)+" photo(s)");
    if(it){ it.photos = ph || []; GI=0; render() } }});
 
+ $$("[data-soon]").forEach(function(a){ a.onclick=function(e){ e.preventDefault(); e.stopPropagation(); mdwClose(); soonOpen(this.dataset.soon) } });
+ wireAgencies();
  $$("[data-deal2]").forEach(function(e){ e.onclick=function(){
    HOMEDEAL=e.dataset.deal2; F.deal=HOMEDEAL; render() }});
  wireAuth();
  if(VIEW==="admin") wireAdmin();
  if(VIEW==="mapsearch"){
-   $$("[data-mapdeal2]").forEach(function(e){ e.onclick=function(){
-     if(MAPSEARCH.deal===this.dataset.mapdeal2) return;
-     MAPSEARCH.deal=this.dataset.mapdeal2; F.deal=MAPSEARCH.deal; render();
-   }});
-   wireMapFilterZone();
+   rsWire({map:true});
+   if($("#rsMList")) $("#rsMList").onclick=function(){ VIEW="search"; scrollTo(0,0); render(); refreshListingsOnNavigate() };
    if($("#mapSearchBox")){
-     // clear any already-pending init before scheduling a new one —
-     // guards against the exact race that broke the earlier attempt,
-     // where an overlapping earlier timeout could fire AFTER a later,
-     // correct one and silently overwrite it with stale/empty data
      if(_mapSearchInitTimer) clearTimeout(_mapSearchInitTimer);
      _mapSearchInitTimer = setTimeout(function(){ _mapSearchInitTimer=null; initMapSearch() }, 50);
    }
@@ -7077,6 +7298,31 @@ function wireAdmin(){
       render();
     }).catch(function(){ if(ADM._mediaLoading===cat) ADM._mediaLoading=null; render() });
   }
+  if(ADM.tab==="agencies_adm"){
+    if(!ADM._agLoaded){ ADM._agLoaded=true; rpc("bk_admin_agencies",{p_token:ADM.token}).then(function(r){ ADM_AG=r||[]; render() }).catch(function(){ ADM_AG=[]; render() }) }
+    $$("[data-agset]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.agset.split(":"); try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+p[0],p_status:p[1]}); ADM._agLoaded=false; render() }catch(e){ alert(e.message||"error") } } });
+    $$("[data-agver]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.agver.split(":"); try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+p[0],p_verified:p[1]==="1"}); ADM._agLoaded=false; render() }catch(e){ alert(e.message||"error") } } });
+  }
+  if(ADM.tab==="engage"){
+    var edays=ADM.erange==null?30:ADM.erange;
+    if(ADM._engDays!==edays){ ADM._engDays=edays; ADM.eng=null; rpc("bk_admin_engagements",{p_token:ADM.token,p_days:edays===0?null:edays}).then(function(r){ ADM.eng=r||[]; render() }).catch(function(e){ ADM.eng=[]; ADM.engErr=e.message; render() }) }
+    $$("[data-erange]").forEach(function(b){ b.onclick=function(){ ADM.erange=+this.dataset.erange; render() } });
+    var eq=$("#engQ"); if(eq){ eq.oninput=function(){ ADM.eq=this.value; clearTimeout(window._eqT); window._eqT=setTimeout(function(){ var pos=eq.selectionStart; render(); var n=$("#engQ"); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos) }catch(e){} } },260) } }
+    $$("[data-eedit]").forEach(function(b){ b.onclick=function(){ ADM.eopen = String(ADM.eopen)===this.dataset.eedit ? null : this.dataset.eedit; render() } });
+    $$("[data-eend]").forEach(function(b){ b.onclick=async function(){ if(!confirm(GX("engEndConfirm"))) return; try{ await rpc("bk_admin_engagement_update",{p_token:ADM.token,p_id:+this.dataset.eend,p_status:"ended"}); ADM._engDays=null; render() }catch(e){ alert(e.message||"error") } } });
+    $$("[data-esave]").forEach(function(b){ b.onclick=async function(){ var m=$("#eeMsg"); try{ var ends=($("#eeEnds")||{}).value;
+        await rpc("bk_admin_engagement_update",{p_token:ADM.token,p_id:+this.dataset.esave,p_client:($("#eeClient")||{}).value||null,p_phone:($("#eePhone")||{}).value||null,p_notes:($("#eeNotes")||{}).value||null,p_ends:ends?new Date(ends+"T23:59:59").toISOString():null});
+        ADM.eopen=null; ADM._engDays=null; render() }catch(e){ if(m) m.textContent=e.message||"error" } } });
+    if($("#engAddBtn")) $("#engAddBtn").onclick=function(){ ADM.engAdd=!ADM.engAdd; render() };
+    if($("#engAddCancel")) $("#engAddCancel").onclick=function(){ ADM.engAdd=false; render() };
+    if($("#engAddSave")) $("#engAddSave").onclick=async function(){ var m=$("#eaMsg"), kind=$("#eaKind").value, ref=($("#eaRef").value||"").trim(), refId=null;
+      if(/^\d+$/.test(ref)) refId=+ref; else if(ref){ var l=((ADM.data&&ADM.data.listings)||[]).filter(function(x){ return String(x.ref||"").toLowerCase()===ref.toLowerCase() })[0]; if(l) refId=+l.id }
+      var from=$("#eaFrom").value, to=$("#eaTo").value;
+      try{ var r=await rpc("bk_admin_engage",{p_token:ADM.token,p_kind:kind,p_ref_id:refId,p_ref_text:ref||null,p_title:($("#eaTitle").value||ref||null),p_client:$("#eaClient").value||null,p_phone:$("#eaPhone").value||null,
+          p_starts:from?new Date(from+"T00:00:00").toISOString():null,p_ends:to?new Date(to+"T23:59:59").toISOString():null,p_notes:$("#eaNotes").value||null});
+        ADM.engAdd=false; ADM._engDays=null; ADM._featCode=null; ADM.engLastCode=r&&r.code||null; render() }catch(e){ if(m) m.textContent=e.message||"error" } };
+  }
+  $$("[data-ecopy]").forEach(function(b){ b.onclick=function(){ var c=this.dataset.ecopy, btn=this, old=btn.textContent; try{ navigator.clipboard.writeText(c).then(function(){ if(btn.tagName==="BUTTON"){ btn.textContent=GX("engCopied"); setTimeout(function(){ btn.textContent=old },1200) } }) }catch(e){ prompt(GX("engCode"),c) } } });
   var reloadFeaturedList=async function(){
     try{ var r=await rpc("bk_admin_list_featured",{p_token:ADM.token}); ADM.featuredList=r||[] }catch(e){}
   };
@@ -7093,13 +7339,15 @@ function wireAdmin(){
     if(!fromVal || !days || days<1){ if(msgEl) msgEl.textContent=t("featureInvalidDates"); return }
     this.disabled=true;
     try{
-      await rpc("bk_admin_feature_listing",{p_token:ADM.token,p_listing:+listingId,
+      var fr=await rpc("bk_admin_feature_listing",{p_token:ADM.token,p_listing:+listingId,
         p_from:new Date(fromVal+"T00:00:00Z").toISOString(),p_days:days});
+      ADM._featCode = fr && fr.code ? fr.code : null;
       await reloadFeaturedList();
       syncFeaturedFromServer();
       var si=$("#ftListingSearch"); if(si) si.value="";
       var hi=$("#ftListing"); if(hi) hi.value="";
       if(msgEl) msgEl.textContent="";
+      ADM._engDays=null;
       render();
     }catch(e){ if(msgEl) msgEl.textContent=e.message||"error"; this.disabled=false }
   };
@@ -8922,6 +9170,7 @@ function routePath(){
   return VIEW==="home" ? "/" :
          VIEW.indexOf("listing:")===0 ? "/listing/"+VIEW.split(":")[1] :
          VIEW.indexOf("by:")===0 ? "/seller/"+VIEW.split(":")[1] :
+         VIEW.indexOf("agency:")===0 ? "/agency/"+VIEW.split(":")[1] :
          (VIEW==="about"||VIEW==="contactus") ? "/"+VIEW+"/" :   // these also exist as static pages
          "/"+VIEW+(VIEW==="search"?filterToQuery():"");
 }
@@ -8931,7 +9180,8 @@ var PAGE_T={
   saved:{ar:"المحفوظات",en:"Saved",de:"Gespeichert"}, searches:{ar:"عمليات البحث المحفوظة",en:"Saved searches",de:"Gespeicherte Suchen"},
   msgs:{ar:"الرسائل",en:"Messages",de:"Nachrichten"}, account:{ar:"حسابي",en:"My account",de:"Mein Konto"},
   about:{ar:"عن بلكون",en:"About Balkoun",de:"Über Balkoun"}, contact:{ar:"تواصل معنا",en:"Contact us",de:"Kontakt"}, contactus:{ar:"تواصل معنا",en:"Contact us",de:"Kontakt"},
-  admin:{ar:"لوحة الإدارة",en:"Admin",de:"Verwaltung"}, listing:{ar:"تفاصيل العقار",en:"Property details",de:"Immobiliendetails"}, by:{ar:"إعلانات المعلن",en:"Seller listings",de:"Anzeigen des Anbieters"}
+  admin:{ar:"لوحة الإدارة",en:"Admin",de:"Verwaltung"}, listing:{ar:"تفاصيل العقار",en:"Property details",de:"Immobiliendetails"}, by:{ar:"إعلانات المعلن",en:"Seller listings",de:"Anzeigen des Anbieters"},
+  agencies:{ar:"دليل المكاتب العقارية",en:"Real estate agencies",de:"Immobilienbüros"}, agency:{ar:"مكتب عقاري",en:"Agency",de:"Immobilienbüro"}, agencyform:{ar:"بيانات المكتب",en:"Agency profile",de:"Büroprofil"}
 };
 var _HOME_TITLE=document.title;
 function setPageMeta(){
@@ -8958,7 +9208,8 @@ function viewFromHash(){
   var p=h.split("/");
   if(p[0]==="listing"&&p[1]) return "listing:"+(p[1].match(/^\d+/)||[p[1]])[0];
   if(p[0]==="seller"&&p[1]) return "by:"+p[1];
-  if(["search","post","mine","saved","searches","msgs","account","about","contact","contactus","admin","mapsearch"].indexOf(p[0])>-1){
+  if(p[0]==="agency"&&p[1]) return "agency:"+(p[1].match(/^\d+/)||[p[1]])[0];
+  if(["search","post","mine","saved","searches","msgs","account","about","contact","contactus","admin","mapsearch","agencies","agencyform"].indexOf(p[0])>-1){
     if(p[0]==="search" && qs) applyFilterFromQuery(qs);
     return p[0];
   }
@@ -9036,7 +9287,7 @@ function render(){
  if(VIEW!==_lastRenderedView){ _lastRenderedView=VIEW; refreshListingsOnNavigate(); }
  document.documentElement.lang=L; document.documentElement.dir=D.I18N[L].dir;
  var body= VIEW==="home"?home(): VIEW==="search"?search(): VIEW==="post"?post():
-          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): listing(VIEW.split(":")[1]);
+          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): listing(VIEW.split(":")[1]);
  document.body.classList.remove("mdw-open");
  $("#app").innerHTML=header()+body+footer()+authModal()+reportModal();
  // home page only: the header sits transparent over the hero photo/video
@@ -9768,13 +10019,62 @@ var GX_T={
   navLangHeader:{ar:"إظهار اللغة (رمز الكرة الأرضية) في رأس الجوال",en:"Show the language (globe) in the phone header",de:"Sprache (Globus) in der Handy-Kopfzeile zeigen"},
   navLangDrawer:{ar:"اختيار اللغة داخل القائمة",en:"Language chips inside the menu",de:"Sprachauswahl im Menü"},
   navCurDrawer:{ar:"اختيار العملة داخل القائمة",en:"Currency toggle inside the menu",de:"Währungsumschalter im Menü"},
-  navMenuDesk:{ar:"إظهار زر القائمة ☰ على الكمبيوتر أيضاً",en:"Show the ☰ menu button on desktop too",de:"☰-Menü-Button auch am Desktop zeigen"},
+  navMenuDesk:{ar:"زر القائمة ☰ مع صورة الحساب في رأس الكمبيوتر (عند إيقافه تعود قائمة الحساب المنسدلة)",en:"☰ menu pill with the avatar in the desktop header (off = the old account dropdown)",de:"☰-Menü-Pille mit Avatar in der Desktop-Kopfzeile (aus = altes Konto-Menü)"},
+  navDeskH:{ar:"رأس الكمبيوتر",en:"Desktop header",de:"Desktop-Kopfzeile"},
+  navLinksDesk:{ar:"روابط الأقسام (مجموعات، مناطق، دليل) في رأس الكمبيوتر",en:"Section links (collections, areas, guide) in the desktop header",de:"Abschnitts-Links in der Desktop-Kopfzeile"},
+  navMoreDesk:{ar:"قائمة «المزيد» ورابط «للمكاتب» في رأس الكمبيوتر",en:"The “More” dropdown and the “For agencies” link in the desktop header",de:"„Mehr“-Menü und „Für Büros“ in der Desktop-Kopfzeile"},
+  navCurHeader:{ar:"زر العملة (USD / ل.س) في رأس الكمبيوتر (يبقى داخل القائمة دائماً)",en:"Currency button in the desktop header (always inside the menu too)",de:"Währungs-Button in der Desktop-Kopfzeile (im Menü immer vorhanden)"},
+  navLoginHeader:{ar:"زر تسجيل الدخول في رأس الكمبيوتر (للزوار؛ الزر الكبير داخل القائمة يبقى)",en:"Log in button in the desktop header (guests; the big button inside the menu stays)",de:"Anmelde-Button in der Desktop-Kopfzeile (Gäste; der große Button im Menü bleibt)"},
   csDone:{ar:"تم",en:"Done",de:"Fertig"}, csClear:{ar:"مسح الاختيار",en:"Clear",de:"Leeren"},
   rsAll:{ar:"عقارات",en:"Properties",de:"Immobilien"}, rsSyria:{ar:"سوريا",en:"Syria",de:"Syrien"}, rsMore:{ar:"المزيد",en:"More",de:"Mehr"},
   rsShow:{ar:"عرض {n} إعلان",en:"Show {n} listings",de:"{n} Anzeigen zeigen"}, rsAvg:{ar:"متوسط السعر المعروض",en:"Average asking price",de:"Ø Angebotspreis"},
   rsInArea:{ar:"في المنطقة",en:"in the area",de:"im Gebiet"}, rsHideMap:{ar:"إخفاء الخريطة",en:"Hide map",de:"Karte ausblenden"}, rsShowMap:{ar:"الخريطة",en:"Map",de:"Karte"},
   rsClearAll:{ar:"مسح الكل",en:"Clear all",de:"Alle löschen"}, rsFilters:{ar:"الفلاتر",en:"Filters",de:"Filter"}, rsSort:{ar:"الترتيب",en:"Sort",de:"Sortieren"},
-  rsOnMap:{ar:"{n} على الخريطة",en:"{n} on the map",de:"{n} auf der Karte"},
+  rsOnMap:{ar:"{n} على الخريطة",en:"{n} on the map",de:"{n} auf der Karte"}, rsList:{ar:"القائمة",en:"List",de:"Liste"},
+  tEngage:{ar:"الحملات والحجوزات",en:"Engagements",de:"Buchungen"},
+  agDir:{ar:"دليل المكاتب العقارية",en:"Real estate agencies",de:"Immobilienbüros"}, agDirShort:{ar:"دليل المكاتب",en:"Agencies",de:"Büros"},
+  agDirP:{ar:"اختر مكتباً يعرف منطقتك بيتاً بيتاً. كل مكتب هنا راجعه فريق بلكون، والمكاتب الموثّقة تحمل العلامة الذهبية.",en:"Choose an agency that knows your area house by house. Every agency here was reviewed by the Balkoun team; verified ones carry the gold mark.",de:"Wählen Sie ein Büro, das Ihr Gebiet Haus für Haus kennt. Jedes Büro wurde vom Balkoun-Team geprüft; verifizierte tragen das goldene Zeichen."},
+  agRegister:{ar:"سجّل مكتبك",en:"Register your agency",de:"Büro registrieren"}, agEditBtn:{ar:"تعديل بيانات المكتب",en:"Edit agency profile",de:"Büroprofil bearbeiten"},
+  agSearchPH:{ar:"ابحث باسم المكتب أو المنطقة…",en:"Search by agency or area…",de:"Nach Büro oder Gebiet suchen…"}, agAllGov:{ar:"كل المحافظات",en:"All governorates",de:"Alle Provinzen"}, agAllSpec:{ar:"كل التخصصات",en:"All specialties",de:"Alle Bereiche"},
+  spec_sale:{ar:"بيع",en:"Sales",de:"Verkauf"}, spec_rent:{ar:"إيجار",en:"Rentals",de:"Vermietung"}, spec_commercial:{ar:"تجاري",en:"Commercial",de:"Gewerbe"}, spec_land:{ar:"أراضٍ",en:"Land",de:"Grundstücke"},
+  agVerified:{ar:"مكتب موثّق",en:"Verified",de:"Verifiziert"}, agLive:{ar:"{n} إعلان حيّ",en:"{n} live listings",de:"{n} aktive Anzeigen"},
+  agEmpty:{ar:"لا مكاتب مطابقة بعد.",en:"No matching agencies yet.",de:"Noch keine passenden Büros."}, agEmptyCta:{ar:"كن أول مكتب في هذه المنطقة على بلكون.",en:"Be the first agency for this area on Balkoun.",de:"Seien Sie das erste Büro für dieses Gebiet auf Balkoun."},
+  agAreasServed:{ar:"المناطق التي يخدمها المكتب",en:"Areas served",de:"Bediente Gebiete"}, agCall:{ar:"اتصال",en:"Call",de:"Anrufen"}, agWa:{ar:"واتساب",en:"WhatsApp",de:"WhatsApp"}, agEmail:{ar:"بريد",en:"Email",de:"E-Mail"}, agWeb:{ar:"الموقع",en:"Website",de:"Website"},
+  agListingsH:{ar:"إعلانات المكتب",en:"The agency's listings",de:"Anzeigen des Büros"}, agNoListings:{ar:"لا إعلانات حيّة حالياً.",en:"No live listings at the moment.",de:"Derzeit keine aktiven Anzeigen."},
+  agMemberPage:{ar:"صفحة العضو والتقييمات",en:"Member page and reviews",de:"Mitgliedsseite und Bewertungen"}, agSince:{ar:"على بلكون منذ {y}",en:"On Balkoun since {y}",de:"Auf Balkoun seit {y}"},
+  agFormT:{ar:"بيانات المكتب",en:"Agency profile",de:"Büroprofil"},
+  agFormP:{ar:"أكمل بيانات مكتبك ليظهر في دليل المكاتب بعد موافقة فريق بلكون. كل ما تحفظه هنا يظهر للزوار كما هو.",en:"Complete your agency profile to appear in the directory once the Balkoun team approves it. Everything you save here is shown to visitors as is.",de:"Vervollständigen Sie Ihr Büroprofil, um nach Freigabe im Verzeichnis zu erscheinen. Alles hier wird Besuchern so angezeigt."},
+  agLogoHint:{ar:"شعار المكتب هو صورة حسابك؛ غيّره من",en:"Your account photo is the agency logo; change it under",de:"Ihr Profilbild ist das Büro-Logo; ändern unter"},
+  agAccountP:{ar:"أنت مكتب عقاري؟ سجّل بيانات المكتب ليجدك الباحثون في منطقتك عبر دليل المكاتب.",en:"Are you an agency? Register your agency so searchers in your area find you in the directory.",de:"Sind Sie ein Büro? Registrieren Sie es, damit Suchende Sie im Verzeichnis finden."},
+  f_agName:{ar:"اسم المكتب",en:"Agency name",de:"Name des Büros"}, f_agDesc:{ar:"نبذة عن المكتب",en:"About the agency",de:"Über das Büro"}, f_agPhone:{ar:"هاتف المكتب",en:"Agency phone",de:"Telefon"},
+  f_agWa:{ar:"واتساب",en:"WhatsApp",de:"WhatsApp"}, f_agEmail:{ar:"البريد الإلكتروني",en:"Email",de:"E-Mail"}, f_agWeb:{ar:"الموقع الإلكتروني",en:"Website",de:"Website"}, f_agAddress:{ar:"العنوان",en:"Address",de:"Adresse"},
+  f_agGovs:{ar:"المحافظات التي تعمل فيها",en:"Governorates you work in",de:"Provinzen, in denen Sie arbeiten"}, f_agAreas:{ar:"المناطق",en:"Areas",de:"Gebiete"}, f_agSpecs:{ar:"التخصص",en:"Specialties",de:"Schwerpunkte"},
+  agSaved:{ar:"تم الحفظ. سيراجع فريق بلكون البيانات ويعتمد المكتب قريباً.",en:"Saved. The Balkoun team will review and approve the agency soon.",de:"Gespeichert. Das Balkoun-Team prüft und gibt das Büro bald frei."}, agSavedOk:{ar:"تم الحفظ.",en:"Saved.",de:"Gespeichert."},
+  st_pending:{ar:"بانتظار الموافقة",en:"Pending approval",de:"Wartet auf Freigabe"}, st_approved:{ar:"معتمد ومنشور",en:"Approved and listed",de:"Freigegeben"}, st_rejected:{ar:"مرفوض",en:"Rejected",de:"Abgelehnt"}, st_hidden:{ar:"مخفي",en:"Hidden",de:"Verborgen"},
+  tAgencies:{ar:"المكاتب",en:"Agencies",de:"Büros"}, desc_agencies_adm:{ar:"طلبات المكاتب العقارية: الاعتماد، التوثيق، الإخفاء. المكتب المعتمد يظهر في دليل المكاتب ويحصل على شعار المكتب في البطاقات.",en:"Agency requests: approve, verify, hide. An approved agency appears in the directory and gets the agency logo on its cards.",de:"Büro-Anträge: freigeben, verifizieren, verbergen."},
+  agApprove:{ar:"اعتماد",en:"Approve",de:"Freigeben"}, agReject:{ar:"رفض",en:"Reject",de:"Ablehnen"}, agHide:{ar:"إخفاء",en:"Hide",de:"Verbergen"}, agShow:{ar:"إظهار",en:"Show",de:"Zeigen"},
+  agVerify:{ar:"توثيق",en:"Verify",de:"Verifizieren"}, agUnverify:{ar:"إلغاء التوثيق",en:"Unverify",de:"Verifizierung entfernen"}, agView:{ar:"عرض الصفحة",en:"View page",de:"Seite ansehen"}, agNone:{ar:"لا طلبات مكاتب بعد.",en:"No agencies yet.",de:"Noch keine Büros."}, r0:{ar:"كل السجل",en:"All time",de:"Gesamt"},
+  engLive:{ar:"مباشر الآن",en:"Live now",de:"Jetzt live"}, engHistory:{ar:"السجل",en:"History",de:"Verlauf"}, engCode:{ar:"الكود",en:"Code",de:"Code"},
+  engClient:{ar:"العميل",en:"Client",de:"Kunde"}, engPeriod:{ar:"الفترة",en:"Period",de:"Zeitraum"}, engStatus:{ar:"الحالة",en:"Status",de:"Status"},
+  engEnd:{ar:"إنهاء",en:"End",de:"Beenden"}, engEdit:{ar:"تعديل",en:"Edit",de:"Bearbeiten"}, engCopy:{ar:"نسخ",en:"Copy",de:"Kopieren"}, engCopied:{ar:"تم النسخ ✓",en:"Copied ✓",de:"Kopiert ✓"},
+  engManual:{ar:"+ تسجيل يدوي",en:"+ Manual record",de:"+ Manueller Eintrag"}, engKind:{ar:"النوع",en:"Type",de:"Art"},
+  engKindF:{ar:"إعلانات مميزة",en:"Featured listings",de:"Hervorgehobene Anzeigen"}, engKindA:{ar:"المربعات الإعلانية",en:"Ad squares",de:"Werbekacheln"}, engKindB:{ar:"البانرات",en:"Banners",de:"Banner"},
+  engNotes:{ar:"ملاحظات",en:"Notes",de:"Notizen"}, engDaysLeft:{ar:"{n} يوم متبقٍ",en:"{n} days left",de:"noch {n} Tage"}, engScheduled:{ar:"مجدول",en:"Scheduled",de:"Geplant"},
+  engEnded:{ar:"منتهٍ",en:"Ended",de:"Beendet"}, engCancelled:{ar:"ملغى",en:"Cancelled",de:"Storniert"}, engLiveP:{ar:"مباشر",en:"Live",de:"Live"},
+  engEmpty:{ar:"لا سجلات في هذه الفترة.",en:"No records in this period.",de:"Keine Einträge in diesem Zeitraum."}, engNoneLive:{ar:"لا شيء مباشر الآن.",en:"Nothing live right now.",de:"Derzeit nichts live."},
+  engCodeIs:{ar:"كود الحجز:",en:"Booking code:",de:"Buchungscode:"}, engRef:{ar:"المرجع (رقم الإعلان أو المربع)",en:"Reference (listing ref or square id)",de:"Referenz (Anzeige oder Kachel)"}, engTitle:{ar:"الاسم الظاهر",en:"Display name",de:"Anzeigename"},
+  engFrom:{ar:"من",en:"From",de:"Von"}, engTo:{ar:"إلى",en:"To",de:"Bis"}, engOpen:{ar:"بلا نهاية",en:"open-ended",de:"unbefristet"},
+  engViews:{ar:"ظهور",en:"views",de:"Aufrufe"}, engClicks:{ar:"نقرات",en:"clicks",de:"Klicks"}, engSaves:{ar:"حفظ",en:"saves",de:"gespeichert"}, engBannerN:{ar:"بانر {n}",en:"Banner {n}",de:"Banner {n}"},
+  engSearchPH:{ar:"ابحث بالكود أو اسم العميل أو رقم الإعلان…",en:"Search by code, client or listing…",de:"Suche nach Code, Kunde oder Anzeige…"},
+  engEndConfirm:{ar:"إنهاء هذا الحجز الآن؟ يبقى في السجل بحالة «منتهٍ».",en:"End this engagement now? It stays in the history as ended.",de:"Diese Buchung jetzt beenden? Sie bleibt als beendet im Verlauf."},
+  engHint:{ar:"يُنشأ كود تلقائياً لكل تفعيل: تمييز إعلان، تشغيل مربع إعلاني، أو رفع بانر. أعطِ الكود للعميل؛ عند أي استفسار يذكره لك فتعرف الحجز فوراً. المربعات تُظهر الظهور والنقرات خلال فترة الحجز.",en:"A code is created automatically for every activation: featuring a listing, switching on an ad square, or putting up a banner. Give it to the client; when they call, the code identifies the booking at once. Squares show views and clicks within the booking period.",de:"Für jede Aktivierung entsteht automatisch ein Code: Hervorhebung, Werbekachel oder Banner. Geben Sie ihn dem Kunden; beim Anruf identifiziert der Code die Buchung sofort."},
+  desc_engage:{ar:"كل ما هو مفعّل الآن من إعلانات مميزة ومربعات وبانرات، مع كود لكل حجز وسجل كامل بحسب الفترة.",en:"Everything currently engaged, featured listings, ad squares and banners, with a code per booking and the full history by period.",de:"Alles derzeit Aktive – Hervorhebungen, Kacheln, Banner – mit Code pro Buchung und vollständigem Verlauf."},
+  navLegal:{ar:"استشارات قانونية",en:"Legal consultations",de:"Rechtsberatung"}, navLegalTx:{ar:"معاملات قانونية",en:"Legal transactions",de:"Rechtliche Abwicklung"},
+  soon:{ar:"قريباً",en:"Soon",de:"Bald"}, mdServices:{ar:"الخدمات",en:"Services",de:"Dienste"},
+  soonLegalP:{ar:"استشارة قانونية موثوقة قبل أي خطوة: عقود البيع والإيجار، الطابو، التوكيلات والنزاعات العقارية. الخدمة قيد الإعداد وستُطلق قريباً على بلكون.",en:"Trusted legal advice before any step: sale and rental contracts, title deeds, powers of attorney and property disputes. The service is being prepared and launches soon on Balkoun.",de:"Verlässliche Rechtsberatung vor jedem Schritt: Kauf- und Mietverträge, Grundbuch, Vollmachten und Immobilienstreitigkeiten. Der Dienst wird vorbereitet und startet bald auf Balkoun."},
+  soonLegalTxP:{ar:"إتمام المعاملات العقارية عبر بلكون: نقل الملكية، التوثيق، والمتابعة أمام الدوائر الرسمية. قيد الإعداد وستُطلق قريباً.",en:"Property paperwork handled through Balkoun: title transfer, notarization and follow-up with the authorities. In preparation, launching soon.",de:"Immobilien-Formalitäten über Balkoun: Eigentumsübertragung, Beurkundung und Behördengänge. In Vorbereitung, startet bald."},
+  soonAsk:{ar:"اسألنا الآن عبر واتساب",en:"Ask us now on WhatsApp",de:"Jetzt per WhatsApp fragen"}, soonOk:{ar:"حسناً",en:"OK",de:"OK"},
+  navSoonHeader:{ar:"إظهار خدمات «قريباً» في شريط رأس الكمبيوتر (تبقى داخل القائمة دائماً)",en:"Show the “coming soon” services in the desktop header bar (always inside the menu too)",de:"„Bald“-Dienste in der Desktop-Kopfzeile zeigen (im Menü immer vorhanden)"},
   altResH:{ar:"لا توجد إعلانات مطابقة هنا — إليك إعلانات مشابهة في مناطق أخرى",en:"Nothing matches here — similar listings elsewhere",de:"Hier passt nichts – ähnliche Anzeigen anderswo"},
   altResH2:{ar:"لا توجد إعلانات مطابقة — إليك أحدث الإعلانات",en:"Nothing matches — here are the latest listings",de:"Nichts passt – die neuesten Anzeigen"},
   altResBtn:{ar:"عرض كل الإعلانات",en:"Show all listings",de:"Alle Anzeigen zeigen"},
@@ -9977,7 +10277,11 @@ function applySiteExtras(){ try{ var R=document.documentElement.style;
   ["sk_x","sk_y","h1_x","h1_y","sbar_y","sbar_w","sbar_h"].forEach(function(k){ setOr("--"+k.replace(/_/g,"-"),SX(k,"")); setOr("--"+k.replace(/_/g,"-")+"-m",SX(k+"_m","")) });
   var sc=SX("sk_scale",""), scm=SX("sk_scale_m",""); setOr("--sk-scale",sc===""?"":(+sc/100),""); setOr("--sk-scale-m",scm===""?"":(+scm/100),"");
   setOr("--sec-pad",SX("sec_pad","")); setOr("--sec-pad-m",SX("sec_pad_m",""));
-  document.body.classList.toggle("nav-menu-desk", SX("nav_menu_desktop",false)===true);
+  document.body.classList.toggle("nav-nomenu-d", SX("nav_menu_desktop",true)===false);
+  document.body.classList.toggle("nav-nolinks-d", SX("nav_links_desktop",true)===false);
+  document.body.classList.toggle("nav-more-d", SX("nav_more_desktop",false)===true);
+  document.body.classList.toggle("nav-cur-h", SX("nav_cur_header",false)===true);
+  document.body.classList.toggle("nav-login-h", SX("nav_login_header",false)===true);
   document.body.classList.toggle("nav-nobell-m", SX("nav_bell_phone",true)===false);
   document.body.classList.toggle("nav-login-m", SX("nav_login_phone",false)===true);
   document.body.classList.toggle("nav-avatar-m", SX("nav_avatar_phone",false)===true);
@@ -10094,7 +10398,7 @@ function hsAdPayload(a){
   else { p.p_image_url=a.image_url||null; p.p_image_urls=a.image_urls||[]; p.p_link_url=a.link_url||null; p.p_media_type=a.media_type||"image" }
   return p }
 /* banners: the working copy of all 3 banners; every edit is serialized into the site draft so the same Save writes it */
-function hsBDraft(){ if(!HS.bDraft){ HS.bDraft=JSON.parse(JSON.stringify(bannersConfig())) } return HS.bDraft }
+function hsBDraft(){ if(!HS.bDraft){ HS.bDraft=JSON.parse(JSON.stringify(bannersConfig())); HS.bBefore=JSON.parse(JSON.stringify(HS.bDraft)) } return HS.bDraft }
 function hsBSet(i,field,val){ var cfg=hsBDraft()[i]; if(val===null||val===undefined) delete cfg[field]; else cfg[field]=val; HS.draft.site.banners_config=JSON.stringify(HS.bDraft); hsDirtyUI() }
 function hsLang(){ return HS.lang||L }
 function hsLK(key){ return key+"_"+hsLang() }
@@ -10212,9 +10516,11 @@ function hsInspDesign(){
   else if(sd==="nav"){
     var row=function(i){ return '<div class="navrow"><label class="xcheck"><input type="checkbox" data-hsk="x:nav_'+i.k+'" data-hst="bool" data-hsr="1"'+(navOn(i.k)?' checked':'')+'><span>'+(MI[i.ico]||'')+i.lab()+'</span></label><span class="navord-w"><small>'+GX("navOrder")+'</small><input type="number" data-allow-autofill class="navord" data-hsk="x:nav_'+i.k+'_o" data-hst="num" data-hsr="1" value="'+esc(String(hsVal("x:nav_"+i.k+"_o")))+'" placeholder="'+i.o+'" min="0" max="999"></span></div>' };
     var g=function(gk,ttl){ return fGrp(ttl)+'<div class="navrows">'+NAVI.filter(function(i){ return i.g===gk }).map(row).join("")+'</div>' };
-    H.push(fHint(GX("navHint")), g("search",GX("mdSearch")), g("discover",GX("mdDiscover")), g("site",GX("mdSite")), fGrp(GX("navPhoneH")),
+    H.push(fHint(GX("navHint")), g("search",GX("mdSearch")), g("discover",GX("mdDiscover")), g("services",GX("mdServices")), fSwitch(GX("navSoonHeader"),"x:nav_soon_header",true,true), g("site",GX("mdSite")), fGrp(GX("navPhoneH")),
       fSwitch(GX("navLangHeader"),"x:nav_lang_header",true,true), fSwitch(GX("navBellPhone"),"x:nav_bell_phone",true,true), fSwitch(GX("navLoginPhone"),"x:nav_login_phone",false,true), fSwitch(GX("navAvatarPhone"),"x:nav_avatar_phone",false,true),
-      fSwitch(GX("navLangDrawer"),"x:nav_lang_drawer",true,true), fSwitch(GX("navCurDrawer"),"x:nav_cur_drawer",true,true), fSwitch(GX("navMenuDesk"),"x:nav_menu_desktop",false,true));
+      fSwitch(GX("navLangDrawer"),"x:nav_lang_drawer",true,true), fSwitch(GX("navCurDrawer"),"x:nav_cur_drawer",true,true),
+      fGrp(GX("navDeskH")), fSwitch(GX("navMenuDesk"),"x:nav_menu_desktop",true,true), fSwitch(GX("navLinksDesk"),"x:nav_links_desktop",true,true), fSwitch(GX("navMoreDesk"),"x:nav_more_desktop",false,true),
+      fSwitch(GX("navCurHeader"),"x:nav_cur_header",false,true), fSwitch(GX("navLoginHeader"),"x:nav_login_header",false,true));
   }
   return {title:title,H:H};
 }
@@ -10361,13 +10667,17 @@ function hsWire(){
       if(Object.keys(patch).length){ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:patch});
         Object.keys(patch).forEach(function(k){ if(k==="extras"){ var cur=SITE.extras; if(typeof cur==="string"){ try{ cur=JSON.parse(cur) }catch(e){ cur={} } } cur=Object.assign({},cur||{},patch.extras); Object.keys(cur).forEach(function(kk){ if(cur[kk]===null) delete cur[kk] }); SITE.extras=cur } else SITE[k]=patch[k] });
         try{ localStorage.setItem("balkoun_site",JSON.stringify(SITE)) }catch(e){} }
-      var adsChanged=false, ids=Object.keys(HS.adDraft);
-      for(var i=0;i<ids.length;i++){ var a=hsAdRow(ids[i]); if(!a) continue; await rpc("bk_admin_save_ad",hsAdPayload(a)); adsChanged=true; (HS.adPendingDel[ids[i]]||[]).forEach(function(u){ replaceStorageFile(u) }) }
-      if(HS.adNew){ await rpc("bk_admin_save_ad",hsAdPayload(Object.assign({id:"new"},HS.adNew))); adsChanged=true }
+      var adsChanged=false, codes=[], ids=Object.keys(HS.adDraft);
+      for(var i=0;i<ids.length;i++){ var a=hsAdRow(ids[i]); if(!a) continue; var rr=await rpc("bk_admin_save_ad",hsAdPayload(a)); if(rr&&rr.code) codes.push(rr.code); adsChanged=true; (HS.adPendingDel[ids[i]]||[]).forEach(function(u){ replaceStorageFile(u) }) }
+      if(HS.adNew){ var rn=await rpc("bk_admin_save_ad",hsAdPayload(Object.assign({id:"new"},HS.adNew))); if(rn&&rn.code) codes.push(rn.code); adsChanged=true }
+      if(HS.bDraft && HS.bBefore){ for(var bi=0;bi<3;bi++){ var A=HS.bBefore[bi]||{items:[]}, B=HS.bDraft[bi]||{items:[]};
+          var aU=A.enabled?(A.items||[]).map(function(x){return x.url}):[], bU=B.enabled?(B.items||[]).map(function(x){return x.url}):[];
+          for(var k1=0;k1<bU.length;k1++){ if(aU.indexOf(bU[k1])===-1){ try{ var er=await rpc("bk_admin_engage",{p_token:ADM.token,p_kind:"banner",p_ref_id:bi+1,p_ref_text:bU[k1],p_title:GX("engBannerN").replace("{n}",bi+1)}); if(er&&er.code) codes.push(er.code) }catch(e){} } }
+          for(var k2=0;k2<aU.length;k2++){ if(bU.indexOf(aU[k2])===-1){ try{ await rpc("bk_admin_engage_end",{p_token:ADM.token,p_kind:"banner",p_ref_id:bi+1,p_ref_text:aU[k2],p_status:"ended"}) }catch(e){} } } } }
       if(adsChanged){ try{ ADM.adSlots=(await rpc("bk_admin_list_ads",{p_token:ADM.token}))||[] }catch(e){} HS.adDraft={}; HS.adNew=null; HS.adPendingDel={}; if(HS.sel==="ad:new") HS.sel="row"; try{ await loadAdSlots() }catch(e){}
         var f=$("#hsFrame"); if(f&&f.contentWindow){ try{ f.contentWindow.postMessage({type:"bk-preview",reloadAds:true},location.origin) }catch(e){} } }
-      HS.bPendingDel.forEach(function(u){ replaceStorageFile(u) }); HS.bPendingDel=[]; HS.bDraft=null;
-      HS.draft={site:{},extras:{}}; applySectionGapVars(); applySiteExtras(); applyBannerSizeVar(); if(msg) msg.textContent=t("savedOk"); hsRenderOutline(); hsRenderInsp(); if(!adsChanged) hsPush(true);
+      HS.bPendingDel.forEach(function(u){ replaceStorageFile(u) }); HS.bPendingDel=[]; HS.bDraft=null; HS.bBefore=null; ADM._engDays=null;
+      HS.draft={site:{},extras:{}}; applySectionGapVars(); applySiteExtras(); applyBannerSizeVar(); if(msg) msg.textContent=t("savedOk")+(codes.length?' · '+GX("engCodeIs")+' '+codes.join(", "):''); hsRenderOutline(); hsRenderInsp(); if(!adsChanged) hsPush(true);
     }catch(e){ if(msg) msg.textContent=e.message||"error" }
     btn.textContent=hsT("saveAll"); hsDirtyUI() };
   /* outline: select, eye, move */
@@ -10471,7 +10781,7 @@ function adminNavHtml(){
     xCheck("nav_lang_header",GX("navLangHeader"),true)+xCheck("nav_bell_phone",GX("navBellPhone"),true)+
     xCheck("nav_login_phone",GX("navLoginPhone"),false)+xCheck("nav_avatar_phone",GX("navAvatarPhone"),false)+
     xCheck("nav_lang_drawer",GX("navLangDrawer"),true)+xCheck("nav_cur_drawer",GX("navCurDrawer"),true)+
-    xCheck("nav_menu_desktop",GX("navMenuDesk"),false));
+    xCheck("nav_menu_desktop",GX("navMenuDesk"),true));
 }
 function adminSystemExtrasHtml(){ return ''; }
 /* ── Ad squares page: performance, the row, the square design with a live preview ── */
@@ -10601,6 +10911,61 @@ function adsPerfTable(an,full){
       return '<div class="adperf-r"><span class="adperf-id"><span class="adperf-th">'+thumb+'</span><span class="adperf-n"><b>'+esc(name)+'</b>'+(a.sponsor_name&&a.label?'<small>'+esc(a.sponsor_name)+'</small>':'')+(a.enabled===false?'<small class="off">off</small>':'')+'</span></span>'+
         '<span class="ltr num">'+a.views+'</span><span class="ltr num"><b>'+a.clicks+'</b></span><span class="ltr num">'+ctr+'%</span>'+
         (full?'<span class="adperf-from">'+chips(a.click_pages)+chips(a.click_countries)+'</span>':'')+'</div>' }).join("")+'</div>' }
+/* ═══ the engagement ledger ═══ */
+function engKindLabel(k){ return k==="featured"?GX("engKindF"):k==="ad"?GX("engKindA"):GX("engKindB") }
+function engStatus(e){ if(e.status==="cancelled") return ["expired",GX("engCancelled")]; if(e.status==="ended") return ["expired",GX("engEnded")]; if(e.scheduled) return ["pending",GX("engScheduled")]; if(e.live) return ["live",GX("engLiveP")]; return ["expired",GX("engEnded")] }
+function engRow(e){
+  var st=engStatus(e), o=e.obj||{}, ar=L==="ar";
+  var who = e.kind==="featured" ? esc(o.ref||e.ref_text||("#"+e.ref_id))+(o.area?" · "+esc(o.area):"")+(o.gov?(ar?"، ":", ")+esc(o.gov):"")
+          : e.kind==="ad" ? esc(e.title||"")+(o.position?' <small>#'+o.position+'</small>':'')+(o.enabled===false?' <small class="off">off</small>':'')
+          : GX("engBannerN").replace("{n}",e.ref_id||"")+(e.ref_text?' <small class="ltr">'+esc(String(e.ref_text).split("/").pop().slice(0,30))+'</small>':'');
+  var client=esc(e.client_name||o.poster||o.sponsor||"—")+((e.phone||o.phone)?' <small class="ltr">'+esc(e.phone||o.phone)+'</small>':'');
+  var d=function(x){ if(!x) return ""; var dt=new Date(x); return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0") };
+  var left = (e.live && e.ends_at) ? Math.max(0,Math.ceil((new Date(e.ends_at)-Date.now())/86400000)) : null;
+  var period='<span class="ltr">'+d(e.starts_at||e.created_at)+'</span> → '+(e.ends_at?'<span class="ltr">'+d(e.ends_at)+'</span>':GX("engOpen"))+(left!==null?'<small class="eleft">'+GX("engDaysLeft").replace("{n}",'<span class="ltr">'+left+'</span>')+'</small>':'');
+  var stats = e.kind==="ad" ? '<span class="ltr">'+(o.views||0)+'</span> '+GX("engViews")+' · <span class="ltr">'+(o.clicks||0)+'</span> '+GX("engClicks")
+            : e.kind==="featured" ? '<span class="ltr">'+(o.views||0)+'</span> '+GX("engViews")+' · <span class="ltr">'+(o.saves||0)+'</span> '+GX("engSaves") : '—';
+  var open = String(ADM.eopen)===String(e.id);
+  return '<div class="erow'+(open?' open':'')+'">'+
+    '<div class="ecode"><b class="ltr">'+esc(e.code)+'</b><button type="button" class="ab" data-ecopy="'+esc(e.code)+'">'+GX("engCopy")+'</button></div>'+
+    '<div class="ewho">'+who+(e.notes?'<small>'+esc(e.notes)+'</small>':'')+'</div>'+
+    '<div class="eclient">'+client+'</div>'+
+    '<div class="eperiod">'+period+'</div>'+
+    '<div class="estats">'+stats+'</div>'+
+    '<div class="est"><span class="st st-'+st[0]+'">'+st[1]+'</span></div>'+
+    '<div class="eacts"><button type="button" class="ab" data-eedit="'+e.id+'">'+GX("engEdit")+'</button>'+(e.status==="active"?'<button type="button" class="ab bad" data-eend="'+e.id+'">'+GX("engEnd")+'</button>':'')+'</div>'+
+    (open?'<div class="eedit"><div class="row3x"><div class="fl"><label>'+GX("engClient")+'</label><input data-allow-autofill id="eeClient" value="'+esc(e.client_name||"")+'"></div>'+
+      '<div class="fl"><label>'+t("phoneNumberL")+'</label><input data-allow-autofill id="eePhone" class="ltr" value="'+esc(e.phone||"")+'"></div>'+
+      '<div class="fl"><label>'+GX("engTo")+'</label><input type="date" id="eeEnds" value="'+(e.ends_at?d(e.ends_at):"")+'"></div></div>'+
+      '<div class="fl"><label>'+GX("engNotes")+'</label><input data-allow-autofill id="eeNotes" value="'+esc(e.notes||"")+'"></div>'+
+      '<div class="xactions"><button class="ab ok" data-esave="'+e.id+'">'+t("save")+'</button><button class="ab" data-eedit="'+e.id+'">'+t("cancel")+'</button><span class="xmsg" id="eeMsg"></span></div></div>':'')+
+  '</div>' }
+function engAddForm(){ var today=new Date(); var iso=today.getFullYear()+"-"+String(today.getMonth()+1).padStart(2,"0")+"-"+String(today.getDate()).padStart(2,"0");
+  return '<div class="blk" style="margin-bottom:16px"><h3>'+GX("engManual")+'</h3><div class="in"><div class="row3x">'+
+  '<div class="fl"><label>'+GX("engKind")+'</label><select id="eaKind"><option value="featured">'+GX("engKindF")+'</option><option value="ad">'+GX("engKindA")+'</option><option value="banner">'+GX("engKindB")+'</option></select></div>'+
+  '<div class="fl"><label>'+GX("engRef")+'</label><input data-allow-autofill id="eaRef" class="ltr" placeholder="BK-100012"></div>'+
+  '<div class="fl"><label>'+GX("engTitle")+'</label><input data-allow-autofill id="eaTitle"></div></div>'+
+  '<div class="row3x"><div class="fl"><label>'+GX("engClient")+'</label><input data-allow-autofill id="eaClient"></div><div class="fl"><label>'+t("phoneNumberL")+'</label><input data-allow-autofill id="eaPhone" class="ltr"></div><div class="fl"><label>'+GX("engNotes")+'</label><input data-allow-autofill id="eaNotes"></div></div>'+
+  '<div class="row"><div class="fl"><label>'+GX("engFrom")+'</label><input type="date" id="eaFrom" value="'+iso+'"></div><div class="fl"><label>'+GX("engTo")+'</label><input type="date" id="eaTo"></div></div>'+
+  '<div class="xactions"><button class="ab ok" id="engAddSave">'+t("save")+'</button><button class="ab" id="engAddCancel">'+t("cancel")+'</button><span class="xmsg" id="eaMsg"></span></div></div></div>' }
+function adminEngageBody(){
+  var all=ADM.eng, q=(ADM.eq||"").toLowerCase().trim();
+  var R=[[7,GX("r7")],[30,GX("r30")],[90,GX("r90")],[365,GX("r365")],[0,GX("r0")]], cur=ADM.erange==null?30:ADM.erange;
+  var head='<div class="dash-top"><div class="arange">'+R.map(function(r){ return '<button type="button" class="'+(cur===r[0]?"on":"")+'" data-erange="'+r[0]+'">'+r[1]+'</button>' }).join("")+'</div>'+
+    '<input class="asearch" id="engQ" data-allow-autofill placeholder="'+esc(GX("engSearchPH"))+'" value="'+esc(ADM.eq||"")+'" style="max-width:340px">'+
+    '<button type="button" class="ab" id="engAddBtn" style="margin-inline-start:auto">'+GX("engManual")+'</button></div>'+
+    '<div class="hintx" style="margin-bottom:14px">'+GX("engHint")+'</div>'+
+    (ADM.engLastCode?'<div class="ecodebox" style="margin-bottom:14px">'+GX("engCodeIs")+' <b class="ltr">'+esc(ADM.engLastCode)+'</b> <button type="button" class="ab" data-ecopy="'+esc(ADM.engLastCode)+'">'+GX("engCopy")+'</button></div>':'')+
+    (ADM.engAdd ? engAddForm() : '');
+  if(!all) return head+'<div class="blk"><div class="in adashempty">'+(ADM.engErr||t("loading"))+'</div></div>';
+  var rows=all.filter(function(e){ if(!q) return true; var o=e.obj||{}; return [e.code,e.client_name,e.title,e.ref_text,e.phone,e.notes,o.poster,o.sponsor,o.ref,o.label].join(" ").toLowerCase().indexOf(q)>-1 });
+  var live=function(k){ return rows.filter(function(e){ return e.kind===k && (e.live||e.scheduled) }) }, hist=function(k){ return rows.filter(function(e){ return e.kind===k && !(e.live||e.scheduled) }) };
+  var kpis='<div class="kpis" style="margin-bottom:16px">'+["featured","ad","banner"].map(function(k){ return '<div class="kpi"><div class="kpi-l">'+engKindLabel(k)+' · '+GX("engLive")+'</div><div class="kpi-v ltr">'+live(k).length+'</div><div class="kpi-d"><small>'+GX("engHistory")+': <span class="ltr">'+hist(k).length+'</span></small></div></div>' }).join("")+'</div>';
+  var sec=function(k,ico){ var lv=live(k), hs=hist(k); return '<div class="blk" style="margin-top:16px"><h3>'+ico+' '+engKindLabel(k)+' <span class="n">'+lv.length+'</span></h3><div class="in eng-in">'+
+    '<div class="esub">'+GX("engLive")+'</div>'+(lv.length?'<div class="elist">'+lv.map(engRow).join("")+'</div>':'<div class="adashempty">'+GX("engNoneLive")+'</div>')+
+    '<div class="esub">'+GX("engHistory")+' · '+(cur===0?GX("r0"):R.filter(function(r){ return r[0]===cur })[0][1])+'</div>'+(hs.length?'<div class="elist">'+hs.map(engRow).join("")+'</div>':'<div class="adashempty">'+GX("engEmpty")+'</div>')+'</div></div>' };
+  return head+kpis+sec("featured",AICO.star)+sec("ad",AICO.ads)+sec("banner",AICO.banner);
+}
 function adminDashboardBody(s){
   var an=ADM.an;
   var head='<div class="dash-top">'+rangeTabs()+'<span class="hintx">'+(an?'':(ADM.anErr?ADM.anErr:t("loading")))+'</span></div>';
