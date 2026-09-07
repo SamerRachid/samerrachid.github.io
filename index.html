@@ -2911,7 +2911,7 @@ var NAVI=[
   {k:"rent",g:"search",lab:function(){return t("rent")},ico:"rent",attrs:'data-go="search" data-deal="rent" data-sec=""',o:20},
   {k:"map",g:"search",lab:function(){return t("searchOnMap")},ico:"map",attrs:'data-go="mapsearch"',o:30},
   {k:"areas",g:"search",lab:function(){return GX("allAreas")},ico:"areas",attrs:'href="/areas/"',o:40},
-  {k:"projects",g:"discover",lab:function(){return GX("pjDirShort")},ico:"tower",attrs:'data-go="projects"',o:48},
+  {k:"projects",g:"discover",lab:function(){return GX("pjDirShort")},ico:"tower",attrs:'data-go="projects"',o:48,tag:"soon"},
   {k:"coll",g:"discover",lab:function(){return HX("navColl")},ico:"coll",attrs:'data-mdscroll="collsSec"',o:50},
   {k:"expl",g:"discover",lab:function(){return HX("navAreas")},ico:"expl",attrs:'data-mdscroll="explSec"',o:60},
   {k:"guide",g:"discover",lab:function(){return HX("navGuide")},ico:"guide",attrs:'data-mdscroll="guidesSec"',o:70},
@@ -2926,7 +2926,7 @@ function navItems(){ return NAVI.filter(function(i){ return navOn(i.k) }).map(fu
 // the phone drawer: account, then the link groups, then language and currency
 function mdrawer(){
   var items=navItems(); var grp=function(g){ return items.filter(function(i){ return i.g===g }) };
-  var row=function(i,extra){ return '<a class="mdw2-row'+(i.soon?' soon':'')+'" '+i.attrs+'>'+'<span class="mi">'+(MI[i.ico]||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span>'+i.lab()+'</span>'+(i.soon?'<i class="mdw-soon">'+GX("soon")+'</i>':'')+(extra||'')+'</a>' };
+  var row=function(i,extra){ return '<a class="mdw2-row'+(i.soon?' soon':'')+'" '+i.attrs+'>'+'<span class="mi">'+(MI[i.ico]||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span>'+i.lab()+'</span>'+(i.soon||i.tag?'<i class="mdw-soon">'+GX(i.tag||"soon")+'</i>':'')+(extra||'')+'</a>' };
   var sec=function(title,html){ return html ? '<div class="mdw2-sec"><div class="mdw2-h">'+title+'</div>'+html+'</div>' : '' };
   var tile=function(i,cls,extra,lab){ return '<a class="mdw2-q '+cls+'" '+i.attrs+'>'+(MI[i.ico]||'')+'<span>'+(lab||i.lab())+'</span>'+(extra||'')+'</a>' };
   var byK=function(k){ return items.filter(function(i){ return i.k===k })[0] };
@@ -3056,7 +3056,7 @@ function header(){
   '<nav class="hnav">'+
   // home page: editorial links first (they scroll to the page's own sections), "More" keeps the rest
   (VIEW==="home" ? (navOn("coll")?'<a data-scroll="collsSec">'+HX("navColl")+'</a>':'')+(navOn("expl")?'<a data-scroll="explSec">'+HX("navAreas")+'</a>':'')+(navOn("guide")?'<a data-scroll="guidesSec">'+HX("navGuide")+'</a>':'')+(navOn("agencies")?'<a data-go="agencies">'+GX("agDirShort")+'</a>':'') : '')+
-  (navOn("projects")?'<a data-go="projects" class="hsoon">'+GX("pjDirShort")+(SX("nav_map_new",true)!==false?'<i>'+GX("newTag")+'</i>':'')+'</a>':'')+
+  (navOn("projects")?'<a data-go="projects" class="hsoon">'+GX("pjDirShort")+'<i>'+GX("soon")+'</i></a>':'')+
   (SX("nav_soon_header",true)!==false ? NAVI.filter(function(i){ return i.soon && navOn(i.k) }).map(function(i){ return '<a class="hsoon" data-soon="'+i.k+'">'+i.lab()+'<i>'+GX("soon")+'</i></a>' }).join("") : '')+
   '<div class="navmore" id="navMoreWrap"><a id="navMoreChip">'+t("moreNavT")+CHEV+'</a>'+
    '<div class="menu" id="navMoreMenu">'+
