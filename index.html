@@ -2246,6 +2246,10 @@ body.rs-lock{overflow:hidden}
 /* coming-soon services */
 .hnav .hsoon{display:inline-flex;align-items:center;gap:6px}
 .hnav .hsoon i{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#1A1206;background:var(--gold);border-radius:999px;padding:1px 6px;line-height:1.5;transform:translateY(-7px)}
+/* header links never break into two lines; when the signed-in tools need the room, the gaps tighten first and the coming-soon links step back into the menu */
+@media(min-width:861px){.hnav a{white-space:nowrap}.hbar{gap:clamp(12px,1.4vw,22px)}.hnav{gap:clamp(12px,1.3vw,20px)}}
+@media(min-width:861px) and (max-width:1240px){.hnav a[data-soon]{display:none}}
+@media(min-width:861px) and (max-width:1000px){.hnav a[data-go="projects"]{display:none}}
 .mdw-a.soon span{color:var(--grey)}
 .mdw-soon{margin-inline-start:auto;font-style:normal;font-size:10px;font-weight:800;color:#8A6522;background:var(--gold-w);border-radius:999px;padding:2px 8px}
 .soon-m{position:fixed;inset:0;z-index:1400;display:grid;place-items:center;padding:16px}
