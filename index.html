@@ -2144,7 +2144,7 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .rs-maptg{display:none;height:36px;border:1px solid var(--line-2);border-radius:999px;padding:0 12px;background:#fff;font:600 13px var(--f);color:var(--navy);cursor:pointer;align-items:center;gap:6px}
 .rs-maptg .mi{display:inline-flex;width:16px;height:16px}.rs-maptg .mi svg{width:16px;height:16px}
 .rs-maptg.on{background:var(--navy);color:#fff;border-color:var(--navy)}
-.rs-map{position:sticky;top:76px;height:calc(100vh - 96px);min-height:420px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#EEF0F4;display:none}
+.rs-map{position:sticky;top:76px;height:calc(100vh - 96px);min-height:420px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#EEF0F4;display:none;isolation:isolate;z-index:0}
 .rs-map #rsMap{width:100%;height:100%}
 .rs-mapnote{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:500;background:rgba(255,255,255,.94);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:600;color:var(--navy);box-shadow:0 4px 12px rgba(9,14,26,.15);pointer-events:none}
 .rs-pinw{background:none;border:0}
@@ -2200,7 +2200,8 @@ body.rs-lock{overflow:hidden}
 /* map page on the same system */
 .rs-mapwrap{padding:18px 0 40px}
 .rs-maphead{margin-bottom:14px}
-.rs-bigmap{height:min(72vh,680px);min-height:360px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#EEF0F4}
+.rs-bigmap{height:min(72vh,680px);min-height:360px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#EEF0F4;isolation:isolate;position:relative;z-index:0}
+.rs-mappage .rs-bar{z-index:1001}
 .rs-mapempty{position:absolute;top:12px;left:0;right:0;z-index:500;display:flex;justify-content:center;pointer-events:none}
 .rs-mapempty span{background:rgba(255,255,255,.95);border-radius:999px;padding:8px 16px;font-weight:700;color:var(--navy);box-shadow:0 6px 20px rgba(9,14,26,.18)}
 .rs-tolist svg,.rs-tolist2 svg{width:16px;height:16px}
@@ -2223,6 +2224,7 @@ body.rs-lock{overflow:hidden}
 .erow{display:grid;grid-template-columns:minmax(170px,1.1fr) minmax(160px,1.4fr) minmax(140px,1fr) minmax(190px,1.2fr) minmax(120px,.9fr) 90px auto;gap:10px 14px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line);font-size:13px}
 .erow:last-child{border-bottom:0}
 .erow.open{background:#F8F9FB}
+.elink{color:var(--navy);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;cursor:pointer}.elink:hover{color:var(--gold-dk)}
 .ecode{display:flex;align-items:center;gap:8px}.ecode b{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;color:var(--navy);background:var(--gold-w);border:1px solid #EDDCB6;border-radius:8px;padding:3px 8px;white-space:nowrap}
 .ecode .ab,.eacts .ab{margin:0;padding:5px 9px;font-size:12px}
 .ewho{font-weight:600;color:var(--ink)}.ewho small{display:block;font-weight:500;color:var(--grey);margin-top:2px}.ewho small.off{display:inline;color:var(--danger);margin-inline-start:6px}
@@ -2297,6 +2299,55 @@ body.rs-lock{overflow:hidden}
 .adm .agrow{grid-template-columns:minmax(210px,1.3fr) minmax(160px,1.4fr) minmax(120px,.8fr) 110px 150px auto}
 .adm .agrow .ecode{align-items:center}.adm .agrow .usub{display:block;font-weight:500;color:var(--grey);font-size:12px}
 @media(max-width:700px){.ag-hero h1{font-size:22px}.ag-filters input{max-width:none}.agcontact a{flex:1 1 44%;justify-content:center}}
+/* "new" tag + gold spinning pin on every map button */
+.newtag{position:absolute;top:-8px;inset-inline-end:-6px;font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.03em;background:var(--gold);color:#1A1206;border-radius:999px;padding:1px 6px;line-height:1.6;box-shadow:0 2px 6px rgba(9,14,26,.25);pointer-events:none;z-index:2}
+.home-hero .sgo-map,.rs-maptg,.rs-mbar #rsMMap{position:relative;overflow:visible}
+body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
+.rs-maptg svg,.rs-mbar #rsMMap svg{color:var(--gold);animation:pinSpin 5s cubic-bezier(.6,0,.3,1) 3s infinite;transform-style:preserve-3d}
+.rs-maptg.on svg{color:#E3B563}
+@media(prefers-reduced-motion:reduce){.rs-maptg svg,.rs-mbar #rsMMap svg,.mdw2-tile.map svg{animation:none}}
+/* map page: the filter bar sits on navy so it reads at once, and closer to the map */
+.rs-mappage .rs-bar{background:linear-gradient(180deg,#14213D,#1B2C52);border-bottom:0;box-shadow:0 12px 30px -18px rgba(9,14,26,.6)}
+.rs-mappage .rs-deal{background:rgba(255,255,255,.12)}.rs-mappage .rs-deal button{color:rgba(255,255,255,.8)}.rs-mappage .rs-deal button.on{background:#fff;color:var(--navy)}
+.rs-mappage .rs-f .cs-compact .chipsel-box,.rs-mappage .rs-f select,.rs-mappage .rs-f .pricetrig,.rs-mappage .rs-morebtn{border-color:transparent;box-shadow:0 1px 2px rgba(9,14,26,.2)}
+.rs-mappage .rs-f .cs-compact .chipsel-box:hover,.rs-mappage .rs-f .cs-compact:has(.chipsel-drop.on) .chipsel-box,.rs-mappage .rs-f .pricetrig.set{border-color:var(--gold)}
+.rs-mappage .rs-save{background:transparent;color:#fff;border-color:rgba(255,255,255,.35)}.rs-mappage .rs-save:hover{border-color:var(--gold);color:var(--gold)}
+.rs-mappage .rs-chip{background:#fff;color:var(--navy)}.rs-mappage .rs-chipclr{color:rgba(255,255,255,.75)}
+.rs-mappage .rs-mapwrap{padding-top:12px}.rs-mappage .rs-maphead{margin-bottom:10px}.rs-mappage .rs-maphead h1{font-size:18px}
+.rs-mappage .rs-mbar #rsMFilters{background:var(--gold);color:#1A1206}
+/* the menu, rebuilt */
+.mdw2 .mdw-top{padding:14px 16px}
+.mdw2-acct{display:flex;align-items:center;gap:12px;padding:16px;background:linear-gradient(160deg,#14213D,#1B2C52);color:#fff}
+.mdw2-acct .av{width:48px;height:48px;border-radius:50%;background:var(--gold);color:#1A1206;display:grid;place-items:center;font-weight:800;flex:none;object-fit:cover;font-size:18px}
+.mdw2-acct b{display:block;font-size:15px}.mdw2-acct span{display:block;font-size:12.5px;color:rgba(255,255,255,.72);margin-top:3px;line-height:1.6}
+.mdw2-acctlink{margin-inline-start:auto;color:#E3B563;font-size:13px;font-weight:700;text-decoration:none;cursor:pointer;white-space:nowrap}
+.mdw2-acct.guest{flex-direction:column;align-items:stretch;gap:12px}
+.mdw2-acct.guest .mdw-in{width:100%;margin:0}
+.mdw2-tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px 14px 6px}
+.mdw2-tile{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:14px;border-radius:16px;background:var(--page);border:1px solid var(--line);color:var(--navy);text-decoration:none;cursor:pointer;font-weight:700;font-size:14px;min-height:84px;transition:border-color .15s,transform .15s}
+.mdw2-tile:hover{border-color:var(--navy)}.mdw2-tile:active{transform:scale(.98)}
+.mdw2-tile .mi{width:36px;height:36px;border-radius:11px;background:#fff;display:grid;place-items:center;color:var(--navy);box-shadow:0 1px 2px rgba(20,33,61,.08)}
+.mdw2-tile .mi svg{width:20px;height:20px}
+.mdw2-tile.map .mi svg{color:var(--gold);animation:pinSpin 5s cubic-bezier(.6,0,.3,1) 3s infinite;transform-style:preserve-3d}
+.mdw2-tile.post{background:var(--gold);border-color:var(--gold);color:#1A1206}.mdw2-tile.post .mi{background:rgba(255,255,255,.75);color:#1A1206}
+.mdw2-new{font-style:normal;font-size:10px;font-weight:800;background:var(--gold);color:#1A1206;border-radius:999px;padding:1px 7px;position:absolute;top:10px;inset-inline-end:10px}
+.mdw2-sec{padding:4px 14px}
+.mdw2-h{font-size:11px;font-weight:800;color:var(--gold-dk);letter-spacing:.06em;text-transform:uppercase;padding:14px 6px 4px}
+.mdw2-row{display:flex;align-items:center;gap:12px;padding:11px 6px;border-radius:10px;color:var(--ink);font-size:14.5px;text-decoration:none;cursor:pointer;min-height:44px}
+.mdw2-row:hover{background:var(--page)}
+.mdw2-row>.mi{width:22px;height:22px;display:grid;place-items:center;color:var(--navy);flex:none}
+.mdw2-row>.mi svg{width:20px;height:20px}
+.mdw2-row>span:not(.mi){flex:1;min-width:0}
+.mdw2-row::after{content:"‹";color:var(--light);font-size:20px;line-height:1;margin-inline-start:4px}
+[dir=ltr] .mdw2-row::after{content:"›"}
+.mdw2-row.soon>span:not(.mi){color:var(--grey)}
+.mdw2-row .mdw-soon,.mdw2-row .mdw-badge{margin-inline-start:0}
+.mdw2-row.out{color:var(--danger)}.mdw2-row.out>.mi{color:var(--danger)}.mdw2-row.out::after{content:none}
+.mdw2-foot{margin:10px 14px 0;padding:14px 0 4px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.mdw2-seg{display:flex;background:var(--page);border-radius:12px;padding:3px;gap:2px}
+.mdw2-seg a{flex:1;text-align:center;padding:9px 6px;border-radius:9px;font-size:13px;font-weight:600;color:var(--grey);cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px}
+.mdw2-seg a.on{background:#fff;color:var(--navy);box-shadow:0 1px 2px rgba(20,33,61,.12)}
+.mdw2-seg .langflag{display:inline-flex;width:18px;height:12px;overflow:hidden;border-radius:2px}.mdw2-seg .langflag svg{width:18px;height:12px}
 /* ☰ button and the phone drawer */
 .hmb{display:none;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;place-items:center;cursor:pointer;padding:0;flex:none}
 .hmb svg{width:21px;height:21px}
@@ -2325,8 +2376,7 @@ body.rs-lock{overflow:hidden}
   .hpill .hmb-dot{top:4px;inset-inline-end:4px}
   body.nav-nomenu-d .hpill{display:none}
   .hbar .hmb{display:none!important}
-  .mdw .mdw-p{inset-inline-start:auto;inset-inline-end:0;animation-name:mdwin-r}
-  [dir=rtl] .mdw .mdw-p{animation-name:mdwin}
+  .hbar .hpill{margin-inline-end:-4px}
 }
 .hmb-dot{position:absolute;top:5px;inset-inline-end:5px;width:10px;height:10px;border-radius:50%;background:var(--danger);border:2px solid #1B2C52}
 .lg-globe,.lg-code{display:none}
@@ -2763,21 +2813,29 @@ function navItems(){ return NAVI.filter(function(i){ return navOn(i.k) }).map(fu
 // the phone drawer: account, then the link groups, then language and currency
 function mdrawer(){
   var items=navItems(); var grp=function(g){ return items.filter(function(i){ return i.g===g }) };
-  var link=function(i){ return '<a class="mdw-a'+(i.soon?' soon':'')+'" '+i.attrs+'>'+(MI[i.ico]||'')+'<span>'+i.lab()+'</span>'+(i.soon?'<i class="mdw-soon">'+GX("soon")+'</i>':'')+'</a>' };
-  var sec=function(title,list){ return list.length ? '<div class="mdw-sec"><div class="mdw-h">'+title+'</div>'+list.map(link).join("")+'</div>' : '' };
+  var row=function(i,extra){ return '<a class="mdw2-row'+(i.soon?' soon':'')+'" '+i.attrs+'>'+'<span class="mi">'+(MI[i.ico]||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span>'+i.lab()+'</span>'+(i.soon?'<i class="mdw-soon">'+GX("soon")+'</i>':'')+(extra||'')+'</a>' };
+  var sec=function(title,html){ return html ? '<div class="mdw2-sec"><div class="mdw2-h">'+title+'</div>'+html+'</div>' : '' };
+  var tile=function(i,cls,extra){ return '<a class="mdw2-tile '+cls+'" '+i.attrs+'>'+(MI[i.ico]||'')+'<span>'+i.lab()+'</span>'+(extra||'')+'</a>' };
+  var byK=function(k){ return items.filter(function(i){ return i.k===k })[0] };
+  var tiles=[byK("buy")?tile(byK("buy"),"buy"):"", byK("rent")?tile(byK("rent"),"rent"):"", byK("map")?tile(byK("map"),"map",SX("nav_map_new",true)!==false?'<i class="mdw2-new">'+GX("newTag")+'</i>':''):"",
+    '<a class="mdw2-tile post" data-go="post">'+MI.post+'<span>'+t("post")+'</span></a>'].join("");
+  var discover=grp("discover").map(function(i){ return row(i) }).join("")+(byK("areas")?row(byK("areas")):"")+(byK("agencies")?row(byK("agencies")):"");
+  var services=grp("services").map(function(i){ return row(i) }).join("");
+  var site=grp("site").filter(function(i){ return i.k!=="agencies" }).map(function(i){ return row(i) }).join("");
   var acct = USER
-    ? '<div class="mdw-acct">'+avatar(USER.avatar_url,USER.name,44,"av")+'<div><b>'+esc(fullName(USER))+'</b><span dir="ltr">'+esc(USER.phone||USER.email||"")+'</span></div></div>'+
-      '<div class="mdw-sec"><div class="mdw-h">'+GX("mdAccount")+'</div>'+[["mMine","mine","myAds"],["mSaved","saved","mySaved"],["mSearch","search","mySearch"],["mMsgs","msgs","myMessages"],["mSet","settings","settings"]].map(function(x){
-        return '<a class="mdw-a" data-md="'+x[0]+'">'+MI[x[1]]+'<span>'+t(x[2])+'</span>'+(x[0]==="mMsgs"&&NOTIFS.unread?'<i class="mdw-badge">'+(NOTIFS.unread>9?"9+":NOTIFS.unread)+'</i>':'')+'</a>' }).join("")+'</div>'
-    : '<div class="mdw-acct guest"><button class="gold mdw-in" id="mdIn">'+t("loginSignupCombo")+'</button></div>';
-  var prefs = (SX("nav_lang_drawer",true)!==false ? '<div class="mdw-chips">'+Object.keys(D.I18N).map(function(k){ return '<a class="mdw-chip'+(k===L?' on':'')+'" data-langpick="'+k+'"><span class="langflag">'+(LANG_FLAGS[k]||"")+'</span>'+D.I18N[k].name+'</a>' }).join("")+'</div>' : '')+
-    (SX("nav_cur_drawer",true)!==false ? '<div class="mdw-chips">'+["USD","SYP"].map(function(c){ return '<a class="mdw-chip'+(c===CUR?' on':'')+'" data-mdcur="'+c+'">'+c+'</a>' }).join("")+'</div>' : '');
-  return '<div class="mdw" id="mdw"><div class="mdw-bg" id="mdwBg"></div><aside class="mdw-p" role="dialog" aria-label="'+GX("mdMenu")+'">'+
+    ? '<div class="mdw2-acct">'+avatar(USER.avatar_url,USER.name,48,"av")+'<div><b>'+esc(fullName(USER))+'</b><span dir="ltr">'+esc(USER.phone||USER.email||"")+'</span></div><a class="mdw2-acctlink" data-md="mSet">'+GX("mdMyAccount")+' ›</a></div>'
+    : '<div class="mdw2-acct guest"><div><b>'+GX("mdWelcome")+'</b><span>'+GX("mdWelcomeP")+'</span></div><button class="gold mdw-in" id="mdIn">'+t("loginSignupCombo")+'</button></div>';
+  var mine = USER ? sec(GX("mdAccount"),[["mMine","mine","myAds"],["mSaved","saved","mySaved"],["mSearch","search","mySearch"],["mMsgs","msgs","myMessages"],["mSet","settings","settings"]].map(function(x){
+      return '<a class="mdw2-row" data-md="'+x[0]+'"><span class="mi">'+(MI[x[1]]||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span>'+t(x[2])+'</span>'+(x[0]==="mMsgs"&&NOTIFS.unread?'<i class="mdw-badge">'+(NOTIFS.unread>9?"9+":NOTIFS.unread)+'</i>':'')+'</a>' }).join("")) : '';
+  var langs = SX("nav_lang_drawer",true)!==false ? '<div class="mdw2-seg">'+Object.keys(D.I18N).map(function(k){ return '<a class="'+(k===L?'on':'')+'" data-langpick="'+k+'"><span class="langflag">'+(LANG_FLAGS[k]||"")+'</span>'+D.I18N[k].name+'</a>' }).join("")+'</div>' : '';
+  var curs = SX("nav_cur_drawer",true)!==false ? '<div class="mdw2-seg">'+["USD","SYP"].map(function(c){ return '<a class="'+(c===CUR?'on':'')+'" data-mdcur="'+c+'">'+(c==="USD"?"$ USD":"ل.س SYP")+'</a>' }).join("")+'</div>' : '';
+  return '<div class="mdw" id="mdw"><div class="mdw-bg" id="mdwBg"></div><aside class="mdw-p mdw2" role="dialog" aria-label="'+GX("mdMenu")+'">'+
     '<div class="mdw-top"><span class="logo">'+CONFIG.brand+'</span><button class="mdw-x" id="mdwX" aria-label="'+GX("mdClose")+'">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>'+
-    acct+sec(GX("mdSearch"),grp("search"))+sec(GX("mdDiscover"),grp("discover"))+sec(GX("mdServices"),grp("services"))+sec(GX("mdSite"),grp("site"))+
-    (prefs?'<div class="mdw-sec"><div class="mdw-h">'+GX("mdPrefs")+'</div>'+prefs+'</div>':'')+
-    (USER?'<div class="mdw-sec"><a class="mdw-a out" data-md="out">'+MI.out+'<span>'+t("logout")+'</span></a></div>':'')+
+    acct+'<div class="mdw2-tiles">'+tiles+'</div>'+
+    sec(GX("mdDiscover"),discover)+sec(GX("mdServices"),services)+mine+sec(GX("mdSite"),site)+
+    ((langs||curs)?'<div class="mdw2-foot">'+langs+curs+'</div>':'')+
+    (USER?'<div class="mdw2-sec"><a class="mdw2-row out" data-md="out"><span class="mi">'+(MI.out||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span>'+t("logout")+'</span></a></div>':'')+
   '</aside></div>' }
 // a "coming soon" service: a small card with what the service is and a WhatsApp line to ask now
 function soonOpen(k){
@@ -2878,7 +2936,9 @@ function header(){
  // menu instead, first — since they're still the most-used items in
  // it — followed by the rest in the order a visitor is likeliest to
  // want them.
- return '<header><div class="wrap hbar"><button class="hmb" id="hmb" aria-label="'+GX("mdMenu")+'">'+ICON_HMB+(USER&&NOTIFS.unread?'<i class="hmb-dot"></i>':'')+'</button><a class="logo" data-go="home">'+CONFIG.brand+'</a>'+
+ return '<header><div class="wrap hbar"><button class="hmb" id="hmb" aria-label="'+GX("mdMenu")+'">'+ICON_HMB+(USER&&NOTIFS.unread?'<i class="hmb-dot"></i>':'')+'</button>'+
+  '<button class="hpill" id="hpill" aria-label="'+GX("mdMenu")+'">'+ICON_HMB+(USER?avatar(USER.avatar_url,USER.name,28,"av"):'<span class="huser">'+ICON_USER+'</span>')+(USER&&NOTIFS.unread?'<i class="hmb-dot"></i>':'')+'</button>'+
+  '<a class="logo" data-go="home">'+CONFIG.brand+'</a>'+
   '<nav class="hnav">'+
   // home page: editorial links first (they scroll to the page's own sections), "More" keeps the rest
   (VIEW==="home" ? (navOn("coll")?'<a data-scroll="collsSec">'+HX("navColl")+'</a>':'')+(navOn("expl")?'<a data-scroll="explSec">'+HX("navAreas")+'</a>':'')+(navOn("guide")?'<a data-scroll="guidesSec">'+HX("navGuide")+'</a>':'')+(navOn("agencies")?'<a data-go="agencies">'+GX("agDirShort")+'</a>':'') : '')+
@@ -2892,7 +2952,6 @@ function header(){
   '<div class="htools"><button class="mini" id="cur">'+CUR+'</button>'+
   langs + right +
   '<a class="gold" data-go="post" style="text-decoration:none">'+t("post")+'</a>'+
-  '<button class="hpill" id="hpill" aria-label="'+GX("mdMenu")+'">'+ICON_HMB+(USER?avatar(USER.avatar_url,USER.name,28,"av"):'<span class="huser">'+ICON_USER+'</span>')+(USER&&NOTIFS.unread?'<i class="hmb-dot"></i>':'')+'</button>'+
   '</div></div></header>'+mdrawer()+
   // no floating post button on the post form itself, nor on a listing page where the
   // fixed call / WhatsApp bar owns the bottom edge on phones
@@ -3663,7 +3722,7 @@ function search(){
      '<div class="rs-tools"><div class="viewtoggle"><button type="button" class="'+(VIEWMODE==="grid"?"on":"")+'" id="vmGrid" title="'+t("gridView")+'">'+ICON_GRID+'<span>'+t("gridView")+'</span></button>'+
       '<button type="button" class="'+(VIEWMODE==="list"?"on":"")+'" id="vmList" title="'+t("listView")+'">'+ICON_LIST+'<span>'+t("listView")+'</span></button></div>'+
       rsSortHtml("sort")+
-      '<button type="button" class="rs-maptg'+(mapOn?' on':'')+'" id="rsMapToggle">'+MI.map+'<span>'+(mapOn?GX("rsHideMap"):GX("rsShowMap"))+'</span></button></div></div>'+
+      '<button type="button" class="rs-maptg'+(mapOn?' on':'')+'" id="rsMapToggle">'+MI.map+'<span>'+(mapOn?GX("rsHideMap"):GX("rsShowMap"))+'</span>'+newTag()+'</button></div></div>'+
     '<div class="res'+(VIEWMODE==="list"?" list-view":"")+'">'+(pageItems.length?pageItems.map(function(x,i){return card(x,i,VIEWMODE==="list")}).join(""):
      !LISTINGS_LOADED ? '<div class="resempty"><b>'+t("loading")+'</b></div>' :
      '<div class="resempty">'+LICON.search+'<b>'+t("none")+'</b><span>'+t("none2")+'</span></div>')+'</div>'+
@@ -3674,7 +3733,7 @@ function search(){
    '</div>'+
    (mapOn?'<aside class="rs-map"><div id="rsMap"></div><div class="rs-mapnote">'+GX("rsOnMap").replace("{n}",'<span class="ltr">'+withLoc+'</span>')+'</div></aside>':'')+
   '</div>'+
-  '<div class="rs-mbar"><button type="button" id="rsMFilters">'+GX("rsFilters")+(fc?' <b class="ltr">'+fc+'</b>':'')+'</button><button type="button" id="rsMMap">'+MI.map+GX("rsShowMap")+'</button><span class="rs-msort">'+rsSortHtml("sortM")+'</span></div>'+
+  '<div class="rs-mbar"><button type="button" id="rsMFilters">'+GX("rsFilters")+(fc?' <b class="ltr">'+fc+'</b>':'')+'</button><button type="button" id="rsMMap">'+MI.map+GX("rsShowMap")+newTag()+'</button><span class="rs-msort">'+rsSortHtml("sortM")+'</span></div>'+
  '</div>' }
 function rsShort(x){ var v=+x.p||0, rate=SITE.syp_rate||CONFIG.rate; if(CUR!=="USD") v=Math.round(v*rate); var sh = v>=1e6 ? (Math.round(v/1e5)/10).toString().replace(/\.0$/,"")+"M" : v>=1000 ? Math.round(v/1000)+"K" : String(v); return (CUR==="USD"?"$":"")+sh+(CUR==="USD"?"":" ل.س") }
 function rsMapStop(){ if(RS.map){ try{ RS.map.remove() }catch(e){} RS.map=null; RS.pins={} } }
@@ -6377,7 +6436,7 @@ function closeAllMenus(except){
 if(!window._menusEscAdded){ window._menusEscAdded=true;
   document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeAllMenus() });
   document.addEventListener("pointerdown",function(e){
-    $$(".chipsel-drop.on").forEach(function(d){ var w=d.closest(".chipsel"); if(!w || !w.contains(e.target) || e.target===d) d.classList.remove("on") });
+    $$(".chipsel-drop.on").forEach(function(d){ var w=d.closest(".chipsel"); if(!w || !w.contains(e.target)) d.classList.remove("on") });
     var pp=$("#hPricePop"); if(pp && !pp.hidden){ var sf=pp.closest(".sf,.rs-fprice"); if(!sf || !sf.contains(e.target)) pp.hidden=true }
   },true);
 }
@@ -6504,6 +6563,7 @@ function typeOptionsCollapsed(){
 }
 /* the hero search bar renders and re-renders on its own: choosing a filter must not rebuild the whole page
    (which restarted the ad carousel, the header and the drawing, and made the menu blink) */
+function newTag(){ return SX("nav_map_new",true)!==false ? '<i class="newtag">'+GX("newTag")+'</i>' : '' }
 function heroSearchBarHtml(){
   return '<div class="sbar"><div class="stabs"><button class="'+(F.deal==="sale"?"on":"")+'" data-d="sale">'+t("forsale")+
    '</button><button class="'+(F.deal==="rent"?"on":"")+'" data-d="rent">'+t("forrent")+'</button><button class="'+(F.deal===""?"on":"")+'" data-d="">'+t("dealAll")+
@@ -6526,7 +6586,7 @@ function heroSearchBarHtml(){
      '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(SITE.syp_rate||CONFIG.rate)):"")+'"></label></div>'+
      '<div class="pp-foot"><button type="button" class="pp-clear" id="hPriceClear">'+GX("anyPrice")+'</button><button type="button" class="pp-done" id="hPriceDone">'+GX("done")+'</button></div></div></div>'+
    '<button class="sgo" id="hgo">'+t("search")+'<span id="hgoCount">'+heroCount(F.deal)+'</span></button>'+
-   '<button type="button" class="sgo-map" data-go="mapsearch" title="'+t("searchOnMap")+'" aria-label="'+t("searchOnMap")+'">'+MI.map+'<span>'+GX("map")+'</span></button>'+
+   '<button type="button" class="sgo-map" data-go="mapsearch" title="'+t("searchOnMap")+'" aria-label="'+t("searchOnMap")+'">'+MI.map+'<span>'+GX("map")+'</span>'+newTag()+'</button>'+
    '</div></div>';
 }
 function wireHeroBar(){
@@ -10105,6 +10165,10 @@ var GX_T={
   rsClearAll:{ar:"مسح الكل",en:"Clear all",de:"Alle löschen"}, rsFilters:{ar:"الفلاتر",en:"Filters",de:"Filter"}, rsSort:{ar:"الترتيب",en:"Sort",de:"Sortieren"},
   rsOnMap:{ar:"{n} على الخريطة",en:"{n} on the map",de:"{n} auf der Karte"}, rsList:{ar:"القائمة",en:"List",de:"Liste"},
   tEngage:{ar:"الحملات والحجوزات",en:"Engagements",de:"Buchungen"},
+  newTag:{ar:"جديد",en:"New",de:"Neu"}, mdWelcome:{ar:"مرحباً بك في بلكون",en:"Welcome to Balkoun",de:"Willkommen bei Balkoun"},
+  mdWelcomeP:{ar:"سجّل الدخول لحفظ الإعلانات ومتابعة عروضك.",en:"Sign in to save listings and manage your offers.",de:"Anmelden, um Anzeigen zu speichern und Angebote zu verwalten."},
+  mdMyAccount:{ar:"حسابي",en:"My account",de:"Mein Konto"},
+  navMapNew:{ar:"شارة «جديد» على زر الخريطة (الصفحة الرئيسية، النتائج، القائمة)",en:"“New” tag on the map button (homepage, results, menu)",de:"„Neu“-Marke am Kartenbutton (Startseite, Ergebnisse, Menü)"},
   bellT:{ar:"ما يحتاج انتباهك",en:"Needs your attention",de:"Braucht Ihre Aufmerksamkeit"}, bellNone:{ar:"لا شيء معلّق. كل شيء تحت السيطرة.",en:"Nothing pending. All clear.",de:"Nichts offen. Alles erledigt."},
   bellListings:{ar:"إعلانات بانتظار الموافقة",en:"Listings awaiting approval",de:"Anzeigen warten auf Freigabe"}, bellAgencies:{ar:"مكاتب بانتظار الاعتماد",en:"Agencies awaiting approval",de:"Büros warten auf Freigabe"},
   bellReports:{ar:"بلاغات مفتوحة",en:"Open reports",de:"Offene Meldungen"}, bellFeedback:{ar:"شكاوى واقتراحات جديدة",en:"New complaints and suggestions",de:"Neue Beschwerden und Vorschläge"}, bellAlerts:{ar:"إشعارات غير مقروءة",en:"Unread notifications",de:"Ungelesene Benachrichtigungen"},
@@ -10359,6 +10423,7 @@ function applySiteExtras(){ try{ var R=document.documentElement.style;
   var sc=SX("sk_scale",""), scm=SX("sk_scale_m",""); setOr("--sk-scale",sc===""?"":(+sc/100),""); setOr("--sk-scale-m",scm===""?"":(+scm/100),"");
   setOr("--sec-pad",SX("sec_pad","")); setOr("--sec-pad-m",SX("sec_pad_m",""));
   document.body.classList.toggle("nav-nomenu-d", SX("nav_menu_desktop",true)===false);
+  document.body.classList.toggle("nav-nonew", SX("nav_map_new",true)===false);
   document.body.classList.toggle("nav-nolinks-d", SX("nav_links_desktop",true)===false);
   document.body.classList.toggle("nav-more-d", SX("nav_more_desktop",false)===true);
   document.body.classList.toggle("nav-cur-h", SX("nav_cur_header",false)===true);
@@ -10597,7 +10662,7 @@ function hsInspDesign(){
   else if(sd==="nav"){
     var row=function(i){ return '<div class="navrow"><label class="xcheck"><input type="checkbox" data-hsk="x:nav_'+i.k+'" data-hst="bool" data-hsr="1"'+(navOn(i.k)?' checked':'')+'><span>'+(MI[i.ico]||'')+i.lab()+'</span></label><span class="navord-w"><small>'+GX("navOrder")+'</small><input type="number" data-allow-autofill class="navord" data-hsk="x:nav_'+i.k+'_o" data-hst="num" data-hsr="1" value="'+esc(String(hsVal("x:nav_"+i.k+"_o")))+'" placeholder="'+i.o+'" min="0" max="999"></span></div>' };
     var g=function(gk,ttl){ return fGrp(ttl)+'<div class="navrows">'+NAVI.filter(function(i){ return i.g===gk }).map(row).join("")+'</div>' };
-    H.push(fHint(GX("navHint")), g("search",GX("mdSearch")), g("discover",GX("mdDiscover")), g("services",GX("mdServices")), fSwitch(GX("navSoonHeader"),"x:nav_soon_header",true,true), g("site",GX("mdSite")), fGrp(GX("navPhoneH")),
+    H.push(fHint(GX("navHint")), g("search",GX("mdSearch")), g("discover",GX("mdDiscover")), g("services",GX("mdServices")), fSwitch(GX("navSoonHeader"),"x:nav_soon_header",true,true), fSwitch(GX("navMapNew"),"x:nav_map_new",true,true), g("site",GX("mdSite")), fGrp(GX("navPhoneH")),
       fSwitch(GX("navLangHeader"),"x:nav_lang_header",true,true), fSwitch(GX("navBellPhone"),"x:nav_bell_phone",true,true), fSwitch(GX("navLoginPhone"),"x:nav_login_phone",false,true), fSwitch(GX("navAvatarPhone"),"x:nav_avatar_phone",false,true),
       fSwitch(GX("navLangDrawer"),"x:nav_lang_drawer",true,true), fSwitch(GX("navCurDrawer"),"x:nav_cur_drawer",true,true),
       fGrp(GX("navDeskH")), fSwitch(GX("navMenuDesk"),"x:nav_menu_desktop",true,true), fSwitch(GX("navLinksDesk"),"x:nav_links_desktop",true,true), fSwitch(GX("navMoreDesk"),"x:nav_more_desktop",false,true),
@@ -10997,10 +11062,12 @@ function engKindLabel(k){ return k==="featured"?GX("engKindF"):k==="ad"?GX("engK
 function engStatus(e){ if(e.status==="cancelled") return ["expired",GX("engCancelled")]; if(e.status==="ended") return ["expired",GX("engEnded")]; if(e.scheduled) return ["pending",GX("engScheduled")]; if(e.live) return ["live",GX("engLiveP")]; return ["expired",GX("engEnded")] }
 function engRow(e){
   var st=engStatus(e), o=e.obj||{}, ar=L==="ar";
-  var who = e.kind==="featured" ? esc(o.ref||e.ref_text||("#"+e.ref_id))+(o.area?" · "+esc(o.area):"")+(o.gov?(ar?"، ":", ")+esc(o.gov):"")
-          : e.kind==="ad" ? esc(e.title||"")+(o.position?' <small>#'+o.position+'</small>':'')+(o.enabled===false?' <small class="off">off</small>':'')
+  var refLink = function(){ var id=o.listing_id||(e.kind==="featured"?e.ref_id:null), rf=o.ref||e.ref_text||(id?"#"+id:""); return id ? '<a class="elink" data-open="'+id+'">'+esc(rf)+'</a>' : esc(rf) };
+  var who = e.kind==="featured" ? refLink()+(o.area?" · "+esc(o.area):"")+(o.gov?(ar?"، ":", ")+esc(o.gov):"")
+          : e.kind==="ad" ? esc(e.title||"")+(o.position?' <small>#'+o.position+'</small>':'')+(o.listing_id?' · '+refLink():'')+(o.enabled===false?' <small class="off">off</small>':'')
           : GX("engBannerN").replace("{n}",e.ref_id||"")+(e.ref_text?' <small class="ltr">'+esc(String(e.ref_text).split("/").pop().slice(0,30))+'</small>':'');
-  var client=esc(e.client_name||o.poster||o.sponsor||"—")+((e.phone||o.phone)?' <small class="ltr">'+esc(e.phone||o.phone)+'</small>':'');
+  var cname=e.client_name||o.poster||o.sponsor||"—";
+  var client=(o.user_id?'<a class="elink" data-byuser="'+esc(o.user_id)+'" data-name="'+esc(cname)+'">'+esc(cname)+'</a>':esc(cname))+((e.phone||o.phone)?' <small class="ltr">'+esc(e.phone||o.phone)+'</small>':'');
   var d=function(x){ if(!x) return ""; var dt=new Date(x); return dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0") };
   var left = (e.live && e.ends_at) ? Math.max(0,Math.ceil((new Date(e.ends_at)-Date.now())/86400000)) : null;
   var period='<span class="ltr">'+d(e.starts_at||e.created_at)+'</span> → '+(e.ends_at?'<span class="ltr">'+d(e.ends_at)+'</span>':GX("engOpen"))+(left!==null?'<small class="eleft">'+GX("engDaysLeft").replace("{n}",'<span class="ltr">'+left+'</span>')+'</small>':'');
