@@ -2046,6 +2046,131 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .adm .hs-insp .in>.ab{align-self:flex-start}
 @media(max-width:1260px){.hs-grid{grid-template-columns:220px minmax(0,1fr) 330px}}
 @media(max-width:1000px){.hs-grid{grid-template-columns:1fr}.hs-out{position:static;max-height:none}.hs-out #hsOutline{display:flex;flex-wrap:wrap;gap:4px;padding:4px 8px}.hs-item{margin:0}.hs-item.child{margin-inline-start:0;padding-block:8px}.hs-pv{position:static;height:600px}.hs-insp{position:static;max-height:none}.hs-bar{position:static}}
+/* ═══ results page ═══ */
+.rs-bar{position:sticky;top:0;z-index:60;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 8px 24px -18px rgba(9,14,26,.3)}
+.rs-barin{display:flex;align-items:center;gap:10px;padding-block:10px}
+.rs-filters{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.rs-fin{display:flex;align-items:center;gap:8px;flex:1;min-width:0;flex-wrap:nowrap}
+@media(max-width:1100px){.rs-fin{flex-wrap:wrap}}
+.rs-fh,.rs-ff{display:none}
+.rs-deal{display:inline-flex;background:var(--page);border-radius:999px;padding:3px;gap:2px;flex:none}
+.rs-deal button{border:0;background:transparent;font:600 13px var(--f);color:var(--grey);padding:7px 12px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.rs-deal button.on{background:var(--navy);color:#fff}
+.rs-f{position:relative;min-width:0;flex:1 1 120px;max-width:170px}
+.rs-f .chipsel,.rs-f .chipsel-box{height:40px;width:100%}
+.rs-f .cs-compact .chipsel-box{border:1px solid var(--line-2);border-radius:999px;padding:0 12px 0 14px;background:#fff;cursor:pointer;display:flex;align-items:center;gap:8px;position:relative;transition:border-color .15s}
+.rs-f .cs-compact .chipsel-box:hover,.rs-f .cs-compact:has(.chipsel-drop.on) .chipsel-box{border-color:var(--navy)}
+.rs-f .cs-compact .cs-sum{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:600 13.5px/1.2 var(--f);color:var(--ink)}
+.rs-f .cs-compact .cs-sum .ph{color:var(--grey);font-weight:500}
+.rs-f .cs-compact .cs-sum .cs-more{color:var(--gold-dk);font-weight:700;margin-inline-start:2px}
+.rs-f .cs-compact .chipsel-box>svg{width:12px;height:12px;opacity:.5;flex:none;transition:transform .2s}
+.rs-f .cs-compact:has(.chipsel-drop.on) .chipsel-box>svg{transform:rotate(180deg)}
+.rs-f .cs-compact .chipsel-input{position:absolute;inset:0;width:100%;height:100%;padding:0 34px 0 14px;opacity:0;font:600 13.5px var(--f);color:var(--ink);cursor:pointer;background:transparent}
+[dir=rtl] .rs-f .cs-compact .chipsel-input{padding:0 14px 0 34px}
+.rs-f .cs-compact:has(.chipsel-drop.on) .chipsel-input{opacity:1;cursor:text}
+.rs-f .cs-compact:has(.chipsel-drop.on) .cs-sum{opacity:0}
+.rs-f .chipsel-drop{top:calc(100% + 8px);min-width:260px;border-radius:14px}
+.rs-f:has(.chipsel-drop.on),.rs-f:has(.pricepop:not([hidden])),.rs-f:has(.rs-morepop.on){z-index:6}
+.rs-f .chipsel-tags{display:none}
+.rs-f select,.rs-f .pricetrig,.rs-morebtn{height:40px;width:100%;border:1px solid var(--line-2);border-radius:999px;background:#fff;font:600 13.5px var(--f);color:var(--ink);padding:0 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;text-align:start;appearance:none;-webkit-appearance:none}
+.rs-f .pricetrig .ph{color:var(--grey);font-weight:500}
+.rs-f .pricetrig svg,.rs-morebtn svg{width:12px;height:12px;opacity:.5;flex:none}
+.rs-f .pricetrig.set{border-color:var(--navy)}
+.rs .pricepop{position:absolute;top:calc(100% + 8px);inset-inline-start:0;z-index:40;width:300px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 50px -20px rgba(9,14,26,.45);padding:14px;text-align:start}
+.rs .pricepop .pp-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.rs .pricepop .pp-row label{display:grid;gap:5px;font-size:12px;color:var(--grey);font-weight:600}
+.rs .pricepop input{height:42px;border:1px solid var(--line-2);border-radius:9px;padding:0 10px;font:600 15px var(--f);color:var(--ink);width:100%;direction:ltr;text-align:left}
+.rs .pricepop input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(196,136,31,.14)}
+.rs .pp-foot{display:flex;justify-content:space-between;gap:8px;margin-top:12px}
+.rs .pp-clear{border:0;background:transparent;color:var(--grey);font:inherit;font-size:13px;cursor:pointer}
+.rs .pp-done{border:0;background:var(--navy);color:#fff;font:inherit;font-size:13px;font-weight:700;padding:8px 16px;border-radius:9px;cursor:pointer}
+.rs-morebtn b{background:var(--navy);color:#fff;border-radius:999px;font-size:11px;padding:1px 7px;font-weight:700}
+.rs-morepop{display:none;position:absolute;top:calc(100% + 8px);inset-inline-end:0;z-index:40;width:320px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 50px -20px rgba(9,14,26,.45);padding:14px;text-align:start}
+.rs-morepop.on{display:block}
+.rs-morepop h4{font-size:11.5px;color:var(--gold-dk);text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px}
+.rs-morepop .fg{margin-bottom:12px}.rs-morepop .fg:last-child{margin-bottom:0}
+.rs-morepop .ck{display:flex;align-items:center;gap:8px;font-size:13.5px;padding:6px 0;cursor:pointer}
+.rs-morepop .ck input{accent-color:var(--navy);width:16px;height:16px;margin:0}
+.rs-morepop .ck .c{margin-inline-start:auto;color:var(--light);font-size:12px}
+.rs-save{flex:none;display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 12px;white-space:nowrap;border:1px solid var(--line-2);border-radius:999px;background:#fff;font:600 13px var(--f);color:var(--navy);cursor:pointer}
+.rs-save:hover{border-color:var(--navy)}.rs-save svg{width:16px;height:16px}
+.rs-chips{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-block:0 10px}
+.rs-chip{display:inline-flex;align-items:center;gap:6px;background:var(--navy-w);color:var(--navy);border-radius:999px;padding:5px 6px;padding-inline-start:11px;font-size:12.5px;font-weight:600}
+.rs-chip button{border:0;background:rgba(20,33,61,.12);color:var(--navy);width:18px;height:18px;border-radius:50%;cursor:pointer;font-size:13px;line-height:1;display:grid;place-items:center;padding:0}
+.rs-chip button:hover{background:rgba(20,33,61,.28)}
+.rs-chipclr{border:0;background:transparent;color:var(--grey);font:inherit;font-size:12.5px;cursor:pointer;text-decoration:underline;padding:4px 6px}
+.rs-body{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;padding-block:18px 40px;align-items:start}
+.rs-main{min-width:0}
+.rs-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.crumb-lite{font-size:12px;color:var(--grey);margin-bottom:6px}.crumb-lite a{color:var(--grey);cursor:pointer}.crumb-lite a:hover{color:var(--navy)}
+.rs-head h1{font-size:22px;font-weight:800;color:var(--navy);margin:0 0 4px;line-height:1.3;text-wrap:balance}
+.rs-sub{font-size:13.5px;color:var(--grey)}.rs-sub b{color:var(--ink)}.rs-sub .rs-avg{color:var(--gold-dk);font-weight:700}
+.rs-tools{display:flex;align-items:center;gap:8px}
+.rs-tools .viewtoggle{margin:0;background:var(--page);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.rs-tools .viewtoggle button{width:auto;height:30px;padding:0 12px;border:none;border-radius:999px;background:transparent;color:var(--grey);display:flex;align-items:center;gap:6px;font:600 12.5px var(--f);cursor:pointer}
+.rs-tools .viewtoggle button.on{background:var(--navy);color:#fff}
+.rs-tools select{height:36px;border:1px solid var(--line-2);border-radius:999px;padding:0 12px;font:600 13px var(--f);color:var(--navy);background:#fff}
+.rs-maptg{display:none;height:36px;border:1px solid var(--line-2);border-radius:999px;padding:0 12px;background:#fff;font:600 13px var(--f);color:var(--navy);cursor:pointer;align-items:center;gap:6px}
+.rs-maptg .mi{display:inline-flex;width:16px;height:16px}.rs-maptg .mi svg{width:16px;height:16px}
+.rs-maptg.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.rs-map{position:sticky;top:76px;height:calc(100vh - 96px);min-height:420px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#EEF0F4;display:none}
+.rs-map #rsMap{width:100%;height:100%}
+.rs-mapnote{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:500;background:rgba(255,255,255,.94);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:600;color:var(--navy);box-shadow:0 4px 12px rgba(9,14,26,.15);pointer-events:none}
+.rs-pinw{background:none;border:0}
+.rs-pin{display:inline-block;transform:translate(-50%,-100%);background:#fff;color:var(--navy);border:1.5px solid var(--navy);border-radius:999px;padding:4px 9px;font:700 12px var(--f);white-space:nowrap;box-shadow:0 4px 12px rgba(9,14,26,.25);direction:ltr;cursor:pointer;transition:transform .15s,background .15s}
+.rs-pin.feat{border-color:var(--gold);background:var(--gold-w)}
+.rs-pin.on,.rs-pin:hover,.rs-pinw.on .rs-pin{background:var(--navy);color:#fff;transform:translate(-50%,-100%) scale(1.08)}
+.res .card.hl{box-shadow:0 0 0 3px var(--gold),0 22px 40px -26px rgba(20,33,61,.45);transform:translateY(-3px)}
+.rs-mbar{display:none}
+@media(min-width:1100px){.rs-maptg{display:inline-flex}.rs-body.rs-hasmap{grid-template-columns:minmax(0,1fr) minmax(340px,38%)}.rs-hasmap .rs-map{display:block}}
+@media(max-width:900px){
+  .rs-bar{position:static;z-index:auto}
+  .rs-barin{display:block;padding:0;height:0;overflow:visible}
+  body.rs-lock .rs-mbar{display:none}
+  .rs-filters:has(.chipsel-drop.on) .rs-ff{visibility:hidden}
+  .rs-filters .rs-f:has(.chipsel-drop.on){z-index:1300}
+  .rs-f .chipsel-drop.on{top:auto;min-width:0;border-radius:18px 18px 0 0}
+  .rs-f .chipsel-drop.on.kb{top:8px;bottom:auto;border-radius:16px}
+  .rs-bar:not(:has(.rs-chip)){border-bottom:0;box-shadow:none}
+  .rs-chips{padding-block:10px}
+  .rs-save{display:none}
+  .rs-filters{display:none;position:fixed;inset:0;z-index:1200;background:#fff;flex-direction:column;align-items:stretch;gap:0;overflow:auto;-webkit-overflow-scrolling:touch}
+  .rs-filters.on{display:flex}
+  .rs-fh{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line);position:sticky;top:0;background:#fff;z-index:2;font-size:17px;font-weight:800;color:var(--navy)}
+  .rs-fx{border:0;background:var(--page);width:36px;height:36px;border-radius:50%;font-size:22px;line-height:1;cursor:pointer;color:var(--ink)}
+  .rs-fin{flex-direction:column;align-items:stretch;padding:14px 16px 20px;gap:12px;flex:1}
+  .rs-deal{align-self:stretch;display:flex}.rs-deal button{flex:1;padding:10px 8px;font-size:14px}
+  .rs-f{max-width:none;flex:none;min-width:0}
+  .rs-f .chipsel,.rs-f .chipsel-box,.rs-f select{height:48px}
+  .rs-f .cs-compact .chipsel-box,.rs-f select{border-radius:12px}
+  .rs-f .cs-compact .cs-sum,.rs-f select{font-size:15px}
+  .rs-morebtn,.rs-f .pricetrig{display:none}
+  .rs-fmore,.rs-fprice{position:static}
+  .rs-morepop{display:block;position:static;width:auto;border:0;box-shadow:none;padding:12px 0 0;border-top:1px solid var(--line);border-radius:0}
+  .rs .pricepop{position:static;width:auto;box-shadow:none;border:0;border-top:1px solid var(--line);border-radius:0;padding:12px 0 0}
+  .rs-fin .pricepop[hidden]{display:block!important}
+  .rs .pricepop .pp-foot{display:none}
+  .rs .pricepop::before{content:attr(data-title);display:block;font-size:11.5px;color:var(--gold-dk);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+  .rs-ff{display:flex;gap:10px;padding:12px 16px calc(14px + env(safe-area-inset-bottom));border-top:1px solid var(--line);position:sticky;bottom:0;background:#fff;z-index:2}
+  .rs-ff .btn-n{flex:2;height:48px;border-radius:12px;font-size:15px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+  .rs-ff .gh{flex:1;height:48px;border-radius:12px;padding:0 12px;margin:0;white-space:nowrap}
+  .rs-head h1{font-size:19px}
+  .rs-tools{width:100%;justify-content:space-between}
+  .rs-tools select{display:none}
+  .rs-body{padding-block:12px 96px}
+  .rs-mbar{display:flex;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:1100;gap:8px;background:rgba(20,33,61,.96);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-radius:16px;padding:8px;box-shadow:0 14px 40px -12px rgba(9,14,26,.6)}
+  .rs-mbar button,.rs-mbar select{flex:1;height:42px;border:0;border-radius:11px;background:rgba(255,255,255,.1);color:#fff;font:600 13.5px var(--f);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 8px}
+  .rs-mbar .mi{display:inline-flex;width:16px;height:16px}.rs-mbar .mi svg{width:16px;height:16px}
+  .rs-mbar .rs-msort{flex:1;display:flex}.rs-mbar .rs-msort select{width:100%;appearance:none;-webkit-appearance:none;text-align:center}
+  .rs-mbar b{background:var(--gold);color:#1A1206;border-radius:999px;font-size:11px;padding:1px 7px}
+  body:has(.rs-mbar) .mobfab{bottom:78px}
+}
+body.rs-lock{overflow:hidden}
+/* map search on phones: the filter panel is a bottom sheet that never leaves the screen */
+@media(max-width:640px){
+  .mapf-panel,#mapFPanel{position:fixed!important;left:12px!important;right:12px!important;width:auto!important;margin:0!important;top:auto!important;bottom:calc(12px + env(safe-area-inset-bottom))!important;max-height:72vh;overflow:auto;z-index:1300!important;box-shadow:0 18px 50px rgba(9,14,26,.45)}
+  .mapf-mainbtn{width:auto;min-width:0}
+}
 /* ☰ button and the phone drawer */
 .hmb{display:none;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;place-items:center;cursor:pointer;padding:0;flex:none}
 .hmb svg{width:21px;height:21px}
@@ -2592,7 +2717,7 @@ function header(){
   '</div></div></header>'+mdrawer()+
   // no floating post button on the post form itself, nor on a listing page where the
   // fixed call / WhatsApp bar owns the bottom edge on phones
-  ((VIEW==="post" || VIEW.indexOf("listing:")===0) ? '' : '<a class="mobfab" data-go="post" aria-label="'+t("post")+'">+ '+t("post")+'</a>')}
+  ((VIEW==="post" || VIEW==="search" || VIEW==="mapsearch" || VIEW.indexOf("listing:")===0) ? '' : '<a class="mobfab" data-go="post" aria-label="'+t("post")+'">+ '+t("post")+'</a>')}
 
 function footer(){
  return '<footer><div class="wrap"><div class="flinks">'+
@@ -3275,71 +3400,167 @@ function passesFilter(x, skipField){
   if(F.ownerOnly && !x.ow) return false;
   return true;
 }
-function search(){
+/* ═══ results page: sticky filter bar, active chips, a real title with the market line, cards beside a map with price pins ═══ */
+var RS={map:null,mapOn:null,pins:{}};
+function rsMapOn(){ if(RS.mapOn===null){ var st=null; try{ st=localStorage.getItem("balkoun_rsmap") }catch(e){} RS.mapOn = st===null ? SX("results_map_default",true)!==false : st==="1" } return RS.mapOn }
+function rsResults(){
  var r=D.LIST.filter(function(x){ return passesFilter(x,null) });
  if(F.sort==="lo")r.sort(function(a,b){return a.p-b.p});
  if(F.sort==="hi")r.sort(function(a,b){return b.p-a.p});
  if(F.sort==="area")r.sort(function(a,b){return b.m2-a.m2});
- // featured listings pin to the top, above whichever sort order was
- // chosen — Array.sort is stable, so this preserves the sort order
- // already applied within each of the two groups
- r.sort(function(a,b){return (b.featured?1:0)-(a.featured?1:0)});
+ r.sort(function(a,b){return (b.featured?1:0)-(a.featured?1:0)});   // featured first, stable within
+ return r }
+function rsTitle(){
+ var ar=L==="ar", types=(F.types&&F.types.length)?F.types:(F.t?[F.t]:[]);
+ var typeTxt = types.length ? types.map(function(k){ return k==="land"?t("landGroup"):(D.TYPES[k]?D.TYPES[k][li()]:k) }).join(ar?"، ":", ") : GX("rsAll");
+ var deal = F.deal==="sale" ? t("forsale") : F.deal==="rent" ? t("forrent") : "";
+ if(deal && L!=="ar") deal=deal.charAt(0).toLowerCase()+deal.slice(1);
+ var loc = (F.areas&&F.areas.length) ? F.areas.map(aN).join(ar?"، ":", ")+((F.govs&&F.govs.length===1)?(ar?"، ":", ")+gN(F.govs[0]):"")
+         : F.a ? aN(F.a) : (F.govs&&F.govs.length) ? F.govs.map(gN).join(ar?"، ":", ") : F.g ? gN(F.g) : GX("rsSyria");
+ return typeTxt+(deal?" "+deal:"")+" "+GX("lIn")+" "+loc }
+function rsMarket(r){
+ if(SX("results_market_line",true)===false || F.deal==="rent") return "";
+ var areas=(F.areas&&F.areas.length)?F.areas:(F.a?[F.a]:[]);
+ if(areas.length===1){ var x=r.filter(function(l){ return l.a===areas[0] && l.aid })[0]; var ap=x&&AREA_PRICES[x.aid]; if(ap && +ap.avg_price_per_m2) return ' · <span class="rs-avg">'+GX("rsAvg")+' <span class="ltr">$'+Math.round(+ap.avg_price_per_m2).toLocaleString("en")+'</span>/'+t("sqm")+'</span> '+GX("rsInArea") }
+ var sale=r.filter(function(l){ return l.d==="sale" && l.m2>0 && l.p>0 }); if(sale.length<3) return "";
+ var avg=Math.round(sale.reduce(function(a,l){ return a+l.p/l.m2 },0)/sale.length);
+ return ' · <span class="rs-avg">'+GX("rsAvg")+' <span class="ltr">$'+avg.toLocaleString("en")+'</span>/'+t("sqm")+'</span>' }
+function rsChipsHtml(){
+ var c=[], ar=L==="ar";
+ (F.govs||[]).forEach(function(v){ c.push(["govs",v,gN(v)]) }); if(!(F.govs&&F.govs.length)&&F.g) c.push(["g",F.g,gN(F.g)]);
+ (F.areas||[]).forEach(function(v){ c.push(["areas",v,aN(v)]) }); if(!(F.areas&&F.areas.length)&&F.a) c.push(["a",F.a,aN(F.a)]);
+ (F.types||[]).forEach(function(v){ c.push(["types",v,v==="land"?t("landGroup"):(D.TYPES[v]?D.TYPES[v][li()]:v)]) }); if(!(F.types&&F.types.length)&&F.t) c.push(["t",F.t,D.TYPES[F.t]?D.TYPES[F.t][li()]:F.t]);
+ if(F.deal!=="rent"){ (F.tbs||[]).forEach(function(v){ c.push(["tbs",v,D.TABU[v]?D.TABU[v][li()]:v]) }); if(!(F.tbs&&F.tbs.length)&&F.tb) c.push(["tb",F.tb,D.TABU[F.tb]?D.TABU[F.tb][li()]:F.tb]) }
+ if(F.cd) c.push(["cd",F.cd,(D.COND[F.cd]||D.LANDC[F.cd]||[F.cd,F.cd,F.cd])[li()]]);
+ if(F.deal==="rent"&&F.furn) c.push(["furn",F.furn,F.furn==="yes"?t("furnYes"):t("furnNo")]);
+ if(F.deal==="rent"&&F.rentalPeriod) c.push(["rentalPeriod",F.rentalPeriod,t("period"+F.rentalPeriod.charAt(0).toUpperCase()+F.rentalPeriod.slice(1))]);
+ if(F.pmin||F.pmax) c.push(["price","",heroPriceLabel().replace(/<[^>]+>/g,"")]);
+ if(F.ownerOnly) c.push(["ownerOnly","",t("owneronly")]);
+ if(!c.length) return "";
+ return '<div class="wrap rs-chips">'+c.map(function(x){ return '<span class="rs-chip">'+x[2]+'<button type="button" data-rschip="'+x[0]+'" data-rsval="'+esc(String(x[1]))+'" aria-label="'+t("del")+'">×</button></span>' }).join("")+
+   '<button type="button" class="rs-chipclr" id="clr">'+GX("rsClearAll")+'</button></div>' }
+function rsFiltersHtml(count){
+ var n=function(f,v){return D.LIST.filter(function(x){return passesFilter(x,f) && x[f]===v}).length};
+ var grp=function(obj,f){return Object.keys(obj).map(function(k){ return '<label class="ck"><input type="radio" name="'+f+'" value="'+k+'"'+(F[f]===k?" checked":"")+'> '+obj[k][li()]+'<span class="c ltr">'+n(f,k)+'</span></label>'}).join("")};
+ var moreN=(F.cd?1:0)+(F.deal==="rent"&&F.rentalPeriod?1:0)+(F.deal!=="rent"&&F.ownerOnly?1:0);
+ var more='<div class="fg"><h4>'+t("cond")+'</h4>'+(F.sec==="land"?grp(D.LANDC,"cd"):grp(D.COND,"cd"))+'</div>'+
+   (F.deal==="rent" ? '<div class="fg"><h4>'+t("rentalPeriodL")+'</h4>'+["","yearly","monthly","weekly","daily"].map(function(v){ return '<label class="ck"><input type="radio" name="rentalPeriod" value="'+v+'"'+(F.rentalPeriod===v?" checked":"")+'> '+(v===""?t("anyPeriod"):t("period"+v.charAt(0).toUpperCase()+v.slice(1)))+'</label>' }).join("")+'</div>'
+                    : '<div class="fg"><h4>'+t("extras")+'</h4><label class="ck"><input type="checkbox" id="fOwnerOnly"'+(F.ownerOnly?" checked":"")+'> '+t("owneronly")+'</label></div>');
+ var rate=SITE.syp_rate||CONFIG.rate;
+ return '<div class="rs-filters'+(MOBILE_FILTERS_OPEN?' on':'')+'" id="rsFilters">'+
+  '<div class="rs-fh"><b>'+GX("rsFilters")+'</b><button type="button" class="rs-fx" id="rsFClose" aria-label="'+t("cancel")+'">×</button></div>'+
+  '<div class="rs-fin">'+
+   '<div class="rs-deal">'+[["sale",t("forsale")],["rent",t("forrent")],["",t("dealAll")]].map(function(d){ return '<button type="button" data-rsdeal="'+d[0]+'" class="'+((F.deal||"")===d[0]?"on":"")+'">'+d[1]+'</button>' }).join("")+'</div>'+
+   '<div class="rs-f">'+chipSelect("csGov",t("gov"),F.govs||[],gN,true)+'</div>'+
+   '<div class="rs-f">'+chipSelect("csArea",t("area"),F.areas||[],aN,true)+'</div>'+
+   '<div class="rs-f">'+chipSelect("csType",t("ptype"),F.types||[],function(v){ return v==="land"?t("landGroup"):(D.TYPES[v]?D.TYPES[v][li()]:v)},true)+'</div>'+
+   (F.deal==="rent"
+     ? '<div class="rs-f rs-fsel"><select id="hFurn" aria-label="'+(L==="ar"?GX("furnField"):t("furnishedL"))+'"><option value=""'+(F.furn===""?" selected":"")+'>'+(L==="ar"?GX("furnField"):t("furnishedL"))+'</option><option value="yes"'+(F.furn==="yes"?" selected":"")+'>'+t("furnYes")+'</option><option value="no"'+(F.furn==="no"?" selected":"")+'>'+t("furnNo")+'</option></select></div>'
+     : '<div class="rs-f">'+chipSelect("csTabu",t("deed"),F.tbs||[],function(v){ return D.TABU[v]?D.TABU[v][li()]:v},true)+'</div>')+
+   '<div class="rs-f rs-fprice"><button type="button" class="pricetrig'+((F.pmin||F.pmax)?' set':'')+'" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
+     '<div class="pricepop" id="hPricePop" hidden data-title="'+esc(GX("price"))+' ('+(CUR==="USD"?"USD":(L==="ar"?"ل.س":"SYP"))+')"><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*rate):"")+'"></label>'+
+     '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*rate):"")+'"></label></div>'+
+     '<div class="pp-foot"><button type="button" class="pp-clear" id="hPriceClear">'+GX("anyPrice")+'</button><button type="button" class="pp-done" id="hPriceDone">'+GX("done")+'</button></div></div></div>'+
+   '<div class="rs-f rs-fmore"><button type="button" class="rs-morebtn" id="rsMore">'+GX("rsMore")+(moreN?' <b class="ltr">'+moreN+'</b>':'')+CHEV+'</button><div class="rs-morepop" id="rsMorePop">'+more+'</div></div>'+
+  '</div>'+
+  '<div class="rs-ff"><button type="button" class="gh" id="clrM">'+t("clearFilters")+'</button><button type="button" class="btn-n" id="rsFApply">'+GX("rsShow").replace("{n}",'<span class="ltr">'+count+'</span>')+'</button></div>'+
+ '</div>' }
+function rsSortHtml(id){ return '<select id="'+id+'"><option value="new"'+(F.sort==="new"||!F.sort?" selected":"")+'>'+t("sortNew")+'</option><option value="lo"'+(F.sort==="lo"?" selected":"")+'>'+t("sortLo")+'</option><option value="hi"'+(F.sort==="hi"?" selected":"")+'>'+t("sortHi")+'</option><option value="area"'+(F.sort==="area"?" selected":"")+'>'+t("sortA")+'</option></select>' }
+function search(){
+ var r=rsResults();
  var PAGE_SIZE=+SX("search_page_size",24)||24;
  var totalPages=Math.max(1,Math.ceil(r.length/PAGE_SIZE));
  if(!F.page || F.page<1) F.page=1;
  if(F.page>totalPages) F.page=totalPages;
  var pageItems=r.slice((F.page-1)*PAGE_SIZE, F.page*PAGE_SIZE);
- var n=function(f,v){return D.LIST.filter(function(x){return passesFilter(x,f) && x[f]===v}).length};
- var grp=function(obj,f){return Object.keys(obj).map(function(k){
-   return '<label class="ck"><input type="radio" name="'+f+'" value="'+k+'"'+(F[f]===k?" checked":"")+'> '+
-   obj[k][li()]+'<span class="c">'+n(f,k)+'</span></label>'}).join("")};
- return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+t("results")+'</div></div>'+
- '<div class="wrap lay"><aside class="panel side2'+(MOBILE_FILTERS_OPEN?" mfopen":"")+'">'+
-  '<button type="button" class="filtertoggle" id="filterToggle">'+t("filtersH")+
-   (activeFilterCount()?' <span class="filtercount">'+activeFilterCount()+'</span>':'')+
-   '<span class="filtertogglearrow">'+(MOBILE_FILTERS_OPEN?"▴":"▾")+'</span></button>'+
-  '<div class="filterbody">'+
-  '<div class="fg"><h4>'+t("gov")+'</h4>'+chipSelect("csGov",t("searchGovPH"),F.govs||[],gN)+'</div>'+
-  '<div class="fg"><h4>'+t("area")+'</h4>'+chipSelect("csArea",t("searchAreasPH"),F.areas||[],aN)+'</div>'+
-  '<div class="fg"><h4>'+t("ptype")+'</h4>'+chipSelect("csType",t("searchTypesPH"),F.types||[],function(v){
-    return v==="land"?t("landGroup"):(D.TYPES[v]?D.TYPES[v][li()]:v)})+'</div>'+
-  (F.deal==="rent"
-    ? '<div class="fg"><h4>'+(L==="ar"?GX("furnField"):t("furnishedL"))+'</h4>'+
-       ["","yes","no"].map(function(v){
-         return '<label class="ck"><input type="radio" name="furn" value="'+v+'"'+(F.furn===v?" checked":"")+'> '+
-         (v===""?t("anyFurn"):v==="yes"?t("furnYes"):t("furnNo"))+
-         '<span class="c">'+D.LIST.filter(function(x){return passesFilter(x,"furn") && (v===""||(v==="yes"?x.furn:!x.furn))}).length+'</span></label>'}).join("")+
-       '</div>'+
-      '<div class="fg"><h4>'+t("rentalPeriodL")+'</h4>'+
-       ["","yearly","monthly","weekly","daily"].map(function(v){
-         return '<label class="ck"><input type="radio" name="rentalPeriod" value="'+v+'"'+(F.rentalPeriod===v?" checked":"")+'> '+
-         (v===""?t("anyPeriod"):t("period"+v.charAt(0).toUpperCase()+v.slice(1)))+
-         '<span class="c">'+D.LIST.filter(function(x){return passesFilter(x,"rentalPeriod") && (v===""||(x.rentalPeriod||"yearly")===v)}).length+'</span></label>'}).join("")+
-       '</div>'
-    : '<div class="fg"><h4>'+t("deed")+'</h4>'+chipSelect("csTabu",t("searchDeedPH"),F.tbs||[],function(v){
-       return D.TABU[v]?D.TABU[v][li()]:v})+'</div>')+
-  '<div class="fg"><h4>'+t("cond")+'</h4>'+(F.sec==="land"?grp(D.LANDC,"cd"):grp(D.COND,"cd"))+'</div>'+
-  '<div class="fg"><h4>'+(F.deal==="rent"?t("monthlyRent"):t("price"))+' <span class="ltr">'+(CUR==="USD"?"USD":(L==="ar"?"ل.س":"SYP"))+'</span></h4>'+
-   '<input id="fPMin" type="number" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(SITE.syp_rate||CONFIG.rate)):"")+'" placeholder="'+t("from")+'">'+
-   '<input id="fPMax" type="number" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(SITE.syp_rate||CONFIG.rate)):"")+'" placeholder="'+t("to")+'"></div>'+
-  (F.deal==="rent" ? '' : '<div class="fg"><h4>'+t("extras")+'</h4><label class="ck"><input type="checkbox" id="fOwnerOnly"'+(F.ownerOnly?" checked":"")+'> '+t("owneronly")+'</label></div>')+
-  '<div class="fg"><button class="gh" id="saveSearch" style="margin:0 0 8px">'+t("saveSearch")+'</button>'+
-  '</div></aside><div><div class="topbar rtop"><div class="rtitle"><h1>'+(F.g?gN(F.g):t("results"))+'</h1>'+
-  '<span class="n"><span class="ltr">'+r.length+'</span> '+t("listings")+'</span></div>'+
-  '<div class="viewtoggle"><button type="button" class="'+(VIEWMODE==="grid"?"on":"")+'" id="vmGrid" title="'+t("gridView")+'">'+ICON_GRID+'<span>'+t("gridView")+'</span></button>'+
-   '<button type="button" class="'+(VIEWMODE==="list"?"on":"")+'" id="vmList" title="'+t("listView")+'">'+ICON_LIST+'<span>'+t("listView")+'</span></button></div>'+
-  '<select id="sort"><option value="new">'+t("sortNew")+'</option><option value="lo">'+t("sortLo")+
-   '</option><option value="hi">'+t("sortHi")+'</option><option value="area">'+t("sortA")+'</option></select></div>'+
-  '<div class="res'+(VIEWMODE==="list"?" list-view":"")+'">'+(pageItems.length?pageItems.map(function(x,i){return card(x,i,VIEWMODE==="list")}).join(""):
-   !LISTINGS_LOADED ? '<div class="resempty"><b>'+t("loading")+'</b></div>' :
-   '<div class="resempty">'+LICON.search+'<b>'+t("none")+'</b><span>'+t("none2")+'</span></div>')+
-  '</div>'+(pageItems.length||!LISTINGS_LOADED ? '' : searchAlternatives())+(totalPages>1?'<div class="pg">'+
-    (F.page>1?'<a data-pg="'+(F.page-1)+'">‹</a>':'')+
-    Array.from({length:totalPages},function(_,idx){return idx+1}).map(function(p){
-      return '<a class="'+(p===F.page?"on":"")+'" data-pg="'+p+'">'+p+'</a>'}).join("")+
-    (F.page<totalPages?'<a data-pg="'+(F.page+1)+'">›</a>':'')+
-   '</div>':'')+'</div></div>'}
-
+ var mapOn=rsMapOn(), withLoc=r.filter(function(x){ return x.lat&&x.lng }).length, fc=activeFilterCount();
+ return '<div class="rs">'+
+  '<div class="rs-bar"><div class="wrap rs-barin">'+rsFiltersHtml(r.length)+
+   '<button type="button" class="rs-save" id="saveSearch">'+LICON.heart+'<span>'+t("saveSearch")+'</span></button></div>'+rsChipsHtml()+'</div>'+
+  '<div class="wrap rs-body'+(mapOn?' rs-hasmap':'')+'">'+
+   '<div class="rs-main">'+
+    '<div class="rs-head"><div class="rs-ttl"><div class="crumb-lite"><a data-go="home">'+t("home")+'</a> › '+t("results")+'</div><h1>'+rsTitle()+'</h1>'+
+     '<div class="rs-sub"><b class="ltr">'+r.length+'</b> '+t("listings")+rsMarket(r)+'</div></div>'+
+     '<div class="rs-tools"><div class="viewtoggle"><button type="button" class="'+(VIEWMODE==="grid"?"on":"")+'" id="vmGrid" title="'+t("gridView")+'">'+ICON_GRID+'<span>'+t("gridView")+'</span></button>'+
+      '<button type="button" class="'+(VIEWMODE==="list"?"on":"")+'" id="vmList" title="'+t("listView")+'">'+ICON_LIST+'<span>'+t("listView")+'</span></button></div>'+
+      rsSortHtml("sort")+
+      '<button type="button" class="rs-maptg'+(mapOn?' on':'')+'" id="rsMapToggle">'+MI.map+'<span>'+(mapOn?GX("rsHideMap"):GX("rsShowMap"))+'</span></button></div></div>'+
+    '<div class="res'+(VIEWMODE==="list"?" list-view":"")+'">'+(pageItems.length?pageItems.map(function(x,i){return card(x,i,VIEWMODE==="list")}).join(""):
+     !LISTINGS_LOADED ? '<div class="resempty"><b>'+t("loading")+'</b></div>' :
+     '<div class="resempty">'+LICON.search+'<b>'+t("none")+'</b><span>'+t("none2")+'</span></div>')+'</div>'+
+    (pageItems.length||!LISTINGS_LOADED ? '' : searchAlternatives())+
+    (totalPages>1?'<div class="pg">'+(F.page>1?'<a data-pg="'+(F.page-1)+'">‹</a>':'')+
+      Array.from({length:totalPages},function(_,idx){return idx+1}).map(function(p){ return '<a class="'+(p===F.page?"on":"")+'" data-pg="'+p+'">'+p+'</a>'}).join("")+
+      (F.page<totalPages?'<a data-pg="'+(F.page+1)+'">›</a>':'')+'</div>':'')+
+   '</div>'+
+   (mapOn?'<aside class="rs-map"><div id="rsMap"></div><div class="rs-mapnote">'+GX("rsOnMap").replace("{n}",'<span class="ltr">'+withLoc+'</span>')+'</div></aside>':'')+
+  '</div>'+
+  '<div class="rs-mbar"><button type="button" id="rsMFilters">'+GX("rsFilters")+(fc?' <b class="ltr">'+fc+'</b>':'')+'</button><button type="button" id="rsMMap">'+MI.map+GX("rsShowMap")+'</button><span class="rs-msort">'+rsSortHtml("sortM")+'</span></div>'+
+ '</div>' }
+function rsShort(x){ var v=+x.p||0, rate=SITE.syp_rate||CONFIG.rate; if(CUR!=="USD") v=Math.round(v*rate); var sh = v>=1e6 ? (Math.round(v/1e5)/10).toString().replace(/\.0$/,"")+"M" : v>=1000 ? Math.round(v/1000)+"K" : String(v); return (CUR==="USD"?"$":"")+sh+(CUR==="USD"?"":" ل.س") }
+function rsMapStop(){ if(RS.map){ try{ RS.map.remove() }catch(e){} RS.map=null; RS.pins={} } }
+function rsMapInit(){
+  var c=document.getElementById("rsMap"); if(!c) return;
+  var LMap=window.LeafletLib;
+  if(!LMap){ ensureLeaflet().then(function(){ if(document.getElementById("rsMap")) rsMapInit() }).catch(function(){}); return }
+  rsMapStop();
+  var pts=rsResults().filter(function(x){ return x.lat&&x.lng });
+  var map=LMap.map(c,{zoomControl:true}).setView(pts.length?[pts[0].lat,pts[0].lng]:[34.8,38.5], pts.length?11:7);
+  LMap.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(map);
+  var b=[];
+  pts.forEach(function(x){
+    var ic=LMap.divIcon({className:"rs-pinw",html:'<span class="rs-pin'+(x.featured?' feat':'')+'" data-pin="'+x.id+'">'+rsShort(x)+'</span>',iconSize:[0,0],iconAnchor:[0,0]});
+    var m=LMap.marker([x.lat,x.lng],{icon:ic}).addTo(map); RS.pins[x.id]=m;
+    m.on("click",function(){ rsMapStop(); VIEW="listing:"+x.id; scrollTo(0,0); render(); refreshListingsOnNavigate() });
+    m.on("mouseover",function(){ var cd=document.querySelector('.res .card[data-open="'+x.id+'"]'); if(cd){ cd.classList.add("hl"); if(cd.scrollIntoView) cd.scrollIntoView({block:"nearest",behavior:"smooth"}) } });
+    m.on("mouseout",function(){ var cd=document.querySelector('.res .card[data-open="'+x.id+'"]'); if(cd) cd.classList.remove("hl") });
+    b.push([x.lat,x.lng]) });
+  if(b.length>1){ try{ map.fitBounds(b,{padding:[40,40]}) }catch(e){} }
+  RS.map=map; setTimeout(function(){ if(RS.map===map) map.invalidateSize() },150);
+}
+function rsWire(){
+  wireChipSelects();
+  $$("[data-rsdeal]").forEach(function(b){ b.onclick=function(){ F.deal=this.dataset.rsdeal||""; if(F.deal!=="rent"){ F.furn=""; F.rentalPeriod="" } F.page=1; render() } });
+  if($("#hFurn")) $("#hFurn").onchange=function(){ F.furn=this.value; F.page=1; render() };
+  var pop=$("#hPricePop"), rate=SITE.syp_rate||CONFIG.rate, toUsd=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/rate) };
+  var applyPrice=function(){ F.pmin=toUsd(($("#hPmin")||{}).value); F.pmax=toUsd(($("#hPmax")||{}).value); if(F.pmax&&F.pmin>F.pmax){ var sw=F.pmin; F.pmin=F.pmax; F.pmax=sw } F.page=1; render() };
+  if($("#hPrice")){ $("#hPrice").onclick=function(e){ e.stopPropagation(); closeAllMenus(pop); var mp=$("#rsMorePop"); if(mp) mp.classList.remove("on"); pop.hidden=!pop.hidden; if(!pop.hidden) setTimeout(function(){ var i=$("#hPmin"); if(i) i.focus() },30) };
+    pop.onclick=function(e){ e.stopPropagation() };
+    $("#hPriceDone").onclick=applyPrice; $("#hPriceClear").onclick=function(){ F.pmin=0; F.pmax=0; F.page=1; render() };
+    $$("#hPmin,#hPmax").forEach(function(i){ i.onkeydown=function(e){ if(e.key==="Enter") applyPrice() }; i.onchange=function(){ if(window.innerWidth<=900) applyPrice() } });
+    document.addEventListener("click",function h(e){ if(!pop.isConnected){ document.removeEventListener("click",h); return } if(!pop.hidden && window.innerWidth>900) pop.hidden=true }) }
+  var mp=$("#rsMorePop"), mb=$("#rsMore");
+  if(mb){ mb.onclick=function(e){ e.stopPropagation(); closeAllMenus(); if(pop) pop.hidden=true; mp.classList.toggle("on") }; mp.onclick=function(e){ e.stopPropagation() };
+    document.addEventListener("click",function h2(e){ if(!mp.isConnected){ document.removeEventListener("click",h2); return } if(window.innerWidth>900) mp.classList.remove("on") });
+    document.addEventListener("keydown",function h3(e){ if(!mp.isConnected){ document.removeEventListener("keydown",h3); return } if(e.key==="Escape") mp.classList.remove("on") }) }
+  $$('input[name=cd]').forEach(function(r){ r.onclick=function(){ F.cd=F.cd===r.value?"":r.value; F.page=1; render() } });
+  $$('input[name=rentalPeriod]').forEach(function(r){ r.onclick=function(){ F.rentalPeriod=r.value; F.page=1; render() } });
+  if($("#fOwnerOnly")) $("#fOwnerOnly").onchange=function(){ F.ownerOnly=this.checked; F.page=1; render() };
+  $$("[data-rschip]").forEach(function(b){ b.onclick=function(){ var k=this.dataset.rschip, v=this.dataset.rsval;
+    if(k==="price"){ F.pmin=0; F.pmax=0 } else if(k==="ownerOnly"){ F.ownerOnly=false } else if(Array.isArray(F[k])){ F[k]=F[k].filter(function(x){ return x!==v }) } else { F[k]="" }
+    F.page=1; render() } });
+  var clear=function(){ F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",pmin:0,pmax:0,ownerOnly:false,sec:F.sec,deal:F.deal,sort:"new",page:1}; render() };
+  if($("#clr")) $("#clr").onclick=clear; if($("#clrM")) $("#clrM").onclick=clear;
+  $$("#sort,#sortM").forEach(function(sel){ sel.onchange=function(){ F.sort=this.value; F.page=1; render() } });
+  if($("#vmGrid")) $("#vmGrid").onclick=function(){ VIEWMODE="grid"; try{localStorage.setItem("balkoun_viewmode","grid")}catch(e){} render() };
+  if($("#vmList")) $("#vmList").onclick=function(){ VIEWMODE="list"; try{localStorage.setItem("balkoun_viewmode","list")}catch(e){} render() };
+  $$("[data-pg]").forEach(function(e){ e.onclick=function(){ F.page=+this.dataset.pg; render(); var top=$(".rs-head"); if(top && top.scrollIntoView) top.scrollIntoView({behavior:"smooth",block:"start"}) } });
+  if($("#rsMapToggle")) $("#rsMapToggle").onclick=function(){ RS.mapOn=!rsMapOn(); try{ localStorage.setItem("balkoun_rsmap",RS.mapOn?"1":"0") }catch(e){} render() };
+  var openSheet=function(){ MOBILE_FILTERS_OPEN=true; var f=$("#rsFilters"); if(f) f.classList.add("on"); document.body.classList.add("rs-lock") };
+  var closeSheet=function(){ MOBILE_FILTERS_OPEN=false; var f=$("#rsFilters"); if(f) f.classList.remove("on"); document.body.classList.remove("rs-lock") };
+  document.body.classList.toggle("rs-lock", MOBILE_FILTERS_OPEN && window.innerWidth<=900);
+  if($("#rsMFilters")) $("#rsMFilters").onclick=openSheet;
+  if($("#rsFClose")) $("#rsFClose").onclick=closeSheet; if($("#rsFApply")) $("#rsFApply").onclick=function(){ closeSheet(); var top=$(".rs-head"); if(top) top.scrollIntoView({behavior:"smooth",block:"start"}) };
+  if($("#rsMMap")) $("#rsMMap").onclick=function(){ MAPSEARCH.deal=F.deal==="rent"?"rent":"sale"; VIEW="mapsearch"; scrollTo(0,0); render(); refreshListingsOnNavigate() };
+  if($("#saveSearch")) $("#saveSearch").onclick=async function(){
+    if(!USER){ AU.open=true; AU.mode="up"; AU.step=1; render(); return }
+    var b=this, sp=b.querySelector("span")||b; sp.textContent=t("saving");
+    try{ await rpc("bk_search_save",{p_user:USER.id, p_label:searchLabel(F), p_filters:JSON.parse(JSON.stringify(F))}); await loadSearches(); sp.textContent=t("savedOk"); b.style.color="var(--ok)" }
+    catch(e){ sp.textContent=(e.message||"error"); b.style.color="var(--danger)" } };
+  // cards ↔ pins
+  $$(".res .card[data-open]").forEach(function(cd){ cd.addEventListener("mouseenter",function(){ var m=RS.pins[cd.dataset.open]; if(m&&m._icon){ m._icon.classList.add("on"); m.setZIndexOffset(1000) } }); cd.addEventListener("mouseleave",function(){ var m=RS.pins[cd.dataset.open]; if(m&&m._icon){ m._icon.classList.remove("on"); m.setZIndexOffset(0) } }) });
+  if(rsMapOn() && window.innerWidth>=1100) setTimeout(rsMapInit,60); else rsMapStop();
+}
 // when a search finds nothing: the same search anywhere in the country, or failing that the newest listings
 function searchAlternatives(){
   var saved=F, alt=[], title="";
@@ -5864,7 +6085,7 @@ if(!window._menusEscAdded){ window._menusEscAdded=true;
   document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeAllMenus() });
   document.addEventListener("pointerdown",function(e){
     $$(".chipsel-drop.on").forEach(function(d){ var w=d.closest(".chipsel"); if(!w || !w.contains(e.target) || e.target===d) d.classList.remove("on") });
-    var pp=$("#hPricePop"); if(pp && !pp.hidden){ var sf=pp.closest(".sf"); if(!sf || !sf.contains(e.target)) pp.hidden=true }
+    var pp=$("#hPricePop"); if(pp && !pp.hidden){ var sf=pp.closest(".sf,.rs-fprice"); if(!sf || !sf.contains(e.target)) pp.hidden=true }
   },true);
 }
 function wireChipSelects(){
@@ -6008,8 +6229,8 @@ function heroSearchBarHtml(){
      : '<div class="sf">'+chipSelect("csTabu",t("deed"),F.tbs||[],function(v){
         return D.TABU[v]?D.TABU[v][li()]:v},true)+'</div>')+
    '<div class="sf sf-price"><button type="button" class="pricetrig" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
-     '<div class="pricepop" id="hPricePop" hidden><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(SITE.syp_rate||CONFIG.rate)):"")+'"></label>'+
-     '<label>'+GX("to")+'<input id="hPmax" type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(SITE.syp_rate||CONFIG.rate)):"")+'"></label></div>'+
+     '<div class="pricepop" id="hPricePop" hidden><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(SITE.syp_rate||CONFIG.rate)):"")+'"></label>'+
+     '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(SITE.syp_rate||CONFIG.rate)):"")+'"></label></div>'+
      '<div class="pp-foot"><button type="button" class="pp-clear" id="hPriceClear">'+GX("anyPrice")+'</button><button type="button" class="pp-done" id="hPriceDone">'+GX("done")+'</button></div></div></div>'+
    '<button class="sgo" id="hgo">'+t("search")+'<span id="hgoCount">'+heroCount(F.deal)+'</span></button>'+
    '<button type="button" class="sgo-map" data-go="mapsearch" title="'+t("searchOnMap")+'" aria-label="'+t("searchOnMap")+'">'+MI.map+'<span>'+GX("map")+'</span></button>'+
@@ -6049,6 +6270,7 @@ function wire(){
  markGreenTabu();
  if(VIEW.indexOf("listing")!==0 && _simCarouselTimer){ clearInterval(_simCarouselTimer); _simCarouselTimer=null; }
  if(VIEW!=="mapsearch") stopMapSearch();
+ if(VIEW!=="search"){ rsMapStop(); document.body.classList.remove("rs-lock") }
  wireAllCCPickers();
  initAdCarouselPosition();
  // swapped from what you'd naively guess (Prev calling -1, Next
@@ -6151,46 +6373,7 @@ function wire(){
    }
  }
  if(VIEW==="home"){ wireHeroBar() }
- if(VIEW==="search"){
-   wireChipSelects();
-   if($("#fPMin")) $("#fPMin").addEventListener("change",function(){
-     var raw=parseInt(this.value,10)||0;
-     F.pmin = CUR==="USD" ? raw : Math.round(raw/(SITE.syp_rate||CONFIG.rate));
-     render();
-   });
-   if($("#fPMax")) $("#fPMax").addEventListener("change",function(){
-     var raw=parseInt(this.value,10)||0;
-     F.pmax = CUR==="USD" ? raw : Math.round(raw/(SITE.syp_rate||CONFIG.rate));
-     render();
-   });
-   if($("#fOwnerOnly")) $("#fOwnerOnly").onchange=function(){ F.ownerOnly=this.checked; F.page=1; render() };
-   $("#sort").value=F.sort; $("#sort").onchange=function(){F.sort=this.value;F.page=1;render()};
-   if($("#vmGrid")) $("#vmGrid").onclick=function(){
-     VIEWMODE="grid"; try{localStorage.setItem("balkoun_viewmode","grid")}catch(e){} render();
-   };
-   if($("#vmList")) $("#vmList").onclick=function(){
-     VIEWMODE="list"; try{localStorage.setItem("balkoun_viewmode","list")}catch(e){} render();
-   };
-   $$("[data-pg]").forEach(function(e){ e.onclick=function(){
-     F.page=+this.dataset.pg; render();
-     var top=$(".topbar"); if(top && top.scrollIntoView) top.scrollIntoView({behavior:"smooth",block:"start"});
-   }});
-   $$('input[name=tb]').forEach(function(r){r.onclick=function(){F.tb=F.tb===r.value?"":r.value;render()}});
-   $$('input[name=cd]').forEach(function(r){r.onclick=function(){F.cd=F.cd===r.value?"":r.value;render()}});
-   $$('input[name=furn]').forEach(function(r){r.onclick=function(){F.furn=r.value;render()}});
-   $$('input[name=rentalPeriod]').forEach(function(r){r.onclick=function(){F.rentalPeriod=r.value;render()}});
-   if($("#clr")) $("#clr").onclick=function(){F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",pmin:0,pmax:0,ownerOnly:false,sec:F.sec,deal:F.deal,sort:"new",page:1};render()};
-   if($("#filterToggle")) $("#filterToggle").onclick=function(){ MOBILE_FILTERS_OPEN=!MOBILE_FILTERS_OPEN; render() };
-   if($("#saveSearch")) $("#saveSearch").onclick=async function(){
-     if(!USER){ AU.open=true; AU.mode="up"; AU.step=1; render(); return }
-     var b=this; b.textContent=t("saving");
-     try{
-       await rpc("bk_search_save",{p_user:USER.id, p_label:searchLabel(F),
-                                   p_filters:JSON.parse(JSON.stringify(F))});
-       await loadSearches();
-       b.textContent=t("savedOk"); b.style.color="var(--ok)";
-     }catch(e){ b.textContent=(e.message||"error"); b.style.color="var(--danger)";
-                console.error("save search:",e) }}}
+ if(VIEW==="search"){ rsWire() }
 
  if(VIEW.indexOf("listing")===0){
    var LI2=D.LIST.filter(function(l){return String(l.id)===String(VIEW.split(":")[1])})[0];
@@ -9582,6 +9765,11 @@ var GX_T={
   navCurDrawer:{ar:"اختيار العملة داخل القائمة",en:"Currency toggle inside the menu",de:"Währungsumschalter im Menü"},
   navMenuDesk:{ar:"إظهار زر القائمة ☰ على الكمبيوتر أيضاً",en:"Show the ☰ menu button on desktop too",de:"☰-Menü-Button auch am Desktop zeigen"},
   csDone:{ar:"تم",en:"Done",de:"Fertig"}, csClear:{ar:"مسح الاختيار",en:"Clear",de:"Leeren"},
+  rsAll:{ar:"عقارات",en:"Properties",de:"Immobilien"}, rsSyria:{ar:"سوريا",en:"Syria",de:"Syrien"}, rsMore:{ar:"المزيد",en:"More",de:"Mehr"},
+  rsShow:{ar:"عرض {n} إعلان",en:"Show {n} listings",de:"{n} Anzeigen zeigen"}, rsAvg:{ar:"متوسط السعر المعروض",en:"Average asking price",de:"Ø Angebotspreis"},
+  rsInArea:{ar:"في المنطقة",en:"in the area",de:"im Gebiet"}, rsHideMap:{ar:"إخفاء الخريطة",en:"Hide map",de:"Karte ausblenden"}, rsShowMap:{ar:"الخريطة",en:"Map",de:"Karte"},
+  rsClearAll:{ar:"مسح الكل",en:"Clear all",de:"Alle löschen"}, rsFilters:{ar:"الفلاتر",en:"Filters",de:"Filter"}, rsSort:{ar:"الترتيب",en:"Sort",de:"Sortieren"},
+  rsOnMap:{ar:"{n} على الخريطة",en:"{n} on the map",de:"{n} auf der Karte"},
   altResH:{ar:"لا توجد إعلانات مطابقة هنا — إليك إعلانات مشابهة في مناطق أخرى",en:"Nothing matches here — similar listings elsewhere",de:"Hier passt nichts – ähnliche Anzeigen anderswo"},
   altResH2:{ar:"لا توجد إعلانات مطابقة — إليك أحدث الإعلانات",en:"Nothing matches — here are the latest listings",de:"Nichts passt – die neuesten Anzeigen"},
   altResBtn:{ar:"عرض كل الإعلانات",en:"Show all listings",de:"Alle Anzeigen zeigen"},
@@ -9867,6 +10055,9 @@ var HS_T={
  bRot:{ar:"التناوب والحركة",en:"Rotation and motion",de:"Wechsel und Bewegung"}, bText:{ar:"نص فوق البانر",en:"Text over the banner",de:"Text über dem Banner"}, bLink:{ar:"الرابط الافتراضي عند الضغط",en:"Default link on click",de:"Standard-Link beim Klick"},
  stripHint:{ar:"يظهر شريط البانرات بين أقسام الصفحة الرئيسية؛ موضعه بينها يُضبط بالأسهم في استوديو الصفحة الرئيسية.",en:"The banner strip sits between the homepage sections; its place among them is set with the arrows in the homepage studio.",de:"Die Bannerleiste liegt zwischen den Startseiten-Abschnitten; ihre Position wird im Startseiten-Studio festgelegt."},
  goHome:{ar:"استوديو الصفحة الرئيسية",en:"Homepage studio",de:"Startseiten-Studio"}, bEmptyHint:{ar:"ارفع صورة أو فيديو ليظهر البانر في المعاينة.",en:"Upload a photo or video and the banner appears in the preview.",de:"Foto oder Video hochladen, dann erscheint das Banner in der Vorschau."},
+ rsMapDef:{ar:"إظهار الخريطة بجانب النتائج على الكمبيوتر (افتراضياً)",en:"Show the map beside the results on desktop (by default)",de:"Karte neben den Ergebnissen am Desktop (Standard)"},
+ rsMarket:{ar:"إظهار متوسط سعر المتر تحت عنوان النتائج",en:"Show the average price per m² under the results title",de:"Ø Preis pro m² unter dem Ergebnistitel zeigen"},
+ rsHint:{ar:"الزائر يستطيع إخفاء الخريطة أو إظهارها بنفسه؛ يُحفظ اختياره في جهازه.",en:"Visitors can hide or show the map themselves; the choice is remembered on their device.",de:"Besucher können die Karte selbst ein- oder ausblenden; die Wahl wird im Gerät gespeichert."},
  cards:{ar:"بطاقات النتائج",en:"Result cards",de:"Ergebniskarten"}, badges:{ar:"الشارات",en:"Badges",de:"Abzeichen"}, results:{ar:"صفحة النتائج",en:"Results page",de:"Ergebnisseite"}, nav:{ar:"الرأس والقائمة",en:"Header and menu",de:"Kopfzeile und Menü"},
  cardW:{ar:"أصغر عرض للبطاقة (px)",en:"Minimum card width (px)",de:"Mindestbreite der Karte (px)"}, cardHint:{ar:"كلما صغُر الرقم زاد عدد البطاقات في الصف.",en:"The smaller the number, the more cards fit in a row.",de:"Je kleiner die Zahl, desto mehr Karten pro Reihe."},
  social:{ar:"حسابات التواصل",en:"Social accounts",de:"Soziale Konten"}, numbers:{ar:"أرقام التواصل",en:"Contact numbers",de:"Kontaktnummern"},
@@ -9874,7 +10065,7 @@ var HS_T={
 };
 function hsT(k){ var o=HS_T[k]||{}; return o[L]||o.en||k }
 var HS_SEL={hero_text:".hero h1",hero_bg:".hero-outer",hero_search:".sbar",hero_stats:".hnote",ads:".adsec",banners:".topbanner-wrap",ticker:".mkt",colls:"#collsSec",types:"#typesSec",trust:"#trustSec",expl:"#explSec",band:"#bandSec",guides:"#guidesSec",page:".hero-outer",
-  row:".adsec",look:".adsec",perf:".adsec",strip:".topbanner-wrap",cards:".res",badges:".res",results:".res",nav:"header",social:".changrid",numbers:".changrid"};
+  row:".adsec",look:".adsec",perf:".adsec",strip:".topbanner-wrap",cards:".res",badges:".res",results:".rs-head",nav:"header",social:".changrid",numbers:".changrid"};
 var HS_EYE={ads:"x:ads_row_enabled"};
 var HS_VARKEYS=/^(sk_|h1_|sbar_|hero_gap|ad_carousel_gap|ad_square_size|hero_title_size_m|sec_pad|hero_max_height|card_min_width)/;
 var HS_ICO_EYEOFF='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.2 4.2M9.9 5.2A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6C3.8 8.6 2 12 2 12s3.5 6 10 6c1.4 0 2.6-.3 3.7-.7"/></svg>';
@@ -10012,7 +10203,7 @@ function hsInspDesign(){
   if(sd==="cards"){ H.push(fHint(hsT("dualHint")), fDual(hsT("cardW"),"c:card_min_width","c:card_min_width_mobile",90,500,10), fHint(hsT("cardHint"))); }
   else if(sd==="badges"){ H.push(fGrp(t("featuredH")), fSwitch(t("showFeaturedBadge"),"c:featured_badge_enabled",true,true), fHint(hsT("textsHint")), fText(t("featuredBadgeTextL"),"c:featured_badge",t("featuredBadgeDefault")),
       fSlider(t("featuredBrightnessL"),"c:featured_brightness",null,0,100,5,"%",20,true), fHint(t("featuredBrightnessHint")), fGrp(t("newBadgeH")), fNum(t("newBadgeHoursL"),"c:new_badge_hours",0,720,1,24,true), fHint(t("newBadgeHint"))); }
-  else if(sd==="results"){ H.push('<div class="row">'+fNum(GX("xPageSize"),"x:search_page_size",6,96,1,24,true)+fNum(GX("xSimilar"),"x:similar_count",0,24,1,12)+'</div>'); }
+  else if(sd==="results"){ H.push('<div class="row">'+fNum(GX("xPageSize"),"x:search_page_size",6,96,1,24,true)+fNum(GX("xSimilar"),"x:similar_count",0,24,1,12)+'</div>', fSwitch(hsT("rsMapDef"),"x:results_map_default",true,true), fSwitch(hsT("rsMarket"),"x:results_market_line",true,true), fHint(hsT("rsHint"))); }
   else if(sd==="nav"){
     var row=function(i){ return '<div class="navrow"><label class="xcheck"><input type="checkbox" data-hsk="x:nav_'+i.k+'" data-hst="bool" data-hsr="1"'+(navOn(i.k)?' checked':'')+'><span>'+(MI[i.ico]||'')+i.lab()+'</span></label><span class="navord-w"><small>'+GX("navOrder")+'</small><input type="number" data-allow-autofill class="navord" data-hsk="x:nav_'+i.k+'_o" data-hst="num" data-hsr="1" value="'+esc(String(hsVal("x:nav_"+i.k+"_o")))+'" placeholder="'+i.o+'" min="0" max="999"></span></div>' };
     var g=function(gk,ttl){ return fGrp(ttl)+'<div class="navrows">'+NAVI.filter(function(i){ return i.g===gk }).map(row).join("")+'</div>' };
