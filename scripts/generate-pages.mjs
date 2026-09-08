@@ -465,7 +465,9 @@ async function main() {
   // sitemap: home + these pages + every /listing/ page on disk, in every language
   const listingDirsOf = (base) => fs.existsSync(base) ? fs.readdirSync(base).filter((d) => fs.existsSync(path.join(base, d, "index.html"))) : [];
   const today = new Date().toISOString().slice(0, 10);
-  const entries = [{ loc: SITE + "/", priority: "1.0" }, ...urls,
+  // the app routes that have their own 200 page (see generate-routes.mjs)
+  const routeUrls = ["search", "mapsearch", "wanted", "agencies", "projects"].filter((r) => fs.existsSync(path.join(ROOT, r, "index.html"))).map((r) => ({ loc: `${SITE}/${r}/`, priority: "0.6" }));
+  const entries = [{ loc: SITE + "/", priority: "1.0" }, ...routeUrls, ...urls,
     ...listingDirsOf(path.join(ROOT, "listing")).map((d) => ({ loc: `${SITE}/listing/${d}/`, priority: "0.9" })),
     ...listingDirsOf(path.join(ROOT, "en", "listing")).map((d) => ({ loc: `${SITE}/en/listing/${d}/`, priority: "0.8" })),
     ...listingDirsOf(path.join(ROOT, "de", "listing")).map((d) => ({ loc: `${SITE}/de/listing/${d}/`, priority: "0.8" }))];
