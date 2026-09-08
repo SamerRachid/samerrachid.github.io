@@ -1296,7 +1296,8 @@ footer{font-size:14px}
 .blogo-w{display:flex;flex-direction:column;line-height:1}
 .blogo-w b{font-family:var(--fd);font-weight:800;font-size:calc(var(--logo-h,34px) * .66);letter-spacing:.01em;color:inherit}
 .blogo-w small{font:700 calc(var(--logo-h,34px) * .26) Lato,sans-serif;letter-spacing:.34em;color:#9DB0CC;margin-top:calc(var(--logo-h,34px) * .1);text-transform:uppercase;padding-inline-start:.1em}
-.mdw-top .blogo{color:#CFC4AE}
+.mdw-top .blogo{color:#CFC4AE;cursor:pointer}
+.mdw2-homesec{padding:6px 12px 0}.mdw2-homesec .mdw2-row{font-weight:700;color:var(--navy)}
 .au-brand .blogo{color:#CFC4AE;--logo-h:30px}
 @media(max-width:860px){.blogo{--logo-h:var(--logo-h-m,30px)}.mdw-top .blogo{--logo-h:26px}.blogo-w small{color:#9DB0CC}}
 @media(max-width:640px){.logo{padding:4px 0;font-size:21px}}
@@ -3005,6 +3006,7 @@ var NAVI=[
   {k:"buy",g:"search",lab:function(){return t("buy")},ico:"buy",attrs:'data-go="search" data-deal="sale"',o:10},
   {k:"rent",g:"search",lab:function(){return t("rent")},ico:"rent",attrs:'data-go="search" data-deal="rent" data-sec=""',o:20},
   {k:"map",g:"search",lab:function(){return t("searchOnMap")},ico:"map",attrs:'data-go="mapsearch"',o:30},
+  {k:"home",g:"search",lab:function(){return t("home")},ico:"home",attrs:'data-go="home"',o:1},
   {k:"areas",g:"search",lab:function(){return GX("allAreas")},ico:"areas",attrs:'data-go="areas"',o:40},
   {k:"projects",g:"discover",lab:function(){return GX("pjDirShort")},ico:"tower",attrs:'data-go="projects"',o:48,tag:"soon"},
   {k:"wanted",g:"discover",lab:function(){return GX("wDirShort")},ico:"wanted",attrs:'data-go="wanted"',o:47,tag:"newTag",hide:function(){ return !wantedOn() }},
@@ -3040,9 +3042,9 @@ function mdrawer(){
   var langs = SX("nav_lang_drawer",true)!==false ? '<div class="mdw2-seg">'+Object.keys(D.I18N).map(function(k){ return '<a class="'+(k===L?'on':'')+'" data-langpick="'+k+'"><span class="langflag">'+(LANG_FLAGS[k]||"")+'</span>'+D.I18N[k].name+'</a>' }).join("")+'</div>' : '';
   var curs = SX("nav_cur_drawer",true)!==false ? '<div class="mdw2-seg">'+["USD","SYP"].map(function(c){ return '<a class="'+(c===CUR?'on':'')+'" data-mdcur="'+c+'">'+(c==="USD"?"$ USD":"ل.س SYP")+'</a>' }).join("")+'</div>' : '';
   return '<div class="mdw" id="mdw"><div class="mdw-bg" id="mdwBg"></div><aside class="mdw-p mdw2" role="dialog" aria-label="'+GX("mdMenu")+'">'+
-    '<div class="mdw-top"><span class="logo blogo">'+brandLogo()+'</span><button class="mdw-x" id="mdwX" aria-label="'+GX("mdClose")+'">'+
+    '<div class="mdw-top"><a class="logo blogo" data-go="home" aria-label="'+esc(t("home"))+'">'+brandLogo()+'</a><button class="mdw-x" id="mdwX" aria-label="'+GX("mdClose")+'">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>'+
-    acct+'<div class="mdw2-quick">'+tiles+'</div>'+
+    acct+((byK("home")&&VIEW!=="home")?'<div class="mdw2-sec mdw2-homesec">'+row(byK("home"))+'</div>':'')+'<div class="mdw2-quick">'+tiles+'</div>'+
     sec(GX("mdDiscover"),discover)+sec(GX("mdServices"),services)+mine+sec(GX("mdSite"),site)+
     '<div class="mdw2-sec" id="mdwInstallSec" hidden><a class="mdw2-row pwa-row" id="mdwInstall"><span class="mi">'+(MI.download||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span><b>'+GX("pwaInstall")+'</b><small>'+GX("pwaInstallSub")+'</small></span></a></div>'+
     ((langs||curs)?'<div class="mdw2-foot">'+langs+curs+'</div>':'')+
@@ -3107,6 +3109,7 @@ var MI=(function(){
     tower:w('<path d="M4 21h16M6 21V9l6-6 6 6v12"/><path d="M10 21v-4h4v4M9 12h.01M15 12h.01M9 16h.01M15 16h.01M12 3v3"/>'),
     wanted:w('<path d="M3 11 12 4l9 7"/><path d="M5 10v10h5"/><circle cx="15.5" cy="15.5" r="3.5"/><path d="m18 18 3 3"/>'),
     download:w('<rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 7v7m-3-3 3 3 3-3M9 18h6"/>'),
+    home:w('<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>'),
     team:w('<circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0"/><circle cx="17" cy="9" r="3"/><path d="M15.5 20a5.5 5.5 0 0 1 6.5-4"/>'),
     areas:w('<path d="M3 6.5 9 4l6 2.5 6-2.5v13.5L15 20l-6-2.5-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>'),
     coll:w('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>'),
