@@ -1,0 +1,26 @@
+{
+  "name": "بلكون — عقارات سوريا",
+  "short_name": "بلكون",
+  "description": "عقارات سوريا للبيع والإيجار من المالك مباشرة، مع حالة الطابو في كل إعلان.",
+  "id": "/",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "dir": "rtl",
+  "lang": "ar",
+  "background_color": "#14213D",
+  "theme_color": "#14213D",
+  "categories": ["business", "shopping", "lifestyle"],
+  "icons": [
+    { "src": "/brand/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/brand/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/brand/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/brand/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "للبيع", "url": "/search?deal=sale&source=pwa", "icons": [{ "src": "/brand/icon-192.png", "sizes": "192x192" }] },
+    { "name": "للإيجار", "url": "/search?deal=rent&source=pwa", "icons": [{ "src": "/brand/icon-192.png", "sizes": "192x192" }] },
+    { "name": "أضف إعلانك", "url": "/post?source=pwa", "icons": [{ "src": "/brand/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

@@ -15,6 +15,8 @@
 <meta property="og:locale:alternate" content="de_DE">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#14213D">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="بلكون"><meta name="mobile-web-app-capable" content="yes">
 <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="/brand/favicon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png">
@@ -2300,6 +2302,14 @@ body.rs-lock{overflow:hidden}
 .soon-acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .soon-acts .gold{text-decoration:none;border-radius:999px;padding:10px 18px}
 .soon-acts .gh{border-radius:999px;padding:10px 18px;margin:0}
+/* installable app: drawer row, phone banner, iOS steps, offline/update toasts */
+.pwa-row>span:not(.mi){display:flex;flex-direction:column;gap:2px}.pwa-row b{font-size:14px;color:var(--navy)}.pwa-row small{font-size:12px;color:var(--grey);line-height:1.5}.pwa-row>.mi{color:var(--gold)}
+.pwa-bar{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:9000;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 40px -18px rgba(9,14,26,.45);padding:10px 12px;display:flex;align-items:center;gap:10px;animation:heroRise .4s cubic-bezier(.2,.7,.2,1)}
+.pwa-bar img{width:42px;height:42px;border-radius:11px;flex:none}.pwa-bar .t{flex:1;min-width:0}.pwa-bar b{display:block;font-size:14px;color:var(--navy)}.pwa-bar small{display:block;font-size:12px;color:var(--grey);line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pwa-bar .go{background:var(--gold);color:#1A1206;border:0;border-radius:999px;padding:9px 14px;font:700 13px var(--fd);cursor:pointer;flex:none}.pwa-bar .later{background:none;border:0;color:var(--grey);font:600 12.5px var(--fd);cursor:pointer;padding:6px;flex:none}
+@media(min-width:861px){.pwa-bar{display:none}}
+.pwa-steps{list-style:none;display:grid;gap:10px;margin:14px 0 4px;text-align:start}.pwa-steps li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;color:var(--ink)}.pwa-steps i{font-style:normal;flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#1A1206;display:grid;place-items:center;font-weight:800;font-size:13px}
+.pwa-toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));z-index:9500;background:var(--navy);color:#fff;border-radius:999px;padding:10px 16px;font-size:13.5px;display:flex;gap:12px;align-items:center;box-shadow:0 14px 30px -14px rgba(9,14,26,.6);max-width:calc(100vw - 24px)}.pwa-toast button{background:var(--gold);color:#1A1206;border:0;border-radius:999px;padding:6px 12px;font:700 12.5px var(--fd);cursor:pointer}
 /* wanted (مطلوب) */
 .eyebrow .secnew{display:inline-block;vertical-align:middle;margin-inline-start:8px;font-style:normal;font-size:10px;font-weight:800;letter-spacing:.04em;color:#1A1206;background:var(--gold);border-radius:999px;padding:2px 8px;line-height:1.4;transform:translateY(-1px)}
 .wdir{padding:22px 18px 60px}
@@ -3017,6 +3027,7 @@ function mdrawer(){
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>'+
     acct+'<div class="mdw2-quick">'+tiles+'</div>'+
     sec(GX("mdDiscover"),discover)+sec(GX("mdServices"),services)+mine+sec(GX("mdSite"),site)+
+    '<div class="mdw2-sec" id="mdwInstallSec" hidden><a class="mdw2-row pwa-row" id="mdwInstall"><span class="mi">'+(MI.download||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span><b>'+GX("pwaInstall")+'</b><small>'+GX("pwaInstallSub")+'</small></span></a></div>'+
     ((langs||curs)?'<div class="mdw2-foot">'+langs+curs+'</div>':'')+
     (USER?'<div class="mdw2-sec"><a class="mdw2-row out" data-md="out"><span class="mi">'+(MI.out||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span>'+t("logout")+'</span></a></div>':'')+
   '</aside></div>' }
@@ -3046,6 +3057,7 @@ function wireDrawer(){
   if($("#hmb")) $("#hmb").onclick=function(e){ e.stopPropagation(); mdwOpen() };
   if($("#hpill")) $("#hpill").onclick=function(e){ e.stopPropagation(); mdwOpen() };
   $("#mdwX").onclick=mdwClose; $("#mdwBg").onclick=mdwClose;
+  if(window.PWA){ var isec=$("#mdwInstallSec"); if(isec){ isec.hidden=!PWA.installable(); var ib=$("#mdwInstall"); if(ib) ib.onclick=function(){ mdwClose(); PWA.install() } } }
   if(!window._mdwEsc){ window._mdwEsc=true; document.addEventListener("keydown",function(e){ if(e.key==="Escape") mdwClose() }) }
   if($("#mdIn")) $("#mdIn").onclick=function(){ mdwClose(); var b=$("#bIn"); if(b) b.click() };
   $$("[data-md]").forEach(function(a){ a.onclick=function(){ var el=$("#"+this.dataset.md); mdwClose(); if(el) el.click() } });
@@ -3077,6 +3089,7 @@ var MI=(function(){
     agency:w('<path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/>'),
     tower:w('<path d="M4 21h16M6 21V9l6-6 6 6v12"/><path d="M10 21v-4h4v4M9 12h.01M15 12h.01M9 16h.01M15 16h.01M12 3v3"/>'),
     wanted:w('<path d="M3 11 12 4l9 7"/><path d="M5 10v10h5"/><circle cx="15.5" cy="15.5" r="3.5"/><path d="m18 18 3 3"/>'),
+    download:w('<rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 7v7m-3-3 3 3 3-3M9 18h6"/>'),
     team:w('<circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0"/><circle cx="17" cy="9" r="3"/><path d="M15.5 20a5.5 5.5 0 0 1 6.5-4"/>'),
     areas:w('<path d="M3 6.5 9 4l6 2.5 6-2.5v13.5L15 20l-6-2.5-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>'),
     coll:w('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>'),
@@ -10665,7 +10678,14 @@ var GX_T={
   rsClearAll:{ar:"مسح الكل",en:"Clear all",de:"Alle löschen"}, rsFilters:{ar:"الفلاتر",en:"Filters",de:"Filter"}, rsSort:{ar:"الترتيب",en:"Sort",de:"Sortieren"},
   rsOnMap:{ar:"{n} على الخريطة",en:"{n} on the map",de:"{n} auf der Karte"}, rsList:{ar:"القائمة",en:"List",de:"Liste"},
   tEngage:{ar:"الحملات والحجوزات",en:"Engagements",de:"Buchungen"},
-  newTag:{ar:"جديد",en:"New",de:"Neu"}, guidesAll:{ar:"كل الأدلة",en:"All guides",de:"Alle Ratgeber"},
+  newTag:{ar:"جديد",en:"New",de:"Neu"},
+  pwaInstall:{ar:"ثبّت تطبيق بلكون",en:"Install the Balkoun app",de:"Balkoun-App installieren"}, pwaInstallSub:{ar:"أيقونة على شاشة هاتفك، يفتح أسرع ويعمل مع الشبكة الضعيفة.",en:"An icon on your phone. Opens faster and works on weak connections.",de:"Ein Symbol auf Ihrem Handy. Öffnet schneller und funktioniert bei schwachem Netz."},
+  pwaBannerT:{ar:"بلكون كتطبيق على هاتفك",en:"Balkoun as an app on your phone",de:"Balkoun als App auf Ihrem Handy"}, pwaBannerBtn:{ar:"تثبيت",en:"Install",de:"Installieren"}, pwaLater:{ar:"لاحقاً",en:"Later",de:"Später"},
+  pwaIosT:{ar:"إضافة بلكون إلى الشاشة الرئيسية",en:"Add Balkoun to your Home Screen",de:"Balkoun zum Home-Bildschirm hinzufügen"},
+  pwaIos1:{ar:"اضغط زر المشاركة في أسفل Safari",en:"Tap the Share button at the bottom of Safari",de:"Tippen Sie unten in Safari auf Teilen"}, pwaIos2:{ar:"اختر «إضافة إلى الشاشة الرئيسية»",en:"Choose “Add to Home Screen”",de:"Wählen Sie „Zum Home-Bildschirm“"}, pwaIos3:{ar:"اضغط «إضافة». ستجد أيقونة بلكون بين تطبيقاتك.",en:"Tap “Add”. The Balkoun icon appears with your apps.",de:"Tippen Sie auf „Hinzufügen“. Das Balkoun-Symbol erscheint bei Ihren Apps."},
+  pwaInstalled:{ar:"تم تثبيت التطبيق. افتحه من شاشتك الرئيسية.",en:"App installed. Open it from your home screen.",de:"App installiert. Öffnen Sie sie vom Home-Bildschirm."},
+  pwaOffline:{ar:"لا اتصال بالإنترنت. تعرض الصفحة آخر نسخة محفوظة.",en:"You are offline. Showing the last saved version.",de:"Keine Verbindung. Letzte gespeicherte Version wird angezeigt."},
+  pwaUpdate:{ar:"نسخة جديدة من بلكون متاحة",en:"A new version of Balkoun is ready",de:"Eine neue Version von Balkoun ist bereit"}, pwaReload:{ar:"تحديث",en:"Update",de:"Aktualisieren"}, guidesAll:{ar:"كل الأدلة",en:"All guides",de:"Alle Ratgeber"},
   wDir:{ar:"مطلوب: طلبات المشترين والمستأجرين",en:"Wanted: what buyers and tenants are looking for",de:"Gesucht: was Käufer und Mieter suchen"}, wDirShort:{ar:"مطلوب",en:"Wanted",de:"Gesucht"},
   wDirP:{ar:"هنا يكتب الأعضاء ما يبحثون عنه: المنطقة، الميزانية، والتفاصيل. إذا كان لديك عقار يناسب طلباً، تواصل مع صاحبه مباشرة.",en:"Members describe what they are looking for: the area, the budget and the details. If you have a property that fits, contact them directly.",de:"Mitglieder beschreiben, was sie suchen: Gegend, Budget und Details. Passt Ihre Immobilie, nehmen Sie direkt Kontakt auf."},
   wPost:{ar:"أضف طلبك",en:"Post your request",de:"Anfrage aufgeben"}, wMine:{ar:"طلباتي",en:"My requests",de:"Meine Anfragen"}, wAll:{ar:"كل الطلبات",en:"All requests",de:"Alle Anfragen"},
@@ -11044,7 +11064,7 @@ var HS_T={
  f_opening:{ar:"مشهد الافتتاح (كلمة بلكون تصعد ثم يهبط الرأس)",en:"Opening scene (the word rises, then the header drops in)",de:"Eröffnungsszene (Wort steigt, Kopfzeile fällt ein)"}, f_cursor:{ar:"نقطة المؤشر الذهبية (كمبيوتر)",en:"Gold cursor dot (desktop)",de:"Goldener Cursorpunkt (Desktop)"},
  f_phMode:{ar:"العنوان على الجوال",en:"Headline on the phone",de:"Überschrift am Handy"}, ph_after:{ar:"يدخل بعد انتهاء الرسم ويدفعه جانباً",en:"Enters after the drawing rests and pushes it aside",de:"Kommt nach der Zeichnung und schiebt sie beiseite"}, ph_now:{ar:"يظهر مباشرة فوق الرسم",en:"Shows immediately over the drawing",de:"Sofort über der Zeichnung"},
  f_secPad:{ar:"المسافة بين الأقسام (px)",en:"Space between sections (px)",de:"Abstand zwischen Abschnitten (px)"},
- g_logo:{ar:"الشعار",en:"Logo",de:"Logo"}, f_logoVar:{ar:"شكل الشعار في الترويسة والقائمة",en:"Logo in the header and menu",de:"Logo in Kopfzeile und Menü"}, lv_full:{ar:"الرمز + بلكون + BALKOUN",en:"Mark + بلكون + BALKOUN",de:"Zeichen + بلكون + BALKOUN"}, lv_mw:{ar:"الرمز + بلكون",en:"Mark + بلكون",de:"Zeichen + بلكون"}, lv_word:{ar:"الاسم فقط",en:"Name only",de:"Nur der Name"}, f_logoH:{ar:"ارتفاع الرمز (px)",en:"Mark height (px)",de:"Höhe des Zeichens (px)"}, g_motion:{ar:"الحركة",en:"Motion",de:"Bewegung"}, g_spacing:{ar:"المسافات",en:"Spacing",de:"Abstände"},
+ g_logo:{ar:"الشعار",en:"Logo",de:"Logo"}, g_pwa:{ar:"التطبيق على الهاتف",en:"Phone app",de:"Handy-App"}, f_pwaBanner:{ar:"إظهار شريط «ثبّت التطبيق» على الهاتف",en:"Show the install-app bar on phones",de:"Leiste 'App installieren' auf Handys zeigen"}, f_pwaDays:{ar:"إعادة إظهاره بعد (أيام)",en:"Show again after (days)",de:"Erneut zeigen nach (Tagen)"}, f_logoVar:{ar:"شكل الشعار في الترويسة والقائمة",en:"Logo in the header and menu",de:"Logo in Kopfzeile und Menü"}, lv_full:{ar:"الرمز + بلكون + BALKOUN",en:"Mark + بلكون + BALKOUN",de:"Zeichen + بلكون + BALKOUN"}, lv_mw:{ar:"الرمز + بلكون",en:"Mark + بلكون",de:"Zeichen + بلكون"}, lv_word:{ar:"الاسم فقط",en:"Name only",de:"Nur der Name"}, f_logoH:{ar:"ارتفاع الرمز (px)",en:"Mark height (px)",de:"Höhe des Zeichens (px)"}, g_motion:{ar:"الحركة",en:"Motion",de:"Bewegung"}, g_spacing:{ar:"المسافات",en:"Spacing",de:"Abstände"},
  upload:{ar:"رفع ملف…",en:"Upload…",de:"Hochladen…"}, uploading:{ar:"جارٍ الرفع…",en:"Uploading…",de:"Lädt hoch…"}, clearImg:{ar:"الافتراضية",en:"Default",de:"Standard"},
  previewNote:{ar:"المعاينة هي الصفحة الحقيقية بإعداداتك غير المحفوظة. لا تُسجَّل زياراتها في الإحصائيات.",en:"The preview is the real page with your unsaved settings. Its visits are not counted in analytics.",de:"Die Vorschau ist die echte Seite mit ungespeicherten Einstellungen. Ihre Aufrufe zählen nicht."},
  row:{ar:"إعدادات الصف",en:"Row settings",de:"Reihe"}, look:{ar:"شكل المربع",en:"Square design",de:"Kachel-Design"}, perf:{ar:"الأداء",en:"Performance",de:"Leistung"},
@@ -11289,6 +11309,7 @@ function hsInspHome(){
   } else if(sd==="projects"){
     H.push(fSwitch(hsT("showSec"),"x:home_projects_on",true,true), fNum(hsT("f_pjN"),"x:home_projects_n",1,12,1,6,true), fHint(hsT("textsHint")), fSecTexts("projects",GX("pjSecEyebrow"),GX("pjSecH"),GX("pjSecSub")));
   } else if(sd==="page"){
+    H.push(fGrp(hsT("g_pwa")), fSwitch(hsT("f_pwaBanner"),"x:pwa_banner",true,false), fNum(hsT("f_pwaDays"),"x:pwa_banner_days",1,90,1,14,false));
     H.push(fGrp(hsT("g_logo")), fSel(hsT("f_logoVar"),"x:logo_variant",[["full",hsT("lv_full")],["markword",hsT("lv_mw")],["word",hsT("lv_word")]],"full",true), fSlider(hsT("f_logoH"),"x:logo_h","x:logo_h_m",22,48,1,"px",phone?30:34));
     H.push(fGrp(hsT("g_motion")), fHint(hsT("devOnlyHint")), fSwitch(hsT("f_opening"),"x:opening_enabled",true));
     if(!phone) H.push(fSwitch(hsT("f_cursor"),"x:cursor_dot_enabled",true,true));
@@ -11946,6 +11967,41 @@ if(USER&&DB){
     startNotifPolling();
   }).catch(function(){ /* network/connection failure — not a verdict on the session, so it stays as-is */ });
 }
+/* ═══ installable app (PWA) ═══ */
+window.PWA=(function(){
+  var deferred=null, standalone=window.matchMedia("(display-mode: standalone)").matches || navigator.standalone===true, ios=/iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream, iosSafari=ios && /safari/i.test(navigator.userAgent) && !/crios|fxios|edgios/i.test(navigator.userAgent);
+  function installable(){ return !standalone && !PREVIEW && (!!deferred || iosSafari) }
+  function refreshDrawer(){ var sec=document.getElementById("mdwInstallSec"); if(sec) sec.hidden=!installable() }
+  function toast(msg,btn,fn){ var old=document.getElementById("pwaToast"); if(old) old.remove(); var d=document.createElement("div"); d.className="pwa-toast"; d.id="pwaToast"; d.innerHTML='<span>'+msg+'</span>'+(btn?'<button type="button">'+btn+'</button>':''); document.body.appendChild(d); if(btn) d.querySelector("button").onclick=fn; if(!btn) setTimeout(function(){ d.remove() },4500) }
+  function iosSteps(){ var old=$("#soonM"); if(old) old.remove(); var d=document.createElement("div"); d.className="soon-m"; d.id="soonM";
+    d.innerHTML='<div class="soon-bg"></div><div class="soon-c" role="dialog" aria-modal="true"><button type="button" class="soon-x" aria-label="'+GX("mdClose")+'">×</button><div class="soon-ico">'+MI.download+'</div><h3>'+GX("pwaIosT")+'</h3><ol class="pwa-steps"><li><i>1</i><span>'+GX("pwaIos1")+'</span></li><li><i>2</i><span>'+GX("pwaIos2")+'</span></li><li><i>3</i><span>'+GX("pwaIos3")+'</span></li></ol></div>';
+    document.body.appendChild(d); var close=function(){ d.remove() }; d.querySelector(".soon-x").onclick=close; d.querySelector(".soon-bg").onclick=close }
+  function install(){ if(deferred){ var p=deferred; deferred=null; p.prompt(); p.userChoice.then(function(r){ if(r&&r.outcome==="accepted"){ toast(GX("pwaInstalled")) } else { deferred=p } refreshDrawer(); hideBar() }).catch(function(){}) } else if(iosSafari){ iosSteps() } }
+  function hideBar(){ var b=document.getElementById("pwaBar"); if(b) b.remove() }
+  function bar(){
+    if(!installable() || window.innerWidth>860 || SX("pwa_banner",true)===false || VIEW==="admin") return;
+    try{ var until=+localStorage.getItem("bk_pwa_snooze")||0; if(Date.now()<until) return }catch(e){}
+    if(document.getElementById("pwaBar")) return;
+    var d=document.createElement("div"); d.className="pwa-bar"; d.id="pwaBar";
+    d.innerHTML='<img src="/brand/icon-192.png" alt=""><div class="t"><b>'+GX("pwaBannerT")+'</b><small>'+GX("pwaInstallSub")+'</small></div><button type="button" class="go">'+GX("pwaBannerBtn")+'</button><button type="button" class="later" aria-label="'+GX("pwaLater")+'">✕</button>';
+    document.body.appendChild(d);
+    var snooze=function(){ try{ localStorage.setItem("bk_pwa_snooze", String(Date.now()+ (+SX("pwa_banner_days",14)||14)*86400000)) }catch(e){} hideBar() };
+    d.querySelector(".go").onclick=function(){ snooze(); install() }; d.querySelector(".later").onclick=snooze;
+  }
+  window.addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); deferred=e; refreshDrawer(); setTimeout(bar, 6000) });
+  window.addEventListener("appinstalled", function(){ deferred=null; hideBar(); refreshDrawer(); toast(GX("pwaInstalled")) });
+  if(iosSafari && !standalone) setTimeout(bar, 9000);
+  if("serviceWorker" in navigator && !PREVIEW && (location.protocol==="https:" || location.hostname==="localhost")){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("/sw.js").then(function(reg){
+        // a new worker installed while the page is open: offer a one-tap update
+        reg.addEventListener("updatefound", function(){ var nw=reg.installing; if(!nw) return; nw.addEventListener("statechange", function(){ if(nw.state==="installed" && navigator.serviceWorker.controller){ toast(GX("pwaUpdate"), GX("pwaReload"), function(){ nw.postMessage("skipWaiting"); location.reload() }) } }) });
+      }).catch(function(){});
+    });
+  }
+  window.addEventListener("offline", function(){ toast(GX("pwaOffline")) });
+  return { installable:installable, install:install, standalone:standalone, ios:iosSafari };
+})();
 applyGeoCache();
 Promise.all([loadListings(),loadCounts(),loadSiteContent(),loadAdSlots(),loadGeo()]).then(function(){ render(); initCursor(); startAdRotation(); startAdCarouselRotation(); startBannerRotation(); startFeaturedPolling(); startListingsPolling() });
 </script></body></html>
