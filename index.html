@@ -2314,6 +2314,18 @@ body.rs-lock{overflow:hidden}
 @media(min-width:861px){.pwa-bar{display:none}}
 .pwa-steps{list-style:none;display:grid;gap:10px;margin:14px 0 4px;text-align:start}.pwa-steps li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;color:var(--ink)}.pwa-steps i{font-style:normal;flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#1A1206;display:grid;place-items:center;font-weight:800;font-size:13px}
 .pwa-toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));z-index:9500;background:var(--navy);color:#fff;border-radius:999px;padding:10px 16px;font-size:13.5px;display:flex;gap:12px;align-items:center;box-shadow:0 14px 30px -14px rgba(9,14,26,.6);max-width:calc(100vw - 24px)}.pwa-toast button{background:var(--gold);color:#1A1206;border:0;border-radius:999px;padding:6px 12px;font:700 12.5px var(--fd);cursor:pointer}
+/* all areas, in-app */
+.arx{padding:22px 18px 60px}.arx-stats{margin-top:10px;font-size:13.5px;color:var(--grey)}.arx-stats b{color:var(--navy)}
+.arx .ag-hero .gold{display:inline-flex;align-items:center;gap:8px}.arx .ag-hero .gold .mi{display:inline-flex}.arx .ag-hero .gold svg{width:18px;height:18px}
+.arx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-top:18px}
+.arx-gov{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:flex;flex-direction:column;gap:10px}
+.arx-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}.arx-head h2{font-size:18px;font-weight:800;margin:0}.arx-head h2 a{cursor:pointer;color:var(--navy)}.arx-head h2 a:hover{color:var(--gold-dk,#8A6522)}
+.arx-n{font-size:12px;color:var(--light);white-space:nowrap}.arx-n.has{color:var(--gold-dk,#8A6522);font-weight:700}
+.arx-links{display:flex;gap:14px;font-size:13.5px}.arx-links a{color:var(--gold-dk,#8A6522);font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px}.arx-links .mi{display:inline-flex}.arx-links svg{width:14px;height:14px}
+.arx-areas{display:flex;flex-wrap:wrap;gap:6px}.arx-areas a{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;font-size:12.5px;color:var(--ink);cursor:pointer;background:#fff}.arx-areas a:hover{border-color:var(--gold)}
+.arx-areas a.has{border-color:var(--gold);background:var(--gold-w);color:var(--navy);font-weight:600}.arx-areas a.has b{color:var(--gold-dk,#8A6522)}
+.arx-more{border:0;background:none;color:var(--grey);font:600 12.5px var(--fd);cursor:pointer;padding:4px 6px;text-decoration:underline;text-underline-offset:3px}
+@media(max-width:640px){.arx .ag-hero{flex-direction:column;align-items:flex-start}}
 /* wanted (مطلوب) */
 .eyebrow .secnew{display:inline-block;vertical-align:middle;margin-inline-start:8px;font-style:normal;font-size:10px;font-weight:800;letter-spacing:.04em;color:#1A1206;background:var(--gold);border-radius:999px;padding:2px 8px;line-height:1.4;transform:translateY(-1px)}
 .wdir{padding:22px 18px 60px}
@@ -2993,15 +3005,15 @@ var NAVI=[
   {k:"buy",g:"search",lab:function(){return t("buy")},ico:"buy",attrs:'data-go="search" data-deal="sale"',o:10},
   {k:"rent",g:"search",lab:function(){return t("rent")},ico:"rent",attrs:'data-go="search" data-deal="rent" data-sec=""',o:20},
   {k:"map",g:"search",lab:function(){return t("searchOnMap")},ico:"map",attrs:'data-go="mapsearch"',o:30},
-  {k:"areas",g:"search",lab:function(){return GX("allAreas")},ico:"areas",attrs:function(){ return 'href="'+(L==="ar"?"":"/"+L)+'/areas/"' },o:40},
+  {k:"areas",g:"search",lab:function(){return GX("allAreas")},ico:"areas",attrs:'data-go="areas"',o:40},
   {k:"projects",g:"discover",lab:function(){return GX("pjDirShort")},ico:"tower",attrs:'data-go="projects"',o:48,tag:"soon"},
   {k:"wanted",g:"discover",lab:function(){return GX("wDirShort")},ico:"wanted",attrs:'data-go="wanted"',o:47,tag:"newTag",hide:function(){ return !wantedOn() }},
   {k:"coll",g:"discover",lab:function(){return HX("navColl")},ico:"coll",attrs:'data-mdscroll="collsSec"',o:50},
   {k:"expl",g:"discover",lab:function(){return HX("navAreas")},ico:"expl",attrs:'data-mdscroll="explSec"',o:60},
   {k:"guide",g:"discover",lab:function(){return HX("navGuide")},ico:"guide",attrs:'data-mdscroll="guidesSec"',o:70},
   {k:"legal",g:"services",lab:function(){return GX("navLegalBoth")},ico:"legal",attrs:'data-soon="legal"',o:72,soon:true},
-  {k:"about",g:"site",lab:function(){return t("about")},ico:"about",attrs:function(){ return 'href="'+(L==="ar"?"":"/"+L)+'/about/"' },o:80},
-  {k:"contactus",g:"site",lab:function(){return t("contactUsPageT")},ico:"phone",attrs:function(){ return 'href="'+(L==="ar"?"":"/"+L)+'/contactus/"' },o:90},
+  {k:"about",g:"site",lab:function(){return t("about")},ico:"about",attrs:'data-go="about"',o:80},
+  {k:"contactus",g:"site",lab:function(){return t("contactUsPageT")},ico:"phone",attrs:'data-go="contactus"',o:90},
   {k:"contact",g:"site",lab:function(){return t("contactUs")},ico:"mail",attrs:'data-go="contact"',o:100},
   {k:"agencies",g:"site",lab:function(){return GX("agDirShort")},ico:"agency",attrs:'data-go="agencies"',o:110}
 ];
@@ -6212,6 +6224,31 @@ function initViewMap(lat,lng){
    on its own dedicated, rarely-re-rendered view — and being strict
    about cleanup — avoids that whole class of failure. ═══ */
 var MAPSEARCH = {deal:"sale", gov:"", area:"", type:"", tabu:"", filtersOpen:false};
+/* ═══ all governorates and areas, inside the app ═══ */
+var ARX={open:{}};
+function areasView(){
+  var live=D.LIST.filter(function(x){ return !x.status||x.status==="live" }), byG={}, byA={};
+  live.forEach(function(x){ byG[x.g]=(byG[x.g]||0)+1; if(x.a) byA[x.g+"|"+x.a]=(byA[x.g+"|"+x.a]||0)+1 });
+  var govs=Object.keys(D.GEO), totalAreas=govs.reduce(function(n,g){ return n+(D.GEO[g]||[]).length },0);
+  govs.sort(function(a,b){ return (byG[b]||0)-(byG[a]||0) });
+  var cards=govs.map(function(g){
+    var areas=(D.GEO[g]||[]).slice(); var withL=areas.filter(function(a){ return byA[g+"|"+a] }).sort(function(a,b){ return byA[g+"|"+b]-byA[g+"|"+a] }); var rest=areas.filter(function(a){ return !byA[g+"|"+a] });
+    var open=!!ARX.open[g], shownRest=open?rest:rest.slice(0, Math.max(0, 8-withL.length));
+    return '<section class="arx-gov"><div class="arx-head"><h2><a data-arxg="'+esc(g)+'">'+gN(g)+'</a></h2><span class="arx-n'+(byG[g]?' has':'')+'">'+(byG[g]?GX("arxCount").replace("{n}",'<b class="ltr">'+byG[g]+'</b>'):GX("arxNone"))+'</span></div>'+
+      '<div class="arx-links"><a data-arxg="'+esc(g)+'" data-deal="sale">'+t("forsale")+'</a><a data-arxg="'+esc(g)+'" data-deal="rent">'+t("forrent")+'</a><a data-arxmap="'+esc(g)+'">'+MI.map+GX("arxMap")+'</a></div>'+
+      '<div class="arx-areas">'+withL.map(function(a){ return '<a class="has" data-arxa="'+esc(a)+'" data-g="'+esc(g)+'">'+aN(a)+' <b class="ltr">'+byA[g+"|"+a]+'</b></a>' }).join("")+shownRest.map(function(a){ return '<a data-arxa="'+esc(a)+'" data-g="'+esc(g)+'">'+aN(a)+'</a>' }).join("")+
+        (rest.length>shownRest.length?'<button type="button" class="arx-more" data-arxmore="'+esc(g)+'">'+GX("arxMore").replace("{n}",'<span class="ltr">'+(rest.length-shownRest.length)+'</span>')+'</button>':(open&&rest.length>8?'<button type="button" class="arx-more" data-arxmore="'+esc(g)+'">'+GX("arxLess")+'</button>':''))+'</div></section>' }).join("");
+  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("allAreas")+'</div></div>'+
+   '<div class="wrap arx"><div class="ag-hero"><div><div class="eyebrow">'+GX("allAreas")+'</div><h1>'+GX("arxT")+'</h1><p>'+GX("arxP")+'</p><div class="arx-stats">'+GX("arxStats").replace("{g}",'<b class="ltr">'+govs.length+'</b>').replace("{a}",'<b class="ltr">'+totalAreas+'</b>').replace("{n}",'<b class="ltr">'+live.length+'</b>')+'</div></div><a class="gold" data-go="mapsearch">'+MI.map+t("searchOnMap")+'</a></div>'+
+   '<div class="arx-grid">'+cards+'</div></div>' }
+function wireAreasView(){
+  if(VIEW!=="areas") return;
+  var go=function(govs,areas,deal){ F.govs=govs; F.areas=areas; F.g=""; F.a=""; F.page=1; if(deal!==undefined) F.deal=deal; VIEW="search"; scrollTo(0,0); render() };
+  $$("[data-arxg]").forEach(function(a){ a.onclick=function(){ go([this.dataset.arxg],[], this.dataset.deal!==undefined?this.dataset.deal:F.deal) } });
+  $$("[data-arxa]").forEach(function(a){ a.onclick=function(){ go([this.dataset.g],[this.dataset.arxa]) } });
+  $$("[data-arxmap]").forEach(function(a){ a.onclick=function(){ F.govs=[this.dataset.arxmap]; F.areas=[]; F.g=""; F.a=""; VIEW="mapsearch"; scrollTo(0,0); render() } });
+  $$("[data-arxmore]").forEach(function(b){ b.onclick=function(){ var g=this.dataset.arxmore; ARX.open[g]=!ARX.open[g]; var y=scrollY; render(); scrollTo(0,y) } });
+}
 /* ═══ مطلوب: members post what they are looking for ═══ */
 var WANTED=null, WANTEDONE=null, MYWANTED=null, WF={deal:"",g:"",t:"",tab:"all"}, WEDIT=null, ADM_W=null;
 function wantedOn(){ return SX("wanted_enabled",true)!==false }
@@ -7187,7 +7224,7 @@ function wire(){
    if(it){ it.photos = ph || []; GI=0; render() } }});
 
  $$("[data-soon]").forEach(function(a){ a.onclick=function(e){ e.preventDefault(); e.stopPropagation(); mdwClose(); soonOpen(this.dataset.soon) } });
- wireAgencies(); wireProjects(); wireWanted();
+ wireAgencies(); wireProjects(); wireWanted(); wireAreasView();
  $$("[data-deal2]").forEach(function(e){ e.onclick=function(){
    HOMEDEAL=e.dataset.deal2; F.deal=HOMEDEAL; render() }});
  wireAuth();
@@ -9817,6 +9854,7 @@ function routePath(){
          VIEW.indexOf("agency:")===0 ? "/agency/"+VIEW.split(":")[1] :
          VIEW.indexOf("project:")===0 ? "/project/"+VIEW.split(":")[1] :
          VIEW.indexOf("wanted:")===0 ? "/wanted/"+VIEW.split(":")[1] :
+         VIEW==="areas" ? "/regions" :
          (VIEW==="about"||VIEW==="contactus") ? "/"+VIEW+"/" :   // these also exist as static pages
          "/"+VIEW+(VIEW==="search"?filterToQuery():"");
 }
@@ -9825,7 +9863,7 @@ var PAGE_T={
   post:{ar:"أضف إعلانك",en:"Post a listing",de:"Anzeige aufgeben"}, mine:{ar:"إعلاناتي",en:"My listings",de:"Meine Anzeigen"},
   saved:{ar:"المحفوظات",en:"Saved",de:"Gespeichert"}, searches:{ar:"عمليات البحث المحفوظة",en:"Saved searches",de:"Gespeicherte Suchen"},
   msgs:{ar:"الرسائل",en:"Messages",de:"Nachrichten"}, account:{ar:"حسابي",en:"My account",de:"Mein Konto"},
-  about:{ar:"عن بلكون",en:"About Balkoun",de:"Über Balkoun"}, contact:{ar:"تواصل معنا",en:"Contact us",de:"Kontakt"}, contactus:{ar:"تواصل معنا",en:"Contact us",de:"Kontakt"},
+  about:{ar:"عن بلكون",en:"About Balkoun",de:"Über Balkoun"}, contact:{ar:"تواصل معنا",en:"Contact us",de:"Kontakt"}, contactus:{ar:"تواصل معنا",en:"Contact us",de:"Kontakt"}, areas:{ar:"كل المحافظات والمناطق",en:"All governorates and areas",de:"Alle Gouvernements und Gegenden"},
   admin:{ar:"لوحة الإدارة",en:"Admin",de:"Verwaltung"}, listing:{ar:"تفاصيل العقار",en:"Property details",de:"Immobiliendetails"}, by:{ar:"إعلانات المعلن",en:"Seller listings",de:"Anzeigen des Anbieters"},
   agencies:{ar:"دليل المكاتب العقارية",en:"Real estate agencies",de:"Immobilienbüros"}, agency:{ar:"مكتب عقاري",en:"Agency",de:"Immobilienbüro"}, agencyform:{ar:"بيانات المكتب",en:"Agency profile",de:"Büroprofil"},
   projects:{ar:"مشاريع جديدة وقيد الإنشاء",en:"New projects",de:"Neubauprojekte"}, project:{ar:"مشروع",en:"Project",de:"Projekt"},
@@ -9859,6 +9897,7 @@ function viewFromHash(){
   if(p[0]==="agency"&&p[1]) return "agency:"+(p[1].match(/^\d+/)||[p[1]])[0];
   if(p[0]==="project"&&p[1]) return "project:"+(p[1].match(/^\d+/)||[p[1]])[0];
   if(p[0]==="wanted"&&p[1]) return "wanted:"+(p[1].match(/^\d+/)||[p[1]])[0];
+  if(p[0]==="regions") return "areas";
   if(["search","post","mine","saved","searches","msgs","account","about","contact","contactus","admin","mapsearch","agencies","agencyform","projects","wanted","wantedform"].indexOf(p[0])>-1){
     if(p[0]==="search" && qs) applyFilterFromQuery(qs);
     return p[0];
@@ -9937,7 +9976,7 @@ function render(){
  if(VIEW!==_lastRenderedView){ _lastRenderedView=VIEW; refreshListingsOnNavigate(); }
  document.documentElement.lang=L; document.documentElement.dir=D.I18N[L].dir;
  var body= VIEW==="home"?home(): VIEW==="search"?search(): VIEW==="post"?post():
-          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): listing(VIEW.split(":")[1]);
+          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="areas"?areasView(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): listing(VIEW.split(":")[1]);
  document.body.classList.remove("mdw-open");
  $("#app").innerHTML=header()+body+footer()+authModal()+reportModal();
  // home page only: the header sits transparent over the hero photo/video
@@ -10685,6 +10724,8 @@ var GX_T={
   rsOnMap:{ar:"{n} على الخريطة",en:"{n} on the map",de:"{n} auf der Karte"}, rsList:{ar:"القائمة",en:"List",de:"Liste"},
   tEngage:{ar:"الحملات والحجوزات",en:"Engagements",de:"Buchungen"},
   newTag:{ar:"جديد",en:"New",de:"Neu"},
+  arxT:{ar:"كل المحافظات والمناطق",en:"All governorates and areas",de:"Alle Gouvernements und Gegenden"}, arxP:{ar:"اختر محافظة أو منطقة لترى إعلاناتها. المناطق التي فيها إعلانات تظهر بلون ذهبي.",en:"Pick a governorate or an area to see its listings. Areas with listings are shown in gold.",de:"Wählen Sie ein Gouvernement oder eine Gegend, um ihre Anzeigen zu sehen. Gegenden mit Anzeigen sind goldfarben."},
+  arxStats:{ar:"{g} محافظة · {a} منطقة · {n} إعلان",en:"{g} governorates · {a} areas · {n} listings",de:"{g} Gouvernements · {a} Gegenden · {n} Anzeigen"}, arxCount:{ar:"{n} إعلان",en:"{n} listings",de:"{n} Anzeigen"}, arxNone:{ar:"لا إعلانات بعد",en:"No listings yet",de:"Noch keine Anzeigen"}, arxMore:{ar:"+{n} منطقة أخرى",en:"+{n} more areas",de:"+{n} weitere Gegenden"}, arxLess:{ar:"إظهار أقل",en:"Show less",de:"Weniger"}, arxMap:{ar:"الخريطة",en:"Map",de:"Karte"},
   pwaInstall:{ar:"ثبّت تطبيق بلكون",en:"Install the Balkoun app",de:"Balkoun-App installieren"}, pwaInstallSub:{ar:"أيقونة على شاشة هاتفك، يفتح أسرع ويعمل مع الشبكة الضعيفة.",en:"An icon on your phone. Opens faster and works on weak connections.",de:"Ein Symbol auf Ihrem Handy. Öffnet schneller und funktioniert bei schwachem Netz."},
   pwaBannerT:{ar:"بلكون كتطبيق على هاتفك",en:"Balkoun as an app on your phone",de:"Balkoun als App auf Ihrem Handy"}, pwaBannerBtn:{ar:"تثبيت",en:"Install",de:"Installieren"}, pwaLater:{ar:"لاحقاً",en:"Later",de:"Später"},
   pwaIosT:{ar:"إضافة بلكون إلى الشاشة الرئيسية",en:"Add Balkoun to your Home Screen",de:"Balkoun zum Home-Bildschirm hinzufügen"},
