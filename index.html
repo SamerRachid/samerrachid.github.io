@@ -93,9 +93,10 @@ header{background:var(--navy);color:#fff}
 @media(max-width:700px){.home-hero .hero-outer{padding-top:60px}}
 @media(max-width:640px){.home-hero .hero-outer{padding-top:58px}}
 .hbar{display:flex;align-items:center;gap:22px;height:62px}
-.hbar .hpill{order:0}.hbar .hnav{order:1}.hbar .htools{order:2}.hbar .logo{order:3;margin-inline-start:6px}
-/* the lockup keeps one shape in every language: mark on the right, Latin line right-aligned under the Arabic name */
-[dir=ltr] .blogo{flex-direction:row-reverse}[dir=ltr] .blogo-w{align-items:flex-end}
+@media(min-width:861px){.hbar{direction:ltr}}.hbar .hpill{order:0}.hbar .hnav{order:1}.hbar .htools{order:2}.hbar .logo{order:3;margin-left:6px}
+[dir=rtl] .hbar .menu,[dir=rtl] .hbar .chip2,[dir=rtl] .hbar .notifmenu,[dir=rtl] .hbar #langChip{direction:rtl}
+/* the lockup keeps one shape everywhere: mark on the right, Latin line right-aligned under the Arabic name */
+.blogo{direction:ltr;flex-direction:row-reverse}.blogo-w{align-items:flex-end}
 .logo{padding:5px 13px;border:1px dashed rgba(255,255,255,.35);border-radius:var(--r-s);font-weight:700;font-size:19px;color:var(--gold)}
 .hnav{display:flex;gap:20px;font-size:14.5px;color:rgba(255,255,255,.86)}
 .hnav a{cursor:pointer}
@@ -1286,7 +1287,7 @@ footer{font-size:14px}
 /* the lockup: mark, then the Arabic name with the Latin name tucked under it */
 .blogo{display:inline-flex;align-items:center;gap:calc(var(--logo-h,34px) * .08);text-decoration:none;color:#CFC4AE;padding:0}
 .blogo .bmark{width:calc(var(--logo-h,34px) * 1.12);height:calc(var(--logo-h,34px) * 1.12);flex:none;display:block;margin:calc(var(--logo-h,34px) * -.06) 0}
-.blogo-w{display:flex;flex-direction:column;align-items:flex-start;line-height:1}
+.blogo-w{display:flex;flex-direction:column;line-height:1}
 .blogo-w b{font-family:var(--fd);font-weight:800;font-size:calc(var(--logo-h,34px) * .66);letter-spacing:.01em;color:inherit}
 .blogo-w small{font:700 calc(var(--logo-h,34px) * .26) Lato,sans-serif;letter-spacing:.34em;color:#9DB0CC;margin-top:calc(var(--logo-h,34px) * .1);text-transform:uppercase;padding-inline-start:.1em}
 .mdw-top .blogo{color:#CFC4AE}
@@ -2552,12 +2553,12 @@ body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
 .hmb-dot{position:absolute;top:5px;inset-inline-end:5px;width:10px;height:10px;border-radius:50%;background:var(--danger);border:2px solid #1B2C52}
 .lg-globe,.lg-code{display:none}
 @media(max-width:860px){
-  .hbar{display:flex;align-items:center;gap:8px}
-  .hbar .hmb{display:grid;order:0;width:40px;height:40px;background:transparent;border-color:transparent;margin-inline-start:-8px}
+  .hbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
+  .hbar .hmb{display:grid;grid-column:1;justify-self:start;width:40px;height:40px;background:transparent;border-color:transparent;margin-inline-start:-8px}
   .hbar .hmb svg{width:26px;height:26px}
-  .hbar .logo{order:3;margin-inline-start:auto}
+  .hbar .logo{grid-column:2;justify-self:center;order:0;margin:0}
   .hbar .hnav{display:none}
-  .hbar .htools{order:1;margin-inline-start:0;gap:10px}
+  .hbar .htools{grid-column:3;justify-self:end;margin-inline-start:0;gap:10px}
   #cur,.chipname,.chip2 .chev,.htools .gold{display:none}
   #bIn{display:none} body.nav-login-m #bIn{display:inline-block}
   .acct{display:none} body.nav-avatar-m .acct{display:block}
@@ -2576,6 +2577,7 @@ body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
 .mdw-bg{position:absolute;inset:0;background:rgba(9,14,26,.55);animation:mdwfade .25s ease}
 .mdw-p{position:absolute;top:0;bottom:0;inset-inline-start:0;width:min(86vw,360px);background:#fff;overflow-y:auto;display:flex;flex-direction:column;box-shadow:0 0 60px -10px rgba(9,14,26,.6);animation:mdwin .32s cubic-bezier(.22,.61,.36,1);padding-bottom:calc(20px + env(safe-area-inset-bottom))}
 [dir=rtl] .mdw-p{animation-name:mdwin-r}
+@media(min-width:861px){[dir=rtl] .mdw-p{inset-inline-start:auto;left:0;animation-name:mdwin}}
 @keyframes mdwin{from{transform:translateX(-100%)}to{transform:none}}
 @keyframes mdwin-r{from{transform:translateX(100%)}to{transform:none}}
 @keyframes mdwfade{from{opacity:0}to{opacity:1}}
@@ -2788,15 +2790,9 @@ function detectLang(){
     var saved = localStorage.getItem("balkoun_lang");
     if(saved && D.I18N[saved]) return saved;
   }catch(e){}
-  try{
-    var langs = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language||navigator.userLanguage||""];
-    for(var i=0;i<langs.length;i++){
-      var c=(langs[i]||"").toLowerCase();
-      if(c.indexOf("ar")===0) return "ar";
-      if(c.indexOf("de")===0) return "de";
-    }
-  }catch(e){}
-  return "en";
+  // the site opens in Arabic for every new visitor, on any device and from any country (site owner's decision);
+  // the language switch in the header stores the visitor's own choice and wins from then on
+  return "ar";
 }
 function detectCurrency(){
   try{
