@@ -1281,14 +1281,14 @@ footer{font-size:14px}
 .hero h1{letter-spacing:-.005em;line-height:1.35}
 .logo{border:0;padding:4px 0;font-size:24px;letter-spacing:.01em;line-height:1}
 /* the lockup: mark, then the Arabic name with the Latin name tucked under it */
-.blogo{display:inline-flex;align-items:center;gap:9px;text-decoration:none;color:#F4F2ED;padding:0}
-.blogo .bmark{width:var(--logo-h,34px);height:var(--logo-h,34px);flex:none;display:block}
+.blogo{display:inline-flex;align-items:center;gap:calc(var(--logo-h,34px) * .08);text-decoration:none;color:#CFC4AE;padding:0}
+.blogo .bmark{width:calc(var(--logo-h,34px) * 1.12);height:calc(var(--logo-h,34px) * 1.12);flex:none;display:block;margin:calc(var(--logo-h,34px) * -.06) 0}
 .blogo-w{display:flex;flex-direction:column;align-items:flex-start;line-height:1}
 .blogo-w b{font-family:var(--fd);font-weight:800;font-size:calc(var(--logo-h,34px) * .66);letter-spacing:.01em;color:inherit}
 .blogo-w small{font:700 calc(var(--logo-h,34px) * .26) Lato,sans-serif;letter-spacing:.34em;color:#9DB0CC;margin-top:calc(var(--logo-h,34px) * .1);text-transform:uppercase;padding-inline-start:.1em}
-.mdw-top .blogo{color:#F4F2ED}
-.au-brand .blogo{color:#F4F2ED;--logo-h:30px}
-@media(max-width:860px){.blogo{--logo-h:var(--logo-h-m,30px);gap:7px}.mdw-top .blogo{--logo-h:26px}.blogo-w small{color:#9DB0CC}}
+.mdw-top .blogo{color:#CFC4AE}
+.au-brand .blogo{color:#CFC4AE;--logo-h:30px}
+@media(max-width:860px){.blogo{--logo-h:var(--logo-h-m,30px)}.mdw-top .blogo{--logo-h:26px}.blogo-w small{color:#9DB0CC}}
 @media(max-width:640px){.logo{padding:4px 0;font-size:21px}}
 .hnav a{position:relative;padding:4px 0}
 .hnav a::after{content:"";position:absolute;inset-inline:0;bottom:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:right;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
@@ -2913,7 +2913,7 @@ var cls=function(x){return x==="green"?"ok":x==="shares"?"mid":"low"};
 /* ── page shell ── */
 /* the brand mark: a square (the room) with a golden diamond turned through it (the balcony looking out) and the home at the centre.
    Square and centre take currentColor so the mark reads on navy and on cream alike; the diamond stays gold. */
-function brandMark(cls){ return '<svg class="bmark'+(cls?' '+cls:'')+'" viewBox="0 0 100 100" aria-hidden="true"><rect x="19" y="19" width="62" height="62" fill="none" stroke="currentColor" stroke-width="9"/><path d="M50 5 95 50 50 95 5 50Z" fill="none" stroke="#C4881F" stroke-width="9"/><rect x="42.5" y="42.5" width="15" height="15" fill="currentColor"/></svg>' }
+function brandMark(cls){ return '<svg class="bmark'+(cls?' '+cls:'')+'" viewBox="0 0 100 100" aria-hidden="true"><rect x="19" y="19" width="62" height="62" fill="none" stroke="currentColor" stroke-width="7"/><path d="M50 5 95 50 50 95 5 50Z" fill="none" stroke="#C4881F" stroke-width="9"/><rect x="42.5" y="42.5" width="15" height="15" fill="currentColor"/></svg>' }
 function brandLogo(){ var v=SX("logo_variant","full"); if(v==="word") return esc(CONFIG.brand); return brandMark()+'<span class="blogo-w"><b>'+esc(CONFIG.brand)+'</b>'+(v==="full"?'<small>BALKOUN</small>':'')+'</span>' }
 function notifBellHTML(){
   return '<div class="notifwrap" id="notifWrap"><button class="bell" id="bellBtn" aria-label="'+t("notifications")+'">🔔'+
