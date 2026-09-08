@@ -15,6 +15,12 @@
 <meta property="og:locale:alternate" content="de_DE">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="#14213D">
+<link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/brand/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png">
+<meta property="og:image" content="https://balkoun.com/brand/og-image.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://balkoun.com/brand/og-image.png">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebSite","name":"Balkoun بلكون",
  "url":"https://balkoun.com/",
@@ -1274,6 +1280,15 @@ footer{font-size:14px}
 .hero h1,.sec h2,.band h2,.logo,.topbar h1{font-family:var(--fd)}
 .hero h1{letter-spacing:-.005em;line-height:1.35}
 .logo{border:0;padding:4px 0;font-size:24px;letter-spacing:.01em;line-height:1}
+/* the lockup: mark, then the Arabic name with the Latin name tucked under it */
+.blogo{display:inline-flex;align-items:center;gap:9px;text-decoration:none;color:#F4F2ED;padding:0}
+.blogo .bmark{width:var(--logo-h,34px);height:var(--logo-h,34px);flex:none;display:block}
+.blogo-w{display:flex;flex-direction:column;align-items:flex-start;line-height:1}
+.blogo-w b{font-family:var(--fd);font-weight:800;font-size:calc(var(--logo-h,34px) * .66);letter-spacing:.01em;color:inherit}
+.blogo-w small{font:700 calc(var(--logo-h,34px) * .26) Lato,sans-serif;letter-spacing:.34em;color:#9DB0CC;margin-top:calc(var(--logo-h,34px) * .1);text-transform:uppercase;padding-inline-start:.1em}
+.mdw-top .blogo{color:#F4F2ED}
+.au-brand .blogo{color:#F4F2ED;--logo-h:30px}
+@media(max-width:860px){.blogo{--logo-h:var(--logo-h-m,30px);gap:7px}.mdw-top .blogo{--logo-h:26px}.blogo-w small{color:#9DB0CC}}
 @media(max-width:640px){.logo{padding:4px 0;font-size:21px}}
 .hnav a{position:relative;padding:4px 0}
 .hnav a::after{content:"";position:absolute;inset-inline:0;bottom:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:right;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
@@ -2410,7 +2425,7 @@ body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
 .mdw2-seg .langflag{display:inline-flex;width:18px;height:12px;overflow:hidden;border-radius:2px}.mdw2-seg .langflag svg{width:18px;height:12px}
 /* menu: compact sizing */
 .mdw-p.mdw2{width:min(84vw,320px)}
-.mdw2 .mdw-top{padding:10px 14px}.mdw2 .mdw-top .logo{font-size:15px;padding:3px 8px}.mdw2 .mdw-x{width:32px;height:32px}.mdw2 .mdw-x svg{width:16px;height:16px}
+.mdw2 .mdw-top{padding:10px 14px}.mdw2 .mdw-top .logo:not(.blogo){font-size:15px;padding:3px 8px}.mdw2 .mdw-x{width:32px;height:32px}.mdw2 .mdw-x svg{width:16px;height:16px}
 .mdw2-acct{padding:12px 14px;gap:10px}.mdw2-acct .av{width:40px;height:40px;font-size:15px}.mdw2-acct b{font-size:14px}.mdw2-acct span{font-size:12px;margin-top:2px}
 .mdw2-acct.guest{gap:10px}.mdw2-acct.guest .mdw-in{height:40px;font-size:14px;border-radius:10px}
 .mdw2-acctlink{font-size:12.5px}
@@ -2896,6 +2911,10 @@ function rtlNow(){ return D.I18N[L].dir==="rtl" }
 var cls=function(x){return x==="green"?"ok":x==="shares"?"mid":"low"};
 
 /* ── page shell ── */
+/* the brand mark: a square (the room) with a golden diamond turned through it (the balcony looking out) and the home at the centre.
+   Square and centre take currentColor so the mark reads on navy and on cream alike; the diamond stays gold. */
+function brandMark(cls){ return '<svg class="bmark'+(cls?' '+cls:'')+'" viewBox="0 0 100 100" aria-hidden="true"><rect x="19" y="19" width="62" height="62" fill="none" stroke="currentColor" stroke-width="9"/><path d="M50 5 95 50 50 95 5 50Z" fill="none" stroke="#C4881F" stroke-width="9"/><rect x="42.5" y="42.5" width="15" height="15" fill="currentColor"/></svg>' }
+function brandLogo(){ var v=SX("logo_variant","full"); if(v==="word") return esc(CONFIG.brand); return brandMark()+'<span class="blogo-w"><b>'+esc(CONFIG.brand)+'</b>'+(v==="full"?'<small>BALKOUN</small>':'')+'</span>' }
 function notifBellHTML(){
   return '<div class="notifwrap" id="notifWrap"><button class="bell" id="bellBtn" aria-label="'+t("notifications")+'">🔔'+
     (NOTIFS.unread?'<span class="bellbadge">'+(NOTIFS.unread>9?"9+":NOTIFS.unread)+'</span>':'')+'</button>'+
@@ -2947,7 +2966,7 @@ function mdrawer(){
   var langs = SX("nav_lang_drawer",true)!==false ? '<div class="mdw2-seg">'+Object.keys(D.I18N).map(function(k){ return '<a class="'+(k===L?'on':'')+'" data-langpick="'+k+'"><span class="langflag">'+(LANG_FLAGS[k]||"")+'</span>'+D.I18N[k].name+'</a>' }).join("")+'</div>' : '';
   var curs = SX("nav_cur_drawer",true)!==false ? '<div class="mdw2-seg">'+["USD","SYP"].map(function(c){ return '<a class="'+(c===CUR?'on':'')+'" data-mdcur="'+c+'">'+(c==="USD"?"$ USD":"ل.س SYP")+'</a>' }).join("")+'</div>' : '';
   return '<div class="mdw" id="mdw"><div class="mdw-bg" id="mdwBg"></div><aside class="mdw-p mdw2" role="dialog" aria-label="'+GX("mdMenu")+'">'+
-    '<div class="mdw-top"><span class="logo">'+CONFIG.brand+'</span><button class="mdw-x" id="mdwX" aria-label="'+GX("mdClose")+'">'+
+    '<div class="mdw-top"><span class="logo blogo">'+brandLogo()+'</span><button class="mdw-x" id="mdwX" aria-label="'+GX("mdClose")+'">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>'+
     acct+'<div class="mdw2-quick">'+tiles+'</div>'+
     sec(GX("mdDiscover"),discover)+sec(GX("mdServices"),services)+mine+sec(GX("mdSite"),site)+
@@ -3056,7 +3075,7 @@ function header(){
  // want them.
  return '<header><div class="wrap hbar"><button class="hmb" id="hmb" aria-label="'+GX("mdMenu")+'">'+ICON_HMB+(USER&&NOTIFS.unread?'<i class="hmb-dot"></i>':'')+'</button>'+
   '<button class="hpill" id="hpill" aria-label="'+GX("mdMenu")+'">'+ICON_HMB+(USER?avatar(USER.avatar_url,USER.name,28,"av"):'<span class="huser">'+ICON_USER+'</span>')+(USER&&NOTIFS.unread?'<i class="hmb-dot"></i>':'')+'</button>'+
-  '<a class="logo" data-go="home">'+CONFIG.brand+'</a>'+
+  '<a class="logo blogo" data-go="home" aria-label="'+esc(CONFIG.brand)+'">'+brandLogo()+'</a>'+
   '<nav class="hnav">'+
   // home page: editorial links first (they scroll to the page's own sections), "More" keeps the rest
   (VIEW==="home" ? (navOn("coll")?'<a data-scroll="collsSec">'+HX("navColl")+'</a>':'')+(navOn("expl")?'<a data-scroll="explSec">'+HX("navAreas")+'</a>':'')+(navOn("guide")?'<a data-scroll="guidesSec">'+HX("navGuide")+'</a>':'')+(navOn("agencies")?'<a data-go="agencies">'+GX("agDirShort")+'</a>':'') : '')+
@@ -3316,7 +3335,7 @@ function authModal(){
 
  var title=(AU.step>=5?t("forgot"):AU.mode==="up"?t("signupH"):t("loginH"));
  return '<div class="au'+(AU.open?" on":"")+'" id="au"><div class="aubox au2">'+
-  '<aside class="au-brand"><span class="logo">'+CONFIG.brand+'</span><h3>'+GX("auBrandH")+'</h3><p>'+GX("auBrandP")+'</p>'+
+  '<aside class="au-brand"><span class="logo blogo">'+brandLogo()+'</span><h3>'+GX("auBrandH")+'</h3><p>'+GX("auBrandP")+'</p>'+
    '<ul><li>'+GX("auB1")+'</li><li>'+GX("auB2")+'</li><li>'+GX("auB3")+'</li></ul></aside>'+
   '<div class="au-main"><div class="autop"><b>'+title+'</b><button id="auX" aria-label="'+GX("mdClose")+'">×</button></div>'+
   (AU.step<5&&AU.step!==4?'<div class="autabs"><button type="button" data-m="in" class="'+(AU.mode==="in"?"on":"")+'">'+t("login")+
@@ -10728,7 +10747,7 @@ function applySiteExtras(){ try{ var R=document.documentElement.style;
   setOr("--ad-ris-m",SX("ad_roominfo_size_m","")); setOr("--ad-los-m",SX("ad_location_size_m","")); setOr("--ad-tgs-m",SX("ad_tag_size_m",""));
   ["sk_x","sk_y","h1_x","h1_y","sbar_y","sbar_w","sbar_h"].forEach(function(k){ setOr("--"+k.replace(/_/g,"-"),SX(k,"")); setOr("--"+k.replace(/_/g,"-")+"-m",SX(k+"_m","")) });
   var sc=SX("sk_scale",""), scm=SX("sk_scale_m",""); setOr("--sk-scale",sc===""?"":(+sc/100),""); setOr("--sk-scale-m",scm===""?"":(+scm/100),"");
-  setOr("--sec-pad",SX("sec_pad","")); setOr("--sec-pad-m",SX("sec_pad_m",""));
+  setOr("--sec-pad",SX("sec_pad","")); setOr("--sec-pad-m",SX("sec_pad_m","")); setOr("--logo-h",SX("logo_h","")); setOr("--logo-h-m",SX("logo_h_m",""));
   document.body.classList.toggle("nav-nomenu-d", SX("nav_menu_desktop",true)===false);
   document.body.classList.toggle("nav-nonew", SX("nav_map_new",true)===false);
   document.body.classList.toggle("nav-nolinks-d", SX("nav_links_desktop",true)===false);
@@ -10801,7 +10820,8 @@ var HS_T={
  devOnlyHint:{ar:"تظهر هنا خيارات الجهاز المختار في الأعلى فقط؛ بدّل إلى الجوال لترى خياراته.",en:"Only the options for the device chosen above are shown; switch to Phone to see its options.",de:"Nur die Optionen des oben gewählten Geräts werden gezeigt; auf Handy umschalten für dessen Optionen."},
  f_opening:{ar:"مشهد الافتتاح (كلمة بلكون تصعد ثم يهبط الرأس)",en:"Opening scene (the word rises, then the header drops in)",de:"Eröffnungsszene (Wort steigt, Kopfzeile fällt ein)"}, f_cursor:{ar:"نقطة المؤشر الذهبية (كمبيوتر)",en:"Gold cursor dot (desktop)",de:"Goldener Cursorpunkt (Desktop)"},
  f_phMode:{ar:"العنوان على الجوال",en:"Headline on the phone",de:"Überschrift am Handy"}, ph_after:{ar:"يدخل بعد انتهاء الرسم ويدفعه جانباً",en:"Enters after the drawing rests and pushes it aside",de:"Kommt nach der Zeichnung und schiebt sie beiseite"}, ph_now:{ar:"يظهر مباشرة فوق الرسم",en:"Shows immediately over the drawing",de:"Sofort über der Zeichnung"},
- f_secPad:{ar:"المسافة بين الأقسام (px)",en:"Space between sections (px)",de:"Abstand zwischen Abschnitten (px)"}, g_motion:{ar:"الحركة",en:"Motion",de:"Bewegung"}, g_spacing:{ar:"المسافات",en:"Spacing",de:"Abstände"},
+ f_secPad:{ar:"المسافة بين الأقسام (px)",en:"Space between sections (px)",de:"Abstand zwischen Abschnitten (px)"},
+ g_logo:{ar:"الشعار",en:"Logo",de:"Logo"}, f_logoVar:{ar:"شكل الشعار في الترويسة والقائمة",en:"Logo in the header and menu",de:"Logo in Kopfzeile und Menü"}, lv_full:{ar:"الرمز + بلكون + BALKOUN",en:"Mark + بلكون + BALKOUN",de:"Zeichen + بلكون + BALKOUN"}, lv_mw:{ar:"الرمز + بلكون",en:"Mark + بلكون",de:"Zeichen + بلكون"}, lv_word:{ar:"الاسم فقط",en:"Name only",de:"Nur der Name"}, f_logoH:{ar:"ارتفاع الرمز (px)",en:"Mark height (px)",de:"Höhe des Zeichens (px)"}, g_motion:{ar:"الحركة",en:"Motion",de:"Bewegung"}, g_spacing:{ar:"المسافات",en:"Spacing",de:"Abstände"},
  upload:{ar:"رفع ملف…",en:"Upload…",de:"Hochladen…"}, uploading:{ar:"جارٍ الرفع…",en:"Uploading…",de:"Lädt hoch…"}, clearImg:{ar:"الافتراضية",en:"Default",de:"Standard"},
  previewNote:{ar:"المعاينة هي الصفحة الحقيقية بإعداداتك غير المحفوظة. لا تُسجَّل زياراتها في الإحصائيات.",en:"The preview is the real page with your unsaved settings. Its visits are not counted in analytics.",de:"Die Vorschau ist die echte Seite mit ungespeicherten Einstellungen. Ihre Aufrufe zählen nicht."},
  row:{ar:"إعدادات الصف",en:"Row settings",de:"Reihe"}, look:{ar:"شكل المربع",en:"Square design",de:"Kachel-Design"}, perf:{ar:"الأداء",en:"Performance",de:"Leistung"},
@@ -11043,6 +11063,7 @@ function hsInspHome(){
   } else if(sd==="projects"){
     H.push(fSwitch(hsT("showSec"),"x:home_projects_on",true,true), fNum(hsT("f_pjN"),"x:home_projects_n",1,12,1,6,true), fHint(hsT("textsHint")), fSecTexts("projects",GX("pjSecEyebrow"),GX("pjSecH"),GX("pjSecSub")));
   } else if(sd==="page"){
+    H.push(fGrp(hsT("g_logo")), fSel(hsT("f_logoVar"),"x:logo_variant",[["full",hsT("lv_full")],["markword",hsT("lv_mw")],["word",hsT("lv_word")]],"full",true), fSlider(hsT("f_logoH"),"x:logo_h","x:logo_h_m",22,48,1,"px",phone?30:34));
     H.push(fGrp(hsT("g_motion")), fHint(hsT("devOnlyHint")), fSwitch(hsT("f_opening"),"x:opening_enabled",true));
     if(!phone) H.push(fSwitch(hsT("f_cursor"),"x:cursor_dot_enabled",true,true));
     if(phone) H.push(fSel(hsT("f_phMode"),"x:phone_headline_mode",[["after",hsT("ph_after")],["immediate",hsT("ph_now")]],"after",true));
