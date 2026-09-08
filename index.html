@@ -93,6 +93,9 @@ header{background:var(--navy);color:#fff}
 @media(max-width:700px){.home-hero .hero-outer{padding-top:60px}}
 @media(max-width:640px){.home-hero .hero-outer{padding-top:58px}}
 .hbar{display:flex;align-items:center;gap:22px;height:62px}
+.hbar .hpill{order:0}.hbar .hnav{order:1}.hbar .htools{order:2}.hbar .logo{order:3;margin-inline-start:6px}
+/* the lockup keeps one shape in every language: mark on the right, Latin line right-aligned under the Arabic name */
+[dir=ltr] .blogo{flex-direction:row-reverse}[dir=ltr] .blogo-w{align-items:flex-end}
 .logo{padding:5px 13px;border:1px dashed rgba(255,255,255,.35);border-radius:var(--r-s);font-weight:700;font-size:19px;color:var(--gold)}
 .hnav{display:flex;gap:20px;font-size:14.5px;color:rgba(255,255,255,.86)}
 .hnav a{cursor:pointer}
@@ -2262,9 +2265,10 @@ body.rs-lock{overflow:hidden}
 .hnav .hsoon{display:inline-flex;align-items:center;gap:6px}
 .hnav .hsoon i{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#1A1206;background:var(--gold);border-radius:999px;padding:1px 6px;line-height:1.5;transform:translateY(-7px)}
 /* header links never break into two lines; when the signed-in tools need the room, the gaps tighten first and the coming-soon links step back into the menu */
-@media(min-width:861px){.hnav a{white-space:nowrap}.hbar{gap:clamp(12px,1.4vw,22px)}.hnav{gap:clamp(12px,1.3vw,20px)}}
+@media(min-width:861px){.hnav a{white-space:nowrap}.hbar{gap:clamp(10px,1.2vw,16px)}.hnav{gap:clamp(10px,1.1vw,14px);font-size:14px}.hsoon{gap:4px}.hsoon i{font-size:8.5px;padding:0 5px;transform:translateY(-6px)}}
 @media(min-width:861px) and (max-width:1240px){.hnav a[data-soon]{display:none}}
 @media(min-width:861px) and (max-width:1000px){.hnav a[data-go="projects"]{display:none}}
+@media(min-width:861px) and (max-width:960px){.hnav a[data-go="wanted"]{display:none}}
 .mdw-a.soon span{color:var(--grey)}
 .mdw-soon{margin-inline-start:auto;font-style:normal;font-size:10px;font-weight:800;color:#8A6522;background:var(--gold-w);border-radius:999px;padding:2px 8px}
 .soon-m{position:fixed;inset:0;z-index:1400;display:grid;place-items:center;padding:16px}
@@ -2288,6 +2292,42 @@ body.rs-lock{overflow:hidden}
 .soon-acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 .soon-acts .gold{text-decoration:none;border-radius:999px;padding:10px 18px}
 .soon-acts .gh{border-radius:999px;padding:10px 18px;margin:0}
+/* wanted (مطلوب) */
+.eyebrow .secnew{display:inline-block;vertical-align:middle;margin-inline-start:8px;font-style:normal;font-size:10px;font-weight:800;letter-spacing:.04em;color:#1A1206;background:var(--gold);border-radius:999px;padding:2px 8px;line-height:1.4;transform:translateY(-1px)}
+.wdir{padding:22px 18px 60px}
+.wtabs{display:flex;gap:6px;margin:-6px 0 14px;background:var(--page);border-radius:12px;padding:4px;width:max-content}
+.wtabs button{border:0;background:transparent;font:600 14px var(--fd);color:var(--grey);padding:8px 16px;border-radius:9px;cursor:pointer}.wtabs button.on{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(20,33,61,.12)}
+.w-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+.w-row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(280px,320px);gap:16px;overflow-x:auto;padding:4px 2px 12px;scroll-snap-type:x mandatory;scrollbar-width:thin}
+.w-row .wcard{scroll-snap-align:start}
+.wcard{display:flex;flex-direction:column;gap:8px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 16px 14px;text-decoration:none;color:inherit;cursor:pointer;transition:box-shadow .2s,transform .2s,border-color .2s;position:relative}
+.wcard:hover{box-shadow:0 22px 40px -26px rgba(20,33,61,.45);border-color:#d9dbe1;transform:translateY(-2px)}
+.wcard.feat{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold-w) inset}
+.whead{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.wdeal{font-size:11.5px;font-weight:800;border-radius:999px;padding:4px 10px;background:var(--navy);color:#fff;letter-spacing:.02em}.wdeal.rent{background:#0EA5A0}
+.wtime{font-size:12px;color:var(--light)}
+.wtitle{font-size:16px;color:var(--navy);font-weight:800;line-height:1.45}
+.wloc{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink)}.wloc .mi{display:inline-flex;color:var(--gold-dk,#8A6522)}.wloc svg{width:15px;height:15px}.wloc.big{font-size:14.5px;margin-top:6px}
+.wbudget{display:flex;align-items:baseline;gap:8px}.wbudget small{font-size:11.5px;color:var(--light)}.wbudget b{font-size:15px;color:var(--navy)}
+.wfacts{display:flex;flex-wrap:wrap;gap:6px}.wfacts i{font-style:normal;font-size:12px;background:var(--page);border-radius:999px;padding:3px 9px;color:var(--ink)}
+.wdesc{margin:0;font-size:13.5px;line-height:1.7;color:var(--grey)}.wdesc.big{font-size:15px;line-height:1.9;color:var(--ink);margin-top:14px}
+.wfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px dashed var(--line);padding-top:10px;margin-top:2px;flex-wrap:wrap}
+.wwho{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink)}.wwho .av{width:26px;height:26px;border-radius:50%;background:var(--gold);color:#1A1206;display:grid;place-items:center;font-weight:700;font-size:11px;object-fit:cover}
+.wwho.big{gap:12px;margin-bottom:12px}.wwho.big .av{width:52px;height:52px;font-size:18px}.wwho.big b{display:block;font-size:15px;color:var(--navy)}.wverline{display:block;font-size:12px;color:var(--ok);margin-top:2px}
+.wver{font-style:normal;color:var(--ok);font-weight:800}
+.wmatch{font-size:12.5px;color:var(--light)}.wmatch.has{color:var(--gold-dk,#8A6522);font-weight:700}
+.wacts{display:flex;gap:6px;flex-wrap:wrap}.wacts .ab{margin:0}.wacts.own{margin-top:16px;align-items:center}.wacts.own .hintx{margin:0 8px}
+.wone{padding:18px 18px 60px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+.wone h1{font-size:24px;font-weight:800;color:var(--navy);margin:10px 0 0;line-height:1.4}
+.wone .wtiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:16px}
+.wone .wtiles>div{background:var(--page);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:3px}.wone .wtiles small{font-size:11.5px;color:var(--light)}.wone .wtiles b{font-size:14.5px;color:var(--navy)}
+.wone .wtiles>div.hi{background:var(--navy)}.wone .wtiles>div.hi small{color:rgba(255,255,255,.7)}.wone .wtiles>div.hi b{color:#E3B563;font-size:16px}
+.wmh{font-size:18px;font-weight:700;margin:22px 0 12px}
+.wside{position:sticky;top:76px}.wside .agcontact{margin-top:0}.wside .agcontact a{flex:1;justify-content:center}
+.wsaved{background:var(--ok-w);color:var(--ok);border-radius:12px;padding:12px 14px;font-weight:700;margin:12px 0 4px}
+.ag-pills.one button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+@media(max-width:900px){.wone{grid-template-columns:1fr}.wside{position:static}.w-row{grid-auto-columns:minmax(250px,280px)}.wone h1{font-size:20px}}
+.adm .erow.wrow{grid-template-columns:minmax(220px,1.4fr) minmax(150px,1.1fr) minmax(130px,.9fr) 120px 110px auto}.adm .wrow .eperiod small,.adm .wrow .eclient small{display:block;color:var(--grey);font-weight:500}
 /* new projects */
 .pjdir{padding:22px 18px 60px}
 .pj-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px}
@@ -2498,7 +2538,7 @@ body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
   #langChip:hover{color:var(--gold)}
   #langChip .langflag{display:none} #langChip .lg-globe{display:inline-flex;align-items:center} #langChip .lg-globe svg{width:22px;height:22px}
   #langChip .chev{width:12px;height:12px;opacity:.6}
-  .htools .gold{border-radius:999px;padding:9px 18px}
+  .htools .gold{border-radius:999px;padding:6px 13px;font-size:13px;line-height:1.5}
   .hpill{display:inline-flex;align-items:center;gap:8px;height:40px;padding:0 6px;padding-inline-start:12px;border-radius:999px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;position:relative;font:inherit}
   .hpill:hover{border-color:var(--gold);background:rgba(255,255,255,.1)}
   .hpill>svg{width:20px;height:20px}
@@ -2512,12 +2552,12 @@ body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
 .hmb-dot{position:absolute;top:5px;inset-inline-end:5px;width:10px;height:10px;border-radius:50%;background:var(--danger);border:2px solid #1B2C52}
 .lg-globe,.lg-code{display:none}
 @media(max-width:860px){
-  .hbar{display:grid;grid-template-columns:1fr auto 1fr;align-items:center}
-  .hbar .hmb{display:grid;justify-self:start;grid-column:1;width:40px;height:40px;background:transparent;border-color:transparent}
+  .hbar{display:flex;align-items:center;gap:8px}
+  .hbar .hmb{display:grid;order:0;width:40px;height:40px;background:transparent;border-color:transparent;margin-inline-start:-8px}
   .hbar .hmb svg{width:26px;height:26px}
-  .hbar .logo{grid-column:2;justify-self:center}
+  .hbar .logo{order:3;margin-inline-start:auto}
   .hbar .hnav{display:none}
-  .hbar .htools{grid-column:3;justify-self:end;margin-inline-start:0;gap:10px}
+  .hbar .htools{order:1;margin-inline-start:0;gap:10px}
   #cur,.chipname,.chip2 .chev,.htools .gold{display:none}
   #bIn{display:none} body.nav-login-m #bIn{display:inline-block}
   .acct{display:none} body.nav-avatar-m .acct{display:block}
@@ -2935,6 +2975,7 @@ var NAVI=[
   {k:"map",g:"search",lab:function(){return t("searchOnMap")},ico:"map",attrs:'data-go="mapsearch"',o:30},
   {k:"areas",g:"search",lab:function(){return GX("allAreas")},ico:"areas",attrs:'href="/areas/"',o:40},
   {k:"projects",g:"discover",lab:function(){return GX("pjDirShort")},ico:"tower",attrs:'data-go="projects"',o:48,tag:"soon"},
+  {k:"wanted",g:"discover",lab:function(){return GX("wDirShort")},ico:"wanted",attrs:'data-go="wanted"',o:47,tag:"newTag",hide:function(){ return !wantedOn() }},
   {k:"coll",g:"discover",lab:function(){return HX("navColl")},ico:"coll",attrs:'data-mdscroll="collsSec"',o:50},
   {k:"expl",g:"discover",lab:function(){return HX("navAreas")},ico:"expl",attrs:'data-mdscroll="explSec"',o:60},
   {k:"guide",g:"discover",lab:function(){return HX("navGuide")},ico:"guide",attrs:'data-mdscroll="guidesSec"',o:70},
@@ -2944,7 +2985,7 @@ var NAVI=[
   {k:"contact",g:"site",lab:function(){return t("contactUs")},ico:"mail",attrs:'data-go="contact"',o:100},
   {k:"agencies",g:"site",lab:function(){return GX("agDirShort")},ico:"agency",attrs:'data-go="agencies"',o:110}
 ];
-function navOn(k){ return SX("nav_"+k,true)!==false }
+function navOn(k){ var it=NAVI.filter(function(i){ return i.k===k })[0]; if(it&&it.hide&&it.hide()) return false; return SX("nav_"+k,true)!==false }
 function navItems(){ return NAVI.filter(function(i){ return navOn(i.k) }).map(function(i){ var o=SX("nav_"+i.k+"_o",""); return {i:i,o:o===""?i.o:+o} }).sort(function(a,b){ return a.o-b.o }).map(function(x){ return x.i }) }
 // the phone drawer: account, then the link groups, then language and currency
 function mdrawer(){
@@ -3029,6 +3070,7 @@ var MI=(function(){
     legaltx:w('<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>'),
     agency:w('<path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/>'),
     tower:w('<path d="M4 21h16M6 21V9l6-6 6 6v12"/><path d="M10 21v-4h4v4M9 12h.01M15 12h.01M9 16h.01M15 16h.01M12 3v3"/>'),
+    wanted:w('<path d="M3 11 12 4l9 7"/><path d="M5 10v10h5"/><circle cx="15.5" cy="15.5" r="3.5"/><path d="m18 18 3 3"/>'),
     team:w('<circle cx="9" cy="8" r="3.5"/><path d="M2 20a7 7 0 0 1 14 0"/><circle cx="17" cy="9" r="3"/><path d="M15.5 20a5.5 5.5 0 0 1 6.5-4"/>'),
     areas:w('<path d="M3 6.5 9 4l6 2.5 6-2.5v13.5L15 20l-6-2.5-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>'),
     coll:w('<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>'),
@@ -3078,7 +3120,7 @@ function header(){
   '<a class="logo blogo" data-go="home" aria-label="'+esc(CONFIG.brand)+'">'+brandLogo()+'</a>'+
   '<nav class="hnav">'+
   // home page: editorial links first (they scroll to the page's own sections), "More" keeps the rest
-  (VIEW==="home" ? (navOn("coll")?'<a data-scroll="collsSec">'+HX("navColl")+'</a>':'')+(navOn("expl")?'<a data-scroll="explSec">'+HX("navAreas")+'</a>':'')+(navOn("guide")?'<a data-scroll="guidesSec">'+HX("navGuide")+'</a>':'')+(navOn("agencies")?'<a data-go="agencies">'+GX("agDirShort")+'</a>':'') : '')+
+  (VIEW==="home" ? (navOn("coll")?'<a data-scroll="collsSec">'+HX("navColl")+'</a>':'')+(navOn("wanted")&&wantedOn()?'<a data-go="wanted" class="hsoon">'+GX("wDirShort")+'<i>'+GX("newTag")+'</i></a>':'')+(navOn("guide")?'<a data-scroll="guidesSec">'+HX("navGuide")+'</a>':'')+(navOn("agencies")?'<a data-go="agencies">'+GX("agDirShort")+'</a>':'') : '')+
   (navOn("projects")?'<a data-go="projects" class="hsoon">'+GX("pjDirShort")+'<i>'+GX("soon")+'</i></a>':'')+
   (SX("nav_soon_header",true)!==false ? NAVI.filter(function(i){ return i.soon && navOn(i.k) }).map(function(i){ return '<a class="hsoon" data-soon="'+i.k+'">'+i.lab()+'<i>'+GX("soon")+'</i></a>' }).join("") : '')+
   '<div class="navmore" id="navMoreWrap"><a id="navMoreChip">'+t("moreNavT")+CHEV+'</a>'+
@@ -4573,12 +4615,12 @@ function storageUsageCardBody(){
     '<span class="ltr">'+ADM.storageUsage.files+'</span> '+t("storageFiles")+'</div>';
 }
 /* ═══ the admin bell: everything waiting for a decision, in one place ═══ */
-function adminTodoTotal(){ var td=ADM.todo||{}; return (+td.pending_listings||0)+(+td.pending_agencies||0)+(+td.open_reports||0)+(+td.open_feedback||0)+(+td.unread_alerts||0) }
+function adminTodoTotal(){ var td=ADM.todo||{}; return (+td.pending_listings||0)+(+td.pending_agencies||0)+(+td.pending_wanted||0)+(+td.open_reports||0)+(+td.open_feedback||0)+(+td.unread_alerts||0) }
 function adminBellHtml(){
   var td=ADM.todo||{}, n=adminTodoTotal();
-  var rows=[["listings:pending",AICO.listings,GX("bellListings"),td.pending_listings],["agencies_adm",AICO.building,GX("bellAgencies"),td.pending_agencies],["reports",AICO.shield,GX("bellReports"),td.open_reports],["feedback",AICO.chart,GX("bellFeedback"),td.open_feedback],["msgs",AICO.bell,GX("bellAlerts"),td.unread_alerts]].filter(function(r){ return +r[3]>0 });
+  var rows=[["listings:pending",AICO.listings,GX("bellListings"),td.pending_listings],["agencies_adm",AICO.building,GX("bellAgencies"),td.pending_agencies],["wanted_adm",AICO.search,GX("bellWanted"),td.pending_wanted],["reports",AICO.shield,GX("bellReports"),td.open_reports],["feedback",AICO.chart,GX("bellFeedback"),td.open_feedback],["msgs",AICO.bell,GX("bellAlerts"),td.unread_alerts]].filter(function(r){ return +r[3]>0 });
   var latest=(td.latest||[]).slice(0,6);
-  var kindTab={listing:"listings:pending",agency:"agencies_adm",report:"reports",feedback:"feedback"};
+  var kindTab={listing:"listings:pending",agency:"agencies_adm",wanted:"wanted_adm",report:"reports",feedback:"feedback"};
   return '<div class="adbell-w"><button class="ab adbell'+(n?' has':'')+'" id="adBell" title="'+GX("bellT")+'" aria-label="'+GX("bellT")+'">'+AICO.bell+(n?'<b class="adbell-n ltr">'+(n>99?"99+":n)+'</b>':'')+'</button>'+
     '<div class="adbell-m'+(ADM.bellOpen?' on':'')+'" id="adBellMenu"><div class="adbell-h">'+GX("bellT")+(n?' <span class="ltr">('+n+')</span>':'')+'</div>'+
     (rows.length ? rows.map(function(r){ return '<a class="adbell-r" data-goto="'+r[0]+'"><span class="adbell-i">'+r[1]+'</span><span class="adbell-l">'+r[2]+'</span><b class="ltr">'+r[3]+'</b></a>' }).join("") : '<div class="adbell-empty">'+GX("bellNone")+'</div>')+
@@ -4983,6 +5025,7 @@ function adminView(){
  else if(ADM.tab==="engage"){ body = adminEngageBody(); }
  else if(ADM.tab==="agencies_adm"){ body = adminAgenciesBody(); }
  else if(ADM.tab==="projects_adm"){ body = adminProjectsBody(); }
+ else if(ADM.tab==="wanted_adm"){ body = adminWantedBody(); }
  else if(ADM.tab==="featured"){
   var flist = ADM.featuredList||[];
   var now = new Date();
@@ -5121,7 +5164,7 @@ function adminView(){
 
  var NAV=[
    {g:t("navOverview"), items:[["dashboard",t("dashboardTab"),null,AICO.dash,true],["stats",t("visitorStats"),null,AICO.chart,can("stats")]]},
-   {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["photos",GX("tMedia"),null,AICO.image,can("listings")]]},
+   {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["photos",GX("tMedia"),null,AICO.image,can("listings")],["wanted_adm",GX("tWanted"),(ADM.todo||{}).pending_wanted||null,AICO.search,can("listings")]]},
    {g:t("navPeople"), items:[["users",t("usersTab"),s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")]]},
    {g:GX("navMarketing"), items:[["engage",GX("tEngage"),null,AICO.ledger,can("ads")||can("featured")],["projects_adm",GX("tProjects"),null,AICO.building,can("listings")||can("ads")],["ads",t("adsTab"),null,AICO.ads,can("ads")],["featured",t("featuredTab"),null,AICO.star,can("featured")],["banners",GX("tBanners"),null,AICO.banner,can("homepage")]]},
    {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")]]},
@@ -6144,6 +6187,141 @@ function initViewMap(lat,lng){
    on its own dedicated, rarely-re-rendered view — and being strict
    about cleanup — avoids that whole class of failure. ═══ */
 var MAPSEARCH = {deal:"sale", gov:"", area:"", type:"", tabu:"", filtersOpen:false};
+/* ═══ مطلوب: members post what they are looking for ═══ */
+var WANTED=null, WANTEDONE=null, MYWANTED=null, WF={deal:"",g:"",t:"",tab:"all"}, WEDIT=null, ADM_W=null;
+function wantedOn(){ return SX("wanted_enabled",true)!==false }
+function wTypeName(k){ return k && D.TYPES[k] ? D.TYPES[k][li()] : "" }
+function wMoney(n,cur){ n=+n||0; return cur==="SYP" ? '<span class="ltr">'+n.toLocaleString("en")+'</span> ل.س' : '<span class="ltr">$'+n.toLocaleString("en")+'</span>' }
+function wBudgetText(w){ var a=w.budget_min, b=w.budget_max; if(!a&&!b) return GX("wOpenBudget"); if(a&&b) return GX("wFromTo").replace("{a}",wMoney(a,w.currency)).replace("{b}",wMoney(b,w.currency)); if(b) return GX("wUpTo").replace("{n}",wMoney(b,w.currency)); return GX("wFromN").replace("{a}",wMoney(a,w.currency)) }
+function wTitle(w){ if(w.title) return esc(w.title); return GX("wAuto").replace("{t}",wTypeName(w.property_type)||GX("wProp")).replace("{d}",w.deal==="rent"?GX("wForRent"):GX("wForBuy")).replace("{g}",w.gov_name?gN(w.gov_name):GX("wAnywhere")) }
+function wDays(w){ var d=Math.max(0,Math.round((Date.now()-new Date(w.created_at))/86400000)); return d===0?GX("wToday"):GX("wDays").replace("{d}",'<span class="ltr">'+d+'</span>') }
+function wStatusPill(st,expired){ if(expired&&st==="open") st="expired"; var m={pending:["pending",GX("st_pending")],open:["live",GX("w_st_open")],fulfilled:["expired",GX("w_st_fulfilled")],hidden:["expired",GX("w_st_hidden")],rejected:["expired",GX("w_st_rejected")],expired:["expired",GX("w_st_expired")]}[st]||["pending",st]; return '<span class="st st-'+m[0]+'">'+m[1]+'</span>' }
+// listings that fit a request: same deal and governorate, the chosen areas and type if given, price within the budget (10% room), rooms and size at least, deed if asked
+function wantedMatches(w){ return D.LIST.filter(function(x){ if(x.status&&x.status!=="live") return false; if(x.d!==w.deal) return false; if(w.gov_name&&x.g!==w.gov_name) return false; if(w.property_type&&x.t!==w.property_type) return false;
+  if(w.area_names&&w.area_names.length&&w.area_names.indexOf(x.a)<0) return false; if(w.budget_max&&w.currency==="USD"&&x.p&&x.p>w.budget_max*1.1) return false; if(w.rooms_min&&(x.r||0)<w.rooms_min) return false; if(w.area_min&&(x.m2||0)<w.area_min) return false; if(w.tabu&&x.tb!==w.tabu) return false; return !w.user_id||x.uid!==w.user_id }) }
+async function loadWanted(){ if(!DB){ WANTED=[]; return } try{ var r=await DB.rpc("bk_public_wanted"); WANTED=(r&&r.data)||[] }catch(e){ WANTED=[] } }
+async function loadWantedOne(id){ if(!DB){ WANTEDONE={missing:true,id:id}; return } try{ var r=await DB.rpc("bk_wanted_get",{p_id:+id}); WANTEDONE=(r&&r.data)||{missing:true,id:id} }catch(e){ WANTEDONE={missing:true,id:id} } }
+async function loadMyWanted(){ if(!DB||!USER){ MYWANTED=[]; return } try{ var r=await DB.rpc("bk_wanted_mine",{p_token:USER.token||null}); if(r.error) throw r.error; MYWANTED=r.data||[] }catch(e){ MYWANTED=[] } }
+function wantedCard(w,mine){
+  var ar=L==="ar", areas=(w.area_names||[]).slice(0,3).map(aN), more=(w.area_names||[]).length-3, n=wantedMatches(w).length, expired=w.expires_at&&new Date(w.expires_at)<Date.now();
+  var facts=[wTypeName(w.property_type), w.rooms_min?GX("wRoomsN").replace("{n}",w.rooms_min):"", w.area_min?GX("wAreaN").replace("{n}",w.area_min):"", w.tabu&&D.TABU[w.tabu]?D.TABU[w.tabu][li()]:""].filter(Boolean);
+  return '<a class="wcard'+(w.featured?' feat':'')+'" href="/wanted/'+w.id+'" data-wopen="'+w.id+'">'+
+    '<div class="whead"><span class="wdeal '+esc(w.deal)+'">'+(w.deal==="rent"?GX("wRent"):GX("wBuy"))+'</span>'+(mine?wStatusPill(w.status,expired):'<span class="wtime">'+wDays(w)+'</span>')+'</div>'+
+    '<b class="wtitle">'+wTitle(w)+'</b>'+
+    '<div class="wloc">'+MI.map+'<span>'+(w.gov_name?gN(w.gov_name):GX("wAnywhere"))+(areas.length?' · '+areas.join(ar?"، ":", ")+(more>0?' <b>+'+more+'</b>':''):'')+'</span></div>'+
+    '<div class="wbudget"><small>'+GX("wBudget")+'</small><b>'+wBudgetText(w)+'</b></div>'+
+    (facts.length?'<div class="wfacts">'+facts.map(function(f){ return '<i>'+f+'</i>' }).join("")+'</div>':'')+
+    (w.description?'<p class="wdesc">'+esc(w.description).slice(0,140)+(w.description.length>140?"…":"")+'</p>':'')+
+    '<div class="wfoot"><span class="wwho">'+avatar(w.user_avatar,w.user_name,26,"av")+'<span>'+esc(w.user_name||"")+(w.phone_verified?' <i class="wver" title="'+GX("wVerified")+'">✓</i>':'')+'</span></span>'+
+      (mine?'<span class="wacts"><button type="button" class="ab" data-wedit="'+w.id+'">'+t("edit")+'</button>'+(w.status==="open"&&!expired?'<button type="button" class="ab" data-wset="'+w.id+':fulfilled">'+GX("wMarkDone")+'</button>':'')+((w.status==="fulfilled"||(w.status==="open"&&expired))?'<button type="button" class="ab ok" data-wset="'+w.id+':open">'+GX("wReopen")+'</button>':'')+'<button type="button" class="ab bad" data-wdel="'+w.id+'">'+t("del")+'</button></span>'
+           :'<span class="wmatch'+(n?' has':'')+'">'+GX("wMatches").replace("{n}",'<b class="ltr">'+n+'</b>')+'</span>')+'</div>'+
+  '</a>' }
+function wantedPage(){
+  if(!wantedOn()) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:18px">'+GX("wDisabled")+'</b></div></div>';
+  var list=WANTED, mineTab=WF.tab==="mine"&&USER, govs=[]; (list||[]).forEach(function(w){ if(w.gov_name&&govs.indexOf(w.gov_name)<0) govs.push(w.gov_name) });
+  var rows = mineTab ? (MYWANTED||[]) : (list||[]).filter(function(w){ return (!WF.deal||w.deal===WF.deal)&&(!WF.g||w.gov_name===WF.g)&&(!WF.t||w.property_type===WF.t) });
+  var types=[]; (list||[]).forEach(function(w){ if(w.property_type&&types.indexOf(w.property_type)<0) types.push(w.property_type) });
+  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("wDirShort")+'</div></div>'+
+   '<div class="wrap wdir">'+
+    '<div class="ag-hero"><div><div class="eyebrow">'+GX("wSecEyebrow")+'</div><h1>'+GX("wDir")+'</h1><p>'+GX("wDirP")+'</p></div><a class="gold" data-wnew="1">'+GX("wPost")+'</a></div>'+
+    (USER?'<div class="wtabs"><button type="button" class="'+(mineTab?"":"on")+'" data-wtab="all">'+GX("wAll")+'</button><button type="button" class="'+(mineTab?"on":"")+'" data-wtab="mine">'+GX("wMine")+(MYWANTED&&MYWANTED.length?' <b class="ltr">'+MYWANTED.length+'</b>':'')+'</button></div>':'')+
+    (mineTab ? '' : '<div class="ag-filters"><div class="ag-pills"><button type="button" class="'+(WF.deal?"":"on")+'" data-wd="">'+GX("wAll")+'</button><button type="button" class="'+(WF.deal==="sale"?"on":"")+'" data-wd="sale">'+GX("wBuy")+'</button><button type="button" class="'+(WF.deal==="rent"?"on":"")+'" data-wd="rent">'+GX("wRent")+'</button></div>'+
+     (govs.length>1?'<div class="ag-pills"><button type="button" class="'+(WF.g?"":"on")+'" data-wg="">'+GX("agAllGov")+'</button>'+govs.map(function(g){ return '<button type="button" class="'+(WF.g===g?"on":"")+'" data-wg="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div>':'')+
+     (types.length>1?'<div class="ag-pills"><button type="button" class="'+(WF.t?"":"on")+'" data-wt="">'+t("ptype")+'</button>'+types.map(function(k){ return '<button type="button" class="'+(WF.t===k?"on":"")+'" data-wt="'+esc(k)+'">'+wTypeName(k)+'</button>' }).join("")+'</div>':'')+'</div>')+
+    ((mineTab?MYWANTED:list)===null ? '<div class="resempty"><b>'+t("loading")+'</b></div>' : rows.length ? '<div class="w-grid">'+rows.map(function(w){ return wantedCard(w,mineTab) }).join("")+'</div>' :
+      '<div class="resempty">'+LICON.search+'<b>'+(mineTab?GX("wMineEmpty"):GX("wEmpty"))+'</b><span>'+GX("wEmptyCta")+'</span><a class="gold" data-wnew="1" style="margin-top:12px;text-decoration:none">'+GX("wPost")+'</a></div>')+
+   '</div>' }
+function wantedOnePage(id){
+  var w=WANTEDONE;
+  if(!w || String(w.id)!==String(id)) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>';
+  if(w.missing) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:18px">'+t("notFound")+'</b><div style="margin-top:18px"><button class="btn-n" data-go="wanted">'+GX("wDirShort")+'</button></div></div></div>';
+  var ar=L==="ar", mine=USER&&w.user_id===USER.id, matches=wantedMatches(w), wa=(w.whatsapp||"").replace(/\D/g,""), expired=w.expires_at&&new Date(w.expires_at)<Date.now();
+  var facts=[[t("ptype"),wTypeName(w.property_type)],[GX("f_wRooms"),w.rooms_min?'<span class="ltr">'+w.rooms_min+'</span>+':""],[GX("f_wArea"),w.area_min?'<span class="ltr">'+w.area_min+'</span>+ '+t("sqm"):""],[GX("f_wTabu"),w.tabu&&D.TABU[w.tabu]?D.TABU[w.tabu][li()]:""]].filter(function(f){ return f[1] });
+  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a data-go="wanted">'+GX("wDirShort")+'</a><i>›</i>'+wTitle(w)+'</div></div>'+
+   '<div class="wrap wone">'+
+    '<div class="wone-main"><div class="blk"><div class="in">'+
+      '<div class="whead"><span class="wdeal '+esc(w.deal)+'">'+(w.deal==="rent"?GX("wRent"):GX("wBuy"))+'</span>'+(mine||w.status!=="open"?wStatusPill(w.status,expired):'')+'<span class="wtime">'+wDays(w)+' · '+GX("wViews").replace("{n}",'<span class="ltr">'+(w.views||0)+'</span>')+'</span></div>'+
+      '<h1>'+wTitle(w)+'</h1>'+
+      '<div class="wloc big">'+MI.map+'<span>'+(w.gov_name?gN(w.gov_name):GX("wAnywhere"))+((w.area_names||[]).length?' · '+(w.area_names||[]).map(aN).join(ar?"، ":", "):'')+'</span></div>'+
+      '<div class="wtiles"><div class="hi"><small>'+GX("wBudget")+'</small><b>'+wBudgetText(w)+'</b></div>'+facts.map(function(f){ return '<div><small>'+f[0]+'</small><b>'+f[1]+'</b></div>' }).join("")+'</div>'+
+      (w.description?'<p class="wdesc big">'+esc(w.description).replace(/\n/g,"<br>")+'</p>':'')+
+      (mine?'<div class="wacts own"><button type="button" class="ab" data-wedit="'+w.id+'">'+t("edit")+'</button>'+(w.status==="open"&&!expired?'<button type="button" class="ab" data-wset="'+w.id+':fulfilled">'+GX("wMarkDone")+'</button>':'')+((w.status==="fulfilled"||(w.status==="open"&&expired))?'<button type="button" class="ab ok" data-wset="'+w.id+':open">'+GX("wReopen")+'</button>':'')+'<button type="button" class="ab bad" data-wdel="'+w.id+'">'+t("del")+'</button><span class="hintx">'+(w.expires_at?GX("wExpires").replace("{d}",'<span class="ltr">'+String(w.expires_at).slice(0,10)+'</span>'):'')+'</span></div>':'')+
+     '</div></div>'+
+     '<h2 class="wmh">'+GX("wMatchesH")+' <span class="ltr" style="color:var(--grey);font-weight:500">('+matches.length+')</span></h2>'+
+     (matches.length?'<div class="res">'+matches.slice(0,12).map(function(x,i){ return card(x,i,false) }).join("")+'</div>':'<div class="resempty"><b>'+GX("wNoMatches")+'</b></div>')+
+    '</div>'+
+    '<aside class="wside"><div class="blk"><h3>'+GX("wContact")+'</h3><div class="in">'+
+      '<div class="wwho big">'+avatar(w.user_avatar,w.user_name,52,"av")+'<div><b>'+esc(w.user_name||"")+'</b>'+(w.phone_verified?'<span class="wverline">✓ '+GX("wVerified")+'</span>':'')+'</div></div>'+
+      '<div class="agcontact">'+(w.phone?'<a class="btn-n" href="tel:'+esc(w.phone)+'">'+MI.phone+GX("agCall")+'</a>':'')+(wa?'<a class="btn-n wa" href="https://wa.me/'+wa+'?text='+encodeURIComponent((ar?"مرحباً، بخصوص طلبك على بلكون: ":"Hello, about your request on Balkoun: ")+location.origin+"/wanted/"+w.id)+'" target="_blank" rel="noopener">'+MI.msgs+GX("agWa")+'</a>':'')+'</div>'+
+      (!w.phone&&!wa?'<div class="hintx">'+GX("wNoPhone")+'</div>':'')+
+    '</div></div></aside>'+
+   '</div>' }
+function wantedFormPage(){
+  if(!wantedOn()) return wantedPage();
+  if(!USER) return gate();
+  var w=WEDIT||{}, govs=Object.keys(D.GEO), areas=w.gov_name&&D.GEO[w.gov_name]?D.GEO[w.gov_name]:[], sel=w.area_names||[], isEdit=!!w.id;
+  var f=function(label,key,type,attrs,ph){ return '<div class="fl"><label>'+label+'</label><input data-allow-autofill data-w="'+key+'" type="'+(type||"text")+'" value="'+esc(String(w[key]==null?"":w[key]))+'"'+(attrs||"")+(ph?' placeholder="'+esc(ph)+'"':'')+'></div>' };
+  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a data-go="wanted">'+GX("wDirShort")+'</a><i>›</i>'+(isEdit?GX("wFormEditT"):GX("wFormT"))+'</div></div>'+
+   '<div class="wrap" style="max-width:760px;padding:22px 18px 60px">'+
+    '<h1 style="font-size:22px;font-weight:700;margin-bottom:6px">'+(isEdit?GX("wFormEditT"):GX("wFormT"))+'</h1><p class="hintx" style="margin-bottom:16px">'+GX("wFormP")+'</p>'+
+    '<div class="blk agform" id="wForm"><div class="in">'+
+     '<div class="fl"><label class="req">'+GX("f_wDeal")+'</label><div class="ag-pills one" id="wDeal"><button type="button" class="'+((w.deal||"sale")==="sale"?"on":"")+'" data-wdeal="sale">'+GX("wBuyOpt")+'</button><button type="button" class="'+(w.deal==="rent"?"on":"")+'" data-wdeal="rent">'+GX("wRentOpt")+'</button></div></div>'+
+     '<div class="row"><div class="fl"><label>'+t("ptype")+'</label><select data-w="property_type"><option value="">—</option>'+Object.keys(D.TYPES).map(function(k){ return '<option value="'+k+'"'+(w.property_type===k?' selected':'')+'>'+wTypeName(k)+'</option>' }).join("")+'</select></div>'+
+      '<div class="fl"><label>'+t("gov")+'</label><select data-w="gov_name"><option value="">'+GX("wAnywhere")+'</option>'+govs.map(function(g){ return '<option value="'+esc(g)+'"'+(w.gov_name===g?' selected':'')+'>'+gN(g)+'</option>' }).join("")+'</select></div></div>'+
+     (areas.length?'<div class="fl"><label>'+GX("f_wAreas")+'</label><div class="ag-pills sel wrap" id="wAreas">'+areas.map(function(a){ return '<button type="button" class="'+(sel.indexOf(a)>-1?"on":"")+'" data-warea="'+esc(a)+'">'+aN(a)+'</button>' }).join("")+'</div></div>':'')+
+     '<div class="row3x">'+f(GX("f_wBudgetMin"),"budget_min","number",' min="0" class="ltr" inputmode="numeric"')+f(GX("f_wBudgetMax"),"budget_max","number",' min="0" class="ltr" inputmode="numeric"')+'<div class="fl"><label>'+GX("f_wCur")+'</label><select data-w="currency"><option value="USD"'+((w.currency||"USD")==="USD"?' selected':'')+'>USD $</option><option value="SYP"'+(w.currency==="SYP"?' selected':'')+'>SYP ل.س</option></select></div></div>'+
+     '<div class="row3x">'+f(GX("f_wRooms"),"rooms_min","number",' min="0" max="20" class="ltr" inputmode="numeric"')+f(GX("f_wArea"),"area_min","number",' min="0" class="ltr" inputmode="numeric"')+'<div class="fl"><label>'+GX("f_wTabu")+'</label><select data-w="tabu"><option value="">'+GX("wAnyTabu")+'</option>'+Object.keys(D.TABU).map(function(k){ return '<option value="'+k+'"'+(w.tabu===k?' selected':'')+'>'+D.TABU[k][li()]+'</option>' }).join("")+'</select></div></div>'+
+     f(GX("f_wTitle"),"title","text",' maxlength="90"',GX("f_wTitlePH"))+
+     '<div class="fl"><label>'+GX("f_wDesc")+'</label><textarea data-w="description" data-allow-autofill maxlength="900" placeholder="'+esc(GX("f_wDescPH"))+'">'+esc(w.description||"")+'</textarea></div>'+
+     '<div class="fl"><label>'+GX("f_wContact")+'</label><select data-w="contact">'+["both","phone","whatsapp","none"].map(function(k){ return '<option value="'+k+'"'+((w.contact||"both")===k?' selected':'')+'>'+GX("wc_"+k)+'</option>' }).join("")+'</select><div class="hintx">'+(USER.phone?'<span class="ltr">'+esc(USER.phone)+'</span>':'')+'</div></div>'+
+     '<div class="hintx">'+GX("wLimit")+'</div>'+
+     '<div class="xactions"><button class="btn-n" id="wSave" style="width:auto">'+(isEdit?GX("wSaveEdit"):GX("wSave"))+'</button><button class="gh" data-go="wanted" style="width:auto">'+t("cancel")+'</button><span class="xmsg" id="wMsg"></span></div>'+
+    '</div></div></div>' }
+function homeWantedHtml(){
+  if(!HSON("wanted")||!wantedOn()) return "";
+  var n=+SX("home_wanted_n",6)||6, list=(WANTED||[]).slice(0,n);
+  if(WANTED!==null && !list.length) return "";
+  var inner = WANTED===null ? '<div id="wantedSlot"></div>' : '<div class="w-row">'+list.map(function(w){ return wantedCard(w,false) }).join("")+'</div><div class="pjmore"><a class="gh" data-go="wanted">'+GX("wSeeAll")+'</a><a class="gh" data-wnew="1">'+GX("wPost")+'</a></div>';
+  return '<div class="wrap"><section class="sec" id="wantedSec"><div class="eyebrow">'+HT("wanted_eyebrow",GX("wSecEyebrow"))+(SX("nav_map_new",true)!==false?' <i class="secnew">'+GX("newTag")+'</i>':'')+'</div><h2>'+HT("wanted_h",GX("wSecH"))+'</h2><div class="sub">'+HT("wanted_sub",GX("wSecSub"))+'</div>'+inner+'</section></div>' }
+function wireWanted(){
+  if(!window._wDelegated){ window._wDelegated=true; document.addEventListener("click",function(e){
+    var a=e.target.closest("[data-wopen]"); if(a){ if(e.target.closest("[data-wedit],[data-wset],[data-wdel]")) return; e.preventDefault(); WANTEDONE=null; VIEW="wanted:"+a.dataset.wopen; scrollTo(0,0); render(); return }
+    var nw=e.target.closest("[data-wnew]"); if(nw){ e.preventDefault(); WEDIT={deal:"sale",currency:CUR||"USD",area_names:[],contact:"both"}; VIEW="wantedform"; scrollTo(0,0); render(); return }
+    var ed=e.target.closest("[data-wedit]"); if(ed){ e.preventDefault(); var src=(MYWANTED||[]).concat(WANTEDONE?[WANTEDONE]:[]).filter(function(w){ return String(w.id)===ed.dataset.wedit })[0]; if(src){ WEDIT=JSON.parse(JSON.stringify(src)); VIEW="wantedform"; scrollTo(0,0); render() } return }
+    var st=e.target.closest("[data-wset]"); if(st){ e.preventDefault(); var q=st.dataset.wset.split(":"); DB.rpc("bk_wanted_set",{p_token:USER&&USER.token||null,p_id:+q[0],p_status:q[1]}).then(function(r){ if(r.error) throw r.error; MYWANTED=null; WANTED=null; if(WANTEDONE&&String(WANTEDONE.id)===q[0]) WANTEDONE=r.data||null; render() }).catch(function(err){ alert(err.message||"error") }); return }
+    var dl=e.target.closest("[data-wdel]"); if(dl){ e.preventDefault(); if(!confirm(GX("wDelConfirm"))) return; DB.rpc("bk_wanted_delete",{p_token:USER&&USER.token||null,p_id:+dl.dataset.wdel}).then(function(r){ if(r.error) throw r.error; MYWANTED=null; WANTED=null; if(VIEW.indexOf("wanted:")===0) VIEW="wanted"; render() }).catch(function(err){ alert(err.message||"error") }); return }
+  }) }
+  if(VIEW==="home" && HSON("wanted") && wantedOn() && WANTED===null){ loadWanted().then(function(){ var sl=document.getElementById("wantedSlot"); if(!sl) return; var sec=sl.closest("section"); if(!WANTED.length){ var wr=sec&&sec.parentElement; if(wr) wr.remove(); return } sl.outerHTML='<div class="w-row">'+WANTED.slice(0,+SX("home_wanted_n",6)||6).map(function(w){ return wantedCard(w,false) }).join("")+'</div><div class="pjmore"><a class="gh" data-go="wanted">'+GX("wSeeAll")+'</a><a class="gh" data-wnew="1">'+GX("wPost")+'</a></div>'; $$("#wantedSec [data-go]").forEach(function(e){ e.onclick=function(ev){ ev.preventDefault(); VIEW=e.dataset.go; scrollTo(0,0); render() } }) }) }
+  if(VIEW==="wanted"){ if(WANTED===null) loadWanted().then(render); if(USER&&MYWANTED===null) loadMyWanted().then(render);
+    $$("[data-wtab]").forEach(function(b){ b.onclick=function(){ WF.tab=this.dataset.wtab; render() } });
+    $$("[data-wd]").forEach(function(b){ b.onclick=function(){ WF.deal=this.dataset.wd; render() } }); $$("[data-wg]").forEach(function(b){ b.onclick=function(){ WF.g=this.dataset.wg; render() } }); $$("[data-wt]").forEach(function(b){ b.onclick=function(){ WF.t=this.dataset.wt; render() } }) }
+  if(VIEW.indexOf("wanted:")===0){ var id=VIEW.split(":")[1]; if(!WANTEDONE || String(WANTEDONE.id)!==String(id)){ loadWantedOne(id).then(render); return } }
+  if(VIEW==="wantedform" && USER){ var W=WEDIT||(WEDIT={deal:"sale",currency:CUR||"USD",area_names:[],contact:"both"}), fm=$("#wForm"); if(!fm) return;
+    var collect=function(){ $$("#wForm [data-w]").forEach(function(el){ W[el.dataset.w]=el.value }); W.area_names=$$("#wAreas .on").map(function(b){ return b.dataset.warea }); W.deal=($("#wDeal .on")||{}).dataset ? $("#wDeal .on").dataset.wdeal : "sale" };
+    $$("[data-wdeal]").forEach(function(b){ b.onclick=function(){ $$("#wDeal button").forEach(function(x){ x.classList.remove("on") }); this.classList.add("on") } });
+    $$("[data-warea]").forEach(function(b){ b.onclick=function(){ this.classList.toggle("on") } });
+    fm.onchange=function(e){ if(e.target.dataset.w==="gov_name"){ collect(); W.area_names=[]; render() } };
+    $("#wSave").onclick=async function(){ collect(); var m=$("#wMsg"); this.disabled=true;
+      try{ var r=await DB.rpc("bk_wanted_save",{p_token:USER.token||null,p_id:W.id||null,p_data:{deal:W.deal,property_type:W.property_type||null,gov_name:W.gov_name||null,area_names:W.area_names||[],budget_min:W.budget_min||null,budget_max:W.budget_max||null,currency:W.currency||"USD",rooms_min:W.rooms_min||null,area_min:W.area_min||null,tabu:W.tabu||null,title:W.title||null,description:W.description||null,contact:W.contact||"both"}});
+        if(r.error) throw r.error; var saved=r.data; MYWANTED=null; WANTED=null; WEDIT=null; WANTEDONE=saved; WF.tab="mine"; VIEW="wanted:"+saved.id; scrollTo(0,0); render();
+        setTimeout(function(){ var h=document.querySelector(".wone h1"); if(h){ var n=document.createElement("div"); n.className="wsaved"; n.textContent=saved.status==="open"?GX("wSavedOk"):GX("wSaved"); h.parentNode.insertBefore(n,h) } },50) }
+      catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } this.disabled=false } };
+  }
+}
+/* admin */
+function adminWantedBody(){
+  var list=ADM_W; if(!list) return '<div class="blk"><div class="in adashempty">'+t("loading")+'</div></div>';
+  if(!list.length) return '<div class="blk"><div class="in adashempty">'+GX("wNone")+'</div></div>';
+  var pend=list.filter(function(w){ return w.status==="pending" }).length;
+  return '<div class="blk"><h3>'+GX("tWanted")+(pend?' <span class="n">'+pend+'</span>':'')+'</h3><div class="in eng-in"><div class="elist">'+list.map(function(w){
+    return '<div class="erow wrow"><div class="pjtitle">'+avatar(w.user_avatar,w.user_name,40,"aglogo")+'<div><b>'+wTitle(w)+'</b><small>'+esc(w.user_name||"")+' · <span class="ltr">'+esc(w.user_phone||"")+'</span></small></div></div>'+
+      '<div class="ewho">'+(w.deal==="rent"?GX("wRent"):GX("wBuy"))+' · '+(w.gov_name?gN(w.gov_name):GX("wAnywhere"))+'<small>'+(w.area_names||[]).map(aN).join("، ")+'</small></div>'+
+      '<div class="eclient">'+wBudgetText(w)+'<small>'+[wTypeName(w.property_type),w.rooms_min?GX("wRoomsN").replace("{n}",w.rooms_min):""].filter(Boolean).join(" · ")+'</small></div>'+
+      '<div class="eperiod"><span class="ltr">'+String(w.created_at||"").slice(0,10)+'</span><small>'+GX("wViews").replace("{n}",'<span class="ltr">'+(w.views||0)+'</span>')+'</small></div>'+
+      '<div class="est">'+wStatusPill(w.status,w.expired)+(w.featured?' <span class="vbadge">★</span>':'')+'</div>'+
+      '<div class="eacts">'+(w.status!=="open"?'<button type="button" class="ab ok" data-wadm="'+w.id+':open">'+(w.status==="pending"?GX("agApprove"):GX("wOpenBtn"))+'</button>':'')+(w.status==="open"?'<button type="button" class="ab" data-wadm="'+w.id+':hidden">'+GX("agHide")+'</button>':'')+
+        (w.status==="pending"?'<button type="button" class="ab bad" data-wadm="'+w.id+':rejected">'+GX("agReject")+'</button>':'')+'<button type="button" class="ab" data-wfeat="'+w.id+':'+(w.featured?"0":"1")+'">'+(w.featured?GX("wUnfeature"):GX("wFeature"))+'</button>'+
+        (w.status==="open"?'<a class="ab" href="/wanted/'+w.id+'" target="_blank" rel="noopener">'+GX("agView")+'</a>':'')+'<button type="button" class="ab bad" data-wadel="'+w.id+'">'+t("del")+'</button></div></div>' }).join("")+'</div></div></div>' }
 /* ═══ new projects (off-plan, payment plans) ═══ */
 var PROJECTS=null, PROJECT=null, PJF={status:"",g:""}, ADM_PJ=null, ADM_PJL=null, PJ_STATUSES=["soon","construction","handover","ready"];
 function pjSt(k){ return GX("pjst_"+(k||"soon")) }
@@ -6984,7 +7162,7 @@ function wire(){
    if(it){ it.photos = ph || []; GI=0; render() } }});
 
  $$("[data-soon]").forEach(function(a){ a.onclick=function(e){ e.preventDefault(); e.stopPropagation(); mdwClose(); soonOpen(this.dataset.soon) } });
- wireAgencies(); wireProjects();
+ wireAgencies(); wireProjects(); wireWanted();
  $$("[data-deal2]").forEach(function(e){ e.onclick=function(){
    HOMEDEAL=e.dataset.deal2; F.deal=HOMEDEAL; render() }});
  wireAuth();
@@ -7707,6 +7885,13 @@ function wireAdmin(){
   // the agencies and engagements lists reload every time their tab is opened, so a request made a minute ago is there
   wireAdminBell();
   if(ADM.tab!=="agencies_adm"){ ADM._agLoaded=false } if(ADM.tab!=="engage"){ ADM._engDays=null }
+  if(ADM.tab!=="wanted_adm"){ ADM._wLoaded=false }
+  if(ADM.tab==="wanted_adm"){
+    if(!ADM._wLoaded){ ADM._wLoaded=true; rpc("bk_admin_wanted",{p_token:ADM.token}).then(function(r){ ADM_W=r||[]; render() }).catch(function(e){ ADM_W=[]; render() }) }
+    $$("[data-wadm]").forEach(function(b){ b.onclick=async function(){ var q=this.dataset.wadm.split(":"); try{ await rpc("bk_admin_wanted_set",{p_token:ADM.token,p_id:+q[0],p_status:q[1]}); ADM._wLoaded=false; WANTED=null; syncAdminTodo(); render() }catch(e){ alert(e.message||"error") } } });
+    $$("[data-wfeat]").forEach(function(b){ b.onclick=async function(){ var q=this.dataset.wfeat.split(":"); try{ await rpc("bk_admin_wanted_set",{p_token:ADM.token,p_id:+q[0],p_featured:q[1]==="1"}); ADM._wLoaded=false; WANTED=null; render() }catch(e){ alert(e.message||"error") } } });
+    $$("[data-wadel]").forEach(function(b){ b.onclick=async function(){ if(!confirm(GX("wDelConfirm"))) return; try{ await rpc("bk_admin_wanted_delete",{p_token:ADM.token,p_id:+this.dataset.wadel}); ADM._wLoaded=false; WANTED=null; render() }catch(e){ alert(e.message||"error") } } });
+  }
   if(ADM.tab!=="projects_adm"){ ADM._pjLoaded=false }
   if(ADM.tab==="projects_adm"){
     if(!ADM._pjLoaded){ ADM._pjLoaded=true; rpc("bk_admin_projects",{p_token:ADM.token}).then(function(r){ ADM_PJ=r||[]; render() }).catch(function(){ ADM_PJ=[]; render() }); rpc("bk_admin_project_leads",{p_token:ADM.token}).then(function(r){ ADM_PJL=r||[]; render() }).catch(function(){ ADM_PJL=[] }); if(!ADM_AG) rpc("bk_admin_agencies",{p_token:ADM.token}).then(function(r){ ADM_AG=r||[] }).catch(function(){}) }
@@ -9606,6 +9791,7 @@ function routePath(){
          VIEW.indexOf("by:")===0 ? "/seller/"+VIEW.split(":")[1] :
          VIEW.indexOf("agency:")===0 ? "/agency/"+VIEW.split(":")[1] :
          VIEW.indexOf("project:")===0 ? "/project/"+VIEW.split(":")[1] :
+         VIEW.indexOf("wanted:")===0 ? "/wanted/"+VIEW.split(":")[1] :
          (VIEW==="about"||VIEW==="contactus") ? "/"+VIEW+"/" :   // these also exist as static pages
          "/"+VIEW+(VIEW==="search"?filterToQuery():"");
 }
@@ -9617,7 +9803,8 @@ var PAGE_T={
   about:{ar:"عن بلكون",en:"About Balkoun",de:"Über Balkoun"}, contact:{ar:"تواصل معنا",en:"Contact us",de:"Kontakt"}, contactus:{ar:"تواصل معنا",en:"Contact us",de:"Kontakt"},
   admin:{ar:"لوحة الإدارة",en:"Admin",de:"Verwaltung"}, listing:{ar:"تفاصيل العقار",en:"Property details",de:"Immobiliendetails"}, by:{ar:"إعلانات المعلن",en:"Seller listings",de:"Anzeigen des Anbieters"},
   agencies:{ar:"دليل المكاتب العقارية",en:"Real estate agencies",de:"Immobilienbüros"}, agency:{ar:"مكتب عقاري",en:"Agency",de:"Immobilienbüro"}, agencyform:{ar:"بيانات المكتب",en:"Agency profile",de:"Büroprofil"},
-  projects:{ar:"مشاريع جديدة وقيد الإنشاء",en:"New projects",de:"Neubauprojekte"}, project:{ar:"مشروع",en:"Project",de:"Projekt"}
+  projects:{ar:"مشاريع جديدة وقيد الإنشاء",en:"New projects",de:"Neubauprojekte"}, project:{ar:"مشروع",en:"Project",de:"Projekt"},
+  wanted:{ar:"مطلوب: طلبات المشترين والمستأجرين",en:"Wanted",de:"Gesucht"}, wantedform:{ar:"أضف طلبك",en:"Post a request",de:"Anfrage aufgeben"}
 };
 var _HOME_TITLE=document.title;
 function setPageMeta(){
@@ -9646,7 +9833,8 @@ function viewFromHash(){
   if(p[0]==="seller"&&p[1]) return "by:"+p[1];
   if(p[0]==="agency"&&p[1]) return "agency:"+(p[1].match(/^\d+/)||[p[1]])[0];
   if(p[0]==="project"&&p[1]) return "project:"+(p[1].match(/^\d+/)||[p[1]])[0];
-  if(["search","post","mine","saved","searches","msgs","account","about","contact","contactus","admin","mapsearch","agencies","agencyform","projects"].indexOf(p[0])>-1){
+  if(p[0]==="wanted"&&p[1]) return "wanted:"+(p[1].match(/^\d+/)||[p[1]])[0];
+  if(["search","post","mine","saved","searches","msgs","account","about","contact","contactus","admin","mapsearch","agencies","agencyform","projects","wanted","wantedform"].indexOf(p[0])>-1){
     if(p[0]==="search" && qs) applyFilterFromQuery(qs);
     return p[0];
   }
@@ -9724,7 +9912,7 @@ function render(){
  if(VIEW!==_lastRenderedView){ _lastRenderedView=VIEW; refreshListingsOnNavigate(); }
  document.documentElement.lang=L; document.documentElement.dir=D.I18N[L].dir;
  var body= VIEW==="home"?home(): VIEW==="search"?search(): VIEW==="post"?post():
-          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): listing(VIEW.split(":")[1]);
+          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): listing(VIEW.split(":")[1]);
  document.body.classList.remove("mdw-open");
  $("#app").innerHTML=header()+body+footer()+authModal()+reportModal();
  // home page only: the header sits transparent over the hero photo/video
@@ -9775,7 +9963,7 @@ var HX_T={
 function HX(k){ var o=HX_T[k]||{}; return o[L]||o.en||"" }
 
 /* every homepage section below the hero, in the admin's order; each has a show switch (home_<k>_on) and text overrides (<k>_<field>_<lang>) */
-var HOME_SECS=["ads","banners","ticker","projects","colls","types","trust","expl","band","guides"];
+var HOME_SECS=["ads","banners","ticker","projects","wanted","colls","types","trust","expl","band","guides"];
 function homeOrder(){ var o=SX("home_order",null); if(typeof o==="string"){ try{ o=JSON.parse(o) }catch(e){ o=null } } var r=Array.isArray(o)?o.filter(function(k){ return HOME_SECS.indexOf(k)>-1 }):[]; HOME_SECS.forEach(function(k){ if(r.indexOf(k)<0) r.push(k) }); return r }
 function HSON(k){ return SX("home_"+k+"_on",true)!==false }
 function HT(k,fb){ var v=SX(k+"_"+L,""); return (v===""||v==null) ? fb : esc(unesc(String(v))) }
@@ -9787,6 +9975,7 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
     banners:function(){ return HSON("banners") && SX("banners_slot","flow")!=="top" ? bannerAboveHtml : "" },
     ticker:function(){ return HSON("ticker") ? marketTickerHtml() : "" },
     projects:function(){ return homeProjectsHtml() },
+    wanted:function(){ return homeWantedHtml() },
     colls:function(){ return HSON("colls") ? homeCollectionsHtml() : "" },
     types:function(){ return HSON("types") ? '<div class="wrap"><section class="sec" id="typesSec"><div class="eyebrow">'+HT("types_eyebrow",HX("pickE"))+'</div><h2>'+HT("types_h",t("pickH"))+'</h2>'+typeList()+'</section></div>' : "" },
     trust:function(){ return HSON("trust") ? homeTrustHtml() : "" },
@@ -10471,6 +10660,33 @@ var GX_T={
   rsOnMap:{ar:"{n} على الخريطة",en:"{n} on the map",de:"{n} auf der Karte"}, rsList:{ar:"القائمة",en:"List",de:"Liste"},
   tEngage:{ar:"الحملات والحجوزات",en:"Engagements",de:"Buchungen"},
   newTag:{ar:"جديد",en:"New",de:"Neu"},
+  wDir:{ar:"مطلوب: طلبات المشترين والمستأجرين",en:"Wanted: what buyers and tenants are looking for",de:"Gesucht: was Käufer und Mieter suchen"}, wDirShort:{ar:"مطلوب",en:"Wanted",de:"Gesucht"},
+  wDirP:{ar:"هنا يكتب الأعضاء ما يبحثون عنه: المنطقة، الميزانية، والتفاصيل. إذا كان لديك عقار يناسب طلباً، تواصل مع صاحبه مباشرة.",en:"Members describe what they are looking for: the area, the budget and the details. If you have a property that fits, contact them directly.",de:"Mitglieder beschreiben, was sie suchen: Gegend, Budget und Details. Passt Ihre Immobilie, nehmen Sie direkt Kontakt auf."},
+  wPost:{ar:"أضف طلبك",en:"Post your request",de:"Anfrage aufgeben"}, wMine:{ar:"طلباتي",en:"My requests",de:"Meine Anfragen"}, wAll:{ar:"كل الطلبات",en:"All requests",de:"Alle Anfragen"},
+  wBuy:{ar:"يريد الشراء",en:"Wants to buy",de:"Will kaufen"}, wRent:{ar:"يريد الإيجار",en:"Wants to rent",de:"Will mieten"}, wBuyOpt:{ar:"شراء",en:"Buy",de:"Kaufen"}, wRentOpt:{ar:"إيجار",en:"Rent",de:"Mieten"},
+  wForBuy:{ar:"للشراء",en:"to buy",de:"zum Kauf"}, wForRent:{ar:"للإيجار",en:"to rent",de:"zur Miete"}, wAuto:{ar:"{t} {d} في {g}",en:"{t} {d} in {g}",de:"{t} {d} in {g}"}, wProp:{ar:"عقار",en:"Property",de:"Immobilie"}, wAnywhere:{ar:"أي محافظة",en:"anywhere in Syria",de:"überall in Syrien"},
+  wBudget:{ar:"الميزانية",en:"Budget",de:"Budget"}, wUpTo:{ar:"حتى {n}",en:"Up to {n}",de:"Bis {n}"}, wFromTo:{ar:"{a} – {b}",en:"{a} – {b}",de:"{a} – {b}"}, wFromN:{ar:"من {a}",en:"From {a}",de:"Ab {a}"}, wOpenBudget:{ar:"ميزانية مفتوحة",en:"Open budget",de:"Offenes Budget"},
+  wRoomsN:{ar:"{n}+ غرف",en:"{n}+ rooms",de:"{n}+ Zimmer"}, wAreaN:{ar:"{n}+ م²",en:"{n}+ m²",de:"{n}+ m²"},
+  wMatches:{ar:"{n} إعلانات مطابقة",en:"{n} matching listings",de:"{n} passende Anzeigen"}, wMatchesH:{ar:"إعلانات تطابق هذا الطلب",en:"Listings that match this request",de:"Passende Anzeigen"},
+  wNoMatches:{ar:"لا إعلانات مطابقة الآن. سيصل صاحب الطلب إشعار عند نشر إعلان مناسب.",en:"No matching listings right now. The requester is notified when a fitting listing goes live.",de:"Derzeit keine passenden Anzeigen. Der Suchende wird benachrichtigt, sobald eine passende Anzeige erscheint."},
+  wContact:{ar:"تواصل مع صاحب الطلب",en:"Contact the requester",de:"Suchenden kontaktieren"}, wNoPhone:{ar:"صاحب الطلب لا يعرض رقمه.",en:"The requester does not show a phone number.",de:"Der Suchende zeigt keine Telefonnummer."},
+  wDays:{ar:"منذ {d} يوم",en:"{d} days ago",de:"vor {d} Tagen"}, wToday:{ar:"اليوم",en:"Today",de:"Heute"}, wExpires:{ar:"ينتهي في {d}",en:"Expires {d}",de:"Läuft ab am {d}"}, wViews:{ar:"{n} مشاهدة",en:"{n} views",de:"{n} Aufrufe"},
+  wEmpty:{ar:"لا طلبات مطابقة بعد.",en:"No matching requests yet.",de:"Noch keine passenden Anfragen."}, wEmptyCta:{ar:"كن أول من يضيف طلباً، وسيراه المالكون والمكاتب.",en:"Be the first to post one. Owners and agencies will see it.",de:"Stellen Sie die erste Anfrage ein. Eigentümer und Büros sehen sie."},
+  wMineEmpty:{ar:"لم تضف أي طلب بعد.",en:"You have not posted a request yet.",de:"Sie haben noch keine Anfrage."},
+  wFormT:{ar:"طلبك",en:"Your request",de:"Ihre Anfrage"}, wFormEditT:{ar:"تعديل الطلب",en:"Edit request",de:"Anfrage bearbeiten"}, wFormP:{ar:"اكتب ما تبحث عنه بدقة. كلما كان الطلب أوضح، كانت العروض التي تصلك أفضل.",en:"Describe exactly what you want. The clearer the request, the better the offers you get.",de:"Beschreiben Sie genau, was Sie suchen. Je klarer die Anfrage, desto besser die Angebote."},
+  f_wDeal:{ar:"أبحث عن",en:"I am looking to",de:"Ich möchte"}, f_wAreas:{ar:"المناطق المفضلة (اختياري)",en:"Preferred areas (optional)",de:"Bevorzugte Gegenden (optional)"}, f_wBudgetMin:{ar:"الميزانية من",en:"Budget from",de:"Budget von"}, f_wBudgetMax:{ar:"إلى",en:"to",de:"bis"}, f_wCur:{ar:"العملة",en:"Currency",de:"Währung"},
+  f_wRooms:{ar:"الغرف (على الأقل)",en:"Rooms (at least)",de:"Zimmer (mindestens)"}, f_wArea:{ar:"المساحة م² (على الأقل)",en:"Size m² (at least)",de:"Fläche m² (mindestens)"}, f_wTabu:{ar:"حالة الطابو المفضلة",en:"Preferred title deed",de:"Bevorzugter Grundbuchstatus"}, wAnyTabu:{ar:"أي حالة",en:"Any",de:"Beliebig"},
+  f_wTitle:{ar:"عنوان الطلب",en:"Title",de:"Titel"}, f_wTitlePH:{ar:"مثال: شقة 3 غرف في المزة أو المالكي",en:"e.g. 3-room apartment in Mezzeh or Malki",de:"z. B. 3-Zimmer-Wohnung in Mezzeh oder Malki"},
+  f_wDesc:{ar:"التفاصيل",en:"Details",de:"Details"}, f_wDescPH:{ar:"الطابق، الإطلالة، التشطيب، موعد الاستلام، طريقة الدفع…",en:"Floor, view, finish, move-in date, payment…",de:"Etage, Aussicht, Ausbau, Einzugstermin, Zahlung…"},
+  f_wContact:{ar:"كيف يتواصل معك المالكون؟",en:"How should owners reach you?",de:"Wie sollen Eigentümer Sie erreichen?"}, wc_both:{ar:"اتصال وواتساب",en:"Call and WhatsApp",de:"Anruf und WhatsApp"}, wc_phone:{ar:"اتصال فقط",en:"Call only",de:"Nur Anruf"}, wc_whatsapp:{ar:"واتساب فقط",en:"WhatsApp only",de:"Nur WhatsApp"}, wc_none:{ar:"لا تعرض رقمي",en:"Do not show my number",de:"Meine Nummer nicht anzeigen"},
+  wSave:{ar:"نشر الطلب",en:"Publish request",de:"Anfrage veröffentlichen"}, wSaveEdit:{ar:"حفظ التعديلات",en:"Save changes",de:"Änderungen speichern"}, wSaved:{ar:"تم حفظ طلبك وسيظهر بعد مراجعته.",en:"Saved. Your request appears after review.",de:"Gespeichert. Ihre Anfrage erscheint nach Prüfung."}, wSavedOk:{ar:"تم نشر طلبك.",en:"Your request is live.",de:"Ihre Anfrage ist online."},
+  wLimit:{ar:"يمكنك نشر حتى 5 طلبات مفتوحة في الوقت نفسه. الطلب يبقى 60 يوماً ويمكن تجديده.",en:"You can keep up to 5 open requests. Each stays 60 days and can be renewed.",de:"Bis zu 5 offene Anfragen gleichzeitig. Jede bleibt 60 Tage und kann verlängert werden."},
+  w_st_open:{ar:"منشور",en:"Live",de:"Online"}, w_st_fulfilled:{ar:"تم تلبيته",en:"Fulfilled",de:"Erledigt"}, w_st_hidden:{ar:"مخفي",en:"Hidden",de:"Verborgen"}, w_st_rejected:{ar:"مرفوض",en:"Rejected",de:"Abgelehnt"}, w_st_expired:{ar:"منتهي",en:"Expired",de:"Abgelaufen"},
+  wMarkDone:{ar:"تم تلبية الطلب",en:"Mark as fulfilled",de:"Als erledigt markieren"}, wReopen:{ar:"إعادة النشر 60 يوماً",en:"Reopen for 60 days",de:"60 Tage verlängern"}, wDelConfirm:{ar:"حذف هذا الطلب نهائياً؟",en:"Delete this request permanently?",de:"Diese Anfrage endgültig löschen?"},
+  wSecEyebrow:{ar:"مطلوب",en:"Wanted",de:"Gesucht"}, wSecH:{ar:"مشترون ومستأجرون يبحثون الآن. هل لديك ما يناسبهم؟",en:"Buyers and tenants are looking right now. Do you have what they want?",de:"Käufer und Mieter suchen jetzt. Haben Sie das Passende?"}, wSecSub:{ar:"طلبات حقيقية من أعضاء بلكون. تواصل معهم مباشرة.",en:"Real requests from Balkoun members. Contact them directly.",de:"Echte Anfragen von Balkoun-Mitgliedern. Direkt Kontakt aufnehmen."}, wSeeAll:{ar:"كل الطلبات",en:"See all requests",de:"Alle Anfragen"},
+  wDisabled:{ar:"هذا القسم غير متاح حالياً.",en:"This section is not available right now.",de:"Dieser Bereich ist derzeit nicht verfügbar."}, wVerified:{ar:"رقم موثّق",en:"Verified number",de:"Geprüfte Nummer"},
+  tWanted:{ar:"الطلبات (مطلوب)",en:"Wanted requests",de:"Gesucht-Anfragen"}, desc_wanted_adm:{ar:"طلبات الأعضاء الباحثين عن عقار: الموافقة، الإخفاء، التمييز والحذف.",en:"Requests from members looking for a property: approve, hide, feature and delete.",de:"Anfragen von Mitgliedern auf Immobiliensuche: freigeben, verbergen, hervorheben, löschen."},
+  bellWanted:{ar:"طلبات بانتظار الموافقة",en:"Requests awaiting approval",de:"Anfragen warten auf Freigabe"}, wFeature:{ar:"تمييز",en:"Feature",de:"Hervorheben"}, wUnfeature:{ar:"إلغاء التمييز",en:"Unfeature",de:"Nicht mehr hervorheben"}, wOpenBtn:{ar:"نشر",en:"Publish",de:"Veröffentlichen"}, wNone:{ar:"لا طلبات بعد.",en:"No requests yet.",de:"Noch keine Anfragen."},
   pjDir:{ar:"مشاريع جديدة وقيد الإنشاء",en:"New and under-construction projects",de:"Neubauprojekte"}, pjDirShort:{ar:"مشاريع جديدة",en:"New projects",de:"Neubau"},
   pjDirP:{ar:"اشترِ من المطوّر مباشرة بخطة دفع واضحة: دفعة أولى، أقساط شهرية، ودفعة عند التسليم. كل مشروع هنا راجعه فريق بلكون.",en:"Buy directly from the developer with a clear payment plan: a down payment, monthly installments and a handover payment. Every project here is reviewed by Balkoun.",de:"Direkt vom Bauträger mit klarem Zahlungsplan kaufen: Anzahlung, Monatsraten und Zahlung bei Übergabe. Jedes Projekt wurde von Balkoun geprüft."},
   pjAll:{ar:"كل المشاريع",en:"All projects",de:"Alle Projekte"}, pjst_soon:{ar:"قريباً",en:"Coming soon",de:"Bald"}, pjst_construction:{ar:"قيد الإنشاء",en:"Under construction",de:"Im Bau"}, pjst_handover:{ar:"تسليم قريب",en:"Handover soon",de:"Übergabe bald"}, pjst_ready:{ar:"جاهز للتسليم",en:"Ready",de:"Bezugsfertig"},
@@ -10787,6 +11003,7 @@ var HS_T={
  trust:{ar:"لماذا بلكون",en:"Why Balkoun",de:"Warum Balkoun"}, expl:{ar:"استكشف المناطق",en:"Explore areas",de:"Gebiete entdecken"},
  band:{ar:"شريط المالكين",en:"Owners band",de:"Eigentümer-Band"}, guides:{ar:"دليل المشتري",en:"Buyer's guide",de:"Käuferratgeber"},
  projects:{ar:"مشاريع جديدة",en:"New projects",de:"Neubau"}, f_pjN:{ar:"عدد المشاريع في القسم",en:"Projects shown in the section",de:"Projekte im Abschnitt"},
+ wanted:{ar:"مطلوب",en:"Wanted",de:"Gesucht"}, f_wN:{ar:"عدد الطلبات في القسم",en:"Requests shown in the section",de:"Anfragen im Abschnitt"}, g_wanted:{ar:"إعدادات قسم مطلوب",en:"Wanted section settings",de:"Einstellungen Gesucht"}, f_wEnabled:{ar:"تفعيل قسم مطلوب في الموقع (الصفحة والقائمة)",en:"Enable the Wanted section (page and menu)",de:"Gesucht-Bereich aktivieren (Seite und Menü)"}, f_wApproval:{ar:"نشر الطلبات الجديدة",en:"New requests go live",de:"Neue Anfragen erscheinen"}, wa_auto:{ar:"فوراً بدون مراجعة",en:"immediately",de:"sofort"}, wa_manual:{ar:"بعد موافقة الإدارة",en:"after admin approval",de:"nach Freigabe"},
  page:{ar:"الحركة والمسافات",en:"Motion and spacing",de:"Bewegung und Abstände"},
  editing:{ar:"القيم الآن لـ",en:"Editing values for",de:"Werte für"}, same:{ar:"مثل الكمبيوتر",en:"Same as desktop",de:"Wie Desktop"},
  useDesk:{ar:"استخدم قيمة الكمبيوتر",en:"Use the desktop value",de:"Desktop-Wert verwenden"},
@@ -10847,7 +11064,7 @@ var HS_T={
  contactHint:{ar:"تظهر في صفحة «تواصل معنا» (المعاينة) وفي أزرار الاتصال عبر الموقع. يظهر الحساب فقط عندما يُملأ الرابط والاسم معاً.",en:"Shown on the “Contact us” page (the preview) and in the contact buttons across the site. An account appears only when both its link and name are filled.",de:"Erscheint auf der Kontaktseite (Vorschau) und in den Kontakt-Buttons. Ein Konto erscheint nur mit Link und Name."}
 };
 function hsT(k){ var o=HS_T[k]||{}; return o[L]||o.en||k }
-var HS_SEL={hero_text:".hero h1",hero_bg:".hero-outer",hero_search:".sbar",hero_stats:".hnote",ads:".adsec",banners:".topbanner-wrap",ticker:".mkt",projects:"#projectsSec",colls:"#collsSec",types:"#typesSec",trust:"#trustSec",expl:"#explSec",band:"#bandSec",guides:"#guidesSec",page:".hero-outer",
+var HS_SEL={hero_text:".hero h1",hero_bg:".hero-outer",hero_search:".sbar",hero_stats:".hnote",ads:".adsec",banners:".topbanner-wrap",ticker:".mkt",projects:"#projectsSec",wanted:"#wantedSec",colls:"#collsSec",types:"#typesSec",trust:"#trustSec",expl:"#explSec",band:"#bandSec",guides:"#guidesSec",page:".hero-outer",
   row:".adsec",look:".adsec",perf:".adsec",strip:".topbanner-wrap",cards:".res",badges:".res",results:".rs-head",nav:"header",social:".changrid",numbers:".changrid"};
 var HS_EYE={ads:"x:ads_row_enabled"};
 var HS_VARKEYS=/^(sk_|h1_|sbar_|hero_gap|ad_carousel_gap|ad_square_size|hero_title_size_m|sec_pad|hero_max_height|card_min_width)/;
@@ -11060,6 +11277,9 @@ function hsInspHome(){
       fUpload(hsT("f_img"),"x:band_img","home","image/*","/assets/home/umayyad.jpg"));
   } else if(sd==="guides"){
     H.push(fSwitch(hsT("showSec"),"x:home_guides_on",true,true), fHint(hsT("textsHint")), fSecTexts("guides",HX("guideE"),t("guideH"),t("guideS")));
+  } else if(sd==="wanted"){
+    H.push(fSwitch(hsT("showSec"),"x:home_wanted_on",true,true), fNum(hsT("f_wN"),"x:home_wanted_n",1,12,1,6,true), fHint(hsT("textsHint")), fSecTexts("wanted",GX("wSecEyebrow"),GX("wSecH"),GX("wSecSub")),
+      fGrp(hsT("g_wanted")), fSwitch(hsT("f_wEnabled"),"x:wanted_enabled",true,true), fSel(hsT("f_wApproval"),"x:wanted_approval",[["auto",hsT("wa_auto")],["manual",hsT("wa_manual")]],"auto",false));
   } else if(sd==="projects"){
     H.push(fSwitch(hsT("showSec"),"x:home_projects_on",true,true), fNum(hsT("f_pjN"),"x:home_projects_n",1,12,1,6,true), fHint(hsT("textsHint")), fSecTexts("projects",GX("pjSecEyebrow"),GX("pjSecH"),GX("pjSecSub")));
   } else if(sd==="page"){
@@ -11098,7 +11318,7 @@ function hsOutlineBanners(){
 function hsOutlineHome(){
   var m=hsMerged(), ex=m.extras, site=m.site;
   var isOn=function(key){ var p=hsParts(key), v=p.col?site[p.name]:ex[p.name]; return v==null||v===""?true:(v!==false&&v!=="false") };
-  var ICO={ads:AICO.ads,banners:AICO.banner,ticker:AICO.chart,projects:AICO.building,colls:ICON_GRID,types:AICO.listings,trust:AICO.shield,expl:AICO.map,band:AICO.users,guides:AICO.star};
+  var ICO={ads:AICO.ads,banners:AICO.banner,ticker:AICO.chart,projects:AICO.building,wanted:AICO.search,colls:ICON_GRID,types:AICO.listings,trust:AICO.shield,expl:AICO.map,band:AICO.users,guides:AICO.star};
   var item=function(k,o){ o=o||{}; var on=o.eye?isOn(o.eye):o.bgEye?((site.hero_bg_type||"sketch")!=="none"):true; var selK=o.selAs||k; var isSel=HS.sel===selK || (k==="hero" && HS.sel.indexOf("hero_")===0);
     return '<div class="hs-item'+(isSel?' on':'')+(o.child?' child':'')+(on?'':' off')+'" data-hssel="'+selK+'">'+(o.ico?'<span class="hs-ico">'+o.ico+'</span>':'')+'<span class="hs-name">'+hsT(k)+(o.sub?'<small class="hs-sub">'+o.sub+'</small>':'')+'</span>'+
       (o.mv?'<button type="button" class="hs-mv" data-hsmv="'+k+':-1" title="'+hsT("up")+'">▲</button><button type="button" class="hs-mv" data-hsmv="'+k+':1" title="'+hsT("down")+'">▼</button>':'')+

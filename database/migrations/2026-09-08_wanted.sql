@@ -1,0 +1,12 @@
+-- "مطلوب" (Wanted): members post what they are looking for; owners and agencies find them.
+-- Applied through the Supabase migration "wanted_requests" on 2026-09-08.
+-- Table public.wanted (user_id, deal sale|rent, property_type, gov_name, area_names text[], budget_min/max, currency,
+--   rooms_min, area_min, tabu, title, description, contact phone|whatsapp|both|none,
+--   status pending|open|fulfilled|hidden|rejected, featured, views, expires_at = now()+60d).
+-- RPCs: bk_public_wanted(), bk_wanted_get(p_id), bk_wanted_mine(p_token), bk_wanted_save(p_token,p_id,p_data jsonb),
+--   bk_wanted_set(p_token,p_id,p_status fulfilled|open), bk_wanted_delete(p_token,p_id),
+--   bk_admin_wanted(p_token), bk_admin_wanted_set(p_token,p_id,p_status,p_featured), bk_admin_wanted_delete(p_token,p_id).
+-- New requests go live at once unless site_content.extras.wanted_approval = 'manual' (set from the homepage studio) or the member needs review.
+-- bk_wanted_notify(p_id): notifies owners of matching live listings (type wanted_match, link /wanted/<id>).
+-- Trigger trg_listing_live_wanted on listings: when a listing goes live, requesters with a matching open request are notified (type wanted_listing, link /listing/<id>).
+-- bk_admin_todo now returns pending_wanted and 'wanted' items in latest.
