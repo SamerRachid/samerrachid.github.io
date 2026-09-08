@@ -66,7 +66,7 @@
   already organised that way.
  ═══════════════════════════════════════════════════════════════════════
 -->
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://coajrqynjrptujmzjjdh.supabase.co" crossorigin><link rel="dns-prefetch" href="https://coajrqynjrptujmzjjdh.supabase.co"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.114.0/dist/umd/supabase.js" integrity="sha384-UxmVkfpcoSCBn4QrHwxxZVlCbloMpP/2Ay2ByWcNy6TcMxC3JUgqa8Geipyl0tP7" crossorigin="anonymous"></script>
 <!-- Leaflet (maps) is loaded on demand by ensureLeaflet() the first time a map is shown,
@@ -5691,7 +5691,7 @@ function adSlotsRow(){
    if(isLinked){
      var place=[a.l_area_name?aN(a.l_area_name):"", a.l_gov?gN(a.l_gov):""].filter(Boolean).join(", ");
      media = '<img class="adslot-rotimg" src="'+a.l_photos[0]+'" data-photos="'+
-       encodeURIComponent(JSON.stringify(a.l_photos))+'" data-idx="0" alt="" loading="lazy">'+
+       encodeURIComponent(JSON.stringify(a.l_photos))+'" data-idx="0" alt="'+esc([(a.l_type&&D.TYPES[a.l_type])?D.TYPES[a.l_type][li()]:"", place].filter(Boolean).join(" · "))+'" loading="lazy">'+
        '<div class="adslot-foot" style="font-size:var(--ris);color:'+textColor+';'+
          'background:linear-gradient(to top,rgba('+shadeRgb+',.85) 0%,rgba('+shadeRgb+',.55) 55%,transparent 100%)">'+
         (a.l_rooms?'<span>'+(showIcons?ICON_BED:"")+a.l_rooms+(showIcons?"":" "+t("rooms"))+'</span>':'')+
@@ -9994,7 +9994,7 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
     band:function(){ return (USER || !HSON("band")) ? "" : '<div class="wrap"><div class="band frame" id="bandSec"><div class="band-tx"><div class="eyebrow">'+HT("band_eyebrow",HX("ownE"))+'</div><h2>'+HT("band_h",t("bandH"))+'</h2><p>'+HT("band_p",t("bandP"))+'</p><div class="bandlist">'+
        '<span>'+HT("band_b1",t("b1"))+'</span><span>'+HT("band_b2",t("b2"))+'</span><span>'+HT("band_b3",t("b3"))+'</span></div>'+
        '<a class="gold" data-go="post" style="text-decoration:none">'+HT("band_btn",t("bandBtn"))+'</a></div>'+
-       '<div class="band-im"><img src="'+HU("band_img","/assets/home/umayyad.jpg")+'" alt="" loading="lazy"></div></div></div>' },
+       '<div class="band-im"><img src="'+HU("band_img","/assets/home/umayyad.jpg")+'" alt="'+esc(HT("band_img_alt",{ar:"الجامع الأموي في دمشق",en:"The Umayyad Mosque in Damascus",de:"Die Umayyaden-Moschee in Damaskus"}[L]))+'" loading="lazy" decoding="async"></div></div></div>' },
     guides:function(){ return HSON("guides") ? '<div class="wrap"><section class="sec" id="guidesSec"><div class="eyebrow">'+HT("guides_eyebrow",HX("guideE"))+'</div><h2>'+HT("guides_h",t("guideH"))+'</h2><div class="sub">'+HT("guides_sub",t("guideS"))+'</div><div class="guides">'+
        G.map(function(g,i){ var slugs=["verify-deed","deed-types","transfer-notary","buying-from-abroad"], href=(L==="ar"?"":"/"+L)+"/guides/"+(slugs[i]||"")+"/"; return '<a class="guide" href="'+href+'"><div class="k">'+g[0]+'</div><h3>'+g[1]+'</h3><p>'+g[2]+'</p></a>'}).join("")+'</div><div class="pjmore"><a class="gh" href="'+(L==="ar"?"":"/"+L)+'/guides/">'+GX("guidesAll")+'</a></div></section></div>' : "" }
   };
@@ -10005,7 +10005,7 @@ function homeCollectionsHtml(){
   return '<div class="wrap"><section class="sec" id="collsSec"><div class="eyebrow">'+HT("colls_eyebrow",HX("collE"))+'</div><h2>'+HT("colls_h",HX("collH"))+'</h2><div class="sub">'+HT("colls_sub",HX("collS"))+'</div>'+
    '<div class="colls">'+cards.map(function(c,i){ var n=i+1; if(SX("coll"+n+"_on",true)===false) return "";
      var gov=SX("coll"+n+"_gov","")||c[3];
-     return '<a class="coll frame" data-go="search" data-gov="'+esc(unesc(String(gov)))+'"><div class="ph"><img src="'+HU("coll"+n+"_img","/assets/home/"+c[0]+".jpg")+'" alt="" loading="lazy">'+
+     return '<a class="coll frame" data-go="search" data-gov="'+esc(unesc(String(gov)))+'"><div class="ph"><img src="'+HU("coll"+n+"_img","/assets/home/"+c[0]+".jpg")+'" alt="'+esc(String(HT("coll"+n+"_t",HX(c[1]))).replace(/<[^>]+>/g,""))+'" loading="lazy" decoding="async">'+
             '<div class="t"><b>'+HT("coll"+n+"_t",HX(c[1]))+'</b><small>'+HT("coll"+n+"_s",HX(c[2]))+'</small></div></div></a>' }).join("")+'</div>'+
    (SX("colls_credit_on",true)===false ? '' : '<div class="credit">'+HX("credit")+'</div>')+'</section></div>';
 }
