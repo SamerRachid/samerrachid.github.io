@@ -1,10 +1,14 @@
 <!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>بلكون — عقارات سوريا للبيع والإيجار من المالك مباشرة | Balkoun</title>
+<title>بلكون — عقارات سوريا للبيع والإيجار من المالك مباشرة | Balkoun · Real estate in Syria</title>
 <meta name="description" content="عقارات سوريا للبيع والإيجار — شقق وبيوت وأراضٍ في جميع المحافظات، مع حالة الطابو في كل إعلان، من المالك مباشرةً وبدون عمولة. Syrian property for sale and rent.">
 <meta name="keywords" content="عقارات سوريا, شقق للبيع دمشق, أراضي للبيع, عقارات حلب, طابو أخضر, Syria real estate, apartments Damascus">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://balkoun.com/">
+<link rel="alternate" hreflang="ar" href="https://balkoun.com/">
+<link rel="alternate" hreflang="en" href="https://balkoun.com/en/">
+<link rel="alternate" hreflang="de" href="https://balkoun.com/de/">
+<link rel="alternate" hreflang="x-default" href="https://balkoun.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Balkoun">
 <meta property="og:title" content="بلكون — عقارات سوريا من المالك مباشرة">
@@ -2793,6 +2797,9 @@ var D = {"I18N": {"ar": {"dir": "rtl", "name": "عربي", "buy": "شراء", "r
 
 /* ═══ ENGINE ── محرّك الموقع (rarely edited) ════════════════════ */
 function detectLang(){
+  try{
+    var m=location.search.match(/[?&]lang=(ar|en|de)(?![a-z])/); if(m){ try{ localStorage.setItem("balkoun_lang",m[1]) }catch(e){} return m[1] }
+  }catch(e){}
   try{
     var saved = localStorage.getItem("balkoun_lang");
     if(saved && D.I18N[saved]) return saved;
