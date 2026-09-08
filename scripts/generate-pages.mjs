@@ -136,6 +136,7 @@ const q = (o) => Object.entries(o).filter(([, v]) => v != null && v !== "").map(
 const appQ = (lang, o = {}) => lang === "ar" ? o : { ...o, lang };
 const searchUrl = (lang, o) => `${SITE}/search?${q(appQ(lang, o))}`;
 const appUrl = (lang, p) => `${SITE}/${p}${lang === "ar" ? "" : `?lang=${lang}`}`;
+const appHome = (lang) => lang === "ar" ? SITE + "/" : `${SITE}/?lang=${lang}`;
 const slugLatin = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-").slice(0, 60);
 const slugAr = (s) => String(s || "").replace(/[^\p{L}\p{N}\s-]/gu, "").trim().replace(/\s+/g, "-").slice(0, 60);
 // listing page URL per language: must match generate-listings.mjs exactly
@@ -237,7 +238,7 @@ footer{background:var(--navy);color:rgba(255,255,255,.7);font-size:13.5px;paddin
 .fl{display:flex;flex-wrap:wrap;gap:8px 18px;margin-bottom:14px}
 .fl a:hover{color:#fff}
 .fb{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14);font-size:12.5px}
-@media(max-width:860px){.hnav{display:none}.hbar{height:58px;gap:8px}.logo{margin-left:0;order:0}.logo svg{width:32px;height:32px}.logo .w b{font-size:18px}.logo .w small{font-size:8px}.htools{margin-left:auto;gap:6px}.mini{display:none}.gold{padding:7px 11px;font-size:12.5px;white-space:nowrap}.langs a{padding:4px 7px;font-size:11.5px}.grid{grid-template-columns:repeat(2,1fr);gap:10px}.cb .p{font-size:17px}.hero{padding:30px 20px}}
+@media(max-width:860px){.hbar{height:auto;min-height:58px;gap:8px;flex-wrap:wrap;padding:6px 0 0}.hnav{order:4;flex-basis:100%;display:flex;gap:16px;overflow-x:auto;padding:6px 2px 10px;scrollbar-width:none;font-size:13.5px;white-space:nowrap}.hnav::-webkit-scrollbar{display:none}.hnav a{flex:none}.logo{margin-left:0;order:0}.logo svg{width:32px;height:32px}.logo .w b{font-size:18px}.logo .w small{font-size:8px}.htools{margin-left:auto;gap:6px}.mini{display:none}.gold{padding:7px 11px;font-size:12.5px;white-space:nowrap}.langs a{padding:4px 7px;font-size:11.5px}.grid{grid-template-columns:repeat(2,1fr);gap:10px}.cb .p{font-size:17px}.hero{padding:30px 20px}}
 `;
 const MARK = `<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="19" y="19" width="62" height="62" fill="none" stroke="currentColor" stroke-width="7"/><path d="M50 5 95 50 50 95 5 50Z" fill="none" stroke="#C4881F" stroke-width="9"/><rect x="42.5" y="42.5" width="15" height="15" fill="currentColor"/></svg>`;
 
@@ -266,9 +267,9 @@ ${hreflang(alts)}
 ${jsonld.map((o) => `<script type="application/ld+json">${jsonForScript(o)}</script>`).join("\n")}
 <style>${CSS}</style></head><body>
 <header><div class="wrap hbar">
-<nav class="hnav"><a href="${searchUrl(lang, { deal: "sale" })}">${esc(W.forSale[0].toUpperCase() + W.forSale.slice(1))}</a><a href="${searchUrl(lang, { deal: "rent" })}">${esc(W.forRent[0].toUpperCase() + W.forRent.slice(1))}</a><a href="${pageUrl(lang, "areas/")}">${W.areas}</a><a href="${appUrl(lang, "mapsearch")}">${W.map}</a><a href="${pageUrl(lang, "guides/")}">${GUIDE_WORDS[lang].crumb}</a><a href="${pageUrl(lang, "about/")}">${W.about}</a></nav>
+<nav class="hnav"><a href="${appHome(lang)}">${W.home}</a><a href="${searchUrl(lang, { deal: "sale" })}">${esc(W.forSale[0].toUpperCase() + W.forSale.slice(1))}</a><a href="${searchUrl(lang, { deal: "rent" })}">${esc(W.forRent[0].toUpperCase() + W.forRent.slice(1))}</a><a href="${pageUrl(lang, "areas/")}">${W.areas}</a><a href="${appUrl(lang, "mapsearch")}">${W.map}</a><a href="${pageUrl(lang, "guides/")}">${GUIDE_WORDS[lang].crumb}</a><a href="${pageUrl(lang, "about/")}">${W.about}</a></nav>
 <div class="htools">${langBar}<a class="mini" href="${appUrl(lang, "account")}">${W.login}</a><a class="gold" href="${appUrl(lang, "post")}">${W.post}</a></div>
-<a class="logo" href="${lang === "ar" ? SITE + "/" : pageUrl(lang, "")}" aria-label="Balkoun">${MARK}<span class="w"><b>بلكون</b><small>BALKOUN</small></span></a></div></header>
+<a class="logo" href="${appHome(lang)}" aria-label="Balkoun">${MARK}<span class="w"><b>بلكون</b><small>BALKOUN</small></span></a></div></header>
 <main class="wrap">${body}</main>
 <footer><div class="wrap"><div class="fl">${footLinks}</div><div class="fb"><span>© 2026 ${W.brand} · balkoun.com</span><span><a href="${pageUrl(lang, "guides/")}">${GUIDE_WORDS[lang].crumb}</a> · <a href="${pageUrl(lang, "about/")}">${W.aboutPlatform}</a> · <a href="${pageUrl(lang, "contactus/")}">${W.contactT}</a></span></div></div></footer>
 </body></html>`;

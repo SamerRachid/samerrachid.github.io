@@ -2664,7 +2664,7 @@ body.mdw-open .mobfab{display:none}
 var CONFIG = {
   brand:      "بلكون",
   brandLatin: "Balkoun",
-  whatsapp:   "963944218706",   // ← رقمك · your number, no + and no spaces
+  whatsapp:   "15148090004",   // ← fallback only: the live number comes from site content (wa_number), no + and no spaces
   domain:     "balkoun.com",
   rate:       13500,            // SYP per USD
   defaultLang:"ar",             // "ar" | "en" | "de"
@@ -2989,26 +2989,27 @@ var NAVI=[
   {k:"buy",g:"search",lab:function(){return t("buy")},ico:"buy",attrs:'data-go="search" data-deal="sale"',o:10},
   {k:"rent",g:"search",lab:function(){return t("rent")},ico:"rent",attrs:'data-go="search" data-deal="rent" data-sec=""',o:20},
   {k:"map",g:"search",lab:function(){return t("searchOnMap")},ico:"map",attrs:'data-go="mapsearch"',o:30},
-  {k:"areas",g:"search",lab:function(){return GX("allAreas")},ico:"areas",attrs:'href="/areas/"',o:40},
+  {k:"areas",g:"search",lab:function(){return GX("allAreas")},ico:"areas",attrs:function(){ return 'href="'+(L==="ar"?"":"/"+L)+'/areas/"' },o:40},
   {k:"projects",g:"discover",lab:function(){return GX("pjDirShort")},ico:"tower",attrs:'data-go="projects"',o:48,tag:"soon"},
   {k:"wanted",g:"discover",lab:function(){return GX("wDirShort")},ico:"wanted",attrs:'data-go="wanted"',o:47,tag:"newTag",hide:function(){ return !wantedOn() }},
   {k:"coll",g:"discover",lab:function(){return HX("navColl")},ico:"coll",attrs:'data-mdscroll="collsSec"',o:50},
   {k:"expl",g:"discover",lab:function(){return HX("navAreas")},ico:"expl",attrs:'data-mdscroll="explSec"',o:60},
   {k:"guide",g:"discover",lab:function(){return HX("navGuide")},ico:"guide",attrs:'data-mdscroll="guidesSec"',o:70},
   {k:"legal",g:"services",lab:function(){return GX("navLegalBoth")},ico:"legal",attrs:'data-soon="legal"',o:72,soon:true},
-  {k:"about",g:"site",lab:function(){return t("about")},ico:"about",attrs:'href="/about/" data-go="about"',o:80},
-  {k:"contactus",g:"site",lab:function(){return t("contactUsPageT")},ico:"phone",attrs:'href="/contactus/" data-go="contactus"',o:90},
+  {k:"about",g:"site",lab:function(){return t("about")},ico:"about",attrs:function(){ return 'href="'+(L==="ar"?"":"/"+L)+'/about/"' },o:80},
+  {k:"contactus",g:"site",lab:function(){return t("contactUsPageT")},ico:"phone",attrs:function(){ return 'href="'+(L==="ar"?"":"/"+L)+'/contactus/"' },o:90},
   {k:"contact",g:"site",lab:function(){return t("contactUs")},ico:"mail",attrs:'data-go="contact"',o:100},
   {k:"agencies",g:"site",lab:function(){return GX("agDirShort")},ico:"agency",attrs:'data-go="agencies"',o:110}
 ];
+function navAttrs(i){ return typeof i.attrs==="function" ? i.attrs() : i.attrs }
 function navOn(k){ var it=NAVI.filter(function(i){ return i.k===k })[0]; if(it&&it.hide&&it.hide()) return false; return SX("nav_"+k,true)!==false }
 function navItems(){ return NAVI.filter(function(i){ return navOn(i.k) }).map(function(i){ var o=SX("nav_"+i.k+"_o",""); return {i:i,o:o===""?i.o:+o} }).sort(function(a,b){ return a.o-b.o }).map(function(x){ return x.i }) }
 // the phone drawer: account, then the link groups, then language and currency
 function mdrawer(){
   var items=navItems(); var grp=function(g){ return items.filter(function(i){ return i.g===g }) };
-  var row=function(i,extra){ return '<a class="mdw2-row'+(i.soon?' soon':'')+'" '+i.attrs+'>'+'<span class="mi">'+(MI[i.ico]||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span>'+i.lab()+'</span>'+(i.soon||i.tag?'<i class="mdw-soon">'+GX(i.tag||"soon")+'</i>':'')+(extra||'')+'</a>' };
+  var row=function(i,extra){ return '<a class="mdw2-row'+(i.soon?' soon':'')+'" '+navAttrs(i)+'>'+'<span class="mi">'+(MI[i.ico]||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span>'+i.lab()+'</span>'+(i.soon||i.tag?'<i class="mdw-soon">'+GX(i.tag||"soon")+'</i>':'')+(extra||'')+'</a>' };
   var sec=function(title,html){ return html ? '<div class="mdw2-sec"><div class="mdw2-h">'+title+'</div>'+html+'</div>' : '' };
-  var tile=function(i,cls,extra,lab){ return '<a class="mdw2-q '+cls+'" '+i.attrs+'>'+(MI[i.ico]||'')+'<span>'+(lab||i.lab())+'</span>'+(extra||'')+'</a>' };
+  var tile=function(i,cls,extra,lab){ return '<a class="mdw2-q '+cls+'" '+navAttrs(i)+'>'+(MI[i.ico]||'')+'<span>'+(lab||i.lab())+'</span>'+(extra||'')+'</a>' };
   var byK=function(k){ return items.filter(function(i){ return i.k===k })[0] };
   var tiles=[byK("buy")?tile(byK("buy"),"buy"):"", byK("rent")?tile(byK("rent"),"rent"):"", byK("map")?tile(byK("map"),"map",SX("nav_map_new",true)!==false?'<i class="mdw2-new">'+GX("newTag")+'</i>':'',GX("map")):"",
     '<a class="mdw2-q post" data-go="post">'+MI.post+'<span>'+t("post")+'</span></a>'].join("");
@@ -3144,9 +3145,9 @@ function header(){
   (SX("nav_soon_header",true)!==false ? NAVI.filter(function(i){ return i.soon && navOn(i.k) }).map(function(i){ return '<a class="hsoon" data-soon="'+i.k+'">'+i.lab()+'<i>'+GX("soon")+'</i></a>' }).join("") : '')+
   '<div class="navmore" id="navMoreWrap"><a id="navMoreChip">'+t("moreNavT")+CHEV+'</a>'+
    '<div class="menu" id="navMoreMenu">'+
-   navItems().filter(function(i){ return i.g==="search" }).map(function(i){ return '<a '+i.attrs+'>'+MI[i.ico]+i.lab()+'</a>' }).join("")+
+   navItems().filter(function(i){ return i.g==="search" }).map(function(i){ return '<a '+navAttrs(i)+'>'+MI[i.ico]+i.lab()+'</a>' }).join("")+
    '<div class="sep"></div>'+
-   navItems().filter(function(i){ return i.g==="site" && i.k!=="agencies" }).map(function(i){ return '<a '+i.attrs+'>'+MI[i.ico]+i.lab()+'</a>' }).join("")+
+   navItems().filter(function(i){ return i.g==="site" && i.k!=="agencies" }).map(function(i){ return '<a '+navAttrs(i)+'>'+MI[i.ico]+i.lab()+'</a>' }).join("")+
    '</div></div></nav>'+
   '<div class="htools"><button class="mini" id="cur">'+CUR+'</button>'+
   langs + right +
@@ -3311,7 +3312,8 @@ function fullName(u){ return u ? ((u.name||"")+(u.family_name?" "+u.family_name:
 
 /* ── auth modal ── */
 function authModal(){
- var wa="https://wa.me/"+CONFIG.whatsapp+"?text="+encodeURIComponent(t("waText")+" "+AU.code);
+ var waNum=String((SITE&&SITE.wa_number)||CONFIG.whatsapp||"").replace(/D/g,"").replace(/^00/,"");
+ var wa="https://wa.me/"+waNum+"?text="+encodeURIComponent(t("waText")+" "+AU.code);
  var body;
 
  if(AU.step===1 && AU.mode==="in"){                              /* sign in */

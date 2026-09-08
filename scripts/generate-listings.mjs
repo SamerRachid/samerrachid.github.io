@@ -48,13 +48,13 @@ const condName = (k, lang) => (D.COND[k] ? D.COND[k][LI[lang]] : (D.LANDC && D.L
 const DIR = { s:["قبلي (جنوبي)","South","Süd"], n:["شمالي","North","Nord"], e:["شرقي","East","Ost"], w:["غربي","West","West"], se:["قبلي شرقي","South-east","Südost"], sw:["قبلي غربي","South-west","Südwest"], ne:["شمالي شرقي","North-east","Nordost"], nw:["شمالي غربي","North-west","Nordwest"] };
 const PERIOD = { yearly:["سنوي","year","Jahr"], monthly:["شهري","month","Monat"], weekly:["أسبوعي","week","Woche"], daily:["يومي","day","Tag"] };
 const S = {
-  ar: { forSale:"للبيع", forRent:"للإيجار", inPlace:(p)=>`في ${p}`, allListings:"كل الإعلانات", details:"التفاصيل", desc:"الوصف", amen:"المرافق", location:"الموقع", onMap:"عرض على الخريطة (OpenStreetMap)", contact:"تواصل مع المالك", from:"الإعلان من", byOwner:"المالك مباشرة", wa:"واتساب", call:"اتصل", openApp:"افتح الإعلان الكامل في الموقع", negotiable:"قابل للتفاوض", ownerPill:"من المالك",
+  ar: { home:"الرئيسية", forSale:"للبيع", forRent:"للإيجار", inPlace:(p)=>`في ${p}`, allListings:"كل الإعلانات", details:"التفاصيل", desc:"الوصف", amen:"المرافق", location:"الموقع", onMap:"عرض على الخريطة (OpenStreetMap)", contact:"تواصل مع المالك", from:"الإعلان من", byOwner:"المالك مباشرة", wa:"واتساب", call:"اتصل", openApp:"افتح الإعلان الكامل في الموقع", negotiable:"قابل للتفاوض", ownerPill:"من المالك",
     area:"مساحة", rooms:"غرف", baths:"حمّامات", living:"صالونات", floor:"الطابق", ground:"أرضي", of:"من", year:"سنة البناء", power:"ساعات الكهرباء", hday:"ساعة/يوم", cond:"الحالة", dir:"الاتجاه", furnished:"مفروش", unfurnished:"غير مفروش", lease:"مدة العقد", months:"شهر", period:"فترة الإيجار", photoN:(n)=>`صورة ${n}`,
     about:"من نحن", contactUs:"اتصل بنا", brandLine:"بلكون — عقارات سوريا من المالك مباشرة", note:(r)=>`صفحات الإعلانات تُحدَّث تلقائياً من قاعدة بيانات بلكون. الرقم المرجعي ${r}.`, waText:(t,u)=>`مرحبا، مهتم بهذا العقار: ${t}\n${u}`, roomsShort:"غرف", sqm:"م²", sep:"، ", langs:"اللغات", descNote:"" },
-  en: { forSale:"for sale", forRent:"for rent", inPlace:(p)=>`in ${p}`, allListings:"All listings", details:"Details", desc:"Description", amen:"Amenities", location:"Location", onMap:"Show on the map (OpenStreetMap)", contact:"Contact the owner", from:"Listed by", byOwner:"owner, no agent", wa:"WhatsApp", call:"Call", openApp:"Open the full listing in the app", negotiable:"negotiable", ownerPill:"Direct from owner",
+  en: { home:"Home", forSale:"for sale", forRent:"for rent", inPlace:(p)=>`in ${p}`, allListings:"All listings", details:"Details", desc:"Description", amen:"Amenities", location:"Location", onMap:"Show on the map (OpenStreetMap)", contact:"Contact the owner", from:"Listed by", byOwner:"owner, no agent", wa:"WhatsApp", call:"Call", openApp:"Open the full listing in the app", negotiable:"negotiable", ownerPill:"Direct from owner",
     area:"Size", rooms:"Rooms", baths:"Bathrooms", living:"Living rooms", floor:"Floor", ground:"Ground", of:"of", year:"Year built", power:"Electricity", hday:"h/day", cond:"Condition", dir:"Facing", furnished:"Furnished", unfurnished:"Unfurnished", lease:"Lease", months:"months", period:"Rental period", photoN:(n)=>`photo ${n}`,
     about:"About", contactUs:"Contact", brandLine:"Balkoun — real estate in Syria, direct from owners", note:(r)=>`Listing pages are generated automatically from the Balkoun database. Reference ${r}.`, waText:(t,u)=>`Hello, I am interested in this property: ${t}\n${u}`, roomsShort:"rooms", sqm:"m²", sep:", ", langs:"Languages", descNote:"Description in the owner's words (Arabic):" },
-  de: { forSale:"zum Kauf", forRent:"zur Miete", inPlace:(p)=>`in ${p}`, allListings:"Alle Anzeigen", details:"Details", desc:"Beschreibung", amen:"Ausstattung", location:"Lage", onMap:"Auf der Karte zeigen (OpenStreetMap)", contact:"Eigentümer kontaktieren", from:"Anbieter", byOwner:"direkt vom Eigentümer", wa:"WhatsApp", call:"Anrufen", openApp:"Vollständige Anzeige in der App öffnen", negotiable:"verhandelbar", ownerPill:"Direkt vom Eigentümer",
+  de: { home:"Start", forSale:"zum Kauf", forRent:"zur Miete", inPlace:(p)=>`in ${p}`, allListings:"Alle Anzeigen", details:"Details", desc:"Beschreibung", amen:"Ausstattung", location:"Lage", onMap:"Auf der Karte zeigen (OpenStreetMap)", contact:"Eigentümer kontaktieren", from:"Anbieter", byOwner:"direkt vom Eigentümer", wa:"WhatsApp", call:"Anrufen", openApp:"Vollständige Anzeige in der App öffnen", negotiable:"verhandelbar", ownerPill:"Direkt vom Eigentümer",
     area:"Fläche", rooms:"Zimmer", baths:"Bäder", living:"Wohnzimmer", floor:"Etage", ground:"EG", of:"von", year:"Baujahr", power:"Strom", hday:"Std./Tag", cond:"Zustand", dir:"Ausrichtung", furnished:"Möbliert", unfurnished:"Unmöbliert", lease:"Mietdauer", months:"Monate", period:"Mietzeitraum", photoN:(n)=>`Foto ${n}`,
     about:"Über uns", contactUs:"Kontakt", brandLine:"Balkoun — Immobilien in Syrien, direkt vom Eigentümer", note:(r)=>`Anzeigenseiten werden automatisch aus der Balkoun-Datenbank erzeugt. Referenz ${r}.`, waText:(t,u)=>`Hallo, ich interessiere mich für diese Immobilie: ${t}\n${u}`, roomsShort:"Zimmer", sqm:"m²", sep:", ", langs:"Sprachen", descNote:"Beschreibung des Eigentümers (Arabisch):" },
 };
@@ -196,7 +196,7 @@ img{display:block;max-width:100%}
 .top .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;direction:ltr;gap:12px}
 .logo{display:inline-flex;align-items:center;gap:6px;color:#CFC4AE;flex-direction:row-reverse;margin-left:auto}
 .logo svg{width:34px;height:34px}.logo .w{display:flex;flex-direction:column;align-items:flex-end;line-height:1}.logo .w b{font:800 20px/1 'Noto Kufi Arabic',sans-serif}.logo .w small{font:700 8.5px 'Lato',sans-serif;letter-spacing:.34em;color:#9DB0CC;margin-top:3px}
-.top nav a{font-size:14.5px;color:rgba(255,255,255,.86);font-weight:600}
+.top nav{display:flex;gap:14px}.top nav a{font-size:14.5px;color:rgba(255,255,255,.86);font-weight:600}
 .top nav a:hover{color:var(--gold)}
 .langs{display:flex;gap:6px;font-size:12px}.langs a{padding:3px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.22);color:rgba(255,255,255,.8);font-weight:600}.langs a.on{background:rgba(255,255,255,.14);color:#fff}
 .main{padding-top:16px;display:grid;gap:16px;grid-template-columns:1fr}
@@ -250,9 +250,9 @@ footer .note{width:100%;color:rgba(255,255,255,.5);font-size:13px}
 @media(min-width:900px){body{padding-bottom:0}.main{grid-template-columns:minmax(0,1fr) 340px;align-items:start;padding-top:22px;gap:22px}.side{position:sticky;top:22px}.thumbs{grid-template-columns:repeat(6,1fr)}}
 </style></head><body>
 <header class="top"><div class="wrap">
-  <nav><a href="${appLink(lang, "search")}">${W.allListings}</a></nav>
+  <nav><a href="${lang === "ar" ? SITE + "/" : `${SITE}/?lang=${lang}`}">${W.home}</a><a href="${appLink(lang, "search")}">${W.allListings}</a></nav>
   ${langBar}
-  <a class="logo" href="${lang === "ar" ? SITE + "/" : `${SITE}/${lang}/`}" aria-label="Balkoun">${MARK}<span class="w"><b>بلكون</b><small>BALKOUN</small></span></a>
+  <a class="logo" href="${lang === "ar" ? SITE + "/" : `${SITE}/?lang=${lang}`}" aria-label="Balkoun">${MARK}<span class="w"><b>بلكون</b><small>BALKOUN</small></span></a>
 </div></header>
 
 <main class="wrap main">
