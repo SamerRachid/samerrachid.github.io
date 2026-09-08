@@ -17,6 +17,7 @@
 import fs from "fs";
 import path from "path";
 import vm from "vm";
+import { GUIDES, GUIDE_WORDS } from "./guides-content.mjs";
 
 const SUPABASE_URL = "https://coajrqynjrptujmzjjdh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"; // public anon key
@@ -229,6 +230,9 @@ header{background:var(--navy);color:#fff}
 .hero .acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}.hero .acts a{padding:11px 18px;border-radius:999px;font-weight:700;font-size:14.5px}
 .hero .acts .g{background:var(--gold);color:#1A1206}.hero .acts .o{border:1px solid rgba(255,255,255,.35);color:#fff}
 .why{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:14px}.why div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px}.why h3{font-size:16px;margin-bottom:4px}.why p{color:var(--grey);font-size:14px}
+.gl{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-top:16px}.gl a{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px 20px;display:flex;flex-direction:column;gap:6px;transition:.2s}.gl a:hover{border-color:var(--gold);box-shadow:var(--sh2)}.gl .k{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-dk)}.gl h2{font-size:17px;line-height:1.5}.gl p{color:var(--grey);font-size:14px}
+.article{max-width:760px;padding:8px 0 20px}.article .k{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--gold-dk)}.article h1{font-size:clamp(26px,3.4vw,36px);margin:6px 0 10px;line-height:1.35}.article .lede{font-size:17.5px;color:#3D424D;line-height:1.8;margin-bottom:8px}.article .meta{font-size:12.5px;color:var(--light);margin-bottom:22px}.article section{margin-top:26px}.article h2{font-size:21px;margin-bottom:8px}.article p{font-size:15.5px;line-height:1.9;color:#2B2F36;margin-bottom:10px}.article .disc{background:var(--gold-w);border:1px solid #EAD9B3;border-radius:12px;padding:12px 16px;font-size:13.5px;color:#6B5320;margin-top:28px}
+.morelist{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 footer{background:var(--navy);color:rgba(255,255,255,.7);font-size:13.5px;padding:40px 0 22px;margin-top:64px}
 .fl{display:flex;flex-wrap:wrap;gap:8px 18px;margin-bottom:14px}
 .fl a:hover{color:#fff}
@@ -262,11 +266,11 @@ ${hreflang(alts)}
 ${jsonld.map((o) => `<script type="application/ld+json">${jsonForScript(o)}</script>`).join("\n")}
 <style>${CSS}</style></head><body>
 <header><div class="wrap hbar">
-<nav class="hnav"><a href="${searchUrl(lang, { deal: "sale" })}">${esc(W.forSale[0].toUpperCase() + W.forSale.slice(1))}</a><a href="${searchUrl(lang, { deal: "rent" })}">${esc(W.forRent[0].toUpperCase() + W.forRent.slice(1))}</a><a href="${pageUrl(lang, "areas/")}">${W.areas}</a><a href="${appUrl(lang, "mapsearch")}">${W.map}</a><a href="${pageUrl(lang, "about/")}">${W.about}</a></nav>
+<nav class="hnav"><a href="${searchUrl(lang, { deal: "sale" })}">${esc(W.forSale[0].toUpperCase() + W.forSale.slice(1))}</a><a href="${searchUrl(lang, { deal: "rent" })}">${esc(W.forRent[0].toUpperCase() + W.forRent.slice(1))}</a><a href="${pageUrl(lang, "areas/")}">${W.areas}</a><a href="${appUrl(lang, "mapsearch")}">${W.map}</a><a href="${pageUrl(lang, "guides/")}">${GUIDE_WORDS[lang].crumb}</a><a href="${pageUrl(lang, "about/")}">${W.about}</a></nav>
 <div class="htools">${langBar}<a class="mini" href="${appUrl(lang, "account")}">${W.login}</a><a class="gold" href="${appUrl(lang, "post")}">${W.post}</a></div>
 <a class="logo" href="${lang === "ar" ? SITE + "/" : pageUrl(lang, "")}" aria-label="Balkoun">${MARK}<span class="w"><b>بلكون</b><small>BALKOUN</small></span></a></div></header>
 <main class="wrap">${body}</main>
-<footer><div class="wrap"><div class="fl">${footLinks}</div><div class="fb"><span>© 2026 ${W.brand} · balkoun.com</span><span><a href="${pageUrl(lang, "about/")}">${W.aboutPlatform}</a> · <a href="${pageUrl(lang, "contactus/")}">${W.contactT}</a></span></div></div></footer>
+<footer><div class="wrap"><div class="fl">${footLinks}</div><div class="fb"><span>© 2026 ${W.brand} · balkoun.com</span><span><a href="${pageUrl(lang, "guides/")}">${GUIDE_WORDS[lang].crumb}</a> · <a href="${pageUrl(lang, "about/")}">${W.aboutPlatform}</a> · <a href="${pageUrl(lang, "contactus/")}">${W.contactT}</a></span></div></div></footer>
 </body></html>`;
 }
 
@@ -397,6 +401,32 @@ ${latest.length ? `<section class="sec"><h2>${W.latest}</h2><div class="grid" st
   return { url, html: shell({ lang, title: W.homeT, desc: W.homeDesc, canonical: url, alts: { ar: SITE + "/", en: pageUrl("en", ""), de: pageUrl("de", "") }, jsonld: ld, body, image: latest[0]?.cover_url, footLinks }) };
 }
 
+function guidesIndex({ lang, footLinks }) {
+  const GW = GUIDE_WORDS[lang], rel = "guides/", url = pageUrl(lang, rel);
+  const c = crumbs(lang, [{ name: GW.crumb }]);
+  const body = `${c.html}<div class="pagehead"><h1>${esc(GW.index)}</h1><p class="sub">${esc(GW.indexDesc)}</p></div>
+<div class="gl">${GUIDES.map((g) => `<a href="${pageUrl(lang, `guides/${g.slug}/`)}"><span class="k">${esc(g.tag[lang])}</span><h2>${esc(g.title[lang])}</h2><p>${esc(g.lede[lang])}</p></a>`).join("")}</div>
+<p class="disc" style="max-width:760px;margin-top:28px;background:var(--gold-w);border:1px solid #EAD9B3;border-radius:12px;padding:12px 16px;font-size:13.5px;color:#6B5320">${esc(GW.disclaimer)}</p>`;
+  const ld = [c.ld, { "@context":"https://schema.org", "@type":"CollectionPage", name: GW.index, description: GW.indexDesc, url, inLanguage: lang }];
+  return { url, html: shell({ lang, title: GW.index + " | Balkoun", desc: GW.indexDesc, canonical: url, alts: altsFor(rel), jsonld: ld, body, footLinks }) };
+}
+function guidePage({ lang, g, footLinks }) {
+  const GW = GUIDE_WORDS[lang], rel = `guides/${g.slug}/`, url = pageUrl(lang, rel);
+  const words = [g.lede[lang], ...g.sections.flatMap((s) => s.p.map((p) => p[lang]))].join(" ").split(/s+/).length;
+  const c = crumbs(lang, [{ name: GW.crumb, href: pageUrl(lang, "guides/") }, { name: g.title[lang] }]);
+  const others = GUIDES.filter((x) => x.slug !== g.slug);
+  const faq = g.faq.map((f) => ({ q: f[lang][0], a: f[lang][1] }));
+  const body = `${c.html}<article class="article"><div class="k">${esc(g.tag[lang])}</div><h1>${esc(g.title[lang])}</h1><p class="lede">${esc(g.lede[lang])}</p><div class="meta">${GW.readMin(Math.max(2, Math.round(words / 180)))} · ${GW.updated}: <span class="ltr">${new Date().toISOString().slice(0, 10)}</span></div>
+${g.sections.map((s) => `<section><h2>${esc(s.h[lang])}</h2>${s.p.map((p) => `<p>${esc(p[lang])}</p>`).join("")}</section>`).join("")}
+<section class="faq" style="margin-top:34px"><h2>${GW.faqH}</h2>${faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join("")}</section>
+<p class="disc">${esc(GW.disclaimer)}</p>
+<div class="cta" style="margin-top:26px"><div><h2 style="color:var(--gold);font-size:20px">${esc(S[lang].homeH1)}</h2></div><a class="gold" href="${searchUrl(lang, {})}">${GW.cta}</a></div>
+<section style="margin-top:30px"><h2 style="font-size:18px">${GW.more}</h2><div class="morelist">${others.map((o) => `<a class="chip" href="${pageUrl(lang, `guides/${o.slug}/`)}">${esc(o.title[lang])}</a>`).join("")}</div></section></article>`;
+  const ld = [c.ld, { "@context":"https://schema.org", "@type":"Article", headline: g.title[lang], description: g.lede[lang], url, inLanguage: lang, dateModified: new Date().toISOString().slice(0, 10), author: { "@type":"Organization", name: "Balkoun" }, publisher: { "@type":"Organization", name: "Balkoun", logo: { "@type":"ImageObject", url: SITE + "/brand/og-image.png" } }, mainEntityOfPage: url },
+    { "@context":"https://schema.org", "@type":"FAQPage", mainEntity: faq.map((f) => ({ "@type":"Question", name: f.q, acceptedAnswer: { "@type":"Answer", text: f.a } })) }];
+  return { url, html: shell({ lang, title: g.title[lang] + " | Balkoun", desc: g.lede[lang].slice(0, 158), canonical: url, alts: altsFor(rel), jsonld: ld, body, footLinks }) };
+}
+
 function write(url, html) {
   const rel = url.replace(SITE, "").replace(/^\//, "");
   const dir = path.join(ROOT, rel);
@@ -430,7 +460,7 @@ async function main() {
   const footLinksFor = (lang) => usableGovs.slice(0, 12).map((g) => `<a href="${pageUrl(lang, `for-sale/${g.slug}/`)}">${esc(S[lang].footIn(govName(g, lang)))}</a>`).join("") + `<a href="${pageUrl(lang, "areas/")}">${S[lang].allAreas}</a>`;
 
   // remove previously generated trees so deleted areas/govs don't leave stale pages
-  for (const dir of ["for-sale", "for-rent", "areas", "about", "contactus", "en/for-sale", "en/for-rent", "en/areas", "en/about", "en/contactus", "de/for-sale", "de/for-rent", "de/areas", "de/about", "de/contactus"]) fs.rmSync(path.join(ROOT, dir), { recursive: true, force: true });
+  for (const dir of ["for-sale", "for-rent", "areas", "about", "contactus", "en/for-sale", "en/for-rent", "en/areas", "en/about", "en/contactus", "de/for-sale", "de/for-rent", "de/areas", "de/about", "de/contactus", "guides", "en/guides", "de/guides"]) fs.rmSync(path.join(ROOT, dir), { recursive: true, force: true });
   for (const l of ["en", "de"]) { const f = path.join(ROOT, l, "index.html"); if (fs.existsSync(f)) fs.rmSync(f); }
 
   let site = null;
@@ -459,6 +489,8 @@ async function main() {
     const idx = areasIndex({ lang, govs: usableGovs, areasByGov, counts, footLinks }); write(idx.url, idx.html); urls.push({ loc: idx.url, priority: "0.6" });
     const ab = aboutPage({ lang, footLinks }); write(ab.url, ab.html); urls.push({ loc: ab.url, priority: "0.5" });
     const ct = contactPage({ lang, site, footLinks }); write(ct.url, ct.html); urls.push({ loc: ct.url, priority: "0.5" });
+    const gi = guidesIndex({ lang, footLinks }); write(gi.url, gi.html); urls.push({ loc: gi.url, priority: "0.7" });
+    for (const g of GUIDES) { const gp = guidePage({ lang, g, footLinks }); write(gp.url, gp.html); urls.push({ loc: gp.url, priority: "0.7" }); }
     if (lang !== "ar") { const hp = homePage({ lang, govs: usableGovs, counts, latest: live.slice(0, 12), footLinks }); write(hp.url, hp.html); urls.push({ loc: hp.url, priority: "0.9" }); }
   }
 

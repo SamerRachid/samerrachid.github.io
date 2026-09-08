@@ -43,7 +43,7 @@ jobs:
         run: |
           git config user.name "balkoun-bot"
           git config user.email "actions@github.com"
-          git add listing for-sale for-rent areas about contactus en de search mapsearch wanted agencies projects sitemap.xml 404.html
+          git add listing for-sale for-rent areas about contactus guides en de search mapsearch wanted agencies projects sitemap.xml 404.html
           git diff --cached --quiet || git commit -m "Rebuild static pages [auto]"
           git pull --rebase origin main || true
           git push
