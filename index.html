@@ -1365,11 +1365,11 @@ footer{font-size:14px}
 .flipw .f2{transform:rotateX(180deg)}
 @keyframes flipWord{0%,40%{transform:rotateX(0)}48%,90%{transform:rotateX(-180deg)}98%,100%{transform:rotateX(-360deg)}}
 /* while the brand face shows (48%–90% of the 9s cycle): a double heartbeat runs through the letters, one after the other */
-.flipw .pl{display:inline-block;transform-origin:50% 85%;animation:letterBeat 9s cubic-bezier(.3,0,.2,1) infinite;animation-delay:calc(4.5s + var(--i)*.075s)}
-@keyframes letterBeat{0%,53%{transform:none;color:inherit}56.5%{transform:translateY(-12%) scale(1.3);color:#FFF6DC}61%{transform:none;color:inherit}100%{transform:none}}
+.flipw .pl{display:inline-block;transform-origin:50% 85%;animation:letterBeat 9s cubic-bezier(.45,.05,.2,1) infinite;animation-delay:calc(4.5s + var(--i)*.055s)}
+@keyframes letterBeat{0%,54%{transform:none;color:inherit}57%{transform:translateY(-4%) scale(1.035);color:#F7E9C6}60%{transform:translateY(.8%) scale(.995);color:inherit}63%{transform:none}100%{transform:none}}
 .flipw .plword{display:inline-block;white-space:nowrap;direction:rtl;unicode-bidi:isolate}
-.flipw .pla{display:inline-block;transform-origin:50% 86%;animation:letterBeatAr 9s cubic-bezier(.3,0,.2,1) infinite;animation-delay:calc(4.5s + var(--i)*.09s)}
-@keyframes letterBeatAr{0%,53%{transform:none;color:inherit;text-shadow:inherit}56.5%{transform:scale(1.22);color:#FFF6DC;text-shadow:0 0 16px rgba(255,246,220,.9)}61%{transform:none;color:inherit;text-shadow:inherit}100%{transform:none}}
+.flipw .pla{display:inline-block;transform-origin:50% 86%;animation:letterBeatAr 9s cubic-bezier(.45,.05,.2,1) infinite;animation-delay:calc(4.5s + var(--i)*.07s)}
+@keyframes letterBeatAr{0%,54%{transform:none;color:inherit;text-shadow:inherit}57%{transform:translateY(-4%) scale(1.035);color:#F7E9C6;text-shadow:0 0 10px rgba(255,246,220,.45)}60%{transform:translateY(.8%) scale(.995);color:inherit;text-shadow:inherit}63%{transform:none}100%{transform:none}}
 @keyframes letterGlow{0%,53%{color:inherit;text-shadow:inherit}56%{color:#FFF6DC;text-shadow:0 0 18px rgba(255,246,220,.95)}59.5%{color:inherit;text-shadow:inherit}62%{color:#FFF6DC;text-shadow:0 0 14px rgba(255,246,220,.9)}65.5%{color:inherit;text-shadow:inherit}100%{color:inherit}}
 @media(prefers-reduced-motion:reduce){.flipw .pl,.flipw .pla{animation:none}}
 /* map pin on the search bar: gold, spinning gently every few seconds */
@@ -10927,10 +10927,10 @@ function heroSubHtml(txt){
   // the brand face: the letters of "balkoun" / "بلكون" light up one after the other like a wave.
   // Latin letters can also rise (inline-block); Arabic letters stay inline so they remain joined, and glow instead.
   var AR=["ﺑ","ﻠ","ﻜ","ﻮ","ﻥ"]; // ب ل ك و ن in their contextual shapes (initial, medial, medial, final, isolated)
-  var latin=String(SX("brand_flip_latin","Balkoun.com")), lm=latin.match(/^(.*?)(balkoun)(.*)$/i);
-  var wave=function(word){ return word.split("").map(function(ch,i){ return '<span class="pl" style="--i:'+i+'">'+ch+'</span>' }).join("") };
+  var latin=String(SX("brand_flip_latin","balkoun.com")), lm=latin.match(/^(.*?)(balkoun)(.*)$/i);
+  var wave=function(word){ return word.split("").map(function(ch,i){ return ch===" " ? " " : '<span class="pl" style="--i:'+i+'">'+esc(ch)+'</span>' }).join("") };
   var alt = L==="ar" ? esc(String(SX("brand_flip_prefix_ar","منصة")))+' <span class="plword" aria-label="بلكون">'+AR.map(function(ch,i){ return '<span class="pla" style="--i:'+i+'">'+ch+'</span>' }).join("")+'</span>'
-          : (lm ? esc(lm[1])+wave(lm[2])+esc(lm[3]) : wave(latin));
+          : wave(latin);   // the whole brand, ".com" included, carries the wave
   var m=String(txt||"").match(/^(.*?)(\S+?)([.!؟?]*)\s*$/);
   if(!m||!m[2]) return txt;
   var before=m[1], face1=m[2]+m[3];
@@ -11231,7 +11231,7 @@ function hsInspHome(){
   if(sd==="hero_text"){
     H.push(fSwitch(hsT("f_heroOn"),"c:hero_enabled",true,true), fGrp(hsT("g_text")), fHint(hsT("textsHint")),
       fText(hsT("f_h1"),"c:hero",t("h1a")), fText(hsT("f_h1b"),"c:hero_sub",t("h1b")),
-      fText(hsT("f_flipAr"),"x:brand_flip_prefix_ar","منصة",true), fText(hsT("f_flipLatin"),"x:brand_flip_latin","Balkoun.com",true),
+      fText(hsT("f_flipAr"),"x:brand_flip_prefix_ar","منصة",true), fText(hsT("f_flipLatin"),"x:brand_flip_latin","balkoun.com",true),
       fGrp(hsT("g_look")), fHint(hsT("dualHint")),
       '<div class="row">'+fColor(hsT("f_h1Color"),"c:hero_title_color","#ffffff")+fColor(hsT("f_h1bColor"),"c:hero_sub_color","#C4881F")+'</div>',
       fDual(hsT("f_size"),"c:hero_title_size","x:hero_title_size_m",16,64,1,true),
@@ -11456,7 +11456,7 @@ function adminHomeExtrasHtml(){
     xCheck("opening_enabled",GX("xOpening"),true)+
     xCheck("cursor_dot_enabled",GX("xCursor"),true)+
     xSelect("phone_headline_mode",GX("xPhoneMode"),"after",[["after",GX("xPhoneAfter")],["immediate",GX("xPhoneNow")]])+
-    '<div class="row">'+xText("brand_flip_prefix_ar",GX("xFlipAr"),"منصة")+xText("brand_flip_latin",GX("xFlipLatin"),"Balkoun.com")+'</div>'+
+    '<div class="row">'+xText("brand_flip_prefix_ar",GX("xFlipAr"),"منصة")+xText("brand_flip_latin",GX("xFlipLatin"),"balkoun.com")+'</div>'+
     xNum("hero_max_height",GX("xHeroMax"),640,420,900,10));
 }
 function adminAdsExtrasHtml(){
