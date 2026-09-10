@@ -10,6 +10,9 @@
 //  Every page carries hreflang links to its two sister languages, and the
 //  sitemap lists all of them plus the /listing/ pages that generate-listings.mjs
 //  produced. Runs in GitHub Actions after that script.
+//  Countries: the default country (Syria) lives at the root; every other enabled
+//  country in the `countries` table gets the same tree under /<code>/ (e.g. /lb/en/for-sale/…)
+//  with its own governorates, listings, settings row and country name in every text.
 //  Search, map, accounts, posting and admin stay in the app (index.html);
 //  every page links into it with the app's own /search?… query format and a
 //  ?lang= hint so the app opens in the visitor's language.
@@ -23,6 +26,9 @@ const SUPABASE_URL = "https://coajrqynjrptujmzjjdh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"; // public anon key
 const SITE = "https://balkoun.com";
 const ROOT = path.resolve(".");
+// ── country context: set per country in main(); the default country has no prefix ──
+let CTX = { code: "SY", prefix: "", isDefault: true, cn: { code: "SY", ar: "سوريا", en: "Syria", de: "Syrien" } };
+const cpre = () => CTX.prefix;
 
 async function sb(endpoint) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
@@ -67,7 +73,7 @@ const areaName = (a, lang) => lang === "ar" ? a.name_ar : (a.name_en || titleSlu
 const DEAL = { sale: { slug: "for-sale" }, rent: { slug: "for-rent" } };
 
 // ── words per language ────────────────────────────────────────────────
-const S = {
+const mkS = (cn) => ({
   ar: {
     brand: "بلكون", forSale: "للبيع", forRent: "للإيجار", areas: "المناطق", map: "الخريطة", about: "عن بلكون", login: "دخول", post: "أضف إعلانك", home: "الرئيسية",
     propIn: (d, g) => `عقارات ${d} في ${g}`, propInArea: (d, a, g) => `عقارات ${d} في ${a}، ${g}`,
@@ -79,53 +85,54 @@ const S = {
     faqH: (a) => `أسئلة شائعة عن ${a}`, faqQ1: (d, a) => `كم عدد العقارات ${d} في ${a}؟`, faqA1: (n, d, a) => `يوجد حالياً ${n} إعلاناً ${d} في ${a} على بلكون.`,
     faqQ2: (d, a) => `ما أسعار العقارات ${d} في ${a}؟`, faqA2: (lo, hi, avg) => `تتراوح الأسعار المعروضة بين ${lo} و${hi}${avg ? `، ومتوسط سعر المتر ${avg}` : ""}.`,
     faqQ3: "هل هناك عمولة على المشتري؟", faqA3: "لا. بلكون لا يأخذ عمولة من المشتري أو المستأجر؛ التواصل مباشر مع المالك.",
-    govsH: "المحافظات والمناطق", govsT: "كل المحافظات والمناطق", govsDesc: (ng, na) => `تصفّح عقارات سوريا حسب المحافظة والمنطقة: ${ng} محافظة و${na} منطقة على بلكون.`, govsSub: (ng, na) => `${ng} محافظة · ${na} منطقة`, govSmall: (n, a) => `${n} إعلان · ${a} منطقة`, search: "بحث",
+    govsH: "المحافظات والمناطق", govsT: "كل المحافظات والمناطق", govsDesc: (ng, na) => `تصفّح عقارات ${cn.ar} حسب المحافظة والمنطقة: ${ng} محافظة و${na} منطقة على بلكون.`, govsSub: (ng, na) => `${ng} محافظة · ${na} منطقة`, govSmall: (n, a) => `${n} إعلان · ${a} منطقة`, search: "بحث",
     rooms: "غرف", sqm: "م²", floorAbbr: "ط", monthly: "شهري", yearly: "سنوي", noPhoto: "بدون صورة", featured: "مميّز", greenDeed: "طابو أخضر", belowAvg: (p) => `تحت متوسط المنطقة ${p}`, aboveAvg: (p) => `فوق متوسط المنطقة ${p}`,
     aboutT: "عن بلكون", contactT: "تواصل معنا", contactDesc: "تواصل مع فريق بلكون: استفسارات، اقتراحات، أو مساعدة في نشر إعلانك. نرد خلال يوم عمل.",
     phone: "هاتف", wa: "واتساب", mail: "بريد", fb: "فيسبوك", ig: "إنستغرام", yt: "يوتيوب", tt: "تيك توك", sendMsg: "أرسل رسالة", name: "الاسم", contactField: "رقم للتواصل أو بريد", yourMsg: "رسالتك", send: "إرسال", min10: "اكتب 10 أحرف على الأقل.", sending: "جارٍ الإرسال…", sentH: "وصلتنا رسالتك ✓", sentP: "شكراً لك. سنرد في أقرب وقت.", sendErr: "تعذّر الإرسال، حاول مرة أخرى أو استخدم واتساب.",
     footIn: (g) => `عقارات في ${g}`, allAreas: "كل المناطق", aboutPlatform: "عن المنصّة", crumbAria: "مسار الصفحة", inLangs: "اللغات",
-    homeT: "بلكون — عقارات سوريا للبيع والإيجار من المالك مباشرة", homeH1: "عقارات سوريا للبيع والإيجار، من المالك مباشرة", homeLede: "شقق وبيوت وأراضٍ في كل المحافظات السورية، مع حالة الطابو في كل إعلان وبدون عمولة.", homeDesc: "عقارات سوريا للبيع والإيجار: شقق، بيوت، فلل وأراضٍ في جميع المحافظات، من المالك مباشرة وبلا عمولة.", browseByGov: "تصفّح حسب المحافظة", latest: "أحدث الإعلانات", openApp: "ابحث في كل الإعلانات", whyH: "لماذا بلكون؟",
-    why: [["حالة الطابو في كل إعلان", "طابو أخضر، حكم محكمة، أو حصص سهمية: تعرف الوضع القانوني قبل أن تتصل."], ["من المالك مباشرة", "لا عمولة على المشتري أو المستأجر. التواصل بالهاتف أو واتساب."], ["كل المحافظات", "دمشق وريفها، حلب، حمص، اللاذقية، طرطوس وباقي المحافظات، بالمنطقة والحي."]],
+    homeT: `بلكون — عقارات ${cn.ar} للبيع والإيجار من المالك مباشرة`, homeH1: `عقارات ${cn.ar} للبيع والإيجار، من المالك مباشرة`, homeLede: `شقق وبيوت وأراضٍ في كل محافظات ${cn.ar}، مع حالة الطابو في كل إعلان وبدون عمولة.`, homeDesc: `عقارات ${cn.ar} للبيع والإيجار: شقق، بيوت، فلل وأراضٍ في جميع المحافظات، من المالك مباشرة وبلا عمولة.`, browseByGov: "تصفّح حسب المحافظة", latest: "أحدث الإعلانات", openApp: "ابحث في كل الإعلانات", whyH: "لماذا بلكون؟",
+    why: [["حالة الطابو في كل إعلان", "طابو أخضر، حكم محكمة، أو حصص سهمية: تعرف الوضع القانوني قبل أن تتصل."], ["من المالك مباشرة", "لا عمولة على المشتري أو المستأجر. التواصل بالهاتف أو واتساب."], ["كل المحافظات", cn.code === "SY" ? "دمشق وريفها، حلب، حمص، اللاذقية، طرطوس وباقي المحافظات، بالمنطقة والحي." : `كل محافظات ${cn.ar} ومناطقها، بالمنطقة والحي.`]],
   },
   en: {
     brand: "Balkoun", forSale: "for sale", forRent: "for rent", areas: "Areas", map: "Map", about: "About", login: "Log in", post: "Post a listing", home: "Home",
-    propIn: (d, g) => `Property ${d} in ${g}, Syria`, propInArea: (d, a, g) => `Property ${d} in ${a}, ${g}`,
+    propIn: (d, g) => `Property ${d} in ${g}, ${cn.en}`, propInArea: (d, a, g) => `Property ${d} in ${a}, ${g}`,
     nListings: (n) => `${n} listing${n === 1 ? "" : "s"}`, avgM2: "average price per m²", avgM2From: (n) => `from ${n} listings`, advSearch: "Advanced search", advSearchIn: (a) => `Advanced search in ${a}`,
-    govDesc: (n, d, g, avg) => `${n} listing${n === 1 ? "" : "s"} ${d} in ${g}, Syria: apartments, houses, villas, shops and land, direct from owners with no commission${avg ? `. Average price ${avg} per m²` : ""}.`,
-    areaDesc: (n, d, a, g, types, avg) => `${n} propert${n === 1 ? "y" : "ies"} ${d} in ${a} (${g}, Syria): ${types}${avg ? `. Average price ${avg} per m²` : ""}. Direct from owners, no commission.`,
+    govDesc: (n, d, g, avg) => `${n} listing${n === 1 ? "" : "s"} ${d} in ${g}, ${cn.en}: apartments, houses, villas, shops and land, direct from owners with no commission${avg ? `. Average price ${avg} per m²` : ""}.`,
+    areaDesc: (n, d, a, g, types, avg) => `${n} propert${n === 1 ? "y" : "ies"} ${d} in ${a} (${g}, ${cn.en}): ${types}${avg ? `. Average price ${avg} per m²` : ""}. Direct from owners, no commission.`,
     noneH: (d, g) => `No listings ${d} in ${g} right now`, noneP: "Be the first to list a property here.", postFree: "Post your listing for free",
     areasOf: (g) => `Areas of ${g}`, areasSub: "Areas with listings have their own page.", near: (g) => `Nearby areas in ${g}`, allOf: (g) => `All of ${g}`,
     faqH: (a) => `Frequently asked questions about ${a}`, faqQ1: (d, a) => `How many properties are ${d} in ${a}?`, faqA1: (n, d, a) => `There are currently ${n} listing${n === 1 ? "" : "s"} ${d} in ${a} on Balkoun.`,
     faqQ2: (d, a) => `What do properties ${d} in ${a} cost?`, faqA2: (lo, hi, avg) => `Listed prices range from ${lo} to ${hi}${avg ? `, with an average of ${avg} per m²` : ""}.`,
     faqQ3: "Is there a commission for the buyer?", faqA3: "No. Balkoun charges buyers and tenants no commission; you deal directly with the owner.",
-    govsH: "Governorates and areas", govsT: "All governorates and areas of Syria", govsDesc: (ng, na) => `Browse property in Syria by governorate and area: ${ng} governorates and ${na} areas on Balkoun.`, govsSub: (ng, na) => `${ng} governorates · ${na} areas`, govSmall: (n, a) => `${n} listings · ${a} areas`, search: "Search",
+    govsH: "Governorates and areas", govsT: `All governorates and areas of ${cn.en}`, govsDesc: (ng, na) => `Browse property in ${cn.en} by governorate and area: ${ng} governorates and ${na} areas on Balkoun.`, govsSub: (ng, na) => `${ng} governorates · ${na} areas`, govSmall: (n, a) => `${n} listings · ${a} areas`, search: "Search",
     rooms: "rooms", sqm: "m²", floorAbbr: "Fl.", monthly: "month", yearly: "year", noPhoto: "No photo", featured: "Featured", greenDeed: "Green deed", belowAvg: (p) => `${p} below area average`, aboveAvg: (p) => `${p} above area average`,
     aboutT: "About Balkoun", contactT: "Contact us", contactDesc: "Contact the Balkoun team: questions, suggestions, or help publishing your listing. We reply within one working day.",
     phone: "Phone", wa: "WhatsApp", mail: "Email", fb: "Facebook", ig: "Instagram", yt: "YouTube", tt: "TikTok", sendMsg: "Send a message", name: "Name", contactField: "Phone or email", yourMsg: "Your message", send: "Send", min10: "Please write at least 10 characters.", sending: "Sending…", sentH: "Message received ✓", sentP: "Thank you. We will reply as soon as we can.", sendErr: "Could not send. Try again or use WhatsApp.",
     footIn: (g) => `Property in ${g}`, allAreas: "All areas", aboutPlatform: "About", crumbAria: "Breadcrumb", inLangs: "Languages",
-    homeT: "Real estate in Syria: property for sale and rent, direct from owners | Balkoun", homeH1: "Real estate in Syria, direct from owners", homeLede: "Apartments, houses, villas and land for sale and rent across Syria, with the title-deed status shown on every listing and no commission.", homeDesc: "Real estate in Syria: apartments, houses, villas and land for sale and rent in Damascus, Aleppo, Homs, Latakia and beyond. Direct from owners, no commission.", browseByGov: "Browse by governorate", latest: "Latest listings", openApp: "Search all listings", whyH: "Why Balkoun?",
-    why: [["Title-deed status on every listing", "Green deed, court ruling or shares: you know the legal situation before you call."], ["Direct from the owner", "No commission for buyers or tenants. Contact by phone or WhatsApp."], ["Every governorate", "Damascus and its countryside, Aleppo, Homs, Latakia, Tartus and the rest of Syria, by area and neighbourhood."]],
+    homeT: `Real estate in ${cn.en}: property for sale and rent, direct from owners | Balkoun`, homeH1: `Real estate in ${cn.en}, direct from owners`, homeLede: `Apartments, houses, villas and land for sale and rent across ${cn.en}, with the title-deed status shown on every listing and no commission.`, homeDesc: cn.code === "SY" ? `Real estate in ${cn.en}: apartments, houses, villas and land for sale and rent in Damascus, Aleppo, Homs, Latakia and beyond. Direct from owners, no commission.` : `Real estate in ${cn.en}: apartments, houses, villas and land for sale and rent across the country. Direct from owners, no commission.`, browseByGov: "Browse by governorate", latest: "Latest listings", openApp: "Search all listings", whyH: "Why Balkoun?",
+    why: [["Title-deed status on every listing", "Green deed, court ruling or shares: you know the legal situation before you call."], ["Direct from the owner", "No commission for buyers or tenants. Contact by phone or WhatsApp."], ["Every governorate", cn.code === "SY" ? `Damascus and its countryside, Aleppo, Homs, Latakia, Tartus and the rest of ${cn.en}, by area and neighbourhood.` : `Every governorate and area of ${cn.en}, by area and neighbourhood.`]],
   },
   de: {
     brand: "Balkoun", forSale: "zum Kauf", forRent: "zur Miete", areas: "Gegenden", map: "Karte", about: "Über uns", login: "Anmelden", post: "Anzeige aufgeben", home: "Start",
-    propIn: (d, g) => `Immobilien ${d} in ${g}, Syrien`, propInArea: (d, a, g) => `Immobilien ${d} in ${a}, ${g}`,
+    propIn: (d, g) => `Immobilien ${d} in ${g}, ${cn.de}`, propInArea: (d, a, g) => `Immobilien ${d} in ${a}, ${g}`,
     nListings: (n) => `${n} Anzeige${n === 1 ? "" : "n"}`, avgM2: "Durchschnittspreis pro m²", avgM2From: (n) => `aus ${n} Anzeigen`, advSearch: "Erweiterte Suche", advSearchIn: (a) => `Erweiterte Suche in ${a}`,
-    govDesc: (n, d, g, avg) => `${n} Anzeige${n === 1 ? "" : "n"} ${d} in ${g}, Syrien: Wohnungen, Häuser, Villen, Läden und Grundstücke direkt vom Eigentümer, ohne Provision${avg ? `. Durchschnittspreis ${avg} pro m²` : ""}.`,
-    areaDesc: (n, d, a, g, types, avg) => `${n} Immobilie${n === 1 ? "" : "n"} ${d} in ${a} (${g}, Syrien): ${types}${avg ? `. Durchschnittspreis ${avg} pro m²` : ""}. Direkt vom Eigentümer, ohne Provision.`,
+    govDesc: (n, d, g, avg) => `${n} Anzeige${n === 1 ? "" : "n"} ${d} in ${g}, ${cn.de}: Wohnungen, Häuser, Villen, Läden und Grundstücke direkt vom Eigentümer, ohne Provision${avg ? `. Durchschnittspreis ${avg} pro m²` : ""}.`,
+    areaDesc: (n, d, a, g, types, avg) => `${n} Immobilie${n === 1 ? "" : "n"} ${d} in ${a} (${g}, ${cn.de}): ${types}${avg ? `. Durchschnittspreis ${avg} pro m²` : ""}. Direkt vom Eigentümer, ohne Provision.`,
     noneH: (d, g) => `Derzeit keine Anzeigen ${d} in ${g}`, noneP: "Bieten Sie als Erster eine Immobilie hier an.", postFree: "Anzeige kostenlos aufgeben",
     areasOf: (g) => `Gegenden in ${g}`, areasSub: "Gegenden mit Anzeigen haben eine eigene Seite.", near: (g) => `Gegenden in der Nähe in ${g}`, allOf: (g) => `Ganz ${g}`,
     faqH: (a) => `Häufige Fragen zu ${a}`, faqQ1: (d, a) => `Wie viele Immobilien gibt es ${d} in ${a}?`, faqA1: (n, d, a) => `Derzeit gibt es ${n} Anzeige${n === 1 ? "" : "n"} ${d} in ${a} auf Balkoun.`,
     faqQ2: (d, a) => `Was kosten Immobilien ${d} in ${a}?`, faqA2: (lo, hi, avg) => `Die Preise liegen zwischen ${lo} und ${hi}${avg ? `, im Durchschnitt ${avg} pro m²` : ""}.`,
     faqQ3: "Gibt es eine Provision für Käufer?", faqA3: "Nein. Balkoun verlangt von Käufern und Mietern keine Provision; der Kontakt läuft direkt mit dem Eigentümer.",
-    govsH: "Gouvernements und Gegenden", govsT: "Alle Gouvernements und Gegenden Syriens", govsDesc: (ng, na) => `Immobilien in Syrien nach Gouvernement und Gegend: ${ng} Gouvernements und ${na} Gegenden auf Balkoun.`, govsSub: (ng, na) => `${ng} Gouvernements · ${na} Gegenden`, govSmall: (n, a) => `${n} Anzeigen · ${a} Gegenden`, search: "Suchen",
+    govsH: "Gouvernements und Gegenden", govsT: `Alle Gouvernements und Gegenden ${cn.code === "SY" ? "Syriens" : "von " + cn.de}`, govsDesc: (ng, na) => `Immobilien in ${cn.de} nach Gouvernement und Gegend: ${ng} Gouvernements und ${na} Gegenden auf Balkoun.`, govsSub: (ng, na) => `${ng} Gouvernements · ${na} Gegenden`, govSmall: (n, a) => `${n} Anzeigen · ${a} Gegenden`, search: "Suchen",
     rooms: "Zimmer", sqm: "m²", floorAbbr: "OG", monthly: "Monat", yearly: "Jahr", noPhoto: "Kein Foto", featured: "Empfohlen", greenDeed: "Grünes Grundbuch", belowAvg: (p) => `${p} unter dem Durchschnitt`, aboveAvg: (p) => `${p} über dem Durchschnitt`,
     aboutT: "Über Balkoun", contactT: "Kontakt", contactDesc: "Kontakt zum Balkoun-Team: Fragen, Vorschläge oder Hilfe beim Veröffentlichen Ihrer Anzeige. Wir antworten innerhalb eines Werktags.",
     phone: "Telefon", wa: "WhatsApp", mail: "E-Mail", fb: "Facebook", ig: "Instagram", yt: "YouTube", tt: "TikTok", sendMsg: "Nachricht senden", name: "Name", contactField: "Telefon oder E-Mail", yourMsg: "Ihre Nachricht", send: "Senden", min10: "Bitte mindestens 10 Zeichen schreiben.", sending: "Wird gesendet…", sentH: "Nachricht erhalten ✓", sentP: "Danke. Wir antworten so schnell wie möglich.", sendErr: "Senden fehlgeschlagen. Bitte erneut versuchen oder WhatsApp nutzen.",
     footIn: (g) => `Immobilien in ${g}`, allAreas: "Alle Gegenden", aboutPlatform: "Über die Plattform", crumbAria: "Navigationspfad", inLangs: "Sprachen",
-    homeT: "Immobilien in Syrien: Wohnungen und Häuser kaufen und mieten, direkt vom Eigentümer | Balkoun", homeH1: "Immobilien in Syrien, direkt vom Eigentümer", homeLede: "Wohnungen, Häuser, Villen und Grundstücke zum Kauf und zur Miete in ganz Syrien, mit Grundbuchstatus in jeder Anzeige und ohne Provision.", homeDesc: "Immobilien in Syrien: Wohnungen, Häuser, Villen und Grundstücke kaufen und mieten in Damaskus, Aleppo, Homs, Latakia. Direkt vom Eigentümer, ohne Provision.", browseByGov: "Nach Gouvernement", latest: "Neueste Anzeigen", openApp: "Alle Anzeigen durchsuchen", whyH: "Warum Balkoun?",
-    why: [["Grundbuchstatus in jeder Anzeige", "Grünes Grundbuch, Gerichtsurteil oder Anteile: Sie kennen die Rechtslage, bevor Sie anrufen."], ["Direkt vom Eigentümer", "Keine Provision für Käufer oder Mieter. Kontakt per Telefon oder WhatsApp."], ["Alle Gouvernements", "Damaskus und Umland, Aleppo, Homs, Latakia, Tartus und das übrige Syrien, nach Gegend und Viertel."]],
+    homeT: `Immobilien in ${cn.de}: Wohnungen und Häuser kaufen und mieten, direkt vom Eigentümer | Balkoun`, homeH1: `Immobilien in ${cn.de}, direkt vom Eigentümer`, homeLede: `Wohnungen, Häuser, Villen und Grundstücke zum Kauf und zur Miete in ganz ${cn.de}, mit Grundbuchstatus in jeder Anzeige und ohne Provision.`, homeDesc: cn.code === "SY" ? `Immobilien in ${cn.de}: Wohnungen, Häuser, Villen und Grundstücke kaufen und mieten in Damaskus, Aleppo, Homs, Latakia. Direkt vom Eigentümer, ohne Provision.` : `Immobilien in ${cn.de}: Wohnungen, Häuser, Villen und Grundstücke kaufen und mieten im ganzen Land. Direkt vom Eigentümer, ohne Provision.`, browseByGov: "Nach Gouvernement", latest: "Neueste Anzeigen", openApp: "Alle Anzeigen durchsuchen", whyH: "Warum Balkoun?",
+    why: [["Grundbuchstatus in jeder Anzeige", "Grünes Grundbuch, Gerichtsurteil oder Anteile: Sie kennen die Rechtslage, bevor Sie anrufen."], ["Direkt vom Eigentümer", "Keine Provision für Käufer oder Mieter. Kontakt per Telefon oder WhatsApp."], ["Alle Gouvernements", cn.code === "SY" ? `Damaskus und Umland, Aleppo, Homs, Latakia, Tartus und das übrige ${cn.de}, nach Gegend und Viertel.` : `Alle Gouvernements und Gegenden von ${cn.de}, nach Gegend und Viertel.`]],
   },
-};
+});
+let S = mkS(CTX.cn);
 const dealWord = (deal, lang) => deal === "sale" ? S[lang].forSale : S[lang].forRent;
 
 const esc = (s) => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
@@ -134,20 +141,20 @@ const ltr = (s) => `<span class="ltr">${esc(s)}</span>`;
 const jsonForScript = (o) => JSON.stringify(o).replace(/</g, "\\u003c");
 const q = (o) => Object.entries(o).filter(([, v]) => v != null && v !== "").map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join("&");
 const appQ = (lang, o = {}) => lang === "ar" ? o : { ...o, lang };
-const searchUrl = (lang, o) => `${SITE}/search?${q(appQ(lang, o))}`;
-const appUrl = (lang, p) => `${SITE}/${p}${lang === "ar" ? "" : `?lang=${lang}`}`;
-const appHome = (lang) => lang === "ar" ? SITE + "/" : `${SITE}/?lang=${lang}`;
+const searchUrl = (lang, o) => `${SITE}${cpre()}/search?${q(appQ(lang, o))}`;
+const appUrl = (lang, p) => `${SITE}${cpre()}/${p}${lang === "ar" ? "" : `?lang=${lang}`}`;
+const appHome = (lang) => lang === "ar" ? SITE + cpre() + "/" : `${SITE}${cpre()}/?lang=${lang}`;
 const slugLatin = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-").slice(0, 60);
 const slugAr = (s) => String(s || "").replace(/[^\p{L}\p{N}\s-]/gu, "").trim().replace(/\s+/g, "-").slice(0, 60);
 // listing page URL per language: must match generate-listings.mjs exactly
 const TYPE_AR_SLUG = { apartment:"شقة", arab:"بيت عربي", villa:"فيلا", floor:"طابق كامل", building:"بناء كامل", shop:"محل تجاري", office:"مكتب", resid:"أرض سكنية", agri:"أرض زراعية", comm:"أرض تجارية" };
 let govById = new Map(), areaById = new Map();
 function listingUrl(l, lang) {
-  if (lang === "ar") return `${SITE}/listing/${l.id}-${slugAr((TYPE_AR_SLUG[l.property_type] || l.property_type) + " " + (l.area_ar || "") + " " + l.governorate_ar)}/`;
+  if (lang === "ar") return `${SITE}${cpre()}/listing/${l.id}-${slugAr((TYPE_AR_SLUG[l.property_type] || l.property_type) + " " + (l.area_ar || "") + " " + l.governorate_ar)}/`;
   const g = govById.get(l.governorate_id), a = areaById.get(l.area_id);
-  return `${SITE}/${lang}/listing/${l.id}-${slugLatin(typeName(l.property_type, "en") + " " + (a ? areaName(a, "en") : "") + " " + (g ? govName(g, "en") : ""))}/`;
+  return `${SITE}${cpre()}/${lang}/listing/${l.id}-${slugLatin(typeName(l.property_type, "en") + " " + (a ? areaName(a, "en") : "") + " " + (g ? govName(g, "en") : ""))}/`;
 }
-const pageUrl = (lang, p) => `${SITE}${LANGS[lang].prefix}/${p}`;
+const pageUrl = (lang, p) => `${SITE}${cpre()}${LANGS[lang].prefix}/${p}`;
 
 // ── page shell in the site's own style (same tokens as index.html) ───────
 const CSS = `
@@ -267,16 +274,16 @@ ${hreflang(alts)}
 ${jsonld.map((o) => `<script type="application/ld+json">${jsonForScript(o)}</script>`).join("\n")}
 <style>${CSS}</style></head><body>
 <header><div class="wrap hbar">
-<nav class="hnav"><a href="${appHome(lang)}">${W.home}</a><a href="${searchUrl(lang, { deal: "sale" })}">${esc(W.forSale[0].toUpperCase() + W.forSale.slice(1))}</a><a href="${searchUrl(lang, { deal: "rent" })}">${esc(W.forRent[0].toUpperCase() + W.forRent.slice(1))}</a><a href="${pageUrl(lang, "areas/")}">${W.areas}</a><a href="${appUrl(lang, "mapsearch")}">${W.map}</a><a href="${pageUrl(lang, "guides/")}">${GUIDE_WORDS[lang].crumb}</a><a href="${pageUrl(lang, "about/")}">${W.about}</a></nav>
+<nav class="hnav"><a href="${appHome(lang)}">${W.home}</a><a href="${searchUrl(lang, { deal: "sale" })}">${esc(W.forSale[0].toUpperCase() + W.forSale.slice(1))}</a><a href="${searchUrl(lang, { deal: "rent" })}">${esc(W.forRent[0].toUpperCase() + W.forRent.slice(1))}</a><a href="${pageUrl(lang, "areas/")}">${W.areas}</a><a href="${appUrl(lang, "mapsearch")}">${W.map}</a>${CTX.isDefault ? `<a href="${pageUrl(lang, "guides/")}">${GUIDE_WORDS[lang].crumb}</a>` : ""}<a href="${pageUrl(lang, "about/")}">${W.about}</a></nav>
 <div class="htools">${langBar}<a class="mini" href="${appUrl(lang, "account")}">${W.login}</a><a class="gold" href="${appUrl(lang, "post")}">${W.post}</a></div>
 <a class="logo" href="${appHome(lang)}" aria-label="Balkoun">${MARK}<span class="w"><b>بلكون</b><small>BALKOUN</small></span></a></div></header>
 <main class="wrap">${body}</main>
-<footer><div class="wrap"><div class="fl">${footLinks}</div><div class="fb"><span>© 2026 ${W.brand} · balkoun.com</span><span><a href="${pageUrl(lang, "guides/")}">${GUIDE_WORDS[lang].crumb}</a> · <a href="${pageUrl(lang, "about/")}">${W.aboutPlatform}</a> · <a href="${pageUrl(lang, "contactus/")}">${W.contactT}</a></span></div></div></footer>
+<footer><div class="wrap"><div class="fl">${footLinks}</div><div class="fb"><span>© 2026 ${W.brand} · balkoun.com</span><span>${CTX.isDefault ? `<a href="${pageUrl(lang, "guides/")}">${GUIDE_WORDS[lang].crumb}</a> · ` : ""}<a href="${pageUrl(lang, "about/")}">${W.aboutPlatform}</a> · <a href="${pageUrl(lang, "contactus/")}">${W.contactT}</a></span></div></div></footer>
 </body></html>`;
 }
 
 function crumbs(lang, items) {
-  const W = S[lang], home = lang === "ar" ? SITE + "/" : pageUrl(lang, "");
+  const W = S[lang], home = lang === "ar" ? SITE + cpre() + "/" : pageUrl(lang, "");
   const ld = { "@context":"https://schema.org", "@type":"BreadcrumbList", itemListElement: [{ name: W.home, href: home }, ...items].map((it, i) => ({ "@type":"ListItem", position: i + 1, name: it.name, ...(it.href ? { item: it.href } : {}) })) };
   const html = `<nav class="crumbs" aria-label="${W.crumbAria}"><a href="${home}">${W.home}</a>${items.map((it) => `<span>›</span>${it.href ? `<a href="${it.href}">${esc(it.name)}</a>` : `<span>${esc(it.name)}</span>`}`).join("")}</nav>`;
   return { html, ld };
@@ -299,7 +306,7 @@ function card(l, avg, lang) {
 }
 
 let avgByArea = new Map();
-const altsFor = (p) => ({ ar: SITE + "/" + p, en: pageUrl("en", p), de: pageUrl("de", p) });
+const altsFor = (p) => ({ ar: SITE + cpre() + "/" + p, en: pageUrl("en", p), de: pageUrl("de", p) });
 
 function govPage({ lang, deal, g, areas, listings, avg, footLinks }) {
   const W = S[lang], d = DEAL[deal], dw = dealWord(deal, lang), other = deal === "sale" ? "rent" : "sale";
@@ -361,7 +368,7 @@ function aboutPage({ lang, footLinks }) {
 ${(A.blocks || []).map((b) => `<section class="ab"><h2>${b[0]}</h2>${b[1].map((p) => `<p>${p}</p>`).join("")}</section>`).join("")}
 <div class="cta"><div><h2>${A.ctaH}</h2><p>${A.ctaP}</p></div><a class="gold" href="${appUrl(lang, "post")}">${W.post}</a></div></article>`;
   const ld = [c.ld, { "@context":"https://schema.org", "@type":"AboutPage", name: W.aboutT, url, description: desc, inLanguage: lang },
-    { "@context":"https://schema.org", "@type":"Organization", name: "Balkoun", alternateName: "بلكون", url: SITE, logo: SITE + "/brand/og-image.png", areaServed: "SY" }];
+    { "@context":"https://schema.org", "@type":"Organization", name: "Balkoun", alternateName: "بلكون", url: SITE, logo: SITE + "/brand/og-image.png", areaServed: CTX.code }];
   return { url, html: shell({ lang, title: W.aboutT + " | Balkoun", desc, canonical: url, alts: altsFor(rel), jsonld: ld, body, footLinks }) };
 }
 
@@ -398,8 +405,8 @@ function homePage({ lang, govs, counts, latest, footLinks }) {
 ${latest.length ? `<section class="sec"><h2>${W.latest}</h2><div class="grid" style="margin-top:14px">${latest.map((l) => card(l, l.area_id ? avgByArea.get(l.area_id) : null, lang)).join("")}</div><p style="margin-top:14px"><a class="gold" href="${searchUrl(lang, {})}">${W.openApp}</a></p></section>` : ""}
 <section class="sec"><h2>${W.whyH}</h2><div class="why">${W.why.map((w) => `<div><h3>${esc(w[0])}</h3><p>${esc(w[1])}</p></div>`).join("")}</div></section>`;
   const ld = [{ "@context":"https://schema.org", "@type":"WebSite", name: "Balkoun", url: SITE, inLanguage: lang, description: W.homeDesc },
-    { "@context":"https://schema.org", "@type":"Organization", name: "Balkoun", alternateName: "بلكون", url: SITE, logo: SITE + "/brand/og-image.png", areaServed: "SY" }];
-  return { url, html: shell({ lang, title: W.homeT, desc: W.homeDesc, canonical: url, alts: { ar: SITE + "/", en: pageUrl("en", ""), de: pageUrl("de", "") }, jsonld: ld, body, image: latest[0]?.cover_url, footLinks }) };
+    { "@context":"https://schema.org", "@type":"Organization", name: "Balkoun", alternateName: "بلكون", url: SITE, logo: SITE + "/brand/og-image.png", areaServed: CTX.code }];
+  return { url, html: shell({ lang, title: W.homeT, desc: W.homeDesc, canonical: url, alts: { ar: SITE + cpre() + "/", en: pageUrl("en", ""), de: pageUrl("de", "") }, jsonld: ld, body, image: latest[0]?.cover_url, footLinks }) };
 }
 
 function guidesIndex({ lang, footLinks }) {
@@ -436,75 +443,100 @@ function write(url, html) {
 }
 
 async function main() {
-  const [govs, areas, listings, prices] = await Promise.all([
-    all("governorates", "id,name_ar,name_en,slug,sort_order", "sort_order.asc,id.asc"),
+  let allCountries;
+  const SY_ONLY = [{ code: "SY", name_ar: "سوريا", name_en: "Syria", name_de: "Syrien", enabled: true, is_default: true }];
+  try { allCountries = await sb("countries?select=code,name_ar,name_en,name_de,enabled,is_default,sort_order&order=sort_order.asc"); if (!Array.isArray(allCountries) || !allCountries.length) throw new Error("empty list"); }
+  catch (e) { console.warn("countries unreadable, building Syria only:", e.message); allCountries = SY_ONLY; }
+  if (!allCountries.some((c) => c.is_default)) allCountries.forEach((c) => { if (c.code === "SY") c.is_default = true; });
+  const enabled = allCountries.filter((c) => c.enabled);
+  // a country that was switched off loses its tree (a disabled default country keeps the root)
+  for (const c of allCountries.filter((c) => !c.enabled && !c.is_default)) fs.rmSync(path.join(ROOT, c.code.toLowerCase()), { recursive: true, force: true });
+
+  const [govsAll, areasAll, listingsAll, prices] = await Promise.all([
+    all("governorates", "id,name_ar,name_en,slug,sort_order,country_code", "sort_order.asc,id.asc"),
     all("areas", "id,governorate_id,name_ar,name_en,slug", "id.asc"),
-    all("v_listings", "id,deal,property_type,governorate_id,governorate_ar,area_id,area_ar,landmark,price_usd,area_m2,rooms,floor,tabu,rental_period,is_featured,cover_url,created_at,status", "created_at.desc"),
+    all("v_listings", "id,deal,property_type,governorate_id,governorate_ar,area_id,area_ar,landmark,price_usd,area_m2,rooms,floor,tabu,rental_period,is_featured,cover_url,created_at,status,country_code", "created_at.desc"),
     all("v_area_prices", "area_id,listings,avg_price_per_m2", "area_id.asc"),
   ]);
-  govById = new Map(govs.map((g) => [g.id, g])); areaById = new Map(areas.map((a) => [a.id, a]));
-  const live = listings.filter((l) => l.status === "live" && DEAL[l.deal]);
-  const usableGovs = govs.filter((g) => g.slug);
+  govById = new Map(govsAll.map((g) => [g.id, g])); areaById = new Map(areasAll.map((a) => [a.id, a]));
   avgByArea = new Map(prices.filter((p) => p.listings >= 3).map((p) => [p.area_id, Number(p.avg_price_per_m2)]));
   const marketByArea = new Map(prices.map((p) => [p.area_id, p]));
-
-  const counts = { gov: new Map(), area: new Map() };
-  for (const l of live) {
-    counts.gov.set(l.governorate_id, (counts.gov.get(l.governorate_id) || 0) + 1);
-    if (l.area_id) { const k = counts.area.get(l.area_id) || { sale: 0, rent: 0 }; k[l.deal]++; counts.area.set(l.area_id, k); }
-  }
-  const areasByGov = new Map();
-  for (const a of areas.filter((x) => x.slug)) {
-    const row = { ...a, count: counts.area.get(a.id) || { sale: 0, rent: 0 } };
-    (areasByGov.get(a.governorate_id) || areasByGov.set(a.governorate_id, []).get(a.governorate_id)).push(row);
-  }
-  const footLinksFor = (lang) => usableGovs.slice(0, 12).map((g) => `<a href="${pageUrl(lang, `for-sale/${g.slug}/`)}">${esc(S[lang].footIn(govName(g, lang)))}</a>`).join("") + `<a href="${pageUrl(lang, "areas/")}">${S[lang].allAreas}</a>`;
-
-  // remove previously generated trees so deleted areas/govs don't leave stale pages
-  for (const dir of ["for-sale", "for-rent", "areas", "about", "contactus", "en/for-sale", "en/for-rent", "en/areas", "en/about", "en/contactus", "de/for-sale", "de/for-rent", "de/areas", "de/about", "de/contactus", "guides", "en/guides", "de/guides"]) fs.rmSync(path.join(ROOT, dir), { recursive: true, force: true });
-  for (const l of ["en", "de"]) { const f = path.join(ROOT, l, "index.html"); if (fs.existsSync(f)) fs.rmSync(f); }
-
-  let site = null;
-  try { site = (await sb("site_content?select=phone_number,wa_number,email_address,fb_url,fb_name,ig_url,ig_name,yt_url,yt_name,tiktok_url,tiktok_name&limit=1"))[0]; } catch (e) { console.warn("site_content unreadable:", e.message); }
-
-  const urls = [];
-  for (const lang of ["ar", "en", "de"]) {
-    const footLinks = footLinksFor(lang);
-    for (const deal of ["sale", "rent"]) {
-      for (const g of usableGovs) {
-        const gAreas = areasByGov.get(g.id) || [];
-        const gl = live.filter((l) => l.deal === deal && l.governorate_id === g.id);
-        const m2 = gAreas.map((a) => avgByArea.get(a.id)).filter(Boolean);
-        const avg = m2.length ? Math.round(m2.reduce((s, v) => s + v, 0) / m2.length) : null;
-        const page = govPage({ lang, deal, g, areas: gAreas, listings: gl, avg, footLinks });
-        write(page.url, page.html); if (gl.length) urls.push({ loc: page.url, priority: "0.7" });
-        for (const a of gAreas) {
-          const al = gl.filter((l) => l.area_id === a.id);
-          if (!al.length) continue;
-          const siblings = gAreas.filter((x) => x.id !== a.id && x.count[deal] > 0).slice(0, 12);
-          const ap = areaPage({ lang, deal, g, a, listings: al, siblings, market: marketByArea.get(a.id), footLinks });
-          write(ap.url, ap.html); urls.push({ loc: ap.url, priority: "0.8" });
-        }
-      }
-    }
-    const idx = areasIndex({ lang, govs: usableGovs, areasByGov, counts, footLinks }); write(idx.url, idx.html); urls.push({ loc: idx.url, priority: "0.6" });
-    const ab = aboutPage({ lang, footLinks }); write(ab.url, ab.html); urls.push({ loc: ab.url, priority: "0.5" });
-    const ct = contactPage({ lang, site, footLinks }); write(ct.url, ct.html); urls.push({ loc: ct.url, priority: "0.5" });
-    const gi = guidesIndex({ lang, footLinks }); write(gi.url, gi.html); urls.push({ loc: gi.url, priority: "0.7" });
-    for (const g of GUIDES) { const gp = guidePage({ lang, g, footLinks }); write(gp.url, gp.html); urls.push({ loc: gp.url, priority: "0.7" }); }
-    if (lang !== "ar") { const hp = homePage({ lang, govs: usableGovs, counts, latest: live.slice(0, 12), footLinks }); write(hp.url, hp.html); urls.push({ loc: hp.url, priority: "0.9" }); }
-  }
-
-  // sitemap: home + these pages + every /listing/ page on disk, in every language
   const listingDirsOf = (base) => fs.existsSync(base) ? fs.readdirSync(base).filter((d) => fs.existsSync(path.join(base, d, "index.html"))) : [];
   const today = new Date().toISOString().slice(0, 10);
-  // the app routes that have their own 200 page (see generate-routes.mjs)
-  const routeUrls = ["search", "mapsearch", "wanted", "agencies", "projects"].filter((r) => fs.existsSync(path.join(ROOT, r, "index.html"))).map((r) => ({ loc: `${SITE}/${r}/`, priority: "0.6" }));
-  const entries = [{ loc: SITE + "/", priority: "1.0" }, ...routeUrls, ...urls,
-    ...listingDirsOf(path.join(ROOT, "listing")).map((d) => ({ loc: `${SITE}/listing/${d}/`, priority: "0.9" })),
-    ...listingDirsOf(path.join(ROOT, "en", "listing")).map((d) => ({ loc: `${SITE}/en/listing/${d}/`, priority: "0.8" })),
-    ...listingDirsOf(path.join(ROOT, "de", "listing")).map((d) => ({ loc: `${SITE}/de/listing/${d}/`, priority: "0.8" }))];
+  const entries = []; let total = 0;
+
+  for (const c of enabled) {
+    CTX = { code: c.code, prefix: c.is_default ? "" : "/" + c.code.toLowerCase(), isDefault: !!c.is_default, cn: { code: c.code, ar: c.name_ar, en: c.name_en, de: c.name_de || c.name_en } };
+    S = mkS(CTX.cn);
+    const base = path.join(ROOT, CTX.prefix.replace(/^\//, ""));
+    const govs = govsAll.filter((g) => (g.country_code || "SY") === c.code);
+    const govIds = new Set(govs.map((g) => g.id));
+    const areas = areasAll.filter((a) => govIds.has(a.governorate_id));
+    const live = listingsAll.filter((l) => l.status === "live" && DEAL[l.deal] && govIds.has(l.governorate_id));
+    const usableGovs = govs.filter((g) => g.slug);
+
+    const counts = { gov: new Map(), area: new Map() };
+    for (const l of live) {
+      counts.gov.set(l.governorate_id, (counts.gov.get(l.governorate_id) || 0) + 1);
+      if (l.area_id) { const k = counts.area.get(l.area_id) || { sale: 0, rent: 0 }; k[l.deal]++; counts.area.set(l.area_id, k); }
+    }
+    const areasByGov = new Map();
+    for (const a of areas.filter((x) => x.slug)) {
+      const row = { ...a, count: counts.area.get(a.id) || { sale: 0, rent: 0 } };
+      (areasByGov.get(a.governorate_id) || areasByGov.set(a.governorate_id, []).get(a.governorate_id)).push(row);
+    }
+    const footLinksFor = (lang) => usableGovs.slice(0, 12).map((g) => `<a href="${pageUrl(lang, `for-sale/${g.slug}/`)}">${esc(S[lang].footIn(govName(g, lang)))}</a>`).join("") + `<a href="${pageUrl(lang, "areas/")}">${S[lang].allAreas}</a>`;
+
+    // remove previously generated trees so deleted areas/govs don't leave stale pages
+    const trees = ["for-sale", "for-rent", "areas", "about", "contactus", "en/for-sale", "en/for-rent", "en/areas", "en/about", "en/contactus", "de/for-sale", "de/for-rent", "de/areas", "de/about", "de/contactus"];
+    if (CTX.isDefault) trees.push("guides", "en/guides", "de/guides");
+    for (const dir of trees) fs.rmSync(path.join(base, dir), { recursive: true, force: true });
+    for (const l of ["en", "de"]) { const f = path.join(base, l, "index.html"); if (fs.existsSync(f)) fs.rmSync(f); }
+
+    let site = null;
+    try { site = (await sb(`site_content?select=phone_number,wa_number,email_address,fb_url,fb_name,ig_url,ig_name,yt_url,yt_name,tiktok_url,tiktok_name&country_code=eq.${c.code}&limit=1`))[0]; } catch (e) { console.warn("site_content unreadable:", e.message); }
+
+    const urls = [];
+    for (const lang of ["ar", "en", "de"]) {
+      const footLinks = footLinksFor(lang);
+      for (const deal of ["sale", "rent"]) {
+        for (const g of usableGovs) {
+          const gAreas = areasByGov.get(g.id) || [];
+          const gl = live.filter((l) => l.deal === deal && l.governorate_id === g.id);
+          const m2 = gAreas.map((a) => avgByArea.get(a.id)).filter(Boolean);
+          const avg = m2.length ? Math.round(m2.reduce((s, v) => s + v, 0) / m2.length) : null;
+          const page = govPage({ lang, deal, g, areas: gAreas, listings: gl, avg, footLinks });
+          write(page.url, page.html); if (gl.length) urls.push({ loc: page.url, priority: "0.7" });
+          for (const a of gAreas) {
+            const al = gl.filter((l) => l.area_id === a.id);
+            if (!al.length) continue;
+            const siblings = gAreas.filter((x) => x.id !== a.id && x.count[deal] > 0).slice(0, 12);
+            const ap = areaPage({ lang, deal, g, a, listings: al, siblings, market: marketByArea.get(a.id), footLinks });
+            write(ap.url, ap.html); urls.push({ loc: ap.url, priority: "0.8" });
+          }
+        }
+      }
+      const idx = areasIndex({ lang, govs: usableGovs, areasByGov, counts, footLinks }); write(idx.url, idx.html); urls.push({ loc: idx.url, priority: "0.6" });
+      const ab = aboutPage({ lang, footLinks }); write(ab.url, ab.html); urls.push({ loc: ab.url, priority: "0.5" });
+      const ct = contactPage({ lang, site, footLinks }); write(ct.url, ct.html); urls.push({ loc: ct.url, priority: "0.5" });
+      if (CTX.isDefault) {
+        const gi = guidesIndex({ lang, footLinks }); write(gi.url, gi.html); urls.push({ loc: gi.url, priority: "0.7" });
+        for (const g of GUIDES) { const gp = guidePage({ lang, g, footLinks }); write(gp.url, gp.html); urls.push({ loc: gp.url, priority: "0.7" }); }
+      }
+      if (lang !== "ar") { const hp = homePage({ lang, govs: usableGovs, counts, latest: live.slice(0, 12), footLinks }); write(hp.url, hp.html); urls.push({ loc: hp.url, priority: "0.9" }); }
+    }
+
+    // the app routes that have their own 200 page (see generate-routes.mjs)
+    const routeUrls = ["search", "mapsearch", "wanted", "agencies", "projects"].filter((r) => fs.existsSync(path.join(base, r, "index.html"))).map((r) => ({ loc: `${SITE}${CTX.prefix}/${r}/`, priority: "0.6" }));
+    entries.push({ loc: SITE + CTX.prefix + "/", priority: CTX.isDefault ? "1.0" : "0.9" }, ...routeUrls, ...urls,
+      ...listingDirsOf(path.join(base, "listing")).map((d) => ({ loc: `${SITE}${CTX.prefix}/listing/${d}/`, priority: "0.9" })),
+      ...listingDirsOf(path.join(base, "en", "listing")).map((d) => ({ loc: `${SITE}${CTX.prefix}/en/listing/${d}/`, priority: "0.8" })),
+      ...listingDirsOf(path.join(base, "de", "listing")).map((d) => ({ loc: `${SITE}${CTX.prefix}/de/listing/${d}/`, priority: "0.8" })));
+    total += urls.length;
+    console.log(`${c.code}${CTX.prefix ? " (" + CTX.prefix + "/)" : ""}: ${urls.length} pages, ${usableGovs.length} governorates, ${live.length} live listings`);
+  }
+
   fs.writeFileSync(path.join(ROOT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.map((e) => `  <url><loc>${e.loc}</loc><lastmod>${today}</lastmod><priority>${e.priority}</priority></url>`).join("\n")}\n</urlset>\n`);
-  console.log(`Wrote ${urls.length} pages in ar/en/de and sitemap.xml with ${entries.length} URLs.`);
+  console.log(`Wrote ${total} pages in ar/en/de for ${enabled.length} countr${enabled.length === 1 ? "y" : "ies"} and sitemap.xml with ${entries.length} URLs.`);
 }
 main().catch((e) => { console.error(e); process.exit(1); });

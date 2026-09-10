@@ -44,6 +44,8 @@ jobs:
           git config user.name "balkoun-bot"
           git config user.email "actions@github.com"
           git add listing for-sale for-rent areas about contactus guides en de search mapsearch wanted agencies projects sitemap.xml 404.html
+          # other countries live under two-letter folders (/lb/, /jo/ …); -A also stages a tree removed when a country is switched off
+          git add -A -- ':(glob)[a-z][a-z]/**' || true
           git diff --cached --quiet || git commit -m "Rebuild static pages [auto]"
           git pull --rebase origin main || true
           git push

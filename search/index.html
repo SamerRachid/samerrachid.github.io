@@ -2311,6 +2311,43 @@ body.rs-lock{overflow:hidden}
 @media(min-width:861px){.pwa-bar{display:none}}
 .pwa-steps{list-style:none;display:grid;gap:10px;margin:14px 0 4px;text-align:start}.pwa-steps li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;color:var(--ink)}.pwa-steps i{font-style:normal;flex:none;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#1A1206;display:grid;place-items:center;font-weight:800;font-size:13px}
 .pwa-toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom));z-index:9500;background:var(--navy);color:#fff;border-radius:999px;padding:10px 16px;font-size:13.5px;display:flex;gap:12px;align-items:center;box-shadow:0 14px 30px -14px rgba(9,14,26,.6);max-width:calc(100vw - 24px)}.pwa-toast button{background:var(--gold);color:#1A1206;border:0;border-radius:999px;padding:6px 12px;font:700 12.5px var(--fd);cursor:pointer}
+/* French labels are longer: keep the header button on one line (scoped to fr, Syria's header is untouched) */
+html[lang=fr] .htools a.gold{white-space:nowrap}
+/* listing videos */
+.vplay{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#1A1206;font-size:11px;padding-inline-start:2px;flex:none}
+.cbg.vid{background:rgba(9,14,26,.72);color:#fff}
+.vpick,.evids{margin-top:14px;display:grid;gap:8px}.vpick-h{font-size:13.5px;color:var(--navy)}
+.vadd{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;align-items:center;text-align:start;border:1.5px dashed var(--line-2);border-radius:12px;padding:12px 14px;background:#fff;cursor:pointer;font:inherit;color:var(--ink)}
+.vadd:hover{border-color:var(--gold)}.vadd .vplay{grid-row:span 2;width:34px;height:34px;font-size:14px}.vadd b{font-size:14px}.vadd span:not(.vplay){font-size:12px;color:var(--grey)}
+.vprev{position:relative;width:200px;max-width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#0D1729;display:grid;place-items:center}
+.vprev img{width:100%;height:100%;object-fit:cover;opacity:.85}.vprev .vplay{position:absolute;width:38px;height:38px;font-size:15px}.vprev .vph{color:#fff;font-size:26px}
+.vprev .vdur{position:absolute;bottom:6px;inset-inline-start:8px;background:rgba(0,0,0,.6);color:#fff;font-size:11.5px;padding:2px 7px;border-radius:999px}
+.vprev .rm{position:absolute;top:6px;inset-inline-end:6px}
+.shot2.vshot{background:#0D1729}.shot2.vshot .vplay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:30px}.shot2.vshot .vph{position:absolute;inset:0;display:grid;place-items:center;color:#fff}
+.lgal .lg-vid{position:absolute;bottom:14px;inset-inline-start:14px;z-index:3;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:6px 14px 6px 6px;background:rgba(9,14,26,.78);color:#fff;font:700 13px var(--fd);cursor:pointer;backdrop-filter:blur(4px)}
+.lgal .lg-vid:hover{background:rgba(9,14,26,.92)}.lgal{position:relative}
+.vlb{position:fixed;inset:0;z-index:9000;background:rgba(5,8,16,.92);display:flex;align-items:center;justify-content:center;padding:20px;animation:ccfade .25s}
+.vlb-box{width:min(96vw,1100px);aspect-ratio:16/9;max-height:88vh;background:#000;border-radius:10px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6)}
+.vlb-box video{width:100%;height:100%;display:block;background:#000}
+@media(max-width:700px){.lgal .lg-vid{bottom:10px;inset-inline-start:10px;font-size:12px}}
+/* countries: header chip, drawer segment, opening chooser */
+.flg{width:22px;height:15px;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.08);flex:none;display:inline-block;vertical-align:middle}.flg-t{font:700 9px/15px var(--fd);text-align:center;background:var(--navy);color:#fff;letter-spacing:.5px}
+.cpickw{position:relative}.cchip{display:inline-flex;align-items:center;gap:6px}.cchip .flg{width:20px;height:14px}
+.cpickw .menu{min-width:190px}.cpickw .menu a{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;font-size:14px}.cpickw .menu a.on{color:var(--gold-dk,#8A6522);font-weight:700}
+.cseg a{display:inline-flex;align-items:center;gap:7px}.cseg .flg{width:20px;height:14px}
+.adm-country{max-width:150px}
+.cchoose{position:fixed;inset:0;z-index:10000;background:rgba(10,16,32,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;animation:ccfade .35s}
+@keyframes ccfade{from{opacity:0}to{opacity:1}}
+.cchoose-p{background:#fff;color:var(--ink);border-radius:22px;padding:28px 26px 22px;max-width:560px;width:100%;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.35);animation:ccpop .45s cubic-bezier(.2,.8,.2,1)}
+@keyframes ccpop{from{transform:translateY(18px) scale(.97);opacity:0}to{transform:none;opacity:1}}
+.cchoose-logo{display:inline-flex;justify-content:center;color:var(--navy);font-size:22px}.cchoose-logo .bmark{width:34px;height:34px}.cchoose-logo .bdia{stroke:#C4881F}
+.cchoose-p h2{margin:14px 0 6px;font-size:22px;font-weight:800;color:var(--navy)}.cchoose-p p{color:var(--grey);font-size:14px;line-height:1.6;margin:0 0 18px}
+.cchoose-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.cchoose-c{border:1.5px solid var(--line);border-radius:16px;padding:16px 10px 14px;cursor:pointer;background:#fff;font:inherit;display:flex;flex-direction:column;align-items:center;gap:8px;transition:border-color .2s,transform .2s,box-shadow .2s}
+.cchoose-c:hover,.cchoose-c:focus-visible{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 10px 24px rgba(20,33,61,.12);outline:none}
+.cchoose-c .fl .flg{width:44px;height:30px;border-radius:6px}.cchoose-c .fl .flg-t{font-size:14px;line-height:30px}.cchoose-c b{font-size:15.5px;color:var(--navy)}.cchoose-c small{color:var(--grey);font-size:12px}
+.cchoose-x{margin-top:16px;background:none;border:0;color:var(--grey);font:inherit;font-size:13.5px;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+@media(prefers-reduced-motion:reduce){.cchoose,.cchoose-p{animation:none}}
 /* all areas, in-app */
 .arx{padding:22px 18px 60px}.arx-stats{margin-top:10px;font-size:13.5px;color:var(--grey)}.arx-stats b{color:var(--navy)}
 .arx .ag-hero .gold{display:inline-flex;align-items:center;gap:8px}.arx .ag-hero .gold .mi{display:inline-flex}.arx .ag-hero .gold svg{width:18px;height:18px}
@@ -2817,7 +2854,7 @@ var D = {"I18N": {"ar": {"dir": "rtl", "name": "عربي", "buy": "شراء", "r
 /* ═══ ENGINE ── محرّك الموقع (rarely edited) ════════════════════ */
 function detectLang(){
   try{
-    var m=location.search.match(/[?&]lang=(ar|en|de)(?![a-z])/); if(m){ try{ localStorage.setItem("balkoun_lang",m[1]) }catch(e){} return m[1] }
+    var m=location.search.match(/[?&]lang=(ar|en|de|fr)(?![a-z])/); if(m){ try{ localStorage.setItem("balkoun_lang",m[1]) }catch(e){} return m[1] }
   }catch(e){}
   try{
     var saved = localStorage.getItem("balkoun_lang");
@@ -2830,14 +2867,186 @@ function detectLang(){
 function detectCurrency(){
   try{
     var saved = localStorage.getItem("balkoun_cur");
-    if(saved==="USD"||saved==="SYP") return saved;
+    if(saved==="USD"||saved===localCur()) return saved;
   }catch(e){}
-  return "USD"; // US dollar is the default for new visitors, per site owner's preference
+  var c0=countryOf(COUNTRY); return (c0&&c0.currencies&&c0.currencies[0])||"USD"; // US dollar is the default for new visitors (site owner's choice); another country opens in its own first currency
+}
+/* ═══ French: shown where a country offers it (Lebanon); any missing word falls back to English ═══ */
+var FR_T={
+  buy:"Acheter", rent:"Louer", land:"Terrains", com:"Commercial", post:"Publier une annonce", login:"Connexion", loginSignupCombo:"Connexion / Inscription",
+  h1a:"Le plus grand choix de biens —", h1b:"directement des propriétaires", res:"Résidentiel", comm:"Commercial", forsale:"À vendre", forrent:"À louer", dealAll:"Tous",
+  gov:"Gouvernorat", area:"Quartier", ptype:"Type de bien", deed:"Titre de propriété", search:"Rechercher", props:"biens", allareas:"Tous les quartiers", addArea:"Ajouter un quartier",
+  searchAreasPH:"Ville, quartier ou zone", searchGovPH:"Rechercher un gouvernorat", searchTypesPH:"Rechercher un type de bien", searchDeedPH:"Rechercher un type de titre", noResultsFor:"Aucun résultat", remove:"Retirer",
+  allgov:"Tous les gouvernorats", anytype:"Tous", landGroup:"Terrains", landType:"Type de terrain", hasBuilding:"Y a-t-il une construction sur le terrain ?", hasBuildingYes:"Oui, il y a une construction", hasBuildingNo:"Non, terrain nu",
+  directionL:"Orientation (soleil)", mapLocL:"Position sur la carte", mapLocHint:"Facultatif — indiquez l'emplacement du bien sur la carte pour que les acheteurs voient exactement où il se trouve.", addLocationBtn:"Ajouter la position sur la carte", mapClickHint:"Cliquez sur la carte pour placer le bien", removeLocationBtn:"Retirer la position", mapH:"Position sur la carte", anyDirection:"Non précisée", anydeed:"Tout titre",
+  note:"quartiers dans tous les gouvernorats ·", note2:"annonces sans commission", forSaleH:"Biens à vendre", forSaleS:"Choisissez la catégorie recherchée", forRentH:"Biens à louer", forRentS:"Au mois ou à l'année, meublé ou vide",
+  bandH:"Créez un compte et simplifiez vos recherches", bandP:"Enregistrez vos recherches et soyez le premier informé des nouvelles annonces dans vos quartiers.", b1:"Alertes sur les nouvelles annonces", b2:"Enregistrez vos favoris", b3:"Contactez directement les propriétaires", bandBtn:"Créer un compte gratuit",
+  govH:"Parcourir par gouvernorat", guideH:"Guides à lire avant d'acheter", guideS:"Tout sur le titre de propriété, la mutation et l'achat depuis l'étranger",
+  home:"Accueil", results:"Résultats", listings:"annonces", sortNew:"Plus récentes", sortLo:"Prix croissant", sortHi:"Prix décroissant", sortA:"Plus grande surface", cond:"État", type:"Type de bien", price:"Prix", from:"Min", to:"Max", extras:"Options", vid:"Vidéo de visite", owneronly:"Propriétaires seulement", filtersH:"Filtres",
+  rooms:"pièces", baths:"salles de bain", power:"h d'électricité", owner:"Propriétaire", agent:"Agent", perm:"le m²", permo:"/ mois", monthlyRent:"Loyer mensuel", none:"Aucune annonce ne correspond à ces filtres", none2:"Essayez d'élargir votre recherche", ref:"Référence", posted:"Publiée", views:"vues", saved:"favoris",
+  kArea:"Surface", kRooms:"Chambres", kBaths:"Salles de bain", kLiving:"Salons", kFloor:"Étage", kYear:"Construit en", kCond:"État", descH:"Description", detH:"Tous les détails", utilH:"Électricité et services", amH:"Équipements",
+  deedH:"Titre vert, entièrement enregistré", d1:"Enregistré au nom du propriétaire, sans parts ni associés", d2:"Copie du titre disponible avant tout acompte", d3:"Aucune hypothèque, saisie ou litige en cours", d4:"Mutation possible chez le notaire sous une semaine",
+  uPower:"d'électricité par jour", uAmps:"part de générateur", uWater:"alimentation en eau", uTank:"réservoir d'eau privé", showPhone:"Afficher le numéro", waMsg:"Message WhatsApp", callBtn:"Appeler", reqVisit:"Demander une visite", saveL:"Enregistrer", memberSince:"membre depuis", similarInH:"Plus d'annonces à {city}", replies:"répond généralement en 2 heures",
+  safeT:"Restez prudent", safeB:"Ne versez jamais d'acompte avant d'avoir vu le bien et vérifié le titre au cadastre. Balkoun ne manipule aucun argent et ne prend aucune commission.",
+  postH:"Publier une annonce", postS:"Entièrement gratuit. Aucune commission, nous n'intervenons pas dans la vente.", p1:"Que proposez-vous ?", p2:"Où se trouve le bien ?", p3:"Détails du bien", p4:"Titre de propriété", p5:"Prix et contact", sect:"Catégorie", deal:"Type d'offre", landmark:"Repère ou rue la plus proche", areaM:"Surface (m²)", descL:"Description", tel:"Numéro de contact", publish:"Publier l'annonce", fill:"Remplissez les champs obligatoires", ready:"Tout est prêt ✓", sqm:"m²", photos:"Photos",
+  okH:"Annonce enregistrée", okP:"Elle est en ligne. Retrouvez-la dans la recherche.", okBtn:"Voir le résultat", landmarkH:"Nous n'affichons jamais l'adresse complète — seulement le quartier et le repère.", condH:"Soyez honnête. Les acheteurs verront le bien de toute façon.", descPH:"Décrivez la disposition, la vue et la rue.", deedG:"Parfait. Téléversez une copie du titre et votre annonce reçoit le badge vérifié.", deedY:"Nous l'indiquons clairement sur l'annonce.",
+  dropB:"Glissez les photos ici ou cliquez pour choisir", dropS:"Au moins 3 · la première devient la couverture", photoTips:"Photographiez en paysage · placez-vous dans un angle · lumière du jour, rideaux ouverts · rangez les plans de travail", cover:"Couverture", missing:"Manquant :", negot:"Prix négociable", waok:"J'accepte WhatsApp", iamowner:"Je suis le propriétaire, pas un agent",
+  signup:"Inscription", loginH:"Connexion à Balkoun", signupH:"Créez votre compte Balkoun", yourName:"Nom", mobile:"Numéro de mobile", viaWa:"Continuer avec WhatsApp", noPass:"Sans mot de passe — une touche dans WhatsApp suffit.", noWa:"Pas de WhatsApp — envoyez-moi un SMS", yourCode:"Votre code de confirmation", s1:"Touchez le bouton — WhatsApp s'ouvre avec le message prêt", s2:"Appuyez sur Envoyer dans WhatsApp", s3:"Revenez et touchez « Je l'ai envoyé »", openWa:"Ouvrir WhatsApp et envoyer", iSent:"Je l'ai envoyé", changeNum:"Changer de numéro", waText:"Je confirme mon compte Balkoun :", smsSent:"Nous avons envoyé un code à 6 chiffres au", confirm:"Confirmer", welcome:"Bienvenue", nowYouCan:"Vous pouvez maintenant publier des annonces et enregistrer des biens.", okBtn2:"Terminé", badPhone:"Entrez un numéro de mobile valide", badName:"Entrez votre nom", userDefault:"Utilisateur",
+  myAds:"Mes annonces", mySaved:"Biens enregistrés", mySearch:"Recherches enregistrées", myMessages:"Mes messages", notifications:"Notifications", noNotifs:"Pas encore de notifications", notif_replyFeedback:"Réponse à votre message", notif_replyReport:"Réponse à votre signalement", notif_priceChange:"Prix modifié sur un bien enregistré", reportOn:"Signalement sur", awaitingReply:"En attente de réponse de l'équipe", you:"Vous", theTeam:"L'équipe", replyBtn:"Répondre",
+  mf_all:"Tous", mf_open:"Non résolus", mf_solved:"Résolus", markSolved:"Marquer résolu", reopenIt:"Réouvrir", deleteChat:"Supprimer la conversation", prio_low:"Faible", prio_normal:"Normale", prio_high:"Haute", prio_urgent:"Urgente", noMessages:"Pas encore de messages", noMessagesP:"Vos signalements et messages apparaîtront ici avec les réponses de l'équipe.",
+  settings:"Paramètres du compte", logout:"Déconnexion", saving:"Enregistrement…", failH:"Annonce non enregistrée", connected:"base de données connectée", notConnected:"hors ligne — données de démonstration", seeAll:"Voir toutes les annonces", photoFail:"Certaines photos n'ont pas été envoyées :", ground:"Rez-de-chaussée", basement:"Sous-sol",
+  contactName:"Votre nom sur l'annonce", contactNamePH:"ex. Mahmoud A.", nameFromAccount:"Repris de votre compte — modifiable dans les paramètres.", loginToPost:"Un compte est nécessaire pour publier", noAccountYet:"Pas encore de compte ?", loginToPostP:"Créez-en un en une minute via WhatsApp, puis publiez et gérez vos annonces.",
+  password:"Mot de passe", password2:"Confirmez le mot de passe", newPass:"Nouveau mot de passe", firstName:"Prénom", familyName:"Nom de famille", min6:"au moins 6 caractères", showPassword:"Afficher le mot de passe", hidePassword:"Masquer le mot de passe", forgot:"Mot de passe oublié ?", rememberMe:"Se souvenir de moi", forgotP:"Entrez votre numéro, confirmez-le sur WhatsApp, puis choisissez un nouveau mot de passe.", backLogin:"Retour à la connexion", savePass:"Enregistrer le mot de passe", whyWa:"Nous confirmons votre numéro en une touche sur WhatsApp — une seule fois.",
+  noUser:"Aucun compte avec ce numéro", wrongPass:"Mot de passe incorrect", needPass:"Entrez votre mot de passe", shortPass:"Le mot de passe doit contenir au moins 6 caractères", noMatch:"Les mots de passe ne correspondent pas", badFamily:"Entrez votre nom de famille", phoneTaken:"Ce numéro a déjà un compte — connectez-vous",
+  profile:"Vos informations", security:"Sécurité", saveChanges:"Enregistrer", savedOk:"Enregistré ✓", changePass:"Changer le mot de passe", changePassP:"Nous confirmons votre numéro sur WhatsApp avant le changement.", phoneFixed:"Votre numéro ne peut pas changer — il identifie votre compte.", noneMine:"Vous n'avez pas encore d'annonces", noneMineP:"Publiez la première et elle apparaîtra ici.", photoCount:"{a} photos sur {b} envoyées", again:"Publier une autre annonce", savedL:"Enregistré ✓",
+  waHi:"Bonjour, je suis intéressé(e) par ce bien :", waVisit:"Bonjour, je souhaite organiser une visite de ce bien :", oldPass:"Mot de passe actuel", changePhone:"Changer de numéro", currentPhone:"Numéro actuel", newPhone:"Nouveau numéro", phoneWarn:"Votre numéro identifie votre compte — vous vous connecterez avec le nouveau.",
+  noSaved:"Vous n'avez enregistré aucun bien", noSavedP:"Touchez Enregistrer sur une annonce et elle apparaîtra ici.", noSearch:"Pas encore de recherches enregistrées", noSearchP:"Réglez vos filtres, puis touchez Enregistrer cette recherche.", browse:"Parcourir les biens", saveSearch:"Enregistrer cette recherche", run:"Lancer la recherche",
+  status:"Statut", del:"Supprimer", st_live:"En ligne", st_pending:"En attente de validation", st_expired:"Expirée", st_removed:"Retirée", st_draft:"Brouillon", st_sold:"Vendu", st_rented:"Loué", menu:"Menu",
+  about:"Qui sommes-nous", contactUs:"Réclamations et suggestions", moreNavT:"Plus", contactUsPageT:"Contactez-nous", searchOnMap:"Recherche sur la carte", mapSearchCoverage:"{n} annonces sur {t} ont une position précise.", mapSearchResultsCount:"{n} annonces correspondent", clearFilters:"Effacer les filtres", searchCountry:"Rechercher un pays", noResults:"Aucun résultat", mapSearchNoMatches:"Aucune annonce ne correspond à ces filtres", showResults:"Afficher les résultats",
+  contactUsPageP:"Nous serions ravis de vous lire — contactez-nous par l'un des canaux ci-dessous ou envoyez-nous un message directement.", sendInquiryH:"Envoyez-nous un message", cuPH:"Écrivez votre message ici…", contactP:"Cela nous parvient directement. Dites-nous ce qui manque ou ce qui vous gêne.", fbKind:"Type de message", kComplaint:"Réclamation", kSuggestion:"Suggestion", kBug:"Problème technique", kOther:"Autre", fbContact:"Téléphone ou e-mail", fbBody:"Votre message", fbPH:"Soyez précis — nous lisons tout.", fbShort:"Écrivez un peu plus", send:"Envoyer", fbThanksH:"Message reçu", fbThanksP:"Nous lisons tout et répondons si nécessaire.",
+  reportListing:"Signaler cette annonce", rptWhy:"Quel est le problème ?", rptNote:"Précisions (facultatif)", rFake:"Fausse ou trompeuse", rSold:"Déjà vendu ou loué", rPrice:"Prix incorrect", rPhotos:"Les photos ne sont pas celles du bien", rDup:"Annonce en double", rOther:"Autre chose", rptThanks:"Signalement reçu", rptThanksP:"Nous l'examinerons sous 24 heures.", photoPicked:"{n} photos prêtes à envoyer",
+  editListing:"Modifier l'annonce", editP:"Changez le prix ou les détails. Si vous baissez le prix, l'ancien apparaît barré.", wasPrice:"Prix initial", markSold:"Marquer vendu", confirmSold:"Sûr ? L'annonce disparaîtra de la recherche.", shareL:"Partager l'annonce", copied:"Copié ✓", cancel:"Annuler", loading:"Chargement…",
+  currSYP:"Livre syrienne (SYP)", currUSD:"Dollar américain (USD)", featuredBadgeDefault:"En vedette", newBadge:"Nouveau", edit:"Modifier", save:"Enregistrer", tryThese:"Essayez ces gouvernorats :", city:"Ville", country:"Pays", cityPH:"ex. Beyrouth, Paris, Montréal", noneYet:"Pas encore d'annonces", noneYetP:"Soyez le premier à publier sur Balkoun.", uploading:"Envoi des photos…",
+  notFound:"Annonce introuvable", pendingApprovalT:"Cette annonce est en attente de validation", pendingApprovalP:"Elle est encore en cours d'examen et n'est pas encore publiée. Elle apparaîtra ici une fois approuvée.", notFoundP:"Elle a peut-être été retirée ou vendue. Essayez une autre recherche.",
+  leaseM:"Durée du bail", advanceM:"Payé d'avance", depositL:"Dépôt de garantie", billsL:"Charges comprises", furnishedL:"Meublé", rentalPeriodL:"Période de location", periodYearly:"Annuel", periodMonthly:"Mensuel", periodWeekly:"Hebdomadaire", periodDaily:"Journalier", anyPeriod:"Toutes", anyFurn:"Tous", furnYes:"Meublé", furnNo:"Non meublé", months:"mois", yes:"Oui", no:"Non",
+  managePhotos:"Gérer les photos", addPhotos:"Ajouter des photos", delPhoto:"Supprimer", username:"Nom d'utilisateur", usernamePH:"au moins 3 caractères, sans espaces", badUser:"Choisissez un nom d'utilisateur (3 caractères minimum)", userTaken:"Ce nom d'utilisateur est pris", userFree:"Nom d'utilisateur disponible ✓", notYours:"Cette annonce n'est pas la vôtre", unitM2:"m²", unitDunum:"dunum", confirmDelOwn:"Supprimer définitivement cette annonce ? Cette action est irréversible.",
+  noPhone:"Aucun numéro de contact fourni", telFromAccount:"Repris de votre compte — modifiable pour cette annonce.", pickH:"Que cherchez-vous ?", pickS:"Choisissez acheter ou louer, puis le type de bien", buyHint:"Appartements, maisons et terrains à vendre", rentHint:"Appartements, commerces et bureaux à louer",
+  agreeIntro:"J'accepte les règles de publication de Balkoun :", agree1:"Je ne publierai pas de fausses annonces ni d'informations erronées.", agree2:"Le prix, la surface et le titre de propriété correspondront à la réalité.", agree3:"J'utiliserai un langage courtois dans mes annonces et mes messages.", agree4:"Je traiterai les autres membres et visiteurs avec respect.", mustAgree:"Veuillez accepter les règles de publication",
+  profilePhoto:"Photo de profil", uploadPhoto:"Téléverser une photo", removePhoto:"Retirer la photo", photoHint:"Image carrée, redimensionnée automatiquement. Facultative, mais elle rassure les acheteurs.", bio:"À propos de vous", bioPH:"ex. Propriétaire mettant en location mes biens à Beyrouth et ses environs.", verified:"Vérifié", liveAds:"en ligne", soldAds:"conclues", totalAds:"au total", theirAds:"Annonces de ce membre", allReviews:"Tous les avis",
+  allStatus:"Tous les statuts", allDeeds:"Tous les titres", allDeals:"Tous (achat/location)", anonGuest:"Invité (sans compte)", daysAgo:"jours", loginToReview:"Un compte est nécessaire pour évaluer un membre.", backToList:"Retour à la liste", partnerTag:"Partenaire", pickStars:"Choisissez d'abord une note", postedBy:"Publiée par", rateMember:"Évaluer ce membre", reviewPH:"Ajoutez un commentaire (facultatif)", searchPH:"Rechercher…", submitReview:"Envoyer l'avis", today:"Aujourd'hui", trustedTag:"De confiance", yesterday:"Hier",
+  lv_member:"Membre", lv_trusted:"De confiance", lv_vip:"VIP", lv_partner:"Partenaire", lv_silver:"Argent", lv_gold:"Or", lv_trusted_agency:"Agence de confiance", silverTag:"Membre Argent", goldTag:"Membre Or", trustedAgencyTag:"Agence de confiance", back:"Retour", refresh:"Actualiser"
+};
+var FR_GX={
+  mdMenu:"Menu", mdClose:"Fermer", mdAccount:"Mon compte", mdSearch:"Recherche", mdDiscover:"Découvrir", mdSite:"Balkoun", mdPrefs:"Langue et devise", csDone:"OK", csClear:"Effacer",
+  rsAll:"Biens", rsMore:"Plus", rsShow:"Afficher {n} annonces", rsAvg:"Prix moyen demandé", rsInArea:"dans le quartier", rsHideMap:"Masquer la carte", rsShowMap:"Carte", rsClearAll:"Tout effacer", rsFilters:"Filtres", rsSort:"Trier", rsOnMap:"{n} sur la carte", rsList:"Liste", newTag:"Nouveau",
+  arxT:"Tous les gouvernorats et quartiers", arxP:"Choisissez un gouvernorat ou un quartier pour voir ses annonces. Les quartiers avec des annonces sont en doré.", arxStats:"{g} gouvernorats · {a} quartiers · {n} annonces", arxCount:"{n} annonces", arxNone:"Pas encore d'annonces", arxMore:"+{n} autres quartiers", arxLess:"Voir moins", arxMap:"Carte",
+  pwaInstall:"Installer l'application Balkoun", pwaInstallSub:"Une icône sur votre téléphone. Plus rapide, même avec une connexion faible.", pwaBannerT:"Balkoun en application sur votre téléphone", pwaBannerBtn:"Installer", pwaLater:"Plus tard", pwaIosT:"Ajouter Balkoun à l'écran d'accueil", pwaIos1:"Touchez le bouton Partager en bas de Safari", pwaIos2:"Choisissez « Sur l'écran d'accueil »", pwaIos3:"Touchez « Ajouter ». L'icône Balkoun apparaît avec vos applications.", pwaInstalled:"Application installée. Ouvrez-la depuis votre écran d'accueil.", pwaOffline:"Vous êtes hors ligne. Affichage de la dernière version enregistrée.", pwaUpdate:"Une nouvelle version de Balkoun est prête", pwaReload:"Mettre à jour", guidesAll:"Tous les guides",
+  wDir:"Recherché : ce que cherchent acheteurs et locataires", wDirShort:"Recherché", wDirP:"Les membres décrivent ce qu'ils cherchent : quartier, budget et détails. Si vous avez un bien qui correspond, contactez-les directement.", wPost:"Publier votre demande", wMine:"Mes demandes", wAll:"Toutes les demandes", wBuy:"Veut acheter", wRent:"Veut louer", wBuyOpt:"Acheter", wRentOpt:"Louer", wForBuy:"à acheter", wForRent:"à louer", wAuto:"{t} {d} à {g}", wProp:"Bien", wAnywhere:"n'importe où dans le pays", wBudget:"Budget", wUpTo:"Jusqu'à {n}", wFromTo:"{a} – {b}", wFromN:"À partir de {a}", wOpenBudget:"Budget ouvert", wRoomsN:"{n}+ pièces", wAreaN:"{n}+ m²",
+  wMatches:"{n} annonces correspondantes", wMatchesH:"Annonces correspondant à cette demande", wNoMatches:"Aucune annonce correspondante pour l'instant. Le demandeur est prévenu dès qu'une annonce adaptée est publiée.", wContact:"Contacter le demandeur", wNoPhone:"Le demandeur n'affiche pas de numéro.", wDays:"il y a {d} jours", wToday:"Aujourd'hui", wExpires:"Expire {d}", wViews:"{n} vues", wEmpty:"Aucune demande correspondante pour l'instant.", wEmptyCta:"Soyez le premier à en publier une. Propriétaires et agences la verront.", wMineEmpty:"Vous n'avez pas encore publié de demande.",
+  wFormT:"Votre demande", wFormEditT:"Modifier la demande", wFormP:"Décrivez précisément ce que vous voulez. Plus la demande est claire, meilleures sont les offres.", f_wDeal:"Je cherche à", f_wAreas:"Quartiers préférés (facultatif)", f_wBudgetMin:"Budget de", f_wBudgetMax:"à", f_wCur:"Devise", f_wRooms:"Pièces (au moins)", f_wArea:"Surface m² (au moins)", f_wTabu:"Titre de propriété souhaité", wAnyTabu:"Indifférent", f_wTitle:"Titre", f_wTitlePH:"ex. Appartement 3 pièces à Achrafieh ou Hamra", f_wDesc:"Détails", f_wDescPH:"Étage, vue, finitions, date d'entrée, paiement…", f_wContact:"Comment les propriétaires peuvent-ils vous joindre ?", wc_both:"Appel et WhatsApp", wc_phone:"Appel seulement", wc_whatsapp:"WhatsApp seulement", wc_none:"Ne pas afficher mon numéro",
+  wSave:"Publier la demande", wSaveEdit:"Enregistrer", wSaved:"Enregistré. Votre demande apparaît après validation.", wSavedOk:"Votre demande est en ligne.", wLimit:"Vous pouvez garder jusqu'à 5 demandes ouvertes. Chacune reste 60 jours et peut être renouvelée.", w_st_open:"En ligne", w_st_fulfilled:"Satisfaite", w_st_hidden:"Masquée", w_st_rejected:"Refusée", w_st_expired:"Expirée", wMarkDone:"Marquer satisfaite", wReopen:"Réouvrir pour 60 jours", wDelConfirm:"Supprimer définitivement cette demande ?",
+  wSecEyebrow:"Recherché", wSecH:"Acheteurs et locataires cherchent en ce moment. Avez-vous ce qu'ils veulent ?", wSecSub:"Demandes réelles de membres Balkoun. Contactez-les directement.", wSeeAll:"Voir toutes les demandes", wDisabled:"Cette section n'est pas disponible pour le moment.", wVerified:"Numéro vérifié", tWanted:"Demandes",
+  pjDir:"Projets neufs et en construction", pjDirShort:"Projets neufs", pjDirP:"Achetez directement auprès du promoteur avec un plan de paiement clair : acompte, mensualités et solde à la livraison.", pjAll:"Tous les projets", pjst_soon:"Bientôt", pjst_construction:"En construction", pjst_handover:"Livraison prochaine", pjst_ready:"Prêt", pjDelivery:"Livraison", pjFrom:"À partir de", pjPlan:"Plan de paiement", pjDown:"Acompte", pjMonths:"{n} mois", pjInstall:"Mensualité", pjHandover:"À la livraison", pjUnits:"Unités disponibles", pjUnitType:"Type", pjArea:"Surface", pjRooms:"Pièces", pjPrice:"Prix", pjCount:"Disponibles",
+  pjCalc:"Calculez votre mensualité", pjCalcP:"Choisissez une unité et un plan, ou saisissez un prix.", pjCalcUnit:"Unité", pjCalcPlan:"Plan", pjCalcPrice:"Prix (USD)", pjCustom:"Autre prix", pjLead:"Demander une offre", pjLeadSoon:"Manifester votre intérêt", pjLeadP:"Laissez votre numéro : le promoteur ou l'équipe Balkoun vous rappelle avec les détails et le plan de paiement.", pjName:"Nom", pjNote:"Remarque (facultatif)", pjSend:"Envoyer la demande", pjSent:"Envoyé. Nous vous contacterons bientôt.", pjDev:"Promoteur", pjDevPage:"Page du promoteur", pjEmpty:"Aucun projet correspondant pour l'instant.", pjSecEyebrow:"Projets neufs", pjSecH:"Achetez à crédit, directement auprès du promoteur.", pjSecSub:"Projets en construction et prêts, avec des plans de paiement et des prix clairs à la source.", pjSeeAll:"Voir tous les projets", pjLocation:"Emplacement", pjAbout:"À propos du projet", pjContact:"Contacter le promoteur", tProjects:"Projets",
+  auBrandH:"Votre prochain chez-vous commence au balcon.", auBrandP:"Un seul compte pour enregistrer des annonces, publier vos offres et parler directement aux propriétaires et agences.", auB1:"Propriété vérifiée avant publication", auB2:"Aucune commission acheteur", auB3:"Contact direct sur WhatsApp", auTerms:"Conditions de publication", auNoAcct:"Pas encore de compte ?", auHaveAcct:"Déjà membre ?", mdWelcome:"Bienvenue sur Balkoun", mdWelcomeP:"Connectez-vous pour enregistrer des annonces et gérer vos offres.", mdMyAccount:"Mon compte",
+  navLegalBoth:"Conseil juridique et démarches", soonBothT:"Conseil juridique et démarches immobilières", soonBothIntro:"Deux services en préparation sur Balkoun, bientôt disponibles :", soonLegalP:"Un conseil juridique fiable avant chaque étape : contrats de vente et de location, titres de propriété, procurations et litiges.", soonLegalTxP:"Vos démarches immobilières prises en charge : mutation, notaire et suivi auprès des administrations.", soonTeam:"Ces services sont assurés par des avocats professionnels agréés et des mandataires licenciés.",
+  agDir:"Agences immobilières", agDirShort:"Agences", agDirP:"Choisissez une agence qui connaît votre quartier maison par maison. Chaque agence ici a été vérifiée par l'équipe Balkoun.", agRegister:"Inscrire votre agence", agEditBtn:"Modifier le profil de l'agence", agSearchPH:"Agence ou quartier…", agAllGov:"Tous les gouvernorats", agAllSpec:"Toutes les spécialités", spec_sale:"Ventes", spec_rent:"Locations", spec_commercial:"Commercial", spec_land:"Terrains", agVerified:"Vérifiée", agLive:"{n} annonces en ligne", agEmpty:"Aucune agence correspondante pour l'instant.", agEmptyCta:"Soyez la première agence de ce quartier sur Balkoun.", agAreasServed:"Quartiers couverts", agCall:"Appeler", agWa:"WhatsApp", agEmail:"E-mail", agWeb:"Site web", agListingsH:"Les annonces de l'agence", agNoListings:"Aucune annonce en ligne pour le moment.", agMemberPage:"Page du membre et avis", agSince:"Sur Balkoun depuis {y}",
+  agFormT:"Profil de l'agence", agFormP:"Complétez le profil de votre agence pour apparaître dans l'annuaire après validation par l'équipe Balkoun.", agLogoHint:"La photo de votre compte sert de logo ; modifiez-la dans", agAccountP:"Vous êtes une agence ? Inscrivez-la pour que les chercheurs de votre quartier vous trouvent dans l'annuaire.", f_agName:"Nom de l'agence", f_agDesc:"À propos de l'agence", f_agPhone:"Téléphone de l'agence", f_agWa:"WhatsApp", f_agEmail:"E-mail", f_agWeb:"Site web", f_agAddress:"Adresse", f_agGovs:"Gouvernorats couverts", f_agAreas:"Quartiers", f_agSpecs:"Spécialités", agSaved:"Enregistré. L'équipe Balkoun examinera et validera l'agence bientôt.", agSavedOk:"Enregistré.", st_pending:"En attente de validation", st_approved:"Approuvée et listée", st_rejected:"Refusée", st_hidden:"Masquée", tAgencies:"Agences",
+  navLegal:"Consultations juridiques", navLegalTx:"Démarches juridiques", soon:"Bientôt", mdServices:"Services", soonAsk:"Demandez-nous sur WhatsApp", soonOk:"OK", altResH:"Rien ne correspond ici — annonces similaires ailleurs", altResH2:"Rien ne correspond — voici les dernières annonces", altResBtn:"Afficher toutes les annonces", allAreas:"Tous les quartiers", city:"Ville", area:"Quartier", village:"Village",
+  price:"Prix", anyPrice:"Tout prix", from:"De", to:"À", done:"OK", upTo:"Jusqu'à", andUp:"et plus", map:"Carte", cSince:"il y a {d} jours", lAllPhotos:"Toutes les photos", lIn:"à", byOwner:"Directement du propriétaire", lgProp:"Le bien", lgLoc:"Emplacement", lgRent:"Conditions de location", adsH:"Annonces en vedette", sponsored:"Sponsorisé", featured:"En vedette",
+  cCountry:"Pays", cChooseH:"Choisissez votre pays", cChooseP:"Balkoun est présent dans plusieurs pays. Choisissez celui où vous cherchez un bien ; vous pourrez le changer à tout moment en haut de la page.", cChooseKeep:"Continuer en {c}", cOff:"Hors service",
+  videoH:"Vidéo du bien (facultatif)", videoAdd:"Ajouter une vidéo", videoHint:"Jusqu'à {s} secondes et {mb} Mo · MP4 ou WebM · le format paysage rend mieux", videoTooLong:"La vidéo dépasse {s} secondes. Raccourcissez-la et réessayez.", videoTooBig:"La vidéo dépasse {mb} Mo.", videoBad:"Impossible de lire cette vidéo. Essayez un fichier MP4.", videoReading:"Lecture de la vidéo…", videoUploading:"Envoi de la vidéo… {p}%", videoDone:"Vidéo envoyée ✓", videoBadge:"Vidéo", videoWatch:"Voir la vidéo", videoOff:"L'envoi de vidéos n'est pas disponible pour le moment.", videoLimit:"Cette annonce a déjà le nombre maximal de vidéos."
+};
+var FR_LABELS={
+  TYPES:{apartment:"Appartement", arab:"Maison traditionnelle", villa:"Villa", floor:"Étage entier", building:"Immeuble entier", chalet:"Chalet", farm:"Ferme", shop:"Local commercial", office:"Bureau", restaurant:"Restaurant", warehouse:"Entrepôt", factory:"Usine", resid:"Terrain résidentiel", agri:"Terrain agricole", comm:"Terrain commercial", land:"Terrain"},
+  TABU:{green:"Titre vert (tabou)", shares:"Parts (actions)", court:"Jugement", court_desc:"Jugement descriptif", poa:"Procuration notariale", none:"Sans titre"},
+  DIR:{s:"Sud", n:"Nord", e:"Est", w:"Ouest", se:"Sud-est", sw:"Sud-ouest", ne:"Nord-est", nw:"Nord-ouest"}
+};
+D.I18N.fr=Object.assign({}, D.I18N.en, FR_T, {dir:"ltr", name:"Français"});
+["TYPES","TABU","COND","LANDC","DIR"].forEach(function(tb){ var o=D[tb]; if(!o) return; Object.keys(o).forEach(function(k){ if(Array.isArray(o[k])&&o[k].length===3) o[k].push((FR_LABELS[tb]||{})[k]||o[k][1]) }) });
+["AMEN","LANDAMEN","GUIDES","ABOUT"].forEach(function(tb){ if(D[tb]&&D[tb].en&&!D[tb].fr) D[tb].fr=D[tb].en });
+function langKeys(){ var c=countryOf(COUNTRY), ls=(c&&c.languages&&c.languages.length)?c.languages:null; return Object.keys(D.I18N).filter(function(k){ return k===L || (ls ? ls.indexOf(k)>-1 : k!=="fr") }) }   // a country lists its languages; Syria keeps ar/en/de
+/* ═══ countries: one database, one app; each country sees only its own data. Syria is the default and behaves exactly as before. ═══ */
+var COUNTRIES_FALLBACK={list:[{code:"SY",name_ar:"سوريا",name_en:"Syria",name_de:"Syrien",name_fr:"Syrie",enabled:true,is_default:true,currencies:["USD","SYP"],rates:{},phone_code:"+963",tz:["Asia/Damascus"],languages:["ar","en","de"],deeds:[]}],chooser:"auto"};
+var COUNTRIES=(function(){ try{ var c=JSON.parse(localStorage.getItem("balkoun_countries")||"null"); if(c&&c.list&&c.list.length) return c }catch(e){} return null })();
+var CHOOSER_MODE=(COUNTRIES&&COUNTRIES.chooser)||"auto";
+function countryList(){ return (COUNTRIES||COUNTRIES_FALLBACK).list }
+function countryOf(code){ code=String(code||"").toUpperCase(); return countryList().filter(function(c){ return c.code===code })[0]||null }
+function defaultCountry(){ var d=countryList().filter(function(c){ return c.is_default })[0]; return d?d.code:"SY" }
+function countryFromPath(){ var m=location.pathname.match(/^\/([a-z]{2})(?=\/|$)/); if(!m) return null; var code=m[1].toUpperCase(); if(code==="SY"||["AR","EN","DE","FR","TR"].indexOf(code)>-1) return null; return (countryOf(code) || !COUNTRIES) ? code : null }   // before the country list is known (first visit), a /lb/… link is taken at its word
+function countryFromTZ(){ try{ var tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""; var c=countryList().filter(function(c){ return (c.tz||[]).indexOf(tz)>-1 })[0]; return c?c.code:null }catch(e){ return null } }
+function detectCountry(){
+  var fromPath=countryFromPath(); if(fromPath) return fromPath;
+  try{ var m=location.search.match(/[?&]country=([A-Za-z]{2})/); if(m && countryOf(m[1])){ if(!/[?&]preview=1/.test(location.search)){ try{ localStorage.setItem("balkoun_country",m[1].toUpperCase()) }catch(e){} } return m[1].toUpperCase() } }catch(e){}
+  try{ var saved=localStorage.getItem("balkoun_country"); if(saved && countryOf(saved)) return saved }catch(e){}
+  return countryFromTZ() || defaultCountry();
+}
+var COUNTRY=detectCountry(), COUNTRY_CHOSEN=false; try{ COUNTRY_CHOSEN=!!localStorage.getItem("balkoun_country") }catch(e){}
+function cArgs(){ return {p_country:COUNTRY} }
+function siteCacheKey(){ return COUNTRY==="SY" ? "balkoun_site" : "balkoun_site_"+COUNTRY }
+function geoCacheKey(){ return COUNTRY==="SY" ? "balkoun_geo" : "balkoun_geo_"+COUNTRY }
+function localCur(){ var c=countryOf(COUNTRY); var l=((c&&c.currencies)||["USD","SYP"]).filter(function(x){ return x!=="USD" })[0]; return l||"SYP" }
+function curRate(cur){ cur=cur||CUR; if(cur==="USD") return 1; if(COUNTRY==="SY") return SITE.syp_rate || CONFIG.rate; var c=countryOf(COUNTRY); var r=c&&c.rates&&+c.rates[cur]; return r>0 ? r : (SITE.syp_rate || CONFIG.rate) }
+var CUR_LABEL={SYP:["ل.س","SYP"],LBP:["ل.ل","LBP"],JOD:["د.أ","JOD"],TRY:["₺","TRY"],EUR:["€","€"],EGP:["ج.م","EGP"],IQD:["د.ع","IQD"],SAR:["ر.س","SAR"],AED:["د.إ","AED"]};
+function curLabel(cur,lang){ cur=cur||CUR; if(cur==="USD") return "$"; var o=CUR_LABEL[cur]; return o ? (lang==="ar"?o[0]:o[1]) : cur }
+function phoneCC(){ var c=countryOf(COUNTRY); return String((c&&c.phone_code)||"+963").replace(/\D/g,"")||"963" }
+function strongDeed(code){ if(COUNTRY==="SY") return code==="green"; var c=countryOf(COUNTRY); var d=c&&(c.deeds||[]).filter(function(d){ return d.code===code })[0]; return !!(d&&d.strong) }
+var D_TABU_SY=D.TABU;
+function applyCountryDeeds(){ var c=countryOf(COUNTRY); if(COUNTRY!=="SY" && c && c.deeds && c.deeds.length){ var m={}; c.deeds.forEach(function(d){ m[d.code]=[d.ar,d.en,d.de||d.en,d.fr||d.en] }); D.TABU=m } else D.TABU=D_TABU_SY }
+applyCountryDeeds();
+/* small inline flags (emoji flags do not render on Windows) */
+function flagSvg(code){
+  code=String(code||"").toUpperCase(); var w='<svg class="flg" viewBox="0 0 24 16" width="24" height="16" aria-hidden="true">';
+  var star=function(x,y,r,f){ var p=[]; for(var i=0;i<5;i++){ var a=-Math.PI/2+i*2*Math.PI/5, b=a+Math.PI/5; p.push((x+r*Math.cos(a)).toFixed(2)+","+(y+r*Math.sin(a)).toFixed(2)); p.push((x+r*.42*Math.cos(b)).toFixed(2)+","+(y+r*.42*Math.sin(b)).toFixed(2)) } return '<polygon points="'+p.join(" ")+'" fill="'+f+'"/>' };
+  if(code==="SY") return w+'<rect width="24" height="5.34" fill="#007A3D"/><rect y="5.33" width="24" height="5.34" fill="#fff"/><rect y="10.66" width="24" height="5.34" fill="#000"/>'+star(6,8,1.7,"#CE1126")+star(12,8,1.7,"#CE1126")+star(18,8,1.7,"#CE1126")+'</svg>';
+  if(code==="LB") return w+'<rect width="24" height="16" fill="#fff"/><rect width="24" height="4" fill="#ED1C24"/><rect y="12" width="24" height="4" fill="#ED1C24"/><path d="M12 3.2l3.6 6.2h-2.2l1.6 2.4H13v1.2h-2v-1.2H9l1.6-2.4H8.4z" fill="#00A651"/></svg>';
+  if(code==="JO") return w+'<rect width="24" height="5.34" fill="#000"/><rect y="5.33" width="24" height="5.34" fill="#fff"/><rect y="10.66" width="24" height="5.34" fill="#007A3D"/><path d="M0 0l12 8L0 16z" fill="#CE1126"/>'+star(4,8,1.6,"#fff")+'</svg>';
+  if(code==="TR") return w+'<rect width="24" height="16" fill="#E30A17"/><circle cx="9" cy="8" r="4" fill="#fff"/><circle cx="10" cy="8" r="3.2" fill="#E30A17"/>'+star(13.5,8,1.6,"#fff")+'</svg>';
+  if(code==="IQ") return w+'<rect width="24" height="5.34" fill="#CE1126"/><rect y="5.33" width="24" height="5.34" fill="#fff"/><rect y="10.66" width="24" height="5.34" fill="#000"/></svg>';
+  if(code==="EG") return w+'<rect width="24" height="5.34" fill="#CE1126"/><rect y="5.33" width="24" height="5.34" fill="#fff"/><rect y="10.66" width="24" height="5.34" fill="#000"/><circle cx="12" cy="8" r="1.6" fill="#C09300"/></svg>';
+  return '<span class="flg flg-t">'+esc(code)+'</span>';
+}
+function countryPickHtml(where){
+  var en=countryList().filter(function(c){ return c.enabled }); if(en.length<2) return "";
+  if(where==="header"){ var c=countryOf(COUNTRY)||en[0];
+    return '<div class="cpickw"><button type="button" class="mini cchip" id="cchip" aria-label="'+esc(GX("cCountry"))+'">'+flagSvg(c.code)+'<span>'+esc(c.code)+'</span></button><div class="menu" id="cMenu">'+en.map(function(x){ return '<a data-cpick="'+x.code+'" class="'+(x.code===COUNTRY?'on':'')+'">'+flagSvg(x.code)+esc(countryName(x))+'</a>' }).join("")+'</div></div>' }
+  return '<div class="mdw2-sec"><div class="mdw2-h">'+GX("cCountry")+'</div><div class="mdw2-seg cseg">'+en.map(function(x){ return '<a class="'+(x.code===COUNTRY?'on':'')+'" data-cpick="'+x.code+'">'+flagSvg(x.code)+esc(countryName(x))+'</a>' }).join("")+'</div></div>';
+}
+var _bootLoads=null;
+async function switchCountry(code, o){
+  o=o||{}; var c=countryOf(code); if(!c || code===COUNTRY) return;
+  COUNTRY=code; if(!o.silent){ COUNTRY_CHOSEN=true; try{ localStorage.setItem("balkoun_country",code) }catch(e){} }
+  if((c.currencies||["USD"]).indexOf(CUR)<0){ CUR=(c.currencies||["USD"])[0]; try{ localStorage.setItem("balkoun_cur",CUR) }catch(e){} }
+  applyCountryDeeds();
+  SITE=loadSiteCache(); applyCardSizeVar(); applyBannerSizeVar(); applySectionGapVars();
+  D.LIST=[]; D.GEO={}; D.GOVN={}; GEO_META={govId:{},govSlug:{},areaId:{},areaSlug:{},kind:{}}; applyGeoCache();
+  CNT={total:0,green:0,owner:0,week:0,byType:{},byGov:{},byDeal:{},byTypeDeal:{}}; AD_SLOTS=[]; WANTED=null; AGENCIES=null; PROJECTS=null;
+  try{ F.govs=[]; F.areas=[]; F.g=""; F.a=""; F.page=1 }catch(e){}
+  if(!o.keepView) VIEW="home";
+  try{ history.replaceState(null,"",routePath()) }catch(e){}
+  render();
+  if(_bootLoads){ try{ await _bootLoads }catch(e){} }
+  await Promise.all([loadListings(),loadCounts(),loadSiteContent(),loadAdSlots(),loadGeo()]);
+  render();
+}
+function refreshCountries(){
+  if(!DB) return Promise.resolve();
+  return DB.rpc("bk_public_countries").then(function(r){
+    var d=r&&r.data; if(!d) return; if(Array.isArray(d)) d={list:d,chooser:"auto"}; if(!d.list||!d.list.length) return;
+    COUNTRIES=d; CHOOSER_MODE=d.chooser||"auto"; try{ localStorage.setItem("balkoun_countries",JSON.stringify(d)) }catch(e){}
+    applyCountryDeeds();
+    if(!COUNTRY_CHOSEN){ var det=detectCountry(); if(det!==COUNTRY) switchCountry(det,{silent:true}) }   // not awaited: the boot loads wait on this refresh, and the switch waits on the boot loads
+  }).catch(function(){});
+}
+function ipCountry(){ return fetch("https://ipapi.co/country/").then(function(r){ return r.text() }).then(function(t){ t=(t||"").trim().toUpperCase(); return /^[A-Z]{2}$/.test(t)?t:null }).catch(function(){ return null }) }
+async function maybeShowChooser(){
+  if(PREVIEW || VIEW==="admin" || COUNTRY_CHOSEN || countryFromPath()) return;
+  var en=countryList().filter(function(c){ return c.enabled }); if(en.length<2) return;
+  var mode=CHOOSER_MODE||"auto"; if(mode==="off") return;
+  try{ if(sessionStorage.getItem("balkoun_cc_seen")) return }catch(e){}
+  if(mode==="auto"){
+    if(countryFromTZ()) return;                                   // the visitor is inside a country the site serves
+    var ip=await ipCountry(); var ic=ip&&countryOf(ip);
+    if(ic && ic.enabled){ if(ip!==COUNTRY) switchCountry(ip,{silent:true}); return }
+  }
+  showChooser();
+}
+function showChooser(){
+  try{ sessionStorage.setItem("balkoun_cc_seen","1") }catch(e){}
+  var en=countryList().filter(function(c){ return c.enabled }), cur=countryOf(COUNTRY)||en[0];
+  var d=document.createElement("div"); d.className="cchoose"; d.id="cchoose";
+  d.innerHTML='<div class="cchoose-p" role="dialog" aria-modal="true"><span class="blogo cchoose-logo">'+brandMark()+'<span class="blogo-w"><b>'+esc(CONFIG.brand)+'</b><small>BALKOUN</small></span></span><h2>'+GX("cChooseH")+'</h2><p>'+GX("cChooseP")+'</p><div class="cchoose-grid">'+
+    en.map(function(c){ return '<button type="button" class="cchoose-c" data-cchoose="'+c.code+'"><span class="fl">'+flagSvg(c.code)+'</span><b>'+esc(countryName(c))+'</b><small>'+esc(L==="ar"?c.name_en:c.name_ar)+'</small></button>' }).join("")+'</div>'+
+    '<button type="button" class="cchoose-x" id="cchooseX">'+GX("cChooseKeep").replace("{c}",esc(countryName(cur)))+'</button></div>';
+  document.body.appendChild(d);
+  var close=function(){ if(d.parentNode) d.parentNode.removeChild(d) };
+  d.querySelectorAll("[data-cchoose]").forEach(function(b){ b.onclick=function(){ var code=b.dataset.cchoose; close(); COUNTRY_CHOSEN=true; try{ localStorage.setItem("balkoun_country",code) }catch(e){} if(code!==COUNTRY) switchCountry(code) } });
+  d.querySelector("#cchooseX").onclick=function(){ close(); COUNTRY_CHOSEN=true; try{ localStorage.setItem("balkoun_country",COUNTRY) }catch(e){} };
 }
 var L=detectLang(), CUR=detectCurrency(), VIEW="home", GI=0, LIGHTBOX_OPEN=false;
 // ?preview=1 — the page is embedded in the admin's homepage studio: no analytics, no curtain, settings arrive by postMessage
 var PREVIEW=/[?&]preview=1/.test(location.search), _pvLast=null;
-if(PREVIEW){ var _pl=(location.search.match(/[?&]lang=(ar|en|de)/)||[])[1]; if(_pl) L=_pl; }
+if(PREVIEW){ var _pl=(location.search.match(/[?&]lang=(ar|en|de|fr)/)||[])[1]; if(_pl) L=_pl; }
 var F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",sec:"",deal:"sale",sort:"new",page:1,ownerOnly:false};
 var MOBILE_FILTERS_OPEN=false;
 function activeFilterCount(){
@@ -2858,6 +3067,7 @@ var VIEWMODE = (function(){
   try{ return localStorage.getItem("balkoun_viewmode")==="list" ? "list" : "grid" }catch(e){ return "grid" }
 })();
 var NEW={photos:[],lat:null,lng:null};
+var VLB_OPEN=false, _vlbFor=null;   // video lightbox on a listing page
 var SAVED=[];
 var LOADED={};
 var HOMEDEAL="sale";
@@ -2883,8 +3093,9 @@ function clearRememberedPhone(){ try{ localStorage.removeItem("balkoun_remember"
 var $=function(sel,r){return (r||document).querySelector(sel)};
 var $$=function(sel,r){return [].slice.call((r||document).querySelectorAll(sel))};
 var t=function(k){return (D.I18N[L]&&D.I18N[L][k]!==undefined)?D.I18N[L][k]:k};
-var li=function(){return L==="ar"?0:L==="en"?1:2};
-var AMEN_LANGS=["ar","en","de"];
+var li=function(){return L==="ar"?0:L==="en"?1:L==="de"?2:3};
+function dsOf(x){ var d=x&&x.ds; if(!d) return ""; if(typeof d==="string") return d; return d[li()]||d[1]||d[0]||"" }   // a description in the current language, else English, else Arabic
+var AMEN_LANGS=["ar","en","de","fr"];   // fr reuses the English list (D.AMEN.fr is set with the French dictionary)
 function amenityLabel(saved){
   var pools=[D.AMEN,D.LANDAMEN];
   for(var p=0;p<pools.length;p++){
@@ -2920,7 +3131,7 @@ function priceBlock(x,big){
           '<span class="cutbadge">↓ '+pct+'%</span>' : '');
 }
 var money=function(v){return CUR==="USD"?"$"+Number(v).toLocaleString("en")
-  :(v*(SITE.syp_rate||CONFIG.rate)).toLocaleString("en")+(L==="ar"?" ل.س":" SYP")};
+  :(v*(curRate())).toLocaleString("en")+" "+curLabel(CUR,L)};
 var AR_ORD=["","أول","ثاني","ثالث","رابع","خامس","سادس","سابع","ثامن","تاسع","عاشر",
  "حادي عشر","ثاني عشر","ثالث عشر","رابع عشر","خامس عشر",
  "سادس عشر","سابع عشر","ثامن عشر","تاسع عشر","العشرون"];
@@ -2977,7 +3188,7 @@ function when(iso){ if(!iso) return "";
   return diff<1?t("today"):diff===1?t("yesterday"):diff+" "+t("daysAgo") }
 
 function rtlNow(){ return D.I18N[L].dir==="rtl" }
-var cls=function(x){return x==="green"?"ok":x==="shares"?"mid":"low"};
+var cls=function(x){return strongDeed(x)?"ok":x==="shares"?"mid":"low"};
 
 /* ── page shell ── */
 /* the brand mark: a square (the room) with a golden diamond turned through it (the balcony looking out) and the home at the centre.
@@ -3035,13 +3246,13 @@ function mdrawer(){
     : '<div class="mdw2-acct guest"><div><b>'+GX("mdWelcome")+'</b><span>'+GX("mdWelcomeP")+'</span></div><button class="gold mdw-in" id="mdIn">'+t("loginSignupCombo")+'</button></div>';
   var mine = USER ? sec(GX("mdAccount"),[["mMine","mine","myAds"],["mSaved","saved","mySaved"],["mSearch","search","mySearch"],["mMsgs","msgs","myMessages"],["mSet","settings","settings"]].map(function(x){
       return '<a class="mdw2-row" data-md="'+x[0]+'"><span class="mi">'+(MI[x[1]]||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span>'+t(x[2])+'</span>'+(x[0]==="mMsgs"&&NOTIFS.unread?'<i class="mdw-badge">'+(NOTIFS.unread>9?"9+":NOTIFS.unread)+'</i>':'')+'</a>' }).join("")) : '';
-  var langs = SX("nav_lang_drawer",true)!==false ? '<div class="mdw2-seg">'+Object.keys(D.I18N).map(function(k){ return '<a class="'+(k===L?'on':'')+'" data-langpick="'+k+'"><span class="langflag">'+(LANG_FLAGS[k]||"")+'</span>'+D.I18N[k].name+'</a>' }).join("")+'</div>' : '';
-  var curs = SX("nav_cur_drawer",true)!==false ? '<div class="mdw2-seg">'+["USD","SYP"].map(function(c){ return '<a class="'+(c===CUR?'on':'')+'" data-mdcur="'+c+'">'+(c==="USD"?"$ USD":"ل.س SYP")+'</a>' }).join("")+'</div>' : '';
+  var langs = SX("nav_lang_drawer",true)!==false ? '<div class="mdw2-seg">'+langKeys().map(function(k){ return '<a class="'+(k===L?'on':'')+'" data-langpick="'+k+'"><span class="langflag">'+(LANG_FLAGS[k]||"")+'</span>'+D.I18N[k].name+'</a>' }).join("")+'</div>' : '';
+  var curs = SX("nav_cur_drawer",true)!==false ? '<div class="mdw2-seg">'+["USD",localCur()].map(function(c){ return '<a class="'+(c===CUR?'on':'')+'" data-mdcur="'+c+'">'+(c==="USD"?"$ USD":curLabel(c,"ar")+" "+c)+'</a>' }).join("")+'</div>' : '';
   return '<div class="mdw" id="mdw"><div class="mdw-bg" id="mdwBg"></div><aside class="mdw-p mdw2" role="dialog" aria-label="'+GX("mdMenu")+'">'+
     '<div class="mdw-top"><a class="logo blogo" data-go="home" aria-label="'+esc(t("home"))+'">'+brandLogo()+'</a><button class="mdw-x" id="mdwX" aria-label="'+GX("mdClose")+'">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>'+
     acct+((byK("home")&&VIEW!=="home")?'<div class="mdw2-sec mdw2-homesec">'+row(byK("home"))+'</div>':'')+'<div class="mdw2-quick">'+tiles+'</div>'+
-    sec(GX("mdDiscover"),discover)+sec(GX("mdServices"),services)+mine+sec(GX("mdSite"),site)+
+    sec(GX("mdDiscover"),discover)+sec(GX("mdServices"),services)+mine+sec(GX("mdSite"),site)+countryPickHtml("drawer")+
     '<div class="mdw2-sec" id="mdwInstallSec" hidden><a class="mdw2-row pwa-row" id="mdwInstall"><span class="mi">'+(MI.download||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span><b>'+GX("pwaInstall")+'</b><small>'+GX("pwaInstallSub")+'</small></span></a></div>'+
     ((langs||curs)?'<div class="mdw2-foot">'+langs+curs+'</div>':'')+
     (USER?'<div class="mdw2-sec"><a class="mdw2-row out" data-md="out"><span class="mi">'+(MI.out||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span>'+t("logout")+'</span></a></div>':'')+
@@ -3077,6 +3288,8 @@ function wireDrawer(){
   if($("#mdIn")) $("#mdIn").onclick=function(){ mdwClose(); var b=$("#bIn"); if(b) b.click() };
   $$("[data-md]").forEach(function(a){ a.onclick=function(){ var el=$("#"+this.dataset.md); mdwClose(); if(el) el.click() } });
   $$("[data-mdcur]").forEach(function(a){ a.onclick=function(){ if(this.dataset.mdcur!==CUR){ var c=$("#cur"); if(c) c.click() } else mdwClose() } });
+  $$("[data-cpick]").forEach(function(a){ a.onclick=function(e){ e.preventDefault(); var code=this.dataset.cpick; var m=$("#cMenu"); if(m) m.classList.remove("on"); mdwClose(); switchCountry(code) } });
+  var cch=$("#cchip"); if(cch) cch.onclick=function(e){ e.stopPropagation(); var m=$("#cMenu"); if(m) m.classList.toggle("on") };
   $$("[data-mdscroll]").forEach(function(a){ a.onclick=function(e){ e.preventDefault(); var id=this.dataset.mdscroll; mdwClose();
     var go=function(){ var el=$("#"+id); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}) };
     if(VIEW==="home") go(); else { VIEW="home"; scrollTo(0,0); render(); setTimeout(go,400) } } });
@@ -3114,7 +3327,7 @@ var MI=(function(){
   };
 })();
 var ICON_GLOBE='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>';
-var LANG_SHORT={ar:"عربي",en:"EN",de:"DE"};
+var LANG_SHORT={ar:"عربي",en:"EN",de:"DE",fr:"FR"};
 var ICON_USER='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>';
 var ICON_HMB='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
 function header(){
@@ -3123,7 +3336,7 @@ function header(){
  // help a visitor who can't read this page's current language spot
  // the switcher, which is exactly the problem a flag was meant to fix
  var currentFlag = LANG_FLAGS[L]||"";
- var langMenu = Object.keys(D.I18N).map(function(k){
+ var langMenu = langKeys().map(function(k){
    return '<a data-langpick="'+k+'"'+(k===L?' class="on"':'')+'><span class="langflag">'+(LANG_FLAGS[k]||"")+'</span>'+D.I18N[k].name+'</a>'
  }).join("");
  var langs='<div class="navmore" id="langWrap"><a id="langChip" class="mini" style="display:inline-flex;align-items:center;gap:6px">'+
@@ -3164,7 +3377,7 @@ function header(){
    '<div class="sep"></div>'+
    navItems().filter(function(i){ return i.g==="site" && i.k!=="agencies" }).map(function(i){ return '<a '+navAttrs(i)+'>'+MI[i.ico]+i.lab()+'</a>' }).join("")+
    '</div></div></nav>'+
-  '<div class="htools"><button class="mini" id="cur">'+CUR+'</button>'+
+  '<div class="htools">'+countryPickHtml("header")+'<button class="mini" id="cur">'+CUR+'</button>'+
   langs + right +
   '<a class="gold" data-go="post" style="text-decoration:none">'+t("post")+'</a>'+
   '</div></div></header>'+mdrawer()+
@@ -3340,7 +3553,7 @@ function authModal(){
   // navigation a form submit would otherwise cause; doLogin() itself
   // is completely unchanged.
   body='<form class="aubody" id="auLoginForm">'+
-   '<div class="auf"><label>'+t("mobile")+'</label><div class="pw">'+ccSelect("auCC",AU.cc||"963")+
+   '<div class="auf"><label>'+t("mobile")+'</label><div class="pw">'+ccSelect("auCC",AU.cc||phoneCC())+
    '<input id="auPhone" autocomplete="username" data-allow-autofill inputmode="numeric" placeholder="" value="'+(AU.phone||"")+'"></div></div>'+
    '<div class="auf"><label>'+t("password")+'</label>'+
    pwField("auPass","current-password")+'</div>'+
@@ -3356,7 +3569,7 @@ function authModal(){
    '<div class="auf"><label>'+t("firstName")+'</label><input id="auName" autocomplete="off" value=""></div>'+
    '<div class="auf"><label>'+t("familyName")+'</label><input id="auFam" autocomplete="off" value=""></div></div>'+
 
-   '<div class="auf"><label>'+t("mobile")+'</label><div class="pw">'+ccSelect("auCC",AU.cc||"963")+
+   '<div class="auf"><label>'+t("mobile")+'</label><div class="pw">'+ccSelect("auCC",AU.cc||phoneCC())+
    '<input id="auPhone" autocomplete="username" data-allow-autofill inputmode="numeric" placeholder="" value="'+(AU.phone||"")+'"></div></div>'+
    '<div class="auf"><label>'+t("password")+'</label>'+pwField("auPass","new-password",t("min6"))+'</div>'+
    '<div class="auf"><label>'+t("password2")+'</label>'+pwField("auPass2","new-password")+'</div>'+
@@ -3386,7 +3599,7 @@ function authModal(){
  }
  else if(AU.step===5){                                           /* forgot: phone */
   body='<div class="aubody"><p style="font-size:14px;color:var(--grey);margin-bottom:12px">'+t("forgotP")+'</p>'+
-   '<div class="auf"><label>'+t("mobile")+'</label><div class="pw">'+ccSelect("auCC",AU.cc||"963")+
+   '<div class="auf"><label>'+t("mobile")+'</label><div class="pw">'+ccSelect("auCC",AU.cc||phoneCC())+
    '<input id="auPhone" autocomplete="off" inputmode="numeric" placeholder=""></div></div>'+
    '<a class="auw" id="auReset">'+t("viaWa")+'</a>'+
    '<div class="auerr" id="auErr"></div>'+
@@ -3772,12 +3985,12 @@ function card(x,i,isListView){
  var showFeatBadge = x.featured && SITE.featured_badge_enabled!==false;
  var newHours = SITE.new_badge_hours!=null ? SITE.new_badge_hours : 24;
  var isNew = x.createdAt && newHours>0 && (Date.now()-new Date(x.createdAt).getTime()) < newHours*3600000;
- var typeName = D.TYPES[x.t]?D.TYPES[x.t][li()]:"", condName=(D.COND[x.cd]||D.LANDC[x.cd]||["",""," "])[li()];
+ var typeName = D.TYPES[x.t]?D.TYPES[x.t][li()]:"", condName=(D.COND[x.cd]||D.LANDC[x.cd]||["",""," ",""])[li()];
  var isLand = secOf(x.t)==="land";
  var saved = SAVED.indexOf(String(x.id))>-1;
 
  /* photo: badges at the start, save heart at the end, photo count at the bottom */
- var badges = (showFeatBadge?'<span class="cbg gold">'+featBadgeText+'</span>':'')+(isNew?'<span class="cbg ok">'+t("newBadge")+'</span>':'');
+ var badges = (showFeatBadge?'<span class="cbg gold">'+featBadgeText+'</span>':'')+(isNew?'<span class="cbg ok">'+t("newBadge")+'</span>':'')+(x.videos&&x.videos.length?'<span class="cbg vid">▶ '+GX("videoBadge")+'</span>':'');
  var photo = '<div class="ph">'+
    (closed?'<div class="stamp'+(x.status==="rented"?" stamp-r":"")+'">'+(x.status==="rented"?t("st_rented"):t("st_sold"))+'</div>':'')+
    (cover ? '<img src="'+cover+'" alt="'+esc(typeName)+'" loading="lazy">' : '<div class="nophoto"><span>'+t("photos")+'</span></div>')+
@@ -3798,10 +4011,10 @@ function card(x,i,isListView){
  var title = ar ? typeName+' '+'<span class="ltr">'+x.m2+'</span> '+t("sqm")+' '+GX("lIn")+' '+aN(x.a)
                : typeName+', <span class="ltr">'+x.m2+'</span> '+t("sqm")+' '+GX("lIn")+' '+aN(x.a);
  var perm2 = (x.d!=="rent" && x.m2) ? '<span class="cpm"><span class="ltr">$'+Math.round(x.p/x.m2)+'</span>/'+t("sqm")+'</span>' : (x.d==="rent"?'<span class="cpm">'+t("monthlyRent")+'</span>':'');
- var deedPill = (x.d!=="rent" && D.TABU[x.tb]) ? '<span class="cpill'+(x.tb==="green"?' green':'')+'">'+(x.tb==="green"?'<span class="tabu-green">'+D.TABU[x.tb][li()]+'</span>':D.TABU[x.tb][li()])+'</span>' : '';
+ var deedPill = (x.d!=="rent" && D.TABU[x.tb]) ? '<span class="cpill'+(strongDeed(x.tb)?' green':'')+'">'+(strongDeed(x.tb)?'<span class="tabu-green">'+D.TABU[x.tb][li()]+'</span>':D.TABU[x.tb][li()])+'</span>' : '';
  var poster = (x.clogo && x.oav && !x.ow) ? '<span class="cpill agency"><img src="'+x.oav+'" alt="">'+(x.who||t("agent"))+'</span>' : '<span class="cpill soft">'+(x.ow?t("owner"):t("agent"))+'</span>';
  var since = '<span class="csince">'+GX("cSince").replace("{d}",'<span class="ltr">'+x.days+'</span>')+'</span>';
- var desc = isListView && x.ds && x.ds[li()] ? '<p class="cdesc">'+x.ds[li()]+'</p>' : '';
+ var desc = isListView && x.ds && dsOf(x) ? '<p class="cdesc">'+dsOf(x)+'</p>' : '';
 
  return '<a class="card c2'+(isListView?' c2-list':'')+(x.featured?' card-featured':'')+'"'+(x.featured?' style="--feat-bright:'+featBright+'%"':'')+' data-open="'+x.id+'">'+
   photo+
@@ -3874,7 +4087,7 @@ function rsTitle(){
  var deal = F.deal==="sale" ? t("forsale") : F.deal==="rent" ? t("forrent") : "";
  if(deal && L!=="ar") deal=deal.charAt(0).toLowerCase()+deal.slice(1);
  var loc = (F.areas&&F.areas.length) ? F.areas.map(aN).join(ar?"، ":", ")+((F.govs&&F.govs.length===1)?(ar?"، ":", ")+gN(F.govs[0]):"")
-         : F.a ? aN(F.a) : (F.govs&&F.govs.length) ? F.govs.map(gN).join(ar?"، ":", ") : F.g ? gN(F.g) : GX("rsSyria");
+         : F.a ? aN(F.a) : (F.govs&&F.govs.length) ? F.govs.map(gN).join(ar?"، ":", ") : F.g ? gN(F.g) : (countryOf(COUNTRY) ? countryName(countryOf(COUNTRY)) : GX("rsSyria"));
  return typeTxt+(deal?" "+deal:"")+" "+GX("lIn")+" "+loc }
 function rsMarket(r){
  if(SX("results_market_line",true)===false || F.deal==="rent") return "";
@@ -3904,7 +4117,7 @@ function rsFiltersHtml(count){
  var more='<div class="fg"><h4>'+t("cond")+'</h4>'+(F.sec==="land"?grp(D.LANDC,"cd"):grp(D.COND,"cd"))+'</div>'+
    (F.deal==="rent" ? '<div class="fg"><h4>'+t("rentalPeriodL")+'</h4>'+["","yearly","monthly","weekly","daily"].map(function(v){ return '<label class="ck"><input type="radio" name="rentalPeriod" value="'+v+'"'+(F.rentalPeriod===v?" checked":"")+'> '+(v===""?t("anyPeriod"):t("period"+v.charAt(0).toUpperCase()+v.slice(1)))+'</label>' }).join("")+'</div>'
                     : '<div class="fg"><h4>'+t("extras")+'</h4><label class="ck"><input type="checkbox" id="fOwnerOnly"'+(F.ownerOnly?" checked":"")+'> '+t("owneronly")+'</label></div>');
- var rate=SITE.syp_rate||CONFIG.rate;
+ var rate=curRate();
  return '<div class="rs-filters'+(MOBILE_FILTERS_OPEN?' on':'')+'" id="rsFilters">'+
   '<div class="rs-fh"><b>'+GX("rsFilters")+'</b><button type="button" class="rs-fx" id="rsFClose" aria-label="'+t("cancel")+'">×</button></div>'+
   '<div class="rs-fin">'+
@@ -3916,7 +4129,7 @@ function rsFiltersHtml(count){
      ? '<div class="rs-f rs-fsel"><select id="hFurn" aria-label="'+(L==="ar"?GX("furnField"):t("furnishedL"))+'"><option value=""'+(F.furn===""?" selected":"")+'>'+(L==="ar"?GX("furnField"):t("furnishedL"))+'</option><option value="yes"'+(F.furn==="yes"?" selected":"")+'>'+t("furnYes")+'</option><option value="no"'+(F.furn==="no"?" selected":"")+'>'+t("furnNo")+'</option></select></div>'
      : '<div class="rs-f">'+chipSelect("csTabu",t("deed"),F.tbs||[],function(v){ return D.TABU[v]?D.TABU[v][li()]:v},true)+'</div>')+
    '<div class="rs-f rs-fprice"><button type="button" class="pricetrig'+((F.pmin||F.pmax)?' set':'')+'" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
-     '<div class="pricepop" id="hPricePop" hidden data-title="'+esc(GX("price"))+' ('+(CUR==="USD"?"USD":(L==="ar"?"ل.س":"SYP"))+')"><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*rate):"")+'"></label>'+
+     '<div class="pricepop" id="hPricePop" hidden data-title="'+esc(GX("price"))+' ('+(CUR==="USD"?"USD":curLabel(CUR,L))+')"><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*rate):"")+'"></label>'+
      '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*rate):"")+'"></label></div>'+
      '<div class="pp-foot"><button type="button" class="pp-clear" id="hPriceClear">'+GX("anyPrice")+'</button><button type="button" class="pp-done" id="hPriceDone">'+GX("done")+'</button></div></div></div>'+
    '<div class="rs-f rs-fmore"><button type="button" class="rs-morebtn" id="rsMore">'+GX("rsMore")+(moreN?' <b class="ltr">'+moreN+'</b>':'')+CHEV+'</button><div class="rs-morepop" id="rsMorePop">'+more+'</div></div>'+
@@ -3955,7 +4168,7 @@ function search(){
   '</div>'+
   '<div class="rs-mbar"><button type="button" id="rsMFilters">'+GX("rsFilters")+(fc?' <b class="ltr">'+fc+'</b>':'')+'</button><button type="button" id="rsMMap">'+MI.map+GX("rsShowMap")+newTag()+'</button><span class="rs-msort">'+rsSortHtml("sortM")+'</span></div>'+
  '</div>' }
-function rsShort(x){ var v=+x.p||0, rate=SITE.syp_rate||CONFIG.rate; if(CUR!=="USD") v=Math.round(v*rate); var sh = v>=1e6 ? (Math.round(v/1e5)/10).toString().replace(/\.0$/,"")+"M" : v>=1000 ? Math.round(v/1000)+"K" : String(v); return (CUR==="USD"?"$":"")+sh+(CUR==="USD"?"":" ل.س") }
+function rsShort(x){ var v=+x.p||0, rate=curRate(); if(CUR!=="USD") v=Math.round(v*rate); var sh = v>=1e6 ? (Math.round(v/1e5)/10).toString().replace(/\.0$/,"")+"M" : v>=1000 ? Math.round(v/1000)+"K" : String(v); return (CUR==="USD"?"$":"")+sh+(CUR==="USD"?"":" "+curLabel(CUR,"ar")) }
 function rsMapStop(){ if(RS.map){ try{ RS.map.remove() }catch(e){} RS.map=null; RS.pins={} } }
 function rsMapInit(){
   var c=document.getElementById("rsMap"); if(!c) return;
@@ -3980,7 +4193,7 @@ function rsWire(opts){
   wireChipSelects();
   $$("[data-rsdeal]").forEach(function(b){ b.onclick=function(){ F.deal=this.dataset.rsdeal||""; if(F.deal!=="rent"){ F.furn=""; F.rentalPeriod="" } F.page=1; render() } });
   if($("#hFurn")) $("#hFurn").onchange=function(){ F.furn=this.value; F.page=1; render() };
-  var pop=$("#hPricePop"), rate=SITE.syp_rate||CONFIG.rate, toUsd=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/rate) };
+  var pop=$("#hPricePop"), rate=curRate(), toUsd=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/rate) };
   var applyPrice=function(){ F.pmin=toUsd(($("#hPmin")||{}).value); F.pmax=toUsd(($("#hPmax")||{}).value); if(F.pmax&&F.pmin>F.pmax){ var sw=F.pmin; F.pmin=F.pmax; F.pmax=sw } F.page=1; render() };
   if($("#hPrice")){ $("#hPrice").onclick=function(e){ e.stopPropagation(); closeAllMenus(pop); var mp=$("#rsMorePop"); if(mp) mp.classList.remove("on"); pop.hidden=!pop.hidden; if(!pop.hidden) setTimeout(function(){ var i=$("#hPmin"); if(i) i.focus() },30) };
     pop.onclick=function(e){ e.stopPropagation() };
@@ -4054,12 +4267,14 @@ function listing(id){
      '<p style="color:var(--grey);font-size:14.5px;margin-top:6px">'+t("pendingApprovalP")+'</p>'+
      '<div style="margin-top:18px"><button class="btn-n" data-go="search">'+t("browse")+'</button></div></div></div>';
  }
- var IMGS = (x.photos&&x.photos.length) ? x.photos : [];
+ var VIDS = (x.videos&&x.videos.length) ? x.videos : [];
+ if(_vlbFor!==x.id){ VLB_OPEN=false; _vlbFor=x.id }
+ var IMGS = (x.photos&&x.photos.length) ? x.photos : (VIDS.length&&VIDS[0].poster ? [VIDS[0].poster] : []);
  // a newly opened listing always starts at its first photo
  if(window._lastLid!==String(x.id)){ window._lastLid=String(x.id); GI=0 }
  if(GI>=IMGS.length) GI=0;
  var I=LICON, ar=L==="ar", isRent=x.d==="rent", hasFl=(x.fl!==null&&x.fl!==undefined&&x.fl!=="");
- var typeName=D.TYPES[x.t]?D.TYPES[x.t][li()]:"", condName=(D.COND[x.cd]||D.LANDC[x.cd]||["",""," "])[li()];
+ var typeName=D.TYPES[x.t]?D.TYPES[x.t][li()]:"", condName=(D.COND[x.cd]||D.LANDC[x.cd]||["",""," ",""])[li()];
  var deedName=D.TABU[x.tb]?D.TABU[x.tb][li()]:"";
  var m2=function(){ return '<span class="ltr">'+x.m2+'</span> '+t("sqm") };
 
@@ -4074,6 +4289,7 @@ function listing(id){
           return '<img src="'+src+'" data-i="'+i+'" alt=""'+(i===GI?' class="sel"':'')+' loading="lazy">'}).join("")+'</div>' : '')+
       (n>1 ? '<button class="lg-all" id="gAll">'+I.grid+GX("lAllPhotos")+' <span class="ltr">('+n+')</span></button>' : '')
     : '<div class="nophoto lg-none"><span>'+t("photos")+'</span></div>')+
+  (VIDS.length ? '<button type="button" class="lg-vid" id="gVid"><span class="vplay">▶</span>'+GX("videoWatch")+'</button>' : '')+
  '</div>';
 
  /* ── lightbox (unchanged behaviour) ── */
@@ -4086,11 +4302,12 @@ function listing(id){
       : '')+
     '<img class="lb-img" id="lbImg" src="'+IMGS[GI]+'" alt="">'+
    '</div>' : '';
+ lb += (VLB_OPEN && VIDS.length) ? '<div class="vlb" id="vlb"><button type="button" class="lb-close" id="vlbClose" aria-label="close">×</button><div class="vlb-box"><video id="vlbVideo" controls autoplay playsinline'+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video></div></div>' : '';
 
  /* ── title block ── */
  var tags='<div class="ltags"><span class="ltag deal">'+(isRent?t("forrent"):t("forsale"))+'</span>'+
    '<span class="ltag">'+typeName+'</span>'+
-   (!isRent && deedName ? '<span class="ltag'+(x.tb==="green"?' green':'')+'">'+(x.tb==="green"?'<span class="tabu-green">'+deedName+'</span>':deedName)+'</span>' : '')+
+   (!isRent && deedName ? '<span class="ltag'+(strongDeed(x.tb)?' green':'')+'">'+(strongDeed(x.tb)?'<span class="tabu-green">'+deedName+'</span>':deedName)+'</span>' : '')+
    (x.ow ? '<span class="ltag gold">'+GX("byOwner")+'</span>' : '')+
    (x.furn ? '<span class="ltag">'+t("furnishedL")+'</span>' : '')+'</div>';
  var h1 = ar ? typeName+' '+m2()+' '+GX("lIn")+' '+aN(x.a)
@@ -4116,7 +4333,7 @@ function listing(id){
  var row=function(k,v){ return (v===""||v===null||v===undefined)?'':'<div><span class="k2">'+k+'</span><span class="v2">'+v+'</span></div>' };
  var grp=function(title,rows){ var b=rows.join(""); return b?'<div class="lgh">'+title+'</div>'+b:'' };
  var prop=[row(t("type"),typeName),row(t("kArea"),m2()),row(t("kCond"),condName)];
- if(!isRent && deedName) prop.push(row(t("deed"),x.tb==="green"?'<span class="tabu-green">'+deedName+'</span>':deedName));
+ if(!isRent && deedName) prop.push(row(t("deed"),strongDeed(x.tb)?'<span class="tabu-green">'+deedName+'</span>':deedName));
  if(x.r) prop.push(row(t("kRooms"),'<span class="ltr">'+x.r+'</span>'),row(t("kBaths"),'<span class="ltr">'+x.b+'</span>'));
  if(x.living) prop.push(row(t("kLiving"),'<span class="ltr">'+x.living+'</span>'));
  if(hasFl) prop.push(row(t("kFloor"),floorLabel(x.fl)));
@@ -4138,7 +4355,7 @@ function listing(id){
    var isSolar = ["طاقة بديلة","Alternative energy","Alternative Energie"].indexOf(a)>-1;
    return '<li><i>'+(isSolar?I.sun:I.check)+'</i>'+amenityLabel(a)+'</li>'}).join("")+'</ul></section>' : '';
 
- var deed = x.tb==="green" ? '<section class="lsec ldeed"><h2><span class="tabu-green">'+t("deedH")+'</span></h2><ul>'+
+ var deed = strongDeed(x.tb) ? '<section class="lsec ldeed"><h2><span class="tabu-green">'+t("deedH")+'</span></h2><ul>'+
    '<li>'+t("d1")+'</li><li>'+t("d2")+'</li><li>'+t("d3")+'</li><li>'+t("d4")+'</li></ul></section>' : '';
 
  var util = x.el ? '<section class="lsec"><h2>'+t("utilH")+'</h2><div class="lutil">'+
@@ -4185,7 +4402,7 @@ function listing(id){
   '<a data-go="search" data-gov="'+x.g+'">'+gN(x.g)+'</a><i>›</i>'+aN(x.a)+'</div></div>'+
  '<div class="wrap lpage">'+gal+lb+
   '<div class="lgrid"><main class="lmain">'+head+facts+
-   '<section class="lsec"><h2>'+t("descH")+'</h2><div class="ldesc">'+x.ds[li()]+'</div></section>'+
+   '<section class="lsec"><h2>'+t("descH")+'</h2><div class="ldesc">'+dsOf(x)+'</div></section>'+
    details+amen+deed+util+map+
   '</main>'+side+'</div></div>'+
  // on phones the contact card ends up below everything, so a fixed bar keeps the two actions in reach
@@ -4344,7 +4561,7 @@ function post(){
    (NEW.photos.length?'<div style="margin-top:8px;font-weight:700;color:var(--ok)">'+
      t("photoPicked").replace("{n}",NEW.photos.length)+'</div>':'')+'</div>'+
   '<input type="file" id="files" accept="image/*" multiple hidden><div class="shots" id="shots"></div>'+
-  '<div class="tipbox">'+t("photoTips")+'</div></div></div>'+
+  '<div class="tipbox">'+t("photoTips")+'</div>'+videoPickHtml()+'</div></div>'+
  '<div class="blk"><h3><span class="n">6</span>'+t("p5")+'</h3><div class="in"><div class="row">'+
   '<div class="fl"><label class="req" id="priceLabel">'+t("price")+'</label>'+
    '<div style="display:flex;gap:8px"><input type="number" id="pp" autocomplete="off" placeholder="" style="flex:1">'+
@@ -4355,7 +4572,7 @@ function post(){
    'style="background:var(--page);color:var(--grey);cursor:not-allowed">'+
    '<div class="hintx">'+t("nameFromAccount")+'</div></div></div>'+
   '<div class="row"><div class="fl"><label class="req">'+t("tel")+'</label>'+
-   '<div class="pw">'+ccSelect("pcc", USER&&USER.phone?ccOf(USER.phone):"963")+
+   '<div class="pw">'+ccSelect("pcc", USER&&USER.phone?ccOf(USER.phone):phoneCC())+
    '<input id="ptel" autocomplete="off" placeholder="" value="'+(USER&&USER.phone?ccStrip(USER.phone):"")+'"></div>'+
    '<div class="hintx">'+t("telFromAccount")+'</div>'+
    '<div class="hintx ltr" id="telPreview" style="font-weight:600;color:var(--ok);direction:ltr;text-align:start"></div>'+
@@ -4427,18 +4644,22 @@ function editView(){
    (secOf(x.t)==="land" ? D.LANDAMEN[L] : D.AMEN[L]).map(function(a){
      return '<label><input type="checkbox" class="eamen" value="'+a+'"'+((x.am||[]).indexOf(a)>-1?" checked":"")+'> '+a+'</label>'}).join("")+'</div></div>'+
   '<div class="fl" style="margin-bottom:0"><label class="req">'+t("descL")+'</label>'+
-   '<textarea id="eDesc" maxlength="1200">'+(x.ds?x.ds[li()]:"")+'</textarea></div>'+
+   '<textarea id="eDesc" maxlength="1200">'+(x.ds?dsOf(x):"")+'</textarea></div>'+
  '</div></div>'+
  (EDIT.isAdmin ? '' :
   '<div class="blk"><h3><span class="n">3</span>'+t("managePhotos")+'</h3><div class="in">'+
    '<div class="shots" id="ePhotos">'+
-    (EDIT.photos||[]).map(function(p){
+    (EDIT.photos||[]).filter(function(p){ return p.kind!=="video" }).map(function(p){
       return '<div class="shot2"><img src="'+(p.thumb_url||p.url)+'">'+
       '<button type="button" class="rm" data-delphoto="'+p.id+'">✕</button></div>'}).join("")+
    '</div>'+
    '<div class="drop" id="eDrop" style="margin-top:12px"><b>'+t("addPhotos")+'</b>'+
     '<span>'+t("dropS")+'</span></div>'+
    '<input type="file" id="eFiles" accept="image/*" multiple hidden>'+
+   (function(){ var vids=(EDIT.photos||[]).filter(function(p){ return p.kind==="video" }), cfg=videoCfg(); if(!cfg.on && !vids.length) return '';
+     return '<div class="evids"><b class="vpick-h">'+GX("videoH")+'</b><div class="shots">'+vids.map(function(p){ return '<div class="shot2 vshot">'+(p.thumb_url?'<img src="'+p.thumb_url+'" alt="">':'<span class="vph">▶</span>')+'<span class="vplay">▶</span>'+(p.duration_s?'<div class="kb ltr">'+fmtDur(p.duration_s)+'</div>':'')+'<button type="button" class="rm" data-delphoto="'+p.id+'">✕</button></div>' }).join("")+'</div>'+
+       (cfg.on && vids.length<cfg.n ? '<button type="button" class="vadd" id="eVAdd"><span class="vplay">▶</span><b>'+GX("videoAdd")+'</b><span>'+GX("videoHint").replace("{s}",cfg.s).replace("{mb}",cfg.mb)+'</span></button><input type="file" id="eVid" accept="video/mp4,video/webm,video/quicktime" hidden>' : '')+
+       '<div class="hintx" id="eVMsg"></div></div>' })()+
   '</div></div>')+
  '<div class="bar2"><span class="msg" id="eMsg">'+(EDIT.msg||"")+'</span>'+
   (EDIT.isAdmin ? '<button class="gh" data-go="admin" style="margin:0">'+t("cancel")+'</button>'
@@ -4678,7 +4899,7 @@ function adminView(){
  if(!ADM.token) return ''+
   '<div class="wrap" style="max-width:420px;padding:56px 18px 80px"><div class="blk">'+
   '<h3><span class="n">⚑</span>'+t("adminLogin")+'</h3><div class="in">'+
-  '<div class="fl"><label>'+t("mobile")+'</label><div class="pw">'+ccSelect("adCC","963")+
+  '<div class="fl"><label>'+t("mobile")+'</label><div class="pw">'+ccSelect("adCC",phoneCC())+
    '<input id="adPhone" inputmode="numeric" autocomplete="off"></div></div>'+
   '<div class="fl"><label>'+t("password")+'</label>'+
    pwField("adPass","off")+'</div>'+
@@ -4854,6 +5075,7 @@ function adminView(){
  else if(ADM.tab==="stats"){ body = adminAnalyticsBody(); }
 
  else if(ADM.tab==="geo"){ body = geoAdminBody(); }
+ else if(ADM.tab==="countries"){ body = adminCountriesBody(); }
  else if(ADM.tab==="banners"){ body = hsStudioHtml("banners"); }
  else if(ADM.tab==="contact"){ body = hsStudioHtml("contact"); }
  else if(ADM.tab==="design"){ body = hsStudioHtml("design"); }
@@ -4864,6 +5086,15 @@ function adminView(){
      '<input id="scStorageLimit" type="number" min="1" value="'+(SITE.storage_limit_mb!=null?SITE.storage_limit_mb:1024)+'"></div>'+
     '<button class="ab ok" id="scStorageLimitSave">'+t("save")+'</button>'+
     '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="scStorageLimitMsg"></span>'+
+   '</div></div>'+
+   '<div class="blk"><h3>'+GX("videoSetH")+'</h3><div class="in">'+
+    '<div class="hintx" style="margin-bottom:10px">'+GX("videoSetHint")+'</div>'+
+    '<label style="display:flex;gap:8px;align-items:center;font-size:14px;margin-bottom:10px"><input type="checkbox" id="scVideoOn"'+(videoCfg().on?' checked':'')+'>'+GX("videoEnabledL")+'</label>'+
+    '<div class="row"><div class="fl"><label>'+GX("videoMaxMbL")+'</label><input id="scVideoMb" type="number" min="5" max="50" value="'+videoCfg().mb+'"></div>'+
+    '<div class="fl"><label>'+GX("videoMaxSL")+'</label><input id="scVideoS" type="number" min="10" max="600" value="'+videoCfg().s+'"></div>'+
+    '<div class="fl"><label>'+GX("videoMaxNL")+'</label><input id="scVideoN" type="number" min="1" max="5" value="'+videoCfg().n+'"></div></div>'+
+    '<button class="ab ok" id="scVideoSave">'+t("save")+'</button>'+
+    '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="scVideoMsg"></span>'+
    '</div></div>'+
    '');
  }
@@ -5155,7 +5386,7 @@ function adminView(){
   body = '<button class="btn-n" id="aNewAdminBtn" style="margin-bottom:14px">'+t("createAdmin")+'</button>'+
    (ADM.newAdminOpen ? '<div class="blk" style="margin-bottom:16px"><h3>'+t("createAdmin")+'</h3><div class="in">'+
      '<div class="row"><div class="fl"><label class="req">'+t("contactName")+'</label><input id="naName" autocomplete="off"></div>'+
-     '<div class="fl"><label class="req">'+t("mobile")+'</label><div class="pw">'+ccSelect("naCC","963")+
+     '<div class="fl"><label class="req">'+t("mobile")+'</label><div class="pw">'+ccSelect("naCC",phoneCC())+
       '<input id="naPhone" inputmode="numeric" autocomplete="off"></div></div></div>'+
      '<div class="fl"><label class="req">'+t("password")+'</label><input id="naPass" type="text" autocomplete="off" placeholder="'+t("min6")+'"></div>'+
      '<div class="fl"><label>'+t("permissionsL")+'</label><div class="chkgrid">'+
@@ -5205,7 +5436,7 @@ function adminView(){
    {g:GX("navMarketing"), items:[["engage",GX("tEngage"),null,AICO.ledger,can("ads")||can("featured")],["projects_adm",GX("tProjects"),null,AICO.building,can("listings")||can("ads")],["ads",t("adsTab"),null,AICO.ads,can("ads")],["featured",t("featuredTab"),null,AICO.star,can("featured")],["banners",GX("tBanners"),null,AICO.banner,can("homepage")]]},
    {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")]]},
    {g:t("navInboxH"), items:[["reports",t("reportsTab"),s.openReports,AICO.shield,can("reports")],["feedback",t("feedbackTab"),s.openFeedback,AICO.shield,can("feedback")],["msgs",t("msgsNotifTab"),ADM.alertsUnread,AICO.bell,can("msgs")]]},
-   {g:GX("navSystem"), items:[["settings",GX("tSystem"),null,AICO.gear,can("settings")],["storage",GX("tStorage"),null,AICO.disk,can("settings")],["admins",t("adminsTab"),null,AICO.key,ADM.isSuper],["danger",t("dangerTab"),null,AICO.lock,ADM.isSuper]]}
+   {g:GX("navSystem"), items:[["settings",GX("tSystem"),null,AICO.gear,can("settings")],["storage",GX("tStorage"),null,AICO.disk,can("settings")],["countries",GX("countriesTab"),null,AICO.globe,ADM.isSuper],["admins",t("adminsTab"),null,AICO.key,ADM.isSuper],["danger",t("dangerTab"),null,AICO.lock,ADM.isSuper]]}
  ];
  var curLabel=t("adminPanel"), curGroup="";
  NAV.forEach(function(g){ g.items.forEach(function(it){ if(it[0]===ADM.tab){ curLabel=it[1]; curGroup=g.g } }) });
@@ -5216,7 +5447,7 @@ function adminView(){
    '<div class="adm-brand"><span class="adm-logo">'+CONFIG.brand+'</span><span class="adm-sub">'+t("adminPanel")+'</span></div>'+
    '<label class="adm-q">'+AICO.search+'<input id="aNavQ" placeholder="'+GX("aNavSearch")+'" autocomplete="off"></label>'+
    '<div class="adm-actions">'+
-    '<select class="adm-lang" id="aLang" aria-label="'+GX("aLang")+'">'+["ar","en","de"].map(function(k){ return '<option value="'+k+'"'+(k===L?' selected':'')+'>'+D.I18N[k].name+'</option>' }).join("")+'</select>'+
+    adminCountrySelHtml()+'<select class="adm-lang" id="aLang" aria-label="'+GX("aLang")+'">'+["ar","en","de"].map(function(k){ return '<option value="'+k+'"'+(k===L?' selected':'')+'>'+D.I18N[k].name+'</option>' }).join("")+'</select>'+
     adminBellHtml()+
     '<button class="ab" id="adViewSite" title="'+t("viewSiteAsUser")+'">'+AICO.eye+'<span>'+t("viewSiteAsUser")+'</span></button>'+
     '<button class="ab" id="adRefresh" title="'+t("refresh")+'">'+AICO.refresh+'</button>'+
@@ -5562,7 +5793,7 @@ function checkPost(){
  var telPrev=$("#telPreview");
  if(telPrev){
    var dRaw=v("ptel").replace(/\D/g,"");
-   var ccRaw=v("pcc")||(USER&&USER.phone?ccOf(USER.phone):"963");
+   var ccRaw=v("pcc")||(USER&&USER.phone?ccOf(USER.phone):phoneCC());
    telPrev.textContent = dRaw ? ("→ +"+ccRaw+" "+dRaw) : "";
  }
  if(!v("pm2"))need.push(t("areaM"));
@@ -5997,6 +6228,7 @@ AICO.banner='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke=
 AICO.palette='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="8" height="10" rx="1.5"/><rect x="13" y="4" width="8" height="6" rx="1.5"/><rect x="13" y="12" width="8" height="8" rx="1.5"/><rect x="3" y="16" width="8" height="4" rx="1.5"/></svg>';
 AICO.contact='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg>';
 AICO.map='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.4-6-11a6 6 0 0 1 12 0c0 5.6-6 11-6 11z"/><circle cx="12" cy="10" r="2.2"/></svg>';
+AICO.globe='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>';
 AICO.image='<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5-8 8"/></svg>';
 AICO.search='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>';
 AICO.eye='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
@@ -6035,7 +6267,7 @@ var FLAG_GB = '<svg viewBox="0 0 30 20" width="18" height="12"><rect width="30" 
   '<path d="M15,0 V20 M0,10 H30" stroke="#fff" stroke-width="6.6"/>'+
   '<path d="M15,0 V20 M0,10 H30" stroke="#CF142B" stroke-width="4"/></svg>';
 var FLAG_DE = '<svg viewBox="0 0 30 20" width="18" height="12"><rect width="30" height="6.67" y="0" fill="#000"/><rect width="30" height="6.67" y="6.67" fill="#DD0000"/><rect width="30" height="6.67" y="13.33" fill="#FFCE00"/></svg>';
-var LANG_FLAGS = {ar:FLAG_SY, en:FLAG_GB, de:FLAG_DE};
+var LANG_FLAGS = {ar:FLAG_SY, en:FLAG_GB, de:FLAG_DE, fr:'<svg viewBox="0 0 30 20" width="18" height="12"><rect width="10" height="20" fill="#0055A4"/><rect x="10" width="10" height="20" fill="#fff"/><rect x="20" width="10" height="20" fill="#EF4135"/></svg>'};
 var ICON_LIST = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="6" rx="1"/><rect x="3" y="14" width="7" height="6" rx="1"/><path d="M13 6h8M13 10h8M13 16h8M13 20h8"/></svg>';
 var ICON_EYE = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>';
 var ICON_EYE_OFF = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a19.7 19.7 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a19.5 19.5 0 0 1-2.16 3.19M14.12 14.12a3 3 0 1 1-4.24-4.24"/><path d="M1 1l22 22"/></svg>';
@@ -6260,7 +6492,7 @@ function wStatusPill(st,expired){ if(expired&&st==="open") st="expired"; var m={
 // listings that fit a request: same deal and governorate, the chosen areas and type if given, price within the budget (10% room), rooms and size at least, deed if asked
 function wantedMatches(w){ return D.LIST.filter(function(x){ if(x.status&&x.status!=="live") return false; if(x.d!==w.deal) return false; if(w.gov_name&&x.g!==w.gov_name) return false; if(w.property_type&&x.t!==w.property_type) return false;
   if(w.area_names&&w.area_names.length&&w.area_names.indexOf(x.a)<0) return false; if(w.budget_max&&w.currency==="USD"&&x.p&&x.p>w.budget_max*1.1) return false; if(w.rooms_min&&(x.r||0)<w.rooms_min) return false; if(w.area_min&&(x.m2||0)<w.area_min) return false; if(w.tabu&&x.tb!==w.tabu) return false; return !w.user_id||x.uid!==w.user_id }) }
-async function loadWanted(){ if(!DB){ WANTED=[]; return } try{ var r=await DB.rpc("bk_public_wanted"); WANTED=(r&&r.data)||[] }catch(e){ WANTED=[] } }
+async function loadWanted(){ if(!DB){ WANTED=[]; return } try{ var r=await DB.rpc("bk_public_wanted",cArgs()); WANTED=(r&&r.data)||[] }catch(e){ WANTED=[] } }
 async function loadWantedOne(id){ if(!DB){ WANTEDONE={missing:true,id:id}; return } try{ var r=await DB.rpc("bk_wanted_get",{p_id:+id}); WANTEDONE=(r&&r.data)||{missing:true,id:id} }catch(e){ WANTEDONE={missing:true,id:id} } }
 async function loadMyWanted(){ if(!DB||!USER){ MYWANTED=[]; return } try{ var r=await DB.rpc("bk_wanted_mine",{p_token:USER.token||null}); if(r.error) throw r.error; MYWANTED=r.data||[] }catch(e){ MYWANTED=[] } }
 function wantedCard(w,mine){
@@ -6390,7 +6622,7 @@ function pjFmt(n){ n=+n||0; return "$"+n.toLocaleString("en") }
 function pjPlanText(p){ var parts=[]; if(p.down_pct) parts.push(GX("pjDown")+" "+p.down_pct+"٪"); if(p.months) parts.push(GX("pjMonths").replace("{n}",p.months)); if(p.handover_pct) parts.push(p.handover_pct+"٪ "+GX("pjHandover")); return parts.join(" · ") }
 function pjMonthly(price,plan){ var m=+plan.months||0; if(!m) return 0; var rest=price*(1-((+plan.down_pct||0)+(+plan.handover_pct||0))/100); return Math.max(0,Math.round(rest/m)) }
 function pjPlans(p){ var pl=Array.isArray(p.plans)&&p.plans.length?p.plans:[]; if(!pl.length && (p.down_pct||p.months)) pl=[{name:GX("pjPlan"),down_pct:p.down_pct,months:p.months,handover_pct:p.handover_pct}]; return pl }
-async function loadProjects(){ if(!DB){ PROJECTS=[]; return } try{ var r=await DB.rpc("bk_public_projects"); PROJECTS=(r&&r.data)||[] }catch(e){ PROJECTS=[] } }
+async function loadProjects(){ if(!DB){ PROJECTS=[]; return } try{ var r=await DB.rpc("bk_public_projects",cArgs()); PROJECTS=(r&&r.data)||[] }catch(e){ PROJECTS=[] } }
 async function loadProject(id){ if(!DB){ PROJECT={missing:true,id:id}; return } try{ var r=await DB.rpc("bk_project_get",{p_id:+id}); PROJECT=(r&&r.data)||{missing:true,id:id} }catch(e){ PROJECT={missing:true,id:id} } }
 function pjCard(p){
   var ar=L==="ar", ph=(p.photos&&p.photos[0])||null, loc=[p.area_name?aN(p.area_name):"",p.gov_name?gN(p.gov_name):""].filter(Boolean).join(ar?"، ":", ");
@@ -6520,7 +6752,7 @@ function adminProjectEditor(p){
 
 var AGENCIES=null, AGENCY=null, MYAGENCY=null, AGF={g:"",spec:"",q:""}, ADM_AG=null, AG_SPECS=["sale","rent","commercial","land"];
 function agSpecLabel(k){ return GX("spec_"+k) }
-async function loadAgencies(){ if(!DB){ AGENCIES=[]; return } try{ var r=await DB.rpc("bk_public_agencies"); AGENCIES=(r&&r.data)||[] }catch(e){ AGENCIES=[] } }
+async function loadAgencies(){ if(!DB){ AGENCIES=[]; return } try{ var r=await DB.rpc("bk_public_agencies",cArgs()); AGENCIES=(r&&r.data)||[] }catch(e){ AGENCIES=[] } }
 async function loadAgency(id){ if(!DB){ AGENCY={missing:true,id:id}; return } try{ var r=await DB.rpc("bk_agency_get",{p_id:+id}); AGENCY=(r&&r.data)||{missing:true,id:id} }catch(e){ AGENCY={missing:true,id:id} } }
 async function loadMyAgency(){ if(!DB||!USER){ MYAGENCY=false; return } try{ var r=await DB.rpc("bk_agency_mine",{p_token:USER.token||null}); MYAGENCY=(r&&r.data)||false }catch(e){ MYAGENCY=false } }
 function agStatusPill(st){ var m={pending:["pending","st_pending"],approved:["live","st_approved"],rejected:["expired","st_rejected"],hidden:["expired","st_hidden"]}[st]||["pending","st_pending"]; return '<span class="st st-'+m[0]+'">'+GX(m[1])+'</span>' }
@@ -6708,8 +6940,8 @@ function mapFilterZoneHtml(){
        Object.keys(D.TABU).map(function(k){return '<option value="'+k+'"'+(mapF("tbs")===k?" selected":"")+'>'+D.TABU[k][li()]+'</option>'}).join("")+
       '</select></div></div>'+
      '<div class="row" style="margin-top:10px">'+
-      '<div class="fl"><label>'+GX("price")+' · '+GX("from")+' ('+(CUR==="USD"?"$":"ل.س")+')</label><input id="mapFPmin" type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(SITE.syp_rate||CONFIG.rate)):"")+'"></div>'+
-      '<div class="fl"><label>'+GX("to")+'</label><input id="mapFPmax" type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(SITE.syp_rate||CONFIG.rate)):"")+'"></div></div>'+
+      '<div class="fl"><label>'+GX("price")+' · '+GX("from")+' ('+(curLabel(CUR,"ar"))+')</label><input id="mapFPmin" type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(curRate())):"")+'"></div>'+
+      '<div class="fl"><label>'+GX("to")+'</label><input id="mapFPmax" type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(curRate())):"")+'"></div></div>'+
      '<div style="display:flex;gap:10px;margin-top:12px">'+
       (fCount ? '<button type="button" class="gh" id="mapFiltersClear" style="flex:1">'+t("clearFilters")+'</button>' : '')+
       '<button type="button" class="btn-n" id="mapFiltersApply" style="flex:1">'+t("showResults")+'</button>'+
@@ -6741,7 +6973,7 @@ function wireMapFilterZone(){
   if($("#mapFArea")) $("#mapFArea").onchange=function(){ setF("areas",this.value); F.a=""; updateMapFilterZone() };
   if($("#mapFType")) $("#mapFType").onchange=function(){ setF("types",this.value); F.t=""; updateMapFilterZone() };
   if($("#mapFTabu")) $("#mapFTabu").onchange=function(){ setF("tbs",this.value); F.tb=""; updateMapFilterZone() };
-  var toUsdM=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/(SITE.syp_rate||CONFIG.rate)) };
+  var toUsdM=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/(curRate())) };
   if($("#mapFPmin")) $("#mapFPmin").onchange=function(){ F.pmin=toUsdM(this.value) };
   if($("#mapFPmax")) $("#mapFPmax").onchange=function(){ F.pmax=toUsdM(this.value) };
   if($("#mapFiltersClear")) $("#mapFiltersClear").onclick=function(){
@@ -6834,7 +7066,7 @@ function initMapSearch(){
        (x.r?'<span>'+ICON_BED+x.r+'</span><span>'+ICON_BATH+x.b+'</span>':'')+
        (x.living?'<span>'+ICON_SOFA+x.living+'</span>':'')+
       '</div>'+
-      '<div class="mappin-type">'+D.TYPES[x.t][li()]+(x.d!=="rent"&&x.tb&&D.TABU[x.tb]?' · '+(x.tb==="green"?'<span class="tabu-green">'+D.TABU[x.tb][li()]+'</span>':D.TABU[x.tb][li()]):'')+'</div></div></div>';
+      '<div class="mappin-type">'+D.TYPES[x.t][li()]+(x.d!=="rent"&&x.tb&&D.TABU[x.tb]?' · '+(strongDeed(x.tb)?'<span class="tabu-green">'+D.TABU[x.tb][li()]+'</span>':D.TABU[x.tb][li()]):'')+'</div></div></div>';
     var marker = LMap.marker([x.lat,x.lng]).addTo(map);
     marker.on("mouseover", function(){
       cancelPopupClose();
@@ -7098,8 +7330,8 @@ function heroSearchBarHtml(){
      : '<div class="sf">'+chipSelect("csTabu",t("deed"),F.tbs||[],function(v){
         return D.TABU[v]?D.TABU[v][li()]:v},true)+'</div>')+
    '<div class="sf sf-price"><button type="button" class="pricetrig" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
-     '<div class="pricepop" id="hPricePop" hidden><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(SITE.syp_rate||CONFIG.rate)):"")+'"></label>'+
-     '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(SITE.syp_rate||CONFIG.rate)):"")+'"></label></div>'+
+     '<div class="pricepop" id="hPricePop" hidden><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(curRate())):"")+'"></label>'+
+     '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(curRate())):"")+'"></label></div>'+
      '<div class="pp-foot"><button type="button" class="pp-clear" id="hPriceClear">'+GX("anyPrice")+'</button><button type="button" class="pp-done" id="hPriceDone">'+GX("done")+'</button></div></div></div>'+
    '<button class="sgo" id="hgo">'+t("search")+'<span id="hgoCount">'+heroCount(F.deal)+'</span></button>'+
    '<button type="button" class="sgo-map" data-go="mapsearch" title="'+t("searchOnMap")+'" aria-label="'+t("searchOnMap")+'">'+MI.map+'<span>'+GX("map")+'</span>'+newTag()+'</button>'+
@@ -7109,7 +7341,7 @@ function wireHeroBar(){
    wireChipSelects();
    if($("#hFurn")) $("#hFurn").addEventListener("change",function(){F.furn=this.value;softRenderHero()});
    if($("#hPrice")){ // hero price range: popover with min / max and quick presets (values kept in USD like the rest of the filter)
-     var pop=$("#hPricePop"), rate=SITE.syp_rate||CONFIG.rate, toUsd=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/rate) };
+     var pop=$("#hPricePop"), rate=curRate(), toUsd=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/rate) };
      var applyPrice=function(){ F.pmin=toUsd($("#hPmin").value); F.pmax=toUsd($("#hPmax").value); if(F.pmax&&F.pmin>F.pmax){ var sw=F.pmin; F.pmin=F.pmax; F.pmax=sw } softRenderHero() };
      $("#hPrice").onclick=function(e){ e.stopPropagation(); closeAllMenus(pop); pop.hidden=!pop.hidden; if(!pop.hidden) setTimeout(function(){ var i=$("#hPmin"); if(i) i.focus() },30) };
      pop.onclick=function(e){ e.stopPropagation() };
@@ -7190,7 +7422,7 @@ function wire(){
    phoneLangSwitch(L, nl, function(){ L=nl; try{localStorage.setItem("balkoun_lang",L)}catch(err){} render(); });
  }});
  $("#cur").onclick=function(){
-   CUR=CUR==="USD"?"SYP":"USD";
+   CUR=CUR==="USD"?localCur():"USD";
    try{localStorage.setItem("balkoun_cur",CUR)}catch(e){}
    if(USER && DB){ rpc("bk_set_currency",{p_id:USER.id,p_currency:CUR}).then(function(){
      USER.preferred_currency=CUR; saveSession(USER);
@@ -7285,6 +7517,9 @@ function wire(){
    if($("#gmain")&&IM2.length) $("#gmain").onclick=function(){ if(swiped){ swiped=false; return } LIGHTBOX_OPEN=true; render() };
    if($("#lbClose")) $("#lbClose").onclick=function(){ LIGHTBOX_OPEN=false; render() };
    if($("#gAll")) $("#gAll").onclick=function(){ LIGHTBOX_OPEN=true; render() };
+   if($("#gVid")) $("#gVid").onclick=function(e){ e.stopPropagation(); VLB_OPEN=true; render() };
+   if($("#vlbClose")) $("#vlbClose").onclick=function(){ VLB_OPEN=false; render() };
+   if($("#vlb")) $("#vlb").onclick=function(e){ if(e.target===this){ VLB_OPEN=false; render() } };
    if($("#lightbox")) $("#lightbox").onclick=function(e){ if(e.target===this){ LIGHTBOX_OPEN=false; render() } };
    if($("#lbPrev")) $("#lbPrev").onclick=function(e){ e.stopPropagation(); set(GI-1) };
    if($("#lbNext")) $("#lbNext").onclick=function(e){ e.stopPropagation(); set(GI+1) };
@@ -7373,6 +7608,13 @@ function wire(){
      try{ var r2=await rpc("bk_photos",{p_listing:+EDIT.id}); EDIT.photos=r2||[] }catch(e){}
      LOADED.mine=false; await loadListings(); render();
    };
+ }
+ if($("#eVAdd")){
+   $("#eVAdd").onclick=function(){ $("#eVid").click() };
+   $("#eVid").onchange=async function(){ var f=this.files&&this.files[0]; this.value=""; if(!f) return; var m=$("#eVMsg"); if(m) m.style.color="";
+     try{ var v=await pickVideo(f, m); await uploadListingVideo(EDIT.id, v, function(p){ if(m) m.textContent=GX("videoUploading").replace("{p}",p) }, true); if(m) m.textContent=GX("videoDone");
+       try{ var r3=await rpc("bk_photos",{p_listing:+EDIT.id}); EDIT.photos=r3||[] }catch(e){} LOADED.mine=false; await loadListings(); render() }
+     catch(err){ if(m){ m.textContent=err.message||"error"; m.style.color="var(--danger)" } } };
  }
 
  if($("#eMapToggle")){
@@ -7587,6 +7829,7 @@ function wire(){
                                        addFiles(e.dataTransfer.files) };
    $("#files").onchange=async function(){ var el=this;
      await addFiles(el.files); el.value=""; };
+   wireVideoPick();
    $$("#pg,#pa,#pm2,#pr,#pb,#pfl,#py,#pel,#ptel,#pd,#pp,#pname,#pcc").forEach(function(e){
      e.addEventListener("input",checkPost);e.addEventListener("change",checkPost)});
    $$('input[name=cd2]').forEach(function(r){r.onchange=checkPost});
@@ -7689,6 +7932,8 @@ function wireAdmin(){
     $$("#aSidebar .asidebar-group").forEach(function(g){ g.hidden = !!q && !g.querySelector("a[data-atab]:not([hidden])") }) };
     nq.onkeydown=function(e){ if(e.key==="Enter"){ var a=$("#aSidebar a[data-atab]:not([hidden])"); if(a) a.click() } } }
   if($("#aLang")) $("#aLang").onchange=function(){ L=this.value; try{localStorage.setItem("balkoun_lang",L)}catch(err){} render() };
+  if(!ADM.countries && !ADM._cLoading && DB && ADM.token){ ADM._cLoading=true; DB.rpc("bk_admin_countries",{p_token:ADM.token}).then(function(r){ ADM._cLoading=false; if(r&&r.data&&r.data.length>1){ ADM.countries=r.data; render() } else if(r&&r.data) ADM.countries=r.data }) }
+  if($("#aCountry")) $("#aCountry").onchange=function(){ ADM._geoLoaded=false; ADM.adSlots=null; ADM._adSlotsLoaded=false; switchCountry(this.value,{keepView:true}) };
 
   var act=async function(fn,args){
     try{ await rpc(fn,args); await adminLoad() }
@@ -7880,7 +8125,7 @@ function wireAdmin(){
   // actually is (the exact bug reported: everything shown as unused)
   if((ADM.tab==="ads" || (ADM.tab==="photos" && ADM.mediaCategory==="ads")) && !ADM._adSlotsLoaded){
     ADM._adSlotsLoaded=true;
-    rpc("bk_admin_list_ads",{p_token:ADM.token}).then(function(r){
+    rpc("bk_admin_list_ads",{p_token:ADM.token,p_country:COUNTRY}).then(function(r){
       ADM.adSlots=r||[]; render()
     }).catch(function(){});
   }
@@ -8039,7 +8284,7 @@ function wireAdmin(){
       render();
     }catch(err){ alert(err.message||"error") }
   }});
-  wireGeoAdmin();
+  wireGeoAdmin(); wireAdminCountries();
   if(ADM.tab==="settings" && !ADM._settingsLoaded){
     ADM._settingsLoaded=true;
     rpc("bk_admin_get_settings",{p_token:ADM.token}).then(function(r){
@@ -8089,11 +8334,11 @@ function wireAdmin(){
     var msgEl=$("#"+msgId);
     if(btn){ btn.disabled=true; btn.textContent=t("saving") }
     try{
-      await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:patch});
+      await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:patch,p_country:COUNTRY});
       Object.keys(patch).forEach(function(k){
         if(k==="extras"){ var ex=SITE.extras; if(typeof ex==="string"){ try{ ex=JSON.parse(ex) }catch(e){ ex={} } } ex=Object.assign({},ex||{},patch.extras); Object.keys(ex).forEach(function(kk){ if(ex[kk]===null) delete ex[kk] }); SITE.extras=ex; applySiteExtras() }
         else SITE[k]=patch[k] });
-      try{ localStorage.setItem("balkoun_site", JSON.stringify(SITE)) }catch(e){}
+      try{ localStorage.setItem(siteCacheKey(), JSON.stringify(SITE)) }catch(e){}
       if(msgEl) msgEl.textContent=t("savedOk");
     }catch(e){ if(msgEl) msgEl.textContent=e.message||"error" }
     if(btn){ btn.disabled=false; btn.textContent=t("save") }
@@ -8165,7 +8410,7 @@ function wireAdmin(){
   if(rowForm){ rowForm.addEventListener("input",refreshPrev) }
 
   var reloadAdSlots=async function(){
-    try{ var r=await rpc("bk_admin_list_ads",{p_token:ADM.token}); ADM.adSlots=r||[] }catch(e){}
+    try{ var r=await rpc("bk_admin_list_ads",{p_token:ADM.token,p_country:COUNTRY}); ADM.adSlots=r||[] }catch(e){}
     loadAdSlots(); // also refresh the public list, so the home page reflects the change immediately
   };
   if($("#adAddBtn")) $("#adAddBtn").onclick=function(){ ADM.newAdOpen=true; ADM.newAdMsg=""; render() };
@@ -8571,7 +8816,7 @@ function wireAdmin(){
     var btn=$('[data-saveadslot="'+suffix+'"]'); if(btn) btn.disabled=true;
     var msgEl=$("#"+pfx+"Msg");
     try{
-      var payload={p_token:ADM.token, p_id:isNew?null:suffix, p_position:null, p_enabled:en, p_label:label,
+      var payload={p_token:ADM.token, p_country:COUNTRY, p_id:isNew?null:suffix, p_position:null, p_enabled:en, p_label:label,
         p_image_url:null, p_link_url:null, p_media_type:"image", p_linked_listing_id:null,
         p_image_urls:[], p_video_embed_url:null,
         p_sponsor_name:($("#"+pfx+"Sponsor")||{}).value||null,
@@ -8695,6 +8940,10 @@ function wireAdmin(){
     var hours=parseInt(($("#scNewBadgeHours")||{}).value,10);
     if(isNaN(hours)||hours<0) hours=24;
     saveSiteContent({new_badge_hours:hours},"scNewBadgeMsg",this);
+  };
+  if($("#scVideoSave")) $("#scVideoSave").onclick=function(){
+    var mb=Math.min(50, Math.max(5, parseInt(($("#scVideoMb")||{}).value,10)||50)), sec=Math.max(10, parseInt(($("#scVideoS")||{}).value,10)||90), n=Math.max(1, parseInt(($("#scVideoN")||{}).value,10)||1);
+    saveSiteContent({extras:{video_enabled:!!($("#scVideoOn")||{}).checked, video_max_mb:mb, video_max_s:sec, video_max:n}},"scVideoMsg",this);
   };
   if($("#scStorageLimitSave")) $("#scStorageLimitSave").onclick=function(){
     var mb=parseInt(($("#scStorageLimit")||{}).value,10);
@@ -9294,6 +9543,67 @@ function shrink(src, maxW, quality){
 }
 function blobUrl(b){ return URL.createObjectURL(b) }
 
+/* ═══ listing videos ═══ */
+function videoCfg(){ return { on: SX("video_enabled",true)!==false, mb: Math.min(50, +SX("video_max_mb",50)||50), s: +SX("video_max_s",90)||90, n: +SX("video_max",1)||1 } }
+function fmtDur(sec){ sec=Math.round(sec||0); return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0") }
+function videoProbe(file){   // duration + a poster frame (JPEG blob), read locally before anything is uploaded
+  return new Promise(function(res,rej){
+    var url=URL.createObjectURL(file), v=document.createElement("video"), done=false;
+    var finish=function(err,out){ if(done) return; done=true; clearTimeout(tm); URL.revokeObjectURL(url); err?rej(err):res(out) };
+    var tm=setTimeout(function(){ finish(new Error("timeout")) },25000);
+    v.preload="metadata"; v.muted=true; v.playsInline=true; v.setAttribute("playsinline",""); v.src=url;
+    v.onerror=function(){ finish(new Error("bad")) };
+    v.onloadedmetadata=function(){ var d=v.duration||0; try{ v.currentTime=Math.min(1, Math.max(0.1, d/2)) }catch(e){ finish(null,{duration:d,poster:null}) } };
+    v.onseeked=function(){
+      try{ var W=v.videoWidth||640, H=v.videoHeight||360, sc=Math.min(1, 960/W), c=document.createElement("canvas"); c.width=Math.round(W*sc); c.height=Math.round(H*sc);
+        c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+        c.toBlob(function(b){ finish(null,{duration:v.duration||0, poster:b, width:W, height:H}) },"image/jpeg",0.82) }
+      catch(e){ finish(null,{duration:v.duration||0, poster:null}) } };
+  }) }
+function storageUploadXhr(path, file, contentType, onProgress){   // the storage API with upload progress (supabase-js has none)
+  return new Promise(function(res,rej){
+    var xhr=new XMLHttpRequest();
+    xhr.open("POST", CONFIG.supabaseUrl+"/storage/v1/object/photos/"+path.split("/").map(encodeURIComponent).join("/"));
+    xhr.setRequestHeader("apikey",CONFIG.supabaseKey); xhr.setRequestHeader("Authorization","Bearer "+CONFIG.supabaseKey);
+    xhr.setRequestHeader("Content-Type",contentType||file.type||"application/octet-stream"); xhr.setRequestHeader("x-upsert","false");
+    xhr.upload.onprogress=function(e){ if(e.lengthComputable&&onProgress) onProgress(Math.round(e.loaded/e.total*100)) };
+    xhr.onload=function(){ if(xhr.status>=200&&xhr.status<300) res({path:path}); else rej(new Error("upload "+xhr.status+": "+String(xhr.responseText||"").slice(0,140))) };
+    xhr.onerror=function(){ rej(new Error("network")) };
+    xhr.send(file) }) }
+async function pickVideo(file, msgEl){   // validates a chosen file; resolves {file,duration,size,poster,preview} or throws a translated message
+  var cfg=videoCfg(); if(!cfg.on) throw new Error(GX("videoOff"));
+  if(!/^video\//.test(file.type)) throw new Error(GX("videoBad"));
+  if(file.size>cfg.mb*1048576) throw new Error(GX("videoTooBig").replace("{mb}",cfg.mb));
+  if(msgEl) msgEl.textContent=GX("videoReading");
+  var p; try{ p=await videoProbe(file) }catch(e){ throw new Error(GX("videoBad")) }
+  if(p.duration>cfg.s+0.5) throw new Error(GX("videoTooLong").replace("{s}",cfg.s));
+  if(msgEl) msgEl.textContent="";
+  return { file:file, duration:p.duration, size:file.size, poster:p.poster, preview:p.poster?blobUrl(p.poster):"" } }
+async function uploadListingVideo(listingId, v, onProgress, viaRpc){
+  var stamp=Date.now()+"-"+Math.random().toString(36).slice(2,8), ext=(/webm/.test(v.file.type)?"webm":/quicktime/.test(v.file.type)?"mov":"mp4");
+  var pV="videos/listings/"+listingId+"/"+stamp+"."+ext, pP="photos/listings/"+listingId+"/"+stamp+"-poster.jpg";
+  await storageUploadXhr(pV, v.file, v.file.type, onProgress);
+  var poster=null; if(v.poster){ var uP=await storageUpload(pP, v.poster, {contentType:"image/jpeg", upsert:false}); if(!uP.error) poster=DB.storage.from("photos").getPublicUrl(pP).data.publicUrl }
+  var url=DB.storage.from("photos").getPublicUrl(pV).data.publicUrl, dur=Math.round(v.duration||0);
+  if(viaRpc){ var r=await rpc("bk_photo_add",{p_user:USER.id,p_listing:+listingId,p_url:url,p_thumb:poster,p_sort:1000,p_token:USER.token||null,p_kind:"video",p_duration:dur,p_size:v.size}); if(r&&r.error) throw new Error(r.error==="video_limit"?GX("videoLimit"):r.error==="video_off"?GX("videoOff"):r.error) }
+  else { var pr=await DB.from("listing_photos").insert({listing_id:listingId, url:url, thumb_url:poster, sort_order:1000, kind:"video", duration_s:dur, size_bytes:v.size}).select(); if(pr.error) throw new Error(pr.error.message) }
+  return {url:url, poster:poster} }
+function videoPickHtml(){
+  var cfg=videoCfg(); if(!cfg.on) return "";
+  var v=NEW.video;
+  return '<div class="vpick" id="vpick"><b class="vpick-h">'+GX("videoH")+'</b>'+
+    (v ? '<div class="vprev">'+(v.preview?'<img src="'+v.preview+'" alt="">':'<span class="vph">▶</span>')+'<span class="vplay">▶</span><span class="vdur ltr">'+fmtDur(v.duration)+' · '+(Math.round(v.size/104857.6)/10)+' MB</span><button type="button" class="rm" id="vRm" aria-label="'+esc(t("del"))+'">✕</button></div>'
+       : '<button type="button" class="vadd" id="vAdd"><span class="vplay">▶</span><b>'+GX("videoAdd")+'</b><span>'+GX("videoHint").replace("{s}",cfg.s).replace("{mb}",cfg.mb)+'</span></button>')+
+    '<input type="file" id="vfile" accept="video/mp4,video/webm,video/quicktime" hidden><div class="hintx" id="vMsg"></div></div>' }
+function wireVideoPick(){
+  var wrap=$("#vpick"); if(!wrap) return;
+  var repaint=function(){ var w=$("#vpick"); if(!w) return; var tmp=document.createElement("div"); tmp.innerHTML=videoPickHtml(); w.replaceWith(tmp.firstChild); wireVideoPick() };
+  if($("#vAdd")) $("#vAdd").onclick=function(){ $("#vfile").click() };
+  if($("#vRm")) $("#vRm").onclick=function(){ NEW.video=null; repaint() };
+  if($("#vfile")) $("#vfile").onchange=async function(){ var f=this.files&&this.files[0]; this.value=""; if(!f) return;
+    try{ NEW.video=await pickVideo(f, $("#vMsg")); repaint() }catch(e){ var m=$("#vMsg"); if(m){ m.textContent=e.message||"error"; m.style.color="var(--danger)" } } };
+}
+
 async function addFiles(list){
   var files=[].slice.call(list).filter(function(f){ return /^image\//.test(f.type) });
   if(!files.length) return;
@@ -9408,7 +9718,7 @@ function loadSiteCache(){
   // loads. Caching the last-known settings lets the correct state be
   // available immediately, before any network round trip completes.
   try{
-    var cached = localStorage.getItem("balkoun_site");
+    var cached = localStorage.getItem(siteCacheKey());
     if(cached) return JSON.parse(cached);
   }catch(e){}
   return {hero_enabled:true,stats_enabled:true};
@@ -9449,10 +9759,11 @@ function applyBannerSizeVar(){
 async function loadSiteContent(){
   if(!DB) return;
   try{
-    var r = await DB.from("site_content").select("*").eq("id",1).limit(1);
+    var q0 = DB.from("site_content").select("*"); q0 = COUNTRY==="SY" ? q0.eq("id",1) : q0.eq("country_code",COUNTRY);
+    var r = await q0.limit(1);
     if(!r.error && r.data && r.data.length){
       SITE = escDeep(r.data[0]);
-      try{ localStorage.setItem("balkoun_site", JSON.stringify(SITE)) }catch(e){}
+      try{ localStorage.setItem(siteCacheKey(), JSON.stringify(SITE)) }catch(e){}
       applyCardSizeVar();
       applyBannerSizeVar();
       applySectionGapVars();
@@ -9464,7 +9775,7 @@ var _featuredPollTimer=null;
 async function syncFeaturedFromServer(){
   if(!DB) return;
   try{
-    var r = await DB.rpc("bk_public_featured_ids",{});
+    var r = await DB.rpc("bk_public_featured_ids",cArgs());
     if(!r || r.error || !r.data) return;
     var ids = {}; r.data.forEach(function(id){ ids[String(id)]=true });
     var changed=false;
@@ -9569,14 +9880,14 @@ function stopAdminAlertsPolling(){
 async function loadAdSlots(){
   if(!DB) return;
   try{
-    var r = await DB.rpc("bk_public_ad_slots",{});
+    var r = await DB.rpc("bk_public_ad_slots",cArgs());
     if(r && r.data) AD_SLOTS = r.data;
     if(PREVIEW && _pvLast && _pvLast.adSlots) applyPreview(_pvLast);
   }catch(e){}
 }
 async function loadCounts(){
   if(!DB) return;
-  try{ var r=await DB.rpc("bk_counts"); if(r&&r.data) CNT=r.data }catch(e){}
+  try{ var r=await DB.rpc("bk_counts",cArgs()); if(r&&r.data) CNT=r.data }catch(e){}
 }
 var LISTINGS_LOADED = false;
 async function loadListings(){
@@ -9592,7 +9903,7 @@ async function _loadListingsImpl(){
   // try the view first
   try{
     var res = await DB.from("v_listings").select("*")
-                .in("status",["live","pending"]).order("created_at",{ascending:false}).limit(200);
+                .eq("country_code",COUNTRY).in("status",["live","pending"]).order("created_at",{ascending:false}).limit(200);
     if(res.error) throw res.error;
     rows = escDeep(res.data);
   }catch(e){
@@ -9600,7 +9911,7 @@ async function _loadListingsImpl(){
     // fall back to the raw table + a manual governorate lookup
     try{
       var r2 = await DB.from("listings").select("*")
-                 .in("status",["live","pending"]).order("created_at",{ascending:false}).limit(200);
+                 .eq("country_code",COUNTRY).in("status",["live","pending"]).order("created_at",{ascending:false}).limit(200);
       if(r2.error) throw r2.error;
       var gv = await DB.from("governorates").select("id,name_ar");
       var ar = await DB.from("areas").select("id,name_ar");
@@ -9623,11 +9934,11 @@ async function _loadListingsImpl(){
   if(mapped.length){
     try{
       var ids = mapped.map(function(x){return x.id});
-      var ph = await DB.from("listing_photos").select("listing_id,url,thumb_url,sort_order")
+      var ph = await DB.from("listing_photos").select("listing_id,url,thumb_url,sort_order,kind")
                  .in("listing_id", ids).order("sort_order",{ascending:true});
       if(!ph.error && ph.data){
-        var by={}; ph.data.forEach(function(p){ (by[p.listing_id]=by[p.listing_id]||[]).push(esc(safeUrl(p.url))) });
-        mapped.forEach(function(x){ if(by[x.id]&&by[x.id].length) x.photos=by[x.id] });
+        var by={}, byV={}; ph.data.forEach(function(p){ if(p.kind==="video"){ (byV[p.listing_id]=byV[p.listing_id]||[]).push({url:esc(safeUrl(p.url)),poster:p.thumb_url?esc(safeUrl(p.thumb_url)):""}) } else (by[p.listing_id]=by[p.listing_id]||[]).push(esc(safeUrl(p.url))) });
+        mapped.forEach(function(x){ if(by[x.id]&&by[x.id].length) x.photos=by[x.id]; if(byV[x.id]) x.videos=byV[x.id] });
         console.log("Balkoun: "+ph.data.length+" photo(s) loaded.");
       }
     }catch(e){ console.warn("photos not loaded:", e.message||e) }
@@ -9675,7 +9986,7 @@ async function savePost(){
       contact_phone: (function(){
         var d=val("ptel").replace(/\D/g,"");
         if(!d) return (USER&&USER.phone)||"";
-        var cc=val("pcc")||(USER&&USER.phone?ccOf(USER.phone):"963");
+        var cc=val("pcc")||(USER&&USER.phone?ccOf(USER.phone):phoneCC());
         if(d.indexOf(cc)===0 && d.length>cc.length+6) d=d.slice(cc.length);
         return "+"+cc+d;
       })(),
@@ -9731,6 +10042,10 @@ async function savePost(){
       }
     }
 
+    if(NEW.video && NEW.video.file){
+      try{ await uploadListingVideo(id, NEW.video, function(p){ if($("#msg")) $("#msg").textContent=GX("videoUploading").replace("{p}",p) }); NEW.video=null }
+      catch(ve){ NEW.photoErr=(NEW.photoErr||"")+" "+GX("videoBadge")+": "+(ve.message||ve); console.warn("video failed:", ve.message||ve) }
+    }
     NEW.ref = ins.data.ref || String(id);
     NEW.id = id;
     F = {g:"", a:"", t:"", tb:"", cd:"", deal:row.deal, sort:"new"};
@@ -9751,7 +10066,7 @@ async function fetchOne(id){
     var r=await DB.from("v_listings").select("*").eq("id",id).limit(1);
     if(r.error||!r.data||!r.data.length) return null;
     var row=fromRow(escDeep(r.data[0]));
-    row.photos=await fetchPhotos(id);
+    var media=await fetchPhotos(id); row.photos=media; if(media&&media.videos) row.videos=media.videos;
     if(!D.LIST.filter(function(l){return String(l.id)===String(id)}).length) D.LIST.unshift(row);
     return row;
   }catch(e){ return null }
@@ -9760,10 +10075,13 @@ async function fetchOne(id){
 async function fetchPhotos(id){
   if(!DB) return null;
   try{
-    var r=await DB.from("listing_photos").select("url,thumb_url,sort_order")
+    var r=await DB.from("listing_photos").select("url,thumb_url,sort_order,kind")
             .eq("listing_id",id).order("sort_order",{ascending:true});
     if(r.error||!r.data||!r.data.length) return null;
-    return r.data.map(function(p){return esc(safeUrl(p.url))});
+    var out=r.data.filter(function(p){ return p.kind!=="video" }).map(function(p){return esc(safeUrl(p.url))});
+    var vids=r.data.filter(function(p){ return p.kind==="video" }).map(function(p){ return {url:esc(safeUrl(p.url)),poster:p.thumb_url?esc(safeUrl(p.thumb_url)):""} });
+    if(vids.length) out.videos=vids;   // an array with a .videos side property, so callers that only want photo URLs keep working
+    return out;
   }catch(e){ return null }
 }
 
@@ -9846,7 +10164,8 @@ function syncHash(){
     }
   }catch(e){}
 }
-function routePath(){
+function routePath(){ var p=routePathBase(); return COUNTRY==="SY" ? p : "/"+COUNTRY.toLowerCase()+(p==="/"?"/":p) }
+function routePathBase(){
   return VIEW==="home" ? "/" :
          VIEW.indexOf("listing:")===0 ? "/listing/"+VIEW.split(":")[1] :
          VIEW.indexOf("by:")===0 ? "/seller/"+VIEW.split(":")[1] :
@@ -9885,6 +10204,7 @@ function viewFromHash(){
   // Prefer the real path (/search?…); still understand old #/search links and convert them.
   var raw=(location.hash||"").replace(/^#\/?/,"");
   if(!raw) raw=location.pathname.replace(/^\/+/,"").replace(/\/+$/,"").replace(/^index\.html$/,"")+location.search;
+  if(countryFromPath()) raw=raw.replace(/^[a-z]{2}(\/|(?=\?)|$)/,"");
   if(PREVIEW){ var pvv=(location.search.match(/[?&]view=([a-z]+)/)||[])[1]; if(pvv) raw=pvv }
   var qIdx=raw.indexOf("?");
   var h = qIdx>-1 ? raw.slice(0,qIdx) : raw;
@@ -10023,6 +10343,8 @@ var HX_T={
   t3p:{ar:"اتصال أو واتساب مع المالك أو المكتب. لا وسطاء، ولا عمولة مخفية.",en:"Call or WhatsApp the owner or agency. No middlemen, no hidden commission.",de:"Anruf oder WhatsApp direkt an Eigentümer oder Büro. Keine Vermittler, keine versteckte Provision."},
   mapNote:{ar:"خريطة تقريبية · حجم النقطة يعكس عدد الإعلانات الحيّة",en:"Approximate map · dot size reflects live listings",de:"Ungefähre Karte · Punktgröße zeigt aktive Anzeigen"}
 };
+var FR_HX={pickE:"Commencez ici", navColl:"Collections", navAreas:"Explorer les quartiers", navGuide:"Guide de l'acheteur", navAgencies:"Pour les agences", govE:"Explorer les quartiers", guideE:"Guide de l'acheteur", ownE:"Pour les propriétaires et agences", collE:"Collections choisies", collH:"Pas seulement une recherche. Une découverte.", collS:"Des collections d'annonces vérifiées, parce que les plus belles maisons ne se résument pas à un nombre de pièces.", trE:"Pourquoi Balkoun", trH:"Un marché que nous connaissons maison par maison.", n1:"quartiers", n2:"gouvernorats", n3:"commission acheteur", t1:"Propriété vérifiée avant publication", t1p:"Le type de titre apparaît sur chaque annonce, et rien n'est publié avant l'examen des documents.", t2:"Un prix en contexte", t2p:"Chaque annonce affiche le prix moyen du m² dans son quartier sur les trente derniers jours.", t3:"Contact direct", t3p:"Appelez ou écrivez sur WhatsApp au propriétaire ou à l'agence. Sans intermédiaire ni commission cachée.", mapNote:"Carte approximative · la taille des points reflète les annonces en ligne"};
+Object.keys(FR_HX).forEach(function(k){ if(HX_T[k]) HX_T[k].fr=FR_HX[k] });
 function HX(k){ var o=HX_T[k]||{}; return o[L]||o.en||"" }
 
 /* every homepage section below the hero, in the admin's order; each has a show switch (home_<k>_on) and text overrides (<k>_<field>_<lang>) */
@@ -10877,6 +11199,25 @@ var GX_T={
   desc_mainpage:{ar:"معاينة حيّة للصفحة الرئيسية مع كل أقسامها: اختر قسماً، عدّله، شاهد النتيجة فوراً على الكمبيوتر أو الجوال، ثم احفظ.",en:"A live preview of the homepage with all its sections: pick a section, edit it, see the result instantly on desktop or phone, then save.",de:"Live-Vorschau der Startseite mit allen Abschnitten: Abschnitt wählen, bearbeiten, sofort am Desktop oder Handy sehen, dann speichern."},
   desc_design:{ar:"صفحة النتائج مع معاينة حيّة: حجم البطاقات، الشارات، عدد النتائج، وروابط الرأس والقائمة.",en:"The results page with a live preview: card size, badges, results per page, and the header and menu links.",de:"Ergebnisseite mit Live-Vorschau: Kartengröße, Abzeichen, Ergebnisse pro Seite, Kopfzeile und Menü."},
   desc_geo:{ar:"المحافظات والمناطق: الأسماء، الترتيب، الإظهار والإخفاء.",en:"Governorates and areas: names, order, shown or hidden.",de:"Provinzen und Gebiete: Namen, Reihenfolge, sichtbar oder verborgen."},
+  countriesTab:{ar:"الدول",en:"Countries",de:"Länder"}, desc_countries:{ar:"تشغيل الموقع في كل دولة أو إيقافه، الأسماء، العملات، رمز الهاتف، المناطق الزمنية وأنواع سند الملكية. سوريا هي الدولة الافتراضية.",en:"Turn the website on or off per country, and set names, currencies, phone code, time zones and deed types. Syria is the default country.",de:"Website pro Land ein- oder ausschalten; Namen, Währungen, Vorwahl, Zeitzonen und Urkundenarten. Syrien ist das Standardland."},
+  cEnabled:{ar:"الموقع يعمل في هذه الدولة",en:"Website is live in this country",de:"Website in diesem Land aktiv"}, cOff:{ar:"متوقفة",en:"Off",de:"Aus"}, cOn:{ar:"تعمل",en:"Live",de:"Aktiv"}, cDefault:{ar:"الدولة الافتراضية",en:"Default country",de:"Standardland"}, cMakeDefault:{ar:"اجعلها الافتراضية",en:"Make default",de:"Als Standard"},
+  cCurrencies:{ar:"العملات (الأولى هي الافتراضية، مفصولة بفاصلة)",en:"Currencies (first is the default, comma separated)",de:"Währungen (erste ist Standard, kommagetrennt)"}, cPhone:{ar:"رمز الهاتف",en:"Phone code",de:"Vorwahl"}, cTz:{ar:"المناطق الزمنية (لفتح الموقع تلقائياً على هذه الدولة)",en:"Time zones (used to open the site on this country automatically)",de:"Zeitzonen (öffnet die Website automatisch für dieses Land)"},
+  cLangs:{ar:"اللغات المتاحة",en:"Available languages",de:"Verfügbare Sprachen"}, cDeeds:{ar:"أنواع سند الملكية",en:"Deed types",de:"Urkundenarten"}, cStrong:{ar:"سند قوي",en:"Strong deed",de:"Starke Urkunde"}, cStrongHint:{ar:"الأنواع القوية تُحسب في عدّاد \"طابو أخضر\" على الصفحة الرئيسية.",en:"Strong types count towards the \"verified title\" number on the homepage.",de:"Starke Arten zählen zur Zahl \"geprüfter Titel\" auf der Startseite."},
+  cNotes:{ar:"ملاحظات داخلية",en:"Internal notes",de:"Interne Notizen"}, cRates:{ar:"سعر الصرف مقابل الدولار (لكل عملة)",en:"Exchange rate to USD (per currency)",de:"Wechselkurs zum US-Dollar (je Währung)"},
+  cCounts:{ar:"{g} محافظة · {a} منطقة · {l} إعلان · {w} طلب · {ag} مكتب · {ad} إعلان مدفوع",en:"{g} governorates · {a} areas · {l} listings · {w} requests · {ag} agencies · {ad} paid ads",de:"{g} Provinzen · {a} Gebiete · {l} Anzeigen · {w} Anfragen · {ag} Büros · {ad} Werbeplätze"},
+  cDisableWarn:{ar:"سيتوقف عرض هذه الدولة للزوار فوراً. الإعلانات والبيانات تبقى محفوظة ويمكن التشغيل مجدداً في أي وقت. متابعة؟",en:"Visitors will stop seeing this country immediately. Listings and data stay stored and you can turn it on again any time. Continue?",de:"Besucher sehen dieses Land sofort nicht mehr. Anzeigen und Daten bleiben gespeichert; Sie können es jederzeit wieder einschalten. Fortfahren?"},
+  cCantDisableDefault:{ar:"لا يمكن إيقاف الدولة الافتراضية. اجعل دولة أخرى افتراضية أولاً.",en:"The default country cannot be turned off. Make another country the default first.",de:"Das Standardland kann nicht ausgeschaltet werden. Machen Sie zuerst ein anderes Land zum Standard."},
+  cAddDeed:{ar:"إضافة نوع",en:"Add type",de:"Art hinzufügen"}, cCountry:{ar:"الدولة",en:"Country",de:"Land"}, cGovAdd:{ar:"إضافة محافظة",en:"Add governorate",de:"Provinz hinzufügen"}, cSuperOnly:{ar:"فقط المشرف الرئيسي يستطيع تشغيل الدول أو إيقافها.",en:"Only the super admin can turn countries on or off.",de:"Nur der Hauptadministrator kann Länder ein- oder ausschalten."},
+  cDeedCode:{ar:"الرمز",en:"Code",de:"Code"}, cSort:{ar:"الترتيب",en:"Order",de:"Reihenfolge"},
+  cChooseH:{ar:"اختر الدولة",en:"Choose your country",de:"Land wählen"}, cChooseP:{ar:"بلكون يعمل في أكثر من دولة. اختر الدولة التي تبحث فيها عن عقار، ويمكنك تغييرها لاحقاً من أعلى الصفحة.",en:"Balkoun works in more than one country. Pick the country where you are looking for a property; you can change it any time from the top of the page.",de:"Balkoun ist in mehreren Ländern aktiv. Wählen Sie das Land, in dem Sie eine Immobilie suchen; oben auf der Seite können Sie es jederzeit ändern."},
+  cChooseKeep:{ar:"المتابعة في {c}",en:"Continue in {c}",de:"Weiter in {c}"},
+  cChooserH:{ar:"شاشة اختيار الدولة عند الدخول",en:"Country chooser on opening",de:"Länderauswahl beim Öffnen"}, cChooserHint:{ar:"تلقائي: تظهر فقط لمن يدخل من دولة لا يخدمها الموقع (يُكتشف البلد من المنطقة الزمنية للجهاز ثم من عنوان الإنترنت)، وداخل الدول المخدومة يفتح الموقع مباشرة على دولة الزائر. دائماً: تظهر لكل زائر جديد. مطفأ: لا تظهر أبداً، والموقع يفتح على الدولة المكتشفة أو الافتراضية. اختيار الزائر يُحفظ على جهازه.",en:"Auto: shown only to visitors from a country the site does not serve (the country is detected from the device time zone, then the internet address); inside a served country the site opens on the visitor's country directly. Always: shown to every new visitor. Off: never shown; the site opens on the detected or default country. The visitor's choice is remembered on their device.",de:"Automatisch: nur für Besucher aus einem Land, das die Website nicht bedient (erkannt über die Zeitzone des Geräts, dann die Internetadresse); in einem bedienten Land öffnet die Website direkt das Land des Besuchers. Immer: für jeden neuen Besucher. Aus: nie; die Website öffnet das erkannte oder das Standardland. Die Wahl wird auf dem Gerät gespeichert."},
+  cChooserAuto:{ar:"تلقائي (موصى به)",en:"Auto (recommended)",de:"Automatisch (empfohlen)"}, cChooserAlways:{ar:"دائماً",en:"Always",de:"Immer"}, cChooserOff:{ar:"مطفأ",en:"Off",de:"Aus"},
+  videoH:{ar:"فيديو العقار (اختياري)",en:"Property video (optional)",de:"Video der Immobilie (optional)"}, videoAdd:{ar:"أضف فيديو",en:"Add a video",de:"Video hinzufügen"}, videoHint:{ar:"حتى {s} ثانية و{mb} ميغابايت · MP4 أو WebM · صوّر بالعرض إن أمكن",en:"Up to {s} seconds and {mb} MB · MP4 or WebM · landscape works best",de:"Bis {s} Sekunden und {mb} MB · MP4 oder WebM · Querformat wirkt am besten"},
+  videoTooLong:{ar:"الفيديو أطول من {s} ثانية. قصّه ثم أعد المحاولة.",en:"The video is longer than {s} seconds. Trim it and try again.",de:"Das Video ist länger als {s} Sekunden. Bitte kürzen und erneut versuchen."}, videoTooBig:{ar:"حجم الفيديو أكبر من {mb} ميغابايت.",en:"The video is larger than {mb} MB.",de:"Das Video ist größer als {mb} MB."}, videoBad:{ar:"تعذّر قراءة هذا الفيديو. جرّب ملف MP4.",en:"This video could not be read. Try an MP4 file.",de:"Dieses Video konnte nicht gelesen werden. Versuchen Sie eine MP4-Datei."},
+  videoReading:{ar:"جارٍ قراءة الفيديو…",en:"Reading the video…",de:"Video wird gelesen…"}, videoUploading:{ar:"جارٍ رفع الفيديو… {p}%",en:"Uploading the video… {p}%",de:"Video wird hochgeladen… {p}%"}, videoDone:{ar:"تم رفع الفيديو ✓",en:"Video uploaded ✓",de:"Video hochgeladen ✓"}, videoBadge:{ar:"فيديو",en:"Video",de:"Video"}, videoWatch:{ar:"شاهد الفيديو",en:"Watch the video",de:"Video ansehen"}, videoOff:{ar:"رفع الفيديو غير متاح حالياً.",en:"Video upload is not available right now.",de:"Video-Upload ist derzeit nicht verfügbar."}, videoLimit:{ar:"وصلت إلى الحد الأقصى من الفيديوهات لهذا الإعلان.",en:"This listing already has the maximum number of videos.",de:"Diese Anzeige hat bereits die maximale Anzahl an Videos."},
+  videoSetH:{ar:"فيديو الإعلانات",en:"Listing videos",de:"Anzeigen-Videos"}, videoSetHint:{ar:"يرفع المعلن فيديو قصيراً مع صور إعلانه؛ يظهر في صفحة الإعلان وعلى البطاقة بشارة ▶. الحد الأقصى المسموح به على الخادم لملف واحد هو 50 ميغابايت.",en:"Advertisers can upload a short video with their photos; it appears on the listing page and as a ▶ badge on the card. The server accepts single files up to 50 MB.",de:"Inserenten können ein kurzes Video zu ihren Fotos hochladen; es erscheint auf der Anzeigenseite und als ▶ auf der Karte. Der Server akzeptiert Einzeldateien bis 50 MB."},
+  videoEnabledL:{ar:"السماح للمعلنين برفع فيديو",en:"Allow advertisers to upload a video",de:"Inserenten dürfen ein Video hochladen"}, videoMaxMbL:{ar:"الحد الأقصى للحجم (ميغابايت)",en:"Maximum size (MB)",de:"Maximale Größe (MB)"}, videoMaxSL:{ar:"الحد الأقصى للمدة (ثانية)",en:"Maximum length (seconds)",de:"Maximale Länge (Sekunden)"}, videoMaxNL:{ar:"عدد الفيديوهات لكل إعلان",en:"Videos per listing",de:"Videos je Anzeige"},
   desc_contact:{ar:"حسابات التواصل الاجتماعي وأرقام التواصل كما تظهر في أسفل الموقع، مع معاينة حيّة.",en:"Social accounts and contact numbers as they appear in the site footer, with a live preview.",de:"Soziale Konten und Kontaktnummern wie im Footer, mit Live-Vorschau."},
   desc_reports:{ar:"بلاغات الزوّار عن الإعلانات: الرد، الأولوية، الإغلاق.",en:"Visitor reports about listings: reply, prioritise, close.",de:"Meldungen zu Anzeigen: antworten, priorisieren, schließen."},
   desc_feedback:{ar:"الشكاوى والاقتراحات المرسلة من صفحة التواصل.",en:"Complaints and suggestions sent from the contact page.",de:"Beschwerden und Vorschläge von der Kontaktseite."},
@@ -11011,7 +11352,7 @@ function heroSubHtml(txt){
 /* hero price field: label text and quick presets in the current currency */
 function heroPriceLabel(){
   // short numbers so a range fits in the box: $50k – $120k, 1.2M ل.س
-  var rate=SITE.syp_rate||CONFIG.rate, cur=CUR==="USD"?"$":"ل.س", k=function(n){ return n>=1e6 ? (Math.round(n/1e5)/10).toString().replace(/\.0$/,"")+"M" : n>=1000 ? (Math.round(n/100)/10).toString().replace(/\.0$/,"")+"k" : String(n) };
+  var rate=curRate(), cur=curLabel(CUR,"ar"), k=function(n){ return n>=1e6 ? (Math.round(n/1e5)/10).toString().replace(/\.0$/,"")+"M" : n>=1000 ? (Math.round(n/100)/10).toString().replace(/\.0$/,"")+"k" : String(n) };
   var f=function(v){ var n=CUR==="USD"?v:Math.round(v*rate); return CUR==="USD" ? cur+k(n) : k(n)+" "+cur };
   if(!F.pmin&&!F.pmax) return '<span class="ph">'+GX("price")+'</span>';
   if(F.pmin&&F.pmax) return '<span class="ltr">'+f(F.pmin)+' – '+f(F.pmax)+'</span>';
@@ -11020,9 +11361,10 @@ function heroPriceLabel(){
 }
 function heroPricePresets(){
   var sale=F.deal!=="rent", steps= sale ? [[0,50000],[50000,100000],[100000,200000],[200000,400000],[400000,0]] : [[0,200],[200,500],[500,1000],[1000,0]];
-  var rate=SITE.syp_rate||CONFIG.rate, f=function(v){ var n=CUR==="USD"?v:Math.round(v*rate); return CUR==="USD" ? "$"+n.toLocaleString("en") : n.toLocaleString("en") };
+  var rate=curRate(), f=function(v){ var n=CUR==="USD"?v:Math.round(v*rate); return CUR==="USD" ? "$"+n.toLocaleString("en") : n.toLocaleString("en") };
   return steps.map(function(s){ return [s[0],s[1], s[1]? (s[0]?f(s[0])+" – "+f(s[1]) : GX("upTo")+" "+f(s[1])) : f(s[0])+" "+GX("andUp")] });
 }
+Object.keys(FR_GX).forEach(function(k){ if(GX_T[k]) GX_T[k].fr=FR_GX[k] });
 function GX(k){ var o=GX_T[k]||{}; return o[L]||o.en||k }
 var AD_VIDEO_MAX_MB=8;
 /* extra site settings live in site_content.extras (JSON): SX(key, default) reads one */
@@ -11058,7 +11400,7 @@ function xLangs(prefix,label,defFn){ return '<div class="row3x">'+["ar","en","de
 /* ═══════════ Homepage studio: live preview + section outline + inspector; one Desktop/Phone switch drives both ═══════════ */
 var HS={page:"home",sel:"hero_text",selBy:{},device:"desk",lang:null,draft:{site:{},extras:{}},adDraft:{},adNew:null,adPendingDel:{},bDraft:null,bPendingDel:[]};
 var HS_PAGES={home:{url:"/",sel:"hero_text"},ads:{url:"/",sel:"row"},banners:{url:"/",sel:"b:0"},design:{url:"/search?deal=sale",sel:"cards"},contact:{url:"/?view=contactus",sel:"social"}};
-function hsPvUrl(){ var u=HS_PAGES[HS.page].url; return u+(u.indexOf("?")>-1?"&":"?")+"preview=1&lang="+hsLang() }
+function hsPvUrl(){ var u=HS_PAGES[HS.page].url; return u+(u.indexOf("?")>-1?"&":"?")+"preview=1&country="+COUNTRY+"&lang="+hsLang() }
 var HS_T={
  desk:{ar:"كمبيوتر",en:"Desktop",de:"Desktop"}, phone:{ar:"جوال",en:"Phone",de:"Handy"},
  saveAll:{ar:"حفظ التغييرات",en:"Save changes",de:"Änderungen speichern"}, discard:{ar:"تراجع",en:"Discard",de:"Verwerfen"},
@@ -11154,7 +11496,7 @@ function hsAdList(){ var rows=(ADM.adSlots||[]).map(function(a){ return Object.a
 function hsAdMode(a){ return a._mode||(a.linked_listing_id?"linked":a.video_embed_url?"video_embed":"upload") }
 function hsAdName(a,i){ var lst=a.linked_listing_id?((ADM.data&&ADM.data.listings||[]).filter(function(l){ return String(l.id)===String(a.linked_listing_id) })[0]):null; return a.label||a.sponsor_name||(lst&&lst.ref)||(a.linked_listing_id?"BK "+a.linked_listing_id:"")||(a.id==="new"?hsT("adNew"):"#"+(i+1)) }
 function hsAdPayload(a){
-  var mode=hsAdMode(a), p={p_token:ADM.token,p_id:a.id==="new"?null:+a.id,p_position:null,p_enabled:a.enabled!==false,p_label:a.label||"",p_image_url:null,p_link_url:null,p_media_type:"image",p_linked_listing_id:null,p_image_urls:[],p_video_embed_url:null,
+  var mode=hsAdMode(a), p={p_token:ADM.token,p_country:COUNTRY,p_id:a.id==="new"?null:+a.id,p_position:null,p_enabled:a.enabled!==false,p_label:a.label||"",p_image_url:null,p_link_url:null,p_media_type:"image",p_linked_listing_id:null,p_image_urls:[],p_video_embed_url:null,
     p_sponsor_name:a.sponsor_name||null,p_overlay_top:a.overlay_top||null,p_overlay_bottom:a.overlay_bottom||null,p_starts_at:a.starts_at||null,p_expires_at:a.expires_at||null};
   if(mode==="linked"){ if(!a.linked_listing_id) throw new Error(t("adPickListingL")); p.p_linked_listing_id=+a.linked_listing_id }
   else if(mode==="video_embed"){ if(!a.video_embed_url || !videoEmbedInfo(a.video_embed_url)) throw new Error(t("adInvalidVideoUrl")); p.p_video_embed_url=a.video_embed_url; p.p_link_url=a.link_url||null }
@@ -11434,9 +11776,9 @@ function hsWire(){
   $("#hsSave").onclick=async function(){ var btn=this, msg=$("#hsMsg"); var patch=Object.assign({},HS.draft.site); var ex={}; Object.keys(HS.draft.extras).forEach(function(k){ var v=HS.draft.extras[k]; ex[k]=(v===""||v===undefined)?null:v }); if(Object.keys(ex).length) patch.extras=ex;
     btn.disabled=true; btn.textContent=t("saving");
     try{
-      if(Object.keys(patch).length){ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:patch});
+      if(Object.keys(patch).length){ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:patch,p_country:COUNTRY});
         Object.keys(patch).forEach(function(k){ if(k==="extras"){ var cur=SITE.extras; if(typeof cur==="string"){ try{ cur=JSON.parse(cur) }catch(e){ cur={} } } cur=Object.assign({},cur||{},patch.extras); Object.keys(cur).forEach(function(kk){ if(cur[kk]===null) delete cur[kk] }); SITE.extras=cur } else SITE[k]=patch[k] });
-        try{ localStorage.setItem("balkoun_site",JSON.stringify(SITE)) }catch(e){} }
+        try{ localStorage.setItem(siteCacheKey(),JSON.stringify(SITE)) }catch(e){} }
       var adsChanged=false, codes=[], ids=Object.keys(HS.adDraft);
       for(var i=0;i<ids.length;i++){ var a=hsAdRow(ids[i]); if(!a) continue; var rr=await rpc("bk_admin_save_ad",hsAdPayload(a)); if(rr&&rr.code) codes.push(rr.code); adsChanged=true; (HS.adPendingDel[ids[i]]||[]).forEach(function(u){ replaceStorageFile(u) }) }
       if(HS.adNew){ var rn=await rpc("bk_admin_save_ad",hsAdPayload(Object.assign({id:"new"},HS.adNew))); if(rn&&rn.code) codes.push(rn.code); adsChanged=true }
@@ -11444,7 +11786,7 @@ function hsWire(){
           var aU=A.enabled?(A.items||[]).map(function(x){return x.url}):[], bU=B.enabled?(B.items||[]).map(function(x){return x.url}):[];
           for(var k1=0;k1<bU.length;k1++){ if(aU.indexOf(bU[k1])===-1){ try{ var er=await rpc("bk_admin_engage",{p_token:ADM.token,p_kind:"banner",p_ref_id:bi+1,p_ref_text:bU[k1],p_title:GX("engBannerN").replace("{n}",bi+1)}); if(er&&er.code) codes.push(er.code) }catch(e){} } }
           for(var k2=0;k2<aU.length;k2++){ if(bU.indexOf(aU[k2])===-1){ try{ await rpc("bk_admin_engage_end",{p_token:ADM.token,p_kind:"banner",p_ref_id:bi+1,p_ref_text:aU[k2],p_status:"ended"}) }catch(e){} } } } }
-      if(adsChanged){ try{ ADM.adSlots=(await rpc("bk_admin_list_ads",{p_token:ADM.token}))||[] }catch(e){} HS.adDraft={}; HS.adNew=null; HS.adPendingDel={}; if(HS.sel==="ad:new") HS.sel="row"; try{ await loadAdSlots() }catch(e){}
+      if(adsChanged){ try{ ADM.adSlots=(await rpc("bk_admin_list_ads",{p_token:ADM.token,p_country:COUNTRY}))||[] }catch(e){} HS.adDraft={}; HS.adNew=null; HS.adPendingDel={}; if(HS.sel==="ad:new") HS.sel="row"; try{ await loadAdSlots() }catch(e){}
         var f=$("#hsFrame"); if(f&&f.contentWindow){ try{ f.contentWindow.postMessage({type:"bk-preview",reloadAds:true},location.origin) }catch(e){} } }
       HS.bPendingDel.forEach(function(u){ replaceStorageFile(u) }); HS.bPendingDel=[]; HS.bDraft=null; HS.bBefore=null; ADM._engDays=null;
       HS.draft={site:{},extras:{}}; applySectionGapVars(); applySiteExtras(); applyBannerSizeVar(); if(msg) msg.textContent=t("savedOk")+(codes.length?' · '+GX("engCodeIs")+' '+codes.join(", "):''); hsRenderOutline(); hsRenderInsp(); if(!adsChanged) hsPush(true);
@@ -11457,7 +11799,7 @@ function hsWire(){
     var aeye=e.target.closest("[data-hsaeye]"), amv=e.target.closest("[data-hsamv]"), beye=e.target.closest("[data-hsbeye]"), anew=e.target.closest("#hsAdNew");
     if(anew){ HS.adNew={id:"new",enabled:true,_mode:"upload"}; HS.sel="ad:new"; HS.selBy[HS.page]=HS.sel; hsDirtyUI(); hsRenderOutline(); hsRenderInsp(); hsPush(true); return }
     if(aeye){ var id=aeye.dataset.hsaeye, a=hsAdRow(id); if(a){ hsAdSet(id,"enabled",a.enabled===false); hsPush(true); hsRenderOutline(); hsRenderInsp() } return }
-    if(amv){ var p2=amv.dataset.hsamv.split(":"); amv.disabled=true; try{ await rpc("bk_admin_move_ad",{p_token:ADM.token,p_id:+p2[0],p_dir:p2[1]}); ADM.adSlots=(await rpc("bk_admin_list_ads",{p_token:ADM.token}))||[]; try{ await loadAdSlots() }catch(e2){} }catch(err){} hsRenderOutline(); hsPush(true); return }
+    if(amv){ var p2=amv.dataset.hsamv.split(":"); amv.disabled=true; try{ await rpc("bk_admin_move_ad",{p_token:ADM.token,p_id:+p2[0],p_dir:p2[1]}); ADM.adSlots=(await rpc("bk_admin_list_ads",{p_token:ADM.token,p_country:COUNTRY}))||[]; try{ await loadAdSlots() }catch(e2){} }catch(err){} hsRenderOutline(); hsPush(true); return }
     if(beye){ var bi=+beye.dataset.hsbeye; hsBSet(bi,"enabled",!hsBDraft()[bi].enabled); hsPush(true); hsRenderOutline(); hsRenderInsp(); return }
     if(eye){ var k=eye.dataset.hseye; if(k==="hero_bg"){ var cur=hsVal("c:hero_bg_type")||"sketch"; if(cur!=="none"){ hsSet("x:hero_bg_prev",cur); hsSet("c:hero_bg_type","none") } else hsSet("c:hero_bg_type",hsVal("x:hero_bg_prev")||"sketch") }
       else { var key=k==="hero_text"?"c:hero_enabled":k==="hero_stats"?"c:stats_enabled":(HS_EYE[k]||("x:home_"+k+"_on")); var v=hsVal(key); var on=v===""?true:(v!==false&&v!=="false"); hsSet(key,!on) }
@@ -11503,7 +11845,7 @@ function hsWire(){
     var bc=e.target.closest("[data-hsbclear]"); if(bc){ hsBSet(+HS.sel.slice(2),bc.dataset.hsbclear,null); hsPush(true); hsRenderInsp(); return }
     var brm=e.target.closest("[data-hsbrm]"); if(brm){ var bi=+HS.sel.slice(2), removed=hsBDraft()[bi].items.splice(+brm.dataset.hsbrm,1); if(removed[0]) HS.bPendingDel.push(removed[0].url); hsBSet(bi,"items",hsBDraft()[bi].items); hsPush(true); hsRenderInsp(); hsRenderOutline(); return }
     var ac=e.target.closest("[data-hsaclear]"); if(ac){ var id=HS.sel.slice(3), a=hsAdRow(id)||{}; var old=[].concat(a.image_url?[a.image_url]:[],a.image_urls||[]); if(old.length && id!=="new") (HS.adPendingDel[id]=HS.adPendingDel[id]||[]).push.apply(HS.adPendingDel[id],old); hsAdSet(id,"image_url",null); hsAdSet(id,"image_urls",[]); hsAdSet(id,"media_type","image"); hsPush(true); hsRenderInsp(); hsRenderOutline(); return }
-    var del=e.target.closest("#hsAdDel"); if(del){ if(!confirm(t("confirmDel"))) return; var did=HS.sel.slice(3); del.disabled=true; try{ await rpc("bk_admin_delete_ad",{p_token:ADM.token,p_id:+did}); delete HS.adDraft[did]; ADM.adSlots=(await rpc("bk_admin_list_ads",{p_token:ADM.token}))||[]; try{ await loadAdSlots() }catch(e2){} HS.sel="row"; HS.selBy[HS.page]=HS.sel; hsRenderOutline(); hsRenderInsp(); hsPush(true); hsDirtyUI() }catch(err){ alert(err.message||"error"); del.disabled=false } return }
+    var del=e.target.closest("#hsAdDel"); if(del){ if(!confirm(t("confirmDel"))) return; var did=HS.sel.slice(3); del.disabled=true; try{ await rpc("bk_admin_delete_ad",{p_token:ADM.token,p_id:+did}); delete HS.adDraft[did]; ADM.adSlots=(await rpc("bk_admin_list_ads",{p_token:ADM.token,p_country:COUNTRY}))||[]; try{ await loadAdSlots() }catch(e2){} HS.sel="row"; HS.selBy[HS.page]=HS.sel; hsRenderOutline(); hsRenderInsp(); hsPush(true); hsDirtyUI() }catch(err){ alert(err.message||"error"); del.disabled=false } return }
     var ar=e.target.closest("[data-arange]"); if(ar){ ADM.range=+ar.dataset.arange; ADM._anLoaded=false; render(); return }
     var g=e.target.closest("[data-hsgo]"); if(g){ if(hsDirty() && !confirm(hsT("dirty"))) return; HS.draft={site:{},extras:{}}; HS.adDraft={}; HS.adNew=null; HS.bDraft=null; window.onbeforeunload=null; ADM.tab=g.dataset.hsgo; render() } };
   hsDirtyUI();
@@ -11805,7 +12147,7 @@ function adminUsersBody(d){
     '<span class="n" style="font-size:13px;color:var(--grey)"><span class="ltr">'+list.length+'</span> '+GX("uCount")+'</span></div>';
   var rows=list.map(function(u){
     var nm=((u.name||"")+" "+(u.family_name||"")).trim()||"—", isAdmin=u.role==="admin", open=ADM.userOpen===u.id;
-    var joined=u.created_at?new Date(u.created_at).toLocaleDateString(L==="ar"?"ar-SY":L==="de"?"de-DE":"en-GB",{year:"numeric",month:"short",day:"numeric"}):"";
+    var joined=u.created_at?new Date(u.created_at).toLocaleDateString(L==="ar"?"ar-SY":L==="de"?"de-DE":L==="fr"?"fr-FR":"en-GB",{year:"numeric",month:"short",day:"numeric"}):"";
     var html='<tr data-row-text="'+esc((nm+" "+(u.phone||"")).toLowerCase())+'" class="'+(open?"uopen":"")+'">'+
       '<td data-label="'+t("contactName")+'"><div class="ucell">'+avatar(u.avatar_url,u.name,36)+'<div><a data-byuser="'+u.id+'" data-name="'+esc(nm)+'" class="uname">'+esc(nm)+'</a>'+levelBadge(u.level)+
         '<div class="usub"><span class="ltr">'+(u.phone||GX("uNoPhone"))+'</span>'+(joined?' · '+GX("uJoined")+' '+joined:'')+'</div></div></div></td>'+
@@ -11898,28 +12240,38 @@ function applyGeo(geo){
   Object.keys(GOVN).forEach(function(k){ if(D.GOVN&&D.GOVN[k]&&!(geo.g.find(function(g){return g[1]===k})||[])[2]) GOVN[k]=D.GOVN[k] });
   D.GEO=GEO; D.GOVN=GOVN; GEO_META=meta;
 }
-function applyGeoCache(){ try{ var c=localStorage.getItem("balkoun_geo"); if(c) applyGeo(JSON.parse(c)) }catch(e){} }
+function applyGeoCache(){ try{ var c=localStorage.getItem(geoCacheKey()); if(c) applyGeo(JSON.parse(c)) }catch(e){} }
 async function loadGeo(){
   if(!DB) return;
-  try{ var r=await DB.rpc("bk_geo"); if(r&&r.data&&r.data.g&&r.data.g.length){ applyGeo(r.data); try{ localStorage.setItem("balkoun_geo", JSON.stringify(r.data)) }catch(e){} } }catch(e){}
+  try{ var r=await DB.rpc("bk_geo",cArgs()); if(r&&r.data&&r.data.g&&r.data.g.length){ applyGeo(r.data); try{ localStorage.setItem(geoCacheKey(), JSON.stringify(r.data)) }catch(e){} } }catch(e){}
 }
 function geoKind(gov, area){ return (GEO_META.kind[gov]||{})[area]||"area" }
-function govPageUrl(gov, deal){ var s=GEO_META.govSlug[gov]; return s ? "/"+(deal==="rent"?"for-rent":"for-sale")+"/"+s+"/" : null }
-function areaPageUrl(gov, area, deal){ var g=GEO_META.govSlug[gov], a=GEO_META.areaSlug[gov+"/"+area]; return g&&a ? "/"+(deal==="rent"?"for-rent":"for-sale")+"/"+g+"/"+a+"/" : null }
+function cPre(){ return COUNTRY==="SY" ? "" : "/"+COUNTRY.toLowerCase() }   // static pages of another country live under /lb/, /jo/ …
+function govPageUrl(gov, deal){ var s=GEO_META.govSlug[gov]; return s ? cPre()+"/"+(deal==="rent"?"for-rent":"for-sale")+"/"+s+"/" : null }
+function areaPageUrl(gov, area, deal){ var g=GEO_META.govSlug[gov], a=GEO_META.areaSlug[gov+"/"+area]; return g&&a ? cPre()+"/"+(deal==="rent"?"for-rent":"for-sale")+"/"+g+"/"+a+"/" : null }
 
 /* admin › areas tab */
+function flagOf(code){ return String(code||"").toUpperCase().replace(/./g,function(c){ return String.fromCodePoint(127397+c.charCodeAt(0)) }) }
+function countryName(c){ return c ? (L==="ar"?c.name_ar:L==="de"?(c.name_de||c.name_en):L==="fr"?(c.name_fr||c.name_en):c.name_en) : "" }
 function geoAdminBody(){
   var G=ADM.geo; if(!G) return '<div class="done2"><b>'+t("loading")+'</b></div>';
   var govs=G.governorates||[], areas=G.areas||[];
+  var CS=ADM.countries||[]; ADM.geoCountry=ADM.geoCountry||"SY";
+  if(ADM.geoGov && !govs.some(function(x){ return x.id===ADM.geoGov })) ADM.geoGov=null;
   if(!ADM.geoGov && govs.length) ADM.geoGov=govs[0].id;
+  var countryBar=(CS.length>1?'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px"><b style="font-size:13.5px">'+GX("cCountry")+':</b>'+CS.map(function(c){ return '<button type="button" class="ab'+(c.code===ADM.geoCountry?' ok':'')+'" data-geocountry="'+c.code+'">'+flagOf(c.code)+' '+esc(countryName(c))+(c.enabled?'':' · '+GX("cOff"))+'</button>' }).join("")+'</div>':'');
+  var govAdd=(ADM.geoGovAddOpen?'<div style="display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:8px;align-items:center;padding:10px;border:1px dashed var(--gold);border-radius:8px;margin-bottom:12px">'+
+     '<input id="geoGovNewAr" placeholder="'+GX("nameAr")+'"><input id="geoGovNewEn" placeholder="'+GX("nameEn")+'"><input id="geoGovNewSlug" placeholder="'+GX("slug")+'" class="ltr"><button class="ab ok" id="geoGovAddSave">'+GX("add")+'</button><button class="ab" id="geoGovAddCancel">'+t("cancel")+'</button></div>'
+     :'');
   var g=govs.filter(function(x){return x.id===ADM.geoGov})[0]||govs[0];
   var rows=areas.filter(function(a){return g&&a.governorate_id===g.id});
   var kindSel=function(v,id){ return '<select data-gk="'+id+'">'+["city","area","village"].map(function(k){return '<option value="'+k+'"'+(v===k?" selected":"")+'>'+GX(k)+'</option>'}).join("")+'</select>' };
-  return '<div class="blk"><h3>'+GX("geoH")+'</h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+GX("geoHint")+'</div>'+
+  return '<div class="blk"><h3>'+GX("geoH")+'</h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+GX("geoHint")+'</div>'+countryBar+
    '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px"><select id="geoGov" style="padding:8px 12px;border:1px solid var(--line-2);border-radius:8px;font-size:14px">'+
      govs.map(function(x){return '<option value="'+x.id+'"'+(g&&x.id===g.id?" selected":"")+'>'+esc(x.name_ar)+' ('+x.areas+' · '+x.listings+' '+GX("listings")+')'+(x.enabled?"":" · ✕")+'</option>'}).join("")+'</select>'+
+     '<button class="ab" id="geoGovAddOpen">+ '+GX("cGovAdd")+'</button>'+
      (g&&g.slug?'<a class="mini" style="color:var(--navy);border-color:var(--line-2)" href="/for-sale/'+esc(g.slug)+'/" target="_blank" rel="noopener">'+GX("pages")+' ↗</a>':'')+
-     '<span id="geoMsg" style="font-size:12.5px;color:var(--ok)"></span></div>'+
+     '<span id="geoMsg" style="font-size:12.5px;color:var(--ok)"></span></div>'+govAdd+
    (g?'<div class="geogov" style="display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:8px;align-items:center;padding:10px;background:var(--page);border-radius:8px;margin-bottom:12px">'+
      '<input data-gg="name_ar" value="'+esc(g.name_ar)+'" placeholder="'+GX("nameAr")+'"><input data-gg="name_en" value="'+esc(g.name_en||"")+'" placeholder="'+GX("nameEn")+'"><input data-gg="slug" value="'+esc(g.slug||"")+'" placeholder="'+GX("slug")+'" class="ltr">'+
      '<label style="display:flex;gap:6px;align-items:center;font-size:13px"><input type="checkbox" data-gg="enabled"'+(g.enabled?" checked":"")+'>'+GX("shown")+'</label><button class="ab ok" id="geoGovSave">'+GX("save")+'</button></div>':'')+
@@ -11931,11 +12283,84 @@ function geoAdminBody(){
      '<input id="geoNewName" placeholder="'+GX("nameAr")+'" style="border-color:var(--gold)"><input id="geoNewEn" placeholder="'+GX("nameEn")+'"><input id="geoNewSlug" placeholder="'+GX("slug")+'" class="ltr">'+kindSel("area","new")+'<input id="geoNewOrder" type="number" value="100" style="width:64px"><span></span><span></span><button class="ab ok" id="geoAdd">'+GX("add")+'</button>'+
    '</div></div></div>';
 }
+function adminCountrySelHtml(){
+  var CS=ADM.countries||[]; if(CS.length<2) return '';
+  return '<select class="adm-lang adm-country" id="aCountry" aria-label="'+esc(GX("cCountry"))+'">'+CS.map(function(c){ return '<option value="'+c.code+'"'+(c.code===COUNTRY?' selected':'')+'>'+esc(countryName(c))+(c.enabled?'':' · '+GX("cOff"))+'</option>' }).join("")+'</select>';
+}
+function adminCountriesBody(){
+  var CS=ADM.countries; if(!CS) return '<div class="done2"><b>'+t("loading")+'</b></div>';
+  var LANGS=[["ar","العربية"],["en","English"],["de","Deutsch"],["fr","Français"],["tr","Türkçe"]];
+  var chooser='<div class="blk" style="margin-bottom:14px"><h3>'+GX("cChooserH")+'</h3><div class="in"><div class="hintx" style="margin-bottom:8px">'+GX("cChooserHint")+'</div>'+
+    '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><select id="cChooser"'+(ADM.isSuper?'':' disabled')+'>'+[["auto",GX("cChooserAuto")],["always",GX("cChooserAlways")],["off",GX("cChooserOff")]].map(function(o){ return '<option value="'+o[0]+'"'+(CHOOSER_MODE===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select><span id="cChooserMsg" style="font-size:12.5px;color:var(--ok)"></span></div></div></div>';
+  return (ADM.isSuper?'':'<div class="hintx" style="margin-bottom:12px">'+GX("cSuperOnly")+'</div>')+chooser+
+   '<div id="cMsg" style="font-size:13px;min-height:18px;margin-bottom:6px;color:var(--ok)"></div>'+
+   CS.map(function(c){
+    var open=ADM.cOpen===c.code, ro=ADM.isSuper?'':' disabled';
+    var counts=GX("cCounts").replace("{g}",c.govs).replace("{a}",c.areas).replace("{l}",c.listings).replace("{w}",c.wanted).replace("{ag}",c.agencies).replace("{ad}",c.ads);
+    var rates=c.rates||{};
+    return '<div class="blk" style="margin-bottom:14px"><h3 style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;cursor:pointer" data-copen="'+c.code+'">'+
+      '<span style="font-size:22px">'+flagOf(c.code)+'</span><span>'+esc(c.name_ar)+' · '+esc(c.name_en)+'</span><span class="ltr" style="font-size:12px;color:var(--grey)">'+c.code+'</span>'+
+      (c.is_default?'<span class="lvl lvl-vip">'+GX("cDefault")+'</span>':'')+
+      '<span style="margin-inline-start:auto;font-size:12.5px;font-weight:600;color:'+(c.enabled?'var(--ok)':'var(--danger)')+'">● '+(c.enabled?GX("cOn"):GX("cOff"))+'</span>'+
+      '<label style="display:flex;gap:6px;align-items:center;font-size:13px;font-weight:600"><input type="checkbox" data-ctoggle="'+c.code+'"'+(c.enabled?' checked':'')+ro+'>'+GX("cEnabled")+'</label></h3>'+
+     '<div class="in"><div style="font-size:12.5px;color:var(--grey);margin-bottom:10px" class="ltrnum">'+counts+'</div>'+
+     (open?'<div class="row"><div class="fl"><label>'+GX("nameAr")+'</label><input data-cf="name_ar:'+c.code+'" value="'+esc(c.name_ar)+'"'+ro+'></div><div class="fl"><label>'+GX("nameEn")+'</label><input data-cf="name_en:'+c.code+'" value="'+esc(c.name_en)+'"'+ro+'></div><div class="fl"><label>Deutsch</label><input data-cf="name_de:'+c.code+'" value="'+esc(c.name_de||"")+'"'+ro+'></div><div class="fl"><label>Français</label><input data-cf="name_fr:'+c.code+'" value="'+esc(c.name_fr||"")+'"'+ro+'></div></div>'+
+       '<div class="row"><div class="fl"><label>'+GX("cCurrencies")+'</label><input data-cf="currencies:'+c.code+'" value="'+esc((c.currencies||[]).join(", "))+'" class="ltr"'+ro+'></div><div class="fl"><label>'+GX("cPhone")+'</label><input data-cf="phone_code:'+c.code+'" value="'+esc(c.phone_code||"")+'" class="ltr"'+ro+'></div><div class="fl"><label>'+GX("cSort")+'</label><input data-cf="sort_order:'+c.code+'" type="number" value="'+(c.sort_order||100)+'"'+ro+'></div></div>'+
+       '<div class="row"><div class="fl"><label>'+GX("cRates")+'</label><div style="display:flex;gap:8px;flex-wrap:wrap">'+(c.currencies||[]).filter(function(x){ return x!=="USD" }).map(function(x){ return '<label style="display:flex;gap:6px;align-items:center;font-size:13px"><b class="ltr">1 USD = </b><input data-crate="'+x+':'+c.code+'" type="number" step="any" value="'+(rates[x]||"")+'" style="width:120px" class="ltr"'+ro+'><b class="ltr">'+x+'</b></label>' }).join("")+'</div></div>'+
+       '<div class="fl"><label>'+GX("cTz")+'</label><input data-cf="tz:'+c.code+'" value="'+esc((c.tz||[]).join(", "))+'" class="ltr"'+ro+'></div></div>'+
+       '<div class="fl"><label>'+GX("cLangs")+'</label><div class="chkgrid">'+LANGS.map(function(l){ return '<label><input type="checkbox" data-clang="'+l[0]+':'+c.code+'"'+((c.languages||[]).indexOf(l[0])>-1?' checked':'')+ro+'> '+l[1]+'</label>' }).join("")+'</div></div>'+
+       '<div class="fl"><label>'+GX("cNotes")+'</label><textarea data-cf="notes:'+c.code+'" rows="2"'+ro+'>'+esc(c.notes||"")+'</textarea></div>'+
+       '<div class="fl"><label>'+GX("cDeeds")+'</label><div class="hintx" style="margin-bottom:6px">'+GX("cStrongHint")+'</div>'+
+        '<div style="display:grid;grid-template-columns:.7fr 1fr 1fr 1fr .5fr auto auto auto;gap:6px 8px;align-items:center;font-size:13px">'+
+        '<b>'+GX("cDeedCode")+'</b><b>'+GX("nameAr")+'</b><b>'+GX("nameEn")+'</b><b>Français</b><b>'+GX("cSort")+'</b><b>'+GX("cStrong")+'</b><b>'+GX("shown")+'</b><b></b>'+
+        (c.deeds||[]).map(function(d){ return '<span class="ltr" style="color:var(--grey)">'+esc(d.code)+'</span><input data-cd="ar:'+c.code+':'+d.code+'" value="'+esc(d.ar)+'"'+ro+'><input data-cd="en:'+c.code+':'+d.code+'" value="'+esc(d.en)+'"'+ro+'><input data-cd="fr:'+c.code+':'+d.code+'" value="'+esc(d.fr||"")+'"'+ro+'><input data-cd="sort_order:'+c.code+':'+d.code+'" type="number" value="'+(d.sort_order||100)+'" style="width:60px"'+ro+'><input type="checkbox" data-cd="strong:'+c.code+':'+d.code+'"'+(d.strong?' checked':'')+ro+'><input type="checkbox" data-cd="enabled:'+c.code+':'+d.code+'"'+(d.enabled?' checked':'')+ro+'><button class="ab ok" data-cdsave="'+c.code+':'+d.code+'"'+ro+'>'+GX("save")+'</button>' }).join("")+
+        '<input data-cdnew="code:'+c.code+'" placeholder="'+GX("cDeedCode")+'" class="ltr" style="border-color:var(--gold)"'+ro+'><input data-cdnew="ar:'+c.code+'" placeholder="'+GX("nameAr")+'"'+ro+'><input data-cdnew="en:'+c.code+'" placeholder="'+GX("nameEn")+'"'+ro+'><input data-cdnew="fr:'+c.code+'" placeholder="Français"'+ro+'><input data-cdnew="sort_order:'+c.code+'" type="number" value="100" style="width:60px"'+ro+'><input type="checkbox" data-cdnew="strong:'+c.code+'"'+ro+'><span></span><button class="ab ok" data-cdadd="'+c.code+'"'+ro+'>'+GX("cAddDeed")+'</button>'+
+        '</div></div>'+
+       '<div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap"><button class="ab ok" data-csave="'+c.code+'"'+ro+'>'+GX("save")+'</button>'+(c.is_default?'':'<button class="ab" data-cdefault="'+c.code+'"'+ro+'>'+GX("cMakeDefault")+'</button>')+'</div>'
+     :'')+'</div></div>' }).join("");
+}
+function wireAdminCountries(){
+  if(ADM.tab!=="countries") return;
+  if(!ADM.countries){ DB.rpc("bk_admin_countries",{p_token:ADM.token}).then(function(r){ if(r&&r.data){ ADM.countries=r.data; if(!ADM.cOpen) ADM.cOpen=r.data[0]&&r.data[0].code; render() } }); return }
+  var msg=function(s,bad){ var m=$("#cMsg"); if(m){ m.textContent=s; m.style.color=bad?"var(--danger)":"var(--ok)" } };
+  var reload=function(){ return DB.rpc("bk_admin_countries",{p_token:ADM.token}).then(function(r){ if(r&&r.data) ADM.countries=r.data; render() }) };
+  var set=function(code,patch){ return DB.rpc("bk_admin_country_set",{p_token:ADM.token,p_code:code,p_patch:patch}).then(function(r){ if(r.error){ msg(r.error.message||"error",true); return reload() } msg(GX("saved")); return reload() }) };
+  var byCode=function(code){ return (ADM.countries||[]).filter(function(c){ return c.code===code })[0] };
+  if($("#cChooser")) $("#cChooser").onchange=function(){ var v=this.value; DB.rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:{country_chooser:v}},p_country:"SY"}).then(function(r){ var m=$("#cChooserMsg"); if(r.error){ if(m){ m.textContent=r.error.message; m.style.color="var(--danger)" } return } CHOOSER_MODE=v; try{ var cc=JSON.parse(localStorage.getItem("balkoun_countries")||"null"); if(cc){ cc.chooser=v; localStorage.setItem("balkoun_countries",JSON.stringify(cc)) } }catch(e){} if(m) m.textContent=GX("saved") }) };
+  $$("[data-copen]").forEach(function(h){ h.onclick=function(e){ if(e.target.closest("label,input")) return; ADM.cOpen=ADM.cOpen===h.dataset.copen?null:h.dataset.copen; render() } });
+  $$("[data-ctoggle]").forEach(function(i){ i.onchange=function(){
+    var c=byCode(i.dataset.ctoggle);
+    if(!i.checked && c && c.is_default){ i.checked=true; return msg(GX("cCantDisableDefault"),true) }
+    if(!i.checked && !confirm(GX("cDisableWarn"))){ i.checked=true; return }
+    set(i.dataset.ctoggle,{enabled:i.checked}) } });
+  $$("[data-cdefault]").forEach(function(b){ b.onclick=function(){ set(b.dataset.cdefault,{is_default:true,enabled:true}) } });
+  $$("[data-csave]").forEach(function(b){ b.onclick=function(){
+    var code=b.dataset.csave, p={}, list=function(v){ return String(v||"").split(/[,،\s]+/).map(function(x){ return x.trim() }).filter(Boolean) };
+    $$('[data-cf$=":'+code+'"]').forEach(function(i){ var k=i.dataset.cf.split(":")[0]; p[k]= k==="currencies"?list(i.value).map(function(x){ return x.toUpperCase() }) : k==="tz"?list(i.value) : k==="sort_order"?parseInt(i.value,10)||100 : i.value });
+    p.languages=$$('[data-clang$=":'+code+'"]').filter(function(i){ return i.checked }).map(function(i){ return i.dataset.clang.split(":")[0] });
+    var rates={}; $$('[data-crate$=":'+code+'"]').forEach(function(i){ var v=parseFloat(i.value); if(v>0) rates[i.dataset.crate.split(":")[0]]=v }); p.rates=rates;
+    set(code,p) } });
+  var deedPatch=function(code,dcode){ var p={}; $$('[data-cd$=":'+code+':'+dcode+'"]').forEach(function(i){ var k=i.dataset.cd.split(":")[0]; p[k]= i.type==="checkbox"?i.checked : k==="sort_order"?parseInt(i.value,10)||100 : i.value }); return p };
+  $$("[data-cdsave]").forEach(function(b){ b.onclick=function(){ var a=b.dataset.cdsave.split(":");
+    DB.rpc("bk_admin_deed_save",{p_token:ADM.token,p_country:a[0],p_code:a[1],p_patch:deedPatch(a[0],a[1])}).then(function(r){ if(r.error) return msg(r.error.message,true); msg(GX("saved")); reload() }) } });
+  $$("[data-cdadd]").forEach(function(b){ b.onclick=function(){ var code=b.dataset.cdadd, p={};
+    $$('[data-cdnew$=":'+code+'"]').forEach(function(i){ var k=i.dataset.cdnew.split(":")[0]; p[k]= i.type==="checkbox"?i.checked : k==="sort_order"?parseInt(i.value,10)||100 : i.value.trim() });
+    var dc=String(p.code||"").toLowerCase().replace(/[^a-z0-9_]+/g,"_"); if(!dc||!p.ar) return; delete p.code;
+    DB.rpc("bk_admin_deed_save",{p_token:ADM.token,p_country:code,p_code:dc,p_patch:p}).then(function(r){ if(r.error) return msg(r.error.message,true); msg(GX("saved")); reload() }) } });
+}
 function wireGeoAdmin(){
   if(ADM.tab!=="geo") return;
-  if(!ADM._geoLoaded){ ADM._geoLoaded=true; DB.rpc("bk_admin_geo_list",{p_token:ADM.token}).then(function(r){ if(r&&r.data){ ADM.geo=r.data; render() } }); return }
+  ADM.geoCountry=ADM.geoCountry||"SY";
+  if(!ADM._geoLoaded || ADM._geoLoadedFor!==ADM.geoCountry){ ADM._geoLoaded=true; ADM._geoLoadedFor=ADM.geoCountry;
+    Promise.all([DB.rpc("bk_admin_geo_list",{p_token:ADM.token,p_country:ADM.geoCountry}), ADM.countries?Promise.resolve(null):DB.rpc("bk_admin_countries",{p_token:ADM.token})]).then(function(rs){ if(rs[1]&&rs[1].data) ADM.countries=rs[1].data; if(rs[0]&&rs[0].data){ ADM.geo=rs[0].data; render() } }); return }
   var msg=function(s,bad){ var m=$("#geoMsg"); if(m){ m.textContent=s; m.style.color=bad?"var(--danger)":"var(--ok)" } };
-  var reload=function(){ return DB.rpc("bk_admin_geo_list",{p_token:ADM.token}).then(function(r){ if(r&&r.data) ADM.geo=r.data; loadGeo(); render() }) };
+  var reload=function(){ return DB.rpc("bk_admin_geo_list",{p_token:ADM.token,p_country:ADM.geoCountry}).then(function(r){ if(r&&r.data) ADM.geo=r.data; if(ADM.geoCountry==="SY") loadGeo(); render() }) };
+  $$("[data-geocountry]").forEach(function(b){ b.onclick=function(){ ADM.geoCountry=b.dataset.geocountry; ADM.geoGov=null; ADM.geoGovAddOpen=false; render() } });
+  if($("#geoGovAddOpen")) $("#geoGovAddOpen").onclick=function(){ ADM.geoGovAddOpen=true; render() };
+  if($("#geoGovAddCancel")) $("#geoGovAddCancel").onclick=function(){ ADM.geoGovAddOpen=false; render() };
+  if($("#geoGovAddSave")) $("#geoGovAddSave").onclick=function(){
+    var name=($("#geoGovNewAr").value||"").trim(); if(!name) return;
+    DB.rpc("bk_admin_gov_add",{p_token:ADM.token,p_row:{name_ar:name,name_en:$("#geoGovNewEn").value,slug:$("#geoGovNewSlug").value,country_code:ADM.geoCountry,sort_order:100,enabled:true}}).then(function(r){ if(r.error) return err(r.error); ADM.geoGovAddOpen=false; ADM.geoGov=r.data&&r.data.id; msg(GX("saved")); reload() }) };
   var err=function(e){ var m=(e&&e.message)||""; msg(m.indexOf("slug_taken")>-1?GX("slugTaken"):m.indexOf("has_listings")>-1?GX("hasListings"):m||"error",true) };
   if($("#geoGov")) $("#geoGov").onchange=function(){ ADM.geoGov=parseInt(this.value,10); render() };
   if($("#geoGovSave")) $("#geoGovSave").onclick=function(){
@@ -12049,5 +12474,8 @@ window.PWA=(function(){
   return { installable:installable, install:install, standalone:standalone, ios:iosSafari };
 })();
 applyGeoCache();
-Promise.all([loadListings(),loadCounts(),loadSiteContent(),loadAdSlots(),loadGeo()]).then(function(){ render(); initCursor(); startAdRotation(); startAdCarouselRotation(); startBannerRotation(); startFeaturedPolling(); startListingsPolling() });
+function startLoads(){ return Promise.all([loadListings(),loadCounts(),loadSiteContent(),loadAdSlots(),loadGeo()]) }
+_bootLoads = COUNTRIES ? startLoads() : refreshCountries().then(startLoads);   // first visit ever: learn the served countries first, so a visitor in Lebanon or Jordan opens on their own country
+if(COUNTRIES) refreshCountries();
+_bootLoads.then(function(){ render(); initCursor(); startAdRotation(); startAdCarouselRotation(); startBannerRotation(); startFeaturedPolling(); startListingsPolling(); setTimeout(maybeShowChooser, _openingActive?1500:400) });
 </script></body></html>

@@ -6,7 +6,9 @@
 //    /listing/<id>-<arabic-slug>/index.html          (Arabic)
 //    /en/listing/<id>-<latin-slug>/index.html        (English)
 //    /de/listing/<id>-<latin-slug>/index.html        (German)
-//  each linking to the other two with hreflang. generate-pages.mjs runs
+//  each linking to the other two with hreflang. A listing in another enabled
+//  country (see the `countries` table) gets the same three pages under /<code>/,
+//  e.g. /lb/listing/…, /lb/en/listing/…. generate-pages.mjs runs
 //  afterwards and writes the sitemap that lists all of them.
 //
 //  Nothing here needs a server — it's a build step. GitHub Pages just
@@ -21,6 +23,7 @@ const SUPABASE_URL = "https://coajrqynjrptujmzjjdh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"; // public anon key — safe, RLS restricts it to live listings
 const SITE = "https://balkoun.com";
 const ROOT = path.resolve(".");
+let CUR_PRE = "", CUR_CN = { code: "SY", ar: "سوريا", en: "Syria", de: "Syrien" };   // the current listing's country: URL prefix and names
 
 async function sb(endpoint) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
@@ -79,8 +82,8 @@ function slugFor(l, lang) {
   if (lang === "ar") return `${l.id}-${slugAr((TYPE_AR[l.property_type] || l.property_type) + " " + (l.area_ar || "") + " " + l.governorate_ar)}`;
   return `${l.id}-${slugLatin(typeName(l.property_type, "en") + " " + areaNm(l, "en") + " " + govName(l, "en"))}`;
 }
-const urlFor = (l, lang) => `${SITE}${LANGS[lang].prefix}/listing/${slugFor(l, lang)}/`;
-const appLink = (lang, p) => `${SITE}/${p}${lang === "ar" ? "" : `?lang=${lang}`}`;
+const urlFor = (l, lang) => `${SITE}${CUR_PRE}${LANGS[lang].prefix}/listing/${slugFor(l, lang)}/`;
+const appLink = (lang, p) => `${SITE}${CUR_PRE}/${p}${lang === "ar" ? "" : `?lang=${lang}`}`;
 const MARK = `<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="19" y="19" width="62" height="62" fill="none" stroke="currentColor" stroke-width="7"/><path d="M50 5 95 50 50 95 5 50Z" fill="none" stroke="#C4881F" stroke-width="9"/><rect x="42.5" y="42.5" width="15" height="15" fill="currentColor"/></svg>`;
 
 function renderPage(l, photos, lang) {
@@ -97,7 +100,7 @@ function renderPage(l, photos, lang) {
 
   const sizeTxt = has(l.area_m2) ? `${l.area_m2} ${W.sqm}` : "";
   const title = lang === "ar" ? `${typeLabel} ${dealLabel} ${sizeTxt} — ${areaName} ${gov} | بلكون`
-    : `${typeLabel} ${dealLabel}${sizeTxt ? `, ${sizeTxt}` : ""} ${W.inPlace(place)}, Syria | Balkoun`.replace(", Syria", lang === "de" ? ", Syrien" : ", Syria");
+    : `${typeLabel} ${dealLabel}${sizeTxt ? `, ${sizeTxt}` : ""} ${W.inPlace(place)}, ${CUR_CN[lang] || CUR_CN.en} | Balkoun`;
   const leadBits = [`${typeLabel} ${dealLabel} ${W.inPlace(place)}`, sizeTxt, has(l.rooms) ? `${l.rooms} ${W.roomsShort}` : "", tabuLabel, money(l.price_usd)].filter(Boolean);
   const lead = leadBits.join(W.sep) + ".";
   const ownText = (l.description || "").replace(/\s+/g, " ").trim();
@@ -147,10 +150,11 @@ function renderPage(l, photos, lang) {
     "@context": "https://schema.org", "@type": "RealEstateListing", "name": title, "description": l.description || desc, "url": url, "inLanguage": lang,
     "datePosted": l.created_at, "identifier": refCode, ...(allPhotos.length ? { "image": allPhotos } : {}),
     "offers": { "@type": "Offer", "price": l.price_usd, "priceCurrency": "USD", "availability": "https://schema.org/InStock", "url": url },
-    "address": { "@type": "PostalAddress", "addressLocality": areaName || gov, "addressRegion": gov, "addressCountry": "SY" },
+    "address": { "@type": "PostalAddress", "addressLocality": areaName || gov, "addressRegion": gov, "addressCountry": CUR_CN.code },
     ...(has(l.lat) && has(l.lng) ? { "geo": { "@type": "GeoCoordinates", "latitude": l.lat, "longitude": l.lng } } : {}),
     ...(has(l.area_m2) ? { "floorSize": { "@type": "QuantitativeValue", "value": l.area_m2, "unitCode": "MTK" } } : {}),
     ...(has(l.rooms) ? { "numberOfRooms": l.rooms } : {}),
+    ...((l.videos || []).length ? { "video": (l.videos || []).map((v) => ({ "@type": "VideoObject", "name": title, "description": lead, "contentUrl": v.url, ...(v.thumb_url ? { "thumbnailUrl": v.thumb_url } : {}), "uploadDate": l.created_at })) } : {}),
   };
   const langBar = `<nav class="langs" aria-label="${W.langs}">${["ar", "en", "de"].map((k) => `<a href="${alts[k]}" hreflang="${k}" class="${k === lang ? "on" : ""}">${k === "ar" ? "عربي" : k.toUpperCase()}</a>`).join("")}</nav>`;
 
@@ -208,6 +212,7 @@ img{display:block;max-width:100%}
 .thumbs{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:8px}
 .thumbs a{display:block;aspect-ratio:4/3;border-radius:8px;overflow:hidden;background:var(--navy-w)}
 .thumbs img{width:100%;height:100%;object-fit:cover}
+.lvid{display:block;width:100%;max-height:440px;margin-top:10px;border-radius:12px;background:#000}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh);padding:18px}
 .card h2{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
 .card h2::before{content:"";width:4px;height:18px;border-radius:4px;background:var(--gold)}
@@ -250,14 +255,14 @@ footer .note{width:100%;color:rgba(255,255,255,.5);font-size:13px}
 @media(min-width:900px){body{padding-bottom:0}.main{grid-template-columns:minmax(0,1fr) 340px;align-items:start;padding-top:22px;gap:22px}.side{position:sticky;top:22px}.thumbs{grid-template-columns:repeat(6,1fr)}}
 </style></head><body>
 <header class="top"><div class="wrap">
-  <nav><a href="${lang === "ar" ? SITE + "/" : `${SITE}/?lang=${lang}`}">${W.home}</a><a href="${appLink(lang, "search")}">${W.allListings}</a></nav>
+  <nav><a href="${lang === "ar" ? SITE + CUR_PRE + "/" : `${SITE}${CUR_PRE}/?lang=${lang}`}">${W.home}</a><a href="${appLink(lang, "search")}">${W.allListings}</a></nav>
   ${langBar}
-  <a class="logo" href="${lang === "ar" ? SITE + "/" : `${SITE}/?lang=${lang}`}" aria-label="Balkoun">${MARK}<span class="w"><b>بلكون</b><small>BALKOUN</small></span></a>
+  <a class="logo" href="${lang === "ar" ? SITE + CUR_PRE + "/" : `${SITE}${CUR_PRE}/?lang=${lang}`}" aria-label="Balkoun">${MARK}<span class="w"><b>بلكون</b><small>BALKOUN</small></span></a>
 </div></header>
 
 <main class="wrap main">
 <div class="col">
-  <section>${hero}${thumbStrip}</section>
+  <section>${hero}${thumbStrip}${(l.videos || []).map((v) => `<video class="lvid" controls preload="none" playsinline${v.thumb_url ? ` poster="${esc(v.thumb_url)}"` : ""} src="${esc(v.url)}"></video>`).join("")}</section>
   <section class="card">
     <h1>${esc(typeLabel)} ${esc(dealLabel)}${sizeTxt ? ` — ${ltr(l.area_m2)} ${W.sqm}` : ""}${place ? ` ${esc(W.inPlace(place))}` : ""}</h1>
     ${place ? `<div class="place">${esc(place)}</div>` : ""}
@@ -278,8 +283,8 @@ footer .note{width:100%;color:rgba(255,255,255,.5);font-size:13px}
 </aside>
 </main>
 <footer><div class="wrap">
-  <span class="brand">${W.brandLine}</span>
-  <nav><a href="${SITE}${LANGS[lang].prefix}/about/">${W.about}</a><a href="${SITE}${LANGS[lang].prefix}/contactus/">${W.contactUs}</a></nav>
+  <span class="brand">${W.brandLine.replace(/سوريا|Syria|Syrien/, CUR_CN[lang] || CUR_CN.en)}</span>
+  <nav><a href="${SITE}${CUR_PRE}${LANGS[lang].prefix}/about/">${W.about}</a><a href="${SITE}${CUR_PRE}${LANGS[lang].prefix}/contactus/">${W.contactUs}</a></nav>
   <span class="note">${W.note(ltr(refCode))}</span>
 </div></footer>
 </body></html>`;
@@ -297,16 +302,24 @@ async function main() {
   } catch (e) { console.error("Fetch failed:", e.message); process.exit(1); }
   govById = new Map(govs.map((g) => [g.id, g])); areaById = new Map(areas.map((a) => [a.id, a]));
   console.log(`Found ${listings.length} live listing(s).`);
+  let countries = [];
+  try { countries = await sb("countries?select=code,name_ar,name_en,name_de,enabled,is_default&order=sort_order.asc"); if (!Array.isArray(countries) || !countries.length) throw new Error("empty list"); }
+  catch (e) { console.warn("countries unreadable, Syria only:", e.message); countries = [{ code: "SY", name_ar: "سوريا", name_en: "Syria", name_de: "Syrien", enabled: true, is_default: true }]; }
+  if (!countries.some((c) => c.is_default)) countries.forEach((c) => { if (c.code === "SY") c.is_default = true; });
+  const CTRY = new Map(countries.filter((c) => c.enabled).map((c) => [c.code, { prefix: c.is_default ? "" : "/" + c.code.toLowerCase(), cn: { code: c.code, ar: c.name_ar, en: c.name_en, de: c.name_de || c.name_en } }]));
 
-  for (const lang of ["ar", "en", "de"]) { const dir = path.join(ROOT, LANGS[lang].prefix.replace(/^\//, ""), "listing"); fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true }); }
+  for (const ctx of CTRY.values()) for (const lang of ["ar", "en", "de"]) { const dir = path.join(ROOT, ctx.prefix.replace(/^\//, ""), LANGS[lang].prefix.replace(/^\//, ""), "listing"); fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true }); }
 
   let n = 0;
   for (const l of listings) {
+    const ctx = CTRY.get(l.country_code || "SY"); if (!ctx) continue;   // a listing in a country that is switched off gets no page
+    CUR_PRE = ctx.prefix; CUR_CN = ctx.cn;
     let photoRows = [];
-    try { photoRows = await sb(`listing_photos?select=url&listing_id=eq.${l.id}&order=sort_order`); } catch (e) { console.warn(`Photos fetch failed for listing ${l.id}:`, e.message); }
-    const photos = photoRows.map((p) => p.url);
+    try { photoRows = await sb(`listing_photos?select=url,thumb_url,kind&listing_id=eq.${l.id}&order=sort_order`); } catch (e) { console.warn(`Photos fetch failed for listing ${l.id}:`, e.message); }
+    const photos = photoRows.filter((p) => p.kind !== "video").map((p) => p.url);
+    l.videos = photoRows.filter((p) => p.kind === "video");
     for (const lang of ["ar", "en", "de"]) {
-      const dir = path.join(ROOT, LANGS[lang].prefix.replace(/^\//, ""), "listing", slugFor(l, lang));
+      const dir = path.join(ROOT, CUR_PRE.replace(/^\//, ""), LANGS[lang].prefix.replace(/^\//, ""), "listing", slugFor(l, lang));
       fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(path.join(dir, "index.html"), renderPage(l, photos, lang)); n++;
     }

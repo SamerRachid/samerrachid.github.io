@@ -1,0 +1,25 @@
+-- Applied 2026-09-10 as Supabase migration "countries_phase1" (see the project's migration history for the full text).
+-- Multi-country foundation. Syria is untouched: every public RPC keeps a default of 'SY' / null, the
+-- Syrian settings row stays site_content id=1, and the live client keeps calling the same function names.
+--
+-- Schema
+--   governorates.id / areas.id           now have sequences (governorates_id_seq, areas_id_seq)
+--   site_content                          check (id=1) dropped; country_code text unique; rows for LB and JO copied from SY (banners emptied)
+--   countries                             code PK, names ar/en/de/fr/tr, enabled, is_default, currencies[], rates jsonb, phone_code, tz[], lat/lng/zoom, sort_order, languages[], notes
+--   deed_types                            (country_code, code) PK, names, sort_order, enabled, is_strong  (SY: green, shares, court, court_desc, poa, none)
+--   governorates.country_code             default 'SY'   + seed LB (8 govs / 89 areas) and JO (12 govs / 72 areas)
+--   listings.country_code                 filled by trigger trg_listing_country from the governorate; backfilled; index (country_code, status)
+--   wanted / agencies / projects / ad_slots / engagements .country_code default 'SY'; engagements trigger trg_engagement_country
+--   users.admin_countries text[]          (null = all countries)
+--   v_listings                            + country_code
+--
+-- RPCs (public)  bk_public_countries(), bk_geo(p_country default 'SY'), bk_counts(p_country default 'SY'),
+--                bk_public_ad_slots(p_country default 'SY'), bk_public_featured_ids / bk_public_wanted /
+--                bk_public_agencies / bk_public_projects (p_country default null)
+--                Old zero-argument overloads were dropped (PostgREST would otherwise see two candidates).
+-- RPCs (admin)   bk_admin_countries(token), bk_admin_country_set(token, code, patch)  -- super admin only
+--                bk_admin_deed_save(token, country, code, patch), bk_admin_geo_list(token, country default null)
+--                bk_admin_gov_add(token, row), bk_admin_list_ads(token, country default null), bk_admin_ad_country(token, id, country)
+--
+-- Seed: SY enabled + default (USD, SYP; +963; Asia/Damascus; ar,en,de)
+--       LB disabled (USD, LBP; +961; Asia/Beirut; ar,fr,en)   JO disabled (JOD, USD; +962; Asia/Amman; ar,en)
