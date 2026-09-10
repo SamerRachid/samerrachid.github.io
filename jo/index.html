@@ -1974,6 +1974,14 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .adm .pick label:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy)}
 .adm .pick input{display:none}
 .adm-country.nonsy{background:var(--gold-w);border-color:var(--gold);color:var(--navy);font-weight:700}
+.acbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:14px}
+.acbar-now{display:flex;align-items:center;gap:8px;font-size:14px}.acbar-now .flg{width:26px;height:17px}.acbar-off{font-style:normal;color:var(--danger);font-size:12px;font-weight:700}
+.acbar-list{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--grey)}
+.acbar-c{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border:1px solid var(--line-2);border-radius:999px;background:#fff;cursor:pointer;font:600 12px var(--fd);color:var(--ink)}
+.acbar-c .flg{width:18px;height:12px}.acbar-c.on{background:var(--navy);color:#fff;border-color:var(--navy)}.acbar-c.off{opacity:.55}.acbar-c:hover{border-color:var(--gold)}
+.csetup-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.csetup{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:10px 12px;border:1px solid var(--line-2);border-radius:10px;background:#fff;cursor:pointer;text-align:start;font-family:var(--fd)}
+.csetup:hover{border-color:var(--gold);background:var(--gold-w)}.csetup .aicon,.csetup svg{width:16px;height:16px;color:var(--gold-dk,#8A6522)}.csetup b{font-size:13px;color:var(--navy)}.csetup span{font-size:12px;color:var(--grey)}
 .adm .pick span{border:0;padding:0;background:transparent;color:inherit;font-size:inherit}.adm .pick input:checked+span{background:transparent;color:inherit}
 .adm .msgfilters{display:flex;gap:8px;flex-wrap:wrap}
 .adm .starpick{display:flex;gap:4px;font-size:26px;color:#D6D8DE;cursor:pointer}
@@ -2870,10 +2878,10 @@ function detectLang(){
 }
 function detectCurrency(){
   try{
-    var saved = localStorage.getItem("balkoun_cur");
-    if(saved==="USD"||saved===localCur()) return saved;
+    var saved = curPrefGet(COUNTRY), c1=countryOf(COUNTRY), list1=(c1&&c1.currencies)||["USD"];
+    if(saved && list1.indexOf(saved)>-1) return saved;   // a choice the visitor made while in this country
   }catch(e){}
-  var c0=countryOf(COUNTRY); return (c0&&c0.currencies&&c0.currencies[0])||"USD"; // US dollar is the default for new visitors (site owner's choice); another country opens in its own first currency
+  var c0=countryOf(COUNTRY); return (c0&&c0.currencies&&c0.currencies[0])||"USD"; // every country opens in its own first currency (the countries table decides: USD for Syria, Lebanon and Iraq, the local money elsewhere)
 }
 /* ═══ French: shown where a country offers it (Lebanon); any missing word falls back to English ═══ */
 var FR_T={
@@ -2973,6 +2981,8 @@ var COUNTRY=detectCountry(), COUNTRY_CHOSEN=false; try{ COUNTRY_CHOSEN=!!localSt
 function cArgs(){ return {p_country:COUNTRY} }
 function siteCacheKey(){ return COUNTRY==="SY" ? "balkoun_site" : "balkoun_site_"+COUNTRY }
 function geoCacheKey(){ return COUNTRY==="SY" ? "balkoun_geo" : "balkoun_geo_"+COUNTRY }
+function curPrefGet(code){ try{ var m=JSON.parse(localStorage.getItem("balkoun_cur_by")||"{}"); return m[code]||null }catch(e){ return null } }          // the currency a visitor chose, remembered per country
+function curPrefSet(code,cur){ try{ var m=JSON.parse(localStorage.getItem("balkoun_cur_by")||"{}"); m[code]=cur; localStorage.setItem("balkoun_cur_by",JSON.stringify(m)); localStorage.setItem("balkoun_cur",cur) }catch(e){} }
 function localCur(){ var c=countryOf(COUNTRY); var l=((c&&c.currencies)||["USD","SYP"]).filter(function(x){ return x!=="USD" })[0]; return l||"SYP" }
 function curRate(cur){ cur=cur||CUR; if(cur==="USD") return 1; if(COUNTRY==="SY") return SITE.syp_rate || CONFIG.rate; var c=countryOf(COUNTRY); var r=c&&c.rates&&+c.rates[cur]; return r>0 ? r : (SITE.syp_rate || CONFIG.rate) }
 var CUR_LABEL={SYP:["ل.س","SYP"],LBP:["ل.ل","LBP"],JOD:["د.أ","JOD"],TRY:["₺","TRY"],EUR:["€","€"],EGP:["ج.م","EGP"],IQD:["د.ع","IQD"],SAR:["ر.س","SAR"],AED:["د.إ","AED"],QAR:["ر.ق","QAR"],BHD:["د.ب","BHD"],OMR:["ر.ع","OMR"],KWD:["د.ك","KWD"],DZD:["د.ج","DZD"],MAD:["د.م.","MAD"],TND:["د.ت","TND"],LYD:["د.ل","LYD"],ILS:["₪","ILS"],YER:["ر.ي","YER"],SDG:["ج.س","SDG"],MRU:["أوقية","MRU"],SOS:["ش.ص","SOS"],DJF:["ف.ج","DJF"],KMF:["ف.ق","KMF"]};
@@ -3023,7 +3033,9 @@ var _bootLoads=null;
 async function switchCountry(code, o){
   o=o||{}; var c=countryOf(code); if(!c || code===COUNTRY) return;
   COUNTRY=code; if(!o.silent){ COUNTRY_CHOSEN=true; try{ localStorage.setItem("balkoun_country",code) }catch(e){} }
-  if((c.currencies||["USD"]).indexOf(CUR)<0){ CUR=(c.currencies||["USD"])[0]; try{ localStorage.setItem("balkoun_cur",CUR) }catch(e){} }
+  (function(){ var list=c.currencies||["USD"], sv=curPrefGet(code);
+    CUR = (sv && list.indexOf(sv)>-1) ? sv : list[0];   // the country's own first currency, unless the visitor picked another one while in this country before
+    try{ localStorage.setItem("balkoun_cur",CUR) }catch(e){} })();
   applyCountryDeeds();
   SITE=loadSiteCache(); applyCardSizeVar(); applyBannerSizeVar(); applySectionGapVars();
   D.LIST=[]; D.GEO={}; D.GOVN={}; GEO_META={govId:{},govSlug:{},areaId:{},areaSlug:{},kind:{}}; applyGeoCache();
@@ -5459,12 +5471,13 @@ function adminView(){
 
  var NAV=[
    {g:t("navOverview"), items:[["dashboard",t("dashboardTab"),null,AICO.dash,true],["stats",t("visitorStats"),null,AICO.chart,can("stats")]]},
+   {g:GX("navCountries"), items:[["countries",GX("countriesTab"),null,AICO.globe,ADM.isSuper]]},
    {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["photos",GX("tMedia"),null,AICO.image,can("listings")],["wanted_adm",GX("tWanted"),(ADM.todo||{}).pending_wanted||null,AICO.search,can("listings")]]},
    {g:t("navPeople"), items:[["users",t("usersTab"),s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")]]},
    {g:GX("navMarketing"), items:[["engage",GX("tEngage"),null,AICO.ledger,can("ads")||can("featured")],["projects_adm",GX("tProjects"),null,AICO.building,can("listings")||can("ads")],["ads",t("adsTab"),null,AICO.ads,can("ads")],["featured",t("featuredTab"),null,AICO.star,can("featured")],["banners",GX("tBanners"),null,AICO.banner,can("homepage")]]},
    {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")]]},
    {g:t("navInboxH"), items:[["reports",t("reportsTab"),s.openReports,AICO.shield,can("reports")],["feedback",t("feedbackTab"),s.openFeedback,AICO.shield,can("feedback")],["msgs",t("msgsNotifTab"),ADM.alertsUnread,AICO.bell,can("msgs")]]},
-   {g:GX("navSystem"), items:[["settings",GX("tSystem"),null,AICO.gear,can("settings")],["storage",GX("tStorage"),null,AICO.disk,can("settings")],["countries",GX("countriesTab"),null,AICO.globe,ADM.isSuper],["admins",t("adminsTab"),null,AICO.key,ADM.isSuper],["danger",t("dangerTab"),null,AICO.lock,ADM.isSuper]]}
+   {g:GX("navSystem"), items:[["settings",GX("tSystem"),null,AICO.gear,can("settings")],["storage",GX("tStorage"),null,AICO.disk,can("settings")],["admins",t("adminsTab"),null,AICO.key,ADM.isSuper],["danger",t("dangerTab"),null,AICO.lock,ADM.isSuper]]}
  ];
  var curLabel=t("adminPanel"), curGroup="";
  NAV.forEach(function(g){ g.items.forEach(function(it){ if(it[0]===ADM.tab){ curLabel=it[1]; curGroup=g.g } }) });
@@ -5492,7 +5505,7 @@ function adminView(){
   '<div class="ashell">'+
    '<nav class="asidebar" id="aSidebar">'+NAV.map(function(g){ return sec(g.g, g.items.map(function(it){ return it[4] ? tab(it[0],it[1],it[2],it[3]) : "" })) }).join("")+'</nav>'+
    '<main class="acontent"><div class="apage-h"><div>'+'<div class="apage-crumb">'+curGroup+(COUNTRY!=="SY"?(curGroup?' · ':'')+flagOf(COUNTRY)+' '+esc(countryName(countryOf(COUNTRY)))+'</div>':'</div>')+'<h1>'+curLabel+'</h1>'+
-    (GX_T["desc_"+ADM.tab]?'<p>'+GX("desc_"+ADM.tab)+'</p>':'')+'</div></div>'+body+'</main>'+
+    (GX_T["desc_"+ADM.tab]?'<p>'+GX("desc_"+ADM.tab)+'</p>':'')+'</div></div>'+adminCountryBar()+body+'</main>'+
   '</div></div>'}
 
 function adminEditListing(){
@@ -7464,7 +7477,7 @@ function wire(){
  }});
  $("#cur").onclick=function(){
    CUR=CUR==="USD"?localCur():"USD";
-   try{localStorage.setItem("balkoun_cur",CUR)}catch(e){}
+   curPrefSet(COUNTRY,CUR);
    if(USER && DB){ rpc("bk_set_currency",{p_id:USER.id,p_currency:CUR}).then(function(){
      USER.preferred_currency=CUR; saveSession(USER);
    }).catch(function(){}) }
@@ -9342,7 +9355,7 @@ function wireAuth(){
      var rememberChecked = ($("#auRemember")||{}).checked;
      if(rememberChecked) saveRememberedPhone($("#auCC").value, $("#auPhone").value);
      else clearRememberedPhone();
-     if(u.preferred_currency){ CUR=u.preferred_currency; try{localStorage.setItem("balkoun_cur",CUR)}catch(e){} }
+     if(u.preferred_currency && (((countryOf(COUNTRY)||{}).currencies)||["USD"]).indexOf(u.preferred_currency)>-1){ CUR=u.preferred_currency; curPrefSet(COUNTRY,CUR) }
      AU.step=4; render();
      loadNotifications().then(render);
      startNotifPolling();
@@ -9386,7 +9399,7 @@ function wireAuth(){
                                     p_username:null, p_city:null, p_country:null,
                                     p_currency:AU.currency||"USD"});
      USER=u; saveSession(u);
-     if(u.preferred_currency){ CUR=u.preferred_currency; try{localStorage.setItem("balkoun_cur",CUR)}catch(e){} }
+     if(u.preferred_currency && (((countryOf(COUNTRY)||{}).currencies)||["USD"]).indexOf(u.preferred_currency)>-1){ CUR=u.preferred_currency; curPrefSet(COUNTRY,CUR) }
      AU.step=4; render();
    }catch(e){ this.disabled=false; this.textContent=t("iSent");
      var m=e.message||"";
@@ -10446,7 +10459,7 @@ function homeTrustHtml(){
    '</div></div></section>';
 }
 
-function heroBgTypeEff(){ var v=SITE.hero_bg_type||"sketch"; return (v==="sketch" && COUNTRY!=="SY") ? "dawn" : v }
+function heroBgTypeEff(){ var v=SITE.hero_bg_type||"sketch"; return (v==="sketch" && COUNTRY!=="SY") ? "none" : v }   // the Damascus sketch is Syria's; other countries stay blank until they get their own scene
 function bandImgHtml(){
   var src=HU("band_img", COUNTRY==="SY"?"/assets/home/umayyad.jpg":""); if(!src) return "";
   var alt=HT("band_img_alt", COUNTRY==="SY"?({ar:"الجامع الأموي في دمشق",en:"The Umayyad Mosque in Damascus",de:"Die Umayyaden-Moschee in Damaskus"}[L]||"The Umayyad Mosque in Damascus"):"");
@@ -11284,6 +11297,11 @@ var GX_T={
   cCounts:{ar:"{g} محافظة · {a} منطقة · {l} إعلان · {w} طلب · {ag} مكتب · {ad} إعلان مدفوع",en:"{g} governorates · {a} areas · {l} listings · {w} requests · {ag} agencies · {ad} paid ads",de:"{g} Provinzen · {a} Gebiete · {l} Anzeigen · {w} Anfragen · {ag} Büros · {ad} Werbeplätze"},
   cDisableWarn:{ar:"سيتوقف عرض هذه الدولة للزوار فوراً. الإعلانات والبيانات تبقى محفوظة ويمكن التشغيل مجدداً في أي وقت. متابعة؟",en:"Visitors will stop seeing this country immediately. Listings and data stay stored and you can turn it on again any time. Continue?",de:"Besucher sehen dieses Land sofort nicht mehr. Anzeigen und Daten bleiben gespeichert; Sie können es jederzeit wieder einschalten. Fortfahren?"},
   cCantDisableDefault:{ar:"لا يمكن إيقاف الدولة الافتراضية. اجعل دولة أخرى افتراضية أولاً.",en:"The default country cannot be turned off. Make another country the default first.",de:"Das Standardland kann nicht ausgeschaltet werden. Machen Sie zuerst ein anderes Land zum Standard."},
+  cSetup:{ar:"إعداد {c}",en:"{c} setup",de:"Einrichtung {c}"}, cSetupHint:{ar:"كل زر يفتح صفحة الإدارة وهي مضبوطة على هذه الدولة. ما تغيّره هناك يخص هذه الدولة وحدها.",en:"Each button opens the admin page already switched to this country. Whatever you change there affects this country only.",de:"Jede Schaltfläche öffnet die Verwaltungsseite bereits auf dieses Land umgestellt. Änderungen dort betreffen nur dieses Land."},
+  cBg:{ar:"خلفية الصفحة الرئيسية",en:"Homepage background",de:"Startseiten-Hintergrund"}, cBanners:{ar:"البانرات",en:"Banners",de:"Banner"}, cAdsRow:{ar:"صف الإعلانات",en:"Ad row",de:"Anzeigenreihe"}, cFeatured:{ar:"الإعلانات المميزة",en:"Featured listings",de:"Hervorgehobene Anzeigen"},
+  bg_none_s:{ar:"فارغة",en:"blank",de:"leer"}, bg_sketch_s:{ar:"رسم دمشق",en:"Damascus sketch",de:"Damaskus-Skizze"}, bg_dawn_s:{ar:"سماء الفجر",en:"dawn sky",de:"Morgenhimmel"}, bg_video_s:{ar:"فيديو",en:"video",de:"Video"}, bg_photo_s:{ar:"صورة",en:"photo",de:"Foto"},
+  cEditing:{ar:"تعدّل الآن",en:"Editing",de:"Bearbeitung"}, cSwitchTo:{ar:"انتقل إلى دولة أخرى",en:"Switch to another country",de:"Zu einem anderen Land wechseln"}, cOffShort:{ar:"متوقفة",en:"off",de:"aus"},
+  navCountries:{ar:"الدول والأسواق",en:"Countries and markets",de:"Länder und Märkte"},
   cTurnOn:{ar:"تشغيل الموقع في {c}",en:"Turn the website on in {c}",de:"Website in {c} einschalten"}, cTurnOff:{ar:"إيقاف الموقع في {c}",en:"Turn the website off in {c}",de:"Website in {c} ausschalten"},
   cAddDeed:{ar:"إضافة نوع",en:"Add type",de:"Art hinzufügen"}, cCountry:{ar:"الدولة",en:"Country",de:"Land"}, cGovAdd:{ar:"إضافة محافظة",en:"Add governorate",de:"Provinz hinzufügen"}, cSuperOnly:{ar:"فقط المشرف الرئيسي يستطيع تشغيل الدول أو إيقافها.",en:"Only the super admin can turn countries on or off.",de:"Nur der Hauptadministrator kann Länder ein- oder ausschalten."},
   cDeedCode:{ar:"الرمز",en:"Code",de:"Code"}, cTypes:{ar:"أنواع العقارات (الأسماء كما تُستخدم في هذه الدولة)",en:"Property types (names as used in this country)",de:"Immobilienarten (Namen wie in diesem Land üblich)"}, cSettingsOf:{ar:"إعدادات {c} في لوحة التحكم",en:"{c} settings in the panel",de:"Einstellungen für {c}"}, cSettingsHint:{ar:"كل صفحة من هذه الصفحات تعدّل إعدادات هذه الدولة فقط: الصفحة الرئيسية وخلفيتها، البانرات، الإعلانات، التصميم، التواصل والمناطق.",en:"Each of these pages edits this country only: homepage and its background, banners, ads, design, contact and areas.",de:"Jede dieser Seiten ändert nur dieses Land: Startseite und Hintergrund, Banner, Anzeigen, Design, Kontakt und Gebiete."}, cSort:{ar:"الترتيب",en:"Order",de:"Reihenfolge"},
@@ -11728,7 +11746,7 @@ function hsInspHome(){
       fSlider(hsT("f_heroGap"),"c:hero_gap","x:hero_gap_m",-60,80,2,"px",0));
   } else if(sd==="hero_bg"){
     var bt=hsVal("c:hero_bg_type")||"sketch";
-    H.push(fSel(hsT("f_bgType"),"c:hero_bg_type",[["sketch",hsT("bg_sketch")],["dawn",hsT("bg_dawn")],["video",hsT("bg_video")],["photo",hsT("bg_photo")],["none",hsT("bg_none")]],"sketch",true));
+    H.push(fSel(hsT("f_bgType"),"c:hero_bg_type",(COUNTRY==="SY"?[["sketch",hsT("bg_sketch")]]:[]).concat([["dawn",hsT("bg_dawn")],["video",hsT("bg_video")],["photo",hsT("bg_photo")],["none",hsT("bg_none")]]),COUNTRY==="SY"?"sketch":"none",true));
     if(bt==="video") H.push(fUpload(hsT("f_upVideo"),"c:hero_bg_video_url","background","video/mp4,video/webm"), fSlider(hsT("f_speed"),"c:hero_bg_video_speed",null,10,300,5,"%",100,true));
     if(bt==="photo") H.push(fUpload(hsT("f_upPhoto"),"c:hero_bg_photo_url","background","image/*"));
     if(bt==="sketch") H.push(fGrp(hsT("g_draw")), fHint(hsT("dualHint")),
@@ -12365,6 +12383,27 @@ function adminCountrySelHtml(){
   var CS=ADM.countries||[]; if(CS.length<2) return '';
   return '<select class="adm-lang adm-country'+(COUNTRY!=="SY"?' nonsy':'')+'" id="aCountry" aria-label="'+esc(GX("cCountry"))+'">'+CS.map(function(c){ return '<option value="'+c.code+'"'+(c.code===COUNTRY?' selected':'')+'>'+esc(countryName(c))+(c.enabled?'':' · '+GX("cOff"))+'</option>' }).join("")+'</select>';
 }
+var PER_COUNTRY_TABS={mainpage:1,banners:1,ads:1,design:1,contact:1,geo:1,featured:1,engage:1,listings:1,wanted_adm:1,agencies_adm:1,projects_adm:1};
+function countrySetupPanel(c){
+  var bgKey="bg_"+(c.bg||"none")+"_s", bgName=GX_T[bgKey]?GX(bgKey):(c.bg||"—"); if(c.code!=="SY"&&c.bg==="sketch") bgName=GX("bg_none_s");
+  var tile=function(tab,label,value,icon){ return '<button type="button" class="csetup" data-cgo="'+c.code+':'+tab+'">'+icon+'<b>'+label+'</b><span>'+value+'</span></button>' };
+  return '<div class="fl"><label>'+GX("cSetup").replace("{c}",esc(countryName(c)))+'</label><div class="hintx" style="margin-bottom:8px">'+GX("cSetupHint")+'</div><div class="csetup-grid">'+
+    tile("mainpage", GX("cBg"), bgName+(c.bg_photo&&c.bg==="photo"?' ✓':''), AICO.home2)+
+    tile("banners", GX("cBanners"), (c.banner_on?'':GX("cOffShort")+' · ')+(c.banners||0), AICO.banner)+
+    tile("ads", GX("cAdsRow"), (c.ads||0), AICO.ads)+
+    tile("featured", GX("cFeatured"), (c.featured||0), AICO.star)+
+    tile("mainpage", t("mainPageTab"), '', AICO.palette)+
+    tile("contact", GX("tContact"), '', AICO.contact)+
+    tile("geo", GX("geoTab"), (c.govs||0)+' · '+(c.areas||0), AICO.map)+
+    tile("listings", t("listingsTab"), (c.listings||0), AICO.listings)+
+   '</div></div>' }
+function adminCountryBar(){
+  if(!PER_COUNTRY_TABS[ADM.tab]) return "";
+  var CS=ADM.countries||[]; if(!CS.length){ if(!ADM._cbarLoading){ ADM._cbarLoading=true; DB.rpc("bk_admin_countries",{p_token:ADM.token}).then(function(r){ ADM._cbarLoading=false; if(r&&r.data){ ADM.countries=r.data; render() } }) } return "" }
+  var cur=countryOf(COUNTRY)||{};
+  return '<div class="acbar"><div class="acbar-now">'+flagSvg(COUNTRY)+'<span>'+GX("cEditing")+': <b>'+esc(countryName(cur))+'</b>'+(cur.enabled===false?' <i class="acbar-off">'+GX("cOffShort")+'</i>':'')+'</span></div>'+
+   '<div class="acbar-list"><span>'+GX("cSwitchTo")+':</span>'+CS.map(function(c){ return '<button type="button" class="acbar-c'+(c.code===COUNTRY?' on':'')+(c.enabled?'':' off')+'" data-cgo="'+c.code+':'+ADM.tab+'" title="'+esc(countryName(c))+(c.enabled?'':' · '+GX("cOffShort"))+'">'+flagSvg(c.code)+'<span>'+esc(countryName(c))+'</span></button>' }).join("")+'</div></div>';
+}
 function adminCountriesBody(){
   var CS=ADM.countries; if(!CS) return '<div class="done2"><b>'+t("loading")+'</b></div>';
   var LANGS=[["ar","العربية"],["en","English"],["de","Deutsch"],["fr","Français"],["tr","Türkçe"]];
@@ -12397,8 +12436,7 @@ function adminCountriesBody(){
        '<div class="fl"><label>'+GX("cTypes")+'</label><div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:6px 8px;align-items:center;font-size:13px"><b></b><b>'+GX("nameAr")+'</b><b>'+GX("nameEn")+'</b><b>Français</b>'+
         Object.keys(D_TYPES_SY).map(function(k){ var cur=(c.types||[]).filter(function(x){ return x.code===k })[0], on=!c.types||!!cur, b=D_TYPES_SY[k];
           return '<label style="display:flex;gap:6px;align-items:center;white-space:nowrap"><input type="checkbox" data-cty="on:'+c.code+':'+k+'"'+(on?' checked':'')+ro+'><span class="ltr" style="color:var(--grey);font-size:12px">'+k+'</span></label><input data-cty="ar:'+c.code+':'+k+'" value="'+esc(cur?cur.ar:b[0])+'"'+ro+'><input data-cty="en:'+c.code+':'+k+'" value="'+esc(cur?cur.en:b[1])+'"'+ro+'><input data-cty="fr:'+c.code+':'+k+'" value="'+esc(cur?(cur.fr||""):(b[3]||""))+'"'+ro+'>' }).join("")+'</div></div>'+
-       '<div class="fl"><label>'+GX("cSettingsOf").replace("{c}",esc(countryName(c)))+'</label><div class="hintx" style="margin-bottom:6px">'+GX("cSettingsHint")+'</div><div style="display:flex;gap:6px;flex-wrap:wrap">'+
-        [["mainpage",t("mainPageTab")],["banners",GX("tBanners")],["ads",t("adsTab")],["design",GX("tDesign")],["contact",GX("tContact")],["geo",GX("geoTab")],["featured",t("featuredTab")]].map(function(x){ return '<button type="button" class="ab" data-cgo="'+c.code+':'+x[0]+'">'+flagOf(c.code)+' '+x[1]+'</button>' }).join("")+'</div></div>'+
+       countrySetupPanel(c)+
        '<div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap"><button class="ab ok" data-csave="'+c.code+'"'+ro+'>'+GX("save")+'</button>'+(c.is_default?'':'<button class="ab" data-cdefault="'+c.code+'"'+ro+'>'+GX("cMakeDefault")+'</button>')+'</div>'
      :'')+'</div></div>' }).join("");
 }
@@ -12473,7 +12511,7 @@ window.addEventListener("scroll",updateHdr,{passive:true});
 // custom cursor removed 2026-09-04 (confused visitors; hover states carry the affordance)
 DEMO = D.LIST.slice();
 USER = loadSession();
-if(USER && USER.preferred_currency){ CUR=USER.preferred_currency; try{localStorage.setItem("balkoun_cur",CUR)}catch(e){} }
+if(USER && USER.preferred_currency && (((countryOf(COUNTRY)||{}).currencies)||["USD"]).indexOf(USER.preferred_currency)>-1){ CUR=USER.preferred_currency; curPrefSet(COUNTRY,CUR) }
 try{ ADM.token=localStorage.getItem("balkoun_adm")||null }catch(e){}
 var _h=viewFromHash(); if(_h) VIEW=_h;
 initOpening();
