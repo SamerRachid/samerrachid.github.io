@@ -10911,25 +10911,41 @@ function sketchBuildLB(){
 
   /* ── the Pigeon Rocks: the big arched rock and its smaller companion, each a front face and a side face ── */
   var bigF=plane(RK.x,RK.y+20,260,190), bg=bigF.g;
-  // a craggy limestone mass: jagged crown, sheer faces, the arch cut through its foot
-  var bigOut="M10 190 L4 152 L12 120 L24 98 L30 70 L46 52 L64 44 L78 26 L98 14 L124 8 L146 16 L166 6 L188 12 L206 28 L222 46 L232 68 L244 92 L242 122 L250 154 L248 190";
-  var rockFill=S("path",{d:bigOut+" Z",fill:GOLD,stroke:"none",opacity:0},bg); fades.push([rockFill,500,1200,.09]);
-  P(bg,bigOut,0,1400,"2.1");
-  P(bg,"M98 190 L100 154 L108 126 L122 110 L140 106 L156 114 L166 134 L170 160 L172 190",700,700,"1.9");                    // the arch
-  var archFill=S("path",{d:"M98 190 L100 154 L108 126 L122 110 L140 106 L156 114 L166 134 L170 160 L172 190 Z",fill:"#0B1224",stroke:"none",opacity:0},bg); fades.push([archFill,900,700,.55]);
-  P(bg,"M14 146 L52 140 L90 146 L132 138 L176 142 L214 136 L242 140 M26 112 L60 104 L96 110 L140 100 L182 104 M40 76 L70 64 L104 70 L150 58 L196 66 L222 60 M84 40 L118 30 L150 36 L178 24 L204 34",1200,900,".9",".45");
-  P(bg,"M30 172 L60 166 L94 170 M176 170 L206 164 L240 168 M8 130 L20 128 M234 108 L246 104",1500,500,".8",".4");
-  var bigS=plane(RK.x+130,RK.y-20,120,190,90), bsg=bigS.g;
-  var sideOut="M8 190 L4 140 L14 96 L26 66 L44 46 L60 34 L78 44 L96 68 L108 110 L112 190";
-  var sideFill=S("path",{d:sideOut+" Z",fill:GOLD,stroke:"none",opacity:0},bsg); fades.push([sideFill,700,1000,.06]);
-  P(bsg,sideOut,300,1200,"1.6",".85"); P(bsg,"M12 150 L40 144 L74 150 L108 142 M20 104 L46 96 L78 102 L104 94 M34 62 L56 56 L82 62",1300,600,".8",".4");
-  var smF=plane(RK2.x,RK2.y+10,140,120), sg=smF.g;
-  var smOut="M6 120 L4 92 L12 66 L28 48 L44 38 L60 26 L78 18 L96 24 L112 40 L124 62 L132 88 L134 120";
-  var smFill=S("path",{d:smOut+" Z",fill:GOLD,stroke:"none",opacity:0},sg); fades.push([smFill,700,1000,.08]);
-  P(sg,smOut,500,1100,"1.8"); P(sg,"M14 94 L44 86 L80 92 L128 84 M24 64 L54 56 L90 60 L120 52 M46 40 L74 32 L104 38",1300,600,".9",".45");
-  var smS=plane(RK2.x+70,RK2.y-20,70,120,90), ssg=smS.g; P(ssg,"M6 120 L4 80 L14 50 L30 34 L46 40 L60 70 L64 120",700,900,"1.3",".7");
-  // spray at the foot of the big rock
-  var drops=[]; var dg=S("g",{fill:SEA,stroke:"none"},bg); drops.push(dg); [[40,182],[70,176],[210,180],[236,174],[130,186],[18,170],[254,168]].forEach(function(p){ S("circle",{cx:p[0],cy:p[1],r:1.4,opacity:0},dg) });
+  /* The rocks as real volumes: horizontal contour rings at several heights (each an ellipse lying on its own level) and vertical ribs
+     turned at several angles through the centre, each rib carrying the rock's silhouette at that angle. Together they read as a solid
+     from every camera position. The big rock is a tall mass leaning seaward, undercut at the waterline, with the arch through its foot;
+     the small one is a steep cone beside it. Strata dashes and a soft fill on every rib give the limestone its weight. */
+  var bg=null, drops=[];
+  function rock3d(cx,cy,Hh,prof,lean,ribs,seed,arch,t0){
+    // prof: [[height, half-width across]] from the waterline to the crown; depth is 48% of the width (the footprint is a long ellipse)
+    var rj=rnd(seed), rAt=function(h){ for(var i=1;i<prof.length;i++){ if(h<=prof[i][0]){ var a=prof[i-1], b=prof[i], f=(h-a[0])/(b[0]-a[0]); return a[1]+(b[1]-a[1])*f } } return prof[prof.length-1][1] };
+    var W0=prof[0][1]*2+8, faces=[];
+    // contour rings, drawn first from the waterline up
+    prof.forEach(function(p,i){ if(i===0||i===prof.length-1) return; var rx=p[1], ry=rx*.48, x=cx+lean*p[0]/Hh, ring=flat(x,cy,rx*2+4,ry*2+4,p[0]);
+      P(ring.g,"M2 "+f1(ry+2)+" a"+f1(rx)+" "+f1(ry)+" 0 1 0 "+f1(rx*2)+" 0 a"+f1(rx)+" "+f1(ry)+" 0 1 0 -"+f1(rx*2)+" 0",t0+120*i,700,i%2?".9":"1.1",i%2?".4":".6") });
+    // the crown: a small flat top
+    var top=prof[prof.length-1], tr=flat(cx+lean,cy,top[1]*2+4,top[1]*.96+4,top[0]); P(tr.g,"M2 "+f1(top[1]*.48+2)+" a"+f1(top[1])+" "+f1(top[1]*.48)+" 0 1 0 "+f1(top[1]*2)+" 0 a"+f1(top[1])+" "+f1(top[1]*.48)+" 0 1 0 -"+f1(top[1]*2)+" 0",t0+900,500,"1.2",".8");
+    // vertical ribs through the centre at several angles; each carries the silhouette seen from that angle
+    ribs.forEach(function(deg,k){ var th=deg*Math.PI/180, wf=Math.sqrt(Math.pow(Math.cos(th),2)+Math.pow(.48*Math.sin(th),2));
+      var pl=plane(cx,cy,W0,Hh+6,deg,1), g=pl.g, C=W0/2, L=[], R=[];
+      for(var h=0; h<=Hh; h+=8){ var r=rAt(h)*wf, jl=(rj()-.5)*4, jr=(rj()-.5)*4, dx=lean*h/Hh*Math.cos(th); L.push([C-r+jl+dx, Hh+6-h]); R.push([C+r+jr+dx, Hh+6-h]) }
+      var d="M"+L.map(function(p){ return f1(p[0])+" "+f1(p[1]) }).join(" L")+" L"+R.reverse().map(function(p){ return f1(p[0])+" "+f1(p[1]) }).join(" L");
+      var fill=S("path",{d:d+" Z",fill:GOLD,stroke:"none",opacity:0},g); fades.push([fill,t0+300+k*90,1000,k===0?.1:.05]);
+      P(g,d,t0+k*140,1300,k===0?"2":"1.2",k===0?"1":".55");
+      // strata dashes on the front rib only
+      if(k===0){ var st=""; for(var hs=18; hs<Hh-10; hs+=22){ var rr=rAt(hs)*wf*.9; for(var q=-rr; q<rr; q+=18) st+="M"+f1(C+q+2)+" "+f1(Hh+6-hs+(rj()-.5)*3)+" h"+f1(8+rj()*6)+" " } P(g,st,t0+1100,900,".9",".4") }
+      if(k===0 && arch){ var aw=arch[0], ah=arch[1], ax=C+arch[2];
+        var ad="M"+f1(ax-aw)+" "+(Hh+6)+" L"+f1(ax-aw+2)+" "+f1(Hh+6-ah*.55)+" L"+f1(ax-aw*.6)+" "+f1(Hh+6-ah*.9)+" L"+f1(ax)+" "+f1(Hh+6-ah)+" L"+f1(ax+aw*.6)+" "+f1(Hh+6-ah*.9)+" L"+f1(ax+aw-2)+" "+f1(Hh+6-ah*.55)+" L"+f1(ax+aw)+" "+(Hh+6);
+        var hole=S("path",{d:ad+" Z",fill:"#0B1224",stroke:"none",opacity:0},g); fades.push([hole,t0+700,700,.6]); P(g,ad,t0+600,800,"1.8"); bg=g }
+      if(k===2 && arch){ var tun="M"+f1(C-arch[0]*.9)+" "+(Hh+6)+" V"+f1(Hh+6-arch[1]*.8)+" H"+f1(C+arch[0]*.9)+" V"+(Hh+6); P(g,tun,t0+800,600,"1",".35") }   // the passage seen lengthwise
+      faces.push(g) });
+    return faces;
+  }
+  // the big rock: 176 world units tall, undercut just above the water, leaning 14 units seaward, a 36-wide arch through its foot
+  rock3d(RK.x,RK.y,178,[[0,124],[12,112],[30,126],[70,124],[110,118],[140,104],[160,80],[172,48],[178,22]],-14,[0,45,90,135],41,[42,74,-4],0);
+  var dg=S("g",{fill:SEA,stroke:"none"},bg); drops.push(dg); [[30,180],[64,176],[196,180],[226,174],[128,182],[10,170],[246,168]].forEach(function(p){ S("circle",{cx:p[0],cy:p[1],r:1.4,opacity:0},dg) });
+  // the small rock: a steep cone, 118 tall
+  rock3d(RK2.x,RK2.y,118,[[0,64],[10,58],[28,62],[56,50],[84,34],[104,18],[118,8]],10,[0,60,120],23,null,400);
 
   /* ── the Corniche promenade: railing, palms, lamps ── */
   var rail=plane(0,cy(0)-2,1500,16,-2.86), rg=rail.g;
