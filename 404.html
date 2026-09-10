@@ -1975,6 +1975,7 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .adm .pick label{padding:8px 14px;border-radius:999px;border:1px solid var(--line-2);background:#fff;cursor:pointer;font-size:13.5px}
 .adm .pick label:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy)}
 .adm .pick input{display:none}
+.adm .pick span{border:0;padding:0;background:transparent;color:inherit;font-size:inherit}.adm .pick input:checked+span{background:transparent;color:inherit}
 .adm .msgfilters{display:flex;gap:8px;flex-wrap:wrap}
 .adm .starpick{display:flex;gap:4px;font-size:26px;color:#D6D8DE;cursor:pointer}
 .adm .starpick span.on{color:var(--gold)}
@@ -2959,11 +2960,13 @@ function countryOf(code){ code=String(code||"").toUpperCase(); var c=countryList
   if(!c && typeof ADM!=="undefined" && ADM && ADM.countries) c=ADM.countries.filter(function(c){ return c.code===code })[0];   // an admin may work in a country that is still switched off
   return c||null }
 function defaultCountry(){ var d=countryList().filter(function(c){ return c.is_default })[0]; return d?d.code:"SY" }
-function countryFromPath(){ var m=location.pathname.match(/^\/([a-z]{2})(?=\/|$)/); if(!m) return null; var code=m[1].toUpperCase(); if(code==="SY"||["AR","EN","DE","FR","TR"].indexOf(code)>-1) return null; return (countryOf(code) || !COUNTRIES) ? code : null }   // before the country list is known (first visit), a /lb/… link is taken at its word
+var PREVIEW_Q=/[?&]preview=1/.test(location.search);
+var COUNTRY_URL0={ path:(location.pathname.match(/^\/([a-z]{2})(?=\/|$)/)||[])[1]||null, query:(location.search.match(/[?&]country=([A-Za-z]{2})/)||[])[1]||null };   // read once: the router rewrites the address before the country list has arrived
+function countryFromPath(){ var m=COUNTRY_URL0.path; if(!m) return null; var code=m.toUpperCase(); if(code==="SY"||["AR","EN","DE","FR","TR"].indexOf(code)>-1) return null; return (countryOf(code) || !COUNTRIES) ? code : null }   // before the country list is known (first visit), a /lb/… link is taken at its word
 function countryFromTZ(){ try{ var tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""; var c=countryList().filter(function(c){ return (c.tz||[]).indexOf(tz)>-1 })[0]; return c?c.code:null }catch(e){ return null } }
 function detectCountry(){
   var fromPath=countryFromPath(); if(fromPath) return fromPath;
-  try{ var m=location.search.match(/[?&]country=([A-Za-z]{2})/); if(m && countryOf(m[1])){ if(!/[?&]preview=1/.test(location.search)){ try{ localStorage.setItem("balkoun_country",m[1].toUpperCase()) }catch(e){} } return m[1].toUpperCase() } }catch(e){}
+  try{ var qc=COUNTRY_URL0.query; if(qc && countryOf(qc)){ if(!PREVIEW_Q){ try{ localStorage.setItem("balkoun_country",qc.toUpperCase()) }catch(e){} } return qc.toUpperCase() } }catch(e){}
   try{ var saved=localStorage.getItem("balkoun_country"); if(saved && countryOf(saved)) return saved }catch(e){}
   return countryFromTZ() || defaultCountry();
 }
@@ -2977,8 +2980,9 @@ var CUR_LABEL={SYP:["ل.س","SYP"],LBP:["ل.ل","LBP"],JOD:["د.أ","JOD"],TRY:[
 function curLabel(cur,lang){ cur=cur||CUR; if(cur==="USD") return "$"; var o=CUR_LABEL[cur]; return o ? (lang==="ar"?o[0]:o[1]) : cur }
 function phoneCC(){ var c=countryOf(COUNTRY); return String((c&&c.phone_code)||"+963").replace(/\D/g,"")||"963" }
 function strongDeed(code){ if(COUNTRY==="SY") return code==="green"; var c=countryOf(COUNTRY); var d=c&&(c.deeds||[]).filter(function(d){ return d.code===code })[0]; return !!(d&&d.strong) }
-var D_TABU_SY=D.TABU;
-function applyCountryDeeds(){ var c=countryOf(COUNTRY); if(COUNTRY!=="SY" && c && c.deeds && c.deeds.length){ var m={}; c.deeds.forEach(function(d){ m[d.code]=[d.ar,d.en,d.de||d.en,d.fr||d.en] }); D.TABU=m } else D.TABU=D_TABU_SY }
+var D_TABU_SY=D.TABU, D_COND_SY=D.COND;
+function applyCountryDeeds(){ var c=countryOf(COUNTRY); if(COUNTRY!=="SY" && c && c.deeds && c.deeds.length){ var m={}; c.deeds.forEach(function(d){ m[d.code]=[d.ar,d.en,d.de||d.en,d.fr||d.en] }); D.TABU=m } else D.TABU=D_TABU_SY;
+  if(COUNTRY!=="SY"){ var cc={}; Object.keys(D_COND_SY).forEach(function(k){ if(k!=="stripped") cc[k]=D_COND_SY[k] }); D.COND=cc } else D.COND=D_COND_SY }
 applyCountryDeeds();
 /* small inline flags (emoji flags do not render on Windows) */
 function flagSvg(code){
@@ -4182,7 +4186,7 @@ function rsMapInit(){
   if(!LMap){ ensureLeaflet().then(function(){ if(document.getElementById("rsMap")) rsMapInit() }).catch(function(){}); return }
   rsMapStop();
   var pts=rsResults().filter(function(x){ return x.lat&&x.lng });
-  var map=LMap.map(c,{zoomControl:true}).setView(pts.length?[pts[0].lat,pts[0].lng]:[34.8,38.5], pts.length?11:7);
+  var map=LMap.map(c,{zoomControl:true}).setView(pts.length?[pts[0].lat,pts[0].lng]:countryCenter().slice(0,2), pts.length?11:countryCenter()[2]);
   LMap.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(map);
   var b=[];
   pts.forEach(function(x){
@@ -4664,7 +4668,7 @@ function editView(){
    '<input type="file" id="eFiles" accept="image/*" multiple hidden>'+
    (function(){ var vids=(EDIT.photos||[]).filter(function(p){ return p.kind==="video" }), cfg=videoCfg(); if(!cfg.on && !vids.length) return '';
      return '<div class="evids"><b class="vpick-h">'+GX("videoH")+'</b><div class="shots">'+vids.map(function(p){ return '<div class="shot2 vshot">'+(p.thumb_url?'<img src="'+p.thumb_url+'" alt="">':'<span class="vph">▶</span>')+'<span class="vplay">▶</span>'+(p.duration_s?'<div class="kb ltr">'+fmtDur(p.duration_s)+'</div>':'')+'<button type="button" class="rm" data-delphoto="'+p.id+'">✕</button></div>' }).join("")+'</div>'+
-       (cfg.on && vids.length<cfg.n ? '<button type="button" class="vadd" id="eVAdd"><span class="vplay">▶</span><b>'+GX("videoAdd")+'</b><span>'+GX("videoHint").replace("{s}",cfg.s).replace("{mb}",cfg.mb)+'</span></button><input type="file" id="eVid" accept="video/mp4,video/webm,video/quicktime" hidden>' : '')+
+       (cfg.on && vids.length<cfg.n ? '<button type="button" class="vadd" id="eVAdd"><span class="vplay">▶</span><b>'+GX("videoAdd")+'</b><span>'+GX("videoHint").replace("{s}",cfg.s).replace("{mb}",cfg.mb)+'</span></button><input type="file" id="eVid" accept="video/*,.mp4,.mov,.m4v,.webm,.3gp,.mkv" hidden>' : '')+
        '<div class="hintx" id="eVMsg"></div></div>' })()+
   '</div></div>')+
  '<div class="bar2"><span class="msg" id="eMsg">'+(EDIT.msg||"")+'</span>'+
@@ -6328,14 +6332,25 @@ var _postMapInstance = null, _viewMapInstance = null;
 // governorate the lister has already chosen, so they don't have to
 // hunt for their city on a map of the whole country.
 var _geocodeCache = {};
+function govLL(name){ return GOV_COORDS[name] || (GEO_META.govLL||{})[name] || null }                 // Syria keeps its hand-set centres; other countries come from the database
+function areaLL(gov, area){ return (GEO_META.areaLL||{})[gov+"/"+area] || null }
+function countryCenter(){ if(COUNTRY==="SY") return [34.8,38.5,7]; var c=countryOf(COUNTRY); return (c&&c.lat!=null&&c.lng!=null) ? [+c.lat,+c.lng,+c.zoom||7] : [34.8,38.5,7] }
+function recenterPickerMap(map, govName, areaName){                                                   // called when the lister changes the governorate or the area while the map is open
+  if(!map) return;
+  var al=areaName ? areaLL(govName, areaName) : null; if(al){ map.setView(al,13); return }
+  var gl=govLL(govName); if(gl) map.setView(gl,11);
+  if(areaName) geocodeAreaAndRecenter(map, areaName, govName, true);
+}
 function geocodeAreaAndRecenter(map, areaName, govName, hadNoPinYet){
   if(!map || !areaName || !govName || !hadNoPinYet) return;
   var key = areaName+"|"+govName;
+  var stored = areaLL(govName, areaName); if(stored) _geocodeCache[key]=stored;
   if(_geocodeCache[key]){
     map.setView(_geocodeCache[key], 13);
     return;
   }
-  var q = encodeURIComponent(areaName+", "+govName+", Syria");
+  var cEn=(countryOf(COUNTRY)||{}).name_en||"Syria";
+  var q = encodeURIComponent(areaName+", "+govName+", "+cEn);
   fetch("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+q)
     .then(function(r){ return r.json() })
     .then(function(results){
@@ -6363,11 +6378,12 @@ function initPickerMap(containerId, state, govSelectIdOrCoords, wrapId, clearBtn
     govCenter = govSelectIdOrCoords;
   } else {
     var govEl = document.getElementById(govSelectIdOrCoords);
-    govCenter = govEl && GOV_COORDS[govEl.value] ? GOV_COORDS[govEl.value] : null;
+    govCenter = govEl ? govLL(govEl.value) : null;
   }
-  var startLat = state.lat || (govCenter ? govCenter[0] : 34.8);
-  var startLng = state.lng || (govCenter ? govCenter[1] : 38.5);
-  var zoom = state.lat ? 15 : (govCenter ? 11 : 7);
+  var cc=countryCenter();
+  var startLat = state.lat || (govCenter ? govCenter[0] : cc[0]);
+  var startLng = state.lng || (govCenter ? govCenter[1] : cc[1]);
+  var zoom = state.lat ? 15 : (govCenter ? 11 : cc[2]);
   var map = LMap.map(container).setView([startLat,startLng], zoom);
   LMap.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {maxZoom:19, attribution:"© OpenStreetMap"}).addTo(map);
@@ -6407,7 +6423,7 @@ function clearPostMap(){
 }
 function initEditMap(){
   if(_postMapInstance){ try{ _postMapInstance.remove() }catch(e){} _postMapInstance=null; }
-  var govCoords = (EDIT.row && GOV_COORDS[EDIT.row.g]) || null;
+  var govCoords = (EDIT.row && govLL(EDIT.row.g)) || null;
   _postMapInstance = initPickerMap("eMap", EDIT, govCoords, "eMapWrap", "eMapClear", function(){
     EDIT.locTouched=true;
     var clr=document.getElementById("eMapClear"); if(clr) clr.onclick=clearEditMap;
@@ -7004,8 +7020,9 @@ function initMapSearch(){
   // through a closure, which is exactly what caused stale/empty data
   // to win a race against a later render in the previous attempt
   var withLoc = mapSearchMatches().filter(function(x){ return x.lat && x.lng });
-  var center = withLoc.length ? [withLoc[0].lat, withLoc[0].lng] : [34.8, 38.5];
-  var map = LMap.map(container).setView(center, withLoc.length ? 11 : 7);
+  var cc=countryCenter();
+  var center = withLoc.length ? [withLoc[0].lat, withLoc[0].lng] : [cc[0], cc[1]];
+  var map = LMap.map(container).setView(center, withLoc.length ? 11 : cc[2]);
   LMap.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {maxZoom:19, attribution:"© OpenStreetMap"}).addTo(map);
   var bounds = [];
@@ -7838,6 +7855,7 @@ function wire(){
    wireVideoPick();
    $$("#pg,#pa,#pm2,#pr,#pb,#pfl,#py,#pel,#ptel,#pd,#pp,#pname,#pcc").forEach(function(e){
      e.addEventListener("input",checkPost);e.addEventListener("change",checkPost)});
+   ["pg","pa"].forEach(function(id){ var el=$("#"+id); if(el) el.addEventListener("change", function(){ if(_postMapInstance && !NEW.lat) recenterPickerMap(_postMapInstance, ($("#pg")||{}).value, ($("#pa")||{}).value) }) });
    $$('input[name=cd2]').forEach(function(r){r.onchange=checkPost});
    if($("#pMapToggle")){
      $("#pMapToggle").onclick=function(){
@@ -9550,6 +9568,7 @@ function shrink(src, maxW, quality){
 function blobUrl(b){ return URL.createObjectURL(b) }
 
 /* ═══ listing videos ═══ */
+function isVideoFile(f){ return !!f && (/^video\//.test(f.type||"") || /\.(mp4|m4v|mov|webm|3gp|mkv|avi)$/i.test(f.name||"")) }
 function videoCfg(){ return { on: SX("video_enabled",true)!==false, mb: Math.min(50, +SX("video_max_mb",50)||50), s: +SX("video_max_s",90)||90, n: +SX("video_max",1)||1 } }
 function fmtDur(sec){ sec=Math.round(sec||0); return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0") }
 function videoProbe(file){   // duration + a poster frame (JPEG blob), read locally before anything is uploaded
@@ -9578,7 +9597,7 @@ function storageUploadXhr(path, file, contentType, onProgress){   // the storage
     xhr.send(file) }) }
 async function pickVideo(file, msgEl){   // validates a chosen file; resolves {file,duration,size,poster,preview} or throws a translated message
   var cfg=videoCfg(); if(!cfg.on) throw new Error(GX("videoOff"));
-  if(!/^video\//.test(file.type)) throw new Error(GX("videoBad"));
+  if(!isVideoFile(file)) throw new Error(GX("videoBad"));
   if(file.size>cfg.mb*1048576) throw new Error(GX("videoTooBig").replace("{mb}",cfg.mb));
   if(msgEl) msgEl.textContent=GX("videoReading");
   var p; try{ p=await videoProbe(file) }catch(e){ throw new Error(GX("videoBad")) }
@@ -9586,9 +9605,9 @@ async function pickVideo(file, msgEl){   // validates a chosen file; resolves {f
   if(msgEl) msgEl.textContent="";
   return { file:file, duration:p.duration, size:file.size, poster:p.poster, preview:p.poster?blobUrl(p.poster):"" } }
 async function uploadListingVideo(listingId, v, onProgress, viaRpc){
-  var stamp=Date.now()+"-"+Math.random().toString(36).slice(2,8), ext=(/webm/.test(v.file.type)?"webm":/quicktime/.test(v.file.type)?"mov":"mp4");
+  var stamp=Date.now()+"-"+Math.random().toString(36).slice(2,8), ext=(/webm/.test(v.file.type)?"webm":/quicktime|\.mov$/i.test(v.file.type+" "+v.file.name)?"mov":"mp4"), ctype=v.file.type||(ext==="webm"?"video/webm":ext==="mov"?"video/quicktime":"video/mp4");
   var pV="videos/listings/"+listingId+"/"+stamp+"."+ext, pP="photos/listings/"+listingId+"/"+stamp+"-poster.jpg";
-  await storageUploadXhr(pV, v.file, v.file.type, onProgress);
+  await storageUploadXhr(pV, v.file, ctype, onProgress);
   var poster=null; if(v.poster){ var uP=await storageUpload(pP, v.poster, {contentType:"image/jpeg", upsert:false}); if(!uP.error) poster=DB.storage.from("photos").getPublicUrl(pP).data.publicUrl }
   var url=DB.storage.from("photos").getPublicUrl(pV).data.publicUrl, dur=Math.round(v.duration||0);
   if(viaRpc){ var r=await rpc("bk_photo_add",{p_user:USER.id,p_listing:+listingId,p_url:url,p_thumb:poster,p_sort:1000,p_token:USER.token||null,p_kind:"video",p_duration:dur,p_size:v.size}); if(r&&r.error) throw new Error(r.error==="video_limit"?GX("videoLimit"):r.error==="video_off"?GX("videoOff"):r.error) }
@@ -9600,7 +9619,7 @@ function videoPickHtml(){
   return '<div class="vpick" id="vpick"><b class="vpick-h">'+GX("videoH")+'</b>'+
     (v ? '<div class="vprev">'+(v.preview?'<img src="'+v.preview+'" alt="">':'<span class="vph">▶</span>')+'<span class="vplay">▶</span><span class="vdur ltr">'+fmtDur(v.duration)+' · '+(Math.round(v.size/104857.6)/10)+' MB</span><button type="button" class="rm" id="vRm" aria-label="'+esc(t("del"))+'">✕</button></div>'
        : '<button type="button" class="vadd" id="vAdd"><span class="vplay">▶</span><b>'+GX("videoAdd")+'</b><span>'+GX("videoHint").replace("{s}",cfg.s).replace("{mb}",cfg.mb)+'</span></button>')+
-    '<input type="file" id="vfile" accept="video/mp4,video/webm,video/quicktime" hidden><div class="hintx" id="vMsg"></div></div>' }
+    '<input type="file" id="vfile" accept="video/*,.mp4,.mov,.m4v,.webm,.3gp,.mkv" hidden><div class="hintx" id="vMsg"></div></div>' }
 function wireVideoPick(){
   var wrap=$("#vpick"); if(!wrap) return;
   var repaint=function(){ var w=$("#vpick"); if(!w) return; var tmp=document.createElement("div"); tmp.innerHTML=videoPickHtml(); w.replaceWith(tmp.firstChild); wireVideoPick() };
@@ -9611,7 +9630,9 @@ function wireVideoPick(){
 }
 
 async function addFiles(list){
-  var files=[].slice.call(list).filter(function(f){ return /^image\//.test(f.type) });
+  var all=[].slice.call(list), files=all.filter(function(f){ return /^image\//.test(f.type) });
+  var vid=all.filter(isVideoFile)[0];
+  if(vid && videoCfg().on && !NEW.video){ try{ NEW.video=await pickVideo(vid, $("#vMsg")); var w=$("#vpick"); if(w){ var tmp=document.createElement("div"); tmp.innerHTML=videoPickHtml(); w.replaceWith(tmp.firstChild); wireVideoPick() } }catch(e){ var m=$("#vMsg"); if(m){ m.textContent=e.message||"error"; m.style.color="var(--danger)" } } }
   if(!files.length) return;
   if($("#msg")) $("#msg").textContent = t("reading")+" 0/"+files.length;
   for(var i=0;i<files.length;i++){
@@ -12239,10 +12260,10 @@ function adminStorageBody(limitBlock){
 }
 function applyGeo(geo){
   if(!geo||!geo.g||!geo.g.length) return;
-  var GEO={}, GOVN={}, meta={govId:{},govSlug:{},areaId:{},areaSlug:{},kind:{}};
-  geo.g.forEach(function(g){ GEO[g[1]]=[]; GOVN[g[1]]=[g[2]||g[1], g[2]||g[1]]; meta.govId[g[1]]=g[0]; meta.govSlug[g[1]]=g[3]; meta.kind[g[1]]={} });
+  var GEO={}, GOVN={}, meta={govId:{},govSlug:{},areaId:{},areaSlug:{},kind:{},govLL:{},areaLL:{}};
+  geo.g.forEach(function(g){ GEO[g[1]]=[]; GOVN[g[1]]=[g[2]||g[1], g[2]||g[1]]; meta.govId[g[1]]=g[0]; meta.govSlug[g[1]]=g[3]; meta.kind[g[1]]={}; if(g[4]!=null&&g[5]!=null) meta.govLL[g[1]]=[+g[4],+g[5]] });
   var byId={}; geo.g.forEach(function(g){ byId[g[0]]=g[1] });
-  geo.a.forEach(function(a){ var gname=byId[a[1]]; if(!gname) return; GEO[gname].push(a[2]); meta.areaId[gname+"/"+a[2]]=a[0]; meta.areaSlug[gname+"/"+a[2]]=a[4]; meta.kind[gname][a[2]]=a[5]||"area" });
+  geo.a.forEach(function(a){ var gname=byId[a[1]]; if(!gname) return; GEO[gname].push(a[2]); meta.areaId[gname+"/"+a[2]]=a[0]; meta.areaSlug[gname+"/"+a[2]]=a[4]; meta.kind[gname][a[2]]=a[5]||"area"; if(a[6]!=null&&a[7]!=null) meta.areaLL[gname+"/"+a[2]]=[+a[6],+a[7]] });
   // keep the old English/German names where the database has none
   Object.keys(GOVN).forEach(function(k){ if(D.GOVN&&D.GOVN[k]&&!(geo.g.find(function(g){return g[1]===k})||[])[2]) GOVN[k]=D.GOVN[k] });
   D.GEO=GEO; D.GOVN=GOVN; GEO_META=meta;
