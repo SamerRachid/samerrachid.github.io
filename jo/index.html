@@ -1348,6 +1348,10 @@ footer{font-size:14px}
 .curtain .blogo{--logo-h:clamp(64px,9vw,104px);color:#CFC4AE;gap:calc(var(--logo-h) * .1)}.curtain .blogo-w small{color:#9DB0CC}
 .curtain .bmark .bdia{transform-origin:50% 50%;transform-box:fill-box;animation:diaSpin 1.25s cubic-bezier(.25,.6,.2,1) .05s both}
 .curtain.done .bmark .bdia{animation:diaSpinOut .85s cubic-bezier(.6,0,.2,1) forwards}
+/* the header logo's diamond turns once every ten seconds, the same turn as in the opening */
+@keyframes hdrDiaSpin{0%{transform:rotate(0deg)}13%{transform:rotate(360deg)}100%{transform:rotate(360deg)}}
+.hbar .logo .bmark .bdia{transform-origin:50% 50%;transform-box:fill-box;animation:hdrDiaSpin 10s cubic-bezier(.65,0,.35,1) 2s infinite}
+@media (prefers-reduced-motion:reduce){.hbar .logo .bmark .bdia{animation:none}}
 @keyframes diaSpin{from{transform:rotate(-300deg) scale(.6);opacity:0}30%{opacity:1}to{transform:rotate(0) scale(1);opacity:1}}
 @keyframes diaSpinOut{to{transform:rotate(180deg)}}
 .curtain .cw::after{content:"";position:absolute;inset-inline-end:6px;bottom:4px;height:2px;width:0;background:var(--gold);animation:curLine .7s cubic-bezier(.2,.7,.2,1) .5s forwards}
@@ -10459,7 +10463,7 @@ function homeTrustHtml(){
    '</div></div></section>';
 }
 
-function heroBgTypeEff(){ var v=SITE.hero_bg_type||"sketch"; return (v==="sketch" && COUNTRY!=="SY") ? "none" : v }   // the Damascus sketch is Syria's; other countries stay blank until they get their own scene
+function heroBgTypeEff(){ var v=SITE.hero_bg_type||"sketch"; return (v==="sketch" && !SKETCH_BUILDERS[COUNTRY]) ? "none" : v }   // a drawn scene shows only where the country has one; the rest stay blank
 function bandImgHtml(){
   var src=HU("band_img", COUNTRY==="SY"?"/assets/home/umayyad.jpg":""); if(!src) return "";
   var alt=HT("band_img_alt", COUNTRY==="SY"?({ar:"الجامع الأموي في دمشق",en:"The Umayyad Mosque in Damascus",de:"Die Umayyaden-Moschee in Damaskus"}[L]||"The Umayyad Mosque in Damascus"):"");
@@ -10593,10 +10597,12 @@ function heroChoreo(){
    The curtain navy stays; gold lines draw Qasioun, the Umayyad Mosque and Damascene houses with
    their balconies (~2.6s, timed to the curtain lift), the drawing stays, and a soft shine travels
    along the lines every few seconds (SMIL, so it costs nothing while idle). Built once per load. */
-var _sketch=null;
+var _sketches={}, _sketch=null;
+var SKETCH_BUILDERS={SY:function(){ return sketchBuild() }, LB:function(){ return sketchBuildLB() }};   // one drawn scene per country; countries without one stay blank
 function sketchMount(){
   var box=$("#sketchBox"); if(!box) return;
-  if(!_sketch) _sketch=sketchBuild();
+  var mk=SKETCH_BUILDERS[COUNTRY]; if(!mk) return;
+  if(!_sketches[COUNTRY]) _sketches[COUNTRY]=mk(); _sketch=_sketches[COUNTRY];
   if(_sketch.el.parentNode!==box && !(box.firstChild && box.firstChild.contains(_sketch.el))){ box.innerHTML=""; var wrap=document.createElement("div"); wrap.className="sk-wrap"; wrap.appendChild(_sketch.el); box.appendChild(wrap) }
   if(_sketch.started && _sketch.refit) _sketch.refit();   // re-render: keep the finished picture fitted to the free space
   if(!_sketch.started){
@@ -10855,6 +10861,167 @@ function sketchBuild(){
     setTimeout(function(){ done=true; rest() },T+300);
   }
   function finalCam(){ var phone=W<760; return phone ? {x:-(SQ.x-40), y:-(SQ.y-225), z:1.15, s:-14, t:52} : {x:-(SQ.x-20), y:-(SQ.y-96), z:1.7, s:-16, t:60} }
+  function finish(){ measure(); var fc=finalCam(); stage.style.transform="none"; tilt.style.transform="rotateX("+fc.t+"deg)"; spin.style.transform="rotateZ("+fc.s+"deg)"; zoom.style.transform="scale("+fc.z+")"; pan.style.transform="translate("+fc.x+"px,"+fc.y+"px)";
+    items.forEach(function(it){ it[0].style.strokeDasharray="" }); fades.forEach(function(f){ f[0].setAttribute("opacity",f[3]) }); done=true; rest() }
+  function refit(){ if(!done) return; measure(); stage.style.transform="none" }
+  window.addEventListener("resize",refit);
+  return {el:stage, play:play, finish:finish, refit:refit, started:false};
+}
+
+/* ── Lebanon: "Raouché, Beirut" — the Pigeon Rocks off the Corniche at sunset, in the same gold-line style as Damascus ── */
+function sketchBuildLB(){
+  /* One 3D world: the sea (the ground, with waves and a boat), the two Pigeon Rocks standing in it, the Corniche promenade with its
+     railing, palms and lamps, and behind them the Beirut towers, the Manara lighthouse and the Sannine ridge, with the sun low in the sky.
+     Only the camera moves: it starts close on the arch, pulls back and rises over the bay, glides along the Corniche and settles at promenade height. */
+  var NS="http://www.w3.org/2000/svg", GOLD="#E8BC6A", SOFT="#FFF3D0", SEA="#DCE9F5", EASE="cubic-bezier(.65,0,.35,1)";
+  function S(tag,attrs,parent){ var e=document.createElementNS(NS,tag); for(var k in attrs) e.setAttribute(k,attrs[k]); if(parent) parent.appendChild(e); return e }
+  function D(cls,parent){ var d=document.createElement("div"); d.className=cls; if(parent) parent.appendChild(d); return d }
+  function rnd(seed){ var s=seed; return function(){ s=(s*9301+49297)%233280; return s/233280 } }
+  function f1(n){ return (+n).toFixed(1) }
+  var stage=D("sk-stage"), fit=D("sk-fit",stage), tilt=D("sk-tilt",fit), spin=D("sk-spin",tilt), zoom=D("sk-zoom",spin), pan=D("sk-pan",zoom), sweep=D("sk-sweep",stage);
+  var items=[], fades=[];
+  function G(parent,extra){ return S("g",Object.assign({fill:"none",stroke:GOLD,"stroke-width":"1.4","stroke-linecap":"round","stroke-linejoin":"round"},extra||{}),parent) }
+  function P(g,d,t,dur,w,op,col){ var p=S("path",{d:d},g); if(w) p.setAttribute("stroke-width",w); if(op) p.setAttribute("stroke-opacity",op); if(col) p.setAttribute("stroke",col); items.push([p,t,dur]); return p }
+  function Ci(g,cx,cy,r,t,dur,w,op){ var c=S("circle",{cx:cx,cy:cy,r:r},g); if(w) c.setAttribute("stroke-width",w); if(op) c.setAttribute("stroke-opacity",op); items.push([c,t,dur]); return c }
+  function plane(x,y,w,h,rz,z,parent){ var d=D("sk-pl",parent||pan), ox=parent?0:500, oy=parent?0:500; d.style.cssText="left:"+(ox+x-w/2)+"px;top:"+(oy+y-h)+"px;width:"+w+"px;height:"+h+"px;transform:translateZ("+(z!=null?z:1)+"px) "+(rz?"rotateZ("+rz+"deg) ":"")+"rotateX(-90deg)"; var s=S("svg",{viewBox:"0 0 "+w+" "+h,preserveAspectRatio:"none"},d); return {el:d,svg:s,g:G(s)} }
+  function flat(x,y,w,h,z){ var d=D("sk-pl",pan); d.style.cssText="left:"+(500+x-w/2)+"px;top:"+(500+y-h/2)+"px;width:"+w+"px;height:"+h+"px;transform-origin:50% 50%;transform:translateZ("+z+"px)"; var s=S("svg",{viewBox:"0 0 "+w+" "+h,preserveAspectRatio:"none"},d); return {el:d,svg:s,g:G(s)} }
+
+  /* ── the ground: the coast runs across the world, land to the north, the sea to the south; the rocks stand in the water ── */
+  var ground=S("svg",{class:"sk-ground",viewBox:"-900 -500 1800 1000",style:"left:-400px;width:1800px"},pan), gG=G(ground);
+  var RK={x:-120,y:90}, RK2={x:80,y:150};
+  var cy=function(x){ return -60-0.05*x };                                     // the shoreline, rising gently to the north-east
+  P(gG,"M-900 "+f1(cy(-900))+" L900 "+f1(cy(900)),2000,1400,"1.5",".95");        // the shore
+  P(gG,"M-900 "+f1(cy(-900)-30)+" L900 "+f1(cy(900)-30)+" M-900 "+f1(cy(-900)-44)+" L900 "+f1(cy(900)-44),2300,1400,"1",".5");   // the Corniche road
+  P(gG,"M-900 "+f1(cy(-900)-70)+" L900 "+f1(cy(900)-70),2500,1300,"1",".6");    // the far kerb
+  var pav=""; for(var px=-880; px<900; px+=36) pav+="M"+px+" "+f1(cy(px))+" L"+px+" "+f1(cy(px)-30)+" "; P(gG,pav,2600,1200,".6",".22");   // promenade paving
+  var grid=""; for(var gx=-880; gx<900; gx+=90) grid+="M"+gx+" "+f1(cy(gx)-70)+" L"+(gx+10)+" -500 "; for(var gy=-120; gy>-500; gy-=70) grid+="M-900 "+f1(gy-45)+" L900 "+f1(gy-135)+" "; P(gG,grid,3000,1400,".8",".2");   // the streets of Ras Beirut
+  var block=S("g",{fill:GOLD,stroke:"none",opacity:0},gG); var rb=rnd(31);
+  for(var i=0;i<380;i++){ var bx=-880+rb()*1780, by=cy(bx)-90-rb()*380; S("rect",{x:f1(bx),y:f1(by),width:f1(4+rb()*9),height:f1(4+rb()*7),opacity:f1(.10+rb()*.3)},block) }
+  fades.push([block,3200,1300,1]);
+  // the sea: rows of small waves, drawn late and kept moving at rest
+  var waves=S("g",{},gG), wv=""; for(var wy=40; wy<480; wy+=26){ var off=((wy/26)%2)*30; for(var wx=-880+off; wx<880; wx+=60){ if(wy<cy(wx)+30) continue; wv+="M"+wx+" "+wy+" q15 -7 30 0 t30 0 " } }
+  P(waves,wv,1400,2200,".9",".45",SEA);
+  var deep=""; for(var wy2=52; wy2<480; wy2+=52){ for(var wx2=-850; wx2<880; wx2+=120){ if(wy2<cy(wx2)+40) continue; deep+="M"+wx2+" "+wy2+" q20 -5 40 0 " } } P(waves,deep,1800,2000,".7",".25",SEA);
+  // the rocks' feet in the water and the foam ring around them
+  P(gG,"M"+f1(RK.x-140)+" "+f1(RK.y)+" a140 60 0 1 0 280 0 a140 60 0 1 0 -280 0",300,700,"1.2",".7");
+  P(gG,"M"+f1(RK2.x-70)+" "+f1(RK2.y)+" a70 34 0 1 0 140 0 a70 34 0 1 0 -140 0",600,600,"1.1",".6");
+  P(gG,"M"+f1(RK.x-160)+" "+f1(RK.y+6)+" a160 74 0 1 0 320 0 a160 74 0 1 0 -320 0",900,900,".9",".35",SEA);
+  // a fishing boat out on the water
+  P(gG,"M-360 300 L-318 300 L-324 310 L-354 310 Z M-339 300 V284 M-339 284 L-326 296",7600,500,"1.1",".85");
+
+  /* ── the Pigeon Rocks: the big arched rock and its smaller companion, each a front face and a side face ── */
+  var bigF=plane(RK.x,RK.y+20,260,190), bg=bigF.g;
+  // a craggy limestone mass: jagged crown, sheer faces, the arch cut through its foot
+  var bigOut="M10 190 L4 152 L12 120 L24 98 L30 70 L46 52 L64 44 L78 26 L98 14 L124 8 L146 16 L166 6 L188 12 L206 28 L222 46 L232 68 L244 92 L242 122 L250 154 L248 190";
+  var rockFill=S("path",{d:bigOut+" Z",fill:GOLD,stroke:"none",opacity:0},bg); fades.push([rockFill,500,1200,.09]);
+  P(bg,bigOut,0,1400,"2.1");
+  P(bg,"M98 190 L100 154 L108 126 L122 110 L140 106 L156 114 L166 134 L170 160 L172 190",700,700,"1.9");                    // the arch
+  var archFill=S("path",{d:"M98 190 L100 154 L108 126 L122 110 L140 106 L156 114 L166 134 L170 160 L172 190 Z",fill:"#0B1224",stroke:"none",opacity:0},bg); fades.push([archFill,900,700,.55]);
+  P(bg,"M14 146 L52 140 L90 146 L132 138 L176 142 L214 136 L242 140 M26 112 L60 104 L96 110 L140 100 L182 104 M40 76 L70 64 L104 70 L150 58 L196 66 L222 60 M84 40 L118 30 L150 36 L178 24 L204 34",1200,900,".9",".45");
+  P(bg,"M30 172 L60 166 L94 170 M176 170 L206 164 L240 168 M8 130 L20 128 M234 108 L246 104",1500,500,".8",".4");
+  var bigS=plane(RK.x+130,RK.y-20,120,190,90), bsg=bigS.g;
+  var sideOut="M8 190 L4 140 L14 96 L26 66 L44 46 L60 34 L78 44 L96 68 L108 110 L112 190";
+  var sideFill=S("path",{d:sideOut+" Z",fill:GOLD,stroke:"none",opacity:0},bsg); fades.push([sideFill,700,1000,.06]);
+  P(bsg,sideOut,300,1200,"1.6",".85"); P(bsg,"M12 150 L40 144 L74 150 L108 142 M20 104 L46 96 L78 102 L104 94 M34 62 L56 56 L82 62",1300,600,".8",".4");
+  var smF=plane(RK2.x,RK2.y+10,140,120), sg=smF.g;
+  var smOut="M6 120 L4 92 L12 66 L28 48 L44 38 L60 26 L78 18 L96 24 L112 40 L124 62 L132 88 L134 120";
+  var smFill=S("path",{d:smOut+" Z",fill:GOLD,stroke:"none",opacity:0},sg); fades.push([smFill,700,1000,.08]);
+  P(sg,smOut,500,1100,"1.8"); P(sg,"M14 94 L44 86 L80 92 L128 84 M24 64 L54 56 L90 60 L120 52 M46 40 L74 32 L104 38",1300,600,".9",".45");
+  var smS=plane(RK2.x+70,RK2.y-20,70,120,90), ssg=smS.g; P(ssg,"M6 120 L4 80 L14 50 L30 34 L46 40 L60 70 L64 120",700,900,"1.3",".7");
+  // spray at the foot of the big rock
+  var drops=[]; var dg=S("g",{fill:SEA,stroke:"none"},bg); drops.push(dg); [[40,182],[70,176],[210,180],[236,174],[130,186],[18,170],[254,168]].forEach(function(p){ S("circle",{cx:p[0],cy:p[1],r:1.4,opacity:0},dg) });
+
+  /* ── the Corniche promenade: railing, palms, lamps ── */
+  var rail=plane(0,cy(0)-2,1500,16,-2.86), rg=rail.g;
+  P(rg,"M0 4 H1500 M0 9 H1500",5600,1400,"1",".7"); var rv=""; for(var rx=6; rx<1500; rx+=12) rv+="M"+rx+" 4 V16 "; P(rg,rv,5900,1200,".7",".45");
+  [-560,-380,-200,-20,160,340,520].forEach(function(x,i){ var pP=plane(x,cy(x)-36,40,62), pg=pP.g;
+    P(pg,"M20 62 C18 46 19 30 20 16",6000+i*100,400,"1.4"); P(pg,"M20 16 C10 12 3 16 0 25 M20 16 C30 12 37 16 40 25 M20 16 C13 5 7 2 2 6 M20 16 C27 5 33 2 38 6 M20 16 C18 7 16 0 13 2 M20 16 C22 7 24 0 27 2",6300+i*100,500,"1.1") });
+  [-470,-290,-110,70,250,430].forEach(function(x,i){ var lP=plane(x,cy(x)-8,10,44), lg=lP.g; P(lg,"M5 44 V8",6200+i*80,300,"1.2"); Ci(lg,5,5,3,6500+i*80,200,"1.2") });
+  var lamps=S("g",{fill:SOFT,stroke:"none",opacity:0},gG); [-470,-290,-110,70,250,430].forEach(function(x){ S("circle",{cx:x,cy:f1(cy(x)-8),r:2.2},lamps) }); fades.push([lamps,6800,600,.9]);
+
+  /* ── behind everything: Sannine, the Beirut towers, the Manara lighthouse, the sun ── */
+  var bkP=plane(0,-470,1600,330), bk=bkP.g;
+  P(bk,"M0 200 C120 176 240 150 380 132 C520 114 640 118 760 104 C900 88 1040 96 1180 110 C1320 124 1460 150 1600 168",3600,1500,"1.6",".85");   // Sannine
+  P(bk,"M60 190 C220 168 360 150 520 142 C660 134 820 138 980 146 C1160 156 1340 168 1600 190",3800,1400,".9",".3");
+  var rt=rnd(17), tw=""; var towers=[[300,120,34],[350,150,30],[396,96,26],[430,128,40],[480,168,30],[520,110,28],[560,140,36],[610,196,34],[660,150,30],[700,124,26],[740,176,40],[790,134,30],[830,110,28],[870,150,36],[930,126,30],[970,172,34],[1020,118,26],[1060,140,40],[1110,104,30],[1160,150,28],[1210,120,36],[1260,164,30]];
+  towers.forEach(function(t,i){ var x=t[0], h=t[1], w=t[2]; P(bk,"M"+x+" 330 V"+(330-h)+" H"+(x+w)+" V330",4200+i*60,700,"1.2",".9"); var win=""; for(var wy3=330-h+8; wy3<322; wy3+=9) for(var wx3=x+5; wx3<x+w-4; wx3+=7) if(rt()>.35) win+="M"+wx3+" "+wy3+" h3 "; P(bk,win,4700+i*60,700,".7",".4") });
+  P(bk,"M1420 330 V214 H1444 V330 M1416 214 H1448 V202 H1416 Z M1424 202 V190 H1440 V202",4400,700,"1.3");                       // the Manara lighthouse
+  P(bk,"M1420 236 H1444 M1420 258 H1444 M1420 280 H1444 M1420 302 H1444",4900,400,"1",".5");
+  Ci(bk,1432,196,3,5200,200,"1.2");
+  var sun=Ci(bk,150,120,34,5400,900,"1.6",".95"), pulse=sun;
+  var halo=S("circle",{cx:150,cy:120,r:52,fill:SOFT,stroke:"none",opacity:0},bk); fades.push([halo,5600,900,.12]);
+  P(bk,"M60 120 H92 M208 120 H240 M86 56 L110 80 M190 80 L214 56 M150 42 V70",5800,600,"1",".45");                              // rays
+  var sparkle=S("path",{d:"M150 120 m0 -10 l2 8 l8 2 l-8 2 l-2 8 l-2 -8 l-8 -2 l8 -2 z",fill:SOFT,stroke:"none",opacity:0},bk); sparkle.style.transformOrigin="150px 120px";
+  // gulls over the bay
+  var gullP=flat(RK.x-60,RK.y-60,300,120,230), gulls=[]; [[30,40],[90,20],[150,50],[210,26],[260,60]].forEach(function(p,i){ var gg=S("g",{},gullP.g); gulls.push(gg); P(gg,"M"+p[0]+" "+p[1]+" q6 -6 12 0 q6 -6 12 0",7200+i*120,300,"1.1",".85") });
+
+  /* ── stage measurement and the camera (the same rig as Damascus) ── */
+  var W=1600,H=900, band={x:0,y:0,w:640,h:420}, stageK=1, stageDX=0, stageDY=0, done=false, anims=[];
+  function measure(){
+    var hv=document.getElementById("hv"); if(!hv) return;
+    var r=hv.getBoundingClientRect(); W=Math.max(320,Math.round(r.width)); H=Math.max(240,Math.round(r.height));
+    var hd=document.querySelector("header"), top=(hd?hd.offsetHeight:64)+8;
+    var sb=document.querySelector(".hero .sbar"), sbTop=H-24;
+    if(sb){ var sr=sb.getBoundingClientRect(); sbTop=sr.top-r.top-(sb.classList.contains("choreo")?90:0)-14 }
+    var h1=document.querySelector(".hero h1"), rtl=typeof rtlNow==="function"?rtlNow():true, hx0=W*.5, hx1=W*.5;
+    if(h1){ var hr=h1.getBoundingClientRect(); hx0=hr.left-r.left; hx1=hr.right-r.left }
+    var bw = rtl ? Math.max(W*.3, Math.min(W*.52, hx0-W*.03-20)) : Math.max(W*.3, Math.min(W*.52, W-hx1-W*.03-20));
+    band={x:rtl?W*.03:W-W*.03-bw, y:top, w:bw, h:Math.max(120,sbTop-top)};
+    if(W<760){ band={x:W*.04,y:top,w:W*.92,h:Math.max(100,Math.min(H*.42,sbTop-top-6))} }
+    stage.style.left=band.x+"px"; stage.style.top=band.y+"px"; stage.style.width=band.w+"px"; stage.style.height=band.h+"px";
+    var k=band.w/1000; fit.style.transform="translate("+(-500*k)+"px,"+(-500*k)+"px) scale("+k+")";
+    stageK=Math.min((W*.94)/band.w,(sbTop-top)/band.h); stageDX=(W/2)-(band.x+band.w/2); stageDY=((top+sbTop)/2)-(band.y+band.h/2);
+  }
+  function prep(){ items.forEach(function(it){ var L=(it[0].getTotalLength&&it[0].isConnected)?it[0].getTotalLength():300; it[0].style.strokeDasharray=L; it[0].style.strokeDashoffset=L }) }
+  function startAll(){ items.forEach(function(it){ var L=parseFloat(it[0].style.strokeDasharray); anims.push(it[0].animate([{strokeDashoffset:L},{strokeDashoffset:0}],{delay:it[1],duration:it[2],fill:"both",easing:"cubic-bezier(.4,0,.2,1)"})) });
+    fades.forEach(function(f){ anims.push(f[0].animate([{opacity:0},{opacity:f[3]}],{delay:f[1],duration:f[2],fill:"both"})) }) }
+  function an(el,kf,o){ var a=el.animate(kf,Object.assign({fill:"both"},o)); anims.push(a); return a }
+  var camTilt=null, camSpin=null, restCam=null, restTimer=null, tick=0;
+  function hoverParallax(){
+    restCam=finalCam();
+    [camTilt,camSpin].forEach(function(a){ if(a){ try{ a.commitStyles() }catch(e){} a.cancel() } });
+    tilt.style.transform="rotateX("+restCam.t+"deg)"; spin.style.transform="rotateZ("+restCam.s+"deg)"; stage.classList.add("sk-rest");
+    if(!(window.matchMedia&&matchMedia("(hover:hover)").matches)) return;
+    if(window._skParallaxBoundLB) return; window._skParallaxBoundLB=true;
+    var inside=false;
+    document.addEventListener("mousemove",function(e){
+      if(!done || !stage.isConnected) return;
+      var host=document.querySelector(".home-hero .hero-outer"); if(!host) return;
+      var hr=host.getBoundingClientRect(), r=stage.getBoundingClientRect();
+      var over = e.clientX>=hr.left && e.clientX<=hr.right && e.clientY>=hr.top && e.clientY<=hr.bottom;
+      if(over){ inside=true;
+        var dx=Math.max(-1.4,Math.min(1.4,((e.clientX-r.left)/r.width-.5)*2)), dy=Math.max(-1.4,Math.min(1.4,((e.clientY-r.top)/r.height-.5)*2));
+        spin.style.transform="rotateZ("+(restCam.s+dx*7).toFixed(2)+"deg)"; tilt.style.transform="rotateX("+(restCam.t-dy*3).toFixed(2)+"deg)";
+      } else if(inside){ inside=false; spin.style.transform="rotateZ("+restCam.s+"deg)"; tilt.style.transform="rotateX("+restCam.t+"deg)" }
+    },{passive:true});
+  }
+  function rest(){
+    hoverParallax();
+    try{ document.dispatchEvent(new Event("sk-rest")) }catch(e){}
+    waves.animate([{transform:"translateX(0)"},{transform:"translateX(14px)"}],{duration:3200,direction:"alternate",iterations:Infinity,easing:"ease-in-out"});
+    gulls.forEach(function(g,i){ g.animate([{transform:"translate(0,0)"},{transform:"translate("+(8+i*3)+"px,"+(-4-i)+"px)"}],{duration:2600+i*400,direction:"alternate",iterations:Infinity,easing:"ease-in-out"}) });
+    drops.forEach(function(dg){ [].slice.call(dg.children).forEach(function(c,i){ c.animate([{opacity:0,transform:"translateY(4px)"},{opacity:.9,offset:.3},{opacity:0,transform:"translateY(-9px)"}],{duration:1500,delay:i*230,iterations:Infinity}) }) });
+    var beat=function(){ tick++;
+      if(!pulse.isConnected){ clearInterval(restTimer); return }
+      if(tick%3!==0){ halo.animate([{opacity:.12},{opacity:.28},{opacity:.12}],{duration:1500,easing:"ease-in-out",fill:"both"});
+        sparkle.animate([{opacity:0,transform:"scale(.2) rotate(0deg)"},{opacity:1,transform:"scale(1.4) rotate(45deg)",offset:.5},{opacity:0,transform:"scale(.3) rotate(90deg)"}],{delay:900,duration:900,fill:"both"}) }
+      else { sweep.animate([{transform:"translateX(-70%)",opacity:0},{opacity:1,offset:.1},{opacity:1,offset:.9},{transform:"translateX(70%)",opacity:0}],{duration:2200,easing:EASE,fill:"both"}) } };
+    beat(); restTimer=setInterval(beat,3400);
+  }
+  var T=10400;
+  function kf(list){ return list.map(function(k){ var o={offset:k[0]/T}; o[k[1]]=k[2]; if(k[3]) o.easing=k[3]; return o }) }
+  function play(){
+    measure(); prep(); startAll();
+    stage.style.transform="translate("+stageDX+"px,"+stageDY+"px) scale("+stageK+")";
+    an(stage,[{transform:"translate("+stageDX+"px,"+stageDY+"px) scale("+stageK+")"},{transform:"translate(0,0) scale(1)"}],{delay:500,duration:1900,easing:EASE});
+    var fc=finalCam(), FX=fc.x, FY=fc.y, FZ=fc.z, FS=fc.s;
+    camTilt=an(tilt,kf([[0,"transform","rotateX(82deg)",EASE],[2600,"transform","rotateX(74deg)",EASE],[5000,"transform","rotateX(8deg)","cubic-bezier(.4,0,.2,1)"],[7000,"transform","rotateX(8deg)",EASE],[9400,"transform","rotateX("+fc.t+"deg)",EASE],[T,"transform","rotateX("+fc.t+"deg)"]]),{duration:T});
+    camSpin=an(spin,kf([[0,"transform","rotateZ(0deg)"],[4000,"transform","rotateZ(0deg)","cubic-bezier(.4,0,.3,1)"],[7000,"transform","rotateZ(38deg)","cubic-bezier(.5,0,.3,1)"],[9400,"transform","rotateZ("+FS+"deg)"],[T,"transform","rotateZ("+FS+"deg)"]]),{duration:T});
+    an(zoom,kf([[0,"transform","scale(2.8)",EASE],[2600,"transform","scale(2.0)",EASE],[5000,"transform","scale(1.1)",EASE],[7000,"transform","scale(1.1)",EASE],[9400,"transform","scale("+FZ+")"],[T,"transform","scale("+FZ+")"]]),{duration:T});
+    an(pan,kf([[0,"transform","translate("+(-RK.x)+"px,"+(-RK.y+30)+"px)"],[3200,"transform","translate("+(-RK.x)+"px,"+(-RK.y+30)+"px)",EASE],[6000,"transform","translate(0px,140px)",EASE],[7000,"transform","translate(0px,140px)",EASE],[9400,"transform","translate("+FX+"px,"+FY+"px)"],[T,"transform","translate("+FX+"px,"+FY+"px)"]]),{duration:T});
+    setTimeout(function(){ done=true; rest() },T+300);
+  }
+  function finalCam(){ var phone=W<760; return phone ? {x:-(RK.x+50), y:-(RK.y-300), z:.9, s:-8, t:52} : {x:-(RK.x+40), y:-(RK.y-230), z:1.2, s:-12, t:58} }
   function finish(){ measure(); var fc=finalCam(); stage.style.transform="none"; tilt.style.transform="rotateX("+fc.t+"deg)"; spin.style.transform="rotateZ("+fc.s+"deg)"; zoom.style.transform="scale("+fc.z+")"; pan.style.transform="translate("+fc.x+"px,"+fc.y+"px)";
     items.forEach(function(it){ it[0].style.strokeDasharray="" }); fades.forEach(function(f){ f[0].setAttribute("opacity",f[3]) }); done=true; rest() }
   function refit(){ if(!done) return; measure(); stage.style.transform="none" }
@@ -11527,7 +11694,7 @@ var HS_T={
  g_look:{ar:"الشكل والموضع",en:"Look and position",de:"Aussehen und Position"}, f_h1Color:{ar:"لون العنوان",en:"Headline color",de:"Farbe der Überschrift"}, f_h1bColor:{ar:"لون الجزء المميّز",en:"Highlight color",de:"Farbe der Hervorhebung"},
  f_size:{ar:"حجم الخط (px)",en:"Font size (px)",de:"Schriftgröße (px)"}, f_x:{ar:"إزاحة أفقية (px)",en:"Horizontal offset (px)",de:"Horizontaler Versatz (px)"}, f_y:{ar:"إزاحة رأسية (px)",en:"Vertical offset (px)",de:"Vertikaler Versatz (px)"},
  f_heroGap:{ar:"المسافة تحت القسم الأول",en:"Space below the hero",de:"Abstand unter dem Hero"},
- f_bgType:{ar:"نوع الخلفية",en:"Background type",de:"Hintergrundart"}, bg_none:{ar:"بدون خلفية (لون كحلي)",en:"None (navy color)",de:"Keiner (Marineblau)"}, bg_video:{ar:"فيديو",en:"Video",de:"Video"}, bg_photo:{ar:"صورة",en:"Photo",de:"Foto"}, bg_dawn:{ar:"رسم فجر دمشق المتحرك",en:"Animated Damascus dawn",de:"Animierte Damaskus-Dämmerung"}, bg_sketch:{ar:"رسم دمشق بخطوط ذهبية",en:"Damascus in gold lines",de:"Damaskus in Goldlinien"},
+ f_bgType:{ar:"نوع الخلفية",en:"Background type",de:"Hintergrundart"}, bg_none:{ar:"بدون خلفية (لون كحلي)",en:"None (navy color)",de:"Keiner (Marineblau)"}, bg_video:{ar:"فيديو",en:"Video",de:"Video"}, bg_photo:{ar:"صورة",en:"Photo",de:"Foto"}, bg_dawn:{ar:"رسم فجر دمشق المتحرك",en:"Animated Damascus dawn",de:"Animierte Damaskus-Dämmerung"}, bg_sketch:{ar:"رسم دمشق بخطوط ذهبية",en:"Damascus in gold lines",de:"Damaskus in Goldlinien"}, bg_sketch_LB:{ar:"رسم الروشة في بيروت بخطوط ذهبية",en:"Raouché, Beirut, in gold lines",de:"Raouché, Beirut, in Goldlinien"},
  f_speed:{ar:"سرعة الفيديو",en:"Video speed",de:"Videogeschwindigkeit"}, f_upVideo:{ar:"فيديو الخلفية",en:"Background video",de:"Hintergrundvideo"}, f_upPhoto:{ar:"صورة الخلفية",en:"Background photo",de:"Hintergrundfoto"},
  g_draw:{ar:"الرسم (الجامع الأموي والساحة)",en:"The drawing (mosque and square)",de:"Die Zeichnung (Moschee und Platz)"}, f_scale:{ar:"المقياس (%)",en:"Scale (%)",de:"Skalierung (%)"},
  f_heroMax:{ar:"أقصى ارتفاع للقسم الأول على الكمبيوتر (px)",en:"Maximum hero height on desktop (px)",de:"Maximale Hero-Höhe am Desktop (px)"},
@@ -11746,7 +11913,7 @@ function hsInspHome(){
       fSlider(hsT("f_heroGap"),"c:hero_gap","x:hero_gap_m",-60,80,2,"px",0));
   } else if(sd==="hero_bg"){
     var bt=hsVal("c:hero_bg_type")||"sketch";
-    H.push(fSel(hsT("f_bgType"),"c:hero_bg_type",(COUNTRY==="SY"?[["sketch",hsT("bg_sketch")]]:[]).concat([["dawn",hsT("bg_dawn")],["video",hsT("bg_video")],["photo",hsT("bg_photo")],["none",hsT("bg_none")]]),COUNTRY==="SY"?"sketch":"none",true));
+    H.push(fSel(hsT("f_bgType"),"c:hero_bg_type",(SKETCH_BUILDERS[COUNTRY]?[["sketch",hsT(COUNTRY==="SY"?"bg_sketch":"bg_sketch_"+COUNTRY)]]:[]).concat([["dawn",hsT("bg_dawn")],["video",hsT("bg_video")],["photo",hsT("bg_photo")],["none",hsT("bg_none")]]),SKETCH_BUILDERS[COUNTRY]?"sketch":"none",true));
     if(bt==="video") H.push(fUpload(hsT("f_upVideo"),"c:hero_bg_video_url","background","video/mp4,video/webm"), fSlider(hsT("f_speed"),"c:hero_bg_video_speed",null,10,300,5,"%",100,true));
     if(bt==="photo") H.push(fUpload(hsT("f_upPhoto"),"c:hero_bg_photo_url","background","image/*"));
     if(bt==="sketch") H.push(fGrp(hsT("g_draw")), fHint(hsT("dualHint")),
