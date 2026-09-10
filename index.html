@@ -2979,7 +2979,7 @@ function siteCacheKey(){ return COUNTRY==="SY" ? "balkoun_site" : "balkoun_site_
 function geoCacheKey(){ return COUNTRY==="SY" ? "balkoun_geo" : "balkoun_geo_"+COUNTRY }
 function localCur(){ var c=countryOf(COUNTRY); var l=((c&&c.currencies)||["USD","SYP"]).filter(function(x){ return x!=="USD" })[0]; return l||"SYP" }
 function curRate(cur){ cur=cur||CUR; if(cur==="USD") return 1; if(COUNTRY==="SY") return SITE.syp_rate || CONFIG.rate; var c=countryOf(COUNTRY); var r=c&&c.rates&&+c.rates[cur]; return r>0 ? r : (SITE.syp_rate || CONFIG.rate) }
-var CUR_LABEL={SYP:["ل.س","SYP"],LBP:["ل.ل","LBP"],JOD:["د.أ","JOD"],TRY:["₺","TRY"],EUR:["€","€"],EGP:["ج.م","EGP"],IQD:["د.ع","IQD"],SAR:["ر.س","SAR"],AED:["د.إ","AED"],QAR:["ر.ق","QAR"],BHD:["د.ب","BHD"],OMR:["ر.ع","OMR"],KWD:["د.ك","KWD"],DZD:["د.ج","DZD"],MAD:["د.م.","MAD"],TND:["د.ت","TND"],LYD:["د.ل","LYD"]};
+var CUR_LABEL={SYP:["ل.س","SYP"],LBP:["ل.ل","LBP"],JOD:["د.أ","JOD"],TRY:["₺","TRY"],EUR:["€","€"],EGP:["ج.م","EGP"],IQD:["د.ع","IQD"],SAR:["ر.س","SAR"],AED:["د.إ","AED"],QAR:["ر.ق","QAR"],BHD:["د.ب","BHD"],OMR:["ر.ع","OMR"],KWD:["د.ك","KWD"],DZD:["د.ج","DZD"],MAD:["د.م.","MAD"],TND:["د.ت","TND"],LYD:["د.ل","LYD"],ILS:["₪","ILS"],YER:["ر.ي","YER"],SDG:["ج.س","SDG"],MRU:["أوقية","MRU"],SOS:["ش.ص","SOS"],DJF:["ف.ج","DJF"],KMF:["ف.ق","KMF"]};
 function curLabel(cur,lang){ cur=cur||CUR; if(cur==="USD") return "$"; var o=CUR_LABEL[cur]; return o ? (lang==="ar"?o[0]:o[1]) : cur }
 function phoneCC(){ var c=countryOf(COUNTRY); return String((c&&c.phone_code)||"+963").replace(/\D/g,"")||"963" }
 function strongDeed(code){ if(COUNTRY==="SY") return code==="green"; var c=countryOf(COUNTRY); var d=c&&(c.deeds||[]).filter(function(d){ return d.code===code })[0]; return !!(d&&d.strong) }
@@ -3007,6 +3007,14 @@ function flagSvg(code){
   if(code==="BH") return w+'<rect width="24" height="16" fill="#CE1126"/><path d="M0 0h7l2.5 2L7 4l2.5 2L7 8l2.5 2L7 12l2.5 2L7 16H0z" fill="#fff"/></svg>';
   if(code==="OM") return w+'<rect width="24" height="16" fill="#fff"/><rect y="5.33" width="24" height="5.34" fill="#DB161B"/><rect y="10.66" width="24" height="5.34" fill="#008000"/><rect width="7" height="16" fill="#DB161B"/><path d="M2 3.5l3 3M5 3.5l-3 3" stroke="#fff" stroke-width=".9"/></svg>';
   if(code==="AE") return w+'<rect width="24" height="5.34" fill="#00732F"/><rect y="5.33" width="24" height="5.34" fill="#fff"/><rect y="10.66" width="24" height="5.34" fill="#000"/><rect width="6" height="16" fill="#FF0000"/></svg>';
+  if(code==="KW") return w+'<rect width="24" height="5.34" fill="#007A3D"/><rect y="5.33" width="24" height="5.34" fill="#fff"/><rect y="10.66" width="24" height="5.34" fill="#CE1126"/><path d="M0 0h7l-3 5.33v5.34l3 5.33H0z" fill="#000"/></svg>';
+  if(code==="PS") return w+'<rect width="24" height="5.34" fill="#000"/><rect y="5.33" width="24" height="5.34" fill="#fff"/><rect y="10.66" width="24" height="5.34" fill="#007A3D"/><path d="M0 0l9 8-9 8z" fill="#CE1126"/></svg>';
+  if(code==="YE") return w+'<rect width="24" height="5.34" fill="#CE1126"/><rect y="5.33" width="24" height="5.34" fill="#fff"/><rect y="10.66" width="24" height="5.34" fill="#000"/></svg>';
+  if(code==="SD") return w+'<rect width="24" height="5.34" fill="#D21034"/><rect y="5.33" width="24" height="5.34" fill="#fff"/><rect y="10.66" width="24" height="5.34" fill="#000"/><path d="M0 0l8 8-8 8z" fill="#007229"/></svg>';
+  if(code==="MR") return w+'<rect width="24" height="16" fill="#00A95C"/><rect width="24" height="2.4" fill="#D01C1F"/><rect y="13.6" width="24" height="2.4" fill="#D01C1F"/><path d="M6.5 7.2a5.6 5.6 0 0 0 11 0 5.6 5.6 0 0 1-11 0z" fill="#FFD700"/>'+star(12,6.2,1.5,"#FFD700")+'</svg>';
+  if(code==="SO") return w+'<rect width="24" height="16" fill="#4189DD"/>'+star(12,8,4.2,"#fff")+'</svg>';
+  if(code==="DJ") return w+'<rect width="24" height="8" fill="#6AB2E7"/><rect y="8" width="24" height="8" fill="#12AD2B"/><path d="M0 0l12 8-12 8z" fill="#fff"/>'+star(4,8,1.8,"#D7141A")+'</svg>';
+  if(code==="KM") return w+'<rect width="24" height="4" fill="#FFC61E"/><rect y="4" width="24" height="4" fill="#fff"/><rect y="8" width="24" height="4" fill="#CE1126"/><rect y="12" width="24" height="4" fill="#3A75C4"/><path d="M0 0l11 8-11 8z" fill="#3D8E33"/><circle cx="4.6" cy="8" r="2.8" fill="#fff"/><circle cx="5.6" cy="8" r="2.5" fill="#3D8E33"/></svg>';
   return '<span class="flg flg-t">'+esc(code)+'</span>';
 }
 function countryPickHtml(where){
