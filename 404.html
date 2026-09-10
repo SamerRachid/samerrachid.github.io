@@ -1645,6 +1645,7 @@ footer{font-size:14px}
 /* owners band */
 .band.frame{display:grid;grid-template-columns:1.2fr 1fr;gap:0;padding:8px;background:#fff;color:var(--ink);border-radius:2px;align-items:stretch;margin:84px 0 0}
 .band.frame .band-tx{padding:48px 52px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.band.frame.noimg{grid-template-columns:1fr}.band.noimg .band-tx{align-items:center;text-align:center}.band.noimg .bandlist{justify-content:center}
 .band.frame h2{color:var(--navy);font-family:var(--fd);font-size:clamp(26px,3vw,38px);line-height:1.3;margin-top:6px}
 .band.frame p{color:var(--grey);font-size:16px;max-width:44ch}
 .band.frame .bandlist{color:var(--ink);margin-bottom:22px}
@@ -1976,6 +1977,7 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .adm .pick label{padding:8px 14px;border-radius:999px;border:1px solid var(--line-2);background:#fff;cursor:pointer;font-size:13.5px}
 .adm .pick label:has(input:checked){background:var(--navy);color:#fff;border-color:var(--navy)}
 .adm .pick input{display:none}
+.adm-country.nonsy{background:var(--gold-w);border-color:var(--gold);color:var(--navy);font-weight:700}
 .adm .pick span{border:0;padding:0;background:transparent;color:inherit;font-size:inherit}.adm .pick input:checked+span{background:transparent;color:inherit}
 .adm .msgfilters{display:flex;gap:8px;flex-wrap:wrap}
 .adm .starpick{display:flex;gap:4px;font-size:26px;color:#D6D8DE;cursor:pointer}
@@ -2981,9 +2983,10 @@ var CUR_LABEL={SYP:["ل.س","SYP"],LBP:["ل.ل","LBP"],JOD:["د.أ","JOD"],TRY:[
 function curLabel(cur,lang){ cur=cur||CUR; if(cur==="USD") return "$"; var o=CUR_LABEL[cur]; return o ? (lang==="ar"?o[0]:o[1]) : cur }
 function phoneCC(){ var c=countryOf(COUNTRY); return String((c&&c.phone_code)||"+963").replace(/\D/g,"")||"963" }
 function strongDeed(code){ if(COUNTRY==="SY") return code==="green"; var c=countryOf(COUNTRY); var d=c&&(c.deeds||[]).filter(function(d){ return d.code===code })[0]; return !!(d&&d.strong) }
-var D_TABU_SY=D.TABU, D_COND_SY=D.COND;
+var D_TABU_SY=D.TABU, D_COND_SY=D.COND, D_TYPES_SY=D.TYPES;
 function applyCountryDeeds(){ var c=countryOf(COUNTRY); if(COUNTRY!=="SY" && c && c.deeds && c.deeds.length){ var m={}; c.deeds.forEach(function(d){ m[d.code]=[d.ar,d.en,d.de||d.en,d.fr||d.en] }); D.TABU=m } else D.TABU=D_TABU_SY;
-  if(COUNTRY!=="SY"){ var cc={}; Object.keys(D_COND_SY).forEach(function(k){ if(k!=="stripped") cc[k]=D_COND_SY[k] }); D.COND=cc } else D.COND=D_COND_SY }
+  if(COUNTRY!=="SY"){ var cc={}; Object.keys(D_COND_SY).forEach(function(k){ if(k!=="stripped") cc[k]=D_COND_SY[k] }); D.COND=cc } else D.COND=D_COND_SY;
+  if(COUNTRY!=="SY" && c && c.types && c.types.length){ var tm={}; c.types.forEach(function(x){ var b=D_TYPES_SY[x.code]; if(b) tm[x.code]=[x.ar||b[0], x.en||b[1], x.de||x.en||b[2], x.fr||x.en||b[3]||b[1]] }); D.TYPES=Object.keys(tm).length?tm:D_TYPES_SY } else D.TYPES=D_TYPES_SY }
 applyCountryDeeds();
 /* small inline flags (emoji flags do not render on Windows) */
 function flagSvg(code){
@@ -3301,7 +3304,7 @@ function wireDrawer(){
   $$("[data-md]").forEach(function(a){ a.onclick=function(){ var el=$("#"+this.dataset.md); mdwClose(); if(el) el.click() } });
   $$("[data-mdcur]").forEach(function(a){ a.onclick=function(){ if(this.dataset.mdcur!==CUR){ var c=$("#cur"); if(c) c.click() } else mdwClose() } });
   $$("[data-cpick]").forEach(function(a){ a.onclick=function(e){ e.preventDefault(); var code=this.dataset.cpick; var m=$("#cMenu"); if(m) m.classList.remove("on"); mdwClose(); switchCountry(code) } });
-  var cch=$("#cchip"); if(cch) cch.onclick=function(e){ e.stopPropagation(); var m=$("#cMenu"); if(m) m.classList.toggle("on") };
+  var cch=$("#cchip"); if(cch) cch.onclick=function(e){ e.stopPropagation(); var m=$("#cMenu"); closeAllMenus(m); if(m) m.classList.toggle("on") };
   $$("[data-mdscroll]").forEach(function(a){ a.onclick=function(e){ e.preventDefault(); var id=this.dataset.mdscroll; mdwClose();
     var go=function(){ var el=$("#"+id); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}) };
     if(VIEW==="home") go(); else { VIEW="home"; scrollTo(0,0); render(); setTimeout(go,400) } } });
@@ -3924,7 +3927,7 @@ function home(){
    var v = SITE[baseKey+"_"+L];
    return (v && v.trim()) ? v : t(fallbackKey);
  };
- var heroBgType = SITE.hero_bg_type || "sketch"; // "video" | "photo" | "dawn" | "sketch" | "none" — sketch is the default when settings have not loaded
+ var heroBgType = heroBgTypeEff(); // "video" | "photo" | "dawn" | "sketch" | "none" — sketch is the default when settings have not loaded
  var heroBgHtml;
  if(heroBgType==="photo" && SITE.hero_bg_photo_url){
    heroBgHtml = '<img src="'+SITE.hero_bg_photo_url+'" alt="">';
@@ -5475,7 +5478,7 @@ function adminView(){
    '</div></div></div>' : '')+
   '<div class="ashell">'+
    '<nav class="asidebar" id="aSidebar">'+NAV.map(function(g){ return sec(g.g, g.items.map(function(it){ return it[4] ? tab(it[0],it[1],it[2],it[3]) : "" })) }).join("")+'</nav>'+
-   '<main class="acontent"><div class="apage-h"><div>'+(curGroup?'<div class="apage-crumb">'+curGroup+'</div>':'')+'<h1>'+curLabel+'</h1>'+
+   '<main class="acontent"><div class="apage-h"><div>'+'<div class="apage-crumb">'+curGroup+(COUNTRY!=="SY"?(curGroup?' · ':'')+flagOf(COUNTRY)+' '+esc(countryName(countryOf(COUNTRY)))+'</div>':'</div>')+'<h1>'+curLabel+'</h1>'+
     (GX_T["desc_"+ADM.tab]?'<p>'+GX("desc_"+ADM.tab)+'</p>':'')+'</div></div>'+body+'</main>'+
   '</div></div>'}
 
@@ -5566,7 +5569,7 @@ function wireNotifBell(){
   if(!$("#bellBtn")) return;
   $("#bellBtn").onclick=function(e){
     e.stopPropagation();
-    var m=$("#menu"); if(m) m.classList.remove("on");
+    closeAllMenus($("#notifMenu"));
     NOTIF_OPEN=!NOTIF_OPEN;
     $("#notifMenu").classList.toggle("on",NOTIF_OPEN);
     if(NOTIF_OPEN && NOTIFS.unread){
@@ -7201,7 +7204,7 @@ function markGreenTabu(root){
   nodes.forEach(function(tn){ var sp=document.createElement("span"); sp.className="tabu-green"; sp.textContent=tn.nodeValue; tn.parentNode.replaceChild(sp,tn) });
 }
 function closeAllMenus(except){
-  $$(".menu.on,.chipsel-drop.on").forEach(function(m){ if(m!==except) m.classList.remove("on") });
+  $$(".menu.on,.chipsel-drop.on,.notifmenu.on").forEach(function(m){ if(m!==except){ m.classList.remove("on"); if(m.id==="notifMenu") NOTIF_OPEN=false } });
   $$(".chipsel-input").forEach(function(i){ var d=$("#"+i.dataset.csfield+"Drop"); if(d && d!==except && document.activeElement===i) i.blur() });
   var pp=$("#hPricePop"); if(pp && pp!==except) pp.hidden=true;
   NOTIF_OPEN=false;
@@ -9668,7 +9671,7 @@ function heroVideoSpeed(){
 }
 function video(){
  var c=navigator.connection||{},box=$("#hv"); if(!box)return;
- var bgType = SITE.hero_bg_type || "sketch";
+ var bgType = heroBgTypeEff();
  // a static photo (or an intentionally empty background) has no
  // "canplay" event to wait for — without this, the box would stay
  // stuck at opacity:0 forever, since nothing else would ever add
@@ -10392,16 +10395,16 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
     ticker:function(){ return HSON("ticker") ? marketTickerHtml() : "" },
     projects:function(){ return homeProjectsHtml() },
     wanted:function(){ return homeWantedHtml() },
-    colls:function(){ return HSON("colls") ? homeCollectionsHtml() : "" },
+    colls:function(){ return (COUNTRY==="SY" && HSON("colls")) ? homeCollectionsHtml() : "" },   // curated Syrian collections; other countries get theirs later
     types:function(){ return HSON("types") ? '<div class="wrap"><section class="sec" id="typesSec"><div class="eyebrow">'+HT("types_eyebrow",HX("pickE"))+'</div><h2>'+HT("types_h",t("pickH"))+'</h2>'+typeList()+'</section></div>' : "" },
     trust:function(){ return HSON("trust") ? homeTrustHtml() : "" },
-    expl:function(){ var map=SX("expl_map_enabled",true)!==false; return HSON("expl") ? '<div class="wrap"><section class="sec" id="explSec"><div class="expl'+(map?'':' nomap')+'"><div><div class="eyebrow">'+HT("expl_eyebrow",HX("govE"))+'</div><h2>'+HT("expl_h",t("govH"))+'</h2><div class="sub">'+HT("expl_sub",t("govS"))+'</div><div class="govs">'+
-       Object.keys(D.GEO).map(function(g){return '<a data-go="search" data-gov="'+g+'">'+gN(g)+'<span class="ltr">'+D.GEO[g].length+'</span></a>'}).join("")+'</div></div>'+(map?syriaMapHtml():'')+'</div></section></div>' : "" },
-    band:function(){ return (USER || !HSON("band")) ? "" : '<div class="wrap"><div class="band frame" id="bandSec"><div class="band-tx"><div class="eyebrow">'+HT("band_eyebrow",HX("ownE"))+'</div><h2>'+HT("band_h",t("bandH"))+'</h2><p>'+HT("band_p",t("bandP"))+'</p><div class="bandlist">'+
+    expl:function(){ var map=SX("expl_map_enabled",true)!==false; return HSON("expl") ? '<div class="wrap"><section class="sec" id="explSec"><div class="expl'+(map?'':' nomap')+'"><div><div class="eyebrow">'+HT("expl_eyebrow",HX("govE"))+'</div><h2>'+HT("expl_h",t("govH"))+'</h2><div class="sub">'+HT("expl_sub",COUNTRY==="SY"?t("govS"):govSubAuto())+'</div><div class="govs">'+
+       Object.keys(D.GEO).map(function(g){return '<a data-go="search" data-gov="'+g+'">'+gN(g)+'<span class="ltr">'+D.GEO[g].length+'</span></a>'}).join("")+'</div></div>'+(map?(COUNTRY==="SY"?syriaMapHtml():countryMapHtml()):'')+'</div></section></div>' : "" },
+    band:function(){ return (USER || !HSON("band")) ? "" : '<div class="wrap"><div class="band frame'+(bandImgHtml()?'':' noimg')+'" id="bandSec"><div class="band-tx"><div class="eyebrow">'+HT("band_eyebrow",HX("ownE"))+'</div><h2>'+HT("band_h",t("bandH"))+'</h2><p>'+HT("band_p",t("bandP"))+'</p><div class="bandlist">'+
        '<span>'+HT("band_b1",t("b1"))+'</span><span>'+HT("band_b2",t("b2"))+'</span><span>'+HT("band_b3",t("b3"))+'</span></div>'+
        '<a class="gold" data-go="post" style="text-decoration:none">'+HT("band_btn",t("bandBtn"))+'</a></div>'+
-       '<div class="band-im"><img src="'+HU("band_img","/assets/home/umayyad.jpg")+'" alt="'+esc(HT("band_img_alt",{ar:"الجامع الأموي في دمشق",en:"The Umayyad Mosque in Damascus",de:"Die Umayyaden-Moschee in Damaskus"}[L]))+'" loading="lazy" decoding="async"></div></div></div>' },
-    guides:function(){ return HSON("guides") ? '<div class="wrap"><section class="sec" id="guidesSec"><div class="eyebrow">'+HT("guides_eyebrow",HX("guideE"))+'</div><h2>'+HT("guides_h",t("guideH"))+'</h2><div class="sub">'+HT("guides_sub",t("guideS"))+'</div><div class="guides">'+
+       bandImgHtml()+'</div></div>' },
+    guides:function(){ return (COUNTRY==="SY" && HSON("guides")) ? '<div class="wrap"><section class="sec" id="guidesSec"><div class="eyebrow">'+HT("guides_eyebrow",HX("guideE"))+'</div><h2>'+HT("guides_h",t("guideH"))+'</h2><div class="sub">'+HT("guides_sub",t("guideS"))+'</div><div class="guides">'+
        G.map(function(g,i){ var slugs=["verify-deed","deed-types","transfer-notary","buying-from-abroad"], href=(L==="ar"?"":"/"+L)+"/guides/"+(slugs[i]||"")+"/"; return '<a class="guide" href="'+href+'"><div class="k">'+g[0]+'</div><h3>'+g[1]+'</h3><p>'+g[2]+'</p></a>'}).join("")+'</div><div class="pjmore"><a class="gh" href="'+(L==="ar"?"":"/"+L)+'/guides/">'+GX("guidesAll")+'</a></div></section></div>' : "" }
   };
   return homeOrder().map(function(k){ return S[k] ? S[k]() : "" }).join("");
@@ -10430,6 +10433,35 @@ function homeTrustHtml(){
    '</div></div></section>';
 }
 
+function heroBgTypeEff(){ var v=SITE.hero_bg_type||"sketch"; return (v==="sketch" && COUNTRY!=="SY") ? "dawn" : v }
+function bandImgHtml(){
+  var src=HU("band_img", COUNTRY==="SY"?"/assets/home/umayyad.jpg":""); if(!src) return "";
+  var alt=HT("band_img_alt", COUNTRY==="SY"?({ar:"الجامع الأموي في دمشق",en:"The Umayyad Mosque in Damascus",de:"Die Umayyaden-Moschee in Damaskus"}[L]||"The Umayyad Mosque in Damascus"):"");
+  return '<div class="band-im"><img src="'+src+'" alt="'+esc(alt)+'" loading="lazy" decoding="async"></div>' }
+function govSubAuto(){ var g=Object.keys(D.GEO).length, a=Object.keys(D.GEO).reduce(function(n,k){ return n+(D.GEO[k]||[]).length },0);
+  return ({ar:g+" محافظة · "+a+" منطقة ومدينة وبلدة", en:g+" governorates · "+a+" areas, towns and villages", de:g+" Gouvernements · "+a+" Gegenden, Städte und Dörfer", fr:g+" gouvernorats · "+a+" quartiers, villes et villages"})[L]||"" }
+// the same sketch map for any other country: outline and projection come from the countries table, dots from the governorates' coordinates
+function countryMapHtml(){
+  var c=countryOf(COUNTRY); if(!c||!c.map_outline||!c.map_box) return "";
+  var b=c.map_box, cnt={}; (D.LIST||[]).forEach(function(x){ if(x.g&&(!x.status||x.status==="live")) cnt[x.g]=(cnt[x.g]||0)+1 });
+  var P=function(ll){ return [b.ox+(ll[1]-b.minLng)*b.k*b.s, b.oy+(b.maxLat-ll[0])*b.s] };
+  var pts=Object.keys(D.GEO).map(function(g){ var ll=govLL(g); return ll?[g,P(ll)]:null }).filter(Boolean);
+  return '<div class="frame smap" id="smap"><svg viewBox="0 0 600 520" aria-hidden="true"><defs><pattern id="sdots" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1" fill="#14213D" fill-opacity=".12"/></pattern></defs>'+
+   '<path d="'+c.map_outline+'" fill="url(#sdots)" stroke="#14213D" stroke-width="1.5" stroke-linejoin="round"/>'+
+   '<path d="'+c.map_outline+'" fill="none" stroke="#C4881F" stroke-width="1" stroke-dasharray="2 5" transform="translate(6 6)"/>'+
+   (function(){
+     // labels: try right, left, below-right, below-left of the dot and keep the first spot that does not sit on another label or dot
+     var placed=[], FH=15, CW=7.6, dense=pts.length>9;
+     var hits=function(bx){ return placed.some(function(o){ return !(bx.x1<o.x0||bx.x0>o.x1||bx.y1<o.y0||bx.y0>o.y1) }) };
+     pts.sort(function(a,b){ return a[1][1]-b[1][1] });
+     pts.forEach(function(p){ placed.push({x0:p[1][0]-13,x1:p[1][0]+13,y0:p[1][1]-13,y1:p[1][1]+13}) });
+     return pts.map(function(p){ var n=cnt[p[0]]||0, r=3+Math.min(4,Math.sqrt(n)), x=Math.round(p[1][0]), y=Math.round(p[1][1]), name=gN(p[0]), w=name.length*CW*(dense?.9:1);
+       var cands=[[x+16,y+4,"start"],[x-16,y+4,"end"],[x+12,y+20,"start"],[x-12,y+20,"end"],[x+12,y-12,"start"],[x-12,y-12,"end"],[x+26,y+30,"start"],[x-26,y+30,"end"],[x+26,y-24,"start"],[x-26,y-24,"end"]], pick=null;
+       for(var i=0;i<cands.length;i++){ var c=cands[i], bx={x0:c[2]==="start"?c[0]:c[0]-w, x1:c[2]==="start"?c[0]+w:c[0], y0:c[1]-FH+3, y1:c[1]+3}; if(!hits(bx)){ pick=c; placed.push(bx); break } }
+       return '<g class="dot" data-g="'+esc(p[0])+'"><circle cx="'+x+'" cy="'+y+'" r="'+(r*2)+'" fill="#C4881F" fill-opacity=".18"/><circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="#C4881F"/><title>'+name+'</title></g>'+
+              (pick ? '<text x="'+pick[0]+'" y="'+pick[1]+'" style="direction:ltr;text-anchor:'+pick[2]+(dense?';font-size:12px':'')+'">'+name+'</text>' : '') }).join("") })()+
+   '<text x="20" y="500" style="font-size:11.5px;font-weight:400;fill:#9CA3AF">'+HX("mapNote")+'</text></svg></div>';
+}
 function syriaMapHtml(){
   var pts=[["دمشق",186,392,200,397],["حلب",216,120,230,125],["حمص",196,268,210,273],["حماة",180,222,194,227],["اللاذقية",118,188,60,193],["طرطوس",110,252,56,257],["إدلب",150,150,106,145],["دير الزور",420,230,434,235],["الرقة",360,128,374,133],["الحسكة",500,112,514,117],["درعا",196,446,210,451],["السويداء",246,440,260,445]];
   var cnt={}; (D.LIST||[]).forEach(function(x){ if(x.g&&(!x.status||x.status==="live")) cnt[x.g]=(cnt[x.g]||0)+1 });
@@ -10741,7 +10773,7 @@ function sketchBuild(){
     var k=band.w/1000; fit.style.transform="translate("+(-500*k)+"px,"+(-500*k)+"px) scale("+k+")";
     stageK=Math.min((W*.94)/band.w,(sbTop-top)/band.h); stageDX=(W/2)-(band.x+band.w/2); stageDY=((top+sbTop)/2)-(band.y+band.h/2);
   }
-  function prep(){ items.forEach(function(it){ var L=it[0].getTotalLength?it[0].getTotalLength():300; it[0].style.strokeDasharray=L; it[0].style.strokeDashoffset=L }) }
+  function prep(){ items.forEach(function(it){ var L=(it[0].getTotalLength&&it[0].isConnected)?it[0].getTotalLength():300; it[0].style.strokeDasharray=L; it[0].style.strokeDashoffset=L }) }
   function startAll(){ items.forEach(function(it){ var L=parseFloat(it[0].style.strokeDasharray); anims.push(it[0].animate([{strokeDashoffset:L},{strokeDashoffset:0}],{delay:it[1],duration:it[2],fill:"both",easing:"cubic-bezier(.4,0,.2,1)"})) });
     fades.forEach(function(f){ anims.push(f[0].animate([{opacity:0},{opacity:f[3]}],{delay:f[1],duration:f[2],fill:"both"})) }) }
   function an(el,kf,o){ var a=el.animate(kf,Object.assign({fill:"both"},o)); anims.push(a); return a }
@@ -10775,6 +10807,7 @@ function sketchBuild(){
     jets.forEach(function(j,i){ j.animate([{transform:"scaleY(.9)"},{transform:"scaleY(1.06)"}],{duration:1500+i*200,direction:"alternate",iterations:Infinity,easing:"ease-in-out"}) });
     drops.forEach(function(dg){ [].slice.call(dg.children).forEach(function(c,i){ c.animate([{opacity:0,transform:"translateY(6px)"},{opacity:.9,offset:.3},{opacity:0,transform:"translateY(-10px)"}],{duration:1400,delay:i*260,iterations:Infinity}) }) });
     var beat=function(){ tick++;
+      if(!pulse.isConnected){ clearInterval(restTimer); return }   // the sketch was removed (another background, another country)
       if(tick%3!==0){ var L=pulse.getTotalLength(); pulse.style.strokeDasharray=(L*.09)+" "+L; pulse.animate([{strokeDashoffset:L*1.1,opacity:0},{opacity:1,offset:.15},{opacity:1,offset:.85},{strokeDashoffset:0,opacity:0}],{duration:1500,easing:"cubic-bezier(.5,0,.5,1)",fill:"both"});
         sparkle.animate([{opacity:0,transform:"scale(.2) rotate(0deg)"},{opacity:1,transform:"scale(1.4) rotate(45deg)",offset:.5},{opacity:0,transform:"scale(.3) rotate(90deg)"}],{delay:1150,duration:900,fill:"both"}) }
       else { sweep.animate([{transform:"translateX(-70%)",opacity:0},{opacity:1,offset:.1},{opacity:1,offset:.9},{transform:"translateX(70%)",opacity:0}],{duration:2200,easing:EASE,fill:"both"}) } };
@@ -11240,7 +11273,7 @@ var GX_T={
   cCantDisableDefault:{ar:"لا يمكن إيقاف الدولة الافتراضية. اجعل دولة أخرى افتراضية أولاً.",en:"The default country cannot be turned off. Make another country the default first.",de:"Das Standardland kann nicht ausgeschaltet werden. Machen Sie zuerst ein anderes Land zum Standard."},
   cTurnOn:{ar:"تشغيل الموقع في {c}",en:"Turn the website on in {c}",de:"Website in {c} einschalten"}, cTurnOff:{ar:"إيقاف الموقع في {c}",en:"Turn the website off in {c}",de:"Website in {c} ausschalten"},
   cAddDeed:{ar:"إضافة نوع",en:"Add type",de:"Art hinzufügen"}, cCountry:{ar:"الدولة",en:"Country",de:"Land"}, cGovAdd:{ar:"إضافة محافظة",en:"Add governorate",de:"Provinz hinzufügen"}, cSuperOnly:{ar:"فقط المشرف الرئيسي يستطيع تشغيل الدول أو إيقافها.",en:"Only the super admin can turn countries on or off.",de:"Nur der Hauptadministrator kann Länder ein- oder ausschalten."},
-  cDeedCode:{ar:"الرمز",en:"Code",de:"Code"}, cSort:{ar:"الترتيب",en:"Order",de:"Reihenfolge"},
+  cDeedCode:{ar:"الرمز",en:"Code",de:"Code"}, cTypes:{ar:"أنواع العقارات (الأسماء كما تُستخدم في هذه الدولة)",en:"Property types (names as used in this country)",de:"Immobilienarten (Namen wie in diesem Land üblich)"}, cSettingsOf:{ar:"إعدادات {c} في لوحة التحكم",en:"{c} settings in the panel",de:"Einstellungen für {c}"}, cSettingsHint:{ar:"كل صفحة من هذه الصفحات تعدّل إعدادات هذه الدولة فقط: الصفحة الرئيسية وخلفيتها، البانرات، الإعلانات، التصميم، التواصل والمناطق.",en:"Each of these pages edits this country only: homepage and its background, banners, ads, design, contact and areas.",de:"Jede dieser Seiten ändert nur dieses Land: Startseite und Hintergrund, Banner, Anzeigen, Design, Kontakt und Gebiete."}, cSort:{ar:"الترتيب",en:"Order",de:"Reihenfolge"},
   cChooseH:{ar:"اختر الدولة",en:"Choose your country",de:"Land wählen"}, cChooseP:{ar:"بلكون يعمل في أكثر من دولة. اختر الدولة التي تبحث فيها عن عقار، ويمكنك تغييرها لاحقاً من أعلى الصفحة.",en:"Balkoun works in more than one country. Pick the country where you are looking for a property; you can change it any time from the top of the page.",de:"Balkoun ist in mehreren Ländern aktiv. Wählen Sie das Land, in dem Sie eine Immobilie suchen; oben auf der Seite können Sie es jederzeit ändern."},
   cChooseKeep:{ar:"المتابعة في {c}",en:"Continue in {c}",de:"Weiter in {c}"},
   cChooserH:{ar:"شاشة اختيار الدولة عند الدخول",en:"Country chooser on opening",de:"Länderauswahl beim Öffnen"}, cChooserHint:{ar:"تلقائي: تظهر فقط لمن يدخل من دولة لا يخدمها الموقع (يُكتشف البلد من المنطقة الزمنية للجهاز ثم من عنوان الإنترنت)، وداخل الدول المخدومة يفتح الموقع مباشرة على دولة الزائر. دائماً: تظهر لكل زائر جديد. مطفأ: لا تظهر أبداً، والموقع يفتح على الدولة المكتشفة أو الافتراضية. اختيار الزائر يُحفظ على جهازه.",en:"Auto: shown only to visitors from a country the site does not serve (the country is detected from the device time zone, then the internet address); inside a served country the site opens on the visitor's country directly. Always: shown to every new visitor. Off: never shown; the site opens on the detected or default country. The visitor's choice is remembered on their device.",de:"Automatisch: nur für Besucher aus einem Land, das die Website nicht bedient (erkannt über die Zeitzone des Geräts, dann die Internetadresse); in einem bedienten Land öffnet die Website direkt das Land des Besuchers. Immer: für jeden neuen Besucher. Aus: nie; die Website öffnet das erkannte oder das Standardland. Die Wahl wird auf dem Gerät gespeichert."},
@@ -12317,7 +12350,7 @@ function geoAdminBody(){
 }
 function adminCountrySelHtml(){
   var CS=ADM.countries||[]; if(CS.length<2) return '';
-  return '<select class="adm-lang adm-country" id="aCountry" aria-label="'+esc(GX("cCountry"))+'">'+CS.map(function(c){ return '<option value="'+c.code+'"'+(c.code===COUNTRY?' selected':'')+'>'+esc(countryName(c))+(c.enabled?'':' · '+GX("cOff"))+'</option>' }).join("")+'</select>';
+  return '<select class="adm-lang adm-country'+(COUNTRY!=="SY"?' nonsy':'')+'" id="aCountry" aria-label="'+esc(GX("cCountry"))+'">'+CS.map(function(c){ return '<option value="'+c.code+'"'+(c.code===COUNTRY?' selected':'')+'>'+esc(countryName(c))+(c.enabled?'':' · '+GX("cOff"))+'</option>' }).join("")+'</select>';
 }
 function adminCountriesBody(){
   var CS=ADM.countries; if(!CS) return '<div class="done2"><b>'+t("loading")+'</b></div>';
@@ -12348,6 +12381,11 @@ function adminCountriesBody(){
         (c.deeds||[]).map(function(d){ return '<span class="ltr" style="color:var(--grey)">'+esc(d.code)+'</span><input data-cd="ar:'+c.code+':'+d.code+'" value="'+esc(d.ar)+'"'+ro+'><input data-cd="en:'+c.code+':'+d.code+'" value="'+esc(d.en)+'"'+ro+'><input data-cd="fr:'+c.code+':'+d.code+'" value="'+esc(d.fr||"")+'"'+ro+'><input data-cd="sort_order:'+c.code+':'+d.code+'" type="number" value="'+(d.sort_order||100)+'" style="width:60px"'+ro+'><input type="checkbox" data-cd="strong:'+c.code+':'+d.code+'"'+(d.strong?' checked':'')+ro+'><input type="checkbox" data-cd="enabled:'+c.code+':'+d.code+'"'+(d.enabled?' checked':'')+ro+'><button class="ab ok" data-cdsave="'+c.code+':'+d.code+'"'+ro+'>'+GX("save")+'</button>' }).join("")+
         '<input data-cdnew="code:'+c.code+'" placeholder="'+GX("cDeedCode")+'" class="ltr" style="border-color:var(--gold)"'+ro+'><input data-cdnew="ar:'+c.code+'" placeholder="'+GX("nameAr")+'"'+ro+'><input data-cdnew="en:'+c.code+'" placeholder="'+GX("nameEn")+'"'+ro+'><input data-cdnew="fr:'+c.code+'" placeholder="Français"'+ro+'><input data-cdnew="sort_order:'+c.code+'" type="number" value="100" style="width:60px"'+ro+'><input type="checkbox" data-cdnew="strong:'+c.code+'"'+ro+'><span></span><button class="ab ok" data-cdadd="'+c.code+'"'+ro+'>'+GX("cAddDeed")+'</button>'+
         '</div></div>'+
+       '<div class="fl"><label>'+GX("cTypes")+'</label><div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:6px 8px;align-items:center;font-size:13px"><b></b><b>'+GX("nameAr")+'</b><b>'+GX("nameEn")+'</b><b>Français</b>'+
+        Object.keys(D_TYPES_SY).map(function(k){ var cur=(c.types||[]).filter(function(x){ return x.code===k })[0], on=!c.types||!!cur, b=D_TYPES_SY[k];
+          return '<label style="display:flex;gap:6px;align-items:center;white-space:nowrap"><input type="checkbox" data-cty="on:'+c.code+':'+k+'"'+(on?' checked':'')+ro+'><span class="ltr" style="color:var(--grey);font-size:12px">'+k+'</span></label><input data-cty="ar:'+c.code+':'+k+'" value="'+esc(cur?cur.ar:b[0])+'"'+ro+'><input data-cty="en:'+c.code+':'+k+'" value="'+esc(cur?cur.en:b[1])+'"'+ro+'><input data-cty="fr:'+c.code+':'+k+'" value="'+esc(cur?(cur.fr||""):(b[3]||""))+'"'+ro+'>' }).join("")+'</div></div>'+
+       '<div class="fl"><label>'+GX("cSettingsOf").replace("{c}",esc(countryName(c)))+'</label><div class="hintx" style="margin-bottom:6px">'+GX("cSettingsHint")+'</div><div style="display:flex;gap:6px;flex-wrap:wrap">'+
+        [["mainpage",t("mainPageTab")],["banners",GX("tBanners")],["ads",t("adsTab")],["design",GX("tDesign")],["contact",GX("tContact")],["geo",GX("geoTab")],["featured",t("featuredTab")]].map(function(x){ return '<button type="button" class="ab" data-cgo="'+c.code+':'+x[0]+'">'+flagOf(c.code)+' '+x[1]+'</button>' }).join("")+'</div></div>'+
        '<div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap"><button class="ab ok" data-csave="'+c.code+'"'+ro+'>'+GX("save")+'</button>'+(c.is_default?'':'<button class="ab" data-cdefault="'+c.code+'"'+ro+'>'+GX("cMakeDefault")+'</button>')+'</div>'
      :'')+'</div></div>' }).join("");
 }
@@ -12367,11 +12405,13 @@ function wireAdminCountries(){
     b.disabled=true;
     set(b.dataset.ctoggle,{enabled:on}).then(function(){ COUNTRIES=null; return refreshCountries() }).then(function(){ render() }) } });
   $$("[data-cdefault]").forEach(function(b){ b.onclick=function(){ set(b.dataset.cdefault,{is_default:true,enabled:true}) } });
+  $$("[data-cgo]").forEach(function(b){ b.onclick=function(){ var a=b.dataset.cgo.split(":"); ADM._geoLoaded=false; ADM.adSlots=null; ADM._adSlotsLoaded=false; ADM.tab=a[1]; var sel=$("#aCountry"); if(sel) sel.value=a[0]; switchCountry(a[0],{keepView:true}); scrollTo(0,0) } });
   $$("[data-csave]").forEach(function(b){ b.onclick=function(){
     var code=b.dataset.csave, p={}, list=function(v){ return String(v||"").split(/[,،\s]+/).map(function(x){ return x.trim() }).filter(Boolean) };
     $$('[data-cf$=":'+code+'"]').forEach(function(i){ var k=i.dataset.cf.split(":")[0]; p[k]= k==="currencies"?list(i.value).map(function(x){ return x.toUpperCase() }) : k==="tz"?list(i.value) : k==="sort_order"?parseInt(i.value,10)||100 : i.value });
     p.languages=$$('[data-clang$=":'+code+'"]').filter(function(i){ return i.checked }).map(function(i){ return i.dataset.clang.split(":")[0] });
     var rates={}; $$('[data-crate$=":'+code+'"]').forEach(function(i){ var v=parseFloat(i.value); if(v>0) rates[i.dataset.crate.split(":")[0]]=v }); p.rates=rates;
+    if(code!=="SY"){ p.types=Object.keys(D_TYPES_SY).filter(function(k){ var on=$('[data-cty="on:'+code+':'+k+'"]'); return on&&on.checked }).map(function(k){ var g=function(f){ var el=$('[data-cty="'+f+':'+code+':'+k+'"]'); return el?el.value.trim():"" }; return {code:k, ar:g("ar")||D_TYPES_SY[k][0], en:g("en")||D_TYPES_SY[k][1], fr:g("fr")||""} }) }
     set(code,p) } });
   var deedPatch=function(code,dcode){ var p={}; $$('[data-cd$=":'+code+':'+dcode+'"]').forEach(function(i){ var k=i.dataset.cd.split(":")[0]; p[k]= i.type==="checkbox"?i.checked : k==="sort_order"?parseInt(i.value,10)||100 : i.value }); return p };
   $$("[data-cdsave]").forEach(function(b){ b.onclick=function(){ var a=b.dataset.cdsave.split(":");
