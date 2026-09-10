@@ -2951,7 +2951,9 @@ var COUNTRIES_FALLBACK={list:[{code:"SY",name_ar:"سوريا",name_en:"Syria",na
 var COUNTRIES=(function(){ try{ var c=JSON.parse(localStorage.getItem("balkoun_countries")||"null"); if(c&&c.list&&c.list.length) return c }catch(e){} return null })();
 var CHOOSER_MODE=(COUNTRIES&&COUNTRIES.chooser)||"auto";
 function countryList(){ return (COUNTRIES||COUNTRIES_FALLBACK).list }
-function countryOf(code){ code=String(code||"").toUpperCase(); return countryList().filter(function(c){ return c.code===code })[0]||null }
+function countryOf(code){ code=String(code||"").toUpperCase(); var c=countryList().filter(function(c){ return c.code===code })[0];
+  if(!c && typeof ADM!=="undefined" && ADM && ADM.countries) c=ADM.countries.filter(function(c){ return c.code===code })[0];   // an admin may work in a country that is still switched off
+  return c||null }
 function defaultCountry(){ var d=countryList().filter(function(c){ return c.is_default })[0]; return d?d.code:"SY" }
 function countryFromPath(){ var m=location.pathname.match(/^\/([a-z]{2})(?=\/|$)/); if(!m) return null; var code=m[1].toUpperCase(); if(code==="SY"||["AR","EN","DE","FR","TR"].indexOf(code)>-1) return null; return (countryOf(code) || !COUNTRIES) ? code : null }   // before the country list is known (first visit), a /lb/… link is taken at its word
 function countryFromTZ(){ try{ var tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""; var c=countryList().filter(function(c){ return (c.tz||[]).indexOf(tz)>-1 })[0]; return c?c.code:null }catch(e){ return null } }
@@ -11207,6 +11209,7 @@ var GX_T={
   cCounts:{ar:"{g} محافظة · {a} منطقة · {l} إعلان · {w} طلب · {ag} مكتب · {ad} إعلان مدفوع",en:"{g} governorates · {a} areas · {l} listings · {w} requests · {ag} agencies · {ad} paid ads",de:"{g} Provinzen · {a} Gebiete · {l} Anzeigen · {w} Anfragen · {ag} Büros · {ad} Werbeplätze"},
   cDisableWarn:{ar:"سيتوقف عرض هذه الدولة للزوار فوراً. الإعلانات والبيانات تبقى محفوظة ويمكن التشغيل مجدداً في أي وقت. متابعة؟",en:"Visitors will stop seeing this country immediately. Listings and data stay stored and you can turn it on again any time. Continue?",de:"Besucher sehen dieses Land sofort nicht mehr. Anzeigen und Daten bleiben gespeichert; Sie können es jederzeit wieder einschalten. Fortfahren?"},
   cCantDisableDefault:{ar:"لا يمكن إيقاف الدولة الافتراضية. اجعل دولة أخرى افتراضية أولاً.",en:"The default country cannot be turned off. Make another country the default first.",de:"Das Standardland kann nicht ausgeschaltet werden. Machen Sie zuerst ein anderes Land zum Standard."},
+  cTurnOn:{ar:"تشغيل الموقع في {c}",en:"Turn the website on in {c}",de:"Website in {c} einschalten"}, cTurnOff:{ar:"إيقاف الموقع في {c}",en:"Turn the website off in {c}",de:"Website in {c} ausschalten"},
   cAddDeed:{ar:"إضافة نوع",en:"Add type",de:"Art hinzufügen"}, cCountry:{ar:"الدولة",en:"Country",de:"Land"}, cGovAdd:{ar:"إضافة محافظة",en:"Add governorate",de:"Provinz hinzufügen"}, cSuperOnly:{ar:"فقط المشرف الرئيسي يستطيع تشغيل الدول أو إيقافها.",en:"Only the super admin can turn countries on or off.",de:"Nur der Hauptadministrator kann Länder ein- oder ausschalten."},
   cDeedCode:{ar:"الرمز",en:"Code",de:"Code"}, cSort:{ar:"الترتيب",en:"Order",de:"Reihenfolge"},
   cChooseH:{ar:"اختر الدولة",en:"Choose your country",de:"Land wählen"}, cChooseP:{ar:"بلكون يعمل في أكثر من دولة. اختر الدولة التي تبحث فيها عن عقار، ويمكنك تغييرها لاحقاً من أعلى الصفحة.",en:"Balkoun works in more than one country. Pick the country where you are looking for a property; you can change it any time from the top of the page.",de:"Balkoun ist in mehreren Ländern aktiv. Wählen Sie das Land, in dem Sie eine Immobilie suchen; oben auf der Seite können Sie es jederzeit ändern."},
@@ -12302,7 +12305,7 @@ function adminCountriesBody(){
       '<span style="font-size:22px">'+flagOf(c.code)+'</span><span>'+esc(c.name_ar)+' · '+esc(c.name_en)+'</span><span class="ltr" style="font-size:12px;color:var(--grey)">'+c.code+'</span>'+
       (c.is_default?'<span class="lvl lvl-vip">'+GX("cDefault")+'</span>':'')+
       '<span style="margin-inline-start:auto;font-size:12.5px;font-weight:600;color:'+(c.enabled?'var(--ok)':'var(--danger)')+'">● '+(c.enabled?GX("cOn"):GX("cOff"))+'</span>'+
-      '<label style="display:flex;gap:6px;align-items:center;font-size:13px;font-weight:600"><input type="checkbox" data-ctoggle="'+c.code+'"'+(c.enabled?' checked':'')+ro+'>'+GX("cEnabled")+'</label></h3>'+
+      '<button type="button" class="ab'+(c.enabled?'':' ok')+'" data-ctoggle="'+c.code+'" data-on="'+(c.enabled?'0':'1')+'"'+ro+'>'+(c.enabled?GX("cTurnOff"):GX("cTurnOn")).replace("{c}",esc(countryName(c)))+'</button></h3>'+
      '<div class="in"><div style="font-size:12.5px;color:var(--grey);margin-bottom:10px" class="ltrnum">'+counts+'</div>'+
      (open?'<div class="row"><div class="fl"><label>'+GX("nameAr")+'</label><input data-cf="name_ar:'+c.code+'" value="'+esc(c.name_ar)+'"'+ro+'></div><div class="fl"><label>'+GX("nameEn")+'</label><input data-cf="name_en:'+c.code+'" value="'+esc(c.name_en)+'"'+ro+'></div><div class="fl"><label>Deutsch</label><input data-cf="name_de:'+c.code+'" value="'+esc(c.name_de||"")+'"'+ro+'></div><div class="fl"><label>Français</label><input data-cf="name_fr:'+c.code+'" value="'+esc(c.name_fr||"")+'"'+ro+'></div></div>'+
        '<div class="row"><div class="fl"><label>'+GX("cCurrencies")+'</label><input data-cf="currencies:'+c.code+'" value="'+esc((c.currencies||[]).join(", "))+'" class="ltr"'+ro+'></div><div class="fl"><label>'+GX("cPhone")+'</label><input data-cf="phone_code:'+c.code+'" value="'+esc(c.phone_code||"")+'" class="ltr"'+ro+'></div><div class="fl"><label>'+GX("cSort")+'</label><input data-cf="sort_order:'+c.code+'" type="number" value="'+(c.sort_order||100)+'"'+ro+'></div></div>'+
@@ -12328,11 +12331,12 @@ function wireAdminCountries(){
   var byCode=function(code){ return (ADM.countries||[]).filter(function(c){ return c.code===code })[0] };
   if($("#cChooser")) $("#cChooser").onchange=function(){ var v=this.value; DB.rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:{country_chooser:v}},p_country:"SY"}).then(function(r){ var m=$("#cChooserMsg"); if(r.error){ if(m){ m.textContent=r.error.message; m.style.color="var(--danger)" } return } CHOOSER_MODE=v; try{ var cc=JSON.parse(localStorage.getItem("balkoun_countries")||"null"); if(cc){ cc.chooser=v; localStorage.setItem("balkoun_countries",JSON.stringify(cc)) } }catch(e){} if(m) m.textContent=GX("saved") }) };
   $$("[data-copen]").forEach(function(h){ h.onclick=function(e){ if(e.target.closest("label,input")) return; ADM.cOpen=ADM.cOpen===h.dataset.copen?null:h.dataset.copen; render() } });
-  $$("[data-ctoggle]").forEach(function(i){ i.onchange=function(){
-    var c=byCode(i.dataset.ctoggle);
-    if(!i.checked && c && c.is_default){ i.checked=true; return msg(GX("cCantDisableDefault"),true) }
-    if(!i.checked && !confirm(GX("cDisableWarn"))){ i.checked=true; return }
-    set(i.dataset.ctoggle,{enabled:i.checked}) } });
+  $$("[data-ctoggle]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation();
+    var c=byCode(b.dataset.ctoggle), on=b.dataset.on==="1";
+    if(!on && c && c.is_default) return msg(GX("cCantDisableDefault"),true);
+    if(!on && !confirm(GX("cDisableWarn"))) return;
+    b.disabled=true;
+    set(b.dataset.ctoggle,{enabled:on}).then(function(){ COUNTRIES=null; return refreshCountries() }).then(function(){ render() }) } });
   $$("[data-cdefault]").forEach(function(b){ b.onclick=function(){ set(b.dataset.cdefault,{is_default:true,enabled:true}) } });
   $$("[data-csave]").forEach(function(b){ b.onclick=function(){
     var code=b.dataset.csave, p={}, list=function(v){ return String(v||"").split(/[,،\s]+/).map(function(x){ return x.trim() }).filter(Boolean) };
