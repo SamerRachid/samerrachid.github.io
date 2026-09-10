@@ -2992,7 +2992,7 @@ function flagSvg(code){
   if(code==="LB") return w+'<rect width="24" height="16" fill="#fff"/><rect width="24" height="4" fill="#ED1C24"/><rect y="12" width="24" height="4" fill="#ED1C24"/><path d="M12 3.2l3.6 6.2h-2.2l1.6 2.4H13v1.2h-2v-1.2H9l1.6-2.4H8.4z" fill="#00A651"/></svg>';
   if(code==="JO") return w+'<rect width="24" height="5.34" fill="#000"/><rect y="5.33" width="24" height="5.34" fill="#fff"/><rect y="10.66" width="24" height="5.34" fill="#007A3D"/><path d="M0 0l12 8L0 16z" fill="#CE1126"/>'+star(4,8,1.6,"#fff")+'</svg>';
   if(code==="TR") return w+'<rect width="24" height="16" fill="#E30A17"/><circle cx="9" cy="8" r="4" fill="#fff"/><circle cx="10" cy="8" r="3.2" fill="#E30A17"/>'+star(13.5,8,1.6,"#fff")+'</svg>';
-  if(code==="IQ") return w+'<rect width="24" height="5.34" fill="#CE1126"/><rect y="5.33" width="24" height="5.34" fill="#fff"/><rect y="10.66" width="24" height="5.34" fill="#000"/></svg>';
+  if(code==="IQ") return w+'<rect width="24" height="5.34" fill="#CE1126"/><rect y="5.33" width="24" height="5.34" fill="#fff"/><rect y="10.66" width="24" height="5.34" fill="#000"/><path d="M8 8.6c1-1.6 2.2-1.6 3 0M12.6 8.6c1-1.6 2.2-1.6 3 0" stroke="#007A3D" stroke-width="1" fill="none"/></svg>';
   if(code==="EG") return w+'<rect width="24" height="5.34" fill="#CE1126"/><rect y="5.33" width="24" height="5.34" fill="#fff"/><rect y="10.66" width="24" height="5.34" fill="#000"/><circle cx="12" cy="8" r="1.6" fill="#C09300"/></svg>';
   return '<span class="flg flg-t">'+esc(code)+'</span>';
 }
@@ -10451,11 +10451,11 @@ function countryMapHtml(){
      var hits=function(bx){ return placed.some(function(o){ return !(bx.x1<o.x0||bx.x0>o.x1||bx.y1<o.y0||bx.y0>o.y1) }) };
      pts.sort(function(a,b){ return a[1][1]-b[1][1] });
      pts.forEach(function(p){ placed.push({x0:p[1][0]-13,x1:p[1][0]+13,y0:p[1][1]-13,y1:p[1][1]+13}) });
-     return pts.map(function(p){ var n=cnt[p[0]]||0, r=3+Math.min(4,Math.sqrt(n)), x=Math.round(p[1][0]), y=Math.round(p[1][1]), name=gN(p[0]), w=name.length*CW*(dense?.9:1);
+     return pts.map(function(p){ var n=cnt[p[0]]||0, r=3+Math.min(4,Math.sqrt(n)), x=Math.round(p[1][0]), y=Math.round(p[1][1]), name=gN(p[0]), w=name.length*CW*(pts.length>20?.8:dense?.9:1);
        var cands=[[x+16,y+4,"start"],[x-16,y+4,"end"],[x+12,y+20,"start"],[x-12,y+20,"end"],[x+12,y-12,"start"],[x-12,y-12,"end"],[x+26,y+30,"start"],[x-26,y+30,"end"],[x+26,y-24,"start"],[x-26,y-24,"end"]], pick=null;
        for(var i=0;i<cands.length;i++){ var c=cands[i], bx={x0:c[2]==="start"?c[0]:c[0]-w, x1:c[2]==="start"?c[0]+w:c[0], y0:c[1]-FH+3, y1:c[1]+3}; if(!hits(bx)){ pick=c; placed.push(bx); break } }
        return '<g class="dot" data-g="'+esc(p[0])+'"><circle cx="'+x+'" cy="'+y+'" r="'+(r*2)+'" fill="#C4881F" fill-opacity=".18"/><circle cx="'+x+'" cy="'+y+'" r="'+r+'" fill="#C4881F"/><title>'+name+'</title></g>'+
-              (pick ? '<text x="'+pick[0]+'" y="'+pick[1]+'" style="direction:ltr;text-anchor:'+pick[2]+(dense?';font-size:12px':'')+'">'+name+'</text>' : '') }).join("") })()+
+              (pick ? '<text x="'+pick[0]+'" y="'+pick[1]+'" style="direction:ltr;text-anchor:'+pick[2]+(pts.length>20?';font-size:11px':dense?';font-size:12px':'')+'">'+name+'</text>' : '') }).join("") })()+
    '<text x="20" y="500" style="font-size:11.5px;font-weight:400;fill:#9CA3AF">'+HX("mapNote")+'</text></svg></div>';
 }
 function syriaMapHtml(){
