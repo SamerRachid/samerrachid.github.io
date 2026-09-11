@@ -1759,8 +1759,11 @@ footer{font-size:14px}
   .home-hero .sgo-map{grid-column:1/-1;margin:0;width:auto;height:46px;justify-content:center;border-radius:10px}
 }
 /* glass search bar — a studio switch per device; off by default so Syria keeps its white bar */
+.home-hero .sbar .sbar-glass{display:none;position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(16px) saturate(1.25);backdrop-filter:blur(16px) saturate(1.25);box-shadow:inset 0 0 0 1px rgba(255,255,255,.42)}
+.home-hero .sbar:has(.chipsel-drop.on),.home-hero .sbar:has(.pricepop:not([hidden])){z-index:80}   /* an open filter always sits above the headline */
 @media(min-width:701px){
-.home-hero .sbar.glass{background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(16px) saturate(1.25);backdrop-filter:blur(16px) saturate(1.25);box-shadow:0 24px 56px -26px rgba(9,14,26,.7),inset 0 0 0 1px rgba(255,255,255,.42)}
+.home-hero .sbar.glass{background:transparent;box-shadow:0 24px 56px -26px rgba(9,14,26,.7)}
+.home-hero .sbar.glass .sbar-glass{display:block}
 .home-hero .sbar.glass .stabs{background:rgba(255,255,255,.2)}
 .home-hero .sbar.glass .stabs button{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
 .home-hero .sbar.glass .stabs button.on{color:#fff;text-shadow:none}
@@ -1769,10 +1772,11 @@ footer{font-size:14px}
 .home-hero .sbar.glass .sf:hover{border-color:#fff}
 .home-hero .sbar.glass .sgo-map{background:rgba(255,255,255,.9);border-color:#fff}
 .home-hero .sbar.glass .sgo-map:hover{background:var(--navy);color:#fff}
-.home-hero .sbar.glass.aiglow{box-shadow:0 24px 56px -26px rgba(9,14,26,.7),inset 0 0 0 1px rgba(255,255,255,.42),0 0 0 1px rgba(227,181,99,.35)}
+.home-hero .sbar.glass.aiglow{box-shadow:0 24px 56px -26px rgba(9,14,26,.7),0 0 0 1px rgba(227,181,99,.35)}
 }
 @media(max-width:700px){
-.home-hero .sbar.glass-m{background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(16px) saturate(1.25);backdrop-filter:blur(16px) saturate(1.25);box-shadow:0 24px 56px -26px rgba(9,14,26,.7),inset 0 0 0 1px rgba(255,255,255,.42)}
+.home-hero .sbar.glass-m{background:transparent;box-shadow:0 24px 56px -26px rgba(9,14,26,.7)}
+.home-hero .sbar.glass-m .sbar-glass{display:block}
 .home-hero .sbar.glass-m .stabs{background:rgba(255,255,255,.2)}
 .home-hero .sbar.glass-m .stabs button{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
 .home-hero .sbar.glass-m .stabs button.on{color:#fff;text-shadow:none}
@@ -1781,7 +1785,7 @@ footer{font-size:14px}
 .home-hero .sbar.glass-m .sf:hover{border-color:#fff}
 .home-hero .sbar.glass-m .sgo-map{background:rgba(255,255,255,.9);border-color:#fff}
 .home-hero .sbar.glass-m .sgo-map:hover{background:var(--navy);color:#fff}
-.home-hero .sbar.glass-m.aiglow{box-shadow:0 24px 56px -26px rgba(9,14,26,.7),inset 0 0 0 1px rgba(255,255,255,.42),0 0 0 1px rgba(227,181,99,.35)}
+.home-hero .sbar.glass-m.aiglow{box-shadow:0 24px 56px -26px rgba(9,14,26,.7),0 0 0 1px rgba(227,181,99,.35)}
 }
 /* type, as Bayut sets it: Noto Kufi Arabic (the open successor of Droid Arabic Kufi) for Arabic, Lato for English and German */
 [dir=ltr]{--f:'Lato','Noto Kufi Arabic',system-ui,sans-serif;--fd:'Lato','Noto Kufi Arabic',system-ui,sans-serif}
@@ -7448,7 +7452,7 @@ function typeOptionsCollapsed(){
 function newTag(){ return SX("nav_map_new",true)!==false ? '<i class="newtag">'+GX("newTag")+'</i>' : '' }
 function heroSearchBarHtml(){
   var sgOn=function(k){ var v=SX(k,false); return v===true||v==="true" };
-  return '<div class="sbar'+(SX("sbar_glow",true)!==false?" aiglow":"")+(sgOn("sbar_glass")?" glass":"")+(sgOn("sbar_glass_m")?" glass-m":"")+'"><div class="stabs"><button class="'+(F.deal==="sale"?"on":"")+'" data-d="sale">'+t("forsale")+
+  return '<div class="sbar'+(SX("sbar_glow",true)!==false?" aiglow":"")+(sgOn("sbar_glass")?" glass":"")+(sgOn("sbar_glass_m")?" glass-m":"")+'">'+((sgOn("sbar_glass")||sgOn("sbar_glass_m"))?'<i class="sbar-glass"></i>':'')+'<div class="stabs"><button class="'+(F.deal==="sale"?"on":"")+'" data-d="sale">'+t("forsale")+
    '</button><button class="'+(F.deal==="rent"?"on":"")+'" data-d="rent">'+t("forrent")+'</button><button class="'+(F.deal===""?"on":"")+'" data-d="">'+t("dealAll")+
    '</button><button type="button" data-go="mapsearch" class="stabs-map">'+ICON_PIN+t("searchOnMap")+'</button></div><div class="srow">'+
    // compact fields: the field name sits in the box until something is chosen, then the chosen names replace it
