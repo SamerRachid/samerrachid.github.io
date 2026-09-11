@@ -1398,6 +1398,7 @@ footer{font-size:14px}
 @media(prefers-reduced-motion:reduce){.hv .dawn.day .dawn-shine{animation:none}}
 /* gold line drawing of Damascus on the curtain navy (hero_bg_type = sketch) */
 .hv .sketch{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 30%,#1B2C52,var(--navy) 70%);overflow:hidden}
+.hv .scene3d{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 30%,#1B2C52,var(--navy) 70%);overflow:hidden}.hv .scene3d canvas{display:block;width:100%!important;height:100%!important}
 .hv .sk-stage{position:absolute;perspective:1100px;perspective-origin:50% 42%;transform-origin:50% 50%;will-change:transform;-webkit-mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 42%,rgba(0,0,0,.6) 70%,transparent 97%);mask-image:radial-gradient(ellipse 50% 50% at 50% 50%,#000 42%,rgba(0,0,0,.6) 70%,transparent 97%)}
 .hv .sk-fit{position:absolute;left:50%;top:50%;width:1000px;height:1000px;transform-origin:0 0;transform-style:preserve-3d}
 .hv .sk-tilt,.hv .sk-spin,.hv .sk-zoom,.hv .sk-pan{position:absolute;left:0;top:0;width:1000px;height:1000px;transform-origin:500px 500px;transform-style:preserve-3d;will-change:transform}
@@ -3968,6 +3969,8 @@ function home(){
    heroBgHtml = '<div class="dawn" id="dawnBox"></div>'; // filled by dawnMount() in wire()
  } else if(heroBgType==="sketch"){
    heroBgHtml = '<div class="sketch" id="sketchBox"></div>'; // filled by sketchMount() in wire()
+ } else if(heroBgType==="scene3d"){
+   heroBgHtml = '<div class="scene3d" id="scene3dBox"></div>'; // a live 3D scene (WebGL), filled by scene3dMount() in wire()
  } else if(heroBgType==="none"){
    heroBgHtml = ""; // intentionally empty — .hero's own background color shows through
  } else {
@@ -9712,6 +9715,7 @@ function video(){
  // the fade-in class for these two cases
  if(bgType==="dawn"){ dawnMount(); box.classList.add("on"); return }
  if(bgType==="sketch"){ sketchMount(); box.classList.add("on"); return }
+ if(bgType==="scene3d"){ scene3dMount(); box.classList.add("on"); return }
  if(bgType!=="video"){ box.classList.add("on"); return }
  // wire() (and this function with it) runs on every render() — and
  // this app renders more than once at boot: an immediate first pass,
@@ -10467,7 +10471,7 @@ function homeTrustHtml(){
    '</div></div></section>';
 }
 
-function heroBgTypeEff(){ var v=SITE.hero_bg_type||"sketch"; return (v==="sketch" && !SKETCH_BUILDERS[COUNTRY]) ? "none" : v }   // a drawn scene shows only where the country has one; the rest stay blank
+function heroBgTypeEff(){ var v=SITE.hero_bg_type||"sketch"; if(v==="sketch" && !SKETCH_BUILDERS[COUNTRY]) return "none"; if(v==="scene3d" && !SCENE3D_BUILDERS[COUNTRY]) return "none"; return v }   // a drawn scene shows only where the country has one; the rest stay blank
 function bandImgHtml(){
   var src=HU("band_img", COUNTRY==="SY"?"/assets/home/umayyad.jpg":""); if(!src) return "";
   var alt=HT("band_img_alt", COUNTRY==="SY"?({ar:"الجامع الأموي في دمشق",en:"The Umayyad Mosque in Damascus",de:"Die Umayyaden-Moschee in Damaskus"}[L]||"The Umayyad Mosque in Damascus"):"");
@@ -11047,6 +11051,122 @@ function sketchBuildLB(){
   function refit(){ if(!done) return; measure(); stage.style.transform="none" }
   window.addEventListener("resize",refit);
   return {el:stage, play:play, finish:finish, refit:refit, started:false};
+}
+
+/* ── Live 3D scenes (hero_bg_type = scene3d): one WebGL scene per country, drawn with three.js (loaded only when needed) ── */
+var _scene3d=null, _threePromise=null;
+var SCENE3D_BUILDERS={LB:function(THREE){ return raouche3d(THREE) }};
+function ensureThree(){
+  if(window.THREE) return Promise.resolve(window.THREE);
+  if(_threePromise) return _threePromise;
+  _threePromise=new Promise(function(res,rej){ var sc=document.createElement("script"); sc.src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"; sc.async=true; sc.onload=function(){ window.THREE?res(window.THREE):rej(new Error("three")) }; sc.onerror=function(){ _threePromise=null; rej(new Error("three")) }; document.head.appendChild(sc) });
+  return _threePromise;
+}
+function scene3dMount(){
+  var box=$("#scene3dBox"); if(!box) return; var mk=SCENE3D_BUILDERS[COUNTRY]; if(!mk) return;
+  ensureThree().then(function(THREE){
+    var b2=$("#scene3dBox"); if(!b2) return;
+    if(!_scene3d || _scene3d.country!==COUNTRY){ if(_scene3d) _scene3d.dispose(); _scene3d=mk(THREE); _scene3d.country=COUNTRY }
+    if(_scene3d.el.parentNode!==b2){ b2.innerHTML=""; b2.appendChild(_scene3d.el) }
+    _scene3d.resize(); _scene3d.start();
+  }).catch(function(){});
+}
+/* Raouché, Beirut — the Pigeon Rocks seen from the water at sunset: a natural arch (two legs carrying a great boulder) and the
+   steep cone beside it, limestone lit warm by a low sun, a moving sea, the Ras Beirut towers fading behind, gulls over the bay. */
+function raouche3d(THREE){
+  var NAVY=0x14213D;
+  var el=document.createElement("div"); el.style.cssText="position:absolute;inset:0";
+  var renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:"low-power"});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,1.5)); renderer.setClearColor(0x000000,0);
+  renderer.outputEncoding=THREE.sRGBEncoding; renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
+  el.appendChild(renderer.domElement);
+  var scene=new THREE.Scene(); scene.fog=new THREE.Fog(NAVY,230,560);
+  var camera=new THREE.PerspectiveCamera(36,1,.5,900);
+  var hemi=new THREE.HemisphereLight(0x8a9cc4,0x2a1e10,.5); scene.add(hemi);
+  var sun=new THREE.DirectionalLight(0xffc98a,2.6); sun.position.set(-160,70,140); scene.add(sun);      // low evening sun from the front-left: the faces we see glow gold, as in the photographs
+  var fill=new THREE.DirectionalLight(0x7f9ce0,.3); fill.position.set(120,60,60); scene.add(fill);
+  var rim=new THREE.DirectionalLight(0xffd9a0,.6); rim.position.set(-40,60,-160); scene.add(rim);
+  // deterministic smooth noise, seamless around the rock
+  function hash(a,b){ var n=Math.sin(a*127.1+b*311.7)*43758.5453; return n-Math.floor(n) }
+  function vnoise(x,y){ var xi=Math.floor(x), yi=Math.floor(y), xf=x-xi, yf=y-yi, a=hash(xi,yi), b=hash(xi+1,yi), c=hash(xi,yi+1), d=hash(xi+1,yi+1), u=xf*xf*(3-2*xf), v=yf*yf*(3-2*yf); return (a*(1-u)+b*u)*(1-v)+(c*(1-u)+d*u)*v }
+  function fbm(x,y){ return vnoise(x,y)*.6+vnoise(x*2.1,y*2.1)*.28+vnoise(x*4.3,y*4.3)*.12 }
+  // limestone masses built from boxes: vertical cliff faces, a flat top, horizontal strata ledges cut by noise, a dark wet band at the waterline
+  var rockMat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.88,metalness:.03});
+  function block(o){
+    var W=o.w, H=o.h, Dp=o.d, sd=o.seed||1, amp=o.amp||1.2, g=new THREE.BoxGeometry(W,H,Dp, Math.max(6,Math.round(W/1.6)), Math.max(8,Math.round(H/1.4)), Math.max(6,Math.round(Dp/1.6)));
+    var p=g.attributes.position, n=g.attributes.normal, col=[], c=new THREE.Color(), cream=new THREE.Color(o.hi||0xe8d6ae), band=new THREE.Color(o.mid||0xa48a60), wet=new THREE.Color(0x5c5a52), moss=new THREE.Color(0x3f5a2e);
+    for(var i=0;i<p.count;i++){ var x=p.getX(i), y=p.getY(i), z=p.getZ(i), nx=n.getX(i), ny=n.getY(i), nz=n.getZ(i), hy=(y+H/2)/H;
+      if(Math.abs(ny)<.5){ // cliff faces: strata ledges, a slow bulge, rugged noise; the top edge rounded off, the foot undercut by the sea
+        var strata=Math.sin(y*1.7+sd)*.35+Math.sin(y*4.3+sd*2)*.15, bulge=(fbm(x*.09+z*.09+sd*2, y*.12+sd)-.5)*2, rough=(fbm(x*.35+z*.35+sd, y*.4+sd*3)-.5)*2;
+        var push=amp*(rough*.7+strata*1.1+bulge*2.6)+(o.lean||0)*(hy-.5)*(nx>0?1:-1); if(hy>.8) push-=amp*3.2*Math.pow((hy-.8)/.2,1.6); if(hy<.08) push-=amp*.9;
+        p.setX(i, x+nx*push+(o.shearX||0)*(hy-.5)); p.setZ(i, z+nz*push); if(hy>.94) p.setY(i, y-(fbm(x*.5+sd,z*.5)-.5)*3-(hy>.99?amp*.6:0));
+      } else if(ny>.5){ p.setY(i, y+(fbm(x*.16+sd*7, z*.16)-.5)*4.2+(fbm(x*.5+sd*3, z*.5)-.5)*1.4+(o.tiltX||0)*x+(o.tiltZ||0)*z) }
+      var k=Math.abs(Math.sin(y*1.7+sd)); c.copy(cream).lerp(band, k*.7+fbm(x*.5+sd,y*.9)*.3);
+      if(hy<.09) c.lerp(wet, .8); else if(ny>.5 && fbm(x*.6+sd*5,z*.6)>.5) c.lerp(moss,.85); else if(hy>.82 && fbm(x*.9+sd,y*.9)>.62) c.lerp(moss,.7);
+      col.push(c.r,c.g,c.b) }
+    g.setAttribute("color",new THREE.Float32BufferAttribute(col,3)); g.computeVertexNormals();
+    var m=new THREE.Mesh(g,rockMat); m.position.set(o.x||0,(o.y||0)+H/2-1,o.z||0); if(o.ry) m.rotation.y=o.ry; scene.add(m); return m;
+  }
+  /* the big rock: a wide block whose right third is carried over the water by a slender pillar, leaving the tall archway underneath */
+  block({w:34,h:44,d:22,x:-12,z:0,seed:3,amp:1.4});                     // the main mass on the left
+  block({w:24,h:16,d:20,x:15,y:28,z:0,seed:5,amp:1.1});                 // the span over the arch
+  block({w:7,h:30,d:11,x:23,y:0,z:1,seed:8,amp:.6,lean:1});             // the pillar on the right
+  block({w:10,h:8,d:16,x:-2,y:36,z:1,seed:11,amp:.7});                  // the lip on the arch's left shoulder
+  /* the small rock: a tall tilted block, higher on its left, standing a little nearer the camera */
+  block({w:17,h:36,d:13,x:47,z:9,seed:19,amp:1.2,tiltX:-.28,shearX:2});
+  /* the shore: the white limestone shelf and low cliff of the Corniche, with the walkway above */
+  block({w:120,h:8,d:60,x:-124,y:0,z:-70,seed:23,amp:2.4,hi:0xe9e3d2});
+  block({w:90,h:12,d:40,x:-158,y:0,z:-40,seed:29,amp:2.4,hi:0xe9e3d2});
+  // the sea: a plane whose vertices ride two crossing swells; a little shine from the low sun
+  var seaGeo=new THREE.PlaneGeometry(700,700,110,110); seaGeo.rotateX(-Math.PI/2);
+  var seaMat=new THREE.MeshLambertMaterial({color:0x0c3f8e,transparent:true,opacity:.98});   // diffuse only: the low sun would otherwise throw a white glare across the whole surface
+  var sea=new THREE.Mesh(seaGeo,seaMat); sea.position.y=-.6; scene.add(sea);
+  var seaPos=seaGeo.attributes.position, seaBase=seaPos.array.slice();
+  // the sun and its glow, far behind the rocks
+  var cv=document.createElement("canvas"); cv.width=cv.height=256; var cx=cv.getContext("2d"), gr=cx.createRadialGradient(128,128,10,128,128,128); gr.addColorStop(0,"rgba(255,220,150,1)"); gr.addColorStop(.25,"rgba(255,170,90,.55)"); gr.addColorStop(1,"rgba(255,140,70,0)"); cx.fillStyle=gr; cx.fillRect(0,0,256,256);
+  var glow=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv),transparent:true,depthWrite:false,opacity:.95})); glow.scale.set(280,280,1); glow.position.set(-110,34,-330); scene.add(glow);
+  var sunBall=new THREE.Mesh(new THREE.SphereGeometry(15,24,24),new THREE.MeshBasicMaterial({color:0xffe0b0})); sunBall.position.copy(glow.position); scene.add(sunBall);
+  // Ras Beirut behind the rocks: towers fading into the evening haze, a few lit windows
+  var city=new THREE.Group(); var cm=new THREE.MeshStandardMaterial({color:0x1b2b52,roughness:.9,metalness:.1}); var wm=new THREE.MeshBasicMaterial({color:0xffd27a});
+  for(var k=0;k<34;k++){ var w=6+hash(k,1)*8, hgt=14+hash(k,2)*48, d=6+hash(k,3)*8, bx=-150+k*9+hash(k,4)*6, bz=-150-hash(k,5)*60;
+    var bmesh=new THREE.Mesh(new THREE.BoxGeometry(w,hgt,d),cm); bmesh.position.set(bx,hgt/2-.5,bz); city.add(bmesh);
+    for(var q=0;q<3;q++){ if(hash(k,q+6)<.5) continue; var win=new THREE.Mesh(new THREE.PlaneGeometry(.9,.9),wm); win.position.set(bx-w/2+1.5+hash(k,q+9)*(w-3), 3+hash(k,q+12)*(hgt-6), bz+d/2+.05); city.add(win) } }
+  scene.add(city);
+  var manara=new THREE.Mesh(new THREE.CylinderGeometry(1.6,2,30,12),new THREE.MeshStandardMaterial({color:0x2a3a5f,roughness:.8})); manara.position.set(150,14.5,-160); scene.add(manara);
+  var lamp=new THREE.Mesh(new THREE.SphereGeometry(1.4,10,10),wm); lamp.position.set(150,30.5,-160); scene.add(lamp);
+  // gulls: two flapping wings each, gliding across the bay
+  var gulls=[]; var gm=new THREE.MeshBasicMaterial({color:0xf2ead8,side:THREE.DoubleSide});
+  for(var gi=0;gi<6;gi++){ var g=new THREE.Group(), l=new THREE.Mesh(new THREE.PlaneGeometry(2.2,.5),gm), r=new THREE.Mesh(new THREE.PlaneGeometry(2.2,.5),gm); l.position.x=-1.1; r.position.x=1.1; g.add(l); g.add(r); g.position.set(-40+gi*16,56+hash(gi,20)*14,-20+hash(gi,21)*30); g.userData={l:l,r:r,ph:gi*1.3,sp:.5+hash(gi,22)*.4}; scene.add(g); gulls.push(g) }
+  // a fishing boat out on the water
+  var boat=new THREE.Group(); var hull=new THREE.Mesh(new THREE.BoxGeometry(7,1.6,2.4),new THREE.MeshStandardMaterial({color:0x2c3550,roughness:.8})); boat.add(hull); var mast=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,7,6),new THREE.MeshStandardMaterial({color:0xd9c59a})); mast.position.y=3.5; boat.add(mast); var sail=new THREE.Mesh(new THREE.PlaneGeometry(3,4),new THREE.MeshStandardMaterial({color:0xefe6d2,side:THREE.DoubleSide})); sail.position.set(1.6,4,0); boat.add(sail); boat.position.set(-70,.4,-40); scene.add(boat);
+
+  /* camera: from the water at eye height, the rocks tall against the sky; a slow drift, a gentle swell, the pointer steers a little */
+  var W=1,Hh=1, t0=performance.now(), raf=null, running=false, px=0, py=0, side=0, phone=false;
+  function resize(){ var host=el.parentNode||el; W=Math.max(2,host.clientWidth||el.clientWidth||2); Hh=Math.max(2,host.clientHeight||el.clientHeight||2); renderer.setSize(W,Hh,false); camera.aspect=W/Hh; camera.updateProjectionMatrix(); phone=W<760;
+    var rtl=typeof rtlNow==="function"?rtlNow():true; side = phone ? 0 : (rtl ? 1 : -1) }
+  function frame(now){
+    if(!running) return; raf=requestAnimationFrame(frame);
+    if(document.hidden || !el.isConnected) return;
+    var t=(now-t0)/1000;
+    // the sea
+    var arr=seaPos.array; for(var i=0;i<arr.length;i+=3){ var x=seaBase[i], z=seaBase[i+2]; arr[i+1]=seaBase[i+1]+Math.sin(x*.11+t*1.1)*.55+Math.cos(z*.09+t*.8)*.45+Math.sin((x+z)*.05+t*.5)*.3 }
+    seaPos.needsUpdate=true; seaGeo.computeVertexNormals();
+    // gulls
+    gulls.forEach(function(g){ var u=g.userData; var fl=Math.sin(t*9+u.ph)*.55; u.l.rotation.z=fl; u.r.rotation.z=-fl; g.position.x+=u.sp*.06; g.position.y+=Math.sin(t*.7+u.ph)*.01; if(g.position.x>90) g.position.x=-90 });
+    boat.position.y=.4+Math.sin(t*1.2)*.25; boat.rotation.z=Math.sin(t*1.1)*.04; boat.position.x=-70+Math.sin(t*.05)*6;
+    // the camera
+    var orbit=Math.sin(t*.06)*.12, dist=phone?330:260, cx2=Math.sin(orbit)*dist+px*8, cz2=Math.cos(orbit)*dist, cy2=(phone?84:72)+Math.sin(t*.9)*.4+py*3;
+    camera.position.set(cx2+side*40, cy2, cz2); camera.lookAt(side*52+px*6, phone?12:10, 0);
+    renderer.render(scene,camera);
+  }
+  function start(){ if(running) return; running=true; var reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches; if(reduce){ running=false; resize(); camera.position.set(side*40,72,260); camera.lookAt(side*52,10,0); renderer.render(scene,camera); return } raf=requestAnimationFrame(frame) }
+  function stop(){ running=false; if(raf) cancelAnimationFrame(raf); raf=null }
+  function dispose(){ stop(); try{ renderer.dispose() }catch(e){} }
+  if(window.matchMedia&&matchMedia("(hover:hover)").matches){ document.addEventListener("mousemove",function(e){ if(!el.isConnected) return; px=(e.clientX/window.innerWidth-.5)*2; py=(e.clientY/window.innerHeight-.5)*2 },{passive:true}) }
+  window.addEventListener("resize",function(){ if(el.isConnected) resize() });
+  document.addEventListener("visibilitychange",function(){ if(!document.hidden && running && !raf) raf=requestAnimationFrame(frame) });
+  window._s3d={camera:camera,scene:scene,renderer:renderer,pause:function(){ running=false },render:function(){ renderer.render(scene,camera) }};   // inspection hook
+  return {el:el, resize:resize, start:start, stop:stop, dispose:dispose};
 }
 
 /* ── "Dawn over Damascus": the illustrated hero background (hero_bg_type = dawn) ──
@@ -11714,7 +11834,7 @@ var HS_T={
  g_look:{ar:"الشكل والموضع",en:"Look and position",de:"Aussehen und Position"}, f_h1Color:{ar:"لون العنوان",en:"Headline color",de:"Farbe der Überschrift"}, f_h1bColor:{ar:"لون الجزء المميّز",en:"Highlight color",de:"Farbe der Hervorhebung"},
  f_size:{ar:"حجم الخط (px)",en:"Font size (px)",de:"Schriftgröße (px)"}, f_x:{ar:"إزاحة أفقية (px)",en:"Horizontal offset (px)",de:"Horizontaler Versatz (px)"}, f_y:{ar:"إزاحة رأسية (px)",en:"Vertical offset (px)",de:"Vertikaler Versatz (px)"},
  f_heroGap:{ar:"المسافة تحت القسم الأول",en:"Space below the hero",de:"Abstand unter dem Hero"},
- f_bgType:{ar:"نوع الخلفية",en:"Background type",de:"Hintergrundart"}, bg_none:{ar:"بدون خلفية (لون كحلي)",en:"None (navy color)",de:"Keiner (Marineblau)"}, bg_video:{ar:"فيديو",en:"Video",de:"Video"}, bg_photo:{ar:"صورة",en:"Photo",de:"Foto"}, bg_dawn:{ar:"رسم فجر دمشق المتحرك",en:"Animated Damascus dawn",de:"Animierte Damaskus-Dämmerung"}, bg_sketch:{ar:"رسم دمشق بخطوط ذهبية",en:"Damascus in gold lines",de:"Damaskus in Goldlinien"}, bg_sketch_LB:{ar:"رسم الروشة في بيروت بخطوط ذهبية",en:"Raouché, Beirut, in gold lines",de:"Raouché, Beirut, in Goldlinien"},
+ f_bgType:{ar:"نوع الخلفية",en:"Background type",de:"Hintergrundart"}, bg_none:{ar:"بدون خلفية (لون كحلي)",en:"None (navy color)",de:"Keiner (Marineblau)"}, bg_video:{ar:"فيديو",en:"Video",de:"Video"}, bg_photo:{ar:"صورة",en:"Photo",de:"Foto"}, bg_dawn:{ar:"رسم فجر دمشق المتحرك",en:"Animated Damascus dawn",de:"Animierte Damaskus-Dämmerung"}, bg_sketch:{ar:"رسم دمشق بخطوط ذهبية",en:"Damascus in gold lines",de:"Damaskus in Goldlinien"}, bg_sketch_LB:{ar:"رسم الروشة في بيروت بخطوط ذهبية",en:"Raouché, Beirut, in gold lines",de:"Raouché, Beirut, in Goldlinien"}, bg_scene3d_LB:{ar:"مشهد الروشة ثلاثي الأبعاد (حيّ)",en:"Raouché live 3D scene",de:"Raouché als 3D-Szene"},
  f_speed:{ar:"سرعة الفيديو",en:"Video speed",de:"Videogeschwindigkeit"}, f_upVideo:{ar:"فيديو الخلفية",en:"Background video",de:"Hintergrundvideo"}, f_upPhoto:{ar:"صورة الخلفية",en:"Background photo",de:"Hintergrundfoto"},
  g_draw:{ar:"الرسم (الجامع الأموي والساحة)",en:"The drawing (mosque and square)",de:"Die Zeichnung (Moschee und Platz)"}, f_scale:{ar:"المقياس (%)",en:"Scale (%)",de:"Skalierung (%)"},
  f_heroMax:{ar:"أقصى ارتفاع للقسم الأول على الكمبيوتر (px)",en:"Maximum hero height on desktop (px)",de:"Maximale Hero-Höhe am Desktop (px)"},
@@ -11933,7 +12053,7 @@ function hsInspHome(){
       fSlider(hsT("f_heroGap"),"c:hero_gap","x:hero_gap_m",-60,80,2,"px",0));
   } else if(sd==="hero_bg"){
     var bt=hsVal("c:hero_bg_type")||"sketch";
-    H.push(fSel(hsT("f_bgType"),"c:hero_bg_type",(SKETCH_BUILDERS[COUNTRY]?[["sketch",hsT(COUNTRY==="SY"?"bg_sketch":"bg_sketch_"+COUNTRY)]]:[]).concat([["dawn",hsT("bg_dawn")],["video",hsT("bg_video")],["photo",hsT("bg_photo")],["none",hsT("bg_none")]]),SKETCH_BUILDERS[COUNTRY]?"sketch":"none",true));
+    H.push(fSel(hsT("f_bgType"),"c:hero_bg_type",(SKETCH_BUILDERS[COUNTRY]?[["sketch",hsT(COUNTRY==="SY"?"bg_sketch":"bg_sketch_"+COUNTRY)]]:[]).concat(SCENE3D_BUILDERS[COUNTRY]?[["scene3d",hsT("bg_scene3d_"+COUNTRY)]]:[]).concat([["dawn",hsT("bg_dawn")],["video",hsT("bg_video")],["photo",hsT("bg_photo")],["none",hsT("bg_none")]]),SKETCH_BUILDERS[COUNTRY]?"sketch":"none",true));
     if(bt==="video") H.push(fUpload(hsT("f_upVideo"),"c:hero_bg_video_url","background","video/mp4,video/webm"), fSlider(hsT("f_speed"),"c:hero_bg_video_speed",null,10,300,5,"%",100,true));
     if(bt==="photo") H.push(fUpload(hsT("f_upPhoto"),"c:hero_bg_photo_url","background","image/*"));
     if(bt==="sketch") H.push(fGrp(hsT("g_draw")), fHint(hsT("dualHint")),
