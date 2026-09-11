@@ -1762,6 +1762,31 @@ footer{font-size:14px}
   .home-hero .srow .sgo{grid-column:1/-1;margin:0;height:50px;border-radius:10px}
   .home-hero .sgo-map{grid-column:1/-1;margin:0;width:auto;height:46px;justify-content:center;border-radius:10px}
 }
+/* glass search bar — a studio switch per device; off by default so Syria keeps its white bar */
+@media(min-width:701px){
+.home-hero .sbar.glass{background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(16px) saturate(1.25);backdrop-filter:blur(16px) saturate(1.25);box-shadow:0 24px 56px -26px rgba(9,14,26,.7),inset 0 0 0 1px rgba(255,255,255,.42)}
+.home-hero .sbar.glass .stabs{background:rgba(255,255,255,.2)}
+.home-hero .sbar.glass .stabs button{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.home-hero .sbar.glass .stabs button.on{color:#fff;text-shadow:none}
+.home-hero .sbar.glass .stabs button:not(.on):hover{color:#fff;background:rgba(255,255,255,.14)}
+.home-hero .sbar.glass .sf{background:rgba(255,255,255,.9);border:1.5px solid rgba(255,255,255,.95);box-shadow:0 2px 8px -4px rgba(9,14,26,.25)}
+.home-hero .sbar.glass .sf:hover{border-color:#fff}
+.home-hero .sbar.glass .sgo-map{background:rgba(255,255,255,.9);border-color:#fff}
+.home-hero .sbar.glass .sgo-map:hover{background:var(--navy);color:#fff}
+.home-hero .sbar.glass.aiglow{box-shadow:0 24px 56px -26px rgba(9,14,26,.7),inset 0 0 0 1px rgba(255,255,255,.42),0 0 0 1px rgba(227,181,99,.35)}
+}
+@media(max-width:700px){
+.home-hero .sbar.glass-m{background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(16px) saturate(1.25);backdrop-filter:blur(16px) saturate(1.25);box-shadow:0 24px 56px -26px rgba(9,14,26,.7),inset 0 0 0 1px rgba(255,255,255,.42)}
+.home-hero .sbar.glass-m .stabs{background:rgba(255,255,255,.2)}
+.home-hero .sbar.glass-m .stabs button{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.home-hero .sbar.glass-m .stabs button.on{color:#fff;text-shadow:none}
+.home-hero .sbar.glass-m .stabs button:not(.on):hover{color:#fff;background:rgba(255,255,255,.14)}
+.home-hero .sbar.glass-m .sf{background:rgba(255,255,255,.9);border:1.5px solid rgba(255,255,255,.95);box-shadow:0 2px 8px -4px rgba(9,14,26,.25)}
+.home-hero .sbar.glass-m .sf:hover{border-color:#fff}
+.home-hero .sbar.glass-m .sgo-map{background:rgba(255,255,255,.9);border-color:#fff}
+.home-hero .sbar.glass-m .sgo-map:hover{background:var(--navy);color:#fff}
+.home-hero .sbar.glass-m.aiglow{box-shadow:0 24px 56px -26px rgba(9,14,26,.7),inset 0 0 0 1px rgba(255,255,255,.42),0 0 0 1px rgba(227,181,99,.35)}
+}
 /* type, as Bayut sets it: Noto Kufi Arabic (the open successor of Droid Arabic Kufi) for Arabic, Lato for English and German */
 [dir=ltr]{--f:'Lato','Noto Kufi Arabic',system-ui,sans-serif;--fd:'Lato','Noto Kufi Arabic',system-ui,sans-serif}
 /* English and German headlines are longer: a slightly smaller size and a wider column keep them to two lines, so the hero stays the same height as in Arabic */
@@ -7426,7 +7451,8 @@ function typeOptionsCollapsed(){
    (which restarted the ad carousel, the header and the drawing, and made the menu blink) */
 function newTag(){ return SX("nav_map_new",true)!==false ? '<i class="newtag">'+GX("newTag")+'</i>' : '' }
 function heroSearchBarHtml(){
-  return '<div class="sbar'+(SX("sbar_glow",true)!==false?" aiglow":"")+'"><div class="stabs"><button class="'+(F.deal==="sale"?"on":"")+'" data-d="sale">'+t("forsale")+
+  var sgOn=function(k){ var v=SX(k,false); return v===true||v==="true" };
+  return '<div class="sbar'+(SX("sbar_glow",true)!==false?" aiglow":"")+(sgOn("sbar_glass")?" glass":"")+(sgOn("sbar_glass_m")?" glass-m":"")+'"><div class="stabs"><button class="'+(F.deal==="sale"?"on":"")+'" data-d="sale">'+t("forsale")+
    '</button><button class="'+(F.deal==="rent"?"on":"")+'" data-d="rent">'+t("forrent")+'</button><button class="'+(F.deal===""?"on":"")+'" data-d="">'+t("dealAll")+
    '</button><button type="button" data-go="mapsearch" class="stabs-map">'+ICON_PIN+t("searchOnMap")+'</button></div><div class="srow">'+
    // compact fields: the field name sits in the box until something is chosen, then the chosen names replace it
@@ -11899,7 +11925,7 @@ var HS_T={
  f_speed:{ar:"سرعة الفيديو",en:"Video speed",de:"Videogeschwindigkeit"}, f_upVideo:{ar:"فيديو الخلفية",en:"Background video",de:"Hintergrundvideo"}, f_upPhoto:{ar:"صورة الخلفية",en:"Background photo",de:"Hintergrundfoto"}, f_upPhotoM:{ar:"نسخة الهاتف (اختيارية)",en:"Phone version (optional)",de:"Handy-Version (optional)"}, f_upPhotoMHint:{ar:"صورة أصغر أو مقصوصة تُحمَّل على الهواتف بدل الصورة الكبيرة. إن تُركت فارغة تُستخدم الصورة الكبيرة.",en:"A smaller or cropped copy served to phones instead of the large photo. Leave empty to use the large photo everywhere.",de:"Eine kleinere oder beschnittene Kopie für Handys. Leer lassen, um überall das große Foto zu verwenden."},
  g_draw:{ar:"الرسم (الجامع الأموي والساحة)",en:"The drawing (mosque and square)",de:"Die Zeichnung (Moschee und Platz)"}, f_scale:{ar:"المقياس (%)",en:"Scale (%)",de:"Skalierung (%)"},
  f_heroMax:{ar:"أقصى ارتفاع للقسم الأول على الكمبيوتر (px)",en:"Maximum hero height on desktop (px)",de:"Maximale Hero-Höhe am Desktop (px)"},
- f_sbY:{ar:"الموضع الرأسي (px)",en:"Vertical position (px)",de:"Vertikale Position (px)"}, f_sbGlow:{ar:"وميض ذهبي متحرك حول شريط البحث",en:"Moving golden shine around the search bar",de:"Wandernder Goldglanz um die Suchleiste"}, f_sbW:{ar:"أقصى عرض (px)",en:"Maximum width (px)",de:"Maximale Breite (px)"}, f_sbH:{ar:"ارتفاع الحقول (px)",en:"Field height (px)",de:"Feldhöhe (px)"},
+ f_sbY:{ar:"الموضع الرأسي (px)",en:"Vertical position (px)",de:"Vertikale Position (px)"}, f_sbGlow:{ar:"وميض ذهبي متحرك حول شريط البحث",en:"Moving golden shine around the search bar",de:"Wandernder Goldglanz um die Suchleiste"}, f_sbGlass:{ar:"شريط بحث شفاف (زجاجي) على الكمبيوتر",en:"Transparent (glass) search bar on desktop",de:"Transparente (Glas-)Suchleiste am Computer"}, f_sbGlassM:{ar:"شريط بحث شفاف (زجاجي) على الهاتف",en:"Transparent (glass) search bar on phones",de:"Transparente (Glas-)Suchleiste am Handy"}, f_sbGlassHint:{ar:"يظهر الشريط زجاجياً فوق صورة الخلفية مع إبقاء الحقول بإطار صلب واضح للقراءة.",en:"The bar turns to glass over the background photo while the fields keep a solid, readable frame.",de:"Die Leiste wird über dem Hintergrundfoto glasig, die Felder behalten einen festen, lesbaren Rahmen."}, f_sbW:{ar:"أقصى عرض (px)",en:"Maximum width (px)",de:"Maximale Breite (px)"}, f_sbH:{ar:"ارتفاع الحقول (px)",en:"Field height (px)",de:"Feldhöhe (px)"},
  f_statsOn:{ar:"إظهار سطر الإحصائيات",en:"Show the stats line",de:"Statistikzeile anzeigen"}, f_realCount:{ar:"استخدام العدد الحقيقي للإعلانات",en:"Use the real listing count",de:"Echte Anzeigenzahl verwenden"},
  f_areasNum:{ar:"رقم عدد المناطق",en:"Areas number",de:"Anzahl Gebiete"}, f_listNum:{ar:"رقم عدد الإعلانات",en:"Listings number",de:"Anzahl Anzeigen"}, f_stats1:{ar:"العبارة الأولى",en:"First phrase",de:"Erste Phrase"}, f_stats2:{ar:"العبارة الثانية",en:"Second phrase",de:"Zweite Phrase"},
  f_adsOn:{ar:"إظهار صف المربعات تحت شريط البحث",en:"Show the ad row under the search bar",de:"Werbereihe unter der Suchleiste zeigen"}, f_adsTitle:{ar:"عنوان الصف",en:"Row title",de:"Titel der Reihe"}, f_adsSponsored:{ar:"كلمة «إعلان مدفوع»",en:"“Sponsored” word",de:"Wort „Gesponsert“"},
@@ -12122,7 +12148,7 @@ function hsInspHome(){
       fSlider(hsT("f_scale"),"x:sk_scale","x:sk_scale_m",30,250,5,"%",100));
     if(!phone) H.push(fGrp(hsT("g_spacing")), fNum(hsT("f_heroMax"),"x:hero_max_height",420,900,10,640));
   } else if(sd==="hero_search"){
-    H.push(fSwitch(hsT("f_sbGlow"),"x:sbar_glow",true,true), fHint(hsT("dualHint")), fDual(hsT("f_sbY"),"x:sbar_y","x:sbar_y_m",-300,300,1), fDual(hsT("f_sbW"),"x:sbar_w","x:sbar_w_m",320,1600,10), fDual(hsT("f_sbH"),"x:sbar_h","x:sbar_h_m",32,72,1));
+    H.push(fSwitch(hsT("f_sbGlow"),"x:sbar_glow",true,true), fSwitch(hsT("f_sbGlass"),"x:sbar_glass",false,true), fSwitch(hsT("f_sbGlassM"),"x:sbar_glass_m",false,true), fHint(hsT("f_sbGlassHint")), fHint(hsT("dualHint")), fDual(hsT("f_sbY"),"x:sbar_y","x:sbar_y_m",-300,300,1), fDual(hsT("f_sbW"),"x:sbar_w","x:sbar_w_m",320,1600,10), fDual(hsT("f_sbH"),"x:sbar_h","x:sbar_h_m",32,72,1));
   } else if(sd==="hero_stats"){
     H.push(fSwitch(hsT("f_statsOn"),"c:stats_enabled",true,true), fSwitch(hsT("f_realCount"),"c:stats_use_real_count",false,true),
       '<div class="row">'+fText(hsT("f_areasNum"),"c:stats_areas_num","657",true)+fText(hsT("f_listNum"),"c:stats_listings_num","",true)+'</div>',
