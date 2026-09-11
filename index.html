@@ -2354,6 +2354,13 @@ html[lang=fr] .htools a.gold{white-space:nowrap}
 .shot2.vshot{background:#0D1729}.shot2.vshot .vplay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:30px}.shot2.vshot .vph{position:absolute;inset:0;display:grid;place-items:center;color:#fff}
 .lgal .lg-vid{position:absolute;bottom:14px;inset-inline-start:14px;z-index:3;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:6px 14px 6px 6px;background:rgba(9,14,26,.78);color:#fff;font:700 13px var(--fd);cursor:pointer;backdrop-filter:blur(4px)}
 .lgal .lg-vid:hover{background:rgba(9,14,26,.92)}.lgal{position:relative}
+.lg-main video.main{width:100%;height:100%;object-fit:contain;display:block;background:#0D1729}
+.lg-main.onvid{background:#0D1729}
+.gthv{position:relative;width:100%;height:100%;min-height:0;cursor:pointer;background:#0D1729;display:grid;place-items:center;opacity:.9;overflow:hidden}
+.gthv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.gthv .vplay{position:relative;z-index:1;width:36px;height:36px;border-radius:50%;background:rgba(9,14,26,.78);color:#fff;display:grid;place-items:center;font-size:14px;box-shadow:0 2px 10px rgba(0,0,0,.35)}
+.gthv.sel{opacity:1;outline:2px solid var(--gold);outline-offset:-2px}
+@media(max-width:700px){.gthv{aspect-ratio:4/3;height:auto}.vlb .lb-close{position:fixed;top:max(12px,env(safe-area-inset-top));inset-inline-end:12px;width:46px;height:46px;font-size:28px;background:rgba(255,255,255,.28);z-index:9001}}
 .vlb{position:fixed;inset:0;z-index:9000;background:rgba(5,8,16,.92);display:flex;align-items:center;justify-content:center;padding:20px;animation:ccfade .25s}
 .vlb-box{width:min(96vw,1100px);aspect-ratio:16/9;max-height:88vh;background:#000;border-radius:10px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6)}
 .vlb-box video{width:100%;height:100%;display:block;background:#000}
@@ -3148,7 +3155,35 @@ function clearRememberedPhone(){ try{ localStorage.removeItem("balkoun_remember"
 /* ── core helpers ── */
 var $=function(sel,r){return (r||document).querySelector(sel)};
 var $$=function(sel,r){return [].slice.call((r||document).querySelectorAll(sel))};
-var t=function(k){return (D.I18N[L]&&D.I18N[L][k]!==undefined)?D.I18N[L][k]:k};
+/* nationality words per country: [ar masc, ar fem, ar plural, en, de stem, fr masc, fr fem] — used to turn "Syrian platform" into "Egyptian platform" outside Syria */
+var DEMONYM={SY:["سوري","سورية","سوريون","Syrian","syrisch","syrien","syrienne"],LB:["لبناني","لبنانية","لبنانيون","Lebanese","libanesisch","libanais","libanaise"],JO:["أردني","أردنية","أردنيون","Jordanian","jordanisch","jordanien","jordanienne"],
+  IQ:["عراقي","عراقية","عراقيون","Iraqi","irakisch","irakien","irakienne"],EG:["مصري","مصرية","مصريون","Egyptian","ägyptisch","égyptien","égyptienne"],DZ:["جزائري","جزائرية","جزائريون","Algerian","algerisch","algérien","algérienne"],
+  MA:["مغربي","مغربية","مغاربة","Moroccan","marokkanisch","marocain","marocaine"],TN:["تونسي","تونسية","تونسيون","Tunisian","tunesisch","tunisien","tunisienne"],LY:["ليبي","ليبية","ليبيون","Libyan","libysch","libyen","libyenne"],
+  SA:["سعودي","سعودية","سعوديون","Saudi","saudisch","saoudien","saoudienne"],QA:["قطري","قطرية","قطريون","Qatari","katarisch","qatarien","qatarienne"],BH:["بحريني","بحرينية","بحرينيون","Bahraini","bahrainisch","bahreïnien","bahreïnienne"],
+  OM:["عُماني","عُمانية","عُمانيون","Omani","omanisch","omanais","omanaise"],AE:["إماراتي","إماراتية","إماراتيون","Emirati","emiratisch","émirien","émirienne"],KW:["كويتي","كويتية","كويتيون","Kuwaiti","kuwaitisch","koweïtien","koweïtienne"],
+  PS:["فلسطيني","فلسطينية","فلسطينيون","Palestinian","palästinensisch","palestinien","palestinienne"],YE:["يمني","يمنية","يمنيون","Yemeni","jemenitisch","yéménite","yéménite"],SD:["سوداني","سودانية","سودانيون","Sudanese","sudanesisch","soudanais","soudanaise"],
+  MR:["موريتاني","موريتانية","موريتانيون","Mauritanian","mauretanisch","mauritanien","mauritanienne"],SO:["صومالي","صومالية","صوماليون","Somali","somalisch","somalien","somalienne"],DJ:["جيبوتي","جيبوتية","جيبوتيون","Djiboutian","dschibutisch","djiboutien","djiboutienne"],KM:["قمري","قمرية","قمريون","Comorian","komorisch","comorien","comorienne"]};
+function demonym(){ var c=countryOf(COUNTRY)||{}; return DEMONYM[COUNTRY]||[c.name_ar||"",c.name_ar||"",c.name_ar||"",c.name_en||"",(c.name_en||"").toLowerCase(),c.name_fr||c.name_en||"",c.name_fr||c.name_en||""] }
+/* what the "title deed" filter is called in each country (Syria keeps طابو; the deed options themselves come from the country's deed_types) */
+var DEED_LABEL_DEF={ar:"نوع الملكية",en:"Ownership type",de:"Eigentumsart",fr:"Type de propriété"};
+var DEED_LABEL={IQ:{ar:"نوع الطابو",en:"Title deed (Tabu)",de:"Grundbuchart (Tabu)",fr:"Titre foncier (Tabou)"},PS:{ar:"نوع الطابو",en:"Title deed (Tabu)",de:"Grundbuchart (Tabu)",fr:"Titre foncier (Tabou)"},
+  JO:{ar:"سند التسجيل",en:"Registration deed",de:"Registrierungsurkunde",fr:"Acte d'enregistrement"},SA:{ar:"نوع الصك",en:"Deed type (Sakk)",de:"Urkundenart (Sakk)",fr:"Type d'acte (Sakk)"},
+  MA:{ar:"وضعية التحفيظ",en:"Land registration status",de:"Registrierungsstatus",fr:"Situation foncière"},DZ:{ar:"الوضعية القانونية",en:"Legal status",de:"Rechtsstatus",fr:"Situation juridique"},TN:{ar:"الوضعية القانونية",en:"Legal status",de:"Rechtsstatus",fr:"Situation juridique"}};
+function deedLabel(){ return DEED_LABEL[COUNTRY]||DEED_LABEL_DEF }
+function pickL(o){ return o[L]||o.en||"" }
+var DEED_KEYS={deed:function(dl){ return pickL(dl) }, p4:function(dl){ return pickL(dl) }, anydeed:function(){ return pickL({ar:"الكل",en:"Any",de:"Beliebig",fr:"Tous"}) }, allDeeds:function(){ return pickL({ar:"كل الأنواع",en:"All types",de:"Alle Arten",fr:"Tous les types"}) }, searchDeedPH:function(){ return pickL({ar:"ابحث…",en:"Search…",de:"Suchen…",fr:"Rechercher…"}) }};
+var _clC=null,_cl={};
+function cLocal(str){   // outside Syria, Syria-specific words in interface texts become the current country's; results are cached per country
+  if(COUNTRY==="SY"||VIEW==="admin"||typeof str!=="string"||!str) return str;
+  if(_clC!==COUNTRY+"|"+L){ _clC=COUNTRY+"|"+L; _cl={} }
+  var h=_cl[str]; if(h!==undefined) return h;
+  var c=countryOf(COUNTRY)||{}, d=demonym(), dl=deedLabel(), r=str;
+  if(/سور|طابو/.test(r)) r=r.replace(/(ال)?(سوريين|سوريون)/g,function(m,al){ return (al||"")+d[2] }).replace(/سورية/g,d[1]).replace(/سوريا/g,c.name_ar||"").replace(/سوري/g,d[0]).replace(/حالة الطابو/g,dl.ar);
+  if(/Syria|[Tt]itle deed/.test(r)){ r=r.replace(/Syrians\b/g,d[3]+"s").replace(/Syrian\b/g,d[3]).replace(/Syria\b/g,c.name_en||"").replace(/[Tt]itle deed status/g,dl.en.toLowerCase()).replace(/Title deed/g,dl.en).replace(/title deed/g,dl.en.toLowerCase()).replace(/\b([Aa]) (?=[AEIOUÉ])/g,function(m,a){ return a+"n " }) }
+  if(/[Ss]yri|Grundbuch/.test(r)){ r=r.replace(/([Ss])yrisch(e[nrs]?|es)?/g,function(m,cap,end){ var st=d[4]; return (cap==="S"?st.charAt(0).toUpperCase()+st.slice(1):st)+(end||"") }).replace(/Syrien\b/g,c.name_de||c.name_en||"").replace(/Grundbuchstatus/g,dl.de).replace(/\bGrundbuch\b/g,dl.de) }
+  if(/[Ss]yri/.test(r)){ r=r.replace(/([Ss])yriennes?/g,function(m,cap){ var w=d[6]; return cap==="S"?w.charAt(0).toUpperCase()+w.slice(1):w }).replace(/([Ss])yriens?/g,function(m,cap){ var w=d[5]; return cap==="S"?w.charAt(0).toUpperCase()+w.slice(1):w }).replace(/Syrie\b/g,c.name_fr||c.name_en||"") }
+  _cl[str]=r; return r }
+var t=function(k){ var v=(D.I18N[L]&&D.I18N[L][k]!==undefined)?D.I18N[L][k]:k; if(COUNTRY!=="SY"){ if(DEED_KEYS[k]) return DEED_KEYS[k](deedLabel()); v=cLocal(v) } return v };
 var li=function(){return L==="ar"?0:L==="en"?1:L==="de"?2:3};
 function dsOf(x){ var d=x&&x.ds; if(!d) return ""; if(typeof d==="string") return d; return d[li()]||d[1]||d[0]||"" }   // a description in the current language, else English, else Arabic
 var AMEN_LANGS=["ar","en","de","fr"];   // fr reuses the English list (D.AMEN.fr is set with the French dictionary)
@@ -4036,7 +4071,7 @@ function home(){
 function card(x,i,isListView){
  var I=LICON, ar=L==="ar";
  var photos = (x.photos&&x.photos.length) ? x.photos : (x.cover ? [x.cover] : []);
- var cover = photos[0] || null;
+ var cover = photos[0] || (x.videos&&x.videos[0]&&x.videos[0].poster) || null;
  var closed = x.status==="sold"||x.status==="rented";
  var featBright = x.featured ? Math.max(0,Math.min(100,SITE.featured_brightness!=null?SITE.featured_brightness:20)) : 0;
  var featBadgeText = (SITE["featured_badge_"+L]&&SITE["featured_badge_"+L].trim()) ? SITE["featured_badge_"+L] : t("featuredBadgeDefault");
@@ -4327,38 +4362,43 @@ function listing(id){
  }
  var VIDS = (x.videos&&x.videos.length) ? x.videos : [];
  if(_vlbFor!==x.id){ VLB_OPEN=false; _vlbFor=x.id }
- var IMGS = (x.photos&&x.photos.length) ? x.photos : (VIDS.length&&VIDS[0].poster ? [VIDS[0].poster] : []);
- // a newly opened listing always starts at its first photo
+ var IMGS = (x.photos&&x.photos.length) ? x.photos : [];
+ var VOFF = VIDS.length?1:0;   // the video, when there is one, is the first slide of the gallery
+ // a newly opened listing always starts at its first slide
  if(window._lastLid!==String(x.id)){ window._lastLid=String(x.id); GI=0 }
- if(GI>=IMGS.length) GI=0;
+ var nAll = IMGS.length+VOFF; if(GI>=nAll) GI=0;
+ var onVid = !!(VOFF && GI===0), pi = Math.max(0, GI-VOFF), curImg = IMGS[pi]||"";
  var I=LICON, ar=L==="ar", isRent=x.d==="rent", hasFl=(x.fl!==null&&x.fl!==undefined&&x.fl!=="");
  var typeName=D.TYPES[x.t]?D.TYPES[x.t][li()]:"", condName=(D.COND[x.cd]||D.LANDC[x.cd]||["",""," ",""])[li()];
  var deedName=D.TABU[x.tb]?D.TABU[x.tb][li()]:"";
  var m2=function(){ return '<span class="ltr">'+x.m2+'</span> '+t("sqm") };
 
  /* ── gallery: one large photo and a mosaic of the next ones; every photo opens the lightbox ── */
- var n=IMGS.length, galCls="lgal n"+Math.min(n,5);
+ var n=nAll, galCls="lgal n"+Math.min(n,5);
+ var thumbs=(VOFF?['<div class="gthv'+(GI===0?' sel':'')+'" data-i="0" title="'+esc(GX("videoBadge"))+'">'+(VIDS[0].poster?'<img src="'+VIDS[0].poster+'" alt="" loading="lazy">':'')+'<span class="vplay">▶</span></div>']:[])
+   .concat(IMGS.map(function(src,i){ var j=i+VOFF; return '<img src="'+src+'" data-i="'+j+'" alt=""'+(j===GI?' class="sel"':'')+' loading="lazy">' }));
  var gal='<div class="'+galCls+'">'+
   (n
-    ? '<figure class="lg-main" style="--bg:url(&quot;'+IMGS[GI]+'&quot;)"><img class="main" id="gmain" src="'+IMGS[GI]+'" alt="'+esc(typeName)+'">'+
+    ? '<figure class="lg-main'+(onVid?' onvid':'')+'" style="--bg:url(&quot;'+(onVid?(VIDS[0].poster||""):curImg)+'&quot;)">'+
+      (onVid ? '<video class="main" id="gvideo" controls playsinline preload="metadata"'+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'
+             : '<img class="main" id="gmain" src="'+curImg+'" alt="'+esc(typeName)+'">')+
       (n>1 ? '<button class="gnav" id="gPrev" aria-label="prev">'+(rtlNow()?'›':'‹')+'</button><button class="gnav" id="gNext" aria-label="next">'+(rtlNow()?'‹':'›')+'</button>' : '')+
       '<div class="gcount"><span class="ltr">'+(GI+1)+' / '+n+'</span></div></figure>'+
-      (n>1 ? '<div class="lg-side" id="gth">'+IMGS.map(function(src,i){
-          return '<img src="'+src+'" data-i="'+i+'" alt=""'+(i===GI?' class="sel"':'')+' loading="lazy">'}).join("")+'</div>' : '')+
-      (n>1 ? '<button class="lg-all" id="gAll">'+I.grid+GX("lAllPhotos")+' <span class="ltr">('+n+')</span></button>' : '')
+      (n>1 ? '<div class="lg-side" id="gth">'+thumbs.join("")+'</div>' : '')+
+      (IMGS.length>1 ? '<button class="lg-all" id="gAll">'+I.grid+GX("lAllPhotos")+' <span class="ltr">('+IMGS.length+')</span></button>' : '')
     : '<div class="nophoto lg-none"><span>'+t("photos")+'</span></div>')+
-  (VIDS.length ? '<button type="button" class="lg-vid" id="gVid"><span class="vplay">▶</span>'+GX("videoWatch")+'</button>' : '')+
+  (VIDS.length && !onVid ? '<button type="button" class="lg-vid" id="gVid"><span class="vplay">▶</span>'+GX("videoWatch")+'</button>' : '')+
  '</div>';
 
  /* ── lightbox (unchanged behaviour) ── */
- var lb = (LIGHTBOX_OPEN && n) ?
+ var lb = (LIGHTBOX_OPEN && IMGS.length) ?
    '<div class="lightbox" id="lightbox"><button class="lb-close" id="lbClose">×</button>'+
-    '<div class="lb-count"><span class="ltr">'+(GI+1)+' / '+n+'</span></div>'+
-    (n>1
+    '<div class="lb-count"><span class="ltr">'+(pi+1)+' / '+IMGS.length+'</span></div>'+
+    (IMGS.length>1
       ? '<button class="lb-nav" id="lbPrev" style="'+(rtlNow()?"right":"left")+':16px">‹</button>'+
         '<button class="lb-nav" id="lbNext" style="'+(rtlNow()?"left":"right")+':16px">›</button>'
       : '')+
-    '<img class="lb-img" id="lbImg" src="'+IMGS[GI]+'" alt="">'+
+    '<img class="lb-img" id="lbImg" src="'+curImg+'" alt="">'+
    '</div>' : '';
  lb += (VLB_OPEN && VIDS.length) ? '<div class="vlb" id="vlb"><button type="button" class="lb-close" id="vlbClose" aria-label="close">×</button><div class="vlb-box"><video id="vlbVideo" controls autoplay playsinline'+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video></div></div>' : '';
 
@@ -4787,16 +4827,16 @@ function byUserView(){
 
 /* ── who we are ── */
 function about(){
- var A=D.ABOUT[L];
+ var A=D.ABOUT[L], cl=cLocal;
  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+t("about")+'</div></div>'+
  '<div class="wrap" style="max-width:760px;padding:26px 18px 60px">'+
- '<h1 style="font-size:clamp(24px,4vw,32px);font-weight:700;line-height:1.5;margin-bottom:6px">'+A.h1+'</h1>'+
- '<p style="font-size:17px;color:var(--grey);margin-bottom:22px">'+A.lede+'</p>'+
+ '<h1 style="font-size:clamp(24px,4vw,32px);font-weight:700;line-height:1.5;margin-bottom:6px">'+cl(A.h1)+'</h1>'+
+ '<p style="font-size:17px;color:var(--grey);margin-bottom:22px">'+cl(A.lede)+'</p>'+
  A.blocks.map(function(b){
-   return '<div class="blk"><h3><span class="n">•</span>'+b[0]+'</h3><div class="in">'+
-   b[1].map(function(p){return '<p style="margin-bottom:10px;color:#3F444B">'+p+'</p>'}).join("")+
+   return '<div class="blk"><h3><span class="n">•</span>'+cl(b[0])+'</h3><div class="in">'+
+   b[1].map(function(p){return '<p style="margin-bottom:10px;color:#3F444B">'+cl(p)+'</p>'}).join("")+
    '</div></div>'}).join("")+
- '<div class="band" style="margin-top:6px"><div><h2>'+A.ctaH+'</h2><p>'+A.ctaP+'</p></div>'+
+ '<div class="band" style="margin-top:6px"><div><h2>'+cl(A.ctaH)+'</h2><p>'+cl(A.ctaP)+'</p></div>'+
   '<a class="gold" data-go="post" style="text-decoration:none">'+t("post")+'</a></div>'+
  '</div>'}
 
@@ -5863,11 +5903,12 @@ function checkPost(){
  if(!$('input[name=cd2]:checked'))need.push(t("cond"));
  if(!isRent && !$('input[name=tb2]:checked'))need.push(t("deed"));
  if(v("pd").trim().length<30)need.push(t("descL"));
- if(NEW.photos.length<3)need.push(t("photos"));
+ var needPh = NEW.video ? 0 : 1;   // a video can stand alone; without one, at least one photo
+ if(NEW.photos.length<needPh)need.push(t("photos"));
  if(!v("pp"))need.push(t("price"));
  if(v("ptel").replace(/\D/g,"").length<9)need.push(t("tel"));
  [["k1",true],["k2",!!v("pg")||true],["k3",!!v("pm2")],
-  ["k4",isRent||!!$('input[name=tb2]:checked')],["k5",NEW.photos.length>=3],["k6",!!v("pp")]]
+  ["k4",isRent||!!$('input[name=tb2]:checked')],["k5",NEW.photos.length>=needPh],["k6",!!v("pp")]]
   .forEach(function(p){var e=$("#"+p[0]); if(e)e.classList.toggle("done",p[1])});
  var m=$("#msg"),b=$("#pub"); if(!m)return;
  if(need.length){m.className="msg bad";m.textContent=t("missing")+" "+need.slice(0,3).join("، ")+(need.length>3?" …":"");
@@ -7128,7 +7169,7 @@ function initMapSearch(){
   // would otherwise sit frozen, visibly detached from its pin
   map.on("movestart zoomstart", function(){ previewEl.style.display="none"; activePinId=null });
   withLoc.forEach(function(x){
-    var cover = (x.photos&&x.photos[0]) || x.cover || null;
+    var cover = (x.photos&&x.photos[0]) || x.cover || (x.videos&&x.videos[0]&&x.videos[0].poster) || null;
     var priceText = x.d==="rent" ? (money(x.p)+" "+t("monthlyRent")) : money(x.p);
     var popupHtml = '<div class="mappin-preview" data-pin-listing="'+x.id+'" style="cursor:pointer">'+
       (cover ? '<img src="'+cover+'" alt="">' : '<div class="mappin-nophoto">'+t("photos")+'</div>')+
@@ -7560,24 +7601,28 @@ function wire(){
        wrap.scrollBy({left: atEnd ? -wrap.scrollLeft : dir*234, behavior:"smooth"});
      }, 3500);
    }
-   var IM2=(LI2.photos&&LI2.photos.length)?LI2.photos:[];
+   var IM2=(LI2.photos&&LI2.photos.length)?LI2.photos:[], V2=(LI2.videos&&LI2.videos.length)?1:0, N2=IM2.length+V2;
    var set=function(n){
-     if(!IM2.length) return;
-     GI=(n+IM2.length)%IM2.length;
-     var g=$("#gmain"); if(g) g.src=IM2[GI];
-     var fg=$(".lg-main"); if(fg) fg.style.setProperty("--bg",'url("'+IM2[GI]+'")');
-     var c=$(".gcount span"); if(c) c.textContent=(GI+1)+" / "+IM2.length;
-     $$("#gth img").forEach(function(im,i){ im.classList.toggle("sel", i===GI) });
-     var lb=$("#lbImg"); if(lb) lb.src=IM2[GI];
-     var lc=$(".lb-count span"); if(lc) lc.textContent=(GI+1)+" / "+IM2.length;
+     if(!N2) return;
+     var g0=GI; GI=(n+N2)%N2;
+     if(V2 && (GI===0 || g0===0)){ render(); return }   // to or from the video slide: the main element changes, so redraw
+     var p2=GI-V2, g=$("#gmain"); if(g) g.src=IM2[p2];
+     var fg=$(".lg-main"); if(fg) fg.style.setProperty("--bg",'url("'+IM2[p2]+'")');
+     var c=$(".gcount span"); if(c) c.textContent=(GI+1)+" / "+N2;
+     $$("#gth [data-i]").forEach(function(im){ im.classList.toggle("sel", +im.dataset.i===GI) });
+     var lb=$("#lbImg"); if(lb) lb.src=IM2[p2];
+     var lc=$(".lb-count span"); if(lc) lc.textContent=(p2+1)+" / "+IM2.length;
    };
+   var lbSet=function(p2){ if(!IM2.length) return; set(V2+((p2+IM2.length)%IM2.length)) };   // the lightbox shows photos only
    if($("#gPrev")) $("#gPrev").onclick=function(){ set(GI-1) };
    if($("#gNext")) $("#gNext").onclick=function(){ set(GI+1) };
-   $$("#gth img").forEach(function(im){ im.onclick=function(){ set(+im.dataset.i) } });
+   $$("#gth [data-i]").forEach(function(im){ im.onclick=function(){ set(+im.dataset.i) } });
+   var gv=$("#gvideo"); if(gv){ var gs=window._gvState; if(gs && gs.url===gv.getAttribute("src")){ try{ gv.currentTime=gs.t||0 }catch(e){} if(!gs.paused) gv.play().catch(function(){}) }
+     var recV=function(){ window._gvState={url:gv.getAttribute("src"),t:gv.currentTime,paused:gv.paused} }; ["timeupdate","pause","play","seeked"].forEach(function(ev){ gv.addEventListener(ev,recV) }) }
    // swipe through photos on touch screens (gallery and lightbox); a swipe must not also count as a tap
    var swiped=false;
    var addSwipe=function(el){
-     if(!el || IM2.length<2) return;
+     if(!el || N2<2) return;
      var x0=null;
      el.addEventListener("touchstart",function(e){ x0=e.touches[0].clientX; swiped=false },{passive:true});
      el.addEventListener("touchend",function(e){
@@ -7593,8 +7638,8 @@ function wire(){
    if($("#vlbClose")) $("#vlbClose").onclick=function(){ VLB_OPEN=false; render() };
    if($("#vlb")) $("#vlb").onclick=function(e){ if(e.target===this){ VLB_OPEN=false; render() } };
    if($("#lightbox")) $("#lightbox").onclick=function(e){ if(e.target===this){ LIGHTBOX_OPEN=false; render() } };
-   if($("#lbPrev")) $("#lbPrev").onclick=function(e){ e.stopPropagation(); set(GI-1) };
-   if($("#lbNext")) $("#lbNext").onclick=function(e){ e.stopPropagation(); set(GI+1) };
+   if($("#lbPrev")) $("#lbPrev").onclick=function(e){ e.stopPropagation(); lbSet(GI-V2-1) };
+   if($("#lbNext")) $("#lbNext").onclick=function(e){ e.stopPropagation(); lbSet(GI-V2+1) };
 
    var LX=LI2, tel=LX.tel||"", dig=tel.replace(/\D/g,"");
    var waLink=function(msg){ return "https://wa.me/"+dig+"?text="+encodeURIComponent(msg) };
@@ -10414,6 +10459,7 @@ var HX_T={
   credit:{ar:"صور المجموعات مؤقتة من ويكيميديا كومنز (CC BY-SA)",en:"Collection photos are temporary, from Wikimedia Commons (CC BY-SA)",de:"Sammlungsfotos vorläufig, von Wikimedia Commons (CC BY-SA)"},
   trE:{ar:"لماذا بلكون",en:"Why Balkoun",de:"Warum Balkoun"},
   trH:{ar:"سوقٌ نعرفه بيتاً بيتاً.",en:"A market we know house by house.",de:"Ein Markt, den wir Haus für Haus kennen."},
+  trP_x:{ar:"بلكون منصّة {adj} بُنيت لسوق {country}: نوع الملكية واضح في كل إعلان، الأسعار بالعملة المحلية وبالدولار، ومكاتب تعرف حارتها أفضل من أي خريطة.",en:"Balkoun is {a} {adj} platform built for the {adj} market: the ownership type is clear on every listing, prices in local currency and in dollars, and agencies that know their street better than any map.",de:"Balkoun ist eine {adj} Plattform für den Markt in {country}: die Eigentumsart steht klar auf jeder Anzeige, Preise in Landeswährung und in Dollar, und Büros, die ihre Straße besser kennen als jede Karte.",fr:"Balkoun est une plateforme {adj} construite pour le marché {adjm} : le type de propriété est clair sur chaque annonce, des prix en monnaie locale et en dollars, et des agences qui connaissent leur rue mieux que n'importe quelle carte."},
   trP:{ar:"بلكون منصّة سورية بُنيت لسوق لا يشبه غيره: طابو أخضر وحكم محكمة، أسعار بالدولار وأخرى بالليرة، ومكاتب تعرف حارتها أفضل من أي خريطة.",en:"Balkoun is a Syrian platform built for a market like no other: green deeds and court rulings, prices in dollars and in pounds, and agencies that know their street better than any map.",de:"Balkoun ist eine syrische Plattform für einen Markt, der seinesgleichen sucht: grüne Grundbuchauszüge und Gerichtsurteile, Preise in Dollar und Lira, und Büros, die ihre Straße besser kennen als jede Karte."},
   n1:{ar:"منطقة",en:"areas",de:"Gebiete"}, n2:{ar:"محافظة",en:"governorates",de:"Gouvernements"}, n3:{ar:"عمولة على المشتري",en:"buyer commission",de:"Käuferprovision"},
   t1:{ar:"توثيق الملكية قبل النشر",en:"Ownership checked before publishing",de:"Eigentum vor Veröffentlichung geprüft"},
@@ -10426,7 +10472,9 @@ var HX_T={
 };
 var FR_HX={pickE:"Commencez ici", navColl:"Collections", navAreas:"Explorer les quartiers", navGuide:"Guide de l'acheteur", navAgencies:"Pour les agences", govE:"Explorer les quartiers", guideE:"Guide de l'acheteur", ownE:"Pour les propriétaires et agences", collE:"Collections choisies", collH:"Pas seulement une recherche. Une découverte.", collS:"Des collections d'annonces vérifiées, parce que les plus belles maisons ne se résument pas à un nombre de pièces.", trE:"Pourquoi Balkoun", trH:"Un marché que nous connaissons maison par maison.", n1:"quartiers", n2:"gouvernorats", n3:"commission acheteur", t1:"Propriété vérifiée avant publication", t1p:"Le type de titre apparaît sur chaque annonce, et rien n'est publié avant l'examen des documents.", t2:"Un prix en contexte", t2p:"Chaque annonce affiche le prix moyen du m² dans son quartier sur les trente derniers jours.", t3:"Contact direct", t3p:"Appelez ou écrivez sur WhatsApp au propriétaire ou à l'agence. Sans intermédiaire ni commission cachée.", mapNote:"Carte approximative · la taille des points reflète les annonces en ligne"};
 Object.keys(FR_HX).forEach(function(k){ if(HX_T[k]) HX_T[k].fr=FR_HX[k] });
-function HX(k){ var o=HX_T[k]||{}; return o[L]||o.en||"" }
+function HX(k){ var o=HX_T[k]||{}; if(k==="trP" && COUNTRY!=="SY"){ var c=countryOf(COUNTRY)||{}, d=demonym(), x=HX_T.trP_x, cn={ar:c.name_ar,en:c.name_en,de:c.name_de||c.name_en,fr:c.name_fr||c.name_en}[L]||c.name_en||"";
+    return (x[L]||x.en).replace("{a}",/^[aeiou]/i.test(d[3])?"an":"a").split("{adj}").join({ar:d[1],en:d[3],de:d[4]+"e",fr:d[6]}[L]||d[3]).replace("{adjm}",d[5]).replace("{country}",cn) }
+  return cLocal(o[L]||o.en||"") }
 
 /* every homepage section below the hero, in the admin's order; each has a show switch (home_<k>_on) and text overrides (<k>_<field>_<lang>) */
 var HOME_SECS=["ads","banners","ticker","projects","wanted","colls","types","trust","expl","band","guides"];
@@ -11781,7 +11829,7 @@ function heroPricePresets(){
   return steps.map(function(s){ return [s[0],s[1], s[1]? (s[0]?f(s[0])+" – "+f(s[1]) : GX("upTo")+" "+f(s[1])) : f(s[0])+" "+GX("andUp")] });
 }
 Object.keys(FR_GX).forEach(function(k){ if(GX_T[k]) GX_T[k].fr=FR_GX[k] });
-function GX(k){ var o=GX_T[k]||{}; return o[L]||o.en||k }
+function GX(k){ var o=GX_T[k]||{}; var v=o[L]||o.en||k; if(COUNTRY!=="SY"){ if(k==="f_wTabu"){ var dl=deedLabel(); return pickL({ar:dl.ar+" المفضّل",en:"Preferred "+dl.en.toLowerCase(),de:"Bevorzugte "+dl.de,fr:dl.fr+" préféré"}) } v=cLocal(v) } return v }
 var AD_VIDEO_MAX_MB=8;
 /* extra site settings live in site_content.extras (JSON): SX(key, default) reads one */
 function SX(k,d){ var ex=SITE&&SITE.extras; if(ex&&typeof ex==="string"){ try{ ex=JSON.parse(ex) }catch(e){ ex=null } } var v=ex?ex[k]:undefined; return (v===undefined||v===null||v==="") ? d : v }
