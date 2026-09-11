@@ -3967,7 +3967,7 @@ function home(){
  var heroBgType = heroBgTypeEff(); // "video" | "photo" | "dawn" | "sketch" | "none" — sketch is the default when settings have not loaded
  var heroBgHtml;
  if(heroBgType==="photo" && SITE.hero_bg_photo_url){
-   heroBgHtml = '<img class="hero-photo" src="'+SITE.hero_bg_photo_url+'" alt="">'+(SX("hero_bg_credit","")?'<div class="hero-credit">'+esc(SX("hero_bg_credit",""))+'</div>':'');   // a slow drift over the photo; the credit line is set per country in the studio
+   heroBgHtml = '<img class="hero-photo" src="'+SITE.hero_bg_photo_url+'"'+(SX("hero_bg_photo_m","")?' srcset="'+esc(SX("hero_bg_photo_m",""))+' 1100w, '+SITE.hero_bg_photo_url+' 2400w" sizes="100vw"':'')+' alt="">'+(SX("hero_bg_credit","")?'<div class="hero-credit">'+esc(SX("hero_bg_credit",""))+'</div>':'');   // a slow drift over the photo; the credit line is set per country in the studio
  } else if(heroBgType==="dawn"){
    heroBgHtml = '<div class="dawn" id="dawnBox"></div>'; // filled by dawnMount() in wire()
  } else if(heroBgType==="sketch"){
@@ -11844,7 +11844,7 @@ var HS_T={
  f_size:{ar:"حجم الخط (px)",en:"Font size (px)",de:"Schriftgröße (px)"}, f_x:{ar:"إزاحة أفقية (px)",en:"Horizontal offset (px)",de:"Horizontaler Versatz (px)"}, f_y:{ar:"إزاحة رأسية (px)",en:"Vertical offset (px)",de:"Vertikaler Versatz (px)"},
  f_heroGap:{ar:"المسافة تحت القسم الأول",en:"Space below the hero",de:"Abstand unter dem Hero"},
  f_bgType:{ar:"نوع الخلفية",en:"Background type",de:"Hintergrundart"}, f_bgCredit:{ar:"سطر حقوق الصورة (يظهر صغيراً في الزاوية)",en:"Photo credit line (small, in the corner)",de:"Bildnachweis (klein, in der Ecke)"}, bg_none:{ar:"بدون خلفية (لون كحلي)",en:"None (navy color)",de:"Keiner (Marineblau)"}, bg_video:{ar:"فيديو",en:"Video",de:"Video"}, bg_photo:{ar:"صورة",en:"Photo",de:"Foto"}, bg_dawn:{ar:"رسم فجر دمشق المتحرك",en:"Animated Damascus dawn",de:"Animierte Damaskus-Dämmerung"}, bg_sketch:{ar:"رسم دمشق بخطوط ذهبية",en:"Damascus in gold lines",de:"Damaskus in Goldlinien"}, bg_sketch_LB:{ar:"رسم الروشة في بيروت بخطوط ذهبية",en:"Raouché, Beirut, in gold lines",de:"Raouché, Beirut, in Goldlinien"}, bg_scene3d_LB:{ar:"مشهد الروشة ثلاثي الأبعاد (حيّ)",en:"Raouché live 3D scene",de:"Raouché als 3D-Szene"},
- f_speed:{ar:"سرعة الفيديو",en:"Video speed",de:"Videogeschwindigkeit"}, f_upVideo:{ar:"فيديو الخلفية",en:"Background video",de:"Hintergrundvideo"}, f_upPhoto:{ar:"صورة الخلفية",en:"Background photo",de:"Hintergrundfoto"},
+ f_speed:{ar:"سرعة الفيديو",en:"Video speed",de:"Videogeschwindigkeit"}, f_upVideo:{ar:"فيديو الخلفية",en:"Background video",de:"Hintergrundvideo"}, f_upPhoto:{ar:"صورة الخلفية",en:"Background photo",de:"Hintergrundfoto"}, f_upPhotoM:{ar:"نسخة الهاتف (اختيارية)",en:"Phone version (optional)",de:"Handy-Version (optional)"}, f_upPhotoMHint:{ar:"صورة أصغر أو مقصوصة تُحمَّل على الهواتف بدل الصورة الكبيرة. إن تُركت فارغة تُستخدم الصورة الكبيرة.",en:"A smaller or cropped copy served to phones instead of the large photo. Leave empty to use the large photo everywhere.",de:"Eine kleinere oder beschnittene Kopie für Handys. Leer lassen, um überall das große Foto zu verwenden."},
  g_draw:{ar:"الرسم (الجامع الأموي والساحة)",en:"The drawing (mosque and square)",de:"Die Zeichnung (Moschee und Platz)"}, f_scale:{ar:"المقياس (%)",en:"Scale (%)",de:"Skalierung (%)"},
  f_heroMax:{ar:"أقصى ارتفاع للقسم الأول على الكمبيوتر (px)",en:"Maximum hero height on desktop (px)",de:"Maximale Hero-Höhe am Desktop (px)"},
  f_sbY:{ar:"الموضع الرأسي (px)",en:"Vertical position (px)",de:"Vertikale Position (px)"}, f_sbGlow:{ar:"وميض ذهبي متحرك حول شريط البحث",en:"Moving golden shine around the search bar",de:"Wandernder Goldglanz um die Suchleiste"}, f_sbW:{ar:"أقصى عرض (px)",en:"Maximum width (px)",de:"Maximale Breite (px)"}, f_sbH:{ar:"ارتفاع الحقول (px)",en:"Field height (px)",de:"Feldhöhe (px)"},
@@ -12064,7 +12064,7 @@ function hsInspHome(){
     var bt=hsVal("c:hero_bg_type")||"sketch";
     H.push(fSel(hsT("f_bgType"),"c:hero_bg_type",(SKETCH_BUILDERS[COUNTRY]?[["sketch",hsT(COUNTRY==="SY"?"bg_sketch":"bg_sketch_"+COUNTRY)]]:[]).concat(SCENE3D_BUILDERS[COUNTRY]?[["scene3d",hsT("bg_scene3d_"+COUNTRY)]]:[]).concat([["dawn",hsT("bg_dawn")],["video",hsT("bg_video")],["photo",hsT("bg_photo")],["none",hsT("bg_none")]]),SKETCH_BUILDERS[COUNTRY]?"sketch":"none",true));
     if(bt==="video") H.push(fUpload(hsT("f_upVideo"),"c:hero_bg_video_url","background","video/mp4,video/webm"), fSlider(hsT("f_speed"),"c:hero_bg_video_speed",null,10,300,5,"%",100,true));
-    if(bt==="photo") H.push(fUpload(hsT("f_upPhoto"),"c:hero_bg_photo_url","background","image/*"), fText(hsT("f_bgCredit"),"x:hero_bg_credit","",true));
+    if(bt==="photo") H.push(fUpload(hsT("f_upPhoto"),"c:hero_bg_photo_url","background","image/*"), fUpload(hsT("f_upPhotoM"),"x:hero_bg_photo_m","background","image/*"), fHint(hsT("f_upPhotoMHint")), fText(hsT("f_bgCredit"),"x:hero_bg_credit","",true));
     if(bt==="sketch") H.push(fGrp(hsT("g_draw")), fHint(hsT("dualHint")),
       '<div class="row">'+fDual(hsT("f_x"),"x:sk_x","x:sk_x_m",-600,600,1)+fDual(hsT("f_y"),"x:sk_y","x:sk_y_m",-400,400,1)+'</div>',
       fSlider(hsT("f_scale"),"x:sk_scale","x:sk_scale_m",30,250,5,"%",100));
