@@ -1172,11 +1172,16 @@ footer{font-size:14px}
 .lgal.n2,.lgal.n3,.lgal.n4{grid-template-columns:minmax(0,1fr) 200px;background:transparent;overflow:visible;border-radius:0}
 .lgal.n2 .lg-main,.lgal.n3 .lg-main,.lgal.n4 .lg-main{border-radius:18px;overflow:hidden;background:#0D1729}
 .lgal.n2 .lg-side,.lgal.n3 .lg-side,.lgal.n4 .lg-side{grid-template-columns:1fr;grid-auto-rows:auto;align-content:start;gap:10px}
-.lgal.n2 .lg-side img,.lgal.n3 .lg-side img,.lgal.n4 .lg-side img{aspect-ratio:4/3;height:auto;border-radius:12px;opacity:1}
+.lgal.n2 .lg-side img,.lgal.n3 .lg-side img,.lgal.n4 .lg-side img,.lgal.n2 .lg-side .gthv,.lgal.n3 .lg-side .gthv,.lgal.n4 .lg-side .gthv{aspect-ratio:4/3;height:auto;border-radius:12px;opacity:1}
+.lgal.n2 .lg-side,.lgal.n3 .lg-side,.lgal.n4 .lg-side{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(20,33,61,.35) transparent;padding-inline-end:4px}
+.lgal.n2 .lg-side::-webkit-scrollbar,.lgal.n3 .lg-side::-webkit-scrollbar,.lgal.n4 .lg-side::-webkit-scrollbar{width:6px}
+.lgal.n2 .lg-side::-webkit-scrollbar-thumb,.lgal.n3 .lg-side::-webkit-scrollbar-thumb,.lgal.n4 .lg-side::-webkit-scrollbar-thumb{background:rgba(20,33,61,.35);border-radius:3px}
 .lgal.n2 .lg-side img:not(.sel),.lgal.n3 .lg-side img:not(.sel),.lgal.n4 .lg-side img:not(.sel){opacity:.85}
 .lgal.n2 .lg-all,.lgal.n3 .lg-all,.lgal.n4 .lg-all{inset-inline-end:auto;inset-inline-start:14px}
 .lgal .gcount{position:absolute;top:12px;inset-inline-start:12px;background:rgba(9,14,26,.6);color:#fff;font-size:12px;padding:4px 10px;border-radius:999px;backdrop-filter:blur(4px)}
-.lgal .gnav{display:none}
+.lgal .gnav{display:grid;place-items:center;position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.9);color:var(--navy);font-size:22px;line-height:1;cursor:pointer;z-index:2;box-shadow:0 6px 16px -8px rgba(0,0,0,.6);transition:background .15s,transform .15s}
+.lgal .gnav:hover{background:#fff}.lgal #gPrev{inset-inline-start:12px}.lgal #gNext{inset-inline-end:12px}
+.lgal .lg-main.onvid .gnav{top:44%}   /* keep clear of the video's control bar */
 .lg-all{position:absolute;bottom:14px;inset-inline-end:14px;background:rgba(255,255,255,.95);color:var(--navy);border:none;border-radius:999px;padding:8px 14px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;display:flex;gap:7px;align-items:center;box-shadow:0 8px 22px -10px rgba(0,0,0,.6)}
 .lg-all:hover{background:#fff}
 .lgrid{display:grid;grid-template-columns:minmax(0,1fr) 350px;gap:28px;margin-top:22px;align-items:start}
@@ -1256,6 +1261,7 @@ footer{font-size:14px}
   .lg-side{display:flex;overflow-x:auto;gap:6px;padding:8px 12px;height:auto;scrollbar-width:none}
   .lg-side::-webkit-scrollbar{display:none}
   .lg-side img,.lg-side img:nth-child(n+2),.lg-side img:nth-child(n+3),.lg-side img:nth-child(n+5){display:block;width:72px;height:54px;flex:0 0 72px;border-radius:6px;grid-column:auto}
+  .lgal .lg-side .gthv,.lgal.n2 .lg-side .gthv,.lgal.n3 .lg-side .gthv,.lgal.n4 .lg-side .gthv{aspect-ratio:auto;width:72px;height:54px;flex:0 0 72px;border-radius:6px}.lgal .lg-side .gthv .vplay{width:26px;height:26px;font-size:11px}
   .lg-all{bottom:auto;top:12px;inset-inline-end:12px;padding:6px 10px;font-size:12px}
   .lgal .gcount{top:auto;bottom:12px}
   .lgrid{padding:0 14px;margin-top:12px}
@@ -2391,7 +2397,7 @@ html[lang=fr] .htools a.gold{white-space:nowrap}
 .shot2.vshot{background:#0D1729}.shot2.vshot .vplay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:30px}.shot2.vshot .vph{position:absolute;inset:0;display:grid;place-items:center;color:#fff}
 .lgal .lg-vid{position:absolute;bottom:14px;inset-inline-start:14px;z-index:3;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:6px 14px 6px 6px;background:rgba(9,14,26,.78);color:#fff;font:700 13px var(--fd);cursor:pointer;backdrop-filter:blur(4px)}
 .lgal .lg-vid:hover{background:rgba(9,14,26,.92)}.lgal{position:relative}
-.lg-main video.main{width:100%;height:100%;object-fit:contain;display:block;background:#0D1729}
+.lg-main video.main{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;display:block;background:#0D1729}
 .lg-main.onvid{background:#0D1729}
 .gthv{position:relative;width:100%;height:100%;min-height:0;cursor:pointer;background:#0D1729;display:grid;place-items:center;opacity:.9;overflow:hidden}
 .gthv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
