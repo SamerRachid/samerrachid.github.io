@@ -1682,7 +1682,9 @@ footer{font-size:14px}
 .home-hero .stabs button{border:0;border-radius:8px;padding:0 13px;height:34px;font:600 15px var(--fd);color:var(--grey);background:transparent;transition:color .2s,background .2s,box-shadow .2s}
 .home-hero .stabs button.on{background:var(--navy);color:#fff;box-shadow:0 6px 14px -8px rgba(20,33,61,.7)}
 .home-hero .stabs button:not(.on):hover{color:var(--navy)}
-.home-hero .srow{grid-template-columns:1.05fr 1.3fr 1.15fr 1fr .9fr auto auto;gap:6px}
+.home-hero .srow{grid-template-columns:1.05fr 1.2fr 1.1fr 1.2fr .78fr .9fr auto auto;gap:6px}
+@media(min-width:701px) and (max-width:1099px){.home-hero .srow .sf-rooms{display:none}.home-hero .srow{grid-template-columns:1.05fr 1.3fr 1.15fr 1fr .9fr auto auto}}
+.home-hero .sf-sel select:has(option:checked:not([value=""])){color:var(--ink)}
 .home-hero .sf{border:1px solid var(--line);border-radius:9px;padding:0;min-height:40px;height:40px;background:#fff;position:relative;transition:border-color .2s,box-shadow .2s;display:flex;align-items:stretch}
 .home-hero .sf:hover{border-color:#C3C8D2}
 .home-hero .sf:focus-within,.home-hero .sf:has(.chipsel-drop.on){border-color:var(--gold);box-shadow:0 0 0 3px rgba(196,136,31,.14)}
@@ -1704,7 +1706,8 @@ footer{font-size:14px}
 @keyframes ddIn{from{opacity:0;transform:translateY(-8px) scale(.985)}to{opacity:1;transform:none}}
 .chipsel-opt{padding:10px 12px;font-size:13.5px}
 .chipsel-opt:hover,.chipsel-opt.act{background:var(--page);color:var(--navy)}
-@media(max-width:640px){.home-hero .chipsel-drop.on{top:auto;animation:sheetUp .28s cubic-bezier(.2,.7,.2,1)}}
+@media(max-width:640px){.home-hero .chipsel-drop.on{top:auto;animation:sheetUp .28s cubic-bezier(.2,.7,.2,1)}
+  .cs-compact .chipsel-input{pointer-events:none}.cs-compact .chipsel-box{cursor:pointer;-webkit-tap-highlight-color:transparent}}
 .home-hero .cs-selected{display:flex;flex-wrap:wrap;gap:6px;padding:8px 12px;border-bottom:1px solid var(--line);background:var(--page)}
 .home-hero .cs-selected .chip{font-size:12.5px}
 .home-hero .sf-sel{padding:0 14px;align-items:center;gap:8px}
@@ -1753,7 +1756,6 @@ footer{font-size:14px}
   .home-hero .stabs button{flex:1;height:42px;padding:0}
   .home-hero .srow{grid-template-columns:1fr 1fr;gap:8px}
   .home-hero .sf{height:48px;min-height:48px}
-  .home-hero .sf-price{grid-column:1/-1}
   .home-hero .pricepop{width:100%}
   .home-hero .srow .sgo{grid-column:1/-1;margin:0;height:50px;border-radius:10px}
   .home-hero .sgo-map{grid-column:1/-1;margin:0;width:auto;height:46px;justify-content:center;border-radius:10px}
@@ -3135,10 +3137,15 @@ var L=detectLang(), CUR=detectCurrency(), VIEW="home", GI=0, LIGHTBOX_OPEN=false
 // ?preview=1 — the page is embedded in the admin's homepage studio: no analytics, no curtain, settings arrive by postMessage
 var PREVIEW=/[?&]preview=1/.test(location.search), _pvLast=null;
 if(PREVIEW){ var _pl=(location.search.match(/[?&]lang=(ar|en|de|fr)/)||[])[1]; if(_pl) L=_pl; }
-var F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",sec:"",deal:"sale",sort:"new",page:1,ownerOnly:false};
+var F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:"",sec:"",deal:"sale",sort:"new",page:1,ownerOnly:false};
+function roomsLabel(v){ v=String(v||""); if(!v) return GX("roomsField"); if(v==="1") return GX("rooms1"); if(v==="2") return GX("rooms2"); return GX("roomsN").replace("{n}", v==="10" ? "10+" : v) }
+function roomsSelHtml(cls,id,chev){   // one select for the hero bar, the results filters and the map panel
+  return '<div class="'+cls+'"><select id="'+(id||"hRooms")+'" aria-label="'+esc(GX("roomsField"))+'"><option value=""'+(F.rooms?"":" selected")+'>'+esc(GX("roomsField"))+'</option>'+
+    [1,2,3,4,5,6,7,8,9,10].map(function(n){ return '<option value="'+n+'"'+(String(F.rooms)===String(n)?" selected":"")+'>'+esc(roomsLabel(n))+'</option>' }).join("")+'</select>'+(chev?CHEV:'')+'</div>' }
+function roomsPass(x){ if(!F.rooms) return true; var r=+x.r||0; return F.rooms==="10" ? r>=10 : r===+F.rooms }
 var MOBILE_FILTERS_OPEN=false;
 function activeFilterCount(){
-  var n=0;
+  var n=0; if(F.rooms) n++;
   if(F.govs&&F.govs.length) n+=F.govs.length; else if(F.g) n++;
   if(F.areas&&F.areas.length) n+=F.areas.length; else if(F.a) n++;
   if(F.types&&F.types.length) n+=F.types.length; else if(F.t) n++;
@@ -4186,6 +4193,7 @@ function passesFilter(x, skipField){
     if(F.pmin&&x.p<F.pmin) return false;
     if(F.pmax&&x.p>F.pmax) return false;
   }
+  if(skipField!=="rooms" && !roomsPass(x)) return false;
   if(F.ownerOnly && !x.ow) return false;
   return true;
 }
@@ -4223,6 +4231,7 @@ function rsChipsHtml(){
  if(F.cd) c.push(["cd",F.cd,(D.COND[F.cd]||D.LANDC[F.cd]||[F.cd,F.cd,F.cd])[li()]]);
  if(F.deal==="rent"&&F.furn) c.push(["furn",F.furn,F.furn==="yes"?t("furnYes"):t("furnNo")]);
  if(F.deal==="rent"&&F.rentalPeriod) c.push(["rentalPeriod",F.rentalPeriod,t("period"+F.rentalPeriod.charAt(0).toUpperCase()+F.rentalPeriod.slice(1))]);
+ if(F.rooms) c.push(["rooms",F.rooms,roomsLabel(F.rooms)]);
  if(F.pmin||F.pmax) c.push(["price","",heroPriceLabel().replace(/<[^>]+>/g,"")]);
  if(F.ownerOnly) c.push(["ownerOnly","",t("owneronly")]);
  if(!c.length) return "";
@@ -4246,6 +4255,7 @@ function rsFiltersHtml(count){
    (F.deal==="rent"
      ? '<div class="rs-f rs-fsel"><select id="hFurn" aria-label="'+(L==="ar"?GX("furnField"):t("furnishedL"))+'"><option value=""'+(F.furn===""?" selected":"")+'>'+(L==="ar"?GX("furnField"):t("furnishedL"))+'</option><option value="yes"'+(F.furn==="yes"?" selected":"")+'>'+t("furnYes")+'</option><option value="no"'+(F.furn==="no"?" selected":"")+'>'+t("furnNo")+'</option></select></div>'
      : '<div class="rs-f">'+chipSelect("csTabu",t("deed"),F.tbs||[],function(v){ return D.TABU[v]?D.TABU[v][li()]:v},true)+'</div>')+
+   roomsSelHtml("rs-f rs-fsel rs-frooms"+(F.rooms?" set":""))+
    '<div class="rs-f rs-fprice"><button type="button" class="pricetrig'+((F.pmin||F.pmax)?' set':'')+'" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
      '<div class="pricepop" id="hPricePop" hidden data-title="'+esc(GX("price"))+' ('+(CUR==="USD"?"USD":curLabel(CUR,L))+')"><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*rate):"")+'"></label>'+
      '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*rate):"")+'"></label></div>'+
@@ -4311,6 +4321,7 @@ function rsWire(opts){
   wireChipSelects();
   $$("[data-rsdeal]").forEach(function(b){ b.onclick=function(){ F.deal=this.dataset.rsdeal||""; if(F.deal!=="rent"){ F.furn=""; F.rentalPeriod="" } F.page=1; render() } });
   if($("#hFurn")) $("#hFurn").onchange=function(){ F.furn=this.value; F.page=1; render() };
+  if($("#hRooms")) $("#hRooms").onchange=function(){ F.rooms=this.value; F.page=1; render() };
   var pop=$("#hPricePop"), rate=curRate(), toUsd=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/rate) };
   var applyPrice=function(){ F.pmin=toUsd(($("#hPmin")||{}).value); F.pmax=toUsd(($("#hPmax")||{}).value); if(F.pmax&&F.pmin>F.pmax){ var sw=F.pmin; F.pmin=F.pmax; F.pmax=sw } F.page=1; render() };
   if($("#hPrice")){ $("#hPrice").onclick=function(e){ e.stopPropagation(); closeAllMenus(pop); var mp=$("#rsMorePop"); if(mp) mp.classList.remove("on"); pop.hidden=!pop.hidden; if(!pop.hidden) setTimeout(function(){ var i=$("#hPmin"); if(i) i.focus() },30) };
@@ -4328,7 +4339,7 @@ function rsWire(opts){
   $$("[data-rschip]").forEach(function(b){ b.onclick=function(){ var k=this.dataset.rschip, v=this.dataset.rsval;
     if(k==="price"){ F.pmin=0; F.pmax=0 } else if(k==="ownerOnly"){ F.ownerOnly=false } else if(Array.isArray(F[k])){ F[k]=F[k].filter(function(x){ return x!==v }) } else { F[k]="" }
     F.page=1; render() } });
-  var clear=function(){ F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",pmin:0,pmax:0,ownerOnly:false,sec:F.sec,deal:F.deal,sort:"new",page:1}; render() };
+  var clear=function(){ F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:"",pmin:0,pmax:0,ownerOnly:false,sec:F.sec,deal:F.deal,sort:"new",page:1}; render() };
   if($("#clr")) $("#clr").onclick=clear; if($("#clrM")) $("#clrM").onclick=clear;
   $$("#sort,#sortM").forEach(function(sel){ sel.onchange=function(){ F.sort=this.value; F.page=1; render() } });
   if($("#vmGrid")) $("#vmGrid").onclick=function(){ VIEWMODE="grid"; try{localStorage.setItem("balkoun_viewmode","grid")}catch(e){} render() };
@@ -7076,6 +7087,7 @@ function mapFilterZoneHtml(){
        '<option value="">'+t("dealAll")+'</option>'+
        Object.keys(D.TABU).map(function(k){return '<option value="'+k+'"'+(mapF("tbs")===k?" selected":"")+'>'+D.TABU[k][li()]+'</option>'}).join("")+
       '</select></div></div>'+
+     '<div class="row" style="margin-top:10px"><div class="fl"><label>'+GX("roomsField")+'</label><select id="mapFRooms"><option value="">'+t("dealAll")+'</option>'+[1,2,3,4,5,6,7,8,9,10].map(function(n){ return '<option value="'+n+'"'+(String(F.rooms)===String(n)?" selected":"")+'>'+esc(roomsLabel(n))+'</option>' }).join("")+'</select></div></div>'+
      '<div class="row" style="margin-top:10px">'+
       '<div class="fl"><label>'+GX("price")+' · '+GX("from")+' ('+(curLabel(CUR,"ar"))+')</label><input id="mapFPmin" type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(curRate())):"")+'"></div>'+
       '<div class="fl"><label>'+GX("to")+'</label><input id="mapFPmax" type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(curRate())):"")+'"></div></div>'+
@@ -7110,11 +7122,12 @@ function wireMapFilterZone(){
   if($("#mapFArea")) $("#mapFArea").onchange=function(){ setF("areas",this.value); F.a=""; updateMapFilterZone() };
   if($("#mapFType")) $("#mapFType").onchange=function(){ setF("types",this.value); F.t=""; updateMapFilterZone() };
   if($("#mapFTabu")) $("#mapFTabu").onchange=function(){ setF("tbs",this.value); F.tb=""; updateMapFilterZone() };
+  if($("#mapFRooms")) $("#mapFRooms").onchange=function(){ F.rooms=this.value; updateMapFilterZone() };
   var toUsdM=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/(curRate())) };
   if($("#mapFPmin")) $("#mapFPmin").onchange=function(){ F.pmin=toUsdM(this.value) };
   if($("#mapFPmax")) $("#mapFPmax").onchange=function(){ F.pmax=toUsdM(this.value) };
   if($("#mapFiltersClear")) $("#mapFiltersClear").onclick=function(){
-    F.govs=[]; F.areas=[]; F.types=[]; F.tbs=[]; F.g=""; F.a=""; F.t=""; F.tb=""; F.cd=""; F.furn=""; F.rentalPeriod=""; F.pmin=0; F.pmax=0;
+    F.govs=[]; F.areas=[]; F.types=[]; F.tbs=[]; F.g=""; F.a=""; F.t=""; F.tb=""; F.cd=""; F.furn=""; F.rentalPeriod=""; F.rooms=""; F.pmin=0; F.pmax=0;
     // clearing genuinely changes which pins should show, so — unlike
     // just opening/browsing the panel — this legitimately does need
     // to refresh the map and the results count together
@@ -7402,8 +7415,15 @@ function wireChipSelects(){
         window._csReopen=id; softRenderHero();
       }});
     };
-    // on phones the field only opens the sheet; typing happens in the sheet's own search box
-    if(window.innerWidth<=640 && input.closest(".cs-compact")){ input.readOnly=true; input.setAttribute("inputmode","none") }
+    // on phones the field is a plain tap target: one tap opens the sheet, a second closes it, and the hidden
+    // input is never focused (it used to catch the tap, which sometimes raised the keyboard over the sheet)
+    var phoneBox = window.innerWidth<=640 && input.closest(".cs-compact");
+    if(phoneBox){
+      input.readOnly=true; input.setAttribute("inputmode","none"); input.tabIndex=-1;
+      var box=input.closest(".chipsel-box");
+      if(box) box.onclick=function(e){ e.stopPropagation(); e.preventDefault(); if(drop.classList.contains("on")) drop.classList.remove("on"); else renderDrop("") };
+      window._csOpen=window._csOpen||{}; window._csOpen[id]=function(){ renderDrop("") };
+    }
     input.addEventListener("focus",function(){ renderDrop(this.value) });
     input.addEventListener("input",function(){ renderDrop(this.value) });
     // open on the click itself as well as on focus: in an unfocused window (embedded previews) the focus event never fires
@@ -7437,7 +7457,9 @@ function wireChipSelects(){
     });
   }
   // after a pick or a removal the page re-renders; re-open the same list so the user can continue
-  if(window._csReopen){ var rid=window._csReopen; window._csReopen=null; var rin=$("#"+rid+"Input"); if(rin) setTimeout(function(){ try{ rin.focus({preventScroll:true}) }catch(e){ rin.focus() } },0) }
+  if(window._csReopen){ var rid=window._csReopen; window._csReopen=null; var rin=$("#"+rid+"Input");
+    if(rin && window.innerWidth<=640 && rin.closest(".cs-compact") && window._csOpen && window._csOpen[rid]) setTimeout(window._csOpen[rid],0);
+    else if(rin) setTimeout(function(){ try{ rin.focus({preventScroll:true}) }catch(e){ rin.focus() } },0) }
 }
 function typeOptionsCollapsed(){
   // one "Land" entry replaces resid/agri/comm for search purposes —
@@ -7468,6 +7490,7 @@ function heroSearchBarHtml(){
        '</select>'+CHEV+'</div>'
      : '<div class="sf">'+chipSelect("csTabu",t("deed"),F.tbs||[],function(v){
         return D.TABU[v]?D.TABU[v][li()]:v},true)+'</div>')+
+   roomsSelHtml("sf sf-sel sf-rooms","hRooms",true)+
    '<div class="sf sf-price"><button type="button" class="pricetrig" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
      '<div class="pricepop" id="hPricePop" hidden><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(curRate())):"")+'"></label>'+
      '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(curRate())):"")+'"></label></div>'+
@@ -7479,6 +7502,7 @@ function heroSearchBarHtml(){
 function wireHeroBar(){
    wireChipSelects();
    if($("#hFurn")) $("#hFurn").addEventListener("change",function(){F.furn=this.value;softRenderHero()});
+   if($("#hRooms")) $("#hRooms").addEventListener("change",function(){F.rooms=this.value;softRenderHero()});
    if($("#hPrice")){ // hero price range: popover with min / max and quick presets (values kept in USD like the rest of the filter)
      var pop=$("#hPricePop"), rate=curRate(), toUsd=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/rate) };
      var applyPrice=function(){ F.pmin=toUsd($("#hPmin").value); F.pmax=toUsd($("#hPmax").value); if(F.pmax&&F.pmin>F.pmax){ var sw=F.pmin; F.pmin=F.pmax; F.pmax=sw } softRenderHero() };
@@ -11692,7 +11716,8 @@ var GX_T={
   bg_none_s:{ar:"فارغة",en:"blank",de:"leer"}, bg_sketch_s:{ar:"رسم دمشق",en:"Damascus sketch",de:"Damaskus-Skizze"}, bg_dawn_s:{ar:"سماء الفجر",en:"dawn sky",de:"Morgenhimmel"}, bg_video_s:{ar:"فيديو",en:"video",de:"Video"}, bg_photo_s:{ar:"صورة",en:"photo",de:"Foto"},
   cEditing:{ar:"تعدّل الآن",en:"Editing",de:"Bearbeitung"}, cSwitchTo:{ar:"انتقل إلى دولة أخرى",en:"Switch to another country",de:"Zu einem anderen Land wechseln"}, cOffShort:{ar:"متوقفة",en:"off",de:"aus"},
   navCountries:{ar:"الدول والأسواق",en:"Countries and markets",de:"Länder und Märkte"},
-  cAll:{ar:"كل الدول",en:"All countries",de:"Alle Länder"}, cScopeNote:{ar:"الأرقام المعروضة لـ",en:"Figures shown for",de:"Zahlen für"},
+  cAll:{ar:"كل الدول",en:"All countries",de:"Alle Länder"},
+  roomsField:{ar:"الغرف",en:"Rooms",de:"Zimmer",fr:"Pièces"}, rooms1:{ar:"غرفة واحدة",en:"1 room",de:"1 Zimmer",fr:"1 pièce"}, rooms2:{ar:"غرفتان",en:"2 rooms",de:"2 Zimmer",fr:"2 pièces"}, roomsN:{ar:"{n} غرف",en:"{n} rooms",de:"{n} Zimmer",fr:"{n} pièces"}, cScopeNote:{ar:"الأرقام المعروضة لـ",en:"Figures shown for",de:"Zahlen für"},
   cScopeHintOne:{ar:"غيّر الدولة من أعلى الصفحة لترى أرقام دولة أخرى، أو اختر «كل الدول».",en:"Change the country at the top of the page to see another country, or choose “All countries”.",de:"Wechseln Sie das Land oben auf der Seite, oder wählen Sie „Alle Länder“."},
   cBySite:{ar:"الزيارات حسب دولة الموقع",en:"Visits by site country",de:"Besuche nach Website-Land"}, cListingsBy:{ar:"الإعلانات حسب الدولة",en:"Listings by country",de:"Anzeigen nach Land"},
   cMineOnly:{ar:"صلاحياتك تشمل هذه الدول فقط",en:"Your access covers these countries only",de:"Ihr Zugriff umfasst nur diese Länder"},
