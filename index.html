@@ -2350,7 +2350,7 @@ body.rs-lock{overflow:hidden}
 .hnav .hsoon{display:inline-flex;align-items:center;gap:6px}
 .hnav .hsoon i{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#1A1206;background:var(--gold);border-radius:999px;padding:1px 6px;line-height:1.5;transform:translateY(-7px)}
 /* header links never break into two lines; when the signed-in tools need the room, the gaps tighten first and the coming-soon links step back into the menu */
-@media(min-width:861px){.hnav a{white-space:nowrap}.hbar{gap:clamp(10px,1.2vw,16px)}.hnav{gap:clamp(10px,1.1vw,14px);font-size:14px}.hnav .hsoon{gap:2px}.hsoon i{font-size:8.5px;padding:0 5px;transform:translateY(-5px)}[dir=rtl] .hnav .hsoon{flex-direction:row-reverse}}
+@media(min-width:861px){.hnav a{white-space:nowrap}.hbar{gap:14px}.hbar .logo{margin-left:0}.htools{gap:14px}.hnav{gap:14px;font-size:14px}.hnav .hsoon{gap:2px}.hsoon i{font-size:8.5px;padding:0 5px;transform:translateY(-5px)}[dir=rtl] .hnav .hsoon{flex-direction:row-reverse}}
 @media(min-width:861px) and (max-width:1240px){.hnav a[data-soon]{display:none}}
 @media(min-width:861px) and (max-width:1000px){.hnav a[data-go="projects"]{display:none}}
 @media(min-width:861px) and (max-width:960px){.hnav a[data-go="wanted"]{display:none}}
@@ -2684,7 +2684,8 @@ body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
   #navMoreWrap{display:none} body.nav-more-d #navMoreWrap{display:block}
   .hnav a[data-go="agencies"]{display:none} body.nav-more-d .hnav a[data-go="agencies"]{display:inline}
   body.nav-nolinks-d .hnav{display:none}
-  #langChip{background:none!important;border:0!important;padding:0 4px!important;font-size:14px;font-weight:600;color:#fff}
+  #langChip{background:none!important;border:0!important;padding:0 4px!important;font-size:14px;font-weight:600;color:#fff;display:inline-flex;align-items:center;gap:6px!important;height:32px}
+  .hbar .navmore{display:inline-flex;align-items:center;min-height:32px}
   #langChip:hover{color:var(--gold)}
   #langChip .langflag{display:none} #langChip .lg-globe{display:inline-flex;align-items:center} #langChip .lg-globe svg{width:22px;height:22px}
   #langChip .chev{width:12px;height:12px;opacity:.6}
