@@ -3227,7 +3227,7 @@ function cLocal(str){   // outside Syria, Syria-specific words in interface text
   if(/[Ss]yri/.test(r)){ r=r.replace(/([Ss])yriennes?/g,function(m,cap){ var w=d[6]; return cap==="S"?w.charAt(0).toUpperCase()+w.slice(1):w }).replace(/([Ss])yriens?/g,function(m,cap){ var w=d[5]; return cap==="S"?w.charAt(0).toUpperCase()+w.slice(1):w }).replace(/Syrie\b/g,c.name_fr||c.name_en||"") }
   _cl[str]=r; return r }
 function exPlaces(){
-  if(COUNTRY==="SY") return {g:gN("دمشق")||"دمشق", a1:aN("المزة")||"المزة", a2:aN("المالكي")||"المالكي", ga:L==="ar"?"دمشق وريفها":L==="en"?"Damascus and its countryside":(gN("دمشق")||"Damascus")};
+  if(COUNTRY==="SY") return {g:gN("دمشق")||"دمشق", a1:L==="ar"?"المزة":"Mezzeh", a2:L==="ar"?"المالكي":"Malki", ga:L==="ar"?"دمشق وريفها":L==="en"?"Damascus and its countryside":(gN("دمشق")||"Damascus")};
   var g=Object.keys(D.GEO||{})[0], c=countryOf(COUNTRY);
   if(!g){ var n=c?countryName(c):""; return {g:n,a1:n,a2:n,ga:n} }
   var as=D.GEO[g]||[], cities=as.filter(function(a){ return geoKind(g,a)==="city" }), pick=cities.length>=2?cities:as, gl=gN(g);
