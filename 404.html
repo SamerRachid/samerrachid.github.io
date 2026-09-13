@@ -1762,7 +1762,7 @@ footer{font-size:14px}
   .home-hero .srow .sgo{grid-column:1/-1;margin:0;height:50px;border-radius:10px}
   .home-hero .sgo-map{grid-column:1/-1;margin:0;width:auto;height:46px;justify-content:center;border-radius:10px}
 }
-/* glass search bar — a studio switch per device; off by default so Syria keeps its white bar */
+/* glass search bar — on by default in every country; a studio switch per device turns it off */
 .home-hero .sbar .sbar-glass{display:none;position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(16px) saturate(1.25);backdrop-filter:blur(16px) saturate(1.25);box-shadow:inset 0 0 0 1px rgba(255,255,255,.42)}
 .home-hero .sbar:has(.chipsel-drop.on),.home-hero .sbar:has(.pricepop:not([hidden])){z-index:80}   /* an open filter always sits above the headline */
 @media(min-width:701px){
@@ -7455,7 +7455,7 @@ function typeOptionsCollapsed(){
    (which restarted the ad carousel, the header and the drawing, and made the menu blink) */
 function newTag(){ return SX("nav_map_new",true)!==false ? '<i class="newtag">'+GX("newTag")+'</i>' : '' }
 function heroSearchBarHtml(){
-  var sgOn=function(k){ var v=SX(k,false); return v===true||v==="true" };
+  var sgOn=function(k){ var v=SX(k,true); return !(v===false||v==="false") };
   return '<div class="sbar'+(SX("sbar_glow",true)!==false?" aiglow":"")+(sgOn("sbar_glass")?" glass":"")+(sgOn("sbar_glass_m")?" glass-m":"")+'">'+((sgOn("sbar_glass")||sgOn("sbar_glass_m"))?'<i class="sbar-glass"></i>':'')+'<div class="stabs"><button class="'+(F.deal==="sale"?"on":"")+'" data-d="sale">'+t("forsale")+
    '</button><button class="'+(F.deal==="rent"?"on":"")+'" data-d="rent">'+t("forrent")+'</button><button class="'+(F.deal===""?"on":"")+'" data-d="">'+t("dealAll")+
    '</button><button type="button" data-go="mapsearch" class="stabs-map">'+ICON_PIN+t("searchOnMap")+'</button></div><div class="srow">'+
@@ -12152,7 +12152,7 @@ function hsInspHome(){
       fSlider(hsT("f_scale"),"x:sk_scale","x:sk_scale_m",30,250,5,"%",100));
     if(!phone) H.push(fGrp(hsT("g_spacing")), fNum(hsT("f_heroMax"),"x:hero_max_height",420,900,10,640));
   } else if(sd==="hero_search"){
-    H.push(fSwitch(hsT("f_sbGlow"),"x:sbar_glow",true,true), fSwitch(hsT("f_sbGlass"),"x:sbar_glass",false,true), fSwitch(hsT("f_sbGlassM"),"x:sbar_glass_m",false,true), fHint(hsT("f_sbGlassHint")), fHint(hsT("dualHint")), fDual(hsT("f_sbY"),"x:sbar_y","x:sbar_y_m",-300,300,1), fDual(hsT("f_sbW"),"x:sbar_w","x:sbar_w_m",320,1600,10), fDual(hsT("f_sbH"),"x:sbar_h","x:sbar_h_m",32,72,1));
+    H.push(fSwitch(hsT("f_sbGlow"),"x:sbar_glow",true,true), fSwitch(hsT("f_sbGlass"),"x:sbar_glass",true,true), fSwitch(hsT("f_sbGlassM"),"x:sbar_glass_m",true,true), fHint(hsT("f_sbGlassHint")), fHint(hsT("dualHint")), fDual(hsT("f_sbY"),"x:sbar_y","x:sbar_y_m",-300,300,1), fDual(hsT("f_sbW"),"x:sbar_w","x:sbar_w_m",320,1600,10), fDual(hsT("f_sbH"),"x:sbar_h","x:sbar_h_m",32,72,1));
   } else if(sd==="hero_stats"){
     H.push(fSwitch(hsT("f_statsOn"),"c:stats_enabled",true,true), fSwitch(hsT("f_realCount"),"c:stats_use_real_count",false,true),
       '<div class="row">'+fText(hsT("f_areasNum"),"c:stats_areas_num","657",true)+fText(hsT("f_listNum"),"c:stats_listings_num","",true)+'</div>',
