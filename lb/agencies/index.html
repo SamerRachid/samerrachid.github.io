@@ -2031,6 +2031,10 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .ascope .flg{width:24px;height:16px}.ascope.all{border-color:var(--gold);background:var(--gold-w)}.ascope-globe{font-size:18px;line-height:1}
 .sflag{display:inline-flex;gap:2px;margin-inline-end:5px;vertical-align:-2px}.sflag .flg{width:16px;height:11px;border-radius:2px}
 .hd2{display:inline-flex;flex-direction:column;gap:2px;line-height:1.3}.hd2 small{font-size:12px;font-weight:600}
+.stlist{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:10px}
+.strow{display:flex;align-items:center;gap:12px;padding:9px 12px;border-bottom:1px solid var(--line)}.strow:last-child{border-bottom:0}.strow:hover{background:var(--page)}
+.strow-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.strow-main b{font-size:13.5px;font-weight:700;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.strow-main small{font-size:12px;color:var(--grey);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.strow-acts{display:flex;gap:6px;flex:none}
 .acbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:14px}
 .acbar-now{display:flex;align-items:center;gap:8px;font-size:14px}.acbar-now .flg{width:26px;height:17px}.acbar-off{font-style:normal;color:var(--danger);font-size:12px;font-weight:700}
 .acbar-list{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--grey)}
@@ -3667,6 +3671,12 @@ async function storageCall(body){
 async function storageRemove(paths){
   try{ var j = await storageCall({action:"remove", paths:paths});
        return {data:(j.removed||[]).map(function(n){ return {name:n} }), error:null} }
+  catch(e){ return {data:null, error:e} } }
+// admins: a file in the trash goes back where it came from
+async function storageRestore(paths){
+  try{ var j = await storageCall({action:"restore", paths:paths});
+       if(j && j.error) return {data:null, error:{message:j.error}};
+       return {data:{restored:j.restored||[], failed:j.failed||[]}, error:null} }
   catch(e){ return {data:null, error:e} } }
 // move files into the trash folder (trash/<original path>) instead of deleting them; the storage page empties it
 async function storageTrash(paths){
@@ -8338,6 +8348,9 @@ function wireAdmin(){
     for(var i=0;i<paths.length;i+=100){ await storageRemove(paths.slice(i,i+100)); if(msg) msg.textContent=GX("stDeleting")+" "+Math.min(i+100,paths.length)+"/"+paths.length }
     ADM._storageReportLoaded=false; ADM._storageUsageLoaded=false; ADM.storageReport=null; ADM.storageUsage=null; render();
   };
+  var stReload=function(){ ADM._storageReportLoaded=false; ADM._storageUsageLoaded=false; ADM.storageReport=null; ADM.storageUsage=null; render() };
+  $$("[data-stdel]").forEach(function(b){ b.onclick=async function(){ var pth=this.dataset.stdel; if(!confirm(GX("stDelOneConfirm"))) return; this.disabled=true; var r=await storageRemove([pth]); if(r&&r.error){ alert(r.error.message||r.error); this.disabled=false; return } stReload() } });
+  $$("[data-strestore]").forEach(function(b){ b.onclick=async function(){ var pth=this.dataset.strestore; this.disabled=true; var r=await storageRestore([pth]); if(r&&r.error){ alert(r.error.message||r.error); this.disabled=false; return } if(r&&r.data&&r.data.failed&&r.data.failed.length){ alert(GX("stRestoreFailed")); this.disabled=false; return } stReload() } });
   if($("#stDelOrphans")) $("#stDelOrphans").onclick=async function(){
     var n=this.dataset.n, btn=this, msg=$("#stDelMsg");
     if(!confirm(GX("stDelConfirm").replace("{n}",n))) return;
@@ -11861,7 +11874,7 @@ var GX_T={
   k_banners:{ar:"البانرات",en:"Banners",de:"Banner"}, k_background:{ar:"خلفية الصفحة الرئيسية",en:"Homepage background",de:"Startseiten-Hintergrund"},
   k_avatars:{ar:"صور الأعضاء",en:"Member photos",de:"Mitgliederfotos"}, k_listings:{ar:"صور الإعلانات الحالية",en:"Photos of current listings",de:"Fotos aktueller Anzeigen"},
   k_orphans:{ar:"ملفات يتيمة (إعلانات محذوفة)",en:"Orphaned files (deleted listings)",de:"Verwaiste Dateien (gelöschte Anzeigen)"}, k_other:{ar:"أخرى",en:"Other",de:"Sonstiges"},
-  stOrphansH:{ar:"ملفات يتيمة",en:"Orphaned files",de:"Verwaiste Dateien"}, stTrashOrig:{ar:"المجلد الأصلي",en:"Original folder",de:"Ursprungsordner"},
+  stOrphansH:{ar:"ملفات يتيمة",en:"Orphaned files",de:"Verwaiste Dateien"}, stTrashOrig:{ar:"المجلد الأصلي",en:"Original folder",de:"Ursprungsordner"}, stRestore:{ar:"استعادة",en:"Restore",de:"Wiederherstellen"}, stDelOneConfirm:{ar:"حذف هذا الملف نهائياً؟",en:"Delete this file for good?",de:"Diese Datei endgültig löschen?"}, stRestoreFailed:{ar:"تعذّرت الاستعادة: ربما يوجد ملف بالاسم نفسه في مكانه الأصلي.",en:"Could not restore: a file with the same name may already exist at the original place.",de:"Wiederherstellen nicht möglich: am Ursprungsort existiert vielleicht schon eine Datei mit diesem Namen."},
   stOrphansHint:{ar:"مجلدات صور تعود لإعلانات لم تعد موجودة ولا يشير إليها أي سجل. لا تظهر في مكتبة الوسائط ولا يراها الزوار؛ حذفها يحرّر المساحة فقط.",en:"Photo folders of listings that no longer exist and nothing points to. They are not in the media library and visitors never see them; deleting them only frees space.",de:"Fotoordner von Anzeigen, die nicht mehr existieren. Sie sind nicht in der Medienbibliothek; Löschen gibt nur Speicher frei."},
   stNoOrphans:{ar:"لا توجد ملفات يتيمة. التخزين نظيف.",en:"No orphaned files. Storage is clean.",de:"Keine verwaisten Dateien. Der Speicher ist sauber."},
   stFolder:{ar:"المجلد",en:"Folder",de:"Ordner"},
@@ -12822,6 +12835,11 @@ function adminUsersBody(d){
 }
 var ST_PLANS={free:{storage:1024,egress:5120}, pro:{storage:102400,egress:256000}};
 function stSize(b){ b=+b||0; if(b<1024) return b+' B'; if(b<1048576) return Math.round(b/1024)+' KB'; if(b<1073741824) return (Math.round(b/1048576*10)/10)+' MB'; return (Math.round(b/1073741824*100)/100)+' GB' }
+function stFileRow(f, actions, kindLabel){
+  var full=String(f.name), inTrash=full.indexOf("trash/")===0, p=inTrash?full.slice(6):full, parts=p.split("/"), base=parts.pop(), folder=parts.join("/");
+  var pub=CONFIG.supabaseUrl+"/storage/v1/object/public/photos/"+encodeURI(full);
+  return '<div class="strow"><div class="strow-main"><b class="ltr" title="'+esc(base)+'">'+esc(base)+'</b><small class="ltr">'+esc(folder||"—")+' · '+stSize(f.bytes)+(f.created?' · '+esc(f.created):'')+(kindLabel?' · '+kindLabel:'')+'</small></div>'+
+    '<div class="strow-acts"><a class="ab" href="'+pub+'" target="_blank" rel="noopener" style="text-decoration:none">'+GX("stOpen")+'</a>'+actions+'</div></div>' }
 function adminStorageBody(limitBlock){
   var r=ADM.storageReport, plan=String(SX("plan_name","pro")), pl=ST_PLANS[plan]||ST_PLANS.pro, usageUrl="https://supabase.com/dashboard/project/coajrqynjrptujmzjjdh/settings/billing/usage";
   var planCard=xForm("xPlan",GX("stPlanH"),GX("stEgressNote"),
@@ -12839,16 +12857,17 @@ function adminStorageBody(limitBlock){
   var orphanFiles=(r.orphans||[]).reduce(function(a,o){ return a+(+o.files||0) },0), orphanBytes=(r.orphans||[]).reduce(function(a,o){ return a+(+o.bytes||0) },0);
   var orphans='<div class="blk" style="margin-top:16px"><h3><span class="hd2"><span>'+GX("stOrphansH")+'</span>'+(orphanFiles?'<small class="ltr" style="color:var(--danger)">'+orphanFiles+' '+' · '+stSize(orphanBytes)+'</small>':'')+'</span></h3><div class="in">'+
     '<div class="hintx" style="margin-bottom:10px">'+GX("stOrphansHint")+'</div>'+
-    (orphanFiles ? '<div class="atable" style="margin-bottom:12px"><table><thead><tr><th>'+GX("stFolder")+'</th><th>'+GX("stFiles")+'</th><th>'+GX("stSize")+'</th></tr></thead><tbody>'+
-        (r.orphans||[]).map(function(o){ return '<tr><td class="ltr">'+esc(o.folder)+'/</td><td class="ltr">'+o.files+'</td><td class="ltr">'+stSize(o.bytes)+'</td></tr>' }).join("")+'</tbody></table></div>'+
+    (orphanFiles ? '<div class="stlist" style="margin-bottom:12px">'+
+        (r.orphan_items||[]).map(function(f){ return stFileRow(f, (ADM.isSuper?'<button type="button" class="ab bad" data-stdel="'+esc(f.name)+'">'+t("del")+'</button>':'')) }).join("")+
+        (orphanFiles>(r.orphan_items||[]).length?'<div class="hintx">+'+(orphanFiles-(r.orphan_items||[]).length)+'</div>':'')+'</div>'+
         (ADM.isSuper?'<div class="xactions"><button class="ab bad" id="stDelOrphans" data-n="'+orphanFiles+'">'+GX("stDelOrphans")+'</button><span class="xmsg" id="stDelMsg"></span></div>':'')
       : '<div class="adashempty" style="text-align:start;padding:6px 0;color:var(--ok)">✓ '+GX("stNoOrphans")+'</div>')+
     '</div></div>';
   var trashN=(r.trash_paths||[]).length, trashB=+r.trash_bytes||0;
   var trashItems=r.trash_items||[], pubT=CONFIG.supabaseUrl+"/storage/v1/object/public/photos/";
-  var trashTable = trashItems.length ? '<div class="atable" style="margin-bottom:12px;max-height:360px;overflow:auto"><table><thead><tr><th>'+GX("stFile")+'</th><th>'+GX("stTrashOrig")+'</th><th>'+GX("stSize")+'</th><th>'+GX("stDate")+'</th><th></th></tr></thead><tbody>'+
-      trashItems.map(function(f){ var p=String(f.name).replace(/^trash\//,""), parts=p.split("/"), base=parts.pop(), orig=parts.join("/"); return '<tr><td class="ltr" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(base)+'">'+esc(base)+'</td><td class="ltr" style="color:var(--grey)">'+esc(orig)+'</td><td class="ltr"><b>'+stSize(f.bytes)+'</b></td><td class="ltr">'+(f.created||"")+'</td><td><a class="ab" href="'+pubT+encodeURI(f.name)+'" target="_blank" rel="noopener" style="text-decoration:none">'+GX("stOpen")+'</a></td></tr>' }).join("")+'</tbody></table></div>'+
-      (trashN>trashItems.length?'<div class="hintx" style="margin-bottom:10px">+'+(trashN-trashItems.length)+'</div>':'') : '';
+  var trashTable = trashItems.length ? '<div class="stlist" style="margin-bottom:12px">'+
+      trashItems.map(function(f){ return stFileRow(f, (ADM.isSuper?'<button type="button" class="ab ok" data-strestore="'+esc(f.name)+'">'+GX("stRestore")+'</button><button type="button" class="ab bad" data-stdel="'+esc(f.name)+'">'+t("del")+'</button>':'')) }).join("")+
+      (trashN>trashItems.length?'<div class="hintx">+'+(trashN-trashItems.length)+'</div>':'')+'</div>' : '';
   var trash='<div class="blk" style="margin-top:16px"><h3><span class="hd2"><span>'+GX("stTrashH")+'</span>'+(trashN?'<small class="ltr" style="color:#8A6522">'+trashN+' '+' · '+stSize(trashB)+'</small>':'')+'</span></h3><div class="in">'+
     '<div class="hintx" style="margin-bottom:10px">'+GX("stTrashHint")+'</div>'+trashTable+
     (trashN ? (ADM.isSuper?'<div class="xactions"><button class="ab bad" id="stEmptyTrash" data-n="'+trashN+'">'+GX("stEmptyTrash")+'</button><span class="xmsg" id="stTrashMsg"></span></div>':'')
