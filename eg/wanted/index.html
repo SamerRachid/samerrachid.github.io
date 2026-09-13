@@ -10295,9 +10295,9 @@ async function savePost(){
         if(!uT.error) tUrl = DB.storage.from("photos").getPublicUrl(pT).data.publicUrl;
 
         var fUrl = DB.storage.from("photos").getPublicUrl(pF).data.publicUrl;
-        var pr = await DB.from("listing_photos")
-                   .insert({listing_id:id, url:fUrl, thumb_url:tUrl, sort_order:i}).select();
-        if(pr.error) throw new Error("row: "+pr.error.message);
+        // the row goes through the member RPC (direct table writes are not allowed to the browser)
+        var pr = await rpc("bk_photo_add",{p_user:USER.id, p_listing:+id, p_url:fUrl, p_thumb:tUrl, p_sort:i, p_token:(USER&&USER.token)||null, p_kind:"photo", p_duration:null, p_size:null});
+        if(pr && pr.error) throw new Error("row: "+pr.error);
         NEW.okPhotos++;
         if($("#msg")) $("#msg").textContent=t("uploading")+" "+NEW.okPhotos+"/"+NEW.tryPhotos;
       }catch(pe){
@@ -10307,7 +10307,7 @@ async function savePost(){
     }
 
     if(NEW.video && NEW.video.file){
-      try{ await uploadListingVideo(id, NEW.video, function(p){ if($("#msg")) $("#msg").textContent=GX("videoUploading").replace("{p}",p) }); NEW.video=null }
+      try{ await uploadListingVideo(id, NEW.video, function(p){ if($("#msg")) $("#msg").textContent=GX("videoUploading").replace("{p}",p) }, true); NEW.video=null }
       catch(ve){ NEW.photoErr=(NEW.photoErr||"")+" "+GX("videoBadge")+": "+(ve.message||ve); console.warn("video failed:", ve.message||ve) }
     }
     NEW.ref = ins.data.ref || String(id);
