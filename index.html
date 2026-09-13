@@ -1697,8 +1697,11 @@ footer{font-size:14px}
 .home-hero .stabs button{border:0;border-radius:8px;padding:0 13px;height:34px;font:600 15px var(--fd);color:var(--grey);background:transparent;transition:color .2s,background .2s,box-shadow .2s}
 .home-hero .stabs button.on{background:var(--navy);color:#fff;box-shadow:0 6px 14px -8px rgba(20,33,61,.7)}
 .home-hero .stabs button:not(.on):hover{color:var(--navy)}
-.home-hero .srow{grid-template-columns:1.05fr 1.02fr 1.1fr 1.32fr .9fr auto auto;gap:6px}
-@media(min-width:701px){.home-hero .srow .sf-rooms{display:none}}   /* on desktop the rooms live in the results "more" list */
+/* desktop: every pill sizes to its own label first, then they share the leftover; rooms is back in the bar where it fits */
+.home-hero .srow{display:flex;flex-wrap:nowrap;gap:6px;align-items:stretch;min-width:0}
+.home-hero .srow .sf{flex:1 1 auto;min-width:0}.home-hero .srow .sf-rooms{flex:.6 1 auto}.home-hero .srow .sgo,.home-hero .srow .sgo-map{flex:none}
+@media(min-width:701px) and (max-width:1199px){.home-hero .srow .sf-rooms{display:none}}
+@media(min-width:701px){html[lang="fr"] .home-hero .srow .sf-rooms{display:none}}   /* French labels are the longest: rooms stays in the results list there */
 .home-hero .sf{border:1px solid var(--line);border-radius:9px;padding:0;min-height:40px;height:40px;background:#fff;position:relative;transition:border-color .2s,box-shadow .2s;display:flex;align-items:stretch}
 .home-hero .sf:hover{border-color:#C3C8D2}
 .home-hero .sf:focus-within,.home-hero .sf:has(.chipsel-drop.on){border-color:var(--gold);box-shadow:0 0 0 3px rgba(196,136,31,.14)}
@@ -1768,7 +1771,7 @@ footer{font-size:14px}
   .home-hero .sbar{padding:8px;border-radius:16px;gap:8px}.home-hero .sbar.aiglow::before{border-radius:19px}.home-hero .sbar.aiglow::after{border-radius:24px}
   .home-hero .stabs{margin:0;border-bottom:0}
   .home-hero .stabs button{flex:1;height:42px;padding:0}
-  .home-hero .srow{grid-template-columns:1fr 1fr;gap:8px}
+  .home-hero .srow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .home-hero .sf{height:48px;min-height:48px}
   .home-hero .pricepop{width:100%}
   .home-hero .srow .sgo{grid-column:1/-1;margin:0;height:50px;border-radius:10px}
