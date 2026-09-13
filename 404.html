@@ -782,6 +782,7 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
   box-shadow:0 12px 30px -10px rgba(9,14,26,.34);display:none;overflow:hidden;z-index:90;
   max-height:70vh;overflow-y:auto}
 .notifmenu.on{display:block}
+.notifmenu.fx{position:fixed;width:auto;max-width:none;inset-inline-end:auto;border-radius:12px}
 .notifhead{padding:12px 15px;font-weight:700;font-size:13.5px;border-bottom:1px solid var(--line);color:var(--ink)}
 .notifitem{display:block;padding:11px 15px;border-bottom:1px solid var(--line);cursor:pointer}
 .notifitem:last-child{border-bottom:none}
@@ -3332,7 +3333,7 @@ function notifBellHTML(){
     (NOTIFS.unread?'<span class="bellbadge">'+(NOTIFS.unread>9?"9+":NOTIFS.unread)+'</span>':'')+'</button>'+
     '<div class="notifmenu'+(NOTIF_OPEN?" on":"")+'" id="notifMenu">'+
      '<div class="notifhead">'+t("notifications")+'</div>'+
-     (NOTIFS.items.length ? NOTIFS.items.map(function(n){
+     (notifItems().length ? notifItems().map(function(n){
        var tx=notifText(n);
        return '<a class="notifitem'+(n.is_read?"":" unread")+'" data-notiflink="'+(n.link||"")+'">'+
          '<b>'+tx.title+'</b><span>'+tx.body+'</span>'+
@@ -5696,11 +5697,12 @@ function wireNotifBell(){
   // else on the page (so it never disrupts a form the user is filling
   // in, an open dropdown elsewhere, scroll position, etc.)
   if(!$("#bellBtn")) return;
+  if(NOTIF_OPEN) notifMenuFit();
   $("#bellBtn").onclick=function(e){
     e.stopPropagation();
     closeAllMenus($("#notifMenu"));
     NOTIF_OPEN=!NOTIF_OPEN;
-    $("#notifMenu").classList.toggle("on",NOTIF_OPEN);
+    $("#notifMenu").classList.toggle("on",NOTIF_OPEN); if(NOTIF_OPEN) notifMenuFit();
     if(NOTIF_OPEN && NOTIFS.unread){
       NOTIFS.items.forEach(function(n){n.is_read=true}); NOTIFS.unread=0;
       $$(".notifitem.unread").forEach(function(el){el.classList.remove("unread")});
@@ -5735,6 +5737,11 @@ function startNotifPolling(){
     });
   }, 20000);
 }
+function notifMenuFit(){   // phones: the menu is fixed under the bell and spans the screen with a margin (the absolute one ran past the edge in Arabic)
+  var m=$("#notifMenu"), w=$("#notifWrap"); if(!m||!w) return;
+  if(window.innerWidth>700){ m.classList.remove("fx"); m.style.top=m.style.left=m.style.right=m.style.maxHeight=""; return }
+  var r=w.getBoundingClientRect(); m.classList.add("fx"); m.style.top=Math.round(r.bottom+6)+"px"; m.style.left="12px"; m.style.right="12px"; m.style.maxHeight=Math.max(200,Math.round(window.innerHeight-r.bottom-18))+"px";
+}
 function notifText(n){
   // 'reply' and 'price' notifications store a translation KEY in title
   // (so they render correctly in whichever language the viewer is
@@ -5743,8 +5750,10 @@ function notifText(n){
   if(n.title==="reply_feedback") return {title:t("notif_replyFeedback"), body:n.body||""};
   if(n.title==="reply_report")   return {title:t("notif_replyReport"),   body:n.body||""};
   if(n.title==="price_change")   return {title:t("notif_priceChange"),  body:n.body||""};
+  if(n.title==="welcome")        return {title:SX("welcome_t_"+L,"")||GX("notif_welcomeT"), body:SX("welcome_b_"+L,"")||GX("notif_welcomeB")};
   return {title:n.title, body:n.body||""};
 }
+function notifItems(){ var on=SX("welcome_on",true)!==false; return (NOTIFS.items||[]).filter(function(n){ return on || n.title!=="welcome" }) }
 async function loadMyMessages(){
   if(!USER||!DB) return;
   try{ var r=await DB.rpc("bk_my_messages",{p_user:USER.id});
@@ -9521,7 +9530,7 @@ function wireAuth(){
      var u=await rpc("bk_register",{p_phone:"+"+AU.cc+AU.phone, p_name:AU.name,
                                     p_family:AU.fam, p_hash:await sha(AU.pass),
                                     p_username:null, p_city:null, p_country:null,
-                                    p_currency:AU.currency||"USD"});
+                                    p_currency:AU.currency||"USD", p_lang:L});
      USER=u; saveSession(u);
      if(u.preferred_currency && (((countryOf(COUNTRY)||{}).currencies)||["USD"]).indexOf(u.preferred_currency)>-1){ CUR=u.preferred_currency; curPrefSet(COUNTRY,CUR) }
      AU.step=4; render();
@@ -11726,6 +11735,8 @@ var GX_T={
   cEditing:{ar:"تعدّل الآن",en:"Editing",de:"Bearbeitung"}, cSwitchTo:{ar:"انتقل إلى دولة أخرى",en:"Switch to another country",de:"Zu einem anderen Land wechseln"}, cOffShort:{ar:"متوقفة",en:"off",de:"aus"},
   navCountries:{ar:"الدول والأسواق",en:"Countries and markets",de:"Länder und Märkte"},
   cAll:{ar:"كل الدول",en:"All countries",de:"Alle Länder"},
+  notif_welcomeT:{ar:"أهلاً بك في بلكون 👋",en:"Welcome to Balkoun 👋",de:"Willkommen bei Balkoun 👋",fr:"Bienvenue sur Balkoun 👋"},
+  notif_welcomeB:{ar:"سعداء بانضمامك. أضف أول إعلان لك مجاناً خلال دقيقتين، أو ابدأ البحث عن بيتك القادم.",en:"Glad to have you here. Post your first listing for free in two minutes, or start looking for your next home.",de:"Schön, dass Sie da sind. Geben Sie Ihre erste Anzeige in zwei Minuten kostenlos auf, oder suchen Sie Ihr nächstes Zuhause.",fr:"Ravis de vous accueillir. Publiez votre première annonce gratuitement en deux minutes, ou cherchez votre prochain logement."},
   roomsField:{ar:"الغرف",en:"Rooms",de:"Zimmer",fr:"Pièces"}, rooms1:{ar:"غرفة واحدة",en:"1 room",de:"1 Zimmer",fr:"1 pièce"}, rooms2:{ar:"غرفتان",en:"2 rooms",de:"2 Zimmer",fr:"2 pièces"}, roomsN:{ar:"{n} غرف",en:"{n} rooms",de:"{n} Zimmer",fr:"{n} pièces"}, cScopeNote:{ar:"الأرقام المعروضة لـ",en:"Figures shown for",de:"Zahlen für"},
   cScopeHintOne:{ar:"غيّر الدولة من أعلى الصفحة لترى أرقام دولة أخرى، أو اختر «كل الدول».",en:"Change the country at the top of the page to see another country, or choose “All countries”.",de:"Wechseln Sie das Land oben auf der Seite, oder wählen Sie „Alle Länder“."},
   cBySite:{ar:"الزيارات حسب دولة الموقع",en:"Visits by site country",de:"Besuche nach Website-Land"}, cListingsBy:{ar:"الإعلانات حسب الدولة",en:"Listings by country",de:"Anzeigen nach Land"},
@@ -11996,6 +12007,7 @@ var HS_T={
  rsMapDef:{ar:"إظهار الخريطة بجانب النتائج على الكمبيوتر (افتراضياً)",en:"Show the map beside the results on desktop (by default)",de:"Karte neben den Ergebnissen am Desktop (Standard)"},
  rsMarket:{ar:"إظهار متوسط سعر المتر تحت عنوان النتائج",en:"Show the average price per m² under the results title",de:"Ø Preis pro m² unter dem Ergebnistitel zeigen"},
  rsHint:{ar:"الزائر يستطيع إخفاء الخريطة أو إظهارها بنفسه؛ يُحفظ اختياره في جهازه.",en:"Visitors can hide or show the map themselves; the choice is remembered on their device.",de:"Besucher können die Karte selbst ein- oder ausblenden; die Wahl wird im Gerät gespeichert."},
+ welcome:{ar:"رسالة الترحيب",en:"Welcome message",de:"Willkommensnachricht"}, wlOn:{ar:"إرسال رسالة ترحيب لكل عضو جديد",en:"Send a welcome message to every new member",de:"Jedem neuen Mitglied eine Willkommensnachricht senden"}, wlHint:{ar:"تظهر في جرس الإشعارات بعد إنشاء الحساب مباشرة، بلغة الزائر نفسها. اتركي الحقول فارغة لاستخدام النص الافتراضي.",en:"Shows in the notification bell right after sign-up, in the visitor's own language. Leave the fields empty to use the default text.",de:"Erscheint direkt nach der Registrierung in der Glocke, in der Sprache des Besuchers. Leer lassen für den Standardtext."}, wlTitle:{ar:"العنوان",en:"Title",de:"Titel"}, wlBody:{ar:"النص",en:"Text",de:"Text"},
  cards:{ar:"بطاقات النتائج",en:"Result cards",de:"Ergebniskarten"}, badges:{ar:"الشارات",en:"Badges",de:"Abzeichen"}, results:{ar:"صفحة النتائج",en:"Results page",de:"Ergebnisseite"}, nav:{ar:"الرأس والقائمة",en:"Header and menu",de:"Kopfzeile und Menü"},
  cardW:{ar:"أصغر عرض للبطاقة (px)",en:"Minimum card width (px)",de:"Mindestbreite der Karte (px)"}, cardHint:{ar:"كلما صغُر الرقم زاد عدد البطاقات في الصف.",en:"The smaller the number, the more cards fit in a row.",de:"Je kleiner die Zahl, desto mehr Karten pro Reihe."},
  social:{ar:"حسابات التواصل",en:"Social accounts",de:"Soziale Konten"}, numbers:{ar:"أرقام التواصل",en:"Contact numbers",de:"Kontaktnummern"},
@@ -12141,6 +12153,8 @@ function hsInspDesign(){
   if(sd==="cards"){ H.push(fHint(hsT("dualHint")), fDual(hsT("cardW"),"c:card_min_width","c:card_min_width_mobile",90,500,10), fHint(hsT("cardHint"))); }
   else if(sd==="badges"){ H.push(fGrp(t("featuredH")), fSwitch(t("showFeaturedBadge"),"c:featured_badge_enabled",true,true), fHint(hsT("textsHint")), fText(t("featuredBadgeTextL"),"c:featured_badge",t("featuredBadgeDefault")),
       fSlider(t("featuredBrightnessL"),"c:featured_brightness",null,0,100,5,"%",20,true), fHint(t("featuredBrightnessHint")), fGrp(t("newBadgeH")), fNum(t("newBadgeHoursL"),"c:new_badge_hours",0,720,1,24,true), fHint(t("newBadgeHint"))); }
+  else if(sd==="welcome"){ var lg=hsLang(), tag=' <i class="hs-lg">'+lg.toUpperCase()+'</i>', WT=GX_T.notif_welcomeT||{}, WB=GX_T.notif_welcomeB||{};
+    H.push(fSwitch(hsT("wlOn"),"x:welcome_on",true,true), fHint(hsT("wlHint")), fHint(hsT("textsHint")), fText(hsT("wlTitle")+tag,"x:welcome_t_"+lg,WT[lg]||WT.en||""), fText(hsT("wlBody")+tag,"x:welcome_b_"+lg,WB[lg]||WB.en||"")); }
   else if(sd==="results"){ H.push('<div class="row">'+fNum(GX("xPageSize"),"x:search_page_size",6,96,1,24,true)+fNum(GX("xSimilar"),"x:similar_count",0,24,1,12)+'</div>', fSwitch(hsT("rsMapDef"),"x:results_map_default",true,true), fSwitch(hsT("rsMarket"),"x:results_market_line",true,true), fHint(hsT("rsHint"))); }
   else if(sd==="nav"){
     var row=function(i){ return '<div class="navrow"><label class="xcheck"><input type="checkbox" data-hsk="x:nav_'+i.k+'" data-hst="bool" data-hsr="1"'+(navOn(i.k)?' checked':'')+'><span>'+(MI[i.ico]||'')+i.lab()+'</span></label><span class="navord-w"><small>'+GX("navOrder")+'</small><input type="number" data-allow-autofill class="navord" data-hsk="x:nav_'+i.k+'_o" data-hst="num" data-hsr="1" value="'+esc(String(hsVal("x:nav_"+i.k+"_o")))+'" placeholder="'+i.o+'" min="0" max="999"></span></div>' };
@@ -12234,7 +12248,7 @@ function hsInspHome(){
 function hsOutlineHtml(){
   if(HS.page==="ads") return hsOutlineAds();
   if(HS.page==="banners") return hsOutlineBanners();
-  if(HS.page==="design") return hsOutlineSimple([["cards",ICON_GRID],["badges",AICO.star],["results",AICO.search],["nav",AICO.home2]]);
+  if(HS.page==="design") return hsOutlineSimple([["cards",ICON_GRID],["badges",AICO.star],["results",AICO.search],["nav",AICO.home2],["welcome",AICO.contact]]);
   if(HS.page==="contact") return hsOutlineSimple([["social",AICO.users],["numbers",AICO.contact]]);
   return hsOutlineHome();
 }
