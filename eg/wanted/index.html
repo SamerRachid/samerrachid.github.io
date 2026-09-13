@@ -4275,7 +4275,7 @@ function rsFiltersHtml(count){
      : '<div class="rs-f">'+chipSelect("csTabu",t("deed"),F.tbs||[],function(v){ return D.TABU[v]?D.TABU[v][li()]:v},true)+'</div>')+
    '<div class="rs-f rs-fprice"><button type="button" class="pricetrig'+((F.pmin||F.pmax)?' set':'')+'" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
      '<div class="pricepop" id="hPricePop" hidden data-title="'+esc(GX("price"))+' ('+(CUR==="USD"?"USD":curLabel(CUR,L))+')"><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*rate):"")+'"></label>'+
-     '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="'+esc(GX("noLimit"))+'" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*rate):"")+'"></label></div>'+
+     '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*rate):"")+'"></label></div>'+
      '<div class="pp-foot"><button type="button" class="pp-clear" id="hPriceClear">'+GX("anyPrice")+'</button><button type="button" class="pp-done" id="hPriceDone">'+GX("done")+'</button></div></div></div>'+
    '<div class="rs-f rs-fmore"><button type="button" class="rs-morebtn" id="rsMore">'+GX("rsMore")+(moreN?' <b class="ltr">'+moreN+'</b>':'')+CHEV+'</button><div class="rs-morepop" id="rsMorePop">'+more+'</div></div>'+
   '</div>'+
@@ -7117,7 +7117,7 @@ function mapFilterZoneHtml(){
      '<div class="row" style="margin-top:10px"><div class="fl"><label>'+GX("roomsField")+'</label><select id="mapFRooms"><option value="">'+t("dealAll")+'</option>'+[1,2,3,4,5,6,7,8,9,10].map(function(n){ return '<option value="'+n+'"'+((F.rooms||[]).indexOf(String(n))>-1?" selected":"")+'>'+esc(roomsLabel(n))+'</option>' }).join("")+'</select></div></div>'+
      '<div class="row" style="margin-top:10px">'+
       '<div class="fl"><label>'+GX("price")+' · '+GX("from")+' ('+(curLabel(CUR,"ar"))+')</label><input id="mapFPmin" type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(curRate())):"")+'"></div>'+
-      '<div class="fl"><label>'+GX("to")+'</label><input id="mapFPmax" type="number" inputmode="numeric" min="0" placeholder="'+esc(GX("noLimit"))+'" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(curRate())):"")+'"></div></div>'+
+      '<div class="fl"><label>'+GX("to")+'</label><input id="mapFPmax" type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(curRate())):"")+'"></div></div>'+
      '<div style="display:flex;gap:10px;margin-top:12px">'+
       (fCount ? '<button type="button" class="gh" id="mapFiltersClear" style="flex:1">'+t("clearFilters")+'</button>' : '')+
       '<button type="button" class="btn-n" id="mapFiltersApply" style="flex:1">'+t("showResults")+'</button>'+
@@ -7521,7 +7521,7 @@ function heroSearchBarHtml(){
    '<div class="sf sf-rooms">'+chipSelect("csRooms",GX("roomsField"),F.rooms||[],roomsLabel,true)+'</div>'+
    '<div class="sf sf-price"><button type="button" class="pricetrig" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
      '<div class="pricepop" id="hPricePop" hidden><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(curRate())):"")+'"></label>'+
-     '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="'+esc(GX("noLimit"))+'" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(curRate())):"")+'"></label></div>'+
+     '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(curRate())):"")+'"></label></div>'+
      '<div class="pp-foot"><button type="button" class="pp-clear" id="hPriceClear">'+GX("anyPrice")+'</button><button type="button" class="pp-done" id="hPriceDone">'+GX("done")+'</button></div></div></div>'+
    '<button class="sgo" id="hgo">'+t("search")+'<span id="hgoCount">'+heroCount(F.deal)+'</span></button>'+
    '<button type="button" class="sgo-map" data-go="mapsearch" title="'+t("searchOnMap")+'" aria-label="'+t("searchOnMap")+'">'+MI.map+'<span>'+GX("map")+'</span>'+newTag()+'</button>'+
