@@ -1180,7 +1180,7 @@ footer{font-size:14px}
 .lgal.n2 .lg-all,.lgal.n3 .lg-all,.lgal.n4 .lg-all{inset-inline-end:auto;inset-inline-start:14px}
 .lgal .gcount{position:absolute;top:12px;inset-inline-start:12px;background:rgba(9,14,26,.6);color:#fff;font-size:12px;padding:4px 10px;border-radius:999px;backdrop-filter:blur(4px)}
 .lgal .gnav{display:grid;place-items:center;position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.9);color:var(--navy);font-size:22px;line-height:1;cursor:pointer;z-index:2;box-shadow:0 6px 16px -8px rgba(0,0,0,.6);transition:background .15s,transform .15s}
-.lgal .gnav:hover{background:#fff}.lgal #gPrev{inset-inline-start:12px}.lgal #gNext{inset-inline-end:12px}
+.lgal .gnav:hover{background:#fff}
 .lgal .lg-main.onvid .gnav{top:44%}   /* keep clear of the video's control bar */
 .lg-all{position:absolute;bottom:14px;inset-inline-end:14px;background:rgba(255,255,255,.95);color:var(--navy);border:none;border-radius:999px;padding:8px 14px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;display:flex;gap:7px;align-items:center;box-shadow:0 8px 22px -10px rgba(0,0,0,.6)}
 .lg-all:hover{background:#fff}
@@ -1257,7 +1257,6 @@ footer{font-size:14px}
   .lgal.n2 .lg-all,.lgal.n3 .lg-all,.lgal.n4 .lg-all{inset-inline-start:auto;inset-inline-end:12px}
   .lg-main{aspect-ratio:4/3;height:auto;background:#0D1729}
   .lgal .gnav{display:grid;place-items:center;position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,.9);color:var(--navy);font-size:20px}
-  .lgal #gPrev{inset-inline-start:10px}.lgal #gNext{inset-inline-end:10px}
   .lg-side{display:flex;overflow-x:auto;gap:6px;padding:8px 12px;height:auto;scrollbar-width:none}
   .lg-side::-webkit-scrollbar{display:none}
   .lg-side img,.lg-side img:nth-child(n+2),.lg-side img:nth-child(n+3),.lg-side img:nth-child(n+5){display:block;width:72px;height:54px;flex:0 0 72px;border-radius:6px;grid-column:auto}
@@ -4434,7 +4433,7 @@ function listing(id){
     ? '<figure class="lg-main'+(onVid?' onvid':'')+'" style="--bg:url(&quot;'+(onVid?(VIDS[0].poster||""):curImg)+'&quot;)">'+
       (onVid ? '<video class="main" id="gvideo" controls playsinline preload="metadata"'+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'
              : '<img class="main" id="gmain" src="'+curImg+'" alt="'+esc(typeName)+'">')+
-      (n>1 ? '<button class="gnav" id="gPrev" aria-label="prev">'+(rtlNow()?'›':'‹')+'</button><button class="gnav" id="gNext" aria-label="next">'+(rtlNow()?'‹':'›')+'</button>' : '')+
+      (n>1 ? '<button class="gnav" id="gPrev" aria-label="prev" style="'+(rtlNow()?"right":"left")+':12px">‹</button><button class="gnav" id="gNext" aria-label="next" style="'+(rtlNow()?"left":"right")+':12px">›</button>' : '')+
       '<div class="gcount"><span class="ltr">'+(GI+1)+' / '+n+'</span></div></figure>'+
       (n>1 ? '<div class="lg-side" id="gth">'+thumbs.join("")+'</div>' : '')+
       (IMGS.length>1 ? '<button class="lg-all" id="gAll">'+I.grid+GX("lAllPhotos")+' <span class="ltr">('+IMGS.length+')</span></button>' : '')
