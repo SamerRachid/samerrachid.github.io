@@ -784,7 +784,11 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
 .notifmenu.on{display:block}
 .notifmenu.fx{position:fixed;width:auto;max-width:none;inset-inline-end:auto;border-radius:12px}
 .notifhead{padding:12px 15px;font-weight:700;font-size:13.5px;border-bottom:1px solid var(--line);color:var(--ink)}
-.notifitem{display:block;padding:11px 15px;border-bottom:1px solid var(--line);cursor:pointer}
+.notifitem{display:block;position:relative;padding:11px 36px 11px 15px;border-bottom:1px solid var(--line);cursor:pointer}[dir=ltr] .notifitem{padding:11px 15px 11px 36px}
+.notif-x{position:absolute;top:8px;inset-inline-end:8px;width:26px;height:26px;border:0;border-radius:50%;background:transparent;color:var(--light);font-size:18px;line-height:1;cursor:pointer;display:grid;place-items:center}
+.notif-x:hover{background:var(--page);color:var(--danger)}
+.notifhead{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.notif-clear{border:0;background:none;color:var(--grey);font:600 12px var(--f);cursor:pointer;padding:2px 4px}.notif-clear:hover{color:var(--danger)}
 .notifitem:last-child{border-bottom:none}
 .notifitem:hover{background:var(--page)}
 .notifitem.unread{background:var(--gold-w)}
@@ -3344,12 +3348,12 @@ function notifBellHTML(){
   return '<div class="notifwrap" id="notifWrap"><button class="bell" id="bellBtn" aria-label="'+t("notifications")+'">🔔'+
     (NOTIFS.unread?'<span class="bellbadge">'+(NOTIFS.unread>9?"9+":NOTIFS.unread)+'</span>':'')+'</button>'+
     '<div class="notifmenu'+(NOTIF_OPEN?" on":"")+'" id="notifMenu">'+
-     '<div class="notifhead">'+t("notifications")+'</div>'+
+     '<div class="notifhead"><span>'+t("notifications")+'</span>'+(notifItems().length?'<button type="button" class="notif-clear" id="notifClear">'+GX("notifClearAll")+'</button>':'')+'</div>'+
      (notifItems().length ? notifItems().map(function(n){
        var tx=notifText(n);
        return '<a class="notifitem'+(n.is_read?"":" unread")+'" data-notiflink="'+(n.link||"")+'">'+
          '<b>'+tx.title+'</b><span>'+tx.body+'</span>'+
-         '<i>'+when(n.created_at)+'</i></a>'}).join("")
+         '<i>'+when(n.created_at)+'</i><button type="button" class="notif-x" data-notifdel="'+n.id+'" aria-label="'+esc(GX("notifDel"))+'" title="'+esc(GX("notifDel"))+'">×</button></a>'}).join("")
       : '<div class="notifempty">'+t("noNotifs")+'</div>')+
     '</div></div>';
 }
@@ -5721,6 +5725,18 @@ function wireNotifBell(){
       var badge=$(".bellbadge"); if(badge) badge.remove();
       rpc("bk_mark_notifications_read",{p_user:USER.id}).catch(function(){});
     }
+  };
+  $$("[data-notifdel]").forEach(function(b){ b.onclick=function(e){
+    e.preventDefault(); e.stopPropagation(); var id=+this.dataset.notifdel;
+    NOTIFS.items=(NOTIFS.items||[]).filter(function(n){ return +n.id!==id }); NOTIFS.unread=NOTIFS.items.filter(function(n){ return !n.is_read }).length;
+    var w=$("#notifWrap"); if(w){ w.outerHTML=notifBellHTML(); wireNotifBell(); notifMenuFit() }
+    rpc("bk_delete_notification",{p_user:USER.id,p_id:id,p_token:USER.token||null}).catch(function(){});
+  }});
+  if($("#notifClear")) $("#notifClear").onclick=function(e){
+    e.preventDefault(); e.stopPropagation();
+    NOTIFS.items=[]; NOTIFS.unread=0;
+    var w=$("#notifWrap"); if(w){ w.outerHTML=notifBellHTML(); wireNotifBell(); notifMenuFit() }
+    rpc("bk_clear_notifications",{p_user:USER.id,p_token:USER.token||null}).catch(function(){});
   };
   $$("[data-notiflink]").forEach(function(e){ e.onclick=function(){
     var link=this.dataset.notiflink;
@@ -11755,6 +11771,7 @@ var GX_T={
   cEditing:{ar:"تعدّل الآن",en:"Editing",de:"Bearbeitung"}, cSwitchTo:{ar:"انتقل إلى دولة أخرى",en:"Switch to another country",de:"Zu einem anderen Land wechseln"}, cOffShort:{ar:"متوقفة",en:"off",de:"aus"},
   navCountries:{ar:"الدول والأسواق",en:"Countries and markets",de:"Länder und Märkte"},
   cAll:{ar:"كل الدول",en:"All countries",de:"Alle Länder"},
+  notifDel:{ar:"حذف الإشعار",en:"Delete notification",de:"Benachrichtigung löschen",fr:"Supprimer la notification"}, notifClearAll:{ar:"مسح الكل",en:"Clear all",de:"Alle löschen",fr:"Tout effacer"},
   noLimit:{ar:"بلا حد",en:"No limit",de:"Ohne Limit",fr:"Sans limite"},
   notif_welcomeT:{ar:"أهلاً بك في بلكون 👋",en:"Welcome to Balkoun 👋",de:"Willkommen bei Balkoun 👋",fr:"Bienvenue sur Balkoun 👋"},
   notif_welcomeB:{ar:"سعداء بانضمامك. أضف أول إعلان لك مجاناً خلال دقيقتين، أو ابدأ البحث عن بيتك القادم.",en:"Glad to have you here. Post your first listing for free in two minutes, or start looking for your next home.",de:"Schön, dass Sie da sind. Geben Sie Ihre erste Anzeige in zwei Minuten kostenlos auf, oder suchen Sie Ihr nächstes Zuhause.",fr:"Ravis de vous accueillir. Publiez votre première annonce gratuitement en deux minutes, ou cherchez votre prochain logement."},
