@@ -970,6 +970,7 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
 .fbkind-bug{background:var(--gold-w);color:#8A6522}
 .fbkind-other{background:var(--page);color:var(--grey)}
 .fbkind-inquiry{background:#E6F0FA;color:#1D4ED8}
+.inbox-row-badge.tk-open{background:var(--gold-w);color:#8A6522}.fbkind.prio-urgent{background:#FAECEA;color:var(--danger)}.fbkind.prio-high{background:var(--gold-w);color:#8A6522}.fbkind.prio-normal{background:var(--navy-w);color:var(--navy)}.fbkind.prio-low{background:var(--page);color:var(--grey)}
 .fbreply{background:var(--ok-w);color:#2E5E44;font-size:13.5px;border-radius:6px;padding:9px 12px;margin-top:6px}
 .msgthread{display:flex;flex-direction:column;gap:8px;margin-top:10px}
 .msgbubble{max-width:82%;padding:9px 13px;border-radius:12px;font-size:13.5px}
@@ -5056,6 +5057,8 @@ function storageUsageCardBody(){
     '<span class="ltr">'+ADM.storageUsage.files+'</span> '+t("storageFiles")+'</div>';
 }
 /* ═══ the admin bell: everything waiting for a decision, in one place ═══ */
+function tkReload(){ ADM._ticketsLoaded=false; render() }
+function tkScopeKey(){ return admScope() }
 function adminTodoTotal(){ var td=ADM.todo||{}; return (+td.pending_listings||0)+(+td.pending_agencies||0)+(+td.pending_wanted||0)+(+td.open_reports||0)+(+td.open_feedback||0)+(+td.unread_alerts||0) }
 function adminBellHtml(){
   var td=ADM.todo||{}, n=adminTodoTotal();
@@ -5101,8 +5104,12 @@ function adminView(){
  };
  var s=d.stats||{};
  var PRIOS=["low","normal","high","urgent"];
+ var ticketFor=function(kind,id){ return (ADM.tickets||[]).filter(function(x){ return x.source_kind===kind && String(x.source_id)===String(id) })[0] };
  var msgFooter=function(kind,id,thread,who,adminReply,solved,canReply){
    canReply = canReply!==false;   // a visitor without an account cannot receive a reply inside the site
+   var tk=ticketFor(kind,id);
+   var tkBtn = tk ? '<a class="ab" data-goto="tickets" data-tkopen="'+tk.id+'" style="text-decoration:none">'+GX("tkTransferred").replace("{c}",esc(tk.code))+'</a>'
+                  : '<button class="ab" data-toticket="'+kind+':'+id+'">'+GX("tkTransfer")+'</button>';
    return (thread&&thread.length ? '<div class="msgthread" style="margin-top:8px">'+thread.map(function(m){
       return '<div class="msgbubble '+(m.sender==="admin"?"mine":"theirs")+'"><div class="msgwho">'+
         (m.sender==="admin"?t("you"):who)+'</div>'+
@@ -5112,7 +5119,7 @@ function adminView(){
      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;align-items:center">'+
      (canReply?'<button class="ab ok" data-replysend="'+kind+':'+id+'">'+t("sendReply")+'</button>':'')+
      '<button class="ab '+(solved?"":"ok")+'" data-tosolved="'+kind+':'+id+'" data-val="'+(solved?"0":"1")+'">'+
-       (solved?t("reopenIt"):t("markSolved"))+'</button>'+
+       (solved?t("reopenIt"):t("markSolved"))+'</button>'+tkBtn+
      '<span class="priopick" data-priowrap="'+kind+':'+id+'" style="margin-inline-start:auto;display:flex;gap:4px">'+
        PRIOS.map(function(p){return '<button type="button" class="priobtn prio-'+p+'" data-setprio="'+kind+':'+id+'" data-prioval="'+p+'">'+t("prio_"+p)+'</button>'}).join("")+
      '</span></div></div>' };
@@ -5218,6 +5225,30 @@ function adminView(){
    }, t("noReports"), "bk_admin_delete_report");
  }
 
+ else if(ADM.tab==="tickets"){
+  var TK=(ADM.tickets||[]).map(function(x){ x.handled = x.status==="done"; return x });
+  var tkStatus=function(st){ return GX("tkSt_"+st) };
+  var tkSrc=function(x){ return '<span class="fbkind fbkind-'+(x.source_kind==="report"?"complaint":x.source_kind==="feedback"?"suggestion":"other")+'">'+GX("tkSrc_"+x.source_kind)+'</span>' };
+  var addForm=!ADM.tkAddOpen ? '<div style="margin-bottom:14px"><button class="ab ok" id="tkAddOpen">+ '+GX("tkNew")+'</button></div>' : '<div class="blk" style="margin-bottom:14px"><h3>'+GX("tkNew")+'</h3><div class="in"><div class="row"><div class="fl"><label>'+GX("tkTitle")+'</label><input id="tkTitle" autocomplete="off"></div><div class="fl"><label>'+GX("tkContact")+'</label><input id="tkContact" autocomplete="off" class="ltr"></div></div>'+
+    '<div class="fl"><label>'+GX("tkBody")+'</label><textarea id="tkBody" rows="3"></textarea></div><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select id="tkPrio">'+PRIOS.map(function(p){ return '<option value="'+p+'"'+(p==="normal"?' selected':'')+'>'+t("prio_"+p)+'</option>' }).join("")+'</select><button class="ab ok" id="tkAdd">'+GX("tkAddBtn")+'</button><span class="xmsg" id="tkAddMsg"></span></div></div></div>';
+  body = addForm + emailInbox("ticket", TK, "msgFilterTicket", "selTicketId",
+   function(x,isSel){
+     return '<div class="inbox-row'+(isSel?' on':'')+(x.status==="done"?' solved':'')+'" data-emailrow="ticket:'+x.id+'" data-row-text="'+((x.code||"")+" "+(x.title||"")+" "+(x.body||"")).toLowerCase()+'">'+
+      '<div class="inbox-row-top"><b class="ltr">'+esc(x.code)+'</b><span class="fbkind prio-'+x.priority+'">'+t("prio_"+x.priority)+'</span><span class="fbwhen">'+when(x.created_at)+'</span></div>'+
+      '<div class="inbox-row-sub">'+esc(x.title||"")+'</div>'+
+      '<span class="inbox-row-badge'+(x.status==="done"?'':' tk-open')+'">'+tkStatus(x.status)+'</span></div>' },
+   function(x){
+     return '<div class="fbtop"><b class="ltr" style="font-size:18px;color:var(--navy)">'+esc(x.code)+'</b>'+tkSrc(x)+(ADM.scope==="ALL"&&x.country_code?'<span class="fbkind">'+esc(x.country_code)+'</span>':'')+'<span class="fbwhen">'+when(x.created_at)+(x.created_by_name?' · '+esc(x.created_by_name):'')+'</span></div>'+
+      '<div class="fl" style="margin-top:10px"><label>'+GX("tkTitle")+'</label><input data-tktitle="'+x.id+'" value="'+esc(x.title||"")+'"></div>'+
+      (x.body?'<div class="fbbody">'+esc(x.body)+'</div>':'')+
+      (x.contact?'<div class="fbwho">'+GX("tkContact")+': <span class="ltr">'+esc(x.contact)+'</span></div>':'')+
+      (x.link?'<div class="fbwho"><a href="'+esc(x.link)+'" data-tklink="'+esc(x.link)+'" style="text-decoration:underline;cursor:pointer">'+GX("tkOpenSource")+'</a></div>':'')+
+      '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;align-items:center"><b style="font-size:12.5px">'+GX("tkStatus")+':</b>'+["open","progress","done"].map(function(st){ return '<button type="button" class="ab'+(x.status===st?' ok':'')+'" data-tkstatus="'+x.id+':'+st+'">'+tkStatus(st)+'</button>' }).join("")+
+      '<span class="priopick" style="margin-inline-start:auto;display:flex;gap:4px">'+PRIOS.map(function(p){ return '<button type="button" class="priobtn prio-'+p+(x.priority===p?' on':'')+'" data-tkprio="'+x.id+':'+p+'">'+t("prio_"+p)+'</button>' }).join("")+'</span></div>'+
+      '<div class="fl" style="margin-top:12px"><label>'+GX("tkNotes")+'</label><textarea data-tknotes="'+x.id+'" rows="4" placeholder="'+esc(GX("tkNotesPH"))+'">'+esc(x.notes||"")+'</textarea></div>'+
+      '<div style="display:flex;gap:8px;align-items:center"><button class="ab ok" data-tksave="'+x.id+'">'+GX("tkSave")+'</button><span class="xmsg" id="tkMsg'+x.id+'"></span>'+(x.done_at?'<span class="hintx">'+GX("tkDoneAt")+' '+when(x.done_at)+'</span>':'')+'</div>' },
+   GX("noTickets"), "bk_admin_ticket_delete");
+ }
  else if(ADM.tab==="feedback"){
   body = emailInbox("feedback", d.feedback||[], "msgFilterFeedback", "selFeedbackId",
    function(f,isSel){
@@ -5621,7 +5652,7 @@ function adminView(){
    {g:t("navPeople"), items:[["users",t("usersTab"),s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")]]},
    {g:GX("navMarketing"), items:[["engage",GX("tEngage"),null,AICO.ledger,can("ads")||can("featured")],["projects_adm",GX("tProjects"),null,AICO.building,can("listings")||can("ads")],["ads",t("adsTab"),null,AICO.ads,can("ads")],["featured",t("featuredTab"),null,AICO.star,can("featured")],["banners",GX("tBanners"),null,AICO.banner,can("homepage")]]},
    {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")]]},
-   {g:t("navInboxH"), items:[["reports",t("reportsTab"),s.openReports,AICO.shield,can("reports")],["feedback",t("feedbackTab"),s.openFeedback,AICO.shield,can("feedback")],["msgs",t("msgsNotifTab"),ADM.alertsUnread,AICO.bell,can("msgs")]]},
+   {g:t("navInboxH"), items:[["reports",t("reportsTab"),s.openReports,AICO.shield,can("reports")],["feedback",t("feedbackTab"),s.openFeedback,AICO.shield,can("feedback")],["tickets",GX("ticketsTab"),(ADM.tickets||[]).filter(function(x){ return x.status!=="done" }).length,AICO.gear,can("feedback")],["msgs",t("msgsNotifTab"),ADM.alertsUnread,AICO.bell,can("msgs")]]},
    {g:GX("navSystem"), items:[["settings",GX("tSystem"),null,AICO.gear,can("settings")],["storage",GX("tStorage"),null,AICO.disk,can("settings")],["admins",t("adminsTab"),null,AICO.key,ADM.isSuper],["danger",t("dangerTab"),null,AICO.lock,ADM.isSuper]]}
  ];
  var curLabel=t("adminPanel"), curGroup="";
@@ -9463,7 +9494,7 @@ function wireAdmin(){
   }});
   $$("[data-emailrow]").forEach(function(e){ e.onclick=function(){
     var parts=this.dataset.emailrow.split(":");
-    ADM["sel"+(parts[0]==="report"?"Report":"Feedback")+"Id"]=parts[1];
+    ADM[parts[0]==="report"?"selReportId":parts[0]==="feedback"?"selFeedbackId":"selTicketId"]=parts[1];
     window._admMobileDetail=true;
     render();
   }});
@@ -9477,7 +9508,18 @@ function wireAdmin(){
     var kind=parts[0], id=parts[1];
     if(kind==="report"){ ADM.selReportId=null; act("bk_admin_delete_report",{p_token:ADM.token,p_id:+id}); }
     else if(kind==="feedback"){ ADM.selFeedbackId=null; act("bk_admin_delete_feedback",{p_token:ADM.token,p_id:+id}); }
+    else if(kind==="ticket"){ ADM.selTicketId=null; rpc("bk_admin_ticket_delete",{p_token:ADM.token,p_id:+id}).then(tkReload).catch(function(e){ alert(e.message||"error") }) }
   }});
+  // tech tickets
+  if((ADM.tab==="tickets"||ADM.tab==="feedback"||ADM.tab==="reports") && (!ADM._ticketsLoaded || ADM._ticketsScope!==tkScopeKey())){ ADM._ticketsLoaded=true; ADM._ticketsScope=tkScopeKey(); rpc("bk_admin_tickets",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.tickets=r||[]; render() }).catch(function(){}) }
+  $$("[data-toticket]").forEach(function(b){ b.onclick=async function(){ var k=this.dataset.toticket.split(":"); this.disabled=true; try{ var tk=await rpc("bk_admin_ticket_from",{p_token:ADM.token,p_kind:k[0],p_id:+k[1],p_country:admScope()}); ADM._ticketsLoaded=false; await adminLoad(); alert(GX("tkCreated").replace("{c}",tk&&tk.code||"")) }catch(e){ alert(e.message||"error"); this.disabled=false } } });
+  $$("[data-tkopen]").forEach(function(a){ a.onclick=function(){ ADM.selTicketId=this.dataset.tkopen; ADM.tab="tickets"; render() } });
+  $$("[data-tkstatus]").forEach(function(b){ b.onclick=function(){ var k=this.dataset.tkstatus.split(":"); rpc("bk_admin_ticket_set",{p_token:ADM.token,p_id:+k[0],p_status:k[1]}).then(tkReload).catch(function(e){ alert(e.message||"error") }) } });
+  $$("[data-tkprio]").forEach(function(b){ b.onclick=function(){ var k=this.dataset.tkprio.split(":"); rpc("bk_admin_ticket_set",{p_token:ADM.token,p_id:+k[0],p_priority:k[1]}).then(tkReload).catch(function(e){ alert(e.message||"error") }) } });
+  $$("[data-tksave]").forEach(function(b){ b.onclick=function(){ var id=+this.dataset.tksave, m=$("#tkMsg"+id), notes=($('[data-tknotes="'+id+'"]')||{}).value||"", title=($('[data-tktitle="'+id+'"]')||{}).value||""; if(m) m.textContent=t("saving"); rpc("bk_admin_ticket_set",{p_token:ADM.token,p_id:id,p_notes:notes,p_title:title}).then(function(){ if(m) m.textContent=t("savedOk"); tkReload() }).catch(function(e){ if(m) m.textContent=e.message||"error" }) } });
+  $$("[data-tklink]").forEach(function(a){ a.onclick=function(e){ e.preventDefault(); var l=this.dataset.tklink; if(l.indexOf("#/admin:")>-1){ ADM.tab=l.split("#/admin:")[1]; render() } else if(l.indexOf("#/listing/")>-1){ window.open(location.origin+"/listing/"+l.split("/listing/")[1],"_blank") } } });
+  if($("#tkAddOpen")) $("#tkAddOpen").onclick=function(){ ADM.tkAddOpen=true; render(); var e=$("#tkTitle"); if(e) e.focus() };
+  if($("#tkAdd")) $("#tkAdd").onclick=function(){ var m=$("#tkAddMsg"), ti=($("#tkTitle")||{}).value||""; if(ti.trim().length<2){ if(m) m.textContent=GX("tkTitleReq"); return } if(m) m.textContent=t("saving"); rpc("bk_admin_ticket_add",{p_token:ADM.token,p_title:ti,p_body:($("#tkBody")||{}).value||null,p_contact:($("#tkContact")||{}).value||null,p_priority:($("#tkPrio")||{}).value||"normal",p_country:admScope()}).then(function(tk){ ADM.selTicketId=tk&&tk.id; ADM.tkAddOpen=false; tkReload() }).catch(function(e){ if(m) m.textContent=e.message||"error" }) };
 }
 
 function wireAuth(){
@@ -11830,6 +11872,12 @@ var GX_T={
   cEditing:{ar:"تعدّل الآن",en:"Editing",de:"Bearbeitung"}, cSwitchTo:{ar:"انتقل إلى دولة أخرى",en:"Switch to another country",de:"Zu einem anderen Land wechseln"}, cOffShort:{ar:"متوقفة",en:"off",de:"aus"},
   navCountries:{ar:"الدول والأسواق",en:"Countries and markets",de:"Länder und Märkte"},
   cAll:{ar:"كل الدول",en:"All countries",de:"Alle Länder"},
+  ticketsTab:{ar:"البطاقات التقنية",en:"Tech tickets",de:"Technische Tickets"}, desc_tickets:{ar:"قائمة واحدة لكل ما يحتاج معالجة تقنية. حوّل إليها أي بلاغ أو شكوى بزر «تحويل إلى بطاقة»، أو أضف بطاقة يدوياً. لكل بطاقة رقم ثابت.",en:"One list for everything that needs technical handling. Transfer any report or complaint into it with the “Transfer to ticket” button, or add a ticket by hand. Every ticket has a fixed number.",de:"Eine Liste für alles, was technisch bearbeitet werden muss. Meldungen und Beschwerden per „In Ticket umwandeln“ übernehmen oder Tickets von Hand anlegen. Jedes Ticket hat eine feste Nummer."},
+  tkNew:{ar:"بطاقة جديدة",en:"New ticket",de:"Neues Ticket"}, tkTitle:{ar:"العنوان",en:"Title",de:"Titel"}, tkBody:{ar:"التفاصيل",en:"Details",de:"Details"}, tkContact:{ar:"جهة الاتصال",en:"Contact",de:"Kontakt"}, tkAddBtn:{ar:"إضافة البطاقة",en:"Add ticket",de:"Ticket anlegen"}, tkTitleReq:{ar:"اكتب عنواناً",en:"Write a title",de:"Titel eingeben"},
+  tkSt_open:{ar:"مفتوحة",en:"Open",de:"Offen"}, tkSt_progress:{ar:"قيد العمل",en:"In progress",de:"In Arbeit"}, tkSt_done:{ar:"منجزة",en:"Done",de:"Erledigt"}, tkStatus:{ar:"الحالة",en:"Status",de:"Status"},
+  tkSrc_feedback:{ar:"من الشكاوى",en:"From feedback",de:"Aus Feedback"}, tkSrc_report:{ar:"من البلاغات",en:"From a report",de:"Aus einer Meldung"}, tkSrc_manual:{ar:"يدوية",en:"Manual",de:"Manuell"},
+  tkNotes:{ar:"ملاحظات المعالجة",en:"Work notes",de:"Bearbeitungsnotizen"}, tkNotesPH:{ar:"ما الذي فُعل، وما المتبقي…",en:"What was done, what is left…",de:"Was erledigt ist, was noch fehlt…"}, tkSave:{ar:"حفظ",en:"Save",de:"Speichern"}, tkDoneAt:{ar:"أُنجزت",en:"Done",de:"Erledigt"},
+  tkTransfer:{ar:"تحويل إلى بطاقة تقنية",en:"Transfer to tech ticket",de:"In technisches Ticket umwandeln"}, tkTransferred:{ar:"محوّلة إلى البطاقة {c}",en:"Transferred to ticket {c}",de:"Übernommen in Ticket {c}"}, tkCreated:{ar:"أُنشئت البطاقة {c} وتم وضع البلاغ كمحلول.",en:"Ticket {c} created; the item is marked solved.",de:"Ticket {c} angelegt; der Eintrag ist als gelöst markiert."}, tkOpenSource:{ar:"فتح المصدر",en:"Open the source",de:"Quelle öffnen"}, noTickets:{ar:"لا بطاقات",en:"No tickets",de:"Keine Tickets"},
   msgVisitorNoReply:{ar:"زائر بلا حساب: لا يمكن الرد عليه داخل الموقع. إن ترك رقماً أو بريداً فتواصل معه مباشرة.",en:"Visitor without an account: a reply cannot reach them inside the site. If they left a phone or email, contact them directly.",de:"Besucher ohne Konto: eine Antwort erreicht ihn nicht auf der Website. Hat er Telefon oder E-Mail hinterlassen, kontaktieren Sie ihn direkt."},
   loginLocked:{ar:"محاولات كثيرة خاطئة. انتظر 15 دقيقة ثم حاول مجدداً.",en:"Too many wrong attempts. Wait 15 minutes and try again.",de:"Zu viele Fehlversuche. Warten Sie 15 Minuten und versuchen Sie es erneut.",fr:"Trop de tentatives. Attendez 15 minutes puis réessayez."},
   resetWaNote:{ar:"بعد وصول رسالتك نتحقق من أن الرقم يخصك ونرسل لك كلمة مرور مؤقتة عبر واتساب، ثم يمكنك تغييرها من حسابك.",en:"Once your message arrives we verify that the number is yours and send you a temporary password on WhatsApp. You can change it from your account afterwards.",de:"Nach Eingang Ihrer Nachricht prüfen wir, dass die Nummer Ihnen gehört, und senden ein vorläufiges Passwort per WhatsApp. Danach können Sie es im Konto ändern.",fr:"À réception de votre message, nous vérifions que le numéro est bien le vôtre et vous envoyons un mot de passe temporaire par WhatsApp. Vous pourrez ensuite le modifier depuis votre compte."},
