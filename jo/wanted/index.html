@@ -1682,8 +1682,8 @@ footer{font-size:14px}
 .home-hero .stabs button{border:0;border-radius:8px;padding:0 13px;height:34px;font:600 15px var(--fd);color:var(--grey);background:transparent;transition:color .2s,background .2s,box-shadow .2s}
 .home-hero .stabs button.on{background:var(--navy);color:#fff;box-shadow:0 6px 14px -8px rgba(20,33,61,.7)}
 .home-hero .stabs button:not(.on):hover{color:var(--navy)}
-.home-hero .srow{grid-template-columns:1fr 1.15fr 1.1fr 1.2fr .95fr .9fr auto auto;gap:6px}
-@media(min-width:701px) and (max-width:1199px){.home-hero .srow .sf-rooms{display:none}.home-hero .srow{grid-template-columns:1.05fr 1.3fr 1.15fr 1fr .9fr auto auto}}
+.home-hero .srow{grid-template-columns:1.05fr 1.3fr 1.15fr 1fr .9fr auto auto;gap:6px}
+@media(min-width:701px){.home-hero .srow .sf-rooms{display:none}}   /* on desktop the rooms live in the results "more" list */
 .home-hero .sf{border:1px solid var(--line);border-radius:9px;padding:0;min-height:40px;height:40px;background:#fff;position:relative;transition:border-color .2s,box-shadow .2s;display:flex;align-items:stretch}
 .home-hero .sf:hover{border-color:#C3C8D2}
 .home-hero .sf:focus-within,.home-hero .sf:has(.chipsel-drop.on){border-color:var(--gold);box-shadow:0 0 0 3px rgba(196,136,31,.14)}
@@ -2211,6 +2211,9 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .rs-morepop.on{display:block}
 .rs-morepop h4{font-size:11.5px;color:var(--gold-dk);text-transform:uppercase;letter-spacing:.04em;margin:0 0 6px}
 .rs-morepop .fg{margin-bottom:12px}.rs-morepop .fg:last-child{margin-bottom:0}
+.rsq{display:flex;gap:5px;flex-wrap:wrap}[dir=rtl] .rsq{justify-content:flex-end}.rs-morepop .fg-rooms{padding-inline:10px}
+.rsq-b{width:34px;height:34px;border:1px solid var(--line-2);border-radius:8px;background:#fff;font:600 13.5px var(--f);color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s,color .15s}
+.rsq-b:hover{border-color:var(--navy)}.rsq-b.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 .rs-morepop .ck{display:flex;align-items:center;gap:8px;font-size:13.5px;padding:6px 0;cursor:pointer}
 .rs-morepop .ck input{accent-color:var(--navy);width:16px;height:16px;margin:0}
 .rs-morepop .ck .c{margin-inline-start:auto;color:var(--light);font-size:12px}
@@ -3139,9 +3142,11 @@ var L=detectLang(), CUR=detectCurrency(), VIEW="home", GI=0, LIGHTBOX_OPEN=false
 var PREVIEW=/[?&]preview=1/.test(location.search), _pvLast=null;
 if(PREVIEW){ var _pl=(location.search.match(/[?&]lang=(ar|en|de|fr)/)||[])[1]; if(_pl) L=_pl; }
 var F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:[],sec:"",deal:"sale",sort:"new",page:1,ownerOnly:false};
-function roomsLabel(v){ v=String(v||""); if(!v) return GX("roomsField"); if(v==="1") return GX("rooms1"); if(v==="2") return GX("rooms2"); return GX("roomsN").replace("{n}", v==="10" ? "10+" : v) }
-function roomsOptions(){ return [1,2,3,4,5,6,7,8,9,10].map(function(n){ return {value:String(n),label:roomsLabel(n)} }) }
-function roomsPass(x){ var sel=F.rooms||[]; if(!sel.length) return true; var r=+x.r||0; return sel.some(function(v){ return v==="10" ? r>=10 : r===+v }) }
+function roomsLabel(v){ v=String(v||""); if(!v) return GX("roomsField"); if(v==="1") return GX("rooms1"); if(v==="2") return GX("rooms2"); return GX("roomsN").replace("{n}", +v===ROOMS_MAX ? v+"+" : v) }
+var ROOMS_MAX=7;   // the last square: this many rooms or more
+function roomsOptions(){ var o=[]; for(var n=1;n<=ROOMS_MAX;n++) o.push({value:String(n),label:roomsLabel(n)}); return o }
+function roomsPass(x){ var sel=F.rooms||[]; if(!sel.length) return true; var r=+x.r||0; return sel.some(function(v){ return +v===ROOMS_MAX ? r>=ROOMS_MAX : r===+v }) }
+function roomsSquaresHtml(){ var sel=F.rooms||[], h=''; for(var n=1;n<=ROOMS_MAX;n++) h+='<button type="button" class="rsq-b'+(sel.indexOf(String(n))>-1?' on':'')+'" data-rsq="'+n+'">'+(n===ROOMS_MAX?n+'+':n)+'</button>'; return '<div class="fg fg-rooms"><h4>'+GX("roomsField")+'</h4><div class="rsq ltr">'+h+'</div></div>' }
 var MOBILE_FILTERS_OPEN=false;
 function activeFilterCount(){
   var n=0; if(F.rooms&&F.rooms.length) n+=F.rooms.length;
@@ -4239,8 +4244,8 @@ function rsChipsHtml(){
 function rsFiltersHtml(count){
  var n=function(f,v){return D.LIST.filter(function(x){return passesFilter(x,f) && x[f]===v}).length};
  var grp=function(obj,f){return Object.keys(obj).map(function(k){ return '<label class="ck"><input type="radio" name="'+f+'" value="'+k+'"'+(F[f]===k?" checked":"")+'> '+obj[k][li()]+'<span class="c ltr">'+n(f,k)+'</span></label>'}).join("")};
- var moreN=(F.cd?1:0)+(F.deal==="rent"&&F.rentalPeriod?1:0)+(F.deal!=="rent"&&F.ownerOnly?1:0);
- var more='<div class="fg"><h4>'+t("cond")+'</h4>'+(F.sec==="land"?grp(D.LANDC,"cd"):grp(D.COND,"cd"))+'</div>'+
+ var moreN=(F.rooms&&F.rooms.length?1:0)+(F.cd?1:0)+(F.deal==="rent"&&F.rentalPeriod?1:0)+(F.deal!=="rent"&&F.ownerOnly?1:0);
+ var more=roomsSquaresHtml()+'<div class="fg"><h4>'+t("cond")+'</h4>'+(F.sec==="land"?grp(D.LANDC,"cd"):grp(D.COND,"cd"))+'</div>'+
    (F.deal==="rent" ? '<div class="fg"><h4>'+t("rentalPeriodL")+'</h4>'+["","yearly","monthly","weekly","daily"].map(function(v){ return '<label class="ck"><input type="radio" name="rentalPeriod" value="'+v+'"'+(F.rentalPeriod===v?" checked":"")+'> '+(v===""?t("anyPeriod"):t("period"+v.charAt(0).toUpperCase()+v.slice(1)))+'</label>' }).join("")+'</div>'
                     : '<div class="fg"><h4>'+t("extras")+'</h4><label class="ck"><input type="checkbox" id="fOwnerOnly"'+(F.ownerOnly?" checked":"")+'> '+t("owneronly")+'</label></div>');
  var rate=curRate();
@@ -4254,7 +4259,6 @@ function rsFiltersHtml(count){
    (F.deal==="rent"
      ? '<div class="rs-f rs-fsel"><select id="hFurn" aria-label="'+(L==="ar"?GX("furnField"):t("furnishedL"))+'"><option value=""'+(F.furn===""?" selected":"")+'>'+(L==="ar"?GX("furnField"):t("furnishedL"))+'</option><option value="yes"'+(F.furn==="yes"?" selected":"")+'>'+t("furnYes")+'</option><option value="no"'+(F.furn==="no"?" selected":"")+'>'+t("furnNo")+'</option></select></div>'
      : '<div class="rs-f">'+chipSelect("csTabu",t("deed"),F.tbs||[],function(v){ return D.TABU[v]?D.TABU[v][li()]:v},true)+'</div>')+
-   '<div class="rs-f rs-frooms">'+chipSelect("csRooms",GX("roomsField"),F.rooms||[],roomsLabel,true)+'</div>'+
    '<div class="rs-f rs-fprice"><button type="button" class="pricetrig'+((F.pmin||F.pmax)?' set':'')+'" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
      '<div class="pricepop" id="hPricePop" hidden data-title="'+esc(GX("price"))+' ('+(CUR==="USD"?"USD":curLabel(CUR,L))+')"><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*rate):"")+'"></label>'+
      '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*rate):"")+'"></label></div>'+
@@ -4331,6 +4335,8 @@ function rsWire(opts){
   if(mb){ mb.onclick=function(e){ e.stopPropagation(); closeAllMenus(); if(pop) pop.hidden=true; mp.classList.toggle("on") }; mp.onclick=function(e){ e.stopPropagation() };
     document.addEventListener("click",function h2(e){ if(!mp.isConnected){ document.removeEventListener("click",h2); return } if(window.innerWidth>900) mp.classList.remove("on") });
     document.addEventListener("keydown",function h3(e){ if(!mp.isConnected){ document.removeEventListener("keydown",h3); return } if(e.key==="Escape") mp.classList.remove("on") }) }
+  if(mp && window._rsMoreOpen){ window._rsMoreOpen=false; mp.classList.add("on") }   // the list stays open after a square is tapped
+  $$("[data-rsq]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); var v=this.dataset.rsq, a=F.rooms||[]; F.rooms = a.indexOf(v)>-1 ? a.filter(function(x){ return x!==v }) : a.concat([v]); F.page=1; window._rsMoreOpen=true; render() } });
   $$('input[name=cd]').forEach(function(r){ r.onclick=function(){ F.cd=F.cd===r.value?"":r.value; F.page=1; render() } });
   $$('input[name=rentalPeriod]').forEach(function(r){ r.onclick=function(){ F.rentalPeriod=r.value; F.page=1; render() } });
   if($("#fOwnerOnly")) $("#fOwnerOnly").onchange=function(){ F.ownerOnly=this.checked; F.page=1; render() };
