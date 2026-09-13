@@ -2346,7 +2346,7 @@ body.rs-lock{overflow:hidden}
 .hnav .hsoon{display:inline-flex;align-items:center;gap:6px}
 .hnav .hsoon i{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#1A1206;background:var(--gold);border-radius:999px;padding:1px 6px;line-height:1.5;transform:translateY(-7px)}
 /* header links never break into two lines; when the signed-in tools need the room, the gaps tighten first and the coming-soon links step back into the menu */
-@media(min-width:861px){.hnav a{white-space:nowrap}.hbar{gap:14px}.hbar .logo{margin-left:0}.htools{gap:14px}.hnav{gap:14px;font-size:14px}.hnav .hsoon{gap:2px}.hsoon i{font-size:8.5px;padding:0 5px;transform:translateY(-5px)}[dir=rtl] .hnav .hsoon{flex-direction:row-reverse}}
+@media(min-width:861px){.hnav a{white-space:nowrap}.hbar{gap:14px}.hbar .logo{margin-left:0}.htools{gap:14px}.hnav{gap:14px;font-size:14px}.hnav .hsoon{position:relative;padding-inline-end:9px}.hnav .hsoon i{position:absolute;top:-2px;inset-inline-end:-3px;transform:none;font-size:6px;letter-spacing:.02em;padding:0 4px;line-height:1.8}[dir=rtl] .hnav .hsoon{direction:rtl}}
 @media(min-width:861px) and (max-width:1240px){.hnav a[data-soon]{display:none}}
 @media(min-width:861px) and (max-width:1000px){.hnav a[data-go="projects"]{display:none}}
 @media(min-width:861px) and (max-width:960px){.hnav a[data-go="wanted"]{display:none}}
@@ -2694,7 +2694,7 @@ body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
   .hpill .hmb-dot{top:4px;inset-inline-end:4px}
   body.nav-nomenu-d .hpill{display:none}
   .hbar .hmb{display:none!important}
-  .hbar .hpill{margin-inline-end:-4px}
+  .hbar .hpill{margin-inline-end:0}
 }
 .hmb-dot{position:absolute;top:5px;inset-inline-end:5px;width:10px;height:10px;border-radius:50%;background:var(--danger);border:2px solid #1B2C52}
 .lg-globe,.lg-code{display:none}
