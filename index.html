@@ -2410,6 +2410,10 @@ html[lang=fr] .htools a.gold{white-space:nowrap}
 .vlb{position:fixed;inset:0;z-index:9000;background:rgba(5,8,16,.92);display:flex;align-items:center;justify-content:center;padding:20px;animation:ccfade .25s}
 .vlb-box{width:min(96vw,1100px);aspect-ratio:16/9;max-height:88vh;background:#000;border-radius:10px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.6)}
 .vlb-box video{width:100%;height:100%;display:block;background:#000}
+.vlb-box{position:relative}
+.wm-ov{position:absolute;z-index:3;display:inline-flex;align-items:center;gap:6px;padding:5px 9px 5px 7px;border-radius:8px;background:rgba(9,14,26,.38);color:#fff;font:800 11.5px/1 var(--fd);letter-spacing:.14em;pointer-events:none;opacity:.9;backdrop-filter:blur(2px)}
+.wm-ov .bmark{width:18px;height:18px;color:#fff}.wm-br{bottom:56px;right:12px}.wm-bl{bottom:56px;left:12px}.wm-tr{top:12px;right:12px}.wm-tl{top:12px;left:12px}
+.medialock .lgal img,.medialock .lgal video,.medialock .lightbox img,.medialock .vlb video,.medialock .card img,.medialock .res img,.medialock .gth img,.medialock .sim img{-webkit-user-drag:none;user-drag:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 @media(max-width:700px){.lgal .lg-vid{bottom:10px;inset-inline-start:10px;font-size:12px}}
 /* countries: header chip, drawer segment, opening chooser */
 .flg{width:22px;height:15px;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.08);flex:none;display:inline-block;vertical-align:middle}.flg-t{font:700 9px/15px var(--fd);text-align:center;background:var(--navy);color:#fff;letter-spacing:.5px}
@@ -4450,7 +4454,7 @@ function listing(id){
  var gal='<div class="'+galCls+'">'+
   (n
     ? '<figure class="lg-main'+(onVid?' onvid':'')+'" style="--bg:url(&quot;'+(onVid?(VIDS[0].poster||""):curImg)+'&quot;)">'+
-      (onVid ? '<video class="main" id="gvideo" controls playsinline preload="metadata"'+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'
+      (onVid ? '<video class="main" id="gvideo" controls playsinline preload="metadata"'+wmVideoAttrs()+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'+wmOverlayHtml()
              : '<img class="main" id="gmain" src="'+curImg+'" alt="'+esc(typeName)+'">')+
       (n>1 ? '<button class="gnav" id="gPrev" aria-label="prev" style="'+(rtlNow()?"right":"left")+':12px">‹</button><button class="gnav" id="gNext" aria-label="next" style="'+(rtlNow()?"left":"right")+':12px">›</button>' : '')+
       '<div class="gcount"><span class="ltr">'+(GI+1)+' / '+n+'</span></div></figure>'+
@@ -4470,7 +4474,7 @@ function listing(id){
       : '')+
     '<img class="lb-img" id="lbImg" src="'+curImg+'" alt="">'+
    '</div>' : '';
- lb += (VLB_OPEN && VIDS.length) ? '<div class="vlb" id="vlb"><button type="button" class="lb-close" id="vlbClose" aria-label="close">×</button><div class="vlb-box"><video id="vlbVideo" controls autoplay playsinline'+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video></div></div>' : '';
+ lb += (VLB_OPEN && VIDS.length) ? '<div class="vlb" id="vlb"><button type="button" class="lb-close" id="vlbClose" aria-label="close">×</button><div class="vlb-box"><video id="vlbVideo" controls autoplay playsinline'+wmVideoAttrs()+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'+wmOverlayHtml()+'</div></div>' : '';
 
  /* ── title block ── */
  var tags='<div class="ltags"><span class="ltag deal">'+(isRent?t("forrent"):t("forsale"))+'</span>'+
@@ -7590,6 +7594,12 @@ function softRenderHero(){
 }
 function wire(){
  markGreenTabu();
+ document.body.classList.toggle("medialock", wmCfg().lock);
+ if(!window._mediaLockBound){ window._mediaLockBound=true;
+   var isMedia=function(t){ return t && (t.tagName==="IMG"||t.tagName==="VIDEO") && t.closest && t.closest(".lgal,.lightbox,.vlb,.card,.res,.shots,.gth,.sim,.lside,.lmain") };
+   document.addEventListener("contextmenu",function(e){ if(wmCfg().lock && isMedia(e.target)) e.preventDefault() });
+   document.addEventListener("dragstart",function(e){ if(wmCfg().lock && isMedia(e.target)) e.preventDefault() });
+ }
  if(VIEW.indexOf("listing")!==0 && _simCarouselTimer){ clearInterval(_simCarouselTimer); _simCarouselTimer=null; }
  if(VIEW!=="mapsearch") stopMapSearch();
  if(VIEW!=="search"){ rsMapStop(); document.body.classList.remove("rs-lock") }
@@ -7818,7 +7828,7 @@ function wire(){
        try{
          var raw=await new Promise(function(res,rej){var r=new FileReader();
            r.onload=function(){res(r.result)};r.onerror=rej;r.readAsDataURL(files[i])});
-         var full=await shrink(raw,1200,0.80), thumb=await shrink(raw,400,0.72);
+         var full=await shrink(raw,1200,0.80,true), thumb=await shrink(raw,400,0.72,true);
          var stamp=Date.now()+"-"+i+"-"+Math.random().toString(36).slice(2,8);
          var pF="photos/listings/"+EDIT.id+"/"+stamp+".jpg", pT="photos/listings/"+EDIT.id+"/"+stamp+"-t.jpg";
          var uF=await storageUpload(pF,full,{contentType:"image/jpeg"});
@@ -9750,7 +9760,26 @@ function readFile(f){
   });
 }
 
-function shrink(src, maxW, quality){
+function wmCfg(){ return { on:SX("wm_on",true)!==false, pos:SX("wm_pos","br")||"br", size:Math.min(40,Math.max(6,+SX("wm_size",14)||14)), op:Math.min(1,Math.max(.2,(+SX("wm_opacity",70)||70)/100)), video:SX("wm_video",true)!==false, lock:SX("wm_lock",true)!==false } }
+// the brand mark and the word BALKOUN drawn into a canvas corner (the mark's own 100-unit geometry, scaled)
+function wmStamp(ctx,W,H){
+  var c=wmCfg(); if(!c.on) return;
+  var mk=Math.max(22, Math.round(W*c.size/100*0.36)), m=Math.round(Math.max(8, W*0.03)), fontPx=Math.max(9, Math.round(mk*0.5));
+  ctx.save(); ctx.globalAlpha=c.op; ctx.font="800 "+fontPx+"px Arial, Helvetica, sans-serif"; ctx.textBaseline="middle"; ctx.textAlign="left";
+  var txt="BALKOUN", ls=Math.round(fontPx*0.14); if("letterSpacing" in ctx) ctx.letterSpacing=ls+"px";
+  var tw=ctx.measureText(txt).width+(("letterSpacing" in ctx)?0:ls*txt.length), gap=Math.round(mk*0.35), totalW=mk+gap+tw;
+  var x=(c.pos==="bl"||c.pos==="tl") ? m : W-m-totalW, y=(c.pos==="tl"||c.pos==="tr") ? m : H-m-mk;
+  ctx.shadowColor="rgba(0,0,0,.6)"; ctx.shadowBlur=Math.max(3, mk*0.3);
+  var u=mk/100;
+  ctx.lineWidth=7*u; ctx.strokeStyle="#fff"; ctx.strokeRect(x+19*u,y+19*u,62*u,62*u);
+  ctx.lineWidth=9*u; ctx.strokeStyle="#C4881F"; ctx.beginPath(); ctx.moveTo(x+50*u,y+5*u); ctx.lineTo(x+95*u,y+50*u); ctx.lineTo(x+50*u,y+95*u); ctx.lineTo(x+5*u,y+50*u); ctx.closePath(); ctx.stroke();
+  ctx.fillStyle="#fff"; ctx.fillRect(x+42.5*u,y+42.5*u,15*u,15*u);
+  if(("letterSpacing" in ctx)){ ctx.fillText(txt, x+mk+gap, y+mk/2) } else { var cx=x+mk+gap; for(var i=0;i<txt.length;i++){ ctx.fillText(txt[i],cx,y+mk/2); cx+=ctx.measureText(txt[i]).width+ls } }
+  ctx.restore();
+}
+function wmOverlayHtml(){ var c=wmCfg(); return c.video ? '<span class="wm-ov wm-'+c.pos+'" aria-hidden="true">'+brandMark()+'<b>BALKOUN</b></span>' : '' }
+function wmVideoAttrs(){ return wmCfg().lock ? ' controlsList="nodownload noremoteplayback" disablePictureInPicture oncontextmenu="return false"' : '' }
+function shrink(src, maxW, quality, wm){
   return new Promise(function(resolve, reject){
     var img=new Image();
     img.onload=function(){
@@ -9761,6 +9790,7 @@ function shrink(src, maxW, quality){
       var ctx=c.getContext("2d");
       ctx.fillStyle="#fff"; ctx.fillRect(0,0,c.width,c.height);
       ctx.drawImage(img,0,0,c.width,c.height);
+      if(wm) wmStamp(ctx,c.width,c.height);   // listing photos carry the site's mark
       c.toBlob(function(b){ b?resolve(b):reject(new Error("encode")) }, "image/jpeg", quality);
     };
     img.onerror=function(){ reject(new Error("decode")) };
@@ -9787,7 +9817,7 @@ function videoProbe(file){   // duration + a poster frame (JPEG blob), read loca
     v.onloadedmetadata=function(){ var d=v.duration||0; try{ v.currentTime=Math.min(1, Math.max(0.1, d/2)) }catch(e){ finish(null,{duration:d,poster:null}) } };
     v.onseeked=function(){
       try{ var W=v.videoWidth||640, H=v.videoHeight||360, sc=Math.min(1, 960/W), c=document.createElement("canvas"); c.width=Math.round(W*sc); c.height=Math.round(H*sc);
-        c.getContext("2d").drawImage(v,0,0,c.width,c.height);
+        var pctx=c.getContext("2d"); pctx.drawImage(v,0,0,c.width,c.height); wmStamp(pctx,c.width,c.height);
         c.toBlob(function(b){ finish(null,{duration:v.duration||0, poster:b, width:W, height:H}) },"image/jpeg",0.82) }
       catch(e){ finish(null,{duration:v.duration||0, poster:null}) } };
   }) }
@@ -9847,8 +9877,8 @@ async function addFiles(list){
         var r=new FileReader(); r.onload=function(){res(r.result)};
         r.onerror=function(){rej(new Error("read"))}; r.readAsDataURL(files[i]);
       });
-      var full  = await shrink(raw, 1200, 0.80);
-      var thumb = await shrink(raw,  400, 0.72);
+      var full  = await shrink(raw, 1200, 0.80, true);
+      var thumb = await shrink(raw,  400, 0.72, true);
       NEW.photos.push({ full:full, thumb:thumb, preview:blobUrl(thumb),
                         kb:Math.round(full.size/1024) });
       paintShots();
@@ -12054,7 +12084,11 @@ var HS_T={
  rsMapDef:{ar:"إظهار الخريطة بجانب النتائج على الكمبيوتر (افتراضياً)",en:"Show the map beside the results on desktop (by default)",de:"Karte neben den Ergebnissen am Desktop (Standard)"},
  rsMarket:{ar:"إظهار متوسط سعر المتر تحت عنوان النتائج",en:"Show the average price per m² under the results title",de:"Ø Preis pro m² unter dem Ergebnistitel zeigen"},
  rsHint:{ar:"الزائر يستطيع إخفاء الخريطة أو إظهارها بنفسه؛ يُحفظ اختياره في جهازه.",en:"Visitors can hide or show the map themselves; the choice is remembered on their device.",de:"Besucher können die Karte selbst ein- oder ausblenden; die Wahl wird im Gerät gespeichert."},
- welcome:{ar:"رسالة الترحيب",en:"Welcome message",de:"Willkommensnachricht"}, wlOn:{ar:"إرسال رسالة ترحيب لكل عضو جديد",en:"Send a welcome message to every new member",de:"Jedem neuen Mitglied eine Willkommensnachricht senden"}, wlHint:{ar:"تظهر في جرس الإشعارات بعد إنشاء الحساب مباشرة، بلغة الزائر نفسها. اتركي الحقول فارغة لاستخدام النص الافتراضي.",en:"Shows in the notification bell right after sign-up, in the visitor's own language. Leave the fields empty to use the default text.",de:"Erscheint direkt nach der Registrierung in der Glocke, in der Sprache des Besuchers. Leer lassen für den Standardtext."}, wlTitle:{ar:"العنوان",en:"Title",de:"Titel"}, wlBody:{ar:"النص",en:"Text",de:"Text"},
+ welcome:{ar:"رسالة الترحيب",en:"Welcome message",de:"Willkommensnachricht"},
+ watermark:{ar:"العلامة المائية والحماية",en:"Watermark and protection",de:"Wasserzeichen und Schutz"}, wmHint:{ar:"يُطبع شعار بلكون داخل صور الإعلانات وصور الفيديو عند رفعها، فيبقى حتى لو حُفظت الصورة. الصور المرفوعة قبل التشغيل لا تتغيّر.",en:"The Balkoun mark is stamped into listing photos and video posters at upload, so it stays even if the image is saved. Photos uploaded before this was on are not changed.",de:"Das Balkoun-Zeichen wird beim Hochladen in Anzeigenfotos und Videoposter gestempelt und bleibt auch beim Speichern erhalten. Früher hochgeladene Fotos ändern sich nicht."},
+ wmOn:{ar:"طباعة الشعار في الصور عند الرفع",en:"Stamp the mark into photos at upload",de:"Zeichen beim Hochladen in Fotos stempeln"}, wmPos:{ar:"موضع الشعار",en:"Mark position",de:"Position des Zeichens"}, wm_br:{ar:"أسفل اليمين",en:"Bottom right",de:"Unten rechts"}, wm_bl:{ar:"أسفل اليسار",en:"Bottom left",de:"Unten links"}, wm_tr:{ar:"أعلى اليمين",en:"Top right",de:"Oben rechts"}, wm_tl:{ar:"أعلى اليسار",en:"Top left",de:"Oben links"},
+ wmSize:{ar:"حجم الشعار (% من عرض الصورة)",en:"Mark size (% of photo width)",de:"Größe (% der Fotobreite)"}, wmOp:{ar:"شفافية الشعار",en:"Mark opacity",de:"Deckkraft"}, wmVideoH:{ar:"الفيديو",en:"Video",de:"Video"}, wmVideo:{ar:"إظهار الشعار فوق مشغّل الفيديو",en:"Show the mark over the video player",de:"Zeichen über dem Videoplayer zeigen"},
+ wmLockH:{ar:"حماية الوسائط",en:"Media protection",de:"Medienschutz"}, wmLock:{ar:"منع الحفظ بالزر الأيمن والسحب والضغط المطوّل",en:"Block right-click, drag and long-press saving",de:"Speichern per Rechtsklick, Ziehen und langem Drücken blockieren"}, wmLockHint:{ar:"يصعّب الحفظ ولا يمنعه تماماً: لقطة الشاشة تبقى ممكنة، لذلك الحماية الحقيقية هي الشعار المطبوع.",en:"Makes saving harder but cannot prevent it: a screenshot is always possible, so the stamped mark is the real protection.",de:"Erschwert das Speichern, verhindert es aber nicht: ein Screenshot bleibt möglich, der echte Schutz ist das gestempelte Zeichen."}, wlOn:{ar:"إرسال رسالة ترحيب لكل عضو جديد",en:"Send a welcome message to every new member",de:"Jedem neuen Mitglied eine Willkommensnachricht senden"}, wlHint:{ar:"تظهر في جرس الإشعارات بعد إنشاء الحساب مباشرة، بلغة الزائر نفسها. اتركي الحقول فارغة لاستخدام النص الافتراضي.",en:"Shows in the notification bell right after sign-up, in the visitor's own language. Leave the fields empty to use the default text.",de:"Erscheint direkt nach der Registrierung in der Glocke, in der Sprache des Besuchers. Leer lassen für den Standardtext."}, wlTitle:{ar:"العنوان",en:"Title",de:"Titel"}, wlBody:{ar:"النص",en:"Text",de:"Text"},
  cards:{ar:"بطاقات النتائج",en:"Result cards",de:"Ergebniskarten"}, badges:{ar:"الشارات",en:"Badges",de:"Abzeichen"}, results:{ar:"صفحة النتائج",en:"Results page",de:"Ergebnisseite"}, nav:{ar:"الرأس والقائمة",en:"Header and menu",de:"Kopfzeile und Menü"},
  cardW:{ar:"أصغر عرض للبطاقة (px)",en:"Minimum card width (px)",de:"Mindestbreite der Karte (px)"}, cardHint:{ar:"كلما صغُر الرقم زاد عدد البطاقات في الصف.",en:"The smaller the number, the more cards fit in a row.",de:"Je kleiner die Zahl, desto mehr Karten pro Reihe."},
  social:{ar:"حسابات التواصل",en:"Social accounts",de:"Soziale Konten"}, numbers:{ar:"أرقام التواصل",en:"Contact numbers",de:"Kontaktnummern"},
@@ -12200,6 +12234,10 @@ function hsInspDesign(){
   if(sd==="cards"){ H.push(fHint(hsT("dualHint")), fDual(hsT("cardW"),"c:card_min_width","c:card_min_width_mobile",90,500,10), fHint(hsT("cardHint"))); }
   else if(sd==="badges"){ H.push(fGrp(t("featuredH")), fSwitch(t("showFeaturedBadge"),"c:featured_badge_enabled",true,true), fHint(hsT("textsHint")), fText(t("featuredBadgeTextL"),"c:featured_badge",t("featuredBadgeDefault")),
       fSlider(t("featuredBrightnessL"),"c:featured_brightness",null,0,100,5,"%",20,true), fHint(t("featuredBrightnessHint")), fGrp(t("newBadgeH")), fNum(t("newBadgeHoursL"),"c:new_badge_hours",0,720,1,24,true), fHint(t("newBadgeHint"))); }
+  else if(sd==="watermark"){
+    H.push(fHint(hsT("wmHint")), fSwitch(hsT("wmOn"),"x:wm_on",true,true), fSel(hsT("wmPos"),"x:wm_pos",[["br",hsT("wm_br")],["bl",hsT("wm_bl")],["tr",hsT("wm_tr")],["tl",hsT("wm_tl")]],"br",true),
+      fSlider(hsT("wmSize"),"x:wm_size",null,6,40,1,"%",14,true), fSlider(hsT("wmOp"),"x:wm_opacity",null,20,100,5,"%",70,true),
+      fGrp(hsT("wmVideoH")), fSwitch(hsT("wmVideo"),"x:wm_video",true,true), fGrp(hsT("wmLockH")), fSwitch(hsT("wmLock"),"x:wm_lock",true,true), fHint(hsT("wmLockHint"))); }
   else if(sd==="welcome"){ var lg=hsLang(), WT=GX_T.notif_welcomeT||{}, WB=GX_T.notif_welcomeB||{};
     H.push(fSwitch(hsT("wlOn"),"x:welcome_on",true,true), fHint(hsT("wlHint")), fHint(hsT("textsHint")), fText(hsT("wlTitle"),"x:welcome_t",WT[lg]||WT.en||""), fArea(hsT("wlBody"),"x:welcome_b",WB[lg]||WB.en||"")); }
   else if(sd==="results"){ H.push('<div class="row">'+fNum(GX("xPageSize"),"x:search_page_size",6,96,1,24,true)+fNum(GX("xSimilar"),"x:similar_count",0,24,1,12)+'</div>', fSwitch(hsT("rsMapDef"),"x:results_map_default",true,true), fSwitch(hsT("rsMarket"),"x:results_market_line",true,true), fHint(hsT("rsHint"))); }
@@ -12295,7 +12333,7 @@ function hsInspHome(){
 function hsOutlineHtml(){
   if(HS.page==="ads") return hsOutlineAds();
   if(HS.page==="banners") return hsOutlineBanners();
-  if(HS.page==="design") return hsOutlineSimple([["cards",ICON_GRID],["badges",AICO.star],["results",AICO.search],["nav",AICO.home2],["welcome",AICO.contact]]);
+  if(HS.page==="design") return hsOutlineSimple([["cards",ICON_GRID],["badges",AICO.star],["results",AICO.search],["nav",AICO.home2],["welcome",AICO.contact],["watermark",AICO.star]]);
   if(HS.page==="contact") return hsOutlineSimple([["social",AICO.users],["numbers",AICO.contact]]);
   return hsOutlineHome();
 }
