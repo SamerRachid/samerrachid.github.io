@@ -3736,9 +3736,7 @@ function authModal(){
    '<div class="auf"><label>'+t("password")+'</label>'+pwField("auPass","new-password",t("min6"))+'</div>'+
    '<div class="auf"><label>'+t("password2")+'</label>'+pwField("auPass2","new-password")+'</div>'+
    '<div class="auf"><label>'+t("defaultCurrencyL")+'</label>'+
-    '<select id="auCurrency">'+
-     '<option value="SYP"'+(AU.currency==="SYP"?" selected":"")+'>'+t("currSYP")+'</option>'+
-     '<option value="USD"'+((AU.currency||"USD")==="USD"?" selected":"")+'>'+t("currUSD")+'</option>'+
+    '<select id="auCurrency">'+wCurrencies().map(function(c){ var cur=(AU.currency||CUR||"USD").toUpperCase(); if(wCurrencies().indexOf(cur)<0) cur="USD"; return '<option value="'+c+'"'+(c===cur?' selected':'')+'>'+(c==="USD"?t("currUSD"):c==="SYP"?t("currSYP"):c+' '+esc(curLabel(c,L)))+'</option>' }).join("")+
     '</select></div>'+
    '<label class="agree"><input type="checkbox" id="auAgree">'+
    '<span>'+t("agreeIntro")+'</span></label>'+
@@ -4738,7 +4736,7 @@ function post(){
  '<div class="blk"><h3><span class="n">6</span>'+t("p5")+'</h3><div class="in"><div class="row">'+
   '<div class="fl"><label class="req" id="priceLabel">'+t("price")+'</label>'+
    '<div style="display:flex;gap:8px"><input type="number" id="pp" autocomplete="off" placeholder="" style="flex:1">'+
-   '<select style="width:92px"><option>USD</option><option>SYP</option></select></div>'+
+   curSelHtml("pcur", NEW.pcur||CUR)+'</div>'+
    '<div class="hintx" id="ppm"></div></div>'+
   '<div class="fl"><label>'+t("contactName")+'</label>'+
    '<input id="pname" autocomplete="off" value="'+esc(fullName(USER))+'" readonly'+
@@ -4771,8 +4769,8 @@ function editView(){
  '<h1 style="font-size:22px;font-weight:700">'+t("editListing")+' <span class="ltr" style="font-size:14px;color:var(--grey)">'+(x.ref||x.id)+'</span></h1>'+
  '<p style="color:var(--grey);font-size:14px;margin-bottom:16px">'+t("editP")+'</p>'+
  '<div class="blk"><h3><span class="n">1</span>'+t("price")+'</h3><div class="in">'+
-  '<div class="row"><div class="fl"><label class="req">'+t("price")+' USD</label>'+
-   '<input type="number" id="ePrice" value="'+x.p+'" autocomplete="off">'+
+  '<div class="row"><div class="fl"><label class="req">'+t("price")+'</label>'+
+   '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+x.p+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur","USD")+'</div>'+
    (x.orig&&x.orig>x.p?'<div class="hintx">'+t("wasPrice")+' <span class="ltr">'+money(x.orig)+'</span></div>':'')+
    '</div>'+
   '<div class="fl"><label class="req">'+t("areaM")+'</label><input type="number" id="eArea" value="'+x.m2+'" autocomplete="off"></div></div>'+
@@ -6695,6 +6693,9 @@ var WANTED=null, WANTEDONE=null, MYWANTED=null, WF={deal:"",g:"",t:"",tab:"all"}
 function wantedOn(){ return SX("wanted_enabled",true)!==false }
 function wTypeName(k){ return k && D.TYPES[k] ? D.TYPES[k][li()] : "" }
 function wMoney(n,cur){ n=+n||0; cur=(cur||"USD").toUpperCase(); return cur==="USD" ? '<span class="ltr">$'+n.toLocaleString("en")+'</span>' : '<span class="ltr">'+n.toLocaleString("en")+'</span> '+curLabel(cur,L) }
+function curSelHtml(id, sel, extraStyle){ var list=wCurrencies(); sel=(sel||"").toUpperCase(); if(list.indexOf(sel)<0) sel=list[0];
+  return '<select id="'+id+'" style="'+(extraStyle||"width:110px")+'">'+list.map(function(c){ return '<option value="'+c+'"'+(c===sel?' selected':'')+'>'+c+' '+esc(curLabel(c,L))+'</option>' }).join("")+'</select>' }
+function toUsdFrom(v, cur){ v=+v||0; cur=(cur||"USD").toUpperCase(); if(cur==="USD"||!v) return v; var r=curRate(cur); return r>0 ? Math.round(v/r) : v }
 function wCurrencies(){ var c=countryOf(COUNTRY), list=(c&&c.currencies&&c.currencies.length)?c.currencies.slice():["USD","SYP"]; if(list.indexOf("USD")<0) list.unshift("USD"); return list }
 function wBudgetText(w){ var a=w.budget_min, b=w.budget_max; if(!a&&!b) return GX("wOpenBudget"); if(a&&b) return GX("wFromTo").replace("{a}",wMoney(a,w.currency)).replace("{b}",wMoney(b,w.currency)); if(b) return GX("wUpTo").replace("{n}",wMoney(b,w.currency)); return GX("wFromN").replace("{a}",wMoney(a,w.currency)) }
 function wTitle(w){ if(w.title) return esc(w.title); return GX("wAuto").replace("{t}",wTypeName(w.property_type)||GX("wProp")).replace("{d}",w.deal==="rent"?GX("wForRent"):GX("wForBuy")).replace("{g}",w.gov_name?gN(w.gov_name):GX("wAnywhere")) }
@@ -7867,7 +7868,7 @@ function wire(){
    this.disabled=true; this.textContent=t("saving");
    try{
      var patch={};
-     if(v("ePrice")) patch.price_usd=+v("ePrice");
+     if(v("ePrice")) patch.price_usd=toUsdFrom(v("ePrice"), v("ecur"));
      if(v("eArea"))  patch.area_m2=+v("eArea");
      patch.rooms = v("eRooms")?+v("eRooms"):null;
      patch.baths = v("eBaths")?+v("eBaths"):null;
@@ -8049,7 +8050,8 @@ function wire(){
    if($("#pm2")) $("#pm2").addEventListener("input",syncForm);
    syncForm();
    $("#pd").oninput=function(){$("#dc").textContent=this.value.length;checkPost()};
-   $("#pp").oninput=function(){var a=+$("#pm2").value,p=+this.value;
+   if($("#pcur")) $("#pcur").onchange=function(){ NEW.pcur=this.value; if($("#pp")) $("#pp").oninput() };
+   $("#pp").oninput=function(){var a=+$("#pm2").value,p=toUsdFrom(this.value,($("#pcur")||{}).value);
      var isRentNow=($('input[name=dl]:checked')||{}).value==="rent";
      $("#ppm").textContent=isRentNow?"":((a>0&&p>0)?("≈ $"+Math.round(p/a).toLocaleString("en")+" "+t("perm")):"");checkPost()};
    $$('input[name=tb2]').forEach(function(r){r.onchange=function(){
@@ -10236,7 +10238,7 @@ async function savePost(){
       property_type: val("ptype"),
       governorate_id: g.data.id,
       area_id: (a.data&&a.data[0])?a.data[0].id:null,
-      price_usd: parseInt(val("pp"),10),
+      price_usd: toUsdFrom(parseInt(val("pp"),10), val("pcur")),
       area_m2: Math.round((parseFloat(val("pm2"))||0) * (parseInt(val("pUnit"),10)||1)),
       rooms: secOf(val("ptype"))==="land" ? null : (parseInt(val("pr"),10)||null),
       baths: secOf(val("ptype"))==="land" ? null : (parseInt(val("pb"),10)||null),
