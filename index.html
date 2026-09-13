@@ -1686,9 +1686,8 @@ footer{font-size:14px}
 .home-hero .stabs button{border:0;border-radius:8px;padding:0 13px;height:34px;font:600 15px var(--fd);color:var(--grey);background:transparent;transition:color .2s,background .2s,box-shadow .2s}
 .home-hero .stabs button.on{background:var(--navy);color:#fff;box-shadow:0 6px 14px -8px rgba(20,33,61,.7)}
 .home-hero .stabs button:not(.on):hover{color:var(--navy)}
-.home-hero .srow{grid-template-columns:1.05fr 1.2fr 1.1fr 1.2fr .78fr .9fr auto auto;gap:6px}
+.home-hero .srow{grid-template-columns:1fr 1.15fr 1.1fr 1.2fr .95fr .9fr auto auto;gap:6px}
 @media(min-width:701px) and (max-width:1099px){.home-hero .srow .sf-rooms{display:none}.home-hero .srow{grid-template-columns:1.05fr 1.3fr 1.15fr 1fr .9fr auto auto}}
-.home-hero .sf-sel select:has(option:checked:not([value=""])){color:var(--ink)}
 .home-hero .sf{border:1px solid var(--line);border-radius:9px;padding:0;min-height:40px;height:40px;background:#fff;position:relative;transition:border-color .2s,box-shadow .2s;display:flex;align-items:stretch}
 .home-hero .sf:hover{border-color:#C3C8D2}
 .home-hero .sf:focus-within,.home-hero .sf:has(.chipsel-drop.on){border-color:var(--gold);box-shadow:0 0 0 3px rgba(196,136,31,.14)}
@@ -2179,11 +2178,11 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 @media(max-width:1100px){.rs-fin{flex-wrap:wrap}}
 .rs-fh,.rs-ff{display:none}
 .rs-deal{display:inline-flex;background:var(--page);border-radius:999px;padding:3px;gap:2px;flex:none}
-.rs-deal button{border:0;background:transparent;font:600 13px var(--f);color:var(--grey);padding:7px 12px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.rs-deal button{border:0;background:transparent;font:600 13px var(--f);color:var(--grey);padding:7px 10px;border-radius:999px;cursor:pointer;white-space:nowrap}
 .rs-deal button.on{background:var(--navy);color:#fff}
-.rs-f{position:relative;min-width:0;flex:1 1 120px;max-width:170px}
+.rs-f{position:relative;min-width:0;flex:1 1 auto;max-width:190px}
 .rs-f .chipsel,.rs-f .chipsel-box{height:40px;width:100%}
-.rs-f .cs-compact .chipsel-box{border:1px solid var(--line-2);border-radius:999px;padding:0 12px 0 14px;background:#fff;cursor:pointer;display:flex;align-items:center;gap:8px;position:relative;transition:border-color .15s}
+.rs-f .cs-compact .chipsel-box{border:1px solid var(--line-2);border-radius:999px;padding:0 11px 0 12px;background:#fff;cursor:pointer;display:flex;align-items:center;gap:8px;position:relative;transition:border-color .15s}
 .rs-f .cs-compact .chipsel-box:hover,.rs-f .cs-compact:has(.chipsel-drop.on) .chipsel-box{border-color:var(--navy)}
 .rs-f .cs-compact .cs-sum{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font:600 13.5px/1.2 var(--f);color:var(--ink)}
 .rs-f .cs-compact .cs-sum .ph{color:var(--grey);font-weight:500}
@@ -2197,8 +2196,10 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .rs-f .chipsel-drop{top:calc(100% + 8px);min-width:260px;border-radius:14px}
 .rs-f:has(.chipsel-drop.on),.rs-f:has(.pricepop:not([hidden])),.rs-f:has(.rs-morepop.on){z-index:6}
 .rs-f .chipsel-tags{display:none}
-.rs-f select,.rs-f .pricetrig,.rs-morebtn{height:40px;width:100%;border:1px solid var(--line-2);border-radius:999px;background:#fff;font:600 13.5px var(--f);color:var(--ink);padding:0 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;text-align:start;appearance:none;-webkit-appearance:none}
+.rs-f select,.rs-f .pricetrig,.rs-morebtn{height:40px;width:100%;border:1px solid var(--line-2);border-radius:999px;background:#fff;font:600 13.5px var(--f);color:var(--ink);padding:0 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;cursor:pointer;text-align:start;appearance:none;-webkit-appearance:none}
 .rs-f .pricetrig .ph{color:var(--grey);font-weight:500}
+.rs-morebtn{color:var(--grey);font-weight:500}.rs-morebtn b{color:var(--gold-dk)}
+.rs-save{color:var(--grey)!important;font-weight:500!important}.rs-save:hover{color:var(--navy)!important}
 .rs-f .pricetrig svg,.rs-morebtn svg{width:12px;height:12px;opacity:.5;flex:none}
 .rs-f .pricetrig.set{border-color:var(--navy)}
 .rs .pricepop{position:absolute;top:calc(100% + 8px);inset-inline-start:0;z-index:40;width:300px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 50px -20px rgba(9,14,26,.45);padding:14px;text-align:start}
@@ -3141,15 +3142,13 @@ var L=detectLang(), CUR=detectCurrency(), VIEW="home", GI=0, LIGHTBOX_OPEN=false
 // ?preview=1 — the page is embedded in the admin's homepage studio: no analytics, no curtain, settings arrive by postMessage
 var PREVIEW=/[?&]preview=1/.test(location.search), _pvLast=null;
 if(PREVIEW){ var _pl=(location.search.match(/[?&]lang=(ar|en|de|fr)/)||[])[1]; if(_pl) L=_pl; }
-var F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:"",sec:"",deal:"sale",sort:"new",page:1,ownerOnly:false};
+var F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:[],sec:"",deal:"sale",sort:"new",page:1,ownerOnly:false};
 function roomsLabel(v){ v=String(v||""); if(!v) return GX("roomsField"); if(v==="1") return GX("rooms1"); if(v==="2") return GX("rooms2"); return GX("roomsN").replace("{n}", v==="10" ? "10+" : v) }
-function roomsSelHtml(cls,id,chev){   // one select for the hero bar, the results filters and the map panel
-  return '<div class="'+cls+'"><select id="'+(id||"hRooms")+'" aria-label="'+esc(GX("roomsField"))+'"><option value=""'+(F.rooms?"":" selected")+'>'+esc(GX("roomsField"))+'</option>'+
-    [1,2,3,4,5,6,7,8,9,10].map(function(n){ return '<option value="'+n+'"'+(String(F.rooms)===String(n)?" selected":"")+'>'+esc(roomsLabel(n))+'</option>' }).join("")+'</select>'+(chev?CHEV:'')+'</div>' }
-function roomsPass(x){ if(!F.rooms) return true; var r=+x.r||0; return F.rooms==="10" ? r>=10 : r===+F.rooms }
+function roomsOptions(){ return [1,2,3,4,5,6,7,8,9,10].map(function(n){ return {value:String(n),label:roomsLabel(n)} }) }
+function roomsPass(x){ var sel=F.rooms||[]; if(!sel.length) return true; var r=+x.r||0; return sel.some(function(v){ return v==="10" ? r>=10 : r===+v }) }
 var MOBILE_FILTERS_OPEN=false;
 function activeFilterCount(){
-  var n=0; if(F.rooms) n++;
+  var n=0; if(F.rooms&&F.rooms.length) n+=F.rooms.length;
   if(F.govs&&F.govs.length) n+=F.govs.length; else if(F.g) n++;
   if(F.areas&&F.areas.length) n+=F.areas.length; else if(F.a) n++;
   if(F.types&&F.types.length) n+=F.types.length; else if(F.t) n++;
@@ -4235,7 +4234,7 @@ function rsChipsHtml(){
  if(F.cd) c.push(["cd",F.cd,(D.COND[F.cd]||D.LANDC[F.cd]||[F.cd,F.cd,F.cd])[li()]]);
  if(F.deal==="rent"&&F.furn) c.push(["furn",F.furn,F.furn==="yes"?t("furnYes"):t("furnNo")]);
  if(F.deal==="rent"&&F.rentalPeriod) c.push(["rentalPeriod",F.rentalPeriod,t("period"+F.rentalPeriod.charAt(0).toUpperCase()+F.rentalPeriod.slice(1))]);
- if(F.rooms) c.push(["rooms",F.rooms,roomsLabel(F.rooms)]);
+ (F.rooms||[]).forEach(function(v){ c.push(["rooms",v,roomsLabel(v)]) });
  if(F.pmin||F.pmax) c.push(["price","",heroPriceLabel().replace(/<[^>]+>/g,"")]);
  if(F.ownerOnly) c.push(["ownerOnly","",t("owneronly")]);
  if(!c.length) return "";
@@ -4259,7 +4258,7 @@ function rsFiltersHtml(count){
    (F.deal==="rent"
      ? '<div class="rs-f rs-fsel"><select id="hFurn" aria-label="'+(L==="ar"?GX("furnField"):t("furnishedL"))+'"><option value=""'+(F.furn===""?" selected":"")+'>'+(L==="ar"?GX("furnField"):t("furnishedL"))+'</option><option value="yes"'+(F.furn==="yes"?" selected":"")+'>'+t("furnYes")+'</option><option value="no"'+(F.furn==="no"?" selected":"")+'>'+t("furnNo")+'</option></select></div>'
      : '<div class="rs-f">'+chipSelect("csTabu",t("deed"),F.tbs||[],function(v){ return D.TABU[v]?D.TABU[v][li()]:v},true)+'</div>')+
-   roomsSelHtml("rs-f rs-fsel rs-frooms"+(F.rooms?" set":""))+
+   '<div class="rs-f rs-frooms">'+chipSelect("csRooms",GX("roomsField"),F.rooms||[],roomsLabel,true)+'</div>'+
    '<div class="rs-f rs-fprice"><button type="button" class="pricetrig'+((F.pmin||F.pmax)?' set':'')+'" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
      '<div class="pricepop" id="hPricePop" hidden data-title="'+esc(GX("price"))+' ('+(CUR==="USD"?"USD":curLabel(CUR,L))+')"><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*rate):"")+'"></label>'+
      '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*rate):"")+'"></label></div>'+
@@ -4325,7 +4324,6 @@ function rsWire(opts){
   wireChipSelects();
   $$("[data-rsdeal]").forEach(function(b){ b.onclick=function(){ F.deal=this.dataset.rsdeal||""; if(F.deal!=="rent"){ F.furn=""; F.rentalPeriod="" } F.page=1; render() } });
   if($("#hFurn")) $("#hFurn").onchange=function(){ F.furn=this.value; F.page=1; render() };
-  if($("#hRooms")) $("#hRooms").onchange=function(){ F.rooms=this.value; F.page=1; render() };
   var pop=$("#hPricePop"), rate=curRate(), toUsd=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/rate) };
   var applyPrice=function(){ F.pmin=toUsd(($("#hPmin")||{}).value); F.pmax=toUsd(($("#hPmax")||{}).value); if(F.pmax&&F.pmin>F.pmax){ var sw=F.pmin; F.pmin=F.pmax; F.pmax=sw } F.page=1; render() };
   if($("#hPrice")){ $("#hPrice").onclick=function(e){ e.stopPropagation(); closeAllMenus(pop); var mp=$("#rsMorePop"); if(mp) mp.classList.remove("on"); pop.hidden=!pop.hidden; if(!pop.hidden) setTimeout(function(){ var i=$("#hPmin"); if(i) i.focus() },30) };
@@ -4343,7 +4341,7 @@ function rsWire(opts){
   $$("[data-rschip]").forEach(function(b){ b.onclick=function(){ var k=this.dataset.rschip, v=this.dataset.rsval;
     if(k==="price"){ F.pmin=0; F.pmax=0 } else if(k==="ownerOnly"){ F.ownerOnly=false } else if(Array.isArray(F[k])){ F[k]=F[k].filter(function(x){ return x!==v }) } else { F[k]="" }
     F.page=1; render() } });
-  var clear=function(){ F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:"",pmin:0,pmax:0,ownerOnly:false,sec:F.sec,deal:F.deal,sort:"new",page:1}; render() };
+  var clear=function(){ F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:[],pmin:0,pmax:0,ownerOnly:false,sec:F.sec,deal:F.deal,sort:"new",page:1}; render() };
   if($("#clr")) $("#clr").onclick=clear; if($("#clrM")) $("#clrM").onclick=clear;
   $$("#sort,#sortM").forEach(function(sel){ sel.onchange=function(){ F.sort=this.value; F.page=1; render() } });
   if($("#vmGrid")) $("#vmGrid").onclick=function(){ VIEWMODE="grid"; try{localStorage.setItem("balkoun_viewmode","grid")}catch(e){} render() };
@@ -7091,7 +7089,7 @@ function mapFilterZoneHtml(){
        '<option value="">'+t("dealAll")+'</option>'+
        Object.keys(D.TABU).map(function(k){return '<option value="'+k+'"'+(mapF("tbs")===k?" selected":"")+'>'+D.TABU[k][li()]+'</option>'}).join("")+
       '</select></div></div>'+
-     '<div class="row" style="margin-top:10px"><div class="fl"><label>'+GX("roomsField")+'</label><select id="mapFRooms"><option value="">'+t("dealAll")+'</option>'+[1,2,3,4,5,6,7,8,9,10].map(function(n){ return '<option value="'+n+'"'+(String(F.rooms)===String(n)?" selected":"")+'>'+esc(roomsLabel(n))+'</option>' }).join("")+'</select></div></div>'+
+     '<div class="row" style="margin-top:10px"><div class="fl"><label>'+GX("roomsField")+'</label><select id="mapFRooms"><option value="">'+t("dealAll")+'</option>'+[1,2,3,4,5,6,7,8,9,10].map(function(n){ return '<option value="'+n+'"'+((F.rooms||[]).indexOf(String(n))>-1?" selected":"")+'>'+esc(roomsLabel(n))+'</option>' }).join("")+'</select></div></div>'+
      '<div class="row" style="margin-top:10px">'+
       '<div class="fl"><label>'+GX("price")+' · '+GX("from")+' ('+(curLabel(CUR,"ar"))+')</label><input id="mapFPmin" type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(curRate())):"")+'"></div>'+
       '<div class="fl"><label>'+GX("to")+'</label><input id="mapFPmax" type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(curRate())):"")+'"></div></div>'+
@@ -7126,12 +7124,12 @@ function wireMapFilterZone(){
   if($("#mapFArea")) $("#mapFArea").onchange=function(){ setF("areas",this.value); F.a=""; updateMapFilterZone() };
   if($("#mapFType")) $("#mapFType").onchange=function(){ setF("types",this.value); F.t=""; updateMapFilterZone() };
   if($("#mapFTabu")) $("#mapFTabu").onchange=function(){ setF("tbs",this.value); F.tb=""; updateMapFilterZone() };
-  if($("#mapFRooms")) $("#mapFRooms").onchange=function(){ F.rooms=this.value; updateMapFilterZone() };
+  if($("#mapFRooms")) $("#mapFRooms").onchange=function(){ F.rooms=this.value?[this.value]:[]; updateMapFilterZone() };
   var toUsdM=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/(curRate())) };
   if($("#mapFPmin")) $("#mapFPmin").onchange=function(){ F.pmin=toUsdM(this.value) };
   if($("#mapFPmax")) $("#mapFPmax").onchange=function(){ F.pmax=toUsdM(this.value) };
   if($("#mapFiltersClear")) $("#mapFiltersClear").onclick=function(){
-    F.govs=[]; F.areas=[]; F.types=[]; F.tbs=[]; F.g=""; F.a=""; F.t=""; F.tb=""; F.cd=""; F.furn=""; F.rentalPeriod=""; F.rooms=""; F.pmin=0; F.pmax=0;
+    F.govs=[]; F.areas=[]; F.types=[]; F.tbs=[]; F.g=""; F.a=""; F.t=""; F.tb=""; F.cd=""; F.furn=""; F.rentalPeriod=""; F.rooms=[]; F.pmin=0; F.pmax=0;
     // clearing genuinely changes which pins should show, so — unlike
     // just opening/browsing the panel — this legitimately does need
     // to refresh the map and the results count together
@@ -7298,7 +7296,8 @@ var CS_CONFIGS={
   csGov:{getOptions:function(){return Object.keys(D.GEO).map(function(g){return {value:g,label:gN(g)}})}, arrKey:"govs"},
   csArea:{getOptions:function(){return csAllAreas().map(function(a){return {value:a,label:aN(a)}})}, arrKey:"areas"},
   csType:{getOptions:csTypeOptions, arrKey:"types"},
-  csTabu:{getOptions:csTabuOptions, arrKey:"tbs"}
+  csTabu:{getOptions:csTabuOptions, arrKey:"tbs"},
+  csRooms:{getOptions:roomsOptions, arrKey:"rooms"}
 };
 var _csDocListenerAdded=false;
 // height of the visible area (shrinks when the phone keyboard is up) for the filter sheets
@@ -7494,7 +7493,7 @@ function heroSearchBarHtml(){
        '</select>'+CHEV+'</div>'
      : '<div class="sf">'+chipSelect("csTabu",t("deed"),F.tbs||[],function(v){
         return D.TABU[v]?D.TABU[v][li()]:v},true)+'</div>')+
-   roomsSelHtml("sf sf-sel sf-rooms","hRooms",true)+
+   '<div class="sf sf-rooms">'+chipSelect("csRooms",GX("roomsField"),F.rooms||[],roomsLabel,true)+'</div>'+
    '<div class="sf sf-price"><button type="button" class="pricetrig" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
      '<div class="pricepop" id="hPricePop" hidden><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(curRate())):"")+'"></label>'+
      '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(curRate())):"")+'"></label></div>'+
@@ -7506,7 +7505,6 @@ function heroSearchBarHtml(){
 function wireHeroBar(){
    wireChipSelects();
    if($("#hFurn")) $("#hFurn").addEventListener("change",function(){F.furn=this.value;softRenderHero()});
-   if($("#hRooms")) $("#hRooms").addEventListener("change",function(){F.rooms=this.value;softRenderHero()});
    if($("#hPrice")){ // hero price range: popover with min / max and quick presets (values kept in USD like the rest of the filter)
      var pop=$("#hPricePop"), rate=curRate(), toUsd=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/rate) };
      var applyPrice=function(){ F.pmin=toUsd($("#hPmin").value); F.pmax=toUsd($("#hPmax").value); if(F.pmax&&F.pmin>F.pmax){ var sw=F.pmin; F.pmin=F.pmax; F.pmax=sw } softRenderHero() };
