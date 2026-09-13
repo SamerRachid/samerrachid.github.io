@@ -2610,6 +2610,9 @@ body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
 .mdw2-row.out{color:var(--danger)}.mdw2-row.out>.mi{color:var(--danger)}
 .mdw2-foot{margin:10px 14px 0;padding:14px 0 4px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
 .mdw2-seg{display:flex;background:var(--page);border-radius:12px;padding:3px;gap:2px}
+.mdw2-crow{display:flex;align-items:center;gap:10px;width:100%;background:var(--page);border:0;border-radius:12px;padding:10px 12px;font:inherit;color:var(--navy);cursor:pointer;text-align:start}
+.mdw2-crow .flg{width:26px;height:17px;border-radius:3px;flex:none}.mdw2-crow b{font-size:14px;font-weight:700;flex:1}.mdw2-crow span{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:600;color:var(--gold-dk,#8A6522)}.mdw2-crow span svg{width:11px;height:11px}
+.cpickw .menu{max-height:60vh;overflow-y:auto}
 .mdw2-seg a{flex:1;text-align:center;padding:9px 6px;border-radius:9px;font-size:13px;font-weight:600;color:var(--grey);cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:6px}
 .mdw2-seg a.on{background:#fff;color:var(--navy);box-shadow:0 1px 2px rgba(20,33,61,.12)}
 .mdw2-seg .langflag{display:inline-flex;width:18px;height:12px;overflow:hidden;border-radius:2px}.mdw2-seg .langflag svg{width:18px;height:12px}
@@ -3098,7 +3101,9 @@ function countryPickHtml(where){
   var en=countryList().filter(function(c){ return c.enabled }); if(en.length<2) return "";
   if(where==="header"){ var c=countryOf(COUNTRY)||en[0];
     return '<div class="cpickw"><button type="button" class="mini cchip" id="cchip" aria-label="'+esc(GX("cCountry"))+'">'+flagSvg(c.code)+'<span>'+esc(c.code)+'</span></button><div class="menu" id="cMenu">'+en.map(function(x){ return '<a data-cpick="'+x.code+'" class="'+(x.code===COUNTRY?'on':'')+'">'+flagSvg(x.code)+esc(countryName(x))+'</a>' }).join("")+'</div></div>' }
-  return '<div class="mdw2-sec"><div class="mdw2-h">'+GX("cCountry")+'</div><div class="mdw2-seg cseg">'+en.map(function(x){ return '<a class="'+(x.code===COUNTRY?'on':'')+'" data-cpick="'+x.code+'">'+flagSvg(x.code)+esc(countryName(x))+'</a>' }).join("")+'</div></div>';
+  // the drawer shows only the current country; the full list opens in the chooser (many countries would not fit in a row)
+  var cur=countryOf(COUNTRY)||en[0];
+  return '<div class="mdw2-sec"><div class="mdw2-h">'+GX("cCountry")+'</div><button type="button" class="mdw2-crow" id="mdwCountry">'+flagSvg(cur.code)+'<b>'+esc(countryName(cur))+'</b><span>'+GX("cChange")+' '+CHEV+'</span></button></div>';
 }
 var _bootLoads=null;
 async function switchCountry(code, o){
@@ -3440,6 +3445,7 @@ function wireDrawer(){
   $$("[data-md]").forEach(function(a){ a.onclick=function(){ var el=$("#"+this.dataset.md); mdwClose(); if(el) el.click() } });
   $$("[data-mdcur]").forEach(function(a){ a.onclick=function(){ if(this.dataset.mdcur!==CUR){ var c=$("#cur"); if(c) c.click() } else mdwClose() } });
   $$("[data-cpick]").forEach(function(a){ a.onclick=function(e){ e.preventDefault(); var code=this.dataset.cpick; var m=$("#cMenu"); if(m) m.classList.remove("on"); mdwClose(); switchCountry(code) } });
+  if($("#mdwCountry")) $("#mdwCountry").onclick=function(e){ e.preventDefault(); mdwClose(); showChooser() };
   var cch=$("#cchip"); if(cch) cch.onclick=function(e){ e.stopPropagation(); var m=$("#cMenu"); closeAllMenus(m); if(m) m.classList.toggle("on") };
   $$("[data-mdscroll]").forEach(function(a){ a.onclick=function(e){ e.preventDefault(); var id=this.dataset.mdscroll; mdwClose();
     var go=function(){ var el=$("#"+id); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}) };
@@ -11773,6 +11779,7 @@ var GX_T={
   cEditing:{ar:"تعدّل الآن",en:"Editing",de:"Bearbeitung"}, cSwitchTo:{ar:"انتقل إلى دولة أخرى",en:"Switch to another country",de:"Zu einem anderen Land wechseln"}, cOffShort:{ar:"متوقفة",en:"off",de:"aus"},
   navCountries:{ar:"الدول والأسواق",en:"Countries and markets",de:"Länder und Märkte"},
   cAll:{ar:"كل الدول",en:"All countries",de:"Alle Länder"},
+  cChange:{ar:"تغيير",en:"Change",de:"Ändern",fr:"Changer"},
   notifDel:{ar:"حذف الإشعار",en:"Delete notification",de:"Benachrichtigung löschen",fr:"Supprimer la notification"}, notifClearAll:{ar:"مسح الكل",en:"Clear all",de:"Alle löschen",fr:"Tout effacer"},
   noLimit:{ar:"بلا حد",en:"No limit",de:"Ohne Limit",fr:"Sans limite"},
   notif_welcomeT:{ar:"أهلاً بك في بلكون 👋",en:"Welcome to Balkoun 👋",de:"Willkommen bei Balkoun 👋",fr:"Bienvenue sur Balkoun 👋"},
