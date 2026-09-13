@@ -2342,7 +2342,7 @@ body.rs-lock{overflow:hidden}
 .hnav .hsoon{display:inline-flex;align-items:center;gap:6px}
 .hnav .hsoon i{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#1A1206;background:var(--gold);border-radius:999px;padding:1px 6px;line-height:1.5;transform:translateY(-7px)}
 /* header links never break into two lines; when the signed-in tools need the room, the gaps tighten first and the coming-soon links step back into the menu */
-@media(min-width:861px){.hnav a{white-space:nowrap}.hbar{gap:clamp(10px,1.2vw,16px)}.hnav{gap:clamp(10px,1.1vw,14px);font-size:14px}.hsoon{gap:4px}.hsoon i{font-size:8.5px;padding:0 5px;transform:translateY(-6px)}}
+@media(min-width:861px){.hnav a{white-space:nowrap}.hbar{gap:clamp(10px,1.2vw,16px)}.hnav{gap:clamp(10px,1.1vw,14px);font-size:14px}.hsoon{gap:3px}.hsoon i{font-size:8.5px;padding:0 5px;transform:translateY(-6px)}[dir=rtl] .hnav .hsoon{flex-direction:row-reverse}}
 @media(min-width:861px) and (max-width:1240px){.hnav a[data-soon]{display:none}}
 @media(min-width:861px) and (max-width:1000px){.hnav a[data-go="projects"]{display:none}}
 @media(min-width:861px) and (max-width:960px){.hnav a[data-go="wanted"]{display:none}}
@@ -3502,7 +3502,7 @@ function header(){
   '<a class="logo blogo" data-go="home" aria-label="'+esc(CONFIG.brand)+'">'+brandLogo()+'</a>'+
   '<nav class="hnav">'+
   // home page: editorial links first (they scroll to the page's own sections), "More" keeps the rest
-  (VIEW==="home" ? (navOn("coll")?'<a data-scroll="collsSec">'+HX("navColl")+'</a>':'')+(navOn("wanted")&&wantedOn()?'<a data-go="wanted" class="hsoon">'+GX("wDirShort")+'<i>'+GX("newTag")+'</i></a>':'')+(navOn("guide")?'<a data-scroll="guidesSec">'+HX("navGuide")+'</a>':'')+(navOn("agencies")?'<a data-go="agencies">'+GX("agDirShort")+'</a>':'') : '')+
+  (navOn("coll")?'<a data-scroll="collsSec">'+HX("navColl")+'</a>':'')+(navOn("wanted")&&wantedOn()?'<a data-go="wanted" class="hsoon">'+GX("wDirShort")+'<i>'+GX("newTag")+'</i></a>':'')+(navOn("guide")?'<a data-scroll="guidesSec">'+HX("navGuide")+'</a>':'')+(navOn("agencies")?'<a data-go="agencies">'+GX("agDirShort")+'</a>':'')+
   (navOn("projects")?'<a data-go="projects" class="hsoon">'+GX("pjDirShort")+'<i>'+GX("soon")+'</i></a>':'')+
   (SX("nav_soon_header",true)!==false ? NAVI.filter(function(i){ return i.soon && navOn(i.k) }).map(function(i){ return '<a class="hsoon" data-soon="'+i.k+'">'+i.lab()+'<i>'+GX("soon")+'</i></a>' }).join("") : '')+
   '<div class="navmore" id="navMoreWrap"><a id="navMoreChip">'+t("moreNavT")+CHEV+'</a>'+
@@ -10642,8 +10642,12 @@ function syriaMapHtml(){
 // map dots and governorate tiles highlight each other; clicking a dot opens that governorate's search
 function homeExtras(){
   if(VIEW!=="home") return;
-  $$("[data-scroll]").forEach(function(a){ a.addEventListener("click",function(e){
-    e.preventDefault(); var el=$("#"+a.dataset.scroll); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}) }) });
+  if(!window._scrollDelegated){ window._scrollDelegated=true;   // one listener for every page: the header links exist everywhere now
+    document.addEventListener("click",function(e){ var a=e.target.closest&&e.target.closest("[data-scroll]"); if(!a) return;
+      e.preventDefault(); var id=a.dataset.scroll, el=$("#"+id);
+      if(el){ el.scrollIntoView({behavior:"smooth",block:"start"}); return }
+      // the section lives on the homepage: go there first, then scroll to it
+      VIEW="home"; render(); refreshListingsOnNavigate(); setTimeout(function(){ var el2=$("#"+id); if(el2) el2.scrollIntoView({behavior:"smooth",block:"start"}); else scrollTo(0,0) },120) }) }
   var map=$("#smap"); if(!map) return;
   var hot=function(g){
     $$("#smap .dot").forEach(function(d){ d.classList.toggle("hot", !!g && d.dataset.g===g) });
