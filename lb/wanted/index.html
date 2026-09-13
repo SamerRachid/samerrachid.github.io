@@ -5096,15 +5096,16 @@ function adminView(){
  };
  var s=d.stats||{};
  var PRIOS=["low","normal","high","urgent"];
- var msgFooter=function(kind,id,thread,who,adminReply,solved){
+ var msgFooter=function(kind,id,thread,who,adminReply,solved,canReply){
+   canReply = canReply!==false;   // a visitor without an account cannot receive a reply inside the site
    return (thread&&thread.length ? '<div class="msgthread" style="margin-top:8px">'+thread.map(function(m){
       return '<div class="msgbubble '+(m.sender==="admin"?"mine":"theirs")+'"><div class="msgwho">'+
         (m.sender==="admin"?t("you"):who)+'</div>'+
         '<div class="msgbody">'+m.body+'</div><div class="msgts">'+when(m.created_at)+'</div></div>'}).join("")+'</div>'
      : (adminReply ? '<div class="fbreply"><b>'+t("yourReply")+':</b> '+adminReply+'</div>' : ''))+
-   '<div class="fbreplybox" style="margin-top:8px"><textarea data-replybox="'+kind+':'+id+'" placeholder="'+t("replyPH")+'"></textarea>'+
+   '<div class="fbreplybox" style="margin-top:8px">'+(canReply?'<textarea data-replybox="'+kind+':'+id+'" placeholder="'+t("replyPH")+'"></textarea>':'<div class="hintx">'+GX("msgVisitorNoReply")+'</div>')+
      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;align-items:center">'+
-     '<button class="ab ok" data-replysend="'+kind+':'+id+'">'+t("sendReply")+'</button>'+
+     (canReply?'<button class="ab ok" data-replysend="'+kind+':'+id+'">'+t("sendReply")+'</button>':'')+
      '<button class="ab '+(solved?"":"ok")+'" data-tosolved="'+kind+':'+id+'" data-val="'+(solved?"0":"1")+'">'+
        (solved?t("reopenIt"):t("markSolved"))+'</button>'+
      '<span class="priopick" data-priowrap="'+kind+':'+id+'" style="margin-inline-start:auto;display:flex;gap:4px">'+
@@ -5208,7 +5209,7 @@ function adminView(){
       (r.reporter_phone?' · <span class="ltr">'+r.reporter_phone+'</span>':'')+'</div>'+
      '<div class="fbreason">'+(t("r"+capitalize(r.reason))||r.reason)+'</div>'+
      (r.note?'<div class="fbbody">'+r.note+'</div>':'')+
-     msgFooter("report",r.id,r.thread,r.reporter_name||t("anonGuest"),r.admin_reply,r.resolved);
+     msgFooter("report",r.id,r.thread,r.reporter_name||t("anonGuest"),r.admin_reply,r.resolved,!!r.reporter_id);
    }, t("noReports"), "bk_admin_delete_report");
  }
 
@@ -5233,7 +5234,7 @@ function adminView(){
         : (f.sender_name||t("anonGuest")))+
       (f.sender_contact?' · <span class="ltr">'+f.sender_contact+'</span>':'')+'</div>'+
      '<div class="fbbody">'+f.body+'</div>'+
-     msgFooter("feedback",f.id,f.thread,f.sender_name||t("anonGuest"),f.admin_reply,f.handled);
+     msgFooter("feedback",f.id,f.thread,f.sender_name||t("anonGuest"),f.admin_reply,f.handled,!!f.sender_id);
    }, t("noFeedback"), "bk_admin_delete_feedback");
  }
 
@@ -11824,6 +11825,7 @@ var GX_T={
   cEditing:{ar:"تعدّل الآن",en:"Editing",de:"Bearbeitung"}, cSwitchTo:{ar:"انتقل إلى دولة أخرى",en:"Switch to another country",de:"Zu einem anderen Land wechseln"}, cOffShort:{ar:"متوقفة",en:"off",de:"aus"},
   navCountries:{ar:"الدول والأسواق",en:"Countries and markets",de:"Länder und Märkte"},
   cAll:{ar:"كل الدول",en:"All countries",de:"Alle Länder"},
+  msgVisitorNoReply:{ar:"زائر بلا حساب: لا يمكن الرد عليه داخل الموقع. إن ترك رقماً أو بريداً فتواصل معه مباشرة.",en:"Visitor without an account: a reply cannot reach them inside the site. If they left a phone or email, contact them directly.",de:"Besucher ohne Konto: eine Antwort erreicht ihn nicht auf der Website. Hat er Telefon oder E-Mail hinterlassen, kontaktieren Sie ihn direkt."},
   loginLocked:{ar:"محاولات كثيرة خاطئة. انتظر 15 دقيقة ثم حاول مجدداً.",en:"Too many wrong attempts. Wait 15 minutes and try again.",de:"Zu viele Fehlversuche. Warten Sie 15 Minuten und versuchen Sie es erneut.",fr:"Trop de tentatives. Attendez 15 minutes puis réessayez."},
   resetWaNote:{ar:"بعد وصول رسالتك نتحقق من أن الرقم يخصك ونرسل لك كلمة مرور مؤقتة عبر واتساب، ثم يمكنك تغييرها من حسابك.",en:"Once your message arrives we verify that the number is yours and send you a temporary password on WhatsApp. You can change it from your account afterwards.",de:"Nach Eingang Ihrer Nachricht prüfen wir, dass die Nummer Ihnen gehört, und senden ein vorläufiges Passwort per WhatsApp. Danach können Sie es im Konto ändern.",fr:"À réception de votre message, nous vérifions que le numéro est bien le vôtre et vous envoyons un mot de passe temporaire par WhatsApp. Vous pourrez ensuite le modifier depuis votre compte."},
   cChange:{ar:"تغيير",en:"Change",de:"Ändern",fr:"Changer"},
