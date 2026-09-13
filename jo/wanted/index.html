@@ -323,7 +323,8 @@ html.js .rv.in{opacity:1;transform:none}
 .chipsel-box{display:flex;align-items:center;height:36px;
   border:1px solid var(--line-2);border-radius:7px;padding:0 10px;background:#fff;cursor:text}
 .chipsel-box:focus-within{border-color:var(--navy)}
-.chipsel-input{border:none;outline:none;font-family:inherit;font-size:13px;width:100%;height:100%;padding:0;background:transparent}
+.chipsel-input{border:none;outline:none;font-family:inherit;font-size:13px;width:100%;height:100%;padding:0;background:transparent;appearance:none;-webkit-appearance:none}
+.chipsel-input::-webkit-search-cancel-button,.chipsel-input::-webkit-search-decoration{-webkit-appearance:none;display:none}
 /* browsers never inherit a page's text color into a field's
    placeholder — without an explicit rule they fall back to their own
    generic, washed-out gray, which is why filter labels (styled with
@@ -7273,7 +7274,7 @@ function chipSelect(id,placeholder,selected,labelFor,compact){
   var sum = compact ? '<div class="cs-sum" data-names="'+esc(JSON.stringify(names))+'" data-ph="'+esc(placeholder)+'">'+(names.length? esc(names[0])+(names.length>1?' <b class="cs-more">+'+(names.length-1)+'</b>':'') : '<span class="ph">'+esc(placeholder)+'</span>')+'</div>'+CHEV : '';
   return '<div class="chipsel'+(compact?' cs-compact':'')+'" id="'+id+'Wrap">'+
    '<div class="chipsel-box">'+sum+
-    '<input class="chipsel-input" id="'+id+'Input" data-csfield="'+id+'" placeholder="'+placeholder+'" autocomplete="off">'+
+    '<input class="chipsel-input" id="'+id+'Input" type="search" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" name="cs-'+id+'" data-csfield="'+id+'" placeholder="'+placeholder+'" autocomplete="off">'+
    '</div>'+
    '<div class="chipsel-drop" id="'+id+'Drop"></div>'+
    (selected.length && !compact ? '<div class="chipsel-tags">'+selected.map(function(v){
