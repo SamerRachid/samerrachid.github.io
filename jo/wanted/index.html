@@ -5747,7 +5747,10 @@ function startNotifPolling(){
 }
 function notifMenuFit(){   // phones: the menu is fixed under the bell and spans the screen with a margin (the absolute one ran past the edge in Arabic)
   var m=$("#notifMenu"), w=$("#notifWrap"); if(!m||!w) return;
-  if(window.innerWidth>700){ m.classList.remove("fx"); m.style.top=m.style.left=m.style.right=m.style.maxHeight=""; return }
+  if(window.innerWidth>700){   // desktop: hang the menu from whichever edge of the bell keeps it on the page
+    m.classList.remove("fx"); m.style.top=m.style.maxHeight=""; var wr=w.getBoundingClientRect();
+    if(wr.left+wr.width/2 > window.innerWidth/2){ m.style.right="0"; m.style.left="auto" } else { m.style.left="0"; m.style.right="auto" }
+    return }
   var r=w.getBoundingClientRect(); m.classList.add("fx"); m.style.top=Math.round(r.bottom+6)+"px"; m.style.left="12px"; m.style.right="12px"; m.style.maxHeight=Math.max(200,Math.round(window.innerHeight-r.bottom-18))+"px";
 }
 function notifText(n){
