@@ -4265,7 +4265,7 @@ function rsTitle(){
  if(deal && L!=="ar") deal=deal.charAt(0).toLowerCase()+deal.slice(1);
  var loc = (F.areas&&F.areas.length) ? F.areas.map(aN).join(ar?"، ":", ")+((F.govs&&F.govs.length===1)?(ar?"، ":", ")+gN(F.govs[0]):"")
          : F.a ? aN(F.a) : (F.govs&&F.govs.length) ? F.govs.map(gN).join(ar?"، ":", ") : F.g ? gN(F.g) : (countryOf(COUNTRY) ? countryName(countryOf(COUNTRY)) : GX("rsSyria"));
- return typeTxt+(deal?" "+deal:"")+" "+GX("lIn")+" "+loc }
+ return (typeTxt+(deal?" "+deal:"")+" "+GX("lIn")+" "+loc).replace(/[<>]/g,"") }
 function rsMarket(r){
  if(SX("results_market_line",true)===false || F.deal==="rent") return "";
  var areas=(F.areas&&F.areas.length)?F.areas:(F.a?[F.a]:[]);
@@ -4286,7 +4286,7 @@ function rsChipsHtml(){
  if(F.pmin||F.pmax) c.push(["price","",heroPriceLabel().replace(/<[^>]+>/g,"")]);
  if(F.ownerOnly) c.push(["ownerOnly","",t("owneronly")]);
  if(!c.length) return "";
- return '<div class="wrap rs-chips">'+c.map(function(x){ return '<span class="rs-chip">'+x[2]+'<button type="button" data-rschip="'+x[0]+'" data-rsval="'+esc(String(x[1]))+'" aria-label="'+t("del")+'">×</button></span>' }).join("")+
+ return '<div class="wrap rs-chips">'+c.map(function(x){ return '<span class="rs-chip">'+String(x[2]).replace(/[<>]/g,"")+'<button type="button" data-rschip="'+x[0]+'" data-rsval="'+esc(String(x[1]))+'" aria-label="'+t("del")+'">×</button></span>' }).join("")+
    '<button type="button" class="rs-chipclr" id="clr">'+GX("rsClearAll")+'</button></div>' }
 function rsFiltersHtml(count){
  var n=function(f,v){return D.LIST.filter(function(x){return passesFilter(x,f) && x[f]===v}).length};
@@ -10441,7 +10441,9 @@ function applyFilterFromQuery(qs){
   qs.replace(/^\?/,"").split("&").forEach(function(pair){
     if(!pair) return;
     var kv=pair.split("=");
-    params[kv[0]]=decodeURIComponent(kv[1]||"");
+    // URL values end up in headings and chips as text, so anything that could open a tag or an attribute is dropped here (reflected-XSS guard)
+    var v=""; try{ v=decodeURIComponent(kv[1]||"") }catch(e){ v="" }
+    params[kv[0]]=v.replace(/[<>"'`\\]/g,"").slice(0,120);
   });
   if(params.deal!=null) F.deal=params.deal;
   if(params.govs) F.govs=params.govs.split(",").filter(Boolean);
