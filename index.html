@@ -307,7 +307,7 @@ html.js .rv.in{opacity:1;transform:none}
 .guides{display:grid;grid-template-columns:repeat(auto-fit,minmax(238px,1fr));gap:16px}
 .guide{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px 20px;transition:.2s;display:block;color:inherit;text-decoration:none;cursor:pointer}
 .guide:hover{box-shadow:var(--sh2)}
-.guide .k{font-size:11.5px;font-weight:700;color:var(--gold);margin-bottom:7px}
+.guide .k{font-size:11.5px;font-weight:700;color:#8A6522;margin-bottom:7px}
 .guide h3{font-size:16px;font-weight:700;margin-bottom:5px;line-height:1.6}
 .guide p{font-size:13.5px;color:var(--grey);line-height:1.8}
 /* search view */
@@ -1636,23 +1636,23 @@ footer{font-size:14px}
 .typecell span{background:rgba(255,255,255,.16)!important;color:#fff!important;margin-top:4px}
 .typecell:hover{border-color:transparent;box-shadow:0 18px 40px -22px rgba(9,14,26,.55)}
 .typecell:hover::before{transform:scale(1.06)}
-html[data-cc="SY"] .typecell[data-type="apartment"]{--tile:url(/assets/home/rooftop.jpg)}
-html[data-cc="SY"] .typecell[data-type="arab"]{--tile:url(/assets/home/damascene.jpg)}
-html[data-cc="SY"] .typecell[data-type="villa"]{--tile:url(/assets/home/zabadani.jpg)}
-html[data-cc="SY"] .typecell[data-type="chalet"]{--tile:url(/assets/home/bloudan.jpg)}
-html[data-cc="SY"] .typecell[data-type="floor"]{--tile:url(/assets/home/orchards.jpg)}
-html[data-cc="SY"] .typecell[data-type="building"]{--tile:url(/assets/home/damascene.jpg)}
-html[data-cc="SY"] .typecell[data-type="shop"]{--tile:url(/assets/home/souq.jpg)}
-html[data-cc="SY"] .typecell[data-type="office"]{--tile:url(/assets/home/rooftop.jpg)}
-html[data-cc="SY"] .typecell[data-type="restaurant"]{--tile:url(/assets/home/umayyad.jpg)}
-html[data-cc="SY"] .typecell[data-type="warehouse"]{--tile:url(/assets/home/latakia.jpg)}
-html[data-cc="SY"] .typecell[data-type="factory"]{--tile:url(/assets/home/latakia.jpg)}
-html[data-cc="SY"] .typecell[data-type="resid"]{--tile:url(/assets/home/zabadani.jpg)}
-html[data-cc="SY"] .typecell[data-type="agri"]{--tile:url(/assets/home/orchards.jpg)}
-html[data-cc="SY"] .typecell[data-type="comm"]{--tile:url(/assets/home/souq.jpg)}
-html[data-cc="SY"] .typecell[data-type="farm"]{--tile:url(/assets/home/orchards.jpg)}
+html[data-cc="SY"] .typecell.tl[data-type="apartment"]{--tile:url(/assets/home/rooftop.jpg)}
+html[data-cc="SY"] .typecell.tl[data-type="arab"]{--tile:url(/assets/home/damascene.jpg)}
+html[data-cc="SY"] .typecell.tl[data-type="villa"]{--tile:url(/assets/home/zabadani.jpg)}
+html[data-cc="SY"] .typecell.tl[data-type="chalet"]{--tile:url(/assets/home/bloudan.jpg)}
+html[data-cc="SY"] .typecell.tl[data-type="floor"]{--tile:url(/assets/home/orchards.jpg)}
+html[data-cc="SY"] .typecell.tl[data-type="building"]{--tile:url(/assets/home/damascene.jpg)}
+html[data-cc="SY"] .typecell.tl[data-type="shop"]{--tile:url(/assets/home/souq.jpg)}
+html[data-cc="SY"] .typecell.tl[data-type="office"]{--tile:url(/assets/home/rooftop.jpg)}
+html[data-cc="SY"] .typecell.tl[data-type="restaurant"]{--tile:url(/assets/home/umayyad.jpg)}
+html[data-cc="SY"] .typecell.tl[data-type="warehouse"]{--tile:url(/assets/home/latakia.jpg)}
+html[data-cc="SY"] .typecell.tl[data-type="factory"]{--tile:url(/assets/home/latakia.jpg)}
+html[data-cc="SY"] .typecell.tl[data-type="resid"]{--tile:url(/assets/home/zabadani.jpg)}
+html[data-cc="SY"] .typecell.tl[data-type="agri"]{--tile:url(/assets/home/orchards.jpg)}
+html[data-cc="SY"] .typecell.tl[data-type="comm"]{--tile:url(/assets/home/souq.jpg)}
+html[data-cc="SY"] .typecell.tl[data-type="farm"]{--tile:url(/assets/home/orchards.jpg)}
 @media(max-width:640px){.typegrid .typecell:last-child:nth-child(odd){grid-column:1/-1}}
-html[data-cc="SY"] .typecell[data-type="agri"],html[data-cc="SY"] .typecell[data-type="farm"]{--tile:url(/assets/home/orchards.jpg)}
+html[data-cc="SY"] .typecell.tl[data-type="agri"],html[data-cc="SY"] .typecell.tl[data-type="farm"]{--tile:url(/assets/home/orchards.jpg)}
 /* collections */
 .colls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}
 .coll{display:block;color:#fff;cursor:pointer}
@@ -3565,7 +3565,7 @@ function header(){
  // want them.
  return '<header><div class="wrap hbar"><button class="hmb" id="hmb" aria-label="'+GX("mdMenu")+'">'+ICON_HMB+(USER&&NOTIFS.unread?'<i class="hmb-dot"></i>':'')+'</button>'+
   '<button class="hpill" id="hpill" aria-label="'+GX("mdMenu")+'">'+ICON_HMB+(USER?avatar(USER.avatar_url,USER.name,28,"av"):'<span class="huser">'+ICON_USER+'</span>')+(USER&&NOTIFS.unread?'<i class="hmb-dot"></i>':'')+'</button>'+
-  '<a class="logo blogo" data-go="home" aria-label="'+esc(CONFIG.brand)+'">'+brandLogo()+'</a>'+
+  '<a class="logo blogo" data-go="home" aria-label="'+esc(CONFIG.brand)+' Balkoun">'+brandLogo()+'</a>'+
   '<nav class="hnav">'+
   // home page: editorial links first (they scroll to the page's own sections), "More" keeps the rest
   (navOn("coll")?'<a data-scroll="collsSec">'+HX("navColl")+'</a>':'')+(navOn("wanted")&&wantedOn()?'<a data-go="wanted" class="hsoon">'+GX("wDirShort")+'<i>'+GX("newTag")+'</i></a>':'')+(navOn("guide")?'<a data-scroll="guidesSec">'+HX("navGuide")+'</a>':'')+(navOn("agencies")?'<a data-go="agencies">'+GX("agDirShort")+'</a>':'')+
@@ -9251,7 +9251,7 @@ function marketTickerHtml(){
    so nothing that is already visible ever fades. CSS is scoped to html.js. */
 var _revealView=null,_revealAt=0;
 function applyReveals(){
-  if(!("IntersectionObserver" in window)) return;
+  if(!("IntersectionObserver" in window)){ document.querySelectorAll(".typecell").forEach(function(el){ el.classList.add("tl") }); return }
   // the boot render is followed within a second or two by the render that brings the live
   // data, so a short grace window keeps the reveals for that second pass as well
   if(VIEW===_revealView && Date.now()-_revealAt>2500) return;
@@ -9259,7 +9259,8 @@ function applyReveals(){
   if(VIEW!=="home" && VIEW!=="search" && VIEW.indexOf("listing:")!==0) return;
   var vh=window.innerHeight||800;
   var io=new IntersectionObserver(function(es){ es.forEach(function(e){
-      if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target) } }) },{rootMargin:"0px 0px -6% 0px"});
+      if(e.isIntersecting){ e.target.classList.add("in"); if(e.target.classList.contains("typecell")) e.target.classList.add("tl"); io.unobserve(e.target) } }) },{rootMargin:"0px 0px -6% 0px"});
+  document.querySelectorAll(".typecell").forEach(function(el){ if(el.getBoundingClientRect().top < vh*0.92) el.classList.add("tl") });   // tiles already on screen get their photo at once
   var n=0;
   document.querySelectorAll(".sec, .band, .card, .govs a, .guide, .mkt, .coll, .typecell, .tlist>div, .nums>div").forEach(function(el,i){
     if(n>=80 || el.getBoundingClientRect().top < vh*0.92) return;
