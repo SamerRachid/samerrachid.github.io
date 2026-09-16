@@ -65,17 +65,17 @@
  ═══════════════════════════════════════════════════════════════════════
 -->
 <link rel="preconnect" href="https://coajrqynjrptujmzjjdh.supabase.co" crossorigin><link rel="dns-prefetch" href="https://coajrqynjrptujmzjjdh.supabase.co"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.114.0/dist/umd/supabase.js" integrity="sha384-UxmVkfpcoSCBn4QrHwxxZVlCbloMpP/2Ay2ByWcNy6TcMxC3JUgqa8Geipyl0tP7" crossorigin="anonymous"></script>
 <!-- Leaflet (maps) is loaded on demand by ensureLeaflet() the first time a map is shown,
      instead of on every page view — see the map initializers in the script below. -->
 <body>
-<div id="app"></div>
+<div id="app" role="main"></div>
 <style>
-:root{--navy:#14213D;--navy-2:#0D1729;--navy-w:#EEF1F7;--gold:#C4881F;--gold-w:#FDF5E7;
---ink:#22252A;--grey:#6B7280;--light:#9CA3AF;--line:#E4E4E7;--line-2:#D3D4D8;
---page:#F4F2ED;--card:#FFF;--ok:#2E7D5B;--ok-w:#EAF5EF;--warn:#B5761F;--danger:#B3271E;
---f:'Noto Kufi Arabic','Lato',system-ui,sans-serif;--r:8px;--r-s:5px;
+:root{--r:8px;--r-s:4px;--r-l:12px;--fd:'Noto Kufi Arabic','Lato',system-ui,sans-serif;--sec-pad-d:34px;--navy:#14213D;--navy-2:#0D1729;--navy-w:#EEF1F7;--gold:#C4881F;--gold-w:#FDF5E7;
+--ink:#22252A;--grey:#6B7280;--light:#767C87;--line:#E4E4E7;--line-2:#D3D4D8;
+--page:#F4F2ED;--card:#FFF;--ok:#2E7D5B;--ok-w:#EAF5EF;--warn:#B45309;--danger:#B3271E;
+--f:'Noto Kufi Arabic','Lato',system-ui,sans-serif;--r:8px;--r-s:4px;
 --sh:0 1px 2px rgba(20,33,61,.06);--sh2:0 2px 8px rgba(20,33,61,.10)}
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--page);color:var(--ink);font-family:var(--f);font-size:15px;line-height:1.8;-webkit-font-smoothing:antialiased}
@@ -164,7 +164,9 @@ header{background:var(--navy);color:#fff}
 .cb .d{font-size:11.5px;color:var(--light);margin-top:6px}
 
 /* reveal — scoped to html.js so nothing can ever stay hidden if JS fails */
-html.js .rv{opacity:0;transform:translateY(14px);
+*:focus-visible{outline:2px solid var(--gold)!important;outline-offset:2px}
+.adm *:focus-visible{outline-color:var(--navy)!important}
+html.js .rv{opacity:.35;transform:translateY(10px);
   transition:opacity .55s cubic-bezier(.22,.61,.36,1),transform .55s cubic-bezier(.22,.61,.36,1)}
 html.js .rv.in{opacity:1;transform:none}
 .hbar .logo,.hbar .hnav a{opacity:0;animation:drop .5s cubic-bezier(.22,.61,.36,1) forwards}
@@ -507,7 +509,11 @@ html.js .rv.in{opacity:1;transform:none}
 .btn-n{background:var(--navy);color:#fff;border:none;padding:11px 26px;border-radius:6px;font-weight:600;font-size:15px;cursor:pointer}
 footer{background:var(--navy);color:rgba(255,255,255,.72);padding:36px 0 42px;font-size:13px;margin-top:26px}
 footer a{cursor:pointer}footer a:hover{color:var(--gold)}
-.flinks{display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:18px}
+.flinks{display:flex;flex-wrap:wrap;gap:2px 14px;margin-bottom:18px}
+.flinks a{display:inline-block;padding:6px 0;line-height:1.3}
+.chip .chip-x{display:inline-grid;place-items:center;width:26px;height:26px;margin:-4px -6px -4px 2px;font-size:16px}
+.rs-chip button{min-width:26px;min-height:26px}
+.notif-x{min-width:32px;min-height:32px}
 .fbot{border-top:1px solid rgba(255,255,255,.14);padding-top:16px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
 .crumb{background:#fff;border-bottom:1px solid var(--line);font-size:13px;color:var(--grey);padding:9px 0}
 .crumb a{cursor:pointer}.crumb a:hover{color:var(--navy);text-decoration:underline}
@@ -558,7 +564,8 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
     width:auto;height:52px;padding:0 20px;border-radius:26px;
     background:var(--gold);color:#1A1206;font-weight:700;font-size:14px;
     box-shadow:0 10px 24px -6px rgba(196,136,31,.55);border:none;cursor:pointer;
-    text-decoration:none}
+    text-decoration:none;transition:opacity .25s,transform .25s}
+  body.fab-hide .mobfab{opacity:0;pointer-events:none;transform:translateY(24px)}
   .hero{min-height:auto;padding:26px 0 22px}
   .hero h1{font-size:22px;line-height:1.45}
   .sbar{border-radius:10px}
@@ -1001,7 +1008,6 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
    property types, and a header that fits a phone. Kept as one block
    at the end so it overrides the older rules above without editing
    them one by one. ═══════════════════════════════════════════════════ */
-:root{--r:8px;--r-s:4px;--r-l:12px;--warn:#B45309}
 body{font-size:16px}
 .hnav{font-size:15px}
 .mini{font-size:13px;padding:7px 12px}
@@ -1168,7 +1174,8 @@ footer{font-size:14px}
 .lg-main::before{content:"";position:absolute;inset:-24px;background:var(--bg) center/cover no-repeat;filter:blur(22px) saturate(.9);opacity:.6}
 .lg-main img{position:relative;width:100%;height:100%;object-fit:contain;cursor:zoom-in;display:block}
 .lg-none{height:100%;display:grid;place-items:center;color:rgba(255,255,255,.6)}
-.lg-side{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:1fr;gap:8px;height:100%;min-width:0}
+.lg-side{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(0,1fr);gap:8px;height:100%;min-width:0;overflow:hidden}
+.lg-side>*{min-height:0;height:100%;overflow:hidden}
 .lg-side img{width:100%;height:100%;object-fit:cover;cursor:pointer;opacity:.9;transition:opacity .2s;display:block;min-height:0}
 .lg-side img:hover,.lg-side img.sel{opacity:1}
 .lg-side img.sel{outline:2px solid var(--gold);outline-offset:-2px}
@@ -1299,7 +1306,6 @@ footer{font-size:14px}
    underline, slow zoom on the hero photo/video, a custom cursor on
    desktop, scroll reveals (JS adds .rv only to elements below the fold,
    only on a page change), and the "market pulse" ticker fed by v_area_prices */
-:root{--fd:'Noto Kufi Arabic','Lato',system-ui,sans-serif}
 .hero h1,.sec h2,.band h2,.logo,.topbar h1{font-family:var(--fd)}
 .hero h1{letter-spacing:-.005em;line-height:1.35}
 .logo{border:0;padding:4px 0;font-size:24px;letter-spacing:.01em;line-height:1}
@@ -1427,7 +1433,8 @@ footer{font-size:14px}
 /* ── the sponsored row: a framed navy section under the hero, gliding cards with sponsor chips, one featured wide card, a progress line ── */
 .adsec{background:radial-gradient(120% 90% at 50% 20%,#1B2C52,#14213D 70%);padding:calc(6px + max(var(--adcarousel-gap,0px),0px)) 0 18px;margin-top:min(var(--adcarousel-gap,0px),0px);position:relative;z-index:2}
 .home-hero .hero-outer:not(:has(.adsec)){padding-bottom:max(var(--hero-gap,0px),0px);margin-bottom:min(var(--hero-gap,0px),0px)}
-.home-hero .hero-outer:not(:has(.adsec)){min-height:100svh}
+.home-hero .hero-outer:not(:has(.adsec)){min-height:min(calc(100svh - 62px),640px)}
+@media(max-width:640px){.home-hero .hero-outer:not(:has(.adsec)){min-height:0}}
 .home-hero .hero-outer:has(.adsec){padding-bottom:0;margin-bottom:0}
 .home-hero .hero-outer:has(.adsec)>.hero{margin-bottom:var(--hero-gap,0px)}
 .hero-outer .adsec{background:transparent}
@@ -1559,7 +1566,7 @@ footer{font-size:14px}
 .home-hero .hero-outer{background:#0F1B33}
 .hv{overflow:hidden} /* the slow zoom on the hero video/photo must not widen the page */
 /* the hero takes the screen height minus the header and the ad section, so the ad row always ends inside the first screen, on any monitor */
-.home-hero .hero{min-height:clamp(380px,calc(100vh - 290px),var(--hero-max,640px));padding:100px 0 6px}
+.home-hero .hero{min-height:clamp(360px,calc(100vh - 360px),var(--hero-max,560px));padding:88px 0 6px}
 .home-hero .hero h1{font-size:clamp(34px,4.8vw,66px);line-height:1.2;margin-bottom:26px;max-width:16ch;letter-spacing:-.005em}
 .home-hero .hscrim{background:linear-gradient(to bottom,rgba(15,27,51,.66),rgba(15,27,51,.22) 30%,rgba(15,27,51,.18) 60%,rgba(15,27,51,.82))}
 .home-hero .topbanner-wrap{padding:22px 0 0}
@@ -1622,13 +1629,23 @@ footer{font-size:14px}
 .typecell span{background:rgba(255,255,255,.16)!important;color:#fff!important;margin-top:4px}
 .typecell:hover{border-color:transparent;box-shadow:0 18px 40px -22px rgba(9,14,26,.55)}
 .typecell:hover::before{transform:scale(1.06)}
-.typecell[data-type="apartment"]{--tile:url(/assets/home/rooftop.jpg)}
-.typecell[data-type="arab"]{--tile:url(/assets/home/damascene.jpg)}
-.typecell[data-type="villa"]{--tile:url(/assets/home/zabadani.jpg)}
-.typecell[data-type="chalet"]{--tile:url(/assets/home/bloudan.jpg)}
-.typecell[data-type="floor"]{--tile:url(/assets/home/orchards.jpg)}
-.typecell[data-type="shop"]{--tile:url(/assets/home/souq.jpg)}
-.typecell[data-type="agri"],.typecell[data-type="farm"]{--tile:url(/assets/home/orchards.jpg)}
+html[data-cc="SY"] .typecell[data-type="apartment"]{--tile:url(/assets/home/rooftop.jpg)}
+html[data-cc="SY"] .typecell[data-type="arab"]{--tile:url(/assets/home/damascene.jpg)}
+html[data-cc="SY"] .typecell[data-type="villa"]{--tile:url(/assets/home/zabadani.jpg)}
+html[data-cc="SY"] .typecell[data-type="chalet"]{--tile:url(/assets/home/bloudan.jpg)}
+html[data-cc="SY"] .typecell[data-type="floor"]{--tile:url(/assets/home/orchards.jpg)}
+html[data-cc="SY"] .typecell[data-type="building"]{--tile:url(/assets/home/damascene.jpg)}
+html[data-cc="SY"] .typecell[data-type="shop"]{--tile:url(/assets/home/souq.jpg)}
+html[data-cc="SY"] .typecell[data-type="office"]{--tile:url(/assets/home/rooftop.jpg)}
+html[data-cc="SY"] .typecell[data-type="restaurant"]{--tile:url(/assets/home/umayyad.jpg)}
+html[data-cc="SY"] .typecell[data-type="warehouse"]{--tile:url(/assets/home/latakia.jpg)}
+html[data-cc="SY"] .typecell[data-type="factory"]{--tile:url(/assets/home/latakia.jpg)}
+html[data-cc="SY"] .typecell[data-type="resid"]{--tile:url(/assets/home/zabadani.jpg)}
+html[data-cc="SY"] .typecell[data-type="agri"]{--tile:url(/assets/home/orchards.jpg)}
+html[data-cc="SY"] .typecell[data-type="comm"]{--tile:url(/assets/home/souq.jpg)}
+html[data-cc="SY"] .typecell[data-type="farm"]{--tile:url(/assets/home/orchards.jpg)}
+@media(max-width:640px){.typegrid .typecell:last-child:nth-child(odd){grid-column:1/-1}}
+html[data-cc="SY"] .typecell[data-type="agri"],html[data-cc="SY"] .typecell[data-type="farm"]{--tile:url(/assets/home/orchards.jpg)}
 /* collections */
 .colls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px}
 .coll{display:block;color:#fff;cursor:pointer}
@@ -1681,7 +1698,8 @@ footer{font-size:14px}
 @media(max-width:640px){
   .colls{gap:12px}.coll .t b{font-size:17px}.coll .t{inset-inline:14px;bottom:12px}
   .home-hero .sec{padding:60px 0 8px}
-  .home-hero .hero{padding:110px 0 40px;min-height:0}
+  .home-hero .hero{padding:84px 0 26px;min-height:0}
+  .hero-credit{max-width:58%;inset-inline-start:12px;bottom:6px;line-height:1.3}
   .typegrid{grid-template-columns:repeat(2,minmax(0,1fr))}.typecell{min-height:96px}
   .nums{gap:12px}.trustb{padding:60px 0}
   .stabs-map{margin-inline-start:0}
@@ -2122,7 +2140,6 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .home-hero .sf-sel select{flex:1;min-width:0;width:auto;font-size:14px;color:var(--navy)}
 .home-hero .sf-sel select:has(option:checked[value=""]){color:var(--grey);font-weight:500}
 /* homepage sections: admin spacing variable, list-only explore, preview focus ring */
-:root{--sec-pad-d:34px}
 @media(min-width:900px){:root{--sec-pad-d:40px}}
 .sec{padding-top:var(--sec-pad,var(--sec-pad-d))}
 @media(max-width:700px){.sec{padding-top:var(--sec-pad-m,var(--sec-pad,22px))}}
@@ -2974,7 +2991,7 @@ function detectCurrency(){
 /* ═══ French: shown where a country offers it (Lebanon); any missing word falls back to English ═══ */
 var FR_T={
   buy:"Acheter", rent:"Louer", land:"Terrains", com:"Commercial", post:"Publier une annonce", login:"Connexion", loginSignupCombo:"Connexion / Inscription",
-  h1a:"Le plus grand choix de biens —", h1b:"directement des propriétaires", res:"Résidentiel", comm:"Commercial", forsale:"À vendre", forrent:"À louer", dealAll:"Tous",
+  h1a:"Votre prochaine maison", h1b:"commence au balcon.", res:"Résidentiel", comm:"Commercial", forsale:"À vendre", forrent:"À louer", dealAll:"Tous",
   gov:"Gouvernorat", area:"Quartier", ptype:"Type de bien", deed:"Titre de propriété", search:"Rechercher", props:"biens", allareas:"Tous les quartiers", addArea:"Ajouter un quartier",
   searchAreasPH:"Ville, quartier ou zone", searchGovPH:"Rechercher un gouvernorat", searchTypesPH:"Rechercher un type de bien", searchDeedPH:"Rechercher un type de titre", noResultsFor:"Aucun résultat", remove:"Retirer",
   allgov:"Tous les gouvernorats", anytype:"Tous", landGroup:"Terrains", landType:"Type de terrain", hasBuilding:"Y a-t-il une construction sur le terrain ?", hasBuildingYes:"Oui, il y a une construction", hasBuildingNo:"Non, terrain nu",
@@ -3042,6 +3059,8 @@ var FR_LABELS={
   TABU:{green:"Titre vert (tabou)", shares:"Parts (actions)", court:"Jugement", court_desc:"Jugement descriptif", poa:"Procuration notariale", none:"Sans titre"},
   DIR:{s:"Sud", n:"Nord", e:"Est", w:"Ouest", se:"Sud-est", sw:"Sud-ouest", ne:"Nord-est", nw:"Nord-ouest"}
 };
+Object.assign(FR_T, {"dir":"ltr","name":"Français","govS":"24 zones administratives · 657 quartiers, villes et localités","adminLogin":"Connexion administrateur","adminPanel":"Panneau d'administration","backToAdminPanel":"Retour au panneau d'administration","adminHint":"Réservé aux administrateurs. Votre compte doit être promu dans la base de données.","notAdmin":"Ce compte n'est pas administrateur","viewSiteAsUser":"Voir le site comme un utilisateur","approve":"Approuver","hide":"Masquer","saveToDevice":"Enregistrer sur l'appareil","listingsTab":"Annonces","navOverview":"Vue d'ensemble","navCatalog":"Catalogue","navStorefront":"Vitrine","navPeople":"Membres","navContent":"Contenu et promotion","navInboxH":"Boîte de réception","navModeration":"Modération","navComms":"Communications","navInsights":"Analyses","navAdmin":"Administration","dashboardTab":"Tableau de bord","todayAtGlanceH":"Aujourd'hui en un coup d'œil","openStatsForMore":"Ouvrez l'onglet Statistiques pour en voir plus","openFullAnalytics":"Voir toutes les statistiques","usersTab":"Utilisateurs","reportsTab":"Signalements","users":"utilisateurs","thisWeek":"cette semaine","openReports":"signalements ouverts","noReports":"Aucun signalement","role":"Rôle","block":"Bloquer","unblock":"Débloquer","blocked":"bloqué","reason":"Motif","confirmDel":"Supprimer définitivement cette annonce ?","confirmRemoveAdmin":"Retirer l'accès de cet administrateur ? Il redeviendra un membre ordinaire.","confirmDelReview":"Supprimer définitivement cet avis ?","confirmDeleteChat":"Supprimer définitivement cette conversation ?","topBannerH":"Bannière publicitaire en haut de page","topBannerEnableL":"Afficher la bannière publicitaire","topBannerHint":"S'affiche en haut de la page d'accueil, juste avant la section de recherche. Accepte une image téléversée (y compris les GIF animés) ou une vidéo.","topBannerUploadHint":"La taille idéale est 728×90 px (le format standard des bannières publicitaires). L'image ou la vidéo est affichée en entier — jamais rognée ni étirée.","topBannerLinkL":"Lien par défaut (utilisé uniquement pour les photos sans lien propre)","topBannerSizeL":"Taille de la bannière","bannerSizeCustomL":"Personnalisée","bannerWidthL":"Largeur (px)","bannerGapL":"Espace sous la bannière","bannerRotateSecL":"Durée d'affichage de chaque publicité (secondes)","bannerHPosL":"Position horizontale","bannerHPosHint":"Déplacez le curseur pour décaler la bannière de gauche à droite dans son propre espace.","bannerTransitionL":"Transition entre les publicités","bannerNoItemsYet":"Aucune publicité ajoutée pour le moment.","bannerItemLinkPH":"Lien de cette photo (facultatif)","bannerItemLinkHint":"Chaque photo ou vidéo peut renvoyer vers un site différent lorsqu'on clique dessus.","bannerTransition_fade":"Fondu","bannerTransition_slide_left":"Glissement vers la gauche","bannerTransition_slide_right":"Glissement vers la droite","bannerTransition_slide_up":"Glissement vers le haut","bannerTransition_slide_down":"Glissement vers le bas","bannerGapHint":"L'espace vide entre la bannière et le titre situé en dessous.","bannerHeightL":"Hauteur (px)","bannerTextEnableL":"Ajouter un texte sur la bannière","bannerTextL":"Texte de la bannière","bannerSizeLabel_728x90":"Leaderboard (standard)","bannerSizeLabel_970x90":"Grand leaderboard","bannerSizeLabel_970x250":"Billboard","heroBgH":"Arrière-plan de la page d'accueil","heroBgHint":"Choisissez une vidéo ou une photo comme arrière-plan du haut de la page d'accueil, ou laissez vide.","heroBgVideoL":"Vidéo","heroBgEnableL":"Afficher un arrière-plan sur la page d'accueil","heroBgSpeedL":"Vitesse de la vidéo","heroBgSpeedHint":"De 10 % (plus lent) à 300 % (plus rapide) — la qualité n'est jamais affectée, seulement la vitesse de lecture. Remarque : à très faible vitesse, la vidéo peut paraître saccadée — le navigateur affiche simplement les mêmes images d'origine plus longtemps, sans en créer de nouvelles entre elles. Les vidéos filmées à une cadence plus élevée (60 ips ou plus) restent plus fluides au ralenti.","heroBgPhotoL":"Photo","heroBgNoneL":"Aucun arrière-plan","heroBgCurrentVideo":"Une vidéo personnalisée est actuellement définie","heroBgUploadHint":"Les photos et vidéos téléversées sont automatiquement redimensionnées pour remplir l'espace sans étirement ni déformation.","kInquiry":"Demande","statsSetupNeeded":"Cette section nécessite une étape de configuration supplémentaire dans la base de données (exécutez le correctif SQL des statistiques).","loggedInAs":"Connecté en tant que","superAdmin":"Super administrateur","myAdminAccount":"Mon compte administrateur","settingsTab":"Paramètres","adminsTab":"Administrateurs","dangerTab":"Sauvegarde et réinitialisation","backupH":"Sauvegarde","backupHint":"Télécharge une copie complète de toutes les annonces et de tous les paramètres du site sous forme de fichier JSON que vous pouvez conserver.","backupBtn":"Télécharger une sauvegarde maintenant","backingUp":"Préparation...","backupDone":"Sauvegarde téléchargée","restoreH":"Restaurer depuis une sauvegarde","restoreHint":"Téléverse un fichier de sauvegarde (.json) et remplace toutes les annonces et tous les paramètres actuels par le contenu de ce fichier. Une sauvegarde automatique de l'état actuel est créée avant tout remplacement.","restoreUnlockBtn":"Afficher les outils de restauration","restoreFileL":"Choisissez un fichier de sauvegarde (.json)","dangerTypeHintRestore":"Saisissez exactement la phrase suivante pour activer le bouton : RESTORE FROM BACKUP","restoreBtn":"Remplacer les données actuelles par cette sauvegarde","restoreConfirm1":"Cela affichera des outils de restauration destructeurs pouvant remplacer toutes vos données actuelles. Continuer ?","restoreConfirm2":"Cela remplacera toutes les annonces et tous les paramètres actuels par le contenu du fichier téléversé. Êtes-vous absolument sûr ?","restoreInvalidFile":"Ce fichier ne semble pas être une sauvegarde Balkoun valide","restorePreview":"Ce fichier contient {n} annonces, exportées le {d}.","restoreDone":"Restauration terminée avec succès","dangerH":"Zone de danger","dangerHint":"Ces boutons suppriment définitivement des données réelles du site. Une sauvegarde est créée automatiquement avant toute suppression, mais il reste conseillé de télécharger d'abord votre propre copie.","dangerUnlockBtn":"Afficher les outils de réinitialisation","dangerTypeHint":"Saisissez exactement la phrase suivante pour activer le bouton : DELETE ALL LISTINGS","dangerResetBtn":"Supprimer définitivement toutes les annonces","dangerAdsBtn":"Supprimer définitivement tous les carrés publicitaires","dangerUsersBtn":"Supprimer définitivement tous les membres","dangerTypeHintAds":"Saisissez exactement la phrase suivante pour activer le bouton : DELETE ALL AD SQUARES","dangerTypeHintUsers":"Saisissez exactement la phrase suivante pour activer le bouton : DELETE ALL USERS","dangerConfirm1":"Cela affichera des outils de suppression destructeurs. Continuer ?","dangerConfirm2":"Cela supprimera définitivement toutes les annonces du site, sans possibilité d'annulation depuis cette interface. Êtes-vous absolument sûr ?","dangerConfirm2Listings":"Cela supprimera définitivement toutes les annonces du site, sans possibilité d'annulation depuis cette interface. Êtes-vous absolument sûr ?","dangerConfirm2Ads":"Cela supprimera définitivement tous les carrés publicitaires du site, sans possibilité d'annulation depuis cette interface. Êtes-vous absolument sûr ?","dangerConfirm2Users":"Cela supprimera définitivement tous les comptes des membres (pas ceux des administrateurs), sans possibilité d'annulation depuis cette interface. Êtes-vous absolument sûr ?","dangerDone":"Toutes les annonces ont été supprimées","approvalModeH":"Mode d'approbation des annonces","approvalModeL":"Vérifier chaque annonce avant sa mise en ligne","approvalModeH2":"Désactivez cette option et chaque nouvelle annonce sera publiée automatiquement sans vérification (sauf pour les membres que vous avez exemptés individuellement dans un sens ou dans l'autre).","perMemberApproval":"Exempter certains membres","perMemberApprovalH":"Depuis l'onglet Membres, vous pouvez activer « Publication automatique » pour un membre donné afin que ses annonces ne passent pas par la vérification, même si elle est activée pour tous les autres.","sendNotifH":"Envoyer une notification aux membres","heroContentH":"Titre principal de la page d'accueil","msgsNotifTab":"Messages et notifications","mainPageTab":"Page d'accueil","adsTab":"Carrés publicitaires","photosTab":"Médiathèque","photosHint":"Une galerie de toutes les photos téléversées dans vos annonces, les plus récentes en premier. Cliquez sur une photo pour ouvrir son annonce.","noPhotosYet":"Aucune photo téléversée pour le moment.","featuredTab":"Annonces à la une","featureNewH":"Mettre une annonce à la une","featureStartL":"Date de début","featureDaysL":"Durée (jours)","featureBtn":"Mettre à la une","featuredListH":"Actuellement à la une","featureEndL":"Date de fin","featureActiveNow":"Active maintenant","featureScheduled":"Programmée","featureExpired":"Expirée","noFeatured":"Aucune annonce à la une pour le moment","featureInvalidDates":"Veuillez saisir une date de début et une durée valides","confirmUnfeature":"Retirer cette annonce de la une maintenant ?","adLayoutH":"Taille et disposition","adStorageH":"Fichiers publicitaires téléversés","adStorageHint":"Toutes les photos et vidéos que vous avez téléversées pour les carrés publicitaires. Les fichiers marqués « En cours d'utilisation » sont encore rattachés à une publicité active. Vous pouvez supprimer tout autre fichier pour libérer de l'espace de stockage.","adStorageEmpty":"Aucun fichier téléversé pour le moment.","allFiles":"Tous les fichiers","allTypes":"Tous les types","photosOnly":"Photos uniquement","videosOnly":"Vidéos uniquement","selectAll":"Tout sélectionner","deleteSelectedN":"Supprimer la sélection ({n})","confirmDelMultiple":"Supprimer définitivement {n} fichiers du stockage ?","someFilesFailedToDelete":"{n} fichier(s) n'ont pas pu être supprimés — veuillez réessayer.","notUsed":"Non utilisé","newestFirst":"Plus récents d'abord","oldestFirst":"Plus anciens d'abord","noMatchingFiles":"Aucun fichier correspondant.","searchByListingNo":"Rechercher par numéro d'annonce","searchByAdNo":"Rechercher par numéro de carré publicitaire","searchFiles":"Rechercher dans les fichiers","adStorageInUse":"En cours d'utilisation","confirmDelFile":"Supprimer définitivement ce fichier du stockage ?","delBlockedByPolicy":"Le fichier n'a pas été supprimé — le serveur a bloqué l'opération. Veuillez appliquer le dernier correctif de la base de données.","photoRowDeletedFileNot":"La photo a été retirée de l'annonce, mais la suppression du fichier sous-jacent du stockage a échoué — l'espace qu'il occupe n'a peut-être pas été libéré.","adColorsH":"Couleurs du texte et de l'ombre","adColorsHint":"Contrôle la couleur du texte et la couleur de l'ombre/arrière-plan derrière les icônes et les informations affichées sur chaque carré publicitaire.","adTextColorL":"Couleur du texte","adShadeColorL":"Couleur de l'ombre et de l'arrière-plan","adRoomInfoH":"Infos du bien (chambres/salles de bain/surface)","adLocationH":"Ville et quartier","adTagH":"Mention « Pub »","adSlotsListH":"Carrés publicitaires","adTextSizeL":"Taille du texte","showAdLocation":"Afficher la ville et le quartier","recentAlertsH":"Alertes récentes","newFeedbackAlert":"Nouveau message via Contactez-nous","newReportAlert":"Nouveau signalement d'annonce","noAlerts":"Aucune alerte pour le moment","useRealCount":"Utiliser le nombre réel d'annonces en direct","showHero":"Afficher le titre principal","perLangHint":"Laissez un champ vide pour utiliser le texte par défaut de cette langue.","headlineL":"Titre","headlineHighlightL":"Partie mise en valeur du titre","heroTitleSizeL":"Taille de police","defaultSize":"Taille par défaut","heroTitleColorL":"Couleur du texte principal","heroSubColorL":"Couleur de la partie mise en valeur","heroGapL":"Position verticale","heroGapHint":"Déplacez le curseur pour rapprocher ou éloigner la section suivante — la valeur peut être négative pour la remonter.","adRowGapL":"Position verticale de la rangée de publicités","leaveBlankDefault":"Laissez vide pour le texte par défaut","statsContentH":"Ligne de statistiques","adSlotsH":"Espace publicitaire de la page d'accueil","adSquareSizeL":"Taille du carré (px)","adCarouselSecL":"Durée d'affichage de chaque groupe (secondes)","adCarouselDirL":"Sens de rotation","adCarouselDir_left":"De droite à gauche","adCarouselDir_right":"De gauche à droite","adCarouselHint":"S'il y a plus de publicités que d'emplacements visibles, elles tournent automatiquement toutes les quelques secondes — vous pouvez aussi naviguer manuellement avec les flèches.","prevAd":"Publicité précédente","nextAd":"Publicité suivante","adRoomInfoStyleL":"Affichage des infos du bien","adStyleIcons":"Icônes","adStyleText":"Texte","showAdTag":"Afficher la mention « Pub »","adTagTextL":"Texte de la mention","adTagSizeL":"Taille de police de la mention","adSlotsHint":"Jusqu'à 8 petits carrés publicitaires affichés juste sous la barre de recherche. Utilisez-les dès maintenant pour faire tourner des promotions, et plus tard pour des emplacements payants ou VIP.","adPlaceholder":"Pub","adTag":"Pub","noAdSlots":"Aucun emplacement publicitaire ajouté pour le moment","addAdSlot":"Ajouter un emplacement publicitaire","adPositionL":"Position (1-8)","adEnabledL":"Statut","adImageUrlL":"URL de l'image","adLinkUrlL":"Lien de destination au clic","adLabelL":"Libellé interne (visible par vous seul)","adModeUpload":"Téléverser une image ou une vidéo","adModeLinked":"Lier à une annonce existante","adModeVideoEmbed":"Intégrer une vidéo (YouTube)","adMultiUploadHint":"Vous pouvez sélectionner plusieurs images — elles tourneront automatiquement dans le carré.","adVideoUrlL":"URL de la vidéo","adVideoEmbedHint":"Les liens YouTube et Facebook sont pris en charge pour l'instant (pas encore les liens Instagram). La vidéo est lue directement dans le carré — aucun nouvel onglet ne s'ouvre et elle ne peut pas être téléchargée.","adVideoLinkL":"Lien au clic (facultatif)","adVideoLinkHint":"Un petit bouton par-dessus la vidéo qui mène les visiteurs vers ce lien lorsqu'ils cliquent — la vidéo elle-même reste lisible indépendamment.","adVisitLink":"Visiter","orText":"ou","optional":"facultatif","adNoMultiVideo":"Une seule vidéo peut être téléversée à la fois","adInvalidVideoUrl":"Ce lien ne semble pas être un lien YouTube valide","adPickListingL":"Choisissez l'annonce","chooseListing":"Choisir une annonce","adSearchListingPH":"Rechercher par numéro d'annonce (BK-...) ou par nom de l'annonceur","adLinkedHint":"Ce carré affichera en rotation les photos de l'annonce choisie, avec ses chambres, salles de bain et surface — et un clic mènera directement à la page de cette annonce.","adSponsorNameL":"Nom de la société ou du propriétaire","adSponsorNamePH":"ex. : Modern Build Co.","adTopTextL":"Texte du haut","adBottomTextL":"Texte du bas","adOverlayPH":"Laissez vide pour n'afficher aucun texte","adOverlayHint":"Ce texte est superposé directement sur la photo ou la vidéo téléversée (ne s'applique pas à une publicité liée à une annonce ou intégrée depuis YouTube).","adExpiresL":"Date d'expiration","adScheduleHint":"Laissez les deux dates vides pour diffuser cette publicité indéfiniment, sans programmation. Si elles sont définies, les visiteurs ne verront cette publicité que pendant cette période.","adLinkedTag":"Liée à une annonce","enabled":"Activé","disabled":"Désactivé","showStats":"Afficher la ligne de statistiques","statsAreasNumL":"Nombre de zones","statsListingsNumL":"Nombre d'annonces","statsPhrase1L":"Première phrase","statsPhrase2L":"Deuxième phrase","contactInfoH":"Coordonnées et réseaux sociaux","featuredH":"Annonces à la une (payantes/sponsorisées)","featuredHint":"Les annonces à la une apparaissent toujours au-dessus des résultats de recherche ordinaires, portent un badge et peuvent être affichées plus lumineuses que les autres. Activez « À la une » pour n'importe quelle annonce depuis l'onglet Annonces.","showFeaturedBadge":"Afficher le badge « À la une »","featuredBadgeTextL":"Texte du badge","featuredBrightnessL":"Luminosité supplémentaire (%)","gridView":"Vue en grille","listView":"Vue en liste","cardSizeH":"Taille des cartes de résultats","cardSizeHintDesktop":"Contrôle la taille des cartes sur ordinateur et tablette (vue en grille et vue en liste) — plus la valeur est petite, plus les cartes sont petites et nombreuses par rangée. Les téléphones ont un réglage séparé ci-dessous.","cardSizeMobileH":"Taille des cartes de résultats — téléphone","cardSizeMobileHint":"Contrôle la taille des cartes en vue grille spécifiquement sur les écrans de téléphone, indépendamment de l'ordinateur. Réduisez-la pour afficher 2 cartes par rangée.","cardSizeMobileL":"Largeur minimale sur téléphone (px)","cardSizeL":"Largeur minimale (px)","newBadgeH":"Badge « Nouveau »","newBadgeHint":"Les annonces publiées récemment affichent automatiquement un badge « Nouveau » pendant une période définie après leur publication.","newBadgeHoursL":"Durée en heures (0 = désactiver le badge)","storageUsageH":"Espace de stockage des photos","storageUsed":"Utilisé","storageFree":"Libre","storageFiles":"fichiers","storageLimitH":"Limite de stockage","defaultCurrencyL":"Devise par défaut","sypRateH":"Taux de change de la livre syrienne","sypRateHint":"Le taux USD/SYP utilisé pour afficher les prix dans les deux devises. Mettez-le à jour régulièrement pour refléter le taux réel.","sypRateL":"Livres syriennes par dollar américain","storageLimitHint":"Sert à calculer l'espace restant sur le tableau de bord. Mettez-le à jour si vous changez de forfait Supabase.","storageLimitL":"Limite (Mo)","featuredBrightnessHint":"0 = aucune luminosité supplémentaire ; des valeurs plus élevées font ressortir davantage les annonces à la une.","feature":"Mettre à la une","unfeature":"Retirer de la une","waNumberL":"Numéro WhatsApp","linkL":"Lien","accountNameL":"Nom du compte","socialNameHint":"Saisissez à la fois le lien et le nom du compte pour que l'icône de la plateforme apparaisse sur la page Contactez-nous — laissez le nom du compte vide et l'icône reste masquée.","phoneNumberL":"Numéro de téléphone","emailAddressL":"Adresse e-mail","sendToAll":"Envoyer à tous","sendToOne":"Envoyer à un membre précis","chooseMember":"Choisir un membre","notifTitleL":"Titre","notifBodyL":"Message","notifSentOk":"Envoyé à {n} membre(s)","createAdmin":"Créer un nouveau compte administrateur","permissionsL":"Autorisations","perm_listings":"Gérer les annonces","perm_featured":"Annonces à la une","perm_homepage":"Page d'accueil","perm_ads":"Carrés publicitaires","perm_msgs":"Messages et notifications","perm_users":"Gérer les membres","perm_passwords":"Réinitialiser les mots de passe","perm_reports":"Traiter les signalements","perm_feedback":"Traiter les retours","perm_reviews":"Gérer les avis","perm_stats":"Voir les statistiques","perm_settings":"Modifier les paramètres","allPermissions":"Toutes les autorisations","removeAdmin":"Retirer l'accès","removeAdminFailed":"Impossible de retirer l'accès administrateur","changeMyPass":"Changer le mot de passe","currentPass":"Mot de passe actuel","autoApprove":"Publication automatique","nameRequired":"Le nom est obligatoire","runSql":"La base de données n'est pas à jour — exécutez le dernier fichier SQL.","feedbackTab":"Retours","levelCol":"Niveau","sortNewerUsers":"Plus récents d'abord","sortOlderUsers":"Plus anciens d'abord","allLevels":"Tous les niveaux","allUsers":"Tous les membres","activeOnly":"Actifs uniquement","blockedOnly":"Bloqués uniquement","markHandled":"Marquer comme traité","noFeedback":"Aucun message pour le moment","deleteItem":"Supprimer","selectAnItem":"Sélectionnez un élément dans la liste pour l'afficher","confirmDeleteItem":"Supprimer définitivement cet élément ?","noReplyNeeded":"Aucune réponse nécessaire — examiné.","noReviews":"Aucun avis pour le moment","portfolioVal":"Valeur des biens","rBy":"De :","rListing":"Annonce","ratingCol":"Note","replyPH":"Rédigez votre réponse…","sendReply":"Envoyer la réponse","yourReply":"Votre réponse","byCol":"Par","clearBio":"Effacer la bio","clearPhoto":"Effacer la photo","moderate":"Modérer","resetPass":"Réinitialiser le mot de passe","adminPwHint":"Le membre pourra se connecter immédiatement avec le nouveau mot de passe.","visitorStats":"Visiteurs et statistiques","topCountries":"Principaux pays","topPages":"Pages les plus vues","todayViews":"Vues aujourd'hui","weekViews":"Vues cette semaine","totalViews":"Vues au total","weeklyVisitors":"Visiteurs cette semaine","newMembersWeek":"Nouveaux membres cette semaine","onlineNow":"En ligne","onlineUsersH":"Membres en ligne","noOneOnline":"Personne n'est en ligne pour le moment","noReviewsAdmin":"Aucun avis pour le moment","reviewsTab":"Avis","targetCol":"Évalué","viewEdit":"Voir / Modifier"});   // French coverage completed 2026-09-15
+Object.assign(D.I18N.de, {"lv_silver":"Silber","lv_gold":"Gold","lv_trusted_agency":"Vertrauenswürdige Agentur","silverTag":"Silber-Mitglied","goldTag":"Gold-Mitglied","trustedAgencyTag":"Vertrauenswürdige Agentur"}); Object.assign(D.I18N.en, {"reading":"Preparing photos"});
 D.I18N.fr=Object.assign({}, D.I18N.en, FR_T, {dir:"ltr", name:"Français"});
 ["TYPES","TABU","COND","LANDC","DIR"].forEach(function(tb){ var o=D[tb]; if(!o) return; Object.keys(o).forEach(function(k){ if(Array.isArray(o[k])&&o[k].length===3) o[k].push((FR_LABELS[tb]||{})[k]||o[k][1]) }) });
 ["AMEN","LANDAMEN","GUIDES","ABOUT"].forEach(function(tb){ if(D[tb]&&D[tb].en&&!D[tb].fr) D[tb].fr=D[tb].en });
@@ -3120,8 +3139,10 @@ function countryPickHtml(where){
   return '<div class="mdw2-sec"><div class="mdw2-h">'+GX("cCountry")+'</div><button type="button" class="mdw2-crow" id="mdwCountry">'+flagSvg(cur.code)+'<b>'+esc(countryName(cur))+'</b><span>'+GX("cChange")+' '+CHEV+'</span></button></div>';
 }
 var _bootLoads=null;
+var _cgen=0;
 async function switchCountry(code, o){
   o=o||{}; var c=countryOf(code); if(!c || code===COUNTRY) return;
+  var gen=++_cgen;
   COUNTRY=code; if(!o.silent){ COUNTRY_CHOSEN=true; try{ localStorage.setItem("balkoun_country",code) }catch(e){} }
   (function(){ var list=c.currencies||["USD"], sv=curPrefGet(code);
     CUR = (sv && list.indexOf(sv)>-1) ? sv : list[0];   // the country's own first currency, unless the visitor picked another one while in this country before
@@ -3136,6 +3157,7 @@ async function switchCountry(code, o){
   render();
   if(_bootLoads){ try{ await _bootLoads }catch(e){} }
   await Promise.all([loadListings(),loadCounts(),loadSiteContent(),loadAdSlots(),loadGeo()]);
+  if(gen!==_cgen) return;   // a newer switch already owns the screen
   render();
 }
 function refreshCountries(){
@@ -3575,11 +3597,11 @@ function footer(){
   // faint "admin" login link shown to every ordinary visitor
   (ADM.token
     ? ' · <a id="admLink" style="font-weight:600;color:var(--gold)">'+t("backToAdminPanel")+'</a></span>'
-    : ' · <a id="admLink" style="opacity:.55">admin</a></span>')+
-  '<span class="ltr" style="font-size:12px;opacity:.8">'+
+    : (function(){ try{ return localStorage.getItem("balkoun_adm") ? ' · <a id="admLink" style="opacity:.55">admin</a></span>' : '</span>' }catch(e){ return '</span>' } })())+
+  (ADM.token ? '<span class="ltr" style="font-size:12px;opacity:.8">'+
    (ONLINE ? '● '+t("connected")+' — '+DBCOUNT+' '+t("listings")
            : '○ '+t("notConnected")+(DBERR?' ('+DBERR+')':''))+
-  '</span></div></div></footer>'}
+  '</span>' : (ONLINE ? '' : '<span class="ltr" style="font-size:12px;opacity:.8">○ '+t("notConnected")+'</span>'))+'</div></div></footer>'}
 
 
 
@@ -4233,7 +4255,7 @@ function rsMapInit(){
     m.on("mouseover",function(){ var cd=document.querySelector('.res .card[data-open="'+x.id+'"]'); if(cd){ cd.classList.add("hl"); if(cd.scrollIntoView) cd.scrollIntoView({block:"nearest",behavior:"smooth"}) } });
     m.on("mouseout",function(){ var cd=document.querySelector('.res .card[data-open="'+x.id+'"]'); if(cd) cd.classList.remove("hl") });
     b.push([x.lat,x.lng]) });
-  if(b.length>1){ try{ map.fitBounds(b,{padding:[40,40]}) }catch(e){} }
+  if(b.length>1){ try{ map.fitBounds(b,{padding:[40,40],maxZoom:14}) }catch(e){} }
   RS.map=map; setTimeout(function(){ if(RS.map===map) map.invalidateSize() },150);
 }
 function rsWire(opts){
@@ -4348,11 +4370,11 @@ function listing(id){
 
  /* ── lightbox (unchanged behaviour) ── */
  var lb = (LIGHTBOX_OPEN && IMGS.length) ?
-   '<div class="lightbox" id="lightbox"><button class="lb-close" id="lbClose">×</button>'+
+   '<div class="lightbox" id="lightbox"><button class="lb-close" id="lbClose" aria-label="'+esc(GX("mdClose"))+'">×</button>'+
     '<div class="lb-count"><span class="ltr">'+(pi+1)+' / '+IMGS.length+'</span></div>'+
     (IMGS.length>1
-      ? '<button class="lb-nav" id="lbPrev" style="'+(rtlNow()?"right":"left")+':16px">‹</button>'+
-        '<button class="lb-nav" id="lbNext" style="'+(rtlNow()?"left":"right")+':16px">›</button>'
+      ? '<button class="lb-nav" id="lbPrev" aria-label="'+esc(GX("galPrev"))+'" style="'+(rtlNow()?"right":"left")+':16px">‹</button>'+
+        '<button class="lb-nav" id="lbNext" aria-label="'+esc(GX("galNext"))+'" style="'+(rtlNow()?"left":"right")+':16px">›</button>'
       : '')+
     '<img class="lb-img" id="lbImg" src="'+curImg+'" alt="">'+
    '</div>' : '';
@@ -4455,10 +4477,10 @@ function listing(id){
  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+
   '<a data-go="search" data-gov="'+x.g+'">'+gN(x.g)+'</a><i>›</i>'+aN(x.a)+'</div></div>'+
  '<div class="wrap lpage">'+gal+lb+
-  '<div class="lgrid"><main class="lmain">'+head+facts+
+  '<div class="lgrid"><div class="lmain">'+head+facts+
    '<section class="lsec"><h2>'+t("descH")+'</h2><div class="ldesc">'+dsOf(x)+'</div></section>'+
    details+amen+deed+util+map+
-  '</main>'+side+'</div></div>'+
+  '</div>'+side+'</div></div>'+
  // on phones the contact card ends up below everything, so a fixed bar keeps the two actions in reach
  '<div class="contactbar">'+
   (x.tel?'<a class="cb-call" id="callBtn2" href="tel:'+x.tel.replace(/\s/g,"")+'">'+t("callBtn")+'</a>':'')+
@@ -4705,7 +4727,7 @@ function editView(){
    '<div class="shots" id="ePhotos">'+
     (EDIT.photos||[]).filter(function(p){ return p.kind!=="video" }).map(function(p){
       return '<div class="shot2"><img src="'+(p.thumb_url||p.url)+'">'+
-      '<button type="button" class="rm" data-delphoto="'+p.id+'">✕</button></div>'}).join("")+
+      '<button type="button" class="rm" data-delphoto="'+p.id+'" aria-label="'+esc(t("del"))+'">✕</button></div>'}).join("")+
    '</div>'+
    '<div class="drop" id="eDrop" style="margin-top:12px"><b>'+t("addPhotos")+'</b>'+
     '<span>'+t("dropS")+'</span></div>'+
@@ -5032,8 +5054,8 @@ function adminView(){
  else if(ADM.tab==="listings"){
   body='<div class="afilters"><input id="aqL" placeholder="'+t("searchPH")+'" class="asearch">'+
    '<select id="afStatus"><option value="">'+t("allStatus")+'</option>'+
-   ["pending","live","hidden","sold","rented","expired","removed"].map(function(k){
-     return '<option value="'+k+'">'+(k==="hidden"?GX("st_hidden"):t("st_"+k))+'</option>'}).join("")+'</select>'+
+   ["pending","rejected","live","hidden","sold","rented","expired","removed"].map(function(k){
+     return '<option value="'+k+'">'+(k==="hidden"?GX("st_hidden"):k==="rejected"?GX("st_rejected"):t("st_"+k))+'</option>'}).join("")+'</select>'+
    '<select id="afDeal"><option value="">'+t("allDeals")+'</option>'+
    '<option value="sale">'+t("buy")+'</option><option value="rent">'+t("rent")+'</option></select>'+
    '<select id="afTabu"><option value="">'+t("allDeeds")+'</option>'+
@@ -5760,7 +5782,7 @@ function searchesView(){
       '<div style="font-size:13px;color:var(--grey)">'+searchLabel(f)+'</div></div>'+
       '<div style="margin-inline-start:auto;display:flex;gap:8px">'+
       '<button class="btn-n" data-runsearch=\''+JSON.stringify(f)+'\' style="padding:9px 18px">'+t("run")+'</button>'+
-      '<button class="gh" data-delsearch="'+s.id+'" style="margin:0;padding:9px 14px;color:var(--danger)">✕</button>'+
+      '<button class="gh" data-delsearch="'+s.id+'" aria-label="'+esc(t("del"))+'" style="margin:0;padding:9px 14px;color:var(--danger)">✕</button>'+
       '</div></div></div>'}).join("")
   : '<div class="done2"><b style="font-size:17px">'+t("noSearch")+'</b>'+
     '<p style="color:var(--grey);font-size:14px;margin-top:6px">'+t("noSearchP")+'</p>'+
@@ -5903,7 +5925,7 @@ function paintShots(){
  var s=$("#shots"); if(!s)return;
  s.innerHTML=NEW.photos.map(function(p,i){return '<div class="shot2"><img src="'+p.preview+'">'+
   '<div class="kb">'+p.kb+' KB</div>'+
-  '<button class="rm" data-i="'+i+'">✕</button>'+(i===0?'<div class="cv">'+t("cover")+'</div>':'')+'</div>'}).join("");
+  '<button class="rm" data-i="'+i+'" aria-label="'+esc(t("del"))+'">✕</button>'+(i===0?'<div class="cv">'+t("cover")+'</div>':'')+'</div>'}).join("");
  $$("#shots .rm").forEach(function(b){b.onclick=function(){NEW.photos.splice(+b.dataset.i,1);paintShots()}});
  checkPost()}
 
@@ -5989,7 +6011,7 @@ function adSlotsRow(){
        (a.link_url ? '<a class="adslot-visit" href="'+a.link_url+'" target="_blank" rel="noopener sponsored" style="color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+t("adVisitLink")+'</a>' : '')+
        (showTag?'<span class="adtag" style="font-size:var(--tgs);color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+tagText+'</span>':'')+'</div>';
    }
-   return '<a class="adslot'+featCls+'" data-adid="'+a.id+'" '+
+   return '<a class="adslot'+featCls+'" data-adid="'+a.id+'" aria-label="'+esc(unesc(String(a.label||a.sponsor_name||t("adPlaceholder"))))+'" '+
      (isLinked ? 'data-open="'+a.linked_listing_id+'"' : 'href="'+(a.link_url||"#")+'"'+(external?' target="_blank" rel="noopener sponsored"':' onclick="return false"'))+'>'+
      media+chip+featText+(showTag?'<span class="adtag" style="font-size:var(--tgs);color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+tagText+'</span>':'')+'</a>'}).join("");
   // the carousel only actually needs to rotate/scroll if there are
@@ -7108,7 +7130,7 @@ function initMapSearch(){
     marker.on("click", function(){ goToMapListing(x.id) });
     bounds.push([x.lat,x.lng]);
   });
-  if(bounds.length>1){ try{ map.fitBounds(bounds, {padding:[30,30]}) }catch(e){} }
+  if(bounds.length>1){ try{ map.fitBounds(bounds, {padding:[30,30],maxZoom:14}) }catch(e){} }
   _mapSearchInstance = map;
   setTimeout(function(){ if(_mapSearchInstance===map) map.invalidateSize() }, 120);
 }
@@ -7147,11 +7169,11 @@ function chipSelect(id,placeholder,selected,labelFor,compact){
   var sum = compact ? '<div class="cs-sum" data-names="'+esc(JSON.stringify(names))+'" data-ph="'+esc(placeholder)+'">'+(names.length? esc(names[0])+(names.length>1?' <b class="cs-more">+'+(names.length-1)+'</b>':'') : '<span class="ph">'+esc(placeholder)+'</span>')+'</div>'+CHEV : '';
   return '<div class="chipsel'+(compact?' cs-compact':'')+'" id="'+id+'Wrap">'+
    '<div class="chipsel-box">'+sum+
-    '<input class="chipsel-input" id="'+id+'Input" type="search" role="combobox" aria-autocomplete="list" aria-haspopup="listbox" name="cs-'+id+'" data-csfield="'+id+'" placeholder="'+placeholder+'" autocomplete="off">'+
+    '<input class="chipsel-input" id="'+id+'Input" type="search" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-haspopup="listbox" name="cs-'+id+'" data-csfield="'+id+'" placeholder="'+placeholder+'" autocomplete="off">'+
    '</div>'+
    '<div class="chipsel-drop" id="'+id+'Drop"></div>'+
    (selected.length && !compact ? '<div class="chipsel-tags">'+selected.map(function(v){
-      return '<span class="chip">'+labelFor(v)+'<button type="button" class="chip-x" data-csremove="'+id+'" data-csval="'+v+'">×</button></span>'}).join("")+'</div>' : '')+
+      return '<span class="chip">'+labelFor(v)+'<button type="button" class="chip-x" data-csremove="'+id+'" data-csval="'+v+'" aria-label="'+esc(t("del"))+'">×</button></span>'}).join("")+'</div>' : '')+
    '</div>';
 }
 // show as many chosen names as fit in the box, then "+N"
@@ -7491,7 +7513,6 @@ function wire(){
    refreshListingsOnNavigate();
    var ph=await fetchPhotos(id);
    var it=D.LIST.filter(function(l){return String(l.id)===String(id)})[0];
-   console.log("Balkoun: listing "+id+" has "+(ph?ph.length:0)+" photo(s)");
    if(it){ it.photos = ph || []; GI=0; render() } }});
 
  $$("[data-soon]").forEach(function(a){ a.onclick=function(e){ e.preventDefault(); e.stopPropagation(); mdwClose(); soonOpen(this.dataset.soon) } });
@@ -7573,7 +7594,7 @@ function wire(){
    var lbl=D.TYPES[LX.t]?D.TYPES[LX.t][li()]:"";
    var ctx=lbl+" "+LX.m2+" "+t("sqm")+" — "+aN(LX.a)+(L==="ar"?"، ":", ")+gN(LX.g)+" (BK-"+LX.id+")";
    var log=function(kind){ if(DB) DB.rpc("bk_contact",
-     {p_listing:LX.id,p_user:(USER&&USER.id)||null,p_kind:kind}) };
+     {p_listing:LX.id,p_user:(USER&&USER.id)||null,p_kind:kind}).then(null,function(){}) };
 
    if($("#ph")) $("#ph").onclick=function(){
      if(!tel){ this.textContent=t("noPhone"); this.disabled=true; return }
@@ -8880,9 +8901,9 @@ function wireAuth(){
  }
  if($("#chip")){
    $("#chip").onclick=function(e){e.stopPropagation(); if(matchMedia("(max-width:860px)").matches && $("#mdw")){ mdwOpen(); return } closeAllMenus($("#menu")); $("#menu").classList.toggle("on")};
-   document.addEventListener("click",function(){var m=$("#menu");if(m)m.classList.remove("on");
+   if(!window._menuDocClose){ window._menuDocClose=true; document.addEventListener("click",function(){var m=$("#menu");if(m)m.classList.remove("on");
      var nm=$("#notifMenu");if(nm)nm.classList.remove("on");NOTIF_OPEN=false;
-     var nmr=$("#navMoreMenu"); if(nmr) nmr.classList.remove("on")});
+     var nmr=$("#navMoreMenu"); if(nmr) nmr.classList.remove("on")}) }
    if($("#out"))  $("#out").onclick  =function(){
      if(DB&&USER&&USER.token){ DB.rpc("bk_logout",{p_token:USER.token}).then(null,function(){}) }
      USER=null;clearSession();NOTIFS={items:[],unread:0};
@@ -9037,7 +9058,6 @@ function wireAuth(){
      var res=await DB.rpc("bk_set_avatar",{p_id:USER.id,p_url:url});
      if(res.error) throw new Error(res.error.message);
      USER=res.data; saveSession(USER); render();
-     console.log("Balkoun: avatar saved ->", url);
    }catch(e){
      var msg=(e.message||"error");
      if(/bk_set_avatar|does not exist|schema cache|404/i.test(msg)) msg=t("runSql");
@@ -9569,7 +9589,7 @@ async function _loadListingsImpl(){
   // try the view first
   try{
     var res = await DB.from("v_listings").select("*")
-                .eq("country_code",COUNTRY).in("status",["live","pending"]).order("created_at",{ascending:false}).limit(200);
+                .eq("country_code",COUNTRY).in("status",["live","pending"]).order("created_at",{ascending:false}).limit(1000);
     if(res.error) throw res.error;
     rows = escDeep(res.data);
   }catch(e){
@@ -9577,7 +9597,7 @@ async function _loadListingsImpl(){
     // fall back to the raw table + a manual governorate lookup
     try{
       var r2 = await DB.from("listings").select("*")
-                 .eq("country_code",COUNTRY).in("status",["live","pending"]).order("created_at",{ascending:false}).limit(200);
+                 .eq("country_code",COUNTRY).in("status",["live","pending"]).order("created_at",{ascending:false}).limit(1000);
       if(r2.error) throw r2.error;
       var gv = await DB.from("governorates").select("id,name_ar");
       var ar = await DB.from("areas").select("id,name_ar");
@@ -9605,12 +9625,10 @@ async function _loadListingsImpl(){
       if(!ph.error && ph.data){
         var by={}, byV={}; ph.data.forEach(function(p){ if(p.kind==="video"){ (byV[p.listing_id]=byV[p.listing_id]||[]).push({url:esc(safeUrl(p.url)),poster:p.thumb_url?esc(safeUrl(p.thumb_url)):""}) } else (by[p.listing_id]=by[p.listing_id]||[]).push(esc(safeUrl(p.url))) });
         mapped.forEach(function(x){ if(by[x.id]&&by[x.id].length) x.photos=by[x.id]; if(byV[x.id]) x.videos=byV[x.id] });
-        console.log("Balkoun: "+ph.data.length+" photo(s) loaded.");
       }
     }catch(e){ console.warn("photos not loaded:", e.message||e) }
   }
   if(DBCOUNT) D.LIST = mapped.concat(DEMO);
-  console.log("Balkoun: loaded "+DBCOUNT+" listing(s) from the database.");
 }
 
 async function savePost(){
@@ -9855,12 +9873,21 @@ var PAGE_T={
   projects:{ar:"مشاريع جديدة وقيد الإنشاء",en:"New projects",de:"Neubauprojekte"}, project:{ar:"مشروع",en:"Project",de:"Projekt"},
   wanted:{ar:"مطلوب: طلبات المشترين والمستأجرين",en:"Wanted",de:"Gesucht"}, wantedform:{ar:"أضف طلبك",en:"Post a request",de:"Anfrage aufgeben"}
 };
-var _HOME_TITLE=document.title;
+function metaSet(sel,val){ var el=document.querySelector(sel); if(el) el.setAttribute(sel.indexOf("link")===0?"href":"content",val) }
 function setPageMeta(){
   try{
-    var key=VIEW.split(":")[0], o=PAGE_T[key];
+    var key=VIEW.split(":")[0], o=PAGE_T[key], cc=countryOf(COUNTRY)||{}, cn=countryName(cc)||"";
     var brand=(L==="ar"?"بلكون":"Balkoun"), name=(o&&(o[L]||o.en))||key;
-    document.title = VIEW==="home" ? _HOME_TITLE : (name.indexOf(brand)>-1 ? name : name+" | "+brand);
+    var title = VIEW==="home" ? GX("metaHomeT").replace("{c}",cn) : (name.indexOf(brand)>-1 ? name : name+" | "+brand);
+    var desc = GX("metaHomeD").replace("{c}",cn), img="https://balkoun.com/brand/og-image.png";
+    if(key==="listing"){ var lid=VIEW.split(":")[1], x=(D.LIST||[]).filter(function(l){ return String(l.id)===String(lid) })[0];
+      if(x){ var tt=(typeof cardTitle==="function"?cardTitle(x):"")||x.title||name; title=unesc(String(tt))+" | "+brand;
+        desc=[x.a?aN(x.a)+(x.g?"، "+gN(x.g):""):(x.g?gN(x.g):""), x.p?"$"+Number(x.p).toLocaleString("en"):"", x.m2?x.m2+" "+t("sqm"):"", x.r?x.r+" "+t("rooms"):""].filter(Boolean).join(" · ");
+        var ph=(x.photos&&x.photos[0])||x.cover; if(ph){ ph=typeof ph==="string"?ph:(ph.url||ph.thumb||""); if(ph) img=unesc(ph) } } }
+    document.title = title;
+    metaSet('meta[name="description"]',desc); metaSet('meta[property="og:title"]',title); metaSet('meta[property="og:description"]',desc);
+    metaSet('meta[property="og:image"]',img); metaSet('meta[property="og:url"]',"https://balkoun.com"+routePath().replace(/\?.*$/,""));
+    metaSet('meta[property="og:locale"]',({ar:"ar",en:"en",de:"de",fr:"fr"}[L]||"ar")+"_"+(COUNTRY||"SY"));
     var c=document.querySelector('link[rel="canonical"]'); if(c) c.setAttribute("href","https://balkoun.com"+routePath().replace(/\?.*$/,""));
     var r=document.querySelector('meta[name="robots"]');
     if(!r){ r=document.createElement("meta"); r.setAttribute("name","robots"); document.head.appendChild(r) }
@@ -9935,20 +9962,23 @@ function logView(){
   var ref=""; if(!_refLogged){ _refLogged=true; ref=(document.referrer||"").replace(/^https?:\/\//,"").split("/")[0]; if(ref===location.host) ref="" }
   resolveCountry().then(function(c){
     try{ DB.rpc("bk_log_view2",{p_path:location.pathname+location.search,p_view:VIEW.split(":")[0],
-      p_user:(USER&&USER.id)||null,p_country:c||null,p_token:(USER&&USER.token)||null,p_visitor:VID,p_device:deviceKind(),p_referrer:ref,p_site_country:COUNTRY}) }catch(e){}
+      p_user:(USER&&USER.id)||null,p_country:c||null,p_token:(USER&&USER.token)||null,p_visitor:VID,p_device:deviceKind(),p_referrer:ref,p_site_country:COUNTRY}).then(null,function(){}) }catch(e){}
   });
 }
 // ad squares: impressions once per page load, clicks when a square is opened
 function logAds(events){
   if(PREVIEW || !DB || !events || !events.length) return;
   resolveCountry().then(function(c){
-    try{ DB.rpc("bk_log_ads",{p_events:events,p_country:c||null,p_visitor:VID,p_user:(USER&&USER.id)||null,p_token:(USER&&USER.token)||null}) }catch(e){}
+    try{ DB.rpc("bk_log_ads",{p_events:events,p_country:c||null,p_visitor:VID,p_user:(USER&&USER.id)||null,p_token:(USER&&USER.token)||null}).then(null,function(){}) }catch(e){}
   });
 }
 if(!window._adClickLog){ window._adClickLog=true;
   document.addEventListener("click",function(e){ var a=e.target.closest&&e.target.closest(".adsec .adslot[data-adid]"); if(a) logAds([{slot:a.dataset.adid,kind:"click",page:VIEW.split(":")[0]}]) },true);
 }
 var _lastRenderedView = null;
+function fabCheck(){ var f=document.querySelector(".mobfab"); if(!f) return; var foot=document.querySelector("footer"), hide=false; if(foot){ var r=foot.getBoundingClientRect(); if(r.top < window.innerHeight-60) hide=true } document.body.classList.toggle("fab-hide",hide) }
+window.addEventListener("scroll",fabCheck,{passive:true}); window.addEventListener("resize",fabCheck);
+window.addEventListener("unhandledrejection",function(e){ try{ console.warn("Balkoun:", (e.reason&&e.reason.message)||e.reason) }catch(x){} });
 function render(){
  syncHash();
  logView();
@@ -9961,11 +9991,12 @@ function render(){
  // which code path caused the navigation — browser back/forward, an
  // in-app link, a saved-search re-run, all of it.
  if(VIEW!==_lastRenderedView){ _lastRenderedView=VIEW; refreshListingsOnNavigate(); }
- document.documentElement.lang=L; document.documentElement.dir=D.I18N[L].dir;
+ document.documentElement.lang=L; document.documentElement.dir=D.I18N[L].dir; document.documentElement.setAttribute("data-cc",COUNTRY||"SY");
  var body= VIEW==="home"?home(): VIEW==="search"?search(): VIEW==="post"?post():
           VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="areas"?areasView(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): listing(VIEW.split(":")[1]);
  document.body.classList.remove("mdw-open");
  $("#app").innerHTML=header()+body+footer()+authModal()+reportModal();
+ setTimeout(fabCheck,50);
  // home page only: the header sits transparent over the hero photo/video
  // (Bayut-style) and turns solid once the page scrolls — see .home-hero CSS
  document.body.classList.toggle("home-hero", VIEW==="home");
@@ -9998,7 +10029,7 @@ var HX_T={
   c3s:{ar:"اللاذقية وطرطوس",en:"Latakia and Tartus",de:"Latakia und Tartus"},
   c4:{ar:"بيوت الجبل",en:"Mountain homes",de:"Häuser in den Bergen"},
   c4s:{ar:"بلودان والزبداني",en:"Bloudan and Zabadani",de:"Bloudan und Zabadani"},
-  credit:{ar:"صور المجموعات مؤقتة من ويكيميديا كومنز (CC BY-SA)",en:"Collection photos are temporary, from Wikimedia Commons (CC BY-SA)",de:"Sammlungsfotos vorläufig, von Wikimedia Commons (CC BY-SA)"},
+  credit:{ar:"الصور: ويكيميديا كومنز (CC BY-SA)",en:"Photos: Wikimedia Commons (CC BY-SA)",de:"Sammlungsfotos vorläufig, von Wikimedia Commons (CC BY-SA)"},
   trE:{ar:"لماذا بلكون",en:"Why Balkoun",de:"Warum Balkoun"},
   trH:{ar:"سوقٌ نعرفه بيتاً بيتاً.",en:"A market we know house by house.",de:"Ein Markt, den wir Haus für Haus kennen."},
   trP_x:{ar:"بلكون منصّة {adj} بُنيت لسوق {country}: نوع الملكية واضح في كل إعلان، الأسعار بالعملة المحلية وبالدولار، ومكاتب تعرف حارتها أفضل من أي خريطة.",en:"Balkoun is {a} {adj} platform built for the {adj} market: the ownership type is clear on every listing, prices in local currency and in dollars, and agencies that know their street better than any map.",de:"Balkoun ist eine {adj} Plattform für den Markt in {country}: die Eigentumsart steht klar auf jeder Anzeige, Preise in Landeswährung und in Dollar, und Büros, die ihre Straße besser kennen als jede Karte.",fr:"Balkoun est une plateforme {adj} construite pour le marché {adjm} : le type de propriété est clair sur chaque annonce, des prix en monnaie locale et en dollars, et des agences qui connaissent leur rue mieux que n'importe quelle carte."},
@@ -10062,7 +10093,7 @@ function homeTrustHtml(){
   return '<section class="trustb" id="trustSec"><div class="wrap"><div><div class="eyebrow">'+HT("trust_eyebrow",HX("trE"))+'</div><h2>'+HT("trust_h",HX("trH"))+'</h2><p class="lead">'+HT("trust_p",HX("trP"))+'</p>'+
    '<div class="nums"><div><b><span class="ltr">'+areas.toLocaleString("en")+'</span></b><span>'+HX("n1")+'</span></div>'+
    '<div><b><span class="ltr">'+govs+'</span></b><span>'+HX("n2")+'</span></div>'+
-   '<div><b><span class="ltr">0</span><em>%</em></b><span>'+HX("n3")+'</span></div></div></div>'+
+   '<div><b><span class="ltr">0<em>%</em></span></b><span>'+HX("n3")+'</span></div></div></div>'+
    '<div class="tlist">'+
    '<div>'+ic('<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="m9 12 2 2 4-4"/>')+'<div><b>'+HT("trust_t1",HX("t1"))+'</b><p>'+HT("trust_t1p",HX("t1p"))+'</p></div></div>'+
    '<div>'+ic('<path d="M4 19V5m0 14h16M8 15l4-5 3 3 5-6"/>')+'<div><b>'+HT("trust_t2",HX("t2"))+'</b><p>'+HT("trust_t2p",HX("t2p"))+'</p></div></div>'+
@@ -10475,7 +10506,7 @@ function sketchBuild(){
   function finish(){ measure(); var fc=finalCam(); stage.style.transform="none"; tilt.style.transform="rotateX("+fc.t+"deg)"; spin.style.transform="rotateZ("+fc.s+"deg)"; zoom.style.transform="scale("+fc.z+")"; pan.style.transform="translate("+fc.x+"px,"+fc.y+"px)";
     items.forEach(function(it){ it[0].style.strokeDasharray="" }); fades.forEach(function(f){ f[0].setAttribute("opacity",f[3]) }); done=true; rest() }
   function refit(){ if(!done) return; measure(); stage.style.transform="none" }
-  window.addEventListener("resize",refit);
+  if(window._skRefit) window.removeEventListener("resize",window._skRefit); window._skRefit=refit; window.addEventListener("resize",refit);
   return {el:stage, play:play, finish:finish, refit:refit, started:false};
 }
 
@@ -10652,7 +10683,7 @@ function sketchBuildLB(){
   function finish(){ measure(); var fc=finalCam(); stage.style.transform="none"; tilt.style.transform="rotateX("+fc.t+"deg)"; spin.style.transform="rotateZ("+fc.s+"deg)"; zoom.style.transform="scale("+fc.z+")"; pan.style.transform="translate("+fc.x+"px,"+fc.y+"px)";
     items.forEach(function(it){ it[0].style.strokeDasharray="" }); fades.forEach(function(f){ f[0].setAttribute("opacity",f[3]) }); done=true; rest() }
   function refit(){ if(!done) return; measure(); stage.style.transform="none" }
-  window.addEventListener("resize",refit);
+  if(window._skRefit) window.removeEventListener("resize",window._skRefit); window._skRefit=refit; window.addEventListener("resize",refit);
   return {el:stage, play:play, finish:finish, refit:refit, started:false};
 }
 
@@ -10914,6 +10945,7 @@ function applyReveals(){
     if(n>=80 || el.getBoundingClientRect().top < vh*0.92) return;
     el.classList.add("rv"); el.style.transitionDelay=((i%3)*60)+"ms"; io.observe(el); n++;
   });
+  clearTimeout(window._rvSafety); window._rvSafety=setTimeout(function(){ document.querySelectorAll(".rv:not(.in)").forEach(function(el){ el.classList.add("in") }) },1800);
 }
 
 /* custom cursor — desktop with a real mouse only; the native cursor stays on text fields
@@ -11180,6 +11212,9 @@ var GX_T={
   navCountries:{ar:"الدول والأسواق",en:"Countries and markets",de:"Länder und Märkte"},
   cAll:{ar:"كل الدول",en:"All countries",de:"Alle Länder"},
   ticketsTab:{ar:"البطاقات التقنية",en:"Tech tickets",de:"Technische Tickets"},
+  metaHomeT:{ar:"بلكون — عقارات {c} للبيع والإيجار من المالك مباشرة",en:"Balkoun · Real estate in {c}: property for sale and rent, direct from owners",de:"Balkoun · Immobilien in {c}: kaufen und mieten, direkt vom Eigentümer",fr:"Balkoun · Immobilier en {c} : biens à vendre et à louer, directement des propriétaires"},
+  metaHomeD:{ar:"شقق وبيوت وأراضٍ للبيع والإيجار في {c}. نوع الملكية في كل إعلان، بدون عمولة على المشتري، وتواصل مباشر مع المالك.",en:"Apartments, houses and land for sale and rent in {c}. Title deed status on every listing, no buyer commission, direct contact with the owner.",de:"Wohnungen, Häuser und Grundstücke zum Kauf und zur Miete in {c}. Grundbuchstatus bei jeder Anzeige, keine Käuferprovision, direkter Kontakt zum Eigentümer.",fr:"Appartements, maisons et terrains à vendre et à louer en {c}. Titre de propriété sur chaque annonce, aucune commission pour l'acheteur, contact direct avec le propriétaire."},
+  galPrev:{ar:"الصورة السابقة",en:"Previous photo",de:"Vorheriges Foto",fr:"Photo précédente"}, galNext:{ar:"الصورة التالية",en:"Next photo",de:"Nächstes Foto",fr:"Photo suivante"},
   rejectBtn:{ar:"رفض",en:"Reject",de:"Ablehnen"}, rejectReasonQ:{ar:"سبب الرفض (يظهر لصاحب الإعلان في إشعار):",en:"Reason for rejection (the owner sees it in a notification):",de:"Grund der Ablehnung (der Inserent sieht ihn als Benachrichtigung):"},
   ratesInCountries:{ar:"أسعار الصرف لـ {c} تُضبط في صفحة الدول.",en:"Exchange rates for {c} are set on the Countries page.",de:"Die Wechselkurse für {c} werden auf der Länderseite gepflegt."},
   admCountriesL:{ar:"الدول التي يديرها",en:"Countries managed",de:"Verwaltete Länder"}, admCountriesHint:{ar:"لا شيء محدد = كل الدول.",en:"Nothing checked = all countries.",de:"Nichts angehakt = alle Länder."},
@@ -11361,6 +11396,8 @@ function heroPriceLabel(){
   if(F.pmin) return '<span class="ltr">'+f(F.pmin)+'</span> '+GX("andUp");
   return GX("upTo")+' <span class="ltr">'+f(F.pmax)+'</span>';
 }
+Object.assign(FR_GX, {"navH":"Menu et liens de l'en-tête","navHint":"Chaque lien dispose d'un interrupteur d'affichage et d'un numéro d'ordre (le plus petit en premier). Sur téléphone, les liens se trouvent dans le menu ☰ ; sur ordinateur, dans la barre d'en-tête et le menu « Plus ».","navOrder":"Ordre","navPhoneH":"En-tête sur téléphone","navBellPhone":"Afficher la cloche de notifications dans l'en-tête téléphone (membres)","navLoginPhone":"Afficher aussi un bouton Connexion dans l'en-tête téléphone (visiteurs ; le grand bouton dans le menu reste)","navAvatarPhone":"Afficher aussi l'avatar dans l'en-tête téléphone (membres)","navLangHeader":"Afficher la langue (globe) dans l'en-tête téléphone","navLangDrawer":"Puces de langue dans le menu","navCurDrawer":"Sélecteur de devise dans le menu","navMenuDesk":"Bouton ☰ avec l'avatar dans l'en-tête ordinateur (désactivé = l'ancien menu déroulant du compte)","navDeskH":"En-tête sur ordinateur","navLinksDesk":"Liens de sections (collections, zones, guide) dans l'en-tête ordinateur","navMoreDesk":"Le menu déroulant « Plus » et le lien « Pour les agences » dans l'en-tête ordinateur","navCurHeader":"Bouton de devise dans l'en-tête ordinateur (toujours présent dans le menu aussi)","navLoginHeader":"Bouton Connexion dans l'en-tête ordinateur (visiteurs ; le grand bouton dans le menu reste)","rsSyria":"Syrie","tEngage":"Réservations","desc_wanted_adm":"Demandes des membres à la recherche d'un bien : approuver, masquer, mettre à la une et supprimer.","bellWanted":"Demandes en attente d'approbation","wFeature":"Mettre à la une","wUnfeature":"Retirer de la une","wOpenBtn":"Publier","wNone":"Aucune demande pour le moment.","desc_projects_adm":"Projets neufs et en construction : détails, photos, unités, plans de paiement et publication. Plus les demandes d'offres des visiteurs.","pjNew":"+ Nouveau projet","pjEditT":"Détails du projet","pjPublished":"Publié","pjDraft":"Brouillon","pjFeatured":"À la une","pjLeads":"Demandes d'offres","pjHandled":"Traitée","pjUnhandled":"Nouvelle","pjAddUnit":"+ Unité","pjAddPlan":"+ Plan","pjPlanName":"Nom du plan","pjPhotos":"Photos et rendus","pjDelConfirm":"Supprimer ce projet définitivement ?","pjHeadPlan":"Plan principal (affiché sur la carte)","pjDevName":"Nom du promoteur / de la société","pjDevLink":"Lier à une agence approuvée (facultatif)","pjNoLeads":"Aucune demande pour le moment.","navMapNew":"Étiquette « Nouveau » sur le bouton carte (accueil, résultats, menu)","bellT":"Nécessite votre attention","bellNone":"Rien en attente. Tout est en ordre.","bellListings":"Annonces en attente d'approbation","bellAgencies":"Agences en attente d'approbation","bellReports":"Signalements ouverts","bellFeedback":"Nouvelles réclamations et suggestions","bellAlerts":"Notifications non lues","bellLatest":"Dernières","bellOpen":"Ouvrir","desc_agencies_adm":"Demandes des agences : approuver, vérifier, masquer. Une agence approuvée apparaît dans l'annuaire et affiche son logo sur ses cartes.","agApprove":"Approuver","agReject":"Refuser","agHide":"Masquer","agShow":"Afficher","agVerify":"Vérifier","agUnverify":"Retirer la vérification","agView":"Voir la page","agNone":"Aucune agence pour le moment.","r0":"Depuis toujours","engLive":"En cours","engHistory":"Historique","engCode":"Code","engClient":"Client","engPeriod":"Période","engStatus":"Statut","engEnd":"Terminer","engEdit":"Modifier","engCopy":"Copier","engCopied":"Copié ✓","engManual":"+ Enregistrement manuel","engKind":"Type","engKindF":"Annonces à la une","engKindA":"Carrés publicitaires","engKindB":"Bannières","engNotes":"Notes","engDaysLeft":"{n} jours restants","engScheduled":"Programmée","engEnded":"Terminée","engCancelled":"Annulée","engLiveP":"En cours","engEmpty":"Aucun enregistrement sur cette période.","engNoneLive":"Rien en cours pour le moment.","engCodeIs":"Code de réservation :","engRef":"Référence (réf. de l'annonce ou id du carré)","engTitle":"Nom affiché","engFrom":"Du","engTo":"Au","engOpen":"sans date de fin","engViews":"vues","engClicks":"clics","engSaves":"favoris","engBannerN":"Bannière {n}","engSearchPH":"Rechercher par code, client ou annonce…","engEndConfirm":"Terminer cette réservation maintenant ? Elle restera dans l'historique comme terminée.","engHint":"Un code est créé automatiquement pour chaque activation : mise à la une d'une annonce, activation d'un carré publicitaire ou mise en ligne d'une bannière. Donnez-le au client ; lorsqu'il appelle, le code identifie aussitôt la réservation. Les carrés affichent les vues et les clics pendant la période de réservation.","desc_engage":"Tout ce qui est actuellement réservé, annonces à la une, carrés publicitaires et bannières, avec un code par réservation et l'historique complet par période.","navSoonHeader":"Afficher les services « bientôt disponibles » dans la barre d'en-tête ordinateur (toujours présents dans le menu aussi)","geoTab":"Zones","cities":"Villes","districts":"Quartiers et zones","geoH":"Gouvernorats et zones","geoHint":"Les modifications effectuées ici apparaissent immédiatement dans la recherche de la page d'accueil et les pages de zones. Les villes sont listées en premier. Une zone contenant des annonces ne peut pas être supprimée ; masquez-la plutôt.","pickGov":"Choisissez un gouvernorat","nameAr":"Nom en arabe","nameEn":"Nom en anglais","slug":"Slug d'URL","kind":"Type","order":"Ordre","shown":"Affichée","listings":"annonces","save":"Enregistrer","del":"Supprimer","add":"Ajouter une zone","saved":"Enregistré","hasListings":"Suppression impossible : cette zone contient des annonces. Masquez-la plutôt.","slugTaken":"Ce slug d'URL est déjà utilisé dans ce gouvernorat","govRow":"Paramètres du gouvernorat","confirmDel":"Supprimer cette zone définitivement ?","pages":"Page du gouvernorat","heroBgDawnL":"Illustration de l'aube à Damas (animée, sans vidéo)","heroBgSketchL":"Dessin au trait doré de Damas sur fond bleu marine (se dessine puis brille)","aNavSearch":"Rechercher dans le panneau…","navListings":"Annonces","navMarketing":"Marketing et revenus","navWebsite":"Site web","navSystem":"Système","tBanners":"Bannières","tDesign":"Recherche et cartes","tContact":"Contact","tSystem":"Paramètres système","tMedia":"Médiathèque","aLang":"Langue du panneau","desc_dashboard":"Aujourd'hui en un coup d'œil : annonces, membres, alertes et stockage.","desc_stats":"Visiteurs, pages les plus vues, pays et membres en ligne.","desc_listings":"Vérifier les nouvelles annonces, approuver ou masquer, modifier et supprimer.","desc_featured":"Les annonces à la une sont épinglées en tête des résultats pour une période définie.","desc_photos":"Toutes les photos et vidéos téléversées : annonces, carrés publicitaires, bannières et arrière-plan.","desc_users":"Membres, leurs niveaux et badges, blocage et réinitialisation des mots de passe.","desc_reviews":"Avis entre membres, avec possibilité de suppression.","desc_ads":"Carrés publicitaires avec aperçu en direct : réglages de la rangée, design du carré, performances, puis chaque carré. Les modifications s'affichent instantanément et s'enregistrent d'un seul bouton.","desc_banners":"Trois bannières avec aperçu en direct : médias, taille, position horizontale et verticale, texte et lien, pour ordinateur et téléphone.","desc_mainpage":"Un aperçu en direct de la page d'accueil avec toutes ses sections : choisissez une section, modifiez-la, voyez le résultat instantanément sur ordinateur ou téléphone, puis enregistrez.","desc_design":"La page de résultats avec aperçu en direct : taille des cartes, badges, résultats par page, et les liens de l'en-tête et du menu.","desc_geo":"Gouvernorats et zones : noms, ordre, affichées ou masquées.","countriesTab":"Pays","desc_countries":"Activez ou désactivez le site par pays, et définissez les noms, devises, indicatif téléphonique, fuseaux horaires et types de titres de propriété. La Syrie est le pays par défaut.","cEnabled":"Le site est actif dans ce pays","cOn":"Actif","cDefault":"Pays par défaut","cMakeDefault":"Définir par défaut","cCurrencies":"Devises (la première est celle par défaut, séparées par des virgules)","cPhone":"Indicatif téléphonique","cTz":"Fuseaux horaires (utilisés pour ouvrir automatiquement le site sur ce pays)","cLangs":"Langues disponibles","cDeeds":"Types de titres de propriété","cStrong":"Titre fort","cStrongHint":"Les types forts sont comptabilisés dans le nombre de « titres vérifiés » sur la page d'accueil.","cNotes":"Notes internes","cRates":"Taux de change vers l'USD (par devise)","cCounts":"{g} gouvernorats · {a} zones · {l} annonces · {w} demandes · {ag} agences · {ad} publicités payantes","cDisableWarn":"Les visiteurs cesseront immédiatement de voir ce pays. Les annonces et les données restent stockées et vous pouvez le réactiver à tout moment. Continuer ?","cCantDisableDefault":"Le pays par défaut ne peut pas être désactivé. Définissez d'abord un autre pays par défaut.","cSetup":"Configuration : {c}","cSetupHint":"Chaque bouton ouvre la page d'administration déjà réglée sur ce pays. Tout ce que vous y modifiez ne concerne que ce pays.","cBg":"Arrière-plan de la page d'accueil","cBanners":"Bannières","cAdsRow":"Rangée de publicités","cFeatured":"Annonces à la une","bg_none_s":"vide","bg_sketch_s":"croquis de Damas","bg_dawn_s":"ciel de l'aube","bg_video_s":"vidéo","bg_photo_s":"photo","cEditing":"En cours de modification","cSwitchTo":"Passer à un autre pays","cOffShort":"inactif","navCountries":"Pays et marchés","cAll":"Tous les pays","ticketsTab":"Tickets techniques","rejectBtn":"Refuser","rejectReasonQ":"Motif du refus (le propriétaire le verra dans une notification) :","ratesInCountries":"Les taux de change pour {c} se règlent sur la page Pays.","admCountriesL":"Pays gérés","admCountriesHint":"Aucune case cochée = tous les pays.","noPermTab":"Vous n'avez pas l'autorisation d'accéder à cette section.","confirmBlock":"Bloquer ce membre ? Il ne pourra plus se connecter ni publier.","confirmSendAll":"Envoyer cette notification à tous les membres de {c} ?","confirmReject":"Refuser cette demande ?","cMakeDefaultConfirm":"Définir ce pays par défaut pour les nouveaux visiteurs ?","hsDiscardConfirm":"Abandonner toutes les modifications non enregistrées ?","noAdminsYet":"Aucun administrateur pour le moment","retryBtn":"Réessayer","loadFailed":"Chargement impossible","dzScopeNote":"Les opérations de suppression de cette page s'appliquent à : {c}","desc_tickets":"Une seule liste pour tout ce qui nécessite un traitement technique. Transférez-y n'importe quel signalement ou réclamation avec le bouton « Transférer en ticket », ou ajoutez un ticket manuellement. Chaque ticket a un numéro fixe.","tkNew":"Nouveau ticket","tkTitle":"Titre","tkBody":"Détails","tkContact":"Contact","tkAddBtn":"Ajouter le ticket","tkTitleReq":"Saisissez un titre","tkSt_open":"Ouvert","tkSt_progress":"En cours","tkSt_done":"Terminé","tkStatus":"Statut","tkSrc_feedback":"Depuis un retour","tkSrc_report":"Depuis un signalement","tkSrc_manual":"Manuel","tkNotes":"Notes de travail","tkNotesPH":"Ce qui a été fait, ce qui reste…","tkSave":"Enregistrer","tkDoneAt":"Terminé","tkTransfer":"Transférer en ticket technique","tkTransferred":"Transféré vers le ticket {c}","tkCreated":"Ticket {c} créé ; l'élément est marqué comme résolu.","tkOpenSource":"Ouvrir la source","noTickets":"Aucun ticket","msgVisitorNoReply":"Visiteur sans compte : une réponse ne peut pas lui parvenir dans le site. S'il a laissé un téléphone ou un e-mail, contactez-le directement.","loginLocked":"Trop de tentatives incorrectes. Attendez 15 minutes puis réessayez.","resetWaNote":"Dès réception de votre message, nous vérifions que le numéro est bien le vôtre et vous envoyons un mot de passe temporaire sur WhatsApp. Vous pourrez ensuite le changer depuis votre compte.","cChange":"Changer","notifDel":"Supprimer la notification","notifClearAll":"Tout effacer","noLimit":"Sans limite","notif_welcomeT":"Bienvenue sur Balkoun 👋","notif_welcomeB":"Ravis de vous compter parmi nous. Publiez gratuitement votre première annonce en deux minutes, ou commencez à chercher votre prochain logement.","roomsField":"Pièces","rooms1":"1 pièce","rooms2":"2 pièces","roomsN":"{n} pièces","cScopeNote":"Chiffres affichés pour","cScopeHintOne":"Changez le pays en haut de la page pour voir un autre pays, ou choisissez « Tous les pays ».","cBySite":"Visites par pays du site","cListingsBy":"Annonces par pays","cMineOnly":"Votre accès couvre uniquement ces pays","cTurnOn":"Activer le site en {c}","cTurnOff":"Désactiver le site en {c}","cAddDeed":"Ajouter un type","cGovAdd":"Ajouter un gouvernorat","cSuperOnly":"Seul le super administrateur peut activer ou désactiver des pays.","cDeedCode":"Code","cTypes":"Types de biens (noms tels qu'utilisés dans ce pays)","cSettingsOf":"Paramètres de {c} dans le panneau","cSettingsHint":"Chacune de ces pages ne modifie que ce pays : page d'accueil et son arrière-plan, bannières, publicités, design, contact et zones.","cSort":"Ordre","cChooserH":"Sélecteur de pays à l'ouverture","cChooserHint":"Auto : affiché uniquement aux visiteurs venant d'un pays non desservi par le site (le pays est détecté d'après le fuseau horaire de l'appareil, puis l'adresse Internet) ; dans un pays desservi, le site s'ouvre directement sur le pays du visiteur. Toujours : affiché à chaque nouveau visiteur. Désactivé : jamais affiché ; le site s'ouvre sur le pays détecté ou par défaut. Le choix du visiteur est mémorisé sur son appareil.","cChooserAuto":"Auto (recommandé)","cChooserAlways":"Toujours","cChooserOff":"Désactivé","videoSetH":"Vidéos des annonces","videoSetHint":"Les annonceurs peuvent téléverser une courte vidéo avec leurs photos ; elle apparaît sur la page de l'annonce et sous forme de badge ▶ sur la carte. Le serveur accepte des fichiers individuels jusqu'à 50 Mo.","videoEnabledL":"Autoriser les annonceurs à téléverser une vidéo","videoMaxMbL":"Taille maximale (Mo)","videoMaxSL":"Durée maximale (secondes)","videoMaxNL":"Vidéos par annonce","desc_contact":"Réseaux sociaux et numéros de contact tels qu'ils apparaissent dans le pied de page du site, avec aperçu en direct.","desc_reports":"Signalements des visiteurs concernant des annonces : répondre, prioriser, clôturer.","desc_feedback":"Réclamations et suggestions envoyées depuis la page de contact.","desc_msgs":"Alertes du panneau, et notifications envoyées à un membre ou à tous.","desc_settings":"Approbation des annonces, taux de change de la livre syrienne et paramètres généraux.","desc_admins":"Comptes administrateurs et ce que chacun est autorisé à faire.","desc_danger":"Sauvegarde complète, restauration et opérations de suppression en masse.","cardLogoCol":"Logo sur les cartes","cardLogoHint":"Pour les agences : la photo du compte s'affiche comme logo avec son nom sur les cartes d'annonces dans les résultats de recherche.","tStorage":"Stockage et bande passante","desc_storage":"Ce qui remplit le stockage, les fichiers orphelins, les plus gros fichiers et les limites du forfait Supabase.","stPlanH":"Forfait et limites","stPlan":"Forfait Supabase actuel","stPlanFree":"Free — gratuit","stPlanPro":"Pro — 25 $ / mois","stStorageLimit":"Limite de stockage des fichiers","stEgress":"Bande passante mensuelle (téléchargement des photos et vidéos par les visiteurs)","stEgressNote":"La bande passante ne peut pas être lue d'ici ; elle apparaît dans le tableau de bord Supabase sous Usage. Ce sont les grosses vidéos qui la consomment le plus vite.","stOpenUsage":"Ouvrir la page d'utilisation Supabase ↗","stUsageH":"Utilisation actuelle","stRefresh":"Actualiser les chiffres","stByKindH":"Répartition par type","stKind":"Type","stFiles":"Fichiers","stSize":"Taille","stShare":"Part","k_ad_videos":"Vidéos des carrés publicitaires","k_ad_photos":"Photos des carrés publicitaires","k_banners":"Bannières","k_background":"Arrière-plan de la page d'accueil","k_avatars":"Photos des membres","k_listings":"Photos des annonces actuelles","k_orphans":"Fichiers orphelins (annonces supprimées)","k_other":"Autre","stOrphansH":"Fichiers orphelins","stOpenEgress":"Rapport mensuel de bande passante (Storage)","stTrashOrig":"Dossier d'origine","stRestore":"Restaurer","stDelOneConfirm":"Supprimer ce fichier pour de bon ?","stRestoreFailed":"Restauration impossible : un fichier du même nom existe peut-être déjà à l'emplacement d'origine.","stOrphansHint":"Dossiers de photos d'annonces qui n'existent plus et vers lesquels rien ne pointe. Ils ne figurent pas dans la médiathèque et les visiteurs ne les voient jamais ; les supprimer ne fait que libérer de l'espace.","stNoOrphans":"Aucun fichier orphelin. Le stockage est propre.","stFolder":"Dossier","stDelOrphans":"Supprimer tous les fichiers orphelins","stDelConfirm":"{n} fichiers seront définitivement supprimés du stockage. Cette action est irréversible. Continuer ?","stDeleting":"Suppression…","stTopH":"10 plus gros fichiers","stFile":"Fichier","stDate":"Date","stOpen":"Ouvrir","stTipsH":"Conseils pour économiser espace et bande passante","stTip1":"Une vidéo de carré publicitaire s'affiche à 170 px ; exportez-la en 720p et 10–20 secondes et elle pèsera 1–2 Mo au lieu de 30–40 Mo.","stTip2":"Les photos des annonces sont compressées au téléversement (1000 px, JPEG), donc environ un demi-mégaoctet par annonce est normal.","stTip3":"La bande passante est consommée chaque fois qu'un visiteur télécharge un fichier. Les vidéos de la rangée publicitaire ne se chargent désormais que lorsqu'elles sont à l'écran.","k_trash":"Corbeille","stTrashH":"Corbeille","stTrashHint":"Chaque photo ou vidéo supprimée d'une annonce ou d'un carré publicitaire arrive ici d'abord et occupe encore de l'espace. Videz la corbeille pour le récupérer définitivement.","stTrashEmptyState":"La corbeille est vide.","stEmptyTrash":"Vider la corbeille","stTrashConfirm":"{n} fichiers seront définitivement supprimés de la corbeille. Cette action est irréversible. Continuer ?","unhide":"Réafficher","bannersNote":"Les bannières ne sont pas affichées sur le site pour le moment. Les paramètres sont conservés ici jusqu'à la mise en ligne de la nouvelle bannière.","uJoined":"Inscrit le","uActive":"Actif","uBlocked":"Bloqué","uActions":"Actions","uClose":"Fermer","uViewListings":"Voir les annonces","uMessage":"Envoyer une notification","uLevelHint":"Le niveau détermine le badge affiché à côté du nom sur le site.","uAutoHint":"Publication automatique : les annonces de ce membre sont mises en ligne sans vérification.","uCount":"membres","uNoPhone":"sans numéro","uSummary":"Résumé","uModeration":"Modération","uDanger":"Compte","r1":"Dernières 24 heures","r7":"7 derniers jours","r30":"30 derniers jours","r90":"90 derniers jours","r365":"Dernière année","vsPrev":"vs période précédente","kViews":"Pages vues","kVisitors":"Visiteurs","kListingViews":"Vues d'annonces","kNewUsers":"Nouveaux membres","kNewListings":"Nouvelles annonces","kContacts":"Contacts (appel/WhatsApp)","kAdClicks":"Clics publicitaires","kAdViews":"Impressions publicitaires","kSaves":"Favoris","kActiveUsers":"Membres actifs","chVisits":"Visites et visiteurs","chGrowth":"Croissance : nouveaux membres et annonces","chEngage":"Engagement : contacts et clics publicitaires","topListingsH":"Annonces les plus vues","topAdsH":"Performance des carrés publicitaires","colViews":"Vues","colContacts":"Contacts","colSaves":"Favoris","colClicks":"Clics","colCtr":"CTR","colImpr":"Impressions","colFrom":"Provenance","colLastSeen":"Dernière activité","colTotal":"Total","pagesH":"Pages les plus visitées","countriesH":"Pays","devicesH":"Appareils","referrersH":"Sources de trafic","contactKindsH":"Types de contact","usersActH":"Activité des membres","listingsStatusH":"Annonces par statut","healthH":"État du site","hPending":"En attente de vérification","hReports":"Signalements ouverts","hFeedback":"Retours ouverts","hNoPhotos":"Annonces sans photos","hFeatExp":"À la une expirant dans 3 jours","hBlocked":"Membres bloqués","hLastView":"Dernière visite enregistrée","hStorage":"Stockage","hOk":"Tout va bien","act24":"Actifs sur 24 h","act7":"Actifs sur 7 jours","act30":"Actifs sur 30 jours","actOld":"Inactifs","never":"jamais","device_mobile":"Mobile","device_desktop":"Ordinateur","direct":"Direct","ck_call":"Appel","ck_whatsapp":"WhatsApp","ck_reveal_phone":"Afficher le numéro","ck_visit_request":"Demande de visite","noData":"Aucune donnée pour cette période pour le moment.","sortNewest":"Plus récentes","sortViews":"Plus vues","sortContacts":"Plus contactées","adsPerfHint":"Une impression est enregistrée une fois par chargement de la page d'accueil, un clic lorsque le carré est ouvert. « Provenance » = page et pays d'origine des clics.","adSlotN":"Carré {n}","adVideoOnly":"vidéo","dDesk":"Ordinateur","dPhone":"Téléphone","dSame":"identique à l'ordinateur","dHint":"Chaque champ a deux valeurs : ordinateur et téléphone. Laissez celle du téléphone vide pour réutiliser la valeur de l'ordinateur.","cardSizeDual":"Largeur minimale des cartes de résultats (px)","hlH":"Disposition de la page d'accueil : positions et tailles","hlHint":"Valeurs en pixels ; positif déplace vers la droite/le bas, négatif vers la gauche/le haut. L'échelle est un pourcentage (100 = original). Chaque champ : ordinateur puis téléphone.","hlDraw":"Le dessin (mosquée et place des Omeyyades)","hlHead":"Titre","hlBar":"Barre de recherche","hlX":"Décalage horizontal (px)","hlY":"Décalage vertical (px)","hlScale":"Échelle (%)","hlW":"Largeur maximale (px)","hlFieldH":"Hauteur des champs (px)","furnField":"Ameublement","adRowH":"La rangée de publicités","adLookH":"Design du carré","adPreview":"Aperçu en direct","adPreviewHint":"L'aperçu se met à jour pendant que vous modifiez ; appuyez sur Enregistrer pour l'appliquer au site.","adSizeHint":"De 100 à 260 px. Sur téléphone, le carré est limité à 130 pour que la rangée tienne encore.","adColorsSub":"Couleurs","adInfoSub":"Infos du bien sur la photo","adTagSub":"Mention « Pub »","xDefaultHint":"Laissez vide pour utiliser la valeur par défaut.","xHomeH":"Animation et comportement","xOpening":"Scène d'ouverture (le nom de la marque s'élève, puis l'en-tête descend)","xCursor":"Point de curseur doré sur la page d'accueil (ordinateur)","xPhoneMode":"Titre sur téléphone","xPhoneAfter":"Apparaît après la fin du dessin et le pousse sur le côté","xPhoneNow":"S'affiche immédiatement","xFlipAr":"Mot avant « بلكون » dans le titre animé (arabe)","xFlipLatin":"Texte de la marque dans le titre animé (EN/DE)","xHeroMax":"Hauteur maximale de la section d'accueil sur ordinateur (px)","xAdsH":"La rangée de publicités : visibilité, titres et vitesse","xAdsOn":"Afficher la rangée de carrés publicitaires sous la barre de recherche","xAdsTitle":"Titre de la rangée","xAdsSponsored":"Mention « Sponsorisé »","xAdGlide":"Secondes par carré pour un tour complet","xAdVideoMax":"Taille maximale des vidéos publicitaires (Mo)","xDesignH":"Résultats","xPageSize":"Annonces par page de résultats","xSimilar":"« Autres annonces » affichées sous une annonce","adVideoTooBig":"Cette vidéo est trop volumineuse ({mb} Mo). La limite est de {max} Mo — exportez-la en 720p ou moins et gardez-la courte, puis téléversez-la à nouveau.","adVideoHint":"Vidéo : jusqu'à {max} Mo, idéalement 720p et 10–20 secondes"});
+if(GX_T.furnField){ GX_T.furnField.en=GX_T.furnField.en||"Furnishing"; GX_T.furnField.de=GX_T.furnField.de||"Möblierung" }
 Object.keys(FR_GX).forEach(function(k){ if(GX_T[k]) GX_T[k].fr=FR_GX[k] });
 function GX(k){ var o=GX_T[k]||{}; var v=o[L]||o.en||k; if(COUNTRY!=="SY"){ if(k==="f_wTabu"){ var dl=deedLabel(); return pickL({ar:dl.ar+" المفضّل",en:"Preferred "+dl.en.toLowerCase(),de:"Bevorzugte "+dl.de,fr:dl.fr+" préféré"}) } v=cLocal(v) } return exFill(v) }
 var AD_VIDEO_MAX_MB=8;
@@ -12414,6 +12451,7 @@ if(USER&&DB){
 /* ═══ installable app (PWA) ═══ */
 window.PWA=(function(){
   var deferred=null, standalone=window.matchMedia("(display-mode: standalone)").matches || navigator.standalone===true, ios=/iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream, iosSafari=ios && /safari/i.test(navigator.userAgent) && !/crios|fxios|edgios/i.test(navigator.userAgent);
+  try{ if(!sessionStorage.getItem("bk_v")){ sessionStorage.setItem("bk_v","1"); localStorage.setItem("bk_visits", String((+localStorage.getItem("bk_visits")||0)+1)) } }catch(e){}
   function installable(){ return !standalone && !PREVIEW && (!!deferred || iosSafari) }
   function refreshDrawer(){ var sec=document.getElementById("mdwInstallSec"); if(sec) sec.hidden=!installable() }
   function toast(msg,btn,fn){ var old=document.getElementById("pwaToast"); if(old) old.remove(); var d=document.createElement("div"); d.className="pwa-toast"; d.id="pwaToast"; d.innerHTML='<span>'+msg+'</span>'+(btn?'<button type="button">'+btn+'</button>':''); document.body.appendChild(d); if(btn) d.querySelector("button").onclick=fn; if(!btn) setTimeout(function(){ d.remove() },4500) }
@@ -12424,6 +12462,7 @@ window.PWA=(function(){
   function hideBar(){ var b=document.getElementById("pwaBar"); if(b) b.remove() }
   function bar(){
     if(!installable() || window.innerWidth>860 || SX("pwa_banner",true)===false || VIEW==="admin") return;
+    try{ if((+localStorage.getItem("bk_visits")||0)<2) return }catch(e){}   // first visit: let people see the site first
     try{ var until=+localStorage.getItem("bk_pwa_snooze")||0; if(Date.now()<until) return }catch(e){}
     if(document.getElementById("pwaBar")) return;
     var d=document.createElement("div"); d.className="pwa-bar"; d.id="pwaBar";
