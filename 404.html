@@ -1882,7 +1882,13 @@ h1,h2,h3,.logo,.hero h1{letter-spacing:0}
 .adm .ashell{max-width:none;margin:0;align-items:stretch}
 .adm .asidebar{width:240px;min-height:calc(100vh - 58px);top:58px;background:#fff;border-inline-end:1px solid var(--line);padding:14px 10px}
 .adm .asidebar-group{margin-bottom:12px}
-.adm .asidebar-label{color:var(--gold);font-size:10.5px;letter-spacing:.06em;padding:8px 10px 4px}
+.adm .asidebar-label{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:0;cursor:pointer;font:inherit;text-align:start;color:var(--gold);font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:8px 10px 4px;border-radius:6px}
+.adm .asidebar-label:hover{background:var(--page)}
+.adm .asidebar-chev{display:inline-block;font-size:15px;line-height:1;opacity:.55;transform:rotate(90deg);transition:transform .2s}
+[dir=rtl] .adm .asidebar-chev{transform:rotate(90deg)}
+.adm .asidebar-group.folded .asidebar-chev{transform:rotate(0deg)}
+[dir=rtl] .adm .asidebar-group.folded .asidebar-chev{transform:rotate(180deg)}
+.adm .asidebar-group.folded .asidebar-items{display:none}
 .adm .asidebar a{padding:8px 10px;border-radius:9px;font-size:13.5px;gap:10px;color:var(--ink)}
 .adm .asidebar a:hover{background:#F3F4F7}
 .adm .asidebar a.on{background:var(--navy);color:#fff}

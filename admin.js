@@ -1,3 +1,4 @@
+var ADM_FOLDS=(function(){ try{ return JSON.parse(localStorage.getItem("bk_adm_folds")||"{}")||{} }catch(e){ return {} } })();   // which sidebar groups the admin folded, per browser
 /* Balkoun admin panel + homepage studio. Loaded on demand by ensureAdminJs() in index.html. Same global scope as the shell. */
 async function storageCall(body){
   var ctx = (ADM&&ADM.token) ? {role:"admin",token:ADM.token} : {role:"member",token:(USER&&USER.token)||null};
@@ -615,8 +616,9 @@ function adminView(){
       return rows}).join("")+'</tbody></table></div>');
  }
 
- var sec=function(label,items){ return items.some(Boolean) ? '<div class="asidebar-group">'+
-   '<div class="asidebar-label">'+label+'</div>'+items.join("")+'</div>' : ''};
+ var sec=function(label,items,key,hasActive){ if(!items.some(Boolean)) return ''; var folded=!!ADM_FOLDS[key] && !hasActive;
+   return '<div class="asidebar-group'+(folded?' folded':'')+'" data-gkey="'+key+'"><button type="button" class="asidebar-label" aria-expanded="'+(folded?'false':'true')+'">'+label+'<span class="asidebar-chev" aria-hidden="true">›</span></button>'+
+   '<div class="asidebar-items">'+items.join("")+'</div></div>' };
 
  var NAV=[
    {g:t("navOverview"), items:[["dashboard",t("dashboardTab"),null,AICO.dash,true],["stats",t("visitorStats"),null,AICO.chart,can("stats")]]},
@@ -653,7 +655,7 @@ function adminView(){
    '<span class="xmsg">'+(ADM.myPwMsg||"")+'</span></div>'+
    '</div></div></div>' : '')+
   '<div class="ashell">'+
-   '<nav class="asidebar" id="aSidebar">'+NAV.map(function(g){ return sec(g.g, g.items.map(function(it){ return it[4] ? tab(it[0],it[1],it[2],it[3]) : "" })) }).join("")+'</nav>'+
+   '<nav class="asidebar" id="aSidebar">'+NAV.map(function(g){ return sec(g.g, g.items.map(function(it){ return it[4] ? tab(it[0],it[1],it[2],it[3]) : "" }), g.items[0][0], g.items.some(function(it){ return it[0]===ADM.tab })) }).join("")+'</nav>'+
    '<main class="acontent"><div class="apage-h"><div>'+'<div class="apage-crumb">'+curGroup+(COUNTRY!=="SY"?(curGroup?' · ':'')+flagOf(COUNTRY)+' '+esc(countryName(countryOf(COUNTRY)))+'</div>':'</div>')+'<h1>'+curLabel+'</h1>'+
     (GX_T["desc_"+ADM.tab]?'<p>'+GX("desc_"+ADM.tab)+'</p>':'')+'</div></div>'+adminCountryBar()+body+'</main>'+
   '</div></div>'}
@@ -808,7 +810,9 @@ function wireAdmin(){
   if(!window._admSbClose){ window._admSbClose=true;   // tap outside or Escape closes the phone sidebar (once per page, not per render)
     document.addEventListener("click",function(e){ var sb=$("#aSidebar"); if(sb && sb.classList.contains("on") && !e.target.closest("#aSidebar,#aSidebarToggle")) sb.classList.remove("on") });
     document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ var sb=$("#aSidebar"); if(sb) sb.classList.remove("on") } }) }
+  $$("#aSidebar .asidebar-label").forEach(function(b){ b.onclick=function(){ var g=this.closest(".asidebar-group"); if(!g) return; g.classList.toggle("folded"); var f=g.classList.contains("folded"); ADM_FOLDS[g.dataset.gkey]=f; this.setAttribute("aria-expanded",f?"false":"true"); try{ localStorage.setItem("bk_adm_folds",JSON.stringify(ADM_FOLDS)) }catch(e){} } });
   var nq=$("#aNavQ"); if(nq){ nq.oninput=function(){ var q=this.value.trim().toLowerCase();
+    $$("#aSidebar .asidebar-group").forEach(function(g){ g.classList.toggle("folded", !q && !!ADM_FOLDS[g.dataset.gkey] && !g.querySelector("a.on")) });   // a search opens every group; clearing it restores the folds
     $$("#aSidebar a[data-atab]").forEach(function(a){ a.hidden = !!q && a.textContent.toLowerCase().indexOf(q)===-1 });
     $$("#aSidebar .asidebar-group").forEach(function(g){ g.hidden = !!q && !g.querySelector("a[data-atab]:not([hidden])") }) };
     nq.onkeydown=function(e){ if(e.key==="Enter"){ var a=$("#aSidebar a[data-atab]:not([hidden])"); if(a) a.click() } } }
