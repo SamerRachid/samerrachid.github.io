@@ -921,6 +921,11 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
 .inbox-row-badge{display:inline-block;margin-top:4px;font-size:10px;font-weight:700;color:var(--ok);
   background:var(--ok-w);padding:1px 7px;border-radius:9px}
 .inbox-back{display:none;margin-bottom:12px}
+.adm .navrow{display:grid;grid-template-columns:1fr auto auto auto;gap:6px 12px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.adm .navrow .navname{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;min-width:0}
+.adm .navrow .navflag{margin:0;font-size:12.5px;white-space:nowrap}
+.adm .navrow-off .navname{opacity:.55}
+@media(max-width:700px){.adm .navrow{grid-template-columns:1fr 1fr;} .adm .navrow .navname{grid-column:1/-1}}
 .cchoose-p .blogo-w small{color:#5B6371}
 .st.st-rejected{background:#FBEAE8;color:var(--danger)}
 #admToast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,16px);background:var(--navy);color:#fff;padding:10px 18px;border-radius:12px;font-size:13.5px;font-weight:600;box-shadow:0 14px 34px -10px rgba(9,14,26,.5);opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;z-index:1500;max-width:min(90vw,480px)}
@@ -3433,8 +3438,15 @@ var NAVI=[
   {k:"agencies",g:"site",lab:function(){return GX("agDirShort")},ico:"agency",attrs:'data-go="agencies"',o:110}
 ];
 function navAttrs(i){ return typeof i.attrs==="function" ? i.attrs() : i.attrs }
-function navOn(k){ var it=NAVI.filter(function(i){ return i.k===k })[0]; if(it&&it.hide&&it.hide()) return false; return SX("nav_"+k,true)!==false }
-function navItems(){ return NAVI.filter(function(i){ return navOn(i.k) }).map(function(i){ var o=SX("nav_"+i.k+"_o",""); return {i:i,o:o===""?i.o:+o} }).sort(function(a,b){ return a.o-b.o }).map(function(x){ return x.i }) }
+function SXb(k,d){ var v=SX(k,d); if(v===false||v==="false"||v===0||v==="0") return false; if(v===true||v==="true"||v===1||v==="1") return true; return d }   // booleans saved by older panels arrived as strings
+var NAV_HEADER_DEF={coll:1,wanted:1,guide:1,agencies:1,projects:1,legal:1};   // the links that sit in the desktop header unless the admin says otherwise
+function navOn(k){ var it=NAVI.filter(function(i){ return i.k===k })[0]; if(it&&it.hide&&it.hide()) return false; return SXb("nav_"+k,true) }   // in the menu (drawer)
+function navHeaderOn(k){ var it=NAVI.filter(function(i){ return i.k===k })[0]; if(!it||(it.hide&&it.hide())) return false; if(it.soon && !SXb("nav_soon_header",true)) return false; return SXb("nav_"+k+"_h",!!NAV_HEADER_DEF[k]) }   // in the desktop header
+function navSorted(list){ return list.map(function(i){ var o=SX("nav_"+i.k+"_o",""); return {i:i,o:o===""?i.o:+o} }).sort(function(a,b){ return a.o-b.o }).map(function(x){ return x.i }) }
+function navItems(){ return navSorted(NAVI.filter(function(i){ return navOn(i.k) })) }
+function navHeaderItems(){ return navSorted(NAVI.filter(function(i){ return navHeaderOn(i.k) })) }
+function navHeaderLink(i){ var tag=i.soon?GX("soon"):i.tag?GX(i.tag):""; var attrs=i.k==="coll"?'data-scroll="collsSec"':i.k==="guide"?'data-scroll="guidesSec"':i.k==="expl"?'data-scroll="explSec"':navAttrs(i);
+  return '<a '+attrs+(tag?' class="hsoon"':'')+'>'+i.lab()+(tag?'<i>'+tag+'</i>':'')+'</a>' }
 // the phone drawer: account, then the link groups, then language and currency
 function mdrawer(){
   var items=navItems(); var grp=function(g){ return items.filter(function(i){ return i.g===g }) };
@@ -3575,9 +3587,7 @@ function header(){
   '<a class="logo blogo" data-go="home" aria-label="'+esc(CONFIG.brand)+' Balkoun">'+brandLogo()+'</a>'+
   '<nav class="hnav">'+
   // home page: editorial links first (they scroll to the page's own sections), "More" keeps the rest
-  (navOn("coll")?'<a data-scroll="collsSec">'+HX("navColl")+'</a>':'')+(navOn("wanted")&&wantedOn()?'<a data-go="wanted" class="hsoon">'+GX("wDirShort")+'<i>'+GX("newTag")+'</i></a>':'')+(navOn("guide")?'<a data-scroll="guidesSec">'+HX("navGuide")+'</a>':'')+(navOn("agencies")?'<a data-go="agencies">'+GX("agDirShort")+'</a>':'')+
-  (navOn("projects")?'<a data-go="projects" class="hsoon">'+GX("pjDirShort")+'<i>'+GX("soon")+'</i></a>':'')+
-  (SX("nav_soon_header",true)!==false ? NAVI.filter(function(i){ return i.soon && navOn(i.k) }).map(function(i){ return '<a class="hsoon" data-soon="'+i.k+'">'+i.lab()+'<i>'+GX("soon")+'</i></a>' }).join("") : '')+
+  navHeaderItems().map(navHeaderLink).join("")+
   '<div class="navmore" id="navMoreWrap"><a id="navMoreChip">'+t("moreNavT")+CHEV+'</a>'+
    '<div class="menu" id="navMoreMenu">'+
    navItems().filter(function(i){ return i.g==="search" }).map(function(i){ return '<a '+navAttrs(i)+'>'+MI[i.ico]+i.lab()+'</a>' }).join("")+
@@ -9544,6 +9554,8 @@ var GX_T={
   metaHomeD:{ar:"شقق وبيوت وأراضٍ للبيع والإيجار في {c}. نوع الملكية في كل إعلان، بدون عمولة على المشتري، وتواصل مباشر مع المالك.",en:"Apartments, houses and land for sale and rent in {c}. Title deed status on every listing, no buyer commission, direct contact with the owner.",de:"Wohnungen, Häuser und Grundstücke zum Kauf und zur Miete in {c}. Grundbuchstatus bei jeder Anzeige, keine Käuferprovision, direkter Kontakt zum Eigentümer.",fr:"Appartements, maisons et terrains à vendre et à louer en {c}. Titre de propriété sur chaque annonce, aucune commission pour l'acheteur, contact direct avec le propriétaire."},
   galPrev:{ar:"الصورة السابقة",en:"Previous photo",de:"Vorheriges Foto",fr:"Photo précédente"}, galNext:{ar:"الصورة التالية",en:"Next photo",de:"Nächstes Foto",fr:"Photo suivante"},
   imageTooBig:{ar:"الصورة أكبر من 12 ميغابايت. صغّرها ثم أعد المحاولة.",en:"The image is larger than 12 MB. Resize it and try again.",de:"Das Bild ist größer als 12 MB. Verkleinern Sie es und versuchen Sie es erneut.",fr:"L'image dépasse 12 Mo. Réduisez-la puis réessayez."},
+  navInMenu:{ar:"القائمة",en:"Menu",de:"Menü",fr:"Menu"}, navInHeader:{ar:"الهيدر",en:"Header",de:"Kopfzeile",fr:"En-tête"}, navAutoHidden:{ar:"(مخفي تلقائياً: القسم مطفأ)",en:"(hidden automatically: the section is off)",de:"(automatisch ausgeblendet: Bereich ist aus)",fr:"(masqué automatiquement : la section est désactivée)"},
+  navHint2:{ar:"لكل رابط خياران: يظهر في قائمة الخطوط الثلاثة، ويظهر في شريط الهيدر على الكمبيوتر. الترتيب رقم واحد للاثنين: الأصغر أولاً.",en:"Each link has two switches: shown in the three-line menu, and shown in the desktop header bar. One order number serves both: smaller comes first.",de:"Jeder Link hat zwei Schalter: im Drei-Striche-Menü und in der Kopfzeile am Computer. Eine Reihenfolge für beide: kleiner zuerst.",fr:"Chaque lien a deux interrupteurs : visible dans le menu à trois lignes et dans la barre d'en-tête sur ordinateur. Un seul ordre pour les deux : le plus petit d'abord."},
   rejectBtn:{ar:"رفض",en:"Reject",de:"Ablehnen"}, rejectReasonQ:{ar:"سبب الرفض (يظهر لصاحب الإعلان في إشعار):",en:"Reason for rejection (the owner sees it in a notification):",de:"Grund der Ablehnung (der Inserent sieht ihn als Benachrichtigung):"},
   ratesInCountries:{ar:"أسعار الصرف لـ {c} تُضبط في صفحة الدول.",en:"Exchange rates for {c} are set on the Countries page.",de:"Die Wechselkurse für {c} werden auf der Länderseite gepflegt."},
   admCountriesL:{ar:"الدول التي يديرها",en:"Countries managed",de:"Verwaltete Länder"}, admCountriesHint:{ar:"لا شيء محدد = كل الدول.",en:"Nothing checked = all countries.",de:"Nichts angehakt = alle Länder."},
