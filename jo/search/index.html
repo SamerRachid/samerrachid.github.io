@@ -917,6 +917,7 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
 .inbox-row-badge{display:inline-block;margin-top:4px;font-size:10px;font-weight:700;color:var(--ok);
   background:var(--ok-w);padding:1px 7px;border-radius:9px}
 .inbox-back{display:none;margin-bottom:12px}
+.cchoose-p .blogo-w small{color:#5B6371}
 .st.st-rejected{background:#FBEAE8;color:var(--danger)}
 #admToast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,16px);background:var(--navy);color:#fff;padding:10px 18px;border-radius:12px;font-size:13.5px;font-weight:600;box-shadow:0 14px 34px -10px rgba(9,14,26,.5);opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;z-index:1500;max-width:min(90vw,480px)}
 #admToast.on{opacity:1;transform:translate(-50%,0)}#admToast.bad{background:var(--danger)}
@@ -3190,7 +3191,7 @@ function showChooser(){
   try{ sessionStorage.setItem("balkoun_cc_seen","1") }catch(e){}
   var en=countryList().filter(function(c){ return c.enabled }), cur=countryOf(COUNTRY)||en[0];
   var d=document.createElement("div"); d.className="cchoose"; d.id="cchoose";
-  d.innerHTML='<div class="cchoose-p" role="dialog" aria-modal="true"><span class="blogo cchoose-logo">'+brandMark()+'<span class="blogo-w"><b>'+esc(CONFIG.brand)+'</b><small>BALKOUN</small></span></span><h2>'+GX("cChooseH")+'</h2><p>'+GX("cChooseP")+'</p><div class="cchoose-grid">'+
+  d.innerHTML='<div class="cchoose-p" role="dialog" aria-modal="true" aria-label="'+esc(GX("cCountry"))+'"><span class="blogo cchoose-logo">'+brandMark()+'<span class="blogo-w"><b>'+esc(CONFIG.brand)+'</b><small>BALKOUN</small></span></span><h2>'+GX("cChooseH")+'</h2><p>'+GX("cChooseP")+'</p><div class="cchoose-grid">'+
     en.map(function(c){ return '<button type="button" class="cchoose-c" data-cchoose="'+c.code+'"><span class="fl">'+flagSvg(c.code)+'</span><b>'+esc(countryName(c))+'</b><small>'+esc(L==="ar"?c.name_en:c.name_ar)+'</small></button>' }).join("")+'</div>'+
     '<button type="button" class="cchoose-x" id="cchooseX">'+GX("cChooseKeep").replace("{c}",esc(countryName(cur)))+'</button></div>';
   document.body.appendChild(d);
@@ -3458,7 +3459,7 @@ function soonOpen(k){
   var old=$("#soonM"); if(old) old.remove();
   var wa=(SITE.wa_number||"").replace(/\D/g,"");
   var d=document.createElement("div"); d.className="soon-m"; d.id="soonM";
-  d.innerHTML='<div class="soon-bg"></div><div class="soon-c soon-wide" role="dialog" aria-modal="true"><button type="button" class="soon-x" aria-label="'+GX("mdClose")+'">×</button>'+
+  d.innerHTML='<div class="soon-bg"></div><div class="soon-c soon-wide" role="dialog" aria-modal="true" aria-label="Balkoun"><button type="button" class="soon-x" aria-label="'+GX("mdClose")+'">×</button>'+
     '<span class="soon-tag">'+GX("soon")+'</span><h3>'+GX("soonBothT")+'</h3><p class="soon-intro">'+GX("soonBothIntro")+'</p>'+
     '<div class="soon-two">'+
       '<div class="soon-item"><div class="soon-ico">'+MI.legal+'</div><b>'+GX("navLegal")+'</b><p>'+GX("soonLegalP")+'</p></div>'+
@@ -9996,7 +9997,7 @@ window.PWA=(function(){
   function refreshDrawer(){ var sec=document.getElementById("mdwInstallSec"); if(sec) sec.hidden=!installable() }
   function toast(msg,btn,fn){ var old=document.getElementById("pwaToast"); if(old) old.remove(); var d=document.createElement("div"); d.className="pwa-toast"; d.id="pwaToast"; d.innerHTML='<span>'+msg+'</span>'+(btn?'<button type="button">'+btn+'</button>':''); document.body.appendChild(d); if(btn) d.querySelector("button").onclick=fn; if(!btn) setTimeout(function(){ d.remove() },4500) }
   function iosSteps(){ var old=$("#soonM"); if(old) old.remove(); var d=document.createElement("div"); d.className="soon-m"; d.id="soonM";
-    d.innerHTML='<div class="soon-bg"></div><div class="soon-c" role="dialog" aria-modal="true"><button type="button" class="soon-x" aria-label="'+GX("mdClose")+'">×</button><div class="soon-ico">'+MI.download+'</div><h3>'+GX("pwaIosT")+'</h3><ol class="pwa-steps"><li><i>1</i><span>'+GX("pwaIos1")+'</span></li><li><i>2</i><span>'+GX("pwaIos2")+'</span></li><li><i>3</i><span>'+GX("pwaIos3")+'</span></li></ol></div>';
+    d.innerHTML='<div class="soon-bg"></div><div class="soon-c" role="dialog" aria-modal="true" aria-label="Balkoun"><button type="button" class="soon-x" aria-label="'+GX("mdClose")+'">×</button><div class="soon-ico">'+MI.download+'</div><h3>'+GX("pwaIosT")+'</h3><ol class="pwa-steps"><li><i>1</i><span>'+GX("pwaIos1")+'</span></li><li><i>2</i><span>'+GX("pwaIos2")+'</span></li><li><i>3</i><span>'+GX("pwaIos3")+'</span></li></ol></div>';
     document.body.appendChild(d); var close=function(){ d.remove() }; d.querySelector(".soon-x").onclick=close; d.querySelector(".soon-bg").onclick=close }
   function install(){ if(deferred){ var p=deferred; deferred=null; p.prompt(); p.userChoice.then(function(r){ if(r&&r.outcome==="accepted"){ toast(GX("pwaInstalled")) } else { deferred=p } refreshDrawer(); hideBar() }).catch(function(){}) } else if(iosSafari){ iosSteps() } }
   function hideBar(){ var b=document.getElementById("pwaBar"); if(b) b.remove() }
