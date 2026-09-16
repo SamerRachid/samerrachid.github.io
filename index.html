@@ -912,6 +912,7 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
 .inbox-row-badge{display:inline-block;margin-top:4px;font-size:10px;font-weight:700;color:var(--ok);
   background:var(--ok-w);padding:1px 7px;border-radius:9px}
 .inbox-back{display:none;margin-bottom:12px}
+.st.st-rejected{background:#FBEAE8;color:var(--danger)}
 #admToast{position:fixed;bottom:22px;left:50%;transform:translate(-50%,16px);background:var(--navy);color:#fff;padding:10px 18px;border-radius:12px;font-size:13.5px;font-weight:600;box-shadow:0 14px 34px -10px rgba(9,14,26,.5);opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;z-index:1500;max-width:min(90vw,480px)}
 #admToast.on{opacity:1;transform:translate(-50%,0)}#admToast.bad{background:var(--danger)}
 @media(max-width:820px){
@@ -4913,7 +4914,8 @@ var ADM={token:null, data:null, tab:"dashboard", msg:"", editId:null, editRow:nu
 function can(p){ return p==="dashboard" || ADM.isSuper || ADM.perms.indexOf(p)>-1 }
 var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super"};
 function canTab(k){ var p=TAB_PERM[k]; if(p===undefined) return can(k); if(p==="super") return !!ADM.isSuper; if(Array.isArray(p)) return p.some(can); return can(p) }
-function admGo(tab){ if(!tab) return; if(!canTab(tab)){ admToast(GX("noPermTab"),"bad"); return } ADM.tab=tab; window._admMobileDetail=false; render(); try{ window.scrollTo(0,0) }catch(e){} }
+function admGo(tab){ if(!tab) return; if(!canTab(tab)){ admToast(GX("noPermTab"),"bad"); return } if(tab!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return; ADM.tab=tab; window._admMobileDetail=false; render(); try{ window.scrollTo(0,0) }catch(e){} }
+function admDirty(){ return typeof HS!=="undefined" && !!HS && !!HS.draft && (Object.keys(HS.draft.site||{}).length>0 || Object.keys(HS.draft.extras||{}).length>0) }   // unsaved studio edits
 function admToast(msg,kind){ var el=$("#admToast"); if(!el){ el=document.createElement("div"); el.id="admToast"; document.body.appendChild(el) } el.textContent=msg; el.className="on "+(kind||"ok"); clearTimeout(el._t); el._t=setTimeout(function(){ el.className="" },2600) }
 
 function storageUsageCardBody(){
@@ -5049,7 +5051,7 @@ function adminView(){
    '</tr></thead><tbody id="aListBody">'+
    (d.listings||[]).slice().sort(function(a,b){ var A=(ADM.lstats||{})[a.id]||{}, B=(ADM.lstats||{})[b.id]||{}; if(ADM.listSort==="views") return (+B.views||0)-(+A.views||0); if(ADM.listSort==="contacts") return (+B.contacts||0)-(+A.contacts||0); return 0 }).map(function(l){
      var ls=(ADM.lstats||{})[l.id]||{}, typeName=(D.TYPES[l.property_type]?D.TYPES[l.property_type][li()]:(l.property_type||""));
-     var stLabel = l.status==="hidden"?GX("st_hidden"):(t("st_"+l.status)||l.status);
+     var stLabel = l.status==="hidden"?GX("st_hidden"):l.status==="rejected"?GX("st_rejected"):(t("st_"+l.status)||l.status);
      return '<tr data-row-status="'+l.status+'" data-row-tabu="'+(l.tabu||"")+'" data-row-deal="'+(l.deal||"")+'" data-row-text="'+((l.gov||"")+" "+(l.area||"")+" "+(l.poster_name||"")+" "+l.ref).toLowerCase()+'">'+
      '<td><div class="lcell"><b class="ltr adlink" data-open="'+l.id+'">'+scopeFlag(l.country_code)+(l.ref||l.id)+'</b>'+
        '<div class="lsub">'+typeName+' · <span class="ltr">$'+Number(l.price_usd).toLocaleString("en")+'</span>'+(l.deal==="rent"?' · '+t("rent"):'')+'</div>'+
@@ -5062,7 +5064,8 @@ function adminView(){
      '<td><span class="st st-'+l.status+'">'+stLabel+'</span>'+(l.is_featured?'<div class="lsub" style="color:#8A6522">★ '+t("featuredBadgeDefault")+'</div>':'')+'</td>'+
      '<td class="lacts">'+
        '<button class="ab" data-adopen="'+l.id+'">'+t("edit")+'</button>'+
-       (l.status==="pending"?'<button class="ab ok" data-alive="'+l.id+'">'+t("approve")+'</button>':'')+
+       (l.status==="pending"?'<button class="ab ok" data-alive="'+l.id+'">'+t("approve")+'</button><button class="ab bad" data-areject="'+l.id+'">'+GX("rejectBtn")+'</button>':'')+
+       (l.status==="rejected"?'<button class="ab ok" data-alive="'+l.id+'">'+t("approve")+'</button>':'')+
        (l.status==="hidden"?'<button class="ab ok" data-alive="'+l.id+'">'+GX("unhide")+'</button>':'')+
        (l.status==="live"?'<button class="ab" data-apend="'+l.id+'">'+t("hide")+'</button>':'')+
        '<button class="ab bad" data-adel="'+l.id+'">'+t("del")+'</button></td></tr>'}).join("")+
@@ -5201,12 +5204,15 @@ function adminView(){
    '</div></div>'+
    '<div class="blk" style="margin-top:16px"><h3>'+t("perMemberApproval")+'</h3><div class="in">'+
     '<div class="hintx">'+t("perMemberApprovalH")+'</div>'+
+    (canTab("users")?'<button type="button" class="ab" data-goto="users" style="margin-top:8px">'+t("usersTab")+' ↗</button>':'')+
    '</div></div>'+
-   '<div class="blk" style="margin-top:16px"><h3>'+t("sypRateH")+'</h3><div class="in">'+
+   (COUNTRY==="SY" ? '<div class="blk" style="margin-top:16px"><h3>'+t("sypRateH")+'</h3><div class="in">'+
     '<div class="hintx">'+t("sypRateHint")+'</div>'+
     '<div class="fl"><label>'+t("sypRateL")+'</label><input id="scSypRate" type="number" min="1" value="'+(SITE.syp_rate!=null?SITE.syp_rate:13500)+'"></div>'+
     '<div class="xactions"><button class="ab ok" id="scSypRateSave">'+t("save")+'</button><span class="xmsg" id="scSypRateMsg"></span></div>'+
-   '</div></div>';
+   '</div></div>'
+   : '<div class="blk" style="margin-top:16px"><h3>'+GX("cRates")+'</h3><div class="in"><div class="hintx">'+GX("ratesInCountries").replace("{c}",esc(countryName(countryOf(COUNTRY)||{})))+'</div>'+
+    (ADM.isSuper?'<button type="button" class="ab" data-goto="countries" style="margin-top:8px">'+GX("countriesTab")+' ↗</button>':'')+'</div></div>');
  }
 
  else if(ADM.tab==="msgs"){
@@ -5332,7 +5338,7 @@ function adminView(){
     var refById = {};
     (d.listings||[]).forEach(function(l){ refById[l.id] = l.ref||String(l.id) });
     var listingItems = photos.map(function(p,i){
-      var ref = refById[p.listing_id]||"";
+      var ref = refById[p.listing_id]||p.ref||"";
       return {thumbUrl:p.thumb_url||p.url, isVideo:false, label:ref, uploadedAt:p.created_at,
         isUsed:!!ref, viewerAttr:' data-openphoto="'+i+'"'};
     });
@@ -5483,6 +5489,9 @@ function adminView(){
      '<div class="fl"><label>'+t("permissionsL")+'</label><div class="chkgrid">'+
       permKeys.map(function(p){return '<label><input type="checkbox" class="naPerm" value="'+p+'"> '+t("perm_"+p)+'</label>'}).join("")+
      '</div></div>'+
+     '<div class="fl"><label>'+GX("admCountriesL")+'</label><div class="hintx" style="margin-bottom:6px">'+GX("admCountriesHint")+'</div><div class="chkgrid">'+
+      (ADM.countries||[]).map(function(c){return '<label><input type="checkbox" class="naCountry" value="'+esc(c.code)+'"> '+flagOf(c.code)+' '+esc(countryName(c))+'</label>'}).join("")+
+     '</div></div>'+
      '<div style="display:flex;gap:10px;align-items:center;margin-top:6px">'+
      '<button class="ab ok" id="aNewAdminSave">'+t("save")+'</button>'+
      '<button class="ab" id="aNewAdminCancel">'+t("cancel")+'</button>'+
@@ -5490,7 +5499,7 @@ function adminView(){
     '</div></div>' : '')+
    (!admins.length ? '<div class="done2"><b>'+(ADM._adminsErr?esc(ADM._adminsErr):ADM._adminsDone?GX("noAdminsYet"):t("loading"))+'</b></div>' :
    '<div class="atable"><table><thead><tr>'+
-    [t("contactName"),t("mobile"),t("permissionsL"),''].map(function(h){return '<th>'+h+'</th>'}).join("")+
+    [t("contactName"),t("mobile"),t("permissionsL"),GX("admCountriesL"),''].map(function(h){return '<th>'+h+'</th>'}).join("")+
     '</tr></thead><tbody>'+
     admins.map(function(a){
       var nm=((a.name||"")+" "+(a.family_name||"")).trim();
@@ -5498,17 +5507,20 @@ function adminView(){
       var rows='<tr><td>'+nm+(a.is_super_admin?' <span class="lvl lvl-vip">'+t("superAdmin")+'</span>':'')+'</td>'+
         '<td class="ltr">'+a.phone+'</td>'+
         '<td>'+(a.is_super_admin?t("allPermissions"):(a.permissions&&a.permissions.length?a.permissions.map(function(p){return t("perm_"+p)}).join(", "):"—"))+'</td>'+
+        '<td>'+(a.admin_countries&&a.admin_countries.length?a.admin_countries.map(function(cc){ return flagOf(cc)+' '+esc(cc) }).join(" · "):GX("cAll"))+'</td>'+
         '<td style="white-space:nowrap">'+
          (a.is_super_admin?"":'<button class="ab" data-editperms="'+a.id+'">'+t("edit")+'</button>'+
           '<button class="ab bad" data-removeadmin="'+a.id+'">'+t("removeAdmin")+'</button>')+
         '</td></tr>';
       if(editing){
-        rows += '<tr><td colspan="4" style="background:var(--page)"><div style="padding:14px 10px">'+
+        rows += '<tr><td colspan="5" style="background:var(--page)"><div style="padding:14px 10px">'+
          '<b style="font-size:13.5px">'+t("permissionsL")+' — '+nm+'</b>'+
          '<div class="chkgrid" style="margin-top:8px">'+
           permKeys.map(function(p){return '<label><input type="checkbox" class="editPerm" value="'+p+'"'+
             ((a.permissions||[]).indexOf(p)>-1?" checked":"")+'> '+t("perm_"+p)+'</label>'}).join("")+
          '</div>'+
+         '<b style="font-size:13.5px;display:block;margin-top:12px">'+GX("admCountriesL")+'</b><div class="hintx">'+GX("admCountriesHint")+'</div>'+
+         '<div class="chkgrid" style="margin-top:6px">'+(ADM.countries||[]).map(function(c){return '<label><input type="checkbox" class="editCountry" value="'+esc(c.code)+'"'+((a.admin_countries||[]).indexOf(c.code)>-1?" checked":"")+'> '+flagOf(c.code)+' '+esc(countryName(c))+'</label>'}).join("")+'</div>'+
          '<div style="display:flex;gap:10px;align-items:center;margin-top:8px">'+
          '<button class="ab ok" data-saveperms="'+a.id+'">'+t("save")+'</button>'+
          '<button class="ab" id="aEditPermsCancel">'+t("cancel")+'</button></div>'+
@@ -7951,6 +7963,7 @@ function wireAdmin(){
   if($("#adRefresh")) $("#adRefresh").onclick=function(){ adminLoad() };
   if($("#adBack")) $("#adBack").onclick=function(){ ADM.editId=null; ADM.editRow=null; render() };
   $$("[data-atab]").forEach(function(e){ e.onclick=function(){
+    if(e.dataset.atab!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return;
     ADM.tab=e.dataset.atab;
     window._admMobileDetail=false;
     var sb=$("#aSidebar"); if(sb) sb.classList.remove("on"); // auto-close on mobile after picking a section
@@ -7979,6 +7992,9 @@ function wireAdmin(){
     act("bk_admin_set_status",{p_token:ADM.token,p_listing:+e.dataset.alive,p_status:"live"}) }});
   $$("[data-apend]").forEach(function(e){ e.onclick=function(){
     act("bk_admin_set_status",{p_token:ADM.token,p_listing:+e.dataset.apend,p_status:"hidden"}) }});
+  $$("[data-areject]").forEach(function(e){ e.onclick=function(){
+    var reason=prompt(GX("rejectReasonQ"),""); if(reason===null) return;   // cancel keeps the listing pending
+    act("bk_admin_set_status",{p_token:ADM.token,p_listing:+e.dataset.areject,p_status:"rejected",p_reason:reason.trim()||null}) }});
   $$("[data-adel]").forEach(function(e){ e.onclick=async function(){
     if(!confirm(t("confirmDel"))) return;
     var id=e.dataset.adel;
@@ -8142,13 +8158,9 @@ function wireAdmin(){
   if(ADM.tab==="photos" && !ADM._photosLoaded){
     ADM._photosLoaded=true;
     ADM._photosLoading=true;
-    DB.from("listing_photos").select("id,listing_id,url,thumb_url,sort_order,created_at")
-      .order("listing_id",{ascending:false}).order("sort_order",{ascending:true}).limit(300)
-      .then(function(r){
-        ADM._photosLoading=false;
-        ADM.photosList = (r&&r.data)||[];
-        render();
-      }).catch(function(){ ADM._photosLoading=false; render() });
+    rpc("bk_admin_photos",{p_token:ADM.token,p_country:admScope(),p_limit:600}).then(function(r){
+        ADM._photosLoading=false; ADM.photosList = r||[]; render();
+      }).catch(function(){ ADM._photosLoading=false; ADM.photosList=[]; render() });
   }
   // the three non-listing media categories (ads/banners/background)
   // each get their own storage folder pair (photos/<cat> and
@@ -8607,7 +8619,7 @@ function wireAdmin(){
     if(!name.trim()){ ADM.newAdminMsg=t("nameRequired"); render(); return }
     if(pass.length<6){ ADM.newAdminMsg=t("shortPass"); render(); return }
     try{
-      await rpc("bk_admin_create_admin",{p_token:ADM.token,p_phone:ph,p_name:name,p_family:"",p_pass:pass,p_permissions:perms});
+      await rpc("bk_admin_create_admin",{p_token:ADM.token,p_phone:ph,p_name:name,p_family:"",p_pass:pass,p_permissions:perms,p_countries:$$(".naCountry:checked").map(function(c){return c.value})});
       ADM.newAdminOpen=false; ADM._adminsLoaded=false;
       var r=await rpc("bk_admin_list_admins",{p_token:ADM.token}); ADM.admins=r||[]; render();
     }catch(e){ ADM.newAdminMsg=e.message||"error"; render() }
@@ -8620,7 +8632,7 @@ function wireAdmin(){
     var id=this.dataset.saveperms;
     var perms=$$(".editPerm:checked").map(function(c){return c.value});
     try{
-      await rpc("bk_admin_set_permissions",{p_token:ADM.token,p_admin:id,p_permissions:perms});
+      await rpc("bk_admin_set_permissions",{p_token:ADM.token,p_admin:id,p_permissions:perms,p_countries:$$(".editCountry:checked").map(function(c){return c.value})});
       ADM.editPermsFor=null; ADM._adminsLoaded=false;
       var r=await rpc("bk_admin_list_admins",{p_token:ADM.token}); ADM.admins=r||[]; render(); admToast(t("savedOk"));
     }catch(e){ admToast(e.message||"error","bad") }
@@ -9457,7 +9469,7 @@ function safeToBackgroundRender(){
   if(VIEW==="admin"){
     if((ADM.editId!==null && ADM.editId!==undefined) || ADM.newAdOpen || ADM.editAdId || ADM.pjEdit || ADM.eopen || ADM.newAdminOpen || ADM.tkAddOpen || ADM.editPermsFor || ADM.myAccountOpen) return false;
     var ae=document.activeElement; if(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName) && ae.closest(".adm")) return false;   // someone is typing
-    if(typeof HS!=="undefined" && HS && HS.draft && (Object.keys(HS.draft.site||{}).length || Object.keys(HS.draft.extras||{}).length)) return false;   // unsaved studio draft
+    if(admDirty()) return false;   // unsaved studio draft
     var open=$(".hs-wrap,#pjEditor,.eedit,.fbreplybox textarea:not(:placeholder-shown)"); if(open) return false;
   }
   return true;
@@ -11172,6 +11184,9 @@ var GX_T={
   navCountries:{ar:"الدول والأسواق",en:"Countries and markets",de:"Länder und Märkte"},
   cAll:{ar:"كل الدول",en:"All countries",de:"Alle Länder"},
   ticketsTab:{ar:"البطاقات التقنية",en:"Tech tickets",de:"Technische Tickets"},
+  rejectBtn:{ar:"رفض",en:"Reject",de:"Ablehnen"}, rejectReasonQ:{ar:"سبب الرفض (يظهر لصاحب الإعلان في إشعار):",en:"Reason for rejection (the owner sees it in a notification):",de:"Grund der Ablehnung (der Inserent sieht ihn als Benachrichtigung):"},
+  ratesInCountries:{ar:"أسعار الصرف لـ {c} تُضبط في صفحة الدول.",en:"Exchange rates for {c} are set on the Countries page.",de:"Die Wechselkurse für {c} werden auf der Länderseite gepflegt."},
+  admCountriesL:{ar:"الدول التي يديرها",en:"Countries managed",de:"Verwaltete Länder"}, admCountriesHint:{ar:"لا شيء محدد = كل الدول.",en:"Nothing checked = all countries.",de:"Nichts angehakt = alle Länder."},
   noPermTab:{ar:"لا تملك صلاحية هذا القسم.",en:"You do not have permission for this section.",de:"Sie haben keine Berechtigung für diesen Bereich."},
   confirmBlock:{ar:"حظر هذا العضو؟ لن يستطيع الدخول أو النشر.",en:"Block this member? They will not be able to sign in or post.",de:"Dieses Mitglied sperren? Es kann sich dann nicht mehr anmelden oder inserieren."},
   confirmSendAll:{ar:"إرسال هذا الإشعار إلى كل الأعضاء في {c}؟",en:"Send this notification to every member in {c}?",de:"Diese Benachrichtigung an alle Mitglieder in {c} senden?"},
@@ -12158,7 +12173,7 @@ function countryName(c){ return c ? (L==="ar"?c.name_ar:L==="de"?(c.name_de||c.n
 function geoAdminBody(){
   var G=ADM.geo; if(!G) return '<div class="done2"><b>'+t("loading")+'</b></div>';
   var govs=G.governorates||[], areas=G.areas||[];
-  var CS=ADM.countries||[]; ADM.geoCountry=ADM.geoCountry||"SY";
+  var CS=admCountries(); ADM.geoCountry=ADM.geoCountry||COUNTRY;
   if(ADM.geoGov && !govs.some(function(x){ return x.id===ADM.geoGov })) ADM.geoGov=null;
   if(!ADM.geoGov && govs.length) ADM.geoGov=govs[0].id;
   var countryBar=(CS.length>1?'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px"><b style="font-size:13.5px">'+GX("cCountry")+':</b>'+CS.map(function(c){ return '<button type="button" class="ab'+(c.code===ADM.geoCountry?' ok':'')+'" data-geocountry="'+c.code+'">'+flagOf(c.code)+' '+esc(countryName(c))+(c.enabled?'':' · '+GX("cOff"))+'</button>' }).join("")+'</div>':'');
@@ -12189,6 +12204,7 @@ function admScope(){ return ADM.scope==="ALL" ? "ALL" : COUNTRY }   // what the 
 function admAllowed(code){ var m=ADM.myCountries||[]; return !m.length || m.indexOf(code)>-1 }
 function admCountries(){ return (ADM.countries||[]).filter(function(c){ return admAllowed(c.code) }) }
 function admResetScope(){   // everything that was loaded for one country scope is loaded again for the new one
+  ADM._photosLoaded=false; ADM.photosList=null;
   ADM._statsLoaded=false; ADM.stats=null; ADM._anLoaded=false; ADM.an=null; ADM.anErr=null; ADM._lstatsLoaded=false; ADM.lstats=null;
   ADM._featuredListLoaded=false; ADM.featuredList=null; ADM._wLoaded=false; ADM_W=null; ADM._pjLoaded=false; ADM_PJ=null; ADM._agLoaded=false; ADM_AG=null; ADM._engDays=null; ADM.eng=null; ADM.todo=null;
   ADM._geoLoaded=false; ADM.adSlots=null; ADM._adSlotsLoaded=false;
@@ -12311,7 +12327,7 @@ function wireAdminCountries(){
 }
 function wireGeoAdmin(){
   if(ADM.tab!=="geo") return;
-  ADM.geoCountry=ADM.geoCountry||"SY";
+  ADM.geoCountry=ADM.geoCountry||COUNTRY;
   if(!ADM._geoLoaded || ADM._geoLoadedFor!==ADM.geoCountry){ ADM._geoLoaded=true; ADM._geoLoadedFor=ADM.geoCountry;
     Promise.all([DB.rpc("bk_admin_geo_list",{p_token:ADM.token,p_country:ADM.geoCountry}), ADM.countries?Promise.resolve(null):DB.rpc("bk_admin_countries",{p_token:ADM.token})]).then(function(rs){ if(rs[1]&&rs[1].data) ADM.countries=rs[1].data; if(rs[0]&&rs[0].data){ ADM.geo=rs[0].data; render() } }); return }
   var msg=function(s,bad){ var m=$("#geoMsg"); if(m){ m.textContent=s; m.style.color=bad?"var(--danger)":"var(--ok)" } };
