@@ -3859,91 +3859,9 @@ function bannerItemsLegacy(){
 // control) never touches the live site until "Save" is actually
 // clicked, and so uploading several files one after another doesn't
 // need a full page re-render between each one
-var ADM_bannersDraft = null;
-var ADM_bannerPendingDeletes = {}; // bIdx -> array of URLs removed from the draft but not yet saved
-var ADM_bgPendingDeletes = []; // homepage-background URLs replaced by upload but not yet saved
-var ADM_adPendingDeletes = {}; // suffix -> array of ad-square URLs replaced by upload but not yet saved
-function bannerItemsAdminHtml(bIdx){
-  if(ADM_bannersDraft===null) ADM_bannersDraft = bannersConfig();
-  var items = ADM_bannersDraft[bIdx].items;
-  var listHtml = items.length ? items.map(function(it,i){
-      return '<div class="bannerItemRow" style="display:flex;align-items:center;gap:8px;margin-bottom:8px">'+
-        '<div class="adminadthumb" style="flex-shrink:0;width:52px;height:52px">'+
-          (it.type==="video" ? '<video src="'+it.url+'" muted></video>' : '<img src="'+it.url+'" alt="">')+
-        '</div>'+
-        '<input type="text" data-bannerlink="'+bIdx+'-'+i+'" value="'+(it.link||"").replace(/"/g,"&quot;")+'" placeholder="'+t("bannerItemLinkPH")+'" style="flex:1">'+
-        '<button type="button" class="ab" data-bannerrm="'+bIdx+'-'+i+'" style="flex-shrink:0;padding:6px 10px">✕</button>'+
-      '</div>';
-    }).join("") : '<div class="hintx" style="margin-bottom:10px">'+t("bannerNoItemsYet")+'</div>';
-  return (items.length ? '<div class="hintx" style="margin-bottom:8px">'+t("bannerItemLinkHint")+'</div>' : "")+
-    listHtml+
-    '<input type="file" id="scBannerFile'+bIdx+'" accept="image/*,video/mp4,video/webm" style="margin-bottom:8px">'+
-    '<div class="hintx" style="margin-bottom:8px">'+t("topBannerUploadHint")+'</div>'+
-    '<div class="hintx" id="scBannerFileMsg'+bIdx+'" style="margin-bottom:8px"></div>';
-}
-function updateBannerItemsZone(bIdx){
-  var zone = document.getElementById("bannerItemsZone"+bIdx);
-  if(!zone) return;
-  zone.innerHTML = bannerItemsAdminHtml(bIdx);
-  wireBannerItemsZone(bIdx);
-}
-function wireBannerItemsZone(bIdx){
-  var zone = document.getElementById("bannerItemsZone"+bIdx);
-  if(!zone) return;
-  zone.querySelectorAll("[data-bannerrm]").forEach(function(btn){
-    btn.onclick=function(){
-      var parts = this.dataset.bannerrm.split("-");
-      var bi = parseInt(parts[0],10);
-      var removedItems = ADM_bannersDraft[bi].items.splice(parseInt(parts[1],10),1);
-      // the actual storage deletion waits for "Save" — removing this
-      // item from the draft doesn't touch anything saved yet, and
-      // deleting the file immediately here would leave a broken image
-      // behind if the admin removed it but then navigated away
-      // without ever actually saving
-      if(removedItems[0]) (ADM_bannerPendingDeletes[bi]=ADM_bannerPendingDeletes[bi]||[]).push(removedItems[0].url);
-      updateBannerItemsZone(bIdx);
-    };
-  });
-  zone.querySelectorAll("[data-bannerlink]").forEach(function(input){
-    input.oninput=function(){
-      var parts = this.dataset.bannerlink.split("-");
-      ADM_bannersDraft[parseInt(parts[0],10)].items[parseInt(parts[1],10)].link = this.value;
-    };
-  });
-  var fileInput = zone.querySelector("#scBannerFile"+bIdx);
-  if(fileInput) fileInput.onchange=async function(){
-    var f=this.files&&this.files[0]; if(!f) return;
-    var msgEl=zone.querySelector("#scBannerFileMsg"+bIdx);
-    var isVideo=/^video\//.test(f.type);
-    var isGif=f.type==="image/gif";
-    try{
-      if(!DB) throw new Error("no client");
-      if(msgEl) msgEl.textContent=t("uploading");
-      var path=(isVideo?"videos/banners/":"photos/banners/")+Date.now()+"_"+f.name.replace(/[^a-zA-Z0-9._-]/g,"_");
-      var uploadFile=f, uploadContentType=f.type;
-      // an animated GIF must upload completely untouched — shrink()
-      // draws through a <canvas> and re-encodes as a single static
-      // JPEG frame, which would silently strip the animation. Only a
-      // genuinely static image (never GIF) goes through the normal
-      // resize pipeline; video is already uploaded as-is everywhere
-      // else in this app for the same reason.
-      if(!isVideo && !isGif){
-        var raw=await new Promise(function(res,rej){
-          var r=new FileReader(); r.onload=function(){res(r.result)};
-          r.onerror=function(){rej(new Error("read"))}; r.readAsDataURL(f);
-        });
-        uploadFile = await shrink(raw, 1600, 0.85);
-        uploadContentType = "image/jpeg";
-      }
-      var up=await storageUpload(path, uploadFile,
-        {contentType:uploadContentType, upsert:false});
-      if(up.error) throw up.error;
-      var url=DB.storage.from("photos").getPublicUrl(path).data.publicUrl;
-      ADM_bannersDraft[bIdx].items.push({type: isVideo?"video":"image", url: url, link:""});
-      updateBannerItemsZone(bIdx);
-    }catch(e){ if(msgEl) msgEl.textContent=e.message||"error" }
-  };
-}
+ // bIdx -> array of URLs removed from the draft but not yet saved
+ // homepage-background URLs replaced by upload but not yet saved
+ // suffix -> array of ad-square URLs replaced by upload but not yet saved
 // a banner's box on desktop and on the phone (phone: same as desktop, full width, or its own size)
 function bannerDims(cfg,phone){
   var size = cfg.size==="custom" ? {w:cfg.customW||728,h:cfg.customH||90} : (BANNER_SIZES[cfg.size]||BANNER_SIZES["728x90"]);
@@ -4015,56 +3933,6 @@ function topBannerHtml(){
   var row = topBannerCoreRowHtml();
   if(!row) return "";
   return '<div class="topbanner-wrap"><div class="wrap">'+row+'</div></div>';
-}
-function bannerAdminBlockHtml(bIdx){
-  if(ADM_bannersDraft===null) ADM_bannersDraft = bannersConfig();
-  var cfg = ADM_bannersDraft[bIdx];
-  var n = bIdx+1;
-  return '<div class="blk" style="margin-top:16px"><h3>'+t("topBannerH")+' '+n+'</h3><div class="in">'+
-    '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-bottom:10px">'+
-     '<input type="checkbox" id="scBannerOn'+bIdx+'"'+(cfg.enabled?" checked":"")+'>'+
-     '<span>'+t("topBannerEnableL")+'</span></label>'+
-    (bIdx===0 ? '<div class="hintx" style="margin-bottom:10px">'+t("topBannerHint")+'</div>' : '')+
-    '<div id="bannerItemsZone'+bIdx+'">'+bannerItemsAdminHtml(bIdx)+'</div>'+
-    '<div class="fl"><label>'+t("bannerRotateSecL")+'</label><input type="number" id="scBannerRotateSec'+bIdx+'" min="2" max="60" value="'+(cfg.rotationSeconds||5)+'"></div>'+
-    '<div class="fl"><label>'+t("bannerTransitionL")+'</label><select id="scBannerTransition'+bIdx+'">'+
-     ["fade","slide-left","slide-right","slide-up","slide-down"].map(function(tr){
-       return '<option value="'+tr+'"'+((cfg.transition||"fade")===tr?" selected":"")+'>'+t("bannerTransition_"+tr.replace(/-/g,"_"))+'</option>';
-     }).join("")+
-    '</select></div>'+
-    '<div class="fl"><label>'+t("topBannerSizeL")+'</label><select id="scBannerSize'+bIdx+'">'+
-     Object.keys(BANNER_SIZES).map(function(k){
-       return '<option value="'+k+'"'+((cfg.size||"728x90")===k?" selected":"")+'>'+k+' — '+t("bannerSizeLabel_"+k)+'</option>';
-     }).join("")+
-     '<option value="custom"'+(cfg.size==="custom"?" selected":"")+'>'+t("bannerSizeCustomL")+'</option>'+
-    '</select></div>'+
-    '<div class="row" id="scBannerCustomWrap'+bIdx+'" style="'+(cfg.size==="custom"?"":"display:none")+'">'+
-     '<div class="fl"><label>'+t("bannerWidthL")+'</label><input type="number" id="scBannerCustomW'+bIdx+'" min="200" max="1400" value="'+(cfg.customW||728)+'"></div>'+
-     '<div class="fl"><label>'+t("bannerHeightL")+'</label><input type="number" id="scBannerCustomH'+bIdx+'" min="40" max="500" value="'+(cfg.customH||90)+'"></div>'+
-    '</div>'+
-    '<div class="fl">'+
-     '<label>'+t("bannerGapL")+' — <span id="scBannerGapVal'+bIdx+'">'+(cfg.gap!=null?cfg.gap:14)+'px</span></label>'+
-     '<input type="range" id="scBannerGap'+bIdx+'" min="0" max="80" step="2" value="'+(cfg.gap!=null?cfg.gap:14)+'" style="width:100%">'+
-     '<div class="hintx">'+t("bannerGapHint")+'</div>'+
-    '</div>'+
-    '<div class="fl">'+
-     '<label>'+t("bannerHPosL")+' — <span id="scBannerHPosVal'+bIdx+'">'+(cfg.hPosition!=null?cfg.hPosition:50)+'%</span></label>'+
-     '<input type="range" id="scBannerHPos'+bIdx+'" min="0" max="100" step="5" value="'+(cfg.hPosition!=null?cfg.hPosition:50)+'" style="width:100%">'+
-     '<div class="hintx">'+t("bannerHPosHint")+'</div>'+
-    '</div>'+
-    '<div class="fl"><label>'+t("topBannerLinkL")+'</label><input id="scBannerLink'+bIdx+'" value="'+(cfg.link||'').replace(/"/g,"&quot;")+'" placeholder="https://..."></div>'+
-    '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin:12px 0 8px">'+
-     '<input type="checkbox" id="scBannerTextOn'+bIdx+'"'+(cfg.textEnabled?" checked":"")+'>'+
-     '<span>'+t("bannerTextEnableL")+'</span></label>'+
-    ["ar","en","de"].map(function(lg){return '<div class="fl"><label>'+t("bannerTextL")+' ('+lg.toUpperCase()+')</label>'+
-      '<input id="scBannerText'+bIdx+'_'+lg+'" value="'+(cfg["text_"+lg]||"").replace(/"/g,"&quot;")+'" placeholder="'+t("leaveBlankDefault")+'"></div>'}).join("")+
-    '<div class="row">'+
-     '<div class="fl"><label>'+t("adTextSizeL")+'</label><input id="scBannerTextSize'+bIdx+'" type="number" min="9" max="28" value="'+(cfg.textSize||14)+'"></div>'+
-     '<div class="fl"><label>'+t("adTextColorL")+'</label><input id="scBannerTextColor'+bIdx+'" type="color" value="'+(cfg.textColor||"#ffffff")+'"></div>'+
-    '</div>'+
-    '<button class="ab ok" id="scBannerSave'+bIdx+'" style="margin-top:6px">'+t("save")+'</button>'+
-    '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="scBannerMsg'+bIdx+'"></span>'+
-   '</div></div>';
 }
 function home(){
  // Buy/rent is chosen once, in the hero tabs (F.deal); the type tiles follow it instead of
@@ -5103,9 +4971,7 @@ function adminView(){
   '<div class="hintx">'+t("adminHint")+'</div>'+
   '</div></div></div>';
 
- if(ADM.editId!==null && ADM.editId!==undefined) return adminEditListing();
-
- var d=ADM.data||{stats:{},listings:[],users:[],reports:[],feedback:[],reviews:[]};
+  var d=ADM.data||{stats:{},listings:[],users:[],reports:[],feedback:[],reviews:[]};
  var refFor=function(listingId){
    var match=(d.listings||[]).filter(function(l){return String(l.id)===String(listingId)})[0];
    return match&&match.ref ? match.ref : (listingId!=null ? String(listingId) : "—");
@@ -5340,8 +5206,7 @@ function adminView(){
     '<div class="hintx">'+t("sypRateHint")+'</div>'+
     '<div class="fl"><label>'+t("sypRateL")+'</label><input id="scSypRate" type="number" min="1" value="'+(SITE.syp_rate!=null?SITE.syp_rate:13500)+'"></div>'+
     '<div class="xactions"><button class="ab ok" id="scSypRateSave">'+t("save")+'</button><span class="xmsg" id="scSypRateMsg"></span></div>'+
-   '</div></div>'+
-   adminSystemExtrasHtml();
+   '</div></div>';
  }
 
  else if(ADM.tab==="msgs"){
@@ -5695,47 +5560,6 @@ function adminView(){
     (GX_T["desc_"+ADM.tab]?'<p>'+GX("desc_"+ADM.tab)+'</p>':'')+'</div></div>'+adminCountryBar()+body+'</main>'+
   '</div></div>'}
 
-function adminEditListing(){
- var l=ADM.editRow;
- if(!l) return '<div class="wrap" style="padding:60px 18px"><div class="done2"><b>'+t("loading")+'</b></div></div>';
- var pk=function(obj,name,cur){return Object.keys(obj).map(function(k){
-   return '<label><input type="radio" name="'+name+'" value="'+k+'"'+(k===cur?" checked":"")+
-   '><span>'+obj[k][li()]+'</span></label>'}).join("")};
- return '<div class="abar"><div class="wrap" style="display:flex;align-items:center;gap:14px">'+
-  '<button class="ab" id="adBack">‹ '+t("back")+'</button>'+
-  '<b style="font-size:15px" class="ltr">'+(l.ref||l.id)+'</b>'+
-  '<button class="ab" id="adOut" style="margin-inline-start:auto">'+t("logout")+'</button></div></div>'+
- '<div class="wrap" style="max-width:760px;padding:22px 18px 60px">'+
- '<div class="blk"><h3><span class="n">1</span>'+t("postedBy")+'</h3><div class="in">'+
-  '<p style="font-size:14px">'+(l.poster_name||"—")+
-  (l.poster_phone?' · <span class="ltr">'+l.poster_phone+'</span>':'')+
-  ' · '+(l.gov||"")+(l.area?"، "+l.area:'')+'</p></div></div>'+
- '<div class="blk"><h3><span class="n">2</span>'+t("price")+'</h3><div class="in">'+
-  '<div class="row"><div class="fl"><label>'+t("price")+' USD</label>'+
-   '<input type="number" id="aePrice" value="'+l.price_usd+'"></div>'+
-  '<div class="fl"><label>'+t("areaM")+'</label><input type="number" id="aeArea" value="'+l.area_m2+'"></div></div>'+
-  '<div class="row3">'+
-  '<div class="fl"><label>'+t("kRooms")+'</label><input type="number" id="aeRooms" value="'+(l.rooms||"")+'"></div>'+
-  '<div class="fl"><label>'+t("kBaths")+'</label><input type="number" id="aeBaths" value="'+(l.baths||"")+'"></div>'+
-  (["apartment","arab","villa"].indexOf(l.property_type)>-1 ?
-   '<div class="fl"><label>'+t("kLiving")+'</label><input type="number" id="aeLiving" value="'+(l.living_rooms||"")+'"></div>' : '')+
-  '<div class="fl"><label>'+t("kFloor")+'</label><select id="aeFloor">'+
-   '<option value="">—</option>'+[-1,0].concat(Array.apply(null,{length:20}).map(function(_,n){return n+1}))
-     .map(function(v){return '<option value="'+v+'"'+(l.floor!==null&&String(v)===String(l.floor)?" selected":"")+'>'+floorLabel(v)+'</option>'}).join("")+
-   '</select></div></div>'+
- '</div></div>'+
- '<div class="blk"><h3><span class="n">3</span>'+t("detH")+'</h3><div class="in">'+
-  '<div class="fl"><label>'+t("cond")+'</label><div class="pick">'+pk(D.COND,"aecd",l.condition)+'</div></div>'+
-  '<div class="fl"><label>'+t("deed")+'</label><div class="pick">'+pk(D.TABU,"aetb",l.tabu)+'</div></div>'+
-  '<div class="fl" style="margin-bottom:0"><label>'+t("descL")+'</label>'+
-   '<textarea id="aeDesc">'+(l.description||"")+'</textarea></div>'+
- '</div></div>'+
- '<div class="bar2"><span class="msg" id="aeMsg"></span>'+
-  '<button class="ab bad" id="aeDelete">'+t("del")+'</button>'+
-  '<button class="btn-n" id="aeSave">'+t("saveChanges")+'</button></div></div>'}
-
-
-
 /* ── saved properties ── */
 var SAVEDFULL=[];
 async function loadSaved(){
@@ -6075,79 +5899,6 @@ function paintShots(){
  $$("#shots .rm").forEach(function(b){b.onclick=function(){NEW.photos.splice(+b.dataset.i,1);paintShots()}});
  checkPost()}
 
-function adEditorForm(suffix, a, listings){
-  var isLinked = !!a.linked_listing_id;
-  var isVideoEmbed = !isLinked && !!a.video_embed_url;
-  var isUpload = !isLinked && !isVideoEmbed;
-  var pfx = "ad" + suffix;
-  var curImgs = (a.image_urls && a.image_urls.length) ? a.image_urls : (a.image_url ? [a.image_url] : []);
-  var refForListing=function(listingId){
-    var match=(listings||[]).filter(function(l){return String(l.id)===String(listingId)})[0];
-    return match&&match.ref ? match.ref : (listingId!=null ? String(listingId) : "");
-  };
-  return '<div class="adminadedit">'+
-   '<div class="row">'+
-    '<div class="fl"><label>'+t("adEnabledL")+'</label><select id="'+pfx+'En">'+
-     '<option value="1"'+(a.enabled!==false?' selected':'')+'>'+t("enabled")+'</option>'+
-     '<option value="0"'+(a.enabled===false?' selected':'')+'>'+t("disabled")+'</option></select></div>'+
-    '<div class="fl"><label>'+t("adLabelL")+'</label><input id="'+pfx+'Label" value="'+(a.label||'').replace(/"/g,"&quot;")+'"></div></div>'+
-   '<div class="admodepick">'+
-    '<label><input type="radio" name="'+pfx+'Mode" value="upload"'+(isUpload?' checked':'')+'> '+t("adModeUpload")+'</label>'+
-    '<label><input type="radio" name="'+pfx+'Mode" value="linked"'+(isLinked?' checked':'')+'> '+t("adModeLinked")+'</label>'+
-    '<label><input type="radio" name="'+pfx+'Mode" value="video_embed"'+(isVideoEmbed?' checked':'')+'> '+t("adModeVideoEmbed")+'</label>'+
-   '</div>'+
-   '<div id="'+pfx+'UploadWrap" style="'+(isUpload?'':'display:none')+'">'+
-    (curImgs.length ? '<div class="adminadthumbs" id="'+pfx+'ThumbsPreview">'+curImgs.map(function(u){
-       return '<div class="adminadthumb">'+
-         (a.media_type==="video"&&u===a.image_url?'<video src="'+u+'" muted></video>':'<img src="'+u+'" alt="">')+
-       '</div>'}).join("")+'</div>' : '')+
-    '<input type="file" id="'+pfx+'File" accept="image/*,video/mp4,video/webm" multiple style="margin-bottom:8px">'+
-    '<div class="muted" style="font-size:12px;margin:-4px 0 8px">'+GX("adVideoHint").replace("{max}",adVideoMaxMb())+'</div>'+
-    '<div class="hintx" style="margin-bottom:8px">'+t("adMultiUploadHint")+'</div>'+
-    '<div class="hintx" id="'+pfx+'FileMsg" style="margin-bottom:8px"></div>'+
-    '<input type="hidden" id="'+pfx+'ImgUrl" value="'+(a.image_url||'').replace(/"/g,"&quot;")+'">'+
-    '<input type="hidden" id="'+pfx+'ImgUrls" value="'+(curImgs.length?JSON.stringify(curImgs).replace(/"/g,"&quot;"):'')+'">'+
-    '<input type="hidden" id="'+pfx+'MediaType" value="'+(a.media_type||"image")+'">'+
-    '<div class="fl"><label>'+t("adLinkUrlL")+'</label><input id="'+pfx+'Link" value="'+(a.link_url||'').replace(/"/g,"&quot;")+'" placeholder="https://..."></div>'+
-   '</div>'+
-   '<div id="'+pfx+'LinkedWrap" style="'+(isLinked?'':'display:none')+'">'+
-    '<div class="fl"><label>'+t("adPickListingL")+'</label>'+
-     '<div class="chipsel"><div class="chipsel-box">'+
-      '<input class="chipsel-input" id="'+pfx+'ListingSearch" autocomplete="off" '+
-       'placeholder="'+t("adSearchListingPH")+'" '+
-       'value="'+(isLinked?(refForListing(a.linked_listing_id)+(a.label?' — '+a.label:'')):'')+'">'+
-     '</div><div class="chipsel-drop" id="'+pfx+'ListingDrop"></div></div>'+
-     '<input type="hidden" id="'+pfx+'Listing" value="'+(a.linked_listing_id||'')+'">'+
-    '</div>'+
-    '<div class="hintx">'+t("adLinkedHint")+'</div>'+
-   '</div>'+
-   '<div id="'+pfx+'VideoEmbedWrap" style="'+(isVideoEmbed?'':'display:none')+'">'+
-    '<div class="fl"><label>'+t("adVideoUrlL")+'</label>'+
-     '<input id="'+pfx+'VideoUrl" value="'+(a.video_embed_url||'').replace(/"/g,"&quot;")+'" placeholder="https://www.youtube.com/watch?v=... '+t("orText")+' https://www.facebook.com/.../videos/..."></div>'+
-    '<div class="hintx">'+t("adVideoEmbedHint")+'</div>'+
-    '<div class="fl" style="margin-top:8px"><label>'+t("adVideoLinkL")+'</label>'+
-     '<input id="'+pfx+'VideoLink" value="'+(isVideoEmbed?(a.link_url||''):'').replace(/"/g,"&quot;")+'" placeholder="https://... ('+t("optional")+')"></div>'+
-    '<div class="hintx">'+t("adVideoLinkHint")+'</div>'+
-   '</div>'+
-   '<div class="row" style="margin-top:8px">'+
-    '<div class="fl"><label>'+t("adSponsorNameL")+'</label><input id="'+pfx+'Sponsor" value="'+(a.sponsor_name||'').replace(/"/g,"&quot;")+'" placeholder="'+t("adSponsorNamePH")+'"></div>'+
-   '</div>'+
-   '<div class="row" style="margin-top:8px">'+
-    '<div class="fl"><label>'+t("adTopTextL")+'</label><input id="'+pfx+'TopText" value="'+(a.overlay_top||'').replace(/"/g,"&quot;")+'" placeholder="'+t("adOverlayPH")+'"></div>'+
-    '<div class="fl"><label>'+t("adBottomTextL")+'</label><input id="'+pfx+'BottomText" value="'+(a.overlay_bottom||'').replace(/"/g,"&quot;")+'" placeholder="'+t("adOverlayPH")+'"></div>'+
-   '</div>'+
-   '<div class="hintx">'+t("adOverlayHint")+'</div>'+
-   '<div class="row">'+
-    '<div class="fl"><label>'+t("featureStartL")+'</label><input type="date" id="'+pfx+'Starts" value="'+(a.starts_at?new Date(a.starts_at).toISOString().slice(0,10):'')+'"></div>'+
-    '<div class="fl"><label>'+t("adExpiresL")+'</label><input type="date" id="'+pfx+'Expires" value="'+(a.expires_at?new Date(a.expires_at).toISOString().slice(0,10):'')+'"></div>'+
-   '</div>'+
-   '<div class="hintx">'+t("adScheduleHint")+'</div>'+
-   '<div style="display:flex;gap:10px;align-items:center;margin-top:8px">'+
-   '<button class="ab ok" id="'+pfx+'SaveBtn" data-saveadslot="'+suffix+'">'+t("save")+'</button>'+
-   '<button class="ab" data-canceladedit="'+suffix+'">'+t("cancel")+'</button>'+
-   '<span id="'+pfx+'Msg" style="font-size:12.5px;color:var(--danger)"></span></div>'+
-  '</div>';
-}
 function videoEmbedInfo(url){
   if(!url) return null;
   var yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([\w-]{6,})/);
@@ -6162,7 +5913,6 @@ function videoEmbedInfo(url){
   return null;
 }
 // kept for compatibility with any code path that only needs the URL
-function youtubeEmbedUrl(url){ var v=videoEmbedInfo(url); return v?v.embedUrl:null; }
 function hexToRgb(hex){
   var h=(hex||"").replace("#","");
   if(h.length===3) h=h.split("").map(function(c){return c+c}).join("");
@@ -7582,14 +7332,6 @@ function wireChipSelects(){
     if(rin && window.innerWidth<=640 && rin.closest(".cs-compact") && window._csOpen && window._csOpen[rid]) setTimeout(window._csOpen[rid],0);
     else if(rin) setTimeout(function(){ try{ rin.focus({preventScroll:true}) }catch(e){ rin.focus() } },0) }
 }
-function typeOptionsCollapsed(){
-  // one "Land" entry replaces resid/agri/comm for search purposes —
-  // the real subtype distinction only matters when posting a listing.
-  return Object.keys(D.TYPES).filter(function(k){return LANDT.indexOf(k)===-1 || k==="resid"})
-    .map(function(k){
-      if(k==="resid") return '<option value="land">'+t("landGroup")+'</option>';
-      return '<option value="'+k+'">'+D.TYPES[k][li()]+'</option>'}).join("");
-}
 /* the hero search bar renders and re-renders on its own: choosing a filter must not rebuild the whole page
    (which restarted the ad carousel, the header and the drawing, and made the menu blink) */
 function newTag(){ return SX("nav_map_new",true)!==false ? '<i class="newtag">'+GX("newTag")+'</i>' : '' }
@@ -8300,35 +8042,7 @@ function wireAdmin(){
     }catch(err){ alert(err.message||"error"); VIEW="admin"; render() }
   }});
 
-  if($("#aeSave")) $("#aeSave").onclick=async function(){
-    var v=function(id){var el=$("#"+id); return el?el.value:""};
-    var patch={
-      price_usd:+v("aePrice")||undefined, area_m2:+v("aeArea")||undefined,
-      rooms:v("aeRooms")===""?null:+v("aeRooms"),
-      baths:v("aeBaths")===""?null:+v("aeBaths"),
-      floor:v("aeFloor")===""?null:+v("aeFloor"),
-      description:v("aeDesc")||undefined
-    };
-    if($("#aeLiving")) patch.living_rooms = v("aeLiving")===""?null:+v("aeLiving");
-    if($('input[name=aetb]:checked')) patch.tabu=$('input[name=aetb]:checked').value;
-    if($('input[name=aecd]:checked')) patch.condition=$('input[name=aecd]:checked').value;
-    this.disabled=true; this.textContent=t("saving");
-    try{
-      await rpc("bk_admin_edit_listing",{p_token:ADM.token,p_id:ADM.editId,p_patch:patch});
-      await adminLoad();
-      ADM.editId=null; ADM.editRow=null; render();
-    }catch(e){ if($("#aeMsg")) $("#aeMsg").textContent=e.message||"error";
-      this.disabled=false; this.textContent=t("saveChanges") }
-  };
-  if($("#aeDelete")) $("#aeDelete").onclick=async function(){
-    if(!confirm(t("confirmDel"))) return;
-    try{
-      await rpc("bk_admin_delete_listing",{p_token:ADM.token,p_listing:ADM.editId});
-      await adminLoad(); ADM.editId=null; ADM.editRow=null; render();
-    }catch(e){ alert(e.message||"error") }
-  };
-
-  // reply to a report or piece of feedback
+      // reply to a report or piece of feedback
   $$("[data-replysend]").forEach(function(btn){ btn.onclick=async function(){
     var key=btn.dataset.replysend, kind=key.split(":")[0], id=+key.split(":")[1];
     var box=$('[data-replybox="'+key+'"]');
@@ -8337,9 +8051,7 @@ function wireAdmin(){
     btn.disabled=true; btn.textContent=t("saving");
     try{ await rpc("bk_admin_reply",{p_token:ADM.token,p_kind:kind,p_id:id,p_reply:txt}); await adminLoad() }
     catch(e){ alert(e.message||"error"); btn.disabled=false; btn.textContent=t("sendReply") } }});
-  $$("[data-msgfilter]").forEach(function(e){ e.onclick=function(){
-    ADM.msgFilter=this.dataset.msgfilter; render() }});
-  $$("[data-tosolved]").forEach(function(e){ e.onclick=async function(){
+    $$("[data-tosolved]").forEach(function(e){ e.onclick=async function(){
     var key=this.dataset.tosolved, kind=key.split(":")[0], id=+key.split(":")[1], val=this.dataset.val==="1";
     try{ await rpc("bk_admin_set_solved",{p_token:ADM.token,p_kind:kind,p_id:id,p_solved:val}); await adminLoad() }
     catch(e){ alert(e.message||"error") }
@@ -8648,73 +8360,13 @@ function wireAdmin(){
       patch[k] = ty==="bool" ? !!i.checked : ty==="num" ? (i.value===""?null:+i.value) : (String(i.value).trim()===""?null:String(i.value).trim()) });
     await saveSiteContent({extras:patch}, f.dataset.xform+"Msg", this);
   } });
-  if($("#scRealCount")) $("#scRealCount").onchange=function(){
-    var f=$("#scListingsNum"); if(f) f.disabled=this.checked;
-  };
-  if($("#adRowGap")) $("#adRowGap").oninput=function(){
-    var lbl=$("#adRowGapVal"); if(lbl) lbl.textContent=this.value+"px";
-  };
-  if($("#adLayoutSave")) $("#adLayoutSave").onclick=function(){
-    var gapVal = parseInt(($("#adRowGap")||{}).value,10);
-    gapVal = isNaN(gapVal) ? 0 : gapVal;
-    saveSiteContent({
-      ad_square_size: parseInt(($("#adSqSize")||{}).value,10)||130,
-      ad_carousel_gap: gapVal
-    },"adLayoutMsg",this);
-    SITE.ad_carousel_gap = gapVal; SITE.ad_square_size = parseInt(($("#adSqSize")||{}).value,10)||130;
-    applySectionGapVars(); applySiteExtras();
-  };
-  if($("#adColorsSave")) $("#adColorsSave").onclick=function(){
-    saveSiteContent({
-      ad_text_color: ($("#adTextColor")||{}).value||"#ffffff",
-      ad_shade_color: ($("#adShadeColor")||{}).value||"#090e1a"
-    },"adColorsMsg",this);
-  };
-  if($("#adRoomInfoSave")) $("#adRoomInfoSave").onclick=function(){
-    saveSiteContent({
-      ad_use_icons: ($("#adUseIcons")||{}).value!=="0",
-      ad_roominfo_size: parseInt(($("#adRoomInfoSize")||{}).value,10)||9
-    },"adRoomInfoMsg",this);
-  };
-  if($("#adLocSave")) $("#adLocSave").onclick=function(){
-    saveSiteContent({
-      ad_location_enabled: !!($("#adLocOn")&&$("#adLocOn").checked),
-      ad_location_size: parseInt(($("#adLocSize")||{}).value,10)||9
-    },"adLocMsg",this);
-  };
-  if($("#adTagSave")) $("#adTagSave").onclick=function(){
-    var patch={
-      ad_tag_enabled: !!($("#adTagOn")&&$("#adTagOn").checked),
-      ad_tag_size: parseInt(($("#adTagSize")||{}).value,10)||9
-    };
-    ["ar","en","de"].forEach(function(lg){ patch["ad_tag_"+lg]=($("#adTag_"+lg)||{}).value||""; });
-    saveSiteContent(patch,"adTagMsg",this);
-  };
-
-  // ad squares page: one save per card; the preview follows every edit
-  var adSaveForm=function(formId,msgId,btn){
-    var f=$("#"+formId); if(!f) return; var v=adFormValues(f), patch={}, ex={};
-    Object.keys(v).forEach(function(k){ if(k.indexOf("x:")===0){ ex[k.slice(2)] = (v[k]===""||v[k]===null) ? null : v[k] } else if(v[k]!==null) patch[k]=v[k] });
-    if(Object.keys(ex).length) patch.extras=ex;
-    saveSiteContent(patch,msgId,btn).then(function(){ applySectionGapVars(); applySiteExtras(); });
-  };
-  if($("#adRowSave")) $("#adRowSave").onclick=function(){ adSaveForm("adRowForm","adRowMsg",this) };
-  if($("#hlSave")) $("#hlSave").onclick=function(){ adSaveForm("homeLayoutForm","hlMsg",this) };
-  hsWire();
-  if($("#adLookSave")) $("#adLookSave").onclick=function(){ adSaveForm("adLookForm","adLookMsg",this) };
-  $$(".dual-r input[type=range]").forEach(function(r){ r.oninput=function(){ this.removeAttribute("data-empty"); var l=$("#"+this.id+"Val"); if(l) l.textContent=this.value+"px" } });
-  var lookForm=$("#adLookForm"), rowForm=$("#adRowForm");
-  var refreshPrev=function(){ var pv=$("#adPrev"); if(!pv) return; var v=Object.assign({},SITE,adFormValues(lookForm),{ad_square_size:(adFormValues(rowForm).ad_square_size||SITE.ad_square_size)}); pv.innerHTML=adPreviewHtml(v) };
-  if(lookForm){ lookForm.addEventListener("input",refreshPrev); lookForm.addEventListener("change",refreshPrev) }
-  if(rowForm){ rowForm.addEventListener("input",refreshPrev) }
-
-  var reloadAdSlots=async function(){
+                // ad squares page: one save per card; the preview follows every edit
+        hsWire();
+              var reloadAdSlots=async function(){
     try{ var r=await rpc("bk_admin_list_ads",{p_token:ADM.token,p_country:COUNTRY}); ADM.adSlots=r||[] }catch(e){}
     loadAdSlots(); // also refresh the public list, so the home page reflects the change immediately
   };
-  if($("#adAddBtn")) $("#adAddBtn").onclick=function(){ ADM.newAdOpen=true; ADM.newAdMsg=""; render() };
-
-  if($("#dzBackupBtn")) $("#dzBackupBtn").onclick=async function(){
+    if($("#dzBackupBtn")) $("#dzBackupBtn").onclick=async function(){
     var msgEl=$("#dzBackupMsg"); var btn=this;
     btn.disabled=true; btn.textContent=t("backingUp");
     try{
@@ -8864,214 +8516,7 @@ function wireAdmin(){
   // file upload: read the file, shrink images (reusing the same helper
   // listing photos use), upload to Supabase Storage, and populate the
   // hidden fields the save handler reads from
-  var wireAdFileInput=function(suffix){
-    var pfx="ad"+suffix, input=$("#"+pfx+"File");
-    if(!input) return;
-    input.onchange=async function(){
-      var files=this.files ? Array.prototype.slice.call(this.files) : [];
-      if(!files.length) return;
-      var msgEl=$("#"+pfx+"FileMsg");
-      var imgUrlEl=$("#"+pfx+"ImgUrl"), imgUrlsEl=$("#"+pfx+"ImgUrls"), typeEl=$("#"+pfx+"MediaType");
-      var uploadedUrls=[]; var anyVideo=false;
-      try{
-        if(!DB) throw new Error("no client");
-        if(files.length>1 && files.some(function(f){return /^video\//.test(f.type)})){
-          throw new Error(t("adNoMultiVideo"));
-        }
-        for(var i=0;i<files.length;i++){
-          var f=files[i];
-          var isVideo=/^video\//.test(f.type);
-          if(isVideo) anyVideo=true;
-          if(isVideo && f.size>adVideoMaxMb()*1048576) throw new Error(GX("adVideoTooBig").replace("{mb}",(f.size/1048576).toFixed(0)).replace("{max}",adVideoMaxMb()));
-          if(msgEl) msgEl.textContent=t("uploading")+" "+(i+1)+"/"+files.length;
-          var path=(isVideo?"videos/ads/":"photos/ads/")+Date.now()+"_"+i+"_"+f.name.replace(/[^a-zA-Z0-9._-]/g,"_");
-          var uploadFile=f;
-          var uploadContentType=f.type;
-          if(!isVideo){
-            var raw=await new Promise(function(res,rej){
-              var r=new FileReader(); r.onload=function(){res(r.result)};
-              r.onerror=function(){rej(new Error("read"))}; r.readAsDataURL(f);
-            });
-            uploadFile = await shrink(raw, 1000, 0.82);
-            uploadContentType = "image/jpeg"; // shrink() always re-encodes to JPEG,
-            // regardless of the original file's format — the uploaded
-            // bytes and the declared content-type must match
-          }
-          var up=await storageUpload(path, uploadFile,
-            {contentType:uploadContentType, upsert:false});
-          if(up.error) throw up.error;
-          uploadedUrls.push(DB.storage.from("photos").getPublicUrl(path).data.publicUrl);
-        }
-        var isSingleVideo = anyVideo && uploadedUrls.length===1;
-        // whatever this ad square was using before is tracked here,
-        // not deleted yet — actual deletion waits for "Save" so an
-        // upload that's never saved never breaks the live ad square
-        var oldUrls = [];
-        if(imgUrlEl && imgUrlEl.value) oldUrls.push(imgUrlEl.value);
-        if(imgUrlsEl && imgUrlsEl.value){
-          try{
-            var oldArr = JSON.parse(imgUrlsEl.value);
-            if(Array.isArray(oldArr)) oldUrls = oldUrls.concat(oldArr);
-          }catch(e){}
-        }
-        if(oldUrls.length) (ADM_adPendingDeletes[suffix]=ADM_adPendingDeletes[suffix]||[]).push.apply(ADM_adPendingDeletes[suffix], oldUrls);
-        if(imgUrlEl) imgUrlEl.value=uploadedUrls[0]||"";
-        // image_urls is specifically the multi-image rotation list — a
-        // video must never end up in it, or the homepage's own render
-        // logic (which checks image_urls before media_type) will treat
-        // the video as a photo and silently fail to display it at all
-        if(imgUrlsEl) imgUrlsEl.value=isSingleVideo ? "[]" : JSON.stringify(uploadedUrls);
-        if(typeEl) typeEl.value=isSingleVideo?"video":"image";
-        if(msgEl) msgEl.textContent=t("savedOk")+" ("+uploadedUrls.length+")";
-      }catch(e){ if(msgEl) msgEl.textContent=e.message||"error" }
-    };
-  };
-  wireAdFileInput("New");
-  (ADM.adSlots||[]).forEach(function(a){ wireAdFileInput(String(a.id)) });
-  if($("#scBgFile")) $("#scBgFile").onchange=async function(){
-    var f=this.files&&this.files[0]; if(!f) return;
-    var msgEl=$("#scBgFileMsg");
-    var isVideo=/^video\//.test(f.type);
-    try{
-      if(!DB) throw new Error("no client");
-      if(msgEl) msgEl.textContent=t("uploading");
-      var path=(isVideo?"videos/background/":"photos/background/")+Date.now()+"_"+f.name.replace(/[^a-zA-Z0-9._-]/g,"_");
-      var uploadFile=f, uploadContentType=f.type;
-      if(!isVideo){
-        var raw=await new Promise(function(res,rej){
-          var r=new FileReader(); r.onload=function(){res(r.result)};
-          r.onerror=function(){rej(new Error("read"))}; r.readAsDataURL(f);
-        });
-        // same shrink() used for every other image upload on the site —
-        // scales width and height by the SAME factor, so a photo can
-        // never come out stretched or distorted, only proportionally
-        // smaller when it's larger than the max width
-        uploadFile = await shrink(raw, 1600, 0.85);
-        uploadContentType = "image/jpeg";
-      }
-      var up=await storageUpload(path, uploadFile,
-        {contentType:uploadContentType, upsert:false});
-      if(up.error) throw up.error;
-      var url=DB.storage.from("photos").getPublicUrl(path).data.publicUrl;
-      // the OLD file isn't deleted here — only tracked for cleanup —
-      // since deleting it now, before "Save" is actually clicked,
-      // would break the live homepage background if the admin
-      // uploaded a replacement but then navigated away without saving
-      if(isVideo){
-        if(($("#scBgVideoUrl")||{}).value) ADM_bgPendingDeletes.push($("#scBgVideoUrl").value);
-        if($("#scBgVideoUrl")) $("#scBgVideoUrl").value=url;
-      } else {
-        if(($("#scBgPhotoUrl")||{}).value) ADM_bgPendingDeletes.push($("#scBgPhotoUrl").value);
-        if($("#scBgPhotoUrl")) $("#scBgPhotoUrl").value=url;
-      }
-      if(msgEl) msgEl.textContent=t("savedOk");
-    }catch(e){ if(msgEl) msgEl.textContent=e.message||"error" }
-  };
-  if($("#scBgOn")) $("#scBgOn").onchange=function(){
-    var wrap=$("#scBgTypeWrap"); if(wrap) wrap.style.display=this.checked?"":"none";
-  };
-  $$('input[name="scBgType"]').forEach(function(radio){
-    radio.onchange=function(){
-      var speedWrap=$("#scBgSpeedWrap"); if(speedWrap) speedWrap.style.display=this.value==="video"?"":"none";
-    };
-  });
-  if($("#scBgSpeed")) $("#scBgSpeed").oninput=function(){
-    var lbl=$("#scBgSpeedVal"); if(lbl) lbl.textContent=this.value+"%";
-  };
-  if($("#scBgSave")) $("#scBgSave").onclick=function(){
-    var bgOn = !!($("#scBgOn")&&$("#scBgOn").checked);
-    var typeEl=document.querySelector('input[name="scBgType"]:checked');
-    saveSiteContent({
-      hero_bg_type: bgOn ? (typeEl ? typeEl.value : "video") : "none",
-      hero_bg_video_url: ($("#scBgVideoUrl")||{}).value||"",
-      hero_bg_photo_url: ($("#scBgPhotoUrl")||{}).value||"",
-      hero_bg_video_speed: parseInt(($("#scBgSpeed")||{}).value,10)||100
-    }, "scBgMsg", this);
-    // now that the save has actually been kicked off, whichever old
-    // background file(s) got replaced during this editing session are
-    // safe to clean up — deleting them any earlier risked breaking the
-    // live background if the admin uploaded but never actually saved
-    ADM_bgPendingDeletes.forEach(function(url){ replaceStorageFile(url) });
-    ADM_bgPendingDeletes = [];
-  };
-  [0,1,2].forEach(function(bIdx){
-    wireBannerItemsZone(bIdx);
-    if($("#scBannerSize"+bIdx)) $("#scBannerSize"+bIdx).onchange=function(){
-      var wrap=$("#scBannerCustomWrap"+bIdx); if(wrap) wrap.style.display=this.value==="custom"?"":"none";
-    };
-    if($("#scBannerGap"+bIdx)) $("#scBannerGap"+bIdx).oninput=function(){
-      var lbl=$("#scBannerGapVal"+bIdx); if(lbl) lbl.textContent=this.value+"px";
-    };
-    if($("#scBannerHPos"+bIdx)) $("#scBannerHPos"+bIdx).oninput=function(){
-      var lbl=$("#scBannerHPosVal"+bIdx); if(lbl) lbl.textContent=this.value+"%";
-    };
-    if($("#scBannerSave"+bIdx)) $("#scBannerSave"+bIdx).onclick=function(){
-      var cfg = ADM_bannersDraft[bIdx];
-      cfg.enabled = !!($("#scBannerOn"+bIdx)&&$("#scBannerOn"+bIdx).checked);
-      cfg.rotationSeconds = parseInt(($("#scBannerRotateSec"+bIdx)||{}).value,10)||5;
-      cfg.transition = ($("#scBannerTransition"+bIdx)||{}).value||"fade";
-      cfg.size = ($("#scBannerSize"+bIdx)||{}).value||"728x90";
-      cfg.customW = parseInt(($("#scBannerCustomW"+bIdx)||{}).value,10)||728;
-      cfg.customH = parseInt(($("#scBannerCustomH"+bIdx)||{}).value,10)||90;
-      var gapVal = parseInt(($("#scBannerGap"+bIdx)||{}).value,10);
-      cfg.gap = isNaN(gapVal) ? 14 : gapVal;
-      var hposVal = parseInt(($("#scBannerHPos"+bIdx)||{}).value,10);
-      cfg.hPosition = isNaN(hposVal) ? 50 : hposVal;
-      cfg.link = ($("#scBannerLink"+bIdx)||{}).value||"";
-      cfg.textEnabled = !!($("#scBannerTextOn"+bIdx)&&$("#scBannerTextOn"+bIdx).checked);
-      cfg.textSize = parseInt(($("#scBannerTextSize"+bIdx)||{}).value,10)||14;
-      cfg.textColor = ($("#scBannerTextColor"+bIdx)||{}).value||"#ffffff";
-      ["ar","en","de"].forEach(function(lg){ cfg["text_"+lg]=($("#scBannerText"+bIdx+"_"+lg)||{}).value||""; });
-      saveSiteContent({banners_config: JSON.stringify(ADM_bannersDraft)}, "scBannerMsg"+bIdx, this);
-      // now that the save has actually been kicked off, any photos
-      // removed from this banner since it was last saved are safe to
-      // delete from storage — waiting until here (not the moment
-      // "remove" was clicked) avoids deleting a file the admin might
-      // have backed out of without saving
-      (ADM_bannerPendingDeletes[bIdx]||[]).forEach(function(url){ replaceStorageFile(url) });
-      ADM_bannerPendingDeletes[bIdx] = [];
-      // applied straight from the draft, not from SITE — saveSiteContent()
-      // only updates SITE once its RPC call actually resolves
-      SITE.banners_config = JSON.stringify(ADM_bannersDraft);
-      applyBannerSizeVar();
-    };
-  });
-
-  var wireAdListingSearch=function(suffix){
-    var pfx="ad"+suffix;
-    var input=$("#"+pfx+"ListingSearch"), drop=$("#"+pfx+"ListingDrop"), hidden=$("#"+pfx+"Listing");
-    if(!input||!drop||!hidden) return;
-    var allListings=(ADM.data&&ADM.data.listings)||[];
-    var renderMatches=function(q){
-      var qq=(q||"").trim().toLowerCase();
-      var matches = !qq ? allListings.slice(0,30) : allListings.filter(function(l){
-        var ref=(l.ref||String(l.id)).toLowerCase();
-        var name=(l.poster_name||"").toLowerCase();
-        return ref.indexOf(qq)>-1 || name.indexOf(qq)>-1;
-      }).slice(0,30);
-      drop.innerHTML = matches.length ? matches.map(function(l){
-        return '<div class="chipsel-opt" data-adpicklisting="'+suffix+'" data-lid="'+l.id+'" data-lref="'+((l.ref||l.id)+"").replace(/"/g,"&quot;")+'" data-lname="'+((l.poster_name||"").replace(/"/g,"&quot;"))+'">'+
-          (l.ref||l.id)+' — '+(l.poster_name||"")+' ($'+(l.price_usd||0).toLocaleString("en")+')</div>'}).join("")
-        : '<div class="chipsel-empty">'+t("noResultsFor")+'</div>';
-      $$(".chipsel-drop.on").forEach(function(d){ if(d!==drop) d.classList.remove("on") });
-      drop.classList.add("on");
-      $$('[data-adpicklisting="'+suffix+'"]').forEach(function(opt){ opt.onclick=function(){
-        hidden.value=this.dataset.lid;
-        input.value=this.dataset.lref+(this.dataset.lname?" — "+this.dataset.lname:"");
-        drop.classList.remove("on");
-      }});
-    };
-    input.addEventListener("focus",function(){ renderMatches(this.value.indexOf("BK-")===0?"":this.value) });
-    input.addEventListener("input",function(){
-      hidden.value=""; // typing invalidates any prior selection until a new one is clicked
-      renderMatches(this.value);
-    });
-    input.addEventListener("click",function(e){ e.stopPropagation() });
-
-  };
-  wireAdListingSearch("New");
-  (ADM.adSlots||[]).forEach(function(a){ wireAdListingSearch(String(a.id)) });
-  (function wireFeaturedListingSearch(){
+                          (function wireFeaturedListingSearch(){
     var input=$("#ftListingSearch"), drop=$("#ftListingDrop"), hidden=$("#ftListing");
     if(!input||!drop||!hidden) return;
     var allListings=(ADM.data&&ADM.data.listings)||[];
@@ -9106,141 +8551,15 @@ function wireAdmin(){
     });
   }
 
-  var saveAdSlot=async function(suffix){
-    var pfx="ad"+suffix;
-    var isNew = suffix==="New";
-    var en=($("#"+pfx+"En")||{}).value!=="0";
-    var label=($("#"+pfx+"Label")||{}).value||"";
-    var mode=($('input[name="'+pfx+'Mode"]:checked')||{}).value||"upload";
-    var btn=$('[data-saveadslot="'+suffix+'"]'); if(btn) btn.disabled=true;
-    var msgEl=$("#"+pfx+"Msg");
-    try{
-      var payload={p_token:ADM.token, p_country:COUNTRY, p_id:isNew?null:suffix, p_position:null, p_enabled:en, p_label:label,
-        p_image_url:null, p_link_url:null, p_media_type:"image", p_linked_listing_id:null,
-        p_image_urls:[], p_video_embed_url:null,
-        p_sponsor_name:($("#"+pfx+"Sponsor")||{}).value||null,
-        p_overlay_top:($("#"+pfx+"TopText")||{}).value||null,
-        p_overlay_bottom:($("#"+pfx+"BottomText")||{}).value||null,
-        p_starts_at:($("#"+pfx+"Starts")||{}).value?new Date(($("#"+pfx+"Starts")||{}).value+"T00:00:00").toISOString():null,
-        p_expires_at:($("#"+pfx+"Expires")||{}).value?new Date(($("#"+pfx+"Expires")||{}).value+"T23:59:59").toISOString():null};
-      if(mode==="linked"){
-        var listingId=($("#"+pfx+"Listing")||{}).value;
-        if(!listingId) throw new Error(t("adPickListingL"));
-        payload.p_linked_listing_id=+listingId;
-      } else if(mode==="video_embed"){
-        var vUrl=($("#"+pfx+"VideoUrl")||{}).value||"";
-        if(!vUrl || !videoEmbedInfo(vUrl)) throw new Error(t("adInvalidVideoUrl"));
-        payload.p_video_embed_url=vUrl;
-        payload.p_link_url=($("#"+pfx+"VideoLink")||{}).value||null;
-      } else {
-        var urlsRaw=($("#"+pfx+"ImgUrls")||{}).value||"";
-        var urls=[]; try{ urls=urlsRaw?JSON.parse(urlsRaw):[] }catch(e){}
-        payload.p_image_url=($("#"+pfx+"ImgUrl")||{}).value||null;
-        payload.p_image_urls=urls;
-        payload.p_link_url=($("#"+pfx+"Link")||{}).value||null;
-        payload.p_media_type=($("#"+pfx+"MediaType")||{}).value||"image";
-      }
-      await rpc("bk_admin_save_ad",payload);
-      // the save just succeeded, so any files this ad square was
-      // replaced away from during editing are now genuinely orphaned
-      // — safe to clean up only now, not any earlier
-      (ADM_adPendingDeletes[suffix]||[]).forEach(function(url){ replaceStorageFile(url) });
-      ADM_adPendingDeletes[suffix] = [];
-      ADM.newAdOpen=false; ADM.editAdId=null; await reloadAdSlots(); render();
-    }catch(e){ if(msgEl) msgEl.textContent=e.message||"error"; if(btn) btn.disabled=false }
-  };
-  $$("[data-saveadslot]").forEach(function(e){ e.onclick=function(){ saveAdSlot(this.dataset.saveadslot) }});
-  $$("[data-canceladedit]").forEach(function(e){ e.onclick=function(){
+      $$("[data-canceladedit]").forEach(function(e){ e.onclick=function(){
     if(this.dataset.canceladedit==="New") ADM.newAdOpen=false; else ADM.editAdId=null;
     render() }});
-  $$("[data-editad]").forEach(function(e){ e.onclick=function(){
-    ADM.editAdId=this.dataset.editad; render() }});
-  $$("[data-deladslot]").forEach(function(e){ e.onclick=async function(){
-    if(!confirm(t("confirmDel"))) return;
-    try{
-      await rpc("bk_admin_delete_ad",{p_token:ADM.token,p_id:this.dataset.deladslot});
-      await reloadAdSlots(); render();
-    }catch(e){ alert(e.message||"error") }
-  }});
-  $$("[data-moveadslot]").forEach(function(e){ e.onclick=async function(){
-    var parts=this.dataset.moveadslot.split(":");
-    this.disabled=true;
-    try{
-      await rpc("bk_admin_move_ad",{p_token:ADM.token,p_id:parts[0],p_dir:parts[1]});
-      await reloadAdSlots(); render();
-    }catch(err){ alert(err.message||"error"); this.disabled=false }
-  }});
-
-  if($("#scHeroGap")) $("#scHeroGap").oninput=function(){
+        if($("#scHeroGap")) $("#scHeroGap").oninput=function(){
     var lbl=$("#scHeroGapVal"); if(lbl) lbl.textContent=this.value+"px";
   };
   if($("#scHeroGapM")) $("#scHeroGapM").oninput=function(){ this.removeAttribute("data-empty"); var lbl=$("#scHeroGapMVal"); if(lbl) lbl.textContent=this.value+"px";
   };
-  if($("#scHeroSave")) $("#scHeroSave").onclick=function(){
-    var patch={hero_enabled: !!($("#scHeroOn")&&$("#scHeroOn").checked)};
-    ["ar","en","de"].forEach(function(lg){
-      patch["hero_"+lg]=($("#scHero_"+lg)||{}).value||"";
-      patch["hero_sub_"+lg]=($("#scHeroSub_"+lg)||{}).value||"";
-    });
-    patch.hero_title_size = ($("#scHeroSize")||{}).value||"";
-    patch.hero_title_color = ($("#scHeroColor")||{}).value||"";
-    patch.hero_sub_color = ($("#scHeroSubColor")||{}).value||"";
-    var gapVal = parseInt(($("#scHeroGap")||{}).value,10);
-    patch.hero_gap = isNaN(gapVal) ? 0 : gapVal;
-    var gm=$("#scHeroGapM"), tm=$("#scHeroSizeM");
-    patch.extras = { hero_gap_m: (gm && gm.dataset.empty!=="1" && gm.value!=="") ? +gm.value : null, hero_title_size_m: (tm && tm.value!=="") ? +tm.value : null };
-    saveSiteContent(patch,"scHeroMsg",this).then(function(){ applySectionGapVars(); applySiteExtras() });
-    SITE.hero_gap = patch.hero_gap;
-    applySectionGapVars();
-  };
-  if($("#scStatsSave")) $("#scStatsSave").onclick=function(){
-    var patch={
-      stats_enabled: !!($("#scStatsOn")&&$("#scStatsOn").checked),
-      stats_use_real_count: !!($("#scRealCount")&&$("#scRealCount").checked),
-      stats_areas_num: ($("#scAreasNum")||{}).value||"657",
-      stats_listings_num: ($("#scListingsNum")||{}).value||"9,102"
-    };
-    ["ar","en","de"].forEach(function(lg){
-      patch["stats1_"+lg]=($("#scStats1_"+lg)||{}).value||"";
-      patch["stats2_"+lg]=($("#scStats2_"+lg)||{}).value||"";
-    });
-    saveSiteContent(patch,"scStatsMsg",this);
-  };
-  if($("#scContactSave")) $("#scContactSave").onclick=function(){
-    var patch={
-      fb_url:($("#scFb")||{}).value||"", ig_url:($("#scIg")||{}).value||"",
-      yt_url:($("#scYt")||{}).value||"", tiktok_url:($("#scTiktok")||{}).value||"",
-      fb_name:($("#scFbName")||{}).value||"", ig_name:($("#scIgName")||{}).value||"",
-      yt_name:($("#scYtName")||{}).value||"", tiktok_name:($("#scTiktokName")||{}).value||"",
-      wa_number:($("#scWa")||{}).value||"", phone_number:($("#scPhone")||{}).value||"",
-      email_address:($("#scEmail")||{}).value||""
-    };
-    saveSiteContent(patch,"scContactMsg",this);
-  };
-  if($("#scFeatSave")) $("#scFeatSave").onclick=function(){
-    var patch={
-      featured_badge_enabled: !!($("#scFeatBadgeOn")&&$("#scFeatBadgeOn").checked),
-      featured_brightness: parseInt(($("#scFeatBright")||{}).value,10)||0
-    };
-    ["ar","en","de"].forEach(function(lg){ patch["featured_badge_"+lg]=($("#scFeatBadge_"+lg)||{}).value||""; });
-    saveSiteContent(patch,"scFeatMsg",this);
-  };
-  if($("#scCardSizeSave")) $("#scCardSizeSave").onclick=function(){
-    var size=parseInt(($("#scCardSize")||{}).value,10)||250, sizeM=parseInt(($("#scCardSizeMobile")||{}).value,10)||160;
-    saveSiteContent({card_min_width:size, card_min_width_mobile:sizeM},"scCardSizeMsg",this);
-    try{ document.documentElement.style.setProperty("--card-size", size+"px"); document.documentElement.style.setProperty("--card-size-mobile", sizeM+"px") }catch(e){}
-  };
-  if($("#scCardSizeMobileSave")) $("#scCardSizeMobileSave").onclick=function(){
-    var size=parseInt(($("#scCardSizeMobile")||{}).value,10)||150;
-    saveSiteContent({card_min_width_mobile:size},"scCardSizeMobileMsg",this);
-    try{ document.documentElement.style.setProperty("--card-size-mobile", size+"px") }catch(e){}
-  };
-  if($("#scNewBadgeSave")) $("#scNewBadgeSave").onclick=function(){
-    var hours=parseInt(($("#scNewBadgeHours")||{}).value,10);
-    if(isNaN(hours)||hours<0) hours=24;
-    saveSiteContent({new_badge_hours:hours},"scNewBadgeMsg",this);
-  };
-  if($("#scVideoSave")) $("#scVideoSave").onclick=function(){
+                if($("#scVideoSave")) $("#scVideoSave").onclick=function(){
     var mb=Math.min(50, Math.max(5, parseInt(($("#scVideoMb")||{}).value,10)||50)), sec=Math.max(10, parseInt(($("#scVideoS")||{}).value,10)||90), n=Math.max(1, parseInt(($("#scVideoN")||{}).value,10)||1);
     saveSiteContent({extras:{video_enabled:!!($("#scVideoOn")||{}).checked, video_max_mb:mb, video_max_s:sec, video_max:n}},"scVideoMsg",this);
   };
@@ -9339,14 +8658,7 @@ function wireAdmin(){
     var countEl=$("#aListCount");
     if(countEl) countEl.innerHTML = '<span class="ltr">'+visible+'</span> '+t("listingsTab");
   };
-  var filterCards=function(wrapId, q){
-    var wrap=$("#"+wrapId); if(!wrap) return;
-    var qq=(q||"").toLowerCase();
-    $$(".fbcard",wrap).forEach(function(c){
-      c.style.display = (!qq || (c.dataset.rowText||"").indexOf(qq)>-1) ? "" : "none";
-    });
-  };
-  if($("#aqL")) $("#aqL").oninput=function(){ filterRows("aListBody", this.value, ($("#afStatus")||{}).value, ($("#afTabu")||{}).value, ($("#afDeal")||{}).value) };
+    if($("#aqL")) $("#aqL").oninput=function(){ filterRows("aListBody", this.value, ($("#afStatus")||{}).value, ($("#afTabu")||{}).value, ($("#afDeal")||{}).value) };
   if($("#afStatus")) $("#afStatus").onchange=function(){ filterRows("aListBody", ($("#aqL")||{}).value, this.value, ($("#afTabu")||{}).value, ($("#afDeal")||{}).value) };
   if($("#afTabu")) $("#afTabu").onchange=function(){ filterRows("aListBody", ($("#aqL")||{}).value, ($("#afStatus")||{}).value, this.value, ($("#afDeal")||{}).value) };
   if($("#afDeal")) $("#afDeal").onchange=function(){ filterRows("aListBody", ($("#aqL")||{}).value, ($("#afStatus")||{}).value, ($("#afTabu")||{}).value, this.value) };
@@ -11656,40 +10968,6 @@ function watchAdVideos(){
     else if(v.getAttribute("src")){ v.pause() } }) },{rootMargin:"0px 160px 0px 160px",threshold:0.01}) }
   vids.forEach(function(v){ if(!v._adWatched){ v._adWatched=true; window._adVidIO.observe(v) } });
 }
-function initCursorRing(){
-  if(!(window.matchMedia&&matchMedia("(hover:hover) and (pointer:fine)").matches)) return;
-  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  var ring=document.createElement("div"); ring.className="cur-ring"; document.body.appendChild(ring);
-  var x=innerWidth/2,y=innerHeight/2,tx=x,ty=y, shown=false;
-  var INTER="a,button,input,select,textarea,label,[data-go],[role=button],.menu,.chipsel-drop,.pricepop,.sbar,.adslot,.adcarousel-arrow,.chip,.mapf-panel,.leaflet-container";
-  document.addEventListener("mousemove",function(e){ tx=e.clientX; ty=e.clientY; if(!shown){ shown=true; ring.classList.add("show") } ring.classList.toggle("hide", !!(e.target.closest&&e.target.closest(INTER))) },{passive:true});
-  document.addEventListener("mouseleave",function(){ ring.classList.remove("show") });
-  document.addEventListener("mouseenter",function(){ if(shown) ring.classList.add("show") });
-  (function tick(){ x+=(tx-x)*.22; y+=(ty-y)*.22; ring.style.left=x.toFixed(1)+"px"; ring.style.top=y.toFixed(1)+"px"; requestAnimationFrame(tick) })();
-}
-function initCursor(){
-  if(SX("cursor_dot_enabled",true)===false) return;
-  if(!window.matchMedia || !matchMedia("(pointer:fine)").matches || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  var c=document.createElement("div"); c.className="cur hide"; document.body.appendChild(c);
-  var mx=0,my=0,cx=0,cy=0,raf=null,shown=false;
-  function loop(){
-    cx+=(mx-cx)*.22; cy+=(my-cy)*.22;
-    c.style.transform="translate3d("+cx+"px,"+cy+"px,0) translate(-50%,-50%)";
-    raf=(Math.abs(mx-cx)>.3||Math.abs(my-cy)>.3) ? requestAnimationFrame(loop) : null;
-  }
-  document.addEventListener("mousemove",function(e){
-    if(typeof VIEW!=="undefined" && VIEW!=="home"){ c.classList.add("hide"); document.body.classList.remove("has-cur"); return }
-    if(shown) document.body.classList.add("has-cur");
-    mx=e.clientX; my=e.clientY;
-    if(!shown){ shown=true; cx=mx; cy=my; document.body.classList.add("has-cur"); c.classList.remove("hide") }
-    if(!raf) raf=requestAnimationFrame(loop);
-    var el=e.target, hot=el.closest && el.closest("a,button,[data-go],[role=button],label,input,select,textarea,.chip,.stabs,.sbar,.menu,.chipsel-drop,.pricepop,.mapf-panel,.adslot,.adcarousel-arrow,.leaflet-container,.thumbs img");
-    c.classList.toggle("hide",!!hot);
-  },{passive:true});
-  document.documentElement.addEventListener("mouseleave",function(){ c.classList.add("hide") });
-  document.documentElement.addEventListener("mouseenter",function(){ if(shown) c.classList.remove("hide") });
-  window.addEventListener("touchstart",function(){ document.body.classList.remove("has-cur"); c.remove() },{once:true,passive:true});
-}
 document.documentElement.classList.add("js");
 
 /* ── geography from the database (admin-controlled) ─────────────────────
@@ -12071,11 +11349,6 @@ function heroPriceLabel(){
   if(F.pmin&&F.pmax) return '<span class="ltr">'+f(F.pmin)+' – '+f(F.pmax)+'</span>';
   if(F.pmin) return '<span class="ltr">'+f(F.pmin)+'</span> '+GX("andUp");
   return GX("upTo")+' <span class="ltr">'+f(F.pmax)+'</span>';
-}
-function heroPricePresets(){
-  var sale=F.deal!=="rent", steps= sale ? [[0,50000],[50000,100000],[100000,200000],[200000,400000],[400000,0]] : [[0,200],[200,500],[500,1000],[1000,0]];
-  var rate=curRate(), f=function(v){ var n=CUR==="USD"?v:Math.round(v*rate); return CUR==="USD" ? "$"+n.toLocaleString("en") : n.toLocaleString("en") };
-  return steps.map(function(s){ return [s[0],s[1], s[1]? (s[0]?f(s[0])+" – "+f(s[1]) : GX("upTo")+" "+f(s[1])) : f(s[0])+" "+GX("andUp")] });
 }
 Object.keys(FR_GX).forEach(function(k){ if(GX_T[k]) GX_T[k].fr=FR_GX[k] });
 function GX(k){ var o=GX_T[k]||{}; var v=o[L]||o.en||k; if(COUNTRY!=="SY"){ if(k==="f_wTabu"){ var dl=deedLabel(); return pickL({ar:dl.ar+" المفضّل",en:"Preferred "+dl.en.toLowerCase(),de:"Bevorzugte "+dl.de,fr:dl.fr+" préféré"}) } v=cLocal(v) } return exFill(v) }
@@ -12574,112 +11847,7 @@ function hsWire(){
     var g=e.target.closest("[data-hsgo]"); if(g){ if(hsDirty() && !confirm(hsT("dirty"))) return; HS.draft={site:{},extras:{}}; HS.adDraft={}; HS.adNew=null; HS.bDraft=null; window.onbeforeunload=null; ADM.tab=g.dataset.hsgo; render() } };
   hsDirtyUI();
 }
-function adminHomeLayoutHtml(){
-  var D2=function(label,k,attrs){ return adDual(label,"x:"+k,SX(k,""),"x:"+k+"_m",SX(k+"_m",""),attrs) };
-  return '<div style="margin-top:16px"></div><div class="blk" id="homeLayoutForm"><h3>'+GX("hlH")+'</h3><div class="in">'+
-    '<div class="hintx">'+GX("hlHint")+'</div>'+
-    '<div class="fsub">'+GX("hlDraw")+'</div>'+
-    '<div class="row3x">'+D2(GX("hlX"),"sk_x",' min="-600" max="600"')+D2(GX("hlY"),"sk_y",' min="-400" max="400"')+D2(GX("hlScale"),"sk_scale",' min="30" max="250" placeholder="100"')+'</div>'+
-    '<div class="fsub">'+GX("hlHead")+'</div>'+
-    '<div class="row">'+D2(GX("hlX"),"h1_x",' min="-600" max="600"')+D2(GX("hlY"),"h1_y",' min="-300" max="300"')+'</div>'+
-    '<div class="fsub">'+GX("hlBar")+'</div>'+
-    '<div class="row3x">'+D2(GX("hlY"),"sbar_y",' min="-300" max="300"')+D2(GX("hlW"),"sbar_w",' min="320" max="1600"')+D2(GX("hlFieldH"),"sbar_h",' min="32" max="72"')+'</div>'+
-    '<div class="xactions"><button class="ab ok" id="hlSave">'+t("save")+'</button><span class="xmsg" id="hlMsg"></span></div>'+
-  '</div></div>';
-}
-function adminHomeExtrasHtml(){
-  return '<div style="margin-top:16px"></div>'+xForm("xHome",GX("xHomeH"),GX("xDefaultHint"),
-    xCheck("opening_enabled",GX("xOpening"),true)+
-    xCheck("cursor_dot_enabled",GX("xCursor"),true)+
-    xSelect("phone_headline_mode",GX("xPhoneMode"),"after",[["after",GX("xPhoneAfter")],["immediate",GX("xPhoneNow")]])+
-    '<div class="row">'+xText("brand_flip_prefix_ar",GX("xFlipAr"),"منصة")+xText("brand_flip_latin",GX("xFlipLatin"),"balkoun.com")+'</div>'+
-    xNum("hero_max_height",GX("xHeroMax"),640,420,900,10));
-}
-function adminAdsExtrasHtml(){
-  var perf='<div class="blk"><h3>'+GX("topAdsH")+'</h3><div class="in"><div class="dash-top" style="margin-bottom:10px">'+rangeTabs()+'</div><div class="hintx" style="margin-bottom:10px">'+GX("adsPerfHint")+'</div>'+(ADM.an?adsPerfTable(ADM.an,true):'<div class="adashempty">'+t("loading")+'</div>')+'</div></div><div style="margin-top:16px"></div>';
-  return perf+xForm("xAds",GX("xAdsH"),GX("xDefaultHint"),
-    xCheck("ads_row_enabled",GX("xAdsOn"),true)+
-    xLangs("ads_row_title_",GX("xAdsTitle"),function(lg){ return GX_T.adsH[lg] })+
-    xLangs("ads_sponsored_",GX("xAdsSponsored"),function(lg){ return GX_T.sponsored[lg] })+
-    '<div class="row">'+xNum("ad_glide_seconds",GX("xAdGlide"),3.5,1,15,0.5)+xNum("ad_video_max_mb",GX("xAdVideoMax"),8,1,100,1)+'</div>');
-}
-function adminDesignExtrasHtml(){
-  return xForm("xDesign",GX("xDesignH"),GX("xDefaultHint"),
-    '<div class="row">'+xNum("search_page_size",GX("xPageSize"),24,6,96,1)+xNum("similar_count",GX("xSimilar"),12,0,24,1)+'</div>')+adminNavHtml();
-}
-function adminNavHtml(){
-  var row=function(i){ return '<div class="navrow"><label class="xcheck"><input type="checkbox" data-xkey="nav_'+i.k+'" data-xtype="bool"'+(navOn(i.k)?' checked':'')+'><span>'+(MI[i.ico]||'')+i.lab()+'</span></label>'+
-    '<span class="navord-w"><small>'+GX("navOrder")+'</small><input type="number" class="navord" data-xkey="nav_'+i.k+'_o" data-xtype="num" value="'+SX("nav_"+i.k+"_o","")+'" placeholder="'+i.o+'" min="0" max="999"></span></div>' };
-  var g=function(gk,title){ return '<div class="fsub">'+title+'</div><div class="navrows">'+NAVI.filter(function(i){ return i.g===gk }).map(row).join("")+'</div>' };
-  return '<div style="margin-top:16px"></div>'+xForm("xNav",GX("navH"),GX("navHint"),
-    g("search",GX("mdSearch"))+g("discover",GX("mdDiscover"))+g("site",GX("mdSite"))+
-    '<div class="fsub">'+GX("navPhoneH")+'</div>'+
-    xCheck("nav_lang_header",GX("navLangHeader"),true)+xCheck("nav_bell_phone",GX("navBellPhone"),true)+
-    xCheck("nav_login_phone",GX("navLoginPhone"),false)+xCheck("nav_avatar_phone",GX("navAvatarPhone"),false)+
-    xCheck("nav_lang_drawer",GX("navLangDrawer"),true)+xCheck("nav_cur_drawer",GX("navCurDrawer"),true)+
-    xCheck("nav_menu_desktop",GX("navMenuDesk"),true));
-}
-function adminSystemExtrasHtml(){ return ''; }
 /* ── Ad squares page: performance, the row, the square design with a live preview ── */
-function adF(key,type,label,val,attrs,extra){ return '<div class="fl"><label>'+label+'</label><input data-adk="'+key+'" data-adt="'+type+'" type="'+(type==="color"?"color":type==="num"?"number":"text")+'" value="'+esc(String(val==null?"":val))+'"'+(attrs||"")+'>'+(extra||"")+'</div>' }
-function adC(key,label,on){ return '<label class="xcheck"><input type="checkbox" data-adk="'+key+'" data-adt="bool"'+(on?" checked":"")+'><span>'+label+'</span></label>' }
-function adDual(label,deskKey,deskVal,phoneKey,phoneVal,attrs,type){
-  type=type||"num"; var inp=function(k,v,ph){ return '<input data-adk="'+k+'" data-adt="'+type+'" type="'+(type==="num"?"number":"text")+'" value="'+esc(String(v==null?"":v))+'"'+(attrs||"")+(ph?' placeholder="'+esc(ph)+'"':'')+'>' };
-  return '<div class="fl"><label>'+label+'</label><div class="dual"><span class="dual-i" title="'+GX("dDesk")+'">'+AICO.desk+inp(deskKey,deskVal,"")+'</span><span class="dual-i" title="'+GX("dPhone")+'">'+AICO.phone+inp(phoneKey,phoneVal,GX("dSame"))+'</span></div></div>' }
-function adDualRange(label,deskKey,deskVal,phoneKey,phoneVal,min,max,step,idBase){
-  var one=function(k,v,id,ph){ return '<span class="dual-r"><b>'+(k===deskKey?AICO.desk:AICO.phone)+' <span id="'+id+'Val" class="ltr">'+(v===""||v==null?ph:v+"px")+'</span></b><input type="range" data-adk="'+k+'" data-adt="num" id="'+id+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+(v===""||v==null?0:v)+'"'+(v===""||v==null?' data-empty="1"':'')+'></span>' };
-  return '<div class="fl"><label>'+label+'</label><div class="dual dual-ranges">'+one(deskKey,deskVal,idBase+"D","0px")+one(phoneKey,phoneVal,idBase+"M",GX("dSame"))+'</div></div>' }
-function adSampleImage(){ var a=(ADM.adSlots||[]).filter(function(x){ return x.image_url && x.media_type!=="video" })[0]; if(a) return a.image_url; var l=(D.LIST||[]).filter(function(x){ return x.photos&&x.photos[0] })[0]; return l?l.photos[0]:"" }
-function adPreviewHtml(v){
-  var size=Math.max(100,Math.min(260,+v.ad_square_size||130)), tc=v.ad_text_color||"#ffffff", sh=hexToRgb(v.ad_shade_color||"#090e1a");
-  var icons=v.ad_use_icons!==false, ris=+v.ad_roominfo_size||9, los=+v.ad_location_size||9, tgs=+v.ad_tag_size||9;
-  var tag=(v["ad_tag_"+L]&&String(v["ad_tag_"+L]).trim())||t("adTag");
-  var img=adSampleImage();
-  return '<div class="adslot" style="width:'+size+'px;height:'+size+'px">'+
-    (img?'<img src="'+img+'" alt="">':'<div class="nophoto"><span>'+t("photos")+'</span></div>')+
-    '<div class="adslot-foot" style="font-size:'+ris+'px;color:'+tc+';background:linear-gradient(to top,rgba('+sh+',.85) 0%,rgba('+sh+',.55) 55%,transparent 100%)">'+
-      '<span>'+(icons?ICON_BED:"")+'3'+(icons?"":" "+t("rooms"))+'</span><span>'+(icons?ICON_BATH:"")+'2'+(icons?"":" "+t("baths"))+'</span><span class="ltr">'+(icons?ICON_AREA:"")+'140'+(icons?"":" "+t("sqm"))+'</span></div>'+
-    (v.ad_location_enabled!==false?'<div class="adslot-place" style="font-size:'+los+'px;color:'+tc+';background:rgba('+sh+',.6)">'+(L==="ar"?"المزة، دمشق":"Mazzeh, Damascus")+'</div>':'')+
-    (v.ad_tag_enabled!==false?'<span class="adtag" style="font-size:'+tgs+'px;color:'+tc+';background:rgba('+sh+',.75)">'+esc(tag)+'</span>':'')+
-  '</div>' }
-function adFormValues(form){
-  var v={}; if(!form) return v;
-  form.querySelectorAll("[data-adk]").forEach(function(i){ var k=i.dataset.adk, ty=i.dataset.adt;
-    v[k] = i.dataset.empty==="1" ? null : ty==="bool" ? !!i.checked : ty==="bool01" ? i.value!=="0" : ty==="num" ? (i.value===""?null:+i.value) : String(i.value) });
-  return v }
-function adminAdsPageHtml(){
-  var perf='<div class="blk"><h3>'+GX("topAdsH")+'</h3><div class="in"><div class="dash-top" style="margin-bottom:0">'+rangeTabs()+'</div><div class="hintx">'+GX("adsPerfHint")+'</div>'+(ADM.an?adsPerfTable(ADM.an,true):'<div class="adashempty">'+t("loading")+'</div>')+'</div></div>';
-  var gap=SITE.ad_carousel_gap!=null?SITE.ad_carousel_gap:0, size=SITE.ad_square_size||130;
-  var row='<div class="blk" id="adRowForm" style="margin-top:16px"><h3>'+GX("adRowH")+'</h3><div class="in">'+
-    adC("x:ads_row_enabled",GX("xAdsOn"),SX("ads_row_enabled",true)!==false)+
-    '<div class="row3x">'+["ar","en","de"].map(function(lg){ return adF("x:ads_row_title_"+lg,"str",GX("xAdsTitle")+' ('+lg.toUpperCase()+')',SX("ads_row_title_"+lg,""),' placeholder="'+esc(GX_T.adsH[lg])+'"') }).join("")+'</div>'+
-    '<div class="row3x">'+["ar","en","de"].map(function(lg){ return adF("x:ads_sponsored_"+lg,"str",GX("xAdsSponsored")+' ('+lg.toUpperCase()+')',SX("ads_sponsored_"+lg,""),' placeholder="'+esc(GX_T.sponsored[lg])+'"') }).join("")+'</div>'+
-    '<div class="row3x">'+
-      adDual(t("adSquareSizeL"),"ad_square_size",size,"x:ad_square_size_m",SX("ad_square_size_m",""),' min="90" max="260"')+
-      adF("x:ad_glide_seconds","num",GX("xAdGlide"),SX("ad_glide_seconds",""),' min="1" max="15" step="0.5" placeholder="3.5"')+
-      adF("x:ad_video_max_mb","num",GX("xAdVideoMax"),SX("ad_video_max_mb",""),' min="1" max="100" placeholder="8"')+
-    '</div>'+
-    '<div class="hintx">'+GX("adSizeHint")+' '+GX("dHint")+'</div>'+
-    adDualRange(t("adRowGapL"),"ad_carousel_gap",gap,"x:ad_carousel_gap_m",SX("ad_carousel_gap_m",""),-60,80,2,"ar_gap")+
-    '<div class="hintx">'+t("heroGapHint")+'</div>'+
-    '<div class="xactions"><button class="ab ok" id="adRowSave">'+t("save")+'</button><span class="xmsg" id="adRowMsg"></span></div>'+
-  '</div></div>';
-  var look='<div class="blk" id="adLookForm" style="margin-top:16px"><h3>'+GX("adLookH")+'</h3><div class="in"><div class="adlook"><div class="adlook-f">'+
-    '<div class="fsub">'+GX("adColorsSub")+'</div>'+
-    '<div class="row">'+adF("ad_text_color","color",t("adTextColorL"),SITE.ad_text_color||"#ffffff")+adF("ad_shade_color","color",t("adShadeColorL"),SITE.ad_shade_color||"#090e1a")+'</div>'+
-    '<div class="fsub">'+GX("adInfoSub")+'</div>'+
-    '<div class="row"><div class="fl"><label>'+t("adRoomInfoStyleL")+'</label><select data-adk="ad_use_icons" data-adt="bool01"><option value="1"'+(SITE.ad_use_icons!==false?' selected':'')+'>'+t("adStyleIcons")+'</option><option value="0"'+(SITE.ad_use_icons===false?' selected':'')+'>'+t("adStyleText")+'</option></select></div>'+
-      adDual(t("adTextSizeL"),"ad_roominfo_size",SITE.ad_roominfo_size||9,"x:ad_roominfo_size_m",SX("ad_roominfo_size_m",""),' min="7" max="20"')+'</div>'+
-    adC("ad_location_enabled",t("showAdLocation"),SITE.ad_location_enabled!==false)+
-    adDual(t("adTextSizeL")+' — '+t("adLocationH"),"ad_location_size",SITE.ad_location_size||9,"x:ad_location_size_m",SX("ad_location_size_m",""),' min="7" max="20"')+
-    '<div class="fsub">'+GX("adTagSub")+'</div>'+
-    adC("ad_tag_enabled",t("showAdTag"),SITE.ad_tag_enabled!==false)+
-    '<div class="row3x">'+["ar","en","de"].map(function(lg){ return adF("ad_tag_"+lg,"str",t("adTagTextL")+' ('+lg.toUpperCase()+')',SITE["ad_tag_"+lg]||"",' placeholder="'+esc(t("leaveBlankDefault"))+'"') }).join("")+'</div>'+
-    adDual(t("adTextSizeL")+' — '+GX("adTagSub"),"ad_tag_size",SITE.ad_tag_size||9,"x:ad_tag_size_m",SX("ad_tag_size_m",""),' min="7" max="20"')+
-    '<div class="xactions"><button class="ab ok" id="adLookSave">'+t("save")+'</button><span class="xmsg" id="adLookMsg"></span></div>'+
-    '</div><div class="adprev"><div class="adprev-h">'+GX("adPreview")+'</div><div id="adPrev">'+adPreviewHtml(SITE)+'</div><div class="hintx" style="color:rgba(255,255,255,.7)">'+GX("adPreviewHint")+'</div></div></div></div></div>';
-  return perf+row+look;
-}
 /* ── analytics helpers: range tabs, KPI cards with deltas, SVG line chart, bar lists ── */
 function rangeTabs(){ var cur=ADM.range||7; return '<div class="arange">'+[1,7,30,90,365].map(function(d){ return '<button type="button" class="'+(cur===d?"on":"")+'" data-arange="'+d+'">'+GX("r"+d)+'</button>' }).join("")+'</div>' }
 function fmtN(v){ v=+v||0; return v>=1000000?(Math.round(v/100000)/10)+"M":v>=10000?Math.round(v/1000)+"K":v.toLocaleString("en") }
@@ -12984,8 +12152,6 @@ async function loadGeo(){
 function geoKind(gov, area){ return (GEO_META.kind[gov]||{})[area]||"area" }
 function cPre(){ return COUNTRY==="SY" ? "" : "/"+COUNTRY.toLowerCase() }   // static pages of another country live under /lb/, /jo/ …
 function govPageUrl(gov, deal){ var s=GEO_META.govSlug[gov]; return s ? cPre()+"/"+(deal==="rent"?"for-rent":"for-sale")+"/"+s+"/" : null }
-function areaPageUrl(gov, area, deal){ var g=GEO_META.govSlug[gov], a=GEO_META.areaSlug[gov+"/"+area]; return g&&a ? cPre()+"/"+(deal==="rent"?"for-rent":"for-sale")+"/"+g+"/"+a+"/" : null }
-
 /* admin › areas tab */
 function flagOf(code){ return String(code||"").toUpperCase().replace(/./g,function(c){ return String.fromCodePoint(127397+c.charCodeAt(0)) }) }
 function countryName(c){ return c ? (L==="ar"?c.name_ar:L==="de"?(c.name_de||c.name_en):L==="fr"?(c.name_fr||c.name_en):c.name_en) : "" }
@@ -13272,5 +12438,5 @@ applyGeoCache();
 function startLoads(){ return Promise.all([loadListings(),loadCounts(),loadSiteContent(),loadAdSlots(),loadGeo()]) }
 _bootLoads = COUNTRIES ? startLoads() : refreshCountries().then(startLoads);   // first visit ever: learn the served countries first, so a visitor in Lebanon or Jordan opens on their own country
 if(COUNTRIES) refreshCountries();
-_bootLoads.then(function(){ render(); initCursor(); startAdRotation(); startAdCarouselRotation(); startBannerRotation(); startFeaturedPolling(); startListingsPolling(); setTimeout(maybeShowChooser, _openingActive?1500:400) });
+_bootLoads.then(function(){ render(); startAdRotation(); startAdCarouselRotation(); startBannerRotation(); startFeaturedPolling(); startListingsPolling(); setTimeout(maybeShowChooser, _openingActive?1500:400) });
 </script></body></html>
