@@ -2392,6 +2392,28 @@ body.rs-lock{overflow:hidden}
 .ecodebox b{font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--navy);font-size:14px}
 .ecodebox .ab{margin:0;padding:4px 9px;font-size:12px}
 @media(max-width:1100px){.erow{grid-template-columns:1fr 1fr;padding:12px 14px}.eacts{justify-content:flex-start}.estats{white-space:normal}}
+/* message intake: paste box on the post form, agency block, admin page */
+.qfill{background:linear-gradient(135deg,#F7F3EA,#fff);border:1px solid #EDDCB6;border-radius:14px;padding:14px 16px;margin-bottom:16px}
+.qfill h3{font-size:15px;font-weight:800;margin:0 0 4px;display:flex;align-items:center;gap:8px}.qfill h3 svg{width:18px;height:18px;color:var(--gold-dk)}
+.qfill .hintx{margin-bottom:8px}
+.qfill textarea{width:100%;min-height:96px;border:1px solid var(--line-2);border-radius:10px;padding:10px 12px;font:inherit;font-size:14px;resize:vertical;background:#fff}
+.qfill .qfrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px}.qfill .qfmsg{font-size:12.5px;color:var(--grey)}
+.aiblock .ai-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--line)}.aiblock .ai-row:last-of-type{border-bottom:0}.aiblock .ai-row>b{min-width:90px}
+.ai-steps{margin:10px 0 0;padding-inline-start:20px;color:var(--grey);font-size:13.5px;line-height:1.7}
+.ikstats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.ikconn{display:flex;flex-direction:column}.ikc{display:grid;grid-template-columns:110px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}.ikc:last-child{border-bottom:0}.ikc small{display:block;color:var(--grey);font-size:12px;margin-top:2px}
+.ikok{color:var(--ok);font-weight:600}.ikwarn{color:var(--warn);font-weight:600}.ikoff{color:var(--grey)}
+.ikown,.iktest{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.iktest textarea{width:100%;min-height:70px;margin-top:8px;border:1px solid var(--line-2);border-radius:10px;padding:8px 10px;font:inherit;font-size:13.5px}
+.ikpre{white-space:pre-wrap;word-break:break-word;background:var(--page);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12.5px;max-height:260px;overflow:auto;margin:6px 0 0;font-family:inherit}
+.ikfilters{display:flex;gap:6px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--line)}.ikfilters .ab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.ikrow{grid-template-columns:minmax(180px,1.1fr) minmax(200px,2fr) minmax(150px,1fr) minmax(120px,.8fr) auto}
+.ikdetail .ikcols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.ikphotos{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.ikphotos img{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
+.ikfields{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:6px}.ikfields .fl{margin:0}.ikfields .fl label{font-size:11.5px}.ikfields .fl.wide{grid-column:1/-1}.ikfields textarea{min-height:90px}
+.ikdetail .xactions select{max-width:260px}
+.iklog{display:flex;flex-direction:column}.iklog-r{display:grid;grid-template-columns:150px 150px 50px 1fr;gap:10px;padding:6px 18px;border-bottom:1px solid var(--line);font-size:12px;color:var(--grey)}.iklog-r b{color:var(--ink)}.iklog-r.lvl-error b{color:var(--danger)}.iklog-r.lvl-warn b{color:var(--warn)}
+@media(max-width:900px){.ikdetail .ikcols{grid-template-columns:1fr}.ikrow{grid-template-columns:1fr 1fr}.iklog-r{grid-template-columns:1fr 1fr}.ikc{grid-template-columns:1fr;gap:4px}}
 /* coming-soon services */
 .hnav .hsoon{display:inline-flex;align-items:center;gap:6px}
 .hnav .hsoon i{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#1A1206;background:var(--gold);border-radius:999px;padding:1px 6px;line-height:1.5;transform:translateY(-7px)}
@@ -3218,6 +3240,7 @@ function showChooser(){
 var L=detectLang(), CUR=detectCurrency(), VIEW="home", GI=0, LIGHTBOX_OPEN=false;
 // ?preview=1 — the page is embedded in the admin's homepage studio: no analytics, no curtain, settings arrive by postMessage
 var PREVIEW=/[?&]preview=1/.test(location.search), _pvLast=null;
+var SHARED_IN=/[?&]shared=1/.test(location.search);   // the installed app received a share (see sw.js → /post?shared=1)
 if(PREVIEW){ var _pl=(location.search.match(/[?&]lang=(ar|en|de|fr)/)||[])[1]; if(_pl) L=_pl; }
 var F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:[],sec:"",deal:"sale",sort:"new",page:1,ownerOnly:false};
 function roomsLabel(v){ v=String(v||""); if(!v) return GX("roomsField"); if(v==="1") return GX("rooms1"); if(v==="2") return GX("rooms2"); return GX("roomsN").replace("{n}", +v===ROOMS_MAX ? v+"+" : v) }
@@ -3731,7 +3754,7 @@ async function storageUpload(path, file, opts){
   // "InvalidSignature" — so that path is parked until Supabase resolves it.)
   return DB.storage.from("photos").upload(path, file, opts||{}) }
 
-var MEMBER_FNS={bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,
+var MEMBER_FNS={bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,
   bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_own_delete:1,
   bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
   bk_search_del:1,bk_search_list:1,bk_search_save:1,bk_set_avatar:1,bk_set_bio:1,bk_set_currency:1,
@@ -4562,7 +4585,7 @@ function post(){
  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+t("postH")+'</div></div>'+
  '<div class="wrap" style="max-width:860px;padding:20px 18px 60px">'+
  '<h1 style="font-size:23px;font-weight:700">'+t("postH")+'</h1>'+
- '<p style="color:var(--grey);font-size:14.5px;margin-bottom:16px">'+t("postS")+'</p>'+
+ '<p style="color:var(--grey);font-size:14.5px;margin-bottom:16px">'+t("postS")+'</p>'+quickFillHtml()+
  '<div class="steps"><div id="k1"><b>1</b>'+t("p1")+'</div><div id="k2"><b>2</b>'+t("p2")+'</div>'+
   '<div id="k3"><b>3</b>'+t("p3")+'</div><div id="k4"><b>4</b>'+t("p4")+'</div>'+
   '<div id="k5"><b>5</b>'+t("photos")+'</div><div id="k6"><b>6</b>'+t("p5")+'</div></div>'+
@@ -4949,7 +4972,7 @@ function storageUsageCardBody(){
     '<span class="ltr">'+ADM.storageUsage.files+'</span> '+t("storageFiles")+'</div>';
 }
 /* ═══ the admin bell: everything waiting for a decision, in one place ═══ */
-function adminTodoTotal(){ var td=ADM.todo||{}; return (+td.pending_listings||0)+(+td.pending_agencies||0)+(+td.pending_wanted||0)+(+td.open_reports||0)+(+td.open_feedback||0)+(+td.unread_alerts||0) }
+function adminTodoTotal(){ var td=ADM.todo||{}; return (+td.intake_review||0)+(+td.pending_listings||0)+(+td.pending_agencies||0)+(+td.pending_wanted||0)+(+td.open_reports||0)+(+td.open_feedback||0)+(+td.unread_alerts||0) }
 function syncAdminTodo(){
   if(!DB || !ADM.token) return Promise.resolve();
   return rpc("bk_admin_todo",{p_token:ADM.token,p_country:admScope()}).then(function(r){ if(!r) return; var before=adminTodoTotal(); ADM.todo=r; var after=adminTodoTotal();
@@ -6109,7 +6132,7 @@ function wireProjects(){
   }
 }
 /* admin */
-var AGENCIES=null, AGENCY=null, MYAGENCY=null, AGF={g:"",spec:"",q:""}, ADM_AG=null, AG_SPECS=["sale","rent","commercial","land"];
+var AGENCIES=null, AGENCY=null, MYAGENCY=null, MYINTAKE=null, AGF={g:"",spec:"",q:""}, ADM_AG=null, AG_SPECS=["sale","rent","commercial","land"];
 function agSpecLabel(k){ return GX("spec_"+k) }
 async function loadAgencies(){ if(!DB){ AGENCIES=[]; return } try{ var r=await DB.rpc("bk_public_agencies",cArgs()); AGENCIES=(r&&r.data)||[] }catch(e){ AGENCIES=[] } }
 async function loadAgency(id){ if(!DB){ AGENCY={missing:true,id:id}; return } try{ var r=await DB.rpc("bk_agency_get",{p_id:+id}); AGENCY=(r&&r.data)||{missing:true,id:id} }catch(e){ AGENCY={missing:true,id:id} } }
@@ -6166,7 +6189,7 @@ function agencyFormPage(){
    '<div class="wrap" style="max-width:760px;padding:22px 18px 60px">'+
     '<h1 style="font-size:22px;font-weight:700;margin-bottom:6px">'+GX("agFormT")+'</h1><p class="hintx" style="margin-bottom:16px">'+GX("agFormP")+'</p>'+
     (MYAGENCY===null?'<div class="hintx" style="margin-bottom:12px">'+t("loading")+'</div>':'')+
-    (MYAGENCY&&MYAGENCY.id?'<div class="agstatus">'+agStatusPill(MYAGENCY.status)+(MYAGENCY.status==="approved"?' <a data-agopen="'+MYAGENCY.id+'" class="agviewlink">'+GX("agView")+'</a>':'')+'</div>':'')+
+    (MYAGENCY&&MYAGENCY.id?'<div class="agstatus">'+agStatusPill(MYAGENCY.status)+(MYAGENCY.status==="approved"?' <a data-agopen="'+MYAGENCY.id+'" class="agviewlink">'+GX("agView")+'</a>':'')+'</div>':'')+agencyIntakeHtml()+
     '<div class="blk agform"><div class="in">'+
      '<div class="aglogo-row">'+avatar(USER.avatar_url,a.name||USER.name,64,"big")+'<div class="hintx">'+GX("agLogoHint")+' <a data-go="account" style="color:var(--navy);text-decoration:underline;cursor:pointer">'+t("settings")+'</a></div></div>'+
      '<div class="row"><div class="fl"><label class="req">'+GX("f_agName")+'</label><input data-allow-autofill id="agName" value="'+esc(a.name||"")+'"></div><div class="fl"><label>'+GX("f_agPhone")+'</label><input data-allow-autofill id="agPhone" class="ltr" value="'+esc(a.phone||USER.phone||"")+'"></div></div>'+
@@ -6178,6 +6201,96 @@ function agencyFormPage(){
      (areaOpts.length?'<div class="fl"><label>'+GX("f_agAreas")+'</label><div class="ag-pills sel wrap" id="agAreas">'+areaOpts.map(function(p){ return '<button type="button" class="'+(selA.indexOf(p[1])>-1?"on":"")+'" data-agarea2="'+esc(p[1])+'">'+aN(p[1])+'</button>' }).join("")+'</div></div>':'')+
      '<div class="xactions"><button class="btn-n" id="agSave" style="width:auto">'+t("saveChanges")+'</button><span class="xmsg" id="agMsg"></span></div>'+
     '</div></div></div>' }
+/* ── message intake on the site: paste a WhatsApp text into the post form; the agency's "post by message" block ── */
+function intakeUrl(route){ return CONFIG.supabaseUrl+"/functions/v1/bk-intake/"+route }
+function quickFillHtml(){
+  return '<div class="qfill" id="qfill"><h3>'+MI.msgs+GX("qfTitle")+'</h3><div class="hintx">'+GX("qfHint")+'</div>'+
+    '<textarea id="qfText" data-allow-autofill placeholder="'+esc(GX("qfPH"))+'">'+esc(NEW.qfText||"")+'</textarea>'+
+    '<div class="qfrow"><button type="button" class="gh" id="qfGo" style="margin:0;padding:9px 18px;width:auto">'+GX("qfBtn")+'</button><span class="qfmsg" id="qfMsg">'+esc(NEW.qfMsg||"")+'</span></div></div>' }
+function wireQuickFill(){
+  var ta=$("#qfText"), b=$("#qfGo"); if(!ta||!b) return;
+  ta.oninput=function(){ NEW.qfText=this.value; NEW.qfMsg="" };
+  b.onclick=quickFillRun;
+  if(SHARED_IN && !window._sharedDone) sharedIntake();
+}
+async function quickFillRun(){
+  var ta=$("#qfText"), btn=$("#qfGo"), msg=$("#qfMsg"); if(!ta||!btn) return;
+  var text=ta.value.trim(); if(text.length<10){ if(msg){ msg.style.color="var(--danger)"; msg.textContent=GX("qfShort") } return }
+  if(!USER||!USER.token){ if(msg){ msg.style.color="var(--danger)"; msg.textContent=GX("qfLogin") } return }
+  btn.disabled=true; var old=btn.textContent; btn.textContent=GX("qfBusy"); if(msg){ msg.style.color="var(--grey)"; msg.textContent="" }
+  try{
+    var r=await fetch(intakeUrl("web"),{method:"POST",headers:{"Content-Type":"application/json","apikey":CONFIG.supabaseKey,"Authorization":"Bearer "+CONFIG.supabaseKey},body:JSON.stringify({token:USER.token,text:text,country:COUNTRY})});
+    var j=null; try{ j=await r.json() }catch(e){ j={} }
+    if(!r.ok||!j||j.error) throw new Error(j&&j.error==="no_key"?GX("qfNoKey"):j&&j.error==="limit"?GX("qfLimit"):j&&j.error==="unauthorised"?GX("qfLogin"):GX("qfFail"));
+    applyQuickFill(j.fields||{});
+    var miss=(j.missing||[]).map(function(m){ return GX("qfm_"+m) });
+    NEW.qfMsg = miss.length ? GX("qfMissing")+" "+miss.join(L==="ar"?"، ":", ") : GX("qfDone");
+    if(msg){ msg.style.color=miss.length?"var(--warn)":"var(--ok)"; msg.textContent=NEW.qfMsg }
+    var first=$("#ptype"); if(first&&first.closest(".blk")) first.closest(".blk").scrollIntoView({behavior:"smooth",block:"start"});
+  }catch(e){ if(msg){ msg.style.color="var(--danger)"; msg.textContent=e.message||GX("qfFail") } }
+  btn.disabled=false; btn.textContent=old;
+}
+// writes the read fields into the real form controls, firing the same events a person would
+function applyQuickFill(f){
+  var fire=function(el,ev){ try{ el.dispatchEvent(new Event(ev,{bubbles:true})) }catch(e){} };
+  var set=function(id,v){ var e=$("#"+id); if(!e||v==null||v==="") return; e.value=String(v); fire(e,"input"); fire(e,"change") };
+  var pickRadio=function(name,val){ if(!val) return; var r=$$('input[name='+name+'][value="'+val+'"]')[0]; if(r){ r.checked=true; fire(r,"change") } };
+  var hasOpt=function(sel,v){ return [].slice.call(sel.options).some(function(o){ return o.value===String(v) }) };
+  pickRadio("dl", f.deal);
+  var pt=$("#ptype"); if(pt&&f.property_type&&hasOpt(pt,f.property_type)){ pt.value=f.property_type; fire(pt,"change") }
+  var pg=$("#pg"), pa=$("#pa");
+  if(pg&&f.governorate&&hasOpt(pg,f.governorate)){ pg.value=f.governorate; fire(pg,"change"); if(pa&&f.area&&hasOpt(pa,f.area)){ pa.value=f.area; fire(pa,"change") } }
+  set("plm", f.landmark||(f.area&&!(pa&&hasOpt(pa,f.area))?f.area:null));
+  set("pm2", f.area_m2); set("pr", f.rooms); set("pb", f.baths); set("pLiving", f.living_rooms);
+  var fl=$("#pfl"); if(fl&&f.floor!=null&&hasOpt(fl,f.floor)){ fl.value=String(f.floor); fire(fl,"change") }
+  set("py", f.year_built); set("pel", f.power_hours);
+  var rp=$("#pRentalPeriod"); if(rp&&f.rental_period&&hasOpt(rp,f.rental_period)) rp.value=f.rental_period;
+  set("pLease", f.lease_months); set("pAdv", f.advance_months); set("pDep", f.deposit_usd);
+  if($("#pBills")&&f.bills_included!=null) $("#pBills").checked=!!f.bills_included;
+  if($("#pFurn")&&f.furnished!=null) $("#pFurn").checked=!!f.furnished;
+  if(f.condition) $$('input[name=cd2][value="'+f.condition+'"]').forEach(function(r){ r.checked=true; fire(r,"change") });
+  pickRadio("tb2", f.tabu);
+  if(Array.isArray(f.amenities)&&f.amenities.length){   // the model answers with the Arabic labels; the boxes carry the labels of the current language
+    var want={}; f.amenities.forEach(function(x){ want[x]=1; [D.AMEN,D.LANDAMEN].forEach(function(pool){ var i=(pool.ar||[]).indexOf(x); if(i>-1&&pool[L]&&pool[L][i]) want[pool[L][i]]=1 }) });
+    $$(".amen").forEach(function(c){ if(want[c.value]) c.checked=true });
+  }
+  var pd=$("#pdir"); if(pd&&f.direction&&hasOpt(pd,f.direction)) pd.value=f.direction;
+  set("pd", f.description);
+  var pc=$("#pcur"); if(pc&&f.currency&&hasOpt(pc,f.currency)){ pc.value=f.currency; NEW.pcur=f.currency }
+  set("pp", f.price);
+  if($("#pNegot")&&f.negotiable!=null) $("#pNegot").checked=!!f.negotiable;
+  checkPost();
+}
+// the installed app received a share: sw.js parked the text and photos in the "bk-share" cache
+async function sharedIntake(){
+  if(window._sharedDone||!("caches" in window)) return; window._sharedDone=true;
+  try{
+    var c=await caches.open("bk-share"), keys=await c.keys(), text="", files=[];
+    for(var i=0;i<keys.length;i++){ var k=keys[i], res=await c.match(k); if(!res) continue;
+      if(/\/shared\/text$/.test(k.url)) text=await res.text();
+      else { var b=await res.blob(); files.push(new File([b], k.url.split("/").pop()||"photo.jpg", {type:b.type||"image/jpeg"})) }
+      await c.delete(k) }
+    if(text){ NEW.qfText=text; var ta=$("#qfText"); if(ta) ta.value=text }
+    if(files.length) await addFiles(files);
+    if(text||files.length){ var m=$("#qfMsg"); if(m){ m.style.color="var(--ok)"; m.textContent=GX("qfShared") } }
+    if(text&&USER&&USER.token) quickFillRun();
+  }catch(e){ console.warn("shared intake:", e) }
+}
+async function loadMyIntake(){ if(!DB||!USER){ MYINTAKE=false; return } try{ MYINTAKE=(await rpc("bk_agency_intake",{}))||false }catch(e){ MYINTAKE=false } }
+function agencyIntakeHtml(){
+  if(!MYAGENCY||!MYAGENCY.id||MYAGENCY.status!=="approved") return '';
+  var x=MYINTAKE, ag=x&&x.agency, body;
+  if(x===null) body='<div class="hintx">'+t("loading")+'</div>';
+  else if(!ag||!ag.intake_enabled||x.enabled===false) body='<p class="hintx">'+GX("aiOff")+'</p>';
+  else {
+    body='<p class="hintx">'+GX("aiHint")+'</p>'+
+      (x.telegram_on&&x.bot ? '<div class="ai-row"><b>Telegram</b>'+(ag.paired ? '<span class="st st-live">'+GX("aiPaired")+'</span><span class="hintx">'+esc(ag.telegram_name||"")+'</span>' : '<a class="ab ok" href="https://t.me/'+esc(x.bot)+'?start='+esc(ag.code||"")+'" target="_blank" rel="noopener">'+GX("aiTgBtn")+'</a><span class="hintx">'+GX("aiCode")+' <b class="ltr">'+esc(ag.code||"")+'</b> → @'+esc(x.bot)+'</span>')+'</div>' : '')+
+      (x.whatsapp_on&&x.wa_display ? '<div class="ai-row"><b>WhatsApp</b><span class="hintx">'+GX("aiWa").replace("{n}",'<b class="ltr">'+esc(x.wa_display)+'</b>')+'</span></div>' : '')+
+      '<ol class="ai-steps"><li>'+GX("aiStep1")+'</li><li>'+GX("aiStep2")+'</li><li>'+GX("aiStep3")+'</li></ol>'+
+      '<div class="hintx">'+(ag.intake_trusted?GX("aiTrusted"):GX("aiPending"))+'</div>';
+  }
+  return '<div class="blk aiblock"><h3>'+GX("aiTitle")+'</h3><div class="in">'+body+'</div></div>';
+}
 function wireAgencies(){
   if(VIEW==="agencies"){
     if(AGENCIES===null) loadAgencies().then(render);
@@ -6192,6 +6305,7 @@ function wireAgencies(){
     $$("[data-agarea]").forEach(function(a){ a.onclick=function(){ F.areas=[this.dataset.agarea]; F.govs=[]; F.g=""; F.a=""; F.page=1; VIEW="search"; scrollTo(0,0); render() } }) }
   if(VIEW==="agencyform" && USER){
     if(MYAGENCY===null) loadMyAgency().then(render);
+    if(MYAGENCY&&MYAGENCY.id&&MYAGENCY.status==="approved"&&MYINTAKE===null) loadMyIntake().then(render);
     var collectAg=function(){ MYAGENCY=Object.assign({},MYAGENCY||{},{name:$("#agName").value,phone:$("#agPhone").value,whatsapp:$("#agWa").value,email:$("#agEmail").value,website:$("#agWeb").value,address:$("#agAddress").value,description:$("#agDesc").value,
       specialties:$$("#agSpecs .on").map(function(b){ return b.dataset.agspec }),gov_names:$$("#agGovs .on").map(function(b){ return b.dataset.aggov }),area_names:$$("#agAreas .on").map(function(b){ return b.dataset.agarea2 })}) };
     $$("[data-agspec],[data-agarea2]").forEach(function(b){ b.onclick=function(){ this.classList.toggle("on") } });
@@ -7206,6 +7320,7 @@ function wire(){
    if($("#pMapClear")) $("#pMapClear").onclick=clearPostMap;
    if($("#postMap") && NEW.lat){ setTimeout(initPostMap,50) }
    $("#pub").onclick=savePost;
+   wireQuickFill();
    paintShots();checkPost()}}
 
 function wireAuth(){
@@ -9557,6 +9672,54 @@ var GX_T={
   imageTooBig:{ar:"الصورة أكبر من 12 ميغابايت. صغّرها ثم أعد المحاولة.",en:"The image is larger than 12 MB. Resize it and try again.",de:"Das Bild ist größer als 12 MB. Verkleinern Sie es und versuchen Sie es erneut.",fr:"L'image dépasse 12 Mo. Réduisez-la puis réessayez."},
   navInMenu:{ar:"القائمة",en:"Menu",de:"Menü",fr:"Menu"}, navInHeader:{ar:"الهيدر",en:"Header",de:"Kopfzeile",fr:"En-tête"}, navAutoHidden:{ar:"(مخفي تلقائياً: القسم مطفأ)",en:"(hidden automatically: the section is off)",de:"(automatisch ausgeblendet: Bereich ist aus)",fr:"(masqué automatiquement : la section est désactivée)"},
   navHint2:{ar:"لكل رابط خياران: يظهر في قائمة الخطوط الثلاثة، ويظهر في شريط الهيدر على الكمبيوتر. الترتيب رقم واحد للاثنين: الأصغر أولاً.",en:"Each link has two switches: shown in the three-line menu, and shown in the desktop header bar. One order number serves both: smaller comes first.",de:"Jeder Link hat zwei Schalter: im Drei-Striche-Menü und in der Kopfzeile am Computer. Eine Reihenfolge für beide: kleiner zuerst.",fr:"Chaque lien a deux interrupteurs : visible dans le menu à trois lignes et dans la barre d'en-tête sur ordinateur. Un seul ordre pour les deux : le plus petit d'abord."},
+  qfTitle:{ar:"املأ الإعلان من رسالة واتساب",en:"Fill the listing from a WhatsApp message",de:"Anzeige aus einer WhatsApp-Nachricht ausfüllen"},
+  qfHint:{ar:"الصق نص الإعلان كما وصلك (النوع، المنطقة، المساحة، الغرف، الطابو، السعر…) وسنملأ الحقول تلقائياً. راجعها ثم أضف الصور وانشر.",en:"Paste the listing text as you received it (type, area, size, rooms, deed, price…) and the fields fill themselves. Check them, add the photos and publish.",de:"Fügen Sie den Anzeigentext ein, wie Sie ihn erhalten haben (Typ, Gegend, Fläche, Zimmer, Grundbuch, Preis …) – die Felder füllen sich automatisch. Prüfen, Fotos hinzufügen, veröffentlichen."},
+  qfPH:{ar:"مثال: شقة للبيع في المزة فيلات غربية، 150 م²، 3 غرف وصالون، طابق 3، طابو أخضر، 85 ألف دولار…",en:"Example: apartment for sale in Mezzeh, 150 m², 3 rooms and living room, 3rd floor, green deed, 85,000 USD…",de:"Beispiel: Wohnung zu verkaufen in Mezzeh, 150 m², 3 Zimmer, 3. Etage, grünes Grundbuch, 85.000 USD …"},
+  qfBtn:{ar:"املأ الحقول",en:"Fill the fields",de:"Felder ausfüllen"}, qfBusy:{ar:"جارٍ القراءة…",en:"Reading…",de:"Wird gelesen …"},
+  qfDone:{ar:"تم ملء الحقول ✓ راجعها قبل النشر.",en:"Fields filled ✓ Check them before publishing.",de:"Felder ausgefüllt ✓ Bitte vor dem Veröffentlichen prüfen."},
+  qfMissing:{ar:"تم الملء، لكن الرسالة لا تذكر:",en:"Filled, but the message does not say:",de:"Ausgefüllt, aber die Nachricht nennt nicht:"},
+  qfm_deal:{ar:"بيع أم إيجار",en:"sale or rent",de:"Verkauf oder Miete"}, qfm_property_type:{ar:"نوع العقار",en:"property type",de:"Objektart"}, qfm_governorate:{ar:"المحافظة",en:"governorate",de:"Provinz"}, qfm_price:{ar:"السعر",en:"price",de:"Preis"}, qfm_area_m2:{ar:"المساحة",en:"size",de:"Fläche"},
+  qfFail:{ar:"تعذّرت القراءة الآن. أكمل الحقول يدوياً.",en:"Could not read it right now. Fill the fields by hand.",de:"Lesen gerade nicht möglich. Bitte Felder von Hand ausfüllen."},
+  qfNoKey:{ar:"القراءة الآلية غير مفعّلة بعد.",en:"Automatic reading is not switched on yet.",de:"Das automatische Lesen ist noch nicht aktiviert."},
+  qfLogin:{ar:"سجّل الدخول أولاً.",en:"Log in first.",de:"Bitte zuerst anmelden."}, qfLimit:{ar:"وصلت إلى الحد اليومي للقراءة الآلية.",en:"Daily limit for automatic reading reached.",de:"Tageslimit für das automatische Lesen erreicht."},
+  qfShort:{ar:"الصق نص الإعلان أولاً.",en:"Paste the listing text first.",de:"Bitte zuerst den Anzeigentext einfügen."},
+  qfShared:{ar:"وصلتنا الرسالة المشتركة من هاتفك.",en:"The shared message from your phone arrived.",de:"Die geteilte Nachricht von Ihrem Telefon ist angekommen."},
+  aiTitle:{ar:"النشر بالرسائل",en:"Post by message",de:"Per Nachricht inserieren"},
+  aiHint:{ar:"أرسل تفاصيل العقار وصوره في رسالة واحدة أو أكثر، ثم اكتب «تم». ستصلك خلاصة الإعلان: أرسل 1 للنشر تحت اسم مكتبك.",en:"Send the property details and photos in one or more messages, then write “done”. You get a summary: send 1 to publish it under your agency.",de:"Senden Sie Details und Fotos in einer oder mehreren Nachrichten, dann „fertig“. Sie erhalten eine Zusammenfassung: 1 senden, um unter Ihrem Büro zu veröffentlichen."},
+  aiOff:{ar:"هذه الخدمة تُفعَّل من الإدارة للمكاتب المعتمدة. تواصل معنا لتفعيلها لمكتبك.",en:"The team switches this on for approved agencies. Contact us to enable it for yours.",de:"Das Team schaltet dies für anerkannte Büros frei. Kontaktieren Sie uns zur Freischaltung."},
+  aiTgBtn:{ar:"اربط تيليغرام",en:"Link Telegram",de:"Telegram verbinden"}, aiCode:{ar:"أو أرسل للبوت: /start",en:"or send the bot: /start",de:"oder senden Sie dem Bot: /start"},
+  aiPaired:{ar:"مربوط",en:"Linked",de:"Verbunden"}, aiWa:{ar:"أرسل إلى الرقم {n} من واتساب مكتبك المسجّل عندنا.",en:"Send to {n} from the WhatsApp number registered with us.",de:"Senden Sie an {n} von der bei uns hinterlegten WhatsApp-Nummer."},
+  aiTrusted:{ar:"مكتب موثوق: إعلاناتك تُنشر مباشرة دون مراجعة.",en:"Trusted agency: your listings go live without review.",de:"Vertrauenswürdiges Büro: Ihre Anzeigen gehen ohne Prüfung online."},
+  aiPending:{ar:"إعلاناتك تظهر بعد مراجعة الإدارة.",en:"Your listings appear after the team's review.",de:"Ihre Anzeigen erscheinen nach Prüfung durch das Team."},
+  aiStep1:{ar:"الصور أولاً، ثم نص واحد فيه: النوع، المحافظة والمنطقة، المساحة، الغرف، الطابق، حالة الطابو، السعر.",en:"Photos first, then one text with: type, governorate and area, size, rooms, floor, deed, price.",de:"Erst Fotos, dann ein Text mit: Typ, Provinz und Gegend, Fläche, Zimmer, Etage, Grundbuch, Preis."},
+  aiStep2:{ar:"اكتب «تم» (أو انتظر دقيقة ونصف).",en:"Write “done” (or wait a minute and a half).",de:"„fertig“ schreiben (oder eineinhalb Minuten warten)."},
+  aiStep3:{ar:"ستصلك خلاصة: 1 للنشر، 2 للإلغاء، أو أرسل التصحيح مباشرة.",en:"You get a summary: 1 to publish, 2 to cancel, or send a correction.",de:"Sie erhalten eine Zusammenfassung: 1 = veröffentlichen, 2 = abbrechen, oder Korrektur senden."},
+  tIntake:{ar:"النشر بالرسائل",en:"Message intake",de:"Inserate per Nachricht"},
+  desc_intake:{ar:"إعلانات تصل برسالة (تيليغرام، واتساب، أو نص ملصوق في الموقع) تُقرأ آلياً وتُنشر تحت اسم المكتب. هنا الربط، الإعدادات، المسوّدات، والسجل.",en:"Listings that arrive by message (Telegram, WhatsApp, or text pasted on the site) are read automatically and published under the agency. Connections, settings, drafts and the log live here.",de:"Anzeigen, die per Nachricht kommen (Telegram, WhatsApp oder eingefügter Text), werden automatisch gelesen und unter dem Büro veröffentlicht. Verbindungen, Einstellungen, Entwürfe und Protokoll."},
+  bellIntake:{ar:"مسوّدات رسائل بانتظارك",en:"Message drafts waiting for you",de:"Nachrichten-Entwürfe warten"},
+  ik_collecting:{ar:"قيد التجميع",en:"Collecting",de:"Wird gesammelt"}, ik_reading:{ar:"قيد القراءة",en:"Reading",de:"Wird gelesen"}, ik_ready:{ar:"بانتظار موافقة المرسل",en:"Awaiting sender's OK",de:"Wartet auf Bestätigung"}, ik_needs_info:{ar:"ينقص معلومات",en:"Missing details",de:"Angaben fehlen"}, ik_review:{ar:"بانتظارك",en:"Needs you",de:"Wartet auf Sie"}, ik_published:{ar:"منشور",en:"Published",de:"Veröffentlicht"}, ik_cancelled:{ar:"ملغى",en:"Cancelled",de:"Abgebrochen"}, ik_failed:{ar:"فشل",en:"Failed",de:"Fehlgeschlagen"}, ik_web:{ar:"الموقع",en:"Website",de:"Website"},
+  ik_st_open:{ar:"قيد التجميع أو بانتظار المرسل",en:"Collecting or awaiting sender",de:"In Sammlung / wartet auf Absender"}, ik_st_attention:{ar:"بانتظارك",en:"Need you",de:"Warten auf Sie"}, ik_st_published:{ar:"منشورة",en:"Published",de:"Veröffentlicht"}, ik_st_today:{ar:"آخر 24 ساعة",en:"Last 24 hours",de:"Letzte 24 Stunden"}, ik_st_cost:{ar:"تكلفة القراءة هذا الشهر",en:"Reading cost this month",de:"Lesekosten diesen Monat"},
+  ik_connH:{ar:"الربط",en:"Connections",de:"Verbindungen"},
+  ik_tgOk:{ar:"البوت {b} متصل ويستقبل الرسائل",en:"Bot {b} is connected and receiving",de:"Bot {b} ist verbunden und empfängt"}, ik_tgNoHook:{ar:"المفتاح موجود، اضغط «ربط البوت» لتوجيه الرسائل إلى الموقع",en:"Key present — press “Connect bot” to route messages here",de:"Schlüssel vorhanden – „Bot verbinden“ drücken"}, ik_tgOff:{ar:"لم يُلصَق مفتاح البوت بعد (TELEGRAM_BOT_TOKEN)",en:"Bot key not pasted yet (TELEGRAM_BOT_TOKEN)",de:"Bot-Schlüssel noch nicht eingetragen (TELEGRAM_BOT_TOKEN)"}, ik_tgSetup:{ar:"ربط البوت",en:"Connect bot",de:"Bot verbinden"},
+  ik_waOk:{ar:"متصل — الرقم {n}",en:"Connected — number {n}",de:"Verbunden – Nummer {n}"}, ik_waErr:{ar:"المفاتيح موجودة لكن ميتا لا تستجيب؛ تحقق من WA_TOKEN و WA_PHONE_ID",en:"Keys present but Meta does not answer; check WA_TOKEN and WA_PHONE_ID",de:"Schlüssel vorhanden, Meta antwortet nicht; WA_TOKEN und WA_PHONE_ID prüfen"}, ik_waOff:{ar:"غير مربوط بعد (WA_TOKEN، WA_PHONE_ID، WA_APP_SECRET، WA_VERIFY_TOKEN)",en:"Not connected yet (WA_TOKEN, WA_PHONE_ID, WA_APP_SECRET, WA_VERIFY_TOKEN)",de:"Noch nicht verbunden (WA_TOKEN, WA_PHONE_ID, WA_APP_SECRET, WA_VERIFY_TOKEN)"},
+  ik_waHook:{ar:"رابط الويبهوك لميتا:",en:"Webhook URL for Meta:",de:"Webhook-URL für Meta:"},
+  ik_clOk:{ar:"مفتاح القراءة (Claude) موجود",en:"Reading key (Claude) present",de:"Lese-Schlüssel (Claude) vorhanden"}, ik_clOff:{ar:"مفتاح القراءة غير موجود (ANTHROPIC_API_KEY) — لا قراءة آلية حتى يُلصَق",en:"Reading key missing (ANTHROPIC_API_KEY) — no automatic reading until it is pasted",de:"Lese-Schlüssel fehlt (ANTHROPIC_API_KEY) – kein automatisches Lesen"},
+  ik_secretsHint:{ar:"المفاتيح تُلصَق في Supabase → Edge Functions → Secrets ثم يُعاد تحميل هذه الصفحة.",en:"Keys are pasted in Supabase → Edge Functions → Secrets, then reload this page.",de:"Schlüssel werden in Supabase → Edge Functions → Secrets eingetragen, dann diese Seite neu laden."},
+  ik_ownerH:{ar:"محادثتك أنت (تحويل رسائل المكاتب)",en:"Your own chat (forwarding agency messages)",de:"Ihr eigener Chat (Weiterleiten von Büro-Nachrichten)"},
+  ik_ownerHint:{ar:"اربط تيليغرامك بالبوت، وحوّل إليه أي رسالة من واتساب مكتب. تُقرأ وتظهر هنا لاختيار المكتب ونشرها.",en:"Link your Telegram to the bot and forward any agency's WhatsApp message to it. It is read and appears here to pick the agency and publish.",de:"Verbinden Sie Ihr Telegram mit dem Bot und leiten Sie Büro-Nachrichten weiter. Sie werden gelesen und erscheinen hier."},
+  ik_ownerOpen:{ar:"افتح البوت واربط حسابي",en:"Open the bot and link my account",de:"Bot öffnen und mein Konto verbinden"}, ik_ownerMake:{ar:"أنشئ رمز الربط",en:"Create the link code",de:"Verbindungscode erstellen"}, ik_ownerLinked:{ar:"محادثات مربوطة: {n}",en:"Linked chats: {n}",de:"Verbundene Chats: {n}"},
+  ik_testH:{ar:"جرّب القراءة",en:"Try the reading",de:"Lesen ausprobieren"}, ik_testPH:{ar:"الصق نص إعلان هنا لترى ما يفهمه القارئ الآلي…",en:"Paste a listing text to see what the reader understands…",de:"Anzeigentext einfügen, um zu sehen, was der Leser versteht …"}, ik_testBtn:{ar:"اقرأ",en:"Read",de:"Lesen"},
+  ik_setH:{ar:"الإعدادات",en:"Settings",de:"Einstellungen"}, ik_on:{ar:"النشر بالرسائل مفعّل",en:"Message intake on",de:"Nachrichten-Eingang aktiv"},
+  ik_wait:{ar:"الانتظار بعد آخر رسالة (ثانية)",en:"Wait after the last message (s)",de:"Warten nach letzter Nachricht (s)"}, ik_maxPhotos:{ar:"أقصى عدد صور",en:"Max photos",de:"Max. Fotos"}, ik_daily:{ar:"أقصى إعلانات لكل محادثة يومياً",en:"Max listings per chat per day",de:"Max. Anzeigen pro Chat und Tag"},
+  ik_model:{ar:"نموذج القراءة",en:"Reading model",de:"Lesemodell"}, ik_priceIn:{ar:"سعر الإدخال $/مليون رمز",en:"Input price $/M tokens",de:"Eingabepreis $/M Token"}, ik_priceOut:{ar:"سعر الإخراج $/مليون رمز",en:"Output price $/M tokens",de:"Ausgabepreis $/M Token"},
+  ik_lang:{ar:"لغة الردود",en:"Reply language",de:"Antwortsprache"}, ik_waDisplay:{ar:"رقم واتساب يُعرض للمكاتب",en:"WhatsApp number shown to agencies",de:"WhatsApp-Nummer für Büros"},
+  ik_draftsH:{ar:"المسوّدات",en:"Drafts",de:"Entwürfe"}, ik_fAll:{ar:"الكل",en:"All",de:"Alle"}, ik_fAttention:{ar:"بانتظارك",en:"Need you",de:"Warten auf Sie"}, ik_fOpen:{ar:"جارية",en:"In progress",de:"Laufend"}, ik_none:{ar:"لا مسوّدات بعد. أول رسالة من مكتب مربوط تظهر هنا.",en:"No drafts yet. The first message from a linked agency appears here.",de:"Noch keine Entwürfe. Die erste Nachricht eines verbundenen Büros erscheint hier."},
+  ik_byOwner:{ar:"حوّلتها الإدارة",en:"forwarded by admin",de:"vom Admin weitergeleitet"}, ik_photos:{ar:"صور",en:"photos",de:"Fotos"}, ik_msgs:{ar:"رسائل",en:"messages",de:"Nachrichten"}, ik_open:{ar:"التفاصيل",en:"Details",de:"Details"},
+  ik_close:{ar:"إغلاق",en:"Close",de:"Schließen"}, ik_rawH:{ar:"النص كما وصل",en:"Text as received",de:"Text wie erhalten"}, ik_fieldsH:{ar:"الحقول المقروءة (قابلة للتعديل)",en:"Fields read (editable)",de:"Gelesene Felder (bearbeitbar)"}, ik_pickAgency:{ar:"— اختر المكتب —",en:"— pick the agency —",de:"— Büro wählen —"},
+  ik_readAgain:{ar:"اقرأ من جديد",en:"Read again",de:"Neu lesen"}, ik_pubPending:{ar:"انشر للمراجعة",en:"Publish for review",de:"Zur Prüfung veröffentlichen"}, ik_pubLive:{ar:"انشر مباشرة",en:"Publish live",de:"Sofort veröffentlichen"},
+  ik_logH:{ar:"السجل",en:"Log",de:"Protokoll"}, ik_saved:{ar:"تم الحفظ",en:"Saved",de:"Gespeichert"}, ik_pubDone:{ar:"تم النشر: {r}",en:"Published: {r}",de:"Veröffentlicht: {r}"}, ik_delConfirm:{ar:"حذف هذه المسوّدة؟ الصور غير المنشورة تبقى في التخزين ضمن مجلد intake.",en:"Delete this draft? Unpublished photos stay in storage under the intake folder.",de:"Diesen Entwurf löschen? Unveröffentlichte Fotos bleiben im Speicher (intake)."},
+  ik_f_deal:{ar:"بيع/إيجار",en:"Sale/rent",de:"Verkauf/Miete"}, ik_f_type:{ar:"النوع",en:"Type",de:"Typ"}, ik_f_gov:{ar:"المحافظة",en:"Governorate",de:"Provinz"}, ik_f_area:{ar:"المنطقة",en:"Area",de:"Gegend"}, ik_f_landmark:{ar:"معلم قريب",en:"Landmark",de:"Orientierungspunkt"}, ik_f_price:{ar:"السعر",en:"Price",de:"Preis"}, ik_f_cur:{ar:"العملة",en:"Currency",de:"Währung"}, ik_f_m2:{ar:"المساحة م²",en:"Size m²",de:"Fläche m²"}, ik_f_rooms:{ar:"الغرف",en:"Rooms",de:"Zimmer"}, ik_f_baths:{ar:"الحمامات",en:"Baths",de:"Bäder"}, ik_f_living:{ar:"الصالونات",en:"Living rooms",de:"Wohnzimmer"}, ik_f_floor:{ar:"الطابق",en:"Floor",de:"Etage"}, ik_f_year:{ar:"سنة البناء",en:"Year built",de:"Baujahr"}, ik_f_tabu:{ar:"رمز الطابو",en:"Deed code",de:"Grundbuch-Code"}, ik_f_cond:{ar:"رمز الحالة",en:"Condition code",de:"Zustands-Code"}, ik_f_period:{ar:"فترة الإيجار",en:"Rental period",de:"Mietzeitraum"}, ik_f_furn:{ar:"مفروش",en:"Furnished",de:"Möbliert"}, ik_f_negot:{ar:"قابل للتفاوض",en:"Negotiable",de:"Verhandelbar"}, ik_f_phone:{ar:"هاتف التواصل",en:"Contact phone",de:"Kontakttelefon"}, ik_f_desc:{ar:"الوصف",en:"Description",de:"Beschreibung"},
+  agIntakeOn:{ar:"النشر بالرسائل: مفعّل",en:"Post by message: on",de:"Per Nachricht: an"}, agIntakeOff:{ar:"النشر بالرسائل: مطفأ",en:"Post by message: off",de:"Per Nachricht: aus"}, agTrustOn:{ar:"موثوق: ينشر مباشرة",en:"Trusted: publishes live",de:"Vertraut: sofort online"}, agTrustOff:{ar:"غير موثوق: مراجعة أولاً",en:"Not trusted: review first",de:"Nicht vertraut: erst Prüfung"}, agPairedTg:{ar:"تيليغرام مربوط",en:"Telegram linked",de:"Telegram verbunden"}, agIntakeCode:{ar:"رمز الربط",en:"Link code",de:"Verbindungscode"},
   rejectBtn:{ar:"رفض",en:"Reject",de:"Ablehnen"}, rejectReasonQ:{ar:"سبب الرفض (يظهر لصاحب الإعلان في إشعار):",en:"Reason for rejection (the owner sees it in a notification):",de:"Grund der Ablehnung (der Inserent sieht ihn als Benachrichtigung):"},
   ratesInCountries:{ar:"أسعار الصرف لـ {c} تُضبط في صفحة الدول.",en:"Exchange rates for {c} are set on the Countries page.",de:"Die Wechselkurse für {c} werden auf der Länderseite gepflegt."},
   admCountriesL:{ar:"الدول التي يديرها",en:"Countries managed",de:"Verwaltete Länder"}, admCountriesHint:{ar:"لا شيء محدد = كل الدول.",en:"Nothing checked = all countries.",de:"Nichts angehakt = alle Länder."},
@@ -9921,7 +10084,7 @@ function flagOf(code){ return String(code||"").toUpperCase().replace(/./g,functi
 function countryName(c){ return c ? (L==="ar"?c.name_ar:L==="de"?(c.name_de||c.name_en):L==="fr"?(c.name_fr||c.name_en):c.name_en) : "" }
 function admScope(){ return ADM.scope==="ALL" ? "ALL" : COUNTRY }   // what the admin RPCs filter by: a country code, or every country the admin may see
 function scopeFlag(cc){ return (ADM.scope==="ALL" && cc) ? '<span class="sflag" title="'+esc(countryName(countryOf(cc)||{}))+'">'+flagSvg(cc)+'</span>' : '' }
-var PER_COUNTRY_TABS={mainpage:1,banners:1,ads:1,design:1,contact:1,geo:1,featured:1,engage:1,listings:1,wanted_adm:1,agencies_adm:1,projects_adm:1};
+var PER_COUNTRY_TABS={intake:1,mainpage:1,banners:1,ads:1,design:1,contact:1,geo:1,featured:1,engage:1,listings:1,wanted_adm:1,agencies_adm:1,projects_adm:1};
 function wireGeoAdmin(){
   if(ADM.tab!=="geo") return;
   ADM.geoCountry=ADM.geoCountry||COUNTRY;
