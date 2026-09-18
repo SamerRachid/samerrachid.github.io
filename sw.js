@@ -3,17 +3,18 @@
    app shell answers when the network is down. Static files (brand, photos, fonts): cache first with a
    background refresh. Database calls are never cached. The version below changes whenever this file
    changes, which retires old caches. */
-const VERSION = "bk-2026-09-08a";
+const VERSION = "bk-2026-09-18a";
 const SHELL = VERSION + "-shell";
 const STATIC = VERSION + "-static";
 const PHOTOS = VERSION + "-photos";
+const SHARE = "bk-share";   // text + photos shared into the installed app, parked until /post?shared=1 reads them
 const SHELL_URLS = ["/", "/index.html", "/manifest.webmanifest", "/brand/icon-192.png", "/brand/icon-512.png"];
 
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(SHELL).then((c) => c.addAll(SHELL_URLS).catch(() => null)).then(() => self.skipWaiting()));
 });
 self.addEventListener("activate", (e) => {
-  e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => !k.startsWith(VERSION)).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
+  e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => !k.startsWith(VERSION) && k !== SHARE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
 });
 
 const isNav = (req) => req.mode === "navigate" || (req.headers.get("accept") || "").includes("text/html");
@@ -40,10 +41,22 @@ async function staleWhileRevalidate(req, cacheName, maxEntries) {
   return hit || (await refresh) || Response.error();
 }
 async function trim(c, max) { const keys = await c.keys(); if (keys.length > max) await c.delete(keys[0]); }
+// the app's share target (manifest share_target → POST /post): park the text and photos, then open the post form
+async function handleShare(req) {
+  try {
+    const fd = await req.formData(); const c = await caches.open(SHARE);
+    const text = ["title", "text", "url"].map((k) => fd.get(k)).filter((v) => typeof v === "string" && v.trim()).join("\n");
+    await c.put("/shared/text", new Response(text, { headers: { "Content-Type": "text/plain; charset=utf-8" } }));
+    let i = 0;
+    for (const f of fd.getAll("photos")) { if (f && typeof f === "object" && f.size) await c.put("/shared/photo-" + (i++) + ".jpg", new Response(f, { headers: { "Content-Type": f.type || "image/jpeg" } })); }
+  } catch (e) { /* nothing shared → the form opens empty */ }
+  return Response.redirect("/post?shared=1", 303);
+}
 
 self.addEventListener("fetch", (e) => {
-  const req = e.request; if (req.method !== "GET") return;
-  const url = new URL(req.url);
+  const req = e.request; const url = new URL(req.url);
+  if (req.method === "POST" && sameOrigin(url) && /^\/post\/?$/.test(url.pathname)) { e.respondWith(handleShare(req)); return; }
+  if (req.method !== "GET") return;
   if (isApi(url)) return;                                   // live data, always from the network
   if (isNav(req) && sameOrigin(url)) { e.respondWith(networkFirstPage(req)); return; }
   if (isStatic(url) || isFont(url)) { e.respondWith(staleWhileRevalidate(req, STATIC, 200)); return; }

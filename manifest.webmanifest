@@ -18,6 +18,12 @@
     { "src": "/brand/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
     { "src": "/brand/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
+  "share_target": {
+    "action": "/post",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": { "title": "title", "text": "text", "url": "url", "files": [{ "name": "photos", "accept": ["image/*"] }] }
+  },
   "shortcuts": [
     { "name": "للبيع", "url": "/search?deal=sale&source=pwa", "icons": [{ "src": "/brand/icon-192.png", "sizes": "192x192" }] },
     { "name": "للإيجار", "url": "/search?deal=rent&source=pwa", "icons": [{ "src": "/brand/icon-192.png", "sizes": "192x192" }] },

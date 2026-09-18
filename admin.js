@@ -24,7 +24,7 @@ async function storageRestore(paths){
        if(j && j.error) return {data:null, error:{message:j.error}};
        return {data:{restored:j.restored||[], failed:j.failed||[]}, error:null} }
   catch(e){ return {data:null, error:e} } }
-var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super"};
+var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super"};
 function canTab(k){ var p=TAB_PERM[k]; if(p===undefined) return can(k); if(p==="super") return !!ADM.isSuper; if(Array.isArray(p)) return p.some(can); return can(p) }
 function admGo(tab){ if(!tab) return; if(!canTab(tab)){ admToast(GX("noPermTab"),"bad"); return } if(tab!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return; ADM.tab=tab; window._admMobileDetail=false; render(); try{ window.scrollTo(0,0) }catch(e){} }
 function admToast(msg,kind){ var el=$("#admToast"); if(!el){ el=document.createElement("div"); el.id="admToast"; document.body.appendChild(el) } el.textContent=msg; el.className="on "+(kind||"ok"); clearTimeout(el._t); el._t=setTimeout(function(){ el.className="" },2600) }
@@ -32,9 +32,9 @@ function tkReload(){ ADM._ticketsLoaded=false; render() }
 function tkScopeKey(){ return admScope() }
 function adminBellHtml(){
   var td=ADM.todo||{}, n=adminTodoTotal();
-  var rows=[["listings:pending",AICO.listings,GX("bellListings"),td.pending_listings],["agencies_adm",AICO.building,GX("bellAgencies"),td.pending_agencies],["wanted_adm",AICO.search,GX("bellWanted"),td.pending_wanted],["reports",AICO.shield,GX("bellReports"),td.open_reports],["feedback",AICO.chart,GX("bellFeedback"),td.open_feedback],["msgs",AICO.bell,GX("bellAlerts"),td.unread_alerts]].filter(function(r){ return +r[3]>0 });
+  var rows=[["listings:pending",AICO.listings,GX("bellListings"),td.pending_listings],["agencies_adm",AICO.building,GX("bellAgencies"),td.pending_agencies],["wanted_adm",AICO.search,GX("bellWanted"),td.pending_wanted],["intake",AICO.contact||AICO.bell,GX("bellIntake"),td.intake_review],["reports",AICO.shield,GX("bellReports"),td.open_reports],["feedback",AICO.chart,GX("bellFeedback"),td.open_feedback],["msgs",AICO.bell,GX("bellAlerts"),td.unread_alerts]].filter(function(r){ return +r[3]>0 });
   var latest=(td.latest||[]).slice(0,6);
-  var kindTab={listing:"listings:pending",agency:"agencies_adm",wanted:"wanted_adm",report:"reports",feedback:"feedback"};
+  var kindTab={listing:"listings:pending",agency:"agencies_adm",wanted:"wanted_adm",intake:"intake",report:"reports",feedback:"feedback"};
   return '<div class="adbell-w"><button class="ab adbell'+(n?' has':'')+'" id="adBell" title="'+GX("bellT")+'" aria-label="'+GX("bellT")+'">'+AICO.bell+(n?'<b class="adbell-n ltr">'+(n>99?"99+":n)+'</b>':'')+'</button>'+
     '<div class="adbell-m'+(ADM.bellOpen?' on':'')+'" id="adBellMenu"><div class="adbell-h">'+GX("bellT")+(n?' <span class="ltr">('+n+')</span>':'')+'</div>'+
     (rows.length ? rows.map(function(r){ return '<a class="adbell-r" data-goto="'+r[0]+'"><span class="adbell-i">'+r[1]+'</span><span class="adbell-l">'+r[2]+'</span><b class="ltr">'+r[3]+'</b></a>' }).join("") : '<div class="adbell-empty">'+GX("bellNone")+'</div>')+
@@ -473,6 +473,7 @@ function adminView(){
  else if(ADM.tab==="ads"){ body = hsStudioHtml("ads"); }
 
  else if(ADM.tab==="engage"){ body = adminEngageBody(); }
+ else if(ADM.tab==="intake"){ body = adminIntakeBody(); }
  else if(ADM.tab==="agencies_adm"){ body = adminAgenciesBody(); }
  else if(ADM.tab==="projects_adm"){ body = adminProjectsBody(); }
  else if(ADM.tab==="wanted_adm"){ body = adminWantedBody(); }
@@ -623,7 +624,7 @@ function adminView(){
  var NAV=[
    {g:t("navOverview"), items:[["dashboard",t("dashboardTab"),null,AICO.dash,true],["stats",t("visitorStats"),null,AICO.chart,can("stats")]]},
    {g:GX("navCountries"), items:[["countries",GX("countriesTab"),null,AICO.globe,ADM.isSuper]]},
-   {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["photos",GX("tMedia"),null,AICO.image,can("listings")],["wanted_adm",GX("tWanted"),(ADM.todo||{}).pending_wanted||null,AICO.search,can("listings")]]},
+   {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["photos",GX("tMedia"),null,AICO.image,can("listings")],["wanted_adm",GX("tWanted"),(ADM.todo||{}).pending_wanted||null,AICO.search,can("listings")],["intake",GX("tIntake"),(ADM.todo||{}).intake_review||null,AICO.contact||AICO.bell,can("listings")]]},
    {g:t("navPeople"), items:[["users",t("usersTab"),s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")]]},
    {g:GX("navMarketing"), items:[["engage",GX("tEngage"),null,AICO.ledger,can("ads")||can("featured")],["projects_adm",GX("tProjects"),null,AICO.building,can("listings")||can("ads")],["ads",t("adsTab"),null,AICO.ads,can("ads")],["featured",t("featuredTab"),null,AICO.star,can("featured")],["banners",GX("tBanners"),null,AICO.banner,can("homepage")]]},
    {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")]]},
@@ -726,7 +727,9 @@ function adminAgenciesBody(){
       '<div class="est">'+agStatusPill(a.status)+(a.verified?' <span class="vbadge">✓</span>':'')+'</div>'+
       '<div class="eacts">'+(a.status!=="approved"?'<button type="button" class="ab ok" data-agset="'+a.id+':approved">'+GX("agApprove")+'</button>':'')+(a.status==="approved"?'<button type="button" class="ab" data-agset="'+a.id+':hidden">'+GX("agHide")+'</button>':'')+
         (a.status==="pending"?'<button type="button" class="ab bad" data-agset="'+a.id+':rejected">'+GX("agReject")+'</button>':'')+
-        '<button type="button" class="ab" data-agver="'+a.id+':'+(a.verified?"0":"1")+'">'+(a.verified?GX("agUnverify"):GX("agVerify"))+'</button>'+(a.status==="approved"?'<a class="ab" href="/agency/'+a.id+'" target="_blank" rel="noopener">'+GX("agView")+'</a>':'')+'</div></div>' }).join("")+'</div></div></div>' }
+        '<button type="button" class="ab" data-agver="'+a.id+':'+(a.verified?"0":"1")+'">'+(a.verified?GX("agUnverify"):GX("agVerify"))+'</button>'+
+        (a.status==="approved"?'<button type="button" class="ab'+(a.intake_enabled?' on':'')+'" data-agintake="'+a.id+':'+(a.intake_enabled?"0":"1")+'">'+(a.intake_enabled?GX("agIntakeOn"):GX("agIntakeOff"))+'</button>'+
+          (a.intake_enabled?'<button type="button" class="ab'+(a.intake_trusted?' on':'')+'" data-agtrust="'+a.id+':'+(a.intake_trusted?"0":"1")+'">'+(a.intake_trusted?GX("agTrustOn"):GX("agTrustOff"))+'</button>'+(a.intake_telegram?'<span class="st st-live">'+GX("agPairedTg")+'</span>':'')+(a.intake_code?'<small class="ltr" style="color:var(--grey)">'+GX("agIntakeCode")+' '+esc(a.intake_code)+'</small>':''):''):'')+(a.status==="approved"?'<a class="ab" href="/agency/'+a.id+'" target="_blank" rel="noopener">'+GX("agView")+'</a>':'')+'</div></div>' }).join("")+'</div></div></div>' }
 async function adminLoad(){
   ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._anLoaded=false; ADM._uactLoaded=false; ADM._lstatsLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._featuredListLoaded=false;
   ADM._storageUsageLoaded=false;
@@ -1080,10 +1083,14 @@ function wireAdmin(){
           data.units=(P.units||[]).filter(function(u){ return u.type||u.price_usd }).map(function(u){ return {type:u.type||"",area_m2:N(u.area_m2),rooms:N(u.rooms),price_usd:N(u.price_usd),count:N(u.count)} }); data.plans=(P.plans||[]).filter(function(x){ return x.name||x.months }).map(function(x){ return {name:x.name||"",down_pct:N(x.down_pct),months:N(x.months),handover_pct:N(x.handover_pct)} });
           try{ await rpc("bk_admin_project_save",{p_token:ADM.token,p_id:P.id||null,p_data:data}); ADM.pjEdit=null; ADM._pjLoaded=false; PROJECTS=null; render() }catch(err){ if(m){ m.style.color="var(--danger)"; m.textContent=err.message||"error" } } } } }
   }
+  if(ADM.tab!=="intake"){ ADM._ikLoaded=false }
+  if(ADM.tab==="intake"){ wireAdminIntake() }
   if(ADM.tab==="agencies_adm"){
     if(!ADM._agLoaded){ ADM._agLoaded=true; ADM.agErr=null; rpc("bk_admin_agencies",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM_AG=r||[]; render() }).catch(function(e){ ADM_AG=[]; ADM.agErr=e.message||"error"; render() }) }
     $$("[data-agset]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.agset.split(":"); if(p[1]==="rejected" && !confirm(GX("confirmReject"))) return; try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+p[0],p_status:p[1]}); ADM._agLoaded=false; render() }catch(e){ alert(e.message||"error") } } });
     $$("[data-agver]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.agver.split(":"); try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+p[0],p_verified:p[1]==="1"}); ADM._agLoaded=false; render() }catch(e){ alert(e.message||"error") } } });
+    $$("[data-agintake]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.agintake.split(":"); try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+p[0],p_intake:p[1]==="1"}); ADM._agLoaded=false; admToast(t("savedOk")); render() }catch(e){ admToast(e.message||"error","bad") } } });
+    $$("[data-agtrust]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.agtrust.split(":"); try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+p[0],p_trusted:p[1]==="1"}); ADM._agLoaded=false; admToast(t("savedOk")); render() }catch(e){ admToast(e.message||"error","bad") } } });
   }
   if(ADM.tab==="engage"){
     var edays=ADM.erange==null?30:ADM.erange;
@@ -2486,4 +2493,119 @@ function wireAdminCountries(){
     $$('[data-cdnew$=":'+code+'"]').forEach(function(i){ var k=i.dataset.cdnew.split(":")[0]; p[k]= i.type==="checkbox"?i.checked : k==="sort_order"?parseInt(i.value,10)||100 : i.value.trim() });
     var dc=String(p.code||"").toLowerCase().replace(/[^a-z0-9_]+/g,"_"); if(!dc||!p.ar) return; delete p.code;
     DB.rpc("bk_admin_deed_save",{p_token:ADM.token,p_country:code,p_code:dc,p_patch:p}).then(function(r){ if(r.error) return msg(r.error.message,true); msg(GX("saved")); reload() }) } });
+}
+
+/* ── Message intake page: connections, settings, drafts, log. Data: bk_admin_intake; actions through the bk-intake Edge Function. ── */
+var IK_STATUS={collecting:"ik_collecting",reading:"ik_reading",ready:"ik_ready",needs_info:"ik_needs_info",review:"ik_review",published:"ik_published",cancelled:"ik_cancelled",failed:"ik_failed"};
+var IK_PILL={collecting:"pending",reading:"pending",ready:"live",needs_info:"pending",review:"expired",published:"live",cancelled:"expired",failed:"expired"};
+function ikPill(st){ return '<span class="st st-'+(IK_PILL[st]||"pending")+'">'+GX(IK_STATUS[st]||st)+'</span>' }
+function ikSrc(x){ return x.source==="telegram"?"Telegram":x.source==="whatsapp"?"WhatsApp":GX("ik_web") }
+async function intakeAdmin(action, extra){
+  var r=await fetch(CONFIG.supabaseUrl+"/functions/v1/bk-intake/admin",{method:"POST",headers:{"Content-Type":"application/json","apikey":CONFIG.supabaseKey,"Authorization":"Bearer "+CONFIG.supabaseKey},
+    body:JSON.stringify(Object.assign({token:ADM.token,action:action},extra||{}))});
+  var j=null; try{ j=await r.json() }catch(e){ j={} }
+  if(!r.ok||(j&&j.error)) throw new Error((j&&(j.detail&&j.detail.error||j.error))||("intake "+r.status));
+  return j }
+function ikFieldsForm(x){
+  var f=x.fields||{}; var v=function(k){ return f[k]==null?"":escOnce(String(f[k])) };
+  var inp=function(k,lbl,type,wide){ return '<div class="fl'+(wide?' wide':'')+'"><label>'+lbl+'</label><input data-ikf="'+k+'" type="'+(type||"text")+'" value="'+v(k)+'" data-allow-autofill></div>' };
+  var sel=function(k,lbl,opts){ return '<div class="fl"><label>'+lbl+'</label><select data-ikf="'+k+'"><option value=""></option>'+opts.map(function(o){ return '<option value="'+o[0]+'"'+(String(f[k])===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select></div>' };
+  var chk=function(k,lbl){ return '<label class="xcheck" style="align-self:end"><input type="checkbox" data-ikf="'+k+'" data-ikbool="1"'+(f[k]===true||f[k]==="true"?' checked':'')+'><span>'+lbl+'</span></label>' };
+  return '<div class="ikfields">'+
+    sel("deal",GX("ik_f_deal"),[["sale",t("forsale")],["rent",t("forrent")]])+sel("property_type",GX("ik_f_type"),Object.keys(D.TYPES).map(function(k){ return [k,D.TYPES[k][li()]] }))+
+    inp("governorate",GX("ik_f_gov"))+inp("area",GX("ik_f_area"))+inp("landmark",GX("ik_f_landmark"))+
+    inp("price",GX("ik_f_price"),"number")+inp("currency",GX("ik_f_cur"))+inp("area_m2",GX("ik_f_m2"),"number")+
+    inp("rooms",GX("ik_f_rooms"),"number")+inp("baths",GX("ik_f_baths"),"number")+inp("living_rooms",GX("ik_f_living"),"number")+inp("floor",GX("ik_f_floor"),"number")+inp("year_built",GX("ik_f_year"),"number")+
+    inp("tabu",GX("ik_f_tabu"))+inp("condition",GX("ik_f_cond"))+sel("rental_period",GX("ik_f_period"),[["yearly",t("periodYearly")],["monthly",t("periodMonthly")],["weekly",t("periodWeekly")],["daily",t("periodDaily")]])+
+    inp("contact_phone",GX("ik_f_phone"),"tel")+chk("furnished",GX("ik_f_furn"))+chk("negotiable",GX("ik_f_negot"))+
+    '<div class="fl wide"><label>'+GX("ik_f_desc")+'</label><textarea data-ikf="description">'+v("description")+'</textarea></div>'+
+  '</div>' }
+function ikRow(x){
+  var open=String(ADM.ikOpen)===String(x.id), photos=Array.isArray(x.photos)?x.photos:[], d=ADM.ik||{};
+  var head=esc(x.agency_name||x.sender_name||x.chat_id||""), sub=ikSrc(x)+(x.by_admin?' · '+GX("ik_byOwner"):'')+(x.sender_name&&x.agency_name?' · '+esc(x.sender_name):'');
+  var line=(x.summary||"").split("\n").filter(function(l){ return l && !/^📋/.test(l) }).slice(0,2).join(" · ") || (x.raw_text||"").slice(0,90);
+  return '<div class="erow ikrow'+(open?' open':'')+'">'+
+    '<div class="ecode"><b>#'+x.id+'</b><div><b>'+head+'</b><small class="usub">'+sub+'</small></div></div>'+
+    '<div class="ewho">'+esc(line)+'<small>'+photos.length+' '+GX("ik_photos")+' · '+(x.messages||0)+' '+GX("ik_msgs")+(x.country_code&&x.country_code!=="SY"?' · '+flagOf(x.country_code):'')+'</small></div>'+
+    '<div class="eclient">'+ikPill(x.status)+(x.listing_ref?' <a class="elink" data-open="'+x.listing_id+'">'+esc(x.listing_ref)+'</a>':'')+(x.error&&!open?'<small style="color:var(--danger)">'+esc(String(x.error)).slice(0,60)+'</small>':'')+'</div>'+
+    '<div class="eperiod"><span class="ltr">'+when(x.created_at)+'</span><small>$'+(+x.cost_usd||0).toFixed(4)+'</small></div>'+
+    '<div class="eacts"><button type="button" class="ab" data-ikopen="'+x.id+'">'+(open?GX("ik_close"):GX("ik_open"))+'</button></div>'+
+    (open ? '<div class="eedit ikdetail" data-ikid="'+x.id+'"><div class="ikcols">'+
+      '<div><b>'+GX("ik_rawH")+'</b><pre class="ikpre">'+esc(x.raw_text||"—")+'</pre>'+(x.error?'<div class="hintx" style="color:var(--danger)">'+esc(String(x.error))+'</div>':'')+(x.summary?'<pre class="ikpre">'+esc(x.summary)+'</pre>':'')+
+        (photos.length?'<div class="ikphotos">'+photos.map(function(p){ return '<a href="'+esc(p.url)+'" target="_blank" rel="noopener"><img src="'+esc(p.thumb_url||p.url)+'" alt="" loading="lazy"></a>' }).join("")+'</div>':'')+'</div>'+
+      '<div><b>'+GX("ik_fieldsH")+'</b>'+ikFieldsForm(x)+'</div></div>'+
+      '<div class="xactions">'+
+        '<select data-ikag="'+x.id+'"><option value="">'+GX("ik_pickAgency")+'</option>'+(d.agencies||[]).map(function(g){ return '<option value="'+g.id+'"'+(String(g.id)===String(x.agency_id)?' selected':'')+'>'+esc(g.name)+(g.country_code&&g.country_code!=="SY"?' '+flagOf(g.country_code):'')+'</option>' }).join("")+'</select>'+
+        '<button type="button" class="ab ok" data-iksave="'+x.id+'">'+t("save")+'</button>'+
+        (x.status!=="published" ? '<button type="button" class="ab" data-ikread="'+x.id+'">'+GX("ik_readAgain")+'</button><button type="button" class="ab ok" data-ikpub="'+x.id+':pending">'+GX("ik_pubPending")+'</button><button type="button" class="ab ok" data-ikpub="'+x.id+':live">'+GX("ik_pubLive")+'</button>'+(x.status!=="cancelled"?'<button type="button" class="ab" data-ikcancel="'+x.id+'">'+t("cancel")+'</button>':'') : '')+
+        '<button type="button" class="ab bad" data-ikdel="'+x.id+'">'+t("del")+'</button><span class="xmsg" id="ikMsg'+x.id+'"></span>'+
+      '</div></div>' : '')+
+  '</div>' }
+function adminIntakeBody(){
+  var d=ADM.ik; if(!d) return '<div class="blk"><div class="in adashempty">'+(ADM.ikErr?'<span style="color:var(--danger)">'+esc(ADM.ikErr)+'</span>':t("loading"))+'</div></div>';
+  var cfg=d.cfg||{}, c=d.counts||{}, st=ADM.ikStatus, f=ADM.ikFilter||"all", fnUrl=CONFIG.supabaseUrl+"/functions/v1/bk-intake";
+  var list=(d.drafts||[]).filter(function(x){ return f==="all" ? x.status!=="cancelled" : f==="attention" ? (x.status==="review"||x.status==="failed") : f==="open" ? ["collecting","reading","ready","needs_info"].indexOf(x.status)>-1 : x.status===f });
+  var stats='<div class="ikstats">'+[[GX("ik_st_open"),(+c.collecting||0)+(+c.ready||0)],[GX("ik_st_attention"),(+c.review||0)+(+c.failed||0)],[GX("ik_st_published"),+c.published||0],[GX("ik_st_today"),+c.today||0],[GX("ik_st_cost"),"$"+(+c.cost_month||0).toFixed(2)]].map(function(s){ return '<div class="astat"><b class="ltr">'+s[1]+'</b><span>'+s[0]+'</span></div>' }).join("")+'</div>';
+  var row=function(name,state,acts){ return '<div class="ikc"><b>'+name+'</b><div>'+state+'</div><div class="eacts">'+(acts||'')+'</div></div>' };
+  var ok=function(s){ return '<span class="ikok">✓ '+s+'</span>' }, warn=function(s){ return '<span class="ikwarn">! '+s+'</span>' }, off=function(s){ return '<span class="ikoff">○ '+s+'</span>' };
+  var chats=cfg.intake_admin_chats||{}; var nChats=(chats.telegram||[]).length+(chats.whatsapp||[]).length;
+  var conn='<div class="blk"><h3>'+GX("ik_connH")+'</h3><div class="in">'+
+    (!st ? '<div class="hintx">'+t("loading")+'</div>' : st.error ? '<div class="hintx" style="color:var(--danger)">'+esc(st.error)+'</div>' :
+     '<div class="ikconn">'+
+      row("Telegram", st.telegram.configured ? (st.telegram.ok ? ok(GX("ik_tgOk").replace("{b}","@"+esc((st.telegram.me&&st.telegram.me.username)||cfg.intake_bot||"")))+(st.telegram.webhook&&st.telegram.webhook.last_error_message?'<small style="color:var(--danger)">'+esc(st.telegram.webhook.last_error_message)+'</small>':'') : warn(GX("ik_tgNoHook"))) : off(GX("ik_tgOff")), st.telegram.configured ? '<button type="button" class="ab ok" id="ikSetupTg">'+GX("ik_tgSetup")+'</button>' : '')+
+      row("WhatsApp", (st.whatsapp.configured ? (st.whatsapp.ok ? ok(GX("ik_waOk").replace("{n}",esc((st.whatsapp.phone&&st.whatsapp.phone.display_phone_number)||""))) : warn(GX("ik_waErr"))) : off(GX("ik_waOff")))+'<small>'+GX("ik_waHook")+' <b class="ltr" style="user-select:all">'+fnUrl+'/whatsapp</b></small>', '<button type="button" class="ab" data-ecopy="'+fnUrl+'/whatsapp">'+GX("engCopy")+'</button>')+
+      row("Claude", st.anthropic.configured ? ok(GX("ik_clOk")) : off(GX("ik_clOff")), '')+
+     '</div><div class="hintx" style="margin-top:10px">'+GX("ik_secretsHint")+'</div>')+
+    '<div class="ikown"><b>'+GX("ik_ownerH")+'</b><div class="hintx">'+GX("ik_ownerHint")+'</div>'+
+      (cfg.intake_bot&&cfg.intake_admin_code ? '<div class="ecodebox"><a class="ab" href="https://t.me/'+esc(cfg.intake_bot)+'?start=adm-'+esc(cfg.intake_admin_code)+'" target="_blank" rel="noopener">'+GX("ik_ownerOpen")+'</a><b>'+esc(cfg.intake_admin_code)+'</b><button type="button" class="ab" data-ecopy="'+esc(cfg.intake_admin_code)+'">'+GX("engCopy")+'</button></div>' : '<button type="button" class="ab" id="ikAdminCode" style="margin-top:8px"'+(cfg.intake_bot?'':' disabled title="Telegram"')+'>'+GX("ik_ownerMake")+'</button>')+
+      (nChats?'<div class="hintx" style="margin-top:6px">'+GX("ik_ownerLinked").replace("{n}",nChats)+'</div>':'')+'</div>'+
+    '<div class="iktest"><b>'+GX("ik_testH")+'</b><textarea id="ikTestText" data-allow-autofill placeholder="'+esc(GX("ik_testPH"))+'">'+escOnce(ADM.ikTestText||"")+'</textarea><div class="xactions"><button type="button" class="ab" id="ikTestBtn">'+GX("ik_testBtn")+'</button><span class="xmsg" id="ikTestMsg"></span></div>'+(ADM.ikTest?'<pre class="ikpre">'+esc(ADM.ikTest)+'</pre>':'')+'</div>'+
+  '</div></div>';
+  var num=function(k,lbl,def,min,max,step){ return '<div class="fl"><label>'+lbl+'</label><input type="number" data-ikc="'+k+'" data-ikt="num" value="'+(cfg[k]!=null?cfg[k]:"")+'" placeholder="'+def+'"'+(min!=null?' min="'+min+'"':'')+(max!=null?' max="'+max+'"':'')+(step?' step="'+step+'"':'')+' data-allow-autofill></div>' };
+  var sel=function(k,lbl,opts){ return '<div class="fl"><label>'+lbl+'</label><select data-ikc="'+k+'" data-ikt="str">'+opts.map(function(o){ return '<option value="'+o[0]+'"'+(String(cfg[k]||"")===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select></div>' };
+  var txt=function(k,lbl){ return '<div class="fl"><label>'+lbl+'</label><input data-ikc="'+k+'" data-ikt="str" class="ltr" value="'+escOnce(cfg[k]||"")+'" data-allow-autofill></div>' };
+  var chk=function(k,lbl){ return '<label class="xcheck"><input type="checkbox" data-ikc="'+k+'" data-ikt="bool"'+(cfg[k]!==false&&cfg[k]!=="false"?' checked':'')+'><span>'+lbl+'</span></label>' };
+  var settings='<div class="blk"><h3>'+GX("ik_setH")+'</h3><div class="in" id="ikCfg">'+
+    '<div class="chkgrid">'+chk("intake_enabled",GX("ik_on"))+chk("intake_telegram_on","Telegram")+chk("intake_whatsapp_on","WhatsApp")+'</div>'+
+    '<div class="row3">'+num("intake_wait_s",GX("ik_wait"),90,20,900)+num("intake_max_photos",GX("ik_maxPhotos"),12,1,30)+num("intake_daily_limit",GX("ik_daily"),30,1,500)+'</div>'+
+    '<div class="row3">'+sel("intake_model",GX("ik_model"),[["claude-haiku-4-5-20251001","Claude Haiku 4.5"],["claude-sonnet-5","Claude Sonnet 5"],["claude-opus-5","Claude Opus 5"]])+num("intake_price_in",GX("ik_priceIn"),1,0,100,0.01)+num("intake_price_out",GX("ik_priceOut"),5,0,500,0.01)+'</div>'+
+    '<div class="row">'+sel("intake_reply_lang",GX("ik_lang"),[["ar","العربية"],["en","English"]])+txt("intake_wa_display",GX("ik_waDisplay"))+'</div>'+
+    '<div class="xactions"><button type="button" class="ab ok" id="ikCfgSave">'+t("save")+'</button><span class="xmsg" id="ikCfgMsg"></span></div>'+
+  '</div></div>';
+  var filters=[["all",GX("ik_fAll")],["attention",GX("ik_fAttention")],["open",GX("ik_fOpen")],["published",GX("ik_published")],["cancelled",GX("ik_cancelled")]];
+  var drafts='<div class="blk"><h3>'+GX("ik_draftsH")+' <span class="n">'+list.length+'</span></h3><div class="in eng-in">'+
+    '<div class="ikfilters">'+filters.map(function(x){ return '<button type="button" class="ab'+(x[0]===f?' on':'')+'" data-ikf-filter="'+x[0]+'">'+x[1]+'</button>' }).join("")+'<button type="button" class="ab" id="ikReload" style="margin-inline-start:auto">'+AICO.refresh+'</button></div>'+
+    (list.length ? '<div class="elist">'+list.map(ikRow).join("")+'</div>' : '<div class="adashempty">'+GX("ik_none")+'</div>')+'</div></div>';
+  var logs='<div class="blk"><h3>'+GX("ik_logH")+'</h3><div class="in eng-in"><div class="iklog">'+(d.log||[]).slice(0,40).map(function(l){ return '<div class="iklog-r lvl-'+esc(l.level||"info")+'"><span class="ltr">'+when(l.created_at)+'</span><b>'+esc(l.event)+'</b><i>'+(l.draft_id?'#'+l.draft_id:'')+'</i><span>'+esc(JSON.stringify(l.detail||{})).slice(0,160)+'</span></div>' }).join("")+'</div></div></div>';
+  return stats+conn+settings+drafts+logs }
+function wireAdminIntake(){
+  if(!ADM._ikLoaded){ ADM._ikLoaded=true; ADM.ikErr=null;
+    rpc("bk_admin_intake",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.ik=r||{}; render() }).catch(function(e){ ADM.ik=null; ADM.ikErr=e.message||"error"; render() });
+    if(!ADM.ikStatus) intakeAdmin("status").then(function(r){ ADM.ikStatus=r; render() }).catch(function(e){ ADM.ikStatus={error:e.message||"error"}; render() }) }
+  var reload=function(){ ADM._ikLoaded=false; render() };
+  var busy=function(btn,on){ if(btn){ btn.disabled=on; btn.classList.toggle("busy",on) } };
+  if($("#ikReload")) $("#ikReload").onclick=function(){ ADM.ikStatus=null; reload() };
+  $$("[data-ikf-filter]").forEach(function(b){ b.onclick=function(){ ADM.ikFilter=this.dataset.ikfFilter; render() } });
+  $$("[data-ikopen]").forEach(function(b){ b.onclick=function(){ ADM.ikOpen = String(ADM.ikOpen)===this.dataset.ikopen ? null : this.dataset.ikopen; render() } });
+  if($("#ikSetupTg")) $("#ikSetupTg").onclick=async function(){ busy(this,true); try{ var r=await intakeAdmin("setup_telegram"); admToast("@"+(r.bot||"")+" ✓"); ADM.ikStatus=null; reload() }catch(e){ admToast(e.message||"error","bad"); busy(this,false) } };
+  if($("#ikAdminCode")) $("#ikAdminCode").onclick=async function(){ busy(this,true); try{ await intakeAdmin("admin_code"); reload() }catch(e){ admToast(e.message||"error","bad"); busy(this,false) } };
+  var tt=$("#ikTestText"); if(tt) tt.oninput=function(){ ADM.ikTestText=this.value };
+  if($("#ikTestBtn")) $("#ikTestBtn").onclick=async function(){ var m=$("#ikTestMsg"), text=(ADM.ikTestText||"").trim(); if(text.length<10) return; busy(this,true); if(m) m.textContent=GX("qfBusy");
+    try{ var r=await intakeAdmin("test_claude",{text:text,country:COUNTRY}); ADM.ikTest=(r.summary||"")+"\n\n"+JSON.stringify(r.fields,null,1)+(r.missing&&r.missing.length?"\nmissing: "+r.missing.join(", "):"")+"\ntokens in/out: "+(r.usage&&r.usage.in)+"/"+(r.usage&&r.usage.out); render() }
+    catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } };
+  if($("#ikCfgSave")) $("#ikCfgSave").onclick=async function(){ var m=$("#ikCfgMsg"), patch={}; busy(this,true);
+    $$("#ikCfg [data-ikc]").forEach(function(i){ var k=i.dataset.ikc, ty=i.dataset.ikt; patch[k] = ty==="bool" ? !!i.checked : ty==="num" ? (i.value===""?null:+i.value) : (String(i.value).trim()===""?null:String(i.value).trim()) });
+    try{ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:patch},p_country:"SY"}); admToast(GX("ik_saved")); reload() }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } };
+  var collect=function(id){ var box=$('.ikdetail[data-ikid="'+id+'"]'); if(!box) return null; var fields={};
+    box.querySelectorAll("[data-ikf]").forEach(function(i){ var k=i.dataset.ikf; if(i.dataset.ikbool) fields[k]=!!i.checked; else { var v=String(i.value).trim(); fields[k]= v===""?null:(i.type==="number"?+v:v) } });
+    var x=((ADM.ik||{}).drafts||[]).filter(function(y){ return String(y.id)===String(id) })[0]||{}; var f0=x.fields||{};
+    if(fields.governorate!==(f0.governorate==null?null:String(f0.governorate))){ fields.governorate_id=null; fields.area_id=null } else if(fields.area!==(f0.area==null?null:String(f0.area))) fields.area_id=null;
+    var ag=box.querySelector("[data-ikag]"); return {fields:fields, agency_id: ag ? (ag.value||"") : undefined} };
+  var saveDraft=async function(id){ var c=collect(id); if(!c) return; var patch={fields:c.fields}; if(c.agency_id!==undefined) patch.agency_id=c.agency_id||null; await rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:patch}) };
+  $$("[data-iksave]").forEach(function(b){ b.onclick=async function(){ var id=this.dataset.iksave, m=$("#ikMsg"+id); busy(this,true); try{ await saveDraft(id); admToast(GX("ik_saved")); reload() }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } } });
+  $$("[data-ikread]").forEach(function(b){ b.onclick=async function(){ var id=this.dataset.ikread, m=$("#ikMsg"+id); busy(this,true); if(m){ m.style.color="var(--grey)"; m.textContent=GX("qfBusy") } try{ await saveDraft(id); await intakeAdmin("read",{draft_id:+id,quiet:true}); reload() }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } } });
+  $$("[data-ikpub]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.ikpub.split(":"), m=$("#ikMsg"+p[0]); busy(this,true); if(m){ m.style.color="var(--grey)"; m.textContent=GX("qfBusy") }
+    try{ await saveDraft(p[0]); var r=await intakeAdmin("publish",{draft_id:+p[0],status:p[1]}); admToast(GX("ik_pubDone").replace("{r}",r.ref||"")); syncAdminTodo(); reload() }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } } });
+  $$("[data-ikcancel]").forEach(function(b){ b.onclick=async function(){ var id=this.dataset.ikcancel; busy(this,true); try{ await rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:{status:"cancelled"}}); reload() }catch(e){ admToast(e.message||"error","bad"); busy(this,false) } } });
+  $$("[data-ikdel]").forEach(function(b){ b.onclick=async function(){ var id=this.dataset.ikdel; if(!confirm(GX("ik_delConfirm"))) return; busy(this,true); try{ await rpc("bk_admin_intake_delete",{p_token:ADM.token,p_id:+id}); ADM.ikOpen=null; syncAdminTodo(); reload() }catch(e){ admToast(e.message||"error","bad"); busy(this,false) } } });
 }
