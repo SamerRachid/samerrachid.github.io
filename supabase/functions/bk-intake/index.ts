@@ -6,7 +6,8 @@
 // routes (POST unless noted)
 //   GET  /bk-intake/whatsapp   Meta's verification handshake (hub.verify_token = WA_VERIFY_TOKEN)
 //   POST /bk-intake/whatsapp   Meta webhook (X-Hub-Signature-256 checked with WA_APP_SECRET)
-//   POST /bk-intake/telegram   Telegram webhook (X-Telegram-Bot-Api-Secret-Token derived from the bot token)
+//   POST /bk-intake/telegram   Telegram webhook (X-Telegram-Bot-Api-Secret-Token derived from the bot token); also the site's phone verification:
+//                              "/start v<ticket>" asks for the contact (request_contact), the contact message → bk_verify_tg_contact
 //   POST /bk-intake/web        { token, text, country }  member: read pasted text → fields for the post form
 //   POST /bk-intake/tick       x-intake-key: INTAKE_TICK_SECRET (or { token } of an admin) → read the drafts whose sender went quiet
 //   POST /bk-intake/admin      { token, action, ... }  status | setup_telegram | read | publish | tick | test_claude | test_photo | admin_code
@@ -198,6 +199,13 @@ const T = {
     deedNone: `• الطابو: غير مذكور (سيُنشر «بدون طابو»)`,
     condDefault: `• الحالة: غير مذكورة (سيُنشر «سليم»)`,
     periodDefault: `• فترة الإيجار: غير مذكورة (سنوي)`,
+    verifyAsk: (tail: string) => `للتحقق من رقمك في بلكون (المنتهي بـ ${tail}) اضغط الزر أدناه «مشاركة رقمي» 👇\nلن نستخدم الرقم لأي غرض آخر.`,
+    verifyBtn: `📱 مشاركة رقمي`,
+    verifyOk: (purpose: string) => purpose === "reset" ? `تم التحقق ✅ ارجع إلى صفحة بلكون لاختيار كلمة المرور الجديدة.` : `تم التحقق ✅ ارجع إلى صفحة بلكون، حسابك جاهز.`,
+    verifyMismatch: (tail: string) => `هذا الرقم لا يطابق الرقم الذي أدخلته في الموقع (المنتهي بـ ${tail}). ارجع إلى الموقع وأدخل رقم حساب تيليغرام هذا، أو استخدم واتساب.`,
+    verifyNone: `لا يوجد طلب تحقق مفتوح لهذه المحادثة. ابدأ من صفحة التسجيل في balkoun.com واضغط «تيليغرام».`,
+    verifyOwnOnly: `أرسل رقمك أنت عبر الزر «مشاركة رقمي»، وليس جهة اتصال أخرى.`,
+    verifyGone: `انتهت صلاحية طلب التحقق. ارجع إلى balkoun.com وابدأ من جديد.`,
   },
   en: {
     welcome: (name: string) => `Hello ${name} 👋\nSend the property details and photos here. When you are done, write "done".\nI will read the listing and send you a summary to approve before it is published.`,
@@ -231,6 +239,13 @@ const T = {
     deedNone: `• Deed: not stated (published as "no deed")`,
     condDefault: `• Condition: not stated (published as "intact")`,
     periodDefault: `• Rental period: not stated (yearly)`,
+    verifyAsk: (tail: string) => `To verify your Balkoun number (ending in ${tail}) tap "Share my number" below 👇\nWe use it for nothing else.`,
+    verifyBtn: `📱 Share my number`,
+    verifyOk: (purpose: string) => purpose === "reset" ? `Verified ✅ Go back to the Balkoun page to choose your new password.` : `Verified ✅ Go back to the Balkoun page, your account is ready.`,
+    verifyMismatch: (tail: string) => `This number does not match the one you typed on the site (ending in ${tail}). Go back and enter this Telegram account's number, or use WhatsApp.`,
+    verifyNone: `There is no open verification request for this chat. Start from the sign-up page on balkoun.com and press "Telegram".`,
+    verifyOwnOnly: `Share your own number with the "Share my number" button, not another contact.`,
+    verifyGone: `That verification request expired. Go back to balkoun.com and start again.`,
   },
 };
 const tx = (lang: string) => (lang === "en" ? T.en : T.ar);
@@ -584,9 +599,33 @@ async function safePublish(m: Incoming, draftId: number, tt: any) {
   try { await publishDraft(draftId); }
   catch (e) { await log(draftId, m.chat, "error", "publish_failed", { error: errStr(e) }); await rpc("bk_intake_set", { p_draft: draftId, p_patch: { status: "review", error: errStr(e) } }); await reply(m.source, m.chat, tt.failed); }
 }
+// ── phone verification for the site (sign-up / password reset): /start v<ticket> → ask for the contact → bk_verify_tg_contact ──
+const vLang = (m: { lang?: string }, c: Cfg) => tx(m.lang === "en" || c.intake_reply_lang === "en" ? "en" : "ar");
+async function verifyStart(m: Incoming, hex: string, c: Cfg): Promise<void> {
+  const t = vLang(m, c);
+  const ticket = hex.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, "$1-$2-$3-$4-$5");
+  const r = await rpc<any>("bk_verify_tg_open", { p_ticket: ticket, p_chat_id: m.chat, p_name: m.senderName });
+  if (!r?.ok) { await reply(m.source, m.chat, r?.error === "off" ? t.verifyNone : t.verifyGone); return; }
+  try {
+    await tg("sendMessage", { chat_id: m.chat, text: t.verifyAsk(r.tail || ""), reply_markup: { keyboard: [[{ text: t.verifyBtn, request_contact: true }]], one_time_keyboard: true, resize_keyboard: true } });
+  } catch (e) { await log(null, m.chat, "warn", "verify_ask_failed", { error: errStr(e) }); }
+}
+async function verifyContact(chat: string, contact: any, from: any, lang: string): Promise<void> {
+  const c = await cfg(); const t = vLang({ lang }, c);
+  const remove = { reply_markup: { remove_keyboard: true } };
+  const say = async (text: string) => { try { await tg("sendMessage", { chat_id: chat, text, ...remove }); } catch (e) { await log(null, chat, "warn", "reply_failed", { error: errStr(e) }); } };
+  if (contact?.user_id && from?.id && String(contact.user_id) !== String(from.id)) { await say(t.verifyOwnOnly); return; }
+  const r = await rpc<any>("bk_verify_tg_contact", { p_chat_id: chat, p_phone: String(contact?.phone_number || ""), p_tg_user_id: from?.id ? String(from.id) : null });
+  if (r?.ok) await say(t.verifyOk(r.purpose));
+  else if (r?.error === "mismatch") await say(t.verifyMismatch(r.tail || ""));
+  else if (r?.error === "expired") await say(t.verifyGone);
+  else await say(t.verifyNone);
+}
 async function handleIncoming(m: Incoming) {
   const c = await cfg();
   const t = tx(c.intake_reply_lang === "en" ? "en" : "ar");
+  const vm = m.source === "telegram" ? (m.text || "").trim().match(/^\/start\s+v([0-9a-f]{32})$/i) : null;
+  if (vm) { await verifyStart(m, vm[1].toLowerCase(), c); return; }
   if (c.intake_enabled === false || (m.source === "telegram" && c.intake_telegram_on === false) || (m.source === "whatsapp" && c.intake_whatsapp_on === false)) return;
   // pairing: /start <code> (Telegram) or "ربط <code>" / "link <code>"
   const pairMatch = (m.text || "").trim().match(/^(?:\/start|ربط|link|pair)\s+([A-Za-z0-9-]{4,40})$/i);
@@ -655,6 +694,10 @@ async function routeTelegram(req: Request): Promise<Response> {
   if (msg.chat.type !== "private") return json({ ok: true });   // groups are ignored
   const from = msg.from || {}; const name = [from.first_name, from.last_name].filter(Boolean).join(" ") + (from.username ? " @" + from.username : "");
   const chat = String(msg.chat.id);
+  if (msg.contact) {   // "share my number" answer for a site verification ticket
+    const vw = verifyContact(chat, msg.contact, from, from.language_code || "ar"); background(vw);
+    await Promise.race([vw, delay(15_000)]); return json({ ok: true });
+  }
   let kind = "text", media: any = null, size: number | undefined, fetchMedia: Incoming["fetchMedia"];
   if (Array.isArray(msg.photo) && msg.photo.length) { kind = "photo"; const ph = msg.photo[msg.photo.length - 1]; media = { file_id: ph.file_id, w: ph.width, h: ph.height, size: ph.file_size }; size = ph.file_size; fetchMedia = () => tgDownload(ph.file_id); }
   else if (msg.document && /^image\//.test(msg.document.mime_type || "")) { kind = "photo"; media = { file_id: msg.document.file_id, size: msg.document.file_size, mime: msg.document.mime_type }; size = msg.document.file_size; fetchMedia = () => tgDownload(msg.document.file_id); }

@@ -32,9 +32,9 @@ function tkReload(){ ADM._ticketsLoaded=false; render() }
 function tkScopeKey(){ return admScope() }
 function adminBellHtml(){
   var td=ADM.todo||{}, n=adminTodoTotal();
-  var rows=[["listings:pending",AICO.listings,GX("bellListings"),td.pending_listings],["agencies_adm",AICO.building,GX("bellAgencies"),td.pending_agencies],["wanted_adm",AICO.search,GX("bellWanted"),td.pending_wanted],["intake",AICO.contact||AICO.bell,GX("bellIntake"),td.intake_review],["reports",AICO.shield,GX("bellReports"),td.open_reports],["feedback",AICO.chart,GX("bellFeedback"),td.open_feedback],["msgs",AICO.bell,GX("bellAlerts"),td.unread_alerts]].filter(function(r){ return +r[3]>0 });
+  var rows=[["listings:pending",AICO.listings,GX("bellListings"),td.pending_listings],["agencies_adm",AICO.building,GX("bellAgencies"),td.pending_agencies],["wanted_adm",AICO.search,GX("bellWanted"),td.pending_wanted],["intake",AICO.contact||AICO.bell,GX("bellIntake"),td.intake_review],["users",AICO.users,GX("bellVerify"),td.verify_pending],["reports",AICO.shield,GX("bellReports"),td.open_reports],["feedback",AICO.chart,GX("bellFeedback"),td.open_feedback],["msgs",AICO.bell,GX("bellAlerts"),td.unread_alerts]].filter(function(r){ return +r[3]>0 });
   var latest=(td.latest||[]).slice(0,6);
-  var kindTab={listing:"listings:pending",agency:"agencies_adm",wanted:"wanted_adm",intake:"intake",report:"reports",feedback:"feedback"};
+  var kindTab={listing:"listings:pending",agency:"agencies_adm",wanted:"wanted_adm",intake:"intake",verify:"users",report:"reports",feedback:"feedback"};
   return '<div class="adbell-w"><button class="ab adbell'+(n?' has':'')+'" id="adBell" title="'+GX("bellT")+'" aria-label="'+GX("bellT")+'">'+AICO.bell+(n?'<b class="adbell-n ltr">'+(n>99?"99+":n)+'</b>':'')+'</button>'+
     '<div class="adbell-m'+(ADM.bellOpen?' on':'')+'" id="adBellMenu"><div class="adbell-h">'+GX("bellT")+(n?' <span class="ltr">('+n+')</span>':'')+'</div>'+
     (rows.length ? rows.map(function(r){ return '<a class="adbell-r" data-goto="'+r[0]+'"><span class="adbell-i">'+r[1]+'</span><span class="adbell-l">'+r[2]+'</span><b class="ltr">'+r[3]+'</b></a>' }).join("") : '<div class="adbell-empty">'+GX("bellNone")+'</div>')+
@@ -625,7 +625,7 @@ function adminView(){
    {g:t("navOverview"), items:[["dashboard",t("dashboardTab"),null,AICO.dash,true],["stats",t("visitorStats"),null,AICO.chart,can("stats")]]},
    {g:GX("navCountries"), items:[["countries",GX("countriesTab"),null,AICO.globe,ADM.isSuper]]},
    {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["photos",GX("tMedia"),null,AICO.image,can("listings")],["wanted_adm",GX("tWanted"),(ADM.todo||{}).pending_wanted||null,AICO.search,can("listings")],["intake",GX("tIntake"),(ADM.todo||{}).intake_review||null,AICO.contact||AICO.bell,can("listings")]]},
-   {g:t("navPeople"), items:[["users",t("usersTab"),s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")]]},
+   {g:t("navPeople"), items:[["users",t("usersTab"),(ADM.todo||{}).verify_pending||s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")]]},
    {g:GX("navMarketing"), items:[["engage",GX("tEngage"),null,AICO.ledger,can("ads")||can("featured")],["projects_adm",GX("tProjects"),null,AICO.building,can("listings")||can("ads")],["ads",t("adsTab"),null,AICO.ads,can("ads")],["featured",t("featuredTab"),null,AICO.star,can("featured")],["banners",GX("tBanners"),null,AICO.banner,can("homepage")]]},
    {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")]]},
    {g:t("navInboxH"), items:[["reports",t("reportsTab"),s.openReports,AICO.shield,can("reports")],["feedback",t("feedbackTab"),s.openFeedback,AICO.shield,can("feedback")],["tickets",GX("ticketsTab"),(ADM.tickets||[]).filter(function(x){ return x.status!=="done" }).length,AICO.gear,can("feedback")],["msgs",t("msgsNotifTab"),ADM.alertsUnread,AICO.bell,can("msgs")]]},
@@ -1191,6 +1191,10 @@ function wireAdmin(){
     var id=this.dataset.uid, on=this.checked, box=this;
     ADM.cardLogos=(ADM.cardLogos||[]).filter(function(x){return x!==id}); if(on) ADM.cardLogos.push(id);
     rpc("bk_admin_set_card_logo",{p_token:ADM.token,p_user:id,p_on:on}).catch(function(){ box.checked=!on }) }});
+  if(ADM.tab==="users" && !ADM._vfLoaded){ ADM._vfLoaded=true;
+    rpc("bk_admin_verify_list",{p_token:ADM.token}).then(function(r){ ADM.vf=Array.isArray(r)?r:[]; render() }).catch(function(){ ADM.vf=[]; render() }) }
+  $$("[data-vfok],[data-vfno]").forEach(function(b){ b.onclick=async function(){ var ok=!!this.dataset.vfok, id=this.dataset.vfok||this.dataset.vfno; if(!ok && !confirm(GX("confirmReject"))) return; this.disabled=true;
+    try{ await rpc("bk_admin_verify_set",{p_token:ADM.token,p_ticket:id,p_ok:ok}); admToast(t("savedOk")); ADM._vfLoaded=false; syncAdminTodo(); render() }catch(e){ admToast(e.message||"error","bad"); this.disabled=false } } });
   if(ADM.tab==="users" && !ADM._cardLogosLoaded){
     ADM._cardLogosLoaded=true;
     rpc("bk_admin_card_logos",{p_token:ADM.token}).then(function(r){ ADM.cardLogos=Array.isArray(r)?r:[]; render() }).catch(function(){});
@@ -2239,6 +2243,15 @@ function adminAnalyticsBody(){
         ((st&&st.online_list&&st.online_list.length) ? '<div class="onlinelist">'+st.online_list.map(function(u){ return '<a data-byuser="'+u.id+'" data-name="'+(u.name||"")+'" class="onlinerow"><span class="onlinedot"></span>'+(u.name||t("anonGuest"))+'<span class="ltr" style="margin-inline-start:auto;color:var(--light);font-size:11.5px">'+when(u.last_seen)+'</span></a>' }).join("")+'</div>' : '<div class="adashempty">'+t("noOneOnline")+'</div>')+'</div></div>'+
     '</div>'+healthStrip(an);
 }
+function adminVerifyHtml(){
+  var list=ADM.vf, purpose=function(p){ return GX(p==="reset"?"vfReset":"vfSignup") };
+  var rows=list===undefined ? '<div class="hintx">'+t("loading")+'</div>' : !list.length ? '<div class="adashempty">'+GX("vfNone")+'</div>' :
+    '<div class="elist">'+list.map(function(v){ return '<div class="agcard2 vfrow"><div class="agc-id"><b class="ltr">'+esc(v.phone)+'</b><small>'+purpose(v.purpose)+(v.name?' · '+esc(v.name):'')+' · '+when(v.wa_sent_at||v.created_at)+'</small></div>'+
+      '<div class="agc-meta"><span class="vfcode ltr">'+esc(v.code)+'</span></div>'+
+      '<div class="agc-acts"><button type="button" class="ab ok" data-vfok="'+v.id+'">'+GX("vfConfirm")+'</button><button type="button" class="ab" data-vfno="'+v.id+'">'+GX("vfReject")+'</button></div></div>' }).join("")+'</div>';
+  var pending='<div class="blk"><h3>'+GX("vfT")+(list&&list.length?' <span class="n">'+list.length+'</span>':'')+'</h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+GX("vfHint")+'</div>'+rows+'</div></div>';
+  var settings=xForm("verifySet",GX("vfSetT"),"",'<div class="chkgrid">'+xCheck("verify_telegram_on",GX("vfSetTg"),true)+xCheck("verify_whatsapp_on",GX("vfSetWa"),true)+xCheck("verify_required_post",GX("vfSetReq"),true)+'</div><div class="row3">'+xNum("verify_ticket_hours",GX("vfSetHours"),48,1,168)+'</div>');
+  return pending+settings }
 function adminUsersBody(d){
   var list=(d.users||[]).slice();
   list.sort(function(a,b){ return ADM.userSort==="older" ? new Date(a.created_at)-new Date(b.created_at) : new Date(b.created_at)-new Date(a.created_at) });
@@ -2255,6 +2268,7 @@ function adminUsersBody(d){
     '<select id="uBlockPick" class="lvlpick"><option value="">'+t("allUsers")+'</option><option value="active"'+(ADM.userBlockedFilter==="active"?" selected":"")+'>'+t("activeOnly")+'</option><option value="blocked"'+(ADM.userBlockedFilter==="blocked"?" selected":"")+'>'+t("blockedOnly")+'</option></select>'+
     '<select id="uActPick" class="lvlpick"><option value="">'+GX("colLastSeen")+'</option><option value="1"'+(ADM.userActFilter==="1"?" selected":"")+'>'+GX("act24")+'</option><option value="7"'+(ADM.userActFilter==="7"?" selected":"")+'>'+GX("act7")+'</option><option value="30"'+(ADM.userActFilter==="30"?" selected":"")+'>'+GX("act30")+'</option><option value="old"'+(ADM.userActFilter==="old"?" selected":"")+'>'+GX("actOld")+'</option></select>'+
     '<span class="n" style="font-size:13px;color:var(--grey)"><span class="ltr">'+list.length+'</span> '+GX("uCount")+'</span></div>';
+  toolbar=adminVerifyHtml()+toolbar;
   var rows=list.map(function(u){
     var nm=((u.name||"")+" "+(u.family_name||"")).trim()||"—", isAdmin=u.role==="admin", open=ADM.userOpen===u.id;
     var joined=u.created_at?new Date(u.created_at).toLocaleDateString(L==="ar"?"ar-SY":L==="de"?"de-DE":L==="fr"?"fr-FR":"en-GB",{year:"numeric",month:"short",day:"numeric"}):"";
