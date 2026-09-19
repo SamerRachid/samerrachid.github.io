@@ -735,7 +735,7 @@ function adminAgenciesBody(){
         '<button type="button" class="ab'+(a.intake_enabled?' on':'')+'" data-agintake="'+a.id+':'+(a.intake_enabled?"0":"1")+'">'+(a.intake_enabled?GX("agIntakeOn"):GX("agIntakeOff"))+'</button>'+
         (a.intake_enabled?'<button type="button" class="ab'+(a.intake_trusted?' on':'')+'" data-agtrust="'+a.id+':'+(a.intake_trusted?"0":"1")+'">'+(a.intake_trusted?GX("agTrustOn"):GX("agTrustOff"))+'</button>'+
           (a.intake_telegram?'<span class="st st-live">'+GX("agPairedTg")+(a.intake_telegram_name?' · '+esc(a.intake_telegram_name):'')+'</span>':'<span class="st st-pending">'+GX("agNotPaired")+'</span>')+
-          (a.intake_code?'<small class="ltr">'+GX("agIntakeCode")+' <b>'+esc(a.intake_code)+'</b></small>':''):'<small>'+GX("agIntakeHint")+'</small>')+'</div>':'')+
+          (a.intake_code?'<small class="ltr">'+GX("agIntakeCode")+' <b>'+esc(a.intake_code)+'</b></small><button type="button" class="ab" data-agcode="'+a.id+'" title="'+esc(GX("agNewCodeHint"))+'">'+GX("agNewCode")+'</button>':''):'<small>'+GX("agIntakeHint")+'</small>')+'</div>':'')+
       '</div>' }).join("")+'</div></div></div>' }
 async function adminLoad(){
   ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._anLoaded=false; ADM._uactLoaded=false; ADM._lstatsLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._featuredListLoaded=false;
@@ -1097,6 +1097,7 @@ function wireAdmin(){
     $$("[data-agset]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.agset.split(":"); if(p[1]==="rejected" && !confirm(GX("confirmReject"))) return; try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+p[0],p_status:p[1]}); ADM._agLoaded=false; render() }catch(e){ alert(e.message||"error") } } });
     $$("[data-agver]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.agver.split(":"); try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+p[0],p_verified:p[1]==="1"}); ADM._agLoaded=false; render() }catch(e){ alert(e.message||"error") } } });
     $$("[data-agintake]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.agintake.split(":"); try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+p[0],p_intake:p[1]==="1"}); ADM._agLoaded=false; admToast(t("savedOk")); render() }catch(e){ admToast(e.message||"error","bad") } } });
+    $$("[data-agcode]").forEach(function(b){ b.onclick=async function(){ if(!confirm(GX("agNewCodeConfirm"))) return; try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+this.dataset.agcode,p_newcode:true}); ADM._agLoaded=false; admToast(t("savedOk")); render() }catch(e){ admToast(e.message||"error","bad") } } });
     $$("[data-agtrust]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.agtrust.split(":"); try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+p[0],p_trusted:p[1]==="1"}); ADM._agLoaded=false; admToast(t("savedOk")); render() }catch(e){ admToast(e.message||"error","bad") } } });
   }
   if(ADM.tab==="engage"){
