@@ -438,9 +438,11 @@ begin
     d.status := st;
   end if;
   update intake_drafts set agency_id = d.agency_id, user_id = d.user_id, fields = d.fields, country_code = d.country_code,
-         photos = d.photos, status = d.status, updated_at = now() where id = p_id returning * into d;
+         photos = d.photos, status = d.status, updated_at = now(), error = case when p_patch ? 'agency_id' or st is not null then null else error end
+   where id = p_id returning * into d;
   insert into intake_log (draft_id, chat_id, event, detail) values (d.id, d.chat_id, 'admin_edit', jsonb_build_object('keys', (select json_agg(k) from jsonb_object_keys(p_patch) k), 'by', uid));
-  return row_to_json(d);
+  -- the row's "error" column would be read as a failure by the site's rpc() wrapper: hand it back as err_text (migration message_intake_set_return)
+  return ((row_to_json(d)::jsonb - 'error') || jsonb_build_object('err_text', d.error))::json;
 end $$;
 
 create or replace function public.bk_admin_intake_delete(p_token text, p_id bigint)
