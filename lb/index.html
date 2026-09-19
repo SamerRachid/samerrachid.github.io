@@ -2412,6 +2412,7 @@ body.rs-lock{overflow:hidden}
 .ikdetail .xactions select{max-width:260px}
 .iklog{display:flex;flex-direction:column}.iklog-r{display:grid;grid-template-columns:150px 150px 50px 1fr;gap:10px;padding:6px 18px;border-bottom:1px solid var(--line);font-size:12px;color:var(--grey)}.iklog-r b{color:var(--ink)}.iklog-r.lvl-error b{color:var(--danger)}.iklog-r.lvl-warn b{color:var(--warn)}
 @media(max-width:900px){.ikdetail .ikcols{grid-template-columns:1fr}.ikrow{grid-template-columns:1fr 1fr}.iklog-r{grid-template-columns:1fr 1fr}.ikc{grid-template-columns:1fr;gap:4px}}
+.agcontact .agown{border-color:var(--gold);color:var(--gold-dk);font-weight:700}
 /* coming-soon services */
 .hnav .hsoon{display:inline-flex;align-items:center;gap:6px}
 .hnav .hsoon i{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#1A1206;background:var(--gold);border-radius:999px;padding:1px 6px;line-height:1.5;transform:translateY(-7px)}
@@ -6178,7 +6179,8 @@ function agencyPage(id){
      '<div class="profstats"><div><b class="ltr">'+(a.live||0)+'</b><span>'+t("liveAds")+'</span></div><div><b class="ltr">'+(a.closed||0)+'</b><span>'+t("soldAds")+'</span></div><div><b class="ltr">'+((a.area_names||[]).length)+'</b><span>'+GX("f_agAreas")+'</span></div></div></div>'+
     '<div class="agcontact">'+(a.phone?'<a class="btn-n" href="tel:'+esc(a.phone)+'">'+MI.phone+GX("agCall")+'</a>':'')+(wa?'<a class="btn-n wa" href="https://wa.me/'+wa+'" target="_blank" rel="noopener">'+MI.msgs+GX("agWa")+'</a>':'')+
       (a.email?'<a class="gh" href="mailto:'+esc(a.email)+'">'+MI.mail+GX("agEmail")+'</a>':'')+(a.website?'<a class="gh" href="'+esc(a.website)+'" target="_blank" rel="noopener">'+MI.about+GX("agWeb")+'</a>':'')+
-      '<a class="gh" data-agseller="'+esc(a.user_id)+'">'+MI.mine+GX("agMemberPage")+'</a></div>'+
+      '<a class="gh" data-agseller="'+esc(a.user_id)+'">'+MI.mine+GX("agMemberPage")+'</a>'+
+      (USER&&USER.id===a.user_id?'<a class="gh agown" data-go="agencyform">'+GX("agEditBtn")+'</a>':'')+'</div>'+   // the owner: straight to the edit page (Telegram link card lives there)
     ((a.gov_names||[]).length||(a.area_names||[]).length ? '<div class="blk" style="margin-top:16px"><h3>'+GX("agAreasServed")+'</h3><div class="in"><div class="agchips">'+
       (a.gov_names||[]).map(function(g){ return '<a class="chip" data-go="search" data-gov="'+esc(g)+'">'+gN(g)+'</a>' }).join("")+(a.area_names||[]).map(function(x){ return '<a class="chip soft" data-agarea="'+esc(x)+'">'+aN(x)+'</a>' }).join("")+'</div></div></div>' : '')+
     '<h2 style="font-size:18px;font-weight:700;margin:22px 0 12px">'+GX("agListingsH")+' <span class="ltr" style="color:var(--grey);font-weight:500">('+mine.length+')</span></h2>'+
