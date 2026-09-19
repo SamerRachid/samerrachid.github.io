@@ -1523,7 +1523,7 @@ footer{font-size:14px}
 .sf:focus-within label{color:var(--gold)}
 .chipsel-drop{border:0;border-radius:12px;padding:6px;max-height:300px;box-shadow:0 18px 44px -14px rgba(9,14,26,.38),0 0 0 1px rgba(20,33,61,.07)}
 .chipsel-drop.on{animation:menuIn .18s cubic-bezier(.2,.7,.2,1)}
-.chipsel-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:8px;padding:9px 12px;transition:background .12s,color .12s}
+.chipsel-opt{display:flex;align-items:center;justify-content:flex-start;gap:8px;border-radius:8px;padding:9px 12px;transition:background .12s,color .12s}
 .chipsel-opt:hover,.chipsel-opt.act{background:var(--gold-w);color:var(--navy)}
 .cs-n{font-size:11.5px;font-weight:600;color:var(--grey);background:var(--page);padding:1px 8px;border-radius:10px;flex:none}
 .chipsel-opt:hover .cs-n,.chipsel-opt.act .cs-n{background:#fff;color:var(--navy)}
@@ -1792,7 +1792,7 @@ html[data-cc="SY"] .typecell.tl[data-type="agri"],html[data-cc="SY"] .typecell.t
   .home-hero .chipsel-drop.on,.rs-f .chipsel-drop.on{display:grid}
   .home-hero .chipsel-drop .cs-h,.home-hero .chipsel-drop .cs-selected,.home-hero .chipsel-drop .chipsel-empty,.home-hero .chipsel-drop .cs-sheet-h,.home-hero .chipsel-drop .cs-sheet-f,
   .rs-f .chipsel-drop .cs-h,.rs-f .chipsel-drop .cs-selected,.rs-f .chipsel-drop .chipsel-empty,.rs-f .chipsel-drop .cs-sheet-h,.rs-f .chipsel-drop .cs-sheet-f{grid-column:1/-1}
-  .home-hero .chipsel-drop .chipsel-opt,.rs-f .chipsel-drop .chipsel-opt{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:9px;font-size:13.5px;line-height:1.4;min-width:0}
+  .home-hero .chipsel-drop .chipsel-opt,.rs-f .chipsel-drop .chipsel-opt{display:flex;align-items:center;justify-content:flex-start;gap:8px;padding:8px 10px;border-radius:9px;font-size:13.5px;line-height:1.4;min-width:0}
   .home-hero .chipsel-drop .chipsel-opt span:first-child,.rs-f .chipsel-drop .chipsel-opt span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .home-hero .chipsel-drop .chipsel-opt:hover,.rs-f .chipsel-drop .chipsel-opt:hover{background:var(--navy-w)}
   .home-hero .chipsel-drop .cs-n,.rs-f .chipsel-drop .cs-n{font-size:11px;color:var(--light);background:transparent;padding:0;min-width:0;font-weight:600}
@@ -9744,7 +9744,7 @@ var GX_T={
   notifDel:{ar:"حذف الإشعار",en:"Delete notification",de:"Benachrichtigung löschen",fr:"Supprimer la notification"}, notifClearAll:{ar:"مسح الكل",en:"Clear all",de:"Alle löschen",fr:"Tout effacer"},
   noLimit:{ar:"بلا حد",en:"No limit",de:"Ohne Limit",fr:"Sans limite"},
   notif_welcomeT:{ar:"أهلاً بك في بلكون 👋",en:"Welcome to Balkoun 👋",de:"Willkommen bei Balkoun 👋",fr:"Bienvenue sur Balkoun 👋"},
-  notif_welcomeB:{ar:"سعداء بانضمامك. أضف أول إعلان لك مجاناً خلال دقيقتين، أو ابدأ البحث عن بيتك القادم.",en:"Glad to have you here. Post your first listing for free in two minutes, or start looking for your next home.",de:"Schön, dass Sie da sind. Geben Sie Ihre erste Anzeige in zwei Minuten kostenlos auf, oder suchen Sie Ihr nächstes Zuhause.",fr:"Ravis de vous accueillir. Publiez votre première annonce gratuitement en deux minutes, ou cherchez votre prochain logement."},
+  notif_welcomeB:{ar:"سعداء بانضمامك. النشر على بلكون مجاني دائماً: أضف إعلانك خلال دقيقتين، أو ابدأ البحث عن بيتك القادم.",en:"Glad to have you here. Posting on Balkoun is always free: add your listing in two minutes, or start looking for your next home.",de:"Schön, dass Sie da sind. Inserieren auf Balkoun ist immer kostenlos: Geben Sie Ihre Anzeige in zwei Minuten auf, oder suchen Sie Ihr nächstes Zuhause.",fr:"Ravis de vous accueillir. Publier sur Balkoun est toujours gratuit : ajoutez votre annonce en deux minutes, ou cherchez votre prochain logement."},
   roomsField:{ar:"الغرف",en:"Rooms",de:"Zimmer",fr:"Pièces"}, rooms1:{ar:"غرفة واحدة",en:"1 room",de:"1 Zimmer",fr:"1 pièce"}, rooms2:{ar:"غرفتان",en:"2 rooms",de:"2 Zimmer",fr:"2 pièces"}, roomsN:{ar:"{n} غرف",en:"{n} rooms",de:"{n} Zimmer",fr:"{n} pièces"}, cScopeNote:{ar:"الأرقام المعروضة لـ",en:"Figures shown for",de:"Zahlen für"},
   cScopeHintOne:{ar:"غيّر الدولة من أعلى الصفحة لترى أرقام دولة أخرى، أو اختر «كل الدول».",en:"Change the country at the top of the page to see another country, or choose “All countries”.",de:"Wechseln Sie das Land oben auf der Seite, oder wählen Sie „Alle Länder“."},
   cBySite:{ar:"الزيارات حسب دولة الموقع",en:"Visits by site country",de:"Besuche nach Website-Land"}, cListingsBy:{ar:"الإعلانات حسب الدولة",en:"Listings by country",de:"Anzeigen nach Land"},
