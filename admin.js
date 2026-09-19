@@ -2250,7 +2250,10 @@ function adminVerifyHtml(){
       '<div class="agc-meta"><span class="vfcode ltr">'+esc(v.code)+'</span></div>'+
       '<div class="agc-acts"><button type="button" class="ab ok" data-vfok="'+v.id+'">'+GX("vfConfirm")+'</button><button type="button" class="ab" data-vfno="'+v.id+'">'+GX("vfReject")+'</button></div></div>' }).join("")+'</div>';
   var pending='<div class="blk"><h3>'+GX("vfT")+(list&&list.length?' <span class="n">'+list.length+'</span>':'')+'</h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+GX("vfHint")+'</div>'+rows+'</div></div>';
-  var settings=xForm("verifySet",GX("vfSetT"),"",'<div class="chkgrid">'+xCheck("verify_telegram_on",GX("vfSetTg"),true)+xCheck("verify_whatsapp_on",GX("vfSetWa"),true)+xCheck("verify_required_post",GX("vfSetReq"),true)+'</div><div class="row3">'+xNum("verify_ticket_hours",GX("vfSetHours"),48,1,168)+'</div>');
+  var ready=SX("verify_wa_ready",false)===true||SX("verify_wa_ready",false)==="true";
+  var settings=xForm("verifySet",GX("vfSetT"),"",'<div class="chkgrid">'+xCheck("verify_telegram_on",GX("vfSetTg"),true)+xCheck("verify_whatsapp_on",GX("vfSetWa"),true)+xCheck("verify_wa_code_on",GX("vfSetWaCode"),true)+xCheck("verify_required_post",GX("vfSetReq"),true)+'</div>'+
+    '<div class="hintx" style="margin:2px 0 8px;color:'+(ready?'var(--ok)':'var(--grey)')+'">'+(ready?'✓ ':'○ ')+GX(ready?"vfWaReady":"vfWaNotReady")+'</div>'+
+    '<div class="row3">'+xText("verify_wa_template",GX("vfSetWaTpl"),"balkoun_code")+xText("verify_wa_lang",GX("vfSetWaLang"),"ar")+xNum("verify_ticket_hours",GX("vfSetHours"),48,1,168)+'</div>');
   return pending+settings }
 function adminUsersBody(d){
   var list=(d.users||[]).slice();

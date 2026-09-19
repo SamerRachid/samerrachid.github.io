@@ -362,3 +362,46 @@ begin
   return json_build_object('status', t.status, 'channel', t.channel, 'purpose', t.purpose, 'phone', t.phone, 'code', t.code, 'expires_at', t.expires_at, 'user_id', t.user_id,
     'verified', t.status in ('verified','used'));
 end $$;
+
+-- ── wa_code (applied as migration "phone_verification_wa_code") ──
+-- Third road: the Edge Function (/bk-intake/verify) sends the ticket's code as a WhatsApp authentication template (Cloud API),
+-- the person types it on the site. Non-Syrian numbers only (Meta blocks +963). Shown only while extras.verify_wa_ready = true,
+-- which the panel's status check writes when the Cloud API answers. Settings: verify_wa_code_on, verify_wa_template, verify_wa_lang.
+alter table public.verify_tickets drop constraint if exists verify_tickets_channel_check;
+alter table public.verify_tickets add constraint verify_tickets_channel_check check (channel in ('telegram','whatsapp','wa_code'));
+alter table public.verify_tickets add column if not exists sends int not null default 0, add column if not exists attempts int not null default 0, add column if not exists last_sent_at timestamptz;
+-- bk_verify_cfg: + verify_wa_code_on (true), verify_wa_ready (false), verify_wa_template ('balkoun_code'), verify_wa_lang ('ar')
+-- bk_verify_start: + 'wa_code' = verify_wa_code_on and verify_wa_ready and phone not like '+963%'
+create or replace function public.bk_verify_send_claim(p_ticket uuid, p_secret text) returns json
+language plpgsql security definer set search_path = public, extensions as $$
+declare t verify_tickets; c jsonb;
+begin
+  begin t := bk_verify_ticket(p_ticket, p_secret); exception when others then return json_build_object('error','badticket'); end;
+  c := bk_verify_cfg();
+  if (c->>'verify_wa_code_on') = 'false' then return json_build_object('error','off'); end if;
+  if t.status <> 'pending' or t.expires_at < now() then return json_build_object('error','expired'); end if;
+  if t.phone like '+963%' then return json_build_object('error','country'); end if;
+  if t.sends >= 3 then return json_build_object('error','limit'); end if;
+  if t.last_sent_at is not null and t.last_sent_at > now() - interval '45 seconds' then return json_build_object('error','wait'); end if;
+  update verify_tickets set sends = sends + 1, last_sent_at = now(), channel = 'wa_code' where id = t.id;
+  return json_build_object('ok', true, 'phone', t.phone, 'code', t.code, 'template', c->>'verify_wa_template', 'lang', c->>'verify_wa_lang');
+end $$;
+revoke execute on function public.bk_verify_send_claim(uuid, text) from public, anon, authenticated;
+
+create or replace function public.bk_verify_check(p_ticket uuid, p_secret text, p_code text) returns json
+language plpgsql security definer set search_path = public, extensions as $$
+declare t verify_tickets;
+begin
+  t := bk_verify_ticket(p_ticket, p_secret);
+  if t.status in ('verified','used') then return json_build_object('ok', true, 'purpose', t.purpose); end if;
+  if t.status <> 'pending' or t.expires_at < now() then return json_build_object('error','expired'); end if;
+  if t.channel <> 'wa_code' or t.sends = 0 then return json_build_object('error','notsent'); end if;
+  if t.attempts >= 5 then update verify_tickets set status = 'rejected' where id = t.id; return json_build_object('error','rejected'); end if;
+  if regexp_replace(coalesce(p_code,''), '\D', '', 'g') <> t.code then
+    update verify_tickets set attempts = attempts + 1 where id = t.id;
+    return json_build_object('error','wrong', 'left', 5 - t.attempts - 1);
+  end if;
+  update verify_tickets set status = 'verified', verified_at = now() where id = t.id;
+  if t.purpose = 'signup' and t.user_id is not null then update users set phone_verified = true where id = t.user_id; end if;
+  return json_build_object('ok', true, 'purpose', t.purpose);
+end $$;

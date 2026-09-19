@@ -9,6 +9,7 @@
 //   POST /bk-intake/telegram   Telegram webhook (X-Telegram-Bot-Api-Secret-Token derived from the bot token); also the site's phone verification:
 //                              "/start v<ticket>" asks for the contact (request_contact), the contact message → bk_verify_tg_contact
 //   POST /bk-intake/web        { token, text, country }  member: read pasted text → fields for the post form
+//   POST /bk-intake/verify     { ticket, secret }  send the ticket's verification code by WhatsApp (auth template; non-Syrian numbers)
 //   POST /bk-intake/tick       x-intake-key: INTAKE_TICK_SECRET (or { token } of an admin) → read the drafts whose sender went quiet
 //   POST /bk-intake/admin      { token, action, ... }  status | setup_telegram | read | publish | tick | test_claude | test_photo | admin_code
 //   GET  /bk-intake/health
@@ -145,6 +146,16 @@ async function waSend(to: string, text: string) {
     });
   } catch { throw new Error("whatsapp send: network"); }
   if (!r.ok) throw new Error("whatsapp send " + r.status + " " + (await r.text()).slice(0, 200));
+}
+// authentication template (one-time-password type, approved in Meta's template manager): body {{1}} = code, copy-code button = code
+async function waSendTemplate(to: string, template: string, lang: string, code: string) {
+  if (!ENV.waToken || !ENV.waPhone) throw new Error("whatsapp not configured");
+  const body = { messaging_product: "whatsapp", to: to.replace(/^\+/, ""), type: "template", template: { name: template, language: { code: lang || "ar" },
+    components: [{ type: "body", parameters: [{ type: "text", text: code }] }, { type: "button", sub_type: "url", index: "0", parameters: [{ type: "text", text: code }] }] } };
+  let r: Response;
+  try { r = await fetch(`${GRAPH}/${ENV.waPhone}/messages`, { method: "POST", headers: { Authorization: "Bearer " + ENV.waToken, "Content-Type": "application/json" }, body: JSON.stringify(body) }); }
+  catch { throw new Error("whatsapp template: network"); }
+  if (!r.ok) throw new Error("whatsapp template " + r.status + " " + (await r.text()).slice(0, 300));
 }
 async function waDownload(mediaId: string): Promise<{ bytes: Uint8Array; size: number; mime: string }> {
   let m: Response;
@@ -765,6 +776,18 @@ async function routeWeb(req: Request): Promise<Response> {
     return json({ error: err === "no_key" ? "no_key" : "read_failed" }, 502);
   }
 }
+// the site asks to deliver a verification code by WhatsApp: { ticket, secret } → the SQL side rate-limits and hands back phone + code
+async function routeVerify(req: Request): Promise<Response> {
+  const b = await req.json().catch(() => null);
+  if (!b || typeof b.ticket !== "string" || typeof b.secret !== "string") return json({ error: "bad request" }, 400);
+  if (!ENV.waToken || !ENV.waPhone) return json({ error: "wa_off" }, 503);
+  const c = await rpc<any>("bk_verify_send_claim", { p_ticket: b.ticket, p_secret: b.secret });
+  if (!c?.ok) return json({ error: c?.error || "refused" }, c?.error === "badticket" ? 401 : 400);
+  try { await waSendTemplate(c.phone, c.template || "balkoun_code", c.lang || "ar", c.code); }
+  catch (e) { await log(null, "verify:" + c.phone.slice(-4), "error", "verify_send_failed", { error: errStr(e) }); return json({ error: "send_failed" }, 502); }
+  await log(null, "verify:" + c.phone.slice(-4), "info", "verify_sent", { ticket: b.ticket });
+  return json({ ok: true });
+}
 async function adminUid(token: unknown): Promise<string | null> {
   if (typeof token !== "string" || token.length < 20) return null;
   try { return await rpc<string>("bk_admin_uid", { p_token: token }); } catch { return null; }
@@ -787,6 +810,10 @@ async function routeAdmin(req: Request): Promise<Response> {
     const out: any = { urls: { telegram: FN_URL + "/telegram", whatsapp: FN_URL + "/whatsapp" }, telegram: { configured: !!ENV.tg }, whatsapp: { configured: !!(ENV.waToken && ENV.waPhone && ENV.waSecret), verify_set: !!ENV.waVerify }, anthropic: { configured: !!ENV.anthropic }, tick_secret: !!ENV.tick };
     if (ENV.tg) { try { out.telegram.me = await tg("getMe", {}); out.telegram.webhook = await tg("getWebhookInfo", {}); out.telegram.ok = out.telegram.webhook?.url === out.urls.telegram; } catch (e) { out.telegram.error = errStr(e); } }
     if (out.whatsapp.configured) { try { const r = await fetch(`${GRAPH}/${ENV.waPhone}?fields=display_phone_number,verified_name,quality_rating`, { headers: { Authorization: "Bearer " + ENV.waToken } }); out.whatsapp.phone = await r.json(); out.whatsapp.ok = r.ok; } catch (e) { out.whatsapp.error = errStr(e); } }
+    // the site shows "code by WhatsApp" only while the Cloud API really answers; remembered in extras so the SQL side can decide without secrets
+    const ready = !!out.whatsapp.ok; const c = await cfg();
+    if (String(c.verify_wa_ready) !== String(ready)) { await sb.rpc("bk_admin_set_content", { p_token: b.token, p_patch: { extras: { verify_wa_ready: ready } }, p_country: "SY" }); _cfg = null; }
+    out.verify_wa_ready = ready;
     return json(out);
   }
   if (a === "setup_telegram") {
@@ -839,6 +866,7 @@ Deno.serve(async (req: Request) => {
     if (route === "telegram" && req.method === "POST") return await routeTelegram(req);
     if (route === "whatsapp") return await routeWhatsApp(req);
     if (route === "web" && req.method === "POST") return await routeWeb(req);
+    if (route === "verify" && req.method === "POST") return await routeVerify(req);
     if (route === "tick" && req.method === "POST") return await routeTick(req);
     if (route === "admin" && req.method === "POST") return await routeAdmin(req);
     return json({ error: "not found" }, 404);
