@@ -1,3 +1,5 @@
+/* the page and this script are published together; a tab that kept an older page in memory would show raw label keys — reload it once */
+if(typeof GX_T!=="undefined" && !GX_T.tmHowPair){ try{ if(!sessionStorage.getItem("bk_adm_reload")){ sessionStorage.setItem("bk_adm_reload","1"); location.reload() } }catch(e){} }
 var ADM_FOLDS=(function(){ try{ return JSON.parse(localStorage.getItem("bk_adm_folds")||"{}")||{} }catch(e){ return {} } })();   // which sidebar groups the admin folded, per browser
 /* Balkoun admin panel + homepage studio. Loaded on demand by ensureAdminJs() in index.html. Same global scope as the shell. */
 async function storageCall(body){
