@@ -718,21 +718,24 @@ function adminProjectEditor(p){
 function adminAgenciesBody(){
   var list=ADM_AG; if(!list) return '<div class="blk"><div class="in adashempty">'+t("loading")+'</div></div>';
   if(!list.length) return '<div class="blk"><div class="in adashempty">'+(ADM.agErr?'<span style="color:var(--danger)">'+esc(ADM.agErr)+'</span>':GX("agNone"))+'</div></div>';
-  var pend=list.filter(function(a){ return a.status==="pending" }).length;
+  var pend=list.filter(function(a){ return a.status==="pending" }).length, sep=L==="ar"?"، ":", ";
+  // one card per agency: identity | coverage and numbers | status + actions, and a second line for message intake
   return '<div class="blk"><h3>'+GX("tAgencies")+(pend?' <span class="n">'+pend+'</span>':'')+'</h3><div class="in eng-in"><div class="elist">'+list.map(function(a){
-    return '<div class="erow agrow"><div class="ecode">'+avatar(a.logo_url,a.name,40,"aglogo")+'<div><b>'+esc(a.name)+'</b><small class="usub">'+esc(a.user_name||"")+' · <span class="ltr">'+esc(a.user_phone||"")+'</span></small></div></div>'+
-      '<div class="ewho">'+((a.gov_names||[]).map(gN).join("، ")||"—")+'<small>'+(a.specialties||[]).map(agSpecLabel).join(" · ")+((a.area_names||[]).length?' · '+a.area_names.length+' '+GX("f_agAreas"):'')+'</small></div>'+
-      '<div class="eclient"><span class="ltr">'+(a.live||0)+'</span> '+t("liveAds")+(a.phone?'<small class="ltr">'+esc(a.phone)+'</small>':'')+'</div>'+
-      '<div class="eperiod"><span class="ltr">'+String(a.created_at||"").slice(0,10)+'</span></div>'+
-      '<div class="est">'+agStatusPill(a.status)+(a.verified?' <span class="vbadge">✓</span>':'')+'</div>'+
-      '<div class="eacts">'+(a.status!=="approved"?'<button type="button" class="ab ok" data-agset="'+a.id+':approved">'+GX("agApprove")+'</button>':'')+(a.status==="approved"?'<button type="button" class="ab" data-agset="'+a.id+':hidden">'+GX("agHide")+'</button>':'')+
+    var meta=[(a.gov_names||[]).map(gN).join(sep)||"—", (a.specialties||[]).map(agSpecLabel).join(" · "), ((a.area_names||[]).length?a.area_names.length+' '+GX("f_agAreas"):'')].filter(Boolean);
+    return '<div class="agcard2">'+
+      '<div class="agc-id">'+avatar(a.logo_url,a.name,44,"aglogo")+'<div><b>'+esc(a.name)+(a.verified?' <span class="vbadge">✓</span>':'')+'</b><small>'+esc(a.user_name||"")+(a.user_phone?' · <span class="ltr">'+esc(a.user_phone)+'</span>':'')+'</small></div></div>'+
+      '<div class="agc-meta"><span>'+meta.join(' <i>·</i> ')+'</span><small><span class="ltr">'+(a.live||0)+'</span> '+t("liveAds")+' · '+GX("agSince")+' <span class="ltr">'+String(a.created_at||"").slice(0,10)+'</span></small></div>'+
+      '<div class="agc-acts">'+agStatusPill(a.status)+
+        (a.status!=="approved"?'<button type="button" class="ab ok" data-agset="'+a.id+':approved">'+GX("agApprove")+'</button>':'')+
         (a.status==="pending"?'<button type="button" class="ab bad" data-agset="'+a.id+':rejected">'+GX("agReject")+'</button>':'')+
+        (a.status==="approved"?'<button type="button" class="ab" data-agset="'+a.id+':hidden">'+GX("agHide")+'</button>':'')+
         '<button type="button" class="ab" data-agver="'+a.id+':'+(a.verified?"0":"1")+'">'+(a.verified?GX("agUnverify"):GX("agVerify"))+'</button>'+
         (a.status==="approved"?'<a class="ab" href="/agency/'+a.id+'" target="_blank" rel="noopener">'+GX("agView")+'</a>':'')+'</div>'+
-      // the message-intake controls get their own line under the row, so the action buttons never run off the edge
-      (a.status==="approved"?'<div class="eedit agintk"><b>'+GX("tIntake")+':</b>'+
+      (a.status==="approved"?'<div class="agintk"><b>'+GX("tIntake")+'</b>'+
         '<button type="button" class="ab'+(a.intake_enabled?' on':'')+'" data-agintake="'+a.id+':'+(a.intake_enabled?"0":"1")+'">'+(a.intake_enabled?GX("agIntakeOn"):GX("agIntakeOff"))+'</button>'+
-        (a.intake_enabled?'<button type="button" class="ab'+(a.intake_trusted?' on':'')+'" data-agtrust="'+a.id+':'+(a.intake_trusted?"0":"1")+'">'+(a.intake_trusted?GX("agTrustOn"):GX("agTrustOff"))+'</button>'+(a.intake_telegram?'<span class="st st-live">'+GX("agPairedTg")+'</span>':'<span class="st st-pending">'+GX("agNotPaired")+'</span>')+(a.intake_code?'<small class="ltr" style="color:var(--grey)">'+GX("agIntakeCode")+' <b>'+esc(a.intake_code)+'</b></small>':''):'')+'</div>':'')+
+        (a.intake_enabled?'<button type="button" class="ab'+(a.intake_trusted?' on':'')+'" data-agtrust="'+a.id+':'+(a.intake_trusted?"0":"1")+'">'+(a.intake_trusted?GX("agTrustOn"):GX("agTrustOff"))+'</button>'+
+          (a.intake_telegram?'<span class="st st-live">'+GX("agPairedTg")+(a.intake_telegram_name?' · '+esc(a.intake_telegram_name):'')+'</span>':'<span class="st st-pending">'+GX("agNotPaired")+'</span>')+
+          (a.intake_code?'<small class="ltr">'+GX("agIntakeCode")+' <b>'+esc(a.intake_code)+'</b></small>':''):'<small>'+GX("agIntakeHint")+'</small>')+'</div>':'')+
       '</div>' }).join("")+'</div></div></div>' }
 async function adminLoad(){
   ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._anLoaded=false; ADM._uactLoaded=false; ADM._lstatsLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._featuredListLoaded=false;
