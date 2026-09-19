@@ -8539,8 +8539,11 @@ function homeCollectionsHtml(){
    (SX("colls_credit_on",true)===false ? '' : '<div class="credit">'+HX("credit")+'</div>')+'</section></div>';
 }
 
+// Syria is listed as 24 regions (each governorate split into city and countryside) but has 14 governorates: the
+// countryside entries count with their city, except Rif Dimashq, which is a governorate of its own
+function realGovCount(){ var keys=Object.keys(D.GEO); if(COUNTRY!=="SY") return keys.length; return keys.filter(function(g){ return g==="ريف دمشق" || !/^ريف /.test(g) }).length }
 function homeTrustHtml(){
-  var areas=Object.keys(D.GEO).reduce(function(s,g){return s+D.GEO[g].length},0), govs=Object.keys(D.GEO).length;
+  var areas=Object.keys(D.GEO).reduce(function(s,g){return s+D.GEO[g].length},0), govs=realGovCount();
   var ic=function(p){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>'};
   return '<section class="trustb" id="trustSec"><div class="wrap"><div><div class="eyebrow">'+HT("trust_eyebrow",HX("trE"))+'</div><h2>'+HT("trust_h",HX("trH"))+'</h2><p class="lead">'+HT("trust_p",HX("trP"))+'</p>'+
    '<div class="nums"><div><b><span class="ltr">'+areas.toLocaleString("en")+'</span></b><span>'+HX("n1")+'</span></div>'+
