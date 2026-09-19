@@ -2597,12 +2597,23 @@ function adminIntakeBody(){
     '<div class="row">'+sel("intake_reply_lang",GX("ik_lang"),[["ar","العربية"],["en","English"]])+txt("intake_wa_display",GX("ik_waDisplay"))+'</div>'+
     '<div class="xactions"><button type="button" class="ab ok" id="ikCfgSave">'+t("save")+'</button><span class="xmsg" id="ikCfgMsg"></span></div>'+
   '</div></div>';
+  var nchk=function(k,lbl){ return '<label class="xcheck"><input type="checkbox" data-ikc="'+k+'" data-ikt="bool"'+(SX(k,true)!==false?' checked':'')+'><span>'+lbl+'</span></label>' };
+  var nnum=function(k,lbl,ph){ return '<div class="fl"><label>'+lbl+'</label><input type="number" min="0" max="23" data-ikc="'+k+'" data-ikt="num" value="'+(SX(k,"")===""?"":SX(k,""))+'" placeholder="'+ph+'" data-allow-autofill></div>' };
+  var tzs=[["America/Toronto","كندا (تورونتو)"],["Asia/Damascus","سوريا (دمشق)"],["Asia/Beirut","لبنان"],["Asia/Amman","الأردن"],["Asia/Dubai","الإمارات"],["Europe/Berlin","ألمانيا"]];
+  var notify='<div class="blk"><h3>'+GX("ik_ntfH")+'</h3><div class="in" id="ikNtf">'+
+    '<div class="hintx" style="margin-bottom:10px">'+(nChats?GX("ik_ntfHint").replace("{n}",nChats):GX("ik_ntfNoChat"))+'</div>'+
+    '<div class="chkgrid">'+nchk("notify_tg_on",GX("ik_ntfOn"))+'</div>'+
+    '<div class="acs-sub" style="margin-top:8px">'+GX("ik_ntfEvents")+'</div><div class="chkgrid">'+[["listing",GX("bellListings")],["agency",GX("bellAgencies")],["wanted",GX("bellWanted")],["verify",GX("bellVerify")],["intake",GX("bellIntake")],["report",GX("bellReports")],["feedback",GX("bellFeedback")]].map(function(e){ return nchk("notify_ev_"+e[0],e[1]) }).join("")+'</div>'+
+    '<div class="row3" style="margin-top:8px">'+nnum("notify_quiet_from",GX("ik_ntfQuietFrom"),"22")+nnum("notify_quiet_to",GX("ik_ntfQuietTo"),"8")+'<div class="fl"><label>'+GX("ik_ntfTz")+'</label><select data-ikc="notify_tz" data-ikt="str">'+tzs.map(function(z){ return '<option value="'+z[0]+'"'+(SX("notify_tz","America/Toronto")===z[0]?' selected':'')+'>'+z[1]+'</option>' }).join("")+'</select></div></div>'+
+    '<div class="hintx">'+GX("ik_ntfQuietHint")+'</div>'+
+    '<div class="xactions"><button type="button" class="ab ok" id="ikNtfSave">'+t("save")+'</button><button type="button" class="ab" id="ikNtfTest">'+GX("ik_ntfTest")+'</button><span class="xmsg" id="ikNtfMsg"></span></div>'+
+  '</div></div>';
   var filters=[["all",GX("ik_fAll")],["attention",GX("ik_fAttention")],["open",GX("ik_fOpen")],["published",GX("ik_published")],["cancelled",GX("ik_cancelled")]];
   var drafts='<div class="blk"><h3>'+GX("ik_draftsH")+' <span class="n">'+list.length+'</span></h3><div class="in eng-in">'+
     '<div class="ikfilters">'+filters.map(function(x){ return '<button type="button" class="ab'+(x[0]===f?' on':'')+'" data-ikf-filter="'+x[0]+'">'+x[1]+'</button>' }).join("")+'<button type="button" class="ab" id="ikReload" style="margin-inline-start:auto">'+AICO.refresh+'</button></div>'+
     (list.length ? '<div class="elist">'+list.map(ikRow).join("")+'</div>' : '<div class="adashempty">'+GX("ik_none")+'</div>')+'</div></div>';
   var logs='<div class="blk"><h3>'+GX("ik_logH")+'</h3><div class="in eng-in"><div class="iklog">'+(d.log||[]).slice(0,40).map(function(l){ return '<div class="iklog-r lvl-'+esc(l.level||"info")+'"><span class="ltr">'+when(l.created_at)+'</span><b>'+esc(l.event)+'</b><i>'+(l.draft_id?'#'+l.draft_id:'')+'</i><span>'+esc(JSON.stringify(l.detail||{})).slice(0,160)+'</span></div>' }).join("")+'</div></div></div>';
-  return stats+conn+settings+drafts+logs }
+  return stats+conn+notify+settings+drafts+logs }
 function wireAdminIntake(){
   if(!ADM._ikLoaded){ ADM._ikLoaded=true; ADM.ikErr=null;
     rpc("bk_admin_intake",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.ik=r||{}; render() }).catch(function(e){ ADM.ik=null; ADM.ikErr=e.message||"error"; render() });
@@ -2618,6 +2629,10 @@ function wireAdminIntake(){
   if($("#ikTestBtn")) $("#ikTestBtn").onclick=async function(){ var m=$("#ikTestMsg"), text=(ADM.ikTestText||"").trim(); if(text.length<10) return; busy(this,true); if(m) m.textContent=GX("qfBusy");
     try{ var r=await intakeAdmin("test_claude",{text:text,country:COUNTRY}); ADM.ikTest=(r.summary||"")+"\n\n"+JSON.stringify(r.fields,null,1)+(r.missing&&r.missing.length?"\nmissing: "+r.missing.join(", "):"")+"\ntokens in/out: "+(r.usage&&r.usage.in)+"/"+(r.usage&&r.usage.out); render() }
     catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } };
+  if($("#ikNtfSave")) $("#ikNtfSave").onclick=async function(){ var m=$("#ikNtfMsg"), patch={}; busy(this,true);
+    $$("#ikNtf [data-ikc]").forEach(function(i){ var k=i.dataset.ikc, ty=i.dataset.ikt; patch[k] = ty==="bool" ? !!i.checked : ty==="num" ? (i.value===""?null:+i.value) : (String(i.value).trim()===""?null:String(i.value).trim()) });
+    try{ await saveSiteContent({extras:patch}, "ikNtfMsg", this); admToast(GX("ik_saved")) }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } };
+  if($("#ikNtfTest")) $("#ikNtfTest").onclick=async function(){ var m=$("#ikNtfMsg"); busy(this,true); try{ var r=await intakeAdmin("notify_test"); if(m){ m.style.color=r.sent?"var(--ok)":"var(--danger)"; m.textContent=r.sent?GX("ik_ntfTestOk"):GX("ik_ntfNoChat") } }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } } busy(this,false) };
   if($("#ikCfgSave")) $("#ikCfgSave").onclick=async function(){ var m=$("#ikCfgMsg"), patch={}; busy(this,true);
     $$("#ikCfg [data-ikc]").forEach(function(i){ var k=i.dataset.ikc, ty=i.dataset.ikt; patch[k] = ty==="bool" ? !!i.checked : ty==="num" ? (i.value===""?null:+i.value) : (String(i.value).trim()===""?null:String(i.value).trim()) });
     try{ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:patch},p_country:"SY"}); admToast(GX("ik_saved")); reload() }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } };

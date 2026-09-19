@@ -554,6 +554,30 @@ async function publishDraft(draftId: number, force?: string | null, opts: { quie
   if (!opts.quiet && d.source !== "web") await reply(d.source, d.chat_id, pub.status === "live" ? t.published(pub.ref, url) : t.pending(pub.ref));
   return { ...pub, url };
 }
+// ───────────────────────────── admin notifications → Telegram ─────────────────────────────
+// events queued by SQL triggers (admin_notify_queue) go to every admin chat paired with the bot; batched into one message per flush
+const esc = (s: string) => String(s ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+let _flushing = false;
+async function notifyFlush(): Promise<number> {
+  if (_flushing || !ENV.tg) return 0; _flushing = true;
+  try {
+    const rows = await rpc<any[]>("bk_notify_pending", {});
+    if (!rows || !rows.length) return 0;
+    const c = await cfg(); const chats: string[] = (c.intake_admin_chats?.telegram || []).map(String);
+    const ids = rows.map((r) => r.id);
+    if (!chats.length) { await rpc("bk_notify_mark", { p_ids: ids, p_ok: true }); return 0; }   // nobody paired: drop, do not retry forever
+    const lines = rows.map((r) => `<b>${esc(r.title)}</b>${r.body ? "\n" + esc(r.body) : ""}`);
+    const text = (rows.length > 1 ? `🔔 <b>${rows.length}</b> تنبيهات جديدة\n\n` : "🔔 ") + lines.join("\n\n") + `\n\n<a href="${esc(rows[0].link || SITE + "/admin")}">لوحة التحكم</a>`;
+    let ok = false;
+    for (const chat of chats) {
+      try { await tg("sendMessage", { chat_id: chat, text: text.slice(0, 4000), parse_mode: "HTML", disable_web_page_preview: true }); ok = true; }
+      catch (e) { await log(null, chat, "warn", "notify_failed", { error: errStr(e) }); }
+    }
+    await rpc("bk_notify_mark", { p_ids: ids, p_ok: ok });
+    return ok ? rows.length : 0;
+  } catch (e) { console.error("notifyFlush", errStr(e)); return 0; }
+  finally { _flushing = false; }
+}
 // drafts whose sender went quiet
 let _ticking = false;
 async function tick(): Promise<number> {
@@ -568,6 +592,7 @@ async function tick(): Promise<number> {
         if (d.source !== "web") await reply(d.source, d.chat_id, tx("ar").readFailed);
       }
     }
+    await notifyFlush();
     return (due || []).length;
   } finally { _ticking = false; }
 }
@@ -718,7 +743,7 @@ async function routeTelegram(req: Request): Promise<Response> {
   const text = msg.text ?? msg.caption ?? null;
   if (kind === "text" && !text) return json({ ok: true });
   const work = handleIncoming({ source: "telegram", chat, externalId: chat + ":" + msg.message_id, kind, text, media, payload: { message_id: msg.message_id, date: msg.date, from: { id: from.id, username: from.username, first_name: from.first_name } }, senderName: name, lang: from.language_code || "ar", size, fetchMedia });
-  background(work);
+  background(work); background(work.then(() => notifyFlush()));   // a fresh event (new draft, review) reaches the owner right away
   await Promise.race([work, delay(20_000)]);   // answer Telegram within its patience; the work continues in the background
   return json({ ok: true });
 }
@@ -798,6 +823,7 @@ async function adminCan(token: string, draft: number | null): Promise<boolean> {
 async function routeTick(req: Request): Promise<Response> {
   const key = req.headers.get("x-intake-key") || "";
   let ok = !!ENV.tick && timingEqual(key, ENV.tick);
+  if (!ok && key) { try { const k = await rpc<string | null>("bk_tick_key", {}); ok = !!k && timingEqual(key, k); } catch { ok = false; } }   // the cron's key lives in the Vault; no Edge secret needed
   if (!ok) { const b = await req.json().catch(() => ({})); ok = !!(await adminUid(b?.token)); }
   if (!ok) return json({ error: "unauthorised" }, 401);
   return json({ ok: true, read: await tick() });
@@ -814,7 +840,13 @@ async function routeAdmin(req: Request): Promise<Response> {
     const ready = !!out.whatsapp.ok; const c = await cfg();
     if (String(c.verify_wa_ready) !== String(ready)) { await sb.rpc("bk_admin_set_content", { p_token: b.token, p_patch: { extras: { verify_wa_ready: ready } }, p_country: "SY" }); _cfg = null; }
     out.verify_wa_ready = ready;
+    background(notifyFlush());
     return json(out);
+  }
+  if (a === "notify_test") {
+    await rpc("bk_admin_notify_test", { p_token: b.token });
+    const n = await notifyFlush();
+    return json({ ok: true, sent: n, chats: ((await cfg()).intake_admin_chats?.telegram || []).length });
   }
   if (a === "setup_telegram") {
     if (!(await adminCan(b.token, null))) return json({ error: "unauthorised" }, 403);

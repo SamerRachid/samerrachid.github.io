@@ -1,0 +1,9 @@
+-- Balkoun · 2026-09-19 · admin alerts on Telegram (applied as migration "admin_notify_telegram")
+-- Events queue up in admin_notify_queue through triggers (listings/agencies/wanted pending, WhatsApp verification requests,
+-- listing_reports, reports, feedback, intake drafts in review/failed). The bk-intake Edge Function flushes the queue to every
+-- admin chat paired with the bot (extras.intake_admin_chats.telegram) — on the minute cron (/tick), after each Telegram message,
+-- on the panel's status check, and on "send a test" (admin action notify_test → bk_admin_notify_test).
+-- Settings (extras): notify_tg_on, notify_ev_<listing|agency|wanted|verify|report|feedback|intake>, notify_quiet_from/to (hours), notify_tz.
+-- bk_tick_key() lets the Edge Function accept the cron's Vault key on /tick without an Edge secret (INTAKE_TICK_SECRET no longer needed).
+-- Full SQL: see the applied migration in Supabase (functions bk_notify_cfg, bk_notify_push, bk_notify_quiet, bk_notify_pending,
+-- bk_notify_mark, bk_tick_key, bk_admin_notify_test, trg_notify_* and the extended bk_intake_cron_tick).
