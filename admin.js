@@ -724,7 +724,7 @@ function adminAgenciesBody(){
     var meta=[(a.gov_names||[]).map(gN).join(sep)||"—", (a.specialties||[]).map(agSpecLabel).join(" · "), ((a.area_names||[]).length?a.area_names.length+' '+GX("f_agAreas"):'')].filter(Boolean);
     return '<div class="agcard2">'+
       '<div class="agc-id">'+avatar(a.logo_url,a.name,44,"aglogo")+'<div><b>'+esc(a.name)+(a.verified?' <span class="vbadge">✓</span>':'')+'</b><small>'+esc(a.user_name||"")+(a.user_phone?' · <span class="ltr">'+esc(a.user_phone)+'</span>':'')+'</small></div></div>'+
-      '<div class="agc-meta"><span>'+meta.join(' <i>·</i> ')+'</span><small><span class="ltr">'+(a.live||0)+'</span> '+t("liveAds")+' · '+GX("agSince")+' <span class="ltr">'+String(a.created_at||"").slice(0,10)+'</span></small></div>'+
+      '<div class="agc-meta"><span>'+meta.join(' <i>·</i> ')+'</span><small><span class="ltr">'+(a.live||0)+'</span> '+t("liveAds")+' · '+GX("agSinceDate")+' <span class="ltr">'+String(a.created_at||"").slice(0,10)+'</span></small></div>'+
       '<div class="agc-acts">'+agStatusPill(a.status)+
         (a.status!=="approved"?'<button type="button" class="ab ok" data-agset="'+a.id+':approved">'+GX("agApprove")+'</button>':'')+
         (a.status==="pending"?'<button type="button" class="ab bad" data-agset="'+a.id+':rejected">'+GX("agReject")+'</button>':'')+
