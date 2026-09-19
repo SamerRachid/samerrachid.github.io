@@ -1678,9 +1678,11 @@ html[data-cc="SY"] .typecell.tl[data-type="agri"],html[data-cc="SY"] .typecell.t
 .trustb h2{font-family:var(--fd);font-size:clamp(30px,3.2vw,42px);color:#fff;margin-top:6px;line-height:1.3;font-weight:600}
 .trustb p.lead{color:rgba(255,255,255,.72);font-size:16px;max-width:52ch;margin-top:14px}
 .nums{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;margin-top:40px;padding-top:28px;border-top:1px solid rgba(255,255,255,.14)}
+.nums>div{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}   /* number and its label on one line: 657 منطقة */
 .nums b{display:block;font-family:var(--fd);font-size:clamp(32px,3.2vw,44px);font-weight:600;line-height:1}
-.nums b em{font-style:normal;font-size:20px;color:var(--gold);margin-inline-start:6px}
-.nums span{display:block;color:rgba(255,255,255,.65);font-size:13.5px;margin-top:8px}
+.nums b span{display:inline;color:inherit;font-size:inherit;margin:0}
+.nums b em{font-style:normal;font-size:20px;color:var(--gold);margin-inline-start:4px}
+.nums>div>span{display:block;color:rgba(255,255,255,.65);font-size:14px;margin:0}
 .tlist{display:grid;gap:14px}
 .tlist>div{display:flex;gap:18px;padding:22px 24px;border:1px solid rgba(255,255,255,.14);border-radius:12px;background:rgba(255,255,255,.04)}
 .tlist svg{width:26px;height:26px;flex:none;color:var(--gold)}
