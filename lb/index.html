@@ -2760,6 +2760,21 @@ body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
 .au-switch a{color:var(--navy);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
 .au2 .aucode{font-size:36px;letter-spacing:6px;background:var(--gold-w);border:1px dashed var(--gold);border-radius:14px;padding:10px;margin:8px 0 14px}
 .au2 .audone .tk{width:56px;height:56px;border-radius:50%;background:var(--ok-w);color:var(--ok);font-size:26px;display:grid;place-items:center;margin:0 auto 10px}
+.vhead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.vph{font-weight:700;font-size:15px;color:var(--navy)}.vchg{font-size:12.5px;color:var(--grey);cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.vlead{font-size:13.5px;color:var(--grey);line-height:1.8;margin:0 0 12px}
+.vopts{display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
+.vopt{display:flex;align-items:center;gap:12px;width:100%;text-align:start;background:#fff;border:1px solid var(--line-2);border-radius:14px;padding:12px 14px;cursor:pointer;font:inherit;color:var(--ink);transition:border-color .15s,box-shadow .15s}
+.vopt:hover,.vopt:focus-visible{border-color:var(--gold);box-shadow:0 0 0 3px rgba(196,136,31,.14);outline:none}
+.vico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;flex:none;color:#fff}.vico.tg{background:#2AABEE}.vico.wa{background:#1D9E5A}
+.vtxt{display:flex;flex-direction:column;gap:2px;min-width:0}.vtxt b{font-size:15px}.vtxt small{font-size:12.5px;color:var(--grey);line-height:1.5}
+.auw.vtg{background:#2AABEE;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}.auw.vtg::before{display:none}.auw.vtg .vico{width:22px;height:22px;background:transparent}.auw.vtg .vico svg{width:22px;height:22px}
+.vsteps{font-size:13.5px;color:var(--grey);padding-inline-start:18px;line-height:1.9;margin:12px 0}
+.vwait{display:flex;align-items:center;gap:10px;justify-content:center;font-size:13.5px;color:var(--navy);font-weight:600;margin:6px 0 4px}
+.vspin{width:16px;height:16px;border-radius:50%;border:2px solid var(--line-2);border-top-color:var(--gold);animation:vspin .8s linear infinite;flex:none}@keyframes vspin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.vspin{animation:none}}
+.vcodeL{text-align:center;font-size:12.5px;color:var(--grey)}
+.vok{background:var(--ok-w);color:var(--ok);border-radius:12px;padding:10px 14px;font-weight:600;font-size:14px;margin-bottom:12px}
+.vpend .auw{max-width:320px;margin-inline:auto}.vpend .vwait{margin-top:10px}
 @media(max-width:760px){
   .au{padding:0;align-items:flex-end}
   .aubox.au2{grid-template-columns:1fr;max-width:none;border-radius:22px 22px 0 0;max-height:94vh}
@@ -3783,10 +3798,85 @@ var MEMBER_FNS={bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edi
 
 function fullName(u){ return u ? ((u.name||"")+(u.family_name?" "+u.family_name:"")).trim() : "" }
 
+/* ── phone verification (sign-up / reset): the server issues a ticket, the person proves the number on Telegram or WhatsApp ── */
+var VICO={tg:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 3.5 2.8 10.6c-.9.4-.9 1.1 0 1.4l4.7 1.5 1.8 5.6c.2.6.6.8 1.1.4l2.6-2.2 4.9 3.6c.7.4 1.2.2 1.4-.6l3.2-15.4c.2-1-.3-1.5-1-1.4Z"/><path d="m7.5 13.5 9.2-6.1"/></svg>',
+  wa:'<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M20 3.9A11.8 11.8 0 0 0 1.6 18.2L0 24l5.9-1.6A11.8 11.8 0 0 0 20 3.9zm-8 18a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.5 1 1-3.4-.2-.4A9.8 9.8 0 1 1 12 21.9zm5.4-7.3c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1l-.9 1.2c-.2.2-.3.2-.6.1a8 8 0 0 1-4-3.5c-.3-.5.3-.5.9-1.6.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6a1.1 1.1 0 0 0-.8.4 3.4 3.4 0 0 0-1 2.5 6 6 0 0 0 1.2 3.1 13.4 13.4 0 0 0 5.2 4.6c1.9.8 2.7.9 3.6.7a3.1 3.1 0 0 0 2-1.4 2.5 2.5 0 0 0 .2-1.4c-.1-.2-.3-.2-.6-.4z"/></svg>'};
+function waOwnerNum(){ return String((SITE&&SITE.wa_number)||CONFIG.whatsapp||"").replace(/\D/g,"").replace(/^00/,"") }
+function verifyResumeKey(){ return "balkoun_verify" }
+function verifySaveResume(){ try{ localStorage.setItem(verifyResumeKey(), JSON.stringify({ticket:AU.ticket,secret:AU.secret,code:AU.code,phone:"+"+AU.cc+AU.phone,purpose:AU.purpose,vch:AU.vch,vsent:!!AU.vsent,bot:AU.vbot,exp:AU.vexp||0})) }catch(e){} }
+function verifyLoadResume(phone,purpose){ try{ var r=JSON.parse(localStorage.getItem(verifyResumeKey())||"null"); if(r && r.phone===phone && r.purpose===purpose && r.exp>Date.now()) return r }catch(e){} return null }
+function verifyClearResume(){ try{ localStorage.removeItem(verifyResumeKey()) }catch(e){} }
+/* starts a ticket for the phone in AU; returns true when the channel screen can open */
+async function verifyBegin(purpose, errFn){
+  var r;
+  try{ r=await rpc("bk_verify_start",{p_phone:"+"+AU.cc+AU.phone, p_purpose:purpose, p_country:COUNTRY||"SY"}) }
+  catch(e){ var m=e.message||"";
+    errFn(m==="exists"?"phoneTaken" : m==="nouser"?"noUser" : m==="badphone"?"badPhone" : m==="throttled"?GX("vThrottled") : m==="off"?GX("vOff") : m==="blocked"?GX("vBlocked") : m); return false }
+  AU.purpose=purpose; AU.ticket=r.ticket; AU.secret=r.secret; AU.code=r.code; AU.vtg=!!r.telegram; AU.vwa=!!r.whatsapp; AU.vbot=r.bot||SX("intake_bot",""); AU.vexp=r.expires_at?new Date(r.expires_at).getTime():Date.now()+3600e3;
+  AU.vch=(AU.vtg && !AU.vwa)?"telegram":(!AU.vtg && AU.vwa)?"whatsapp":null; AU.vsent=false;
+  verifySaveResume(); return true }
+function verifyStepHtml(){
+  var isReset=AU.purpose==="reset", ch=AU.vch;
+  var head='<div class="vhead"><span class="vph ltr">+'+esc(AU.cc+AU.phone)+'</span><a id="auBack" class="vchg">'+t("changeNum")+'</a></div>';
+  var other=(AU.vtg&&AU.vwa)?'<div class="aun"><a data-vch="">'+GX("vOther")+'</a></div>':'';
+  if(!ch) return '<div class="aubody">'+head+'<p class="vlead">'+GX(isReset?"vChooseReset":"vChooseP")+'</p><div class="vopts">'+
+      (AU.vtg?'<button type="button" class="vopt" data-vch="telegram"><span class="vico tg">'+VICO.tg+'</span><span class="vtxt"><b>'+GX("vTelegram")+'</b><small>'+GX("vTelegramP")+'</small></span></button>':'')+
+      (AU.vwa?'<button type="button" class="vopt" data-vch="whatsapp"><span class="vico wa">'+VICO.wa+'</span><span class="vtxt"><b>'+GX("vWhatsapp")+'</b><small>'+GX(isReset?"vWhatsappResetP":"vWhatsappP")+'</small></span></button>':'')+
+      '</div><div class="auerr" id="auErr"></div></div>';
+  if(ch==="telegram"){
+    var link="https://t.me/"+encodeURIComponent(AU.vbot)+"?start=v"+String(AU.ticket).replace(/-/g,"");
+    return '<div class="aubody">'+head+'<a class="auw vtg" href="'+link+'" target="_blank" rel="noopener" id="auTgOpen"><span class="vico">'+VICO.tg+'</span>'+GX("vOpenTg")+'</a>'+
+      '<ol class="vsteps"><li>'+GX("vTg1")+'</li><li>'+GX("vTg2")+'</li><li>'+GX("vTg3")+'</li></ol>'+
+      '<div class="vwait"><i class="vspin"></i><span>'+GX("vWaiting")+'</span></div><div class="auerr" id="auErr"></div>'+other+'</div>' }
+  var msg=GX("vWaMsg").replace("{c}",AU.code), wa="https://wa.me/"+waOwnerNum()+"?text="+encodeURIComponent(msg);
+  if(AU.vsent) return '<div class="aubody">'+head+'<div class="vwait"><i class="vspin"></i><span>'+GX("vWaResetWait")+'</span></div><p class="vlead">'+GX("vWaWaitP")+'</p><div class="auerr" id="auErr"></div>'+other+'</div>';
+  return '<div class="aubody">'+head+'<div class="vcodeL">'+GX("vCode")+'</div><div class="aucode">'+AU.code+'</div>'+
+    '<ol class="vsteps"><li>'+GX("vWa1")+'</li><li>'+GX(isReset?"vWa2Reset":"vWa2")+'</li></ol>'+
+    '<a class="auw" href="'+wa+'" target="_blank" rel="noopener">'+t("openWa")+'</a>'+
+    '<button type="button" class="aub" id="auSent" style="margin-top:9px">'+GX("vSent")+'</button>'+
+    '<div class="auerr" id="auErr"></div>'+other+'</div>' }
+var VPOLL=null;   /* one status poll at a time, kept outside AU so replacing AU can never orphan it */
+function verifyPollStop(){ if(VPOLL){ clearInterval(VPOLL); VPOLL=null } }
+function verifyPollStart(onVerified, onGone){
+  verifyPollStop(); var until=Date.now()+20*60e3, busy=false, ticket=AU.ticket, secret=AU.secret;
+  VPOLL=setInterval(async function(){
+    if(busy) return;
+    if(Date.now()>until || !AU.open || AU.ticket!==ticket){ verifyPollStop(); return }
+    busy=true;
+    try{ var r=await rpc("bk_verify_status",{p_ticket:ticket,p_secret:secret});
+      if(AU.ticket!==ticket || !AU.open){ verifyPollStop() }
+      else if(r.verified){ verifyPollStop(); await onVerified(r) }
+      else if(r.status==="expired"||r.status==="rejected"){ verifyPollStop(); onGone(r.status) }
+    }catch(e){ verifyPollStop(); onGone("error") }
+    busy=false }, 2500) }
+/* an account created through WhatsApp waits for the owner's confirmation before it can post */
+var VF={t:null};
+function unverifiedPage(){
+  var bot=SX("intake_bot",""), tg=SX("verify_telegram_on",true)!==false && bot;
+  return '<div class="wrap" style="max-width:640px;padding:34px 18px 60px"><div class="done2 vpend">'+
+    '<div class="tk" style="background:var(--gold-w);color:var(--gold)">!</div>'+
+    '<b style="font-size:19px">'+GX("vPendingT")+'</b>'+
+    '<p style="color:var(--grey);font-size:14.5px;margin-top:8px;line-height:1.8">'+GX("vPendingP")+'</p>'+
+    (VF.t&&VF.t.ticket?'<a class="auw vtg" style="margin-top:14px" href="https://t.me/'+encodeURIComponent(VF.t.bot)+'?start=v'+String(VF.t.ticket).replace(/-/g,"")+'" target="_blank" rel="noopener"><span class="vico">'+VICO.tg+'</span>'+GX("vOpenTg")+'</a><div class="vwait"><i class="vspin"></i><span>'+GX("vWaiting")+'</span></div>'
+      : tg?'<button type="button" class="auw vtg" id="vfTg" style="margin-top:14px"><span class="vico">'+VICO.tg+'</span>'+GX("vPendingBtn")+'</button>':'')+
+    '<div class="auerr" id="vfErr"></div>'+
+    '<button class="gh" id="vfRefresh" style="max-width:230px;margin:12px auto 0">'+GX("vPendingRefresh")+'</button></div></div>' }
+async function refreshMe(){ try{ var u=await rpc("bk_me",{p_id:USER.id}); if(u&&u.id){ u.token=USER.token; USER=u; saveSession(u); render() } }catch(e){} }
+function wireUnverified(){
+  if($("#vfRefresh")) $("#vfRefresh").onclick=function(){ this.disabled=true; refreshMe() };
+  if($("#vfTg")) $("#vfTg").onclick=async function(){
+    var b=this; b.disabled=true;
+    try{ var r=await rpc("bk_verify_start",{p_phone:USER.phone, p_purpose:"signup", p_country:COUNTRY||"SY"});
+      VF.t={ticket:r.ticket,secret:r.secret,bot:r.bot||SX("intake_bot","")}; render();
+      var link="https://t.me/"+encodeURIComponent(VF.t.bot)+"?start=v"+String(r.ticket).replace(/-/g,""); window.open(link,"_blank","noopener");
+      var until=Date.now()+20*60e3;
+      VF.p=setInterval(async function(){ if(Date.now()>until||!VF.t){ clearInterval(VF.p); return }
+        try{ var s=await rpc("bk_verify_status",{p_ticket:VF.t.ticket,p_secret:VF.t.secret}); if(s.verified){ clearInterval(VF.p); VF.t=null; await refreshMe() } else if(s.status==="expired"||s.status==="rejected"){ clearInterval(VF.p); VF.t=null; render() } }catch(e){ clearInterval(VF.p) } },2500);
+    }catch(e){ b.disabled=false; var m=$("#vfErr"); if(m) m.textContent=e.message==="throttled"?GX("vThrottled"):(e.message||"error") } } }
+function needsVerify(){ return !!(USER && USER.phone_verified===false && SX("verify_required_post",true)!==false) }
+
 /* ── auth modal ── */
 function authModal(){
- var waNum=String((SITE&&SITE.wa_number)||CONFIG.whatsapp||"").replace(/D/g,"").replace(/^00/,"");
- var wa="https://wa.me/"+waNum+"?text="+encodeURIComponent(t("waText")+" "+AU.code);
  var body;
 
  if(AU.step===1 && AU.mode==="in"){                              /* sign in */
@@ -3826,46 +3916,37 @@ function authModal(){
    '<details class="au-terms"><summary>'+GX("auTerms")+'</summary><ul class="agreelist">'+
     ['agree1','agree2','agree3','agree4'].map(function(k){return '<li>'+t(k)+'</li>'}).join("")+
    '</ul></details>'+
-   '<a class="auw" id="auStart">'+t("viaWa")+'</a>'+
+   '<button type="button" class="aub" id="auStart">'+GX("vContinue")+'</button>'+
    '<div class="auerr" id="auErr"></div>'+
-   '<div class="aun">'+t("whyWa")+'</div></form>';
+   '<div class="aun">'+GX("vWhy")+'</div></form>';
  }
- else if(AU.step===2){                                           /* confirm on WhatsApp */
-  body='<div class="aubody"><div style="text-align:center;font-size:12.5px;color:var(--grey)">'+t("yourCode")+'</div>'+
-   '<div class="aucode">'+AU.code+'</div>'+
-   '<ol style="font-size:13.5px;color:var(--grey);padding-inline-start:18px;line-height:2;margin-bottom:14px">'+
-   '<li>'+t("s1")+'</li><li>'+t("s2")+'</li><li>'+t("s3")+'</li></ol>'+
-   '<a class="auw" href="'+wa+'" target="_blank" rel="noopener">'+t("openWa")+'</a>'+
-   '<button class="aub" id="auSent" style="margin-top:9px">'+t("iSent")+'</button>'+
-   '<div class="auerr" id="auErr"></div>'+
-   '<div class="aun"><a id="auBack">'+t("changeNum")+'</a></div></div>';
+ else if(AU.step===2 || AU.step===6){                            /* prove the number: Telegram or WhatsApp */
+  body=verifyStepHtml();
+ }
+ else if(AU.step===7){                                           /* reset: verified → new password */
+  body='<div class="aubody"><div class="vok">✓ '+GX("vVerifiedNow")+'</div>'+
+   '<div class="auf"><label>'+t("newPass")+'</label>'+pwField("auPass","new-password",t("min6"))+'</div>'+
+   '<div class="auf"><label>'+t("password2")+'</label>'+pwField("auPass2","new-password")+'</div>'+
+   '<button class="aub" id="auDoReset">'+t("savePass")+'</button>'+
+   '<div class="auerr" id="auErr"></div></div>';
  }
  else if(AU.step===5){                                           /* forgot: phone */
   body='<div class="aubody"><p style="font-size:14px;color:var(--grey);margin-bottom:12px">'+t("forgotP")+'</p>'+
    '<div class="auf"><label>'+t("mobile")+'</label><div class="pw">'+ccSelect("auCC",AU.cc||phoneCC())+
    '<input id="auPhone" autocomplete="off" inputmode="numeric" placeholder=""></div></div>'+
-   '<a class="auw" id="auReset">'+t("viaWa")+'</a>'+
+   '<button type="button" class="aub" id="auReset">'+GX("vContinue")+'</button>'+
    '<div class="auerr" id="auErr"></div>'+
-   '<div class="aun"><a id="auBack">'+t("backLogin")+'</a></div></div>';
- }
- else if(AU.step===6){                                           /* forgot: new password */
-  body='<div class="aubody"><div style="text-align:center;font-size:12.5px;color:var(--grey)">'+t("yourCode")+'</div>'+
-   '<div class="aucode">'+AU.code+'</div>'+
-   '<ol style="font-size:13.5px;color:var(--grey);padding-inline-start:18px;line-height:2;margin-bottom:12px">'+
-   '<li>'+t("s1")+'</li><li>'+t("s2")+'</li></ol>'+
-   '<a class="auw" href="'+wa+'" target="_blank" rel="noopener" style="margin-bottom:14px">'+t("openWa")+'</a>'+
-   '<p style="font-size:13.5px;color:var(--grey);line-height:1.8;margin:4px 0 10px">'+GX("resetWaNote")+'</p>'+
    '<div class="aun"><a id="auBack">'+t("backLogin")+'</a></div></div>';
  }
  else {                                                          /* done */
   body='<div class="aubody"><div class="audone"><div class="tk">✓</div>'+
    '<b style="font-size:17px">'+t("welcome")+' '+esc(fullName(USER))+'</b>'+
    '<div style="font-size:12.5px;color:var(--light);margin-top:4px" class="ltr">'+(USER?USER.phone:"")+'</div>'+
-   '<p style="font-size:13.5px;color:var(--grey);margin-top:6px">'+t("nowYouCan")+'</p></div>'+
+   '<p style="font-size:13.5px;color:var(--grey);margin-top:6px">'+(USER&&USER.phone_verified===false?GX("vPendingNote"):t("nowYouCan"))+'</p></div>'+
    '<button class="aub" id="auGo" style="margin-top:14px">'+t("okBtn2")+'</button></div>';
  }
 
- var title=(AU.step>=5?t("forgot"):AU.mode==="up"?t("signupH"):t("loginH"));
+ var title=(AU.step>=5?t("forgot"):AU.step===2?GX("vTitle"):AU.mode==="up"?t("signupH"):t("loginH"));
  return '<div class="au'+(AU.open?" on":"")+'" id="au"><div class="aubox au2">'+
   '<aside class="au-brand"><span class="logo blogo">'+brandLogo()+'</span><h3>'+GX("auBrandH")+'</h3><p>'+GX("auBrandP")+'</p>'+
    '<ul><li>'+GX("auB1")+'</li><li>'+GX("auB2")+'</li><li>'+GX("auB3")+'</li></ul></aside>'+
@@ -4589,6 +4670,7 @@ function similarListingsSection(x){
 /* ── post: a real, validating form ── */
 function post(){
  if(!USER) return gate();
+ if(needsVerify()) return unverifiedPage();
  if(NEW.done) return '<div class="wrap" style="max-width:640px;padding:34px 18px 60px"><div class="done2">'+
    '<div class="tk"'+(NEW.saved?'':' style="background:#FBEDEC;color:var(--danger)"')+'>'+(NEW.saved?'✓':'!')+'</div>'+
    '<b style="font-size:19px">'+(NEW.saved?t("okH"):t("failH"))+'</b>'+
@@ -4993,7 +5075,7 @@ function storageUsageCardBody(){
     '<span class="ltr">'+ADM.storageUsage.files+'</span> '+t("storageFiles")+'</div>';
 }
 /* ═══ the admin bell: everything waiting for a decision, in one place ═══ */
-function adminTodoTotal(){ var td=ADM.todo||{}; return (+td.intake_review||0)+(+td.pending_listings||0)+(+td.pending_agencies||0)+(+td.pending_wanted||0)+(+td.open_reports||0)+(+td.open_feedback||0)+(+td.unread_alerts||0) }
+function adminTodoTotal(){ var td=ADM.todo||{}; return (+td.intake_review||0)+(+td.verify_pending||0)+(+td.pending_listings||0)+(+td.pending_agencies||0)+(+td.pending_wanted||0)+(+td.open_reports||0)+(+td.open_feedback||0)+(+td.unread_alerts||0) }
 function syncAdminTodo(){
   if(!DB || !ADM.token) return Promise.resolve();
   return rpc("bk_admin_todo",{p_token:ADM.token,p_country:admScope()}).then(function(r){ if(!r) return; var before=adminTodoTotal(); ADM.todo=r; var after=adminTodoTotal();
@@ -6030,6 +6112,7 @@ function wantedOnePage(id){
 function wantedFormPage(){
   if(!wantedOn()) return wantedPage();
   if(!USER) return gate();
+  if(needsVerify()) return unverifiedPage();
   var w=WEDIT||{}, govs=Object.keys(D.GEO), areas=w.gov_name&&D.GEO[w.gov_name]?D.GEO[w.gov_name]:[], sel=w.area_names||[], isEdit=!!w.id;
   var f=function(label,key,type,attrs,ph){ return '<div class="fl"><label>'+label+'</label><input data-allow-autofill data-w="'+key+'" type="'+(type||"text")+'" value="'+esc(String(w[key]==null?"":w[key]))+'"'+(attrs||"")+(ph?' placeholder="'+esc(ph)+'"':'')+'></div>' };
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a data-go="wanted">'+GX("wDirShort")+'</a><i>›</i>'+(isEdit?GX("wFormEditT"):GX("wFormT"))+'</div></div>'+
@@ -7269,7 +7352,7 @@ function wire(){
  if(VIEW==="mine"&&USER&&!LOADED.mine){
    LOADED.mine=true; loadListings().then(function(){render()}) }
 
- if(VIEW==="post"&&USER&&!NEW.done){
+ if(VIEW==="post"&&USER&&!NEW.done&&!needsVerify()){
    fillGeo($("#pg"),$("#pa"),false);
    var syncForm=function(){
      var rent=($('input[name=dl]:checked')||{}).value==="rent";
@@ -7411,9 +7494,10 @@ function wireAuth(){
    }});
  }
  wireNotifBell();
- if($("#auX"))$("#auX").onclick=function(){AU.open=false;render()};
- $$(".autabs button,.au-switch a[data-m]").forEach(function(b){b.onclick=function(){AU.mode=b.dataset.m;AU.step=1;render()}});
- if($("#au"))$("#au").onclick=function(e){if(e.target.id==="au"){AU.open=false;render()}};
+ if($("#auX"))$("#auX").onclick=function(){AU.open=false;verifyPollStop();render()};
+ $$(".autabs button,.au-switch a[data-m]").forEach(function(b){b.onclick=function(){AU.mode=b.dataset.m;AU.step=1;verifyPollStop();render()}});
+ if($("#au"))$("#au").onclick=function(e){if(e.target.id==="au"){AU.open=false;verifyPollStop();render()}};
+ wireUnverified();
 
  /* ── sign in ── */
  var doLogin=async function(){
@@ -7462,41 +7546,51 @@ function wireAuth(){
 
 
    AU.pass=$("#auPass").value;
-   AU.code=String(Math.floor(1000+Math.random()*9000)); AU.step=2; render()};
+   var sb=this; sb.disabled=true; sb.textContent=t("saving");
+   verifyBegin("signup", err).then(function(ok){ if(ok){ AU.step=2; render(); if(AU.vch==="telegram") verifyTgPoll() } else { sb.disabled=false; sb.textContent=GX("vContinue") } })};
 
+ /* the person signed in after the number was proven */
+ var afterAuth=function(u){
+   USER=u; saveSession(u); verifyClearResume();
+   if(u.preferred_currency && (((countryOf(COUNTRY)||{}).currencies)||["USD"]).indexOf(u.preferred_currency)>-1){ CUR=u.preferred_currency; curPrefSet(COUNTRY,CUR) }
+   AU.step=4; render(); loadNotifications().then(render); startNotifPolling() };
+ var doRegister=async function(){
+   var u=await rpc("bk_register",{p_ticket:AU.ticket, p_secret:AU.secret, p_name:AU.name, p_family:AU.fam, p_hash:await sha(AU.pass), p_currency:AU.currency||"USD", p_lang:L});
+   afterAuth(u) };
+ var verifyGone=function(why){ err(why==="rejected"?GX("vRejected"):why==="error"?GX("vExpired"):GX("vExpired")) };
+ var verifyTgPoll=function(){ verifyPollStart(async function(){ try{ if(AU.purpose==="signup") await doRegister(); else { AU.step=7; render() } }catch(e){ err(e.message==="exists"?"phoneTaken":e.message) } }, verifyGone) };
+ $$("[data-vch]").forEach(function(b){ b.onclick=function(){ AU.vch=this.dataset.vch||null; AU.vsent=false; verifyPollStop(); verifySaveResume(); render(); if(AU.vch==="telegram") verifyTgPoll() } });
  if($("#auSent"))$("#auSent").onclick=async function(){
-   this.disabled=true; this.textContent=t("saving");
+   var b=this; b.disabled=true; b.textContent=t("saving");
    try{
-     var u=await rpc("bk_register",{p_phone:"+"+AU.cc+AU.phone, p_name:AU.name,
-                                    p_family:AU.fam, p_hash:await sha(AU.pass),
-                                    p_username:null, p_city:null, p_country:null,
-                                    p_currency:AU.currency||"USD", p_lang:L});
-     USER=u; saveSession(u);
-     if(u.preferred_currency && (((countryOf(COUNTRY)||{}).currencies)||["USD"]).indexOf(u.preferred_currency)>-1){ CUR=u.preferred_currency; curPrefSet(COUNTRY,CUR) }
-     AU.step=4; render();
-   }catch(e){ this.disabled=false; this.textContent=t("iSent");
+     await rpc("bk_verify_sent",{p_ticket:AU.ticket,p_secret:AU.secret});
+     if(AU.purpose==="signup"){ await doRegister(); return }
+     AU.vsent=true; verifySaveResume(); render(); verifyTgPoll();
+   }catch(e){ b.disabled=false; b.textContent=GX("vSent");
      var m=e.message||"";
-     err(m==="exists"?"phoneTaken" : m==="usertaken"?"userTaken"
-       : /function|schema|does not exist|404/i.test(m) ? "runSql" : m);
+     err(m==="exists"?"phoneTaken" : m==="expired"?GX("vExpired") : m==="notverified"?GX("vExpired") : /function|schema|does not exist|404/i.test(m) ? "runSql" : m);
      console.error("register failed:", e) }};
- if($("#auBack"))$("#auBack").onclick=function(){AU.step=1;render()};
+ if(AU.open && AU.vsent && AU.step===6 && !VPOLL) verifyTgPoll();
+ if($("#auBack"))$("#auBack").onclick=function(){ verifyPollStop(); AU.vch=null; AU.vsent=false; AU.step=(AU.step===6||AU.step===7)?5:1; render() };
 
  /* ── forgot password ── */
  if($("#auReset"))$("#auReset").onclick=function(){
    var p=($("#auPhone").value||"").replace(/\D/g,"");
    if(p.length<7) return err("badPhone");
    AU.cc=$("#auCC").value; AU.phone=p;
-   AU.code=String(Math.floor(1000+Math.random()*9000)); AU.step=6; render()};
+   var saved=verifyLoadResume("+"+AU.cc+p,"reset");
+   if(saved){ AU.purpose="reset"; AU.ticket=saved.ticket; AU.secret=saved.secret; AU.code=saved.code; AU.vch=saved.vch||null; AU.vsent=!!saved.vsent; AU.vbot=saved.bot||SX("intake_bot",""); AU.vtg=!!AU.vbot&&SX("verify_telegram_on",true)!==false; AU.vwa=SX("verify_whatsapp_on",true)!==false; AU.vexp=saved.exp; AU.step=6; render(); if(AU.vch) verifyTgPoll(); return }
+   var sb=this; sb.disabled=true; sb.textContent=t("saving");
+   verifyBegin("reset", err).then(function(ok){ if(ok){ AU.step=6; render(); if(AU.vch==="telegram") verifyTgPoll() } else { sb.disabled=false; sb.textContent=GX("vContinue") } })};
  if($("#auDoReset"))$("#auDoReset").onclick=async function(){
    if(($("#auPass").value||"").length<6) return err("shortPass");
    if($("#auPass").value!==$("#auPass2").value) return err("noMatch");
    this.disabled=true; this.textContent=t("saving");
    try{
-     var u=await rpc("bk_set_password",{p_phone:"+"+AU.cc+AU.phone,
-                                        p_hash:await sha($("#auPass").value)});
-     USER=u; saveSession(u); AU.step=4; render();
+     var u=await rpc("bk_set_password",{p_ticket:AU.ticket, p_secret:AU.secret, p_hash:await sha($("#auPass").value)});
+     afterAuth(u);
    }catch(e){ this.disabled=false; this.textContent=t("savePass");
-     err(e.message==="nouser"?"noUser":e.message) }};
+     err(e.message==="nouser"?"noUser":e.message==="notverified"||e.message==="expired"?GX("vExpired"):e.message) }};
 
  if($("#auGo"))$("#auGo").onclick=function(){AU.open=false;render()};
 
@@ -9749,6 +9843,52 @@ var GX_T={
   accLogo:{ar:"شعار المكتب",en:"Agency logo",de:"Büro-Logo",fr:"Logo de l'agence"}, accLogoHint:{ar:"يظهر في دليل المكاتب وعلى بطاقات إعلاناتك، وهو نفسه صورة حسابك.",en:"Shown in the agency directory and on your listing cards; it is also your account photo.",de:"Erscheint im Büroverzeichnis und auf Ihren Anzeigenkarten; zugleich Ihr Profilbild.",fr:"Affiché dans l'annuaire et sur vos annonces ; c'est aussi la photo de votre compte."},
   accCtaT:{ar:"هل أنت مكتب عقاري؟",en:"Are you a real-estate agency?",de:"Sind Sie ein Immobilienbüro?",fr:"Vous êtes une agence immobilière ?"}, accCtaP:{ar:"سجّل مكتبك ليظهر في دليل المكاتب، ويحصل على شعاره في البطاقات، ويستطيع نشر إعلاناته عبر تيليغرام.",en:"Register it to appear in the directory, get your logo on the cards, and post listings through Telegram.",de:"Registrieren Sie es, um im Verzeichnis zu erscheinen, Ihr Logo auf den Karten zu zeigen und Anzeigen per Telegram zu senden.",fr:"Inscrivez-la pour figurer dans l'annuaire, afficher votre logo sur les annonces et publier via Telegram."},
   accPendingHint:{ar:"بانتظار موافقة فريق بلكون؛ يمكنك تعديل البيانات في أي وقت.",en:"Awaiting the Balkoun team's approval; you can edit the details any time.",de:"Wartet auf Freigabe durch das Balkoun-Team; Sie können die Daten jederzeit ändern.",fr:"En attente de validation par l'équipe Balkoun ; modifiable à tout moment."},
+  vTitle:{ar:"تأكيد رقم الهاتف",en:"Confirm your number",de:"Nummer bestätigen"},
+  vContinue:{ar:"متابعة",en:"Continue",de:"Weiter"},
+  vWhy:{ar:"سنؤكد أن الرقم يخصك عبر تيليغرام أو واتساب، بلا رسائل SMS.",en:"We confirm the number is yours on Telegram or WhatsApp, no SMS needed.",de:"Wir bestätigen die Nummer über Telegram oder WhatsApp, ohne SMS."},
+  vChooseP:{ar:"اختر الطريقة الأسهل لك لتأكيد أن هذا الرقم يخصك:",en:"Pick the easiest way to confirm this number is yours:",de:"Wählen Sie den einfachsten Weg, die Nummer zu bestätigen:"},
+  vChooseReset:{ar:"قبل تغيير كلمة المرور نتأكد أن الرقم يخصك:",en:"Before changing the password we confirm the number is yours:",de:"Vor dem Ändern des Passworts bestätigen wir die Nummer:"},
+  vTelegram:{ar:"تيليغرام",en:"Telegram",de:"Telegram"},
+  vTelegramP:{ar:"فوري وتلقائي: زر واحد داخل تيليغرام",en:"Instant and automatic: one tap inside Telegram",de:"Sofort und automatisch: ein Tipp in Telegram"},
+  vWhatsapp:{ar:"واتساب",en:"WhatsApp",de:"WhatsApp"},
+  vWhatsappP:{ar:"أرسل رمزاً إلى واتساب بلكون، ويُؤكَّد حسابك بعد وصوله",en:"Send a code to Balkoun's WhatsApp; your account is confirmed once it arrives",de:"Senden Sie einen Code an Balkouns WhatsApp; das Konto wird nach Eingang bestätigt"},
+  vWhatsappResetP:{ar:"أرسل رمزاً إلى واتساب بلكون، ثم تختار كلمة المرور بعد تأكيدنا",en:"Send a code to Balkoun's WhatsApp, then choose the password after we confirm",de:"Senden Sie einen Code an Balkouns WhatsApp; nach unserer Bestätigung wählen Sie das Passwort"},
+  vOpenTg:{ar:"افتح تيليغرام",en:"Open Telegram",de:"Telegram öffnen"},
+  vTg1:{ar:"يفتح بوت بلكون؛ اضغط «ابدأ» إن ظهر.",en:"The Balkoun bot opens; press Start if shown.",de:"Der Balkoun-Bot öffnet sich; tippen Sie auf Start."},
+  vTg2:{ar:"اضغط زر «مشاركة رقمي» في أسفل المحادثة.",en:"Tap “Share my number” at the bottom of the chat.",de:"Tippen Sie unten im Chat auf „Meine Nummer teilen“."},
+  vTg3:{ar:"ارجع إلى هذه الصفحة؛ تُكمل تلقائياً.",en:"Come back to this page; it continues on its own.",de:"Kehren Sie hierher zurück; es geht automatisch weiter."},
+  vWaiting:{ar:"بانتظار التأكيد…",en:"Waiting for confirmation…",de:"Warte auf Bestätigung…"},
+  vOther:{ar:"طريقة أخرى",en:"Another way",de:"Anderer Weg"},
+  vCode:{ar:"رمز التحقق",en:"Your code",de:"Ihr Code"},
+  vWa1:{ar:"افتح واتساب وأرسل هذا الرمز إلى رقم بلكون.",en:"Open WhatsApp and send this code to Balkoun's number.",de:"Öffnen Sie WhatsApp und senden Sie den Code an Balkouns Nummer."},
+  vWa2:{ar:"ثم اضغط «أرسلت الرمز»؛ يُنشأ حسابك فوراً ويُؤكَّد بعد وصول رسالتك.",en:"Then press “I sent the code”; your account is created now and confirmed once your message arrives.",de:"Dann „Code gesendet“ drücken; das Konto wird sofort erstellt und nach Eingang bestätigt."},
+  vWa2Reset:{ar:"ثم اضغط «أرسلت الرمز» وانتظر تأكيدنا في هذه الصفحة.",en:"Then press “I sent the code” and wait for our confirmation on this page.",de:"Dann „Code gesendet“ drücken und hier auf unsere Bestätigung warten."},
+  vWaMsg:{ar:"رمز التحقق في بلكون: {c}",en:"Balkoun verification code: {c}",de:"Balkoun-Bestätigungscode: {c}"},
+  vSent:{ar:"أرسلت الرمز",en:"I sent the code",de:"Code gesendet"},
+  vWaResetWait:{ar:"وصلنا طلبك؛ بانتظار تأكيد الفريق…",en:"Request received; waiting for the team…",de:"Anfrage erhalten; warte auf das Team…"},
+  vWaWaitP:{ar:"نؤكد عادةً خلال ساعات العمل. يمكنك إبقاء الصفحة مفتوحة أو العودة لاحقاً بنفس الرقم من «نسيت كلمة المرور».",en:"We usually confirm within working hours. Keep this page open or come back later with the same number from “Forgot password”.",de:"Wir bestätigen meist während der Arbeitszeit. Lassen Sie die Seite offen oder kommen Sie später über „Passwort vergessen“ zurück."},
+  vVerifiedNow:{ar:"تم تأكيد رقمك. اختر كلمة المرور الجديدة.",en:"Your number is confirmed. Choose a new password.",de:"Nummer bestätigt. Wählen Sie ein neues Passwort."},
+  vExpired:{ar:"انتهت صلاحية طلب التحقق. ابدأ من جديد.",en:"The verification request expired. Start again.",de:"Die Anfrage ist abgelaufen. Bitte neu beginnen."},
+  vRejected:{ar:"لم يُقبل طلب التحقق. تواصل معنا إن كان الرقم يخصك.",en:"The verification was not accepted. Contact us if the number is yours.",de:"Die Bestätigung wurde abgelehnt. Kontaktieren Sie uns, wenn die Nummer Ihnen gehört."},
+  vThrottled:{ar:"محاولات كثيرة. انتظر قليلاً ثم أعد المحاولة.",en:"Too many attempts. Wait a little and try again.",de:"Zu viele Versuche. Bitte kurz warten."},
+  vOff:{ar:"التسجيل متوقف مؤقتاً.",en:"Sign-up is paused for now.",de:"Registrierung ist vorübergehend pausiert."},
+  vBlocked:{ar:"هذا الحساب موقوف.",en:"This account is suspended.",de:"Dieses Konto ist gesperrt."},
+  vPendingNote:{ar:"حسابك جاهز للتصفح والحفظ. النشر يُفتح بعد أن نؤكد رسالتك على واتساب.",en:"You can browse and save now. Posting opens once we confirm your WhatsApp message.",de:"Sie können jetzt stöbern und speichern. Inserieren wird nach Bestätigung Ihrer WhatsApp-Nachricht frei."},
+  vPendingT:{ar:"حسابك بانتظار تأكيد الرقم",en:"Your number is awaiting confirmation",de:"Ihre Nummer wartet auf Bestätigung"},
+  vPendingP:{ar:"سنؤكد حسابك بعد وصول رسالتك على واتساب. أو أكّد رقمك الآن عبر تيليغرام بضغطة واحدة.",en:"We confirm your account once your WhatsApp message arrives. Or confirm your number right now on Telegram with one tap.",de:"Wir bestätigen Ihr Konto nach Eingang Ihrer WhatsApp-Nachricht. Oder bestätigen Sie die Nummer jetzt mit einem Tipp in Telegram."},
+  vPendingBtn:{ar:"أكّد عبر تيليغرام الآن",en:"Confirm on Telegram now",de:"Jetzt über Telegram bestätigen"},
+  vPendingRefresh:{ar:"تحديث الحالة",en:"Refresh status",de:"Status aktualisieren"},
+  bellVerify:{ar:"أرقام بانتظار التأكيد",en:"Numbers to confirm",de:"Nummern zu bestätigen"},
+  vfT:{ar:"تأكيد الأرقام (واتساب)",en:"Number confirmations (WhatsApp)",de:"Nummernbestätigungen (WhatsApp)"},
+  vfHint:{ar:"كل طلب هنا أرسل صاحبه رمزاً إلى واتساب بلكون. قارن الرمز والرقم مع الرسالة التي وصلتك ثم أكّد.",en:"Each request here sent a code to Balkoun's WhatsApp. Compare the code and number with the message you received, then confirm.",de:"Jede Anfrage hier hat einen Code an Balkouns WhatsApp gesendet. Vergleichen Sie Code und Nummer mit der Nachricht und bestätigen Sie."},
+  vfNone:{ar:"لا طلبات بانتظار التأكيد.",en:"Nothing waiting for confirmation.",de:"Nichts wartet auf Bestätigung."},
+  vfSignup:{ar:"حساب جديد",en:"New account",de:"Neues Konto"}, vfReset:{ar:"استعادة كلمة المرور",en:"Password reset",de:"Passwort zurücksetzen"},
+  vfConfirm:{ar:"تأكيد",en:"Confirm",de:"Bestätigen"}, vfReject:{ar:"رفض",en:"Reject",de:"Ablehnen"},
+  vfSetT:{ar:"طرق تأكيد الرقم",en:"Number confirmation",de:"Nummernbestätigung"},
+  vfSetTg:{ar:"تيليغرام (تلقائي عبر البوت)",en:"Telegram (automatic via the bot)",de:"Telegram (automatisch über den Bot)"},
+  vfSetWa:{ar:"واتساب (تأكيد يدوي من هنا)",en:"WhatsApp (confirmed by hand here)",de:"WhatsApp (manuelle Bestätigung hier)"},
+  vfSetReq:{ar:"منع النشر قبل تأكيد الرقم",en:"Block posting until the number is confirmed",de:"Inserieren erst nach Bestätigung erlauben"},
+  vfSetHours:{ar:"صلاحية طلب التحقق (ساعات)",en:"Verification request validity (hours)",de:"Gültigkeit der Anfrage (Stunden)"},
   agSinceDate:{ar:"منذ",en:"since",de:"seit"}, agNewCode:{ar:"رمز جديد",en:"New code",de:"Neuer Code"}, agNewCodeHint:{ar:"يُلغي الرمز القديم فوراً؛ المحادثة المربوطة تبقى مربوطة",en:"Replaces the old code at once; an already linked chat stays linked",de:"Ersetzt den alten Code sofort; ein bereits verbundener Chat bleibt verbunden"}, agNewCodeConfirm:{ar:"إنشاء رمز ربط جديد؟ الرمز القديم لن يعمل بعد الآن.",en:"Create a new link code? The old one stops working immediately.",de:"Neuen Verbindungscode erstellen? Der alte funktioniert dann nicht mehr."}, agIntakeHint:{ar:"عند التفعيل يستطيع المكتب إرسال إعلاناته إلى بوت تيليغرام وتُنشر تلقائياً.",en:"When on, the agency can send its listings to the Telegram bot and they publish automatically.",de:"Wenn an, kann das Büro Anzeigen an den Telegram-Bot senden; sie werden automatisch veröffentlicht."},
   agIntakeOn:{ar:"مفعّل",en:"On",de:"An"}, agIntakeOff:{ar:"مطفأ",en:"Off",de:"Aus"}, agTrustOn:{ar:"موثوق: ينشر مباشرة",en:"Trusted: publishes live",de:"Vertraut: sofort online"}, agTrustOff:{ar:"غير موثوق: مراجعة أولاً",en:"Not trusted: review first",de:"Nicht vertraut: erst Prüfung"}, agPairedTg:{ar:"تيليغرام مربوط",en:"Telegram linked",de:"Telegram verbunden"}, agIntakeCode:{ar:"رمز الربط",en:"Link code",de:"Verbindungscode"},
   rejectBtn:{ar:"رفض",en:"Reject",de:"Ablehnen"}, rejectReasonQ:{ar:"سبب الرفض (يظهر لصاحب الإعلان في إشعار):",en:"Reason for rejection (the owner sees it in a notification):",de:"Grund der Ablehnung (der Inserent sieht ihn als Benachrichtigung):"},
