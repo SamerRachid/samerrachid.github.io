@@ -1185,27 +1185,31 @@ footer{font-size:14px}
 }
 /* ── listing page 2026-09: mosaic gallery, title block, fact tiles, grouped details, sticky price card ── */
 .lpage{max-width:1180px;padding:16px 18px 48px}
-.lgal{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:8px;height:clamp(320px,44vw,520px);border-radius:18px;overflow:hidden;position:relative;background:#0D1729}
+.lgal{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:8px;height:clamp(320px,44vw,520px);border-radius:18px;overflow:hidden;position:relative;background:#0D1729}   /* the one row is the box height: tall phone photos may not grow it */
 .lgal.n1{grid-template-columns:1fr}
-.lg-main{position:relative;height:100%;margin:0;min-width:0}
+.lg-main{position:relative;height:100%;margin:0;min-width:0;min-height:0;overflow:hidden}
 .lg-main::before{content:"";position:absolute;inset:-24px;background:var(--bg) center/cover no-repeat;filter:blur(22px) saturate(.9);opacity:.6}
 .lg-main img{position:relative;width:100%;height:100%;object-fit:contain;cursor:zoom-in;display:block}
 .lg-none{height:100%;display:grid;place-items:center;color:rgba(255,255,255,.6)}
-.lg-side{display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(0,1fr);gap:8px;height:100%;min-width:0;overflow:hidden}
-.lg-side>*{min-height:0;height:100%;overflow:hidden}
-.lg-side img{width:100%;height:100%;object-fit:cover;cursor:pointer;opacity:.9;transition:opacity .2s;display:block;min-height:0}
-.lg-side img:hover,.lg-side img.sel{opacity:1}
-.lg-side img.sel{outline:2px solid var(--gold);outline-offset:-2px}
-.lg-side img:nth-child(n+5){display:none}
+.lg-side{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;grid-auto-rows:0;gap:8px;height:100%;min-width:0;overflow:hidden}
+.lg-side>*{min-height:0;min-width:0;height:auto;overflow:hidden}
+.lg-side .gt{position:relative;cursor:pointer;background:#0D1729}
+.lg-side .gt img{width:100%;height:100%;object-fit:cover;opacity:.92;transition:opacity .2s;display:block}
+.lg-side .gt:hover img,.lg-side .gt.sel img{opacity:1}
+.lg-side .gt.sel{outline:2px solid var(--gold);outline-offset:-2px}
+.lg-side .gmore{position:absolute;inset:0;display:grid;place-items:center;background:rgba(9,14,26,.55);color:#fff;font:800 24px/1 var(--fd);letter-spacing:.02em;pointer-events:none}
+.lg-side>*:nth-child(n+5){display:none}
 /* fewer than five photos: the extra ones sit in a narrow rail of small thumbnails beside the main photo */
 .lgal.n2,.lgal.n3,.lgal.n4{grid-template-columns:minmax(0,1fr) 200px;background:transparent;overflow:visible;border-radius:0}
 .lgal.n2 .lg-main,.lgal.n3 .lg-main,.lgal.n4 .lg-main{border-radius:18px;overflow:hidden;background:#0D1729}
-.lgal.n2 .lg-side,.lgal.n3 .lg-side,.lgal.n4 .lg-side{grid-template-columns:1fr;grid-auto-rows:auto;align-content:start;gap:10px}
-.lgal.n2 .lg-side img,.lgal.n3 .lg-side img,.lgal.n4 .lg-side img,.lgal.n2 .lg-side .gthv,.lgal.n3 .lg-side .gthv,.lgal.n4 .lg-side .gthv{aspect-ratio:4/3;height:auto;border-radius:12px;opacity:1}
+.lgal.n2 .lg-side,.lgal.n3 .lg-side,.lgal.n4 .lg-side{grid-template-columns:1fr;grid-template-rows:none;grid-auto-rows:auto;align-content:start;gap:10px}
+.lgal.n2 .lg-side>*,.lgal.n3 .lg-side>*,.lgal.n4 .lg-side>*{display:block}
+.lgal.n2 .lg-side .gt,.lgal.n3 .lg-side .gt,.lgal.n4 .lg-side .gt,.lgal.n2 .lg-side .gthv,.lgal.n3 .lg-side .gthv,.lgal.n4 .lg-side .gthv{aspect-ratio:4/3;height:auto;border-radius:12px;opacity:1}
+.lgal.n2 .lg-side .gt img,.lgal.n3 .lg-side .gt img,.lgal.n4 .lg-side .gt img{opacity:1}
 .lgal.n2 .lg-side,.lgal.n3 .lg-side,.lgal.n4 .lg-side{overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(20,33,61,.35) transparent;padding-inline-end:4px}
 .lgal.n2 .lg-side::-webkit-scrollbar,.lgal.n3 .lg-side::-webkit-scrollbar,.lgal.n4 .lg-side::-webkit-scrollbar{width:6px}
 .lgal.n2 .lg-side::-webkit-scrollbar-thumb,.lgal.n3 .lg-side::-webkit-scrollbar-thumb,.lgal.n4 .lg-side::-webkit-scrollbar-thumb{background:rgba(20,33,61,.35);border-radius:3px}
-.lgal.n2 .lg-side img:not(.sel),.lgal.n3 .lg-side img:not(.sel),.lgal.n4 .lg-side img:not(.sel){opacity:.85}
+.lgal.n2 .lg-side .gt:not(.sel) img,.lgal.n3 .lg-side .gt:not(.sel) img,.lgal.n4 .lg-side .gt:not(.sel) img{opacity:.85}
 .lgal.n2 .lg-all,.lgal.n3 .lg-all,.lgal.n4 .lg-all{inset-inline-end:auto;inset-inline-start:14px}
 .lgal .gcount{position:absolute;top:12px;inset-inline-start:12px;background:rgba(9,14,26,.6);color:#fff;font-size:12px;padding:4px 10px;border-radius:999px;backdrop-filter:blur(4px)}
 .lgal .gnav{display:grid;place-items:center;position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.9);color:var(--navy);font-size:22px;line-height:1;cursor:pointer;z-index:2;box-shadow:0 6px 16px -8px rgba(0,0,0,.6);transition:background .15s,transform .15s}
@@ -1282,13 +1286,14 @@ footer{font-size:14px}
   .lgal,.lgal.n2,.lgal.n3,.lgal.n4{height:auto;grid-template-columns:1fr;border-radius:0;gap:0;background:#fff}
   .lgal.n2 .lg-main,.lgal.n3 .lg-main,.lgal.n4 .lg-main{border-radius:0}
   .lgal.n2 .lg-side,.lgal.n3 .lg-side,.lgal.n4 .lg-side{gap:6px}
-  .lgal.n2 .lg-side img,.lgal.n3 .lg-side img,.lgal.n4 .lg-side img{aspect-ratio:auto;height:54px;border-radius:6px}
+  .lgal.n2 .lg-side .gt,.lgal.n3 .lg-side .gt,.lgal.n4 .lg-side .gt{aspect-ratio:auto;height:54px;border-radius:6px}
   .lgal.n2 .lg-all,.lgal.n3 .lg-all,.lgal.n4 .lg-all{inset-inline-start:auto;inset-inline-end:12px}
   .lg-main{aspect-ratio:4/3;height:auto;background:#0D1729}
   .lgal .gnav{display:grid;place-items:center;position:absolute;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,.9);color:var(--navy);font-size:20px}
   .lg-side{display:flex;overflow-x:auto;gap:6px;padding:8px 12px;height:auto;scrollbar-width:none}
   .lg-side::-webkit-scrollbar{display:none}
-  .lg-side img,.lg-side img:nth-child(n+2),.lg-side img:nth-child(n+3),.lg-side img:nth-child(n+5){display:block;width:72px;height:54px;flex:0 0 72px;border-radius:6px;grid-column:auto}
+  .lg-side .gt,.lg-side>*:nth-child(n+5){display:block;width:72px;height:54px;flex:0 0 72px;border-radius:6px;grid-column:auto}
+  .lg-side .gmore{font-size:15px}
   .lgal .lg-side .gthv,.lgal.n2 .lg-side .gthv,.lgal.n3 .lg-side .gthv,.lgal.n4 .lg-side .gthv{aspect-ratio:auto;width:72px;height:54px;flex:0 0 72px;border-radius:6px}.lgal .lg-side .gthv .vplay{width:26px;height:26px;font-size:11px}
   .lg-all{bottom:auto;top:12px;inset-inline-end:12px;padding:6px 10px;font-size:12px}
   .lgal .gcount{top:auto;bottom:12px}
@@ -4382,7 +4387,9 @@ function listing(id){
  /* ── gallery: one large photo and a mosaic of the next ones; every photo opens the lightbox ── */
  var n=nAll, galCls="lgal n"+Math.min(n,5);
  var thumbs=(VOFF?['<div class="gthv'+(GI===0?' sel':'')+'" data-i="0" title="'+esc(GX("videoBadge"))+'">'+(VIDS[0].poster?'<img src="'+VIDS[0].poster+'" alt="" loading="lazy">':'')+'<span class="vplay">▶</span></div>']:[])
-   .concat(IMGS.map(function(src,i){ var j=i+VOFF; return '<img src="'+src+'" data-i="'+j+'" alt=""'+(j===GI?' class="sel"':'')+' loading="lazy">' }));
+   .concat(IMGS.map(function(src,i){ var j=i+VOFF; return '<div class="gt'+(j===GI?' sel':'')+'" data-i="'+j+'"><img src="'+src+'" alt="" loading="lazy"></div>' }));
+ // five or more: the mosaic beside the main photo shows the NEXT four (never the one already on screen), the last tile counts the rest
+ if(n>=5){ thumbs=thumbs.slice(GI+1).concat(thumbs.slice(0,GI)); if(n>5) thumbs[3]=thumbs[3].replace(/<\/div>$/, '<span class="gmore">+'+(n-5)+'</span></div>') }
  var gal='<div class="'+galCls+'">'+
   (n
     ? '<figure class="lg-main'+(onVid?' onvid':'')+'" style="--bg:url(&quot;'+(onVid?(VIDS[0].poster||""):curImg)+'&quot;)">'+
@@ -6969,7 +6976,7 @@ function wire(){
    var set=function(n){
      if(!N2) return;
      var g0=GI; GI=(n+N2)%N2;
-     if(V2 && (GI===0 || g0===0)){ render(); return }   // to or from the video slide: the main element changes, so redraw
+     if((V2 && (GI===0 || g0===0)) || N2>=5){ render(); return }   // to or from the video slide, or a mosaic that shows the next four: redraw
      var p2=GI-V2, g=$("#gmain"); if(g) g.src=IM2[p2];
      var fg=$(".lg-main"); if(fg) fg.style.setProperty("--bg",'url("'+IM2[p2]+'")');
      var c=$(".gcount span"); if(c) c.textContent=(GI+1)+" / "+N2;
