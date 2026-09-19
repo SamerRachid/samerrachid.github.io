@@ -2417,6 +2417,23 @@ body.rs-lock{overflow:hidden}
 .iklog{display:flex;flex-direction:column}.iklog-r{display:grid;grid-template-columns:150px 150px 50px 1fr;gap:10px;padding:6px 18px;border-bottom:1px solid var(--line);font-size:12px;color:var(--grey)}.iklog-r b{color:var(--ink)}.iklog-r.lvl-error b{color:var(--danger)}.iklog-r.lvl-warn b{color:var(--warn)}
 @media(max-width:900px){.ikdetail .ikcols{grid-template-columns:1fr}.ikrow{grid-template-columns:1fr 1fr}.iklog-r{grid-template-columns:1fr 1fr}.ikc{grid-template-columns:1fr;gap:4px}}
 .agcontact .agown{border-color:var(--gold);color:var(--gold-dk);font-weight:700}
+/* one account page: side navigation, sections */
+.acct2{max-width:1080px;padding:22px 18px 60px}
+.acct-h{display:flex;align-items:center;gap:14px;margin-bottom:18px}.acct-h h1{font-size:23px;font-weight:800;margin:0;line-height:1.2}.acct-h p{color:var(--grey);margin:3px 0 0;font-size:13.5px}
+.acct-grid{display:grid;grid-template-columns:240px minmax(0,1fr);gap:24px;align-items:start}
+.acct-nav{position:sticky;top:78px;display:flex;flex-direction:column;gap:4px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:8px}
+.acct-nav a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-weight:600;font-size:14px;color:var(--ink);cursor:pointer;transition:background .12s}
+.acct-nav a svg{width:18px;height:18px;flex:none;color:var(--gold-dk)}
+.acct-nav a.on,.acct-nav a:hover{background:var(--gold-w);color:var(--navy)}
+.acct-nav .acnav-st{margin-inline-start:auto;font-size:11px}.acct-nav .acnav-st .st{font-size:11px;padding:2px 8px}
+.acct-main{display:flex;flex-direction:column;gap:18px;min-width:0}
+.acsec{scroll-margin-top:84px}.acsec .blk{margin:0}.acsec .blk h3{display:flex;align-items:center;gap:10px}.acs-ico svg{width:20px;height:20px;color:var(--gold-dk);display:block}.acs-side{margin-inline-start:auto}
+.acsec .blk .in{display:flex;flex-direction:column;gap:14px}.acsec .fl{margin:0}.acsec .xactions{margin-top:0}
+.acs-status{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.acs-sub{font-weight:800;font-size:14.5px;color:var(--navy);padding-bottom:6px;border-bottom:1px solid var(--line)}
+.aclogo{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px;border:1px dashed var(--line-2);border-radius:14px;background:var(--page)}.aclogo-t{flex:1;min-width:200px}.aclogo-t b{display:block;margin-bottom:2px}
+.aclogo-b{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}.aclogo-b .btn-n{display:inline-flex;align-items:center;gap:8px;padding:9px 16px}.aclogo-b .btn-n svg{width:16px;height:16px}
+.accta{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:22px;background:linear-gradient(135deg,var(--navy),#1E2E52);color:#fff;border-radius:16px}.accta b{font-size:17px;display:block;margin-bottom:4px}.accta p{margin:0;opacity:.85;font-size:13.5px;line-height:1.6}.accta .btn-n{background:var(--gold);color:var(--navy)}
+@media(max-width:860px){.acct-grid{grid-template-columns:1fr;gap:14px}.acct-nav{position:static;flex-direction:row;overflow-x:auto;padding:6px;scrollbar-width:none}.acct-nav a{white-space:nowrap;padding:8px 12px;font-size:13px}.acct-nav .acnav-st{display:none}.accta{grid-template-columns:1fr}.acct-h h1{font-size:20px}}
 /* coming-soon services */
 .hnav .hsoon{display:inline-flex;align-items:center;gap:6px}
 .hnav .hsoon i{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#1A1206;background:var(--gold);border-radius:999px;padding:1px 6px;line-height:1.5;transform:translateY(-7px)}
@@ -5213,59 +5230,78 @@ function mine(){
  '</div>'}
 
 /* ── account settings ── */
+var ACC={sec:"",agForm:false};
+var ACI={
+  agency:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg>',
+  intake:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-5.1A8 8 0 1 1 21 12z"/><path d="M8 12h8M8 9h5"/></svg>',
+  me:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
+  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  camera:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>'
+};
+// the picture is one thing everywhere: the agency's logo and the account photo
+function accLogoHtml(forAgency){
+  var name = forAgency ? ((MYAGENCY&&MYAGENCY.name)||USER.name) : USER.name;
+  return '<div class="aclogo">'+avatar(USER.avatar_url,name,72,"big")+'<div class="aclogo-t"><b>'+(forAgency?GX("accLogo"):t("profilePhoto"))+'</b>'+
+    '<div class="hintx">'+(forAgency?GX("accLogoHint"):t("photoHint"))+'</div>'+
+    '<div class="aclogo-b"><button type="button" class="btn-n" id="avPick" style="width:auto">'+ACI.camera+(USER.avatar_url?t("uploadPhoto"):t("uploadPhoto"))+'</button>'+
+    (USER.avatar_url?'<button type="button" class="gh" id="avDel" style="width:auto;margin:0">'+t("removePhoto")+'</button>':'')+'</div><div class="hintx" id="avMsg"></div></div>'+
+    '<input type="file" id="avFile" accept="image/*" hidden></div>' }
+function agencyFormFields(){
+  var a=MYAGENCY||{}, govs=Object.keys(D.GEO), selG=a.gov_names||[], selA=a.area_names||[], specs=a.specialties||[];
+  var areaOpts=selG.reduce(function(acc,g){ return acc.concat((D.GEO[g]||[]).map(function(x){ return [g,x] })) },[]);
+  return '<div class="row"><div class="fl"><label class="req">'+GX("f_agName")+'</label><input data-allow-autofill id="agName" value="'+esc(a.name||"")+'"></div><div class="fl"><label>'+GX("f_agPhone")+'</label><input data-allow-autofill id="agPhone" class="ltr" value="'+esc(a.phone||USER.phone||"")+'"></div></div>'+
+    '<div class="row"><div class="fl"><label>'+GX("f_agWa")+'</label><input data-allow-autofill id="agWa" class="ltr" value="'+esc(a.whatsapp||"")+'"></div><div class="fl"><label>'+GX("f_agEmail")+'</label><input data-allow-autofill id="agEmail" class="ltr" value="'+esc(a.email||"")+'"></div></div>'+
+    '<div class="row"><div class="fl"><label>'+GX("f_agWeb")+'</label><input data-allow-autofill id="agWeb" class="ltr" value="'+esc(a.website||"")+'" placeholder="https://"></div><div class="fl"><label>'+GX("f_agAddress")+'</label><input data-allow-autofill id="agAddress" value="'+esc(a.address||"")+'"></div></div>'+
+    '<div class="fl"><label>'+GX("f_agDesc")+'</label><textarea id="agDesc" maxlength="600">'+esc(a.description||"")+'</textarea></div>'+
+    '<div class="fl"><label>'+GX("f_agSpecs")+'</label><div class="ag-pills sel" id="agSpecs">'+AG_SPECS.map(function(k){ return '<button type="button" class="'+(specs.indexOf(k)>-1?"on":"")+'" data-agspec="'+k+'">'+agSpecLabel(k)+'</button>' }).join("")+'</div></div>'+
+    '<div class="fl"><label>'+GX("f_agGovs")+'</label><div class="ag-pills sel" id="agGovs">'+govs.map(function(g){ return '<button type="button" class="'+(selG.indexOf(g)>-1?"on":"")+'" data-aggov="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
+    (areaOpts.length?'<div class="fl"><label>'+GX("f_agAreas")+'</label><div class="ag-pills sel wrap" id="agAreas">'+areaOpts.map(function(p){ return '<button type="button" class="'+(selA.indexOf(p[1])>-1?"on":"")+'" data-agarea2="'+esc(p[1])+'">'+aN(p[1])+'</button>' }).join("")+'</div></div>':'')+
+    '<div class="xactions"><button class="btn-n" id="agSave" style="width:auto">'+t("saveChanges")+'</button><span class="xmsg" id="agMsg"></span></div>' }
 function account(){
  if(!USER) return gate();
- return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+t("settings")+'</div></div>'+
- '<div class="wrap" style="max-width:640px;padding:22px 18px 60px">'+
- '<h1 style="font-size:22px;font-weight:700;margin-bottom:16px">'+t("settings")+'</h1>'+
-
- '<div class="blk"><h3><span class="n">1</span>'+t("profile")+'</h3><div class="in">'+
-  '<div class="row">'+
-  '<div class="fl"><label>'+t("firstName")+'</label><input id="acName" autocomplete="off" value="'+esc(USER.name)+'"></div>'+
-  '<div class="fl"><label>'+t("familyName")+'</label><input id="acFam" autocomplete="off" value="'+esc(USER.family_name)+'"></div></div>'+
-  '<div class="row">'+
-  '<div class="fl"><label>'+t("city")+'</label><input id="acCity" autocomplete="off" value="'+esc(USER.city)+'"></div>'+
-  '<div class="fl"><label>'+t("country")+'</label><input id="acCountry" autocomplete="off" value="'+esc(USER.country)+'"></div></div>'+
-  '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'+
-  '<button class="btn-n" id="acSave">'+t("saveChanges")+'</button>'+
-  '<span id="acMsg" style="font-size:13.5px;color:var(--ok)"></span></div></div></div>'+
-
- '<div class="blk"><h3><span class="n">2</span>'+t("profilePhoto")+'</h3><div class="in">'+
-  '<div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">'+
-   avatar(USER.avatar_url,USER.name,76,"big")+
-   '<div><button class="btn-n" id="avPick">'+t("uploadPhoto")+'</button>'+
-   (USER.avatar_url?' <button class="gh" id="avDel" style="display:inline-block;width:auto;margin:0 8px">'+t("removePhoto")+'</button>':'')+
-   '<div class="hintx" id="avMsg">'+t("photoHint")+'</div></div></div>'+
-  '<input type="file" id="avFile" accept="image/*" hidden>'+
-  '<div class="fl" style="margin-top:16px"><label>'+t("bio")+'</label>'+
-   '<textarea id="acBio" maxlength="300" placeholder="'+t("bioPH")+'">'+esc(USER.bio)+'</textarea>'+
-   '<div style="display:flex;gap:10px;align-items:center;margin-top:8px">'+
-   '<button class="btn-n" id="bioSave">'+t("saveChanges")+'</button>'+
-   '<span id="bioMsg" style="font-size:13.5px;color:var(--ok)"></span></div></div>'+
- '</div></div>'+
- '<div class="blk"><h3><span class="n">3</span>'+t("changePass")+'</h3><div class="in">'+
-  '<div class="fl"><label>'+t("oldPass")+'</label>'+pwField("cpOld","off")+'</div>'+
-  '<div class="row">'+
-  '<div class="fl"><label>'+t("newPass")+'</label>'+pwField("cpNew","new-password",t("min6"))+'</div>'+
-  '<div class="fl"><label>'+t("password2")+'</label>'+pwField("cpNew2","new-password")+'</div></div>'+
-  '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'+
-  '<button class="btn-n" id="cpSave">'+t("changePass")+'</button>'+
-  '<span id="cpMsg" style="font-size:13.5px"></span></div></div></div>'+
-
- '<div class="blk"><h3><span class="n">4</span>'+t("changePhone")+'</h3><div class="in">'+
-  '<div class="fl"><label>'+t("currentPhone")+'</label>'+
-   '<input value="'+esc(USER.phone)+'" readonly class="ltr" style="background:var(--page);color:var(--grey)"></div>'+
-  '<div class="fl"><label>'+t("newPhone")+'</label><div class="pw">'+ccSelect("npCC",ccOf(USER.phone))+
-   '<input id="npNum" autocomplete="off" inputmode="numeric" placeholder=""></div></div>'+
-  '<div class="fl"><label>'+t("password")+'</label>'+pwField("npPass","off")+'</div>'+
-  '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'+
-  '<button class="btn-n" id="npSave">'+t("changePhone")+'</button>'+
-  '<span id="npMsg" style="font-size:13.5px"></span></div>'+
-  '<div class="hintx">'+t("phoneWarn")+'</div></div></div>'+
- '<div class="blk"><h3><span class="n">5</span>'+GX("agFormT")+'</h3><div class="in">'+
-  '<p class="hintx">'+GX("agAccountP")+'</p>'+
-  '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn-n" data-go="agencyform" style="width:auto">'+(MYAGENCY&&MYAGENCY.id?GX("agEditBtn"):GX("agRegister"))+'</button>'+(MYAGENCY&&MYAGENCY.id?agStatusPill(MYAGENCY.status):'')+'</div></div></div>'+
- '</div>'}
+ var isAg=!!(MYAGENCY&&MYAGENCY.id), showAg=isAg||ACC.agForm, approved=isAg&&MYAGENCY.status==="approved";
+ var hasIntake=approved && MYINTAKE && MYINTAKE.agency && MYINTAKE.agency.intake_enabled && MYINTAKE.enabled!==false;
+ var nav=[["agency",ACI.agency,isAg?GX("accAgency"):GX("accBecomeAgency"),isAg?agStatusPill(MYAGENCY.status):""]]
+   .concat(hasIntake?[["intake",ACI.intake,GX("aiTitle"),(MYINTAKE.agency.paired?'<span class="st st-live">'+GX("aiPaired")+'</span>':'')]]:[])
+   .concat([["me",ACI.me,GX("accMe"),""],["security",ACI.lock,GX("accSecurity"),""]]);
+ var cur=ACC.sec||(isAg?"agency":"me");
+ var sec=function(id,title,body,side){ return '<section class="acsec" id="acs-'+id+'"><div class="blk"><h3><span class="acs-ico">'+ACI[id==="security"?"lock":id]+'</span>'+title+(side?'<span class="acs-side">'+side+'</span>':'')+'</h3><div class="in">'+body+'</div></div></section>' };
+ var agencyBody = !showAg
+   ? '<div class="accta"><div><b>'+GX("accCtaT")+'</b><p>'+GX("accCtaP")+'</p></div><button type="button" class="btn-n" id="agStart" style="width:auto">'+GX("agRegister")+'</button></div>'
+   : (MYAGENCY===null?'<div class="hintx">'+t("loading")+'</div>':'')+
+     (isAg?'<div class="acs-status">'+agStatusPill(MYAGENCY.status)+(approved?' <a data-agopen="'+MYAGENCY.id+'" class="agviewlink">'+GX("agView")+'</a>':' <span class="hintx" style="display:inline">'+GX("accPendingHint")+'</span>')+'</div>':'<p class="hintx">'+GX("agFormP")+'</p>')+
+     accLogoHtml(true)+agencyFormFields();
+ return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("accTitle")+'</div></div>'+
+  '<div class="wrap acct2">'+
+   '<div class="acct-h">'+avatar(USER.avatar_url,USER.name,52,"big")+'<div><h1>'+esc(fullName(USER))+'</h1><p>'+(isAg?esc(MYAGENCY.name)+' · ':'')+'<span class="ltr">'+esc(USER.phone||"")+'</span></p></div></div>'+
+   '<div class="acct-grid"><nav class="acct-nav" aria-label="'+esc(GX("accTitle"))+'">'+nav.map(function(n){ return '<a class="'+(n[0]===cur?"on":"")+'" data-acsec="'+n[0]+'">'+n[1]+'<span>'+n[2]+'</span>'+(n[3]?'<span class="acnav-st">'+n[3]+'</span>':'')+'</a>' }).join("")+'</nav>'+
+   '<div class="acct-main">'+
+    sec("agency", isAg?GX("accAgency"):GX("accBecomeAgency"), agencyBody, "")+
+    (hasIntake?'<section class="acsec" id="acs-intake">'+agencyIntakeHtml()+'</section>':'')+
+    sec("me", GX("accMe"),
+      '<div class="row"><div class="fl"><label>'+t("firstName")+'</label><input id="acName" autocomplete="off" value="'+esc(USER.name)+'"></div><div class="fl"><label>'+t("familyName")+'</label><input id="acFam" autocomplete="off" value="'+esc(USER.family_name)+'"></div></div>'+
+      '<div class="row"><div class="fl"><label>'+t("city")+'</label><input id="acCity" autocomplete="off" value="'+esc(USER.city)+'"></div><div class="fl"><label>'+t("country")+'</label><input id="acCountry" autocomplete="off" value="'+esc(USER.country)+'"></div></div>'+
+      '<div class="fl"><label>'+t("bio")+'</label><textarea id="acBio" maxlength="300" placeholder="'+t("bioPH")+'">'+esc(USER.bio)+'</textarea></div>'+
+      (showAg?'':accLogoHtml(false))+
+      '<div class="xactions"><button class="btn-n" id="acSave" style="width:auto">'+t("saveChanges")+'</button><span class="xmsg" id="acMsg"></span></div>', "")+
+    sec("security", GX("accSecurity"),
+      '<div class="acs-sub">'+t("changePass")+'</div>'+
+      '<div class="fl"><label>'+t("oldPass")+'</label>'+pwField("cpOld","off")+'</div>'+
+      '<div class="row"><div class="fl"><label>'+t("newPass")+'</label>'+pwField("cpNew","new-password",t("min6"))+'</div><div class="fl"><label>'+t("password2")+'</label>'+pwField("cpNew2","new-password")+'</div></div>'+
+      '<div class="xactions"><button class="btn-n" id="cpSave" style="width:auto">'+t("changePass")+'</button><span class="xmsg" id="cpMsg"></span></div>'+
+      '<div class="acs-sub" style="margin-top:8px">'+t("changePhone")+'</div>'+
+      '<div class="row"><div class="fl"><label>'+t("currentPhone")+'</label><input value="'+esc(USER.phone)+'" readonly class="ltr" style="background:var(--page);color:var(--grey)"></div>'+
+      '<div class="fl"><label>'+t("newPhone")+'</label><div class="pw">'+ccSelect("npCC",ccOf(USER.phone))+'<input id="npNum" autocomplete="off" inputmode="numeric" placeholder=""></div></div></div>'+
+      '<div class="fl"><label>'+t("password")+'</label>'+pwField("npPass","off")+'</div>'+
+      '<div class="xactions"><button class="btn-n" id="npSave" style="width:auto">'+t("changePhone")+'</button><span class="xmsg" id="npMsg"></span></div>'+
+      '<div class="hintx">'+t("phoneWarn")+'</div>', "")+
+   '</div></div></div>'}
+function wireAccountNav(){
+  $$("[data-acsec]").forEach(function(a){ a.onclick=function(){ var id=this.dataset.acsec; ACC.sec=id; $$("[data-acsec]").forEach(function(x){ x.classList.toggle("on", x.dataset.acsec===id) });
+    var el=$("#acs-"+id); if(el) el.scrollIntoView({behavior:"smooth",block:"start"}) } });
+  if($("#agStart")) $("#agStart").onclick=function(){ ACC.agForm=true; ACC.sec="agency"; render(); var el=$("#acs-agency"); if(el) el.scrollIntoView({block:"start"}) };
+  if(VIEW==="agencyform"){ var ag=$("#acs-agency"); if(ag && !window._acScrolled){ window._acScrolled=true; setTimeout(function(){ ag.scrollIntoView({block:"start"}) },50) } }
+}
 
 function gate(){
  return '<div class="wrap" style="max-width:520px;padding:44px 18px 70px"><div class="done2">'+
@@ -6184,32 +6220,13 @@ function agencyPage(id){
     '<div class="agcontact">'+(a.phone?'<a class="btn-n" href="tel:'+esc(a.phone)+'">'+MI.phone+GX("agCall")+'</a>':'')+(wa?'<a class="btn-n wa" href="https://wa.me/'+wa+'" target="_blank" rel="noopener">'+MI.msgs+GX("agWa")+'</a>':'')+
       (a.email?'<a class="gh" href="mailto:'+esc(a.email)+'">'+MI.mail+GX("agEmail")+'</a>':'')+(a.website?'<a class="gh" href="'+esc(a.website)+'" target="_blank" rel="noopener">'+MI.about+GX("agWeb")+'</a>':'')+
       '<a class="gh" data-agseller="'+esc(a.user_id)+'">'+MI.mine+GX("agMemberPage")+'</a>'+
-      (USER&&USER.id===a.user_id?'<a class="gh agown" data-go="agencyform">'+GX("agEditBtn")+'</a>':'')+'</div>'+   // the owner: straight to the edit page (Telegram link card lives there)
+      (USER&&USER.id===a.user_id?'<a class="gh agown" data-go="agencyform">'+GX("accManage")+'</a>':'')+'</div>'+   // the owner: straight to the edit page (Telegram link card lives there)
     ((a.gov_names||[]).length||(a.area_names||[]).length ? '<div class="blk" style="margin-top:16px"><h3>'+GX("agAreasServed")+'</h3><div class="in"><div class="agchips">'+
       (a.gov_names||[]).map(function(g){ return '<a class="chip" data-go="search" data-gov="'+esc(g)+'">'+gN(g)+'</a>' }).join("")+(a.area_names||[]).map(function(x){ return '<a class="chip soft" data-agarea="'+esc(x)+'">'+aN(x)+'</a>' }).join("")+'</div></div></div>' : '')+
     '<h2 style="font-size:18px;font-weight:700;margin:22px 0 12px">'+GX("agListingsH")+' <span class="ltr" style="color:var(--grey);font-weight:500">('+mine.length+')</span></h2>'+
     (mine.length?'<div class="res">'+mine.map(function(x,i){ return card(x,i,false) }).join("")+'</div>':'<div class="resempty"><b>'+GX("agNoListings")+'</b></div>')+
    '</div>' }
-function agencyFormPage(){
-  if(!USER) return gate();
-  var a=MYAGENCY||{}, govs=Object.keys(D.GEO), selG=a.gov_names||[], selA=a.area_names||[], specs=a.specialties||[];
-  var areaOpts=selG.reduce(function(acc,g){ return acc.concat((D.GEO[g]||[]).map(function(x){ return [g,x] })) },[]);
-  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a data-go="agencies">'+GX("agDirShort")+'</a><i>›</i>'+GX("agFormT")+'</div></div>'+
-   '<div class="wrap" style="max-width:760px;padding:22px 18px 60px">'+
-    '<h1 style="font-size:22px;font-weight:700;margin-bottom:6px">'+GX("agFormT")+'</h1><p class="hintx" style="margin-bottom:16px">'+GX("agFormP")+'</p>'+
-    (MYAGENCY===null?'<div class="hintx" style="margin-bottom:12px">'+t("loading")+'</div>':'')+
-    (MYAGENCY&&MYAGENCY.id?'<div class="agstatus">'+agStatusPill(MYAGENCY.status)+(MYAGENCY.status==="approved"?' <a data-agopen="'+MYAGENCY.id+'" class="agviewlink">'+GX("agView")+'</a>':'')+'</div>':'')+agencyIntakeHtml()+
-    '<div class="blk agform"><div class="in">'+
-     '<div class="aglogo-row">'+avatar(USER.avatar_url,a.name||USER.name,64,"big")+'<div class="hintx">'+GX("agLogoHint")+' <a data-go="account" style="color:var(--navy);text-decoration:underline;cursor:pointer">'+t("settings")+'</a></div></div>'+
-     '<div class="row"><div class="fl"><label class="req">'+GX("f_agName")+'</label><input data-allow-autofill id="agName" value="'+esc(a.name||"")+'"></div><div class="fl"><label>'+GX("f_agPhone")+'</label><input data-allow-autofill id="agPhone" class="ltr" value="'+esc(a.phone||USER.phone||"")+'"></div></div>'+
-     '<div class="row"><div class="fl"><label>'+GX("f_agWa")+'</label><input data-allow-autofill id="agWa" class="ltr" value="'+esc(a.whatsapp||"")+'"></div><div class="fl"><label>'+GX("f_agEmail")+'</label><input data-allow-autofill id="agEmail" class="ltr" value="'+esc(a.email||"")+'"></div></div>'+
-     '<div class="row"><div class="fl"><label>'+GX("f_agWeb")+'</label><input data-allow-autofill id="agWeb" class="ltr" value="'+esc(a.website||"")+'" placeholder="https://"></div><div class="fl"><label>'+GX("f_agAddress")+'</label><input data-allow-autofill id="agAddress" value="'+esc(a.address||"")+'"></div></div>'+
-     '<div class="fl"><label>'+GX("f_agDesc")+'</label><textarea id="agDesc" maxlength="600">'+esc(a.description||"")+'</textarea></div>'+
-     '<div class="fl"><label>'+GX("f_agSpecs")+'</label><div class="ag-pills sel" id="agSpecs">'+AG_SPECS.map(function(k){ return '<button type="button" class="'+(specs.indexOf(k)>-1?"on":"")+'" data-agspec="'+k+'">'+agSpecLabel(k)+'</button>' }).join("")+'</div></div>'+
-     '<div class="fl"><label>'+GX("f_agGovs")+'</label><div class="ag-pills sel" id="agGovs">'+govs.map(function(g){ return '<button type="button" class="'+(selG.indexOf(g)>-1?"on":"")+'" data-aggov="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
-     (areaOpts.length?'<div class="fl"><label>'+GX("f_agAreas")+'</label><div class="ag-pills sel wrap" id="agAreas">'+areaOpts.map(function(p){ return '<button type="button" class="'+(selA.indexOf(p[1])>-1?"on":"")+'" data-agarea2="'+esc(p[1])+'">'+aN(p[1])+'</button>' }).join("")+'</div></div>':'')+
-     '<div class="xactions"><button class="btn-n" id="agSave" style="width:auto">'+t("saveChanges")+'</button><span class="xmsg" id="agMsg"></span></div>'+
-    '</div></div></div>' }
+function agencyFormPage(){ if(!USER) return gate(); ACC.agForm=true; return account() }
 /* ── message intake on the site: paste a WhatsApp text into the post form; the agency's "post by message" block ── */
 function intakeUrl(route){ return CONFIG.supabaseUrl+"/functions/v1/bk-intake/"+route }
 function quickFillHtml(){
@@ -6312,9 +6329,12 @@ function wireAgencies(){
   if(VIEW.indexOf("agency:")===0){ var id=VIEW.split(":")[1]; if(!AGENCY || String(AGENCY.id)!==String(id)) loadAgency(id).then(render);
     $$("[data-agseller]").forEach(function(a){ a.onclick=function(){ var uid=this.dataset.agseller; BYUSER={id:uid,name:"",rows:[]}; VIEW="by:"+uid; scrollTo(0,0); render(); loadByUser(uid).then(render) } });
     $$("[data-agarea]").forEach(function(a){ a.onclick=function(){ F.areas=[this.dataset.agarea]; F.govs=[]; F.g=""; F.a=""; F.page=1; VIEW="search"; scrollTo(0,0); render() } }) }
-  if(VIEW==="agencyform" && USER){
+  if(VIEW!=="agencyform" && VIEW!=="account") window._acScrolled=false;
+  if((VIEW==="agencyform"||VIEW==="account") && USER){
     if(MYAGENCY===null) loadMyAgency().then(render);
     if(MYAGENCY&&MYAGENCY.id&&MYAGENCY.status==="approved"&&MYINTAKE===null) loadMyIntake().then(render);
+    wireAccountNav();
+    if(!$("#agName")) return;
     var collectAg=function(){ MYAGENCY=Object.assign({},MYAGENCY||{},{name:$("#agName").value,phone:$("#agPhone").value,whatsapp:$("#agWa").value,email:$("#agEmail").value,website:$("#agWeb").value,address:$("#agAddress").value,description:$("#agDesc").value,
       specialties:$$("#agSpecs .on").map(function(b){ return b.dataset.agspec }),gov_names:$$("#agGovs .on").map(function(b){ return b.dataset.aggov }),area_names:$$("#agAreas .on").map(function(b){ return b.dataset.agarea2 })}) };
     $$("[data-agspec],[data-agarea2]").forEach(function(b){ b.onclick=function(){ this.classList.toggle("on") } });
@@ -7493,6 +7513,7 @@ function wireAuth(){
                                           p_family:$("#acFam").value.trim(),
                                           p_city:($("#acCity")||{}).value||null,
                                           p_country:($("#acCountry")||{}).value||null});
+     if($("#acBio") && ($("#acBio").value||"")!==(u.bio||"")) u=await rpc("bk_set_bio",{p_id:USER.id,p_bio:$("#acBio").value||null});
      USER=u; saveSession(u); render();
      if($("#acMsg")) $("#acMsg").textContent=t("savedOk");
    }catch(e){ self.disabled=false; self.textContent=t("saveChanges");
@@ -7523,12 +7544,6 @@ function wireAuth(){
  if($("#avDel")) $("#avDel").onclick=async function(){
    try{ var u=await rpc("bk_set_avatar",{p_id:USER.id,p_url:null});
         USER=u; saveSession(u); render() }catch(e){ alert(e.message||"error") }};
- if($("#bioSave")) $("#bioSave").onclick=async function(){
-   var m=$("#bioMsg"); this.disabled=true; this.textContent=t("saving");
-   try{ var u=await rpc("bk_set_bio",{p_id:USER.id,p_bio:$("#acBio").value||null});
-        USER=u; saveSession(u); render(); if($("#bioMsg")) $("#bioMsg").textContent=t("savedOk");
-   }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" }
-        this.disabled=false; this.textContent=t("saveChanges") }};
 
  if($("#cpSave"))$("#cpSave").onclick=async function(){
    var m=$("#cpMsg"), b=this;
@@ -9733,6 +9748,11 @@ var GX_T={
   ik_logH:{ar:"السجل",en:"Log",de:"Protokoll"}, ik_saved:{ar:"تم الحفظ",en:"Saved",de:"Gespeichert"}, ik_pubDone:{ar:"تم النشر: {r}",en:"Published: {r}",de:"Veröffentlicht: {r}"}, ik_delConfirm:{ar:"حذف هذه المسوّدة؟ الصور غير المنشورة تبقى في التخزين ضمن مجلد intake.",en:"Delete this draft? Unpublished photos stay in storage under the intake folder.",de:"Diesen Entwurf löschen? Unveröffentlichte Fotos bleiben im Speicher (intake)."},
   ik_f_deal:{ar:"بيع/إيجار",en:"Sale/rent",de:"Verkauf/Miete"}, ik_f_type:{ar:"النوع",en:"Type",de:"Typ"}, ik_f_gov:{ar:"المحافظة",en:"Governorate",de:"Provinz"}, ik_f_area:{ar:"المنطقة",en:"Area",de:"Gegend"}, ik_f_landmark:{ar:"معلم قريب",en:"Landmark",de:"Orientierungspunkt"}, ik_f_price:{ar:"السعر",en:"Price",de:"Preis"}, ik_f_cur:{ar:"العملة",en:"Currency",de:"Währung"}, ik_f_m2:{ar:"المساحة م²",en:"Size m²",de:"Fläche m²"}, ik_f_rooms:{ar:"الغرف",en:"Rooms",de:"Zimmer"}, ik_f_baths:{ar:"الحمامات",en:"Baths",de:"Bäder"}, ik_f_living:{ar:"الصالونات",en:"Living rooms",de:"Wohnzimmer"}, ik_f_floor:{ar:"الطابق",en:"Floor",de:"Etage"}, ik_f_year:{ar:"سنة البناء",en:"Year built",de:"Baujahr"}, ik_f_tabu:{ar:"رمز الطابو",en:"Deed code",de:"Grundbuch-Code"}, ik_f_cond:{ar:"رمز الحالة",en:"Condition code",de:"Zustands-Code"}, ik_f_period:{ar:"فترة الإيجار",en:"Rental period",de:"Mietzeitraum"}, ik_f_furn:{ar:"مفروش",en:"Furnished",de:"Möbliert"}, ik_f_negot:{ar:"قابل للتفاوض",en:"Negotiable",de:"Verhandelbar"}, ik_f_phone:{ar:"هاتف التواصل",en:"Contact phone",de:"Kontakttelefon"}, ik_f_desc:{ar:"الوصف",en:"Description",de:"Beschreibung"},
   agNotPaired:{ar:"لم يُربط بعد",en:"Not linked yet",de:"Noch nicht verbunden"},
+  accTitle:{ar:"حسابي",en:"My account",de:"Mein Konto",fr:"Mon compte"}, accAgency:{ar:"المكتب",en:"Agency",de:"Büro",fr:"Agence"}, accBecomeAgency:{ar:"سجّل مكتبك",en:"Register an agency",de:"Büro registrieren",fr:"Inscrire une agence"},
+  accMe:{ar:"بياناتي",en:"My details",de:"Meine Daten",fr:"Mes informations"}, accSecurity:{ar:"الأمان",en:"Security",de:"Sicherheit",fr:"Sécurité"}, accManage:{ar:"إدارة المكتب",en:"Manage agency",de:"Büro verwalten",fr:"Gérer l'agence"},
+  accLogo:{ar:"شعار المكتب",en:"Agency logo",de:"Büro-Logo",fr:"Logo de l'agence"}, accLogoHint:{ar:"يظهر في دليل المكاتب وعلى بطاقات إعلاناتك، وهو نفسه صورة حسابك.",en:"Shown in the agency directory and on your listing cards; it is also your account photo.",de:"Erscheint im Büroverzeichnis und auf Ihren Anzeigenkarten; zugleich Ihr Profilbild.",fr:"Affiché dans l'annuaire et sur vos annonces ; c'est aussi la photo de votre compte."},
+  accCtaT:{ar:"هل أنت مكتب عقاري؟",en:"Are you a real-estate agency?",de:"Sind Sie ein Immobilienbüro?",fr:"Vous êtes une agence immobilière ?"}, accCtaP:{ar:"سجّل مكتبك ليظهر في دليل المكاتب، ويحصل على شعاره في البطاقات، ويستطيع نشر إعلاناته عبر تيليغرام.",en:"Register it to appear in the directory, get your logo on the cards, and post listings through Telegram.",de:"Registrieren Sie es, um im Verzeichnis zu erscheinen, Ihr Logo auf den Karten zu zeigen und Anzeigen per Telegram zu senden.",fr:"Inscrivez-la pour figurer dans l'annuaire, afficher votre logo sur les annonces et publier via Telegram."},
+  accPendingHint:{ar:"بانتظار موافقة فريق بلكون؛ يمكنك تعديل البيانات في أي وقت.",en:"Awaiting the Balkoun team's approval; you can edit the details any time.",de:"Wartet auf Freigabe durch das Balkoun-Team; Sie können die Daten jederzeit ändern.",fr:"En attente de validation par l'équipe Balkoun ; modifiable à tout moment."},
   agSince:{ar:"منذ",en:"since",de:"seit"}, agNewCode:{ar:"رمز جديد",en:"New code",de:"Neuer Code"}, agNewCodeHint:{ar:"يُلغي الرمز القديم فوراً؛ المحادثة المربوطة تبقى مربوطة",en:"Replaces the old code at once; an already linked chat stays linked",de:"Ersetzt den alten Code sofort; ein bereits verbundener Chat bleibt verbunden"}, agNewCodeConfirm:{ar:"إنشاء رمز ربط جديد؟ الرمز القديم لن يعمل بعد الآن.",en:"Create a new link code? The old one stops working immediately.",de:"Neuen Verbindungscode erstellen? Der alte funktioniert dann nicht mehr."}, agIntakeHint:{ar:"عند التفعيل يستطيع المكتب إرسال إعلاناته إلى بوت تيليغرام وتُنشر تلقائياً.",en:"When on, the agency can send its listings to the Telegram bot and they publish automatically.",de:"Wenn an, kann das Büro Anzeigen an den Telegram-Bot senden; sie werden automatisch veröffentlicht."},
   agIntakeOn:{ar:"مفعّل",en:"On",de:"An"}, agIntakeOff:{ar:"مطفأ",en:"Off",de:"Aus"}, agTrustOn:{ar:"موثوق: ينشر مباشرة",en:"Trusted: publishes live",de:"Vertraut: sofort online"}, agTrustOff:{ar:"غير موثوق: مراجعة أولاً",en:"Not trusted: review first",de:"Nicht vertraut: erst Prüfung"}, agPairedTg:{ar:"تيليغرام مربوط",en:"Telegram linked",de:"Telegram verbunden"}, agIntakeCode:{ar:"رمز الربط",en:"Link code",de:"Verbindungscode"},
   rejectBtn:{ar:"رفض",en:"Reject",de:"Ablehnen"}, rejectReasonQ:{ar:"سبب الرفض (يظهر لصاحب الإعلان في إشعار):",en:"Reason for rejection (the owner sees it in a notification):",de:"Grund der Ablehnung (der Inserent sieht ihn als Benachrichtigung):"},
