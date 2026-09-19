@@ -1887,6 +1887,19 @@ h1,h2,h3,.logo,.hero h1{letter-spacing:0}
 .adbell-sub{font-size:11px;font-weight:700;color:var(--light);letter-spacing:.04em;text-transform:uppercase;padding:10px 10px 4px;border-top:1px solid var(--line);margin-top:4px}
 .adbell-empty{padding:14px 10px;color:var(--grey);font-size:13px}
 .adm-acct{max-width:720px;margin:16px auto 0;padding:0 18px}
+.adm-acct2{max-width:860px;display:flex;flex-direction:column;gap:12px}.adm-acct2 .blk{margin:0}
+.tmid{display:flex;align-items:center;gap:12px}.tmid .ava2.big{width:44px;height:44px;font-size:18px;border-radius:12px}
+.tmrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.reccodes{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}.reccodes span{display:block;text-align:center;font-weight:700;letter-spacing:2px;background:var(--gold-w);border:1px dashed var(--gold);border-radius:10px;padding:10px 6px;font-size:15px}
+.tmlist{display:flex;flex-direction:column;gap:12px}
+.tmcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;grid-template-columns:minmax(220px,1.3fr) minmax(150px,1fr) minmax(180px,1.4fr) minmax(150px,.9fr) auto;gap:12px 18px;align-items:start}
+.tmcard.open{box-shadow:0 0 0 2px var(--gold)}.tmcol small{display:block;font-size:11.5px;color:var(--light);margin-bottom:4px}
+.chips{display:flex;flex-wrap:wrap;gap:4px}.chip{font-size:12px;background:var(--page);border:1px solid var(--line);border-radius:999px;padding:2px 9px;white-space:nowrap}.chip.gold{background:var(--gold-w);border-color:var(--gold)}.chip.muted{color:var(--light)}
+.tmacts{display:flex;flex-direction:column;gap:6px;align-items:stretch}.tmacts .ab{width:100%}
+.tmedit{grid-column:1/-1;border-top:1px solid var(--line);padding-top:12px}.tmgroup{margin-top:8px}.tmgroup small{font-size:12px;color:var(--grey)}
+.adlogin .vopts{margin:4px 0 10px}.adlogin .aun{margin-top:8px;text-align:center;font-size:13px}.adlogin .aun a{color:var(--navy);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.memno{background:var(--gold-w);border:1px solid var(--gold);border-radius:999px;padding:1px 8px;font-size:12px;font-weight:700}
+@media(max-width:900px){.tmcard{grid-template-columns:1fr 1fr}.tmacts{flex-direction:row;flex-wrap:wrap;grid-column:1/-1}.tmacts .ab{width:auto}}
 .adm .ashell{max-width:none;margin:0;align-items:stretch}
 .adm .asidebar{width:240px;min-height:calc(100vh - 58px);top:58px;background:#fff;border-inline-end:1px solid var(--line);padding:14px 10px}
 .adm .asidebar-group{margin-bottom:12px}
@@ -3854,10 +3867,10 @@ function verifyPollStart(onVerified, onGone){
   verifyPollStop(); var until=Date.now()+20*60e3, busy=false, ticket=AU.ticket, secret=AU.secret;
   VPOLL=setInterval(async function(){
     if(busy) return;
-    if(Date.now()>until || !AU.open || AU.ticket!==ticket){ verifyPollStop(); return }
+    if(Date.now()>until || !(AU.open||AU.pollKeep) || AU.ticket!==ticket){ verifyPollStop(); return }
     busy=true;
     try{ var r=await rpc("bk_verify_status",{p_ticket:ticket,p_secret:secret});
-      if(AU.ticket!==ticket || !AU.open){ verifyPollStop() }
+      if(AU.ticket!==ticket || !(AU.open||AU.pollKeep)){ verifyPollStop() }
       else if(r.verified){ verifyPollStop(); await onVerified(r) }
       else if(r.status==="expired"||r.status==="rejected"){ verifyPollStop(); onGone(r.status) }
     }catch(e){ verifyPollStop(); onGone("error") }
@@ -5364,7 +5377,7 @@ function account(){
      accLogoHtml(true)+agencyFormFields();
  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("accTitle")+'</div></div>'+
   '<div class="wrap acct2">'+
-   '<div class="acct-h">'+avatar(USER.avatar_url,USER.name,52,"big")+'<div><h1>'+esc(fullName(USER))+'</h1><p>'+(isAg?esc(MYAGENCY.name)+' · ':'')+'<span class="ltr">'+esc(USER.phone||"")+'</span></p></div></div>'+
+   '<div class="acct-h">'+avatar(USER.avatar_url,USER.name,52,"big")+'<div><h1>'+esc(fullName(USER))+'</h1><p>'+(USER.member_no?'<span class="memno" title="'+esc(GX("accMemberNo"))+'"><span class="ltr">'+esc(USER.member_no)+'</span></span> · ':'')+(isAg?esc(MYAGENCY.name)+' · ':'')+'<span class="ltr">'+esc(USER.phone||"")+'</span></p></div></div>'+
    '<div class="acct-grid"><nav class="acct-nav" aria-label="'+esc(GX("accTitle"))+'">'+nav.map(function(n){ return '<a class="'+(n[0]===cur?"on":"")+'" data-acsec="'+n[0]+'">'+n[1]+'<span>'+n[2]+'</span>'+(n[3]?'<span class="acnav-st">'+n[3]+'</span>':'')+'</a>' }).join("")+'</nav>'+
    '<div class="acct-main">'+
     sec("agency", isAg?GX("accAgency"):GX("accBecomeAgency"), agencyBody, "")+
@@ -9938,6 +9951,44 @@ var GX_T={
   ik_ntfQuietHint:{ar:"أثناء ساعات الهدوء تتجمّع التنبيهات وتصل في رسالة واحدة عند انتهائها. اترك الحقلين فارغين لإلغاء الهدوء.",en:"During quiet hours alerts wait and arrive as one message afterwards. Leave both empty for no quiet hours.",de:"In Ruhezeiten warten Hinweise und kommen danach gesammelt. Beide Felder leer = keine Ruhezeit."},
   ik_ntfTest:{ar:"أرسل رسالة اختبار",en:"Send a test message",de:"Testnachricht senden"},
   ik_ntfTestOk:{ar:"أُرسلت ✓ تحقق من تيليغرام.",en:"Sent ✓ check Telegram.",de:"Gesendet ✓ Telegram prüfen."},
+  accMemberNo:{ar:"رقم العضوية",en:"Member number",de:"Mitgliedsnummer"},
+  uUnverified:{ar:"غير مؤكد",en:"Unconfirmed",de:"Unbestätigt"},
+  admForgot:{ar:"نسيت كلمة المرور؟",en:"Forgot your password?",de:"Passwort vergessen?"},
+  admRecT:{ar:"استعادة حساب الإدارة",en:"Recover the admin account",de:"Admin-Konto wiederherstellen"},
+  admRecP:{ar:"أدخل رقم هاتف حساب الإدارة ثم اختر طريقة الاستعادة:",en:"Enter the admin account's phone, then pick a recovery road:",de:"Telefonnummer des Admin-Kontos eingeben, dann den Weg wählen:"},
+  admRecTg:{ar:"عبر تيليغرام",en:"Through Telegram",de:"Über Telegram"},
+  admRecTgP:{ar:"يثبت بوت بلكون أن رقم الهاتف يخصك، ثم تختار كلمة مرور جديدة",en:"The Balkoun bot proves the phone is yours, then you choose a new password",de:"Der Balkoun-Bot bestätigt die Nummer, dann wählen Sie ein neues Passwort"},
+  admRecCode:{ar:"رمز استعادة",en:"Recovery code",de:"Wiederherstellungscode"},
+  admRecCodeP:{ar:"أحد الرموز الثمانية التي حفظتها من صفحة حسابك في اللوحة",en:"One of the eight codes you saved from your account card in the panel",de:"Einer der acht Codes aus Ihrer Kontokarte im Panel"},
+  admRecCodeL:{ar:"كل رمز يُستخدم مرة واحدة. أدخل الرقم والرمز وكلمة المرور الجديدة.",en:"Each code works once. Enter the phone, the code and the new password.",de:"Jeder Code gilt einmal. Nummer, Code und neues Passwort eingeben."},
+  admRecBadCode:{ar:"الرمز غير صحيح أو مستخدم من قبل.",en:"Wrong or already used code.",de:"Falscher oder bereits benutzter Code."},
+  admRecNotAdmin:{ar:"لا يوجد حساب إدارة بهذا الرقم.",en:"No admin account has this number.",de:"Kein Admin-Konto mit dieser Nummer."},
+  admRecNoTg:{ar:"بوت تيليغرام غير مفعّل بعد؛ استخدم رمز استعادة.",en:"The Telegram bot is not set up; use a recovery code.",de:"Der Telegram-Bot ist nicht eingerichtet; Wiederherstellungscode verwenden."},
+  admRecDone:{ar:"تم تغيير كلمة المرور وإغلاق كل الجلسات القديمة. سجّل الدخول من جديد.",en:"Password changed and every old session closed. Sign in again.",de:"Passwort geändert, alle alten Sitzungen beendet. Bitte neu anmelden."},
+  admRecBack:{ar:"رجوع إلى تسجيل الدخول",en:"Back to sign in",de:"Zurück zur Anmeldung"},
+  admMeT:{ar:"حسابي في الإدارة",en:"My admin account",de:"Mein Admin-Konto"},
+  admMeTgT:{ar:"تيليغرام والتنبيهات",en:"Telegram and alerts",de:"Telegram und Hinweise"},
+  admMeTgHint:{ar:"اربط تيليغرام لتصلك تنبيهات اللوحة على هاتفك ولتستطيع استعادة كلمة المرور. الرابط خاص بك وحدك.",en:"Pair Telegram to get the panel's alerts on your phone and to be able to recover your password. The link is yours alone.",de:"Telegram verbinden, um Panel-Hinweise aufs Handy zu bekommen und das Passwort wiederherstellen zu können. Der Link gilt nur für Sie."},
+  admMeTgLink:{ar:"اربط تيليغرام",en:"Pair Telegram",de:"Telegram verbinden"},
+  admMeAlerts:{ar:"أرسل لي تنبيهات اللوحة على تيليغرام (حسب دولي)",en:"Send me the panel's alerts on Telegram (my countries)",de:"Panel-Hinweise per Telegram senden (meine Länder)"},
+  admMeRecT:{ar:"رموز الاستعادة",en:"Recovery codes",de:"Wiederherstellungscodes"},
+  admMeRecHint:{ar:"ثمانية رموز، كل واحد يفتح حسابك مرة واحدة إذا فقدت كلمة المرور وتيليغرام معاً. احفظها في مكان آمن خارج الحاسوب.",en:"Eight codes; each opens your account once if you lose both the password and Telegram. Keep them somewhere safe, off this computer.",de:"Acht Codes; jeder öffnet das Konto einmal, falls Passwort und Telegram verloren sind. Sicher außerhalb dieses Rechners aufbewahren."},
+  admMeRecGen:{ar:"أنشئ رموز الاستعادة",en:"Create recovery codes",de:"Codes erstellen"},
+  admMeRecRegen:{ar:"رموز جديدة",en:"New codes",de:"Neue Codes"},
+  admMeRecRegenConfirm:{ar:"إنشاء رموز جديدة يُبطل الرموز القديمة كلها. متابعة؟",en:"New codes cancel all the old ones. Continue?",de:"Neue Codes machen alle alten ungültig. Fortfahren?"},
+  admMeRecLeft:{ar:"{n} رموز متبقية",en:"{n} codes left",de:"{n} Codes übrig"},
+  admMeRecNone:{ar:"لا توجد رموز استعادة بعد.",en:"No recovery codes yet.",de:"Noch keine Codes."},
+  admMeRecWarn:{ar:"تظهر هذه الرموز مرة واحدة فقط. انسخها الآن.",en:"These codes are shown only once. Copy them now.",de:"Diese Codes werden nur einmal gezeigt. Jetzt kopieren."},
+  admMeRecHide:{ar:"نسختها، أغلق",en:"Copied, close",de:"Kopiert, schließen"},
+  tmPaired:{ar:"مربوط",en:"Paired",de:"Verbunden"}, tmNotPaired:{ar:"غير مربوط",en:"Not paired",de:"Nicht verbunden"},
+  tmAllCountries:{ar:"كل الدول",en:"All countries",de:"Alle Länder"},
+  tmUnpair:{ar:"فصل تيليغرام",en:"Unpair Telegram",de:"Telegram trennen"},
+  tmUnpairConfirm:{ar:"فصل تيليغرام؟ تتوقف التنبيهات حتى يُربط من جديد.",en:"Unpair Telegram? Alerts stop until it is paired again.",de:"Telegram trennen? Hinweise stoppen bis zur erneuten Verbindung."},
+  tmAlerts:{ar:"تنبيهات تيليغرام",en:"Telegram alerts",de:"Telegram-Hinweise"},
+  tmLastSeen:{ar:"آخر ظهور",en:"last seen",de:"zuletzt"},
+  tmNewPwPrompt:{ar:"كلمة المرور الجديدة لهذا المدير (6 أحرف على الأقل):",en:"New password for this admin (6+ characters):",de:"Neues Passwort für diesen Admin (mind. 6 Zeichen):"},
+  tmHowPair:{ar:"كل مدير يربط تيليغرام بنفسه: يفتح اللوحة، يضغط اسمه في أعلى الصفحة، ثم «اربط تيليغرام». بعدها تصله تنبيهات دوله فقط، ويستطيع استعادة كلمة مروره عبر البوت. أنت تتحكم من هنا بالصلاحيات والدول وتشغيل التنبيهات لكل مدير.",en:"Every admin pairs Telegram themselves: open the panel, press your name at the top, then “Pair Telegram”. They then receive alerts for their countries only and can recover their password through the bot. From here you control each admin's permissions, countries and alerts.",de:"Jeder Admin verbindet Telegram selbst: Panel öffnen, oben auf den Namen tippen, dann „Telegram verbinden“. Danach erhält er nur Hinweise für seine Länder und kann sein Passwort über den Bot wiederherstellen. Hier steuern Sie Rechte, Länder und Hinweise pro Admin."},
+  tmGroupContent:{ar:"المحتوى",en:"Content",de:"Inhalt"}, tmGroupPeople:{ar:"الأشخاص",en:"People",de:"Personen"}, tmGroupInbox:{ar:"الوارد",en:"Inbox",de:"Eingang"}, tmGroupSystem:{ar:"النظام",en:"System",de:"System"},
   bellVerify:{ar:"أرقام بانتظار التأكيد",en:"Numbers to confirm",de:"Nummern zu bestätigen"},
   vfT:{ar:"تأكيد الأرقام (واتساب)",en:"Number confirmations (WhatsApp)",de:"Nummernbestätigungen (WhatsApp)"},
   vfHint:{ar:"كل طلب هنا أرسل صاحبه رمزاً إلى واتساب بلكون. قارن الرمز والرقم مع الرسالة التي وصلتك ثم أكّد.",en:"Each request here sent a code to Balkoun's WhatsApp. Compare the code and number with the message you received, then confirm.",de:"Jede Anfrage hier hat einen Code an Balkouns WhatsApp gesendet. Vergleichen Sie Code und Nummer mit der Nachricht und bestätigen Sie."},

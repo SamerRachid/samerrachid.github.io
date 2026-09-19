@@ -47,17 +47,38 @@ function wireAdminBell(){
   $$("#adBellMenu [data-goto]").forEach(function(a){ a.onclick=function(){ ADM.bellOpen=false; var g=this.dataset.goto.split(":"); ADM.tab=g[0]; if(g[0]==="listings" && g[1]) ADM.lstatus=g[1]; if(g[0]==="agencies_adm") ADM._agLoaded=false; render() } });
   if(!window._adBellDoc){ window._adBellDoc=true; document.addEventListener("click",function(){ var mm=$("#adBellMenu"); if(mm){ mm.classList.remove("on"); ADM.bellOpen=false } }) }
 }
+var REC=ADM.rec||(ADM.rec={mode:null});
+function adminRecoveryHtml(){
+  var m=REC.mode, phoneRow='<div class="fl"><label>'+t("mobile")+'</label><div class="pw">'+ccSelect("adCC",REC.cc||phoneCC())+'<input id="adPhone" inputmode="numeric" autocomplete="off" value="'+esc(REC.phone||"")+'"></div></div>';
+  var back='<div class="aun"><a id="adRecBack">'+GX("admRecBack")+'</a></div>', err='<div class="auerr" id="adErr">'+(ADM.msg||"")+'</div>';
+  if(m==="pick") return '<p class="vlead">'+GX("admRecP")+'</p>'+phoneRow+
+    '<div class="vopts"><button type="button" class="vopt" id="adRecTg"><span class="vico tg">'+VICO.tg+'</span><span class="vtxt"><b>'+GX("admRecTg")+'</b><small>'+GX("admRecTgP")+'</small></span></button>'+
+    '<button type="button" class="vopt" id="adRecCode"><span class="vico" style="background:var(--navy)">'+AICO.key+'</span><span class="vtxt"><b>'+GX("admRecCode")+'</b><small>'+GX("admRecCodeP")+'</small></span></button></div>'+err+back;
+  if(m==="tg"){ var link="https://t.me/"+encodeURIComponent(REC.bot||"")+"?start=v"+String(REC.ticket||"").replace(/-/g,"");
+    return '<a class="auw vtg" href="'+link+'" target="_blank" rel="noopener"><span class="vico">'+VICO.tg+'</span>'+GX("vOpenTg")+'</a>'+
+    '<ol class="vsteps"><li>'+GX("vTg1")+'</li><li>'+GX("vTg2")+'</li><li>'+GX("vTg3")+'</li></ol><div class="vwait"><i class="vspin"></i><span>'+GX("vWaiting")+'</span></div>'+err+back }
+  if(m==="newpass") return '<div class="vok">✓ '+GX("vVerifiedNow")+'</div>'+
+    '<div class="fl"><label>'+t("newPass")+'</label>'+pwField("adNew1","new-password",t("min6"))+'</div><div class="fl"><label>'+t("password2")+'</label>'+pwField("adNew2","new-password")+'</div>'+
+    '<button class="btn-n" id="adRecSave" style="width:100%">'+t("savePass")+'</button>'+err;
+  if(m==="code") return '<p class="vlead">'+GX("admRecCodeL")+'</p>'+phoneRow+
+    '<div class="fl"><label>'+GX("admRecCode")+'</label><input id="adRecCodeIn" class="ltr" autocomplete="off" placeholder="XXXX-XXXX" style="letter-spacing:2px;font-weight:700"></div>'+
+    '<div class="fl"><label>'+t("newPass")+'</label>'+pwField("adNew1","new-password",t("min6"))+'</div><div class="fl"><label>'+t("password2")+'</label>'+pwField("adNew2","new-password")+'</div>'+
+    '<button class="btn-n" id="adRecCodeGo" style="width:100%">'+t("savePass")+'</button>'+err+back;
+  if(m==="done") return '<div class="vok">✓ '+GX("admRecDone")+'</div><button class="btn-n" id="adRecBack" style="width:100%">'+t("login")+'</button>';
+  return '' }
 function adminView(){
  if(!ADM.token) return ''+
-  '<div class="wrap" style="max-width:420px;padding:56px 18px 80px"><div class="blk">'+
-  '<h3><span class="n">⚑</span>'+t("adminLogin")+'</h3><div class="in">'+
+  '<div class="wrap adlogin" style="max-width:440px;padding:56px 18px 80px"><div class="blk">'+
+  '<h3><span class="n">⚑</span>'+(REC.mode?GX("admRecT"):t("adminLogin"))+'</h3><div class="in">'+
+  (REC.mode ? adminRecoveryHtml() :
   '<div class="fl"><label>'+t("mobile")+'</label><div class="pw">'+ccSelect("adCC",phoneCC())+
    '<input id="adPhone" inputmode="numeric" autocomplete="off"></div></div>'+
   '<div class="fl"><label>'+t("password")+'</label>'+
    pwField("adPass","off")+'</div>'+
   '<button class="btn-n" id="adGo" style="width:100%">'+t("login")+'</button>'+
   '<div class="auerr" id="adErr">'+(ADM.msg||"")+'</div>'+
-  '<div class="hintx">'+t("adminHint")+'</div>'+
+  '<div class="aun"><a id="adForgot">'+GX("admForgot")+'</a></div>'+
+  '<div class="hintx">'+t("adminHint")+'</div>')+
   '</div></div></div>';
 
   var d=ADM.data||{stats:{},listings:[],users:[],reports:[],feedback:[],reviews:[]};
@@ -585,8 +606,28 @@ function adminView(){
      '<button class="ab" id="aNewAdminCancel">'+t("cancel")+'</button>'+
      '<span style="font-size:12.5px;color:var(--danger)">'+(ADM.newAdminMsg||"")+'</span></div>'+
     '</div></div>' : '')+
+   '<div class="blk" style="margin-bottom:16px"><div class="in hintx" style="font-size:13px;line-height:1.8">'+GX("tmHowPair")+'</div></div>'+
    (!admins.length ? '<div class="done2"><b>'+(ADM._adminsErr?esc(ADM._adminsErr):ADM._adminsDone?GX("noAdminsYet"):t("loading"))+'</b></div>' :
-   '<div class="atable"><table><thead><tr>'+
+   '<div class="tmlist">'+admins.map(function(a){
+      var nm=((a.name||"")+" "+(a.family_name||"")).trim(), editing=ADM.editPermsFor===a.id, groups=[["tmGroupContent",["listings","featured","homepage","ads"]],["tmGroupPeople",["users","passwords","reviews"]],["tmGroupInbox",["reports","feedback","msgs"]],["tmGroupSystem",["stats","settings"]]];
+      var perms=a.is_super_admin?'<span class="chip gold">'+t("allPermissions")+'</span>':((a.permissions||[]).length?a.permissions.map(function(p){ return '<span class="chip">'+t("perm_"+p)+'</span>' }).join(""):'<span class="chip muted">—</span>');
+      var countries=(a.admin_countries&&a.admin_countries.length)?a.admin_countries.map(function(cc){ return '<span class="chip">'+flagOf(cc)+' '+esc(countryName(countryOf(cc)||{code:cc})||cc)+'</span>' }).join(""):'<span class="chip gold">'+GX("tmAllCountries")+'</span>';
+      var card='<div class="tmcard'+(editing?' open':'')+'">'+
+        '<div class="tmid"><span class="ava2 big">'+esc((a.name||"?").charAt(0))+'</span><div><b>'+esc(nm)+'</b>'+(a.is_super_admin?' <span class="lvl lvl-vip">'+t("superAdmin")+'</span>':'')+
+          '<div class="usub"><span class="ltr">'+esc(a.member_no||"")+'</span> · <span class="ltr">'+esc(a.phone||"")+'</span>'+(a.last_seen_at?' · '+GX("tmLastSeen")+' '+when(a.last_seen_at):'')+'</div></div></div>'+
+        '<div class="tmcol"><small>'+GX("admCountriesL")+'</small><div class="chips">'+countries+'</div></div>'+
+        '<div class="tmcol"><small>'+t("permissionsL")+'</small><div class="chips">'+perms+'</div></div>'+
+        '<div class="tmcol"><small>Telegram</small>'+(a.tg_paired?'<span class="st st-live">✓ '+GX("tmPaired")+(a.tg_name?' · '+esc(a.tg_name):'')+'</span>':'<span class="st st-removed">'+GX("tmNotPaired")+'</span>')+
+          '<label class="xswitch" title="'+esc(GX("tmAlerts"))+'" style="margin-top:6px"><input type="checkbox" data-tmnotify="'+a.id+'"'+(a.notify_tg!==false?' checked':'')+(a.is_super_admin&&a.id!==ADM.meId?' disabled':'')+'><i></i></label><small style="display:block">'+GX("tmAlerts")+(a.recovery_left?' · '+GX("admMeRecLeft").replace("{n}",a.recovery_left):'')+'</small></div>'+
+        '<div class="tmacts">'+(a.is_super_admin?'':'<button class="ab" data-editperms="'+a.id+'">'+t("edit")+'</button>'+(can("passwords")?'<button class="ab" data-tmpw="'+a.id+'">'+t("resetPass")+'</button>':''))+
+          (a.tg_paired?'<button class="ab" data-tmunpair="'+a.id+'">'+GX("tmUnpair")+'</button>':'')+(a.is_super_admin?'':'<button class="ab bad" data-removeadmin="'+a.id+'">'+t("removeAdmin")+'</button>')+'</div>'+
+        (editing?'<div class="tmedit"><b>'+t("permissionsL")+'</b>'+groups.map(function(g){ return '<div class="tmgroup"><small>'+GX(g[0])+'</small><div class="chkgrid">'+g[1].map(function(p){ return '<label class="xcheck"><input type="checkbox" class="editPerm" value="'+p+'"'+((a.permissions||[]).indexOf(p)>-1?" checked":"")+'><span>'+t("perm_"+p)+'</span></label>' }).join("")+'</div></div>' }).join("")+
+          '<b style="display:block;margin-top:12px">'+GX("admCountriesL")+'</b><div class="hintx">'+GX("admCountriesHint")+'</div><div class="chkgrid" style="margin-top:6px">'+(ADM.countries||[]).map(function(c){ return '<label class="xcheck"><input type="checkbox" class="editCountry" value="'+esc(c.code)+'"'+((a.admin_countries||[]).indexOf(c.code)>-1?" checked":"")+'><span>'+flagOf(c.code)+' '+esc(countryName(c))+'</span></label>' }).join("")+'</div>'+
+          '<div class="xactions"><button class="ab ok" data-saveperms="'+a.id+'">'+t("save")+'</button><button class="ab" id="aEditPermsCancel">'+t("cancel")+'</button></div></div>':'')+
+        '</div>';
+      return card }).join("")+'</div>');
+ }
+ if(false){ body=(0,'<div class="atable"><table><thead><tr>'+
     [t("contactName"),t("mobile"),t("permissionsL"),GX("admCountriesL"),''].map(function(h){return '<th>'+h+'</th>'}).join("")+
     '</tr></thead><tbody>'+
     admins.map(function(a){
@@ -648,13 +689,7 @@ function adminView(){
     '<button class="adm-me" id="aMyAccount" title="'+t("myAdminAccount")+'"><span class="ava2">'+initial+'</span><span class="adm-me-n">'+(ADM.meName||"")+'</span>'+(ADM.isSuper?'<i class="adm-super">'+t("superAdmin")+'</i>':'')+'</button>'+
     '<button class="ab" id="adOut" title="'+t("logout")+'">'+AICO.out+'<span>'+t("logout")+'</span></button>'+
    '</div></header>'+
-  (ADM.myAccountOpen ? '<div class="adm-acct"><div class="blk"><h3>'+t("changeMyPass")+'</h3><div class="in">'+
-   '<div class="row"><div class="fl"><label>'+t("currentPass")+'</label><input id="myOldPass" type="text" autocomplete="off"></div>'+
-   '<div class="fl"><label>'+t("newPass")+'</label><input id="myNewPass" type="text" autocomplete="off" placeholder="'+t("min6")+'"></div></div>'+
-   '<div class="xactions"><button class="ab ok" id="myPwSave">'+t("savePass")+'</button>'+
-   '<button class="ab" id="myPwCancel">'+t("cancel")+'</button>'+
-   '<span class="xmsg">'+(ADM.myPwMsg||"")+'</span></div>'+
-   '</div></div></div>' : '')+
+  (ADM.myAccountOpen ? adminMeCard() : '')+
   '<div class="ashell">'+
    '<nav class="asidebar" id="aSidebar">'+NAV.map(function(g){ return sec(g.g, g.items.map(function(it){ return it[4] ? tab(it[0],it[1],it[2],it[3]) : "" }), g.items[0][0], g.items.some(function(it){ return it[0]===ADM.tab })) }).join("")+'</nav>'+
    '<main class="acontent"><div class="apage-h"><div>'+'<div class="apage-crumb">'+curGroup+(COUNTRY!=="SY"?(curGroup?' · ':'')+flagOf(COUNTRY)+' '+esc(countryName(countryOf(COUNTRY)))+'</div>':'</div>')+'<h1>'+curLabel+'</h1>'+
@@ -764,6 +799,34 @@ async function adminLoad(){
   catch(e){ ADM.token=null; ADM.msg=e.message||"error"; try{localStorage.removeItem("balkoun_adm")}catch(x){} }
   render();
 }
+function adminMeCard(){
+  var me=ADM.me;
+  if(!me) return '<div class="adm-acct"><div class="blk"><div class="in adashempty">'+t("loading")+'</div></div></div>';
+  var link="https://t.me/"+encodeURIComponent(me.bot||"")+"?start="+encodeURIComponent(String(me.tg_code||"").replace(/^ADM-/i,"adm-"));
+  var countries=(me.admin_countries||[]).length?me.admin_countries.map(function(cc){ return flagOf(cc)+' '+esc(countryName(countryOf(cc)||{code:cc})||cc) }).join(" · "):GX("tmAllCountries");
+  var codes=ADM.recCodes;
+  return '<div class="adm-acct adm-acct2">'+
+   '<div class="blk"><h3>'+GX("admMeT")+'</h3><div class="in">'+
+    '<div class="tmid"><span class="ava2 big">'+esc((me.name||"?").charAt(0))+'</span><div><b>'+esc(((me.name||"")+" "+(me.family_name||"")).trim())+'</b>'+(me.is_super_admin?' <span class="lvl lvl-vip">'+t("superAdmin")+'</span>':'')+
+     '<div class="usub"><span class="ltr">'+esc(me.member_no||"")+'</span> · <span class="ltr">'+esc(me.phone||"")+'</span></div><div class="usub">'+countries+'</div></div></div>'+
+   '</div></div>'+
+   '<div class="blk"><h3>'+GX("admMeTgT")+'</h3><div class="in">'+
+    (me.tg_paired ? '<div class="tmrow"><span class="st st-live">✓ '+GX("tmPaired")+(me.tg_name?' · '+esc(me.tg_name):'')+'</span><button type="button" class="ab" id="meTgUnpair">'+GX("tmUnpair")+'</button></div>'
+                  : '<div class="hintx" style="margin-bottom:10px">'+GX("admMeTgHint")+'</div><div class="tmrow"><a class="ab ok" href="'+link+'" target="_blank" rel="noopener"'+(me.bot?'':' style="pointer-events:none;opacity:.5"')+'>'+GX("admMeTgLink")+'</a><b class="ltr" style="user-select:all">'+esc(me.tg_code||"")+'</b><button type="button" class="ab" id="meTgNew" title="'+esc(GX("agNewCodeHint"))+'">'+GX("agNewCode")+'</button></div>')+
+    '<label class="xcheck" style="margin-top:12px"><input type="checkbox" id="meNotify"'+(me.notify_tg!==false?' checked':'')+'><span>'+GX("admMeAlerts")+'</span></label>'+
+   '</div></div>'+
+   '<div class="blk"><h3>'+t("changeMyPass")+'</h3><div class="in">'+
+    '<div class="row"><div class="fl"><label>'+t("currentPass")+'</label><input id="myOldPass" type="password" autocomplete="off"></div>'+
+    '<div class="fl"><label>'+t("newPass")+'</label><input id="myNewPass" type="password" autocomplete="off" placeholder="'+t("min6")+'"></div></div>'+
+    '<div class="xactions"><button class="ab ok" id="myPwSave">'+t("savePass")+'</button><span class="xmsg">'+(ADM.myPwMsg||"")+'</span></div>'+
+   '</div></div>'+
+   '<div class="blk"><h3>'+GX("admMeRecT")+'</h3><div class="in">'+
+    '<div class="hintx" style="margin-bottom:10px">'+GX("admMeRecHint")+'</div>'+
+    (codes ? '<div class="reccodes">'+codes.map(function(c){ return '<span class="ltr">'+esc(c)+'</span>' }).join("")+'</div><div class="hintx" style="color:var(--danger);margin:8px 0">'+GX("admMeRecWarn")+'</div><div class="xactions"><button type="button" class="ab" data-ecopy="'+esc(codes.join("\n"))+'">'+GX("engCopy")+'</button><button type="button" class="ab" id="meRecHide">'+GX("admMeRecHide")+'</button></div>'
+           : '<div class="tmrow"><span>'+(me.recovery_left?GX("admMeRecLeft").replace("{n}",me.recovery_left):GX("admMeRecNone"))+'</span><button type="button" class="ab '+(me.recovery_left?'':'ok')+'" id="meRecGen">'+(me.recovery_left?GX("admMeRecRegen"):GX("admMeRecGen"))+'</button></div>')+
+   '</div></div>'+
+   '<div class="xactions"><button class="ab" id="myPwCancel">'+GX("mdClose")+'</button></div>'+
+  '</div>' }
 function wireAdmin(){
   var doAdminLogin=async function(){
     var btn=$("#adGo"); if(!btn) return;
@@ -779,6 +842,24 @@ function wireAdmin(){
       render() }
   };
   if($("#adGo")) $("#adGo").onclick=doAdminLogin;
+  /* ── recovery ── */
+  var recPhone=function(){ var cc=($("#adCC")||{}).value||REC.cc||"963", p=(($("#adPhone")||{}).value||REC.phone||"").replace(/\D/g,""); REC.cc=cc; REC.phone=p; return "+"+cc+p };
+  var recErr=function(m){ ADM.msg=m; var e=$("#adErr"); if(e) e.textContent=m };
+  if($("#adForgot")) $("#adForgot").onclick=function(){ REC.mode="pick"; ADM.msg=""; render() };
+  if($("#adRecBack")) $("#adRecBack").onclick=function(){ verifyPollStop(); AU.pollKeep=false; REC.mode=null; ADM.msg=""; render() };
+  var recStart=async function(){ var ph=recPhone(); if(ph.length<9){ recErr(t("badPhone")||"phone"); return null }
+    try{ var s=await rpc("bk_admin_verify_start",{p_phone:ph}); REC.ticket=s.ticket; REC.secret=s.secret; REC.bot=s.bot||SX("intake_bot",""); return s }
+    catch(e){ var m=e.message||""; recErr(m==="notadmin"?GX("admRecNotAdmin"):m==="locked"?GX("loginLocked"):m==="throttled"?GX("vThrottled"):m); return null } };
+  var recPoll=function(){ AU.pollKeep=true; AU.ticket=REC.ticket; AU.secret=REC.secret;
+    verifyPollStart(function(){ AU.pollKeep=false; REC.mode="newpass"; ADM.msg=""; render() }, function(){ AU.pollKeep=false; recErr(GX("vExpired")) }) };
+  if($("#adRecTg")) $("#adRecTg").onclick=async function(){ this.disabled=true; var s=await recStart(); if(!s){ this.disabled=false; return } if(!s.telegram){ recErr(GX("admRecNoTg")); this.disabled=false; return } REC.mode="tg"; render(); recPoll() };
+  if($("#adRecCode")) $("#adRecCode").onclick=function(){ recPhone(); REC.mode="code"; ADM.msg=""; render() };
+  if($("#adRecSave")) $("#adRecSave").onclick=async function(){ var p1=$("#adNew1").value||"", p2=$("#adNew2").value||""; if(p1.length<6) return recErr(t("shortPass")); if(p1!==p2) return recErr(t("noMatch"));
+    this.disabled=true; try{ await rpc("bk_admin_set_password_by_ticket",{p_ticket:REC.ticket,p_secret:REC.secret,p_hash:await sha(p1)}); REC.mode="done"; ADM.msg=""; render() }catch(e){ this.disabled=false; recErr(e.message==="notverified"||e.message==="expired"?GX("vExpired"):e.message) } };
+  if($("#adRecCodeGo")) $("#adRecCodeGo").onclick=async function(){ var ph=recPhone(), code=($("#adRecCodeIn").value||"").trim(), p1=$("#adNew1").value||"", p2=$("#adNew2").value||"";
+    if(ph.length<9) return recErr("phone"); if(code.replace(/[^A-Za-z0-9]/g,"").length<8) return recErr(GX("admRecBadCode")); if(p1.length<6) return recErr(t("shortPass")); if(p1!==p2) return recErr(t("noMatch"));
+    this.disabled=true; try{ await rpc("bk_admin_recover",{p_phone:ph,p_code:code,p_hash:await sha(p1)}); REC.mode="done"; ADM.msg=""; render() }
+    catch(e){ this.disabled=false; var m=e.message||""; recErr(m==="badcode"?GX("admRecBadCode"):m==="notadmin"?GX("admRecNotAdmin"):m==="locked"?GX("loginLocked"):m) } };
   if($("#adPass")) $("#adPass").addEventListener("keydown",function(e){
     if(e.key==="Enter"){ e.preventDefault(); doAdminLogin() }
   });
@@ -1173,8 +1254,15 @@ function wireAdmin(){
   }
 
   if($("#aMyAccount")) $("#aMyAccount").onclick=function(){
-    ADM.myAccountOpen=!ADM.myAccountOpen; ADM.myPwMsg=""; render() };
-  if($("#myPwCancel")) $("#myPwCancel").onclick=function(){ ADM.myAccountOpen=false; render() };
+    ADM.myAccountOpen=!ADM.myAccountOpen; ADM.myPwMsg=""; ADM.recCodes=null; render() };
+  if(ADM.myAccountOpen && ADM.token && !ADM._meLoaded){ ADM._meLoaded=true; rpc("bk_admin_me",{p_token:ADM.token}).then(function(r){ ADM.me=r; render() }).catch(function(){ ADM._meLoaded=false }) }
+  var meReload=async function(){ try{ ADM.me=await rpc("bk_admin_me",{p_token:ADM.token}); render() }catch(e){ admToast(e.message||"error","bad") } };
+  if($("#meTgUnpair")) $("#meTgUnpair").onclick=async function(){ if(!confirm(GX("tmUnpairConfirm"))) return; try{ await rpc("bk_admin_tg_unpair",{p_token:ADM.token}); meReload() }catch(e){ admToast(e.message||"error","bad") } };
+  if($("#meTgNew")) $("#meTgNew").onclick=async function(){ try{ ADM.me=await rpc("bk_admin_me_set",{p_token:ADM.token,p_new_code:true}); render() }catch(e){ admToast(e.message||"error","bad") } };
+  if($("#meNotify")) $("#meNotify").onchange=async function(){ try{ ADM.me=await rpc("bk_admin_me_set",{p_token:ADM.token,p_notify:this.checked}); admToast(t("savedOk")) }catch(e){ admToast(e.message||"error","bad") } };
+  if($("#meRecGen")) $("#meRecGen").onclick=async function(){ if(ADM.me&&ADM.me.recovery_left&&!confirm(GX("admMeRecRegenConfirm"))) return; this.disabled=true; try{ var r=await rpc("bk_admin_recovery_new",{p_token:ADM.token}); ADM.recCodes=r.codes||[]; ADM._meLoaded=false; ADM.me=await rpc("bk_admin_me",{p_token:ADM.token}); render() }catch(e){ admToast(e.message||"error","bad"); this.disabled=false } };
+  if($("#meRecHide")) $("#meRecHide").onclick=function(){ ADM.recCodes=null; render() };
+  if($("#myPwCancel")) $("#myPwCancel").onclick=function(){ ADM.myAccountOpen=false; ADM.recCodes=null; render() };
   if($("#myPwSave")) $("#myPwSave").onclick=async function(){
     var oldP=($("#myOldPass")||{}).value||"", newP=($("#myNewPass")||{}).value||"";
     if(newP.length<6){ ADM.myPwMsg=t("shortPass"); render(); return }
@@ -1492,6 +1580,9 @@ function wireAdmin(){
       var r=await rpc("bk_admin_list_admins",{p_token:ADM.token}); ADM.admins=r||[]; render(); admToast(t("savedOk"));
     }catch(e){ admToast(e.message||"error","bad") }
   }});
+  $$("[data-tmnotify]").forEach(function(cb){ cb.onchange=async function(){ var id=this.dataset.tmnotify, on=this.checked, box=this; try{ if(id===ADM.meId) await rpc("bk_admin_me_set",{p_token:ADM.token,p_notify:on}); else await rpc("bk_admin_set_permissions",{p_token:ADM.token,p_admin:id,p_permissions:null,p_countries:null,p_notify:on}); admToast(t("savedOk")) }catch(e){ box.checked=!on; admToast(e.message||"error","bad") } } });
+  $$("[data-tmunpair]").forEach(function(b){ b.onclick=async function(){ if(!confirm(GX("tmUnpairConfirm"))) return; try{ await rpc("bk_admin_tg_unpair",{p_token:ADM.token,p_admin:this.dataset.tmunpair}); ADM._adminsLoaded=false; ADM._meLoaded=false; render() }catch(e){ admToast(e.message||"error","bad") } } });
+  $$("[data-tmpw]").forEach(function(b){ b.onclick=async function(){ var p=prompt(GX("tmNewPwPrompt")); if(p===null) return; if(p.length<6){ admToast(t("shortPass"),"bad"); return } try{ await rpc("bk_admin_reset_password",{p_token:ADM.token,p_user:this.dataset.tmpw,p_new_pass:p}); admToast(t("savedOk")) }catch(e){ admToast(e.message||"error","bad") } } });
   $$("[data-removeadmin]").forEach(function(e){ e.onclick=async function(){
     if(!confirm(t("confirmRemoveAdmin"))) return;
     var btn=this;
@@ -2275,9 +2366,9 @@ function adminUsersBody(d){
   var rows=list.map(function(u){
     var nm=((u.name||"")+" "+(u.family_name||"")).trim()||"—", isAdmin=u.role==="admin", open=ADM.userOpen===u.id;
     var joined=u.created_at?new Date(u.created_at).toLocaleDateString(L==="ar"?"ar-SY":L==="de"?"de-DE":L==="fr"?"fr-FR":"en-GB",{year:"numeric",month:"short",day:"numeric"}):"";
-    var html='<tr data-row-text="'+esc((nm+" "+(u.phone||"")).toLowerCase())+'" class="'+(open?"uopen":"")+'">'+
-      '<td data-label="'+t("contactName")+'"><div class="ucell">'+avatar(u.avatar_url,u.name,36)+'<div><a data-byuser="'+u.id+'" data-name="'+esc(nm)+'" class="uname">'+esc(nm)+'</a>'+levelBadge(u.level)+
-        '<div class="usub"><span class="ltr">'+(u.phone||GX("uNoPhone"))+'</span>'+(joined?' · '+GX("uJoined")+' '+joined:'')+'</div></div></div></td>'+
+    var html='<tr data-row-text="'+esc((nm+" "+(u.phone||"")+" "+(u.member_no||"")).toLowerCase())+'" class="'+(open?"uopen":"")+'">'+
+      '<td data-label="'+t("contactName")+'"><div class="ucell">'+avatar(u.avatar_url,u.name,36)+'<div><a data-byuser="'+u.id+'" data-name="'+esc(nm)+'" class="uname">'+esc(nm)+'</a>'+levelBadge(u.level)+(u.phone_verified===false?' <span class="st st-removed" title="'+esc(GX("uUnverified"))+'">'+GX("uUnverified")+'</span>':'')+
+        '<div class="usub">'+(u.member_no?'<b class="ltr">'+esc(u.member_no)+'</b> · ':'')+'<span class="ltr">'+(u.phone||GX("uNoPhone"))+'</span>'+(joined?' · '+GX("uJoined")+' '+joined:'')+'</div></div></div></td>'+
       '<td data-label="'+GX("colLastSeen")+'">'+(function(){ var d=lastSeen(u), a=uact[u.id]||{}; var fresh=d && (Date.now()-d.getTime())<86400000; return '<span class="'+(fresh?"useen-fresh":"useen")+'">'+(d?when(d.toISOString()):GX("never"))+'</span>'+(a.views_30d?'<div class="usub"><span class="ltr">'+a.views_30d+'</span> '+GX("kViews")+' · 30d</div>':'') })()+'</td>'+
       '<td data-label="'+t("myAds")+'" class="ltr unum">'+(u.countries?'<span class="sflag">'+String(u.countries).split(",").map(function(cc){ return flagSvg(cc) }).join("")+'</span>':'')+(u.listings||0)+(uact[u.id]&&uact[u.id].live_listings!=null?' <small style="color:var(--light)">('+uact[u.id].live_listings+' '+t("st_live")+')</small>':'')+'</td>'+
       '<td data-label="'+t("ratingCol")+'" class="ltr unum">'+(u.rating?'★ '+u.rating:'—')+'</td>'+

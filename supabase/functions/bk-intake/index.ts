@@ -212,7 +212,7 @@ const T = {
     periodDefault: `• فترة الإيجار: غير مذكورة (سنوي)`,
     verifyAsk: (tail: string) => `للتحقق من رقمك في بلكون (المنتهي بـ ${tail}) اضغط الزر أدناه «مشاركة رقمي» 👇\nلن نستخدم الرقم لأي غرض آخر.`,
     verifyBtn: `📱 مشاركة رقمي`,
-    verifyOk: (purpose: string) => purpose === "reset" ? `تم التحقق ✅ ارجع إلى صفحة بلكون لاختيار كلمة المرور الجديدة.` : `تم التحقق ✅ ارجع إلى صفحة بلكون، حسابك جاهز.`,
+    verifyOk: (purpose: string) => purpose === "admin_reset" ? `تم التحقق ✅ ارجع إلى صفحة دخول لوحة التحكم لاختيار كلمة المرور الجديدة.` : purpose === "reset" ? `تم التحقق ✅ ارجع إلى صفحة بلكون لاختيار كلمة المرور الجديدة.` : `تم التحقق ✅ ارجع إلى صفحة بلكون، حسابك جاهز.`,
     verifyMismatch: (tail: string) => `هذا الرقم لا يطابق الرقم الذي أدخلته في الموقع (المنتهي بـ ${tail}). ارجع إلى الموقع وأدخل رقم حساب تيليغرام هذا، أو استخدم واتساب.`,
     verifyNone: `لا يوجد طلب تحقق مفتوح لهذه المحادثة. ابدأ من صفحة التسجيل في balkoun.com واضغط «تيليغرام».`,
     verifyOwnOnly: `أرسل رقمك أنت عبر الزر «مشاركة رقمي»، وليس جهة اتصال أخرى.`,
@@ -252,7 +252,7 @@ const T = {
     periodDefault: `• Rental period: not stated (yearly)`,
     verifyAsk: (tail: string) => `To verify your Balkoun number (ending in ${tail}) tap "Share my number" below 👇\nWe use it for nothing else.`,
     verifyBtn: `📱 Share my number`,
-    verifyOk: (purpose: string) => purpose === "reset" ? `Verified ✅ Go back to the Balkoun page to choose your new password.` : `Verified ✅ Go back to the Balkoun page, your account is ready.`,
+    verifyOk: (purpose: string) => purpose === "admin_reset" ? `Verified ✅ Go back to the admin login page to choose your new password.` : purpose === "reset" ? `Verified ✅ Go back to the Balkoun page to choose your new password.` : `Verified ✅ Go back to the Balkoun page, your account is ready.`,
     verifyMismatch: (tail: string) => `This number does not match the one you typed on the site (ending in ${tail}). Go back and enter this Telegram account's number, or use WhatsApp.`,
     verifyNone: `There is no open verification request for this chat. Start from the sign-up page on balkoun.com and press "Telegram".`,
     verifyOwnOnly: `Share your own number with the "Share my number" button, not another contact.`,
@@ -563,18 +563,21 @@ async function notifyFlush(): Promise<number> {
   try {
     const rows = await rpc<any[]>("bk_notify_pending", {});
     if (!rows || !rows.length) return 0;
-    const c = await cfg(); const chats: string[] = (c.intake_admin_chats?.telegram || []).map(String);
-    const ids = rows.map((r) => r.id);
-    if (!chats.length) { await rpc("bk_notify_mark", { p_ids: ids, p_ok: true }); return 0; }   // nobody paired: drop, do not retry forever
-    const lines = rows.map((r) => `<b>${esc(r.title)}</b>${r.body ? "\n" + esc(r.body) : ""}`);
-    const text = (rows.length > 1 ? `🔔 <b>${rows.length}</b> تنبيهات جديدة\n\n` : "🔔 ") + lines.join("\n\n") + `\n\n<a href="${esc(rows[0].link || SITE + "/admin")}">لوحة التحكم</a>`;
-    let ok = false;
-    for (const chat of chats) {
-      try { await tg("sendMessage", { chat_id: chat, text: text.slice(0, 4000), parse_mode: "HTML", disable_web_page_preview: true }); ok = true; }
-      catch (e) { await log(null, chat, "warn", "notify_failed", { error: errStr(e) }); }
+    // each row carries its own recipients (country scope per admin); one message per chat with everything that chat should see
+    const byChat: Record<string, any[]> = {};
+    for (const r of rows) for (const chat of (r.chats || [])) (byChat[String(chat)] ??= []).push(r);
+    const failed = new Set<number>();
+    for (const [chat, list] of Object.entries(byChat)) {
+      const lines = list.map((r) => `<b>${esc(r.title)}</b>${r.body ? "\n" + esc(r.body) : ""}`);
+      const text = (list.length > 1 ? `🔔 <b>${list.length}</b> تنبيهات جديدة\n\n` : "🔔 ") + lines.join("\n\n") + `\n\n<a href="${esc(list[0].link || SITE + "/admin")}">لوحة التحكم</a>`;
+      try { await tg("sendMessage", { chat_id: chat, text: text.slice(0, 4000), parse_mode: "HTML", disable_web_page_preview: true }); }
+      catch (e) { await log(null, chat, "warn", "notify_failed", { error: errStr(e) }); for (const r of list) failed.add(r.id); }
     }
-    await rpc("bk_notify_mark", { p_ids: ids, p_ok: ok });
-    return ok ? rows.length : 0;
+    const okIds = rows.filter((r) => !failed.has(r.id)).map((r) => r.id);          // rows nobody should receive are simply marked done
+    const badIds = rows.filter((r) => failed.has(r.id)).map((r) => r.id);
+    if (okIds.length) await rpc("bk_notify_mark", { p_ids: okIds, p_ok: true });
+    if (badIds.length) await rpc("bk_notify_mark", { p_ids: badIds, p_ok: false });
+    return Object.keys(byChat).length ? okIds.length : 0;
   } catch (e) { console.error("notifyFlush", errStr(e)); return 0; }
   finally { _flushing = false; }
 }

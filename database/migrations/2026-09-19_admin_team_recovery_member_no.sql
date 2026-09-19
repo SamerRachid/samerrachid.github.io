@@ -1,0 +1,17 @@
+-- Balkoun · 2026-09-19 · admin team, recovery, member numbers (applied as migrations "admin_team_recovery_member_no" + "admin_team_notify_fix")
+--
+-- 1. Member numbers: users.member_no = <country>M<seq> (countries.user_seq, like listing refs SY10001 → SYM1001).
+--    bk_member_country(country, phone) picks the country (users.country → phone prefix → 'SY'); trigger set_member_no on insert; backfilled.
+--    bk_login / bk_me / bk_register / bk_set_password return member_no; bk_admin_data.users carries member_no + phone_verified.
+-- 2. Admin team: users.tg_chat_id / tg_name / tg_paired_at / tg_pair_code / notify_tg / recovery_codes / recovery_codes_at.
+--    bk_admin_me(token) (own card + personal pairing code 'ADM-XXXXXXXX'), bk_admin_me_set(token, notify, new_code), bk_admin_tg_unpair(token, admin),
+--    bk_admin_list_admins (+ pairing state), bk_admin_set_permissions(+ p_notify). bk_intake_pair: personal admin codes first, then the legacy
+--    shared owner code, then agency codes. bk_intake_sender: a personally paired chat counts as admin. The owner's chat 8928593008 moved from the
+--    legacy list to his own row.
+--    bk_notify_pending(): each queued alert carries its recipients — admins whose country scope covers the alert's country (a super admin can narrow
+--    himself too); country-less alerts go to unrestricted admins and super admins; legacy shared chats (not tied to an admin) get everything.
+-- 3. Recovery: verify_tickets.purpose gains 'admin_reset'. bk_admin_verify_start(phone) → ticket (Telegram share-number; WhatsApp confirm only for
+--    non-super admins); bk_admin_set_password_by_ticket(ticket, secret, hash) (verified ≤30 min, closes all admin sessions).
+--    bk_admin_recovery_new(token) → 8 one-time codes XXXX-XXXX shown once (sha256 stored); bk_admin_recover(phone, code, hash) consumes one,
+--    sets the password, closes sessions; both guarded by bk_login_guard / bk_login_fail.
+-- Full SQL lives in the applied migrations in Supabase.
