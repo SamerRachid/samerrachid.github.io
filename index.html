@@ -1887,7 +1887,11 @@ h1,h2,h3,.logo,.hero h1{letter-spacing:0}
 .adbell-sub{font-size:11px;font-weight:700;color:var(--light);letter-spacing:.04em;text-transform:uppercase;padding:10px 10px 4px;border-top:1px solid var(--line);margin-top:4px}
 .adbell-empty{padding:14px 10px;color:var(--grey);font-size:13px}
 .adm-acct{max-width:720px;margin:16px auto 0;padding:0 18px}
-.adm-acct2{max-width:860px;display:flex;flex-direction:column;gap:12px}.adm-acct2 .blk{margin:0}
+.adm-acct-ov{position:fixed;inset:0;background:rgba(10,20,40,.45);z-index:1200;display:flex;justify-content:flex-end;animation:fadein .15s}
+.adm-acct2{width:min(560px,100%);max-width:none;height:100%;margin:0;padding:0 0 24px;background:var(--page);overflow:auto;display:flex;flex-direction:column;gap:12px;box-shadow:-8px 0 30px rgba(0,0,0,.18)}
+.adm-acct2>.blk{margin:0 16px}.adm-acct2 .blk:first-of-type{margin-top:0}
+.meov-h{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#fff;border-bottom:1px solid var(--line);font-size:16px}
+@media(max-width:640px){.adm-acct2{width:100%}}
 .tmid{display:flex;align-items:center;gap:12px}.tmid .ava2.big{width:44px;height:44px;font-size:18px;border-radius:12px}
 .tmrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .reccodes{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px}.reccodes span{display:block;text-align:center;font-weight:700;letter-spacing:2px;background:var(--gold-w);border:1px dashed var(--gold);border-radius:10px;padding:10px 6px;font-size:15px}

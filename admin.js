@@ -807,7 +807,7 @@ function adminMeCard(){
   var link="https://t.me/"+encodeURIComponent(me.bot||"")+"?start="+encodeURIComponent(String(me.tg_code||"").replace(/^ADM-/i,"adm-"));
   var countries=(me.admin_countries||[]).length?me.admin_countries.map(function(cc){ return flagOf(cc)+' '+esc(countryName(countryOf(cc)||{code:cc})||cc) }).join(" · "):GX("tmAllCountries");
   var codes=ADM.recCodes;
-  return '<div class="adm-acct adm-acct2">'+
+  return '<div class="adm-acct-ov" id="meOv"><div class="adm-acct adm-acct2">'+'<div class="meov-h"><b>'+GX("admMeT")+'</b><button type="button" class="ab" id="myPwCancel">✕</button></div>'+
    '<div class="blk"><h3>'+GX("admMeT")+'</h3><div class="in">'+
     '<div class="tmid"><span class="ava2 big">'+esc((me.name||"?").charAt(0))+'</span><div><b>'+esc(((me.name||"")+" "+(me.family_name||"")).trim())+'</b>'+(me.is_super_admin?' <span class="lvl lvl-vip">'+t("superAdmin")+'</span>':'')+
      '<div class="usub"><span class="ltr">'+esc(me.member_no||"")+'</span> · <span class="ltr">'+esc(me.phone||"")+'</span></div><div class="usub">'+countries+'</div></div></div>'+
@@ -827,8 +827,7 @@ function adminMeCard(){
     (codes ? '<div class="reccodes">'+codes.map(function(c){ return '<span class="ltr">'+esc(c)+'</span>' }).join("")+'</div><div class="hintx" style="color:var(--danger);margin:8px 0">'+GX("admMeRecWarn")+'</div><div class="xactions"><button type="button" class="ab" data-ecopy="'+esc(codes.join("\n"))+'">'+GX("engCopy")+'</button><button type="button" class="ab" id="meRecHide">'+GX("admMeRecHide")+'</button></div>'
            : '<div class="tmrow"><span>'+(me.recovery_left?GX("admMeRecLeft").replace("{n}",me.recovery_left):GX("admMeRecNone"))+'</span><button type="button" class="ab '+(me.recovery_left?'':'ok')+'" id="meRecGen">'+(me.recovery_left?GX("admMeRecRegen"):GX("admMeRecGen"))+'</button></div>')+
    '</div></div>'+
-   '<div class="xactions"><button class="ab" id="myPwCancel">'+GX("mdClose")+'</button></div>'+
-  '</div>' }
+  '</div></div>' }
 function wireAdmin(){
   var doAdminLogin=async function(){
     var btn=$("#adGo"); if(!btn) return;
@@ -1265,6 +1264,7 @@ function wireAdmin(){
   if($("#meRecGen")) $("#meRecGen").onclick=async function(){ if(ADM.me&&ADM.me.recovery_left&&!confirm(GX("admMeRecRegenConfirm"))) return; this.disabled=true; try{ var r=await rpc("bk_admin_recovery_new",{p_token:ADM.token}); ADM.recCodes=r.codes||[]; ADM._meLoaded=false; ADM.me=await rpc("bk_admin_me",{p_token:ADM.token}); render() }catch(e){ admToast(e.message||"error","bad"); this.disabled=false } };
   if($("#meRecHide")) $("#meRecHide").onclick=function(){ ADM.recCodes=null; render() };
   if($("#myPwCancel")) $("#myPwCancel").onclick=function(){ ADM.myAccountOpen=false; ADM.recCodes=null; render() };
+  if($("#meOv")) $("#meOv").onclick=function(e){ if(e.target.id==="meOv"){ ADM.myAccountOpen=false; ADM.recCodes=null; render() } };
   if($("#myPwSave")) $("#myPwSave").onclick=async function(){
     var oldP=($("#myOldPass")||{}).value||"", newP=($("#myNewPass")||{}).value||"";
     if(newP.length<6){ ADM.myPwMsg=t("shortPass"); render(); return }
