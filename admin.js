@@ -728,8 +728,12 @@ function adminAgenciesBody(){
       '<div class="eacts">'+(a.status!=="approved"?'<button type="button" class="ab ok" data-agset="'+a.id+':approved">'+GX("agApprove")+'</button>':'')+(a.status==="approved"?'<button type="button" class="ab" data-agset="'+a.id+':hidden">'+GX("agHide")+'</button>':'')+
         (a.status==="pending"?'<button type="button" class="ab bad" data-agset="'+a.id+':rejected">'+GX("agReject")+'</button>':'')+
         '<button type="button" class="ab" data-agver="'+a.id+':'+(a.verified?"0":"1")+'">'+(a.verified?GX("agUnverify"):GX("agVerify"))+'</button>'+
-        (a.status==="approved"?'<button type="button" class="ab'+(a.intake_enabled?' on':'')+'" data-agintake="'+a.id+':'+(a.intake_enabled?"0":"1")+'">'+(a.intake_enabled?GX("agIntakeOn"):GX("agIntakeOff"))+'</button>'+
-          (a.intake_enabled?'<button type="button" class="ab'+(a.intake_trusted?' on':'')+'" data-agtrust="'+a.id+':'+(a.intake_trusted?"0":"1")+'">'+(a.intake_trusted?GX("agTrustOn"):GX("agTrustOff"))+'</button>'+(a.intake_telegram?'<span class="st st-live">'+GX("agPairedTg")+'</span>':'')+(a.intake_code?'<small class="ltr" style="color:var(--grey)">'+GX("agIntakeCode")+' '+esc(a.intake_code)+'</small>':''):''):'')+(a.status==="approved"?'<a class="ab" href="/agency/'+a.id+'" target="_blank" rel="noopener">'+GX("agView")+'</a>':'')+'</div></div>' }).join("")+'</div></div></div>' }
+        (a.status==="approved"?'<a class="ab" href="/agency/'+a.id+'" target="_blank" rel="noopener">'+GX("agView")+'</a>':'')+'</div>'+
+      // the message-intake controls get their own line under the row, so the action buttons never run off the edge
+      (a.status==="approved"?'<div class="eedit agintk"><b>'+GX("tIntake")+':</b>'+
+        '<button type="button" class="ab'+(a.intake_enabled?' on':'')+'" data-agintake="'+a.id+':'+(a.intake_enabled?"0":"1")+'">'+(a.intake_enabled?GX("agIntakeOn"):GX("agIntakeOff"))+'</button>'+
+        (a.intake_enabled?'<button type="button" class="ab'+(a.intake_trusted?' on':'')+'" data-agtrust="'+a.id+':'+(a.intake_trusted?"0":"1")+'">'+(a.intake_trusted?GX("agTrustOn"):GX("agTrustOff"))+'</button>'+(a.intake_telegram?'<span class="st st-live">'+GX("agPairedTg")+'</span>':'<span class="st st-pending">'+GX("agNotPaired")+'</span>')+(a.intake_code?'<small class="ltr" style="color:var(--grey)">'+GX("agIntakeCode")+' <b>'+esc(a.intake_code)+'</b></small>':''):'')+'</div>':'')+
+      '</div>' }).join("")+'</div></div></div>' }
 async function adminLoad(){
   ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._anLoaded=false; ADM._uactLoaded=false; ADM._lstatsLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._featuredListLoaded=false;
   ADM._storageUsageLoaded=false;
