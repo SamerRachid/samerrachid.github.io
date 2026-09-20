@@ -777,6 +777,7 @@ function adminAgenciesBody(){
 async function adminLoad(){
   ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._anLoaded=false; ADM._uactLoaded=false; ADM._lstatsLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._featuredListLoaded=false;
   ADM._storageUsageLoaded=false;
+  ["_adminsLoaded","_agLoaded","_geoLoaded","_ikLoaded","_meLoaded","_mediaLoaded","_photosLoaded","_pjLoaded","_ticketsLoaded","_vfLoaded","_wLoaded"].forEach(function(k){ ADM[k]=false });   // every page re-fetches on refresh, not only the shared data
   ADM.dangerUnlocked=false;
   ADM.restoreUnlocked=false; ADM.restoreFileInfo=""; ADM.restoreData=null;
   try{
@@ -886,7 +887,7 @@ function wireAdmin(){
       VIEW="home"; scrollTo(0,0); render();
     }catch(e){ VIEW="home"; scrollTo(0,0); render(); }
   };
-  if($("#adRefresh")) $("#adRefresh").onclick=function(){ adminLoad() };
+  if($("#adRefresh")) $("#adRefresh").onclick=function(){ var b=this; b.disabled=true; b.classList.add("spin"); adminLoad().then(function(){ admToast(t("refresh")+" ✓") }) };
   if($("#adBack")) $("#adBack").onclick=function(){ ADM.editId=null; ADM.editRow=null; render() };
   $$("[data-atab]").forEach(function(e){ e.onclick=function(){
     if(e.dataset.atab!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return;
