@@ -4938,7 +4938,7 @@ function byUserView(){
    '</div>'+
   '</div></div>'+
  (!isSelf ? '<div class="blk" style="margin-top:16px"><h3><span class="n">★</span>'+t("rateMember")+'</h3><div class="in">'+
-   (USER
+   (USER || (window.ADM&&ADM.token)
     ? '<div class="starpick" id="starpick">'+[1,2,3,4,5].map(function(nS){
         return '<span data-star="'+nS+'" class="'+(nS<=REVSTARS?"on":"")+'">★</span>'}).join("")+'</div>'+
       '<textarea id="revBody" maxlength="300" placeholder="'+t("reviewPH")+'" style="margin-top:10px"></textarea>'+
@@ -7721,7 +7721,9 @@ function wireAuth(){
    if(!REVSTARS){ if(m){m.style.color="var(--danger)";m.textContent=t("pickStars")} return }
    this.disabled=true; this.textContent=t("saving");
    try{
-     await rpc("bk_review_set",{p_author:USER.id, p_target:BYUSER.id, p_stars:REVSTARS, p_body:($("#revBody")||{}).value||null});
+     // a member reviews with their own session; an admin browsing without one leaves the review as themselves via the admin RPC
+     if(USER) await rpc("bk_review_set",{p_author:USER.id, p_target:BYUSER.id, p_stars:REVSTARS, p_body:($("#revBody")||{}).value||null});
+     else await rpc("bk_admin_review_set",{p_token:ADM.token, p_target:BYUSER.id, p_stars:REVSTARS, p_body:($("#revBody")||{}).value||null});
      await loadByUser(BYUSER.id);
      if(m){ m.style.color="var(--ok)"; m.textContent=t("savedOk") }
      render();
