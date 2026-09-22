@@ -280,6 +280,17 @@ html.js .rv.in{opacity:1;transform:none}
 .sgo:hover{background:#D6952A}
 @media(max-width:900px){.srow{grid-template-columns:1fr 1fr}.sf:nth-child(even){border-inline-end:none}.sf{border-bottom:1px solid var(--line)}.sgo{grid-column:1/-1;padding:15px}}
 .hnote{color:rgba(255,255,255,.9);font-size:13.5px;margin-top:13px;text-shadow:0 1px 8px rgba(9,14,26,.7)}
+.qfteaser-wrap{position:relative;margin:26px 0 0}
+.qfteaser{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid var(--gold);border-radius:14px;padding-block:16px;padding-inline-start:20px;padding-inline-end:44px;box-shadow:0 2px 12px rgba(196,136,31,.1);cursor:pointer;text-decoration:none;color:inherit}
+.qfteaser-ico{flex:none;width:44px;height:44px;border-radius:50%;background:var(--gold-w);color:var(--gold);display:grid;place-items:center}
+.qfteaser-tx{flex:1;min-width:0}
+.qfteaser-tx b{display:block;font-size:15px;color:var(--navy)}
+.qfteaser-tx small{display:block;font-size:13px;color:var(--grey);margin-top:2px;line-height:1.5}
+.qfteaser-cta{flex:none;font-size:13.5px;font-weight:700;color:var(--gold);white-space:nowrap}
+.qfteaser-x{position:absolute;top:10px;inset-inline-end:10px;width:26px;height:26px;border-radius:50%;border:0;background:transparent;color:var(--light);cursor:pointer;display:grid;place-items:center;font-size:16px;line-height:1;padding:0}
+.qfteaser-x:hover{background:var(--page)}
+.qf-badge{display:inline-block;font-style:normal;font-size:9.5px;font-weight:800;background:var(--gold);color:#1A1206;border-radius:999px;padding:1px 6px;margin-inline-start:6px;vertical-align:middle}
+@media(max-width:640px){.qfteaser{gap:12px;padding-inline-start:14px;padding-inline-end:38px}.qfteaser-tx b{font-size:14px}.qfteaser-tx small{font-size:12px}.qfteaser-cta{display:none}}
 .hnote b{color:var(--gold)}
 .sec{padding:34px 0 6px}
 .sec h2{font-size:21px;font-weight:700;margin-bottom:4px}
@@ -3556,6 +3567,7 @@ function mdrawer(){
     '<div class="mdw-top"><a class="logo blogo" data-go="home" aria-label="'+esc(t("home"))+'">'+brandLogo()+'</a><button class="mdw-x" id="mdwX" aria-label="'+GX("mdClose")+'">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>'+
     acct+((byK("home")&&VIEW!=="home")?'<div class="mdw2-sec mdw2-homesec">'+row(byK("home"))+'</div>':'')+'<div class="mdw2-quick">'+tiles+'</div>'+
+    '<div class="mdw2-sec"><a class="mdw2-row pwa-row" data-go="post">'+MI.qftext+'<span><b>'+GX("qfMenuT")+' <i class="qf-badge">'+GX("newTag")+'</i></b><small>'+GX("qfMenuP")+'</small></span></a></div>'+
     sec(GX("mdDiscover"),discover)+sec(GX("mdServices"),services)+mine+sec(GX("mdSite"),site)+countryPickHtml("drawer")+
     '<div class="mdw2-sec" id="mdwInstallSec" hidden><a class="mdw2-row pwa-row" id="mdwInstall"><span class="mi">'+(MI.download||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span><b>'+GX("pwaInstall")+'</b><small>'+GX("pwaInstallSub")+'</small></span></a></div>'+
     ((langs||curs)?'<div class="mdw2-foot">'+langs+curs+'</div>':'')+
@@ -3611,6 +3623,7 @@ var MI=(function(){
     mail:w('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>'),
     phone:w('<path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z"/>'),
     post:w('<path d="M12 5v14M5 12h14"/>'),
+    qftext:w('<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>'),
     mine:w('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h10M7 17h6"/>'),
     saved:w('<path d="M12 20s-7-4.6-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.4-7 10-7 10z"/>'),
     search:w('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'),
@@ -4181,6 +4194,15 @@ function home(){
  var hasBannerAbove = bannerAboveHtml!=="";
  var adsInHero = homeOrder()[0]==="ads";   // first section under the hero → rendered inside the hero block
  var bannersTop = SX("banners_slot","flow")==="top" && HSON("banners");   // the banner strip sits above the headline, inside the hero
+ // a slim promo for the "paste your text, we fill the form" box on /post — dismissible per visitor, otherwise always on
+ var qfTeaserHtml=(function(){
+   var dismissed=false; try{ dismissed=localStorage.getItem("balkoun_qf_dismissed")==="1" }catch(e){}
+   if(dismissed) return "";
+   return '<div class="wrap"><div class="qfteaser-wrap"><a class="qfteaser" data-go="post">'+
+     '<span class="qfteaser-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="22" height="22" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>'+
+     '<span class="qfteaser-tx"><b>'+GX("qfTeaserT")+'</b><small>'+GX("qfTeaserP")+'</small></span>'+
+     '<span class="qfteaser-cta">'+GX("qfTeaserBtn")+'</span></a>'+
+     '<button type="button" class="qfteaser-x" data-qfx aria-label="'+esc(GX("mdClose"))+'">×</button></div></div>' })();
  return '<div class="hero-outer"><div class="hv" id="hv">'+heroBgHtml+'</div>'+
   '<div class="hscrim"></div>'+
   '<section class="hero"><div class="wrap">'+
@@ -4198,6 +4220,7 @@ function home(){
      return '<div class="hnote"><b>'+(SITE.stats_areas_num||"657")+'</b> '+siteText("stats1","note")+
        ' '+(lnum?'<b>'+lnum+'</b> ':'')+s2+'</div>' })())+
    '</div></section>'+(adsInHero?adSlotsRow():'')+'</div>'+
+ qfTeaserHtml+
  homeSectionsHtml(bannerAboveHtml,typeList,adsInHero)}
 
 /* ── listing card ── */
@@ -7044,6 +7067,9 @@ function wire(){
    }).catch(function(){}) }
    render();
  };
+ $$("[data-qfx]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation();
+   try{ localStorage.setItem("balkoun_qf_dismissed","1") }catch(e){}
+   var w=b.closest(".qfteaser-wrap"); if(w&&w.parentElement) w.parentElement.remove() } });
  $$("[data-go]").forEach(function(e){e.onclick=function(ev){ev.preventDefault();
    if(e.dataset.go==="post"){NEW={photos:[],lat:null,lng:null}}
    if(e.dataset.go==="mapsearch"){ MAPSEARCH.deal = F.deal==="rent" ? "rent" : "sale" }   // the map starts on the deal chosen in the search bar
@@ -10000,6 +10026,11 @@ var GX_T={
   tmGroupContent:{ar:"المحتوى",en:"Content",de:"Inhalt"}, tmGroupPeople:{ar:"الأشخاص",en:"People",de:"Personen"}, tmGroupInbox:{ar:"الوارد",en:"Inbox",de:"Eingang"}, tmGroupSystem:{ar:"النظام",en:"System",de:"System"},
   cShowing:{ar:"يُعرض الآن",en:"Showing",de:"Angezeigt"},
   cEditorAllNote:{ar:"هذه الصفحة تُعدّل دولة واحدة في كل مرة",en:"this page edits one country at a time",de:"diese Seite bearbeitet jeweils ein Land"},
+  qfTeaserT:{ar:"ما بدك تعبّي كل الحقول؟",en:"Don't want to fill every field?",de:"Keine Lust, jedes Feld auszufüllen?"},
+  qfTeaserP:{ar:"الصق نص إعلانك كما هو، وبلكون يعبّي الاستمارة عنك.",en:"Paste your listing text as it is; Balkoun fills the form for you.",de:"Fügen Sie Ihren Anzeigentext einfach ein — Balkoun füllt das Formular für Sie aus."},
+  qfTeaserBtn:{ar:"جرّب الآن",en:"Try it now",de:"Jetzt ausprobieren"},
+  qfMenuT:{ar:"انشر من نص جاهز",en:"Post from text",de:"Aus Text erstellen"},
+  qfMenuP:{ar:"الصق الوصف وبلكون يعبّي الاستمارة",en:"Paste the description, we fill the form",de:"Text einfügen — wir füllen das Formular"},
   bellVerify:{ar:"أرقام بانتظار التأكيد",en:"Numbers to confirm",de:"Nummern zu bestätigen"},
   vfT:{ar:"تأكيد الأرقام (واتساب)",en:"Number confirmations (WhatsApp)",de:"Nummernbestätigungen (WhatsApp)"},
   vfHint:{ar:"كل طلب هنا أرسل صاحبه رمزاً إلى واتساب بلكون. قارن الرمز والرقم مع الرسالة التي وصلتك ثم أكّد.",en:"Each request here sent a code to Balkoun's WhatsApp. Compare the code and number with the message you received, then confirm.",de:"Jede Anfrage hier hat einen Code an Balkouns WhatsApp gesendet. Vergleichen Sie Code und Nummer mit der Nachricht und bestätigen Sie."},
