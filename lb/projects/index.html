@@ -287,7 +287,7 @@ html.js .rv.in{opacity:1;transform:none}
 .qfteaser-x:hover{background:var(--page)}
 .qf-badge{display:inline-block;font-style:normal;font-size:9.5px;font-weight:800;background:var(--gold);color:#1A1206;border-radius:999px;padding:1px 6px;margin-inline-start:6px;vertical-align:middle}
 @media(max-width:640px){.qfteaser{gap:12px;padding-inline-start:14px;padding-inline-end:38px}.qfteaser-tx b{font-size:14px}.qfteaser-tx small{font-size:12px}.qfteaser-cta{display:none}}
-.aisearch{margin-top:22px}
+.aisearch{margin-top:36px}
 .aisearch-pill{position:relative;display:flex;align-items:center;height:var(--sbar-h,40px);background:#fff;border-radius:14px;box-shadow:0 14px 30px -14px rgba(9,14,26,.4);padding-inline-end:4px;max-width:640px;margin:0 auto}
 .aisearch-badge{position:absolute;inset-inline-start:4px;top:3px;bottom:3px;display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,#E8F8F1,#EEF0FF);border-radius:10px;padding:0 12px;font:800 12.5px var(--f);color:var(--navy);white-space:nowrap;pointer-events:none}
 .aisearch-badge svg{width:13px;height:13px;flex:none;color:#2FB6A3}
@@ -7034,11 +7034,20 @@ function aiSearchBarHtml(){
   '</div>';
 }
 function aiSearchMsg(text,kind){ var res=$("#aiSearchResult"); if(!res) return; res.hidden=!text; res.className="aisearch-result"+(kind?" "+kind:""); res.textContent=text||"" }
+var _aiPhTimer=null;
 function wireAiSearchBar(){
   var inp=$("#aiSearchInput"), btn=$("#aiSearchGo");
   if(!inp||!btn) return;
   btn.onclick=aiSearchRun;
   inp.onkeydown=function(e){ if(e.key==="Enter") aiSearchRun() };
+  // the placeholder cycles through a few example searches when the field is empty and unfocused
+  var examples=[GX("aiSearchPH"),GX("aiSearchEx1"),GX("aiSearchEx2"),GX("aiSearchEx3")], i=0;
+  if(_aiPhTimer) clearInterval(_aiPhTimer);
+  _aiPhTimer=setInterval(function(){
+    var el=$("#aiSearchInput"); if(!el){ clearInterval(_aiPhTimer); _aiPhTimer=null; return }
+    if(document.activeElement===el || el.value) return;
+    i=(i+1)%examples.length; el.placeholder=examples[i];
+  },3200);
 }
 // turns the AI's matched filters into the same F object the structured bar and results page already read
 function aiApplyFilters(f){
@@ -10104,6 +10113,9 @@ var GX_T={
   qfMenuP:{ar:"الصق الوصف وبلكون يعبّي الاستمارة",en:"Paste the description, we fill the form",de:"Text einfügen — wir füllen das Formular"},
   aiSearchBadge:{ar:"AI اسأل",en:"Ask AI",de:"KI fragen"},
   aiSearchPH:{ar:"ابحث عن منزل أحلامك باستخدام الذكاء الاصطناعي",en:"Search for your dream home using AI",de:"Suchen Sie Ihr Traumhaus mit KI"},
+  aiSearchEx1:{ar:"مثال: شقة 3 غرف بالمزة تحت 80 ألف دولار",en:"e.g. 3-bedroom apartment in Mazzeh under $80,000",de:"z. B. 3-Zimmer-Wohnung in Mazzeh unter 80.000 $"},
+  aiSearchEx2:{ar:"مثال: فيلا للبيع في اللاذقية على البحر",en:"e.g. villa for sale in Latakia by the sea",de:"z. B. Villa zum Verkauf in Latakia am Meer"},
+  aiSearchEx3:{ar:"مثال: محل تجاري للإيجار في حلب",en:"e.g. shop for rent in Aleppo",de:"z. B. Laden zur Miete in Aleppo"},
   aiSearchGo:{ar:"بحث",en:"Search",de:"Suchen"},
   aiSearchBusy:{ar:"لحظة…",en:"One moment…",de:"Einen Moment…"},
   aiSearchShort:{ar:"اكتب وصف البحث أولاً",en:"Type what you're looking for first",de:"Bitte zuerst eingeben, wonach Sie suchen"},
