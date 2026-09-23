@@ -292,14 +292,18 @@ html.js .rv.in{opacity:1;transform:none}
 .qf-badge{display:inline-block;font-style:normal;font-size:9.5px;font-weight:800;background:var(--gold);color:#1A1206;border-radius:999px;padding:1px 6px;margin-inline-start:6px;vertical-align:middle}
 @media(max-width:640px){.qfteaser{gap:12px;padding-inline-start:14px;padding-inline-end:38px}.qfteaser-tx b{font-size:14px}.qfteaser-tx small{font-size:12px}.qfteaser-cta{display:none}}
 .aisearch{margin-top:36px}
-.aisearch-pill{position:relative;display:flex;align-items:center;height:var(--sbar-h,40px);background:#fff;border-radius:14px;box-shadow:0 14px 30px -14px rgba(9,14,26,.4);padding-inline-end:4px;max-width:640px;margin:0 auto}
+.aisearch-pill{position:relative;display:flex;align-items:center;height:var(--sbar-h,40px);background:rgba(255,255,255,.9);-webkit-backdrop-filter:blur(16px) saturate(1.25);backdrop-filter:blur(16px) saturate(1.25);border-radius:14px;box-shadow:0 14px 30px -14px rgba(9,14,26,.4),inset 0 0 0 1px rgba(255,255,255,.6);padding-inline-end:4px;max-width:640px;margin:0 auto}
 .aisearch-badge{position:absolute;inset-inline-start:4px;top:3px;bottom:3px;display:flex;align-items:center;gap:5px;background:linear-gradient(135deg,#E8F8F1,#EEF0FF);border-radius:10px;padding:0 12px;font:800 12.5px var(--f);color:var(--navy);white-space:nowrap;pointer-events:none}
-.aisearch-badge svg{width:13px;height:13px;flex:none;color:#2FB6A3}
+.aisearch-badge svg{width:13px;height:13px;flex:none;color:#2FB6A3;animation:aiSparkleTwinkle 2.4s ease-in-out infinite}
+.aisearch-badge .newtag{top:-9px}
 .aisearch-pill input{flex:1;min-width:0;height:100%;border:0;background:transparent;outline:0;font:500 13.5px var(--f);color:var(--navy);padding-inline-start:106px;padding-inline-end:10px;text-align:end}
 .aisearch-pill input::placeholder{color:var(--grey)}
 .aisearch-go{flex:none;width:34px;height:calc(100% - 6px);border-radius:10px;border:0;background:var(--gold);color:#1A1206;display:grid;place-items:center;cursor:pointer}
-.aisearch-go svg{width:14px;height:14px}
+.aisearch-go svg{width:14px;height:14px;animation:aiMagPulse 1.8s ease-in-out infinite}
 .aisearch-go:disabled{opacity:.6;cursor:default}
+@keyframes aiSparkleTwinkle{0%,100%{opacity:.55;transform:scale(.85) rotate(0deg)}50%{opacity:1;transform:scale(1.05) rotate(15deg)}}
+@keyframes aiMagPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.18)}}
+@media (prefers-reduced-motion:reduce){.aisearch-badge svg,.aisearch-go svg{animation:none}}
 @media(max-width:640px){.aisearch-pill{height:var(--sbar-h-m,var(--sbar-h,48px))}.aisearch-badge{padding:0 10px;font-size:11.5px}.aisearch-pill input{padding-inline-start:90px;font-size:13px}}
 .aisearch-result{margin-top:9px;text-align:center;font-size:13px;line-height:1.5;color:var(--grey)}
 .aisearch-result.warn{color:var(--warn)}
@@ -7030,7 +7034,7 @@ function softRenderHero(){
 function aiSearchBarHtml(){
   return '<div class="aisearch" id="aiSearchBox">'+
     '<div class="aisearch-pill">'+
-      '<span class="aisearch-badge">'+MI.ai+GX("aiSearchBadge")+'</span>'+
+      '<span class="aisearch-badge">'+MI.ai+GX("aiSearchBadge")+'<i class="newtag">'+GX("newTag")+'</i></span>'+
       '<input id="aiSearchInput" type="text" data-allow-autofill placeholder="'+esc(GX("aiSearchPH"))+'" maxlength="200">'+
       '<button type="button" id="aiSearchGo" class="aisearch-go" aria-label="'+esc(GX("aiSearchGo"))+'">'+MI.search+'</button>'+
     '</div>'+
