@@ -2816,7 +2816,7 @@ body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
 .vopts{display:flex;flex-direction:column;gap:10px;margin-bottom:6px}
 .vopt{display:flex;align-items:center;gap:12px;width:100%;text-align:start;background:#fff;border:1px solid var(--line-2);border-radius:14px;padding:12px 14px;cursor:pointer;font:inherit;color:var(--ink);transition:border-color .15s,box-shadow .15s}
 .vopt:hover,.vopt:focus-visible{border-color:var(--gold);box-shadow:0 0 0 3px rgba(196,136,31,.14);outline:none}
-.vico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;flex:none;color:#fff}.vico.tg{background:#2AABEE}.vico.wa{background:#1D9E5A}
+.vico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;flex:none;color:#fff}.vico.tg{background:#2AABEE}.vico.wa{background:#1D9E5A}.vico.email{background:#C4881F}
 .vtxt{display:flex;flex-direction:column;gap:2px;min-width:0}.vtxt b{font-size:15px}.vtxt small{font-size:12.5px;color:var(--grey);line-height:1.5}
 .auw.vtg{background:#2AABEE;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}.auw.vtg::before{display:none}.auw.vtg .vico{width:22px;height:22px;background:transparent}.auw.vtg .vico svg{width:22px;height:22px}
 .vsteps{font-size:13.5px;color:var(--grey);padding-inline-start:18px;line-height:1.9;margin:12px 0}
@@ -3363,7 +3363,7 @@ var VLB_OPEN=false, _vlbFor=null;   // video lightbox on a listing page
 var SAVED=[];
 var LOADED={};
 var HOMEDEAL="sale";
-var USER=null, AU={mode:"in",step:1,cc:"963",phone:"",name:"",code:""};
+var USER=null, AU={mode:"in",step:1,cc:"963",phone:"",name:"",code:"",email:""};
 
 /* session — works when you open or host the file; the chat preview
    blocks browser storage, so there it simply won't persist.        */
@@ -3859,7 +3859,8 @@ function fullName(u){ return u ? ((u.name||"")+(u.family_name?" "+u.family_name:
 
 /* ── phone verification (sign-up / reset): the server issues a ticket, the person proves the number on Telegram or WhatsApp ── */
 var VICO={tg:'<svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 3.5 2.8 10.6c-.9.4-.9 1.1 0 1.4l4.7 1.5 1.8 5.6c.2.6.6.8 1.1.4l2.6-2.2 4.9 3.6c.7.4 1.2.2 1.4-.6l3.2-15.4c.2-1-.3-1.5-1-1.4Z"/><path d="m7.5 13.5 9.2-6.1"/></svg>',
-  wa:'<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M20 3.9A11.8 11.8 0 0 0 1.6 18.2L0 24l5.9-1.6A11.8 11.8 0 0 0 20 3.9zm-8 18a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.5 1 1-3.4-.2-.4A9.8 9.8 0 1 1 12 21.9zm5.4-7.3c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1l-.9 1.2c-.2.2-.3.2-.6.1a8 8 0 0 1-4-3.5c-.3-.5.3-.5.9-1.6.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6a1.1 1.1 0 0 0-.8.4 3.4 3.4 0 0 0-1 2.5 6 6 0 0 0 1.2 3.1 13.4 13.4 0 0 0 5.2 4.6c1.9.8 2.7.9 3.6.7a3.1 3.1 0 0 0 2-1.4 2.5 2.5 0 0 0 .2-1.4c-.1-.2-.3-.2-.6-.4z"/></svg>'};
+  wa:'<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M20 3.9A11.8 11.8 0 0 0 1.6 18.2L0 24l5.9-1.6A11.8 11.8 0 0 0 20 3.9zm-8 18a9.8 9.8 0 0 1-5-1.4l-.4-.2-3.5 1 1-3.4-.2-.4A9.8 9.8 0 1 1 12 21.9zm5.4-7.3c-.3-.1-1.8-.9-2-1-.3-.1-.5-.1-.7.1l-.9 1.2c-.2.2-.3.2-.6.1a8 8 0 0 1-4-3.5c-.3-.5.3-.5.9-1.6.1-.2 0-.4 0-.5l-.9-2.2c-.2-.6-.5-.5-.7-.5h-.6a1.1 1.1 0 0 0-.8.4 3.4 3.4 0 0 0-1 2.5 6 6 0 0 0 1.2 3.1 13.4 13.4 0 0 0 5.2 4.6c1.9.8 2.7.9 3.6.7a3.1 3.1 0 0 0 2-1.4 2.5 2.5 0 0 0 .2-1.4c-.1-.2-.3-.2-.6-.4z"/></svg>',
+  email:'<svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><path d="M2 6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6zm2 0l8 6 8-6H4zm16 2.2l-8 6-8-6V18h16V8.2z"/></svg>'};
 function waOwnerNum(){ return String((SITE&&SITE.wa_number)||CONFIG.whatsapp||"").replace(/\D/g,"").replace(/^00/,"") }
 function verifyResumeKey(){ return "balkoun_verify" }
 function verifySaveResume(){ try{ localStorage.setItem(verifyResumeKey(), JSON.stringify({ticket:AU.ticket,secret:AU.secret,code:AU.code,phone:"+"+AU.cc+AU.phone,purpose:AU.purpose,vch:AU.vch,vsent:!!AU.vsent,bot:AU.vbot,exp:AU.vexp||0})) }catch(e){} }
@@ -3868,22 +3869,23 @@ function verifyClearResume(){ try{ localStorage.removeItem(verifyResumeKey()) }c
 /* starts a ticket for the phone in AU; returns true when the channel screen can open */
 async function verifyBegin(purpose, errFn){
   var r;
-  try{ r=await rpc("bk_verify_start",{p_phone:"+"+AU.cc+AU.phone, p_purpose:purpose, p_country:COUNTRY||"SY"}) }
+  try{ r=await rpc("bk_verify_start",{p_phone:"+"+AU.cc+AU.phone, p_purpose:purpose, p_country:COUNTRY||"SY", p_email:purpose==="signup"?(AU.email||null):null}) }
   catch(e){ var m=e.message||"";
     errFn(m==="exists"?"phoneTaken" : m==="nouser"?"noUser" : m==="badphone"?"badPhone" : m==="throttled"?GX("vThrottled") : m==="off"?GX("vOff") : m==="blocked"?GX("vBlocked") : m); return false }
   // the old "send a code to Balkoun's own WhatsApp, admin confirms" road is signup-only history now that
   // code-by-WhatsApp sends automatically for every country (WAHA for Syria, Meta's API for everyone else)
-  AU.purpose=purpose; AU.ticket=r.ticket; AU.secret=r.secret; AU.code=r.code; AU.vtg=!!r.telegram; AU.vwa=purpose==="signup"?false:!!r.whatsapp; AU.vwc=!!r.wa_code; AU.vbot=r.bot||SX("intake_bot",""); AU.vexp=r.expires_at?new Date(r.expires_at).getTime():Date.now()+3600e3;
-  var only=[AU.vtg&&"telegram",AU.vwa&&"whatsapp",AU.vwc&&"wa_code"].filter(Boolean);
+  AU.purpose=purpose; AU.ticket=r.ticket; AU.secret=r.secret; AU.code=r.code; AU.vtg=!!r.telegram; AU.vwa=purpose==="signup"?false:!!r.whatsapp; AU.vwc=!!r.wa_code; AU.vem=!!r.email; AU.vbot=r.bot||SX("intake_bot",""); AU.vexp=r.expires_at?new Date(r.expires_at).getTime():Date.now()+3600e3;
+  var only=[AU.vtg&&"telegram",AU.vwa&&"whatsapp",AU.vwc&&"wa_code",AU.vem&&"email"].filter(Boolean);
   AU.vch=only.length===1?only[0]:null; AU.vsent=false; AU.wsent=false;
   verifySaveResume(); return true }
 function verifyStepHtml(){
   var isReset=AU.purpose==="reset", ch=AU.vch;
   var head='<div class="vhead"><span class="vph ltr">+'+esc(AU.cc+AU.phone)+'</span><a id="auBack" class="vchg">'+t("changeNum")+'</a></div>';
-  var other=([AU.vtg,AU.vwa,AU.vwc].filter(Boolean).length>1)?'<div class="aun"><a data-vch="">'+GX("vOther")+'</a></div>':'';
+  var other=([AU.vtg,AU.vwa,AU.vwc,AU.vem].filter(Boolean).length>1)?'<div class="aun"><a data-vch="">'+GX("vOther")+'</a></div>':'';
   if(!ch) return '<div class="aubody">'+head+'<p class="vlead">'+GX(isReset?"vChooseReset":"vChooseP")+'</p><div class="vopts">'+
       (AU.vwc?'<button type="button" class="vopt" data-vch="wa_code"><span class="vico wa">'+VICO.wa+'</span><span class="vtxt"><b>'+GX("vWaCode")+'</b><small>'+GX("vWaCodeP")+'</small></span></button>':'')+
       (AU.vtg?'<button type="button" class="vopt" data-vch="telegram"><span class="vico tg">'+VICO.tg+'</span><span class="vtxt"><b>'+GX("vTelegram")+'</b><small>'+GX("vTelegramP")+'</small></span></button>':'')+
+      (AU.vem?'<button type="button" class="vopt" data-vch="email"><span class="vico email">'+VICO.email+'</span><span class="vtxt"><b>'+GX("vEmail")+'</b><small>'+GX("vEmailP")+'</small></span></button>':'')+
       (AU.vwa?'<button type="button" class="vopt" data-vch="whatsapp"><span class="vico wa">'+VICO.wa+'</span><span class="vtxt"><b>'+GX("vWhatsapp")+'</b><small>'+GX(isReset?"vWhatsappResetP":"vWhatsappP")+'</small></span></button>':'')+
       '</div><div class="auerr" id="auErr"></div></div>';
   if(ch==="telegram"){
@@ -3891,9 +3893,9 @@ function verifyStepHtml(){
     return '<div class="aubody">'+head+'<a class="auw vtg" href="'+link+'" target="_blank" rel="noopener" id="auTgOpen"><span class="vico">'+VICO.tg+'</span>'+GX("vOpenTg")+'</a>'+
       '<ol class="vsteps"><li>'+GX("vTg1")+'</li><li>'+GX("vTg2")+'</li><li>'+GX("vTg3")+'</li></ol>'+
       '<div class="vwait"><i class="vspin"></i><span>'+GX("vWaiting")+'</span></div><div class="auerr" id="auErr"></div>'+other+'</div>' }
-  if(ch==="wa_code"){
-    if(!AU.wsent) return '<div class="aubody">'+head+'<div class="vwait"><i class="vspin"></i><span>'+GX("vSending")+'</span></div><div class="auerr" id="auErr"></div>'+other+'</div>';
-    return '<div class="aubody">'+head+'<p class="vlead" style="text-align:center">'+GX("vEnterCode")+'</p>'+
+  if(ch==="wa_code"||ch==="email"){
+    if(!AU.wsent) return '<div class="aubody">'+head+'<div class="vwait"><i class="vspin"></i><span>'+GX(ch==="email"?"vSendingEmail":"vSending")+'</span></div><div class="auerr" id="auErr"></div>'+other+'</div>';
+    return '<div class="aubody">'+head+'<p class="vlead" style="text-align:center">'+GX(ch==="email"?"vEnterCodeEmail":"vEnterCode")+'</p>'+
       '<div class="otp" id="auOtp">'+[0,1,2,3,4,5].map(function(i){ return '<input inputmode="numeric" autocomplete="one-time-code" maxlength="1" data-otp="'+i+'" aria-label="'+(i+1)+'">' }).join("")+'</div>'+
       '<div class="auerr" id="auErr"></div><div class="aun"><a id="auResend" class="'+(AU.wsentAt&&Date.now()-AU.wsentAt<45e3?'vdim':'')+'">'+GX("vResend")+'</a></div>'+other+'</div>' }
   var msg=GX("vWaMsg").replace("{c}",AU.code), wa="https://wa.me/"+waOwnerNum()+"?text="+encodeURIComponent(msg);
@@ -3976,6 +3978,7 @@ function authModal(){
    '<input id="auPhone" autocomplete="username" data-allow-autofill inputmode="numeric" placeholder="" value="'+(AU.phone||"")+'"></div></div>'+
    '<div class="auf"><label>'+t("password")+'</label>'+pwField("auPass","new-password",t("min6"))+'</div>'+
    '<div class="auf"><label>'+t("password2")+'</label>'+pwField("auPass2","new-password")+'</div>'+
+   '<div class="auf"><label>'+GX("auEmailOptL")+'</label><input id="auEmail" type="email" autocomplete="email" inputmode="email" value="'+esc(AU.email||"")+'" placeholder="name@example.com"></div>'+
    '<div class="auf"><label>'+t("defaultCurrencyL")+'</label>'+
     '<select id="auCurrency">'+wCurrencies().map(function(c){ var cur=(AU.currency||CUR||"USD").toUpperCase(); if(wCurrencies().indexOf(cur)<0) cur="USD"; return '<option value="'+c+'"'+(c===cur?' selected':'')+'>'+(c==="USD"?t("currUSD"):c==="SYP"?t("currSYP"):c+' '+esc(curLabel(c,L)))+'</option>' }).join("")+
     '</select></div>'+
@@ -7581,7 +7584,7 @@ function wire(){
 function wireAuth(){
  var open=function(m){
    var remembered = m==="in" ? loadRememberedPhone() : null;
-   AU={open:true,mode:m,step:1,cc:(remembered&&remembered.cc)||"963",phone:(remembered&&remembered.phone)||"",name:"",fam:"",code:"",remember:true};
+   AU={open:true,mode:m,step:1,cc:(remembered&&remembered.cc)||"963",phone:(remembered&&remembered.phone)||"",name:"",fam:"",code:"",email:"",remember:true};
    render();
  };
  var err=function(k){var e=$("#auErr"); if(e)e.textContent=(D.I18N[L][k]||k)};
@@ -7689,11 +7692,12 @@ function wireAuth(){
    AU.cc=$("#auCC").value; AU.phone=p;
    AU.name=$("#auName").value.trim(); AU.fam=$("#auFam").value.trim();
    AU.currency=($("#auCurrency")||{}).value||"USD";
-
+   var auEm=($("#auEmail")?$("#auEmail").value:"").trim().toLowerCase();
+   AU.email=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(auEm)?auEm:"";   // optional — silently dropped if left blank or not a valid address, never blocks signup
 
    AU.pass=$("#auPass").value;
    var sb=this; sb.disabled=true; sb.textContent=t("saving");
-   verifyBegin("signup", err).then(function(ok){ if(ok){ AU.step=2; render(); if(AU.vch==="telegram") verifyTgPoll(); if(AU.vch==="wa_code") verifySendCodeNow() } else { sb.disabled=false; sb.textContent=GX("vContinue") } })};
+   verifyBegin("signup", err).then(function(ok){ if(ok){ AU.step=2; render(); if(AU.vch==="telegram") verifyTgPoll(); if(AU.vch==="wa_code"||AU.vch==="email") verifySendCodeNow() } else { sb.disabled=false; sb.textContent=GX("vContinue") } })};
 
  /* the person signed in after the number was proven */
  var afterAuth=function(u){
@@ -7708,7 +7712,7 @@ function wireAuth(){
  window.verifySendCodeNow=function(){ verifySendCode() };
  var verifySendCode=async function(){
    try{
-     var res=await fetch(CONFIG.supabaseUrl+"/functions/v1/bk-intake/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ticket:AU.ticket,secret:AU.secret})});
+     var res=await fetch(CONFIG.supabaseUrl+"/functions/v1/bk-intake/verify",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({ticket:AU.ticket,secret:AU.secret,channel:AU.vch,email:AU.vch==="email"?AU.email:undefined})});
      var j=await res.json().catch(function(){ return {} });
      if(!res.ok||!j.ok){ var k=j.error||"send_failed"; err(k==="wa_off"||k==="country"||k==="off"?GX("vWaCodeOff"):k==="wait"?GX("vWait"):k==="limit"?GX("vSendLimit"):k==="expired"?GX("vExpired"):GX("vSendFailed")); if(!AU.wsent){ AU.vch=null; render(); err(k==="wa_off"||k==="country"||k==="off"?GX("vWaCodeOff"):GX("vSendFailed")) } return }
      AU.wsent=true; AU.wsentAt=Date.now(); render(); var f=$('[data-otp="0"]'); if(f) f.focus();
@@ -7727,7 +7731,7 @@ function wireAuth(){
    i.onpaste=function(e){ var d=(e.clipboardData||window.clipboardData).getData("text").replace(/\D/g,"").slice(0,6); if(d.length){ e.preventDefault(); all.forEach(function(x,k){ x.value=d[k]||"" }); if(d.length===6) verifyCheck(d); else { var fe=all.find(function(x){return !x.value}); if(fe) fe.focus() } } };
  });
  if($("#auResend")) $("#auResend").onclick=function(){ if(AU.wsentAt && Date.now()-AU.wsentAt<45e3){ err(GX("vWait")); return } verifySendCode() };
- $$("[data-vch]").forEach(function(b){ b.onclick=function(){ AU.vch=this.dataset.vch||null; AU.vsent=false; AU.wsent=false; verifyPollStop(); verifySaveResume(); render(); if(AU.vch==="telegram") verifyTgPoll(); if(AU.vch==="wa_code") verifySendCode() } });
+ $$("[data-vch]").forEach(function(b){ b.onclick=function(){ AU.vch=this.dataset.vch||null; AU.vsent=false; AU.wsent=false; verifyPollStop(); verifySaveResume(); render(); if(AU.vch==="telegram") verifyTgPoll(); if(AU.vch==="wa_code"||AU.vch==="email") verifySendCode() } });
  if($("#auSent"))$("#auSent").onclick=async function(){
    var b=this; b.disabled=true; b.textContent=t("saving");
    try{
@@ -7747,9 +7751,9 @@ function wireAuth(){
    if(p.length<7) return err("badPhone");
    AU.cc=$("#auCC").value; AU.phone=p;
    var saved=verifyLoadResume("+"+AU.cc+p,"reset");
-   if(saved){ AU.purpose="reset"; AU.ticket=saved.ticket; AU.secret=saved.secret; AU.code=saved.code; AU.vch=saved.vch||null; AU.vsent=!!saved.vsent; AU.vbot=saved.bot||SX("intake_bot",""); AU.vtg=!!AU.vbot&&SX("verify_telegram_on",true)!==false; AU.vwa=SX("verify_whatsapp_on",true)!==false; AU.vexp=saved.exp; AU.step=6; render(); if(AU.vch) verifyTgPoll(); return }
+   if(saved){ AU.purpose="reset"; AU.ticket=saved.ticket; AU.secret=saved.secret; AU.code=saved.code; AU.vch=saved.vch||null; AU.vsent=!!saved.vsent; AU.wsent=!!saved.vch&&(saved.vch==="wa_code"||saved.vch==="email"); AU.vbot=saved.bot||SX("intake_bot",""); AU.vtg=!!AU.vbot&&SX("verify_telegram_on",true)!==false; AU.vwa=SX("verify_whatsapp_on",true)!==false; AU.vem=SX("verify_email_on",true)!==false; AU.vexp=saved.exp; AU.step=6; render(); if(AU.vch) verifyTgPoll(); return }
    var sb=this; sb.disabled=true; sb.textContent=t("saving");
-   verifyBegin("reset", err).then(function(ok){ if(ok){ AU.step=6; render(); if(AU.vch==="telegram") verifyTgPoll(); if(AU.vch==="wa_code") verifySendCodeNow() } else { sb.disabled=false; sb.textContent=GX("vContinue") } })};
+   verifyBegin("reset", err).then(function(ok){ if(ok){ AU.step=6; render(); if(AU.vch==="telegram") verifyTgPoll(); if(AU.vch==="wa_code"||AU.vch==="email") verifySendCodeNow() } else { sb.disabled=false; sb.textContent=GX("vContinue") } })};
  if($("#auDoReset"))$("#auDoReset").onclick=async function(){
    if(($("#auPass").value||"").length<6) return err("shortPass");
    if($("#auPass").value!==$("#auPass2").value) return err("noMatch");
@@ -10023,6 +10027,9 @@ var GX_T={
   vWhatsapp:{ar:"واتساب",en:"WhatsApp",de:"WhatsApp"},
   vWhatsappP:{ar:"أرسل رمزاً إلى واتساب بلكون، ويُؤكَّد حسابك بعد وصوله",en:"Send a code to Balkoun's WhatsApp; your account is confirmed once it arrives",de:"Senden Sie einen Code an Balkouns WhatsApp; das Konto wird nach Eingang bestätigt"},
   vWhatsappResetP:{ar:"أرسل رمزاً إلى واتساب بلكون، ثم تختار كلمة المرور بعد تأكيدنا",en:"Send a code to Balkoun's WhatsApp, then choose the password after we confirm",de:"Senden Sie einen Code an Balkouns WhatsApp; nach unserer Bestätigung wählen Sie das Passwort"},
+  vEmail:{ar:"البريد الإلكتروني",en:"Email",de:"E-Mail"},
+  vEmailP:{ar:"يصلك رمز من 6 أرقام على بريدك وتكتبه هنا",en:"A 6-digit code arrives in your inbox; type it here",de:"Ein 6-stelliger Code kommt per E-Mail; hier eingeben"},
+  auEmailOptL:{ar:"البريد الإلكتروني (اختياري)",en:"Email (optional)",de:"E-Mail (optional)"},
   vOpenTg:{ar:"افتح تيليغرام",en:"Open Telegram",de:"Telegram öffnen"},
   vTg1:{ar:"يفتح بوت بلكون؛ اضغط «ابدأ» إن ظهر.",en:"The Balkoun bot opens; press Start if shown.",de:"Der Balkoun-Bot öffnet sich; tippen Sie auf Start."},
   vTg2:{ar:"اضغط زر «مشاركة رقمي» في أسفل المحادثة.",en:"Tap “Share my number” at the bottom of the chat.",de:"Tippen Sie unten im Chat auf „Meine Nummer teilen“."},
@@ -10051,7 +10058,9 @@ var GX_T={
   vWaCode:{ar:"رمز عبر واتساب",en:"Code by WhatsApp",de:"Code per WhatsApp"},
   vWaCodeP:{ar:"يصلك رمز من 6 أرقام على واتساب وتكتبه هنا",en:"A 6-digit code arrives on WhatsApp; type it here",de:"Ein 6-stelliger Code kommt per WhatsApp; hier eingeben"},
   vSending:{ar:"نرسل الرمز إلى واتساب…",en:"Sending the code to WhatsApp…",de:"Code wird per WhatsApp gesendet…"},
+  vSendingEmail:{ar:"نرسل الرمز إلى بريدك…",en:"Sending the code to your email…",de:"Code wird per E-Mail gesendet…"},
   vEnterCode:{ar:"أدخل الرمز الذي وصلك على واتساب",en:"Enter the code you received on WhatsApp",de:"Geben Sie den per WhatsApp erhaltenen Code ein"},
+  vEnterCodeEmail:{ar:"أدخل الرمز الذي وصلك على بريدك",en:"Enter the code you received by email",de:"Geben Sie den per E-Mail erhaltenen Code ein"},
   vResend:{ar:"لم يصلك؟ أعد الإرسال",en:"Nothing arrived? Send again",de:"Nichts erhalten? Erneut senden"},
   vWrong:{ar:"الرمز غير صحيح، حاول مرة أخرى.",en:"Wrong code, try again.",de:"Falscher Code, bitte erneut versuchen."},
   vWaCodeOff:{ar:"إرسال الرمز عبر واتساب غير متاح لهذا الرقم. اختر طريقة أخرى.",en:"Code by WhatsApp is not available for this number. Pick another way.",de:"Code per WhatsApp ist für diese Nummer nicht verfügbar. Bitte anderen Weg wählen."},
@@ -10059,10 +10068,13 @@ var GX_T={
   vSendLimit:{ar:"وصلت إلى حد الإرسال. اختر طريقة أخرى أو ابدأ من جديد لاحقاً.",en:"Send limit reached. Pick another way or start again later.",de:"Sendelimit erreicht. Anderen Weg wählen oder später neu beginnen."},
   vSendFailed:{ar:"تعذّر إرسال الرمز الآن. اختر طريقة أخرى.",en:"Could not send the code right now. Pick another way.",de:"Code konnte gerade nicht gesendet werden. Bitte anderen Weg wählen."},
   vfSetWaCode:{ar:"رمز عبر واتساب (إرسال تلقائي، خارج سوريا)",en:"Code by WhatsApp (automatic, outside Syria)",de:"Code per WhatsApp (automatisch, außerhalb Syriens)"},
+  vfSetEmail:{ar:"رمز عبر البريد الإلكتروني (إرسال تلقائي)",en:"Code by email (automatic)",de:"Code per E-Mail (automatisch)"},
   vfSetWaTpl:{ar:"اسم قالب التحقق في Meta",en:"Meta authentication template name",de:"Name der Meta-Authentifizierungsvorlage"},
   vfSetWaLang:{ar:"لغة القالب",en:"Template language",de:"Vorlagensprache"},
   vfWaReady:{ar:"واتساب متصل: الإرسال التلقائي يعمل.",en:"WhatsApp connected: automatic sending works.",de:"WhatsApp verbunden: automatischer Versand aktiv."},
   vfWaNotReady:{ar:"واتساب غير متصل بعد؛ يظهر هذا الخيار للأعضاء تلقائياً بعد إضافة مفاتيح Cloud API في صفحة «النشر بالرسائل».",en:"WhatsApp not connected yet; this option appears to members automatically once the Cloud API secrets are set (Message intake page).",de:"WhatsApp noch nicht verbunden; die Option erscheint automatisch, sobald die Cloud-API-Schlüssel gesetzt sind."},
+  vfEmailReady:{ar:"البريد متصل: الإرسال التلقائي يعمل.",en:"Email connected: automatic sending works.",de:"E-Mail verbunden: automatischer Versand aktiv."},
+  vfEmailNotReady:{ar:"البريد غير متصل بعد؛ يظهر هذا الخيار للأعضاء تلقائياً بعد ضبط مزوّد البريد.",en:"Email not connected yet; this option appears to members automatically once the email provider is set up.",de:"E-Mail noch nicht verbunden; die Option erscheint automatisch, sobald der E-Mail-Anbieter eingerichtet ist."},
   ik_ntfH:{ar:"تنبيهات الإدارة على تيليغرام",en:"Admin alerts on Telegram",de:"Admin-Hinweise auf Telegram"},
   ik_ntfHint:{ar:"تصل التنبيهات إلى كل محادثة إدارة مربوطة بالبوت ({n} حالياً). لربط هاتف آخر استخدم رابط «ربط حسابك» أعلاه.",en:"Alerts go to every admin chat paired with the bot ({n} now). Use the owner link above to pair another phone.",de:"Hinweise gehen an jeden mit dem Bot verbundenen Admin-Chat ({n} derzeit)."},
   ik_ntfNoChat:{ar:"لا توجد محادثة إدارة مربوطة بعد. اضغط «ربط حسابك» في البطاقة أعلاه أولاً.",en:"No admin chat is paired yet. Press the owner link in the card above first.",de:"Noch kein Admin-Chat verbunden. Zuerst den Besitzer-Link oben nutzen."},
@@ -10139,6 +10151,8 @@ var GX_T={
   vfSetTg:{ar:"تيليغرام (تلقائي عبر البوت)",en:"Telegram (automatic via the bot)",de:"Telegram (automatisch über den Bot)"},
   vfSetWa:{ar:"واتساب (تأكيد يدوي من هنا)",en:"WhatsApp (confirmed by hand here)",de:"WhatsApp (manuelle Bestätigung hier)"},
   vfSetReq:{ar:"منع النشر قبل تأكيد الرقم",en:"Block posting until the number is confirmed",de:"Inserieren erst nach Bestätigung erlauben"},
+  vfCountryChT:{ar:"قنوات التحقق لهذا البلد",en:"Verification channels for this country",de:"Verifizierungskanäle für dieses Land"},
+  vfCountryChHint:{ar:"إن لم تُحدَّد، يُستخدم الإعداد العام أعلاه.",en:"If left as-is, the global default above is used.",de:"Ohne Auswahl gilt die globale Standardeinstellung oben."},
   vfSetHours:{ar:"صلاحية طلب التحقق (ساعات)",en:"Verification request validity (hours)",de:"Gültigkeit der Anfrage (Stunden)"},
   agSinceDate:{ar:"منذ",en:"since",de:"seit"}, agNewCode:{ar:"رمز جديد",en:"New code",de:"Neuer Code"}, agNewCodeHint:{ar:"يُلغي الرمز القديم فوراً؛ المحادثة المربوطة تبقى مربوطة",en:"Replaces the old code at once; an already linked chat stays linked",de:"Ersetzt den alten Code sofort; ein bereits verbundener Chat bleibt verbunden"}, agNewCodeConfirm:{ar:"إنشاء رمز ربط جديد؟ الرمز القديم لن يعمل بعد الآن.",en:"Create a new link code? The old one stops working immediately.",de:"Neuen Verbindungscode erstellen? Der alte funktioniert dann nicht mehr."}, agIntakeHint:{ar:"عند التفعيل يستطيع المكتب إرسال إعلاناته إلى بوت تيليغرام وتُنشر تلقائياً.",en:"When on, the agency can send its listings to the Telegram bot and they publish automatically.",de:"Wenn an, kann das Büro Anzeigen an den Telegram-Bot senden; sie werden automatisch veröffentlicht."},
   agIntakeOn:{ar:"مفعّل",en:"On",de:"An"}, agIntakeOff:{ar:"مطفأ",en:"Off",de:"Aus"}, agTrustOn:{ar:"موثوق: ينشر مباشرة",en:"Trusted: publishes live",de:"Vertraut: sofort online"}, agTrustOff:{ar:"غير موثوق: مراجعة أولاً",en:"Not trusted: review first",de:"Nicht vertraut: erst Prüfung"}, agPairedTg:{ar:"تيليغرام مربوط",en:"Telegram linked",de:"Telegram verbunden"}, agIntakeCode:{ar:"رمز الربط",en:"Link code",de:"Verbindungscode"},

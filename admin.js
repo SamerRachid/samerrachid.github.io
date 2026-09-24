@@ -2354,11 +2354,14 @@ function adminVerifyHtml(){
       '<div class="agc-acts"><button type="button" class="ab ok" data-vfok="'+v.id+'">'+GX("vfConfirm")+'</button><button type="button" class="ab" data-vfno="'+v.id+'">'+GX("vfReject")+'</button></div></div>' }).join("")+'</div>';
   var pending='<div class="blk"><h3>'+GX("vfT")+(list&&list.length?' <span class="n">'+list.length+'</span>':'')+'</h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+GX("vfHint")+'</div>'+rows+'</div></div>';
   var ready=GSX("verify_wa_ready",false)===true||GSX("verify_wa_ready",false)==="true";
+  var emailReady=GSX("verify_email_ready",false)===true||GSX("verify_email_ready",false)==="true";
   var gchk=function(k,l,d){ return '<label class="xcheck"><input type="checkbox" data-gk="'+k+'" data-gt="bool"'+(GSX(k,d)!==false&&GSX(k,d)!=="false"?' checked':'')+'><span>'+l+'</span></label>' };
   var gtxt=function(k,l,d){ return '<div class="fl"><label>'+l+'</label><input data-gk="'+k+'" data-gt="str" value="'+esc(String(GSX(k,"")))+'" placeholder="'+esc(String(d||""))+'"></div>' };
   var gnum=function(k,l,d,mn,mx){ return '<div class="fl"><label>'+l+'</label><input type="number" data-gk="'+k+'" data-gt="num" value="'+esc(String(GSX(k,"")))+'" placeholder="'+d+'" min="'+mn+'" max="'+mx+'"></div>' };
-  var settings='<div class="blk"><h3>'+GX("vfSetT")+'</h3><div class="in" id="vfSet"><div class="chkgrid">'+gchk("verify_telegram_on",GX("vfSetTg"),true)+gchk("verify_whatsapp_on",GX("vfSetWa"),true)+gchk("verify_wa_code_on",GX("vfSetWaCode"),true)+gchk("verify_required_post",GX("vfSetReq"),true)+'</div>'+
+  // these are the DEFAULTS every country starts from; a country's own card on the "الدول" page can override on/off per channel
+  var settings='<div class="blk"><h3>'+GX("vfSetT")+'</h3><div class="in" id="vfSet"><div class="chkgrid">'+gchk("verify_telegram_on",GX("vfSetTg"),true)+gchk("verify_whatsapp_on",GX("vfSetWa"),true)+gchk("verify_wa_code_on",GX("vfSetWaCode"),true)+gchk("verify_email_on",GX("vfSetEmail"),true)+gchk("verify_required_post",GX("vfSetReq"),true)+'</div>'+
     '<div class="hintx" style="margin:2px 0 8px;color:'+(ready?'var(--ok)':'var(--grey)')+'">'+(ready?'✓ ':'○ ')+GX(ready?"vfWaReady":"vfWaNotReady")+'</div>'+
+    '<div class="hintx" style="margin:2px 0 8px;color:'+(emailReady?'var(--ok)':'var(--grey)')+'">'+(emailReady?'✓ ':'○ ')+GX(emailReady?"vfEmailReady":"vfEmailNotReady")+'</div>'+
     '<div class="row3">'+gtxt("verify_wa_template",GX("vfSetWaTpl"),"balkoun_code")+gtxt("verify_wa_lang",GX("vfSetWaLang"),"ar")+gnum("verify_ticket_hours",GX("vfSetHours"),48,1,168)+'</div>'+
     '<div class="xactions"><button class="ab ok" id="vfSetSave">'+t("save")+'</button><span class="xmsg" id="vfSetMsg"></span></div></div></div>';
   return pending+settings }
@@ -2600,6 +2603,14 @@ function adminCountriesBody(){
         Object.keys(D_TYPES_SY).map(function(k){ var cur=(c.types||[]).filter(function(x){ return x.code===k })[0], on=!c.types||!!cur, b=D_TYPES_SY[k];
           return '<label style="display:flex;gap:6px;align-items:center;white-space:nowrap"><input type="checkbox" data-cty="on:'+c.code+':'+k+'"'+(on?' checked':'')+ro+'><span class="ltr" style="color:var(--grey);font-size:12px">'+k+'</span></label><input data-cty="ar:'+c.code+':'+k+'" value="'+escOnce(cur?cur.ar:b[0])+'"'+ro+'><input data-cty="en:'+c.code+':'+k+'" value="'+escOnce(cur?cur.en:b[1])+'"'+ro+'><input data-cty="fr:'+c.code+':'+k+'" value="'+escOnce(cur?(cur.fr||""):(b[3]||""))+'"'+ro+'>' }).join("")+'</div></div>'+
        countrySetupPanel(c)+
+       // per-country channel overrides — TODO once bk_admin_countries returns each row's own verify subset from
+       // extras, (c.verify||{}) below will actually reflect it; until then every box defaults to "on" (the
+       // same default the global card above starts from), matching what bk_verify_cfg falls back to when a
+       // country has no override at all
+       '<div class="fl"><label>'+GX("vfCountryChT")+'</label><div class="hintx" style="margin-bottom:6px">'+GX("vfCountryChHint")+'</div><div class="chkgrid">'+
+        ["verify_telegram_on","verify_wa_code_on","verify_email_on"].map(function(k){ var lbl=k==="verify_telegram_on"?GX("vfSetTg"):k==="verify_wa_code_on"?GX("vfSetWaCode"):GX("vfSetEmail");
+          return '<label class="xcheck"><input type="checkbox" data-vf="'+k+':'+c.code+'"'+((c.verify||{})[k]!==false?' checked':'')+ro+'><span>'+lbl+'</span></label>' }).join("")+
+        '</div></div>'+
        '<div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap"><button class="ab ok" data-csave="'+c.code+'"'+ro+'>'+GX("save")+'</button>'+(c.is_default?'':'<button class="ab" data-cdefault="'+c.code+'"'+ro+'>'+GX("cMakeDefault")+'</button>')+'</div>'
      :'')+'</div></div>' }).join("");
 }
@@ -2625,7 +2636,11 @@ function wireAdminCountries(){
     p.languages=$$('[data-clang$=":'+code+'"]').filter(function(i){ return i.checked }).map(function(i){ return i.dataset.clang.split(":")[0] });
     var rates={}; $$('[data-crate$=":'+code+'"]').forEach(function(i){ var v=parseFloat(i.value); if(v>0) rates[i.dataset.crate.split(":")[0]]=v }); p.rates=rates;
     if(code!=="SY"){ p.types=Object.keys(D_TYPES_SY).filter(function(k){ var on=$('[data-cty="on:'+code+':'+k+'"]'); return on&&on.checked }).map(function(k){ var g=function(f){ var el=$('[data-cty="'+f+':'+code+':'+k+'"]'); return el?el.value.trim():"" }; return {code:k, ar:g("ar")||D_TYPES_SY[k][0], en:g("en")||D_TYPES_SY[k][1], fr:g("fr")||""} }) }
-    set(code,p) } });
+    set(code,p);
+    // verify-channel overrides live in site_content.extras (a different table than `countries` above), so
+    // they go through bk_admin_set_content scoped to this one country, not bk_admin_country_set
+    var vpatch={}; $$('[data-vf$=":'+code+'"]').forEach(function(i){ vpatch[i.dataset.vf.split(":")[0]]=i.checked });
+    if(Object.keys(vpatch).length) rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:vpatch},p_country:code}).catch(function(){}) } });
   var deedPatch=function(code,dcode){ var p={}; $$('[data-cd$=":'+code+':'+dcode+'"]').forEach(function(i){ var k=i.dataset.cd.split(":")[0]; p[k]= i.type==="checkbox"?i.checked : k==="sort_order"?parseInt(i.value,10)||100 : i.value }); return p };
   $$("[data-cdsave]").forEach(function(b){ b.onclick=function(){ var a=b.dataset.cdsave.split(":");
     DB.rpc("bk_admin_deed_save",{p_token:ADM.token,p_country:a[0],p_code:a[1],p_patch:deedPatch(a[0],a[1])}).then(function(r){ if(r.error) return msg(r.error.message,true); msg(GX("saved")); reload() }) } });

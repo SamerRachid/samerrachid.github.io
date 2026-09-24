@@ -10,14 +10,17 @@
 //                              "/start v<ticket>" asks for the contact (request_contact), the contact message → bk_verify_tg_contact
 //   POST /bk-intake/web        { token, text, country }  member: read pasted text → fields for the post form
 //   POST /bk-intake/search     { vid, text, country, lang }  anonymous, rate-limited by vid: free-text search → filters for the homepage AI search bar
-//   POST /bk-intake/verify     { ticket, secret }  send the ticket's verification code by WhatsApp (auth template; non-Syrian numbers)
+//   POST /bk-intake/verify     { ticket, secret, channel, email? }  send the ticket's code by WhatsApp (channel omitted
+//                              or "wa_code") or by email (channel "email"; email is the candidate address for signup only —
+//                              reset always uses the account's own on-file, already-verified address, never a client value)
 //   POST /bk-intake/tick       x-intake-key: INTAKE_TICK_SECRET (or { token } of an admin) → read the drafts whose sender went quiet
 //   POST /bk-intake/admin      { token, action, ... }  status | setup_telegram | read | publish | tick | test_claude | test_photo | admin_code
 //   GET  /bk-intake/health
 //
 // secrets (Supabase → Edge Functions → Secrets): TELEGRAM_BOT_TOKEN, WA_TOKEN, WA_PHONE_ID, WA_APP_SECRET,
 //   WA_VERIFY_TOKEN, ANTHROPIC_API_KEY, INTAKE_TICK_SECRET (optional), WAHA_URL + WAHA_API_KEY (self-hosted
-//   WhatsApp gateway for Syrian numbers, which Meta's Cloud API refuses). SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are built in.
+//   WhatsApp gateway for Syrian numbers, which Meta's Cloud API refuses), ZEPTOMAIL_TOKEN (email OTP channel,
+//   sends "from" info@balkoun.com via Zoho's ZeptoMail API). SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are built in.
 //
 // Reviewed 2026-09-18 (three-lens review + verification): per-chat advisory lock in SQL, self re-arming read timer,
 // photo size / count gates before download, no raw upload of undecodable files, token-redacted errors, country scope
@@ -38,6 +41,7 @@ const ENV = {
   tick: Deno.env.get("INTAKE_TICK_SECRET") || "",
   wahaUrl: Deno.env.get("WAHA_URL") || "",
   wahaKey: Deno.env.get("WAHA_API_KEY") || "",
+  zeptoToken: Deno.env.get("ZEPTOMAIL_TOKEN") || "",
 };
 const BUCKET = "photos";
 const SITE = "https://balkoun.com";
@@ -64,6 +68,7 @@ function errStr(e: unknown): string {
   if (ENV.waToken) s = s.split(ENV.waToken).join("***");
   if (ENV.anthropic) s = s.split(ENV.anthropic).join("***");
   if (ENV.wahaKey) s = s.split(ENV.wahaKey).join("***");
+  if (ENV.zeptoToken) s = s.split(ENV.zeptoToken).join("***");
   return s.slice(0, 400);
 }
 async function rpc<T = any>(fn: string, args: Record<string, unknown>): Promise<T> {
@@ -184,6 +189,30 @@ async function wahaStatus(): Promise<{ configured: boolean; ok?: boolean; status
     const j = await r.json().catch(() => ({}));
     return { configured: true, status: j.status, ok: j.status === "WORKING" };
   } catch (e) { return { configured: true, error: errStr(e) }; }
+}
+// email OTP channel: sends "from" info@balkoun.com through ZeptoMail (a Zoho product, separate from the
+// Zoho Mail inbox itself) — a plain REST call with a static API-key header, same shape as wahaSend() above.
+const ZEPTO_URL = "https://api.zeptomail.com/v1.1/email";
+async function sendEmail(to: string, code: string) {
+  if (!ENV.zeptoToken) throw new Error("email not configured");
+  const body = {
+    from: { address: "info@balkoun.com", name: "Balkoun" },
+    to: [{ email_address: { address: to } }],
+    subject: `${code} — Balkoun verification code`,
+    htmlbody: `<p>Your Balkoun verification code is:</p><p style="font-size:24px;font-weight:700;letter-spacing:2px">${code}</p><p>This code expires soon. If you didn't request it, you can ignore this email.</p>`,
+  };
+  let r: Response;
+  try {
+    r = await fetch(ZEPTO_URL, {
+      method: "POST",
+      headers: { Authorization: "Zoho-enczapikey " + ENV.zeptoToken, "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+  } catch { throw new Error("email send: network"); }
+  if (!r.ok) throw new Error("email send " + r.status + " " + (await r.text()).slice(0, 300));
+}
+async function emailStatus(): Promise<{ configured: boolean }> {
+  return { configured: !!ENV.zeptoToken };   // ZeptoMail has no cheap unauthenticated "ping" endpoint; "the secret is set" is treated as ready
 }
 async function waDownload(mediaId: string): Promise<{ bytes: Uint8Array; size: number; mime: string }> {
   let m: Response;
@@ -913,22 +942,30 @@ async function routeWeb(req: Request): Promise<Response> {
     return json({ error: err === "no_key" ? "no_key" : "read_failed" }, 502);
   }
 }
-// the site asks to deliver a verification code by WhatsApp: { ticket, secret } → the SQL side rate-limits and hands back phone + code
+// the site asks to deliver a verification code by WhatsApp or email: { ticket, secret, channel?, email? } →
+// the SQL side rate-limits, resolves the real destination (never trusting a client-typed address for a
+// reset), and hands back what's needed to send. The response never echoes the resolved address back.
 async function routeVerify(req: Request): Promise<Response> {
   const b = await req.json().catch(() => null);
   if (!b || typeof b.ticket !== "string" || typeof b.secret !== "string") return json({ error: "bad request" }, 400);
-  const c = await rpc<any>("bk_verify_send_claim", { p_ticket: b.ticket, p_secret: b.secret });
+  const channel = b.channel === "email" ? "email" : "wa_code";
+  const c = await rpc<any>("bk_verify_send_claim", { p_ticket: b.ticket, p_secret: b.secret, p_channel: channel, p_email: channel === "email" ? (b.email ?? null) : null });
   if (!c?.ok) return json({ error: c?.error || "refused" }, c?.error === "badticket" ? 401 : 400);
-  if (c.via === "waha") {
+  const logKey = c.via === "email" ? "verify:email" : "verify:" + c.phone.slice(-4);
+  if (c.via === "email") {
+    if (!ENV.zeptoToken) return json({ error: "wa_off" }, 503);
+    try { await sendEmail(c.to, c.code); }
+    catch (e) { await log(null, logKey, "error", "verify_send_failed", { error: errStr(e) }); return json({ error: "send_failed" }, 502); }
+  } else if (c.via === "waha") {
     if (!ENV.wahaUrl || !ENV.wahaKey) return json({ error: "wa_off" }, 503);
     try { await wahaSend(c.phone, `بلكون: رمز التحقق هو ${c.code}`); }
-    catch (e) { await log(null, "verify:" + c.phone.slice(-4), "error", "verify_send_failed", { error: errStr(e) }); return json({ error: "send_failed" }, 502); }
+    catch (e) { await log(null, logKey, "error", "verify_send_failed", { error: errStr(e) }); return json({ error: "send_failed" }, 502); }
   } else {
     if (!ENV.waToken || !ENV.waPhone) return json({ error: "wa_off" }, 503);
     try { await waSendTemplate(c.phone, c.template || "balkoun_code", c.lang || "ar", c.code); }
-    catch (e) { await log(null, "verify:" + c.phone.slice(-4), "error", "verify_send_failed", { error: errStr(e) }); return json({ error: "send_failed" }, 502); }
+    catch (e) { await log(null, logKey, "error", "verify_send_failed", { error: errStr(e) }); return json({ error: "send_failed" }, 502); }
   }
-  await log(null, "verify:" + c.phone.slice(-4), "info", "verify_sent", { ticket: b.ticket, via: c.via });
+  await log(null, logKey, "info", "verify_sent", { ticket: b.ticket, via: c.via });
   return json({ ok: true });
 }
 async function adminUid(token: unknown): Promise<string | null> {
@@ -955,12 +992,15 @@ async function routeAdmin(req: Request): Promise<Response> {
     if (ENV.tg) { try { out.telegram.me = await tg("getMe", {}); out.telegram.webhook = await tg("getWebhookInfo", {}); out.telegram.ok = out.telegram.webhook?.url === out.urls.telegram; } catch (e) { out.telegram.error = errStr(e); } }
     if (out.whatsapp.configured) { try { const r = await fetch(`${GRAPH}/${ENV.waPhone}?fields=display_phone_number,verified_name,quality_rating`, { headers: { Authorization: "Bearer " + ENV.waToken } }); out.whatsapp.phone = await r.json(); out.whatsapp.ok = r.ok; } catch (e) { out.whatsapp.error = errStr(e); } }
     out.waha = await wahaStatus();
-    // the site shows "code by WhatsApp" only while the relevant backend really answers; remembered in extras so the SQL side can decide without secrets
-    const ready = !!out.whatsapp.ok; const wahaReady = !!out.waha.ok; const c = await cfg();
+    out.email = await emailStatus();
+    // the site shows "code by WhatsApp"/"code by email" only while the relevant backend really answers; remembered in extras so the SQL side can decide without secrets
+    const ready = !!out.whatsapp.ok; const wahaReady = !!out.waha.ok; const emailReady = !!out.email.configured; const c = await cfg();
     if (String(c.verify_wa_ready) !== String(ready)) { await sb.rpc("bk_admin_set_content", { p_token: b.token, p_patch: { extras: { verify_wa_ready: ready } }, p_country: "SY" }); _cfg = null; }
     if (String(c.verify_waha_ready) !== String(wahaReady)) { await sb.rpc("bk_admin_set_content", { p_token: b.token, p_patch: { extras: { verify_waha_ready: wahaReady } }, p_country: "SY" }); _cfg = null; }
+    if (String(c.verify_email_ready) !== String(emailReady)) { await sb.rpc("bk_admin_set_content", { p_token: b.token, p_patch: { extras: { verify_email_ready: emailReady } }, p_country: "SY" }); _cfg = null; }
     out.verify_wa_ready = ready;
     out.verify_waha_ready = wahaReady;
+    out.verify_email_ready = emailReady;
     background(notifyFlush());
     return json(out);
   }
