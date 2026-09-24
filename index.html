@@ -3871,7 +3871,9 @@ async function verifyBegin(purpose, errFn){
   try{ r=await rpc("bk_verify_start",{p_phone:"+"+AU.cc+AU.phone, p_purpose:purpose, p_country:COUNTRY||"SY"}) }
   catch(e){ var m=e.message||"";
     errFn(m==="exists"?"phoneTaken" : m==="nouser"?"noUser" : m==="badphone"?"badPhone" : m==="throttled"?GX("vThrottled") : m==="off"?GX("vOff") : m==="blocked"?GX("vBlocked") : m); return false }
-  AU.purpose=purpose; AU.ticket=r.ticket; AU.secret=r.secret; AU.code=r.code; AU.vtg=!!r.telegram; AU.vwa=!!r.whatsapp; AU.vwc=!!r.wa_code; AU.vbot=r.bot||SX("intake_bot",""); AU.vexp=r.expires_at?new Date(r.expires_at).getTime():Date.now()+3600e3;
+  // the old "send a code to Balkoun's own WhatsApp, admin confirms" road is signup-only history now that
+  // code-by-WhatsApp sends automatically for every country (WAHA for Syria, Meta's API for everyone else)
+  AU.purpose=purpose; AU.ticket=r.ticket; AU.secret=r.secret; AU.code=r.code; AU.vtg=!!r.telegram; AU.vwa=purpose==="signup"?false:!!r.whatsapp; AU.vwc=!!r.wa_code; AU.vbot=r.bot||SX("intake_bot",""); AU.vexp=r.expires_at?new Date(r.expires_at).getTime():Date.now()+3600e3;
   var only=[AU.vtg&&"telegram",AU.vwa&&"whatsapp",AU.vwc&&"wa_code"].filter(Boolean);
   AU.vch=only.length===1?only[0]:null; AU.vsent=false; AU.wsent=false;
   verifySaveResume(); return true }
