@@ -19,8 +19,9 @@
 //
 // secrets (Supabase → Edge Functions → Secrets): TELEGRAM_BOT_TOKEN, WA_TOKEN, WA_PHONE_ID, WA_APP_SECRET,
 //   WA_VERIFY_TOKEN, ANTHROPIC_API_KEY, INTAKE_TICK_SECRET (optional), WAHA_URL + WAHA_API_KEY (self-hosted
-//   WhatsApp gateway for Syrian numbers, which Meta's Cloud API refuses), ZEPTOMAIL_TOKEN (email OTP channel,
-//   sends "from" info@balkoun.com via Zoho's ZeptoMail API). SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are built in.
+//   WhatsApp gateway for Syrian numbers, which Meta's Cloud API refuses), RESEND_API_KEY (email OTP channel,
+//   sends "from" info@balkoun.com via Resend; domain verified in Resend's dashboard). SUPABASE_URL /
+//   SUPABASE_SERVICE_ROLE_KEY are built in.
 //
 // Reviewed 2026-09-18 (three-lens review + verification): per-chat advisory lock in SQL, self re-arming read timer,
 // photo size / count gates before download, no raw upload of undecodable files, token-redacted errors, country scope
@@ -41,7 +42,7 @@ const ENV = {
   tick: Deno.env.get("INTAKE_TICK_SECRET") || "",
   wahaUrl: Deno.env.get("WAHA_URL") || "",
   wahaKey: Deno.env.get("WAHA_API_KEY") || "",
-  zeptoToken: Deno.env.get("ZEPTOMAIL_TOKEN") || "",
+  resendKey: Deno.env.get("RESEND_API_KEY") || "",
 };
 const BUCKET = "photos";
 const SITE = "https://balkoun.com";
@@ -68,7 +69,7 @@ function errStr(e: unknown): string {
   if (ENV.waToken) s = s.split(ENV.waToken).join("***");
   if (ENV.anthropic) s = s.split(ENV.anthropic).join("***");
   if (ENV.wahaKey) s = s.split(ENV.wahaKey).join("***");
-  if (ENV.zeptoToken) s = s.split(ENV.zeptoToken).join("***");
+  if (ENV.resendKey) s = s.split(ENV.resendKey).join("***");
   return s.slice(0, 400);
 }
 async function rpc<T = any>(fn: string, args: Record<string, unknown>): Promise<T> {
@@ -190,29 +191,28 @@ async function wahaStatus(): Promise<{ configured: boolean; ok?: boolean; status
     return { configured: true, status: j.status, ok: j.status === "WORKING" };
   } catch (e) { return { configured: true, error: errStr(e) }; }
 }
-// email OTP channel: sends "from" info@balkoun.com through ZeptoMail (a Zoho product, separate from the
-// Zoho Mail inbox itself) — a plain REST call with a static API-key header, same shape as wahaSend() above.
-const ZEPTO_URL = "https://api.zeptomail.com/v1.1/email";
+// email OTP channel: sends "from" info@balkoun.com through Resend — a plain REST call with a static
+// API-key header, same shape as wahaSend() above. balkoun.com is verified in Resend's dashboard.
 async function sendEmail(to: string, code: string) {
-  if (!ENV.zeptoToken) throw new Error("email not configured");
+  if (!ENV.resendKey) throw new Error("email not configured");
   const body = {
-    from: { address: "info@balkoun.com", name: "Balkoun" },
-    to: [{ email_address: { address: to } }],
+    from: "Balkoun <info@balkoun.com>",
+    to: [to],
     subject: `${code} — Balkoun verification code`,
-    htmlbody: `<p>Your Balkoun verification code is:</p><p style="font-size:24px;font-weight:700;letter-spacing:2px">${code}</p><p>This code expires soon. If you didn't request it, you can ignore this email.</p>`,
+    html: `<p>Your Balkoun verification code is:</p><p style="font-size:24px;font-weight:700;letter-spacing:2px">${code}</p><p>This code expires soon. If you didn't request it, you can ignore this email.</p>`,
   };
   let r: Response;
   try {
-    r = await fetch(ZEPTO_URL, {
+    r = await fetch("https://api.resend.com/emails", {
       method: "POST",
-      headers: { Authorization: "Zoho-enczapikey " + ENV.zeptoToken, "Content-Type": "application/json" },
+      headers: { Authorization: "Bearer " + ENV.resendKey, "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
   } catch { throw new Error("email send: network"); }
   if (!r.ok) throw new Error("email send " + r.status + " " + (await r.text()).slice(0, 300));
 }
 async function emailStatus(): Promise<{ configured: boolean }> {
-  return { configured: !!ENV.zeptoToken };   // ZeptoMail has no cheap unauthenticated "ping" endpoint; "the secret is set" is treated as ready
+  return { configured: !!ENV.resendKey };   // "the secret is set" is treated as ready, same as the other channels
 }
 async function waDownload(mediaId: string): Promise<{ bytes: Uint8Array; size: number; mime: string }> {
   let m: Response;
@@ -953,7 +953,7 @@ async function routeVerify(req: Request): Promise<Response> {
   if (!c?.ok) return json({ error: c?.error || "refused" }, c?.error === "badticket" ? 401 : 400);
   const logKey = c.via === "email" ? "verify:email" : "verify:" + c.phone.slice(-4);
   if (c.via === "email") {
-    if (!ENV.zeptoToken) return json({ error: "wa_off" }, 503);
+    if (!ENV.resendKey) return json({ error: "wa_off" }, 503);
     try { await sendEmail(c.to, c.code); }
     catch (e) { await log(null, logKey, "error", "verify_send_failed", { error: errStr(e) }); return json({ error: "send_failed" }, 502); }
   } else if (c.via === "waha") {
