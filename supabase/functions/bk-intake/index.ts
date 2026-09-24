@@ -16,7 +16,8 @@
 //   GET  /bk-intake/health
 //
 // secrets (Supabase → Edge Functions → Secrets): TELEGRAM_BOT_TOKEN, WA_TOKEN, WA_PHONE_ID, WA_APP_SECRET,
-//   WA_VERIFY_TOKEN, ANTHROPIC_API_KEY, INTAKE_TICK_SECRET (optional). SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are built in.
+//   WA_VERIFY_TOKEN, ANTHROPIC_API_KEY, INTAKE_TICK_SECRET (optional), WAHA_URL + WAHA_API_KEY (self-hosted
+//   WhatsApp gateway for Syrian numbers, which Meta's Cloud API refuses). SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are built in.
 //
 // Reviewed 2026-09-18 (three-lens review + verification): per-chat advisory lock in SQL, self re-arming read timer,
 // photo size / count gates before download, no raw upload of undecodable files, token-redacted errors, country scope
@@ -35,6 +36,8 @@ const ENV = {
   waVerify: Deno.env.get("WA_VERIFY_TOKEN") || "",
   anthropic: Deno.env.get("ANTHROPIC_API_KEY") || "",
   tick: Deno.env.get("INTAKE_TICK_SECRET") || "",
+  wahaUrl: Deno.env.get("WAHA_URL") || "",
+  wahaKey: Deno.env.get("WAHA_API_KEY") || "",
 };
 const BUCKET = "photos";
 const SITE = "https://balkoun.com";
@@ -60,6 +63,7 @@ function errStr(e: unknown): string {
   if (ENV.tg) s = s.split(ENV.tg).join("***");
   if (ENV.waToken) s = s.split(ENV.waToken).join("***");
   if (ENV.anthropic) s = s.split(ENV.anthropic).join("***");
+  if (ENV.wahaKey) s = s.split(ENV.wahaKey).join("***");
   return s.slice(0, 400);
 }
 async function rpc<T = any>(fn: string, args: Record<string, unknown>): Promise<T> {
@@ -157,6 +161,29 @@ async function waSendTemplate(to: string, template: string, lang: string, code: 
   try { r = await fetch(`${GRAPH}/${ENV.waPhone}/messages`, { method: "POST", headers: { Authorization: "Bearer " + ENV.waToken, "Content-Type": "application/json" }, body: JSON.stringify(body) }); }
   catch { throw new Error("whatsapp template: network"); }
   if (!r.ok) throw new Error("whatsapp template " + r.status + " " + (await r.text()).slice(0, 300));
+}
+// Syrian numbers: Meta's official Cloud API refuses +963 entirely, so these go through a
+// self-hosted WAHA gateway instead — a real WhatsApp account linked by QR code, running in
+// Docker on a small VPS. Everything else keeps using waSendTemplate() above, unchanged.
+async function wahaSend(phone: string, text: string) {
+  if (!ENV.wahaUrl || !ENV.wahaKey) throw new Error("waha not configured");
+  const chatId = phone.replace(/^\+/, "") + "@c.us";
+  let r: Response;
+  try {
+    r = await fetch(ENV.wahaUrl.replace(/\/$/, "") + "/api/sendText", {
+      method: "POST", headers: { "X-Api-Key": ENV.wahaKey, "Content-Type": "application/json" },
+      body: JSON.stringify({ session: "default", chatId, text }),
+    });
+  } catch { throw new Error("waha send: network"); }
+  if (!r.ok) throw new Error("waha send " + r.status + " " + (await r.text()).slice(0, 300));
+}
+async function wahaStatus(): Promise<{ configured: boolean; ok?: boolean; status?: string; error?: string }> {
+  if (!ENV.wahaUrl || !ENV.wahaKey) return { configured: false };
+  try {
+    const r = await fetch(ENV.wahaUrl.replace(/\/$/, "") + "/api/sessions/default", { headers: { "X-Api-Key": ENV.wahaKey } });
+    const j = await r.json().catch(() => ({}));
+    return { configured: true, status: j.status, ok: j.status === "WORKING" };
+  } catch (e) { return { configured: true, error: errStr(e) }; }
 }
 async function waDownload(mediaId: string): Promise<{ bytes: Uint8Array; size: number; mime: string }> {
   let m: Response;
@@ -890,12 +917,18 @@ async function routeWeb(req: Request): Promise<Response> {
 async function routeVerify(req: Request): Promise<Response> {
   const b = await req.json().catch(() => null);
   if (!b || typeof b.ticket !== "string" || typeof b.secret !== "string") return json({ error: "bad request" }, 400);
-  if (!ENV.waToken || !ENV.waPhone) return json({ error: "wa_off" }, 503);
   const c = await rpc<any>("bk_verify_send_claim", { p_ticket: b.ticket, p_secret: b.secret });
   if (!c?.ok) return json({ error: c?.error || "refused" }, c?.error === "badticket" ? 401 : 400);
-  try { await waSendTemplate(c.phone, c.template || "balkoun_code", c.lang || "ar", c.code); }
-  catch (e) { await log(null, "verify:" + c.phone.slice(-4), "error", "verify_send_failed", { error: errStr(e) }); return json({ error: "send_failed" }, 502); }
-  await log(null, "verify:" + c.phone.slice(-4), "info", "verify_sent", { ticket: b.ticket });
+  if (c.via === "waha") {
+    if (!ENV.wahaUrl || !ENV.wahaKey) return json({ error: "wa_off" }, 503);
+    try { await wahaSend(c.phone, `بلكون: رمز التحقق هو ${c.code}`); }
+    catch (e) { await log(null, "verify:" + c.phone.slice(-4), "error", "verify_send_failed", { error: errStr(e) }); return json({ error: "send_failed" }, 502); }
+  } else {
+    if (!ENV.waToken || !ENV.waPhone) return json({ error: "wa_off" }, 503);
+    try { await waSendTemplate(c.phone, c.template || "balkoun_code", c.lang || "ar", c.code); }
+    catch (e) { await log(null, "verify:" + c.phone.slice(-4), "error", "verify_send_failed", { error: errStr(e) }); return json({ error: "send_failed" }, 502); }
+  }
+  await log(null, "verify:" + c.phone.slice(-4), "info", "verify_sent", { ticket: b.ticket, via: c.via });
   return json({ ok: true });
 }
 async function adminUid(token: unknown): Promise<string | null> {
@@ -921,10 +954,13 @@ async function routeAdmin(req: Request): Promise<Response> {
     const out: any = { urls: { telegram: FN_URL + "/telegram", whatsapp: FN_URL + "/whatsapp" }, telegram: { configured: !!ENV.tg }, whatsapp: { configured: !!(ENV.waToken && ENV.waPhone && ENV.waSecret), verify_set: !!ENV.waVerify }, anthropic: { configured: !!ENV.anthropic }, tick_secret: !!ENV.tick };
     if (ENV.tg) { try { out.telegram.me = await tg("getMe", {}); out.telegram.webhook = await tg("getWebhookInfo", {}); out.telegram.ok = out.telegram.webhook?.url === out.urls.telegram; } catch (e) { out.telegram.error = errStr(e); } }
     if (out.whatsapp.configured) { try { const r = await fetch(`${GRAPH}/${ENV.waPhone}?fields=display_phone_number,verified_name,quality_rating`, { headers: { Authorization: "Bearer " + ENV.waToken } }); out.whatsapp.phone = await r.json(); out.whatsapp.ok = r.ok; } catch (e) { out.whatsapp.error = errStr(e); } }
-    // the site shows "code by WhatsApp" only while the Cloud API really answers; remembered in extras so the SQL side can decide without secrets
-    const ready = !!out.whatsapp.ok; const c = await cfg();
+    out.waha = await wahaStatus();
+    // the site shows "code by WhatsApp" only while the relevant backend really answers; remembered in extras so the SQL side can decide without secrets
+    const ready = !!out.whatsapp.ok; const wahaReady = !!out.waha.ok; const c = await cfg();
     if (String(c.verify_wa_ready) !== String(ready)) { await sb.rpc("bk_admin_set_content", { p_token: b.token, p_patch: { extras: { verify_wa_ready: ready } }, p_country: "SY" }); _cfg = null; }
+    if (String(c.verify_waha_ready) !== String(wahaReady)) { await sb.rpc("bk_admin_set_content", { p_token: b.token, p_patch: { extras: { verify_waha_ready: wahaReady } }, p_country: "SY" }); _cfg = null; }
     out.verify_wa_ready = ready;
+    out.verify_waha_ready = wahaReady;
     background(notifyFlush());
     return json(out);
   }
