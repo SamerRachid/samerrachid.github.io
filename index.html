@@ -2958,6 +2958,46 @@ body.mdw-open .mobfab{display:none}
   .ad-prog{display:none}
 }
 @media(max-width:640px){.home-hero .hero-outer:has(.chipsel-drop.on){z-index:70}}   /* an open filter sheet and its backdrop sit above the page header */
+/* ── AI search bar (homepage): under the structured bar, same width/height vars, its own quieter look ── */
+.home-hero .aisearch{margin:14px auto 0;max-width:var(--sbar-w,1220px);position:relative}
+.home-hero .aisearch-pill{position:relative;display:flex;align-items:center;gap:8px;height:var(--sbar-h,44px);min-height:44px;padding:4px;background:rgba(255,255,255,.97);border-radius:14px;box-shadow:0 18px 44px -22px rgba(9,14,26,.75),0 0 0 1px rgba(255,255,255,.55);max-width:none;margin:0;transition:box-shadow .25s}
+.home-hero .aisearch-pill::before{content:"";position:absolute;inset:-2px;border-radius:16px;padding:2px;pointer-events:none;background:linear-gradient(90deg,rgba(227,181,99,0) 0%,rgba(227,181,99,0) 24%,#E3B563 38%,#FFF8E6 50%,#E3B563 62%,rgba(227,181,99,0) 76%,rgba(227,181,99,0) 100%) 0 0/200% 100% no-repeat;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;opacity:0;transition:opacity .3s}
+.home-hero .aisearch-pill:focus-within{box-shadow:0 22px 48px -22px rgba(9,14,26,.8),0 0 0 1px rgba(227,181,99,.55)}
+.home-hero .aisearch.thinking .aisearch-pill::before{opacity:1;animation:sbarShine 1.4s linear infinite}
+.home-hero .aisearch-badge{position:static;inset:auto;top:auto;bottom:auto;flex:none;height:100%;display:inline-flex;align-items:center;gap:6px;padding:0 12px;border-radius:10px;background:var(--navy);color:#fff;font:800 12.5px/1 var(--f);white-space:nowrap;pointer-events:none}
+.home-hero .aisearch-badge svg{width:13px;height:13px;color:#E3B563;filter:drop-shadow(0 0 4px rgba(227,181,99,.65))}
+.home-hero .aisearch-pill input{flex:1;min-width:0;height:100%;border:0;background:transparent;outline:0;font:500 14px var(--f);color:var(--navy);padding:0 6px;text-align:start}
+.home-hero .aisearch-pill input::placeholder{color:#7A8299}
+.home-hero .aisearch-go{position:relative;flex:none;width:44px;height:100%;border:0;border-radius:10px;background:linear-gradient(135deg,#D9A23A,#C4881F);color:#1A1206;display:grid;place-items:center;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35);transition:transform .18s,filter .18s}
+.home-hero .aisearch-go:hover{filter:brightness(1.06);transform:translateY(-1px)}
+.home-hero .aisearch-go:disabled{opacity:1;cursor:default;transform:none}
+.home-hero .aisearch-go .mi{display:grid}.home-hero .aisearch-go .mi svg{width:17px;height:17px}
+.home-hero .aisearch-spin{display:none;position:absolute;inset:0;margin:auto;width:18px;height:18px;border-radius:50%;border:2px solid rgba(26,18,6,.25);border-top-color:#1A1206;animation:aiSpin .8s linear infinite}
+.home-hero .aisearch.thinking .aisearch-go .mi{visibility:hidden}
+.home-hero .aisearch.thinking .aisearch-spin{display:block}
+@keyframes aiSpin{to{transform:rotate(360deg)}}
+.home-hero .aisearch-chips{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin-top:10px}
+.home-hero .aisearch-try{font:600 12.5px var(--f);color:rgba(255,255,255,.72)}
+.home-hero .aisearch-chip{border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:6px 12px;font:500 12.5px/1.2 var(--f);cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:background .18s,border-color .18s,transform .18s;white-space:nowrap}
+.home-hero .aisearch-chip:hover{background:rgba(255,255,255,.2);border-color:rgba(227,181,99,.75);transform:translateY(-1px)}
+.home-hero .aisearch-result{margin-top:9px;text-align:center;font-size:13px;line-height:1.5;color:rgba(255,255,255,.88);text-shadow:0 1px 8px rgba(9,14,26,.5)}
+.home-hero .aisearch-result.warn{color:#FFD98A}
+.home-hero .aisearch-result.danger{color:#FFB4B4}
+.home-hero .aisearch-result.busy{color:rgba(255,255,255,.8)}
+.home-hero .aisearch.glass .aisearch-pill{background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(16px) saturate(1.25);backdrop-filter:blur(16px) saturate(1.25);box-shadow:0 24px 56px -26px rgba(9,14,26,.7),inset 0 0 0 1px rgba(255,255,255,.42)}
+.home-hero .aisearch.glass .aisearch-pill input{color:#fff}
+.home-hero .aisearch.glass .aisearch-pill input::placeholder{color:rgba(255,255,255,.72)}
+.home-hero .aisearch.glass .aisearch-badge{background:rgba(20,33,61,.85)}
+@media(max-width:640px){
+  .home-hero .aisearch{margin-top:12px;max-width:var(--sbar-w-m,var(--sbar-w,100%))}
+  .home-hero .aisearch-pill{height:var(--sbar-h-m,var(--sbar-h,50px));min-height:50px}
+  .home-hero .aisearch-badge{padding:0 10px;font-size:12px}
+  .home-hero .aisearch-pill input{font-size:13.5px}
+  .home-hero .aisearch-chips{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scrollbar-width:none;padding:2px 4px 4px;margin-inline:-4px;-webkit-overflow-scrolling:touch}
+  .home-hero .aisearch-chips::-webkit-scrollbar{display:none}
+  .home-hero .aisearch-try,.home-hero .aisearch-chip{flex:none}
+}
+@media (prefers-reduced-motion:reduce){.home-hero .aisearch.thinking .aisearch-pill::before{animation:none;background-position:50% 0}}
 </style><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
@@ -3336,7 +3376,7 @@ var L=detectLang(), CUR=detectCurrency(), VIEW="home", GI=0, LIGHTBOX_OPEN=false
 var PREVIEW=/[?&]preview=1/.test(location.search), _pvLast=null;
 var SHARED_IN=/[?&]shared=1/.test(location.search);   // the installed app received a share (see sw.js → /post?shared=1)
 if(PREVIEW){ var _pl=(location.search.match(/[?&]lang=(ar|en|de|fr)/)||[])[1]; if(_pl) L=_pl; }
-var F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:[],sec:"",deal:"sale",sort:"new",page:1,ownerOnly:false};
+var F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:[],sec:"",deal:"sale",sort:"new",page:1,ownerOnly:false,kw:""};
 var AI_UNDERSTOOD=null;   // the AI search bar's "we understood: …" line, shown once on the next results render then cleared
 function roomsLabel(v){ v=String(v||""); if(!v) return GX("roomsField"); if(v==="1") return GX("rooms1"); if(v==="2") return GX("rooms2"); return GX("roomsN").replace("{n}", +v===ROOMS_MAX ? v+"+" : v) }
 var ROOMS_MAX=7;   // the last square: this many rooms or more
@@ -3352,6 +3392,7 @@ function activeFilterCount(){
   if(F.tbs&&F.tbs.length) n+=F.tbs.length; else if(F.tb) n++;
   if(F.cd) n++;
   if(F.furn) n++;
+  if(F.kw) n++;
   if(F.rentalPeriod) n++;
   if(F.pmin) n++;
   if(F.pmax) n++;
@@ -4166,6 +4207,7 @@ function topBannerHtml(){
   return '<div class="topbanner-wrap"><div class="wrap">'+row+'</div></div>';
 }
 function home(){
+ F.kw="";   // a free-text keyword only lives with the AI search that produced it; the structured bar has no field for it
  // Buy/rent is chosen once, in the hero tabs (F.deal); the type tiles follow it instead of
  // asking the same question again with a second pair of cards.
  var hd = F.deal || HOMEDEAL || "sale";
@@ -4325,6 +4367,15 @@ function card(x,i,isListView){
 // skipField lets a facet count ask "how many would match if every
 // OTHER active filter stayed as-is" (excluding the one field being
 // previewed, so picking that option shows the right resulting count).
+// free-text keyword left over from the AI search bar ("قرب جامعة دمشق", "شارع بغداد"): every word must appear
+// somewhere in the listing's own text (description, landmark, area, governorate, amenities, contact name)
+function kwNorm(s){ return String(s||"").toLowerCase().replace(/[ً-ْـ]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/\s+/g," ").trim() }
+function kwMatch(x){
+  var hay=kwNorm([x.ds&&x.ds[0], x.lm, x.a, x.g, (x.am||[]).join(" "), x.who].join(" "));
+  var words=kwNorm(F.kw).split(" ").filter(function(w){ return w.length>1 && !/^(في|من|على|قرب|بجانب|جنب|عند|حول|بين|مع|near|in|at|by|the|of|to)$/.test(w) });
+  if(!words.length) return true;
+  return words.every(function(w){ var stem=w.replace(/^(وال|بال|لل|ال|و|ب|ل)/,""); return hay.indexOf(w)>-1 || (stem.length>1 && hay.indexOf(stem)>-1) });
+}
 function passesFilter(x, skipField){
   // pending (not-yet-approved) listings must never appear in public
   // search/browse results — only the owner (and admins, via a fully
@@ -4360,6 +4411,7 @@ function passesFilter(x, skipField){
   }
   if(skipField!=="rooms" && !roomsPass(x)) return false;
   if(F.ownerOnly && !x.ow) return false;
+  if(F.kw && !kwMatch(x)) return false;
   return true;
 }
 /* ═══ results page: sticky filter bar, active chips, a real title with the market line, cards beside a map with price pins ═══ */
@@ -4396,9 +4448,13 @@ function rsChipsHtml(){
  if(F.cd) c.push(["cd",F.cd,(D.COND[F.cd]||D.LANDC[F.cd]||[F.cd,F.cd,F.cd])[li()]]);
  if(F.deal==="rent"&&F.furn) c.push(["furn",F.furn,F.furn==="yes"?t("furnYes"):t("furnNo")]);
  if(F.deal==="rent"&&F.rentalPeriod) c.push(["rentalPeriod",F.rentalPeriod,t("period"+F.rentalPeriod.charAt(0).toUpperCase()+F.rentalPeriod.slice(1))]);
- (F.rooms||[]).forEach(function(v){ c.push(["rooms",v,roomsLabel(v)]) });
+ // "3+ rooms" from the AI bar arrives as every value from 3 up to the max: one chip for that run, not five
+ var rr=(F.rooms||[]).map(Number).sort(function(a,b){return a-b}), run=rr.length>1 && rr[rr.length-1]===ROOMS_MAX && rr.every(function(v,i){ return i===0 || v===rr[i-1]+1 });
+ if(run) c.push(["roomsAll","",roomsLabel(String(ROOMS_MAX)).replace(/\d+/,String(rr[0]))]);
+ else (F.rooms||[]).forEach(function(v){ c.push(["rooms",v,roomsLabel(v)]) });
  if(F.pmin||F.pmax) c.push(["price","",heroPriceLabel().replace(/<[^>]+>/g,"")]);
  if(F.ownerOnly) c.push(["ownerOnly","",t("owneronly")]);
+ if(F.kw) c.push(["kw",F.kw,"“"+F.kw+"”"]);
  if(!c.length) return "";
  return '<div class="wrap rs-chips">'+c.map(function(x){ return '<span class="rs-chip">'+String(x[2]).replace(/[<>]/g,"")+'<button type="button" data-rschip="'+x[0]+'" data-rsval="'+esc(String(x[1]))+'" aria-label="'+t("del")+'">×</button></span>' }).join("")+
    '<button type="button" class="rs-chipclr" id="clr">'+GX("rsClearAll")+'</button></div>' }
@@ -4505,9 +4561,9 @@ function rsWire(opts){
   $$('input[name=rentalPeriod]').forEach(function(r){ r.onclick=function(){ F.rentalPeriod=r.value; F.page=1; render() } });
   if($("#fOwnerOnly")) $("#fOwnerOnly").onchange=function(){ F.ownerOnly=this.checked; F.page=1; render() };
   $$("[data-rschip]").forEach(function(b){ b.onclick=function(){ var k=this.dataset.rschip, v=this.dataset.rsval;
-    if(k==="price"){ F.pmin=0; F.pmax=0 } else if(k==="ownerOnly"){ F.ownerOnly=false } else if(Array.isArray(F[k])){ F[k]=F[k].filter(function(x){ return x!==v }) } else { F[k]="" }
+    if(k==="price"){ F.pmin=0; F.pmax=0 } else if(k==="ownerOnly"){ F.ownerOnly=false } else if(k==="roomsAll"){ F.rooms=[] } else if(Array.isArray(F[k])){ F[k]=F[k].filter(function(x){ return x!==v }) } else { F[k]="" }
     F.page=1; render() } });
-  var clear=function(){ F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:[],pmin:0,pmax:0,ownerOnly:false,sec:F.sec,deal:F.deal,sort:"new",page:1}; render() };
+  var clear=function(){ F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:[],pmin:0,pmax:0,ownerOnly:false,kw:"",sec:F.sec,deal:F.deal,sort:"new",page:1}; render() };
   if($("#clr")) $("#clr").onclick=clear; if($("#clrM")) $("#clrM").onclick=clear;
   $$("#sort,#sortM").forEach(function(sel){ sel.onchange=function(){ F.sort=this.value; F.page=1; render() } });
   if($("#vmGrid")) $("#vmGrid").onclick=function(){ VIEWMODE="grid"; try{localStorage.setItem("balkoun_viewmode","grid")}catch(e){} render() };
@@ -7063,12 +7119,18 @@ function softRenderHero(){
 // placeholder inviting a plain-language search, submit icon at the inline-end ──
 var AI_SPARKLE='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l1.6 6.4L20 11l-6.4 1.6L12 19l-1.6-6.4L4 11l6.4-1.6L12 3Z"/></svg>';
 function aiSearchBarHtml(){
-  return '<div class="aisearch" id="aiSearchBox">'+
+  var on=function(k,d){ var v=SX(k,d); return !(v===false||v==="false") };
+  if(!on("ai_bar_on",true)) return "";
+  var glass=SX("ai_bar_glass",false)===true||SX("ai_bar_glass",false)==="true";
+  // the example chips reuse the rotating-placeholder examples, without their "e.g." prefix
+  var ex=[GX("aiSearchEx1"),GX("aiSearchEx2"),GX("aiSearchEx3")].map(function(s){ return s.replace(/^(مثال|e\.g\.|z\. ?B\.)\s*[:：]?\s*/i,"") });
+  return '<div class="aisearch'+(glass?" glass":"")+'" id="aiSearchBox">'+
     '<div class="aisearch-pill">'+
-      '<span class="aisearch-badge">'+AI_SPARKLE+GX("aiSearchBadge")+'</span>'+
-      '<input id="aiSearchInput" type="text" data-allow-autofill placeholder="'+esc(GX("aiSearchPH"))+'" maxlength="200">'+
-      '<button type="button" id="aiSearchGo" class="aisearch-go" aria-label="'+esc(GX("aiSearchGo"))+'">'+MI.search+'</button>'+
+      '<span class="aisearch-badge">'+AI_SPARKLE+'<span>'+GX("aiSearchBadge")+'</span></span>'+
+      '<input id="aiSearchInput" type="text" data-allow-autofill autocomplete="off" enterkeyhint="search" placeholder="'+esc(GX("aiSearchPH"))+'" maxlength="200" aria-label="'+esc(GX("aiSearchPH"))+'">'+
+      '<button type="button" id="aiSearchGo" class="aisearch-go" aria-label="'+esc(GX("aiSearchGo"))+'">'+MI.search+'<span class="aisearch-spin" aria-hidden="true"></span></button>'+
     '</div>'+
+    (on("ai_bar_examples",true) ? '<div class="aisearch-chips"><span class="aisearch-try">'+GX("aiSearchTry")+'</span>'+ex.map(function(s){ return '<button type="button" class="aisearch-chip" data-aiex="'+esc(s)+'">'+esc(s)+'</button>' }).join("")+'</div>' : '')+
     '<div class="aisearch-result" id="aiSearchResult" hidden></div>'+
   '</div>';
 }
@@ -7078,21 +7140,34 @@ function wireAiSearchBar(){
   var inp=$("#aiSearchInput"), btn=$("#aiSearchGo");
   if(!inp||!btn) return;
   btn.onclick=aiSearchRun;
-  inp.onkeydown=function(e){ if(e.key==="Enter") aiSearchRun() };
-  // the placeholder cycles through a few example searches when the field is empty and unfocused
-  var examples=[GX("aiSearchPH"),GX("aiSearchEx1"),GX("aiSearchEx2"),GX("aiSearchEx3")], i=0;
+  inp.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); aiSearchRun() } };
+  $$("[data-aiex]").forEach(function(b){ b.onclick=function(){ var i=$("#aiSearchInput"); if(!i) return; i.value=this.dataset.aiex; aiSearchRun() } });
+  // the placeholder "types" a few example searches while the field is empty and unfocused (plain swap under reduced motion)
+  var examples=[GX("aiSearchPH"),GX("aiSearchEx1"),GX("aiSearchEx2"),GX("aiSearchEx3")], i=0, pos=examples[0].length, phase="hold", holdUntil=Date.now()+3600;
+  var reduce=false; try{ reduce=matchMedia("(prefers-reduced-motion: reduce)").matches }catch(e){}
   if(_aiPhTimer) clearInterval(_aiPhTimer);
   _aiPhTimer=setInterval(function(){
     var el=$("#aiSearchInput"); if(!el){ clearInterval(_aiPhTimer); _aiPhTimer=null; return }
     if(document.activeElement===el || el.value) return;
-    i=(i+1)%examples.length; el.placeholder=examples[i];
-  },3200);
+    var now=Date.now();
+    if(reduce){ if(now<holdUntil) return; i=(i+1)%examples.length; el.placeholder=examples[i]; holdUntil=now+3600; return }
+    if(phase==="hold"){ if(now>=holdUntil) phase="erase"; return }
+    if(phase==="erase"){ pos=Math.max(0,pos-3); el.placeholder=examples[i].slice(0,pos); if(pos===0){ i=(i+1)%examples.length; phase="type" } return }
+    pos=Math.min(examples[i].length,pos+1); el.placeholder=examples[i].slice(0,pos);
+    if(pos===examples[i].length){ phase="hold"; holdUntil=now+3600 }
+  },45);
 }
 // turns the AI's matched filters into the same F object the structured bar and results page already read
 function aiApplyFilters(f){
   f=f||{};
   F.govs=[]; F.areas=[]; F.types=[]; F.tbs=[]; F.g=""; F.a=""; F.t=""; F.tb=""; F.rooms=[]; F.pmin=0; F.pmax=0;
-  if(f.deal==="sale"||f.deal==="rent") F.deal=f.deal;
+  F.cd=""; F.furn=""; F.rentalPeriod=""; F.ownerOnly=false; F.kw="";
+  // no sale/rent word in the query → search both (the model is told never to guess it from the price)
+  F.deal=(f.deal==="sale"||f.deal==="rent")?f.deal:"";
+  if(F.deal==="rent"){ if(f.furnished===true) F.furn="yes"; else if(f.furnished===false) F.furn="no"; if(f.rental_period) F.rentalPeriod=f.rental_period }
+  if(f.condition) F.cd=f.condition;
+  if(f.by_owner) F.ownerOnly=true;
+  if(f.keyword) F.kw=String(f.keyword).slice(0,80);
   if(f.governorate){ F.govs=[f.governorate]; F.g=f.governorate; if(f.area){ F.areas=[f.area]; F.a=f.area } }
   if(f.property_types&&f.property_types.length){ F.types=f.property_types.slice(); F.t=f.property_types.length===1?f.property_types[0]:"" }
   if(f.tabu){ F.tbs=[f.tabu]; F.tb=f.tabu }
@@ -7103,19 +7178,22 @@ function aiApplyFilters(f){
   F.page=1;
 }
 async function aiSearchRun(){
-  var inp=$("#aiSearchInput"), btn=$("#aiSearchGo"); if(!inp||!btn) return;
-  var text=inp.value.trim(); if(text.length<2){ aiSearchMsg(GX("aiSearchShort"),"warn"); return }
+  var inp=$("#aiSearchInput"), btn=$("#aiSearchGo"), box=$("#aiSearchBox"); if(!inp||!btn||btn.disabled) return;
+  var text=inp.value.trim(); if(text.length<2){ aiSearchMsg(GX("aiSearchShort"),"warn"); inp.focus(); return }
   if(!VID){ aiSearchMsg(GX("aiSearchFail"),"danger"); return }
-  btn.disabled=true; var old=btn.textContent; btn.textContent=GX("aiSearchBusy"); aiSearchMsg("");
+  btn.disabled=true; if(box) box.classList.add("thinking"); aiSearchMsg(GX("aiSearchThinking"),"busy");
   try{
     var r=await fetch(intakeUrl("search"),{method:"POST",headers:{"Content-Type":"application/json","apikey":CONFIG.supabaseKey,"Authorization":"Bearer "+CONFIG.supabaseKey},body:JSON.stringify({vid:VID,text:text,country:COUNTRY,lang:L==="en"?"en":"ar"})});
     var j=null; try{ j=await r.json() }catch(e){ j={} }
     if(!r.ok||!j||j.error) throw new Error(j&&j.error==="no_key"?GX("qfNoKey"):j&&j.error==="limit"?GX("aiSearchLimit"):GX("aiSearchFail"));
+    // nothing recognisable (a greeting, a random sentence): say so instead of dumping every listing
+    if(!j.fields || !Object.keys(j.fields).length || (typeof j.confidence==="number" && j.confidence<0.35)) throw new Error(GX("aiSearchNoMatch"));
     aiApplyFilters(j.fields||{});
     AI_UNDERSTOOD=j.summary||null;
     VIEW="search"; scrollTo(0,0); render();
+    return;   // the bar is gone with the home page; nothing to restore
   }catch(e){ aiSearchMsg(e.message||GX("aiSearchFail"),"danger") }
-  btn.disabled=false; btn.textContent=old;
+  btn.disabled=false; if(box) box.classList.remove("thinking");
 }
 function wire(){
  markGreenTabu();
@@ -10161,7 +10239,10 @@ var GX_T={
   qfTeaserBtn:{ar:"جرّب الآن",en:"Try it now",de:"Jetzt ausprobieren"},
   qfMenuT:{ar:"انشر من نص جاهز",en:"Post from text",de:"Aus Text erstellen"},
   qfMenuP:{ar:"الصق الوصف وبلكون يعبّي الاستمارة",en:"Paste the description, we fill the form",de:"Text einfügen — wir füllen das Formular"},
-  aiSearchBadge:{ar:"AI اسأل",en:"Ask AI",de:"KI fragen"},
+  aiSearchBadge:{ar:"اسأل AI",en:"Ask AI",de:"KI fragen"},
+  aiSearchTry:{ar:"جرّب:",en:"Try:",de:"Probieren:"},
+  aiSearchThinking:{ar:"نفهم طلبك…",en:"Understanding your search…",de:"Ihre Suche wird verstanden…"},
+  aiSearchNoMatch:{ar:"لم نفهم طلباً عقارياً من هذا النص. جرّب مثلاً: شقة 3 غرف بالمزة تحت 80 ألف دولار",en:"That didn't read as a property search. Try something like: 3-bedroom apartment in Mazzeh under $80,000",de:"Das war keine erkennbare Immobiliensuche. Versuchen Sie z. B.: 3-Zimmer-Wohnung in Mazzeh unter 80.000 $"},
   aiSearchPH:{ar:"ابحث عن منزل أحلامك باستخدام الذكاء الاصطناعي",en:"Search for your dream home using AI",de:"Suchen Sie Ihr Traumhaus mit KI"},
   aiSearchEx1:{ar:"مثال: شقة 3 غرف بالمزة تحت 80 ألف دولار",en:"e.g. 3-bedroom apartment in Mazzeh under $80,000",de:"z. B. 3-Zimmer-Wohnung in Mazzeh unter 80.000 $"},
   aiSearchEx2:{ar:"مثال: فيلا للبيع في اللاذقية على البحر",en:"e.g. villa for sale in Latakia by the sea",de:"z. B. Villa zum Verkauf in Latakia am Meer"},
