@@ -3011,6 +3011,23 @@ body.mdw-open .mobfab{display:none}
 .acch input:checked+i::after{transform:translateX(18px)}
 [dir=rtl] .acch input:checked+i::after{transform:translateX(-18px)}
 .agree.consent{margin-top:6px}
+/* ── post by message (/post-by-message) + the "or send it by message" card on the post form ── */
+.pm{max-width:760px;padding:26px 18px 60px}
+.pm-hero{text-align:center;margin-bottom:22px}.pm-hero h1{font-size:26px;margin:10px 0 6px}.pm-hero p{color:var(--grey);font-size:15px;line-height:1.7}
+.pm-badge{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;border-radius:999px;padding:6px 14px;font:800 13px var(--f)}.pm-badge svg{width:20px;height:20px}
+.pm-steps{display:grid;gap:10px;margin-bottom:22px}
+.pm-step{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line-2);border-radius:14px;padding:14px;text-align:start}
+.pm-n{flex:none;width:32px;height:32px;border-radius:50%;background:var(--gold);color:#1A1206;display:grid;place-items:center;font-weight:800}
+.pm-step b{font-size:15px}.pm-step p{color:var(--grey);font-size:13.5px;line-height:1.7;margin-top:2px}
+.pm-btns{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.pm-btn{display:flex;align-items:center;gap:12px;background:#fff;border:1px solid var(--line-2);border-radius:16px;padding:14px;text-decoration:none;color:var(--ink);box-shadow:0 10px 30px -18px rgba(9,14,26,.4);transition:transform .15s,border-color .15s}
+.pm-btn:hover{transform:translateY(-2px);border-color:var(--gold)}
+.pm-btn b{display:block;font-size:15px}.pm-btn small{color:var(--grey);font-size:12.5px}
+.pm-note{background:var(--gold-w);border:1px solid var(--gold);border-radius:14px;padding:14px 16px;margin-bottom:14px}.pm-note.ok{background:#EAF7F0;border-color:#2FB6A3}
+.pm-note b{font-size:14.5px}.pm-note p{color:var(--grey);font-size:13.5px;line-height:1.7;margin:4px 0 10px}.pm-note.ok p{margin:0;color:#1B5E4A}.pm-note.ok a{color:#1B5E4A;font-weight:700;text-decoration:underline}
+.pm-card{margin:14px auto 0}
+.qfteaser-ico svg{width:24px;height:24px}
+@media(max-width:640px){.pm-btns{grid-template-columns:1fr}.pm-hero h1{font-size:22px}}
 </style><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
@@ -3599,6 +3616,7 @@ var NAVI=[
   {k:"map",g:"search",lab:function(){return t("searchOnMap")},ico:"map",attrs:'data-go="mapsearch"',o:30},
   {k:"home",g:"search",lab:function(){return t("home")},ico:"home",attrs:'data-go="home"',o:1},
   {k:"areas",g:"search",lab:function(){return GX("allAreas")},ico:"areas",attrs:'data-go="areas"',o:40},
+  {k:"postmsg",g:"search",lab:function(){return GX("pmNav")},ico:"msgpost",attrs:'data-go="postmsg"',o:45,tag:"newTag"},
   {k:"projects",g:"discover",lab:function(){return GX("pjDirShort")},ico:"tower",attrs:'data-go="projects"',o:48,tag:"soon"},
   {k:"wanted",g:"discover",lab:function(){return GX("wDirShort")},ico:"wanted",attrs:'data-go="wanted"',o:47,tag:"newTag",hide:function(){ return !wantedOn() }},
   {k:"coll",g:"discover",lab:function(){return HX("navColl")},ico:"coll",attrs:'data-mdscroll="collsSec"',o:50},
@@ -3612,7 +3630,7 @@ var NAVI=[
 ];
 function navAttrs(i){ return typeof i.attrs==="function" ? i.attrs() : i.attrs }
 function SXb(k,d){ var v=SX(k,d); if(v===false||v==="false"||v===0||v==="0") return false; if(v===true||v==="true"||v===1||v==="1") return true; return d }   // booleans saved by older panels arrived as strings
-var NAV_HEADER_DEF={coll:1,wanted:1,guide:1,agencies:1,projects:1,legal:1};   // the links that sit in the desktop header unless the admin says otherwise
+var NAV_HEADER_DEF={coll:1,wanted:1,guide:1,agencies:1,projects:1,legal:1,postmsg:1};   // the links that sit in the desktop header unless the admin says otherwise
 function navOn(k){ var it=NAVI.filter(function(i){ return i.k===k })[0]; if(it&&it.hide&&it.hide()) return false; return SXb("nav_"+k,true) }   // in the menu (drawer)
 function navHeaderOn(k){ var it=NAVI.filter(function(i){ return i.k===k })[0]; if(!it||(it.hide&&it.hide())) return false; if(it.soon && !SXb("nav_soon_header",true)) return false; return SXb("nav_"+k+"_h",!!NAV_HEADER_DEF[k]) }   // in the desktop header
 function navSorted(list){ return list.map(function(i){ var o=SX("nav_"+i.k+"_o",""); return {i:i,o:o===""?i.o:+o} }).sort(function(a,b){ return a.o-b.o }).map(function(x){ return x.i }) }
@@ -3708,6 +3726,7 @@ var MI=(function(){
     settings:w('<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>'),
     out:w('<path d="M10 17l5-5-5-5M15 12H3M21 4v16"/>'),
     legal:w('<path d="M12 3v18M6 21h12M5 7h14M5 7l-3 6a3 3 0 0 0 6 0L5 7M19 7l-3 6a3 3 0 0 0 6 0l-3-6"/>'),
+    msgpost:w('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-5.1A8 8 0 1 1 21 12z"/><path d="M12 8.5v7M8.5 12h7"/>'),
     legaltx:w('<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>'),
     agency:w('<path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/>'),
     tower:w('<path d="M4 21h16M6 21V9l6-6 6 6v12"/><path d="M10 21v-4h4v4M9 12h.01M15 12h.01M9 16h.01M15 16h.01M12 3v3"/>'),
@@ -4298,8 +4317,8 @@ function home(){
  var qfTeaserHtml=(function(){
    var dismissed=false; try{ dismissed=localStorage.getItem("balkoun_qf_dismissed")==="1" }catch(e){}
    if(dismissed) return "";
-   return '<div class="wrap"><div class="qfteaser-wrap"><a class="qfteaser" data-go="post">'+
-     '<span class="qfteaser-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="22" height="22" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></span>'+
+   return '<div class="wrap"><div class="qfteaser-wrap"><a class="qfteaser" data-go="postmsg">'+
+     '<span class="qfteaser-ico">'+AI_SPARKLE+'</span>'+
      '<span class="qfteaser-tx"><b>'+GX("qfTeaserT")+'</b><small>'+GX("qfTeaserP")+'</small></span>'+
      '<span class="qfteaser-cta">'+GX("qfTeaserBtn")+'</span></a>'+
      '<button type="button" class="qfteaser-x" data-qfx aria-label="'+esc(GX("mdClose"))+'">×</button></div></div>' })();
@@ -4842,6 +4861,36 @@ function similarListingsSection(x){
 }
 
 /* ── post: a real, validating form ── */
+/* ── post by message: the public explainer for the WhatsApp / Telegram listing intake ──
+   "/start" is what both bots answer with the how-to; a member is recognised by their verified number
+   (WhatsApp) or their linked chat (Telegram), so no code or pairing step is ever shown here. */
+function postMsgLinks(){
+  // the intake number is the bot-linked one (admin › post by message › "displayed WhatsApp number"), never the
+  // contact-us number in wa_number: nothing listens for listings there
+  var wa=String(SX("intake_wa_display","")||"").replace(/\D/g,"").replace(/^00/,""), bot=SX("intake_bot","");
+  return { wa: wa?"https://wa.me/"+wa+"?text="+encodeURIComponent("/start"):"", tg: bot?"https://t.me/"+encodeURIComponent(bot):"" };
+}
+function postMsgCardHtml(){
+  var l=postMsgLinks(); if(!l.wa&&!l.tg) return "";
+  return '<div class="wrap"><a class="qfteaser pm-card" data-go="postmsg"><span class="qfteaser-ico">'+AI_SPARKLE+'</span>'+
+    '<span class="qfteaser-tx"><b>'+GX("pmCardT")+'</b><small>'+GX("pmCardP")+'</small></span><span class="qfteaser-cta">'+GX("pmCardBtn")+'</span></a></div>';
+}
+function postMsgPage(){
+  var l=postMsgLinks();
+  var step=function(n,tt,p){ return '<div class="pm-step"><span class="pm-n">'+n+'</span><div><b>'+tt+'</b><p>'+p+'</p></div></div>' };
+  var note = !USER ? '<div class="pm-note"><b>'+GX("pmGuestT")+'</b><p>'+GX("pmGuestP")+'</p><button type="button" class="btn-n" style="width:auto" id="pmSignup">'+GX("pmGuestBtn")+'</button></div>'
+           : USER.phone_verified===false ? '<div class="pm-note"><b>'+GX("pmVerifyT")+'</b><p>'+GX("pmVerifyP")+'</p><a class="btn-n" style="width:auto;display:inline-block" data-go="account">'+GX("accTitle")+'</a></div>'
+           : '<div class="pm-note ok"><p>'+GX("pmReadyP")+' <a data-go="account">'+GX("accChTgBtn")+'</a></p></div>';
+  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("pmTitle")+'</div></div>'+
+   '<div class="wrap pm"><div class="pm-hero"><span class="pm-badge">'+AI_SPARKLE+'AI</span><h1>'+GX("pmTitle")+'</h1><p>'+GX("pmLead")+'</p></div>'+
+   '<div class="pm-steps">'+step(1,GX("pmS1T"),GX("pmS1P"))+step(2,GX("pmS2T"),GX("pmS2P"))+step(3,GX("pmS3T"),GX("pmS3P"))+'</div>'+
+   '<div class="pm-btns">'+
+     (l.wa?'<a class="pm-btn" href="'+l.wa+'" target="_blank" rel="noopener"><span class="vico wa">'+VICO.wa+'</span><span><b>'+GX("pmWa")+'</b><small>'+GX("pmWaP")+'</small></span></a>':'')+
+     (l.tg?'<a class="pm-btn" href="'+l.tg+'" target="_blank" rel="noopener"><span class="vico tg">'+VICO.tg+'</span><span><b>'+GX("pmTg")+'</b><small>'+GX("pmTgP")+'</small></span></a>':'')+
+   '</div>'+note+
+   '<p class="hintx">'+GX("pmAgencyP")+'</p>'+
+   '<p class="hintx"><a data-go="post">'+GX("pmFormLink")+'</a></p></div>';
+}
 function post(){
  if(!USER) return gate();
  if(needsVerify()) return unverifiedPage();
@@ -4859,7 +4908,7 @@ function post(){
    '<button class="gh" data-go="post" style="max-width:230px;margin:9px auto 0">'+t("again")+'</button></div></div></div>';
  var pk=function(obj,name){return Object.keys(obj).map(function(k){
    return '<label><input type="radio" name="'+name+'" value="'+k+'"><span>'+obj[k][li()]+'</span></label>'}).join("")};
- return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+t("postH")+'</div></div>'+
+ return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+t("postH")+'</div></div>'+postMsgCardHtml()+
  '<div class="wrap" style="max-width:860px;padding:20px 18px 60px">'+
  '<h1 style="font-size:23px;font-weight:700">'+t("postH")+'</h1>'+
  '<p style="color:var(--grey);font-size:14.5px;margin-bottom:16px">'+t("postS")+'</p>'+quickFillHtml()+
@@ -6634,6 +6683,7 @@ function wireAgencies(){
   if(VIEW.indexOf("agency:")===0){ var id=VIEW.split(":")[1]; if(!AGENCY || String(AGENCY.id)!==String(id)) loadAgency(id).then(render);
     $$("[data-agseller]").forEach(function(a){ a.onclick=function(){ var uid=this.dataset.agseller; BYUSER={id:uid,name:"",rows:[]}; VIEW="by:"+uid; scrollTo(0,0); render(); loadByUser(uid).then(render) } });
     $$("[data-agarea]").forEach(function(a){ a.onclick=function(){ F.areas=[this.dataset.agarea]; F.govs=[]; F.g=""; F.a=""; F.page=1; VIEW="search"; scrollTo(0,0); render() } }) }
+  if($("#pmSignup")) $("#pmSignup").onclick=function(){ AU.open=true; AU.step=1; AU.mode="up"; render() };
   if(VIEW!=="agencyform" && VIEW!=="account") window._acScrolled=false;
   if((VIEW==="agencyform"||VIEW==="account") && USER){
     if(MYAGENCY===null) loadMyAgency().then(render);
@@ -8755,12 +8805,13 @@ function routePathBase(){
          VIEW.indexOf("project:")===0 ? "/project/"+VIEW.split(":")[1] :
          VIEW.indexOf("wanted:")===0 ? "/wanted/"+VIEW.split(":")[1] :
          VIEW==="areas" ? "/regions" :
+         VIEW==="postmsg" ? "/post-by-message" :
          (VIEW==="about"||VIEW==="contactus") ? "/"+VIEW+"/" :   // these also exist as static pages
          "/"+VIEW+(VIEW==="search"?filterToQuery():"");
 }
 var PAGE_T={
   search:{ar:"بحث العقارات",en:"Property search",de:"Immobiliensuche"}, mapsearch:{ar:"البحث على الخريطة",en:"Map search",de:"Kartensuche"},
-  post:{ar:"أضف إعلانك",en:"Post a listing",de:"Anzeige aufgeben"}, mine:{ar:"إعلاناتي",en:"My listings",de:"Meine Anzeigen"},
+  post:{ar:"أضف إعلانك",en:"Post a listing",de:"Anzeige aufgeben"}, postmsg:{ar:"أضف إعلانك برسالة",en:"Post by message",de:"Anzeige per Nachricht"}, mine:{ar:"إعلاناتي",en:"My listings",de:"Meine Anzeigen"},
   saved:{ar:"المحفوظات",en:"Saved",de:"Gespeichert"}, searches:{ar:"عمليات البحث المحفوظة",en:"Saved searches",de:"Gespeicherte Suchen"},
   msgs:{ar:"الرسائل",en:"Messages",de:"Nachrichten"}, account:{ar:"حسابي",en:"My account",de:"Mein Konto"},
   about:{ar:"عن بلكون",en:"About Balkoun",de:"Über Balkoun"}, contact:{ar:"تواصل معنا",en:"Contact us",de:"Kontakt"}, contactus:{ar:"تواصل معنا",en:"Contact us",de:"Kontakt"}, areas:{ar:"كل المحافظات والمناطق",en:"All governorates and areas",de:"Alle Gouvernements und Gegenden"},
@@ -8809,7 +8860,8 @@ function viewFromHash(){
   if(p[0]==="wanted"&&p[1]) return "wanted:"+(p[1].match(/^\d+/)||[p[1]])[0];
   if(p[0]==="unsub"&&p[1]) return "unsub:"+p[1];
   if(p[0]==="regions") return "areas";
-  if(["search","post","mine","saved","searches","msgs","account","about","contact","contactus","admin","mapsearch","agencies","agencyform","projects","wanted","wantedform"].indexOf(p[0])>-1){
+  if(p[0]==="post-by-message") return "postmsg";
+  if(["search","post","postmsg","mine","saved","searches","msgs","account","about","contact","contactus","admin","mapsearch","agencies","agencyform","projects","wanted","wantedform"].indexOf(p[0])>-1){
     if(p[0]==="search" && qs) applyFilterFromQuery(qs);
     return p[0];
   }
@@ -8902,7 +8954,7 @@ function render(){
  if(VIEW!==_lastRenderedView){ _lastRenderedView=VIEW; refreshListingsOnNavigate(); }
  document.documentElement.lang=L; document.documentElement.dir=D.I18N[L].dir; document.documentElement.setAttribute("data-cc",COUNTRY||"SY");
  var body= VIEW==="home"?home(): VIEW==="search"?search(): VIEW==="post"?post():
-          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="areas"?areasView(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW.indexOf("unsub:")===0?unsubPage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): listing(VIEW.split(":")[1]);
+          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="areas"?areasView(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="postmsg"?postMsgPage(): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW.indexOf("unsub:")===0?unsubPage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): listing(VIEW.split(":")[1]);
  document.body.classList.remove("mdw-open");
  $("#app").innerHTML=header()+body+footer()+authModal()+reportModal();
  setTimeout(fabCheck,50);
@@ -10318,9 +10370,33 @@ var GX_T={
   tmGroupContent:{ar:"المحتوى",en:"Content",de:"Inhalt"}, tmGroupPeople:{ar:"الأشخاص",en:"People",de:"Personen"}, tmGroupInbox:{ar:"الوارد",en:"Inbox",de:"Eingang"}, tmGroupSystem:{ar:"النظام",en:"System",de:"System"},
   cShowing:{ar:"يُعرض الآن",en:"Showing",de:"Angezeigt"},
   cEditorAllNote:{ar:"هذه الصفحة تُعدّل دولة واحدة في كل مرة",en:"this page edits one country at a time",de:"diese Seite bearbeitet jeweils ein Land"},
-  qfTeaserT:{ar:"ما بدك تعبّي كل الحقول؟",en:"Don't want to fill every field?",de:"Keine Lust, jedes Feld auszufüllen?"},
-  qfTeaserP:{ar:"الصق نص إعلانك كما هو، وبلكون يعبّي الاستمارة عنك.",en:"Paste your listing text as it is; Balkoun fills the form for you.",de:"Fügen Sie Ihren Anzeigentext einfach ein — Balkoun füllt das Formular für Sie aus."},
-  qfTeaserBtn:{ar:"جرّب الآن",en:"Try it now",de:"Jetzt ausprobieren"},
+  qfTeaserT:{ar:"أرسل إعلانك برسالة واتساب أو تيليغرام",en:"Post your listing with a WhatsApp or Telegram message",de:"Anzeige per WhatsApp- oder Telegram-Nachricht aufgeben"},
+  qfTeaserP:{ar:"اكتب التفاصيل وأرفق الصور في المحادثة — بلكون يقرأها بالذكاء الاصطناعي ويعبّي كل شيء عنك.",en:"Type the details and attach the photos in the chat — Balkoun reads them with AI and fills everything for you.",de:"Details tippen, Fotos anhängen — Balkoun liest sie per KI und füllt alles für Sie aus."},
+  qfTeaserBtn:{ar:"كيف؟",en:"How?",de:"Wie?"},
+  pmNav:{ar:"أضف إعلانك برسالة",en:"Post by message",de:"Anzeige per Nachricht"},
+  pmTitle:{ar:"أضف إعلانك برسالة",en:"Post your listing by message",de:"Anzeige per Nachricht aufgeben"},
+  pmLead:{ar:"لا تعبّئ أي استمارة: أرسل تفاصيل عقارك وصوره في محادثة واتساب أو تيليغرام، ويقرأها بلكون بالذكاء الاصطناعي ويعرض عليك ملخصاً قبل النشر.",en:"No form to fill: send your property's details and photos in a WhatsApp or Telegram chat; Balkoun reads them with AI and shows you a summary before publishing.",de:"Kein Formular: Senden Sie Details und Fotos per WhatsApp- oder Telegram-Chat; Balkoun liest sie per KI und zeigt Ihnen vor der Veröffentlichung eine Zusammenfassung."},
+  pmS1T:{ar:"اكتب التفاصيل",en:"Write the details",de:"Details schreiben"},
+  pmS1P:{ar:"النوع، المنطقة، المساحة، الغرف، الطابو، السعر — وأرفق الصور.",en:"Type, area, size, rooms, deed, price — and attach the photos.",de:"Art, Gegend, Größe, Zimmer, Grundbuch, Preis — und Fotos anhängen."},
+  pmS2T:{ar:"أرسل ثم اكتب «تم»",en:"Send, then write \"done\"",de:"Senden, dann „fertig“ schreiben"},
+  pmS2P:{ar:"يردّ عليك بلكون خلال ثوانٍ بملخص الإعلان.",en:"Balkoun replies within seconds with a summary of the listing.",de:"Balkoun antwortet in Sekunden mit einer Zusammenfassung."},
+  pmS3T:{ar:"وافق بإرسال 1",en:"Approve by sending 1",de:"Mit 1 bestätigen"},
+  pmS3P:{ar:"يُنشر إعلانك، أو يصل الإدارة لمراجعة سريعة.",en:"Your listing is published, or reaches the team for a quick review.",de:"Ihre Anzeige wird veröffentlicht oder kurz vom Team geprüft."},
+  pmWa:{ar:"عبر واتساب",en:"On WhatsApp",de:"Per WhatsApp"},
+  pmWaP:{ar:"رقم بلكون الرسمي",en:"Balkoun's official number",de:"Offizielle Balkoun-Nummer"},
+  pmTg:{ar:"عبر تيليغرام",en:"On Telegram",de:"Per Telegram"},
+  pmTgP:{ar:"بوت بلكون",en:"The Balkoun bot",de:"Der Balkoun-Bot"},
+  pmGuestT:{ar:"تحتاج حساباً في بلكون (دقيقة واحدة)",en:"You need a Balkoun account (one minute)",de:"Sie brauchen ein Balkoun-Konto (eine Minute)"},
+  pmGuestP:{ar:"سجّل برقم هاتفك، وبعدها يتعرّف عليك بلكون تلقائياً عند مراسلته.",en:"Sign up with your phone number; Balkoun then recognises you automatically when you message it.",de:"Registrieren Sie sich mit Ihrer Telefonnummer; danach erkennt Balkoun Sie automatisch."},
+  pmGuestBtn:{ar:"إنشاء حساب",en:"Create an account",de:"Konto erstellen"},
+  pmVerifyT:{ar:"أكّد رقمك أولاً",en:"Confirm your number first",de:"Bestätigen Sie zuerst Ihre Nummer"},
+  pmVerifyP:{ar:"بلكون يتعرّف على رسائلك من رقمك الموثّق — أكمل تأكيد الرقم من حسابك.",en:"Balkoun recognises your messages by your verified number — finish confirming it from your account.",de:"Balkoun erkennt Ihre Nachrichten an Ihrer bestätigten Nummer — schließen Sie die Bestätigung im Konto ab."},
+  pmReadyP:{ar:"حسابك جاهز ✓ أرسل الآن من رقمك المسجّل على واتساب، أو اربط تيليغرام من حسابك:",en:"Your account is ready ✓ Send now from your registered WhatsApp number, or link Telegram from your account:",de:"Ihr Konto ist bereit ✓ Senden Sie jetzt von Ihrer registrierten WhatsApp-Nummer oder verknüpfen Sie Telegram im Konto:"},
+  pmAgencyP:{ar:"المكاتب العقارية: نفس الطريقة، وتُنشر إعلاناتكم باسم المكتب مباشرة.",en:"Agencies: same way — your listings are published under the agency's name.",de:"Büros: gleicher Weg — Ihre Anzeigen erscheinen unter dem Büronamen."},
+  pmFormLink:{ar:"أفضّل الاستمارة العادية",en:"I prefer the regular form",de:"Ich bevorzuge das normale Formular"},
+  pmCardT:{ar:"أو أرسله برسالة",en:"Or send it by message",de:"Oder per Nachricht senden"},
+  pmCardP:{ar:"واتساب أو تيليغرام — بلكون يقرأ التفاصيل والصور ويعبّي كل شيء.",en:"WhatsApp or Telegram — Balkoun reads the details and photos and fills everything.",de:"WhatsApp oder Telegram — Balkoun liest Details und Fotos und füllt alles aus."},
+  pmCardBtn:{ar:"كيف؟",en:"How?",de:"Wie?"},
   qfMenuT:{ar:"انشر من نص جاهز",en:"Post from text",de:"Aus Text erstellen"},
   qfMenuP:{ar:"الصق الوصف وبلكون يعبّي الاستمارة",en:"Paste the description, we fill the form",de:"Text einfügen — wir füllen das Formular"},
   aiSearchBadge:{ar:"اسأل AI",en:"Ask AI",de:"KI fragen"},
