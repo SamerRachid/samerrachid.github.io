@@ -303,6 +303,7 @@ const T = {
     reviewAdmin: `تمت القراءة ✅ الإعلان بانتظارك في لوحة التحكم لاختيار المكتب ونشره.`,
     reviewNote: `تمت القراءة، لكن الإعلان يحتاج نظرة من الإدارة قبل النشر. سنتابعه من لوحة التحكم.`,
     suggested: (n: string) => `• المكتب المقترح: ${n}`,
+    attributed: (n: string) => `• المعلن: ${n}`,
     published: (ref: string, url: string) => `✅ تم نشر الإعلان (${ref})\n${url}`,
     pending: (ref: string) => `✅ استلمنا الإعلان (${ref}) وسيظهر على الموقع بعد مراجعة الإدارة.`,
     failed: `تعذّر النشر تلقائياً؛ أحلنا الإعلان إلى الإدارة لإكماله.`,
@@ -349,6 +350,7 @@ const T = {
     reviewAdmin: `Read ✅ The listing is waiting in the panel to pick the agency and publish.`,
     reviewNote: `Read, but the listing needs a look from the team before publishing. We will follow up from the panel.`,
     suggested: (n: string) => `• Suggested agency: ${n}`,
+    attributed: (n: string) => `• Listed for: ${n}`,
     published: (ref: string, url: string) => `✅ Published (${ref})\n${url}`,
     pending: (ref: string) => `✅ Received (${ref}). It appears on the site after the team's review.`,
     failed: `Automatic publishing failed; the listing was handed to the team.`,
@@ -700,8 +702,13 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   const c = await cfg(); const lang = c.intake_reply_lang === "en" ? "en" : (d.user_lang === "en" ? "en" : "ar"); const t = tx(lang);
   const tax = await rpc<any>("bk_intake_taxonomy", { p_country: d.country_code });
   const photos = Array.isArray(d.photos) ? d.photos.length : 0;
-  const user = `Sender: ${d.sender_name || "?"}${d.agency_name ? " (agency: " + d.agency_name + ")" : ""}\nPhotos attached: ${photos}\n\nMESSAGE:\n${latinDigits(d.raw_text || "").slice(0, 6000)}`;
-  let fields: Record<string, any> = {}, missing: string[] = [], usage: Usage = { in: 0, out: 0, cache_write: 0, cache_read: 0 }, cost = 0, err: string | null = null, raw: Record<string, any> = {};
+  // a membership number (SYM1007) written into a forwarded message names the member the listing is for —
+  // not advertised anywhere on the site; it is pulled out before the model reads the text
+  const MEMBER_NO = /\b([A-Z]{2}\s?M\s?\d{3,8})\b/i;
+  const rawText = latinDigits(d.raw_text || "");
+  const memberNo = d.by_admin && !d.agency_id ? (rawText.match(MEMBER_NO) || [])[1] : undefined;
+  const user = `Sender: ${d.sender_name || "?"}${d.agency_name ? " (agency: " + d.agency_name + ")" : ""}\nPhotos attached: ${photos}\n\nMESSAGE:\n${(memberNo ? rawText.replace(MEMBER_NO, " ") : rawText).slice(0, 6000)}`;
+  let fields: Record<string, any> = {}, missing: string[] = [], usage: Usage = { in: 0, out: 0, cache_write: 0, cache_read: 0 }, cost = 0, err: string | null = null, raw: Record<string, any> = {}, attributed: string | null = null;
   try {
     const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax), user);
     usage = r.usage; raw = r.fields; const s = settle(r.fields, tax); fields = s.fields; missing = s.missing; cost = costOf(usage, c);
@@ -711,7 +718,11 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   if (!err && lowConfidence(raw)) status = "review";
   // the owner forwarded it: an agency named in the text is only a suggestion; the panel picks and publishes
   if (!err && d.by_admin && !d.agency_id) {
-    if (raw.agency_hint) {
+    if (memberNo) {
+      const at = await rpc<any>("bk_intake_attach_member", { p_draft: draftId, p_member_no: memberNo.replace(/\s+/g, "").toUpperCase() });
+      if (at?.ok) attributed = `${at.name} (${at.member_no})`;
+    }
+    if (!attributed && raw.agency_hint) {
       const { data } = await sb.from("agencies").select("id,user_id,name,country_code").eq("status", "approved").eq("intake_enabled", true).eq("country_code", d.country_code).ilike("name", "%" + String(raw.agency_hint).replace(/[%_]/g, "") + "%").limit(2);
       if (data && data.length === 1) { await rpc("bk_intake_set", { p_draft: draftId, p_patch: { agency_id: data[0].id, user_id: data[0].user_id } }); suggested = data[0].name; }
     }
@@ -719,7 +730,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   }
   // a transient reading failure goes back to the queue instead of failing the sender's listing
   if (err && !/no_key|claude 4\d\d/.test(err) && (d.reads || 0) < 3) status = "collecting";
-  const sum = err ? null : summary(fields, tax, photos, lang) + (suggested ? "\n" + t.suggested(suggested) : "") +
+  const sum = err ? null : summary(fields, tax, photos, lang) + (attributed ? "\n" + t.attributed(attributed) : "") + (suggested ? "\n" + t.suggested(suggested) : "") +
     (status === "review" ? "" : (missing.length ? t.missing(missing.map((m) => (lang === "en" ? MISSING_EN : MISSING_AR)[m]).join("، ")) : t.confirmLine));
   const saved = await rpc<any>("bk_intake_save_read", { p_draft: draftId, p_fields: fields, p_missing: missing, p_summary: sum, p_status: status, p_model: c.intake_model || null, p_in: usage.in, p_out: usage.out, p_cost: cost, p_error: err });
   if (saved?.skipped) return saved;                                              // cancelled or changed while reading: say nothing
