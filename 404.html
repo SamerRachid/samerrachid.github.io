@@ -2968,7 +2968,8 @@ body.mdw-open .mobfab{display:none}
 .home-hero .aisearch.thinking .aisearch-pill::before,.home-hero .aisearch.thinking .aisearch-pill::after{animation-duration:1.4s;animation-delay:0s}
 .home-hero .aisearch-pill:focus-within{box-shadow:0 22px 48px -22px rgba(9,14,26,.8),0 0 0 1px rgba(227,181,99,.7)}
 .home-hero .aisearch-badge{position:static;inset:auto;top:auto;bottom:auto;flex:none;height:100%;display:inline-flex;align-items:center;gap:6px;padding:0 12px;border-radius:10px;background:var(--navy);color:#fff;font:800 12.5px/1 var(--f);white-space:nowrap;pointer-events:none}
-.home-hero .aisearch-badge svg{width:16px;height:16px;color:#E3B563;filter:drop-shadow(0 0 4px rgba(227,181,99,.7));animation:pinSpin 5s cubic-bezier(.6,0,.3,1) 3s infinite;transform-style:preserve-3d}
+.home-hero .aisearch-badge{font-size:13.5px;gap:7px}
+.home-hero .aisearch-badge svg{width:22px;height:22px;flex:none;filter:drop-shadow(0 0 3px rgba(227,181,99,.55));animation:pinSpin 5s cubic-bezier(.6,0,.3,1) 3s infinite;transform-style:preserve-3d}
 .home-hero .aisearch-pill input{flex:1;min-width:0;height:100%;border:0;background:transparent;outline:0;font:500 14px var(--f);color:var(--navy);padding:0 6px;text-align:start}
 .home-hero .aisearch-pill input::placeholder{color:#7A8299}
 .home-hero .aisearch-go{position:relative;flex:none;width:44px;height:100%;border:0;border-radius:10px;background:linear-gradient(135deg,#D9A23A,#C4881F);color:#1A1206;display:grid;place-items:center;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35);transition:transform .18s,filter .18s}
@@ -7174,7 +7175,12 @@ function softRenderHero(){
 // Styled after Bayut's: one always-visible pill, the "AI" badge fixed at the inline-start, a
 // placeholder inviting a plain-language search, submit icon at the inline-end ──
 // the "AI sparkles" mark (a big four-point star with a small one, like Bayut's) — it flips like the map pin
-var AI_SPARKLE='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.5 2.5l2 5.9 5.9 2-5.9 2-2 5.9-2-5.9-5.9-2 5.9-2 2-5.9Z"/><path d="M18 13l1.1 3.1 3.1 1.1-3.1 1.1L18 21.4l-1.1-3.1-3.1-1.1 3.1-1.1L18 13Z"/></svg>';
+// one four-point sparkle cut into four facets (the Bayut / "Ask AI" mark), in the site's golds; it flips like the map pin
+var AI_SPARKLE='<svg viewBox="0 0 24 24" aria-hidden="true">'+
+  '<path fill="#F7DC93" d="M12 12V1c.6 6.4 4.6 10.4 11 11H12Z"/>'+
+  '<path fill="#E3B563" d="M12 12h11c-6.4.6-10.4 4.6-11 11V12Z"/>'+
+  '<path fill="#B07816" d="M12 12v11c-.6-6.4-4.6-10.4-11-11h11Z"/>'+
+  '<path fill="#D39A2E" d="M12 12H1c6.4-.6 10.4-4.6 11-11v11Z"/></svg>';
 function aiSearchBarHtml(){
   var on=function(k,d){ var v=SX(k,d); return !(v===false||v==="false") };
   if(!on("ai_bar_on",true)) return "";
