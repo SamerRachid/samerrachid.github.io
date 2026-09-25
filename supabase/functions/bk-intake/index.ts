@@ -595,7 +595,7 @@ function summary(f: Record<string, any>, tax: any, photos: number, lang: string)
   if (facts.length) L.push("• " + facts.join(" · "));
   const st = [deed ? (ar ? deed.ar : deed.en) : "", cond ? cond.ar : "", f.furnished ? (ar ? "مفروش" : "furnished") : ""].filter(Boolean);
   if (st.length) L.push("• " + st.join(" · "));
-  if (f.deal === "sale" && !deed && (tax.deeds || []).length) L.push(tt.deedNone);
+  // no "will be published without a deed" line any more: a sale without a deed word is asked for it before publishing
   if (!cond) L.push(tt.condDefault);
   if (f.price) L.push("• " + (ar ? "السعر: " : "Price: ") + fmtNum(f.price) + " " + (f.currency === "USD" ? "$" : f.currency) + (f.deal === "rent" && f.rental_period ? " / " + ({ daily: ar ? "يومي" : "day", weekly: ar ? "أسبوعي" : "week", monthly: ar ? "شهري" : "month", yearly: ar ? "سنوي" : "year" } as any)[f.rental_period] : "") + (f.negotiable === false ? (ar ? " (غير قابل للتفاوض)" : " (not negotiable)") : ""));
   if (f.deal === "rent" && !f.rental_period) L.push(tt.periodDefault);
