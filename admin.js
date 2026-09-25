@@ -26,7 +26,7 @@ async function storageRestore(paths){
        if(j && j.error) return {data:null, error:{message:j.error}};
        return {data:{restored:j.restored||[], failed:j.failed||[]}, error:null} }
   catch(e){ return {data:null, error:e} } }
-var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super"};
+var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super",campaigns:"campaigns"};
 function canTab(k){ var p=TAB_PERM[k]; if(p===undefined) return can(k); if(p==="super") return !!ADM.isSuper; if(Array.isArray(p)) return p.some(can); return can(p) }
 function admGo(tab){ if(!tab) return; if(!canTab(tab)){ admToast(GX("noPermTab"),"bad"); return } if(tab!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return; ADM.tab=tab; window._admMobileDetail=false; render(); try{ window.scrollTo(0,0) }catch(e){} }
 function admToast(msg,kind){ var el=$("#admToast"); if(!el){ el=document.createElement("div"); el.id="admToast"; document.body.appendChild(el) } el.textContent=msg; el.className="on "+(kind||"ok"); clearTimeout(el._t); el._t=setTimeout(function(){ el.className="" },2600) }
@@ -496,6 +496,7 @@ function adminView(){
  else if(ADM.tab==="ads"){ body = hsStudioHtml("ads"); }
 
  else if(ADM.tab==="engage"){ body = adminEngageBody(); }
+ else if(ADM.tab==="campaigns"){ body = adminCampaignsBody(); }
  else if(ADM.tab==="intake"){ body = adminIntakeBody(); }
  else if(ADM.tab==="agencies_adm"){ body = adminAgenciesBody(); }
  else if(ADM.tab==="projects_adm"){ body = adminProjectsBody(); }
@@ -590,7 +591,7 @@ function adminView(){
 
  else if(ADM.tab==="admins"){
   var admins = ADM.admins||[];
-  var permKeys=["listings","featured","homepage","ads","users","passwords","reports","feedback","reviews","msgs","stats","settings"];
+  var permKeys=["listings","featured","homepage","ads","campaigns","users","passwords","reports","feedback","reviews","msgs","stats","settings"];
   body = '<button class="btn-n" id="aNewAdminBtn" style="margin-bottom:14px">'+t("createAdmin")+'</button>'+
    (ADM.newAdminOpen ? '<div class="blk" style="margin-bottom:16px"><h3>'+t("createAdmin")+'</h3><div class="in">'+
      '<div class="row"><div class="fl"><label class="req">'+t("contactName")+'</label><input id="naName" autocomplete="off"></div>'+
@@ -611,7 +612,7 @@ function adminView(){
    '<div class="blk" style="margin-bottom:16px"><div class="in hintx" style="font-size:13px;line-height:1.8">'+GX("tmHowPair")+'</div></div>'+
    (!admins.length ? '<div class="done2"><b>'+(ADM._adminsErr?esc(ADM._adminsErr):ADM._adminsDone?GX("noAdminsYet"):t("loading"))+'</b></div>' :
    '<div class="tmlist">'+admins.map(function(a){
-      var nm=((a.name||"")+" "+(a.family_name||"")).trim(), editing=ADM.editPermsFor===a.id, groups=[["tmGroupContent",["listings","featured","homepage","ads"]],["tmGroupPeople",["users","passwords","reviews"]],["tmGroupInbox",["reports","feedback","msgs"]],["tmGroupSystem",["stats","settings"]]];
+      var nm=((a.name||"")+" "+(a.family_name||"")).trim(), editing=ADM.editPermsFor===a.id, groups=[["tmGroupContent",["listings","featured","homepage","ads","campaigns"]],["tmGroupPeople",["users","passwords","reviews"]],["tmGroupInbox",["reports","feedback","msgs"]],["tmGroupSystem",["stats","settings"]]];
       var perms=a.is_super_admin?'<span class="chip gold">'+t("allPermissions")+'</span>':((a.permissions||[]).length?a.permissions.map(function(p){ return '<span class="chip">'+t("perm_"+p)+'</span>' }).join(""):'<span class="chip muted">—</span>');
       var countries=(a.admin_countries&&a.admin_countries.length)?a.admin_countries.map(function(cc){ return '<span class="chip">'+flagOf(cc)+' '+esc(countryName(countryOf(cc)||{code:cc})||cc)+'</span>' }).join(""):'<span class="chip gold">'+GX("tmAllCountries")+'</span>';
       var card='<div class="tmcard'+(editing?' open':'')+'">'+
@@ -669,7 +670,7 @@ function adminView(){
    {g:GX("navCountries"), items:[["countries",GX("countriesTab"),null,AICO.globe,ADM.isSuper]]},
    {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["photos",GX("tMedia"),null,AICO.image,can("listings")],["wanted_adm",GX("tWanted"),(ADM.todo||{}).pending_wanted||null,AICO.search,can("listings")],["intake",GX("tIntake"),(ADM.todo||{}).intake_review||null,AICO.contact||AICO.bell,can("listings")]]},
    {g:t("navPeople"), items:[["users",t("usersTab"),(ADM.todo||{}).verify_pending||s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")]]},
-   {g:GX("navMarketing"), items:[["engage",GX("tEngage"),null,AICO.ledger,can("ads")||can("featured")],["projects_adm",GX("tProjects"),null,AICO.building,can("listings")||can("ads")],["ads",t("adsTab"),null,AICO.ads,can("ads")],["featured",t("featuredTab"),null,AICO.star,can("featured")],["banners",GX("tBanners"),null,AICO.banner,can("homepage")]]},
+   {g:GX("navMarketing"), items:[["engage",GX("tEngage"),null,AICO.ledger,can("ads")||can("featured")],["projects_adm",GX("tProjects"),null,AICO.building,can("listings")||can("ads")],["ads",t("adsTab"),null,AICO.ads,can("ads")],["featured",t("featuredTab"),null,AICO.star,can("featured")],["banners",GX("tBanners"),null,AICO.banner,can("homepage")],["campaigns",GX("tCampaigns"),null,AICO.megaphone,can("campaigns")]]},
    {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")]]},
    {g:t("navInboxH"), items:[["reports",t("reportsTab"),s.openReports,AICO.shield,can("reports")],["feedback",t("feedbackTab"),s.openFeedback,AICO.shield,can("feedback")],["tickets",GX("ticketsTab"),(ADM.tickets||[]).filter(function(x){ return x.status!=="done" }).length,AICO.gear,can("feedback")],["msgs",t("msgsNotifTab"),ADM.alertsUnread,AICO.bell,can("msgs")]]},
    {g:GX("navSystem"), items:[["settings",GX("tSystem"),null,AICO.gear,can("settings")],["storage",GX("tStorage"),null,AICO.disk,can("settings")],["admins",t("adminsTab"),null,AICO.key,ADM.isSuper],["danger",t("dangerTab"),null,AICO.lock,ADM.isSuper]]}
@@ -1246,7 +1247,7 @@ function wireAdmin(){
       render();
     }catch(err){ alert(err.message||"error") }
   }});
-  wireGeoAdmin(); wireAdminCountries();
+  wireGeoAdmin(); wireAdminCountries(); wireAdminCampaigns();
   if(ADM.tab==="settings" && !ADM._settingsLoaded){
     ADM._settingsLoaded=true;
     rpc("bk_admin_get_settings",{p_token:ADM.token}).then(function(r){
@@ -2517,6 +2518,7 @@ function admResetScope(){   // everything that was loaded for one country scope 
   ADM._statsLoaded=false; ADM.stats=null; ADM._anLoaded=false; ADM.an=null; ADM.anErr=null; ADM._lstatsLoaded=false; ADM.lstats=null;
   ADM._featuredListLoaded=false; ADM.featuredList=null; ADM._wLoaded=false; ADM_W=null; ADM._pjLoaded=false; ADM_PJ=null; ADM._agLoaded=false; ADM_AG=null; ADM._engDays=null; ADM.eng=null; ADM.todo=null;
   ADM._geoLoaded=false; ADM.adSlots=null; ADM._adSlotsLoaded=false;
+  ADM._cpgContactsLoaded=false; ADM.cpgContacts=null; ADM._cpgCampaignsLoaded=false; ADM.cpgCampaigns=null;
 }
 /* scoped reads: the answer is used only if no country switch happened while it was in flight */
 function rpcScoped(name, args){ var g=ADM._gen||0; return rpc(name, args).then(function(r){ if(g!==(ADM._gen||0)) return new Promise(function(){}); return r }) }
@@ -2603,10 +2605,8 @@ function adminCountriesBody(){
         Object.keys(D_TYPES_SY).map(function(k){ var cur=(c.types||[]).filter(function(x){ return x.code===k })[0], on=!c.types||!!cur, b=D_TYPES_SY[k];
           return '<label style="display:flex;gap:6px;align-items:center;white-space:nowrap"><input type="checkbox" data-cty="on:'+c.code+':'+k+'"'+(on?' checked':'')+ro+'><span class="ltr" style="color:var(--grey);font-size:12px">'+k+'</span></label><input data-cty="ar:'+c.code+':'+k+'" value="'+escOnce(cur?cur.ar:b[0])+'"'+ro+'><input data-cty="en:'+c.code+':'+k+'" value="'+escOnce(cur?cur.en:b[1])+'"'+ro+'><input data-cty="fr:'+c.code+':'+k+'" value="'+escOnce(cur?(cur.fr||""):(b[3]||""))+'"'+ro+'>' }).join("")+'</div></div>'+
        countrySetupPanel(c)+
-       // per-country channel overrides — TODO once bk_admin_countries returns each row's own verify subset from
-       // extras, (c.verify||{}) below will actually reflect it; until then every box defaults to "on" (the
-       // same default the global card above starts from), matching what bk_verify_cfg falls back to when a
-       // country has no override at all
+       // per-country channel overrides, read from bk_admin_countries' own "verify" subset (site_content.extras
+       // for this country); an unset key falls back to "on", same default bk_verify_cfg itself falls back to
        '<div class="fl"><label>'+GX("vfCountryChT")+'</label><div class="hintx" style="margin-bottom:6px">'+GX("vfCountryChHint")+'</div><div class="chkgrid">'+
         ["verify_telegram_on","verify_wa_code_on","verify_email_on"].map(function(k){ var lbl=k==="verify_telegram_on"?GX("vfSetTg"):k==="verify_wa_code_on"?GX("vfSetWaCode"):GX("vfSetEmail");
           return '<label class="xcheck"><input type="checkbox" data-vf="'+k+':'+c.code+'"'+((c.verify||{})[k]!==false?' checked':'')+ro+'><span>'+lbl+'</span></label>' }).join("")+
@@ -2648,6 +2648,203 @@ function wireAdminCountries(){
     $$('[data-cdnew$=":'+code+'"]').forEach(function(i){ var k=i.dataset.cdnew.split(":")[0]; p[k]= i.type==="checkbox"?i.checked : k==="sort_order"?parseInt(i.value,10)||100 : i.value.trim() });
     var dc=String(p.code||"").toLowerCase().replace(/[^a-z0-9_]+/g,"_"); if(!dc||!p.ar) return; delete p.code;
     DB.rpc("bk_admin_deed_save",{p_token:ADM.token,p_country:code,p_code:dc,p_patch:p}).then(function(r){ if(r.error) return msg(r.error.message,true); msg(GX("saved")); reload() }) } });
+}
+
+/* ── Contacts notebook + marketing/notification campaigns (WhatsApp, Telegram, Email). ──
+   Sub-pages inside one tab (ADM.cpgView): contacts | campaigns | automation. Country-scoped like every
+   other PER_COUNTRY_TABS page (admScope()/rpcScoped()); geography picker only offers a structured
+   governorate/area when the row's country matches the site's currently-loaded D.GEO (COUNTRY) — other
+   countries fall back to the free-text city field, a deliberate v1 limit (see the plan file). */
+var CPG_T={
+  title:{ar:"جهات الاتصال والحملات",en:"Contacts & Campaigns"},
+  tabContacts:{ar:"جهات الاتصال",en:"Contacts"}, tabCampaigns:{ar:"الحملات",en:"Campaigns"}, tabAuto:{ar:"التنبيه التلقائي",en:"Automation"},
+  add:{ar:"+ إضافة جهة اتصال",en:"+ Add contact"}, importBtn:{ar:"استيراد CSV",en:"Import CSV"},
+  name:{ar:"الاسم",en:"Name"}, phone:{ar:"الهاتف",en:"Phone"}, email:{ar:"الإيميل",en:"Email"}, city:{ar:"المدينة",en:"City"},
+  source:{ar:"المصدر",en:"Source"}, src_member:{ar:"عضو مسجّل",en:"Member"}, src_manual:{ar:"يدوي",en:"Manual"}, src_import:{ar:"مستورد",en:"Imported"},
+  tags:{ar:"الوسوم",en:"Tags"}, notes:{ar:"ملاحظات",en:"Notes"}, country:{ar:"الدولة",en:"Country"},
+  gov:{ar:"المحافظة",en:"Governorate"}, area:{ar:"المنطقة",en:"Area"}, cityFreeText:{ar:"اسم المدينة (نص حر)",en:"City (free text)"}, wholeCountry:{ar:"— كل الدولة —",en:"— Whole country —"},
+  consent:{ar:"الاشتراك",en:"Consent"}, pending:{ar:"لم يُحدَّد",en:"Pending"}, subscribed:{ar:"مشترك",en:"Subscribed"}, unsubscribed:{ar:"ملغى",en:"Unsubscribed"},
+  wa:{ar:"واتساب",en:"WhatsApp"}, tg:{ar:"تيليغرام",en:"Telegram"}, chEmail:{ar:"إيميل",en:"Email"},
+  tgLink:{ar:"رابط ربط تيليغرام",en:"Telegram link"}, tgLinked:{ar:"تيليغرام مربوط ✓",en:"Telegram linked ✓"}, tgCopy:{ar:"نسخ رابط تيليغرام",en:"Copy Telegram link"}, tgCopied:{ar:"تم النسخ ✓",en:"Copied ✓"},
+  noContacts:{ar:"لا توجد جهات اتصال بعد.",en:"No contacts yet."}, searchPH:{ar:"ابحث بالاسم أو الهاتف أو الإيميل",en:"Search name, phone or email"},
+  allConsent:{ar:"كل حالات الاشتراك",en:"All consent"}, allSource:{ar:"كل المصادر",en:"All sources"},
+  save:{ar:"حفظ",en:"Save"}, cancel:{ar:"إلغاء",en:"Cancel"}, del:{ar:"حذف",en:"Delete"}, edit:{ar:"تعديل",en:"Edit"},
+  delConfirm:{ar:"حذف جهة الاتصال هذه؟",en:"Delete this contact?"}, needPhoneOrEmail:{ar:"أدخل هاتفاً أو إيميلاً على الأقل",en:"Enter a phone or email"},
+  importTitle:{ar:"استيراد جهات اتصال",en:"Import contacts"}, importHint:{ar:"الصق بيانات CSV بالأعمدة: phone,email,name,city_text (سطر أول اختياري بعناوين الأعمدة)",en:"Paste CSV with columns: phone,email,name,city_text (header row optional)"},
+  importAssume:{ar:"لدي موافقة مسبقة على مراسلة هذه القائمة",en:"I already have consent to message this list"},
+  importGo:{ar:"استيراد",en:"Import"}, importDone:{ar:"تم: {n} مُضافة، {s} متجاهَلة",en:"Done: {n} added, {s} skipped"},
+  campNew:{ar:"+ حملة جديدة",en:"+ New campaign"}, campTitle:{ar:"عنوان الحملة",en:"Campaign title"}, campChannels:{ar:"القنوات",en:"Channels"},
+  campSubject:{ar:"عنوان الإيميل",en:"Email subject"}, campBodyAr:{ar:"النص (عربي)",en:"Body (Arabic)"}, campBodyEn:{ar:"النص (إنكليزي)",en:"Body (English)"},
+  campConsentReq:{ar:"إرسال للمشتركين فقط (موصى به)",en:"Send only to consented contacts (recommended)"},
+  campAudience:{ar:"عدد المستلمين المتوقَّع",en:"Expected recipients"}, campTest:{ar:"إرسال تجريبي لي",en:"Send test to me"},
+  campSend:{ar:"إرسال الآن",en:"Send now"}, campSendConfirm:{ar:"سيتم الإرسال فعلياً الآن لكل المستلمين المطابقين. متابعة؟",en:"This sends for real to every matching recipient now. Continue?"},
+  campStatus:{ar:"الحالة",en:"Status"}, st_draft:{ar:"مسودة",en:"Draft"}, st_sending:{ar:"جارٍ الإرسال",en:"Sending"}, st_sent:{ar:"أُرسلت",en:"Sent"}, st_failed:{ar:"فشل جزئي",en:"Partial failure"}, st_scheduled:{ar:"مجدولة",en:"Scheduled"},
+  campStats:{ar:"الإحصاءات",en:"Stats"}, noCampaigns:{ar:"لا توجد حملات بعد.",en:"No campaigns yet."}, notEditable:{ar:"لا يمكن تعديل حملة أُرسلت",en:"A sent campaign can't be edited"},
+  autoTitle:{ar:"تنبيه تلقائي عند نشر إعلان جديد",en:"Automatic alert when a new listing goes live"},
+  autoHint:{ar:"عند التفعيل، يصل تنبيه تلقائي لكل جهة اتصال مشتركة تغطي منطقة الإعلان الجديد (دولة كاملة، محافظة، أو مدينة محددة حسب ما اختاره كل جهة اتصال).",en:"When on, every subscribed contact whose own coverage includes the new listing's location gets an automatic alert (whole country, a governorate, or a specific city, per contact)."},
+  autoOn:{ar:"تفعيل التنبيه التلقائي",en:"Enable automatic alert"},
+  waSyriaHint:{ar:"تنبيه: واتساب في سوريا يشارك نفس الرقم المستخدم لإرسال رموز التحقق (WAHA). إرسال حملات كثيرة قد يعرّض ذلك الرقم للحظر ويعطّل رموز التحقق أيضاً.",en:"Note: WhatsApp in Syria shares the same number used for OTP codes (WAHA). Heavy campaign volume risks that number being banned, which would break OTP delivery too."},
+  audLoading:{ar:"جارٍ الحساب…",en:"Calculating…"},
+};
+function cpgT(k){ var o=CPG_T[k]||{}; return o[L]||o.en||o.ar||k }
+function cpgConsentChip(v){ var m={subscribed:["st-live","subscribed"],unsubscribed:["st-removed","unsubscribed"],pending:["st-pending","pending"]}[v]||["st-pending","pending"]; return '<span class="st '+m[0]+'">'+cpgT(m[1])+'</span>' }
+function cpgGeoSelects(countryCode, govId, areaId, cityText, hideFreeText){
+  var sameCountry = countryCode===COUNTRY && D.GEO;
+  if(!sameCountry) return hideFreeText ? '' : '<div class="fl"><label>'+cpgT("cityFreeText")+'</label><input data-cpgf="city_text" value="'+escOnce(cityText||"")+'" data-allow-autofill></div>';
+  var govName=null; Object.keys(GEO_META.govId||{}).forEach(function(n){ if(GEO_META.govId[n]===govId) govName=n });
+  var govOpts='<option value="">'+cpgT("wholeCountry")+'</option>'+Object.keys(D.GEO).map(function(n){ return '<option value="'+GEO_META.govId[n]+'"'+(GEO_META.govId[n]===govId?' selected':'')+'>'+esc(n)+'</option>' }).join("");
+  var areaOpts='<option value="">—</option>'+(govName?(D.GEO[govName]||[]).map(function(a){ var aid=GEO_META.areaId[govName+"/"+a]; return '<option value="'+aid+'"'+(aid===areaId?' selected':'')+'>'+esc(a)+'</option>' }).join(""):"");
+  return '<div class="fl"><label>'+cpgT("gov")+'</label><select data-cpgf="governorate_id">'+govOpts+'</select></div>'+
+         '<div class="fl"><label>'+cpgT("area")+'</label><select data-cpgf="area_id"'+(govName?'':' disabled')+'>'+areaOpts+'</select></div>';
+}
+function cpgContactRow(c, editing){
+  var chips=[c.phone?'<span class="chip ltr">'+esc(c.phone)+'</span>':'', c.email?'<span class="chip">'+esc(c.email)+'</span>':''].filter(Boolean).join("");
+  var place=[c.governorate_id?(function(){ var n=null; Object.keys(GEO_META.govId||{}).forEach(function(k){ if(GEO_META.govId[k]===c.governorate_id) n=k }); return n })():null, c.city_text].filter(Boolean).join(" · ");
+  var card='<div class="agcard2"><div class="agc-id"><b>'+esc(c.name||"—")+'</b><small>'+chips+(place?' · '+esc(place):'')+' · '+cpgT("src_"+c.source)+'</small></div>'+
+    '<div class="agc-meta">'+cpgT("wa")+' '+cpgConsentChip(c.wa_consent)+' '+cpgT("tg")+' '+cpgConsentChip(c.tg_consent)+' '+cpgT("chEmail")+' '+cpgConsentChip(c.email_consent)+'</div>'+
+    '<div class="agc-acts"><button type="button" class="ab" data-cpgedit="'+c.id+'">'+(editing?cpgT("cancel"):cpgT("edit"))+'</button><button type="button" class="ab bad" data-cpgdel="'+c.id+'">'+cpgT("del")+'</button></div></div>';
+  if(!editing) return card;
+  var tgLink=SX("intake_bot","")?("https://t.me/"+encodeURIComponent(SX("intake_bot",""))+"?start=n"+String(c.id).replace(/-/g,"")):"";
+  return card+'<div class="tmedit"><div class="row3x"><div class="fl"><label>'+cpgT("name")+'</label><input data-cpgf="name" value="'+escOnce(c.name||"")+'" data-allow-autofill></div>'+
+    '<div class="fl"><label>'+cpgT("phone")+'</label><input data-cpgf="phone" class="ltr" value="'+escOnce(c.phone||"")+'" data-allow-autofill></div>'+
+    '<div class="fl"><label>'+cpgT("email")+'</label><input data-cpgf="email" class="ltr" value="'+escOnce(c.email||"")+'" data-allow-autofill></div></div>'+
+    '<div class="row3x">'+cpgGeoSelects(c.country_code, c.governorate_id, c.area_id, c.city_text)+'</div>'+
+    '<div class="fl"><label>'+cpgT("tags")+'</label><input data-cpgf="tags" value="'+escOnce((c.tags||[]).join(", "))+'" placeholder="vip, newspaper" data-allow-autofill></div>'+
+    '<div class="row3x">'+["wa_consent","tg_consent","email_consent"].map(function(k,i){ var lbl=[cpgT("wa"),cpgT("tg"),cpgT("chEmail")][i];
+      return '<div class="fl"><label>'+lbl+' · '+cpgT("consent")+'</label><select data-cpgf="'+k+'">'+["pending","subscribed","unsubscribed"].map(function(v){ return '<option value="'+v+'"'+(c[k]===v?' selected':'')+'>'+cpgT(v)+'</option>' }).join("")+'</select></div>' }).join("")+'</div>'+
+    '<div class="fl"><label>'+cpgT("notes")+'</label><input data-cpgf="notes" value="'+escOnce(c.notes||"")+'" data-allow-autofill></div>'+
+    (tgLink?'<div class="hintx" style="margin:6px 0"><b class="ltr" id="cpgTgLink" data-link="'+esc(tgLink)+'" style="user-select:all">'+esc(tgLink)+'</b> <button type="button" class="ab" id="cpgTgCopy">'+cpgT("tgCopy")+'</button></div>':'')+
+    '<div class="xactions"><button class="ab ok" data-cpgsave="'+c.id+'">'+cpgT("save")+'</button><span class="xmsg" id="cpgMsg-'+c.id+'"></span></div></div>';
+}
+function cpgContactsBody(){
+  var list=ADM.cpgContacts;
+  if(list===null) return '<div class="done2"><b>'+t("loading")+'</b></div>';
+  var f=ADM.cpgFilters||{};
+  var toolbar='<div class="rtop" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
+    '<input id="cpgQ" placeholder="'+cpgT("searchPH")+'" class="asearch" value="'+escOnce(f.q||"")+'" style="flex:1;min-width:200px;width:auto">'+
+    '<select id="cpgConsentPick" class="lvlpick"><option value="">'+cpgT("allConsent")+'</option>'+["subscribed","pending","unsubscribed"].map(function(v){ return '<option value="'+v+'"'+(f.consent===v?' selected':'')+'>'+cpgT(v)+'</option>' }).join("")+'</select>'+
+    '<select id="cpgSourcePick" class="lvlpick"><option value="">'+cpgT("allSource")+'</option>'+["member","manual","import"].map(function(v){ return '<option value="'+v+'"'+(f.source===v?' selected':'')+'>'+cpgT("src_"+v)+'</option>' }).join("")+'</select>'+
+    '<span class="n" style="font-size:13px;color:var(--grey)"><span class="ltr">'+list.length+'</span></span>'+
+    '<button type="button" class="ab ok" id="cpgAddBtn">'+cpgT("add")+'</button><button type="button" class="ab" id="cpgImportBtn">'+cpgT("importBtn")+'</button></div>';
+  var addForm = ADM.cpgEditContact==="new" ? cpgContactRow({id:"new",source:"manual",country_code:COUNTRY,wa_consent:"pending",tg_consent:"pending",email_consent:"pending",tags:[]}, true) : "";
+  var importModal = ADM.cpgImportOpen ? '<div class="blk" style="margin:14px 0"><h3>'+cpgT("importTitle")+'</h3><div class="in">'+
+    '<div class="hintx" style="margin-bottom:8px">'+cpgT("importHint")+'</div><textarea id="cpgImportText" rows="6" style="width:100%;font-family:monospace" placeholder="phone,email,name,city_text"></textarea>'+
+    '<label class="xcheck" style="margin-top:8px"><input type="checkbox" id="cpgImportAssume"><span>'+cpgT("importAssume")+'</span></label>'+
+    '<div class="xactions"><button class="ab ok" id="cpgImportGo">'+cpgT("importGo")+'</button><button class="ab" id="cpgImportCancel">'+cpgT("cancel")+'</button><span class="xmsg" id="cpgImportMsg"></span></div></div></div>' : "";
+  var rows = !list.length ? '<div class="adashempty">'+cpgT("noContacts")+'</div>' : '<div class="elist">'+list.map(function(c){ return cpgContactRow(c, ADM.cpgEditContact===c.id) }).join("")+'</div>';
+  return toolbar+addForm+importModal+rows;
+}
+function cpgCampaignRow(c, editing){
+  var stMap={draft:"st-pending",scheduled:"st-pending",sending:"st-pending",sent:"st-live",failed:"st-expired"};
+  var card='<div class="agcard2"><div class="agc-id"><b>'+esc(c.title)+'</b><small>'+(c.channels||[]).map(function(ch){ return cpgT(ch==="whatsapp"?"wa":ch==="telegram"?"tg":"chEmail") }).join("، ")+' · '+when(c.created_at)+'</small></div>'+
+    '<div class="agc-meta"><span class="st '+(stMap[c.status]||"st-pending")+'">'+cpgT("st_"+c.status)+'</span>'+(c.sent_count||c.failed_count?' <small class="ltrnum">✓'+(c.sent_count||0)+' · ✗'+(c.failed_count||0)+'</small>':'')+'</div>'+
+    '<div class="agc-acts">'+(c.status==="draft"||c.status==="scheduled"?'<button type="button" class="ab" data-cpgcedit="'+c.id+'">'+(editing?cpgT("cancel"):cpgT("edit"))+'</button><button type="button" class="ab bad" data-cpgcdel="'+c.id+'">'+cpgT("del")+'</button>':'<button type="button" class="ab" data-cpgcstats="'+c.id+'">'+cpgT("campStats")+'</button>')+'</div></div>'+
+    (ADM.cpgStats&&ADM.cpgStats[c.id]?'<div class="hintx" style="margin:4px 0 8px">'+Object.keys(ADM.cpgStats[c.id]).map(function(k){ return k+': '+ADM.cpgStats[c.id][k] }).join(" · ")+'</div>':"");
+  if(!editing) return card;
+  var aud=ADM.cpgAudience&&ADM.cpgAudience[c.id];
+  return card+'<div class="tmedit"><div class="fl"><label>'+cpgT("campTitle")+'</label><input data-cpgcf="title" value="'+escOnce(c.title||"")+'" data-allow-autofill></div>'+
+    '<div class="fl"><label>'+cpgT("campChannels")+'</label><div class="chkgrid">'+[["whatsapp","wa"],["telegram","tg"],["email","chEmail"]].map(function(p){ return '<label class="xcheck"><input type="checkbox" data-cpgch="'+p[0]+'"'+((c.channels||[]).indexOf(p[0])>-1?' checked':'')+'><span>'+cpgT(p[1])+'</span></label>' }).join("")+'</div></div>'+
+    '<div class="fl"><label>'+cpgT("campSubject")+'</label><input data-cpgcf="subject" value="'+escOnce(c.subject||"")+'" data-allow-autofill></div>'+
+    '<div class="row"><div class="fl"><label>'+cpgT("campBodyAr")+'</label><textarea data-cpgcf="body_ar" rows="3">'+escOnce(c.body_ar||"")+'</textarea></div><div class="fl"><label>'+cpgT("campBodyEn")+'</label><textarea data-cpgcf="body_en" rows="3">'+escOnce(c.body_en||"")+'</textarea></div></div>'+
+    '<div class="row3x">'+cpgGeoSelects(c.country_code||COUNTRY, c.governorate_id, c.area_id, null, true)+'</div>'+
+    '<label class="xcheck"><input type="checkbox" id="cpgConsentReq"'+(c.consent_required!==false?' checked':'')+'><span>'+cpgT("campConsentReq")+'</span></label>'+
+    (String(c.country_code||"SY")==="SY"&&(c.channels||[]).indexOf("whatsapp")>-1?'<div class="hintx" style="margin-top:6px;color:var(--danger)">'+cpgT("waSyriaHint")+'</div>':'')+
+    '<div class="xactions"><button class="ab ok" data-cpgcsave="'+c.id+'">'+cpgT("save")+'</button>'+
+    '<button type="button" class="ab" data-cpgcaudience="'+c.id+'">'+cpgT("campAudience")+(aud?": "+Object.keys(aud).map(function(k){return k+" "+aud[k]}).join(" · "):"")+'</button>'+
+    '<button type="button" class="ab" data-cpgctest="'+c.id+'">'+cpgT("campTest")+'</button>'+
+    '<button type="button" class="ab bad" data-cpgcsend="'+c.id+'">'+cpgT("campSend")+'</button>'+
+    '<span class="xmsg" id="cpgcMsg-'+c.id+'"></span></div></div>';
+}
+function cpgCampaignsBody(){
+  var list=ADM.cpgCampaigns;
+  if(list===null) return '<div class="done2"><b>'+t("loading")+'</b></div>';
+  var addForm = ADM.cpgEditCampaign==="new" ? cpgCampaignRow({id:"new",title:"",channels:[],country_code:COUNTRY,consent_required:true,status:"draft"}, true) : "";
+  var rows = !list.length ? '<div class="adashempty">'+cpgT("noCampaigns")+'</div>' : '<div class="elist">'+list.map(function(c){ return cpgCampaignRow(c, ADM.cpgEditCampaign===c.id) }).join("")+'</div>';
+  return '<div class="rtop" style="margin-bottom:10px"><button type="button" class="ab ok" id="cpgAddCampBtn">'+cpgT("campNew")+'</button></div>'+addForm+rows;
+}
+function cpgAutomationBody(){
+  var cur=(ADM.countries||[]).filter(function(c){ return c.code===COUNTRY })[0]||{}; var cfg=cur.campaign_cfg||{};
+  return '<div class="blk"><h3>'+cpgT("autoTitle")+'</h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+cpgT("autoHint")+'</div>'+
+    '<label class="xcheck"><input type="checkbox" id="cpgAutoOn"'+(cfg.auto_notify_new_listing_on==="true"||cfg.auto_notify_new_listing_on===true?' checked':'')+'><span>'+cpgT("autoOn")+'</span></label>'+
+    '<div class="chkgrid" style="margin-top:8px">'+[["auto_notify_ch_telegram","tg"],["auto_notify_ch_whatsapp","wa"],["auto_notify_ch_email","chEmail"]].map(function(p){ var on=cfg[p[0]]!=="false"&&cfg[p[0]]!==false; return '<label class="xcheck"><input type="checkbox" data-cpgautoch="'+p[0]+'"'+(on?' checked':'')+'><span>'+cpgT(p[1])+'</span></label>' }).join("")+'</div>'+
+    (COUNTRY==="SY"?'<div class="hintx" style="margin-top:10px;color:var(--danger)">'+cpgT("waSyriaHint")+'</div>':'')+
+    '<div class="xactions"><button class="ab ok" id="cpgAutoSave">'+cpgT("save")+'</button><span class="xmsg" id="cpgAutoMsg"></span></div></div></div>';
+}
+function adminCampaignsBody(){
+  var view=ADM.cpgView||"contacts";
+  var segs=[["contacts","tabContacts"],["campaigns","tabCampaigns"],["automation","tabAuto"]].map(function(s){ return '<button type="button" class="ab'+(view===s[0]?' ok':'')+'" data-cpgview="'+s[0]+'">'+cpgT(s[1])+'</button>' }).join(" ");
+  var body = view==="contacts" ? cpgContactsBody() : view==="campaigns" ? cpgCampaignsBody() : cpgAutomationBody();
+  return '<div class="rtop" style="margin-bottom:14px">'+segs+'</div>'+body;
+}
+function cpgParseCsv(text){
+  var lines=text.split(/\r?\n/).map(function(l){ return l.trim() }).filter(Boolean);
+  if(!lines.length) return [];
+  var head=lines[0].toLowerCase().split(",").map(function(h){ return h.trim() });
+  var known=["phone","email","name","city_text","tags"];
+  var startAt = known.indexOf(head[0])>-1 ? 1 : 0;
+  var cols = startAt===1 ? head : known.slice(0, lines[0].split(",").length);
+  return lines.slice(startAt).map(function(line){ var vals=line.split(","); var row={}; cols.forEach(function(c,i){ if(c==="tags") row.tags=(vals[i]||"").split(/[;|]/).map(function(x){return x.trim()}).filter(Boolean); else row[c]=(vals[i]||"").trim() }); return row });
+}
+function wireAdminCampaigns(){
+  if(ADM.tab!=="campaigns") return;
+  if(!ADM.countries){ DB.rpc("bk_admin_countries",{p_token:ADM.token}).then(function(r){ if(r&&r.data) ADM.countries=r.data; render() }); return }
+  var view=ADM.cpgView||"contacts";
+  if(view==="contacts" && ADM.cpgContacts===null){ var f=ADM.cpgFilters||{};
+    rpcScoped("bk_admin_contacts",{p_token:ADM.token,p_country:admScope(),p_q:f.q||null,p_consent:f.consent||null,p_source:f.source||null}).then(function(r){ ADM.cpgContacts=r||[]; render() }); return }
+  if(view==="campaigns" && ADM.cpgCampaigns===null){ rpcScoped("bk_admin_campaigns",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.cpgCampaigns=r||[]; render() }); return }
+  $$("[data-cpgview]").forEach(function(b){ b.onclick=function(){ ADM.cpgView=b.dataset.cpgview; render() } });
+  // contacts
+  if($("#cpgQ")){ var cpgQEl=$("#cpgQ");
+    if(ADM._cpgQFocused){ cpgQEl.focus(); cpgQEl.setSelectionRange(cpgQEl.value.length,cpgQEl.value.length) }
+    cpgQEl.onfocus=function(){ ADM._cpgQFocused=true }; cpgQEl.onblur=function(){ ADM._cpgQFocused=false };
+    cpgQEl.oninput=function(){ clearTimeout(ADM._cpgQT); var v=this.value; ADM._cpgQT=setTimeout(function(){ ADM.cpgFilters=Object.assign({},ADM.cpgFilters,{q:v}); ADM.cpgContacts=null; render() },400) } }
+  if($("#cpgConsentPick")) $("#cpgConsentPick").onchange=function(){ ADM.cpgFilters=Object.assign({},ADM.cpgFilters,{consent:this.value}); ADM.cpgContacts=null; render() };
+  if($("#cpgSourcePick")) $("#cpgSourcePick").onchange=function(){ ADM.cpgFilters=Object.assign({},ADM.cpgFilters,{source:this.value}); ADM.cpgContacts=null; render() };
+  if($("#cpgAddBtn")) $("#cpgAddBtn").onclick=function(){ ADM.cpgEditContact="new"; render() };
+  if($("#cpgImportBtn")) $("#cpgImportBtn").onclick=function(){ ADM.cpgImportOpen=!ADM.cpgImportOpen; render() };
+  if($("#cpgImportCancel")) $("#cpgImportCancel").onclick=function(){ ADM.cpgImportOpen=false; render() };
+  if($("#cpgImportGo")) $("#cpgImportGo").onclick=function(){
+    var rows=cpgParseCsv($("#cpgImportText").value||""); if(!rows.length) return;
+    DB.rpc("bk_admin_contacts_import",{p_token:ADM.token,p_country:admScope()||COUNTRY,p_rows:rows,p_assume_consent:!!$("#cpgImportAssume").checked}).then(function(raw){
+      var r=(raw&&raw.data)||{}; var m=$("#cpgImportMsg"); if(raw&&raw.error){ m.textContent=raw.error.message||String(raw.error); m.style.color="var(--danger)"; return } if(r.error){ m.textContent=r.error; m.style.color="var(--danger)"; return }
+      m.textContent=cpgT("importDone").replace("{n}",r.inserted).replace("{s}",r.skipped); m.style.color="var(--ok)"; ADM.cpgContacts=null; setTimeout(function(){ ADM.cpgImportOpen=false; render() },1200) }) };
+  $$("[data-cpgedit]").forEach(function(b){ b.onclick=function(){ var id=b.dataset.cpgedit; ADM.cpgEditContact=ADM.cpgEditContact===id?null:id; render() } });
+  $$("[data-cpgdel]").forEach(function(b){ b.onclick=function(){ if(!confirm(cpgT("delConfirm"))) return; DB.rpc("bk_admin_contact_delete",{p_token:ADM.token,p_id:b.dataset.cpgdel}).then(function(){ ADM.cpgContacts=null; ADM.cpgEditContact=null; render() }) } });
+  $$("[data-cpgsave]").forEach(function(b){ b.onclick=function(){
+    var id=b.dataset.cpgsave, root=b.closest(".tmedit"), p={};
+    $$("[data-cpgf]", root).forEach(function(i){ var k=i.dataset.cpgf; p[k]= k==="tags" ? i.value.split(",").map(function(x){return x.trim()}).filter(Boolean) : (k==="governorate_id"||k==="area_id") ? (i.value?parseInt(i.value,10):null) : i.value });
+    DB.rpc("bk_admin_contact_save",{p_token:ADM.token,p_id:id==="new"?null:id,p_patch:p}).then(function(raw){
+      var r=(raw&&raw.data)||{}; var m=$("#cpgMsg-"+id); if((raw&&raw.error)||r.error){ if(m){ m.textContent=cpgT("needPhoneOrEmail"); m.style.color="var(--danger)" } return }
+      ADM.cpgContacts=null; ADM.cpgEditContact=null; render() }) } });
+  if($("#cpgTgCopy")) $("#cpgTgCopy").onclick=function(){ var el=$("#cpgTgLink"); if(!el) return; navigator.clipboard&&navigator.clipboard.writeText(el.dataset.link).then(function(){ this.textContent=cpgT("tgCopied") }.bind(this)) };
+  // campaigns
+  if($("#cpgAddCampBtn")) $("#cpgAddCampBtn").onclick=function(){ ADM.cpgEditCampaign="new"; render() };
+  $$("[data-cpgcedit]").forEach(function(b){ b.onclick=function(){ var id=b.dataset.cpgcedit; ADM.cpgEditCampaign=ADM.cpgEditCampaign===id?null:id; render() } });
+  $$("[data-cpgcdel]").forEach(function(b){ b.onclick=function(){ if(!confirm(cpgT("delConfirm"))) return; DB.rpc("bk_admin_campaign_delete",{p_token:ADM.token,p_id:b.dataset.cpgcdel}).then(function(){ ADM.cpgCampaigns=null; render() }) } });
+  $$("[data-cpgcstats]").forEach(function(b){ b.onclick=function(){ DB.rpc("bk_admin_campaign_stats",{p_token:ADM.token,p_id:b.dataset.cpgcstats}).then(function(raw){ ADM.cpgStats=Object.assign({},ADM.cpgStats); ADM.cpgStats[b.dataset.cpgcstats]=(raw&&raw.data)||{}; render() }) } });
+  $$("[data-cpgcsave]").forEach(function(b){ b.onclick=function(){
+    var id=b.dataset.cpgcsave, root=b.closest(".tmedit"), p={};
+    $$("[data-cpgcf]", root).forEach(function(i){ p[i.dataset.cpgcf]=i.value });
+    p.channels=$$("[data-cpgch]", root).filter(function(i){ return i.checked }).map(function(i){ return i.dataset.cpgch });
+    p.governorate_id=(function(){ var s=$('[data-cpgf="governorate_id"]',root); return s&&s.value?parseInt(s.value,10):null })();
+    p.area_id=(function(){ var s=$('[data-cpgf="area_id"]',root); return s&&s.value?parseInt(s.value,10):null })();
+    p.consent_required=!!$("#cpgConsentReq",root).checked; p.country_code=admScope()||COUNTRY;
+    DB.rpc("bk_admin_campaign_save",{p_token:ADM.token,p_id:id==="new"?null:id,p_patch:p}).then(function(raw){
+      var r=(raw&&raw.data)||{}; var m=$("#cpgcMsg-"+id); if((raw&&raw.error)||r.error){ if(m){ m.textContent=(raw&&raw.error&&raw.error.message)||r.error||"error"; m.style.color="var(--danger)" } return }
+      ADM.cpgCampaigns=null; ADM.cpgEditCampaign=null; render() }) } });
+  $$("[data-cpgcaudience]").forEach(function(b){ b.onclick=function(){ var id=b.dataset.cpgcaudience; b.textContent=cpgT("audLoading");
+    DB.rpc("bk_admin_campaign_audience_count",{p_token:ADM.token,p_id:id}).then(function(raw){ ADM.cpgAudience=Object.assign({},ADM.cpgAudience); ADM.cpgAudience[id]=(raw&&raw.data)||{}; render() }) } });
+  $$("[data-cpgctest]").forEach(function(b){ b.onclick=function(){ var id=b.dataset.cpgctest;
+    DB.rpc("bk_admin_campaign_send",{p_token:ADM.token,p_id:id,p_test:true}).then(function(raw){ var r=(raw&&raw.data)||{}; var m=$("#cpgcMsg-"+id); if(!m) return; if((raw&&raw.error)||r.error){ m.textContent=(raw&&raw.error&&raw.error.message)||r.error||"error"; m.style.color="var(--danger)" } else { m.textContent="✓ "+(r.queued||0); m.style.color="var(--ok)"; intakeAdmin("tick").catch(function(){}) } }) } });
+  $$("[data-cpgcsend]").forEach(function(b){ b.onclick=function(){ if(!confirm(cpgT("campSendConfirm"))) return; var id=b.dataset.cpgcsend;
+    DB.rpc("bk_admin_campaign_send",{p_token:ADM.token,p_id:id,p_test:false}).then(function(raw){ var r=(raw&&raw.data)||{}; if((raw&&raw.error)||r.error){ admToast((raw&&raw.error&&raw.error.message)||r.error||"error","bad"); return } admToast("✓ "+(r.queued||0)); ADM.cpgCampaigns=null; render(); intakeAdmin("tick").catch(function(){}) }) } });
+  // automation
+  if($("#cpgAutoSave")) $("#cpgAutoSave").onclick=function(){
+    var patch={auto_notify_new_listing_on:!!$("#cpgAutoOn").checked};
+    $$("[data-cpgautoch]").forEach(function(i){ patch[i.dataset.cpgautoch]=!!i.checked });
+    DB.rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:patch},p_country:admScope()||COUNTRY}).then(function(r){
+      var m=$("#cpgAutoMsg"); if(r.error){ m.textContent=r.error.message||r.error; m.style.color="var(--danger)"; return }
+      m.textContent=t("saved"); m.style.color="var(--ok)"; ADM.countries=null; DB.rpc("bk_admin_countries",{p_token:ADM.token}).then(function(rr){ if(rr&&rr.data) ADM.countries=rr.data; render() }) }) };
 }
 
 /* ── Message intake page: connections, settings, drafts, log. Data: bk_admin_intake; actions through the bk-intake Edge Function. ── */

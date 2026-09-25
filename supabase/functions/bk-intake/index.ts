@@ -6,22 +6,31 @@
 // routes (POST unless noted)
 //   GET  /bk-intake/whatsapp   Meta's verification handshake (hub.verify_token = WA_VERIFY_TOKEN)
 //   POST /bk-intake/whatsapp   Meta webhook (X-Hub-Signature-256 checked with WA_APP_SECRET)
-//   POST /bk-intake/telegram   Telegram webhook (X-Telegram-Bot-Api-Secret-Token derived from the bot token); also the site's phone verification:
-//                              "/start v<ticket>" asks for the contact (request_contact), the contact message → bk_verify_tg_contact
+//   POST /bk-intake/telegram   Telegram webhook (X-Telegram-Bot-Api-Secret-Token derived from the bot token); also:
+//                              "/start v<ticket>" → signup/reset get the ticket's own code as a plain message (admin_reset
+//                              keeps the original "share my contact" button → bk_verify_tg_contact); "/start n<contact id>"
+//                              → the contacts-notebook Telegram opt-in (bk_contact_tg_open), a separate namespace/table
 //   POST /bk-intake/web        { token, text, country }  member: read pasted text → fields for the post form
 //   POST /bk-intake/search     { vid, text, country, lang }  anonymous, rate-limited by vid: free-text search → filters for the homepage AI search bar
 //   POST /bk-intake/verify     { ticket, secret, channel, email? }  send the ticket's code by WhatsApp (channel omitted
 //                              or "wa_code") or by email (channel "email"; email is the candidate address for signup only —
 //                              reset always uses the account's own on-file, already-verified address, never a client value)
-//   POST /bk-intake/tick       x-intake-key: INTAKE_TICK_SECRET (or { token } of an admin) → read the drafts whose sender went quiet
+//   POST /bk-intake/tick       x-intake-key: INTAKE_TICK_SECRET (or { token } of an admin) → read the drafts whose sender
+//                              went quiet, flush pending admin alerts, AND flush queued marketing/notification campaign
+//                              sends (campaignFlush) — the campaign composer only enqueues rows in campaign_sends; this
+//                              same per-minute cron tick is what actually calls WhatsApp/Telegram/email for them.
 //   POST /bk-intake/admin      { token, action, ... }  status | setup_telegram | read | publish | tick | test_claude | test_photo | admin_code
 //   GET  /bk-intake/health
 //
 // secrets (Supabase → Edge Functions → Secrets): TELEGRAM_BOT_TOKEN, WA_TOKEN, WA_PHONE_ID, WA_APP_SECRET,
 //   WA_VERIFY_TOKEN, ANTHROPIC_API_KEY, INTAKE_TICK_SECRET (optional), WAHA_URL + WAHA_API_KEY (self-hosted
-//   WhatsApp gateway for Syrian numbers, which Meta's Cloud API refuses), RESEND_API_KEY (email OTP channel,
-//   sends "from" info@balkoun.com via Resend; domain verified in Resend's dashboard). SUPABASE_URL /
-//   SUPABASE_SERVICE_ROLE_KEY are built in.
+//   WhatsApp gateway for Syrian numbers, which Meta's Cloud API refuses), RESEND_API_KEY (email OTP + campaign
+//   email channel, sends "from" info@balkoun.com via Resend; domain verified in Resend's dashboard). SUPABASE_URL /
+//   SUPABASE_SERVICE_ROLE_KEY are built in. No new secret for WhatsApp marketing sends — Syria still goes through
+//   WAHA (free text, no template), everyone else reuses WA_TOKEN/WA_PHONE_ID with a Marketing-category template
+//   (its name in site_content.extras.intake_marketing_wa_template, read through the existing bk_intake_cfg
+//   "intake_%" merge) that still needs creating + approval in Meta's own template manager before it can send
+//   anything — same gate as verify_wa_ready already uses for OTP.
 //
 // Reviewed 2026-09-18 (three-lens review + verification): per-chat advisory lock in SQL, self re-arming read timer,
 // photo size / count gates before download, no raw upload of undecodable files, token-redacted errors, country scope
@@ -168,6 +177,19 @@ async function waSendTemplate(to: string, template: string, lang: string, code: 
   catch { throw new Error("whatsapp template: network"); }
   if (!r.ok) throw new Error("whatsapp template " + r.status + " " + (await r.text()).slice(0, 300));
 }
+// marketing template: body params only, no copy-code button — a different shape from the OTP template
+// above because Meta's own template review dictates the approved shape, and a Marketing-category template
+// is never the same template as the Authentication one used for OTP. Adjust the params once the admin's
+// real marketing template is actually approved; this is a best-effort shape until then.
+async function waSendMarketingTemplate(to: string, template: string, lang: string, bodyParams: string[]) {
+  if (!ENV.waToken || !ENV.waPhone) throw new Error("whatsapp not configured");
+  const body = { messaging_product: "whatsapp", to: to.replace(/^\+/, ""), type: "template", template: { name: template, language: { code: lang || "ar" },
+    components: bodyParams.length ? [{ type: "body", parameters: bodyParams.map((t) => ({ type: "text", text: t })) }] : [] } };
+  let r: Response;
+  try { r = await fetch(`${GRAPH}/${ENV.waPhone}/messages`, { method: "POST", headers: { Authorization: "Bearer " + ENV.waToken, "Content-Type": "application/json" }, body: JSON.stringify(body) }); }
+  catch { throw new Error("whatsapp marketing template: network"); }
+  if (!r.ok) throw new Error("whatsapp marketing template " + r.status + " " + (await r.text()).slice(0, 300));
+}
 // Syrian numbers: Meta's official Cloud API refuses +963 entirely, so these go through a
 // self-hosted WAHA gateway instead — a real WhatsApp account linked by QR code, running in
 // Docker on a small VPS. Everything else keeps using waSendTemplate() above, unchanged.
@@ -191,16 +213,12 @@ async function wahaStatus(): Promise<{ configured: boolean; ok?: boolean; status
     return { configured: true, status: j.status, ok: j.status === "WORKING" };
   } catch (e) { return { configured: true, error: errStr(e) }; }
 }
-// email OTP channel: sends "from" info@balkoun.com through Resend — a plain REST call with a static
-// API-key header, same shape as wahaSend() above. balkoun.com is verified in Resend's dashboard.
-async function sendEmail(to: string, code: string) {
+// email sending: "from" info@balkoun.com through Resend — a plain REST call with a static API-key header,
+// same shape as wahaSend() above. balkoun.com is verified in Resend's dashboard. The OTP flow and the
+// campaign email channel both funnel through this one generic function.
+async function sendEmail(to: string, subject: string, html: string) {
   if (!ENV.resendKey) throw new Error("email not configured");
-  const body = {
-    from: "Balkoun <info@balkoun.com>",
-    to: [to],
-    subject: `${code} — Balkoun verification code`,
-    html: `<p>Your Balkoun verification code is:</p><p style="font-size:24px;font-weight:700;letter-spacing:2px">${code}</p><p>This code expires soon. If you didn't request it, you can ignore this email.</p>`,
-  };
+  const body = { from: "Balkoun <info@balkoun.com>", to: [to], subject, html };
   let r: Response;
   try {
     r = await fetch("https://api.resend.com/emails", {
@@ -210,6 +228,10 @@ async function sendEmail(to: string, code: string) {
     });
   } catch { throw new Error("email send: network"); }
   if (!r.ok) throw new Error("email send " + r.status + " " + (await r.text()).slice(0, 300));
+}
+async function sendOtpEmail(to: string, code: string) {
+  await sendEmail(to, `${code} — Balkoun verification code`,
+    `<p>Your Balkoun verification code is:</p><p style="font-size:24px;font-weight:700;letter-spacing:2px">${code}</p><p>This code expires soon. If you didn't request it, you can ignore this email.</p>`);
 }
 async function emailStatus(): Promise<{ configured: boolean }> {
   return { configured: !!ENV.resendKey };   // "the secret is set" is treated as ready, same as the other channels
@@ -275,6 +297,8 @@ const T = {
     verifyNone: `لا يوجد طلب تحقق مفتوح لهذه المحادثة. ابدأ من صفحة التسجيل في balkoun.com واضغط «تيليغرام».`,
     verifyOwnOnly: `أرسل رقمك أنت عبر الزر «مشاركة رقمي»، وليس جهة اتصال أخرى.`,
     verifyGone: `انتهت صلاحية طلب التحقق. ارجع إلى balkoun.com وابدأ من جديد.`,
+    contactTgLinked: `تم ✅ ستصلك تنبيهات بلكون على تيليغرام من الآن. لإيقافها راسلنا أو أوقفها من حسابك على الموقع.`,
+    contactTgGone: `تعذّر ربط هذا الرابط. جرّب فتحه من جديد من حسابك على balkoun.com.`,
   },
   en: {
     welcome: (name: string) => `Hello ${name} 👋\nSend the property details and photos here. When you are done, write "done".\nI will read the listing and send you a summary to approve before it is published.`,
@@ -316,6 +340,8 @@ const T = {
     verifyNone: `There is no open verification request for this chat. Start from the sign-up page on balkoun.com and press "Telegram".`,
     verifyOwnOnly: `Share your own number with the "Share my number" button, not another contact.`,
     verifyGone: `That verification request expired. Go back to balkoun.com and start again.`,
+    contactTgLinked: `Done ✅ You'll get Balkoun alerts on Telegram from now on. Message us or turn it off from your account on the site to stop.`,
+    contactTgGone: `Could not link this. Try opening the link again from your account on balkoun.com.`,
   },
 };
 const tx = (lang: string) => (lang === "en" ? T.en : T.ar);
@@ -721,6 +747,56 @@ async function notifyFlush(): Promise<number> {
   } catch (e) { console.error("notifyFlush", errStr(e)); return 0; }
   finally { _flushing = false; }
 }
+// marketing/notification campaigns: the composer (bk_admin_campaign_send) and the auto-new-listing DB
+// trigger both only INSERT rows into campaign_sends — this is what actually calls the providers, on the
+// same per-minute cron tick that already drives notifyFlush() above. Manual campaigns use their own
+// body_ar/body_en; an automatic 'auto_new_listing' row has no campaigns row at all, so its text is built
+// here from the listing detail bk_campaign_sends_pending already joins in.
+function campaignText(r: any): string {
+  if (r.trigger_type === "auto_new_listing" && r.listing_id) {
+    const price = r.listing_price ? `$${Number(r.listing_price).toLocaleString("en-US")}` : "";
+    const desc = String(r.listing_description || "").slice(0, 200);
+    return `عقار جديد يطابق اهتمامك${price ? " — " + price : ""}\n${desc}\n${SITE}/listing/${r.listing_id}`;
+  }
+  return r.body_ar || r.body_en || "";
+}
+function campaignEmailHtml(r: any): string {
+  const html = campaignText(r).split("\n").map((line: string) => `<p>${line}</p>`).join("");
+  const unsub = r.unsub_token ? `<p style="margin-top:24px;font-size:12px;color:#888">${SITE}/unsub/${r.unsub_token}</p>` : "";
+  return html + unsub;
+}
+let _campaignFlushing = false;
+async function campaignFlush(): Promise<number> {
+  if (_campaignFlushing) return 0; _campaignFlushing = true;
+  try {
+    const rows = await rpc<any[]>("bk_campaign_sends_pending", { p_limit: 200 });
+    if (!rows || !rows.length) return 0;
+    const okIds: number[] = []; const failed: { id: number; error: string }[] = [];
+    for (const r of rows) {
+      try {
+        if (r.channel === "telegram") {
+          if (!r.tg_chat_id) throw new Error("no_tg_chat");
+          await tg("sendMessage", { chat_id: r.tg_chat_id, text: campaignText(r) });
+        } else if (r.channel === "whatsapp") {
+          if (!r.phone) throw new Error("no_phone");
+          const text = campaignText(r);
+          if (r.phone.startsWith("+963")) await wahaSend(r.phone, text);
+          else {
+            const c = await cfg();   // reuses the existing generic "intake_%" extras merge — no new plumbing needed for these two keys
+            await waSendMarketingTemplate(r.phone, c.intake_marketing_wa_template || "balkoun_news", c.intake_marketing_wa_lang || "ar", [text.slice(0, 1000)]);
+          }
+        } else if (r.channel === "email") {
+          if (!r.email) throw new Error("no_email");
+          await sendEmail(r.email, r.subject || "Balkoun", campaignEmailHtml(r));
+        }
+        okIds.push(r.id);
+      } catch (e) { failed.push({ id: r.id, error: errStr(e) }); }
+    }
+    if (okIds.length || failed.length) await rpc("bk_campaign_sends_mark", { p_ok_ids: okIds, p_failed: failed });
+    return okIds.length;
+  } catch (e) { console.error("campaignFlush", errStr(e)); return 0; }
+  finally { _campaignFlushing = false; }
+}
 // drafts whose sender went quiet
 let _ticking = false;
 async function tick(): Promise<number> {
@@ -736,6 +812,7 @@ async function tick(): Promise<number> {
       }
     }
     await notifyFlush();
+    await campaignFlush();
     return (due || []).length;
   } finally { _ticking = false; }
 }
@@ -796,6 +873,15 @@ async function verifyStart(m: Incoming, hex: string, c: Cfg): Promise<void> {
     await tg("sendMessage", { chat_id: m.chat, text: t.verifyAsk(r.tail || ""), reply_markup: { keyboard: [[{ text: t.verifyBtn, request_contact: true }]], one_time_keyboard: true, resize_keyboard: true } });
   } catch (e) { await log(null, m.chat, "warn", "verify_ask_failed", { error: errStr(e) }); }
 }
+// contacts-notebook Telegram opt-in: "/start n<contact id, 32 hex>" — a separate namespace and a separate
+// table from the verification flow above (bk_contact_tg_open writes to contacts, not verify_tickets), so
+// the two deep links can never collide even though both start with "/start ".
+async function contactTgOpen(m: Incoming, hex: string, c: Cfg): Promise<void> {
+  const t = vLang(m, c);
+  const contactId = hex.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, "$1-$2-$3-$4-$5");
+  const r = await rpc<any>("bk_contact_tg_open", { p_contact_id: contactId, p_chat_id: m.chat, p_name: m.senderName });
+  await reply(m.source, m.chat, r?.ok ? t.contactTgLinked : t.contactTgGone);
+}
 async function verifyContact(chat: string, contact: any, from: any, lang: string): Promise<void> {
   const c = await cfg(); const t = vLang({ lang }, c);
   const remove = { reply_markup: { remove_keyboard: true } };
@@ -812,6 +898,8 @@ async function handleIncoming(m: Incoming) {
   const t = tx(c.intake_reply_lang === "en" ? "en" : "ar");
   const vm = m.source === "telegram" ? (m.text || "").trim().match(/^\/start\s+v([0-9a-f]{32})$/i) : null;
   if (vm) { await verifyStart(m, vm[1].toLowerCase(), c); return; }
+  const nm = m.source === "telegram" ? (m.text || "").trim().match(/^\/start\s+n([0-9a-f]{32})$/i) : null;
+  if (nm) { await contactTgOpen(m, nm[1].toLowerCase(), c); return; }
   if (c.intake_enabled === false || (m.source === "telegram" && c.intake_telegram_on === false) || (m.source === "whatsapp" && c.intake_whatsapp_on === false)) return;
   // pairing: /start <code> (Telegram) or "ربط <code>" / "link <code>"
   const pairMatch = (m.text || "").trim().match(/^(?:\/start|ربط|link|pair)\s+([A-Za-z0-9-]{4,40})$/i);
@@ -963,7 +1051,7 @@ async function routeVerify(req: Request): Promise<Response> {
   const logKey = c.via === "email" ? "verify:email" : "verify:" + c.phone.slice(-4);
   if (c.via === "email") {
     if (!ENV.resendKey) return json({ error: "wa_off" }, 503);
-    try { await sendEmail(c.to, c.code); }
+    try { await sendOtpEmail(c.to, c.code); }
     catch (e) { await log(null, logKey, "error", "verify_send_failed", { error: errStr(e) }); return json({ error: "send_failed" }, 502); }
   } else if (c.via === "waha") {
     if (!ENV.wahaUrl || !ENV.wahaKey) return json({ error: "wa_off" }, 503);
