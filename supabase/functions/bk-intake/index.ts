@@ -1121,8 +1121,24 @@ async function routeWahaIncoming(req: Request): Promise<Response> {
   if (body.event !== "message") return json({ ok: true });   // ignore message.ack, state.change, etc.
   const p = body.payload || {};
   if (p.fromMe) return json({ ok: true });   // our own OTP/reply/campaign sends echoed back
-  const from = String(p.from || "");
-  if (!from.endsWith("@c.us")) return json({ ok: true });   // ignore groups (@g.us) and anything unexpected
+  let from = String(p.from || "");
+  // Newer WhatsApp/WAHA builds hide the phone behind a LID ("1234…@lid"). WAHA exposes the real number
+  // either inline (_data.key.senderPn / remoteJidAlt) or through GET /api/{session}/lids/{lid} → { pn }.
+  if (from.endsWith("@lid")) {
+    const alt = String(p._data?.key?.senderPn || p._data?.key?.remoteJidAlt || p._data?.key?.participantPn || "");
+    if (alt.endsWith("@c.us") || alt.endsWith("@s.whatsapp.net")) from = alt.replace(/@s\.whatsapp\.net$/, "@c.us");
+    else if (ENV.wahaUrl && ENV.wahaKey) {
+      try {
+        const r = await fetch(ENV.wahaUrl.replace(/\/$/, "") + "/api/default/lids/" + encodeURIComponent(from.replace(/@lid$/, "")), { headers: { "X-Api-Key": ENV.wahaKey } });
+        const j = await r.json().catch(() => ({}));
+        if (j?.pn) from = String(j.pn).replace(/@s\.whatsapp\.net$/, "@c.us");
+      } catch { /* fall through to the warn below */ }
+    }
+  }
+  if (!from.endsWith("@c.us")) {   // groups (@g.us), unresolved LIDs, anything unexpected — logged so it is not silent
+    await log(null, "waha:" + from, "warn", "waha_ignored", { from: p.from, keys: Object.keys(p._data?.key || {}), hasMedia: !!p.hasMedia });
+    return json({ ok: true });
+  }
   const chat = "+" + from.replace(/@c\.us$/, "");
   let kind = "text", media: any = null, fetchMedia: Incoming["fetchMedia"];
   const mime = p.media?.mimetype || "";
