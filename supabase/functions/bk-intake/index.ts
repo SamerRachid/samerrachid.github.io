@@ -6,6 +6,9 @@
 // routes (POST unless noted)
 //   GET  /bk-intake/whatsapp   Meta's verification handshake (hub.verify_token = WA_VERIFY_TOKEN)
 //   POST /bk-intake/whatsapp   Meta webhook (X-Hub-Signature-256 checked with WA_APP_SECRET)
+//   POST /bk-intake/waha       WAHA webhook (Syrian listing intake, X-Webhook-Hmac checked with WAHA_WEBHOOK_SECRET) —
+//                              same reading/pairing pipeline as Meta's /whatsapp above, told apart at reply time by
+//                              the +963 prefix; set up once via /bk-intake/admin action "waha_setup_webhook"
 //   POST /bk-intake/telegram   Telegram webhook (X-Telegram-Bot-Api-Secret-Token derived from the bot token); also:
 //                              "/start v<ticket>" → signup/reset get the ticket's own code as a plain message (admin_reset
 //                              keeps the original "share my contact" button → bk_verify_tg_contact); "/start n<contact id>"
@@ -24,8 +27,11 @@
 //
 // secrets (Supabase → Edge Functions → Secrets): TELEGRAM_BOT_TOKEN, WA_TOKEN, WA_PHONE_ID, WA_APP_SECRET,
 //   WA_VERIFY_TOKEN, ANTHROPIC_API_KEY, INTAKE_TICK_SECRET (optional), WAHA_URL + WAHA_API_KEY (self-hosted
-//   WhatsApp gateway for Syrian numbers, which Meta's Cloud API refuses), RESEND_API_KEY (email OTP + campaign
-//   email channel, sends "from" info@balkoun.com via Resend; domain verified in Resend's dashboard). SUPABASE_URL /
+//   WhatsApp gateway for Syrian numbers, which Meta's Cloud API refuses) + WAHA_WEBHOOK_SECRET (HMAC key for
+//   incoming WAHA messages — a value only Claude/the admin knows, matched against WAHA's own X-Webhook-Hmac
+//   header; also handed to WAHA itself via the "waha_setup_webhook" admin action, never stored anywhere else),
+//   RESEND_API_KEY (email OTP + campaign email channel, sends "from" info@balkoun.com via Resend; domain
+//   verified in Resend's dashboard). SUPABASE_URL /
 //   SUPABASE_SERVICE_ROLE_KEY are built in. No new secret for WhatsApp marketing sends — Syria still goes through
 //   WAHA (free text, no template), everyone else reuses WA_TOKEN/WA_PHONE_ID with a Marketing-category template
 //   (its name in site_content.extras.intake_marketing_wa_template, read through the existing bk_intake_cfg
@@ -51,6 +57,7 @@ const ENV = {
   tick: Deno.env.get("INTAKE_TICK_SECRET") || "",
   wahaUrl: Deno.env.get("WAHA_URL") || "",
   wahaKey: Deno.env.get("WAHA_API_KEY") || "",
+  wahaWebhookSecret: Deno.env.get("WAHA_WEBHOOK_SECRET") || "",
   resendKey: Deno.env.get("RESEND_API_KEY") || "",
 };
 const BUCKET = "photos";
@@ -78,6 +85,7 @@ function errStr(e: unknown): string {
   if (ENV.waToken) s = s.split(ENV.waToken).join("***");
   if (ENV.anthropic) s = s.split(ENV.anthropic).join("***");
   if (ENV.wahaKey) s = s.split(ENV.wahaKey).join("***");
+  if (ENV.wahaWebhookSecret) s = s.split(ENV.wahaWebhookSecret).join("***");
   if (ENV.resendKey) s = s.split(ENV.resendKey).join("***");
   return s.slice(0, 400);
 }
@@ -90,8 +98,8 @@ async function sha256hex(s: string): Promise<string> {
   const h = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
   return Array.from(new Uint8Array(h)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
-async function hmacHex(secret: string, body: string): Promise<string> {
-  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+async function hmacHex(secret: string, body: string, hash: "SHA-256" | "SHA-512" = "SHA-256"): Promise<string> {
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash }, false, ["sign"]);
   const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(body));
   return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
@@ -213,6 +221,16 @@ async function wahaStatus(): Promise<{ configured: boolean; ok?: boolean; status
     return { configured: true, status: j.status, ok: j.status === "WORKING" };
   } catch (e) { return { configured: true, error: errStr(e) }; }
 }
+// incoming media from a WAHA webhook arrives as a direct URL on the WAHA server itself (not a media id
+// needing a lookup step like Telegram/Meta) — still needs the API key header to actually download it.
+async function wahaDownloadMedia(url: string): Promise<{ bytes: Uint8Array; size: number; mime: string }> {
+  let r: Response;
+  try { r = await fetch(url, { headers: { "X-Api-Key": ENV.wahaKey } }); } catch { throw new Error("waha media: network"); }
+  if (!r.ok) throw new Error("waha media " + r.status);
+  const bytes = new Uint8Array(await r.arrayBuffer());
+  if (bytes.length > MAX_PHOTO_BYTES) throw new Error("too_big");
+  return { bytes, size: bytes.length, mime: r.headers.get("content-type") || "" };
+}
 // email sending: "from" info@balkoun.com through Resend — a plain REST call with a static API-key header,
 // same shape as wahaSend() above. balkoun.com is verified in Resend's dashboard. The OTP flow and the
 // campaign email channel both funnel through this one generic function.
@@ -251,7 +269,10 @@ async function waDownload(mediaId: string): Promise<{ bytes: Uint8Array; size: n
 async function reply(source: string, chat: string, text: string) {
   try {
     if (source === "telegram") await tg("sendMessage", { chat_id: chat, text, disable_web_page_preview: false });
-    else if (source === "whatsapp") await waSend(chat, text);
+    // both a WAHA-received chat and a Meta-received chat come through as source==="whatsapp" (there's no
+    // separate DB-level channel for it — same as Telegram already juggles one bot for several purposes);
+    // the +963 prefix is what tells them apart, since Meta never accepts a Syrian number in the first place.
+    else if (source === "whatsapp") { if (chat.replace(/^\+/, "").startsWith("963")) await wahaSend(chat, text); else await waSend(chat, text); }
   } catch (e) { await log(null, chat, "warn", "reply_failed", { source, error: errStr(e) }); }
 }
 
@@ -585,6 +606,10 @@ const SEARCH_TOOL = {
       price_max: { type: "number", description: "highest acceptable price as a plain USD number, or omit" },
       rooms_min: { type: "integer", description: "minimum room count if a number of rooms is stated" },
       tabu: { type: "string", description: "a deed code from the taxonomy if the query names one, else omit" },
+      furnished: { type: "boolean", description: "true when the visitor wants a furnished place (مفروش / مفروشة / furnished), false when explicitly unfurnished (غير مفروش / فاضي); omit otherwise" },
+      rental_period: { type: "string", enum: ["daily", "weekly", "monthly", "yearly"], description: "the rental period when the query says يومي / أسبوعي / شهري / سنوي (daily / weekly / monthly / yearly); omit otherwise" },
+      condition: { type: "string", description: "a condition code from the taxonomy (conditions, or land_conditions for land) when the query names one, else omit" },
+      by_owner: { type: "boolean", description: "true when the visitor wants listings from the owner directly (من المالك / بدون وسيط / بدون مكتب / owner only); omit otherwise" },
       keyword: { type: "string", description: "a short leftover term (a landmark, a feature) not covered by the fields above, or omit" },
       confidence: { type: "number", description: "0–1 how confident this is a real-estate search rather than noise" },
     },
@@ -598,7 +623,10 @@ Rules:
 - Prices: "85 ألف" = 85000, "مليون و200" = 1200000. "تحت"/"لغاية"/"حتى"/"أقل من" X = price_max X. "فوق"/"أكثر من" X = price_min X. "بين A و B" = price_min A, price_max B. Assume USD unless another currency is written; if a non-USD figure is given, leave price fields empty rather than guessing an exchange rate.
 - Sizes/rooms: "3 غرف" or "٣ غرف" = rooms_min 3. "استوديو" implies an apartment type, not a room count.
 - Deal: "للبيع"/"بيع" = sale; "للإيجار"/"إيجار"/"أجار" = rent. If the query names neither word, omit "deal" entirely — do NOT guess rent or sale from the price size or anything else; a bare price like "تحت 80 ألف دولار" with no deal word means search both.
-- If the query names a real place that is not in the taxonomy (a street, a compound, a landmark), put it in "keyword", not governorate/area.
+- "مفروش"/"مفروشة"/"furnished" = furnished true; "غير مفروش"/"فاضي" = furnished false. "يومي"/"أسبوعي"/"شهري"/"سنوي" (daily/weekly/monthly/yearly) = rental_period. A furnished or rental-period word is a real rent word (not a price guess): set deal = rent when one appears and no sale word does.
+- "من المالك"/"بدون وسيط"/"بدون مكتب"/"owner only" = by_owner true.
+- Condition words map to the taxonomy's condition codes exactly like a listing: "سليم"/"جاهز"/"ديلوكس" = intact, "على العظم" = shell, "بحاجة ترميم" = repair, "معفش" = stripped (Syria only), "متضرر" = damaged (only codes present in the taxonomy).
+- If the query names a real place that is not in the taxonomy (a street, a compound, a landmark), put it in "keyword", not governorate/area. Do not put words already captured by another field (a type, a place, "مفروشة", a deed) into keyword.
 - Answer only by calling the tool.`;
 function settleSearch(f: Record<string, any>, tax: any) {
   const out: Record<string, any> = {};
@@ -611,6 +639,11 @@ function settleSearch(f: Record<string, any>, tax: any) {
   if (out.price_min && out.price_max && out.price_min > out.price_max) { const s = out.price_min; out.price_min = out.price_max; out.price_max = s; }
   if (Number(f.rooms_min) > 0) out.rooms_min = Math.min(10, Math.round(Number(f.rooms_min)));
   if (f.tabu && (tax.deeds || []).some((d: any) => d.code === f.tabu)) out.tabu = f.tabu;
+  if (typeof f.furnished === "boolean") out.furnished = f.furnished;
+  if (["daily", "weekly", "monthly", "yearly"].includes(f.rental_period)) out.rental_period = f.rental_period;
+  if (f.condition && [...(tax.conditions || []), ...(tax.land_conditions || [])].some((c: any) => c.code === f.condition)) out.condition = f.condition;
+  if (f.by_owner === true) out.by_owner = true;
+  if (!out.deal && (out.furnished !== undefined || out.rental_period)) out.deal = "rent";   // a furnished / period word is a rent word (the price-only guess stays forbidden)
   if (f.keyword) out.keyword = String(f.keyword).trim().slice(0, 80);
   return out;
 }
@@ -625,6 +658,10 @@ function searchSummary(f: Record<string, any>, tax: any, lang: string): string {
   else if (f.price_min) parts.push((ar ? "من " : "from ") + fmtNum(f.price_min) + "$");
   if (f.rooms_min) parts.push(f.rooms_min + (ar ? "+ غرف" : "+ rooms"));
   const deed = (tax.deeds || []).find((d: any) => d.code === f.tabu); if (deed) parts.push(ar ? deed.ar : deed.en);
+  if (f.furnished === true) parts.push(ar ? "مفروش" : "furnished"); else if (f.furnished === false) parts.push(ar ? "غير مفروش" : "unfurnished");
+  if (f.rental_period) parts.push(({ daily: ar ? "يومي" : "daily", weekly: ar ? "أسبوعي" : "weekly", monthly: ar ? "شهري" : "monthly", yearly: ar ? "سنوي" : "yearly" } as any)[f.rental_period]);
+  const cond = [...(tax.conditions || []), ...(tax.land_conditions || [])].find((c: any) => c.code === f.condition); if (cond) parts.push(ar ? cond.ar : (cond.en || cond.ar));
+  if (f.by_owner) parts.push(ar ? "من المالك" : "by owner");
   if (f.keyword) parts.push(f.keyword);
   return parts.join(ar ? " · " : " · ");
 }
@@ -1030,6 +1067,34 @@ async function routeWhatsApp(req: Request): Promise<Response> {
   await Promise.race([all, delay(15_000)]);
   return json({ ok: true });
 }
+// incoming messages from the self-hosted WAHA gateway (Syrian numbers, the same session wahaSend() already
+// uses for OTP) — a separate route from routeWhatsApp() above because the payload shape, auth, and even
+// what "the sender" looks like are completely different from Meta's webhook. Reuses source:"whatsapp" for
+// storage (same pairing/reading pipeline as Meta, no new DB column or CHECK-constraint value needed) — the
+// two are told apart at reply time in reply() by the +963 prefix, since Meta never accepts one anyway.
+async function routeWahaIncoming(req: Request): Promise<Response> {
+  if (!ENV.wahaWebhookSecret) return json({ error: "waha webhook not configured" }, 503);
+  const raw = await req.text();
+  const sig = req.headers.get("x-webhook-hmac") || "";
+  if (!sig || !timingEqual(sig, await hmacHex(ENV.wahaWebhookSecret, raw, "SHA-512"))) return json({ error: "bad signature" }, 401);
+  const body = JSON.parse(raw || "{}");
+  if (body.event !== "message") return json({ ok: true });   // ignore message.ack, state.change, etc.
+  const p = body.payload || {};
+  if (p.fromMe) return json({ ok: true });   // our own OTP/reply/campaign sends echoed back
+  const from = String(p.from || "");
+  if (!from.endsWith("@c.us")) return json({ ok: true });   // ignore groups (@g.us) and anything unexpected
+  const chat = "+" + from.replace(/@c\.us$/, "");
+  let kind = "text", media: any = null, fetchMedia: Incoming["fetchMedia"];
+  const mime = p.media?.mimetype || "";
+  if (p.hasMedia && p.media?.url && /^image\//.test(mime)) { kind = "photo"; media = { url: p.media.url, mime }; fetchMedia = () => wahaDownloadMedia(p.media.url); }
+  else if (p.hasMedia) kind = "video";   // any other WAHA media (video/audio/document) — same bucket as Telegram's, not read
+  const text = p.body ?? null;
+  if (kind === "text" && !text) return json({ ok: true });
+  const work = handleIncoming({ source: "whatsapp", chat, externalId: String(p.id || (chat + ":" + p.timestamp)), kind, text, media, payload: { waha: true, timestamp: p.timestamp }, senderName: p.notifyName || p._data?.notifyName || "", lang: "ar", fetchMedia });
+  background(work); background(work.then(() => notifyFlush()));
+  await Promise.race([work, delay(15_000)]);
+  return json({ ok: true });
+}
 async function routeWeb(req: Request): Promise<Response> {
   const b = await req.json().catch(() => null);
   if (!b || typeof b.token !== "string" || b.token.length < 20) return json({ error: "unauthorised" }, 401);
@@ -1126,6 +1191,25 @@ async function routeAdmin(req: Request): Promise<Response> {
     _cfg = null;
     return json({ ok: true, bot: me.username, webhook: await tg("getWebhookInfo", {}) });
   }
+  if (a === "waha_setup_webhook") {
+    if (!(await adminCan(b.token, null))) return json({ error: "unauthorised" }, 403);
+    if (!ENV.wahaUrl || !ENV.wahaKey) return json({ error: "waha not configured" }, 503);
+    if (!ENV.wahaWebhookSecret) return json({ error: "webhook secret not configured" }, 503);
+    // per WAHA's own docs: reconfiguring a running session's webhook briefly stops and restarts it — the
+    // linked WhatsApp account's own auth persists (no QR re-scan needed), but OTP delivery has a short gap
+    // while it restarts. wahaStatus() right after this call is how the caller confirms it came back up.
+    let r: Response;
+    try {
+      r = await fetch(ENV.wahaUrl.replace(/\/$/, "") + "/api/sessions/default", {
+        method: "PUT",
+        headers: { "X-Api-Key": ENV.wahaKey, "Content-Type": "application/json" },
+        body: JSON.stringify({ name: "default", config: { webhooks: [{ url: FN_URL + "/waha", events: ["message"], hmac: { key: ENV.wahaWebhookSecret } }] } }),
+      });
+    } catch (e) { return json({ error: "network: " + errStr(e) }, 502); }
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) return json({ error: "waha " + r.status + " " + JSON.stringify(j).slice(0, 300) }, 502);
+    return json({ ok: true, session: j });
+  }
   if (a === "admin_code") {
     if (!(await adminCan(b.token, null))) return json({ error: "unauthorised" }, 403);
     const c = await cfg(); let code = c.intake_admin_code;
@@ -1166,6 +1250,7 @@ Deno.serve(async (req: Request) => {
     if (route === "health") return json({ ok: true, telegram: !!ENV.tg, whatsapp: !!(ENV.waToken && ENV.waPhone), claude: !!ENV.anthropic });
     if (route === "telegram" && req.method === "POST") return await routeTelegram(req);
     if (route === "whatsapp") return await routeWhatsApp(req);
+    if (route === "waha" && req.method === "POST") return await routeWahaIncoming(req);
     if (route === "web" && req.method === "POST") return await routeWeb(req);
     if (route === "search" && req.method === "POST") return await routeSearch(req);
     if (route === "verify" && req.method === "POST") return await routeVerify(req);
