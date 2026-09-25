@@ -2958,14 +2958,17 @@ body.mdw-open .mobfab{display:none}
   .ad-prog{display:none}
 }
 @media(max-width:640px){.home-hero .hero-outer:has(.chipsel-drop.on){z-index:70}}   /* an open filter sheet and its backdrop sit above the page header */
-/* ── AI search bar (homepage): under the structured bar, same width/height vars, its own quieter look ── */
-.home-hero .aisearch{margin:14px auto 0;max-width:var(--sbar-w,1220px);position:relative}
-.home-hero .aisearch-pill{position:relative;display:flex;align-items:center;gap:8px;height:var(--sbar-h,44px);min-height:44px;padding:4px;background:rgba(255,255,255,.97);border-radius:14px;box-shadow:0 18px 44px -22px rgba(9,14,26,.75),0 0 0 1px rgba(255,255,255,.55);max-width:none;margin:0;transition:box-shadow .25s}
-.home-hero .aisearch-pill::before{content:"";position:absolute;inset:-2px;border-radius:16px;padding:2px;pointer-events:none;background:linear-gradient(90deg,rgba(227,181,99,0) 0%,rgba(227,181,99,0) 24%,#E3B563 38%,#FFF8E6 50%,#E3B563 62%,rgba(227,181,99,0) 76%,rgba(227,181,99,0) 100%) 0 0/200% 100% no-repeat;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;opacity:0;transition:opacity .3s}
-.home-hero .aisearch-pill:focus-within{box-shadow:0 22px 48px -22px rgba(9,14,26,.8),0 0 0 1px rgba(227,181,99,.55)}
-.home-hero .aisearch.thinking .aisearch-pill::before{opacity:1;animation:sbarShine 1.4s linear infinite}
+/* ── AI search bar (homepage): under the structured bar — same width/height vars, follows its vertical offset
+   (plus its own --ai-bar-y from the admin studio), and carries the same moving gold shine ── */
+.home-hero .aisearch{position:relative;top:calc(var(--sbar-y,0px) + var(--ai-bar-y,0px));margin:14px auto 0;max-width:var(--sbar-w,1220px)}
+.home-hero .aisearch-pill{position:relative;display:flex;align-items:center;gap:8px;height:var(--sbar-h,44px);min-height:44px;padding:4px;background:#fff;border-radius:14px;box-shadow:0 18px 44px -22px rgba(9,14,26,.75),0 0 0 1px rgba(227,181,99,.35);max-width:none;margin:0;transition:box-shadow .25s}
+.home-hero .aisearch-pill::before,.home-hero .aisearch-pill::after{content:"";position:absolute;pointer-events:none;background:linear-gradient(90deg,rgba(255,220,140,0) 0%,rgba(255,220,140,0) 24%,#E3B563 38%,#FFF8E6 50%,#E3B563 62%,rgba(255,220,140,0) 76%,rgba(255,220,140,0) 100%) 0 0/200% 100% no-repeat;animation:sbarShine 5.2s linear 1.3s infinite}
+.home-hero .aisearch-pill::before{inset:-3px;border-radius:17px;padding:3px;z-index:3;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
+.home-hero .aisearch-pill::after{inset:-8px;border-radius:21px;padding:8px;z-index:-1;filter:blur(10px);opacity:.9;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
+.home-hero .aisearch.thinking .aisearch-pill::before,.home-hero .aisearch.thinking .aisearch-pill::after{animation-duration:1.4s;animation-delay:0s}
+.home-hero .aisearch-pill:focus-within{box-shadow:0 22px 48px -22px rgba(9,14,26,.8),0 0 0 1px rgba(227,181,99,.7)}
 .home-hero .aisearch-badge{position:static;inset:auto;top:auto;bottom:auto;flex:none;height:100%;display:inline-flex;align-items:center;gap:6px;padding:0 12px;border-radius:10px;background:var(--navy);color:#fff;font:800 12.5px/1 var(--f);white-space:nowrap;pointer-events:none}
-.home-hero .aisearch-badge svg{width:13px;height:13px;color:#E3B563;filter:drop-shadow(0 0 4px rgba(227,181,99,.65))}
+.home-hero .aisearch-badge svg{width:16px;height:16px;color:#E3B563;filter:drop-shadow(0 0 4px rgba(227,181,99,.7));animation:pinSpin 5s cubic-bezier(.6,0,.3,1) 3s infinite;transform-style:preserve-3d}
 .home-hero .aisearch-pill input{flex:1;min-width:0;height:100%;border:0;background:transparent;outline:0;font:500 14px var(--f);color:var(--navy);padding:0 6px;text-align:start}
 .home-hero .aisearch-pill input::placeholder{color:#7A8299}
 .home-hero .aisearch-go{position:relative;flex:none;width:44px;height:100%;border:0;border-radius:10px;background:linear-gradient(135deg,#D9A23A,#C4881F);color:#1A1206;display:grid;place-items:center;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.35);transition:transform .18s,filter .18s}
@@ -2976,10 +2979,6 @@ body.mdw-open .mobfab{display:none}
 .home-hero .aisearch.thinking .aisearch-go .mi{visibility:hidden}
 .home-hero .aisearch.thinking .aisearch-spin{display:block}
 @keyframes aiSpin{to{transform:rotate(360deg)}}
-.home-hero .aisearch-chips{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px;margin-top:10px}
-.home-hero .aisearch-try{font:600 12.5px var(--f);color:rgba(255,255,255,.72)}
-.home-hero .aisearch-chip{border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:6px 12px;font:500 12.5px/1.2 var(--f);cursor:pointer;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:background .18s,border-color .18s,transform .18s;white-space:nowrap}
-.home-hero .aisearch-chip:hover{background:rgba(255,255,255,.2);border-color:rgba(227,181,99,.75);transform:translateY(-1px)}
 .home-hero .aisearch-result{margin-top:9px;text-align:center;font-size:13px;line-height:1.5;color:rgba(255,255,255,.88);text-shadow:0 1px 8px rgba(9,14,26,.5)}
 .home-hero .aisearch-result.warn{color:#FFD98A}
 .home-hero .aisearch-result.danger{color:#FFB4B4}
@@ -2989,15 +2988,15 @@ body.mdw-open .mobfab{display:none}
 .home-hero .aisearch.glass .aisearch-pill input::placeholder{color:rgba(255,255,255,.72)}
 .home-hero .aisearch.glass .aisearch-badge{background:rgba(20,33,61,.85)}
 @media(max-width:640px){
-  .home-hero .aisearch{margin-top:12px;max-width:var(--sbar-w-m,var(--sbar-w,100%))}
+  .home-hero .aisearch{margin-top:12px;max-width:var(--sbar-w-m,var(--sbar-w,100%));top:calc(var(--sbar-y-m,var(--sbar-y,0px)) + var(--ai-bar-y-m,var(--ai-bar-y,0px)))}
   .home-hero .aisearch-pill{height:var(--sbar-h-m,var(--sbar-h,50px));min-height:50px}
   .home-hero .aisearch-badge{padding:0 10px;font-size:12px}
   .home-hero .aisearch-pill input{font-size:13.5px}
-  .home-hero .aisearch-chips{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;scrollbar-width:none;padding:2px 4px 4px;margin-inline:-4px;-webkit-overflow-scrolling:touch}
-  .home-hero .aisearch-chips::-webkit-scrollbar{display:none}
-  .home-hero .aisearch-try,.home-hero .aisearch-chip{flex:none}
 }
-@media (prefers-reduced-motion:reduce){.home-hero .aisearch.thinking .aisearch-pill::before{animation:none;background-position:50% 0}}
+/* the stats line under the bars keeps clear of a bar pushed down from the studio */
+.home-hero .hnote{margin-top:calc(14px + max(var(--sbar-y,0px),0px) + max(var(--ai-bar-y,0px),0px))}
+@media(max-width:700px){.home-hero .hnote{margin-top:calc(12px + max(var(--sbar-y-m,var(--sbar-y,0px)),0px) + max(var(--ai-bar-y-m,var(--ai-bar-y,0px)),0px))}}
+@media (prefers-reduced-motion:reduce){.home-hero .aisearch-pill::before,.home-hero .aisearch-pill::after{animation:none;background-position:50% 0}.home-hero .aisearch-badge svg{animation:none}}
 /* ── account › channels: Telegram link card + consent switches; signup consent box ── */
 .acch-tg{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line-2);border-radius:14px;background:#fff;margin-bottom:10px;flex-wrap:wrap}
 .acch-tg .vico{width:38px;height:38px;border-radius:11px}.acch-tg .vico svg{width:22px;height:22px}
@@ -7174,20 +7173,18 @@ function softRenderHero(){
 // self-contained widget (own markup, own wiring) so it never touches the well-tested filter bar.
 // Styled after Bayut's: one always-visible pill, the "AI" badge fixed at the inline-start, a
 // placeholder inviting a plain-language search, submit icon at the inline-end ──
-var AI_SPARKLE='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 3l1.6 6.4L20 11l-6.4 1.6L12 19l-1.6-6.4L4 11l6.4-1.6L12 3Z"/></svg>';
+// the "AI sparkles" mark (a big four-point star with a small one, like Bayut's) — it flips like the map pin
+var AI_SPARKLE='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9.5 2.5l2 5.9 5.9 2-5.9 2-2 5.9-2-5.9-5.9-2 5.9-2 2-5.9Z"/><path d="M18 13l1.1 3.1 3.1 1.1-3.1 1.1L18 21.4l-1.1-3.1-3.1-1.1 3.1-1.1L18 13Z"/></svg>';
 function aiSearchBarHtml(){
   var on=function(k,d){ var v=SX(k,d); return !(v===false||v==="false") };
   if(!on("ai_bar_on",true)) return "";
   var glass=SX("ai_bar_glass",false)===true||SX("ai_bar_glass",false)==="true";
-  // the example chips reuse the rotating-placeholder examples, without their "e.g." prefix
-  var ex=[GX("aiSearchEx1"),GX("aiSearchEx2"),GX("aiSearchEx3")].map(function(s){ return s.replace(/^(مثال|e\.g\.|z\. ?B\.)\s*[:：]?\s*/i,"") });
   return '<div class="aisearch'+(glass?" glass":"")+'" id="aiSearchBox">'+
     '<div class="aisearch-pill">'+
       '<span class="aisearch-badge">'+AI_SPARKLE+'<span>'+GX("aiSearchBadge")+'</span></span>'+
       '<input id="aiSearchInput" type="text" data-allow-autofill autocomplete="off" enterkeyhint="search" placeholder="'+esc(GX("aiSearchPH"))+'" maxlength="200" aria-label="'+esc(GX("aiSearchPH"))+'">'+
       '<button type="button" id="aiSearchGo" class="aisearch-go" aria-label="'+esc(GX("aiSearchGo"))+'">'+MI.search+'<span class="aisearch-spin" aria-hidden="true"></span></button>'+
     '</div>'+
-    (on("ai_bar_examples",true) ? '<div class="aisearch-chips"><span class="aisearch-try">'+GX("aiSearchTry")+'</span>'+ex.map(function(s){ return '<button type="button" class="aisearch-chip" data-aiex="'+esc(s)+'">'+esc(s)+'</button>' }).join("")+'</div>' : '')+
     '<div class="aisearch-result" id="aiSearchResult" hidden></div>'+
   '</div>';
 }
@@ -7198,7 +7195,6 @@ function wireAiSearchBar(){
   if(!inp||!btn) return;
   btn.onclick=aiSearchRun;
   inp.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); aiSearchRun() } };
-  $$("[data-aiex]").forEach(function(b){ b.onclick=function(){ var i=$("#aiSearchInput"); if(!i) return; i.value=this.dataset.aiex; aiSearchRun() } });
   // the placeholder "types" a few example searches while the field is empty and unfocused (plain swap under reduced motion)
   var examples=[GX("aiSearchPH"),GX("aiSearchEx1"),GX("aiSearchEx2"),GX("aiSearchEx3")], i=0, pos=examples[0].length, phase="hold", holdUntil=Date.now()+3600;
   var reduce=false; try{ reduce=matchMedia("(prefers-reduced-motion: reduce)").matches }catch(e){}
@@ -10322,7 +10318,6 @@ var GX_T={
   qfMenuT:{ar:"انشر من نص جاهز",en:"Post from text",de:"Aus Text erstellen"},
   qfMenuP:{ar:"الصق الوصف وبلكون يعبّي الاستمارة",en:"Paste the description, we fill the form",de:"Text einfügen — wir füllen das Formular"},
   aiSearchBadge:{ar:"اسأل AI",en:"Ask AI",de:"KI fragen"},
-  aiSearchTry:{ar:"جرّب:",en:"Try:",de:"Probieren:"},
   aiSearchThinking:{ar:"نفهم طلبك…",en:"Understanding your search…",de:"Ihre Suche wird verstanden…"},
   aiSearchNoMatch:{ar:"لم نفهم طلباً عقارياً من هذا النص. جرّب مثلاً: شقة 3 غرف بالمزة تحت 80 ألف دولار",en:"That didn't read as a property search. Try something like: 3-bedroom apartment in Mazzeh under $80,000",de:"Das war keine erkennbare Immobiliensuche. Versuchen Sie z. B.: 3-Zimmer-Wohnung in Mazzeh unter 80.000 $"},
   aiSearchPH:{ar:"ابحث عن منزل أحلامك باستخدام الذكاء الاصطناعي",en:"Search for your dream home using AI",de:"Suchen Sie Ihr Traumhaus mit KI"},
@@ -10544,7 +10539,7 @@ function applySiteExtras(){ try{ var R=document.documentElement.style;
   var setOr=function(name,v,unit){ if(v===""||v===null||v===undefined) R.removeProperty(name); else R.setProperty(name,v+(unit===undefined?"px":unit)) };
   setOr("--ad-size-set-m",SX("ad_square_size_m","")); setOr("--adcarousel-gap-m",SX("ad_carousel_gap_m","")); setOr("--hero-gap-m",SX("hero_gap_m","")); setOr("--hero-title-m",SX("hero_title_size_m",""));
   setOr("--ad-ris-m",SX("ad_roominfo_size_m","")); setOr("--ad-los-m",SX("ad_location_size_m","")); setOr("--ad-tgs-m",SX("ad_tag_size_m",""));
-  ["sk_x","sk_y","h1_x","h1_y","sbar_y","sbar_w","sbar_h"].forEach(function(k){ setOr("--"+k.replace(/_/g,"-"),SX(k,"")); setOr("--"+k.replace(/_/g,"-")+"-m",SX(k+"_m","")) });
+  ["sk_x","sk_y","h1_x","h1_y","sbar_y","sbar_w","sbar_h","ai_bar_y"].forEach(function(k){ setOr("--"+k.replace(/_/g,"-"),SX(k,"")); setOr("--"+k.replace(/_/g,"-")+"-m",SX(k+"_m","")) });
   var sc=SX("sk_scale",""), scm=SX("sk_scale_m",""); setOr("--sk-scale",sc===""?"":(+sc/100),""); setOr("--sk-scale-m",scm===""?"":(+scm/100),"");
   setOr("--sec-pad",SX("sec_pad","")); setOr("--sec-pad-m",SX("sec_pad_m","")); setOr("--logo-h",SX("logo_h","")); setOr("--logo-h-m",SX("logo_h_m",""));
   document.body.classList.toggle("nav-nomenu-d", SX("nav_menu_desktop",true)===false);
