@@ -524,3 +524,23 @@ begin
      order by s.created_at limit p_limit) x), '[]'::json);
 end $function$;
 revoke execute on function public.bk_campaign_sends_pending(int) from public, anon, authenticated;
+
+-- follow-up 2 (applied as contacts_campaigns_tg_invite): also return the contact's id (to build a
+-- "/start n<hex>" Telegram opt-in link) and tg_consent (to know whether to offer it at all) — used by the
+-- Edge Function to append a "join us on Telegram too" nudge to email/WhatsApp sends for contacts who
+-- haven't linked Telegram yet and haven't declined it.
+create or replace function public.bk_campaign_sends_pending(p_limit int default 200)
+returns json language plpgsql security definer set search_path to 'public', 'extensions' as $function$
+begin
+  return coalesce((select json_agg(row_to_json(x)) from (
+    select s.id, s.channel, s.trigger_type, c.id as contact_id, c.phone, c.email, c.tg_chat_id, c.tg_consent, c.unsub_token,
+           coalesce(camp.body_ar, '') as body_ar, coalesce(camp.body_en, '') as body_en, camp.subject,
+           l.id as listing_id, l.ref as listing_ref, l.price_usd as listing_price, l.description as listing_description
+      from campaign_sends s
+      join contacts c on c.id = s.contact_id
+      left join campaigns camp on camp.id = s.campaign_id
+      left join listings l on l.id = s.listing_id
+     where s.status = 'queued'
+     order by s.created_at limit p_limit) x), '[]'::json);
+end $function$;
+revoke execute on function public.bk_campaign_sends_pending(int) from public, anon, authenticated;

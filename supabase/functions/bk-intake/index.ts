@@ -760,10 +760,19 @@ function campaignText(r: any): string {
   }
   return r.body_ar || r.body_en || "";
 }
-function campaignEmailHtml(r: any): string {
+// a standing nudge (every send, not just the first — there is no "already invited" flag) appended to
+// email/WhatsApp sends for a contact who hasn't linked Telegram yet and hasn't declined it: Telegram can
+// never message someone who hasn't tapped this link once, so this is the only way that ever happens for a
+// contact who didn't sign up choosing Telegram verification. Never shown on the telegram channel itself.
+function tgInviteLink(bot: string, contactId: string): string | null {
+  return bot ? `https://t.me/${encodeURIComponent(bot)}?start=n${String(contactId).replace(/-/g, "")}` : null;
+}
+const TG_INVITE_TEXT = "🔔 انضم لتنبيهاتنا على تيليغرام أيضاً:";
+function campaignEmailHtml(r: any, tgLink: string | null): string {
   const html = campaignText(r).split("\n").map((line: string) => `<p>${line}</p>`).join("");
+  const invite = tgLink ? `<p>${TG_INVITE_TEXT} <a href="${tgLink}">${tgLink}</a></p>` : "";
   const unsub = r.unsub_token ? `<p style="margin-top:24px;font-size:12px;color:#888">${SITE}/unsub/${r.unsub_token}</p>` : "";
-  return html + unsub;
+  return html + invite + unsub;
 }
 let _campaignFlushing = false;
 async function campaignFlush(): Promise<number> {
@@ -771,15 +780,17 @@ async function campaignFlush(): Promise<number> {
   try {
     const rows = await rpc<any[]>("bk_campaign_sends_pending", { p_limit: 200 });
     if (!rows || !rows.length) return 0;
+    const bot = (await cfg()).intake_bot || "";
     const okIds: number[] = []; const failed: { id: number; error: string }[] = [];
     for (const r of rows) {
       try {
+        const tgLink = (r.channel !== "telegram" && !r.tg_chat_id && r.tg_consent !== "unsubscribed") ? tgInviteLink(bot, r.contact_id) : null;
         if (r.channel === "telegram") {
           if (!r.tg_chat_id) throw new Error("no_tg_chat");
           await tg("sendMessage", { chat_id: r.tg_chat_id, text: campaignText(r) });
         } else if (r.channel === "whatsapp") {
           if (!r.phone) throw new Error("no_phone");
-          const text = campaignText(r);
+          const text = campaignText(r) + (tgLink ? `\n\n${TG_INVITE_TEXT} ${tgLink}` : "");
           if (r.phone.startsWith("+963")) await wahaSend(r.phone, text);
           else {
             const c = await cfg();   // reuses the existing generic "intake_%" extras merge — no new plumbing needed for these two keys
@@ -787,7 +798,7 @@ async function campaignFlush(): Promise<number> {
           }
         } else if (r.channel === "email") {
           if (!r.email) throw new Error("no_email");
-          await sendEmail(r.email, r.subject || "Balkoun", campaignEmailHtml(r));
+          await sendEmail(r.email, r.subject || "Balkoun", campaignEmailHtml(r, tgLink));
         }
         okIds.push(r.id);
       } catch (e) { failed.push({ id: r.id, error: errStr(e) }); }
