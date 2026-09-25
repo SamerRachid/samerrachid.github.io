@@ -272,7 +272,9 @@ async function reply(source: string, chat: string, text: string) {
     // both a WAHA-received chat and a Meta-received chat come through as source==="whatsapp" (there's no
     // separate DB-level channel for it — same as Telegram already juggles one bot for several purposes);
     // the +963 prefix is what tells them apart, since Meta never accepts a Syrian number in the first place.
-    else if (source === "whatsapp") { if (chat.replace(/^\+/, "").startsWith("963")) await wahaSend(chat, text); else await waSend(chat, text); }
+    // While Meta's Cloud API is not configured at all, every WhatsApp chat (any country) is one WAHA received, so the
+    // reply goes back through WAHA too — otherwise a non-Syrian sender would get "whatsapp not configured" silently.
+    else if (source === "whatsapp") { if (chat.replace(/^\+/, "").startsWith("963") || !(ENV.waToken && ENV.waPhone)) await wahaSend(chat, text); else await waSend(chat, text); }
   } catch (e) { await log(null, chat, "warn", "reply_failed", { source, error: errStr(e) }); }
 }
 
