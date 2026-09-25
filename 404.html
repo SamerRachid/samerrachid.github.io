@@ -2998,6 +2998,19 @@ body.mdw-open .mobfab{display:none}
   .home-hero .aisearch-try,.home-hero .aisearch-chip{flex:none}
 }
 @media (prefers-reduced-motion:reduce){.home-hero .aisearch.thinking .aisearch-pill::before{animation:none;background-position:50% 0}}
+/* ── account › channels: Telegram link card + consent switches; signup consent box ── */
+.acch-tg{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line-2);border-radius:14px;background:#fff;margin-bottom:10px;flex-wrap:wrap}
+.acch-tg .vico{width:38px;height:38px;border-radius:11px}.acch-tg .vico svg{width:22px;height:22px}
+.acch-t{flex:1;min-width:160px;display:flex;flex-direction:column;gap:2px}.acch-t b{font-size:14px}.acch-t small{color:var(--grey);font-size:12.5px;line-height:1.5}
+.acch{position:relative;display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px solid var(--line-2);border-radius:12px;background:#fff;margin-bottom:8px;cursor:pointer}
+.acch.dis{opacity:.55;cursor:default}
+.acch input{position:absolute;opacity:0;width:0;height:0}
+.acch i{flex:none;width:40px;height:22px;border-radius:999px;background:#CBD0DB;position:relative;transition:background .2s}
+.acch i::after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.acch input:checked+i{background:var(--gold)}
+.acch input:checked+i::after{transform:translateX(18px)}
+[dir=rtl] .acch input:checked+i::after{transform:translateX(-18px)}
+.agree.consent{margin-top:6px}
 </style><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
@@ -3893,7 +3906,7 @@ async function storageUpload(path, file, opts){
   // "InvalidSignature" — so that path is parked until Supabase resolves it.)
   return DB.storage.from("photos").upload(path, file, opts||{}) }
 
-var MEMBER_FNS={bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,
+var MEMBER_FNS={bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,
   bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_own_delete:1,
   bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
   bk_search_del:1,bk_search_list:1,bk_search_save:1,bk_set_avatar:1,bk_set_bio:1,bk_set_currency:1,
@@ -4040,6 +4053,10 @@ function authModal(){
     '</select></div>'+
    '<label class="agree"><input type="checkbox" id="auAgree">'+
    '<span>'+t("agreeIntro")+'</span></label>'+
+   // marketing / new-listing alerts by WhatsApp + email: the member's own choice, stored on their contacts row
+   (function(){ var on=SX("signup_consent_on",true), d=SX("signup_consent_default",true); if(on===false||on==="false") return "";
+     return '<label class="agree consent"><input type="checkbox" id="auConsent"'+((d===false||d==="false")?'':' checked')+'>'+
+       '<span>'+esc(SX("signup_consent_"+L,"")||GX("auConsentL"))+'</span></label>' })()+
    '<details class="au-terms"><summary>'+GX("auTerms")+'</summary><ul class="agreelist">'+
     ['agree1','agree2','agree3','agree4'].map(function(k){return '<li>'+t(k)+'</li>'}).join("")+
    '</ul></details>'+
@@ -4070,6 +4087,7 @@ function authModal(){
    '<b style="font-size:17px">'+t("welcome")+' '+esc(fullName(USER))+'</b>'+
    '<div style="font-size:12.5px;color:var(--light);margin-top:4px" class="ltr">'+(USER?USER.phone:"")+'</div>'+
    '<p style="font-size:13.5px;color:var(--grey);margin-top:6px">'+(USER&&USER.phone_verified===false?GX("vPendingNote"):t("nowYouCan"))+'</p></div>'+
+   accTgNudgeHtml()+
    '<button class="aub" id="auGo" style="margin-top:14px">'+t("okBtn2")+'</button></div>';
  }
 
@@ -5477,12 +5495,13 @@ function mine(){
  '</div>'}
 
 /* ── account settings ── */
-var ACC={sec:"",agForm:false};
+var ACC={sec:"",agForm:false,ch:null,chUid:null};
 var ACI={
   agency:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg>',
   intake:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-5.1A8 8 0 1 1 21 12z"/><path d="M8 12h8M8 9h5"/></svg>',
   me:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
   lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  channels:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10 21a2 2 0 0 0 4 0"/></svg>',
   camera:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>'
 };
 // the picture is one thing everywhere: the agency's logo and the account photo
@@ -5504,13 +5523,49 @@ function agencyFormFields(){
     '<div class="fl"><label>'+GX("f_agGovs")+'</label><div class="ag-pills sel" id="agGovs">'+govs.map(function(g){ return '<button type="button" class="'+(selG.indexOf(g)>-1?"on":"")+'" data-aggov="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
     (areaOpts.length?'<div class="fl"><label>'+GX("f_agAreas")+'</label><div class="ag-pills sel wrap" id="agAreas">'+areaOpts.map(function(p){ return '<button type="button" class="'+(selA.indexOf(p[1])>-1?"on":"")+'" data-agarea2="'+esc(p[1])+'">'+aN(p[1])+'</button>' }).join("")+'</div></div>':'')+
     '<div class="xactions"><button class="btn-n" id="agSave" style="width:auto">'+t("saveChanges")+'</button><span class="xmsg" id="agMsg"></span></div>' }
+/* ── account › channels: the member's own Telegram link and per-channel consent (contacts row) ── */
+async function loadMyChannels(){ if(!USER) return; var uid=USER.id; try{ var r=await rpc("bk_member_channels",{}); if(USER&&USER.id===uid){ ACC.ch=r||{}; ACC.chUid=uid } }catch(e){ if(USER&&USER.id===uid){ ACC.ch={}; ACC.chUid=uid } } }
+function myChannels(){ return (USER&&ACC.ch&&ACC.chUid===USER.id)?ACC.ch:null }
+function accTgLink(ch){ var bot=(ch&&ch.bot)||SX("intake_bot",""); return (ch&&ch.contact_id&&bot)?"https://t.me/"+encodeURIComponent(bot)+"?start=n"+String(ch.contact_id).replace(/-/g,""):"" }
+// after signup: one tap links Telegram (the bot can never write first — Telegram's own rule)
+function accTgNudgeHtml(){
+  var ch=myChannels(); if(!USER||SX("account_tg_button",true)===false||!ch||ch.tg_linked) return "";
+  var link=accTgLink(ch); if(!link) return "";
+  return '<a class="auw vtg" id="auTgNudge" href="'+link+'" target="_blank" rel="noopener" style="margin-top:12px"><span class="vico">'+VICO.tg+'</span>'+GX("accChTgBtn")+'</a><p class="vlead" style="text-align:center;margin-top:8px">'+GX("accChTgNudgeP")+'</p>';
+}
+var ACTGPOLL=null;
+function acTgPoll(){   // the tap opened Telegram in another tab; watch for the link landing so the page updates itself
+  if(ACTGPOLL) clearInterval(ACTGPOLL); var until=Date.now()+3*60e3, busy=false;
+  ACTGPOLL=setInterval(async function(){ if(busy) return; if(!USER||Date.now()>until){ clearInterval(ACTGPOLL); ACTGPOLL=null; return } busy=true;
+    try{ await loadMyChannels(); var ch=myChannels(); if(ch&&ch.tg_linked){ clearInterval(ACTGPOLL); ACTGPOLL=null; render() } }catch(e){} busy=false },3000) }
+function accChannelsHtml(ch){
+  if(!ch) return '<div class="hintx">'+t("loading")+'</div>';
+  var linked=!!ch.tg_linked, link=accTgLink(ch), tgBtn=SX("account_tg_button",true)!==false;
+  var sw=function(k,on,label,hint,dis){ return '<label class="acch'+(dis?' dis':'')+'"><span class="acch-t"><b>'+label+'</b><small>'+hint+'</small></span><input type="checkbox" data-acch="'+k+'"'+(on?' checked':'')+(dis?' disabled':'')+'><i></i></label>' };
+  return '<p class="hintx">'+GX("accChP")+'</p>'+
+    '<div class="acch-tg"><span class="vico tg">'+VICO.tg+'</span><div class="acch-t"><b>'+GX("accChTg")+'</b><small>'+(linked?GX("accChTgOn"):GX("accChTgOff"))+'</small></div>'+
+      (linked?'<span class="st st-live">'+GX("accChLinked")+'</span>':(link&&tgBtn?'<a class="btn-n" style="width:auto;margin:0" href="'+link+'" target="_blank" rel="noopener" id="acTgLink">'+GX("accChTgBtn")+'</a>':''))+'</div>'+
+    sw("wa", ch.wa_consent==="subscribed", GX("accChWa"), GX("accChWaP"), false)+
+    sw("tg", ch.tg_consent==="subscribed", GX("accChTgN"), linked?GX("accChTgNP"):GX("accChTgOff"), !linked)+
+    sw("email", ch.email_consent==="subscribed", GX("accChEmail"), ch.has_email?GX("accChEmailP"):GX("accChNoEmail"), !ch.has_email)+
+    '<div class="hintx" id="acChMsg"></div>';
+}
+function wireAccountChannels(){
+  if(!USER) return;
+  if(ACC.ch===null||ACC.chUid!==USER.id){ ACC.chUid=USER.id; ACC.ch={}; loadMyChannels().then(render) }
+  $$("[data-acch]").forEach(function(i){ i.onchange=async function(){ var k=this.dataset.acch, v=this.checked?"subscribed":"unsubscribed", args={}, m=$("#acChMsg"); args[k==="wa"?"p_wa":k==="tg"?"p_tg":"p_email"]=v;
+    try{ await rpc("bk_member_consent",args); if(ACC.ch) ACC.ch[k+"_consent"]=v; if(m){ m.style.color="var(--ok)"; m.textContent=t("savedOk") } }
+    catch(e){ this.checked=!this.checked; if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } } } });
+  if($("#acTgLink")) $("#acTgLink").onclick=function(){ acTgPoll() };
+}
 function account(){
  if(!USER) return gate();
+ var ch=myChannels();
  var isAg=!!(MYAGENCY&&MYAGENCY.id), showAg=isAg||ACC.agForm, approved=isAg&&MYAGENCY.status==="approved";
  var hasIntake=approved && MYINTAKE && MYINTAKE.agency && MYINTAKE.agency.intake_enabled && MYINTAKE.enabled!==false;
  var nav=[["agency",ACI.agency,isAg?GX("accAgency"):GX("accBecomeAgency"),isAg?agStatusPill(MYAGENCY.status):""]]
    .concat(hasIntake?[["intake",ACI.intake,GX("aiTitle"),(MYINTAKE.agency.paired?'<span class="st st-live">'+GX("aiPaired")+'</span>':'')]]:[])
-   .concat([["me",ACI.me,GX("accMe"),""],["security",ACI.lock,GX("accSecurity"),""]]);
+   .concat([["me",ACI.me,GX("accMe"),""],["channels",ACI.channels,GX("accChannels"),(ch&&ch.tg_linked?'<span class="st st-live">'+GX("accChLinked")+'</span>':"")],["security",ACI.lock,GX("accSecurity"),""]]);
  var cur=ACC.sec||(isAg?"agency":"me");
  var sec=function(id,title,body,side){ return '<section class="acsec" id="acs-'+id+'"><div class="blk"><h3><span class="acs-ico">'+ACI[id==="security"?"lock":id]+'</span>'+title+(side?'<span class="acs-side">'+side+'</span>':'')+'</h3><div class="in">'+body+'</div></div></section>' };
  var agencyBody = !showAg
@@ -5531,6 +5586,7 @@ function account(){
       '<div class="fl"><label>'+t("bio")+'</label><textarea id="acBio" maxlength="300" placeholder="'+t("bioPH")+'">'+esc(USER.bio)+'</textarea></div>'+
       (showAg?'':accLogoHtml(false))+
       '<div class="xactions"><button class="btn-n" id="acSave" style="width:auto">'+t("saveChanges")+'</button><span class="xmsg" id="acMsg"></span></div>', "")+
+    sec("channels", GX("accChannels"), accChannelsHtml(ch), "")+
     sec("security", GX("accSecurity"),
       '<div class="acs-sub">'+t("changePass")+'</div>'+
       '<div class="fl"><label>'+t("oldPass")+'</label>'+pwField("cpOld","off")+'</div>'+
@@ -6583,6 +6639,7 @@ function wireAgencies(){
     if(MYAGENCY===null) loadMyAgency().then(render);
     if(MYAGENCY&&MYAGENCY.id&&MYAGENCY.status==="approved"&&MYINTAKE===null) loadMyIntake().then(render);
     wireAccountNav();
+    if(VIEW==="account") wireAccountChannels();
     if(!$("#agName")) return;
     var collectAg=function(){ MYAGENCY=Object.assign({},MYAGENCY||{},{name:$("#agName").value,phone:$("#agPhone").value,whatsapp:$("#agWa").value,email:$("#agEmail").value,website:$("#agWeb").value,address:$("#agAddress").value,description:$("#agDesc").value,
       specialties:$$("#agSpecs .on").map(function(b){ return b.dataset.agspec }),gov_names:$$("#agGovs .on").map(function(b){ return b.dataset.aggov }),area_names:$$("#agAreas .on").map(function(b){ return b.dataset.agarea2 })}) };
@@ -7803,6 +7860,7 @@ function wireAuth(){
    AU.email=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(auEm)?auEm:"";   // optional — silently dropped if left blank or not a valid address, never blocks signup
 
    AU.pass=$("#auPass").value;
+   AU.consent=$("#auConsent")?$("#auConsent").checked:null;
    var sb=this; sb.disabled=true; sb.textContent=t("saving");
    verifyBegin("signup", err).then(function(ok){ if(ok){ AU.step=2; render(); if(AU.vch==="wa_code"||AU.vch==="email") verifySendCodeNow() } else { sb.disabled=false; sb.textContent=GX("vContinue") } })};
 
@@ -7813,7 +7871,9 @@ function wireAuth(){
    AU.step=4; render(); loadNotifications().then(render); startNotifPolling() };
  var doRegister=async function(){
    var u=await rpc("bk_register",{p_ticket:AU.ticket, p_secret:AU.secret, p_name:AU.name, p_family:AU.fam, p_hash:await sha(AU.pass), p_currency:AU.currency||"USD", p_lang:L});
-   afterAuth(u) };
+   afterAuth(u);
+   if(AU.consent!=null){ var cv=AU.consent?"subscribed":"unsubscribed"; rpc("bk_member_consent",{p_wa:cv,p_email:cv}).catch(function(){}) }
+   ACC.ch=null; loadMyChannels().then(render) };   // the welcome screen's Telegram button needs the member's contact id
  var verifyGone=function(why){ err(why==="rejected"?GX("vRejected"):why==="error"?GX("vExpired"):GX("vExpired")) };
  var verifyTgPoll=function(){ verifyPollStart(async function(){ try{ if(AU.purpose==="signup") await doRegister(); else { AU.step=7; render() } }catch(e){ err(e.message==="exists"?"phoneTaken":e.message) } }, verifyGone) };
  window.verifySendCodeNow=function(){ verifySendCode() };
@@ -7872,6 +7932,7 @@ function wireAuth(){
      err(e.message==="nouser"?"noUser":e.message==="notverified"||e.message==="expired"?GX("vExpired"):e.message) }};
 
  if($("#auGo"))$("#auGo").onclick=function(){AU.open=false;render()};
+ if($("#auTgNudge"))$("#auTgNudge").onclick=function(){ acTgPoll() };
 
  /* ── account settings ── */
  if($("#acSave"))$("#acSave").onclick=async function(){
@@ -10121,6 +10182,27 @@ var GX_T={
   ik_f_deal:{ar:"بيع/إيجار",en:"Sale/rent",de:"Verkauf/Miete"}, ik_f_type:{ar:"النوع",en:"Type",de:"Typ"}, ik_f_gov:{ar:"المحافظة",en:"Governorate",de:"Provinz"}, ik_f_area:{ar:"المنطقة",en:"Area",de:"Gegend"}, ik_f_landmark:{ar:"معلم قريب",en:"Landmark",de:"Orientierungspunkt"}, ik_f_price:{ar:"السعر",en:"Price",de:"Preis"}, ik_f_cur:{ar:"العملة",en:"Currency",de:"Währung"}, ik_f_m2:{ar:"المساحة م²",en:"Size m²",de:"Fläche m²"}, ik_f_rooms:{ar:"الغرف",en:"Rooms",de:"Zimmer"}, ik_f_baths:{ar:"الحمامات",en:"Baths",de:"Bäder"}, ik_f_living:{ar:"الصالونات",en:"Living rooms",de:"Wohnzimmer"}, ik_f_floor:{ar:"الطابق",en:"Floor",de:"Etage"}, ik_f_year:{ar:"سنة البناء",en:"Year built",de:"Baujahr"}, ik_f_tabu:{ar:"رمز الطابو",en:"Deed code",de:"Grundbuch-Code"}, ik_f_cond:{ar:"رمز الحالة",en:"Condition code",de:"Zustands-Code"}, ik_f_period:{ar:"فترة الإيجار",en:"Rental period",de:"Mietzeitraum"}, ik_f_furn:{ar:"مفروش",en:"Furnished",de:"Möbliert"}, ik_f_negot:{ar:"قابل للتفاوض",en:"Negotiable",de:"Verhandelbar"}, ik_f_phone:{ar:"هاتف التواصل",en:"Contact phone",de:"Kontakttelefon"}, ik_f_desc:{ar:"الوصف",en:"Description",de:"Beschreibung"},
   agNotPaired:{ar:"لم يُربط بعد",en:"Not linked yet",de:"Noch nicht verbunden"},
   accTitle:{ar:"حسابي",en:"My account",de:"Mein Konto",fr:"Mon compte"}, accAgency:{ar:"المكتب",en:"Agency",de:"Büro",fr:"Agence"}, accBecomeAgency:{ar:"سجّل مكتبك",en:"Register an agency",de:"Büro registrieren",fr:"Inscrire une agence"},
+  accChannels:{ar:"التنبيهات والقنوات",en:"Alerts & channels",de:"Benachrichtigungen & Kanäle"},
+  accChP:{ar:"اختر أين تصلك إعلانات بلكون الجديدة والعروض. ربط تيليغرام يتيح لك أيضاً إرسال إعلاناتك للبوت بنص بسيط.",en:"Choose where Balkoun's new listings and offers reach you. Linking Telegram also lets you post listings to the bot with a simple text.",de:"Wählen Sie, wo Sie neue Inserate und Angebote von Balkoun erreichen. Mit verknüpftem Telegram können Sie dem Bot auch Inserate als einfachen Text schicken."},
+  accChTg:{ar:"تيليغرام",en:"Telegram",de:"Telegram"},
+  accChTgOn:{ar:"مربوط — تصلك التنبيهات ويمكنك إرسال إعلاناتك للبوت.",en:"Linked — you get alerts and can send listings to the bot.",de:"Verknüpft — Sie erhalten Hinweise und können dem Bot Inserate senden."},
+  accChTgOff:{ar:"غير مربوط بعد. نقرة واحدة تفتح البوت وتربط حسابك.",en:"Not linked yet. One tap opens the bot and links your account.",de:"Noch nicht verknüpft. Ein Tipp öffnet den Bot und verknüpft Ihr Konto."},
+  accChLinked:{ar:"مربوط",en:"Linked",de:"Verknüpft"},
+  accChTgBtn:{ar:"فعّل تنبيهات تيليغرام",en:"Enable Telegram alerts",de:"Telegram-Hinweise aktivieren"},
+  accChTgNudgeP:{ar:"نقرة واحدة تربط تيليغرام بحسابك — لتصلك الإعلانات الجديدة، ولترسل إعلانك للبوت بنص بسيط.",en:"One tap links Telegram to your account — new listings reach you, and you can post a listing to the bot with a simple text.",de:"Ein Tipp verknüpft Telegram mit Ihrem Konto — neue Inserate erreichen Sie, und Sie können dem Bot ein Inserat als Text schicken."},
+  accChWa:{ar:"تنبيهات واتساب",en:"WhatsApp alerts",de:"WhatsApp-Hinweise"},
+  accChWaP:{ar:"إعلانات جديدة وعروض على رقمك المسجّل.",en:"New listings and offers to your registered number.",de:"Neue Inserate und Angebote an Ihre registrierte Nummer."},
+  accChTgN:{ar:"تنبيهات تيليغرام",en:"Telegram alerts",de:"Telegram-Hinweise"},
+  accChTgNP:{ar:"إعلانات جديدة وعروض على تيليغرام.",en:"New listings and offers on Telegram.",de:"Neue Inserate und Angebote auf Telegram."},
+  accChEmail:{ar:"تنبيهات الإيميل",en:"Email alerts",de:"E-Mail-Hinweise"},
+  accChEmailP:{ar:"إعلانات جديدة وعروض على بريدك الإلكتروني.",en:"New listings and offers to your email.",de:"Neue Inserate und Angebote an Ihre E-Mail."},
+  accChNoEmail:{ar:"أضف بريداً إلكترونياً في بياناتك أولاً.",en:"Add an email in your details first.",de:"Fügen Sie zuerst eine E-Mail in Ihren Daten hinzu."},
+  auConsentL:{ar:"أرسلوا لي الإعلانات الجديدة والعروض على واتساب والإيميل (يمكن إيقافها من حسابك متى شئت)",en:"Send me new listings and offers by WhatsApp and email (you can turn this off from your account any time)",de:"Schickt mir neue Inserate und Angebote per WhatsApp und E-Mail (jederzeit im Konto abschaltbar)"},
+  vfSignupT:{ar:"عند التسجيل",en:"At signup",de:"Bei der Registrierung"},
+  vfConsentOn:{ar:"إظهار مربع الموافقة على التنبيهات (واتساب + إيميل)",en:"Show the alerts consent box (WhatsApp + email)",de:"Zustimmungsfeld für Hinweise anzeigen (WhatsApp + E-Mail)"},
+  vfConsentDef:{ar:"المربع مفعّل افتراضياً",en:"Box checked by default",de:"Feld standardmäßig aktiviert"},
+  vfConsentTxt:{ar:"نص مربع الموافقة",en:"Consent box text",de:"Text des Zustimmungsfelds"},
+  vfTgBtn:{ar:"إظهار زر «فعّل تنبيهات تيليغرام» بعد التسجيل وفي الحساب",en:"Show the \"Enable Telegram alerts\" button after signup and in the account",de:"Schaltfläche „Telegram-Hinweise aktivieren“ nach der Registrierung und im Konto anzeigen"},
   accMe:{ar:"بياناتي",en:"My details",de:"Meine Daten",fr:"Mes informations"}, accSecurity:{ar:"الأمان",en:"Security",de:"Sicherheit",fr:"Sécurité"}, accManage:{ar:"إدارة المكتب",en:"Manage agency",de:"Büro verwalten",fr:"Gérer l'agence"},
   accLogo:{ar:"شعار المكتب",en:"Agency logo",de:"Büro-Logo",fr:"Logo de l'agence"}, accLogoHint:{ar:"يظهر في دليل المكاتب وعلى بطاقات إعلاناتك، وهو نفسه صورة حسابك.",en:"Shown in the agency directory and on your listing cards; it is also your account photo.",de:"Erscheint im Büroverzeichnis und auf Ihren Anzeigenkarten; zugleich Ihr Profilbild.",fr:"Affiché dans l'annuaire et sur vos annonces ; c'est aussi la photo de votre compte."},
   accCtaT:{ar:"هل أنت مكتب عقاري؟",en:"Are you a real-estate agency?",de:"Sind Sie ein Immobilienbüro?",fr:"Vous êtes une agence immobilière ?"}, accCtaP:{ar:"سجّل مكتبك ليظهر في دليل المكاتب، ويحصل على شعاره في البطاقات، ويستطيع نشر إعلاناته عبر تيليغرام.",en:"Register it to appear in the directory, get your logo on the cards, and post listings through Telegram.",de:"Registrieren Sie es, um im Verzeichnis zu erscheinen, Ihr Logo auf den Karten zu zeigen und Anzeigen per Telegram zu senden.",fr:"Inscrivez-la pour figurer dans l'annuaire, afficher votre logo sur les annonces et publier via Telegram."},

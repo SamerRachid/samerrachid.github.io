@@ -2365,6 +2365,8 @@ function adminVerifyHtml(){
     '<div class="hintx" style="margin:2px 0 8px;color:'+(ready?'var(--ok)':'var(--grey)')+'">'+(ready?'✓ ':'○ ')+GX(ready?"vfWaReady":"vfWaNotReady")+'</div>'+
     '<div class="hintx" style="margin:2px 0 8px;color:'+(emailReady?'var(--ok)':'var(--grey)')+'">'+(emailReady?'✓ ':'○ ')+GX(emailReady?"vfEmailReady":"vfEmailNotReady")+'</div>'+
     '<div class="row3">'+gtxt("verify_wa_template",GX("vfSetWaTpl"),"balkoun_code")+gtxt("verify_wa_lang",GX("vfSetWaLang"),"ar")+gnum("verify_ticket_hours",GX("vfSetHours"),48,1,168)+'</div>'+
+    '<div class="hintx" style="margin:12px 0 6px"><b>'+GX("vfSignupT")+'</b></div><div class="chkgrid">'+gchk("signup_consent_on",GX("vfConsentOn"),true)+gchk("signup_consent_default",GX("vfConsentDef"),true)+gchk("account_tg_button",GX("vfTgBtn"),true)+'</div>'+
+    '<div class="row3">'+gtxt("signup_consent_ar",GX("vfConsentTxt")+" (ar)",GX_T.auConsentL.ar)+gtxt("signup_consent_en",GX("vfConsentTxt")+" (en)",GX_T.auConsentL.en)+gtxt("signup_consent_de",GX("vfConsentTxt")+" (de)",GX_T.auConsentL.de)+'</div>'+
     '<div class="xactions"><button class="ab ok" id="vfSetSave">'+t("save")+'</button><span class="xmsg" id="vfSetMsg"></span></div></div></div>';
   return pending+settings }
 function adminUsersBody(d){

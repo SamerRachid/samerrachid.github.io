@@ -320,6 +320,9 @@ const T = {
     verifyGone: `انتهت صلاحية طلب التحقق. ارجع إلى balkoun.com وابدأ من جديد.`,
     contactTgLinked: `تم ✅ ستصلك تنبيهات بلكون على تيليغرام من الآن. لإيقافها راسلنا أو أوقفها من حسابك على الموقع.`,
     contactTgGone: `تعذّر ربط هذا الرابط. جرّب فتحه من جديد من حسابك على balkoun.com.`,
+    linkAsk: `مرحباً 👋 لإرسال إعلاناتك من هنا مباشرة، اضغط «مشاركة رقمي» بالأسفل لربط حسابك في بلكون بهذه المحادثة (مرة واحدة فقط).`,
+    linkOk: (n: string) => `تم ربط حسابك ✅ أهلاً ${n}\nأرسل الآن تفاصيل العقار والصور، وعندما تنتهي اكتب «تم».`,
+    linkNone: `لا يوجد حساب في بلكون بهذا الرقم. سجّل أولاً على balkoun.com ثم عد إلى هنا.`,
   },
   en: {
     welcome: (name: string) => `Hello ${name} 👋\nSend the property details and photos here. When you are done, write "done".\nI will read the listing and send you a summary to approve before it is published.`,
@@ -363,6 +366,9 @@ const T = {
     verifyGone: `That verification request expired. Go back to balkoun.com and start again.`,
     contactTgLinked: `Done ✅ You'll get Balkoun alerts on Telegram from now on. Message us or turn it off from your account on the site to stop.`,
     contactTgGone: `Could not link this. Try opening the link again from your account on balkoun.com.`,
+    linkAsk: `Hello 👋 To post your listings from here, tap "Share my number" below to link your Balkoun account to this chat (once only).`,
+    linkOk: (n: string) => `Account linked ✅ Welcome ${n}\nSend the property details and photos now, then write "done".`,
+    linkNone: `No Balkoun account has this number. Sign up at balkoun.com first, then come back here.`,
   },
 };
 const tx = (lang: string) => (lang === "en" ? T.en : T.ar);
@@ -939,7 +945,12 @@ async function verifyContact(chat: string, contact: any, from: any, lang: string
   if (r?.ok) await say(t.verifyOk(r.purpose));
   else if (r?.error === "mismatch") await say(t.verifyMismatch(r.tail || ""));
   else if (r?.error === "expired") await say(t.verifyGone);
-  else await say(t.verifyNone);
+  else {
+    // no open verification ticket: a member answering the bot's "share my number" invitation links their account
+    const name = [from?.first_name, from?.last_name].filter(Boolean).join(" ") + (from?.username ? " @" + from.username : "");
+    const l = await rpc<any>("bk_member_tg_link", { p_chat_id: chat, p_phone: String(contact?.phone_number || ""), p_name: name });
+    if (l?.ok) await say(t.linkOk(l.name || "")); else await say(t.linkNone);
+  }
 }
 async function handleIncoming(m: Incoming) {
   const c = await cfg();
@@ -964,7 +975,18 @@ async function handleIncoming(m: Incoming) {
   const r = await rpc<any>("bk_intake_message", { p_source: m.source, p_external_id: m.externalId, p_chat_id: m.chat, p_kind: m.kind, p_text: m.text, p_media: m.media, p_payload: m.payload, p_sender_name: m.senderName, p_country: null });
   if (!r || r.duplicate) return;
   const lang = r.sender?.lang === "en" ? "en" : (c.intake_reply_lang === "en" ? "en" : "ar"); const tt = tx(lang);
-  if (r.reason === "unknown") { if (!r.replied_recently) { await reply(m.source, m.chat, tt.unknown); await log(null, m.chat, "info", "unknown_reply", { source: m.source }); } return; }
+  if (r.reason === "unknown") {
+    if (!r.replied_recently) {
+      // on Telegram there is no phone number to recognise a member by: offer the share-contact button instead
+      // (Telegram vouches for the number; verifyContact() → bk_member_tg_link finishes the link)
+      if (m.source === "telegram" && r.sender?.member_listing) {
+        try { await tg("sendMessage", { chat_id: m.chat, text: tt.linkAsk, reply_markup: { keyboard: [[{ text: tt.verifyBtn, request_contact: true }]], one_time_keyboard: true, resize_keyboard: true } }); }
+        catch (e) { await log(null, m.chat, "warn", "reply_failed", { source: m.source, error: errStr(e) }); }
+      } else await reply(m.source, m.chat, tt.unknown);
+      await log(null, m.chat, "info", "unknown_reply", { source: m.source });
+    }
+    return;
+  }
   if (r.reason === "blocked") { await reply(m.source, m.chat, tt.blocked); return; }
   if (r.reason === "limit") { await reply(m.source, m.chat, tt.limit); return; }
   if (r.command === "help") { await reply(m.source, m.chat, tt.help); return; }
