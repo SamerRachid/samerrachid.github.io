@@ -782,6 +782,13 @@ async function notifyFlush(): Promise<number> {
       try { await tg("sendMessage", { chat_id: chat, text: text.slice(0, 4000), parse_mode: "HTML", disable_web_page_preview: true }); }
       catch (e) { await log(null, chat, "warn", "notify_failed", { error: errStr(e) }); for (const r of list) failed.add(r.id); }
     }
+    // the owner's own WhatsApp numbers (extras.intake_admin_chats.whatsapp) get the same digest through WAHA —
+    // plain text, one message per flush; a WAHA failure is logged but never blocks the Telegram delivery
+    const waList: string[] = (((await cfg()).intake_admin_chats || {}).whatsapp || []).map((n: unknown) => String(n).replace(/\D/g, "")).filter(Boolean);
+    if (waList.length) {
+      const plain = (rows.length > 1 ? `🔔 ${rows.length} تنبيهات جديدة\n\n` : "🔔 ") + rows.map((r) => `${r.title}${r.body ? "\n" + r.body : ""}`).join("\n\n") + `\n\n${rows[0].link || SITE + "/admin"}`;
+      for (const n of waList) { try { await wahaSend("+" + n, plain.slice(0, 3500)); } catch (e) { await log(null, "+" + n, "warn", "notify_wa_failed", { error: errStr(e) }); } }
+    }
     const okIds = rows.filter((r) => !failed.has(r.id)).map((r) => r.id);          // rows nobody should receive are simply marked done
     const badIds = rows.filter((r) => failed.has(r.id)).map((r) => r.id);
     if (okIds.length) await rpc("bk_notify_mark", { p_ids: okIds, p_ok: true });
