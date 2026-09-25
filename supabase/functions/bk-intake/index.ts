@@ -269,6 +269,7 @@ const T = {
     periodDefault: `• فترة الإيجار: غير مذكورة (سنوي)`,
     verifyAsk: (tail: string) => `للتحقق من رقمك في بلكون (المنتهي بـ ${tail}) اضغط الزر أدناه «مشاركة رقمي» 👇\nلن نستخدم الرقم لأي غرض آخر.`,
     verifyBtn: `📱 مشاركة رقمي`,
+    verifyCode: (code: string) => `رمز التحقق في بلكون: ${code}`,
     verifyOk: (purpose: string) => purpose === "admin_reset" ? `تم التحقق ✅ ارجع إلى صفحة دخول لوحة التحكم لاختيار كلمة المرور الجديدة.` : purpose === "reset" ? `تم التحقق ✅ ارجع إلى صفحة بلكون لاختيار كلمة المرور الجديدة.` : `تم التحقق ✅ ارجع إلى صفحة بلكون، حسابك جاهز.`,
     verifyMismatch: (tail: string) => `هذا الرقم لا يطابق الرقم الذي أدخلته في الموقع (المنتهي بـ ${tail}). ارجع إلى الموقع وأدخل رقم حساب تيليغرام هذا، أو استخدم واتساب.`,
     verifyNone: `لا يوجد طلب تحقق مفتوح لهذه المحادثة. ابدأ من صفحة التسجيل في balkoun.com واضغط «تيليغرام».`,
@@ -309,6 +310,7 @@ const T = {
     periodDefault: `• Rental period: not stated (yearly)`,
     verifyAsk: (tail: string) => `To verify your Balkoun number (ending in ${tail}) tap "Share my number" below 👇\nWe use it for nothing else.`,
     verifyBtn: `📱 Share my number`,
+    verifyCode: (code: string) => `Balkoun verification code: ${code}`,
     verifyOk: (purpose: string) => purpose === "admin_reset" ? `Verified ✅ Go back to the admin login page to choose your new password.` : purpose === "reset" ? `Verified ✅ Go back to the Balkoun page to choose your new password.` : `Verified ✅ Go back to the Balkoun page, your account is ready.`,
     verifyMismatch: (tail: string) => `This number does not match the one you typed on the site (ending in ${tail}). Go back and enter this Telegram account's number, or use WhatsApp.`,
     verifyNone: `There is no open verification request for this chat. Start from the sign-up page on balkoun.com and press "Telegram".`,
@@ -776,13 +778,20 @@ async function safePublish(m: Incoming, draftId: number, tt: any) {
   try { await publishDraft(draftId); }
   catch (e) { await log(draftId, m.chat, "error", "publish_failed", { error: errStr(e) }); await rpc("bk_intake_set", { p_draft: draftId, p_patch: { status: "review", error: errStr(e) } }); await reply(m.source, m.chat, tt.failed); }
 }
-// ── phone verification for the site (sign-up / password reset): /start v<ticket> → ask for the contact → bk_verify_tg_contact ──
+// ── phone verification for the site: /start v<ticket> → signup/reset get the ticket's own code as a plain
+// message (same OTP flow as WhatsApp/email); admin_reset keeps the original "share my contact" button, since
+// the admin panel has no OTP-entry UI and bk_verify_tg_contact still serves it exclusively ──
 const vLang = (m: { lang?: string }, c: Cfg) => tx(m.lang === "en" || c.intake_reply_lang === "en" ? "en" : "ar");
 async function verifyStart(m: Incoming, hex: string, c: Cfg): Promise<void> {
   const t = vLang(m, c);
   const ticket = hex.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, "$1-$2-$3-$4-$5");
   const r = await rpc<any>("bk_verify_tg_open", { p_ticket: ticket, p_chat_id: m.chat, p_name: m.senderName });
   if (!r?.ok) { await reply(m.source, m.chat, r?.error === "off" ? t.verifyNone : t.verifyGone); return; }
+  if (r.mode === "code") {
+    try { await tg("sendMessage", { chat_id: m.chat, text: t.verifyCode(r.code || "") }); }
+    catch (e) { await log(null, m.chat, "warn", "verify_ask_failed", { error: errStr(e) }); }
+    return;
+  }
   try {
     await tg("sendMessage", { chat_id: m.chat, text: t.verifyAsk(r.tail || ""), reply_markup: { keyboard: [[{ text: t.verifyBtn, request_contact: true }]], one_time_keyboard: true, resize_keyboard: true } });
   } catch (e) { await log(null, m.chat, "warn", "verify_ask_failed", { error: errStr(e) }); }
