@@ -3887,8 +3887,9 @@ function verifyStepHtml(){
   if(ch==="telegram"){
     var link="https://t.me/"+encodeURIComponent(AU.vbot)+"?start=v"+String(AU.ticket).replace(/-/g,"");
     return '<div class="aubody">'+head+'<a class="auw vtg" href="'+link+'" target="_blank" rel="noopener" id="auTgOpen"><span class="vico">'+VICO.tg+'</span>'+GX("vOpenTg")+'</a>'+
-      '<ol class="vsteps"><li>'+GX("vTg1")+'</li><li>'+GX("vTg2")+'</li><li>'+GX("vTg3")+'</li></ol>'+
-      '<div class="vwait"><i class="vspin"></i><span>'+GX("vWaiting")+'</span></div><div class="auerr" id="auErr"></div>'+other+'</div>' }
+      '<p class="vlead" style="text-align:center;margin-top:10px">'+GX("vEnterCodeTg")+'</p>'+
+      '<div class="otp" id="auOtp">'+[0,1,2,3,4,5].map(function(i){ return '<input inputmode="numeric" autocomplete="one-time-code" maxlength="1" data-otp="'+i+'" aria-label="'+(i+1)+'">' }).join("")+'</div>'+
+      '<div class="auerr" id="auErr"></div>'+other+'</div>' }
   if(ch==="wa_code"||ch==="email"){
     if(!AU.wsent) return '<div class="aubody">'+head+'<div class="vwait"><i class="vspin"></i><span>'+GX(ch==="email"?"vSendingEmail":"vSending")+'</span></div><div class="auerr" id="auErr"></div>'+other+'</div>';
     return '<div class="aubody">'+head+'<p class="vlead" style="text-align:center">'+GX(ch==="email"?"vEnterCodeEmail":"vEnterCode")+'</p>'+
@@ -3919,11 +3920,14 @@ function verifyPollStart(onVerified, onGone){
 var VF={t:null};
 function unverifiedPage(){
   var bot=SX("intake_bot",""), tg=SX("verify_telegram_on",true)!==false && bot;
+  var link=VF.t&&VF.t.ticket ? "https://t.me/"+encodeURIComponent(VF.t.bot)+"?start=v"+String(VF.t.ticket).replace(/-/g,"") : null;
   return '<div class="wrap" style="max-width:640px;padding:34px 18px 60px"><div class="done2 vpend">'+
     '<div class="tk" style="background:var(--gold-w);color:var(--gold)">!</div>'+
     '<b style="font-size:19px">'+GX("vPendingT")+'</b>'+
     '<p style="color:var(--grey);font-size:14.5px;margin-top:8px;line-height:1.8">'+GX("vPendingP")+'</p>'+
-    (VF.t&&VF.t.ticket?'<a class="auw vtg" style="margin-top:14px" href="https://t.me/'+encodeURIComponent(VF.t.bot)+'?start=v'+String(VF.t.ticket).replace(/-/g,"")+'" target="_blank" rel="noopener"><span class="vico">'+VICO.tg+'</span>'+GX("vOpenTg")+'</a><div class="vwait"><i class="vspin"></i><span>'+GX("vWaiting")+'</span></div>'
+    (link?'<a class="auw vtg" style="margin-top:14px" href="'+link+'" target="_blank" rel="noopener"><span class="vico">'+VICO.tg+'</span>'+GX("vOpenTg")+'</a>'+
+      '<p class="vlead" style="text-align:center;margin-top:10px">'+GX("vEnterCodeTg")+'</p>'+
+      '<div class="otp" id="vfOtp">'+[0,1,2,3,4,5].map(function(i){ return '<input inputmode="numeric" autocomplete="one-time-code" maxlength="1" data-vfotp="'+i+'" aria-label="'+(i+1)+'">' }).join("")+'</div>'
       : tg?'<button type="button" class="auw vtg" id="vfTg" style="margin-top:14px"><span class="vico">'+VICO.tg+'</span>'+GX("vPendingBtn")+'</button>':'')+
     '<div class="auerr" id="vfErr"></div>'+
     '<button class="gh" id="vfRefresh" style="max-width:230px;margin:12px auto 0">'+GX("vPendingRefresh")+'</button></div></div>' }
@@ -3935,10 +3939,18 @@ function wireUnverified(){
     try{ var r=await rpc("bk_verify_start",{p_phone:USER.phone, p_purpose:"signup", p_country:COUNTRY||"SY"});
       VF.t={ticket:r.ticket,secret:r.secret,bot:r.bot||SX("intake_bot","")}; render();
       var link="https://t.me/"+encodeURIComponent(VF.t.bot)+"?start=v"+String(r.ticket).replace(/-/g,""); window.open(link,"_blank","noopener");
-      var until=Date.now()+20*60e3;
-      VF.p=setInterval(async function(){ if(Date.now()>until||!VF.t){ clearInterval(VF.p); return }
-        try{ var s=await rpc("bk_verify_status",{p_ticket:VF.t.ticket,p_secret:VF.t.secret}); if(s.verified){ clearInterval(VF.p); VF.t=null; await refreshMe() } else if(s.status==="expired"||s.status==="rejected"){ clearInterval(VF.p); VF.t=null; render() } }catch(e){ clearInterval(VF.p) } },2500);
-    }catch(e){ b.disabled=false; var m=$("#vfErr"); if(m) m.textContent=e.message==="throttled"?GX("vThrottled"):(e.message||"error") } } }
+    }catch(e){ b.disabled=false; var m=$("#vfErr"); if(m) m.textContent=e.message==="throttled"?GX("vThrottled"):(e.message||"error") } };
+  var vfCheck=async function(code){
+    try{ await rpc("bk_verify_check",{p_ticket:VF.t.ticket,p_secret:VF.t.secret,p_code:code}); VF.t=null; await refreshMe(); }
+    catch(e){ $$("[data-vfotp]").forEach(function(i){ i.value=""; i.classList.add("bad") }); var f=$('[data-vfotp="0"]'); if(f) f.focus();
+      var m=$("#vfErr"); if(m) m.textContent = e.message==="wrong"?GX("vWrong"):e.message==="rejected"?GX("vRejected"):(e.message==="expired"||e.message==="notsent")?GX("vExpired"):(e.message||"error") } };
+  $$("[data-vfotp]").forEach(function(i,idx,all){
+    i.oninput=function(){ this.classList.remove("bad"); var v=this.value.replace(/\D/g,""); if(v.length>1){ var d=v.split(""); all.forEach(function(x,k){ if(k>=idx && d[k-idx]!=null) x.value=d[k-idx] }); } else this.value=v;
+      var next=all[idx+1]; if(v && next && !all.every(function(x){return x.value})) { var firstEmpty=all.find(function(x){return !x.value}); if(firstEmpty) firstEmpty.focus() }
+      var code=all.map(function(x){return x.value}).join(""); if(code.length===6) vfCheck(code) };
+    i.onkeydown=function(e){ if(e.key==="Backspace" && !this.value && all[idx-1]){ all[idx-1].value=""; all[idx-1].focus() } };
+    i.onpaste=function(e){ var d=(e.clipboardData||window.clipboardData).getData("text").replace(/\D/g,"").slice(0,6); if(d.length){ e.preventDefault(); all.forEach(function(x,k){ x.value=d[k]||"" }); if(d.length===6) vfCheck(d); else { var fe=all.find(function(x){return !x.value}); if(fe) fe.focus() } } };
+  }); }
 function needsVerify(){ return !!(USER && USER.phone_verified===false && SX("verify_required_post",true)!==false) }
 
 /* ── auth modal ── */
@@ -7693,7 +7705,7 @@ function wireAuth(){
 
    AU.pass=$("#auPass").value;
    var sb=this; sb.disabled=true; sb.textContent=t("saving");
-   verifyBegin("signup", err).then(function(ok){ if(ok){ AU.step=2; render(); if(AU.vch==="telegram") verifyTgPoll(); if(AU.vch==="wa_code"||AU.vch==="email") verifySendCodeNow() } else { sb.disabled=false; sb.textContent=GX("vContinue") } })};
+   verifyBegin("signup", err).then(function(ok){ if(ok){ AU.step=2; render(); if(AU.vch==="wa_code"||AU.vch==="email") verifySendCodeNow() } else { sb.disabled=false; sb.textContent=GX("vContinue") } })};
 
  /* the person signed in after the number was proven */
  var afterAuth=function(u){
@@ -7727,7 +7739,7 @@ function wireAuth(){
    i.onpaste=function(e){ var d=(e.clipboardData||window.clipboardData).getData("text").replace(/\D/g,"").slice(0,6); if(d.length){ e.preventDefault(); all.forEach(function(x,k){ x.value=d[k]||"" }); if(d.length===6) verifyCheck(d); else { var fe=all.find(function(x){return !x.value}); if(fe) fe.focus() } } };
  });
  if($("#auResend")) $("#auResend").onclick=function(){ if(AU.wsentAt && Date.now()-AU.wsentAt<45e3){ err(GX("vWait")); return } verifySendCode() };
- $$("[data-vch]").forEach(function(b){ b.onclick=function(){ AU.vch=this.dataset.vch||null; AU.vsent=false; AU.wsent=false; verifyPollStop(); verifySaveResume(); render(); if(AU.vch==="telegram") verifyTgPoll(); if(AU.vch==="wa_code"||AU.vch==="email") verifySendCode() } });
+ $$("[data-vch]").forEach(function(b){ b.onclick=function(){ AU.vch=this.dataset.vch||null; AU.vsent=false; AU.wsent=false; verifyPollStop(); verifySaveResume(); render(); if(AU.vch==="wa_code"||AU.vch==="email") verifySendCode() } });
  if($("#auSent"))$("#auSent").onclick=async function(){
    var b=this; b.disabled=true; b.textContent=t("saving");
    try{
@@ -7747,9 +7759,9 @@ function wireAuth(){
    if(p.length<7) return err("badPhone");
    AU.cc=$("#auCC").value; AU.phone=p;
    var saved=verifyLoadResume("+"+AU.cc+p,"reset");
-   if(saved){ AU.purpose="reset"; AU.ticket=saved.ticket; AU.secret=saved.secret; AU.code=saved.code; AU.vch=saved.vch||null; AU.vsent=!!saved.vsent; AU.wsent=!!saved.vch&&(saved.vch==="wa_code"||saved.vch==="email"); AU.vbot=saved.bot||SX("intake_bot",""); AU.vtg=!!AU.vbot&&SX("verify_telegram_on",true)!==false; AU.vwa=SX("verify_whatsapp_on",true)!==false; AU.vem=SX("verify_email_on",true)!==false; AU.vexp=saved.exp; AU.step=6; render(); if(AU.vch) verifyTgPoll(); return }
+   if(saved){ AU.purpose="reset"; AU.ticket=saved.ticket; AU.secret=saved.secret; AU.code=saved.code; AU.vch=saved.vch||null; AU.vsent=!!saved.vsent; AU.wsent=!!saved.vch&&(saved.vch==="wa_code"||saved.vch==="email"); AU.vbot=saved.bot||SX("intake_bot",""); AU.vtg=!!AU.vbot&&SX("verify_telegram_on",true)!==false; AU.vwa=SX("verify_whatsapp_on",true)!==false; AU.vem=SX("verify_email_on",true)!==false; AU.vexp=saved.exp; AU.step=6; render(); return }
    var sb=this; sb.disabled=true; sb.textContent=t("saving");
-   verifyBegin("reset", err).then(function(ok){ if(ok){ AU.step=6; render(); if(AU.vch==="telegram") verifyTgPoll(); if(AU.vch==="wa_code"||AU.vch==="email") verifySendCodeNow() } else { sb.disabled=false; sb.textContent=GX("vContinue") } })};
+   verifyBegin("reset", err).then(function(ok){ if(ok){ AU.step=6; render(); if(AU.vch==="wa_code"||AU.vch==="email") verifySendCodeNow() } else { sb.disabled=false; sb.textContent=GX("vContinue") } })};
  if($("#auDoReset"))$("#auDoReset").onclick=async function(){
    if(($("#auPass").value||"").length<6) return err("shortPass");
    if($("#auPass").value!==$("#auPass2").value) return err("noMatch");
@@ -10019,7 +10031,7 @@ var GX_T={
   vChooseP:{ar:"اختر الطريقة الأسهل لك لتأكيد أن هذا الرقم يخصك:",en:"Pick the easiest way to confirm this number is yours:",de:"Wählen Sie den einfachsten Weg, die Nummer zu bestätigen:"},
   vChooseReset:{ar:"قبل تغيير كلمة المرور نتأكد أن الرقم يخصك:",en:"Before changing the password we confirm the number is yours:",de:"Vor dem Ändern des Passworts bestätigen wir die Nummer:"},
   vTelegram:{ar:"تيليغرام",en:"Telegram",de:"Telegram"},
-  vTelegramP:{ar:"فوري وتلقائي: زر واحد داخل تيليغرام",en:"Instant and automatic: one tap inside Telegram",de:"Sofort und automatisch: ein Tipp in Telegram"},
+  vTelegramP:{ar:"يصلك رمز من 6 أرقام داخل تيليغرام وتكتبه هنا",en:"A 6-digit code arrives inside Telegram; type it here",de:"Ein 6-stelliger Code kommt in Telegram; hier eingeben"},
   vWhatsapp:{ar:"واتساب",en:"WhatsApp",de:"WhatsApp"},
   vWhatsappP:{ar:"أرسل رمزاً إلى واتساب بلكون، ويُؤكَّد حسابك بعد وصوله",en:"Send a code to Balkoun's WhatsApp; your account is confirmed once it arrives",de:"Senden Sie einen Code an Balkouns WhatsApp; das Konto wird nach Eingang bestätigt"},
   vWhatsappResetP:{ar:"أرسل رمزاً إلى واتساب بلكون، ثم تختار كلمة المرور بعد تأكيدنا",en:"Send a code to Balkoun's WhatsApp, then choose the password after we confirm",de:"Senden Sie einen Code an Balkouns WhatsApp; nach unserer Bestätigung wählen Sie das Passwort"},
@@ -10048,7 +10060,7 @@ var GX_T={
   vBlocked:{ar:"هذا الحساب موقوف.",en:"This account is suspended.",de:"Dieses Konto ist gesperrt."},
   vPendingNote:{ar:"حسابك جاهز للتصفح والحفظ. النشر يُفتح بعد أن نؤكد رسالتك على واتساب.",en:"You can browse and save now. Posting opens once we confirm your WhatsApp message.",de:"Sie können jetzt stöbern und speichern. Inserieren wird nach Bestätigung Ihrer WhatsApp-Nachricht frei."},
   vPendingT:{ar:"حسابك بانتظار تأكيد الرقم",en:"Your number is awaiting confirmation",de:"Ihre Nummer wartet auf Bestätigung"},
-  vPendingP:{ar:"سنؤكد حسابك بعد وصول رسالتك على واتساب. أو أكّد رقمك الآن عبر تيليغرام بضغطة واحدة.",en:"We confirm your account once your WhatsApp message arrives. Or confirm your number right now on Telegram with one tap.",de:"Wir bestätigen Ihr Konto nach Eingang Ihrer WhatsApp-Nachricht. Oder bestätigen Sie die Nummer jetzt mit einem Tipp in Telegram."},
+  vPendingP:{ar:"سنؤكد حسابك بعد وصول رسالتك على واتساب. أو أكّد رقمك الآن عبر تيليغرام برمز يصلك مباشرة.",en:"We confirm your account once your WhatsApp message arrives. Or confirm your number right now on Telegram with a code sent to you directly.",de:"Wir bestätigen Ihr Konto nach Eingang Ihrer WhatsApp-Nachricht. Oder bestätigen Sie die Nummer jetzt über Telegram mit einem direkt gesendeten Code."},
   vPendingBtn:{ar:"أكّد عبر تيليغرام الآن",en:"Confirm on Telegram now",de:"Jetzt über Telegram bestätigen"},
   vPendingRefresh:{ar:"تحديث الحالة",en:"Refresh status",de:"Status aktualisieren"},
   vWaCode:{ar:"رمز عبر واتساب",en:"Code by WhatsApp",de:"Code per WhatsApp"},
@@ -10057,6 +10069,7 @@ var GX_T={
   vSendingEmail:{ar:"نرسل الرمز إلى بريدك…",en:"Sending the code to your email…",de:"Code wird per E-Mail gesendet…"},
   vEnterCode:{ar:"أدخل الرمز الذي وصلك على واتساب",en:"Enter the code you received on WhatsApp",de:"Geben Sie den per WhatsApp erhaltenen Code ein"},
   vEnterCodeEmail:{ar:"أدخل الرمز الذي وصلك على بريدك",en:"Enter the code you received by email",de:"Geben Sie den per E-Mail erhaltenen Code ein"},
+  vEnterCodeTg:{ar:"أدخل الرمز الذي وصلك على تيليغرام",en:"Enter the code you received on Telegram",de:"Geben Sie den per Telegram erhaltenen Code ein"},
   vResend:{ar:"لم يصلك؟ أعد الإرسال",en:"Nothing arrived? Send again",de:"Nichts erhalten? Erneut senden"},
   vWrong:{ar:"الرمز غير صحيح، حاول مرة أخرى.",en:"Wrong code, try again.",de:"Falscher Code, bitte erneut versuchen."},
   vWaCodeOff:{ar:"إرسال الرمز عبر واتساب غير متاح لهذا الرقم. اختر طريقة أخرى.",en:"Code by WhatsApp is not available for this number. Pick another way.",de:"Code per WhatsApp ist für diese Nummer nicht verfügbar. Bitte anderen Weg wählen."},
