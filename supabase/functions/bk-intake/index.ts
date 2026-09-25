@@ -224,6 +224,9 @@ async function wahaStatus(): Promise<{ configured: boolean; ok?: boolean; status
 // incoming media from a WAHA webhook arrives as a direct URL on the WAHA server itself (not a media id
 // needing a lookup step like Telegram/Meta) — still needs the API key header to actually download it.
 async function wahaDownloadMedia(url: string): Promise<{ bytes: Uint8Array; size: number; mime: string }> {
+  // WAHA builds the link with its own WHATSAPP_API_HOSTNAME (localhost by default), so only the path is trusted
+  // and the host is always the gateway we already talk to.
+  try { const u = new URL(url); url = ENV.wahaUrl.replace(/\/$/, "") + u.pathname + u.search; } catch { /* keep as is */ }
   let r: Response;
   try { r = await fetch(url, { headers: { "X-Api-Key": ENV.wahaKey } }); } catch { throw new Error("waha media: network"); }
   if (!r.ok) throw new Error("waha media " + r.status);
@@ -301,7 +304,7 @@ const T = {
     photoBad: `تعذّرت معالجة هذه الصورة. أرسلها كصورة عادية (وليس كملف)، بصيغة JPG أو PNG.`,
     videoNo: `الفيديو غير مدعوم عبر الرسائل حالياً؛ يمكن إضافته من الموقع بعد النشر.`,
     confirmLine: `\n\nللنشر أرسل 1 · للإلغاء أرسل 2 · ولتعديل أي معلومة أرسل التصحيح مباشرة.`,
-    missing: (list: string) => `\n\n⚠️ ينقصنا: ${list}. أرسلها هنا وسأكمل الخلاصة.`,
+    missing: (list: string) => `\n\nقبل النشر أحتاج منك: ${list}.\nأرسلها هنا وسأكمل الإعلان 🙏`,
     reviewAdmin: `تمت القراءة ✅ الإعلان بانتظارك في لوحة التحكم لاختيار المكتب ونشره.`,
     reviewNote: `تمت القراءة، لكن الإعلان يحتاج نظرة من الإدارة قبل النشر. سنتابعه من لوحة التحكم.`,
     suggested: (n: string) => `• المكتب المقترح: ${n}`,
@@ -348,7 +351,7 @@ const T = {
     photoBad: `Could not process this photo. Send it as a normal photo (not a file), JPG or PNG.`,
     videoNo: `Video is not supported by message yet; it can be added on the site after publishing.`,
     confirmLine: `\n\nSend 1 to publish · 2 to cancel · or send a correction.`,
-    missing: (list: string) => `\n\n⚠️ Missing: ${list}. Send it here and I will complete the summary.`,
+    missing: (list: string) => `\n\nBefore publishing I still need: ${list}.\nSend it here and I will complete the listing 🙏`,
     reviewAdmin: `Read ✅ The listing is waiting in the panel to pick the agency and publish.`,
     reviewNote: `Read, but the listing needs a look from the team before publishing. We will follow up from the panel.`,
     suggested: (n: string) => `• Suggested agency: ${n}`,
@@ -572,13 +575,14 @@ function settle(f: Record<string, any>, tax: any) {
   if (!["sale", "rent"].includes(out.deal)) missing.push("deal");
   if (!out.property_type) missing.push("property_type");
   if (!out.governorate_id) missing.push("governorate");
+  else if (!out.area_id && (g.areas || []).length) missing.push("area");   // the neighbourhood, when the governorate has a list of them
   if (!out.price) missing.push("price");
   if (!out.area_m2) missing.push("area_m2");
   if (out.deal === "sale" && !out.tabu && (tax.deeds || []).length) missing.push("tabu");   // the site's own form requires the deed for a sale
   return { fields: out, missing };
 }
-const MISSING_AR: Record<string, string> = { deal: "بيع أم إيجار", property_type: "نوع العقار", governorate: "المحافظة", price: "السعر", area_m2: "المساحة", tabu: "حالة الطابو" };
-const MISSING_EN: Record<string, string> = { deal: "sale or rent", property_type: "property type", governorate: "governorate", price: "price", area_m2: "size in m²", tabu: "deed status" };
+const MISSING_AR: Record<string, string> = { deal: "هل هو للبيع أم للإيجار", property_type: "نوع العقار (شقة، بيت، أرض…)", governorate: "المحافظة", area: "الحي أو المنطقة", price: "السعر", area_m2: "المساحة بالمتر", tabu: "نوع الطابو", photos: "صورة واحدة على الأقل" };
+const MISSING_EN: Record<string, string> = { deal: "sale or rent", property_type: "property type (apartment, house, land…)", governorate: "governorate", area: "the neighbourhood / area", price: "price", area_m2: "size in m²", tabu: "deed type", photos: "at least one photo" };
 function summary(f: Record<string, any>, tax: any, photos: number, lang: string): string {
   const t = (code: string, list: any[]) => (list || []).find((x: any) => x.code === code);
   const ty = t(f.property_type, tax.types); const deed = t(f.tabu, tax.deeds);
@@ -714,6 +718,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   try {
     const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax), user);
     usage = r.usage; raw = r.fields; const s = settle(r.fields, tax); fields = s.fields; missing = s.missing; cost = costOf(usage, c);
+    if (d.source !== "web" && photos === 0) missing.push("photos");   // a listing sent by message needs at least one photo (the site form has its own gate)
   } catch (e) { err = errStr(e); }
   let status = err ? "failed" : (missing.length ? "needs_info" : "ready");
   let suggested: string | null = null;
@@ -728,7 +733,8 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
       const { data } = await sb.from("agencies").select("id,user_id,name,country_code").eq("status", "approved").eq("intake_enabled", true).eq("country_code", d.country_code).ilike("name", "%" + String(raw.agency_hint).replace(/[%_]/g, "") + "%").limit(2);
       if (data && data.length === 1) { await rpc("bk_intake_set", { p_draft: draftId, p_patch: { agency_id: data[0].id, user_id: data[0].user_id } }); suggested = data[0].name; }
     }
-    if (status === "ready" || status === "needs_info") status = "review";
+    // the admin is asked for what is missing exactly like any sender; only a complete listing goes to the panel
+    if (status === "ready") status = "review";
   }
   // a transient reading failure goes back to the queue instead of failing the sender's listing
   if (err && !/no_key|claude 4\d\d/.test(err) && (d.reads || 0) < 3) status = "collecting";
