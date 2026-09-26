@@ -2392,6 +2392,12 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
   .rs-head{justify-content:flex-start;align-items:center;gap:22px;flex-wrap:nowrap}.rs-head .rs-ttl{flex:none;min-width:0}.rs-tools{flex:none}
   .rs-tools .viewtoggle button span{display:none}.rs-tools .viewtoggle button{width:36px;padding:0;justify-content:center}}   /* icon-only view toggle keeps the row on one line beside the map */
 .rs-mapwrap{position:relative;flex:1;min-height:0}.rs-mapwrap #rsMap{height:100%}
+/* mini card over a clicked pin */
+.rs-pop .leaflet-popup-content-wrapper{border-radius:14px;box-shadow:0 14px 34px rgba(9,14,26,.3);padding:0;overflow:hidden}.rs-pop .leaflet-popup-content{margin:0;width:auto!important;line-height:1.5}
+.rs-pop .leaflet-popup-close-button{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.92);top:6px;right:6px;font-size:18px;line-height:26px;color:var(--navy)}
+.rs-mini{width:240px;font-family:var(--f);direction:inherit}.rs-mini img{width:100%;height:130px;object-fit:cover;display:block}.rs-mini-np{height:90px;display:grid;place-items:center;background:#EEF0F4;color:var(--grey);font-size:12px}
+.rs-mini-b{padding:10px 12px 12px;text-align:start}.rs-mini-b>b{font-size:16px;color:var(--navy);display:block}.rs-mini-t{font-size:13px;font-weight:600;margin-top:2px;color:var(--ink)}.rs-mini-l{font-size:12px;color:var(--grey);margin-top:2px}
+.rs-mini-go{margin-top:9px;width:100%;height:34px;border:0;border-radius:9px;background:var(--navy);color:#fff;font:700 13px var(--f);cursor:pointer}.rs-mini-go:hover{background:var(--gold);color:#1A1206}
 .rs-avgbox{border-top:1px solid var(--line);background:#fff;padding:10px 12px 8px;font-size:12.5px}.rs-avgbox b{display:block;font-size:12px;color:var(--navy);margin-bottom:4px}
 .rs-avgrow{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--line);color:var(--ink)}.rs-avgrow:last-child{border-bottom:0}.rs-avgrow .ltr{color:var(--gold-dk);font-weight:700}
 /* phones: compact horizontal cards (photo beside the facts) so three results fit one screen */
@@ -4662,12 +4668,34 @@ function rsMapInit(){
   pts.forEach(function(x){
     var ic=LMap.divIcon({className:"rs-pinw",html:'<span class="rs-pin'+(x.featured?' feat':'')+'" data-pin="'+x.id+'">'+rsShort(x)+'</span>',iconSize:[0,0],iconAnchor:[0,0]});
     var m=LMap.marker([x.lat,x.lng],{icon:ic}).addTo(map); RS.pins[x.id]=m;
-    m.on("click",function(){ rsMapStop(); VIEW="listing:"+x.id; scrollTo(0,0); render(); refreshListingsOnNavigate() });
+    m.on("click",function(){ rsPinOpen(x,m) });
     m.on("mouseover",function(){ var cd=document.querySelector('.res .card[data-open="'+x.id+'"]'); if(cd){ cd.classList.add("hl"); if(cd.scrollIntoView) cd.scrollIntoView({block:"nearest",behavior:"smooth"}) } });
-    m.on("mouseout",function(){ var cd=document.querySelector('.res .card[data-open="'+x.id+'"]'); if(cd) cd.classList.remove("hl") });
+    m.on("mouseout",function(){ if(RS.hlId===x.id) return; var cd=document.querySelector('.res .card[data-open="'+x.id+'"]'); if(cd) cd.classList.remove("hl") });
     b.push([x.lat,x.lng]) });
   if(b.length>1){ try{ map.fitBounds(b,{padding:[40,40],maxZoom:14}) }catch(e){} }
+  // the mini card's "view listing" button (popup DOM is created by Leaflet, so it is wired here, not by the page's data-open pass)
+  map.on("popupopen",function(e){ var el=e.popup.getElement(); var btn=el&&el.querySelector("[data-rsgo]"); if(!btn) return;
+    btn.onclick=function(){ var id=btn.dataset.rsgo; rsMapStop(); GI=0; LIGHTBOX_OPEN=false; VIEW="listing:"+id; scrollTo(0,0); render(); refreshListingsOnNavigate();
+      fetchPhotos(id).then(function(ph){ var it=D.LIST.filter(function(l){ return String(l.id)===String(id) })[0]; if(it){ it.photos=ph||[]; GI=0; render() } }) } });
   RS.map=map; setTimeout(function(){ if(RS.map===map) map.invalidateSize() },150);
+  // a pin was clicked on another results page: the page changed, the map was rebuilt, now open that pin here
+  if(RS.focusId){ var fid=RS.focusId; RS.focusId=null; var fx=pts.filter(function(p){ return p.id===fid })[0], fm=RS.pins[fid]; if(fx&&fm) setTimeout(function(){ if(RS.map===map) rsPinOpen(fx,fm) },250) }
+}
+// pin click: a mini card over the pin (photo, price, title, area, "view listing") and the matching card highlighted and
+// scrolled into view; if that card is on another results page, that page is shown first
+function rsMiniCard(x){
+  var photos=(x.photos&&x.photos.length)?x.photos:(x.cover?[x.cover]:[]), cover=photos[0]||null, typeName=D.TYPES[x.t]?D.TYPES[x.t][li()]:"";
+  return '<div class="rs-mini">'+(cover?'<img src="'+cover+'" alt="">':'<div class="rs-mini-np">'+t("photos")+'</div>')+
+    '<div class="rs-mini-b"><b class="ltr">'+money(x.p)+'</b><div class="rs-mini-t">'+typeName+' <span class="ltr">'+x.m2+'</span> '+t("sqm")+'</div><div class="rs-mini-l">'+aN(x.a)+(L==="ar"?"، ":", ")+gN(x.g)+'</div>'+
+    '<button type="button" class="rs-mini-go" data-rsgo="'+x.id+'">'+GX("rsOpenListing")+'</button></div></div>' }
+function rsPinOpen(x,m){
+  if(!RS.map) return;
+  var all=rsResults(), idx=-1; all.forEach(function(l,i){ if(idx<0&&l.id===x.id) idx=i });
+  var size=+SX("search_page_size",24)||24, pg=Math.floor(Math.max(0,idx)/size)+1;
+  if(idx>-1 && pg!==F.page){ F.page=pg; RS.focusId=x.id; render(); return }
+  $$(".res .card.hl").forEach(function(c){ c.classList.remove("hl") }); RS.hlId=x.id;
+  var cd=document.querySelector('.res .card[data-open="'+x.id+'"]'); if(cd){ cd.classList.add("hl"); if(cd.scrollIntoView) cd.scrollIntoView({block:"center",behavior:"smooth"}) }
+  try{ m.bindPopup(rsMiniCard(x),{className:"rs-pop",closeButton:true,maxWidth:280,minWidth:220,offset:[0,-36]}).openPopup() }catch(e){}
 }
 function rsWire(opts){
   wireChipSelects();
@@ -10218,7 +10246,7 @@ var GX_T={
   csDone:{ar:"تم",en:"Done",de:"Fertig"}, csClear:{ar:"مسح الاختيار",en:"Clear",de:"Leeren"},
   rsAll:{ar:"عقارات",en:"Properties",de:"Immobilien"}, rsSyria:{ar:"سوريا",en:"Syria",de:"Syrien"}, rsMore:{ar:"المزيد",en:"More",de:"Mehr"},
   rsShow:{ar:"عرض {n} إعلان",en:"Show {n} listings",de:"{n} Anzeigen zeigen"}, rsAvg:{ar:"متوسط السعر المعروض",en:"Average asking price",de:"Ø Angebotspreis"},
-  rsInArea:{ar:"في المنطقة",en:"in the area",de:"im Gebiet"}, rsAvgH:{ar:"متوسط سعر المتر في المناطق الظاهرة",en:"Average price per m² in these areas",de:"Ø Preis pro m² in diesen Gebieten"}, rsHideMap:{ar:"إخفاء الخريطة",en:"Hide map",de:"Karte ausblenden"}, rsShowMap:{ar:"الخريطة",en:"Map",de:"Karte"},
+  rsInArea:{ar:"في المنطقة",en:"in the area",de:"im Gebiet"}, rsOpenListing:{ar:"عرض الإعلان",en:"View listing",de:"Anzeige ansehen"}, rsAvgH:{ar:"متوسط سعر المتر في المناطق الظاهرة",en:"Average price per m² in these areas",de:"Ø Preis pro m² in diesen Gebieten"}, rsHideMap:{ar:"إخفاء الخريطة",en:"Hide map",de:"Karte ausblenden"}, rsShowMap:{ar:"الخريطة",en:"Map",de:"Karte"},
   rsClearAll:{ar:"مسح الكل",en:"Clear all",de:"Alle löschen"}, rsFilters:{ar:"الفلاتر",en:"Filters",de:"Filter"}, rsSort:{ar:"الترتيب",en:"Sort",de:"Sortieren"},
   rsOnMap:{ar:"{n} على الخريطة",en:"{n} on the map",de:"{n} auf der Karte"}, rsList:{ar:"القائمة",en:"List",de:"Liste"},
   tEngage:{ar:"الحملات والحجوزات",en:"Engagements",de:"Buchungen"},
