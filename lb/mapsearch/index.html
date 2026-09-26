@@ -2134,6 +2134,26 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .acbar-list{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--grey)}
 .acbar-c{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border:1px solid var(--line-2);border-radius:999px;background:#fff;cursor:pointer;font:600 12px var(--fd);color:var(--ink)}
 .acbar-c .flg{width:18px;height:12px}.acbar-c.on{background:var(--navy);color:#fff;border-color:var(--navy)}.acbar-c.off{opacity:.55}.acbar-c:hover{border-color:var(--gold)}
+/* admin reorganisation 2026-09: slim country line, grouped sub-tabs, section jump bar, foldable cards, card-tables on phones, one size rhythm */
+.acbar.slim{padding:8px 14px;justify-content:space-between}.acbar-sel{height:34px;border:1px solid var(--line-2);border-radius:9px;padding:0 10px;font:600 13px var(--f);background:#fff;color:var(--ink);max-width:240px}.acbar.all .acbar-sel{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.25)}
+.asubtabs{display:flex;gap:4px;flex-wrap:wrap;background:#fff;border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:14px}
+.asubtabs button{border:0;background:transparent;border-radius:9px;padding:9px 14px;font:600 13.5px var(--f);color:var(--grey);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.asubtabs button:hover{color:var(--navy);background:#F3F4F7}.asubtabs button.on{background:var(--navy);color:#fff}.asubtabs button .abadge2{margin:0}
+.asecnav{position:sticky;top:62px;z-index:20;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:8px 0;margin:-6px 0 12px;background:linear-gradient(#F3F4F7 80%,rgba(243,244,247,0))}.asecnav::-webkit-scrollbar{display:none}
+.asecnav button{flex:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px;font:600 12.5px var(--f);color:var(--navy);cursor:pointer;white-space:nowrap}.asecnav button:hover{border-color:var(--gold)}
+.adm .blk.afoldable>h3{cursor:pointer;user-select:none}.adm .blk.afoldable>h3::after{content:"⌄";margin-inline-start:auto;color:var(--light);font-size:16px;transition:transform .15s}.adm .blk.afoldable.folded>h3::after{transform:rotate(-90deg)}
+.adm .blk.afoldable.folded>h3{border-bottom:0}.adm .blk.afoldable.folded>.in{display:none}
+.adm{font-size:14px}.adm .blk{border-radius:14px}.adm .blk>h3{font-size:15px;padding:12px 16px;display:flex;align-items:center;gap:10px}.adm .blk>.in{padding:16px}.adm .apage-h h1{font-size:22px}.adm .apage-h p{font-size:13.5px}
+.adm .atable td{font-size:13px;line-height:1.5;vertical-align:middle}.adm .atable th{padding:10px 12px}.adm .ab{min-height:34px}.adm .hintx{font-size:12.5px;line-height:1.7}
+@media(max-width:700px){
+  .adm .atable table.acards,.adm .atable table.acards tbody,.adm .atable table.acards tr{display:block;width:100%}
+  .adm .atable table.acards thead{display:none}
+  .adm .atable table.acards tr{border:1px solid var(--line);border-radius:12px;margin:10px;padding:4px 12px;background:#fff;box-shadow:0 1px 2px rgba(20,33,61,.05)}
+  .adm .atable table.acards td{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);text-align:start}
+  .adm .atable table.acards td:last-child{border-bottom:0}.adm .atable table.acards td::before{content:attr(data-th);color:var(--grey);font-size:11.5px;font-weight:600;flex:none;max-width:40%}
+  .adm .atable table.acards td:not([data-th])::before{content:none}
+  .asecnav{top:58px}.acbar.slim{gap:8px}.acbar-sel{max-width:100%}
+}
 .csetup-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
 .csetup{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:10px 12px;border:1px solid var(--line-2);border-radius:10px;background:#fff;cursor:pointer;text-align:start;font-family:var(--fd)}
 .csetup:hover{border-color:var(--gold);background:var(--gold-w)}.csetup .aicon,.csetup svg{width:16px;height:16px;color:var(--gold-dk,#8A6522)}.csetup b{font-size:13px;color:var(--navy)}.csetup span{font-size:12px;color:var(--grey)}
@@ -10200,7 +10220,7 @@ var GX_T={
   aNavSearch:{ar:"ابحث في لوحة التحكم…",en:"Search the panel…",de:"Im Panel suchen…"},
   navListings:{ar:"الإعلانات",en:"Listings",de:"Anzeigen"}, navMarketing:{ar:"التسويق والإيرادات",en:"Marketing & revenue",de:"Marketing & Umsatz"},
   navWebsite:{ar:"الموقع",en:"Website",de:"Website"}, navSystem:{ar:"النظام",en:"System",de:"System"},
-  tBanners:{ar:"البانرات",en:"Banners",de:"Banner"}, tCampaigns:{ar:"الحملات والرسائل",en:"Campaigns & messages",de:"Kampagnen & Nachrichten"}, tDesign:{ar:"البحث والبطاقات",en:"Search & cards",de:"Suche & Karten"},
+  tBanners:{ar:"البانرات",en:"Banners",de:"Banner"}, tPromo:{ar:"الترويج والإعلانات",en:"Promotions",de:"Werbung"}, secNav:{ar:"أقسام الصفحة",en:"Page sections",de:"Seitenabschnitte"}, tCampaigns:{ar:"الحملات والرسائل",en:"Campaigns & messages",de:"Kampagnen & Nachrichten"}, tDesign:{ar:"البحث والبطاقات",en:"Search & cards",de:"Suche & Karten"},
   tContact:{ar:"التواصل",en:"Contact",de:"Kontakt"}, tSystem:{ar:"إعدادات النظام",en:"System settings",de:"Systemeinstellungen"},
   tMedia:{ar:"مكتبة الوسائط",en:"Media library",de:"Medienbibliothek"}, aLang:{ar:"لغة اللوحة",en:"Panel language",de:"Panelsprache"},
   desc_dashboard:{ar:"نظرة سريعة على اليوم: الإعلانات، الأعضاء، التنبيهات والتخزين.",en:"Today at a glance: listings, members, alerts and storage.",de:"Der Tag auf einen Blick: Anzeigen, Mitglieder, Hinweise und Speicher."},
