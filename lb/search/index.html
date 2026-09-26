@@ -2394,7 +2394,7 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
   .rs-head h1{font-size:19px}
   .rs-tools{width:100%;justify-content:space-between}
   .rs-tools select{display:none}
-  .rs-body{padding-block:12px 96px}
+  .rs-body{padding-block:12px 120px}   /* room under the last card for the floating filters bar */
   .rs-mbar{display:flex;position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:1100;gap:8px;background:rgba(20,33,61,.96);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-radius:16px;padding:8px;box-shadow:0 14px 40px -12px rgba(9,14,26,.6)}
   .rs-mbar button,.rs-mbar select{flex:1;height:42px;border:0;border-radius:11px;background:rgba(255,255,255,.1);color:#fff;font:600 13.5px var(--f);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;padding:0 8px}
   .rs-mbar .mi{display:inline-flex;width:16px;height:16px}.rs-mbar .mi svg{width:16px;height:16px}
@@ -3024,6 +3024,9 @@ body.mdw-open .mobfab{display:none}
 .acch input:checked+i::after{transform:translateX(18px)}
 [dir=rtl] .acch input:checked+i::after{transform:translateX(-18px)}
 .agree.consent{margin-top:6px}
+/* iOS Safari zooms the whole page when a focused field is under 16px: every text-like field is 16px on phones
+   (the OTP boxes keep their own larger size). Pinch zoom stays available. */
+@media(max-width:640px){body :is(input:not([type=checkbox],[type=radio],[type=range],[type=color],[type=file]),select,textarea):not(.otp *){font-size:16px!important}}
 /* ── post by message (/post-by-message) + the "or send it by message" card on the post form ── */
 .pm{max-width:760px;padding:26px 18px 60px}
 .pm-hero{text-align:center;margin-bottom:22px}.pm-hero h1{font-size:26px;margin:10px 0 6px}.pm-hero p{color:var(--grey);font-size:15px;line-height:1.7}
@@ -7261,7 +7264,7 @@ function aiSearchBarHtml(){
   return '<div class="aisearch'+(glass?" glass":"")+'" id="aiSearchBox">'+
     '<div class="aisearch-pill">'+
       '<span class="aisearch-badge">'+AI_SPARKLE+'<span>'+GX("aiSearchBadge")+'</span></span>'+
-      '<input id="aiSearchInput" type="text" data-allow-autofill autocomplete="off" enterkeyhint="search" placeholder="'+esc(GX("aiSearchPH"))+'" maxlength="200" aria-label="'+esc(GX("aiSearchPH"))+'">'+
+      '<input id="aiSearchInput" type="text" data-allow-autofill autocomplete="off" enterkeyhint="search" placeholder="'+esc(GX(innerWidth<=640?"aiSearchPHm":"aiSearchPH"))+'" maxlength="200" aria-label="'+esc(GX("aiSearchPH"))+'">'+
       '<button type="button" id="aiSearchGo" class="aisearch-go" aria-label="'+esc(GX("aiSearchGo"))+'">'+MI.search+'<span class="aisearch-star" aria-hidden="true">'+AI_SPARKLE+'</span></button>'+
     '</div>'+
     '<div class="aisearch-result" id="aiSearchResult" hidden></div>'+
@@ -7275,7 +7278,7 @@ function wireAiSearchBar(){
   btn.onclick=aiSearchRun;
   inp.onkeydown=function(e){ if(e.key==="Enter"){ e.preventDefault(); aiSearchRun() } };
   // the placeholder "types" a few example searches while the field is empty and unfocused (plain swap under reduced motion)
-  var examples=[GX("aiSearchPH"),GX("aiSearchEx1"),GX("aiSearchEx2"),GX("aiSearchEx3")], i=0, pos=examples[0].length, phase="hold", holdUntil=Date.now()+3600;
+  var examples=[GX(innerWidth<=640?"aiSearchPHm":"aiSearchPH"),GX("aiSearchEx1"),GX("aiSearchEx2"),GX("aiSearchEx3")], i=0, pos=examples[0].length, phase="hold", holdUntil=Date.now()+3600;
   var reduce=false; try{ reduce=matchMedia("(prefers-reduced-motion: reduce)").matches }catch(e){}
   if(_aiPhTimer) clearInterval(_aiPhTimer);
   _aiPhTimer=setInterval(function(){
@@ -10437,6 +10440,7 @@ var GX_T={
   aiSearchThinking:{ar:"نفهم طلبك…",en:"Understanding your search…",de:"Ihre Suche wird verstanden…"},
   aiSearchNoMatch:{ar:"لم نفهم طلباً عقارياً من هذا النص. جرّب مثلاً: شقة 3 غرف بالمزة تحت 80 ألف دولار",en:"That didn't read as a property search. Try something like: 3-bedroom apartment in Mazzeh under $80,000",de:"Das war keine erkennbare Immobiliensuche. Versuchen Sie z. B.: 3-Zimmer-Wohnung in Mazzeh unter 80.000 $"},
   aiSearchPH:{ar:"ابحث عن منزل أحلامك باستخدام الذكاء الاصطناعي",en:"Search for your dream home using AI",de:"Suchen Sie Ihr Traumhaus mit KI"},
+  aiSearchPHm:{ar:"ابحث بكلماتك عن منزل أحلامك",en:"Describe your dream home",de:"Beschreiben Sie Ihr Traumhaus"},
   aiSearchEx1:{ar:"مثال: شقة 3 غرف بالمزة تحت 80 ألف دولار",en:"e.g. 3-bedroom apartment in Mazzeh under $80,000",de:"z. B. 3-Zimmer-Wohnung in Mazzeh unter 80.000 $"},
   aiSearchEx2:{ar:"مثال: فيلا للبيع في اللاذقية على البحر",en:"e.g. villa for sale in Latakia by the sea",de:"z. B. Villa zum Verkauf in Latakia am Meer"},
   aiSearchEx3:{ar:"مثال: محل تجاري للإيجار في حلب",en:"e.g. shop for rent in Aleppo",de:"z. B. Laden zur Miete in Aleppo"},
