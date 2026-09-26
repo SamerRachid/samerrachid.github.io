@@ -687,7 +687,9 @@ function searchSummary(f: Record<string, any>, tax: any, lang: string): string {
   if (f.deal) parts.push(f.deal === "rent" ? (ar ? "إيجار" : "Rent") : (ar ? "بيع" : "Sale"));
   const ty = (tax.types || []).filter((t: any) => (f.property_types || []).includes(t.code));
   if (ty.length) parts.push(ty.map((t: any) => ar ? t.ar : t.en).join(ar ? "، " : ", "));
-  const place = [f.governorate, f.area].filter(Boolean).join(ar ? "، " : ", "); if (place) parts.push(place);
+  const g = (tax.governorates || []).find((x: any) => x.id === f.governorate_id || x.ar === f.governorate);
+  const a = g ? (g.areas || []).find((x: any) => x[0] === f.area_id || x[1] === f.area) : null;
+  const place = [g ? (ar ? g.ar : (g.en || g.ar)) : f.governorate, a ? (ar ? a[1] : (a[2] || a[1])) : f.area].filter(Boolean).join(ar ? "، " : ", "); if (place) parts.push(place);
   if (f.price_min && f.price_max) parts.push(fmtNum(f.price_min) + "–" + fmtNum(f.price_max) + "$");
   else if (f.price_max) parts.push((ar ? "حتى " : "up to ") + fmtNum(f.price_max) + "$");
   else if (f.price_min) parts.push((ar ? "من " : "from ") + fmtNum(f.price_min) + "$");
