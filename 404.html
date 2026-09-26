@@ -2363,7 +2363,24 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .rs-pin.on,.rs-pin:hover,.rs-pinw.on .rs-pin{background:var(--navy);color:#fff;transform:translate(-50%,-100%) scale(1.08)}
 .res .card.hl{box-shadow:0 0 0 3px var(--gold),0 22px 40px -26px rgba(20,33,61,.45);transform:translateY(-3px)}
 .rs-mbar{display:none}
-@media(min-width:1100px){.rs-maptg{display:inline-flex}.rs-body.rs-hasmap{grid-template-columns:minmax(0,1fr) minmax(340px,38%)}.rs-hasmap .rs-map{display:block}}
+/* results + side map ("model B"): a narrower sticky map column, two wide cards per row beside it, and an
+   average-price-per-m² box for the areas in the results under the map. The map toggle hides the column. */
+@media(min-width:1100px){.rs-maptg{display:inline-flex}.rs-body.rs-hasmap{grid-template-columns:minmax(0,1fr) minmax(300px,32%)}.rs-hasmap .rs-map{display:flex;flex-direction:column}.rs-hasmap .res:not(.list-view){grid-template-columns:repeat(2,1fr);gap:16px}}
+.rs-mapwrap{position:relative;flex:1;min-height:0}.rs-mapwrap #rsMap{height:100%}
+.rs-avgbox{border-top:1px solid var(--line);background:#fff;padding:10px 12px 8px;font-size:12.5px}.rs-avgbox b{display:block;font-size:12px;color:var(--navy);margin-bottom:4px}
+.rs-avgrow{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--line);color:var(--ink)}.rs-avgrow:last-child{border-bottom:0}.rs-avgrow .ltr{color:var(--gold-dk);font-weight:700}
+/* phones: compact horizontal cards (photo beside the facts) so three results fit one screen */
+@media(max-width:640px){
+  .rs .res:not(.list-view){grid-template-columns:1fr;gap:10px}
+  .rs .res:not(.list-view) .card{display:flex;flex-direction:row;min-height:124px;overflow:hidden}
+  .rs .res:not(.list-view) .card .ph{width:128px;flex-shrink:0;height:auto;aspect-ratio:auto;position:relative}
+  .rs .res:not(.list-view) .card .ph img,.rs .res:not(.list-view) .card .ph .nophoto{height:100%;aspect-ratio:auto;object-fit:cover}
+  .rs .res:not(.list-view) .card .bd{top:6px;inset-inline-start:6px;gap:4px}.rs .res:not(.list-view) .card .bd span{font-size:9.5px;padding:2px 6px}
+  .rs .res:not(.list-view) .card .cb{flex:1;min-width:0;padding:8px 10px;display:flex;flex-direction:column;justify-content:center;gap:2px}
+  .rs .res:not(.list-view) .card .cprice .p{font-size:16px}.rs .res:not(.list-view) .card .ctitle{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rs .res:not(.list-view) .card .cloc{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rs .res:not(.list-view) .card .cfacts{font-size:11.5px;gap:8px}
+  .rs .res:not(.list-view) .card .cfoot{margin-top:2px;padding-top:4px;font-size:10.5px;gap:6px}.rs .res:not(.list-view) .card .cfoot .cref,.rs .res:not(.list-view) .card .cfoot .csince{display:none}
+}
 @media(max-width:900px){
   .rs-bar{position:static;z-index:auto}
   .rs-barin{display:block;padding:0;height:0;overflow:visible}
@@ -4578,10 +4595,16 @@ function search(){
       Array.from({length:totalPages},function(_,idx){return idx+1}).map(function(p){ return '<a class="'+(p===F.page?"on":"")+'" data-pg="'+p+'">'+p+'</a>'}).join("")+
       (F.page<totalPages?'<a data-pg="'+(F.page+1)+'">›</a>':'')+'</div>':'')+
    '</div>'+
-   (mapOn?'<aside class="rs-map"><div id="rsMap"></div><div class="rs-mapnote">'+GX("rsOnMap").replace("{n}",'<span class="ltr">'+withLoc+'</span>')+'</div></aside>':'')+
+   (mapOn?'<aside class="rs-map"><div class="rs-mapwrap"><div id="rsMap"></div><div class="rs-mapnote">'+GX("rsOnMap").replace("{n}",'<span class="ltr">'+withLoc+'</span>')+'</div></div>'+rsAvgBox(r)+'</aside>':'')+
   '</div>'+
   '<div class="rs-mbar"><button type="button" id="rsMFilters">'+GX("rsFilters")+(fc?' <b class="ltr">'+fc+'</b>':'')+'</button><button type="button" id="rsMMap">'+MI.map+GX("rsShowMap")+newTag()+'</button><span class="rs-msort">'+rsSortHtml("sortM")+'</span></div>'+
  '</div>' }
+// average asking price per m² for the (up to five) most represented areas in the current results — real numbers from v_area_prices
+function rsAvgBox(r){
+ var by={}; r.forEach(function(x){ if(!x.aid) return; var ap=AREA_PRICES[x.aid]; if(!ap||!+ap.avg_price_per_m2) return; if(!by[x.aid]) by[x.aid]={a:x.a,n:0,v:+ap.avg_price_per_m2}; by[x.aid].n++ });
+ var rows=Object.keys(by).map(function(k){ return by[k] }).sort(function(a,b){ return b.n-a.n }).slice(0,5);
+ if(!rows.length) return "";
+ return '<div class="rs-avgbox"><b>'+GX("rsAvgH")+'</b>'+rows.map(function(o){ return '<div class="rs-avgrow"><span>'+aN(o.a)+'</span><span class="ltr">$'+Math.round(o.v).toLocaleString("en")+'/'+t("sqm")+'</span></div>' }).join("")+'</div>' }
 function rsShort(x){ var v=+x.p||0, rate=curRate(); if(CUR!=="USD") v=Math.round(v*rate); var sh = v>=1e6 ? (Math.round(v/1e5)/10).toString().replace(/\.0$/,"")+"M" : v>=1000 ? Math.round(v/1000)+"K" : String(v); return (CUR==="USD"?"$":"")+sh+(CUR==="USD"?"":" "+curLabel(CUR,"ar")) }
 function rsMapStop(){ if(RS.map){ try{ RS.map.remove() }catch(e){} RS.map=null; RS.pins={} } }
 function rsMapInit(){
@@ -10037,7 +10060,7 @@ var GX_T={
   csDone:{ar:"تم",en:"Done",de:"Fertig"}, csClear:{ar:"مسح الاختيار",en:"Clear",de:"Leeren"},
   rsAll:{ar:"عقارات",en:"Properties",de:"Immobilien"}, rsSyria:{ar:"سوريا",en:"Syria",de:"Syrien"}, rsMore:{ar:"المزيد",en:"More",de:"Mehr"},
   rsShow:{ar:"عرض {n} إعلان",en:"Show {n} listings",de:"{n} Anzeigen zeigen"}, rsAvg:{ar:"متوسط السعر المعروض",en:"Average asking price",de:"Ø Angebotspreis"},
-  rsInArea:{ar:"في المنطقة",en:"in the area",de:"im Gebiet"}, rsHideMap:{ar:"إخفاء الخريطة",en:"Hide map",de:"Karte ausblenden"}, rsShowMap:{ar:"الخريطة",en:"Map",de:"Karte"},
+  rsInArea:{ar:"في المنطقة",en:"in the area",de:"im Gebiet"}, rsAvgH:{ar:"متوسط سعر المتر في المناطق الظاهرة",en:"Average price per m² in these areas",de:"Ø Preis pro m² in diesen Gebieten"}, rsHideMap:{ar:"إخفاء الخريطة",en:"Hide map",de:"Karte ausblenden"}, rsShowMap:{ar:"الخريطة",en:"Map",de:"Karte"},
   rsClearAll:{ar:"مسح الكل",en:"Clear all",de:"Alle löschen"}, rsFilters:{ar:"الفلاتر",en:"Filters",de:"Filter"}, rsSort:{ar:"الترتيب",en:"Sort",de:"Sortieren"},
   rsOnMap:{ar:"{n} على الخريطة",en:"{n} on the map",de:"{n} auf der Karte"}, rsList:{ar:"القائمة",en:"List",de:"Liste"},
   tEngage:{ar:"الحملات والحجوزات",en:"Engagements",de:"Buchungen"},
