@@ -3016,7 +3016,11 @@ body.mdw-open .mobfab{display:none}
 .pm{max-width:760px;padding:26px 18px 60px}
 .pm-hero{text-align:center;margin-bottom:22px}.pm-hero h1{font-size:26px;margin:10px 0 6px}.pm-hero p{color:var(--grey);font-size:15px;line-height:1.7}
 .pm-badge{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;border-radius:999px;padding:6px 14px;font:800 13px var(--f)}.pm-badge svg{width:20px;height:20px}
-.pm-logo{display:inline-flex;align-items:center;justify-content:center;width:68px;height:68px;border-radius:18px;background:#fff;border:1px solid var(--line);box-shadow:0 8px 24px rgba(11,29,58,.12)}.pm-logo img{width:44px;height:44px}
+.pm-logo{display:inline-flex;justify-content:center;transform:scale(1.35);transform-origin:center;margin:14px 0 18px;cursor:default}
+.pm-ch{display:flex;flex-direction:column;gap:8px}.pm-ch .pm-btn{flex:1}
+.pm-id{display:flex;align-items:center;justify-content:center;gap:10px;font:700 15px var(--f);color:var(--navy)}.pm-id .ltr{direction:ltr;letter-spacing:.3px}
+.pm-copy{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font:600 12.5px var(--f);color:var(--navy);cursor:pointer}.pm-copy:hover{border-color:var(--navy)}
+.pm-how{margin:0;text-align:center;color:var(--grey);font-size:13px;line-height:1.6}
 .pm-alt{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 16px;margin-top:26px;padding-top:22px;border-top:1px solid var(--line);color:var(--grey);font-size:14.5px}
 .pm-alt .btn-o{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border:1.5px solid var(--navy);border-radius:999px;color:var(--navy);font:700 14px var(--f);cursor:pointer;background:#fff}.pm-alt .btn-o:hover{background:var(--navy);color:#fff}
 .pm-steps{display:grid;gap:10px;margin-bottom:22px}
@@ -4872,7 +4876,7 @@ function postMsgLinks(){
   // the intake number is the bot-linked one (admin › post by message › "displayed WhatsApp number"), never the
   // contact-us number in wa_number: nothing listens for listings there
   var wa=String(SX("intake_wa_display","")||"").replace(/\D/g,"").replace(/^00/,""), bot=SX("intake_bot","");
-  return { wa: wa?"https://wa.me/"+wa+"?text="+encodeURIComponent("/start"):"", tg: bot?"https://t.me/"+encodeURIComponent(bot):"" };
+  return { wa: wa?"https://wa.me/"+wa+"?text="+encodeURIComponent("/start"):"", tg: bot?"https://t.me/"+encodeURIComponent(bot):"", waNum: wa?"+"+wa:"", bot: bot };
 }
 function postMsgCardHtml(){
   var l=postMsgLinks(); if(!l.wa&&!l.tg) return "";
@@ -4886,11 +4890,13 @@ function postMsgPage(){
            : USER.phone_verified===false ? '<div class="pm-note"><b>'+GX("pmVerifyT")+'</b><p>'+GX("pmVerifyP")+'</p><a class="btn-n" style="width:auto;display:inline-block" data-go="account">'+GX("accTitle")+'</a></div>'
            : '<div class="pm-note ok"><p>'+GX("pmReadyP")+' <a data-go="account">'+GX("accChTgBtn")+'</a></p></div>';
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("pmTitle")+'</div></div>'+
-   '<div class="wrap pm"><div class="pm-hero"><span class="pm-logo"><img src="/brand/mark.svg" alt="Balkoun"></span><h1>'+GX("pmTitle")+'</h1><p>'+GX("pmLead")+'</p></div>'+
+   '<div class="wrap pm"><div class="pm-hero"><span class="logo blogo pm-logo">'+brandLogo()+'</span><h1>'+GX("pmTitle")+'</h1><p>'+GX("pmLead")+'</p></div>'+
    '<div class="pm-steps">'+step(1,GX("pmS1T"),GX("pmS1P"))+step(2,GX("pmS2T"),GX("pmS2P"))+step(3,GX("pmS3T"),GX("pmS3P"))+'</div>'+
    '<div class="pm-btns">'+
-     (l.wa?'<a class="pm-btn" href="'+l.wa+'" target="_blank" rel="noopener"><span class="vico wa">'+VICO.wa+'</span><span><b>'+GX("pmWa")+'</b><small>'+GX("pmWaP")+'</small></span></a>':'')+
-     (l.tg?'<a class="pm-btn" href="'+l.tg+'" target="_blank" rel="noopener"><span class="vico tg">'+VICO.tg+'</span><span><b>'+GX("pmTg")+'</b><small>'+GX("pmTgP")+'</small></span></a>':'')+
+     (l.wa?'<div class="pm-ch"><a class="pm-btn" href="'+l.wa+'" target="_blank" rel="noopener"><span class="vico wa">'+VICO.wa+'</span><span><b>'+GX("pmWa")+'</b><small>'+GX("pmWaP")+'</small></span></a>'+
+       '<div class="pm-id"><span class="ltr">'+esc(l.waNum)+'</span><button type="button" class="pm-copy" data-pmcopy="'+esc(l.waNum)+'">'+GX("pmCopy")+'</button></div><p class="pm-how">'+GX("pmWaHow")+'</p></div>':'')+
+     (l.tg?'<div class="pm-ch"><a class="pm-btn" href="'+l.tg+'" target="_blank" rel="noopener"><span class="vico tg">'+VICO.tg+'</span><span><b>'+GX("pmTg")+'</b><small>'+GX("pmTgP")+'</small></span></a>'+
+       '<div class="pm-id"><span class="ltr">@'+esc(l.bot)+'</span><button type="button" class="pm-copy" data-pmcopy="@'+esc(l.bot)+'">'+GX("pmCopy")+'</button></div><p class="pm-how">'+GX("pmTgHow")+'</p></div>':'')+
    '</div>'+note+
    '<p class="hintx">'+GX("pmAgencyP")+'</p>'+
    '<div class="pm-alt"><span>'+GX("pmFormQ")+'</span><a class="btn-o" data-go="post">'+GX("pmFormLink")+' ←</a></div></div>';
@@ -6688,6 +6694,7 @@ function wireAgencies(){
     $$("[data-agseller]").forEach(function(a){ a.onclick=function(){ var uid=this.dataset.agseller; BYUSER={id:uid,name:"",rows:[]}; VIEW="by:"+uid; scrollTo(0,0); render(); loadByUser(uid).then(render) } });
     $$("[data-agarea]").forEach(function(a){ a.onclick=function(){ F.areas=[this.dataset.agarea]; F.govs=[]; F.g=""; F.a=""; F.page=1; VIEW="search"; scrollTo(0,0); render() } }) }
   if($("#pmSignup")) $("#pmSignup").onclick=function(){ AU.open=true; AU.step=1; AU.mode="up"; render() };
+  $$("[data-pmcopy]").forEach(function(b){ b.onclick=function(){ var v=b.getAttribute("data-pmcopy"); try{ navigator.clipboard.writeText(v) }catch(e){} var o=b.textContent; b.textContent=GX("pmCopied"); setTimeout(function(){ b.textContent=o },1600) } });
   if(VIEW!=="agencyform" && VIEW!=="account") window._acScrolled=false;
   if((VIEW==="agencyform"||VIEW==="account") && USER){
     if(MYAGENCY===null) loadMyAgency().then(render);
@@ -10398,6 +10405,9 @@ var GX_T={
   pmReadyP:{ar:"حسابك جاهز ✓ أرسل الآن من رقمك المسجّل على واتساب، أو اربط تيليغرام من حسابك:",en:"Your account is ready ✓ Send now from your registered WhatsApp number, or link Telegram from your account:",de:"Ihr Konto ist bereit ✓ Senden Sie jetzt von Ihrer registrierten WhatsApp-Nummer oder verknüpfen Sie Telegram im Konto:"},
   pmAgencyP:{ar:"المكاتب العقارية: نفس الطريقة، وتُنشر إعلاناتكم باسم المكتب مباشرة.",en:"Agencies: same way — your listings are published under the agency's name.",de:"Büros: gleicher Weg — Ihre Anzeigen erscheinen unter dem Büronamen."},
   pmFormLink:{ar:"الاستمارة العادية",en:"Regular form",de:"Normales Formular"},
+  pmCopy:{ar:"نسخ",en:"Copy",de:"Kopieren"}, pmCopied:{ar:"تم النسخ ✓",en:"Copied ✓",de:"Kopiert ✓"},
+  pmWaHow:{ar:"من الحاسوب: يفتح الزر واتساب ويب، أو احفظ الرقم في هاتفك وراسله من واتساب.",en:"On a computer: the button opens WhatsApp Web, or save the number on your phone and message it from WhatsApp.",de:"Am Computer: Der Button öffnet WhatsApp Web, oder speichern Sie die Nummer im Handy und schreiben Sie per WhatsApp."},
+  pmTgHow:{ar:"من الحاسوب: يفتح الزر تيليغرام، أو ابحث عن اسم البوت في تيليغرام على هاتفك واضغط «ابدأ».",en:"On a computer: the button opens Telegram, or search for the bot name in Telegram on your phone and press Start.",de:"Am Computer: Der Button öffnet Telegram, oder suchen Sie den Bot-Namen in Telegram am Handy und tippen Sie auf Start."},
   pmFormQ:{ar:"تفضّل تعبئة الإعلان بنفسك؟",en:"Prefer to fill in the listing yourself?",de:"Möchten Sie die Anzeige lieber selbst ausfüllen?"},
   pmCardT:{ar:"أو أرسله برسالة",en:"Or send it by message",de:"Oder per Nachricht senden"},
   pmCardP:{ar:"واتساب أو تيليغرام — أرسل التفاصيل والصور وبلكون ينشره لك.",en:"WhatsApp or Telegram — send the details and photos and Balkoun publishes it for you.",de:"WhatsApp oder Telegram — Details und Fotos senden, Balkoun veröffentlicht für Sie."},
