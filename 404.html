@@ -2385,7 +2385,7 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .rs-mbar{display:none}
 /* results + side map ("model B"): a narrower sticky map column, two wide cards per row beside it, and an
    average-price-per-m² box for the areas in the results under the map. The map toggle hides the column. */
-@media(min-width:1100px){.rs-maptg{display:inline-flex}.rs-body.rs-hasmap{grid-template-columns:minmax(0,1fr) minmax(300px,32%)}.rs-hasmap .rs-map{display:flex;flex-direction:column}.rs-hasmap .res:not(.list-view){grid-template-columns:repeat(auto-fill,minmax(min(var(--card-size,250px),320px),1fr));gap:16px}}
+@media(min-width:1100px){.rs-maptg{display:inline-flex}.rs-body.rs-hasmap{grid-template-columns:minmax(0,1fr) minmax(300px,32%)}.rs-hasmap .rs-map{display:flex;flex-direction:column}.rs-hasmap .res:not(.list-view){grid-template-columns:repeat(auto-fill,minmax(min(var(--card-size,238px),238px),1fr));gap:14px}}
 .rs-mapwrap{position:relative;flex:1;min-height:0}.rs-mapwrap #rsMap{height:100%}
 .rs-avgbox{border-top:1px solid var(--line);background:#fff;padding:10px 12px 8px;font-size:12.5px}.rs-avgbox b{display:block;font-size:12px;color:var(--navy);margin-bottom:4px}
 .rs-avgrow{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--line);color:var(--ink)}.rs-avgrow:last-child{border-bottom:0}.rs-avgrow .ltr{color:var(--gold-dk);font-weight:700}
