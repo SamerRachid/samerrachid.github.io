@@ -55,6 +55,42 @@ function loadAppData() {
   return sandbox.D;
 }
 const D = loadAppData();
+// ── the legal pages' default texts (index.html, between the __LEGAL_BEGIN__/__LEGAL_END__ markers) ──
+function loadLegal() {
+  const src = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  const m = src.match(/\/\*__LEGAL_BEGIN__\*\/var LEGAL=([\s\S]*?);\/\*__LEGAL_END__\*\//);
+  if (!m) throw new Error("index.html: LEGAL block not found");
+  const sandbox = {};
+  vm.runInNewContext("LEGAL=" + m[1], sandbox);
+  return sandbox.LEGAL;
+}
+const LEGAL = loadLegal();
+const LEGAL_T = {
+  ar: { privacy: "سياسة الخصوصية", terms: "شروط الاستخدام", updated: "آخر تحديث:", notBroker: "بلكون منصة لعرض الإعلانات العقارية فقط: ليس وسيطاً عقارياً، لا يتفاوض، لا يتقاضى عمولة، وليس طرفاً في أي عقد. الصفقة والتحقق من الأوراق والملكية مسؤولية الطرفين، ويُنصح بالاستعانة بمحامٍ.", lawyer: "هذه الصفحة تشرح كيف تعمل المنصة ولا تُعد استشارة قانونية. للتحقق من ملكية عقار أو إتمام عقد استعن بمحامٍ أو كاتب عدل.", company: "منصة بلكون (المشغّل)", reg: "الشركة قيد التأسيس في الجمهورية العربية السورية، وستُحدَّث هذه الصفحة ببياناتها فور تسجيلها", address: "دمشق، سوريا", brand: "بلكون" },
+  en: { privacy: "Privacy policy", terms: "Terms of use", updated: "Last updated:", notBroker: "Balkoun only displays real-estate listings: it is not a broker, does not negotiate, takes no commission and is not a party to any contract. The transaction and the verification of paperwork and ownership are the parties' responsibility; a lawyer is recommended.", lawyer: "This page explains how the platform works and is not legal advice. To verify a property's ownership or complete a contract, consult a lawyer or notary.", company: "the Balkoun platform (the operator)", reg: "The company is being incorporated in the Syrian Arab Republic; this page will be updated with its details once registered", address: "Damascus, Syria", brand: "Balkoun" },
+  de: { privacy: "Datenschutzerklärung", terms: "Nutzungsbedingungen", updated: "Zuletzt aktualisiert:", notBroker: "Balkoun zeigt nur Immobilienanzeigen: kein Makler, keine Verhandlung, keine Provision, keine Vertragspartei. Transaktion sowie Prüfung von Unterlagen und Eigentum liegen bei den Parteien; ein Anwalt wird empfohlen.", lawyer: "Diese Seite erklärt die Funktionsweise der Plattform und ist keine Rechtsberatung. Für Eigentumsprüfung oder Vertragsabschluss wenden Sie sich an einen Anwalt oder Notar.", company: "die Plattform Balkoun (Betreiber)", reg: "Die Gesellschaft befindet sich in Gründung in der Arabischen Republik Syrien; diese Seite wird nach der Eintragung aktualisiert", address: "Damaskus, Syrien", brand: "Balkoun" },
+};
+function legalPage({ lang, kind, footLinks, extras }) {
+  const W = S[lang], T = LEGAL_T[lang], x = extras || {}, rel = kind + "/", url = pageUrl(lang, rel);
+  const v = { brand: T.brand, company: x.legal_company_name || T.company, reg: x.legal_company_reg || T.reg, address: x.legal_company_address || T.address,
+    email: x.legal_email || x.intake_contact_email || "info@balkoun.com", site: SITE, updated: x.legal_updated || "2026-09-26" };
+  const fill = (s) => String(s || "").replace(/\{(brand|company|reg|address|email|site|updated)\}/g, (m, k) => v[k] || "");
+  const base = (LEGAL[kind] || {})[lang] || LEGAL[kind].en;
+  let intro = base.intro, sections = base.sections.map((s) => [s[0], s[1].slice()]);
+  const custom = String(x["legal_" + kind + "_" + lang] || "").trim();
+  if (custom) { intro = ""; sections = []; let cur = null;
+    for (const line of custom.split(/\r?\n/)) { const t = line.trim(); if (!t) continue;
+      if (/^##\s*/.test(t)) { cur = [t.replace(/^##\s*/, ""), []]; sections.push(cur); } else if (cur) cur[1].push(esc(t)); else intro += (intro ? " " : "") + esc(t); } }
+  const other = kind === "privacy" ? "terms" : "privacy";
+  const c = crumbs(lang, [{ name: T[kind] }]);
+  const body = `${c.html}<article class="prose legal"><h1>${T[kind]}</h1><p class="lede" style="font-size:13px;color:#6B6F7A">${T.updated} ${esc(v.updated)} · <a href="${pageUrl(lang, other + "/")}">${T[other]}</a></p>
+${intro ? `<p class="lede">${fill(intro)}</p>` : ""}<div class="cta" style="display:block;background:#FBF3E4;border:1px solid #C4881F;color:#1A1206;font-size:14px;line-height:1.8">${T.notBroker}</div>
+${sections.map((s, i) => `<section class="ab"><h2>${i + 1}. ${fill(s[0])}</h2>${s[1].map((p) => `<p>${fill(p)}</p>`).join("")}</section>`).join("")}
+<p style="font-size:12.5px;color:#6B6F7A;line-height:1.8">${T.lawyer}</p></article>`;
+  const desc = fill(intro || base.intro).replace(/<[^>]+>/g, "").slice(0, 160);
+  const ld = [c.ld, { "@context": "https://schema.org", "@type": "WebPage", name: T[kind], url, description: desc, inLanguage: lang }];
+  return { url, html: shell({ lang, title: T[kind] + " | Balkoun", desc, canonical: url, alts: altsFor(rel), jsonld: ld, body, footLinks }) };
+}
 const LI = { ar: 0, en: 1, de: 2 };
 const LANGS = {
   ar: { code: "ar", dir: "rtl", prefix: "", og: "ar_SY", font: "Noto Kufi Arabic" },
@@ -278,7 +314,7 @@ ${jsonld.map((o) => `<script type="application/ld+json">${jsonForScript(o)}</scr
 <div class="htools">${langBar}<a class="mini" href="${appUrl(lang, "account")}">${W.login}</a><a class="gold" href="${appUrl(lang, "post")}">${W.post}</a></div>
 <a class="logo" href="${appHome(lang)}" aria-label="Balkoun">${MARK}<span class="w"><b>بلكون</b><small>BALKOUN</small></span></a></div></header>
 <main class="wrap">${body}</main>
-<footer><div class="wrap"><div class="fl">${footLinks}</div><div class="fb"><span>© 2026 ${W.brand} · balkoun.com</span><span>${CTX.isDefault ? `<a href="${pageUrl(lang, "guides/")}">${GUIDE_WORDS[lang].crumb}</a> · ` : ""}<a href="${pageUrl(lang, "about/")}">${W.aboutPlatform}</a> · <a href="${pageUrl(lang, "contactus/")}">${W.contactT}</a></span></div></div></footer>
+<footer><div class="wrap"><div class="fl">${footLinks}</div><div class="fb"><span>© 2026 ${W.brand} · balkoun.com</span><span>${CTX.isDefault ? `<a href="${pageUrl(lang, "guides/")}">${GUIDE_WORDS[lang].crumb}</a> · ` : ""}<a href="${pageUrl(lang, "about/")}">${W.aboutPlatform}</a> · <a href="${pageUrl(lang, "contactus/")}">${W.contactT}</a> · <a href="${pageUrl(lang, "terms/")}">${LEGAL_T[lang].terms}</a> · <a href="${pageUrl(lang, "privacy/")}">${LEGAL_T[lang].privacy}</a></span></div></div></footer>
 </body></html>`;
 }
 
@@ -488,13 +524,14 @@ async function main() {
     const footLinksFor = (lang) => usableGovs.slice(0, 12).map((g) => `<a href="${pageUrl(lang, `for-sale/${g.slug}/`)}">${esc(S[lang].footIn(govName(g, lang)))}</a>`).join("") + `<a href="${pageUrl(lang, "areas/")}">${S[lang].allAreas}</a>`;
 
     // remove previously generated trees so deleted areas/govs don't leave stale pages
-    const trees = ["for-sale", "for-rent", "areas", "about", "contactus", "en/for-sale", "en/for-rent", "en/areas", "en/about", "en/contactus", "de/for-sale", "de/for-rent", "de/areas", "de/about", "de/contactus"];
+    const trees = ["for-sale", "for-rent", "areas", "about", "contactus", "privacy", "terms", "en/for-sale", "en/for-rent", "en/areas", "en/about", "en/contactus", "en/privacy", "en/terms", "de/for-sale", "de/for-rent", "de/areas", "de/about", "de/contactus", "de/privacy", "de/terms"];
     if (CTX.isDefault) trees.push("guides", "en/guides", "de/guides");
     for (const dir of trees) fs.rmSync(path.join(base, dir), { recursive: true, force: true });
     for (const l of ["en", "de"]) { const f = path.join(base, l, "index.html"); if (fs.existsSync(f)) fs.rmSync(f); }
 
-    let site = null;
+    let site = null, legalExtras = {};
     try { site = (await sb(`site_content?select=phone_number,wa_number,email_address,fb_url,fb_name,ig_url,ig_name,yt_url,yt_name,tiktok_url,tiktok_name&country_code=eq.${c.code}&limit=1`))[0]; } catch (e) { console.warn("site_content unreadable:", e.message); }
+    try { const ex = (await sb(`site_content?select=extras&id=eq.1&limit=1`))[0]; legalExtras = (ex && ex.extras) || {}; } catch (e) { console.warn("site_content extras unreadable:", e.message); }
 
     const urls = [];
     for (const lang of ["ar", "en", "de"]) {
@@ -519,6 +556,7 @@ async function main() {
       const idx = areasIndex({ lang, govs: usableGovs, areasByGov, counts, footLinks }); write(idx.url, idx.html); urls.push({ loc: idx.url, priority: "0.6" });
       const ab = aboutPage({ lang, footLinks }); write(ab.url, ab.html); urls.push({ loc: ab.url, priority: "0.5" });
       const ct = contactPage({ lang, site, footLinks }); write(ct.url, ct.html); urls.push({ loc: ct.url, priority: "0.5" });
+      for (const kind of ["privacy", "terms"]) { const lp = legalPage({ lang, kind, footLinks, extras: legalExtras }); write(lp.url, lp.html); urls.push({ loc: lp.url, priority: "0.3" }); }
       if (CTX.isDefault) {
         const gi = guidesIndex({ lang, footLinks }); write(gi.url, gi.html); urls.push({ loc: gi.url, priority: "0.7" });
         for (const g of GUIDES) { const gp = guidePage({ lang, g, footLinks }); write(gp.url, gp.html); urls.push({ loc: gp.url, priority: "0.7" }); }

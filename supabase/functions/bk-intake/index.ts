@@ -891,7 +891,7 @@ const TG_INVITE_TEXT = "🔔 انضم لتنبيهاتنا على تيليغرا
 function campaignEmailHtml(r: any, tgLink: string | null): string {
   const html = campaignText(r).split("\n").map((line: string) => `<p>${line}</p>`).join("");
   const invite = tgLink ? `<p>${TG_INVITE_TEXT} <a href="${tgLink}">${tgLink}</a></p>` : "";
-  const unsub = r.unsub_token ? `<p style="margin-top:24px;font-size:12px;color:#888">${SITE}/unsub/${r.unsub_token}</p>` : "";
+  const unsub = `<p style="margin-top:24px;font-size:12px;color:#888">${r.unsub_token ? `${SITE}/unsub/${r.unsub_token}<br>` : ""}${SITE}/privacy/</p>`;
   return html + invite + unsub;
 }
 let _campaignFlushing = false;
