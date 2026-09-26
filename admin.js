@@ -27,8 +27,12 @@ async function storageRestore(paths){
        return {data:{restored:j.restored||[], failed:j.failed||[]}, error:null} }
   catch(e){ return {data:null, error:e} } }
 var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super",campaigns:"campaigns"};
-function canTab(k){ var p=TAB_PERM[k]; if(p===undefined) return can(k); if(p==="super") return !!ADM.isSuper; if(Array.isArray(p)) return p.some(can); return can(p) }
-function admGo(tab){ if(!tab) return; if(!canTab(tab)){ admToast(GX("noPermTab"),"bad"); return } if(tab!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return; ADM.tab=tab; window._admMobileDetail=false; render(); try{ window.scrollTo(0,0) }catch(e){} }
+// sidebar groups: one entry in the sidebar, sub-tabs rendered as a segmented bar on the page (the tab bodies stay keyed by the real tab)
+var ADM_GROUPS={inbox:["reports","feedback","tickets","msgs"],promo:["ads","featured","banners","engage"],system:["settings","storage","admins","danger"]};
+function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab)>-1) return g } return null }
+function admResolveTab(k){ if(!ADM_GROUPS[k]) return k; var last=(ADM._sub||{})[k]; if(last&&canTab(last)) return last; return ADM_GROUPS[k].filter(canTab)[0]||k }
+function canTab(k){ if(ADM_GROUPS[k]) return ADM_GROUPS[k].some(canTab); var p=TAB_PERM[k]; if(p===undefined) return can(k); if(p==="super") return !!ADM.isSuper; if(Array.isArray(p)) return p.some(can); return can(p) }
+function admGo(tab){ if(!tab) return; if(!canTab(tab)){ admToast(GX("noPermTab"),"bad"); return } tab=admResolveTab(tab); if(tab!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return; ADM.tab=tab; window._admMobileDetail=false; render(); try{ window.scrollTo(0,0) }catch(e){} }
 function admToast(msg,kind){ var el=$("#admToast"); if(!el){ el=document.createElement("div"); el.id="admToast"; document.body.appendChild(el) } el.textContent=msg; el.className="on "+(kind||"ok"); clearTimeout(el._t); el._t=setTimeout(function(){ el.className="" },2600) }
 function tkReload(){ ADM._ticketsLoaded=false; render() }
 function tkScopeKey(){ return admScope() }
@@ -111,7 +115,7 @@ function adminView(){
      '</span></div></div>' };
  var stat=function(k,v,c,goto){return '<button type="button" class="astat" '+(goto?'data-goto="'+goto+'"':'')+'><b class="ltr" '+(c?'style="color:'+c+'"':'')+'>'+
    (v===undefined?0:v).toLocaleString("en")+'</b><span>'+k+'</span></button>'};
- var tab=function(k,l,n2,icon){return '<a class="'+(ADM.tab===k?"on":"")+'" data-atab="'+k+'">'+
+ var tab=function(k,l,n2,icon){return '<a class="'+(ADM.tab===k||admGroupOf(ADM.tab)===k?"on":"")+'" data-atab="'+k+'">'+
    (icon?'<span class="aicon">'+icon+'</span>':'')+'<span>'+l+'</span>'+(n2?'<span class="abadge2">'+n2+'</span>':'')+'</a>'};
 
  var emailInbox=function(kind, items, filterKey, selKey, buildRow, buildDetail, emptyText, deleteRpc){
@@ -665,19 +669,26 @@ function adminView(){
    return '<div class="asidebar-group'+(folded?' folded':'')+'" data-gkey="'+key+'"><button type="button" class="asidebar-label" aria-expanded="'+(folded?'false':'true')+'">'+label+'<span class="asidebar-chev" aria-hidden="true">›</span></button>'+
    '<div class="asidebar-items">'+items.join("")+'</div></div>' };
 
+ // sub-tabs of the grouped sidebar entries: [label, badge]
+ var openTk=(ADM.tickets||[]).filter(function(x){ return x.status!=="done" }).length;
+ var SUB={reports:[t("reportsTab"),s.openReports],feedback:[t("feedbackTab"),s.openFeedback],tickets:[GX("ticketsTab"),openTk],msgs:[t("msgsNotifTab"),ADM.alertsUnread],
+          ads:[t("adsTab"),null],featured:[t("featuredTab"),null],banners:[GX("tBanners"),null],engage:[GX("tEngage"),null],
+          settings:[GX("tSystem"),null],storage:[GX("tStorage"),null],admins:[t("adminsTab"),null],danger:[t("dangerTab"),null]};
+ var inboxN=(+s.openReports||0)+(+s.openFeedback||0)+openTk+(+ADM.alertsUnread||0);
  var NAV=[
-   {g:t("navOverview"), items:[["dashboard",t("dashboardTab"),null,AICO.dash,true],["stats",t("visitorStats"),null,AICO.chart,can("stats")]]},
+   {g:t("navOverview"), items:[["dashboard",t("dashboardTab"),null,AICO.dash,true],["stats",t("visitorStats"),null,AICO.chart,can("stats")],["inbox",t("navInboxH"),inboxN||null,AICO.bell,true]]},
    {g:GX("navCountries"), items:[["countries",GX("countriesTab"),null,AICO.globe,ADM.isSuper]]},
    {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["photos",GX("tMedia"),null,AICO.image,can("listings")],["wanted_adm",GX("tWanted"),(ADM.todo||{}).pending_wanted||null,AICO.search,can("listings")],["intake",GX("tIntake"),(ADM.todo||{}).intake_review||null,AICO.contact||AICO.bell,can("listings")]]},
    {g:t("navPeople"), items:[["users",t("usersTab"),(ADM.todo||{}).verify_pending||s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")]]},
-   {g:GX("navMarketing"), items:[["engage",GX("tEngage"),null,AICO.ledger,can("ads")||can("featured")],["projects_adm",GX("tProjects"),null,AICO.building,can("listings")||can("ads")],["ads",t("adsTab"),null,AICO.ads,can("ads")],["featured",t("featuredTab"),null,AICO.star,can("featured")],["banners",GX("tBanners"),null,AICO.banner,can("homepage")],["campaigns",GX("tCampaigns"),null,AICO.megaphone,can("campaigns")]]},
-   {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")]]},
-   {g:t("navInboxH"), items:[["reports",t("reportsTab"),s.openReports,AICO.shield,can("reports")],["feedback",t("feedbackTab"),s.openFeedback,AICO.shield,can("feedback")],["tickets",GX("ticketsTab"),(ADM.tickets||[]).filter(function(x){ return x.status!=="done" }).length,AICO.gear,can("feedback")],["msgs",t("msgsNotifTab"),ADM.alertsUnread,AICO.bell,can("msgs")]]},
-   {g:GX("navSystem"), items:[["settings",GX("tSystem"),null,AICO.gear,can("settings")],["storage",GX("tStorage"),null,AICO.disk,can("settings")],["admins",t("adminsTab"),null,AICO.key,ADM.isSuper],["danger",t("dangerTab"),null,AICO.lock,ADM.isSuper]]}
+   {g:GX("navMarketing"), items:[["promo",GX("tPromo"),null,AICO.ads,true],["projects_adm",GX("tProjects"),null,AICO.building,can("listings")||can("ads")],["campaigns",GX("tCampaigns"),null,AICO.megaphone,can("campaigns")]]},
+   {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")],["system",GX("navSystem"),null,AICO.gear,true]]}
  ];
  NAV.forEach(function(g){ g.items.forEach(function(it){ it[4]=canTab(it[0]) }) });   // the sidebar follows the same permission map as every other way into a tab
+ var curGroupKey=admGroupOf(ADM.tab); if(curGroupKey){ ADM._sub=ADM._sub||{}; ADM._sub[curGroupKey]=ADM.tab }
  var curLabel=t("adminPanel"), curGroup="";
- NAV.forEach(function(g){ g.items.forEach(function(it){ if(it[0]===ADM.tab){ curLabel=it[1]; curGroup=g.g } }) });
+ NAV.forEach(function(g){ g.items.forEach(function(it){ if(it[0]===ADM.tab || it[0]===curGroupKey){ curLabel=it[1]; curGroup=g.g } }) });
+ if(curGroupKey && SUB[ADM.tab]){ curGroup=curGroup+' · '+curLabel; curLabel=SUB[ADM.tab][0] }
+ var subBar = curGroupKey ? '<div class="asubtabs">'+ADM_GROUPS[curGroupKey].filter(canTab).map(function(k){ var sb=SUB[k]||[k,null]; return '<button type="button" class="'+(k===ADM.tab?'on':'')+'" data-atab="'+k+'">'+sb[0]+(sb[1]?'<span class="abadge2">'+sb[1]+'</span>':'')+'</button>' }).join("")+'</div>' : '';
  var initial=((ADM.meName||"?").trim().charAt(0)||"?");
  return '<div class="adm">'+
   '<header class="adm-top">'+
@@ -696,7 +707,7 @@ function adminView(){
   '<div class="ashell">'+
    '<nav class="asidebar" id="aSidebar">'+NAV.map(function(g){ return sec(g.g, g.items.map(function(it){ return it[4] ? tab(it[0],it[1],it[2],it[3]) : "" }), g.items[0][0], g.items.some(function(it){ return it[0]===ADM.tab })) }).join("")+'</nav>'+
    '<main class="acontent">'+(ADM.token&&!ADM.data?'<div class="aloading">'+t("loading")+'</div>':'')+'<div class="apage-h"><div>'+'<div class="apage-crumb">'+curGroup+(ADM.scope==="ALL"?(curGroup?' · ':'')+'🌍 '+GX("cAll")+'</div>':COUNTRY!=="SY"?(curGroup?' · ':'')+flagOf(COUNTRY)+' '+esc(countryName(countryOf(COUNTRY)))+'</div>':'</div>')+'<h1>'+curLabel+'</h1>'+
-    (GX_T["desc_"+ADM.tab]?'<p>'+GX("desc_"+ADM.tab)+'</p>':'')+'</div></div>'+adminCountryBar()+body+'</main>'+
+    (GX_T["desc_"+ADM.tab]?'<p>'+GX("desc_"+ADM.tab)+'</p>':'')+'</div></div>'+subBar+adminCountryBar()+body+'</main>'+
   '</div></div>'}
 function adminWantedBody(){
   var list=ADM_W; if(!list) return '<div class="blk"><div class="in adashempty">'+t("loading")+'</div></div>';
@@ -895,8 +906,9 @@ function wireAdmin(){
   if($("#adRefresh")) $("#adRefresh").onclick=function(){ var b=this; b.disabled=true; b.classList.add("spin"); adminLoad().then(function(){ admToast(t("refresh")+" ✓") }) };
   if($("#adBack")) $("#adBack").onclick=function(){ ADM.editId=null; ADM.editRow=null; render() };
   $$("[data-atab]").forEach(function(e){ e.onclick=function(){
-    if(e.dataset.atab!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return;
-    ADM.tab=e.dataset.atab;
+    var target=admResolveTab(e.dataset.atab);
+    if(target!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return;
+    ADM.tab=target;
     window._admMobileDetail=false;
     var sb=$("#aSidebar"); if(sb) sb.classList.remove("on"); // auto-close on mobile after picking a section
     render();
@@ -918,6 +930,8 @@ function wireAdmin(){
   if(!ADM.countries && !ADM._cLoading && DB && ADM.token){ ADM._cLoading=true; DB.rpc("bk_admin_countries",{p_token:ADM.token}).then(function(r){ ADM._cLoading=false; if(r&&r.data&&r.data.length>1){ ADM.countries=r.data; render() } else if(r&&r.data) ADM.countries=r.data }) }
   if($("#aCountry")) $("#aCountry").onchange=function(){ admPickCountry(this.value) }
   $$("[data-cgo]").forEach(function(b){ b.onclick=function(){ var a=b.dataset.cgo.split(":"); admPickCountry(a[0],a[1]==="undefined"?null:a[1]); scrollTo(0,0) } });   // the switch card + the countries page tiles, on every page;
+  if($("#acbarSel")) $("#acbarSel").onchange=function(){ admPickCountry(this.value, ADM.tab); scrollTo(0,0) };
+  admSectionize(); admTablesToCards();
 
   var act=async function(fn,args){
     try{ await rpc(fn,args); await adminLoad(); admToast(t("savedOk")) }
@@ -2538,6 +2552,25 @@ function admScopeNote(){
   return '<div class="ascope'+(all?' all':'')+'">'+(all?'<span class="ascope-globe">🌍</span>':flagSvg(COUNTRY))+'<span>'+GX("cScopeNote")+' <b>'+(all?GX("cAll"):esc(countryName(c)))+'</b></span>'+
     (m.length?'<span class="hintx" style="margin-inline-start:auto">'+GX("cMineOnly")+': '+m.map(function(x){ return flagOf(x) }).join(" ")+'</span>':'<span class="hintx" style="margin-inline-start:auto">'+GX("cScopeHintOne")+'</span>')+'</div>';
 }
+// long pages (5+ cards): a sticky jump bar of the card titles, and every card title folds its card (remembered per browser)
+function admSectionize(){
+  var main=$(".acontent"); if(!main || main.querySelector(".asecnav")) return;
+  var blks=[].slice.call(main.querySelectorAll(".blk")).filter(function(b){ var h=b.firstElementChild; return h && h.tagName==="H3" && b.querySelector(":scope > .in") });
+  var titleOf=function(h){ var t=""; h.childNodes.forEach(function(n){ if(n.nodeType===3) t+=n.textContent; else if(n.nodeType===1 && !/^(BUTTON|A|INPUT|SELECT|LABEL)$/.test(n.tagName) && !n.classList.contains("n")) t+=n.textContent }); return t.replace(/\s+/g," ").trim().slice(0,40) };
+  var key="bk_adm_fold_"+ADM.tab, folds={}; try{ folds=JSON.parse(localStorage.getItem(key)||"{}")||{} }catch(e){}
+  blks.forEach(function(b,i){ var h=b.firstElementChild; b.classList.add("afoldable"); if(folds[i]) b.classList.add("folded");
+    h.onclick=function(e){ if(e.target.closest("button,a,input,select,label,[data-atab]")) return; b.classList.toggle("folded"); folds[i]=b.classList.contains("folded")?1:0; try{ localStorage.setItem(key,JSON.stringify(folds)) }catch(x){} } });
+  if(blks.length<5) return;
+  var nav=document.createElement("nav"); nav.className="asecnav"; nav.setAttribute("aria-label",GX("secNav"));
+  nav.innerHTML=blks.map(function(b,i){ var tt=titleOf(b.firstElementChild); return tt?'<button type="button" data-sec="'+i+'">'+esc(tt)+'</button>':'' }).join("");
+  var head=main.querySelector(".apage-h"); if(head) head.insertAdjacentElement("afterend",nav); else main.prepend(nav);
+  nav.onclick=function(e){ var btn=e.target.closest("[data-sec]"); if(!btn) return; var b=blks[+btn.dataset.sec]; if(!b) return; b.classList.remove("folded"); var y=b.getBoundingClientRect().top+window.scrollY-118; window.scrollTo({top:y,behavior:"smooth"}) };
+}
+// tables read as cards on phones: every cell learns its column title (CSS shows it as a label under 700px)
+function admTablesToCards(){
+  $$(".adm .atable table").forEach(function(tb){ if(tb.classList.contains("acards")) return; var ths=[].slice.call(tb.querySelectorAll("thead th")).map(function(th){ return th.textContent.replace(/\s+/g," ").trim() }); if(!ths.length) return;
+    tb.classList.add("acards"); tb.querySelectorAll("tbody tr").forEach(function(tr){ [].slice.call(tr.children).forEach(function(td,i){ if(ths[i]) td.setAttribute("data-th",ths[i]) }) }) });
+}
 function scopeCountriesBlocks(an){
   if(ADM.scope!=="ALL") return "";
   var st=(ADM.data&&ADM.data.stats)||{}, byc=st.by_country||{}, nm=function(cc){ var c=countryOf(cc); return flagOf(cc)+" "+(c?countryName(c):cc) };
@@ -2571,9 +2604,10 @@ function adminCountryBar(){
   CS=admCountries(); var cur=countryOf(COUNTRY)||{}, all=ADM.scope==="ALL", editor=/^(mainpage|banners|ads|design|contact|geo)$/.test(ADM.tab);
   var now = all && !editor ? '<span class="ascope-globe">🌍</span><span>'+GX("cShowing")+': <b>'+GX("cAll")+'</b></span>'
           : flagSvg(COUNTRY)+'<span>'+GX(editor?"cEditing":"cShowing")+': <b>'+esc(countryName(cur))+'</b>'+(cur.enabled===false?' <i class="acbar-off">'+GX("cOffShort")+'</i>':'')+(all&&editor?' <i class="acbar-off">'+GX("cEditorAllNote")+'</i>':'')+'</span>';
-  return '<div class="acbar'+(all?' all':'')+'"><div class="acbar-now">'+now+'</div>'+
-   '<div class="acbar-list"><span>'+GX("cSwitchTo")+':</span>'+(CS.length>1&&!editor?'<button type="button" class="acbar-c'+(all?' on':'')+'" data-cgo="ALL:'+ADM.tab+'">🌍<span>'+GX("cAll")+'</span></button>':'')+
-   CS.map(function(c){ return '<button type="button" class="acbar-c'+(!all&&c.code===COUNTRY?' on':'')+(c.enabled?'':' off')+'" data-cgo="'+c.code+':'+ADM.tab+'" title="'+esc(countryName(c))+(c.enabled?'':' · '+GX("cOffShort"))+'">'+flagSvg(c.code)+'<span>'+esc(countryName(c))+'</span></button>' }).join("")+'</div></div>';
+  // one slim line: what is shown/edited + a small select to switch (the 22-flag chip block used to fill a phone screen on every page)
+  var sel = CS.length>1 ? '<select class="acbar-sel" id="acbarSel" aria-label="'+esc(GX("cSwitchTo"))+'">'+(!editor?'<option value="ALL"'+(all?' selected':'')+'>🌍 '+esc(GX("cAll"))+'</option>':'')+
+    CS.map(function(c){ return '<option value="'+c.code+'"'+(!all&&c.code===COUNTRY?' selected':'')+'>'+flagOf(c.code)+' '+esc(countryName(c))+(c.enabled?'':' · '+GX("cOffShort"))+'</option>' }).join("")+'</select>' : '';
+  return '<div class="acbar slim'+(all?' all':'')+'"><div class="acbar-now">'+now+'</div>'+(sel?'<div class="acbar-list"><span>'+GX("cSwitchTo")+':</span>'+sel+'</div>':'')+'</div>';
 }
 function adminCountriesBody(){
   var CS=ADM.countries; if(!CS) return '<div class="done2"><b>'+t("loading")+'</b></div>';
