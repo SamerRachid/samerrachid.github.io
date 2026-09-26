@@ -332,6 +332,7 @@ const T = {
     hello: `أهلاً بك في بلكون 👋 أنا هنا لمساعدتك في نشر إعلان عقارك.\nأرسل تفاصيل العقار (نوع العقار، بيع أم إيجار، المحافظة والحي، المساحة، السعر، الطابو) مع الصور، وسأجهّز الإعلان لك.`,
     contact: (n: string) => `للتواصل مع إدارة بلكون: ${n}\nوإذا أردت نشر إعلان، أرسل تفاصيله وصوره هنا مباشرة وسأساعدك.`,
     thanks: `على الرحب والسعة 🙏 متى أردت نشر إعلان جديد أرسل تفاصيله هنا.`,
+    wantedReply: (search: string, wanted: string) => `يبدو أنك تبحث عن عقار ولا تعرض واحداً 🙂\nهذه الإعلانات التي تطابق طلبك على بلكون:\n${search}\n\nوإذا أردت أن تصلك عروض المكاتب والمالكين، انشر طلب «مطلوب» مجاناً من هنا:\n${wanted}\n\nولنشر إعلان عقار تملكه أرسل تفاصيله وصوره هنا.`,
   },
   en: {
     welcome: (name: string) => `Hello ${name} 👋\nSend the property details and photos here. When you are done, write "done".\nI will read the listing and send you a summary to approve before it is published.`,
@@ -382,6 +383,7 @@ const T = {
     hello: `Welcome to Balkoun 👋 I am here to help you post your property listing.\nSend the property details (type, sale or rent, governorate and area, size, price, deed) with photos, and I will prepare the listing for you.`,
     contact: (n: string) => `To reach the Balkoun team: ${n}\nIf you want to post a listing, just send its details and photos here and I will help.`,
     thanks: `You are welcome 🙏 Whenever you want to post a new listing, send its details here.`,
+    wantedReply: (search: string, wanted: string) => `It looks like you are looking for a property rather than offering one 🙂\nHere are the listings on Balkoun that match your request:\n${search}\n\nIf you want agencies and owners to send you offers, post a free "wanted" request here:\n${wanted}\n\nTo publish a property you own, send its details and photos here.`,
   },
 };
 const tx = (lang: string) => (lang === "en" ? T.en : T.ar);
@@ -481,6 +483,7 @@ const TOOL = {
       missing: { type: "array", items: { type: "string", enum: ["deal", "property_type", "governorate", "price", "area_m2", "tabu"] }, description: "required facts the message does not state" },
       confidence: { type: "number", description: "0–1 how sure you are the message is one real listing" },
       notes: { type: "string", description: "anything odd: two listings in one message, contradictory numbers, not a listing at all" },
+      intent: { type: "string", enum: ["listing", "wanted", "other"], description: "listing = the sender OFFERS a property for sale or rent; wanted = the sender is LOOKING for a property to buy or rent (أبحث عن، أريد، بدي، مطلوب، أدور على); other = a question or anything else" },
     },
     required: ["description", "missing", "confidence"],   // deal / property_type are left out when the message does not say them, so they can be asked for
   },
@@ -498,6 +501,7 @@ Rules:
 - Condition: "سليم"/"جاهز"/"ديلوكس" = intact, "على العظم" = shell, "بحاجة ترميم" = repair, "معفش" = stripped (Syria only), "متضرر" = damaged.
 - The description must be a clean Arabic paragraph written for the website: no phone numbers, no prices, no emojis, no hashtags, no "للتواصل". Keep facts only; do not invent.
 - Put in "missing" every required fact that the message truly does not state: deal, property_type, governorate, price, area_m2 (and tabu for a sale).
+- Intent: if the sender is LOOKING for a property ("أبحث عن", "أريد", "بدي", "مطلوب", "أدور على", "looking for", "I want to buy/rent"), set intent = "wanted" and still fill the fields they ask for (type, place, deal, budget as price). A property being offered is intent = "listing". A question or chat is "other".
 - Answer only by calling the tool.`;
 
 function taxonomyText(tax: any): string {
@@ -743,6 +747,16 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
     usage = r.usage; raw = r.fields; const s = settle(r.fields, tax); fields = s.fields; missing = s.missing; cost = costOf(usage, c);
     if (d.source !== "web" && photos === 0) missing.push("photos");   // a listing sent by message needs at least one photo (the site form has its own gate)
   } catch (e) { err = errStr(e); }
+  // a buyer / tenant looking for a property, not an owner offering one: point them to the matching search and to
+  // the free "wanted" request instead of opening a listing draft for the admin
+  if (!err && !d.by_admin && raw.intent === "wanted") {
+    const q = new URLSearchParams(); q.set("deal", fields.deal === "rent" ? "rent" : "sale");
+    if (fields.governorate) q.set("g", fields.governorate); if (fields.area) q.set("a", fields.area); if (fields.property_type) q.set("t", fields.property_type);
+    await rpc("bk_intake_set", { p_draft: draftId, p_patch: { status: "cancelled", error: "wanted" } });
+    await log(draftId, d.chat_id, "info", "intent_wanted", { fields, cost });
+    if (!opts.quiet && d.source !== "web") await reply(d.source, d.chat_id, t.wantedReply(SITE + "/search?" + q.toString(), SITE + "/wantedform"));
+    return { status: "cancelled", intent: "wanted" };
+  }
   let status = err ? "failed" : (missing.length ? "needs_info" : "ready");
   let suggested: string | null = null;
   if (!err && lowConfidence(raw)) status = "review";
@@ -909,7 +923,9 @@ async function campaignFlush(): Promise<number> {
           r._welcome = welcomeText(r, c0, r.channel);
           if (r.channel === "email") r.subject = welcomeText(r, c0, "email_subject");
         }
-        const tgLink = (r.channel !== "telegram" && r.trigger_type !== "welcome" && !r.tg_chat_id && r.tg_consent !== "unsubscribed") ? tgInviteLink(bot, r.contact_id) : null;
+        const direct = /^direct: /.test(String(r.title || ""));   // the admin's one-to-one messages carry no Telegram nudge and no unsubscribe footer
+        const tgLink = (r.channel !== "telegram" && r.trigger_type !== "welcome" && !direct && !r.tg_chat_id && r.tg_consent !== "unsubscribed") ? tgInviteLink(bot, r.contact_id) : null;
+        if (direct) r.unsub_token = null;
         if (r.channel === "telegram") {
           if (!r.tg_chat_id) throw new Error("no_tg_chat");
           await tg("sendMessage", { chat_id: r.tg_chat_id, text: campaignText(r) });
