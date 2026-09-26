@@ -603,6 +603,18 @@ function summary(f: Record<string, any>, tax: any, photos: number, lang: string)
   L.push("• " + (ar ? "الصور: " : "Photos: ") + photos);
   return L.join("\n");
 }
+// one line of "what I understood so far" for the follow-up questions — the full summary is kept for the end
+function brief(f: Record<string, any>, tax: any, lang: string): string {
+  const ar = lang !== "en"; const ty = (tax.types || []).find((x: any) => x.code === f.property_type);
+  const parts = [
+    ty ? (ar ? ty.ar : ty.en) + (f.deal ? " " + (f.deal === "rent" ? (ar ? "للإيجار" : "for rent") : (ar ? "للبيع" : "for sale")) : "") : "",
+    [f.governorate, f.area].filter(Boolean).join(" – "),
+    f.area_m2 ? `${fmtNum(f.area_m2)} ${ar ? "م²" : "m²"}` : "",
+    f.rooms ? `${f.rooms} ${ar ? "غرف" : "rooms"}` : "",
+    f.price ? fmtNum(f.price) + " " + (f.currency === "USD" ? "$" : f.currency) : "",
+  ].filter(Boolean);
+  return parts.length ? (ar ? "فهمت حتى الآن: " : "So far I have: ") + parts.join(" · ") : "";
+}
 const lowConfidence = (f: Record<string, any>) => (typeof f.confidence === "number" && f.confidence < 0.5) || /two|اثن|إعلانين|إعلانان|عقارين|multiple|several|not a listing|ليس إعلان/i.test(String(f.notes || ""));
 
 // ───────────────────────────── AI search bar ─────────────────────────────
@@ -746,6 +758,8 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   if (!opts.quiet && d.source !== "web") {
     if (err) await reply(d.source, d.chat_id, t.readFailed);
     else if (saved?.status === "review") await reply(d.source, d.chat_id, sum + "\n\n" + (d.by_admin ? t.reviewAdmin : t.reviewNote));
+    // still missing something: ask for it in a short message (no full list every time); the full summary comes when complete
+    else if (saved?.status === "needs_info") await reply(d.source, d.chat_id, (brief(fields, tax, lang) + t.missing(missing.map((m) => (lang === "en" ? MISSING_EN : MISSING_AR)[m]).join(lang === "en" ? ", " : "، "))).trim());
     else await reply(d.source, d.chat_id, sum!);
   }
   if (err) await log(draftId, d.chat_id, "error", "read_failed", { error: err, reads: d.reads });
