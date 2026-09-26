@@ -33,6 +33,40 @@ function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab
 function admResolveTab(k){ if(!ADM_GROUPS[k]) return k; var last=(ADM._sub||{})[k]; if(last&&canTab(last)) return last; return ADM_GROUPS[k].filter(canTab)[0]||k }
 function canTab(k){ if(ADM_GROUPS[k]) return ADM_GROUPS[k].some(canTab); var p=TAB_PERM[k]; if(p===undefined) return can(k); if(p==="super") return !!ADM.isSuper; if(Array.isArray(p)) return p.some(can); return can(p) }
 function admGo(tab){ if(!tab) return; if(!canTab(tab)){ admToast(GX("noPermTab"),"bad"); return } tab=admResolveTab(tab); if(tab!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return; ADM.tab=tab; window._admMobileDetail=false; render(); try{ window.scrollTo(0,0) }catch(e){} }
+// "راسل": one direct message to one person on WhatsApp / Telegram / email, from the users list or the contacts list
+async function admDirectMsg(o){
+  var old=$("#admDm"); if(old) old.remove();
+  var ov=document.createElement("div"); ov.className="admdm-ov"; ov.id="admDm";
+  ov.innerHTML='<div class="admdm"><div class="admdm-h"><b>'+GX("dmTitle")+(o.name?' · '+esc(o.name):'')+'</b><button type="button" class="admdm-x" aria-label="×">×</button></div><div class="admdm-b"><div class="done2"><b>'+t("loading")+'</b></div></div></div>';
+  document.body.appendChild(ov);
+  var close=function(){ ov.remove() }; ov.querySelector(".admdm-x").onclick=close; ov.onclick=function(e){ if(e.target===ov) close() };
+  var args={p_token:ADM.token, p_contact_id:o.contact_id||null, p_user_id:o.user_id||null};
+  var r=await DB.rpc("bk_admin_contact_channels",args); var c=(r&&r.data)||{};
+  var body=ov.querySelector(".admdm-b");
+  if(r&&r.error||c.error){ body.innerHTML='<div class="done2" style="border-color:var(--danger)"><b>'+esc((r&&r.error&&r.error.message)||GX("dm_"+c.error)||c.error)+'</b></div>'; return }
+  var ch=function(k,label,ok,why){ return '<label class="admdm-ch'+(ok?'':' off')+'"><input type="radio" name="dmch" value="'+k+'"'+(ok?'':' disabled')+'><span>'+label+'</span><small>'+esc(ok?why:GX("dm_no_"+k))+'</small></label>' };
+  var hist=await DB.rpc("bk_admin_direct_messages",args); var H=(hist&&hist.data)||[]; if(!Array.isArray(H)) H=[];
+  var st=function(s){ return s==="sent"?'<span class="st st-live">'+GX("dmSent")+'</span>':s==="failed"?'<span class="st st-removed">'+GX("dmFailed")+'</span>':'<span class="st st-pending">'+GX("dmQueued")+'</span>' };
+  var histHtml=function(list){ return list.length?'<div class="admdm-hist">'+list.slice(0,8).map(function(m){ return '<div class="admdm-m">'+st(m.status)+'<span class="admdm-ch-tag">'+esc(m.channel)+'</span><small class="ltr">'+esc(String(m.at||"").slice(0,16).replace("T"," "))+'</small><p>'+esc(m.text||"")+'</p>'+(m.error?'<small style="color:var(--danger)">'+esc(m.error)+'</small>':'')+'</div>' }).join("")+'</div>':'<div class="hintx">'+GX("dmNone")+'</div>' };
+  body.innerHTML='<div class="admdm-chs">'+ch("whatsapp",GX("dmWa"),!!c.phone,c.phone||"")+ch("telegram",GX("dmTg"),!!c.tg,c.tg?GX("dmTgLinked"):"")+ch("email",GX("dmEmail"),!!c.email,c.email||"")+'</div>'+
+    '<div class="fl admdm-subj" hidden><label>'+GX("dmSubject")+'</label><input id="dmSubject" data-allow-autofill></div>'+
+    '<div class="fl"><label>'+GX("dmText")+'</label><textarea id="dmText" rows="5" data-allow-autofill placeholder="'+esc(GX("dmTextPH"))+'"></textarea></div>'+
+    '<div class="hintx">'+GX("dmConsentNote")+'</div>'+
+    '<div class="xactions"><button type="button" class="ab ok" id="dmSend">'+GX("dmSendBtn")+'</button><span class="xmsg" id="dmMsg"></span></div>'+
+    '<h4 class="admdm-hh">'+GX("dmHistory")+'</h4><div id="dmHist">'+histHtml(H)+'</div>';
+  var first=body.querySelector('input[name=dmch]:not([disabled])'); if(first) first.checked=true;
+  body.querySelectorAll('input[name=dmch]').forEach(function(i){ i.onchange=function(){ body.querySelector(".admdm-subj").hidden = i.value!=="email" } });
+  if(first && first.value==="email") body.querySelector(".admdm-subj").hidden=false;
+  $("#dmSend").onclick=async function(){ var btn=this, m=$("#dmMsg"), chosen=body.querySelector('input[name=dmch]:checked'), text=$("#dmText").value.trim();
+    if(!chosen){ m.textContent=GX("dmPickChannel"); return } if(text.length<2){ m.textContent=GX("dmEmptyText"); $("#dmText").focus(); return }
+    btn.disabled=true; m.style.color=""; m.textContent=GX("dmSending");
+    try{ var s=await DB.rpc("bk_admin_message_contact",Object.assign({},args,{p_channel:chosen.value,p_text:text,p_subject:chosen.value==="email"?($("#dmSubject").value.trim()||null):null}));
+      var d=(s&&s.data)||{}; if(s&&s.error) throw s.error; if(d.error) throw new Error(GX("dm_"+d.error)||d.error);
+      try{ await intakeAdmin("tick") }catch(e2){}   // send now instead of waiting for the next minute
+      $("#dmText").value=""; m.style.color="var(--ok)"; m.textContent=GX("dmSentOk");
+      var h2=await DB.rpc("bk_admin_direct_messages",args); var L2=(h2&&h2.data)||[]; $("#dmHist").innerHTML=histHtml(Array.isArray(L2)?L2:[]);
+    }catch(err){ m.style.color="var(--danger)"; m.textContent=err.message||String(err) } btn.disabled=false };
+}
 function admToast(msg,kind){ var el=$("#admToast"); if(!el){ el=document.createElement("div"); el.id="admToast"; document.body.appendChild(el) } el.textContent=msg; el.className="on "+(kind||"ok"); clearTimeout(el._t); el._t=setTimeout(function(){ el.className="" },2600) }
 function tkReload(){ ADM._ticketsLoaded=false; render() }
 function tkScopeKey(){ return admScope() }
@@ -962,6 +996,7 @@ function wireAdmin(){
 
   $$("[data-uopen]").forEach(function(e){ e.onclick=function(){ ADM.userOpen = ADM.userOpen===e.dataset.uopen ? null : e.dataset.uopen; ADM.rateTarget=null; ADM.pwTarget=null; render() }});
   $$("[data-umsg]").forEach(function(e){ e.onclick=function(){ ADM.notifTargetUid=e.dataset.umsg; admGo("msgs") }});
+  $$("[data-udm],[data-cdm]").forEach(function(e){ e.onclick=function(){ admDirectMsg({user_id:e.dataset.udm||null, contact_id:e.dataset.cdm||null, name:e.dataset.name||""}) }});
   $$("[data-arate]").forEach(function(e){ e.onclick=function(){
     ADM.rateTarget=e.dataset.arate; ADM.rateStars=0; ADM.rateMsg=""; ADM.pwTarget=null; render() }});
   $$("[data-apw]").forEach(function(e){ e.onclick=function(){
@@ -2419,6 +2454,7 @@ function adminUsersBody(d){
         '<div class="ugroup"><b>'+GX("uSummary")+'</b><div class="ubtns">'+
           '<button class="ab" data-byuser="'+u.id+'" data-name="'+esc(nm)+'">'+GX("uViewListings")+' ('+(u.listings||0)+')</button>'+
           '<button class="ab" data-umsg="'+u.id+'">'+GX("uMessage")+'</button>'+
+          '<button class="ab ok" data-udm="'+u.id+'" data-name="'+esc(nm)+'">'+GX("dmBtn")+'</button>'+
           '<button class="ab" data-arate="'+u.id+'">★ '+t("rateMember")+'</button></div></div>'+
         '<div class="ugroup"><b>'+GX("uModeration")+'</b><div class="ubtns">'+
           (u.avatar_url?'<button class="ab" data-clravatar="'+u.id+'">'+t("clearPhoto")+'</button>':'')+
@@ -2739,7 +2775,7 @@ function cpgContactRow(c, editing){
   var place=[c.governorate_id?(function(){ var n=null; Object.keys(GEO_META.govId||{}).forEach(function(k){ if(GEO_META.govId[k]===c.governorate_id) n=k }); return n })():null, c.city_text].filter(Boolean).join(" · ");
   var card='<div class="agcard2"><div class="agc-id"><b>'+esc(c.name||"—")+'</b><small>'+chips+(place?' · '+esc(place):'')+' · '+cpgT("src_"+c.source)+'</small></div>'+
     '<div class="agc-meta">'+cpgT("wa")+' '+cpgConsentChip(c.wa_consent)+' '+cpgT("tg")+' '+cpgConsentChip(c.tg_consent)+' '+cpgT("chEmail")+' '+cpgConsentChip(c.email_consent)+'</div>'+
-    '<div class="agc-acts"><button type="button" class="ab" data-cpgedit="'+c.id+'">'+(editing?cpgT("cancel"):cpgT("edit"))+'</button><button type="button" class="ab bad" data-cpgdel="'+c.id+'">'+cpgT("del")+'</button></div></div>';
+    '<div class="agc-acts"><button type="button" class="ab ok" data-cdm="'+c.id+'" data-name="'+esc(c.name||c.phone||"")+'">'+GX("dmBtn")+'</button><button type="button" class="ab" data-cpgedit="'+c.id+'">'+(editing?cpgT("cancel"):cpgT("edit"))+'</button><button type="button" class="ab bad" data-cpgdel="'+c.id+'">'+cpgT("del")+'</button></div></div>';
   if(!editing) return card;
   var tgLink=SX("intake_bot","")?("https://t.me/"+encodeURIComponent(SX("intake_bot",""))+"?start=n"+String(c.id).replace(/-/g,"")):"";
   return card+'<div class="tmedit"><div class="row3x"><div class="fl"><label>'+cpgT("name")+'</label><input data-cpgf="name" value="'+escOnce(c.name||"")+'" data-allow-autofill></div>'+
