@@ -1480,7 +1480,8 @@ footer{font-size:14px}
 .home-hero .hero-outer:not(:has(.adsec)){min-height:min(calc(100svh - 62px),var(--hero-max,640px));display:flex;flex-direction:column}
 .home-hero .hero-outer:not(:has(.adsec))>.hero{flex:1 1 auto}
 .home-hero .hero-outer:not(:has(.adsec))>.hero .wrap{padding-bottom:18px}
-@media(max-width:640px){.home-hero .hero-outer:not(:has(.adsec)){min-height:0}}
+/* phones: the navy block fills the first screen too (header 58px), content centred by the flex rules above */
+@media(max-width:640px){.home-hero .hero-outer:not(:has(.adsec)){min-height:calc(100svh - 58px)}}
 .home-hero .hero-outer:has(.adsec){padding-bottom:0;margin-bottom:0}
 .home-hero .hero-outer:has(.adsec)>.hero{margin-bottom:var(--hero-gap,0px)}
 .hero-outer .adsec{background:transparent}
