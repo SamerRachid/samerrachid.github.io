@@ -2835,9 +2835,13 @@ body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
 .vpend .auw{max-width:320px;margin-inline:auto}.vpend .vwait{margin-top:10px}
 @media(max-width:760px){
   .au{padding:0;align-items:flex-end}
-  .aubox.au2{grid-template-columns:1fr;max-width:none;border-radius:22px 22px 0 0;max-height:94vh}
+  /* phone sheet: the brand strip is one grid row, the form is the other and is the ONLY thing that scrolls — an
+     iOS Safari sheet with overflow:hidden and a max-height clipped the bottom of the sign-up form (no way to reach
+     "Continue") and mis-hit taps (the checkbox tap landed on the currency select above it) */
+  .aubox.au2{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);max-width:none;border-radius:22px 22px 0 0;max-height:94vh;max-height:94dvh;overflow:hidden}
   .au-brand{flex-direction:row;align-items:center;gap:12px;padding:14px 18px}.au-brand h3{font-size:15px;margin:0}.au-brand p,.au-brand ul{display:none}.au-brand .logo{font-size:18px}
-  .au-main{max-height:none}.au2 .autop{padding:14px 18px 0}.au2 .autabs{margin:12px 18px 4px}.au2 .aubody{padding:12px 18px 4px}.au-switch{padding:10px 18px calc(18px + env(safe-area-inset-bottom))}
+  .au-main{max-height:none;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.au2 .autop{padding:14px 18px 0}
+  .au2 .aubody{padding-bottom:12px}.au2 .agree{padding:6px 0;margin:0}.au2 .agree input{width:22px;height:22px;margin-top:0}.au2 .autabs{margin:12px 18px 4px}.au2 .aubody{padding:12px 18px 4px}.au-switch{padding:10px 18px calc(18px + env(safe-area-inset-bottom))}
 }
 /* ☰ button and the phone drawer */
 .hmb{display:none;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#fff;place-items:center;cursor:pointer;padding:0;flex:none}
