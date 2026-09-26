@@ -2721,7 +2721,7 @@ function cpgContactRow(c, editing){
 }
 function cpgContactsBody(){
   var list=ADM.cpgContacts;
-  if(list===null) return '<div class="done2"><b>'+t("loading")+'</b></div>';
+  if(list==null) return '<div class="done2"><b>'+t("loading")+'</b></div>';
   var f=ADM.cpgFilters||{};
   var toolbar='<div class="rtop" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
     '<input id="cpgQ" placeholder="'+cpgT("searchPH")+'" class="asearch" value="'+escOnce(f.q||"")+'" style="flex:1;min-width:200px;width:auto">'+
@@ -2760,7 +2760,7 @@ function cpgCampaignRow(c, editing){
 }
 function cpgCampaignsBody(){
   var list=ADM.cpgCampaigns;
-  if(list===null) return '<div class="done2"><b>'+t("loading")+'</b></div>';
+  if(list==null) return '<div class="done2"><b>'+t("loading")+'</b></div>';
   var addForm = ADM.cpgEditCampaign==="new" ? cpgCampaignRow({id:"new",title:"",channels:[],country_code:COUNTRY,consent_required:true,status:"draft"}, true) : "";
   var rows = !list.length ? '<div class="adashempty">'+cpgT("noCampaigns")+'</div>' : '<div class="elist">'+list.map(function(c){ return cpgCampaignRow(c, ADM.cpgEditCampaign===c.id) }).join("")+'</div>';
   return '<div class="rtop" style="margin-bottom:10px"><button type="button" class="ab ok" id="cpgAddCampBtn">'+cpgT("campNew")+'</button></div>'+addForm+rows;
@@ -2792,9 +2792,9 @@ function wireAdminCampaigns(){
   if(ADM.tab!=="campaigns") return;
   if(!ADM.countries){ DB.rpc("bk_admin_countries",{p_token:ADM.token}).then(function(r){ if(r&&r.data) ADM.countries=r.data; render() }); return }
   var view=ADM.cpgView||"contacts";
-  if(view==="contacts" && ADM.cpgContacts===null){ var f=ADM.cpgFilters||{};
+  if(view==="contacts" && ADM.cpgContacts==null){ var f=ADM.cpgFilters||{};
     rpcScoped("bk_admin_contacts",{p_token:ADM.token,p_country:admScope(),p_q:f.q||null,p_consent:f.consent||null,p_source:f.source||null}).then(function(r){ ADM.cpgContacts=r||[]; render() }); return }
-  if(view==="campaigns" && ADM.cpgCampaigns===null){ rpcScoped("bk_admin_campaigns",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.cpgCampaigns=r||[]; render() }); return }
+  if(view==="campaigns" && ADM.cpgCampaigns==null){ rpcScoped("bk_admin_campaigns",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.cpgCampaigns=r||[]; render() }); return }
   $$("[data-cpgview]").forEach(function(b){ b.onclick=function(){ ADM.cpgView=b.dataset.cpgview; render() } });
   // contacts
   if($("#cpgQ")){ var cpgQEl=$("#cpgQ");
