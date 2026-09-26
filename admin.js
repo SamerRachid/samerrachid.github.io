@@ -2924,7 +2924,7 @@ function adminIntakeBody(){
     '<div class="chkgrid">'+chk("intake_enabled",GX("ik_on"))+chk("intake_telegram_on","Telegram")+chk("intake_whatsapp_on","WhatsApp")+'</div>'+
     '<div class="row3">'+num("intake_wait_s",GX("ik_wait"),90,20,900)+num("intake_max_photos",GX("ik_maxPhotos"),12,1,30)+num("intake_daily_limit",GX("ik_daily"),30,1,500)+'</div>'+
     '<div class="row3">'+sel("intake_model",GX("ik_model"),[["claude-haiku-4-5-20251001","Claude Haiku 4.5"],["claude-sonnet-5","Claude Sonnet 5"],["claude-opus-5","Claude Opus 5"]])+num("intake_price_in",GX("ik_priceIn"),1,0,100,0.01)+num("intake_price_out",GX("ik_priceOut"),5,0,500,0.01)+'</div>'+
-    '<div class="row">'+sel("intake_reply_lang",GX("ik_lang"),[["ar","العربية"],["en","English"]])+txt("intake_wa_display",GX("ik_waDisplay"))+'</div>'+
+    '<div class="row3">'+sel("intake_reply_lang",GX("ik_lang"),[["ar","العربية"],["en","English"]])+txt("intake_wa_display",GX("ik_waDisplay"))+txt("intake_contact_phone",GX("ik_contactPhone"))+'</div>'+
     '<div class="xactions"><button type="button" class="ab ok" id="ikCfgSave">'+t("save")+'</button><span class="xmsg" id="ikCfgMsg"></span></div>'+
   '</div></div>';
   var nchk=function(k,lbl){ return '<label class="xcheck"><input type="checkbox" data-ikc="'+k+'" data-ikt="bool"'+(GSX(k,true)!==false?' checked':'')+'><span>'+lbl+'</span></label>' };

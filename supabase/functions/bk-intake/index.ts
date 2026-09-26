@@ -329,6 +329,9 @@ const T = {
     linkAsk: `مرحباً 👋 لإرسال إعلاناتك من هنا مباشرة، اضغط «مشاركة رقمي» بالأسفل لربط حسابك في بلكون بهذه المحادثة (مرة واحدة فقط).`,
     linkOk: (n: string) => `تم ربط حسابك ✅ أهلاً ${n}\nأرسل الآن تفاصيل العقار والصور، وعندما تنتهي اكتب «تم».`,
     linkNone: `لا يوجد حساب في بلكون بهذا الرقم. سجّل أولاً على balkoun.com ثم عد إلى هنا.`,
+    hello: `أهلاً بك في بلكون 👋 أنا هنا لمساعدتك في نشر إعلان عقارك.\nأرسل تفاصيل العقار (نوع العقار، بيع أم إيجار، المحافظة والحي، المساحة، السعر، الطابو) مع الصور، وسأجهّز الإعلان لك.`,
+    contact: (n: string) => `للتواصل مع إدارة بلكون: ${n}\nوإذا أردت نشر إعلان، أرسل تفاصيله وصوره هنا مباشرة وسأساعدك.`,
+    thanks: `على الرحب والسعة 🙏 متى أردت نشر إعلان جديد أرسل تفاصيله هنا.`,
   },
   en: {
     welcome: (name: string) => `Hello ${name} 👋\nSend the property details and photos here. When you are done, write "done".\nI will read the listing and send you a summary to approve before it is published.`,
@@ -376,6 +379,9 @@ const T = {
     linkAsk: `Hello 👋 To post your listings from here, tap "Share my number" below to link your Balkoun account to this chat (once only).`,
     linkOk: (n: string) => `Account linked ✅ Welcome ${n}\nSend the property details and photos now, then write "done".`,
     linkNone: `No Balkoun account has this number. Sign up at balkoun.com first, then come back here.`,
+    hello: `Welcome to Balkoun 👋 I am here to help you post your property listing.\nSend the property details (type, sale or rent, governorate and area, size, price, deed) with photos, and I will prepare the listing for you.`,
+    contact: (n: string) => `To reach the Balkoun team: ${n}\nIf you want to post a listing, just send its details and photos here and I will help.`,
+    thanks: `You are welcome 🙏 Whenever you want to post a new listing, send its details here.`,
   },
 };
 const tx = (lang: string) => (lang === "en" ? T.en : T.ar);
@@ -476,7 +482,7 @@ const TOOL = {
       confidence: { type: "number", description: "0–1 how sure you are the message is one real listing" },
       notes: { type: "string", description: "anything odd: two listings in one message, contradictory numbers, not a listing at all" },
     },
-    required: ["deal", "property_type", "description", "missing", "confidence"],
+    required: ["description", "missing", "confidence"],   // deal / property_type are left out when the message does not say them, so they can be asked for
   },
 };
 const SYSTEM = `You read Arabic (sometimes English or French) real-estate messages sent by property agencies in Arab countries and fill Balkoun's listing fields.
@@ -485,7 +491,7 @@ Rules:
 - Use ONLY codes and names from the taxonomy below. For places pick the exact Arabic governorate name and, inside it, the exact area name. Syrian dialect: "الريف" means the Rural governorate (ريف دمشق, ريف حلب…). If the area is mentioned but not in the list, leave area empty and put it in landmark.
 - Prices: "85 ألف" = 85000, "مليون و200" = 1200000. The words ألف / مليون multiply ONLY a small number written before them (85 ألف = 85000, 1.2 مليون = 1200000). When the number is already large the word is just a label and must NOT multiply: "66000 ألف دولار" = 66000, "250000 ألف" = 250000, "1500000 مليون" = 1500000. Sanity check: a Syrian apartment is roughly 10,000–500,000 USD; if your reading is far outside that, re-read the number. "$", "دولار", "USD" → USD. "ل.س", "ليرة" → SYP in Syria. "ل.ل" → LBP. "دينار" → JOD in Jordan, IQD in Iraq, KWD in Kuwait. "جنيه" → EGP. "ريال" → SAR in Saudi Arabia, QAR in Qatar, OMR in Oman, YER in Yemen. "درهم" → AED in the Emirates, MAD in Morocco. If no currency is written, use USD.
 - Sizes: "متر" / "م2" = square metres; "دونم" = 1000 m²; "هكتار" = 10000 m².
-- Deal: "للبيع" = sale; "للإيجار"/"للأجار"/"آجار" = rent. A monthly or yearly amount means rent.
+- Deal: "للبيع" = sale; "للإيجار"/"للأجار"/"آجار" = rent. A monthly or yearly amount ("شهري", "بالشهر", "سنوي") means rent. If the message has neither a sale/rent word nor a rental period, LEAVE "deal" OUT and add "deal" to missing — never guess it from the price.
 - Land ("أرض") uses the land types (resid/agri/comm) and land conditions; shops/offices use commercial types.
 - Rooms: "غرفتين" = 2, "3 غرف وصالون" = rooms 3, living_rooms 1. Floor: "أرضي" = 0, "أول" = 1, "تسوية" = -1.
 - Deed words: "طابو أخضر" = green, "حصص سهمية"/"أسهم" = shares, "حكم محكمة" = court, "وكالة" = poa, "بدون طابو" = none (only codes present in the taxonomy). For a sale with no deed word, add "tabu" to missing.
@@ -1011,6 +1017,16 @@ async function handleIncoming(m: Incoming) {
   }
   if (/^\/start\b/i.test(m.text || "")) { await reply(m.source, m.chat, t.welcome(m.senderName || "")); return; }
   if (m.kind === "video" || m.kind === "audio") { const s = await rpc<any>("bk_intake_sender", { p_source: m.source, p_chat_id: m.chat }); if (s?.enabled) await reply(m.source, m.chat, t.videoNo); return; }
+  // small talk: greetings, "how do I reach you", thanks — answered like a person, nothing stored
+  if (m.kind === "text" && m.text && m.text.trim().length <= 60) {
+    const a = latinDigits(m.text).trim().replace(/[.!؟?،,]+$/, "").toLowerCase();
+    if (/^(مرحبا|مرحباً|مرحبتين|هلا|هلو|اهلا|أهلا|اهلين|أهلين|السلام عليكم|سلام|صباح الخير|مساء الخير|كيفك|كيف الحال|شلونك|hi|hello|hey|good morning|good evening|bonjour|salut)(?:\s|$)/.test(a)) { await reply(m.source, m.chat, t.hello); return; }
+    if (/(رقم|تواصل|اتصال|اتصل|الادارة|الإدارة|contact|phone|number|call|reach)/.test(a) && !/\d{6,}/.test(a) && /(رقم|contact|phone|number|تواصل|اتصل|اتصال|call|reach)/.test(a)) {
+      const n = String(c.intake_contact_phone || "").trim();
+      if (n) { await reply(m.source, m.chat, t.contact(n)); return; }
+    }
+    if (/^(شكرا|شكراً|شكرًا|يسلمو|يعطيك العافية|تسلم|ممنون|thanks|thank you|thx|merci)(?:\s|$)/.test(a)) { await reply(m.source, m.chat, t.thanks); return; }
+  }
   // everyday yes / no answers to "would you like to publish?" → the SQL side's 1 / 2 commands
   if (m.kind === "text" && m.text) {
     const a = latinDigits(m.text).trim().replace(/[.!؟?]+$/, "");
