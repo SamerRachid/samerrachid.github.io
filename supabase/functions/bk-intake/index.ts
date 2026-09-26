@@ -303,7 +303,7 @@ const T = {
     photoMax: (n: number) => `وصلنا الحد الأقصى للصور (${n}). الصور الإضافية لن تُضاف.`,
     photoBad: `تعذّرت معالجة هذه الصورة. أرسلها كصورة عادية (وليس كملف)، بصيغة JPG أو PNG.`,
     videoNo: `الفيديو غير مدعوم عبر الرسائل حالياً؛ يمكن إضافته من الموقع بعد النشر.`,
-    confirmLine: `\n\nللنشر أرسل 1 · للإلغاء أرسل 2 · ولتعديل أي معلومة أرسل التصحيح مباشرة.`,
+    confirmLine: `\n\nاكتملت المعلومات ✅ هل تريد نشر الإعلان؟\nأرسل «نعم» للنشر، أو «لا» للإلغاء، أو أرسل أي تصحيح مباشرة.`,
     missing: (list: string) => `\n\nقبل النشر أحتاج منك: ${list}.\nأرسلها هنا وسأكمل الإعلان 🙏`,
     reviewAdmin: `تمت القراءة ✅ الإعلان بانتظارك في لوحة التحكم لاختيار المكتب ونشره.`,
     reviewNote: `تمت القراءة، لكن الإعلان يحتاج نظرة من الإدارة قبل النشر. سنتابعه من لوحة التحكم.`,
@@ -350,7 +350,7 @@ const T = {
     photoMax: (n: number) => `Photo limit reached (${n}). Extra photos are not added.`,
     photoBad: `Could not process this photo. Send it as a normal photo (not a file), JPG or PNG.`,
     videoNo: `Video is not supported by message yet; it can be added on the site after publishing.`,
-    confirmLine: `\n\nSend 1 to publish · 2 to cancel · or send a correction.`,
+    confirmLine: `\n\nAll set ✅ Would you like to publish the listing?\nSend "yes" to publish, "no" to cancel, or send any correction.`,
     missing: (list: string) => `\n\nBefore publishing I still need: ${list}.\nSend it here and I will complete the listing 🙏`,
     reviewAdmin: `Read ✅ The listing is waiting in the panel to pick the agency and publish.`,
     reviewNote: `Read, but the listing needs a look from the team before publishing. We will follow up from the panel.`,
@@ -997,6 +997,12 @@ async function handleIncoming(m: Incoming) {
   }
   if (/^\/start\b/i.test(m.text || "")) { await reply(m.source, m.chat, t.welcome(m.senderName || "")); return; }
   if (m.kind === "video" || m.kind === "audio") { const s = await rpc<any>("bk_intake_sender", { p_source: m.source, p_chat_id: m.chat }); if (s?.enabled) await reply(m.source, m.chat, t.videoNo); return; }
+  // everyday yes / no answers to "would you like to publish?" → the SQL side's 1 / 2 commands
+  if (m.kind === "text" && m.text) {
+    const a = latinDigits(m.text).trim().replace(/[.!؟?]+$/, "");
+    if (/^(yes|yeah|yep|sure|اي|ايه|إيه|أيوه|ايوه|اه|آه|أجل|اجل|موافق|انشره|نشره|انشرو|اكيد|أكيد|تمام انشر|نعم انشر|yes publish)$/i.test(a)) m.text = "1";
+    else if (/^(no|nope|لا|لأ|كلا|لا تنشر|الغيه|ألغيه|الغه)$/i.test(a)) m.text = "2";
+  }
 
   const r = await rpc<any>("bk_intake_message", { p_source: m.source, p_external_id: m.externalId, p_chat_id: m.chat, p_kind: m.kind, p_text: m.text, p_media: m.media, p_payload: m.payload, p_sender_name: m.senderName, p_country: null });
   if (!r || r.duplicate) return;
@@ -1048,10 +1054,33 @@ async function handleIncoming(m: Incoming) {
       }
     }
   }
-  if (r.is_new) await reply(m.source, m.chat, tt.gotFirst);
-  else if (m.kind === "text" && (r.was_status === "ready" || r.was_status === "needs_info")) await reply(m.source, m.chat, tt.gotMore);
   if (r.command_after) { await runCommandAfterPhoto(m, r, tt); return; }
+  // like a person: a text is read right away and answered with what was understood / what is still missing;
+  // a photo that was the last missing piece completes the listing without another paid read
+  if (m.kind === "text" && r.draft_id) {
+    const claimed = await rpc<any>("bk_intake_claim", { p_draft: r.draft_id });
+    if (claimed) { await safeRead(m, r.draft_id, tt); return; }
+  }
+  if (m.kind === "photo" && r.draft_id && await completeAfterPhoto(m, r.draft_id)) return;
+  if (r.is_new) await reply(m.source, m.chat, tt.gotFirst);
   scheduleTick();
+}
+// the draft was already read and the only thing missing was a photo: now that one arrived, rebuild the summary
+// from the saved fields (no model call) and move on to the confirmation step
+async function completeAfterPhoto(m: Incoming, draftId: number): Promise<boolean> {
+  const d = await rpc<any>("bk_intake_get", { p_draft: draftId });
+  if (!d || !Array.isArray(d.missing) || d.missing.length !== 1 || d.missing[0] !== "photos") return false;
+  if (!(Array.isArray(d.photos) && d.photos.length) || !["needs_info", "collecting"].includes(d.status)) return false;
+  const claimed = await rpc<any>("bk_intake_claim", { p_draft: draftId }); if (!claimed) return false;
+  const c = await cfg(); const lang = c.intake_reply_lang === "en" ? "en" : (d.user_lang === "en" ? "en" : "ar"); const t = tx(lang);
+  const tax = await rpc<any>("bk_intake_taxonomy", { p_country: d.country_code });
+  const status = d.by_admin && !d.agency_id ? "review" : "ready";
+  const sum = summary(d.fields || {}, tax, d.photos.length, lang) + (status === "review" ? "" : t.confirmLine);
+  const saved = await rpc<any>("bk_intake_save_read", { p_draft: draftId, p_fields: d.fields || {}, p_missing: [], p_summary: sum, p_status: status, p_model: null, p_in: 0, p_out: 0, p_cost: 0, p_error: null });
+  if (!saved || saved.skipped) return true;
+  if (saved.status === "collecting") { scheduleTick(); return true; }
+  await reply(m.source, m.chat, saved.status === "review" ? sum + "\n\n" + t.reviewAdmin : sum);
+  return true;
 }
 
 // ───────────────────────────── routes ─────────────────────────────
