@@ -1471,7 +1471,11 @@ footer{font-size:14px}
 /* ── the sponsored row: a framed navy section under the hero, gliding cards with sponsor chips, one featured wide card, a progress line ── */
 .adsec{background:radial-gradient(120% 90% at 50% 20%,#1B2C52,#14213D 70%);padding:calc(6px + max(var(--adcarousel-gap,0px),0px)) 0 18px;margin-top:min(var(--adcarousel-gap,0px),0px);position:relative;z-index:2}
 .home-hero .hero-outer:not(:has(.adsec)){padding-bottom:max(var(--hero-gap,0px),0px);margin-bottom:min(var(--hero-gap,0px),0px)}
-.home-hero .hero-outer:not(:has(.adsec)){min-height:min(calc(100svh - 62px),640px)}
+/* no ad row: the navy block keeps the first-screen height (capped by the studio's "hero max height"), and the hero
+   stretches to fill it so the title + search bars sit centred instead of leaving a dead navy band at the bottom */
+.home-hero .hero-outer:not(:has(.adsec)){min-height:min(calc(100svh - 62px),var(--hero-max,640px));display:flex;flex-direction:column}
+.home-hero .hero-outer:not(:has(.adsec))>.hero{flex:1 1 auto}
+.home-hero .hero-outer:not(:has(.adsec))>.hero .wrap{padding-bottom:18px}
 @media(max-width:640px){.home-hero .hero-outer:not(:has(.adsec)){min-height:0}}
 .home-hero .hero-outer:has(.adsec){padding-bottom:0;margin-bottom:0}
 .home-hero .hero-outer:has(.adsec)>.hero{margin-bottom:var(--hero-gap,0px)}
