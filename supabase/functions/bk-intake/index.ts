@@ -949,8 +949,35 @@ async function tick(): Promise<number> {
     }
     await notifyFlush();
     await campaignFlush();
+    await wahaHealth();
     return (due || []).length;
   } finally { _ticking = false; }
+}
+// WhatsApp session watchdog (runs from tick(), at most every ~5 min): state in extras.intake_waha_state; two failed
+// checks in a row → admin alert (Telegram queue + direct email to the legal/contact address); recovery → a short note.
+async function wahaHealth() {
+  if (!ENV.wahaUrl || !ENV.wahaKey) return;
+  try {
+    const c = await cfg(); const st: any = c.intake_waha_state || {}; const now = Date.now();
+    if (st.checked_at && now - new Date(st.checked_at).getTime() < 4 * 60_000) return;
+    const s = await wahaStatus(); const ok = !!s.ok; const status = s.status || s.error || "unreachable";
+    const next: any = { ok, status, checked_at: new Date(now).toISOString(), since: (st.ok === ok && st.since) ? st.since : new Date(now).toISOString(), fails: ok ? 0 : ((+st.fails || 0) + 1), down_alerted: !!st.down_alerted };
+    const email = String(c.legal_email || c.intake_contact_email || "").trim();
+    if (!ok && next.fails >= 2 && !st.down_alerted) {
+      next.down_alerted = true;
+      const body = `حالة الجلسة: ${status}. رموز التحقق والترحيب واستقبال الإعلانات عبر واتساب متوقفة حتى إعادة الربط. افتح WAHA على السيرفر وأعد مسح رمز QR من هاتف رقم بلكون إن لزم.`;
+      await rpc("bk_notify_push", { p_event: "waha_down", p_title: "⚠️ انقطع اتصال واتساب بلكون", p_body: body, p_link: SITE + "/admin", p_cc: null });
+      background(notifyFlush());
+      if (email) { try { await sendEmail(email, "⚠️ Balkoun: WhatsApp session down", `<p>${body}</p><p>${new Date(now).toISOString()}</p>`); } catch (e) { await log(null, "waha:health", "warn", "waha_alert_email_failed", { error: errStr(e) }); } }
+      await log(null, "waha:health", "error", "waha_down", { status });
+    } else if (ok && st.down_alerted) {
+      next.down_alerted = false;
+      await rpc("bk_notify_push", { p_event: "waha_up", p_title: "✅ عاد اتصال واتساب بلكون", p_body: "الجلسة تعمل من جديد.", p_link: SITE + "/admin", p_cc: null });
+      background(notifyFlush());
+      await log(null, "waha:health", "info", "waha_up", {});
+    }
+    await rpc("bk_intake_set_extra", { p_key: "intake_waha_state", p_value: next }); _cfg = null;
+  } catch (e) { console.error("wahaHealth", errStr(e)); }
 }
 // one timer per worker that keeps ticking while anything is still collecting (bk_intake_next_due says when)
 let _scheduled = false;
