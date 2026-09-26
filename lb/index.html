@@ -3016,6 +3016,9 @@ body.mdw-open .mobfab{display:none}
 .pm{max-width:760px;padding:26px 18px 60px}
 .pm-hero{text-align:center;margin-bottom:22px}.pm-hero h1{font-size:26px;margin:10px 0 6px}.pm-hero p{color:var(--grey);font-size:15px;line-height:1.7}
 .pm-badge{display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;border-radius:999px;padding:6px 14px;font:800 13px var(--f)}.pm-badge svg{width:20px;height:20px}
+.pm-logo{display:inline-flex;align-items:center;justify-content:center;width:68px;height:68px;border-radius:18px;background:#fff;border:1px solid var(--line);box-shadow:0 8px 24px rgba(11,29,58,.12)}.pm-logo img{width:44px;height:44px}
+.pm-alt{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 16px;margin-top:26px;padding-top:22px;border-top:1px solid var(--line);color:var(--grey);font-size:14.5px}
+.pm-alt .btn-o{display:inline-flex;align-items:center;gap:6px;padding:10px 18px;border:1.5px solid var(--navy);border-radius:999px;color:var(--navy);font:700 14px var(--f);cursor:pointer;background:#fff}.pm-alt .btn-o:hover{background:var(--navy);color:#fff}
 .pm-steps{display:grid;gap:10px;margin-bottom:22px}
 .pm-step{display:flex;gap:12px;align-items:flex-start;background:#fff;border:1px solid var(--line-2);border-radius:14px;padding:14px;text-align:start}
 .pm-n{flex:none;width:32px;height:32px;border-radius:50%;background:var(--gold);color:#1A1206;display:grid;place-items:center;font-weight:800}
@@ -4873,7 +4876,7 @@ function postMsgLinks(){
 }
 function postMsgCardHtml(){
   var l=postMsgLinks(); if(!l.wa&&!l.tg) return "";
-  return '<div class="wrap"><a class="qfteaser pm-card" data-go="postmsg"><span class="qfteaser-ico">'+AI_SPARKLE+'</span>'+
+  return '<div class="wrap"><a class="qfteaser pm-card" data-go="postmsg"><span class="qfteaser-ico"><img src="/brand/mark.svg" alt="" style="width:26px;height:26px"></span>'+
     '<span class="qfteaser-tx"><b>'+GX("pmCardT")+'</b><small>'+GX("pmCardP")+'</small></span><span class="qfteaser-cta">'+GX("pmCardBtn")+'</span></a></div>';
 }
 function postMsgPage(){
@@ -4883,14 +4886,14 @@ function postMsgPage(){
            : USER.phone_verified===false ? '<div class="pm-note"><b>'+GX("pmVerifyT")+'</b><p>'+GX("pmVerifyP")+'</p><a class="btn-n" style="width:auto;display:inline-block" data-go="account">'+GX("accTitle")+'</a></div>'
            : '<div class="pm-note ok"><p>'+GX("pmReadyP")+' <a data-go="account">'+GX("accChTgBtn")+'</a></p></div>';
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("pmTitle")+'</div></div>'+
-   '<div class="wrap pm"><div class="pm-hero"><span class="pm-badge">'+AI_SPARKLE+'AI</span><h1>'+GX("pmTitle")+'</h1><p>'+GX("pmLead")+'</p></div>'+
+   '<div class="wrap pm"><div class="pm-hero"><span class="pm-logo"><img src="/brand/mark.svg" alt="Balkoun"></span><h1>'+GX("pmTitle")+'</h1><p>'+GX("pmLead")+'</p></div>'+
    '<div class="pm-steps">'+step(1,GX("pmS1T"),GX("pmS1P"))+step(2,GX("pmS2T"),GX("pmS2P"))+step(3,GX("pmS3T"),GX("pmS3P"))+'</div>'+
    '<div class="pm-btns">'+
      (l.wa?'<a class="pm-btn" href="'+l.wa+'" target="_blank" rel="noopener"><span class="vico wa">'+VICO.wa+'</span><span><b>'+GX("pmWa")+'</b><small>'+GX("pmWaP")+'</small></span></a>':'')+
      (l.tg?'<a class="pm-btn" href="'+l.tg+'" target="_blank" rel="noopener"><span class="vico tg">'+VICO.tg+'</span><span><b>'+GX("pmTg")+'</b><small>'+GX("pmTgP")+'</small></span></a>':'')+
    '</div>'+note+
    '<p class="hintx">'+GX("pmAgencyP")+'</p>'+
-   '<p class="hintx"><a data-go="post">'+GX("pmFormLink")+'</a></p></div>';
+   '<div class="pm-alt"><span>'+GX("pmFormQ")+'</span><a class="btn-o" data-go="post">'+GX("pmFormLink")+' ←</a></div></div>';
 }
 function post(){
  if(!USER) return gate();
@@ -10372,17 +10375,17 @@ var GX_T={
   cShowing:{ar:"يُعرض الآن",en:"Showing",de:"Angezeigt"},
   cEditorAllNote:{ar:"هذه الصفحة تُعدّل دولة واحدة في كل مرة",en:"this page edits one country at a time",de:"diese Seite bearbeitet jeweils ein Land"},
   qfTeaserT:{ar:"أرسل إعلانك برسالة واتساب أو تيليغرام",en:"Post your listing with a WhatsApp or Telegram message",de:"Anzeige per WhatsApp- oder Telegram-Nachricht aufgeben"},
-  qfTeaserP:{ar:"اكتب التفاصيل وأرفق الصور في المحادثة — بلكون يقرأها بالذكاء الاصطناعي ويعبّي كل شيء عنك.",en:"Type the details and attach the photos in the chat — Balkoun reads them with AI and fills everything for you.",de:"Details tippen, Fotos anhängen — Balkoun liest sie per KI und füllt alles für Sie aus."},
+  qfTeaserP:{ar:"اكتب التفاصيل وأرفق الصور في المحادثة — وبلكون ينشر الإعلان لك.",en:"Type the details and attach the photos in the chat — and Balkoun publishes the listing for you.",de:"Details tippen, Fotos anhängen — und Balkoun veröffentlicht die Anzeige für Sie."},
   qfTeaserBtn:{ar:"كيف؟",en:"How?",de:"Wie?"},
   pmNav:{ar:"أضف إعلانك برسالة",en:"Post by message",de:"Anzeige per Nachricht"},
   pmTitle:{ar:"أضف إعلانك برسالة",en:"Post your listing by message",de:"Anzeige per Nachricht aufgeben"},
-  pmLead:{ar:"لا تعبّئ أي استمارة: أرسل تفاصيل عقارك وصوره في محادثة واتساب أو تيليغرام، ويقرأها بلكون بالذكاء الاصطناعي ويعرض عليك ملخصاً قبل النشر.",en:"No form to fill: send your property's details and photos in a WhatsApp or Telegram chat; Balkoun reads them with AI and shows you a summary before publishing.",de:"Kein Formular: Senden Sie Details und Fotos per WhatsApp- oder Telegram-Chat; Balkoun liest sie per KI und zeigt Ihnen vor der Veröffentlichung eine Zusammenfassung."},
-  pmS1T:{ar:"اكتب التفاصيل",en:"Write the details",de:"Details schreiben"},
-  pmS1P:{ar:"النوع، المنطقة، المساحة، الغرف، الطابو، السعر — وأرفق الصور.",en:"Type, area, size, rooms, deed, price — and attach the photos.",de:"Art, Gegend, Größe, Zimmer, Grundbuch, Preis — und Fotos anhängen."},
-  pmS2T:{ar:"أرسل ثم اكتب «تم»",en:"Send, then write \"done\"",de:"Senden, dann „fertig“ schreiben"},
-  pmS2P:{ar:"يردّ عليك بلكون خلال ثوانٍ بملخص الإعلان.",en:"Balkoun replies within seconds with a summary of the listing.",de:"Balkoun antwortet in Sekunden mit einer Zusammenfassung."},
-  pmS3T:{ar:"وافق بإرسال 1",en:"Approve by sending 1",de:"Mit 1 bestätigen"},
-  pmS3P:{ar:"يُنشر إعلانك، أو يصل الإدارة لمراجعة سريعة.",en:"Your listing is published, or reaches the team for a quick review.",de:"Ihre Anzeige wird veröffentlicht oder kurz vom Team geprüft."},
+  pmLead:{ar:"لا تعبّئ أي استمارة: أرسل تفاصيل عقارك وصوره في محادثة واتساب أو تيليغرام، وبلكون ينشره لك.",en:"No form to fill: send your property's details and photos in a WhatsApp or Telegram chat, and Balkoun publishes it for you.",de:"Kein Formular: Senden Sie Details und Fotos per WhatsApp- oder Telegram-Chat, und Balkoun veröffentlicht die Anzeige für Sie."},
+  pmS1T:{ar:"اكتب التفاصيل وأرفق الصور",en:"Write the details and attach photos",de:"Details schreiben und Fotos anhängen"},
+  pmS1P:{ar:"نوع العقار، بيع أم إيجار، المحافظة والحي، المساحة، السعر، الطابو — وصورة واحدة على الأقل.",en:"Property type, sale or rent, governorate and area, size, price, deed — and at least one photo.",de:"Objektart, Verkauf oder Miete, Provinz und Gegend, Größe, Preis, Grundbuch — und mindestens ein Foto."},
+  pmS2T:{ar:"بلكون يردّ عليك فوراً",en:"Balkoun replies right away",de:"Balkoun antwortet sofort"},
+  pmS2P:{ar:"يفهم رسالتك، وإن نقص شيء يسألك عنه، ثم يعرض عليك ملخص الإعلان.",en:"It understands your message, asks for anything missing, then shows you a summary of the listing.",de:"Es versteht Ihre Nachricht, fragt nach fehlenden Angaben und zeigt Ihnen dann eine Zusammenfassung."},
+  pmS3T:{ar:"أجب «نعم» ويُنشر لك",en:"Reply \"yes\" and it gets published",de:"Mit „ja“ antworten – fertig"},
+  pmS3P:{ar:"يصل الإعلان إلى بلكون ويظهر على الموقع بعد مراجعة سريعة.",en:"The listing reaches Balkoun and appears on the site after a quick review.",de:"Die Anzeige geht an Balkoun und erscheint nach kurzer Prüfung auf der Website."},
   pmWa:{ar:"عبر واتساب",en:"On WhatsApp",de:"Per WhatsApp"},
   pmWaP:{ar:"رقم بلكون الرسمي",en:"Balkoun's official number",de:"Offizielle Balkoun-Nummer"},
   pmTg:{ar:"عبر تيليغرام",en:"On Telegram",de:"Per Telegram"},
@@ -10394,9 +10397,10 @@ var GX_T={
   pmVerifyP:{ar:"بلكون يتعرّف على رسائلك من رقمك الموثّق — أكمل تأكيد الرقم من حسابك.",en:"Balkoun recognises your messages by your verified number — finish confirming it from your account.",de:"Balkoun erkennt Ihre Nachrichten an Ihrer bestätigten Nummer — schließen Sie die Bestätigung im Konto ab."},
   pmReadyP:{ar:"حسابك جاهز ✓ أرسل الآن من رقمك المسجّل على واتساب، أو اربط تيليغرام من حسابك:",en:"Your account is ready ✓ Send now from your registered WhatsApp number, or link Telegram from your account:",de:"Ihr Konto ist bereit ✓ Senden Sie jetzt von Ihrer registrierten WhatsApp-Nummer oder verknüpfen Sie Telegram im Konto:"},
   pmAgencyP:{ar:"المكاتب العقارية: نفس الطريقة، وتُنشر إعلاناتكم باسم المكتب مباشرة.",en:"Agencies: same way — your listings are published under the agency's name.",de:"Büros: gleicher Weg — Ihre Anzeigen erscheinen unter dem Büronamen."},
-  pmFormLink:{ar:"أفضّل الاستمارة العادية",en:"I prefer the regular form",de:"Ich bevorzuge das normale Formular"},
+  pmFormLink:{ar:"الاستمارة العادية",en:"Regular form",de:"Normales Formular"},
+  pmFormQ:{ar:"تفضّل تعبئة الإعلان بنفسك؟",en:"Prefer to fill in the listing yourself?",de:"Möchten Sie die Anzeige lieber selbst ausfüllen?"},
   pmCardT:{ar:"أو أرسله برسالة",en:"Or send it by message",de:"Oder per Nachricht senden"},
-  pmCardP:{ar:"واتساب أو تيليغرام — بلكون يقرأ التفاصيل والصور ويعبّي كل شيء.",en:"WhatsApp or Telegram — Balkoun reads the details and photos and fills everything.",de:"WhatsApp oder Telegram — Balkoun liest Details und Fotos und füllt alles aus."},
+  pmCardP:{ar:"واتساب أو تيليغرام — أرسل التفاصيل والصور وبلكون ينشره لك.",en:"WhatsApp or Telegram — send the details and photos and Balkoun publishes it for you.",de:"WhatsApp oder Telegram — Details und Fotos senden, Balkoun veröffentlicht für Sie."},
   pmCardBtn:{ar:"كيف؟",en:"How?",de:"Wie?"},
   qfMenuT:{ar:"انشر من نص جاهز",en:"Post from text",de:"Aus Text erstellen"},
   qfMenuP:{ar:"الصق الوصف وبلكون يعبّي الاستمارة",en:"Paste the description, we fill the form",de:"Text einfügen — wir füllen das Formular"},
