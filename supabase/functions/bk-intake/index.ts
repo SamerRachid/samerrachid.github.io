@@ -841,7 +841,33 @@ async function notifyFlush(): Promise<number> {
 // same per-minute cron tick that already drives notifyFlush() above. Manual campaigns use their own
 // body_ar/body_en; an automatic 'auto_new_listing' row has no campaigns row at all, so its text is built
 // here from the listing detail bk_campaign_sends_pending already joins in.
+// welcome messages (trigger_type 'welcome', queued by the trg_welcome_member DB trigger): one text per channel and
+// language from site_content.extras (intake_welcome_<channel>_<lang>), with the defaults below until the admin edits
+// them. Placeholders: {name} {wa} {tg} {contact} {email} {site}
+const WELCOME_DEFAULT: Record<string, Record<string, string>> = {
+  ar: {
+    whatsapp: `أهلاً بك في بلكون 👋\nحسابك جاهز الآن.\n\nلنشر إعلان عقارك: أرسل تفاصيله وصوره هنا مباشرة (نوع العقار، بيع أم إيجار، المحافظة والحي، المساحة، السعر، الطابو) وسأجهّز الإعلان لك وأعرضه عليك قبل النشر.\nأو انشره بنفسك من الموقع: {site}/post\n\nللتواصل مع الإدارة: {contact}\nالبريد الرسمي: {email}`,
+    email_subject: `أهلاً بك في بلكون`,
+    email: `أهلاً بك في بلكون،\n\nتم إنشاء حسابك بنجاح ورقمك موثّق.\n\nيمكنك نشر إعلان عقارك بطريقتين:\n• برسالة: أرسل التفاصيل والصور على واتساب {wa} أو على تيليغرام @{tg}، وبلكون ينشره لك.\n• من الموقع: {site}/post\n\nللتواصل مع الإدارة: {contact} · {email}\nستصلك إشعارات بلكون على هذا البريد. لإيقافها استخدم الرابط أسفل أي رسالة.\n\nمع تحيات فريق بلكون\n{site}`,
+    telegram: `تم ربط حسابك ✅ أهلاً بك في بلكون 👋\n\nمن هنا يمكنك نشر إعلاناتك مباشرة: أرسل تفاصيل العقار وصوره، وسأسألك عمّا ينقص ثم أعرض عليك الملخص لتوافق على النشر.\n\nللتواصل مع الإدارة: {contact}\nالبريد الرسمي: {email}`,
+  },
+  en: {
+    whatsapp: `Welcome to Balkoun 👋\nYour account is ready.\n\nTo post a listing: send the property details and photos right here (type, sale or rent, governorate and area, size, price, deed) and I will prepare the listing and show it to you before publishing.\nOr post it yourself on the site: {site}/post\n\nTo reach the team: {contact}\nOfficial email: {email}`,
+    email_subject: `Welcome to Balkoun`,
+    email: `Welcome to Balkoun,\n\nYour account was created and your phone number is verified.\n\nYou can post a listing in two ways:\n• By message: send the details and photos on WhatsApp {wa} or Telegram @{tg}, and Balkoun publishes it for you.\n• On the site: {site}/post\n\nTo reach the team: {contact} · {email}\nBalkoun notifications will arrive at this address. Use the link at the bottom of any message to stop them.\n\nThe Balkoun team\n{site}`,
+    telegram: `Account linked ✅ Welcome to Balkoun 👋\n\nYou can post your listings right here: send the property details and photos, I will ask for anything missing and then show you the summary to approve.\n\nTo reach the team: {contact}\nOfficial email: {email}`,
+  },
+};
+function welcomeText(r: any, c: Cfg, part: "whatsapp" | "email" | "telegram" | "email_subject"): string {
+  const lang = r.lang === "en" ? "en" : "ar";
+  const raw = String(c["intake_welcome_" + part + "_" + lang] || WELCOME_DEFAULT[lang][part] || "");
+  const wa = String(c.intake_wa_display || "").trim();
+  return raw.replace(/\{name\}/g, String(r.contact_name || "").trim()).replace(/\{wa\}/g, wa).replace(/\{tg\}/g, String(c.intake_bot || ""))
+    .replace(/\{contact\}/g, String(c.intake_contact_phone || "").trim()).replace(/\{email\}/g, String(c.intake_contact_email || "info@balkoun.com").trim()).replace(/\{site\}/g, SITE)
+    .replace(/[ \t]+\n/g, "\n").trim();
+}
 function campaignText(r: any): string {
+  if (r.trigger_type === "welcome") return r._welcome || "";
   if (r.trigger_type === "auto_new_listing" && r.listing_id) {
     const price = r.listing_price ? `$${Number(r.listing_price).toLocaleString("en-US")}` : "";
     const desc = String(r.listing_description || "").slice(0, 200);
@@ -869,18 +895,23 @@ async function campaignFlush(): Promise<number> {
   try {
     const rows = await rpc<any[]>("bk_campaign_sends_pending", { p_limit: 200 });
     if (!rows || !rows.length) return 0;
-    const bot = (await cfg()).intake_bot || "";
+    const c0 = await cfg(); const bot = c0.intake_bot || "";
     const okIds: number[] = []; const failed: { id: number; error: string }[] = [];
     for (const r of rows) {
       try {
-        const tgLink = (r.channel !== "telegram" && !r.tg_chat_id && r.tg_consent !== "unsubscribed") ? tgInviteLink(bot, r.contact_id) : null;
+        if (r.trigger_type === "welcome") {   // welcome texts are built here; no Telegram nudge line and no unsubscribe footer needed
+          if (c0.intake_welcome_on === false || c0.intake_welcome_on === "false") { okIds.push(r.id); continue; }
+          r._welcome = welcomeText(r, c0, r.channel);
+          if (r.channel === "email") r.subject = welcomeText(r, c0, "email_subject");
+        }
+        const tgLink = (r.channel !== "telegram" && r.trigger_type !== "welcome" && !r.tg_chat_id && r.tg_consent !== "unsubscribed") ? tgInviteLink(bot, r.contact_id) : null;
         if (r.channel === "telegram") {
           if (!r.tg_chat_id) throw new Error("no_tg_chat");
           await tg("sendMessage", { chat_id: r.tg_chat_id, text: campaignText(r) });
         } else if (r.channel === "whatsapp") {
           if (!r.phone) throw new Error("no_phone");
           const text = campaignText(r) + (tgLink ? `\n\n${TG_INVITE_TEXT} ${tgLink}` : "");
-          if (r.phone.startsWith("+963")) await wahaSend(r.phone, text);
+          if (r.phone.startsWith("+963") || !(ENV.waToken && ENV.waPhone)) await wahaSend(r.phone, text);   // no Meta yet → every WhatsApp send goes through WAHA
           else {
             const c = await cfg();   // reuses the existing generic "intake_%" extras merge — no new plumbing needed for these two keys
             await waSendMarketingTemplate(r.phone, c.intake_marketing_wa_template || "balkoun_news", c.intake_marketing_wa_lang || "ar", [text.slice(0, 1000)]);
@@ -980,7 +1011,9 @@ async function contactTgOpen(m: Incoming, hex: string, c: Cfg): Promise<void> {
   const t = vLang(m, c);
   const contactId = hex.replace(/^(.{8})(.{4})(.{4})(.{4})(.{12})$/, "$1-$2-$3-$4-$5");
   const r = await rpc<any>("bk_contact_tg_open", { p_contact_id: contactId, p_chat_id: m.chat, p_name: m.senderName });
-  await reply(m.source, m.chat, r?.ok ? t.contactTgLinked : t.contactTgGone);
+  if (!r?.ok) { await reply(m.source, m.chat, t.contactTgGone); return; }
+  const sent = await campaignFlush();   // the Telegram welcome queued by the DB trigger doubles as the confirmation
+  if (!sent) await reply(m.source, m.chat, t.contactTgLinked);
 }
 async function verifyContact(chat: string, contact: any, from: any, lang: string): Promise<void> {
   const c = await cfg(); const t = vLang({ lang }, c);
@@ -995,7 +1028,8 @@ async function verifyContact(chat: string, contact: any, from: any, lang: string
     // no open verification ticket: a member answering the bot's "share my number" invitation links their account
     const name = [from?.first_name, from?.last_name].filter(Boolean).join(" ") + (from?.username ? " @" + from.username : "");
     const l = await rpc<any>("bk_member_tg_link", { p_chat_id: chat, p_phone: String(contact?.phone_number || ""), p_name: name });
-    if (l?.ok) await say(t.linkOk(l.name || "")); else await say(t.linkNone);
+    if (l?.ok) { try { await tg("sendMessage", { chat_id: chat, text: "✅", ...remove }); } catch { /* keyboard cleanup only */ } const sent = await campaignFlush(); if (!sent) await say(t.linkOk(l.name || "")); }   // the Telegram welcome (DB trigger) is the real confirmation
+    else await say(t.linkNone);
   }
 }
 async function handleIncoming(m: Incoming) {

@@ -2920,11 +2920,19 @@ function adminIntakeBody(){
   var sel=function(k,lbl,opts){ return '<div class="fl"><label>'+lbl+'</label><select data-ikc="'+k+'" data-ikt="str">'+opts.map(function(o){ return '<option value="'+o[0]+'"'+(String(cfg[k]||"")===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select></div>' };
   var txt=function(k,lbl){ return '<div class="fl"><label>'+lbl+'</label><input data-ikc="'+k+'" data-ikt="str" class="ltr" value="'+escOnce(cfg[k]||"")+'" data-allow-autofill></div>' };
   var chk=function(k,lbl){ return '<label class="xcheck"><input type="checkbox" data-ikc="'+k+'" data-ikt="bool"'+(cfg[k]!==false&&cfg[k]!=="false"?' checked':'')+'><span>'+lbl+'</span></label>' };
+  var ta=function(k,lbl){ return '<div class="fl"><label>'+lbl+'</label><textarea data-ikc="'+k+'" data-ikt="str" rows="6" data-allow-autofill placeholder="'+esc(GX("ik_welcomePH"))+'">'+escOnce(cfg[k]||"")+'</textarea></div>' };
   var settings='<div class="blk"><h3>'+GX("ik_setH")+'</h3><div class="in" id="ikCfg">'+
     '<div class="chkgrid">'+chk("intake_enabled",GX("ik_on"))+chk("intake_telegram_on","Telegram")+chk("intake_whatsapp_on","WhatsApp")+'</div>'+
     '<div class="row3">'+num("intake_wait_s",GX("ik_wait"),90,20,900)+num("intake_max_photos",GX("ik_maxPhotos"),12,1,30)+num("intake_daily_limit",GX("ik_daily"),30,1,500)+'</div>'+
     '<div class="row3">'+sel("intake_model",GX("ik_model"),[["claude-haiku-4-5-20251001","Claude Haiku 4.5"],["claude-sonnet-5","Claude Sonnet 5"],["claude-opus-5","Claude Opus 5"]])+num("intake_price_in",GX("ik_priceIn"),1,0,100,0.01)+num("intake_price_out",GX("ik_priceOut"),5,0,500,0.01)+'</div>'+
     '<div class="row3">'+sel("intake_reply_lang",GX("ik_lang"),[["ar","العربية"],["en","English"]])+txt("intake_wa_display",GX("ik_waDisplay"))+txt("intake_contact_phone",GX("ik_contactPhone"))+'</div>'+
+    '<div class="row">'+txt("intake_contact_email",GX("ik_contactEmail"))+'</div>'+
+    '<h4 style="margin:18px 0 6px">'+GX("ik_welcomeH")+'</h4><div class="hintx">'+GX("ik_welcomeHint")+'</div>'+
+    '<div class="chkgrid">'+chk("intake_welcome_on",GX("ik_welcomeOn"))+'</div>'+
+    '<div class="row">'+ta("intake_welcome_whatsapp_ar",GX("ik_welcomeWa")+" · AR")+ta("intake_welcome_whatsapp_en",GX("ik_welcomeWa")+" · EN")+'</div>'+
+    '<div class="row">'+txt("intake_welcome_email_subject_ar",GX("ik_welcomeSubj")+" · AR")+txt("intake_welcome_email_subject_en",GX("ik_welcomeSubj")+" · EN")+'</div>'+
+    '<div class="row">'+ta("intake_welcome_email_ar",GX("ik_welcomeEmail")+" · AR")+ta("intake_welcome_email_en",GX("ik_welcomeEmail")+" · EN")+'</div>'+
+    '<div class="row">'+ta("intake_welcome_telegram_ar",GX("ik_welcomeTg")+" · AR")+ta("intake_welcome_telegram_en",GX("ik_welcomeTg")+" · EN")+'</div>'+
     '<div class="xactions"><button type="button" class="ab ok" id="ikCfgSave">'+t("save")+'</button><span class="xmsg" id="ikCfgMsg"></span></div>'+
   '</div></div>';
   var nchk=function(k,lbl){ return '<label class="xcheck"><input type="checkbox" data-ikc="'+k+'" data-ikt="bool"'+(GSX(k,true)!==false?' checked':'')+'><span>'+lbl+'</span></label>' };
