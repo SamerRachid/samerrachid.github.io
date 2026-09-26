@@ -342,7 +342,15 @@ function card(l, avg, lang) {
 }
 
 let avgByArea = new Map();
-const altsFor = (p) => ({ ar: SITE + cpre() + "/" + p, en: pageUrl("en", p), de: pageUrl("de", p) });
+// language alternates for every page; pages that exist in every country (home, about, contact, legal, areas index) also
+// list the sister countries (ar-LB, en-LB …) so Google sends a searcher to the edition of their own country
+let ENABLED = [];
+const SHARED_PAGES = new Set(["", "about/", "contactus/", "privacy/", "terms/", "areas/"]);
+const altsFor = (p) => {
+  const a = { ar: SITE + cpre() + "/" + p, en: pageUrl("en", p), de: pageUrl("de", p) };
+  if (SHARED_PAGES.has(p)) for (const c of ENABLED) { const cp = c.is_default ? "" : "/" + c.code.toLowerCase(); for (const l of ["ar", "en", "de"]) a[`${l}-${c.code}`] = `${SITE}${cp}${l === "ar" ? "" : "/" + l}/${p}`; }
+  return a;
+};
 
 function govPage({ lang, deal, g, areas, listings, avg, footLinks }) {
   const W = S[lang], d = DEAL[deal], dw = dealWord(deal, lang), other = deal === "sale" ? "rent" : "sale";
@@ -404,7 +412,7 @@ function aboutPage({ lang, footLinks }) {
 ${(A.blocks || []).map((b) => `<section class="ab"><h2>${b[0]}</h2>${b[1].map((p) => `<p>${p}</p>`).join("")}</section>`).join("")}
 <div class="cta"><div><h2>${A.ctaH}</h2><p>${A.ctaP}</p></div><a class="gold" href="${appUrl(lang, "post")}">${W.post}</a></div></article>`;
   const ld = [c.ld, { "@context":"https://schema.org", "@type":"AboutPage", name: W.aboutT, url, description: desc, inLanguage: lang },
-    { "@context":"https://schema.org", "@type":"Organization", name: "Balkoun", alternateName: "بلكون", url: SITE, logo: SITE + "/brand/og-image.png", areaServed: CTX.code }];
+    { "@context":"https://schema.org", "@type":"Organization", name: "Balkoun", alternateName: "بلكون", url: SITE, logo: SITE + "/brand/og-image.png", areaServed: ENABLED.map((c) => c.code) }];
   return { url, html: shell({ lang, title: W.aboutT + " | Balkoun", desc, canonical: url, alts: altsFor(rel), jsonld: ld, body, footLinks }) };
 }
 
@@ -441,7 +449,7 @@ function homePage({ lang, govs, counts, latest, footLinks }) {
 ${latest.length ? `<section class="sec"><h2>${W.latest}</h2><div class="grid" style="margin-top:14px">${latest.map((l) => card(l, l.area_id ? avgByArea.get(l.area_id) : null, lang)).join("")}</div><p style="margin-top:14px"><a class="gold" href="${searchUrl(lang, {})}">${W.openApp}</a></p></section>` : ""}
 <section class="sec"><h2>${W.whyH}</h2><div class="why">${W.why.map((w) => `<div><h3>${esc(w[0])}</h3><p>${esc(w[1])}</p></div>`).join("")}</div></section>`;
   const ld = [{ "@context":"https://schema.org", "@type":"WebSite", name: "Balkoun", url: SITE, inLanguage: lang, description: W.homeDesc },
-    { "@context":"https://schema.org", "@type":"Organization", name: "Balkoun", alternateName: "بلكون", url: SITE, logo: SITE + "/brand/og-image.png", areaServed: CTX.code }];
+    { "@context":"https://schema.org", "@type":"Organization", name: "Balkoun", alternateName: "بلكون", url: SITE, logo: SITE + "/brand/og-image.png", areaServed: ENABLED.map((c) => c.code) }];
   return { url, html: shell({ lang, title: W.homeT, desc: W.homeDesc, canonical: url, alts: { ar: SITE + cpre() + "/", en: pageUrl("en", ""), de: pageUrl("de", "") }, jsonld: ld, body, image: latest[0]?.cover_url, footLinks }) };
 }
 
@@ -484,7 +492,7 @@ async function main() {
   try { allCountries = await sb("countries?select=code,name_ar,name_en,name_de,enabled,is_default,sort_order&order=sort_order.asc"); if (!Array.isArray(allCountries) || !allCountries.length) throw new Error("empty list"); }
   catch (e) { console.warn("countries unreadable, building Syria only:", e.message); allCountries = SY_ONLY; }
   if (!allCountries.some((c) => c.is_default)) allCountries.forEach((c) => { if (c.code === "SY") c.is_default = true; });
-  const enabled = allCountries.filter((c) => c.enabled);
+  const enabled = allCountries.filter((c) => c.enabled); ENABLED = enabled;
   // a country that was switched off loses its tree (a disabled default country keeps the root)
   for (const c of allCountries.filter((c) => !c.enabled && !c.is_default)) fs.rmSync(path.join(ROOT, c.code.toLowerCase()), { recursive: true, force: true });
 
