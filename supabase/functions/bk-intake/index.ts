@@ -612,9 +612,12 @@ function summary(f: Record<string, any>, tax: any, photos: number, lang: string)
 // one line of "what I understood so far" for the follow-up questions — the full summary is kept for the end
 function brief(f: Record<string, any>, tax: any, lang: string): string {
   const ar = lang !== "en"; const ty = (tax.types || []).find((x: any) => x.code === f.property_type);
+  const g = (tax.governorates || []).find((x: any) => x.id === f.governorate_id || x.ar === f.governorate);
+  const a = g ? (g.areas || []).find((x: any) => x[0] === f.area_id || x[1] === f.area) : null;
+  const gName = g ? (ar ? g.ar : (g.en || g.ar)) : f.governorate, aName = a ? (ar ? a[1] : (a[2] || a[1])) : f.area;
   const parts = [
     ty ? (ar ? ty.ar : ty.en) + (f.deal ? " " + (f.deal === "rent" ? (ar ? "للإيجار" : "for rent") : (ar ? "للبيع" : "for sale")) : "") : "",
-    [f.governorate, f.area].filter(Boolean).join(" – "),
+    [gName, aName].filter(Boolean).join(" – "),
     f.area_m2 ? `${fmtNum(f.area_m2)} ${ar ? "م²" : "m²"}` : "",
     f.rooms ? `${f.rooms} ${ar ? "غرف" : "rooms"}` : "",
     f.price ? fmtNum(f.price) + " " + (f.currency === "USD" ? "$" : f.currency) : "",
