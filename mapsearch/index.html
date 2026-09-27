@@ -1515,7 +1515,7 @@ footer{font-size:14px}
 .adsec .adslot{width:var(--ad-size,130px);height:var(--ad-size,130px);aspect-ratio:auto;flex:none;border-radius:14px;box-shadow:0 14px 30px -14px rgba(0,0,0,.65);background:#0F1B33;transition:transform .25s,box-shadow .25s}
 .adsec .adslot{border:0}
 .adsec .adcarousel.few .adcarousel-arrow{display:none}.adsec .adcarousel.few .adcarousel-track{animation:none;transform:none;justify-content:center}.adsec .adcarousel.few+.ad-prog{display:none}
-.adslot.adslot-feat{box-shadow:0 0 0 2px var(--gold),0 14px 30px -14px rgba(0,0,0,.65)}.adslot-star{position:absolute;top:6px;inset-inline-start:6px;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:13px;line-height:22px;text-align:center;z-index:3;pointer-events:none}
+.adslot.adslot-feat{box-shadow:0 0 0 2px var(--gold),0 14px 30px -14px rgba(0,0,0,.65)}.adslot-star{position:absolute;top:5px;inset-inline-end:5px;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:13px;line-height:22px;text-align:center;z-index:3;pointer-events:none}
 .adsec .adslot.adclone{visibility:hidden}
 .adsec .adslot img,.adsec .adslot video{-webkit-user-drag:none;user-drag:none;pointer-events:none}
 .adsec .adslot:hover{transform:translateY(-6px) scale(1.07);box-shadow:0 26px 44px -16px rgba(0,0,0,.8);z-index:2}
@@ -5955,12 +5955,12 @@ function adSlotsRow(){
      media = '<img class="adslot-rotimg" src="'+a.l_photos[0]+'" data-photos="'+
        encodeURIComponent(JSON.stringify(a.l_photos))+'" data-idx="0" alt="'+esc([(a.l_type&&D.TYPES[a.l_type])?D.TYPES[a.l_type][li()]:"", place].filter(Boolean).join(" · "))+'" loading="lazy">'+
        '<div class="adslot-foot" style="font-size:var(--ris);color:'+textColor+';'+
-         'background:linear-gradient(to top,rgba('+shadeRgb+',.85) 0%,rgba('+shadeRgb+',.55) 55%,transparent 100%)">'+
+         'background:rgba('+shadeRgb+',.82)">'+
         (a.l_rooms?'<span>'+(showIcons?ICON_BED:"")+a.l_rooms+(showIcons?"":" "+t("rooms"))+'</span>':'')+
         (a.l_baths?'<span>'+(showIcons?ICON_BATH:"")+a.l_baths+(showIcons?"":" "+t("baths"))+'</span>':'')+
         (a.l_area?'<span class="ltr">'+(showIcons?ICON_AREA:"")+a.l_area+(showIcons?"":" "+t("sqm"))+'</span>':'')+
        '</div>'+
-       (place&&showLoc?'<div class="adslot-place" style="font-size:var(--los);color:'+textColor+';background:rgba('+shadeRgb+',.6)">'+place+'</div>':'');
+       (place&&showLoc?'<div class="adslot-place" style="font-size:var(--los);color:'+textColor+';background:rgba('+shadeRgb+',.82)">'+place+'</div>':'');
    } else if(isVideoEmbed){
      var vInfo = videoEmbedInfo(a.video_embed_url);
      media = vInfo ? '<iframe class="adslot-embed" src="'+vInfo.embedUrl+'" '+
