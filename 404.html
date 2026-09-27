@@ -3027,7 +3027,11 @@ body.mdw-open .mobfab{display:none}
   .home-hero .hero-outer.ph-over .sk-stage{opacity:.92;transition:opacity .8s}
   .home-hero .srow .sgo{grid-column:auto;height:48px}
   .home-hero .sgo-map{grid-column:auto;height:48px}
-  .adsec{padding:6px 0 10px}
+  /* phones: the ad row follows the search bar at the studio's gap (negative pulls it up, positive pushes it down);
+     the hero no longer stretches to pin the row to the bottom, and the stats line no longer cancels a negative gap */
+  .home-hero .hero-outer>.hero{flex:0 0 auto}
+  .adsec{padding:6px 0 10px;margin-top:var(--adcarousel-gap-m,var(--adcarousel-gap,0px))}
+  .home-hero .hnote{margin-bottom:0}
   .ad-eyebrow{margin-bottom:6px;font-size:12px}
   .adsec .adcarousel{--ad-size:min(var(--ad-size-set-m,min(var(--ad-size-set,170px),130px)),200px)!important}
   .ad-prog{display:none}
