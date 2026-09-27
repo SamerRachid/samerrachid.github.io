@@ -864,16 +864,12 @@ function admRewardsCard(){
     '<div class="hintx" style="margin-bottom:10px">'+GX("rwHint")+'</div>'+
     '<div class="chkgrid">'+chk("reward_on",GX("rwOn"))+chk("reward_welcome_on",GX("rwWelcome"))+chk("reward_users_on",GX("rwUsers"))+'</div>'+
     '<div class="row" style="margin-top:8px">'+num("reward_every",GX("rwEvery"),10,1,100)+num("reward_hours",GX("rwHours"),24,1,720)+'</div>'+
-    (function(){ var u=c.reward_until?new Date(c.reward_until):null, over=u&&u<new Date();
-      return '<div class="row" style="align-items:end"><div class="fl"><label>'+GX("rwUntil")+'</label><input type="date" id="rwUntil" value="'+(u?u.toISOString().slice(0,10):"")+'" data-allow-autofill></div>'+
-        '<div class="fl"><button type="button" class="ab" id="rwExtend">'+GX("rwExtend")+'</button></div></div>'+
-        (over?'<div class="hintx" style="color:var(--danger)">'+GX("rwEnded").replace("{d}",u.toLocaleDateString())+'</div>':'')+
-        '<div class="hintx">'+GX("rwUntilHint")+'</div>' })()+
+    '<div class="row">'+num("reward_days",GX("rwDays"),60,0,3650)+'</div><div class="hintx">'+GX("rwDaysHint")+'</div>'+
     '<div class="xactions"><button type="button" class="ab ok" id="rwCfgSave">'+t("save")+'</button><span class="xmsg" id="rwCfgMsg"></span></div>'+
     '<h4 style="margin:18px 0 6px">'+GX("rwBalances")+'</h4>'+
-    (bal.length?'<div class="atable"><table><thead><tr><th>'+t("contactName")+'</th><th>'+GX("rwPoints")+'</th><th>'+GX("rwCredits")+'</th><th>'+GX("rwActive")+'</th><th></th></tr></thead><tbody>'+
-      bal.map(function(b){ return '<tr><td>'+scopeFlag(b.country)+esc(b.name||b.phone||"")+(b.agency?' <small style="color:var(--grey)">· '+esc(b.agency)+'</small>':'')+' <small class="ltr" style="color:var(--grey)">'+esc(b.member_no||"")+'</small></td>'+
-        '<td class="ltr">'+b.points+'</td><td class="ltr"><b>'+b.credits+'</b></td><td class="ltr">'+(b.active_until&&new Date(b.active_until)>new Date()?when(b.active_until):"—")+'</td>'+
+    (bal.length?'<div class="atable"><table><thead><tr><th>'+t("contactName")+'</th><th>'+GX("rwPoints")+'</th><th>'+GX("rwCredits")+'</th><th>'+GX("rwWindow")+'</th><th>'+GX("rwActive")+'</th><th></th></tr></thead><tbody>'+
+      bal.map(function(b){ var we=b.window_end?new Date(b.window_end):null; return '<tr><td>'+scopeFlag(b.country)+esc(b.name||b.phone||"")+(b.agency?' <small style="color:var(--grey)">· '+esc(b.agency)+'</small>':'')+' <small class="ltr" style="color:var(--grey)">'+esc(b.member_no||"")+'</small></td>'+
+        '<td class="ltr">'+b.points+'</td><td class="ltr"><b>'+b.credits+'</b></td><td class="ltr">'+(we?(we>new Date()?we.toLocaleDateString():'<span class="st st-expired">'+GX("rwWindowOver")+'</span>'):"∞")+'</td><td class="ltr">'+(b.active_until&&new Date(b.active_until)>new Date()?when(b.active_until):"—")+'</td>'+
         '<td style="white-space:nowrap"><button type="button" class="ab ok" data-rwgrant="'+b.user_id+'" data-name="'+esc(b.name||b.phone||"")+'">+ '+GX("rwGrant")+'</button> <button type="button" class="ab" data-rwrevoke="'+b.user_id+'" data-name="'+esc(b.name||b.phone||"")+'"'+(b.credits>0?'':' disabled')+'>− '+GX("rwRevoke")+'</button></td></tr>' }).join("")+
       '</tbody></table></div>':'<div class="hintx">'+GX("rwNone")+'</div>')+
     (ev.length?'<h4 style="margin:18px 0 6px">'+GX("rwLog")+'</h4><div class="iklog">'+ev.slice(0,30).map(function(e){ return '<div class="iklog-r"><span class="ltr">'+when(e.created_at)+'</span><b>'+esc(e.name||"")+'</b><i>'+(e.listing_id?'#'+e.listing_id:'')+'</i><span>'+GX("rwK_"+e.kind)+(e.delta?' ('+(e.delta>0?'+':'')+e.delta+')':'')+(e.note?' · '+esc(e.note):'')+'</span></div>' }).join("")+'</div>':'')+
@@ -882,9 +878,7 @@ function wireRewardsCard(){
   var refresh=function(){ return rpcScoped("bk_admin_rewards",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.rewards=r||{}; render() }) };
   if($("#rwCfgSave")) $("#rwCfgSave").onclick=async function(){ var m=$("#rwCfgMsg"), patch={}; this.disabled=true;
     $$("#rwCfg [data-rwc]").forEach(function(i){ patch[i.dataset.rwc]= i.dataset.rwt==="bool" ? !!i.checked : (i.value===""?null:+i.value) });
-    var du=($("#rwUntil")||{}).value; patch.reward_until = du ? new Date(du+"T23:59:59Z").toISOString() : "";   // "" = no end (jsonb_strip_nulls would drop a null, keeping the old date)
     try{ await saveGlobalExtras(patch); admToast(t("savedOk")); await refresh() }catch(e){ this.disabled=false; if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } } };
-  if($("#rwExtend")) $("#rwExtend").onclick=function(){ var i=$("#rwUntil"); if(!i) return; var base=i.value&&new Date(i.value)>new Date()?new Date(i.value):new Date(); base.setDate(base.getDate()+60); i.value=base.toISOString().slice(0,10) };
   var adjust=function(uid,nm,sign){ return async function(){
     var q=prompt(GX(sign>0?"rwGrantQ":"rwRevokeQ").replace("{n}",nm),"1"); if(q===null) return; var n=parseInt(q,10); if(!(n>0)) return;
     var note=prompt(GX("rwNoteQ"),""); if(note===null) return;
