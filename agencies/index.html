@@ -2540,7 +2540,7 @@ body.rs-lock{overflow:hidden}
 .acct-main{display:flex;flex-direction:column;gap:18px;min-width:0}
 .acsec{scroll-margin-top:84px}.acsec .blk{margin:0}.acsec .blk h3{display:flex;align-items:center;gap:10px}.acs-ico svg{width:20px;height:20px;color:var(--gold-dk);display:block}.acs-side{margin-inline-start:auto}
 .acsec .blk .in{display:flex;flex-direction:column;gap:14px}.acsec .fl{margin:0}.acsec .xactions{margin-top:0}
-.acs-status{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.acs-sub{font-weight:800;font-size:14.5px;color:var(--navy);padding-bottom:6px;border-bottom:1px solid var(--line)}
+.acs-status{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.acs-sub{font-weight:800;font-size:14.5px;color:var(--navy);padding-bottom:6px;border-bottom:1px solid var(--line)}.acdel-h{margin-top:22px;color:var(--danger);border-color:var(--danger)}.acdel-btn{color:var(--danger)!important;border-color:var(--danger)!important}
 .aclogo{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px;border:1px dashed var(--line-2);border-radius:14px;background:var(--page)}.aclogo-t{flex:1;min-width:200px}.aclogo-t b{display:block;margin-bottom:2px}
 .aclogo-b{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}.aclogo-b .btn-n{display:inline-flex;align-items:center;gap:8px;padding:9px 16px}.aclogo-b .btn-n svg{width:16px;height:16px}
 .accta{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:22px;background:linear-gradient(135deg,var(--navy),#1E2E52);color:#fff;border-radius:16px}.accta b{font-size:17px;display:block;margin-bottom:4px}.accta p{margin:0;opacity:.85;font-size:13.5px;line-height:1.6}.accta .btn-n{background:var(--gold);color:var(--navy)}
@@ -4010,9 +4010,16 @@ async function storageTrash(paths){
        return {data:(j.moved||[]).map(function(n){ return {name:n} }), error:null} }
   catch(e){ return {data:null, error:e} } }
 // every file of a listing, in both layouts (photos/listings/<id>/… and the older <id>/…), goes to the trash
+// after a member was deleted server-side: every listing folder + the profile photo go to the trash
+async function trashMemberFiles(r){
+  if(!r) return;
+  var ids=r.listing_ids||[];
+  for(var i=0;i<ids.length;i++){ try{ await trashListingFiles(ids[i]) }catch(e){} }
+  if(r.avatar_url){ try{ var p=storagePathFromUrl(r.avatar_url); if(p) await storageTrash([p]) }catch(e){} }
+}
 async function trashListingFiles(id){
   if(!DB || !DB.storage) return;
-  var folders=["photos/listings/"+id, String(id)];
+  var folders=["photos/listings/"+id, "videos/listings/"+id, String(id)];
   for(var i=0;i<folders.length;i++){
     try{
       var listed = await DB.storage.from("photos").list(folders[i], {limit:1000});
@@ -4029,7 +4036,7 @@ async function storageUpload(path, file, opts){
   return DB.storage.from("photos").upload(path, file, opts||{}) }
 
 var MEMBER_FNS={bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,
-  bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_own_delete:1,
+  bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_own_delete:1,bk_delete_account:1,
   bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
   bk_search_del:1,bk_search_list:1,bk_search_save:1,bk_set_avatar:1,bk_set_bio:1,bk_set_currency:1,
   bk_update_profile:1,bk_feedback:1,bk_report:1,bk_contact:1,bk_log_view:1};
@@ -5791,7 +5798,10 @@ function account(){
       '<div class="fl"><label>'+t("newPhone")+'</label><div class="pw">'+ccSelect("npCC",ccOf(USER.phone))+'<input id="npNum" autocomplete="off" inputmode="numeric" placeholder=""></div></div></div>'+
       '<div class="fl"><label>'+t("password")+'</label>'+pwField("npPass","off")+'</div>'+
       '<div class="xactions"><button class="btn-n" id="npSave" style="width:auto">'+t("changePhone")+'</button><span class="xmsg" id="npMsg"></span></div>'+
-      '<div class="hintx">'+t("phoneWarn")+'</div>', "")+
+      '<div class="hintx">'+t("phoneWarn")+'</div>'+
+      (USER.role==="admin"?'':'<div class="acs-sub acdel-h">'+GX("accDelT")+'</div><p class="hintx">'+GX("accDelP")+'</p>'+
+      '<div class="fl"><label>'+t("password")+'</label>'+pwField("delPass","off")+'</div>'+
+      '<div class="xactions"><button type="button" class="gh acdel-btn" id="acDelete" style="width:auto;margin:0">'+GX("accDelBtn")+'</button><span class="xmsg" id="acDelMsg"></span></div>'), "")+
    '</div></div></div>'}
 function wireAccountNav(){
   $$("[data-acsec]").forEach(function(a){ a.onclick=function(){ var id=this.dataset.acsec; ACC.sec=id; $$("[data-acsec]").forEach(function(x){ x.classList.toggle("on", x.dataset.acsec===id) });
@@ -8172,6 +8182,20 @@ function wireAuth(){
  if($("#avDel")) $("#avDel").onclick=async function(){
    try{ var u=await rpc("bk_set_avatar",{p_id:USER.id,p_url:null});
         USER=u; saveSession(u); render() }catch(e){ alert(e.message||"error") }};
+
+ if($("#acDelete"))$("#acDelete").onclick=async function(){
+   var m=$("#acDelMsg"), b=this, pw=($("#delPass")&&$("#delPass").value)||"";
+   if(!pw){ m.style.color="var(--danger)"; m.textContent=t("wrongPass"); if($("#delPass")) $("#delPass").focus(); return }
+   if(!confirm(GX("accDelConfirm"))) return;
+   if(!confirm(GX("accDelConfirm2"))) return;
+   b.disabled=true; b.textContent=t("saving");
+   try{ var r=await rpc("bk_delete_account",{p_pass:await sha(pw)});
+        await trashMemberFiles(r);
+        USER=null; clearSession(); NOTIFS={items:[],unread:0}; MYAGENCY=null; MYINTAKE=null;
+        if(_notifPollTimer){clearInterval(_notifPollTimer);_notifPollTimer=null}
+        VIEW="home"; render(); alert(GX("accDelDone"));
+   }catch(e){ b.disabled=false; b.textContent=GX("accDelBtn"); m.style.color="var(--danger)";
+        m.textContent = e.message==="badpass"?t("wrongPass"):e.message==="admin"?GX("accDelAdmin"):e.message } };
 
  if($("#cpSave"))$("#cpSave").onclick=async function(){
    var m=$("#cpMsg"), b=this;
@@ -10723,6 +10747,21 @@ var GX_T={
   admCountriesL:{ar:"الدول التي يديرها",en:"Countries managed",de:"Verwaltete Länder"}, admCountriesHint:{ar:"لا شيء محدد = كل الدول.",en:"Nothing checked = all countries.",de:"Nichts angehakt = alle Länder."},
   noPermTab:{ar:"لا تملك صلاحية هذا القسم.",en:"You do not have permission for this section.",de:"Sie haben keine Berechtigung für diesen Bereich."},
   confirmBlock:{ar:"حظر هذا العضو؟ لن يستطيع الدخول أو النشر.",en:"Block this member? They will not be able to sign in or post.",de:"Dieses Mitglied sperren? Es kann sich dann nicht mehr anmelden oder inserieren."},
+  uDelete:{ar:"حذف نهائي",en:"Delete permanently",de:"Endgültig löschen"},
+  uDeleteHint:{ar:"الحذف يزيل الحساب وكل إعلاناته وصوره ورسائله ولا يمكن التراجع عنه. الحظر يكفي في معظم الحالات.",en:"Deleting removes the account with all its listings, photos and messages and cannot be undone. Blocking is enough in most cases.",de:"Löschen entfernt das Konto mit allen Inseraten, Fotos und Nachrichten und kann nicht rückgängig gemacht werden. Sperren reicht meistens."},
+  confirmDelUser:{ar:"حذف العضو {n} نهائياً مع كل إعلاناته وصوره؟ لا يمكن التراجع.",en:"Permanently delete member {n} with all listings and photos? This cannot be undone.",de:"Mitglied {n} mit allen Inseraten und Fotos endgültig löschen? Das kann nicht rückgängig gemacht werden."},
+  delUserType:{ar:"للتأكيد اكتب كلمة: حذف",en:"To confirm, type: DELETE",de:"Zur Bestätigung eingeben: DELETE"},
+  delUserWrongWord:{ar:"لم يتم الحذف: كلمة التأكيد غير مطابقة.",en:"Not deleted: the confirmation word did not match.",de:"Nicht gelöscht: Bestätigungswort stimmt nicht."},
+  delUserDone:{ar:"تم حذف {n} وكل بياناته.",en:"{n} and all their data were deleted.",de:"{n} und alle zugehörigen Daten wurden gelöscht."},
+  delUserIsAdmin:{ar:"هذا الحساب مشرف. أزل صلاحية الإشراف أولاً من تبويب الفريق.",en:"This account is an admin. Remove the admin role first from the Team tab.",de:"Dieses Konto ist ein Admin. Entfernen Sie zuerst die Adminrolle im Team-Tab."},
+  delUserSelf:{ar:"لا يمكنك حذف حسابك من هنا.",en:"You cannot delete your own account here.",de:"Sie können Ihr eigenes Konto hier nicht löschen."},
+  accDelT:{ar:"حذف الحساب",en:"Delete account",de:"Konto löschen",fr:"Supprimer le compte"},
+  accDelP:{ar:"يُحذف حسابك نهائياً مع كل إعلاناتك وصورك ومحفوظاتك ورسائلك، ويتوقف وصول أي رسائل إليك من بلكون. لا يمكن التراجع عن هذه الخطوة.",en:"Your account is permanently deleted with all your listings, photos, saved items and messages, and Balkoun stops sending you anything. This cannot be undone.",de:"Ihr Konto wird mit allen Inseraten, Fotos, gespeicherten Einträgen und Nachrichten endgültig gelöscht, und Balkoun sendet Ihnen nichts mehr. Das kann nicht rückgängig gemacht werden.",fr:"Votre compte est supprimé définitivement avec toutes vos annonces, photos, favoris et messages, et Balkoun cesse de vous envoyer quoi que ce soit. Cette action est irréversible."},
+  accDelBtn:{ar:"احذف حسابي نهائياً",en:"Delete my account permanently",de:"Mein Konto endgültig löschen",fr:"Supprimer définitivement mon compte"},
+  accDelConfirm:{ar:"هل أنت متأكد من حذف حسابك نهائياً؟",en:"Are you sure you want to permanently delete your account?",de:"Möchten Sie Ihr Konto wirklich endgültig löschen?",fr:"Voulez-vous vraiment supprimer définitivement votre compte ?"},
+  accDelConfirm2:{ar:"تأكيد أخير: ستُحذف كل إعلاناتك وصورك ولا يمكن استرجاعها. متابعة؟",en:"Last confirmation: all your listings and photos will be removed and cannot be recovered. Continue?",de:"Letzte Bestätigung: Alle Inserate und Fotos werden entfernt und können nicht wiederhergestellt werden. Fortfahren?",fr:"Dernière confirmation : toutes vos annonces et photos seront supprimées sans récupération possible. Continuer ?"},
+  accDelDone:{ar:"تم حذف حسابك. شكراً لاستخدامك بلكون.",en:"Your account has been deleted. Thank you for using Balkoun.",de:"Ihr Konto wurde gelöscht. Danke, dass Sie Balkoun genutzt haben.",fr:"Votre compte a été supprimé. Merci d'avoir utilisé Balkoun."},
+  accDelAdmin:{ar:"حسابات الإشراف لا تُحذف من هنا.",en:"Admin accounts cannot be deleted here.",de:"Adminkonten können hier nicht gelöscht werden.",fr:"Les comptes administrateurs ne peuvent pas être supprimés ici."},
   confirmSendAll:{ar:"إرسال هذا الإشعار إلى كل الأعضاء في {c}؟",en:"Send this notification to every member in {c}?",de:"Diese Benachrichtigung an alle Mitglieder in {c} senden?"},
   confirmReject:{ar:"رفض هذا الطلب؟",en:"Reject this request?",de:"Diese Anfrage ablehnen?"},
   cMakeDefaultConfirm:{ar:"جعل هذه الدولة الافتراضية للزوار الجدد؟",en:"Make this the default country for new visitors?",de:"Dieses Land als Standard für neue Besucher festlegen?"},
