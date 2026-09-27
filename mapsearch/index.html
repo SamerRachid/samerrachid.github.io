@@ -2540,7 +2540,8 @@ body.rs-lock{overflow:hidden}
 .acct-main{display:flex;flex-direction:column;gap:18px;min-width:0}
 .acsec{scroll-margin-top:84px}.acsec .blk{margin:0}.acsec .blk h3{display:flex;align-items:center;gap:10px}.acs-ico svg{width:20px;height:20px;color:var(--gold-dk);display:block}.acs-side{margin-inline-start:auto}
 .acsec .blk .in{display:flex;flex-direction:column;gap:14px}.acsec .fl{margin:0}.acsec .xactions{margin-top:0}
-.acs-status{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.acs-sub{font-weight:800;font-size:14.5px;color:var(--navy);padding-bottom:6px;border-bottom:1px solid var(--line)}.acdel-h{margin-top:22px;color:var(--danger);border-color:var(--danger)}.acdel-btn{color:var(--danger)!important;border-color:var(--danger)!important}
+.acs-status{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.rwbar{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:0 0 18px}.rwbar.has{border-color:var(--gold);background:linear-gradient(90deg,rgba(196,136,31,.08),transparent 60%)}.rwbar-i{width:40px;height:40px;border-radius:50%;background:var(--navy);color:var(--gold);display:grid;place-items:center;font-size:20px;flex:none}.rwbar-t{display:flex;flex-direction:column;gap:2px;min-width:0}.rwbar-t b{font-size:15px;color:var(--navy)}.rwbar-t span{font-size:14px}.rwbar-t small{color:var(--grey);font-size:12.5px}.ab.rwuse{border-color:var(--gold);color:#8a5d10;background:#fff8ea}
+.acs-sub{font-weight:800;font-size:14.5px;color:var(--navy);padding-bottom:6px;border-bottom:1px solid var(--line)}.acdel-h{margin-top:22px;color:var(--danger);border-color:var(--danger)}.acdel-btn{color:var(--danger)!important;border-color:var(--danger)!important}
 .aclogo{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px;border:1px dashed var(--line-2);border-radius:14px;background:var(--page)}.aclogo-t{flex:1;min-width:200px}.aclogo-t b{display:block;margin-bottom:2px}
 .aclogo-b{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}.aclogo-b .btn-n{display:inline-flex;align-items:center;gap:8px;padding:9px 16px}.aclogo-b .btn-n svg{width:16px;height:16px}
 .accta{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;padding:22px;background:linear-gradient(135deg,var(--navy),#1E2E52);color:#fff;border-radius:16px}.accta b{font-size:17px;display:block;margin-bottom:4px}.accta p{margin:0;opacity:.85;font-size:13.5px;line-height:1.6}.accta .btn-n{background:var(--gold);color:var(--navy)}
@@ -4036,7 +4037,7 @@ async function storageUpload(path, file, opts){
   return DB.storage.from("photos").upload(path, file, opts||{}) }
 
 var MEMBER_FNS={bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,
-  bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_own_delete:1,bk_delete_account:1,
+  bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_own_delete:1,bk_delete_account:1,bk_my_rewards:1,bk_use_feature_credit:1,
   bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
   bk_search_del:1,bk_search_list:1,bk_search_save:1,bk_set_avatar:1,bk_set_bio:1,bk_set_currency:1,
   bk_update_profile:1,bk_feedback:1,bk_report:1,bk_contact:1,bk_log_view:1};
@@ -5669,8 +5670,23 @@ function searchesView(){
  '</div>'}
 
 /* ── my listings ── */
+/* ── free-feature reward: balance shown on "my listings", one button per live listing while a credit is available ── */
+var RW={data:null,uid:null,loading:false};
+function myRewards(){ return (USER&&RW.data&&RW.uid===USER.id)?RW.data:null }
+async function loadMyRewards(){ if(!USER||RW.loading) return; var uid=USER.id; RW.loading=true;
+  try{ var r=await rpc("bk_my_rewards",{}); if(USER&&USER.id===uid){ RW.data=r||{}; RW.uid=uid } }catch(e){ if(USER&&USER.id===uid){ RW.data={on:false}; RW.uid=uid } }
+  RW.loading=false; if(VIEW==="mine") render() }
+function rewardBar(){
+  var rw=myRewards(); if(!rw||rw.on===false) return "";
+  var until=rw.active_until?new Date(rw.active_until):null, active=until&&until>new Date();
+  var when=until?until.toLocaleString(L==="ar"?"ar-SY-u-nu-latn":L==="de"?"de-DE":"en-GB",{weekday:"long",hour:"2-digit",minute:"2-digit"}):"";
+  return '<div class="rwbar'+(rw.credits>0?' has':'')+'"><div class="rwbar-i">★</div><div class="rwbar-t"><b>'+GX("rwMyT")+'</b>'+
+    '<span>'+(active?GX("rwMyActive").replace("{t}",when):rw.credits>0?GX("rwMyHave").replace("{n}",rw.credits):GX("rwMyNext").replace("{n}",rw.next_in))+'</span>'+
+    '<small>'+GX("rwMyRule").replace("{e}",rw.every).replace("{h}",rw.hours)+(rw.credits>0&&!active?' · '+GX("rwMyNext").replace("{n}",rw.next_in):'')+'</small></div></div>' }
 function mine(){
  if(!USER) return gate();
+ if(!myRewards() && !RW.loading) loadMyRewards();
+ var rw=myRewards()||{}, canUse=rw.on!==false&&rw.credits>0&&!(rw.active_until&&new Date(rw.active_until)>new Date());
  var r=D.LIST.filter(function(x){ return x.uid && USER.id && x.uid===USER.id; })
    .sort(function(a,b){
      var ac=(a.status==="sold"||a.status==="rented")?1:0;
@@ -5681,12 +5697,14 @@ function mine(){
  '<div class="topbar"><h1>'+t("myAds")+'</h1>'+
  '<span class="n"><span class="ltr">'+r.length+'</span> '+t("listings")+'</span>'+
  '<a class="gold" data-go="post" style="margin-inline-start:auto;text-decoration:none;padding:9px 18px">'+t("post")+'</a></div>'+
+ rewardBar()+
  (r.length
   ? '<div class="res">'+r.map(function(x,i){
       var closed=x.status==="sold"||x.status==="rented";
       return '<div class="mineWrap">'+card(x,i)+
       '<div class="mineBar">'+
        '<span class="st st-'+(x.status||"live")+'">'+(t("st_"+(x.status||"live"))||x.status)+'</span>'+
+       (canUse&&(x.status||"live")==="live"&&!x.featured?'<button class="ab rwuse" data-rwuse="'+x.id+'">★ '+GX("rwUseBtn").replace("{h}",rw.hours)+'</button>':'')+
        (closed?'':'<button class="ab" data-editid="'+x.id+'">'+t("editListing")+'</button>')+
        '<button class="ab bad" data-delid="'+x.id+'">'+t("del")+'</button>'+
       '</div></div>'}).join("")+'</div>'
@@ -7812,6 +7830,13 @@ function wire(){
 
  $$("[data-delid]").forEach(function(e){ e.onclick=function(ev){
    ev.preventDefault(); ev.stopPropagation(); removeListing(e.dataset.delid,e) }});
+ $$("[data-rwuse]").forEach(function(e){ e.onclick=async function(ev){
+   ev.preventDefault(); ev.stopPropagation(); var rw=myRewards()||{};
+   if(!confirm(GX("rwUseQ").replace("{h}",rw.hours||24))) return;
+   e.disabled=true; e.textContent=t("saving");
+   try{ await rpc("bk_use_feature_credit",{p_listing:+e.dataset.rwuse});
+        RW.data=null; await Promise.all([loadMyRewards(),loadListings()]); syncFeaturedFromServer(); render(); alert(GX("rwUsed")) }
+   catch(x){ e.disabled=false; var m=x.message||"error"; alert(GX("rwErr_"+m)!=="rwErr_"+m?GX("rwErr_"+m):m); RW.data=null; loadMyRewards() } }});
  $$("[data-editid]").forEach(function(e){ e.onclick=async function(ev){
    ev.preventDefault(); ev.stopPropagation();
    var id=e.dataset.editid;
@@ -10747,6 +10772,21 @@ var GX_T={
   admCountriesL:{ar:"الدول التي يديرها",en:"Countries managed",de:"Verwaltete Länder"}, admCountriesHint:{ar:"لا شيء محدد = كل الدول.",en:"Nothing checked = all countries.",de:"Nichts angehakt = alle Länder."},
   noPermTab:{ar:"لا تملك صلاحية هذا القسم.",en:"You do not have permission for this section.",de:"Sie haben keine Berechtigung für diesen Bereich."},
   confirmBlock:{ar:"حظر هذا العضو؟ لن يستطيع الدخول أو النشر.",en:"Block this member? They will not be able to sign in or post.",de:"Dieses Mitglied sperren? Es kann sich dann nicht mehr anmelden oder inserieren."},
+  rwH:{ar:"مكافأة التمييز المجاني",en:"Free-feature reward",de:"Gratis-Hervorhebung als Belohnung"},
+  rwHint:{ar:"كل عدد معيّن من الإعلانات التي تُنشر فعلياً يمنح صاحبها تمييزاً مجانياً: إعلان واحد على الصفحة الرئيسية لمدة محددة. يختار الإعلان بنفسه من صفحة «إعلاناتي». النقطة تُحسب مرة واحدة لكل إعلان، والإعلان المحذوف خلال 7 أيام يفقدها، وتمييز واحد نشط لكل حساب.",en:"Every N listings that actually go live earn the poster one free feature: one listing on the homepage for a set time. They pick the listing themselves from “My listings”. One point per listing for life, a listing deleted within 7 days loses it, one active feature per account.",de:"Je N tatsächlich veröffentlichte Inserate erhält der Inserent eine Gratis-Hervorhebung: ein Inserat für eine festgelegte Zeit auf der Startseite. Er wählt es selbst unter „Meine Inserate“. Ein Punkt pro Inserat, ein binnen 7 Tagen gelöschtes Inserat verliert ihn, eine aktive Hervorhebung pro Konto."},
+  rwOn:{ar:"تشغيل المكافأة",en:"Reward on",de:"Belohnung aktiv"}, rwEvery:{ar:"إعلان منشور لكل تمييز",en:"Live listings per feature",de:"Veröffentlichte Inserate pro Hervorhebung"}, rwHours:{ar:"مدة التمييز (ساعات)",en:"Feature length (hours)",de:"Dauer (Stunden)"},
+  rwWelcome:{ar:"مكافأة الترحيب: تمييز مع أول إعلان",en:"Welcome bonus: a feature with the first listing",de:"Willkommensbonus: Hervorhebung beim ersten Inserat"}, rwUsers:{ar:"تشمل الأفراد (وليس المكاتب فقط)",en:"Individuals too (not only agencies)",de:"Auch Privatpersonen (nicht nur Büros)"},
+  rwBalances:{ar:"الأرصدة",en:"Balances",de:"Guthaben"}, rwPoints:{ar:"النقاط",en:"Points",de:"Punkte"}, rwCredits:{ar:"الرصيد",en:"Credits",de:"Guthaben"}, rwActive:{ar:"مميز حتى",en:"Featured until",de:"Hervorgehoben bis"}, rwNone:{ar:"لا أرصدة بعد؛ تبدأ مع أول إعلان منشور.",en:"No balances yet; they start with the first live listing.",de:"Noch kein Guthaben; es beginnt mit dem ersten veröffentlichten Inserat."},
+  rwGrant:{ar:"منح",en:"Grant",de:"Gewähren"}, rwRevoke:{ar:"سحب",en:"Revoke",de:"Entziehen"}, rwGrantQ:{ar:"كم تمييزاً تريد منحه لـ {n}؟",en:"How many features to grant {n}?",de:"Wie viele Hervorhebungen für {n} gewähren?"}, rwRevokeQ:{ar:"كم تمييزاً تريد سحبه من {n}؟",en:"How many features to revoke from {n}?",de:"Wie viele Hervorhebungen von {n} entziehen?"}, rwNoteQ:{ar:"ملاحظة (اختياري)",en:"Note (optional)",de:"Notiz (optional)"},
+  rwLog:{ar:"آخر الحركات",en:"Recent activity",de:"Letzte Vorgänge"}, rwK_point:{ar:"نقطة إعلان",en:"listing point",de:"Inseratpunkt"}, rwK_point_revoked:{ar:"نقطة مسحوبة",en:"point revoked",de:"Punkt entzogen"}, rwK_earned:{ar:"تمييز مكتسب",en:"feature earned",de:"Hervorhebung verdient"}, rwK_welcome:{ar:"مكافأة ترحيب",en:"welcome bonus",de:"Willkommensbonus"}, rwK_used:{ar:"تمييز مستخدم",en:"feature used",de:"Hervorhebung genutzt"}, rwK_granted:{ar:"منح من الإدارة",en:"granted by admin",de:"vom Admin gewährt"}, rwK_revoked:{ar:"سحب من الإدارة",en:"revoked by admin",de:"vom Admin entzogen"},
+  rwSrcReward:{ar:"مكافأة",en:"reward",de:"Belohnung"}, rwSrcAdmin:{ar:"الإدارة",en:"admin",de:"Admin"},
+  rwMyT:{ar:"تمييز مجاني على الرئيسية",en:"Free homepage feature",de:"Gratis-Hervorhebung auf der Startseite"},
+  rwMyHave:{ar:"لديك {n} تمييز متاح",en:"You have {n} free feature(s)",de:"Du hast {n} Gratis-Hervorhebung(en)"}, rwMyNext:{ar:"{n} إعلانات تفصلك عن التمييز التالي",en:"{n} more live listings to the next feature",de:"Noch {n} veröffentlichte Inserate bis zur nächsten Hervorhebung"},
+  rwMyRule:{ar:"كل {e} إعلانات تُنشر = إعلان على الصفحة الرئيسية لمدة {h} ساعة، مجاناً.",en:"Every {e} live listings = one listing on the homepage for {h} hours, free.",de:"Je {e} veröffentlichte Inserate = ein Inserat für {h} Stunden auf der Startseite, gratis."},
+  rwMyActive:{ar:"إعلانك مميز على الرئيسية حتى {t}",en:"Your listing is featured on the homepage until {t}",de:"Dein Inserat ist bis {t} auf der Startseite hervorgehoben"},
+  rwUseBtn:{ar:"ميّز على الرئيسية {h} ساعة",en:"Feature on homepage for {h}h",de:"{h} Std. auf der Startseite hervorheben"}, rwUseQ:{ar:"استخدام تمييز مجاني على هذا الإعلان الآن؟ يبدأ فوراً ويستمر {h} ساعة.",en:"Use a free feature on this listing now? It starts immediately and lasts {h} hours.",de:"Jetzt eine Gratis-Hervorhebung für dieses Inserat nutzen? Sie beginnt sofort und dauert {h} Stunden."},
+  rwUsed:{ar:"تم ✅ إعلانك الآن على الصفحة الرئيسية.",en:"Done ✅ Your listing is now on the homepage.",de:"Erledigt ✅ Dein Inserat ist jetzt auf der Startseite."},
+  rwErr_nocredit:{ar:"لا يوجد رصيد تمييز.",en:"No feature credit available.",de:"Kein Guthaben vorhanden."}, rwErr_active:{ar:"لديك إعلان مميز نشط الآن؛ انتظر انتهاءه.",en:"You already have an active feature; wait for it to end.",de:"Du hast bereits eine aktive Hervorhebung; warte, bis sie endet."}, rwErr_notlive:{ar:"يُميَّز الإعلان المنشور فقط.",en:"Only a live listing can be featured.",de:"Nur ein veröffentlichtes Inserat kann hervorgehoben werden."}, rwErr_already:{ar:"هذا الإعلان مميز أصلاً.",en:"This listing is already featured.",de:"Dieses Inserat ist bereits hervorgehoben."}, rwErr_off:{ar:"المكافأة متوقفة حالياً.",en:"The reward is currently off.",de:"Die Belohnung ist derzeit deaktiviert."},
   uDelete:{ar:"حذف نهائي",en:"Delete permanently",de:"Endgültig löschen"},
   uDeleteHint:{ar:"الحذف يزيل الحساب وكل إعلاناته وصوره ورسائله ولا يمكن التراجع عنه. الحظر يكفي في معظم الحالات.",en:"Deleting removes the account with all its listings, photos and messages and cannot be undone. Blocking is enough in most cases.",de:"Löschen entfernt das Konto mit allen Inseraten, Fotos und Nachrichten und kann nicht rückgängig gemacht werden. Sperren reicht meistens."},
   confirmDelUser:{ar:"حذف العضو {n} نهائياً مع كل إعلاناته وصوره؟ لا يمكن التراجع.",en:"Permanently delete member {n} with all listings and photos? This cannot be undone.",de:"Mitglied {n} mit allen Inseraten und Fotos endgültig löschen? Das kann nicht rückgängig gemacht werden."},
