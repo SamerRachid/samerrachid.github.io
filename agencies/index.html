@@ -1512,6 +1512,7 @@ footer{font-size:14px}
 .adsec .adcarousel-track{align-items:flex-start}
 .adsec .adslot{width:var(--ad-size,130px);height:var(--ad-size,130px);aspect-ratio:auto;flex:none;border-radius:14px;box-shadow:0 14px 30px -14px rgba(0,0,0,.65);background:#0F1B33;transition:transform .25s,box-shadow .25s}
 .adsec .adslot{border:0}
+.adslot.adslot-feat{box-shadow:0 0 0 2px var(--gold),0 14px 30px -14px rgba(0,0,0,.65)}.adslot-star{position:absolute;top:6px;inset-inline-start:6px;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:13px;line-height:22px;text-align:center;z-index:3;pointer-events:none}
 .adsec .adslot.adclone{visibility:hidden}
 .adsec .adslot img,.adsec .adslot video{-webkit-user-drag:none;user-drag:none;pointer-events:none}
 .adsec .adslot:hover{transform:translateY(-6px) scale(1.07);box-shadow:0 26px 44px -16px rgba(0,0,0,.8);z-index:2}
@@ -5912,7 +5913,10 @@ function hexToRgb(hex){
   return [(n>>16)&255,(n>>8)&255,n&255].join(",");
 }
 function adSlotsRow(){
-  if(!AD_SLOTS.length || SX("ads_row_enabled",true)===false) return "";
+  // the row switch in the studio hides the paid/manual squares; featured listings (admin or free-feature reward) still
+  // show, since that is the promise made to the poster — the row disappears only when there is nothing at all
+  var slots = SX("ads_row_enabled",true)===false ? AD_SLOTS.filter(function(a){ return a.featured }) : AD_SLOTS;
+  if(!slots.length) return "";
   var showIcons = SITE.ad_use_icons!==false;
   var showTag = SITE.ad_tag_enabled!==false;
   var tagSize = SITE.ad_tag_size||9;
@@ -5926,10 +5930,11 @@ function adSlotsRow(){
   // no more slicing to the first 16 — every active ad is rendered
   // into the track, and the carousel scrolls/rotates through however
   // many there actually are, showing only a handful at a time
-  var slotsHtml = AD_SLOTS.map(function(a,ai){
+  var slotsHtml = slots.map(function(a,ai){
    var chipName = a.sponsor_name || a.label || "";
    var chip = chipName ? '<span class="adchip">'+esc(chipName)+'</span>' : '';
-   var featCls = '', featText = '';
+   // a featured listing (admin or free-feature reward) rides in the squares as a virtual slot with a gold frame + star
+   var featCls = a.featured ? ' adslot-feat' : '', featText = a.featured ? '<span class="adslot-star" title="'+esc(String(SITE["featured_badge_"+L]||"")).replace(/<[^>]+>/g,"")+'">★</span>' : '';
    var isLinked = a.linked_listing_id && a.l_photos && a.l_photos.length;
    var isVideoEmbed = !isLinked && a.video_embed_url;
    var isUploadedVideo = a.media_type==="video" && a.image_url;
@@ -6003,10 +6008,10 @@ function adSlotsRow(){
   var rtlNow = D.I18N[L].dir==="rtl";
   var prevIcon = rtlNow ? ICON_CHEV_RIGHT : ICON_CHEV_LEFT;
   var nextIcon = rtlNow ? ICON_CHEV_LEFT : ICON_CHEV_RIGHT;
-  var glideDur = Math.max(12, Math.round(AD_SLOTS.length*(+SX("ad_glide_seconds",3.5)||3.5)));
+  var glideDur = Math.max(12, Math.round(slots.length*(+SX("ad_glide_seconds",3.5)||3.5)));
   return '<section class="adsec" style="--ad-ris:'+roomInfoSize+'px;--ad-los:'+locSize+'px;--ad-tgs:'+tagSize+'px"><div class="wrap">'+
    '<div class="ad-eyebrow">'+(SX("ads_row_title_"+L,"")||GX("adsH"))+'<small>· '+(SX("ads_sponsored_"+L,"")||GX("sponsored"))+'</small></div>'+
-   '<div class="adcarousel glide" id="adCarousel" data-count="'+AD_SLOTS.length+
+   '<div class="adcarousel glide" id="adCarousel" data-count="'+slots.length+
    '" data-seconds="'+carouselSeconds+'" data-direction="'+carouselDir+'" style="--ad-size:'+sqSize+'px;--glide-dur:'+glideDur+'s">'+
    '<button type="button" class="adcarousel-arrow adcarousel-prev" id="adCarouselPrev" aria-label="'+t("prevAd")+'">'+prevIcon+'</button>'+
    '<div class="adcarousel-viewport"><div class="adcarousel-track" id="adCarouselTrack">'+tripledHtml+'</div></div>'+
@@ -7839,7 +7844,7 @@ function wire(){
    if(!confirm(GX("rwUseQ").replace("{h}",rw.hours||24))) return;
    e.disabled=true; e.textContent=t("saving");
    try{ await rpc("bk_use_feature_credit",{p_listing:+e.dataset.rwuse});
-        RW.data=null; await Promise.all([loadMyRewards(),loadListings()]); syncFeaturedFromServer(); render(); alert(GX("rwUsed")) }
+        RW.data=null; await Promise.all([loadMyRewards(),loadListings(),loadAdSlots()]); syncFeaturedFromServer(); render(); alert(GX("rwUsed")) }
    catch(x){ e.disabled=false; var m=x.message||"error"; alert(GX("rwErr_"+m)!=="rwErr_"+m?GX("rwErr_"+m):m); RW.data=null; loadMyRewards() } }});
  $$("[data-editid]").forEach(function(e){ e.onclick=async function(ev){
    ev.preventDefault(); ev.stopPropagation();
@@ -8609,7 +8614,7 @@ async function syncFeaturedFromServer(){
       var should = !!ids[String(x.id)];
       if(x.featured !== should){ x.featured = should; changed=true; }
     });
-    if(changed) { if(safeToBackgroundRender()) render(); }
+    if(changed) { await loadAdSlots(); if(safeToBackgroundRender()) render(); }   // featured listings also live in the ad squares
   }catch(e){}
 }
 function startFeaturedPolling(){
@@ -9346,7 +9351,7 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
   var G=D.GUIDES[L];
   var S={
     ads:function(){ return adsInHero ? "" : adSlotsRow() },
-    feat:function(){ return HSON("feat") ? homeFeaturedHtml() : "" },
+    feat:function(){ return SX("home_feat_on",false)===true ? homeFeaturedHtml() : "" },   // off by default: featured listings ride in the ad squares; this full-card section is an option in the studio
     banners:function(){ return HSON("banners") && SX("banners_slot","flow")!=="top" ? bannerAboveHtml : "" },
     ticker:function(){ return HSON("ticker") ? marketTickerHtml() : "" },
     projects:function(){ return homeProjectsHtml() },
