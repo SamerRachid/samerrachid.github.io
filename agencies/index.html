@@ -5677,16 +5677,20 @@ async function loadMyRewards(){ if(!USER||RW.loading) return; var uid=USER.id; R
   try{ var r=await rpc("bk_my_rewards",{}); if(USER&&USER.id===uid){ RW.data=r||{}; RW.uid=uid } }catch(e){ if(USER&&USER.id===uid){ RW.data={on:false}; RW.uid=uid } }
   RW.loading=false; if(VIEW==="mine") render() }
 function rewardBar(){
-  var rw=myRewards(); if(!rw||rw.on===false) return "";
+  var rw=myRewards(); if(!rw) return "";
   var until=rw.active_until?new Date(rw.active_until):null, active=until&&until>new Date();
-  var when=until?until.toLocaleString(L==="ar"?"ar-SY-u-nu-latn":L==="de"?"de-DE":"en-GB",{weekday:"long",hour:"2-digit",minute:"2-digit"}):"";
+  var loc=L==="ar"?"ar-SY-u-nu-latn":L==="de"?"de-DE":"en-GB";
+  var when=until?until.toLocaleString(loc,{weekday:"long",hour:"2-digit",minute:"2-digit"}):"";
+  var earning=rw.earning!==false && rw.on!==false;
+  if(!earning && !(rw.credits>0) && !active) return "";   // the automatic offer is over and there is nothing saved: no bar
+  var endTxt=earning&&rw.until?' · '+GX("rwMyUntil").replace("{d}",new Date(rw.until).toLocaleDateString(loc,{day:"numeric",month:"long"})):'';
   return '<div class="rwbar'+(rw.credits>0?' has':'')+'"><div class="rwbar-i">★</div><div class="rwbar-t"><b>'+GX("rwMyT")+'</b>'+
     '<span>'+(active?GX("rwMyActive").replace("{t}",when):rw.credits>0?GX("rwMyHave").replace("{n}",rw.credits):GX("rwMyNext").replace("{n}",rw.next_in))+'</span>'+
-    '<small>'+GX("rwMyRule").replace("{e}",rw.every).replace("{h}",rw.hours)+(rw.credits>0&&!active?' · '+GX("rwMyNext").replace("{n}",rw.next_in):'')+'</small></div></div>' }
+    '<small>'+(earning?GX("rwMyRule").replace("{e}",rw.every).replace("{h}",rw.hours)+(rw.credits>0&&!active?' · '+GX("rwMyNext").replace("{n}",rw.next_in):'')+endTxt:GX("rwMySaved"))+'</small></div></div>' }
 function mine(){
  if(!USER) return gate();
  if(!myRewards() && !RW.loading) loadMyRewards();
- var rw=myRewards()||{}, canUse=rw.on!==false&&rw.credits>0&&!(rw.active_until&&new Date(rw.active_until)>new Date());
+ var rw=myRewards()||{}, canUse=rw.credits>0&&!(rw.active_until&&new Date(rw.active_until)>new Date());
  var r=D.LIST.filter(function(x){ return x.uid && USER.id && x.uid===USER.id; })
    .sort(function(a,b){
      var ac=(a.status==="sold"||a.status==="rented")?1:0;
@@ -10783,6 +10787,9 @@ var GX_T={
   rwMyT:{ar:"تمييز مجاني على الرئيسية",en:"Free homepage feature",de:"Gratis-Hervorhebung auf der Startseite"},
   rwMyHave:{ar:"لديك {n} تمييز متاح",en:"You have {n} free feature(s)",de:"Du hast {n} Gratis-Hervorhebung(en)"}, rwMyNext:{ar:"{n} إعلانات تفصلك عن التمييز التالي",en:"{n} more live listings to the next feature",de:"Noch {n} veröffentlichte Inserate bis zur nächsten Hervorhebung"},
   rwMyRule:{ar:"كل {e} إعلانات تُنشر = إعلان على الصفحة الرئيسية لمدة {h} ساعة، مجاناً.",en:"Every {e} live listings = one listing on the homepage for {h} hours, free.",de:"Je {e} veröffentlichte Inserate = ein Inserat für {h} Stunden auf der Startseite, gratis."},
+  rwMyUntil:{ar:"العرض ساري حتى {d}",en:"Offer runs until {d}",de:"Aktion läuft bis {d}"}, rwMySaved:{ar:"رصيدك محفوظ ويمكنك استخدامه متى شئت.",en:"Your credit is saved; use it whenever you like.",de:"Dein Guthaben bleibt erhalten; nutze es, wann du willst."},
+  rwUntil:{ar:"العرض الآلي ساري حتى",en:"Automatic offer runs until",de:"Automatische Aktion läuft bis"}, rwUntilHint:{ar:"بعد هذا التاريخ لا تُمنح نقاط أو تمييزات جديدة تلقائياً، لكن الأرصدة المكتسبة تبقى محفوظة وقابلة للاستخدام. اتركه فارغاً ليستمر بلا نهاية، أو مدّده من الزر.",en:"After this date no new points or features are earned automatically, but earned balances stay and can be used. Leave empty for no end, or extend with the button.",de:"Nach diesem Datum werden keine neuen Punkte oder Hervorhebungen automatisch vergeben; verdientes Guthaben bleibt nutzbar. Leer lassen für kein Ende, oder per Knopf verlängern."},
+  rwExtend:{ar:"تمديد 60 يوماً",en:"Extend 60 days",de:"Um 60 Tage verlängern"}, rwEnded:{ar:"انتهى العرض الآلي في {d}. الأرصدة محفوظة.",en:"The automatic offer ended on {d}. Balances are kept.",de:"Die automatische Aktion endete am {d}. Guthaben bleibt erhalten."},
   rwMyActive:{ar:"إعلانك مميز على الرئيسية حتى {t}",en:"Your listing is featured on the homepage until {t}",de:"Dein Inserat ist bis {t} auf der Startseite hervorgehoben"},
   rwUseBtn:{ar:"ميّز على الرئيسية {h} ساعة",en:"Feature on homepage for {h}h",de:"{h} Std. auf der Startseite hervorheben"}, rwUseQ:{ar:"استخدام تمييز مجاني على هذا الإعلان الآن؟ يبدأ فوراً ويستمر {h} ساعة.",en:"Use a free feature on this listing now? It starts immediately and lasts {h} hours.",de:"Jetzt eine Gratis-Hervorhebung für dieses Inserat nutzen? Sie beginnt sofort und dauert {h} Stunden."},
   rwUsed:{ar:"تم ✅ إعلانك الآن على الصفحة الرئيسية.",en:"Done ✅ Your listing is now on the homepage.",de:"Erledigt ✅ Dein Inserat ist jetzt auf der Startseite."},
