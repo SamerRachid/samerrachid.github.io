@@ -987,6 +987,17 @@ function wireAdmin(){
   $$("[data-ablock]").forEach(function(e){ e.onclick=function(){
     if(e.dataset.on==="1" && !confirm(GX("confirmBlock"))) return;
     act("bk_admin_block_user",{p_token:ADM.token,p_user:e.dataset.ablock,p_blocked:e.dataset.on==="1"}) }});
+  // permanent delete (super admin): two confirmations, then the server purge, then the member's files go to the trash
+  $$("[data-adeluser]").forEach(function(e){ e.onclick=async function(){
+    var nm=e.dataset.name||"";
+    if(!confirm(GX("confirmDelUser").replace("{n}",nm))) return;
+    var w=prompt(GX("delUserType"),""); if(w===null) return;
+    w=w.trim(); if(w.toUpperCase()!=="DELETE" && w!=="حذف"){ admToast(GX("delUserWrongWord"),"bad"); return }
+    e.disabled=true;
+    try{ var r=await rpc("bk_admin_delete_user",{p_token:ADM.token,p_user:e.dataset.adeluser});
+      await trashMemberFiles(r);
+      ADM.userOpen=null; await adminLoad(); admToast(GX("delUserDone").replace("{n}",nm)) }
+    catch(err){ e.disabled=false; var m=err.message||"error"; admToast(m==="isadmin"?GX("delUserIsAdmin"):m==="self"?GX("delUserSelf"):m,"bad") } }});
 
   $$(".lvlpick").forEach(function(sel){ if(!sel.dataset.uid) return; sel.onchange=function(){
     act("bk_admin_set_level",{p_token:ADM.token,p_user:this.dataset.uid,p_level:this.value}) }});
@@ -2462,7 +2473,9 @@ function adminUsersBody(d){
           (can("passwords")?'<button class="ab" data-apw="'+u.id+'">'+t("resetPass")+'</button>':'')+
           (!u.avatar_url&&!u.bio&&!can("passwords")?'<span class="hintx">—</span>':'')+'</div></div>'+
         '<div class="ugroup"><b>'+GX("uDanger")+'</b><div class="ubtns">'+
-          '<button class="ab '+(u.blocked?"ok":"bad")+'" data-ablock="'+u.id+'" data-on="'+(u.blocked?"0":"1")+'">'+(u.blocked?t("unblock"):t("block"))+'</button></div></div>'+
+          '<button class="ab '+(u.blocked?"ok":"bad")+'" data-ablock="'+u.id+'" data-on="'+(u.blocked?"0":"1")+'">'+(u.blocked?t("unblock"):t("block"))+'</button>'+
+          (ADM.isSuper&&!isAdmin?'<button class="ab bad" data-adeluser="'+u.id+'" data-name="'+esc(nm)+'">'+GX("uDelete")+'</button>':'')+'</div>'+
+          (ADM.isSuper&&!isAdmin?'<div class="hintx">'+GX("uDeleteHint")+'</div>':'')+'</div>'+
         '</div></td></tr>';
     }
     if(ADM.rateTarget===u.id){
