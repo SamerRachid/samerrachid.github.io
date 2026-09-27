@@ -124,6 +124,7 @@ async function log(draft: number | null, chat: string | null, level: string, eve
 }
 function publicUrl(path: string) { return SUPABASE_URL.replace(/\/$/, "") + "/storage/v1/object/public/" + BUCKET + "/" + path.split("/").map(encodeURIComponent).join("/"); }
 const fmtNum = (n: number) => Math.round(n).toLocaleString("en-US");
+const ltr = (s: string) => "⁦" + s + "⁩";   // isolate a phone number / URL so Arabic (RTL) text does not reverse its parts (+1 514 … → 0004 809 …)
 const latinDigits = (s: string) => (s || "").replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x660)).replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x6f0));   // Arabic-Indic / Persian digits → Western before the model reads
 
 // ───────────────────────────── settings ─────────────────────────────
@@ -330,7 +331,7 @@ const T = {
     linkOk: (n: string) => `تم ربط حسابك ✅ أهلاً ${n}\nأرسل الآن تفاصيل العقار والصور، وعندما تنتهي اكتب «تم».`,
     linkNone: `لا يوجد حساب في بلكون بهذا الرقم. سجّل أولاً على balkoun.com ثم عد إلى هنا.`,
     hello: `أهلاً بك في بلكون 👋 أنا هنا لمساعدتك في نشر إعلان عقارك.\nأرسل تفاصيل العقار (نوع العقار، بيع أم إيجار، المحافظة والحي، المساحة، السعر، الطابو) مع الصور، وسأجهّز الإعلان لك.`,
-    contact: (n: string) => `للتواصل مع إدارة بلكون: ${n}\nوإذا أردت نشر إعلان، أرسل تفاصيله وصوره هنا مباشرة وسأساعدك.`,
+    contact: (n: string) => `للتواصل مع إدارة بلكون: ${ltr(n)}\nوإذا أردت نشر إعلان، أرسل تفاصيله وصوره هنا مباشرة وسأساعدك.`,
     thanks: `على الرحب والسعة 🙏 متى أردت نشر إعلان جديد أرسل تفاصيله هنا.`,
     wantedReply: (search: string, wanted: string) => `يبدو أنك تبحث عن عقار ولا تعرض واحداً 🙂\nهذه الإعلانات التي تطابق طلبك على بلكون:\n${search}\n\nوإذا أردت أن تصلك عروض المكاتب والمالكين، انشر طلب «مطلوب» مجاناً من هنا:\n${wanted}\n\nولنشر إعلان عقار تملكه أرسل تفاصيله وصوره هنا.`,
   },
@@ -381,7 +382,7 @@ const T = {
     linkOk: (n: string) => `Account linked ✅ Welcome ${n}\nSend the property details and photos now, then write "done".`,
     linkNone: `No Balkoun account has this number. Sign up at balkoun.com first, then come back here.`,
     hello: `Welcome to Balkoun 👋 I am here to help you post your property listing.\nSend the property details (type, sale or rent, governorate and area, size, price, deed) with photos, and I will prepare the listing for you.`,
-    contact: (n: string) => `To reach the Balkoun team: ${n}\nIf you want to post a listing, just send its details and photos here and I will help.`,
+    contact: (n: string) => `To reach the Balkoun team: ${ltr(n)}\nIf you want to post a listing, just send its details and photos here and I will help.`,
     thanks: `You are welcome 🙏 Whenever you want to post a new listing, send its details here.`,
     wantedReply: (search: string, wanted: string) => `It looks like you are looking for a property rather than offering one 🙂\nHere are the listings on Balkoun that match your request:\n${search}\n\nIf you want agencies and owners to send you offers, post a free "wanted" request here:\n${wanted}\n\nTo publish a property you own, send its details and photos here.`,
   },
@@ -881,8 +882,8 @@ function welcomeText(r: any, c: Cfg, part: "whatsapp" | "email" | "telegram" | "
   const lang = r.lang === "en" ? "en" : "ar";
   const raw = String(c["intake_welcome_" + part + "_" + lang] || WELCOME_DEFAULT[lang][part] || "");
   const wa = String(c.intake_wa_display || "").trim();
-  return raw.replace(/\{name\}/g, String(r.contact_name || "").trim()).replace(/\{wa\}/g, wa).replace(/\{tg\}/g, String(c.intake_bot || ""))
-    .replace(/\{contact\}/g, String(c.intake_contact_phone || "").trim()).replace(/\{email\}/g, String(c.intake_contact_email || "info@balkoun.com").trim()).replace(/\{site\}/g, SITE)
+  return raw.replace(/\{name\}/g, String(r.contact_name || "").trim()).replace(/\{wa\}/g, ltr(wa)).replace(/\{tg\}/g, String(c.intake_bot || ""))
+    .replace(/\{contact\}/g, ltr(String(c.intake_contact_phone || "").trim())).replace(/\{email\}/g, String(c.intake_contact_email || "info@balkoun.com").trim()).replace(/\{site\}/g, SITE)
     .replace(/[ \t]+\n/g, "\n").trim();
 }
 function campaignText(r: any): string {
