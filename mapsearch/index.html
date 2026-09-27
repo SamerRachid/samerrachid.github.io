@@ -9290,6 +9290,7 @@ function render(){
 /* ── 2026-09-04 home page sections (Horizon restyle) ── */
 var HX_T={
   pickE:{ar:"ابدأ من هنا",en:"Start here",de:"Hier starten"},
+  featE:{ar:"مختارات اليوم",en:"Today's picks",de:"Auswahl des Tages"}, featH:{ar:"إعلانات مميزة",en:"Featured listings",de:"Hervorgehobene Inserate"}, featS:{ar:"عقارات اختارها أصحابها لتظهر هنا اليوم. تواصل مع المالك مباشرة، بلا عمولة.",en:"Properties their owners chose to show here today. Contact the owner directly, no commission.",de:"Objekte, die ihre Eigentümer heute hier zeigen. Direkter Kontakt, ohne Provision."},
   navColl:{ar:"مجموعات مختارة",en:"Collections",de:"Sammlungen"},
   navAreas:{ar:"استكشف المناطق",en:"Explore areas",de:"Gebiete"},
   navGuide:{ar:"دليل المشتري",en:"Buyer's guide",de:"Leitfaden"},
@@ -9329,8 +9330,15 @@ function HX(k){ var o=HX_T[k]||{}; if(k==="trP" && COUNTRY!=="SY"){ var c=countr
   return cLocal(o[L]||o.en||"") }
 
 /* every homepage section below the hero, in the admin's order; each has a show switch (home_<k>_on) and text overrides (<k>_<field>_<lang>) */
-var HOME_SECS=["ads","banners","ticker","projects","wanted","colls","types","trust","expl","band","guides"];
-function homeOrder(){ var o=SX("home_order",null); if(typeof o==="string"){ try{ o=JSON.parse(o) }catch(e){ o=null } } var r=Array.isArray(o)?o.filter(function(k){ return HOME_SECS.indexOf(k)>-1 }):[]; HOME_SECS.forEach(function(k){ if(r.indexOf(k)<0) r.push(k) }); return r }
+var HOME_SECS=["ads","feat","banners","ticker","projects","wanted","colls","types","trust","expl","band","guides"];
+// a saved order that predates a section gets it at its default place (right after the one before it), not at the end
+function homeOrder(){ var o=SX("home_order",null); if(typeof o==="string"){ try{ o=JSON.parse(o) }catch(e){ o=null } } var r=Array.isArray(o)?o.filter(function(k){ return HOME_SECS.indexOf(k)>-1 }):[]; HOME_SECS.forEach(function(k,i){ if(r.indexOf(k)<0){ var p=i?r.indexOf(HOME_SECS[i-1]):-1; r.splice(p<0?r.length:p+1,0,k) } }); return r }
+// featured listings (admin-featured or earned with the free-feature reward): live ones, newest window first
+function homeFeaturedHtml(){
+  var list=D.LIST.filter(function(x){ return x.featured && (x.status||"live")==="live" }).slice(0,8);
+  if(!list.length) return "";
+  return '<div class="wrap"><section class="sec" id="featSec"><div class="eyebrow">'+HT("feat_eyebrow",HX("featE"))+'</div><h2>'+HT("feat_h",HX("featH"))+'</h2><div class="sub">'+HT("feat_sub",HX("featS"))+'</div>'+
+    '<div class="res">'+list.map(function(x,i){ return card(x,i,false) }).join("")+'</div></section></div>' }
 function HSON(k){ return SX("home_"+k+"_on",true)!==false }
 function HT(k,fb){ var v=SX(k+"_"+L,""); return (v===""||v==null) ? fb : esc(unesc(String(v))) }
 function HU(k,fb){ var v=SX(k,""); return esc(safeUrl(unesc(String((v===""||v==null)?fb:v)))) }
@@ -9338,6 +9346,7 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
   var G=D.GUIDES[L];
   var S={
     ads:function(){ return adsInHero ? "" : adSlotsRow() },
+    feat:function(){ return HSON("feat") ? homeFeaturedHtml() : "" },
     banners:function(){ return HSON("banners") && SX("banners_slot","flow")!=="top" ? bannerAboveHtml : "" },
     ticker:function(){ return HSON("ticker") ? marketTickerHtml() : "" },
     projects:function(){ return homeProjectsHtml() },
