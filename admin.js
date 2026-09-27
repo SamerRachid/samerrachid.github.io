@@ -1967,6 +1967,7 @@ var HS_T={
  f_statsOn:{ar:"إظهار سطر الإحصائيات",en:"Show the stats line",de:"Statistikzeile anzeigen"}, f_realCount:{ar:"استخدام العدد الحقيقي للإعلانات",en:"Use the real listing count",de:"Echte Anzeigenzahl verwenden"},
  f_areasNum:{ar:"رقم عدد المناطق",en:"Areas number",de:"Anzahl Gebiete"}, f_listNum:{ar:"رقم عدد الإعلانات",en:"Listings number",de:"Anzahl Anzeigen"}, f_stats1:{ar:"العبارة الأولى",en:"First phrase",de:"Erste Phrase"}, f_stats2:{ar:"العبارة الثانية",en:"Second phrase",de:"Zweite Phrase"},
  f_adsOn:{ar:"إظهار صف المربعات تحت شريط البحث",en:"Show the ad row under the search bar",de:"Werbereihe unter der Suchleiste zeigen"}, f_adsTitle:{ar:"عنوان الصف",en:"Row title",de:"Titel der Reihe"}, f_adsSponsored:{ar:"كلمة «إعلان مدفوع»",en:"“Sponsored” word",de:"Wort „Gesponsert“"},
+ f_adsTitleOn:{ar:"إظهار عنوان الصف",en:"Show the row title",de:"Titel der Reihe zeigen"}, f_adsSponsoredOn:{ar:"إظهار كلمة «إعلان مدفوع» (تظهر فقط مع مربع مدفوع)",en:"Show the “Sponsored” word (only when a paid square is present)",de:"Wort „Gesponsert“ zeigen (nur bei bezahlter Kachel)"},
  f_adSize:{ar:"حجم المربع (px)",en:"Square size (px)",de:"Kachelgröße (px)"}, f_adGap:{ar:"موضع الصف رأسياً",en:"Row vertical position",de:"Vertikale Position der Reihe"}, f_adGlide:{ar:"ثوانٍ لكل مربع",en:"Seconds per square",de:"Sekunden pro Kachel"},
  go_ads:{ar:"كل إعدادات المربعات والإعلانات",en:"All ad square settings",de:"Alle Kachel-Einstellungen"}, go_banners:{ar:"إدارة البانرات",en:"Manage banners",de:"Banner verwalten"}, go_featured:{ar:"إدارة المميز والمكافأة",en:"Manage featured and the reward",de:"Hervorhebungen und Belohnung verwalten"},
  bannersHint:{ar:"البانرات الثلاثة ومحتواها تُدار في صفحة البانرات. هنا فقط تُظهر أو تُخفي شريط البانرات من الصفحة الرئيسية.",en:"The three banners and their content live on the Banners page. Here you only show or hide the banner strip on the homepage.",de:"Die drei Banner werden auf der Banner-Seite verwaltet. Hier nur Ein-/Ausblenden auf der Startseite."},
@@ -2057,7 +2058,8 @@ function hsInspAds(){
   var sd=HS.sel, H=[], title=hsT(sd);
   if(sd==="row"){
     H.push(fSwitch(hsT("f_adsOn"),"x:ads_row_enabled",true,true), fHint(hsT("textsHint")),
-      fText(hsT("f_adsTitle"),"x:ads_row_title",GX_T.adsH[hsLang()]), fText(hsT("f_adsSponsored"),"x:ads_sponsored",GX_T.sponsored[hsLang()]),
+      fSwitch(hsT("f_adsTitleOn"),"x:ads_title_on",true,true), fText(hsT("f_adsTitle"),"x:ads_row_title",GX_T.adsH[hsLang()]),
+      fSwitch(hsT("f_adsSponsoredOn"),"x:ads_sponsored_on",true,true), fText(hsT("f_adsSponsored"),"x:ads_sponsored",GX_T.sponsored[hsLang()]),
       fGrp(hsT("g_look")), fHint(hsT("dualHint")),
       fDual(hsT("f_adSize"),"c:ad_square_size","x:ad_square_size_m",90,260,5,true), fHint(GX("adSizeHint")),
       fSlider(hsT("f_adGap"),"c:ad_carousel_gap","x:ad_carousel_gap_m",-60,80,2,"px",0),
@@ -2178,7 +2180,8 @@ function hsInspHome(){
       fHint(hsT("textsHint")), fText(hsT("f_stats1"),"c:stats1",t("note")), fText(hsT("f_stats2"),"c:stats2",t("note2")));
   } else if(sd==="ads"){
     H.push(fSwitch(hsT("f_adsOn"),"x:ads_row_enabled",true,true), fHint(hsT("textsHint")),
-      fText(hsT("f_adsTitle"),"x:ads_row_title",GX_T.adsH[hsLang()]), fText(hsT("f_adsSponsored"),"x:ads_sponsored",GX_T.sponsored[hsLang()]),
+      fSwitch(hsT("f_adsTitleOn"),"x:ads_title_on",true,true), fText(hsT("f_adsTitle"),"x:ads_row_title",GX_T.adsH[hsLang()]),
+      fSwitch(hsT("f_adsSponsoredOn"),"x:ads_sponsored_on",true,true), fText(hsT("f_adsSponsored"),"x:ads_sponsored",GX_T.sponsored[hsLang()]),
       fGrp(hsT("g_look")), fHint(hsT("dualHint")),
       fDual(hsT("f_adSize"),"c:ad_square_size","x:ad_square_size_m",100,260,5), fSlider(hsT("f_adGap"),"c:ad_carousel_gap","x:ad_carousel_gap_m",-60,80,2,"px",0),
       fNum(hsT("f_adGlide"),"x:ad_glide_seconds",1,15,0.5,3.5,true), fGo(hsT("go_ads"),"ads"));
