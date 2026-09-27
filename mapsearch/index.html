@@ -424,7 +424,7 @@ html.js .rv.in{opacity:1;transform:none}
   font-size:11px;text-align:center;padding:6px}
 .adslot-foot{position:absolute;bottom:0;inset-inline-start:0;inset-inline-end:0;
   display:flex;gap:6px;padding:6px 6px 5px;justify-content:center;flex-wrap:wrap}
-.adslot-foot span{font-weight:600}
+.adslot-foot span{font-weight:600;position:relative;z-index:1;text-shadow:0 1px 3px rgba(0,0,0,.75)}.adslot-place{z-index:1;text-shadow:0 1px 3px rgba(0,0,0,.75)}
 .adslot-place{position:absolute;top:3px;inset-inline-start:5px;font-weight:600;
   padding:1px 6px;border-radius:4px}
 .adslot-overtext{position:absolute;inset-inline-start:0;inset-inline-end:0;
@@ -5955,12 +5955,12 @@ function adSlotsRow(){
      media = '<img class="adslot-rotimg" src="'+a.l_photos[0]+'" data-photos="'+
        encodeURIComponent(JSON.stringify(a.l_photos))+'" data-idx="0" alt="'+esc([(a.l_type&&D.TYPES[a.l_type])?D.TYPES[a.l_type][li()]:"", place].filter(Boolean).join(" · "))+'" loading="lazy">'+
        '<div class="adslot-foot" style="font-size:var(--ris);color:'+textColor+';'+
-         'background:rgba('+shadeRgb+',.82)">'+
+         'background:linear-gradient(to top,rgba('+shadeRgb+',.85) 0%,rgba('+shadeRgb+',.55) 55%,transparent 100%)">'+
         (a.l_rooms?'<span>'+(showIcons?ICON_BED:"")+a.l_rooms+(showIcons?"":" "+t("rooms"))+'</span>':'')+
         (a.l_baths?'<span>'+(showIcons?ICON_BATH:"")+a.l_baths+(showIcons?"":" "+t("baths"))+'</span>':'')+
         (a.l_area?'<span class="ltr">'+(showIcons?ICON_AREA:"")+a.l_area+(showIcons?"":" "+t("sqm"))+'</span>':'')+
        '</div>'+
-       (place&&showLoc?'<div class="adslot-place" style="font-size:var(--los);color:'+textColor+';background:rgba('+shadeRgb+',.82)">'+place+'</div>':'');
+       (place&&showLoc?'<div class="adslot-place" style="font-size:var(--los);color:'+textColor+';background:rgba('+shadeRgb+',.6)">'+place+'</div>':'');
    } else if(isVideoEmbed){
      var vInfo = videoEmbedInfo(a.video_embed_url);
      media = vInfo ? '<iframe class="adslot-embed" src="'+vInfo.embedUrl+'" '+
