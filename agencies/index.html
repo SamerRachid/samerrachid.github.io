@@ -6141,7 +6141,7 @@ function moveAdCarousel(dir){
   var track = document.getElementById("adCarouselTrack");
   if(!el || !track) return;
   var count = parseInt(el.dataset.count,10)||0;
-  if(count<2 || el.dataset.static==="1") return; // one (or zero) ads, or everything already fits — nothing to rotate through
+  if(count<2 || el.dataset.static==="1" || el.classList.contains("few") || el.classList.contains("glide")) return; // one (or zero) ads, a still row, the gliding row, or everything already fits — nothing to rotate through
   var items = [].slice.call(track.querySelectorAll(".adslot"));
   if(!items.length) return;
   var itemW = items[0].getBoundingClientRect().width;
