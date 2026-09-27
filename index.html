@@ -4427,7 +4427,11 @@ function home(){
  var adsInHero = homeOrder()[0]==="ads";   // first section under the hero → rendered inside the hero block
  var bannersTop = SX("banners_slot","flow")==="top" && HSON("banners");   // the banner strip sits above the headline, inside the hero
  // a slim promo for the "paste your text, we fill the form" box on /post — dismissible per visitor, otherwise always on
+ // removed from the homepage on 2026-09-27 (owner's request): the "post by message" promo under the search bar;
+ // the /post-by-message page and the header link stay. Set QF_TEASER_ON=true to bring the strip back.
+ var QF_TEASER_ON=false;
  var qfTeaserHtml=(function(){
+   if(!QF_TEASER_ON) return "";
    var dismissed=false; try{ dismissed=localStorage.getItem("balkoun_qf_dismissed")==="1" }catch(e){}
    if(dismissed) return "";
    return '<div class="wrap"><div class="qfteaser-wrap"><a class="qfteaser" data-go="postmsg">'+
