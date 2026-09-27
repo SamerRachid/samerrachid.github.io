@@ -333,6 +333,7 @@ const T = {
     hello: `أهلاً بك في بلكون 👋 أنا هنا لمساعدتك في نشر إعلان عقارك.\nأرسل تفاصيل العقار (نوع العقار، بيع أم إيجار، المحافظة والحي، المساحة، السعر، الطابو) مع الصور، وسأجهّز الإعلان لك.`,
     contact: (n: string) => `للتواصل مع إدارة بلكون: ${ltr(n)}\nوإذا أردت نشر إعلان، أرسل تفاصيله وصوره هنا مباشرة وسأساعدك.`,
     thanks: `على الرحب والسعة 🙏 متى أردت نشر إعلان جديد أرسل تفاصيله هنا.`,
+    notListing: `تمام 👍 أرسل لي تفاصيل العقار هنا كما تكتبها لصديق: نوع العقار، بيع أم إيجار، المحافظة والحي، المساحة، السعر، نوع الطابو، مع صورة واحدة على الأقل.\nيمكنك إرسالها برسالة واحدة أو عدة رسائل، وسأسألك عن أي شيء ناقص.`,
     wantedReply: (search: string, wanted: string) => `يبدو أنك تبحث عن عقار ولا تعرض واحداً 🙂\nهذه الإعلانات التي تطابق طلبك على بلكون:\n${search}\n\nوإذا أردت أن تصلك عروض المكاتب والمالكين، انشر طلب «مطلوب» مجاناً من هنا:\n${wanted}\n\nولنشر إعلان عقار تملكه أرسل تفاصيله وصوره هنا.`,
   },
   en: {
@@ -384,6 +385,7 @@ const T = {
     hello: `Welcome to Balkoun 👋 I am here to help you post your property listing.\nSend the property details (type, sale or rent, governorate and area, size, price, deed) with photos, and I will prepare the listing for you.`,
     contact: (n: string) => `To reach the Balkoun team: ${ltr(n)}\nIf you want to post a listing, just send its details and photos here and I will help.`,
     thanks: `You are welcome 🙏 Whenever you want to post a new listing, send its details here.`,
+    notListing: `Sure 👍 Send me the property details here the way you would tell a friend: property type, sale or rent, governorate and area, size, price, deed type, plus at least one photo.\nOne message or several, as you like; I will ask about anything missing.`,
     wantedReply: (search: string, wanted: string) => `It looks like you are looking for a property rather than offering one 🙂\nHere are the listings on Balkoun that match your request:\n${search}\n\nIf you want agencies and owners to send you offers, post a free "wanted" request here:\n${wanted}\n\nTo publish a property you own, send its details and photos here.`,
   },
 };
@@ -600,8 +602,8 @@ function summary(f: Record<string, any>, tax: any, photos: number, lang: string)
   const cond = t(f.condition, [...(tax.conditions || []), ...(tax.land_conditions || [])]);
   const ar = lang !== "en"; const tt = tx(lang);
   const L: string[] = [ar ? "📋 خلاصة الإعلان" : "📋 Listing summary"];
-  L.push("• " + (ty ? (ar ? ty.ar : ty.en) : (ar ? "عقار" : "Property")) + " " + (f.deal === "rent" ? (ar ? "للإيجار" : "for rent") : (ar ? "للبيع" : "for sale")));
-  L.push("• " + [f.governorate, f.area, f.landmark].filter(Boolean).join(" – "));
+  L.push("• " + (ty ? (ar ? ty.ar : ty.en) : (ar ? "عقار" : "Property")) + (f.deal ? " " + (f.deal === "rent" ? (ar ? "للإيجار" : "for rent") : (ar ? "للبيع" : "for sale")) : ""));
+  const place = [f.governorate, f.area, f.landmark].filter(Boolean).join(" – "); if (place) L.push("• " + place);
   const facts = [f.area_m2 ? `${fmtNum(f.area_m2)} ${ar ? "م²" : "m²"}` : "", f.rooms ? `${f.rooms} ${ar ? "غرف" : "rooms"}` : "", f.living_rooms ? `${f.living_rooms} ${ar ? "صالون" : "living"}` : "", f.baths ? `${f.baths} ${ar ? "حمام" : "baths"}` : "", f.floor != null ? `${ar ? "طابق" : "floor"} ${f.floor}` : ""].filter(Boolean);
   if (facts.length) L.push("• " + facts.join(" · "));
   const st = [deed ? (ar ? deed.ar : deed.en) : "", cond ? cond.ar : "", f.furnished ? (ar ? "مفروش" : "furnished") : ""].filter(Boolean);
@@ -757,6 +759,16 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
     await log(draftId, d.chat_id, "info", "intent_wanted", { fields, cost });
     if (!opts.quiet && d.source !== "web") await reply(d.source, d.chat_id, t.wantedReply(SITE + "/search?" + q.toString(), SITE + "/wantedform"));
     return { status: "cancelled", intent: "wanted" };
+  }
+  // "بدي انشر إعلان" / "I want to post a listing" / a question: no property facts and no photos → answer like a person
+  // (what to send) and drop the empty draft, instead of parking a blank listing in the panel for review
+  const factCount = ["deal", "property_type", "governorate_id", "price", "area_m2"].filter((k) => fields[k] != null).length;
+  const substantive = photos > 0 || factCount >= 2;
+  if (!err && !d.by_admin && !substantive && (raw.intent === "other" || lowConfidence(raw))) {
+    await rpc("bk_intake_set", { p_draft: draftId, p_patch: { status: "cancelled", error: "not_listing" } });
+    await log(draftId, d.chat_id, "info", "intent_other", { fields, cost, notes: raw.notes || null });
+    if (!opts.quiet && d.source !== "web") await reply(d.source, d.chat_id, t.notListing);
+    return { status: "cancelled", intent: "other" };
   }
   let status = err ? "failed" : (missing.length ? "needs_info" : "ready");
   let suggested: string | null = null;
