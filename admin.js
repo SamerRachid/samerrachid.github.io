@@ -864,6 +864,11 @@ function admRewardsCard(){
     '<div class="hintx" style="margin-bottom:10px">'+GX("rwHint")+'</div>'+
     '<div class="chkgrid">'+chk("reward_on",GX("rwOn"))+chk("reward_welcome_on",GX("rwWelcome"))+chk("reward_users_on",GX("rwUsers"))+'</div>'+
     '<div class="row" style="margin-top:8px">'+num("reward_every",GX("rwEvery"),10,1,100)+num("reward_hours",GX("rwHours"),24,1,720)+'</div>'+
+    (function(){ var u=c.reward_until?new Date(c.reward_until):null, over=u&&u<new Date();
+      return '<div class="row" style="align-items:end"><div class="fl"><label>'+GX("rwUntil")+'</label><input type="date" id="rwUntil" value="'+(u?u.toISOString().slice(0,10):"")+'" data-allow-autofill></div>'+
+        '<div class="fl"><button type="button" class="ab" id="rwExtend">'+GX("rwExtend")+'</button></div></div>'+
+        (over?'<div class="hintx" style="color:var(--danger)">'+GX("rwEnded").replace("{d}",u.toLocaleDateString())+'</div>':'')+
+        '<div class="hintx">'+GX("rwUntilHint")+'</div>' })()+
     '<div class="xactions"><button type="button" class="ab ok" id="rwCfgSave">'+t("save")+'</button><span class="xmsg" id="rwCfgMsg"></span></div>'+
     '<h4 style="margin:18px 0 6px">'+GX("rwBalances")+'</h4>'+
     (bal.length?'<div class="atable"><table><thead><tr><th>'+t("contactName")+'</th><th>'+GX("rwPoints")+'</th><th>'+GX("rwCredits")+'</th><th>'+GX("rwActive")+'</th><th></th></tr></thead><tbody>'+
@@ -877,7 +882,9 @@ function wireRewardsCard(){
   var refresh=function(){ return rpcScoped("bk_admin_rewards",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.rewards=r||{}; render() }) };
   if($("#rwCfgSave")) $("#rwCfgSave").onclick=async function(){ var m=$("#rwCfgMsg"), patch={}; this.disabled=true;
     $$("#rwCfg [data-rwc]").forEach(function(i){ patch[i.dataset.rwc]= i.dataset.rwt==="bool" ? !!i.checked : (i.value===""?null:+i.value) });
+    var du=($("#rwUntil")||{}).value; patch.reward_until = du ? new Date(du+"T23:59:59Z").toISOString() : "";   // "" = no end (jsonb_strip_nulls would drop a null, keeping the old date)
     try{ await saveGlobalExtras(patch); admToast(t("savedOk")); await refresh() }catch(e){ this.disabled=false; if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } } };
+  if($("#rwExtend")) $("#rwExtend").onclick=function(){ var i=$("#rwUntil"); if(!i) return; var base=i.value&&new Date(i.value)>new Date()?new Date(i.value):new Date(); base.setDate(base.getDate()+60); i.value=base.toISOString().slice(0,10) };
   var adjust=function(uid,nm,sign){ return async function(){
     var q=prompt(GX(sign>0?"rwGrantQ":"rwRevokeQ").replace("{n}",nm),"1"); if(q===null) return; var n=parseInt(q,10); if(!(n>0)) return;
     var note=prompt(GX("rwNoteQ"),""); if(note===null) return;

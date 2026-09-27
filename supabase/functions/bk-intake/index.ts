@@ -124,7 +124,10 @@ async function log(draft: number | null, chat: string | null, level: string, eve
 }
 function publicUrl(path: string) { return SUPABASE_URL.replace(/\/$/, "") + "/storage/v1/object/public/" + BUCKET + "/" + path.split("/").map(encodeURIComponent).join("/"); }
 const fmtNum = (n: number) => Math.round(n).toLocaleString("en-US");
-const ltr = (s: string) => "⁦" + s + "⁩";   // isolate a phone number / URL so Arabic (RTL) text does not reverse its parts (+1 514 … → 0004 809 …)
+// a phone number inside Arabic (RTL) text: WhatsApp/Telegram clients do not all honour the Unicode isolates, so the
+// groups are also glued with no-break spaces — one unbroken number run keeps its order in every bidi renderer
+// ("+1 514 809 0004" was showing as "0004 809 514 1+")
+const ltr = (s: string) => "⁦" + String(s || "").trim().replace(/[\s\-.]+/g, " ") + "⁩";
 const latinDigits = (s: string) => (s || "").replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x660)).replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x6f0));   // Arabic-Indic / Persian digits → Western before the model reads
 
 // ───────────────────────────── settings ─────────────────────────────
