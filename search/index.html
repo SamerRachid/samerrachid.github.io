@@ -1512,6 +1512,7 @@ footer{font-size:14px}
 .adsec .adcarousel-track{align-items:flex-start}
 .adsec .adslot{width:var(--ad-size,130px);height:var(--ad-size,130px);aspect-ratio:auto;flex:none;border-radius:14px;box-shadow:0 14px 30px -14px rgba(0,0,0,.65);background:#0F1B33;transition:transform .25s,box-shadow .25s}
 .adsec .adslot{border:0}
+.adsec .adcarousel.few .adcarousel-arrow{display:none}.adsec .adcarousel.few .adcarousel-track{animation:none;transform:none;justify-content:center}.adsec .adcarousel.few+.ad-prog{display:none}
 .adslot.adslot-feat{box-shadow:0 0 0 2px var(--gold),0 14px 30px -14px rgba(0,0,0,.65)}.adslot-star{position:absolute;top:6px;inset-inline-start:6px;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:13px;line-height:22px;text-align:center;z-index:3;pointer-events:none}
 .adsec .adslot.adclone{visibility:hidden}
 .adsec .adslot img,.adsec .adslot video{-webkit-user-drag:none;user-drag:none;pointer-events:none}
@@ -5979,7 +5980,9 @@ function adSlotsRow(){
    }
    return '<a class="adslot'+featCls+'" data-adid="'+a.id+'" aria-label="'+esc(unesc(String(a.label||a.sponsor_name||t("adPlaceholder"))))+'" '+
      (isLinked ? 'data-open="'+a.linked_listing_id+'"' : 'href="'+(a.link_url||"#")+'"'+(external?' target="_blank" rel="noopener sponsored"':' onclick="return false"'))+'>'+
-     media+chip+featText+(showTag?'<span class="adtag" style="font-size:var(--tgs);color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+tagText+'</span>':'')+'</a>'}).join("");
+     media+chip+featText+(showTag&&!a.featured?'<span class="adtag" style="font-size:var(--tgs);color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+tagText+'</span>':'')+'</a>'}).join("");
+  // one, two or three squares: a still, centred row — the endless wheel only makes sense with more than fit at once
+  var few = slots.length < 4, anyPaid = slots.some(function(a){ return !a.featured });
   // the carousel only actually needs to rotate/scroll if there are
   // more ads than comfortably fit — but the arrows and track markup
   // stay the same shape either way, they just have nothing to do
@@ -5997,7 +6000,7 @@ function adSlotsRow(){
   // with no visible jump since every copy is pixel-identical. That's
   // what makes it feel like a continuous wheel instead of a strip
   // with two hard edges, however few or many ads there actually are.
-  var tripledHtml = slotsHtml + slotsHtml + slotsHtml;
+  var tripledHtml = few ? slotsHtml : slotsHtml + slotsHtml + slotsHtml;
   // the physically-right button always gets the right-pointing arrow
   // and the physically-left button the left-pointing one — since RTL
   // flips which side "Prev" renders on, the icons have to flip with
@@ -6010,8 +6013,8 @@ function adSlotsRow(){
   var nextIcon = rtlNow ? ICON_CHEV_LEFT : ICON_CHEV_RIGHT;
   var glideDur = Math.max(12, Math.round(slots.length*(+SX("ad_glide_seconds",3.5)||3.5)));
   return '<section class="adsec" style="--ad-ris:'+roomInfoSize+'px;--ad-los:'+locSize+'px;--ad-tgs:'+tagSize+'px"><div class="wrap">'+
-   '<div class="ad-eyebrow">'+(SX("ads_row_title_"+L,"")||GX("adsH"))+'<small>· '+(SX("ads_sponsored_"+L,"")||GX("sponsored"))+'</small></div>'+
-   '<div class="adcarousel glide" id="adCarousel" data-count="'+slots.length+
+   '<div class="ad-eyebrow">'+(SX("ads_row_title_"+L,"")||GX("adsH"))+(anyPaid?'<small>· '+(SX("ads_sponsored_"+L,"")||GX("sponsored"))+'</small>':'')+'</div>'+
+   '<div class="adcarousel '+(few?'few':'glide')+'" id="adCarousel" data-count="'+slots.length+
    '" data-seconds="'+carouselSeconds+'" data-direction="'+carouselDir+'" style="--ad-size:'+sqSize+'px;--glide-dur:'+glideDur+'s">'+
    '<button type="button" class="adcarousel-arrow adcarousel-prev" id="adCarouselPrev" aria-label="'+t("prevAd")+'">'+prevIcon+'</button>'+
    '<div class="adcarousel-viewport"><div class="adcarousel-track" id="adCarouselTrack">'+tripledHtml+'</div></div>'+
@@ -6093,6 +6096,7 @@ function tickBannerRotation(elId){
 var _adCarouselTimer=null;
 function initAdCarouselPosition(){
   var gl=document.getElementById("adCarousel"); if(gl && gl.classList.contains("glide")){ fitAdGlide(gl); return; }
+  if(gl && gl.classList.contains("few")){ watchAdVideos(); if(window._adViewsLoggedFor!==VIEW){ window._adViewsLoggedFor=VIEW; logAds([].slice.call(gl.querySelectorAll(".adslot")).map(function(c){ return {slot:c.dataset.adid,kind:"view",page:VIEW.split(":")[0]} })) } return; }   // a still row: nothing to position
   // every render rebuilds the whole page from scratch, so the
   // carousel element is always brand-new with no dataset.currentIdx
   // of its own yet — without this, the track would visually sit at
