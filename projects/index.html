@@ -6019,7 +6019,8 @@ function adSlotsRow(){
   var nextIcon = rtlNow ? ICON_CHEV_LEFT : ICON_CHEV_RIGHT;
   var glideDur = Math.max(12, Math.round(slots.length*(+SX("ad_glide_seconds",3.5)||3.5)));
   return '<section class="adsec" style="--ad-ris:'+roomInfoSize+'px;--ad-los:'+locSize+'px;--ad-tgs:'+tagSize+'px"><div class="wrap">'+
-   '<div class="ad-eyebrow">'+(SX("ads_row_title_"+L,"")||GX("adsH"))+(anyPaid?'<small>· '+(SX("ads_sponsored_"+L,"")||GX("sponsored"))+'</small>':'')+'</div>'+
+   (function(){ var ttl=SX("ads_title_on",true)!==false?(SX("ads_row_title_"+L,"")||GX("adsH")):"", sp=anyPaid&&SX("ads_sponsored_on",true)!==false?(SX("ads_sponsored_"+L,"")||GX("sponsored")):"";
+     return (ttl||sp)?'<div class="ad-eyebrow">'+ttl+(sp?'<small>'+(ttl?'· ':'')+sp+'</small>':'')+'</div>':'' })()+
    '<div class="adcarousel '+(few?'few':'glide')+'" id="adCarousel" data-count="'+slots.length+
    '" data-seconds="'+carouselSeconds+'" data-direction="'+carouselDir+'" style="--ad-size:'+sqSize+'px;--glide-dur:'+glideDur+'s">'+
    '<button type="button" class="adcarousel-arrow adcarousel-prev" id="adCarouselPrev" aria-label="'+t("prevAd")+'">'+prevIcon+'</button>'+
