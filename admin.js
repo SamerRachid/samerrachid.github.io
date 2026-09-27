@@ -1938,7 +1938,8 @@ var HS_T={
  hero:{ar:"القسم الأول (الترحيب)",en:"Hero",de:"Hero"}, hero_text:{ar:"العنوان الرئيسي",en:"Headline",de:"Überschrift"},
  hero_bg:{ar:"الخلفية والرسم",en:"Background and drawing",de:"Hintergrund und Zeichnung"}, hero_search:{ar:"شريط البحث",en:"Search bar",de:"Suchleiste"},
  hero_stats:{ar:"سطر الإحصائيات",en:"Stats line",de:"Statistikzeile"},
- ads:{ar:"المربعات الإعلانية",en:"Ad squares",de:"Werbekacheln"}, banners:{ar:"البانرات",en:"Banners",de:"Banner"},
+ ads:{ar:"المربعات الإعلانية",en:"Ad squares",de:"Werbekacheln"}, feat:{ar:"الإعلانات المميزة",en:"Featured listings",de:"Hervorgehobene Inserate"}, banners:{ar:"البانرات",en:"Banners",de:"Banner"},
+ featHint:{ar:"يعرض الإعلانات المميزة النشطة (من الإدارة أو من مكافأة التمييز المجاني). يختفي القسم تلقائياً حين لا يوجد إعلان مميز.",en:"Shows the active featured listings (by the admin or via the free-feature reward). The section hides itself when nothing is featured.",de:"Zeigt die aktiven hervorgehobenen Inserate (vom Admin oder über die Gratis-Belohnung). Ohne hervorgehobene Inserate blendet sich der Abschnitt aus."},
  ticker:{ar:"نبض السوق",en:"Market pulse",de:"Marktpuls"}, colls:{ar:"مجموعات مختارة",en:"Collections",de:"Sammlungen"},
  types:{ar:"أنواع العقارات",en:"Property types",de:"Objektarten"},
  trust:{ar:"لماذا بلكون",en:"Why Balkoun",de:"Warum Balkoun"}, expl:{ar:"استكشف المناطق",en:"Explore areas",de:"Gebiete entdecken"},
@@ -1967,7 +1968,7 @@ var HS_T={
  f_areasNum:{ar:"رقم عدد المناطق",en:"Areas number",de:"Anzahl Gebiete"}, f_listNum:{ar:"رقم عدد الإعلانات",en:"Listings number",de:"Anzahl Anzeigen"}, f_stats1:{ar:"العبارة الأولى",en:"First phrase",de:"Erste Phrase"}, f_stats2:{ar:"العبارة الثانية",en:"Second phrase",de:"Zweite Phrase"},
  f_adsOn:{ar:"إظهار صف المربعات تحت شريط البحث",en:"Show the ad row under the search bar",de:"Werbereihe unter der Suchleiste zeigen"}, f_adsTitle:{ar:"عنوان الصف",en:"Row title",de:"Titel der Reihe"}, f_adsSponsored:{ar:"كلمة «إعلان مدفوع»",en:"“Sponsored” word",de:"Wort „Gesponsert“"},
  f_adSize:{ar:"حجم المربع (px)",en:"Square size (px)",de:"Kachelgröße (px)"}, f_adGap:{ar:"موضع الصف رأسياً",en:"Row vertical position",de:"Vertikale Position der Reihe"}, f_adGlide:{ar:"ثوانٍ لكل مربع",en:"Seconds per square",de:"Sekunden pro Kachel"},
- go_ads:{ar:"كل إعدادات المربعات والإعلانات",en:"All ad square settings",de:"Alle Kachel-Einstellungen"}, go_banners:{ar:"إدارة البانرات",en:"Manage banners",de:"Banner verwalten"},
+ go_ads:{ar:"كل إعدادات المربعات والإعلانات",en:"All ad square settings",de:"Alle Kachel-Einstellungen"}, go_banners:{ar:"إدارة البانرات",en:"Manage banners",de:"Banner verwalten"}, go_featured:{ar:"إدارة المميز والمكافأة",en:"Manage featured and the reward",de:"Hervorhebungen und Belohnung verwalten"},
  bannersHint:{ar:"البانرات الثلاثة ومحتواها تُدار في صفحة البانرات. هنا فقط تُظهر أو تُخفي شريط البانرات من الصفحة الرئيسية.",en:"The three banners and their content live on the Banners page. Here you only show or hide the banner strip on the homepage.",de:"Die drei Banner werden auf der Banner-Seite verwaltet. Hier nur Ein-/Ausblenden auf der Startseite."},
  f_eyebrow:{ar:"السطر الصغير فوق العنوان",en:"Small line above the title",de:"Kleine Zeile über dem Titel"}, f_h:{ar:"العنوان",en:"Title",de:"Titel"}, f_sub:{ar:"الوصف",en:"Description",de:"Beschreibung"},
  f_credit:{ar:"إظهار سطر مصدر الصور",en:"Show the photo credit line",de:"Fotonachweis anzeigen"}, card:{ar:"البطاقة",en:"Card",de:"Karte"}, f_cardOn:{ar:"إظهار البطاقة",en:"Show the card",de:"Karte anzeigen"},
@@ -2009,7 +2010,7 @@ var HS_T={
  social:{ar:"حسابات التواصل",en:"Social accounts",de:"Soziale Konten"}, numbers:{ar:"أرقام التواصل",en:"Contact numbers",de:"Kontaktnummern"},
  contactHint:{ar:"تظهر في صفحة «تواصل معنا» (المعاينة) وفي أزرار الاتصال عبر الموقع. يظهر الحساب فقط عندما يُملأ الرابط والاسم معاً.",en:"Shown on the “Contact us” page (the preview) and in the contact buttons across the site. An account appears only when both its link and name are filled.",de:"Erscheint auf der Kontaktseite (Vorschau) und in den Kontakt-Buttons. Ein Konto erscheint nur mit Link und Name."}
 };
-var HS_SEL={hero_text:".hero h1",hero_bg:".hero-outer",hero_search:".sbar",hero_stats:".hnote",ads:".adsec",banners:".topbanner-wrap",ticker:".mkt",projects:"#projectsSec",wanted:"#wantedSec",colls:"#collsSec",types:"#typesSec",trust:"#trustSec",expl:"#explSec",band:"#bandSec",guides:"#guidesSec",page:".hero-outer",
+var HS_SEL={hero_text:".hero h1",hero_bg:".hero-outer",hero_search:".sbar",hero_stats:".hnote",ads:".adsec",feat:"#featSec",banners:".topbanner-wrap",ticker:".mkt",projects:"#projectsSec",wanted:"#wantedSec",colls:"#collsSec",types:"#typesSec",trust:"#trustSec",expl:"#explSec",band:"#bandSec",guides:"#guidesSec",page:".hero-outer",
   row:".adsec",look:".adsec",perf:".adsec",strip:".topbanner-wrap",cards:".res",badges:".res",results:".rs-head",nav:"header",social:".changrid",numbers:".changrid"};
 var HS_EYE={ads:"x:ads_row_enabled"};
 var HS_VARKEYS=/^(sk_|h1_|sbar_|hero_gap|ad_carousel_gap|ad_square_size|hero_title_size_m|sec_pad|hero_max_height|card_min_width)/;
@@ -2034,7 +2035,7 @@ function hsAdPayload(a){
 function hsBDraft(){ if(!HS.bDraft){ HS.bDraft=JSON.parse(JSON.stringify(bannersConfig())); HS.bBefore=JSON.parse(JSON.stringify(HS.bDraft)) } return HS.bDraft }
 function hsBSet(i,field,val){ var cfg=hsBDraft()[i]; if(val===null||val===undefined) delete cfg[field]; else cfg[field]=val; HS.draft.site.banners_config=JSON.stringify(HS.bDraft); hsDirtyUI() }
 function hsMerged(){ var ex=SITE.extras; if(typeof ex==="string"){ try{ ex=JSON.parse(ex) }catch(e){ ex={} } } ex=Object.assign({},ex||{},HS.draft.extras); Object.keys(ex).forEach(function(k){ if(ex[k]===null||ex[k]===""||ex[k]===undefined) delete ex[k] }); var site={}; Object.keys(SITE).forEach(function(k){ if(k!=="extras") site[k]=SITE[k] }); Object.assign(site,HS.draft.site); return {site:site,extras:ex} }
-function hsOrder(ex){ var o=ex.home_order; if(typeof o==="string"){ try{ o=JSON.parse(o) }catch(e){ o=null } } var r=Array.isArray(o)?o.filter(function(k){ return HOME_SECS.indexOf(k)>-1 }):[]; HOME_SECS.forEach(function(k){ if(r.indexOf(k)<0) r.push(k) }); return r }
+function hsOrder(ex){ var o=ex.home_order; if(typeof o==="string"){ try{ o=JSON.parse(o) }catch(e){ o=null } } var r=Array.isArray(o)?o.filter(function(k){ return HOME_SECS.indexOf(k)>-1 }):[]; HOME_SECS.forEach(function(k,i){ if(r.indexOf(k)<0){ var p=i?r.indexOf(HOME_SECS[i-1]):-1; r.splice(p<0?r.length:p+1,0,k) } }); return r }
 function hsPush(rerender,delay){ clearTimeout(_hsPushT); _hsPushT=setTimeout(function(){ var f=$("#hsFrame"); if(!f||!f.contentWindow) return; var m=hsMerged(); var msg={type:"bk-preview",site:m.site,extras:m.extras,lang:hsLang(),rerender:!!rerender};
   if(HS.page==="ads" || Object.keys(HS.adDraft).length || HS.adNew) msg.adSlots=hsAdList();
   try{ f.contentWindow.postMessage(msg,location.origin) }catch(e){} }, delay||0) }
@@ -2185,6 +2186,8 @@ function hsInspHome(){
     H.push(fSwitch(hsT("showSec"),"x:home_banners_on",true,true), fSel(hsT("bSlot"),"x:banners_slot",[["flow",hsT("bSlotFlow")],["top",hsT("bSlotTop")]],"flow",true), fHint(hsT("bannersHint")), fGo(hsT("go_banners"),"banners"));
   } else if(sd==="ticker"){
     H.push(fSwitch(hsT("showSec"),"x:home_ticker_on",true,true), fHint(hsT("tickerHint")), fText(hsT("f_h"),"x:ticker_h",""), fText(hsT("f_sub"),"x:ticker_sub",""));
+  } else if(sd==="feat"){
+    H.push(fSwitch(hsT("showSec"),"x:home_feat_on",true,true), fHint(hsT("featHint")), fSecTexts("feat",HX("featE"),HX("featH"),HX("featS")), fGo(hsT("go_featured"),"featured"));
   } else if(sd==="colls"){
     H.push(fSwitch(hsT("showSec"),"x:home_colls_on",true,true), fHint(hsT("textsHint")), fSecTexts("colls",HX("collE"),HX("collH"),HX("collS")), fSwitch(hsT("f_credit"),"x:colls_credit_on",true,true));
     [["c1","c1s","دمشق","damascene"],["c2","c2s","دمشق","orchards"],["c3","c3s","اللاذقية","latakia"],["c4","c4s","ريف دمشق","bloudan"]].forEach(function(c,i){ var n=i+1;
@@ -2244,7 +2247,7 @@ function hsOutlineBanners(){
 function hsOutlineHome(){
   var m=hsMerged(), ex=m.extras, site=m.site;
   var isOn=function(key){ var p=hsParts(key), v=p.col?site[p.name]:ex[p.name]; return v==null||v===""?true:(v!==false&&v!=="false") };
-  var ICO={ads:AICO.ads,banners:AICO.banner,ticker:AICO.chart,projects:AICO.building,wanted:AICO.search,colls:ICON_GRID,types:AICO.listings,trust:AICO.shield,expl:AICO.map,band:AICO.users,guides:AICO.star};
+  var ICO={ads:AICO.ads,feat:AICO.star,banners:AICO.banner,ticker:AICO.chart,projects:AICO.building,wanted:AICO.search,colls:ICON_GRID,types:AICO.listings,trust:AICO.shield,expl:AICO.map,band:AICO.users,guides:AICO.star};
   var item=function(k,o){ o=o||{}; var on=o.eye?isOn(o.eye):o.bgEye?((site.hero_bg_type||"sketch")!=="none"):true; var selK=o.selAs||k; var isSel=HS.sel===selK || (k==="hero" && HS.sel.indexOf("hero_")===0);
     return '<div class="hs-item'+(isSel?' on':'')+(o.child?' child':'')+(on?'':' off')+'" data-hssel="'+selK+'">'+(o.ico?'<span class="hs-ico">'+o.ico+'</span>':'')+'<span class="hs-name">'+hsT(k)+(o.sub?'<small class="hs-sub">'+o.sub+'</small>':'')+'</span>'+
       (o.mv?'<button type="button" class="hs-mv" data-hsmv="'+k+':-1" title="'+hsT("up")+'">▲</button><button type="button" class="hs-mv" data-hsmv="'+k+':1" title="'+hsT("down")+'">▼</button>':'')+
