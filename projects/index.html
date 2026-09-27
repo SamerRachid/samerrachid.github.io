@@ -5992,7 +5992,11 @@ function adSlotsRow(){
      (isLinked ? 'data-open="'+a.linked_listing_id+'"' : 'href="'+(a.link_url||"#")+'"'+(external?' target="_blank" rel="noopener sponsored"':' onclick="return false"'))+'>'+
      media+chip+featText+(showTag&&!a.featured?'<span class="adtag" style="font-size:var(--tgs);color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+tagText+'</span>':'')+'</a>'}).join("");
   // one, two or three squares: a still, centred row — the endless wheel only makes sense with more than fit at once
-  var few = slots.length < 4, anyPaid = slots.some(function(a){ return !a.featured });
+  // still when every square fits the screen width side by side (phone: 1–2 squares, desktop: up to ~8), glide otherwise
+  var sqW = (function(){ try{ var m=matchMedia("(max-width:700px)").matches; var v=getComputedStyle(document.documentElement).getPropertyValue(m?"--ad-size-set-m":"--ad-size-set").trim(); return parseFloat(v)||(m?Math.min(sqSize,130):sqSize) }catch(e){ return sqSize } })();
+  var few = slots.length < 4 || slots.length*(sqW+10)-10 <= (window.innerWidth||1024)-28;
+  if(slots.length===3 && slots.length*(sqW+10)-10 > (window.innerWidth||1024)-28) few=false;
+  var anyPaid = slots.some(function(a){ return !a.featured });
   // the carousel only actually needs to rotate/scroll if there are
   // more ads than comfortably fit — but the arrows and track markup
   // stay the same shape either way, they just have nothing to do
