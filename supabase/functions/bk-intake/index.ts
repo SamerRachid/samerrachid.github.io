@@ -127,7 +127,9 @@ const fmtNum = (n: number) => Math.round(n).toLocaleString("en-US");
 // a phone number inside Arabic (RTL) text: WhatsApp/Telegram clients do not all honour the Unicode isolates, so the
 // groups are also glued with no-break spaces — one unbroken number run keeps its order in every bidi renderer
 // ("+1 514 809 0004" was showing as "0004 809 514 1+")
-const ltr = (s: string) => "⁦" + String(s || "").trim().replace(/[\s\-.]+/g, " ") + "⁩";
+// WhatsApp also normalised the no-break spaces back to plain ones, so the number goes out with NO separators at all:
+// a bare "+15148090004" is a single number run that no bidi algorithm can reorder
+const ltr = (s: string) => { const v = String(s || "").trim(); return /^\+?[\d\s\-.()]+$/.test(v) ? "‎" + v.replace(/[\s\-.()]+/g, "") + "‎" : "⁦" + v + "⁩"; };
 const latinDigits = (s: string) => (s || "").replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x660)).replace(/[۰-۹]/g, (d) => String(d.charCodeAt(0) - 0x6f0));   // Arabic-Indic / Persian digits → Western before the model reads
 
 // ───────────────────────────── settings ─────────────────────────────
