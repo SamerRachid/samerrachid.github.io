@@ -936,7 +936,7 @@ async function campaignFlush(): Promise<number> {
           r._welcome = welcomeText(r, c0, r.channel);
           if (r.channel === "email") r.subject = welcomeText(r, c0, "email_subject");
         }
-        const direct = /^direct: /.test(String(r.title || ""));   // the admin's one-to-one messages carry no Telegram nudge and no unsubscribe footer
+        const direct = /^(direct|reward): /.test(String(r.title || ""));   // the admin's one-to-one messages and reward notices carry no Telegram nudge and no unsubscribe footer
         const tgLink = (r.channel !== "telegram" && r.trigger_type !== "welcome" && !direct && !r.tg_chat_id && r.tg_consent !== "unsubscribed") ? tgInviteLink(bot, r.contact_id) : null;
         if (direct) r.unsub_token = null;
         if (r.channel === "telegram") {

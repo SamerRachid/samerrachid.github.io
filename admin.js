@@ -565,13 +565,13 @@ function adminView(){
        var isExpired = now>until;
        var statusClass = isActive?"live":isExpired?"expired":"pending";
        var statusText = isActive?t("featureActiveNow"):isExpired?t("featureExpired"):t("featureScheduled");
-       return '<tr><td class="ltr">'+scopeFlag(f.country_code)+(f.ref||f.id)+'</td><td>'+(f.poster_name||'—')+'</td>'+
-        '<td class="ltr">'+from.toLocaleDateString()+'</td><td class="ltr">'+until.toLocaleDateString()+'</td>'+
+       return '<tr><td class="ltr">'+scopeFlag(f.country_code)+(f.ref||f.id)+'</td><td>'+(f.poster_name||'—')+(f.featured_source==="reward"?' <span class="chip gold">★ '+GX("rwSrcReward")+'</span>':'')+'</td>'+
+        '<td class="ltr">'+from.toLocaleDateString()+'</td><td class="ltr">'+(f.featured_source==="reward"?until.toLocaleString():until.toLocaleDateString())+'</td>'+
         '<td><span class="st st-'+statusClass+'">'+statusText+'</span></td>'+
         '<td><button class="ab bad" data-unfeat="'+f.id+'">'+t("unfeature")+'</button></td></tr>'}).join("")+
      '</tbody></table></div>'
     : '<div class="done2"><b>'+t("noFeatured")+'</b></div>')+
-  '</div></div>';
+  '</div></div>'+admRewardsCard();
  }
 
  else if(ADM.tab==="danger"){
@@ -851,6 +851,40 @@ async function adminLoad(){
   render();
 }
 function GSX(k,d){ var g=(ADM.data&&ADM.data.gx)||{}; var v=g[k]; return (v===undefined||v===null||v==="") ? d : v }
+// free-feature reward: settings (global), balances in the current country scope, recent activity, grant / revoke
+function admRewardsCard(){
+  var R=ADM.rewards; if(!R) return '<div class="blk" style="margin-top:16px"><h3>'+GX("rwH")+'</h3><div class="in"><div class="hintx">'+t("loading")+'</div></div></div>';
+  if(R.error) return '<div class="blk" style="margin-top:16px"><h3>'+GX("rwH")+'</h3><div class="in"><div class="hintx" style="color:var(--danger)">'+esc(R.error)+'</div></div></div>';
+  var c=R.cfg||{}, on=function(k){ return c[k]!==false&&c[k]!=="false" };
+  var chk=function(k,lbl){ return '<label class="xcheck"><input type="checkbox" data-rwc="'+k+'" data-rwt="bool"'+(on(k)?' checked':'')+'><span>'+lbl+'</span></label>' };
+  var num=function(k,lbl,def,min,max){ return '<div class="fl"><label>'+lbl+'</label><input type="number" data-rwc="'+k+'" data-rwt="num" value="'+(c[k]!=null?c[k]:def)+'" min="'+min+'" max="'+max+'" data-allow-autofill></div>' };
+  var when=function(s){ return s?new Date(s).toLocaleString():"" };
+  var bal=R.balances||[], ev=R.events||[];
+  return '<div class="blk" style="margin-top:16px"><h3>'+GX("rwH")+'</h3><div class="in" id="rwCfg">'+
+    '<div class="hintx" style="margin-bottom:10px">'+GX("rwHint")+'</div>'+
+    '<div class="chkgrid">'+chk("reward_on",GX("rwOn"))+chk("reward_welcome_on",GX("rwWelcome"))+chk("reward_users_on",GX("rwUsers"))+'</div>'+
+    '<div class="row" style="margin-top:8px">'+num("reward_every",GX("rwEvery"),10,1,100)+num("reward_hours",GX("rwHours"),24,1,720)+'</div>'+
+    '<div class="xactions"><button type="button" class="ab ok" id="rwCfgSave">'+t("save")+'</button><span class="xmsg" id="rwCfgMsg"></span></div>'+
+    '<h4 style="margin:18px 0 6px">'+GX("rwBalances")+'</h4>'+
+    (bal.length?'<div class="atable"><table><thead><tr><th>'+t("contactName")+'</th><th>'+GX("rwPoints")+'</th><th>'+GX("rwCredits")+'</th><th>'+GX("rwActive")+'</th><th></th></tr></thead><tbody>'+
+      bal.map(function(b){ return '<tr><td>'+scopeFlag(b.country)+esc(b.name||b.phone||"")+(b.agency?' <small style="color:var(--grey)">· '+esc(b.agency)+'</small>':'')+' <small class="ltr" style="color:var(--grey)">'+esc(b.member_no||"")+'</small></td>'+
+        '<td class="ltr">'+b.points+'</td><td class="ltr"><b>'+b.credits+'</b></td><td class="ltr">'+(b.active_until&&new Date(b.active_until)>new Date()?when(b.active_until):"—")+'</td>'+
+        '<td style="white-space:nowrap"><button type="button" class="ab ok" data-rwgrant="'+b.user_id+'" data-name="'+esc(b.name||b.phone||"")+'">+ '+GX("rwGrant")+'</button> <button type="button" class="ab" data-rwrevoke="'+b.user_id+'" data-name="'+esc(b.name||b.phone||"")+'"'+(b.credits>0?'':' disabled')+'>− '+GX("rwRevoke")+'</button></td></tr>' }).join("")+
+      '</tbody></table></div>':'<div class="hintx">'+GX("rwNone")+'</div>')+
+    (ev.length?'<h4 style="margin:18px 0 6px">'+GX("rwLog")+'</h4><div class="iklog">'+ev.slice(0,30).map(function(e){ return '<div class="iklog-r"><span class="ltr">'+when(e.created_at)+'</span><b>'+esc(e.name||"")+'</b><i>'+(e.listing_id?'#'+e.listing_id:'')+'</i><span>'+GX("rwK_"+e.kind)+(e.delta?' ('+(e.delta>0?'+':'')+e.delta+')':'')+(e.note?' · '+esc(e.note):'')+'</span></div>' }).join("")+'</div>':'')+
+  '</div></div>' }
+function wireRewardsCard(){
+  var refresh=function(){ return rpcScoped("bk_admin_rewards",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.rewards=r||{}; render() }) };
+  if($("#rwCfgSave")) $("#rwCfgSave").onclick=async function(){ var m=$("#rwCfgMsg"), patch={}; this.disabled=true;
+    $$("#rwCfg [data-rwc]").forEach(function(i){ patch[i.dataset.rwc]= i.dataset.rwt==="bool" ? !!i.checked : (i.value===""?null:+i.value) });
+    try{ await saveGlobalExtras(patch); admToast(t("savedOk")); await refresh() }catch(e){ this.disabled=false; if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } } };
+  var adjust=function(uid,nm,sign){ return async function(){
+    var q=prompt(GX(sign>0?"rwGrantQ":"rwRevokeQ").replace("{n}",nm),"1"); if(q===null) return; var n=parseInt(q,10); if(!(n>0)) return;
+    var note=prompt(GX("rwNoteQ"),""); if(note===null) return;
+    try{ await rpc("bk_admin_reward_adjust",{p_token:ADM.token,p_user:uid,p_delta:sign*n,p_note:note}); admToast(t("savedOk")); await refresh() }catch(e){ admToast(e.message||"error","bad") } } };
+  $$("[data-rwgrant]").forEach(function(b){ b.onclick=adjust(b.dataset.rwgrant,b.dataset.name||"",1) });
+  $$("[data-rwrevoke]").forEach(function(b){ b.onclick=adjust(b.dataset.rwrevoke,b.dataset.name||"",-1) });
+}
 function saveGlobalExtras(patch){ return rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:patch},p_country:"SY"}).then(function(){ if(ADM.data){ ADM.data.gx=Object.assign({},ADM.data.gx||{},patch) } }) }
 function adminMeCard(){
   var me=ADM.me;
@@ -1276,7 +1310,9 @@ function wireAdmin(){
   if(ADM.tab==="featured" && !ADM._featuredListLoaded){
     ADM._featuredListLoaded=true;
     reloadFeaturedList().then(render);
+    rpcScoped("bk_admin_rewards",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.rewards=r||{}; render() }).catch(function(e){ ADM.rewards={error:e.message||"error"}; render() });
   }
+  wireRewardsCard();
   if($("#ftSave")) $("#ftSave").onclick=async function(){
     var listingId=($("#ftListing")||{}).value;
     var fromVal=($("#ftFrom")||{}).value;
