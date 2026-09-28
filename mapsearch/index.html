@@ -2544,7 +2544,8 @@ body.rs-lock{overflow:hidden}
 .acct-main{display:flex;flex-direction:column;gap:18px;min-width:0}
 .acsec{scroll-margin-top:84px}.acsec .blk{margin:0}.acsec .blk h3{display:flex;align-items:center;gap:10px}.acs-ico svg{width:20px;height:20px;color:var(--gold-dk);display:block}.acs-side{margin-inline-start:auto}
 .acsec .blk .in{display:flex;flex-direction:column;gap:14px}.acsec .fl{margin:0}.acsec .xactions{margin-top:0}
-.acs-status{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.rwbar{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:0 0 18px}.rwbar.has{border-color:var(--gold);background:linear-gradient(90deg,rgba(196,136,31,.08),transparent 60%)}.rwbar-i{width:40px;height:40px;border-radius:50%;background:var(--navy);color:var(--gold);display:grid;place-items:center;font-size:20px;flex:none}.rwbar-t{display:flex;flex-direction:column;gap:2px;min-width:0}.rwbar-t b{font-size:15px;color:var(--navy)}.rwbar-t span{font-size:14px}.rwbar-t small{color:var(--grey);font-size:12.5px}.ab.rwuse{border-color:var(--gold);color:#8a5d10;background:#fff8ea}
+.acs-status{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.asadmin{position:fixed;left:0;right:0;bottom:0;z-index:9000;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;background:#8a1c1c;color:#fff;font-size:13.5px;padding:9px 14px;box-shadow:0 -4px 16px rgba(0,0,0,.25)}.asadmin button{border:1px solid #fff;background:transparent;color:#fff;border-radius:8px;padding:5px 12px;font:inherit;font-weight:700;cursor:pointer}body:has(.asadmin) .fab{bottom:60px}
+.rwbar{display:flex;gap:14px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:0 0 18px}.rwbar.has{border-color:var(--gold);background:linear-gradient(90deg,rgba(196,136,31,.08),transparent 60%)}.rwbar-i{width:40px;height:40px;border-radius:50%;background:var(--navy);color:var(--gold);display:grid;place-items:center;font-size:20px;flex:none}.rwbar-t{display:flex;flex-direction:column;gap:2px;min-width:0}.rwbar-t b{font-size:15px;color:var(--navy)}.rwbar-t span{font-size:14px}.rwbar-t small{color:var(--grey);font-size:12.5px}.ab.rwuse{border-color:var(--gold);color:#8a5d10;background:#fff8ea}
 .acs-sub{font-weight:800;font-size:14.5px;color:var(--navy);padding-bottom:6px;border-bottom:1px solid var(--line)}.acdel-h{margin-top:22px;color:var(--danger);border-color:var(--danger)}.acdel-btn{color:var(--danger)!important;border-color:var(--danger)!important}
 .aclogo{display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:14px;border:1px dashed var(--line-2);border-radius:14px;background:var(--page)}.aclogo-t{flex:1;min-width:200px}.aclogo-t b{display:block;margin-bottom:2px}
 .aclogo-b{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}.aclogo-b .btn-n{display:inline-flex;align-items:center;gap:8px;padding:9px 16px}.aclogo-b .btn-n svg{width:16px;height:16px}
@@ -3553,7 +3554,16 @@ var USER=null, AU={mode:"in",step:1,cc:"963",phone:"",name:"",code:"",email:""};
    blocks browser storage, so there it simply won't persist.        */
 function saveSession(u){ try{ localStorage.setItem("balkoun_user", JSON.stringify(u)) }catch(e){} }
 function loadSession(){ try{ var s=localStorage.getItem("balkoun_user"); return s?JSON.parse(s):null }catch(e){ return null } }
-function clearSession(){ try{ localStorage.removeItem("balkoun_user") }catch(e){} }
+function clearSession(){ try{ localStorage.removeItem("balkoun_user"); localStorage.removeItem("balkoun_as_admin") }catch(e){} }
+// the admin opened the site as a member ("ادخل بحسابه" in the panel): a fixed bar says so and offers the way out
+function asAdminBar(){
+  var on=false; try{ on=!!USER && localStorage.getItem("balkoun_as_admin")==="1" }catch(e){}
+  var old=document.getElementById("asAdminBar"); if(old) old.remove(); if(!on) return;
+  var d=document.createElement("div"); d.id="asAdminBar"; d.className="asadmin";
+  d.innerHTML='<span>'+GX("asAdminT").replace("{n}",esc(fullName(USER)||USER.phone||""))+'</span><button type="button" id="asAdminOut">'+GX("asAdminOut")+'</button>';
+  document.body.appendChild(d);
+  d.querySelector("#asAdminOut").onclick=function(){ if(DB&&USER&&USER.token){ DB.rpc("bk_logout",{p_token:USER.token}).then(null,function(){}) } USER=null; clearSession(); NOTIFS={items:[],unread:0}; VIEW="home"; render(); try{ window.close() }catch(e){} };
+}
 // "Remember me" only ever stores the phone number + country code — a
 // convenience so the mobile field is pre-filled next time, nothing
 // more. The password itself is never touched here; letting the
@@ -9309,6 +9319,7 @@ function render(){
  applyReveals();
  heroChoreo(); phoneHeadline();
  homeExtras();
+ asAdminBar();
  wire()}
 
 /* ── 2026-09-04 home page sections (Horizon restyle) ── */
@@ -10498,6 +10509,9 @@ var GX_T={
   aNavSearch:{ar:"ابحث في لوحة التحكم…",en:"Search the panel…",de:"Im Panel suchen…"},
   navListings:{ar:"الإعلانات",en:"Listings",de:"Anzeigen"}, navMarketing:{ar:"التسويق والإيرادات",en:"Marketing & revenue",de:"Marketing & Umsatz"},
   navWebsite:{ar:"الموقع",en:"Website",de:"Website"}, navSystem:{ar:"النظام",en:"System",de:"System"},
+  uLoginAs:{ar:"ادخل بحسابه",en:"Sign in as",de:"Als Mitglied anmelden"}, uLoginAsHint:{ar:"يفتح الموقع في تبويب جديد بحساب هذا العضو لنشر إعلاناته باسمه",en:"Opens the site in a new tab signed in as this member, to post their listings",de:"Öffnet die Seite in neuem Tab als dieses Mitglied, um seine Inserate einzustellen"},
+  uLoginAsQ:{ar:"فتح الموقع بحساب {n}؟ سيصله إشعار بأن الإدارة دخلت إلى حسابه.",en:"Open the site as {n}? They will get a notification that the team used their account.",de:"Die Seite als {n} öffnen? Das Mitglied erhält eine Benachrichtigung darüber."}, uLoginAsOk:{ar:"فُتح تبويب جديد بحساب {n}.",en:"A new tab was opened as {n}.",de:"Neuer Tab als {n} geöffnet."},
+  asAdminT:{ar:"أنت تتصفح بحساب {n} من لوحة الإدارة. ما تنشره يظهر باسمه.",en:"You are browsing as {n} from the admin panel. Whatever you post appears under their name.",de:"Du bist als {n} aus dem Admin-Panel unterwegs. Was du einstellst, erscheint unter diesem Namen."}, asAdminOut:{ar:"إنهاء والعودة",en:"End and go back",de:"Beenden und zurück"},
   amBtn:{ar:"إضافة عضو",en:"Add member",de:"Mitglied hinzufügen"}, amTitle:{ar:"إضافة عضو من الإدارة",en:"Add a member from the panel",de:"Mitglied aus dem Panel anlegen"},
   amHint:{ar:"يُنشأ الحساب موثّقاً مباشرة بلا رمز تحقق. كلمة مرور مؤقتة تُولَّد الآن وتظهر لك مرة واحدة، وتُرسل للعضو على واتساب مع رسالة الترحيب المعتادة. إن كتبت اسم مكتب تُنشأ له صفحة مكتب معتمدة.",en:"The account is created verified, with no code. A temporary password is generated now, shown to you once, and sent to the member on WhatsApp with the usual welcome message. An agency name creates an approved agency page.",de:"Das Konto wird sofort verifiziert angelegt, ohne Code. Ein temporäres Passwort wird erzeugt, einmal angezeigt und per WhatsApp mit der üblichen Willkommensnachricht gesendet. Ein Büroname legt eine freigegebene Büroseite an."},
   amPhone:{ar:"رقم الهاتف (مع رمز الدولة)",en:"Phone (with country code)",de:"Telefon (mit Ländervorwahl)"}, amEmail:{ar:"البريد (اختياري)",en:"Email (optional)",de:"E-Mail (optional)"}, amAgency:{ar:"اسم المكتب (اختياري)",en:"Agency name (optional)",de:"Büroname (optional)"}, amAgencyPH:{ar:"اتركه فارغاً لحساب فرد",en:"Leave empty for an individual",de:"Leer lassen für Privatperson"},
