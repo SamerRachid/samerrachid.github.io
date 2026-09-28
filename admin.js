@@ -58,6 +58,7 @@ async function admAgencyEdit(o){
       '<div class="row"><div class="fl"><label>'+GX("f_agWa")+'</label><input id="agWa" class="ltr" data-allow-autofill value="'+esc(a.whatsapp||"")+'"></div><div class="fl"><label>'+GX("f_agEmail")+'</label><input id="agEmail" class="ltr" data-allow-autofill value="'+esc(a.email||"")+'"></div></div>'+
       '<div class="row"><div class="fl"><label>'+GX("f_agWeb")+'</label><input id="agWeb" class="ltr" data-allow-autofill value="'+esc(a.website||"")+'" placeholder="https://"></div><div class="fl"><label>'+GX("f_agAddress")+'</label><input id="agAddress" data-allow-autofill value="'+esc(a.address||"")+'"></div></div>'+
       '<div class="fl"><label>'+GX("f_agDesc")+'</label><textarea id="agDesc" maxlength="600" data-allow-autofill>'+esc(a.description||"")+'</textarea></div>'+
+      '<div class="fl"><label>'+GX("agContactPersonL")+'</label><input id="agContact" data-allow-autofill value="'+esc(a.contact_person||"")+'" placeholder="'+esc(GX("agContactPersonPH"))+'"></div>'+
       '<div class="fl"><label>'+GX("f_agSpecs")+'</label><div class="ag-pills sel" id="agSpecs">'+AG_SPECS.map(function(k){ return '<button type="button" class="'+(specs.indexOf(k)>-1?"on":"")+'" data-agspec="'+k+'">'+agSpecLabel(k)+'</button>' }).join("")+'</div></div>'+
       '<div class="fl"><label>'+GX("f_agGovs")+'</label><div class="ag-pills sel" id="agGovs">'+govs.map(function(g){ return '<button type="button" class="'+(selG.indexOf(g)>-1?"on":"")+'" data-aggov="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
       (areaOpts.length?'<div class="fl"><label>'+GX("f_agAreas")+' <small style="color:var(--grey)">(<span id="agmAreaN">'+selA.length+'</span>)</small></label><input id="agmAreaQ" class="agq" placeholder="'+esc(GX("agAreaSearch"))+'" data-allow-autofill autocomplete="off"><div class="ag-pills sel wrap" id="agAreas">'+areaOpts.map(function(p){ return '<button type="button" class="'+(selA.indexOf(p[1])>-1?"on":"")+'" data-agarea2="'+esc(p[1])+'" data-gov="'+esc(p[0])+'">'+aN(p[1])+'</button>' }).join("")+'</div></div>':'')+
@@ -75,12 +76,12 @@ async function admAgencyEdit(o){
       try{ var raw=await readFile(f), sq=await shrink(raw,320,0.82), path="avatars/"+uid+"-"+Date.now()+".jpg"; var up=await storageUpload(path,sq,{contentType:"image/jpeg",upsert:false}); if(up.error) throw up.error;
         logoUrl=DB.storage.from("photos").getPublicUrl(path).data.publicUrl; a._newLogo=logoUrl; collect(); draw(); m.textContent="" }catch(e){ m.textContent=e.message||"error" } };
     if($("#agmSave")) $("#agmSave").onclick=async function(){ var m=$("#agmMsg"); collect(); if(!a.name){ m.style.color="var(--danger)"; m.textContent=GX("f_agName"); return } this.disabled=true; m.style.color=""; m.textContent=t("saving");
-      try{ var patch={name:a.name,description:a.description,phone:a.phone,whatsapp:a.whatsapp,email:a.email,website:a.website,address:a.address,gov_names:a.gov_names,area_names:a.area_names,specialties:a.specialties,status:a.status}; if(a._newLogo) patch.avatar_url=a._newLogo;
+      try{ var patch={name:a.name,description:a.description,phone:a.phone,whatsapp:a.whatsapp,email:a.email,website:a.website,address:a.address,gov_names:a.gov_names,area_names:a.area_names,specialties:a.specialties,status:a.status,contact_person:a.contact_person||""}; if(a._newLogo) patch.avatar_url=a._newLogo;
         var r=await DB.rpc("bk_admin_agency_save",{p_token:ADM.token,p_user:uid,p_patch:patch}); var d=(r&&r.data)||{}; if(r&&r.error) throw r.error; if(d.error) throw new Error(d.error==="noname"?GX("f_agName"):d.error);
         admToast(GX("agSavedAdmin")); close(); ADM._agLoaded=false; AGENCIES=null; adminLoad() }
       catch(e){ this.disabled=false; m.style.color="var(--danger)"; m.textContent=e.message||"error" } };
   };
-  var collect=function(){ if(!$("#agName")) return; a=Object.assign({},a,{name:$("#agName").value.trim(),phone:$("#agPhone").value.trim(),whatsapp:$("#agWa").value.trim(),email:$("#agEmail").value.trim(),website:$("#agWeb").value.trim(),address:$("#agAddress").value.trim(),description:$("#agDesc").value.trim(),
+  var collect=function(){ if(!$("#agName")) return; a=Object.assign({},a,{name:$("#agName").value.trim(),phone:$("#agPhone").value.trim(),whatsapp:$("#agWa").value.trim(),email:$("#agEmail").value.trim(),website:$("#agWeb").value.trim(),address:$("#agAddress").value.trim(),description:$("#agDesc").value.trim(),contact_person:($("#agContact")||{}).value||"",
     specialties:$$("#admDm #agSpecs .on").map(function(b){ return b.dataset.agspec }),gov_names:$$("#admDm #agGovs .on").map(function(b){ return b.dataset.aggov }),area_names:$$("#admDm #agAreas .on").map(function(b){ return b.dataset.agarea2 }),status:($("#agmStatus")||{}).value||a.status}) };
   try{ await load(); draw() }catch(e){ body.innerHTML='<div class="done2" style="border-color:var(--danger)"><b>'+esc(e.message||"error")+'</b></div>' }
 }
@@ -1124,6 +1125,7 @@ function wireAdmin(){
       ADM.userOpen=null; await adminLoad(); admToast(GX("delUserDone").replace("{n}",nm)) }
     catch(err){ e.disabled=false; var m=err.message||"error"; admToast(m==="isadmin"?GX("delUserIsAdmin"):m==="self"?GX("delUserSelf"):m,"bad") } }});
 
+  $$("[data-utype]").forEach(function(sel){ sel.onchange=function(){ act("bk_admin_set_account_type",{p_token:ADM.token,p_user:this.dataset.utype,p_type:this.value}) } });
   $$(".lvlpick").forEach(function(sel){ if(!sel.dataset.uid) return; sel.onchange=function(){
     act("bk_admin_set_level",{p_token:ADM.token,p_user:this.dataset.uid,p_level:this.value}) }});
   if($("#uSortPick")) $("#uSortPick").onchange=function(){ ADM.userSort=this.value; render() };
@@ -2601,7 +2603,8 @@ function adminUsersBody(d){
       '<td data-label="'+GX("colLastSeen")+'">'+(function(){ var d=lastSeen(u), a=uact[u.id]||{}; var fresh=d && (Date.now()-d.getTime())<86400000; return '<span class="'+(fresh?"useen-fresh":"useen")+'">'+(d?when(d.toISOString()):GX("never"))+'</span>'+(a.views_30d?'<div class="usub"><span class="ltr">'+a.views_30d+'</span> '+GX("kViews")+' · 30d</div>':'') })()+'</td>'+
       '<td data-label="'+t("myAds")+'" class="ltr unum">'+(u.countries?'<span class="sflag">'+String(u.countries).split(",").map(function(cc){ return flagSvg(cc) }).join("")+'</span>':'')+(u.listings||0)+(uact[u.id]&&uact[u.id].live_listings!=null?' <small style="color:var(--light)">('+uact[u.id].live_listings+' '+t("st_live")+')</small>':'')+'</td>'+
       '<td data-label="'+t("ratingCol")+'" class="ltr unum">'+(u.rating?'★ '+u.rating:'—')+'</td>'+
-      '<td data-label="'+t("levelCol")+'">'+(isAdmin?'<span class="lvl lvl-vip">Admin</span>':'<select class="lvlpick" data-uid="'+u.id+'" title="'+GX("uLevelHint")+'">'+LEVELS_ALL.map(function(lv){ return '<option value="'+lv+'"'+(u.level===lv?" selected":"")+'>'+t("lv_"+lv)+'</option>' }).join("")+'</select>')+'</td>'+
+      '<td data-label="'+t("levelCol")+'">'+(isAdmin?'<span class="lvl lvl-vip">Admin</span>':'<select class="lvlpick" data-utype="'+u.id+'" title="'+esc(GX("accTypeL"))+'" style="margin-bottom:4px">'+[["member",GX("acctMember")],["broker",GX("acctBroker")],["agency",GX("acctAgency")]].map(function(o){ return '<option value="'+o[0]+'"'+((u.account_type||"member")===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select>'+
+        '<select class="lvlpick" data-uid="'+u.id+'" title="'+GX("uLevelHint")+'">'+LEVELS_ALL.map(function(lv){ return '<option value="'+lv+'"'+(u.level===lv?" selected":"")+'>'+t("lv_"+lv)+'</option>' }).join("")+'</select>')+'</td>'+
       '<td data-label="'+t("autoApprove")+'">'+(isAdmin?'':sw("skipRev",u.id,u.skip_review,GX("uAutoHint")))+'</td>'+
       '<td data-label="'+GX("cardLogoCol")+'">'+(isAdmin?'':sw("cardLogo",u.id,(ADM.cardLogos||[]).indexOf(u.id)>-1,GX("cardLogoHint")))+'</td>'+
       '<td data-label="'+t("role")+'"><span class="st '+(u.blocked?"st-removed":"st-live")+'">'+(u.blocked?GX("uBlocked"):GX("uActive"))+'</span></td>'+
