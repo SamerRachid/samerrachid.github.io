@@ -3263,6 +3263,9 @@ if(DB){ (function(){
     if(MEMBER_FNS[fn] && args.p_token===undefined) args.p_token = (USER&&USER.token)||null;
     return rawRpc(fn, args, opts).then(function(r){
       if(r && r.data && !ESC_EXEMPT_FNS[fn]) r.data = escDeep(r.data);
+      // profile functions (avatar, bio, profile…) answer with the member's own row but no token; a caller that does
+      // USER=r.data would silently drop the session (the next save then fails "not signed in") — keep it here, once
+      if(r && r.data && USER && USER.token && !r.data.token && !r.data.error && r.data.id===USER.id && r.data.phone) r.data.token=USER.token;
       return r });
   };
 })(); }
@@ -8235,7 +8238,7 @@ function wireAuth(){
      var url=DB.storage.from("photos").getPublicUrl(path).data.publicUrl;
      var res=await DB.rpc("bk_set_avatar",{p_id:USER.id,p_url:url});
      if(res.error) throw new Error(res.error.message);
-     USER=res.data; saveSession(USER); render();
+     USER=Object.assign({},USER,res.data); saveSession(USER); render();
    }catch(e){
      var msg=(e.message||"error");
      if(/bk_set_avatar|does not exist|schema cache|404/i.test(msg)) msg=t("runSql");
