@@ -5830,7 +5830,7 @@ function account(){
     (hasIntake?'<section class="acsec" id="acs-intake">'+agencyIntakeHtml()+'</section>':'')+
     sec("me", GX("accMe"),
       '<div class="row"><div class="fl"><label>'+t("firstName")+'</label><input id="acName" autocomplete="off" value="'+esc(USER.name)+'"></div><div class="fl"><label>'+t("familyName")+'</label><input id="acFam" autocomplete="off" value="'+esc(USER.family_name)+'"></div></div>'+
-      '<div class="row"><div class="fl"><label>'+t("city")+'</label><input id="acCity" autocomplete="off" value="'+esc(USER.city)+'"></div><div class="fl"><label>'+t("country")+'</label><input id="acCountry" autocomplete="off" value="'+esc(USER.country)+'"></div></div>'+
+      '<div class="row"><div class="fl"><label>'+t("city")+'</label><input id="acCity" autocomplete="off" value="'+esc(USER.city)+'"></div><div class="fl"><label>'+t("country")+'</label><select id="acCountry">'+(function(){ var cur=String(USER.country||COUNTRY||"SY").toUpperCase(), list=countryList().slice(); if(!list.some(function(c){ return c.code===cur })) list.push({code:cur,name_ar:cur,name_en:cur}); return list.map(function(c){ return '<option value="'+esc(c.code)+'"'+(c.code===cur?' selected':'')+'>'+flagOf(c.code)+' '+esc(countryName(c)||c.code)+'</option>' }).join("") })()+'</select></div></div>'+
       '<div class="fl"><label>'+t("bio")+'</label><textarea id="acBio" maxlength="300" placeholder="'+t("bioPH")+'">'+esc(USER.bio)+'</textarea></div>'+
       (showAg?'':accLogoHtml(false))+
       '<div class="xactions"><button class="btn-n" id="acSave" style="width:auto">'+t("saveChanges")+'</button><span class="xmsg" id="acMsg"></span></div>', "")+
