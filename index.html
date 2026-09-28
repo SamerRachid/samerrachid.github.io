@@ -2144,7 +2144,7 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .acbar-c .flg{width:18px;height:12px}.acbar-c.on{background:var(--navy);color:#fff;border-color:var(--navy)}.acbar-c.off{opacity:.55}.acbar-c:hover{border-color:var(--gold)}
 /* admin: direct-message dialog */
 .admdm-ov{position:fixed;inset:0;background:rgba(9,14,26,.55);z-index:1400;display:flex;align-items:center;justify-content:center;padding:16px}
-.admdm{background:#fff;border-radius:16px;width:min(560px,100%);max-height:92vh;overflow:auto;box-shadow:0 30px 80px rgba(0,0,0,.35);font-size:14px}
+.admdm{background:#fff;border-radius:16px;width:min(560px,100%);max-height:92vh;overflow:auto;box-shadow:0 30px 80px rgba(0,0,0,.35);font-size:14px}.admdm.admdm-wide{width:min(760px,100%)}
 .admdm-h{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}.admdm-h b{font-size:15px;color:var(--navy)}
 .admdm-x{border:0;background:var(--page);width:32px;height:32px;border-radius:50%;font-size:20px;cursor:pointer;color:var(--ink)}
 .admdm-b{padding:14px 18px 18px}.admdm-chs{display:grid;gap:8px;margin-bottom:12px}
@@ -10512,6 +10512,9 @@ var GX_T={
   aNavSearch:{ar:"ابحث في لوحة التحكم…",en:"Search the panel…",de:"Im Panel suchen…"},
   navListings:{ar:"الإعلانات",en:"Listings",de:"Anzeigen"}, navMarketing:{ar:"التسويق والإيرادات",en:"Marketing & revenue",de:"Marketing & Umsatz"},
   navWebsite:{ar:"الموقع",en:"Website",de:"Website"}, navSystem:{ar:"النظام",en:"System",de:"System"},
+  uAgencyBtn:{ar:"المكتب",en:"Agency",de:"Büro"}, agEditT:{ar:"صفحة المكتب",en:"Agency page",de:"Büroseite"}, agNewBtn:{ar:"إضافة مكتب",en:"Add agency",de:"Büro hinzufügen"}, agPickMember:{ar:"العضو صاحب المكتب",en:"Member who owns the agency",de:"Mitglied, dem das Büro gehört"},
+  agEditNew:{ar:"لا مكتب لهذا العضو بعد. املأ البيانات واحفظ؛ تُنشأ الصفحة معتمدة مباشرة وتظهر في دليل المكاتب.",en:"This member has no agency yet. Fill in and save; the page is created approved and listed at once.",de:"Dieses Mitglied hat noch kein Büro. Ausfüllen und speichern; die Seite wird sofort freigegeben."}, agEditExisting:{ar:"تعديل صفحة المكتب الحالية (الحالة: {s}).",en:"Editing the existing agency page (status: {s}).",de:"Bestehende Büroseite bearbeiten (Status: {s})."},
+  agSavedAdmin:{ar:"حُفظت صفحة المكتب.",en:"Agency page saved.",de:"Büroseite gespeichert."},
   uLoginAs:{ar:"ادخل بحسابه",en:"Sign in as",de:"Als Mitglied anmelden"}, uLoginAsHint:{ar:"يفتح الموقع في تبويب جديد بحساب هذا العضو لنشر إعلاناته باسمه",en:"Opens the site in a new tab signed in as this member, to post their listings",de:"Öffnet die Seite in neuem Tab als dieses Mitglied, um seine Inserate einzustellen"},
   uLoginAsQ:{ar:"فتح الموقع بحساب {n} في تبويب جديد؟ لن يصله أي إشعار.",en:"Open the site as {n} in a new tab? They will not be notified.",de:"Die Seite als {n} in neuem Tab öffnen? Keine Benachrichtigung."}, uLoginAsOk:{ar:"فُتح تبويب جديد بحساب {n}.",en:"A new tab was opened as {n}.",de:"Neuer Tab als {n} geöffnet."},
   asAdminT:{ar:"أنت تتصفح بحساب {n} من لوحة الإدارة. ما تنشره يظهر باسمه.",en:"You are browsing as {n} from the admin panel. Whatever you post appears under their name.",de:"Du bist als {n} aus dem Admin-Panel unterwegs. Was du einstellst, erscheint unter diesem Namen."}, asAdminOut:{ar:"إنهاء والعودة",en:"End and go back",de:"Beenden und zurück"},

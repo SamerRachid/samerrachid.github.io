@@ -34,6 +34,49 @@ function admResolveTab(k){ if(!ADM_GROUPS[k]) return k; var last=(ADM._sub||{})[
 function canTab(k){ if(ADM_GROUPS[k]) return ADM_GROUPS[k].some(canTab); var p=TAB_PERM[k]; if(p===undefined) return can(k); if(p==="super") return !!ADM.isSuper; if(Array.isArray(p)) return p.some(can); return can(p) }
 function admGo(tab){ if(!tab) return; if(!canTab(tab)){ admToast(GX("noPermTab"),"bad"); return } tab=admResolveTab(tab); if(tab!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return; ADM.tab=tab; window._admMobileDetail=false; render(); try{ window.scrollTo(0,0) }catch(e){} }
 // "راسل": one direct message to one person on WhatsApp / Telegram / email, from the users list or the contacts list
+// "المكتب": create or edit a member's agency page from the panel (name, contacts, coverage, specialties, logo)
+async function admAgencyEdit(o){
+  var old=$("#admDm"); if(old) old.remove();
+  var ov=document.createElement("div"); ov.className="admdm-ov"; ov.id="admDm";
+  ov.innerHTML='<div class="admdm admdm-wide"><div class="admdm-h"><b>'+GX("agEditT")+(o.name?' · '+esc(o.name):'')+'</b><button type="button" class="admdm-x" aria-label="×">×</button></div><div class="admdm-b"><div class="done2"><b>'+t("loading")+'</b></div></div></div>';
+  document.body.appendChild(ov);
+  var close=function(){ ov.remove() }; ov.querySelector(".admdm-x").onclick=close; ov.onclick=function(e){ if(e.target===ov) close() };
+  var body=ov.querySelector(".admdm-b"), uid=o.user_id||"", a={}, logoUrl=null;
+  var members=((ADM.data&&ADM.data.users)||[]).filter(function(u){ return u.role!=="admin" });
+  var load=async function(){ if(!uid){ a={}; return } var r=await DB.rpc("bk_admin_agency_get",{p_token:ADM.token,p_user:uid}); a=(r&&r.data)||{}; if(r&&r.error) throw r.error; logoUrl=a.avatar_url||null };
+  var draw=function(){
+    var govs=Object.keys(D.GEO), selG=a.gov_names||[], selA=a.area_names||[], specs=a.specialties||[];
+    var areaOpts=selG.reduce(function(acc,g){ return acc.concat((D.GEO[g]||[]).map(function(x){ return [g,x] })) },[]);
+    var logo=logoUrl||(uid?(members.filter(function(u){ return u.id===uid })[0]||{}).avatar_url:null);
+    body.innerHTML=(uid?'':'<div class="fl"><label>'+GX("agPickMember")+'</label><select id="agmUser"><option value="">—</option>'+members.map(function(u){ return '<option value="'+u.id+'">'+esc(((u.name||"")+" "+(u.family_name||"")).trim())+' · '+esc(u.member_no||"")+' · '+esc(u.phone||"")+'</option>' }).join("")+'</select></div>')+
+      (uid?'<div class="hintx" style="margin-bottom:8px">'+(a.id?GX("agEditExisting").replace("{s}",GX("st_"+(a.status||"pending"))):GX("agEditNew"))+'</div>'+
+      '<div class="aclogo">'+avatar(logo,a.name||o.name||"?",64,"big")+'<div class="aclogo-t"><b>'+GX("accLogo")+'</b><div class="aclogo-b"><button type="button" class="ab" id="agmLogoPick">'+t("uploadPhoto")+'</button><input type="file" id="agmLogoFile" accept="image/*" hidden><span class="hintx" id="agmLogoMsg"></span></div></div></div>'+
+      '<div class="row"><div class="fl"><label class="req">'+GX("f_agName")+'</label><input id="agName" data-allow-autofill value="'+esc(a.name||"")+'"></div><div class="fl"><label>'+GX("f_agPhone")+'</label><input id="agPhone" class="ltr" data-allow-autofill value="'+esc(a.phone||"")+'"></div></div>'+
+      '<div class="row"><div class="fl"><label>'+GX("f_agWa")+'</label><input id="agWa" class="ltr" data-allow-autofill value="'+esc(a.whatsapp||"")+'"></div><div class="fl"><label>'+GX("f_agEmail")+'</label><input id="agEmail" class="ltr" data-allow-autofill value="'+esc(a.email||"")+'"></div></div>'+
+      '<div class="row"><div class="fl"><label>'+GX("f_agWeb")+'</label><input id="agWeb" class="ltr" data-allow-autofill value="'+esc(a.website||"")+'" placeholder="https://"></div><div class="fl"><label>'+GX("f_agAddress")+'</label><input id="agAddress" data-allow-autofill value="'+esc(a.address||"")+'"></div></div>'+
+      '<div class="fl"><label>'+GX("f_agDesc")+'</label><textarea id="agDesc" maxlength="600" data-allow-autofill>'+esc(a.description||"")+'</textarea></div>'+
+      '<div class="fl"><label>'+GX("f_agSpecs")+'</label><div class="ag-pills sel" id="agSpecs">'+AG_SPECS.map(function(k){ return '<button type="button" class="'+(specs.indexOf(k)>-1?"on":"")+'" data-agspec="'+k+'">'+agSpecLabel(k)+'</button>' }).join("")+'</div></div>'+
+      '<div class="fl"><label>'+GX("f_agGovs")+'</label><div class="ag-pills sel" id="agGovs">'+govs.map(function(g){ return '<button type="button" class="'+(selG.indexOf(g)>-1?"on":"")+'" data-aggov="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
+      (areaOpts.length?'<div class="fl"><label>'+GX("f_agAreas")+'</label><div class="ag-pills sel wrap" id="agAreas">'+areaOpts.map(function(p){ return '<button type="button" class="'+(selA.indexOf(p[1])>-1?"on":"")+'" data-agarea2="'+esc(p[1])+'">'+aN(p[1])+'</button>' }).join("")+'</div></div>':'')+
+      '<div class="row"><div class="fl"><label>'+t("status")+'</label><select id="agmStatus">'+["approved","pending","hidden"].map(function(s){ return '<option value="'+s+'"'+((a.status||"approved")===s?' selected':'')+'>'+GX("st_"+s)+'</option>' }).join("")+'</select></div></div>'+
+      '<div class="xactions"><button type="button" class="ab ok" id="agmSave">'+t("saveChanges")+'</button><span class="xmsg" id="agmMsg"></span></div>':'');
+    if($("#agmUser")) $("#agmUser").onchange=async function(){ uid=this.value; o.name=(this.options[this.selectedIndex]||{}).text||""; try{ await load(); draw() }catch(e){ admToast(e.message||"error","bad") } };
+    $$("#admDm [data-agspec],#admDm [data-agarea2]").forEach(function(b){ b.onclick=function(){ this.classList.toggle("on") } });
+    $$("#admDm [data-aggov]").forEach(function(b){ b.onclick=function(){ this.classList.toggle("on"); collect(); draw() } });
+    if($("#agmLogoPick")) $("#agmLogoPick").onclick=function(){ $("#agmLogoFile").click() };
+    if($("#agmLogoFile")) $("#agmLogoFile").onchange=async function(){ var f=(this.files||[])[0], m=$("#agmLogoMsg"); this.value=""; if(!f||!/^image\//.test(f.type)) return; m.textContent=t("uploading");
+      try{ var raw=await readFile(f), sq=await shrink(raw,320,0.82), path="avatars/"+uid+"-"+Date.now()+".jpg"; var up=await storageUpload(path,sq,{contentType:"image/jpeg",upsert:false}); if(up.error) throw up.error;
+        logoUrl=DB.storage.from("photos").getPublicUrl(path).data.publicUrl; a._newLogo=logoUrl; collect(); draw(); m.textContent="" }catch(e){ m.textContent=e.message||"error" } };
+    if($("#agmSave")) $("#agmSave").onclick=async function(){ var m=$("#agmMsg"); collect(); if(!a.name){ m.style.color="var(--danger)"; m.textContent=GX("f_agName"); return } this.disabled=true; m.style.color=""; m.textContent=t("saving");
+      try{ var patch={name:a.name,description:a.description,phone:a.phone,whatsapp:a.whatsapp,email:a.email,website:a.website,address:a.address,gov_names:a.gov_names,area_names:a.area_names,specialties:a.specialties,status:a.status}; if(a._newLogo) patch.avatar_url=a._newLogo;
+        var r=await DB.rpc("bk_admin_agency_save",{p_token:ADM.token,p_user:uid,p_patch:patch}); var d=(r&&r.data)||{}; if(r&&r.error) throw r.error; if(d.error) throw new Error(d.error==="noname"?GX("f_agName"):d.error);
+        admToast(GX("agSavedAdmin")); close(); ADM._agLoaded=false; AGENCIES=null; adminLoad() }
+      catch(e){ this.disabled=false; m.style.color="var(--danger)"; m.textContent=e.message||"error" } };
+  };
+  var collect=function(){ if(!$("#agName")) return; a=Object.assign({},a,{name:$("#agName").value.trim(),phone:$("#agPhone").value.trim(),whatsapp:$("#agWa").value.trim(),email:$("#agEmail").value.trim(),website:$("#agWeb").value.trim(),address:$("#agAddress").value.trim(),description:$("#agDesc").value.trim(),
+    specialties:$$("#admDm #agSpecs .on").map(function(b){ return b.dataset.agspec }),gov_names:$$("#admDm #agGovs .on").map(function(b){ return b.dataset.aggov }),area_names:$$("#admDm #agAreas .on").map(function(b){ return b.dataset.agarea2 }),status:($("#agmStatus")||{}).value||a.status}) };
+  try{ await load(); draw() }catch(e){ body.innerHTML='<div class="done2" style="border-color:var(--danger)"><b>'+esc(e.message||"error")+'</b></div>' }
+}
 // "إضافة عضو": the admin creates a member (optionally with an approved agency page) without the verification code;
 // a temporary password is generated here, shown once, and sent to the member on WhatsApp unless the box is unticked
 function admAddMember(){
@@ -836,10 +879,11 @@ function adminProjectEditor(p){
    '</div></div>' }
 function adminAgenciesBody(){
   var list=ADM_AG; if(!list) return '<div class="blk"><div class="in adashempty">'+t("loading")+'</div></div>';
-  if(!list.length) return '<div class="blk"><div class="in adashempty">'+(ADM.agErr?'<span style="color:var(--danger)">'+esc(ADM.agErr)+'</span>':GX("agNone"))+'</div></div>';
+  var newBtn='<button type="button" class="ab ok" id="agmNew" style="margin-inline-start:auto">+ '+GX("agNewBtn")+'</button>';
+  if(!list.length) return '<div class="blk"><h3>'+GX("tAgencies")+newBtn+'</h3><div class="in adashempty">'+(ADM.agErr?'<span style="color:var(--danger)">'+esc(ADM.agErr)+'</span>':GX("agNone"))+'</div></div>';
   var pend=list.filter(function(a){ return a.status==="pending" }).length, sep=L==="ar"?"، ":", ";
   // one card per agency: identity | coverage and numbers | status + actions, and a second line for message intake
-  return '<div class="blk"><h3>'+GX("tAgencies")+(pend?' <span class="n">'+pend+'</span>':'')+'</h3><div class="in eng-in"><div class="elist">'+list.map(function(a){
+  return '<div class="blk"><h3>'+GX("tAgencies")+(pend?' <span class="n">'+pend+'</span>':'')+newBtn+'</h3><div class="in eng-in"><div class="elist">'+list.map(function(a){
     var meta=[(a.gov_names||[]).map(gN).join(sep)||"—", (a.specialties||[]).map(agSpecLabel).join(" · "), ((a.area_names||[]).length?a.area_names.length+' '+GX("f_agAreas"):'')].filter(Boolean);
     return '<div class="agcard2">'+
       '<div class="agc-id">'+avatar(a.logo_url,a.name,44,"aglogo")+'<div><b>'+scopeFlag(a.country_code)+esc(a.name)+(a.verified?' <span class="vbadge">✓</span>':'')+'</b><small>'+esc(a.user_name||"")+(a.user_phone?' · <span class="ltr">'+esc(a.user_phone)+'</span>':'')+'</small></div></div>'+
@@ -849,6 +893,7 @@ function adminAgenciesBody(){
         (a.status==="pending"?'<button type="button" class="ab bad" data-agset="'+a.id+':rejected">'+GX("agReject")+'</button>':'')+
         (a.status==="approved"?'<button type="button" class="ab" data-agset="'+a.id+':hidden">'+GX("agHide")+'</button>':'')+
         '<button type="button" class="ab" data-agver="'+a.id+':'+(a.verified?"0":"1")+'">'+(a.verified?GX("agUnverify"):GX("agVerify"))+'</button>'+
+        '<button type="button" class="ab" data-agedit="'+a.user_id+'" data-name="'+esc(a.name)+'">'+t("edit")+'</button>'+
         (a.status==="approved"?'<a class="ab" href="/agency/'+a.id+'" target="_blank" rel="noopener">'+GX("agView")+'</a>':'')+'</div>'+
       (a.status==="approved"?'<div class="agintk"><b>'+GX("tIntake")+'</b>'+
         '<button type="button" class="ab'+(a.intake_enabled?' on':'')+'" data-agintake="'+a.id+':'+(a.intake_enabled?"0":"1")+'">'+(a.intake_enabled?GX("agIntakeOn"):GX("agIntakeOff"))+'</button>'+
@@ -1078,6 +1123,9 @@ function wireAdmin(){
 
   $$("[data-uopen]").forEach(function(e){ e.onclick=function(){ ADM.userOpen = ADM.userOpen===e.dataset.uopen ? null : e.dataset.uopen; ADM.rateTarget=null; ADM.pwTarget=null; render() }});
   $$("[data-umsg]").forEach(function(e){ e.onclick=function(){ ADM.notifTargetUid=e.dataset.umsg; admGo("msgs") }});
+  $$("[data-uagency]").forEach(function(e){ e.onclick=function(){ admAgencyEdit({user_id:e.dataset.uagency,name:e.dataset.name||""}) } });
+  $$("[data-agedit]").forEach(function(e){ e.onclick=function(){ admAgencyEdit({user_id:e.dataset.agedit,name:e.dataset.name||""}) } });
+  if($("#agmNew")) $("#agmNew").onclick=function(){ admAgencyEdit({}) };
   // open the site in a new tab signed in as this member (their listings are then posted under their own account)
   $$("[data-uloginas]").forEach(function(e){ e.onclick=async function(){
     if(!confirm(GX("uLoginAsQ").replace("{n}",e.dataset.name||""))) return;
@@ -2554,7 +2602,8 @@ function adminUsersBody(d){
         '<div class="ugroup"><b>'+GX("uSummary")+'</b><div class="ubtns">'+
           '<button class="ab" data-byuser="'+u.id+'" data-name="'+esc(nm)+'">'+GX("uViewListings")+' ('+(u.listings||0)+')</button>'+
           '<button class="ab" data-umsg="'+u.id+'">'+GX("uMessage")+'</button>'+
-          (isAdmin?'':'<button class="ab" data-uloginas="'+u.id+'" data-name="'+esc(nm)+'" title="'+esc(GX("uLoginAsHint"))+'">'+GX("uLoginAs")+'</button>')+
+          (isAdmin?'':'<button class="ab" data-uloginas="'+u.id+'" data-name="'+esc(nm)+'" title="'+esc(GX("uLoginAsHint"))+'">'+GX("uLoginAs")+'</button>'+
+          '<button class="ab" data-uagency="'+u.id+'" data-name="'+esc(nm)+'">'+GX("uAgencyBtn")+'</button>')+
           '<button class="ab ok" data-udm="'+u.id+'" data-name="'+esc(nm)+'">'+GX("dmBtn")+'</button>'+
           '<button class="ab" data-arate="'+u.id+'">★ '+t("rateMember")+'</button></div></div>'+
         '<div class="ugroup"><b>'+GX("uModeration")+'</b><div class="ubtns">'+
