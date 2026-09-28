@@ -288,9 +288,18 @@ async function reply(source: string, chat: string, text: string) {
 }
 
 // ───────────────────────────── texts (Arabic first; English when the sender's language is English) ─────────────────────────────
+// the how-to example names a well-known neighbourhood of the sender's country, so people copy the shape of it
+const GUIDE_AREA: Record<string, [string, string]> = { SY: ["المزة", "Mazzeh"], LB: ["الحمرا", "Hamra"], JO: ["عبدون", "Abdoun"], EG: ["المعادي", "Maadi"], SA: ["الروضة", "Al Rawdah"], AE: ["الخليج التجاري", "Business Bay"], QA: ["الدفنة", "Al Dafna"], KW: ["السالمية", "Salmiya"], IQ: ["المنصور", "Al Mansour"], OM: ["الخوير", "Al Khuwair"], BH: ["الجفير", "Juffair"], MA: ["أكدال", "Agdal"], TN: ["المنزه", "El Menzah"], DZ: ["حيدرة", "Hydra"], YE: ["حدة", "Hadda"], PS: ["الماصيون", "Al Masyoun"], TR: ["باشاك شهير", "Başakşehir"] };
+const guideArea = (cc: string | null | undefined, lang: string) => (GUIDE_AREA[String(cc || "SY").toUpperCase()] || GUIDE_AREA.SY)[lang === "en" ? 1 : 0];
+// the one how-to, sent once per chat (intake_log guide_sent) and again on «مساعدة» / a greeting
+const GUIDE = {
+  ar: (cc?: string | null) => `أهلاً بك في بلكون 👋\nأنشر إعلان عقارك من هنا خلال دقائق.\n\nكل ما عليك: أرسل الصور واكتب التفاصيل كما تحكيها لصديق، مثلاً:\n«شقة للبيع في ${guideArea(cc, "ar")}، 150 متر، 3 غرف${String(cc || "SY").toUpperCase() === "SY" ? "، طابو أخضر" : ""}، 80 ألف دولار»\n\nأُجهّز الإعلان وأعرضه عليك قبل النشر، وإذا نقصت معلومة أسألك عنها.\n\nبعدها:\nنعم ← ينشر\nلا ← يلغي\nأو اكتب التصحيح مباشرة: «السعر 75 ألف»\n\nجديد ← إعلان آخر · مساعدة ← هذا الشرح\n\nتفضّل، أرسل الصور والتفاصيل 🙂`,
+  en: (cc?: string | null) => `Welcome to Balkoun 👋\nI publish your property listing from here in minutes.\n\nJust send the photos and write the details the way you would tell a friend, e.g.:\n"Apartment for sale in ${guideArea(cc, "en")}, 150 m², 3 rooms${String(cc || "SY").toUpperCase() === "SY" ? ", green deed" : ""}, 80 thousand dollars"\n\nI prepare the listing and show it to you before publishing; if something is missing, I ask you.\n\nThen:\nyes → publish\nno → cancel\nor write the correction directly: "price 75 thousand"\n\nnew → another listing · help → this guide\n\nGo ahead, send the photos and details 🙂`,
+};
 const T = {
   ar: {
-    welcome: (name: string) => `أهلاً ${name} 👋\nأرسل تفاصيل العقار والصور في هذه المحادثة، وعندما تنتهي اكتب «تم».\nسأقرأ الإعلان وأرسل لك ملخصاً للموافقة قبل النشر.`,
+    guide: GUIDE.ar,
+    welcome: (_name: string) => GUIDE.ar(null),
     gotFirst: `استلمت ✅ أكمل إرسال الصور وأي تفاصيل أخرى، وعندما تنتهي اكتب «تم» لأراجع الإعلان وأخبرك إن نقص شيء.`,
     gotMore: `تمام ✅ سأحدّث الإعلان خلال دقيقة ونصف، أو اكتب «تم» الآن.`,
     unknown: `مرحباً 👋 هذه القناة مخصّصة للمكاتب المعتمدة في بلكون لنشر إعلاناتها تلقائياً.\nللانضمام: سجّل مكتبك على balkoun.com/agencyform ثم اطلب تفعيل النشر بالرسائل.`,
@@ -299,9 +308,16 @@ const T = {
     empty: `لم يصلني شيء بعد. أرسل تفاصيل العقار والصور أولاً.`,
     reading: `جارٍ قراءة الإعلان… ⏳`,
     noReady: `لا يوجد إعلان جاهز للنشر الآن. أرسل التفاصيل والصور ثم اكتب «تم».`,
-    cancelled: `تم إلغاء الإعلان الحالي. أرسل تفاصيل إعلان جديد متى شئت.`,
+    cancelled: `تم إلغاء الإعلان ✅\nأرسل تفاصيل إعلان جديد متى شئت، أو اكتب «رجّع» خلال 10 دقائق لاستعادته.`,
     newDraft: `تمام، ابدأ بإرسال تفاصيل الإعلان الجديد.`,
-    help: `الطريقة:\n1) أرسل الصور وتفاصيل العقار (نوع العقار، بيع أم إيجار، المحافظة والحي، المساحة، الغرف، الطابو، السعر).\n2) اكتب «تم» أو انتظر دقيقة ونصف.\n3) ستصلك خلاصة: أرسل 1 للنشر، 2 للإلغاء، أو أرسل التصحيح مباشرة.\n«جديد» يبدأ إعلاناً آخر.`,
+    help: GUIDE.ar(null),
+    nothing: `لا يوجد إعلان مفتوح الآن 🙂 لنشر إعلان أرسل تفاصيل العقار وصوره هنا.`,
+    undoOk: `رجّعنا الإعلان ✅`,
+    undoMerged: `رجّعنا الإعلان وأضفنا إليه ما أرسلته بعده، جارٍ القراءة… ⏳`,
+    undoNone: `لا يوجد إعلان ملغى حديثاً لاستعادته. أرسل تفاصيل العقار من جديد.`,
+    expiredPrev: (title: string) => `ملاحظة: إعلانك السابق${title ? " («" + title + "»)" : ""} لم يُنشر وأُغلق بعد يوم من دون رد.\nاكتب «رجّع» إن أردت إكماله، وإلا أكمل هذا الإعلان الجديد.`,
+    attached: (ref: string) => `أُضيفت الصورة إلى إعلانك المنشور (${ltr(ref)}) ✅`,
+    multi: (n: number) => `لاحظت أكثر من عقار في الرسالة (${n})؛ قرأت الأول فقط. بعد نشره أرسل كل عقار برسالة منفصلة مع صوره.\n\n`,
     paired: (n: string) => `تم ربط هذه المحادثة بمكتب «${n}» ✅\nأرسل الآن تفاصيل أول عقار مع صوره، وعندما تنتهي اكتب «تم».`,
     pairedAdmin: `تم ربط هذه المحادثة بحساب الإدارة ✅ كل ما تحوّله هنا يُقرأ ويظهر في لوحة التحكم لاختيار المكتب ونشره.`,
     badCode: `الرمز غير صحيح. تجده في صفحة مكتبك على balkoun.com تحت «النشر بالرسائل».`,
@@ -309,14 +325,14 @@ const T = {
     photoMax: (n: number) => `وصلنا الحد الأقصى للصور (${n}). الصور الإضافية لن تُضاف.`,
     photoBad: `تعذّرت معالجة هذه الصورة. أرسلها كصورة عادية (وليس كملف)، بصيغة JPG أو PNG.`,
     videoNo: `الفيديو غير مدعوم عبر الرسائل حالياً؛ يمكن إضافته من الموقع بعد النشر.`,
-    confirmLine: `\n\nاكتملت المعلومات ✅ هل تريد نشر الإعلان؟\nأرسل «نعم» للنشر، أو «لا» للإلغاء، أو أرسل أي تصحيح مباشرة.`,
-    missing: (list: string) => `\n\nقبل النشر أحتاج منك: ${list}.\nأرسلها هنا وسأكمل الإعلان 🙏`,
+    confirmLine: `\n\nاكتملت المعلومات ✅\nنعم ← ينشر\nلا ← يلغي\nأو اكتب التصحيح مباشرة، مثل: «السعر 75 ألف»`,
+    missing: (list: string) => `\n\nقبل النشر أحتاج منك: ${list}.\nأرسلها هنا وسأكمل الإعلان 🙏\n(«لا» يلغي هذا الإعلان)`,
     reviewAdmin: `تمت القراءة ✅ الإعلان بانتظارك في لوحة التحكم لاختيار المكتب ونشره.`,
     reviewNote: `تمت القراءة، لكن الإعلان يحتاج نظرة من الإدارة قبل النشر. سنتابعه من لوحة التحكم.`,
     suggested: (n: string) => `• المكتب المقترح: ${n}`,
     attributed: (n: string) => `• المعلن: ${n}`,
-    published: (ref: string, url: string) => `✅ تم نشر الإعلان (${ref})\n${url}`,
-    pending: (ref: string) => `✅ استلمنا الإعلان (${ref}) وسيظهر على الموقع بعد مراجعة الإدارة.`,
+    published: (ref: string, url: string) => `✅ تم نشر الإعلان (${ref})\n${url}\n\nصور إضافية خلال 5 دقائق تُضاف إلى هذا الإعلان. ولإعلان آخر أرسل تفاصيله وصوره مباشرة.`,
+    pending: (ref: string) => `✅ استلمنا الإعلان (${ref}) وسيظهر على الموقع بعد مراجعة الإدارة.\n\nلإعلان آخر أرسل تفاصيله وصوره مباشرة.`,
     failed: `تعذّر النشر تلقائياً؛ أحلنا الإعلان إلى الإدارة لإكماله.`,
     duplicate: (ref: string) => `يبدو أن هذا الإعلان مكرر لإعلانك المنشور (${ltr(ref)}) 🤔 لم ننشره مرة ثانية، وستراجعه الإدارة.\nإن كان عقاراً مختلفاً فأرسل ما يميّزه (المنطقة، المساحة، السعر) وسننشره.`,
     readFailed: `تعذّرت قراءة الإعلان الآن؛ أحلناه إلى الإدارة.`,
@@ -336,14 +352,15 @@ const T = {
     linkAsk: `مرحباً 👋 لإرسال إعلاناتك من هنا مباشرة، اضغط «مشاركة رقمي» بالأسفل لربط حسابك في بلكون بهذه المحادثة (مرة واحدة فقط).`,
     linkOk: (n: string) => `تم ربط حسابك ✅ أهلاً ${n}\nأرسل الآن تفاصيل العقار والصور، وعندما تنتهي اكتب «تم».`,
     linkNone: `لا يوجد حساب في بلكون بهذا الرقم. سجّل أولاً على balkoun.com ثم عد إلى هنا.`,
-    hello: `أهلاً بك في بلكون 👋 أنا هنا لمساعدتك في نشر إعلان عقارك.\nأرسل تفاصيل العقار (نوع العقار، بيع أم إيجار، المحافظة والحي، المساحة، السعر، الطابو) مع الصور، وسأجهّز الإعلان لك.`,
+    hello: GUIDE.ar(null),
     contact: (n: string) => `للتواصل مع إدارة بلكون: ${ltr(n)}\nوإذا أردت نشر إعلان، أرسل تفاصيله وصوره هنا مباشرة وسأساعدك.`,
     thanks: `على الرحب والسعة 🙏 متى أردت نشر إعلان جديد أرسل تفاصيله هنا.`,
     notListing: `تمام 👍 أرسل لي تفاصيل العقار هنا كما تكتبها لصديق: نوع العقار، بيع أم إيجار، المحافظة والحي، المساحة، السعر، نوع الطابو، مع صورة واحدة على الأقل.\nيمكنك إرسالها برسالة واحدة أو عدة رسائل، وسأسألك عن أي شيء ناقص.`,
     wantedReply: (search: string, wanted: string) => `يبدو أنك تبحث عن عقار ولا تعرض واحداً 🙂\nهذه الإعلانات التي تطابق طلبك على بلكون:\n${search}\n\nوإذا أردت أن تصلك عروض المكاتب والمالكين، انشر طلب «مطلوب» مجاناً من هنا:\n${wanted}\n\nولنشر إعلان عقار تملكه أرسل تفاصيله وصوره هنا.`,
   },
   en: {
-    welcome: (name: string) => `Hello ${name} 👋\nSend the property details and photos here. When you are done, write "done".\nI will read the listing and send you a summary to approve before it is published.`,
+    guide: GUIDE.en,
+    welcome: (_name: string) => GUIDE.en(null),
     gotFirst: `Received ✅ Keep sending photos and any other details; when you are done write "done" and I will review the listing and tell you if anything is missing.`,
     gotMore: `OK ✅ I will update the listing in a minute and a half, or write "done" now.`,
     unknown: `Hello 👋 This channel is for approved Balkoun agencies to publish listings automatically.\nTo join: register your agency at balkoun.com/agencyform and ask for message posting.`,
@@ -352,9 +369,16 @@ const T = {
     empty: `Nothing received yet. Send the property details and photos first.`,
     reading: `Reading the listing… ⏳`,
     noReady: `No listing is ready to publish. Send the details and photos, then write "done".`,
-    cancelled: `The current listing was cancelled. Send a new one whenever you like.`,
+    cancelled: `Listing cancelled ✅\nSend a new one whenever you like, or write "undo" within 10 minutes to bring it back.`,
     newDraft: `OK, start sending the new listing.`,
-    help: `How it works:\n1) Send photos and the property details (property type, sale or rent, governorate and area, size, rooms, deed, price).\n2) Write "done" or wait a minute and a half.\n3) You get a summary: send 1 to publish, 2 to cancel, or send a correction.\n"new" starts another listing.`,
+    help: GUIDE.en(null),
+    nothing: `No listing is open right now 🙂 To publish one, send the property details and photos here.`,
+    undoOk: `Listing restored ✅`,
+    undoMerged: `Listing restored, with what you sent after it added; reading… ⏳`,
+    undoNone: `There is no recently cancelled listing to restore. Send the property details again.`,
+    expiredPrev: (title: string) => `Note: your previous listing${title ? " (" + title + ")" : ""} was not published and was closed after a day without a reply.\nWrite "undo" to continue it, otherwise carry on with this new one.`,
+    attached: (ref: string) => `Photo added to your published listing (${ltr(ref)}) ✅`,
+    multi: (n: number) => `I noticed more than one property in the message (${n}); I read the first only. After it is published, send each property in a separate message with its photos.\n\n`,
     paired: (n: string) => `This chat is now linked to "${n}" ✅\nSend the first property with its photos, then write "done".`,
     pairedAdmin: `This chat is linked to the admin account ✅ Anything forwarded here is read and appears in the panel to pick the agency and publish.`,
     badCode: `Wrong code. Find it on your agency page at balkoun.com under "Post by message".`,
@@ -362,14 +386,14 @@ const T = {
     photoMax: (n: number) => `Photo limit reached (${n}). Extra photos are not added.`,
     photoBad: `Could not process this photo. Send it as a normal photo (not a file), JPG or PNG.`,
     videoNo: `Video is not supported by message yet; it can be added on the site after publishing.`,
-    confirmLine: `\n\nAll set ✅ Would you like to publish the listing?\nSend "yes" to publish, "no" to cancel, or send any correction.`,
-    missing: (list: string) => `\n\nBefore publishing I still need: ${list}.\nSend it here and I will complete the listing 🙏`,
+    confirmLine: `\n\nAll set ✅\nyes → publish\nno → cancel\nor write the correction directly, e.g. "price 75 thousand"`,
+    missing: (list: string) => `\n\nBefore publishing I still need: ${list}.\nSend it here and I will complete the listing 🙏\n("no" cancels this listing)`,
     reviewAdmin: `Read ✅ The listing is waiting in the panel to pick the agency and publish.`,
     reviewNote: `Read, but the listing needs a look from the team before publishing. We will follow up from the panel.`,
     suggested: (n: string) => `• Suggested agency: ${n}`,
     attributed: (n: string) => `• Listed for: ${n}`,
-    published: (ref: string, url: string) => `✅ Published (${ref})\n${url}`,
-    pending: (ref: string) => `✅ Received (${ref}). It appears on the site after the team's review.`,
+    published: (ref: string, url: string) => `✅ Published (${ref})\n${url}\n\nExtra photos within 5 minutes are added to this listing. For another listing, just send its details and photos.`,
+    pending: (ref: string) => `✅ Received (${ref}). It appears on the site after the team's review.\n\nFor another listing, just send its details and photos.`,
     failed: `Automatic publishing failed; the listing was handed to the team.`,
     duplicate: (ref: string) => `This looks like a duplicate of your published listing (${ltr(ref)}) 🤔 It was not published again; the team will review it.\nIf it is a different property, send what sets it apart (area, size, price) and we will publish it.`,
     readFailed: `Could not read the listing right now; it was handed to the team.`,
@@ -389,7 +413,7 @@ const T = {
     linkAsk: `Hello 👋 To post your listings from here, tap "Share my number" below to link your Balkoun account to this chat (once only).`,
     linkOk: (n: string) => `Account linked ✅ Welcome ${n}\nSend the property details and photos now, then write "done".`,
     linkNone: `No Balkoun account has this number. Sign up at balkoun.com first, then come back here.`,
-    hello: `Welcome to Balkoun 👋 I am here to help you post your property listing.\nSend the property details (type, sale or rent, governorate and area, size, price, deed) with photos, and I will prepare the listing for you.`,
+    hello: GUIDE.en(null),
     contact: (n: string) => `To reach the Balkoun team: ${ltr(n)}\nIf you want to post a listing, just send its details and photos here and I will help.`,
     thanks: `You are welcome 🙏 Whenever you want to post a new listing, send its details here.`,
     notListing: `Sure 👍 Send me the property details here the way you would tell a friend: property type, sale or rent, governorate and area, size, price, deed type, plus at least one photo.\nOne message or several, as you like; I will ask about anything missing.`,
@@ -460,6 +484,21 @@ async function storePhoto(draftId: number, bytes: Uint8Array, mime: string, n: n
   return res;
 }
 
+// a photo sent within minutes after a publish goes straight into that listing's folder and its photo list
+async function storeListingPhoto(listingId: number, bytes: Uint8Array, mime: string) {
+  if (bytes.length > MAX_DECODE_BYTES || !decodable(mime, bytes)) throw new Error("bad");
+  const wm = await wmCfg();
+  let out: { full: Uint8Array; thumb: Uint8Array; w: number; h: number };
+  try { out = await processPhoto(bytes, wm); }
+  catch (e) { await log(null, null, "warn", "photo_undecodable", { error: errStr(e), bytes: bytes.length, mime, listing: listingId }); throw new Error("bad"); }
+  const stem = `photos/listings/${listingId}/${Date.now()}-${randomCode(5).toLowerCase()}`;
+  const pF = stem + ".jpg", pT = stem + "-t.jpg";
+  await upload(pF, out.full); await upload(pT, out.thumb);
+  const res = await rpc<any>("bk_intake_listing_add_photo", { p_listing: listingId, p_photo: { url: publicUrl(pF), thumb_url: publicUrl(pT), bytes: out.full.length, w: out.w, h: out.h } });
+  if (!res || res.ok === false || res.error) { await sb.storage.from(BUCKET).remove([pF, pT]); }
+  return res;
+}
+
 // ───────────────────────────── reading with Claude ─────────────────────────────
 const TOOL = {
   name: "listing_fields",
@@ -494,6 +533,7 @@ const TOOL = {
       confidence: { type: "number", description: "0–1 how sure you are the message is one real listing" },
       notes: { type: "string", description: "anything odd: two listings in one message, contradictory numbers, not a listing at all" },
       intent: { type: "string", enum: ["listing", "wanted", "other"], description: "listing = the sender OFFERS a property for sale or rent; wanted = the sender is LOOKING for a property to buy or rent (أبحث عن، أريد، بدي، مطلوب، أدور على); other = a question or anything else" },
+      listings_count: { type: "integer", description: "how many DIFFERENT properties the message offers; 1 normally. When more than 1, all other fields describe the FIRST property only" },
     },
     required: ["description", "missing", "confidence"],   // deal / property_type are left out when the message does not say them, so they can be asked for
   },
@@ -512,6 +552,7 @@ Rules:
 - The description must be a clean Arabic paragraph written for the website: no phone numbers, no prices, no emojis, no hashtags, no "للتواصل". Keep facts only; do not invent.
 - Put in "missing" every required fact that the message truly does not state: deal, property_type, governorate, price, area_m2 (and tabu for a sale).
 - Intent: if the sender is LOOKING for a property ("أبحث عن", "أريد", "بدي", "مطلوب", "أدور على", "looking for", "I want to buy/rent"), set intent = "wanted" and still fill the fields they ask for (type, place, deal, budget as price). A property being offered is intent = "listing". A question or chat is "other".
+- More than one property in one message (two apartments, a flat and a shop…): set listings_count to how many, and fill every field for the FIRST property only. Do not mix facts of different properties. One property = listings_count 1.
 - Answer only by calling the tool.`;
 
 function taxonomyText(tax: any): string {
@@ -832,11 +873,14 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   if (saved?.skipped) return saved;                                              // cancelled or changed while reading: say nothing
   if (saved?.status === "collecting") { scheduleTick(); return saved; }         // more arrived (or a retry is due) → read again later
   if (!opts.quiet && d.source !== "web") {
+    // two properties in one message: the first was read; the sender is told to send the rest one by one
+    const multi = !err && !d.by_admin && Number(raw.listings_count) > 1 ? t.multi(Number(raw.listings_count)) : "";
+    if (multi) await log(draftId, d.chat_id, "info", "multi_listing", { n: Number(raw.listings_count) });
     if (err) await reply(d.source, d.chat_id, t.readFailed);
     else if (saved?.status === "review") await reply(d.source, d.chat_id, sum + "\n\n" + (d.by_admin ? t.reviewAdmin : t.reviewNote));
     // still missing something: ask for it in a short message (no full list every time); the full summary comes when complete
-    else if (saved?.status === "needs_info") await reply(d.source, d.chat_id, (brief(fields, tax, lang) + t.missing(missing.map((m) => (lang === "en" ? MISSING_EN : MISSING_AR)[m]).join(lang === "en" ? ", " : "، "))).trim());
-    else await reply(d.source, d.chat_id, sum!);
+    else if (saved?.status === "needs_info") await reply(d.source, d.chat_id, multi + (brief(fields, tax, lang) + t.missing(missing.map((m) => (lang === "en" ? MISSING_EN : MISSING_AR)[m]).join(lang === "en" ? ", " : "، "))).trim());
+    else await reply(d.source, d.chat_id, multi + sum!);
   }
   if (err) await log(draftId, d.chat_id, "error", "read_failed", { error: err, reads: d.reads });
   return saved;
@@ -1092,6 +1136,12 @@ async function runCommandAfterPhoto(m: Incoming, r: any, tt: any) {
     await safePublish(m, r.draft_id, tt);
   }
 }
+async function sendGuide(m: Incoming, c: Cfg) {
+  const s = await rpc<any>("bk_intake_sender", { p_source: m.source, p_chat_id: m.chat });
+  const lang = c.intake_reply_lang === "en" ? "en" : (s?.lang === "en" ? "en" : "ar");
+  await reply(m.source, m.chat, tx(lang).guide(s?.country_code || null));
+  await log(null, m.chat, "info", "guide_sent", { source: m.source });
+}
 async function safeRead(m: Incoming, draftId: number, tt: any) {
   try { await readDraft(draftId); }
   catch (e) { await log(draftId, m.chat, "error", "read_failed", { error: errStr(e) }); await rpc("bk_intake_set", { p_draft: draftId, p_patch: { status: "failed", error: errStr(e) } }); await reply(m.source, m.chat, tt.readFailed); }
@@ -1163,23 +1213,23 @@ async function handleIncoming(m: Incoming) {
     else await reply(m.source, m.chat, r?.error === "notapproved" ? t.notApproved : t.badCode);
     return;
   }
-  if (/^\/start\b/i.test(m.text || "")) { await reply(m.source, m.chat, t.welcome(m.senderName || "")); return; }
+  if (/^\/start\b/i.test(m.text || "")) { await sendGuide(m, c); return; }
   if (m.kind === "video" || m.kind === "audio") { const s = await rpc<any>("bk_intake_sender", { p_source: m.source, p_chat_id: m.chat }); if (s?.enabled) await reply(m.source, m.chat, t.videoNo); return; }
   // small talk: greetings, "how do I reach you", thanks — answered like a person, nothing stored
   if (m.kind === "text" && m.text && m.text.trim().length <= 60) {
     const a = latinDigits(m.text).trim().replace(/[.!؟?،,]+$/, "").toLowerCase();
-    if (/^(مرحبا|مرحباً|مرحبتين|هلا|هلو|اهلا|أهلا|اهلين|أهلين|السلام عليكم|سلام|صباح الخير|مساء الخير|كيفك|كيف الحال|شلونك|hi|hello|hey|good morning|good evening|bonjour|salut)(?:\s|$)/.test(a)) { await reply(m.source, m.chat, t.hello); return; }
+    if (/^(مرحبا|مرحباً|مرحبتين|هلا|هلو|اهلا|أهلا|اهلين|أهلين|السلام عليكم|سلام|صباح الخير|مساء الخير|كيفك|كيف الحال|شلونك|hi|hello|hey|good morning|good evening|bonjour|salut)(?:\s|$)/.test(a)) { await sendGuide(m, c); return; }
     if (/(رقم|تواصل|اتصال|اتصل|الادارة|الإدارة|contact|phone|number|call|reach)/.test(a) && !/\d{6,}/.test(a) && /(رقم|contact|phone|number|تواصل|اتصل|اتصال|call|reach)/.test(a)) {
       const n = String(c.intake_contact_phone || "").trim();
       if (n) { await reply(m.source, m.chat, t.contact(n)); return; }
     }
     if (/^(شكرا|شكراً|شكرًا|يسلمو|يعطيك العافية|تسلم|ممنون|thanks|thank you|thx|merci)(?:\s|$)/.test(a)) { await reply(m.source, m.chat, t.thanks); return; }
   }
-  // everyday yes / no answers to "would you like to publish?" → the SQL side's 1 / 2 commands
+  // everyday yes answers to "would you like to publish?" → the SQL side's 1 command
+  // (a plain "لا" / "no" is judged by the SQL side: it cancels only while a summary is on the table)
   if (m.kind === "text" && m.text) {
     const a = latinDigits(m.text).trim().replace(/[.!؟?]+$/, "");
     if (/^(yes|yeah|yep|sure|اي|ايه|إيه|أيوه|ايوه|اه|آه|أجل|اجل|موافق|انشره|نشره|انشرو|اكيد|أكيد|تمام انشر|نعم انشر|yes publish)$/i.test(a)) m.text = "1";
-    else if (/^(no|nope|لا|لأ|كلا|لا تنشر|الغيه|ألغيه|الغه)$/i.test(a)) m.text = "2";
   }
 
   const r = await rpc<any>("bk_intake_message", { p_source: m.source, p_external_id: m.externalId, p_chat_id: m.chat, p_kind: m.kind, p_text: m.text, p_media: m.media, p_payload: m.payload, p_sender_name: m.senderName, p_country: null });
@@ -1199,9 +1249,36 @@ async function handleIncoming(m: Incoming) {
   }
   if (r.reason === "blocked") { await reply(m.source, m.chat, tt.blocked); return; }
   if (r.reason === "limit") { await reply(m.source, m.chat, tt.limit); return; }
-  if (r.command === "help") { await reply(m.source, m.chat, tt.help); return; }
-  if (r.command === "cancel") { await reply(m.source, m.chat, tt.cancelled); return; }
+  if (r.command === "help") { await reply(m.source, m.chat, tt.guide(r.sender?.country_code || null)); if (!r.guided) await log(null, m.chat, "info", "guide_sent", { source: m.source }); return; }
+  if (r.command === "nothing") { await reply(m.source, m.chat, tt.nothing); return; }
+  if (r.command === "cancel") { await reply(m.source, m.chat, r.draft_id ? tt.cancelled : tt.nothing); return; }
   if (r.command === "new") { await reply(m.source, m.chat, tt.newDraft); return; }
+  // «رجّع»: the listing cancelled a moment ago (or closed after a day) comes back; merged with anything sent since
+  if (r.command === "undo") {
+    if (!r.restored) { await reply(m.source, m.chat, tt.undoNone); return; }
+    if (r.status === "collecting") {
+      await reply(m.source, m.chat, r.merged ? tt.undoMerged : tt.reading);
+      const claimed = await rpc<any>("bk_intake_claim", { p_draft: r.draft_id });
+      if (claimed) await safeRead(m, r.draft_id, tt);
+      return;
+    }
+    const d = await rpc<any>("bk_intake_get", { p_draft: r.draft_id });
+    await reply(m.source, m.chat, tt.undoOk + (d?.summary ? "\n\n" + d.summary : ""));
+    return;
+  }
+  // a photo within minutes after a publish: into that listing, not a new draft
+  if (r.attach_listing) {
+    if (m.kind === "photo" && m.fetchMedia) {
+      if (m.size && m.size > MAX_PHOTO_BYTES) { await reply(m.source, m.chat, tt.photoBad); return; }
+      try {
+        const f = await m.fetchMedia();
+        const res = await storeListingPhoto(r.attach_listing, f.bytes, f.mime || (m.media && m.media.mime) || "");
+        if (res && res.ok === false && res.reason === "max") await reply(m.source, m.chat, tt.photoMax(res.max || cfgInt(c.intake_max_photos, 12)));
+        else if (res?.ok && !r.replied_recently) await reply(m.source, m.chat, tt.attached(r.ref || ""));
+      } catch (e) { await log(r.draft_id, m.chat, "warn", "photo_failed", { error: errStr(e), listing: r.attach_listing }); await reply(m.source, m.chat, tt.photoBad); }
+    }
+    return;
+  }
   if (r.command === "confirm") {
     if (r.draft_id) { await safePublish(m, r.draft_id, tt); return; }
     if (r.open_id && r.status === "needs_info") { const d = await rpc<any>("bk_intake_get", { p_draft: r.open_id }); await reply(m.source, m.chat, d?.summary || tt.noReady); return; }
@@ -1215,7 +1292,9 @@ async function handleIncoming(m: Incoming) {
     if (claimed) { await reply(m.source, m.chat, tt.reading); await safeRead(m, r.draft_id, tt); }
     return;
   }
-  // content
+  // content — first listing ever from this chat: the how-to goes out once, before anything else
+  if (r.is_new && !r.guided) { await reply(m.source, m.chat, tt.guide(r.country_code || r.sender?.country_code || null)); await log(r.draft_id, m.chat, "info", "guide_sent", { source: m.source }); }
+  if (r.expired_prev) await reply(m.source, m.chat, tt.expiredPrev(String(r.expired_prev.title || "")));
   if (m.kind === "photo" && m.fetchMedia && r.draft_id) {
     const mx = cfgInt(c.intake_max_photos, 12);
     if ((r.photo_count || 0) >= mx) { await reply(m.source, m.chat, tt.photoMax(mx)); }
