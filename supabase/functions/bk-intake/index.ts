@@ -828,20 +828,21 @@ async function publishDraft(draftId: number, force?: string | null, opts: { quie
   if (!d) return { error: "nodraft" };
   const lang = d.user_lang === "en" ? "en" : "ar"; const t = tx(lang);
   // the same property sent twice within a week (the sender re-sent the bot's own summary with more photos, for
-  // instance) is not published again: it goes to the panel as "duplicate of SY…" — the admin can still force it
+  // instance) is still published — the owner asked for that — but the admin gets an alert naming both listings to
+  // check them by hand (same deal, type, size, rooms and place)
+  let dupOf: { id: number; ref: string } | null = null;
   if (!force && d.user_id) {
     const f = d.fields || {};
     const q = sb.from("listings").select("id,ref").eq("user_id", d.user_id).in("status", ["live", "pending"]).gt("created_at", new Date(Date.now() - 7 * 86400_000).toISOString()).limit(1);
     if (f.deal) q.eq("deal", f.deal); if (f.property_type) q.eq("property_type", f.property_type); if (f.area_m2) q.eq("area_m2", f.area_m2); if (f.rooms != null) q.eq("rooms", f.rooms);
-    const { data: dup } = await q;
-    if (dup && dup.length) {
-      await rpc("bk_intake_set", { p_draft: draftId, p_patch: { status: "review", error: "duplicate: " + dup[0].ref } });
-      await log(draftId, d.chat_id, "warn", "duplicate_suspected", { of: dup[0].ref, listing_id: dup[0].id });
-      if (!opts.quiet && d.source !== "web") await reply(d.source, d.chat_id, t.duplicate(dup[0].ref));
-      return { error: "duplicate", of: dup[0].ref };
-    }
+    if (f.governorate_id) q.eq("governorate_id", f.governorate_id); if (f.area_id) q.eq("area_id", f.area_id);
+    const { data: dup } = await q; if (dup && dup.length) dupOf = dup[0];
   }
   const pub = await rpc<any>("bk_intake_publish", { p_draft: draftId, p_force_status: force || null });
+  if (pub?.ok && dupOf) {
+    await log(draftId, d.chat_id, "warn", "duplicate_suspected", { of: dupOf.ref, listing_id: dupOf.id, new_listing: pub.listing_id });
+    await rpc("bk_notify_push", { p_event: "listing", p_title: "⚠️ إعلان مكرر محتمل: " + pub.ref, p_body: `نفس المواصفات والمكان لإعلان ${dupOf.ref} من العضو نفسه (${d.sender_name || d.chat_id}). راجع الاثنين واحذف المكرر إن لزم.`, p_link: SITE + "/admin", p_cc: pub.country_code || null });
+  }
   if (!pub?.ok) {
     if (pub?.error === "already") { await log(draftId, d.chat_id, "info", "publish_already", pub); return pub; }   // the first publish answered the sender
     await rpc("bk_intake_set", { p_draft: draftId, p_patch: { status: "review", error: "publish: " + (pub?.error || "?") } });
