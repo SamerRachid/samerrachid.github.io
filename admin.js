@@ -34,6 +34,42 @@ function admResolveTab(k){ if(!ADM_GROUPS[k]) return k; var last=(ADM._sub||{})[
 function canTab(k){ if(ADM_GROUPS[k]) return ADM_GROUPS[k].some(canTab); var p=TAB_PERM[k]; if(p===undefined) return can(k); if(p==="super") return !!ADM.isSuper; if(Array.isArray(p)) return p.some(can); return can(p) }
 function admGo(tab){ if(!tab) return; if(!canTab(tab)){ admToast(GX("noPermTab"),"bad"); return } tab=admResolveTab(tab); if(tab!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return; ADM.tab=tab; window._admMobileDetail=false; render(); try{ window.scrollTo(0,0) }catch(e){} }
 // "راسل": one direct message to one person on WhatsApp / Telegram / email, from the users list or the contacts list
+// "إضافة عضو": the admin creates a member (optionally with an approved agency page) without the verification code;
+// a temporary password is generated here, shown once, and sent to the member on WhatsApp unless the box is unticked
+function admAddMember(){
+  var old=$("#admDm"); if(old) old.remove();
+  var ov=document.createElement("div"); ov.className="admdm-ov"; ov.id="admDm";
+  var cs=(ADM.countries||[]).filter(function(c){ return c.enabled!==false || c.code===COUNTRY }); if(!cs.length) cs=[{code:COUNTRY||"SY"}];
+  var cur=(ADM.scope&&ADM.scope!=="ALL")?ADM.scope:(COUNTRY||"SY");
+  ov.innerHTML='<div class="admdm"><div class="admdm-h"><b>'+GX("amTitle")+'</b><button type="button" class="admdm-x" aria-label="×">×</button></div><div class="admdm-b">'+
+    '<div class="hintx" style="margin-bottom:10px">'+GX("amHint")+'</div>'+
+    '<div class="row"><div class="fl"><label>'+t("firstName")+'</label><input id="amName" data-allow-autofill></div><div class="fl"><label>'+t("familyName")+'</label><input id="amFam" data-allow-autofill></div></div>'+
+    '<div class="row"><div class="fl"><label>'+GX("amPhone")+'</label><input id="amPhone" class="ltr" inputmode="tel" placeholder="+963 9xx xxx xxx" data-allow-autofill></div><div class="fl"><label>'+GX("amEmail")+'</label><input id="amEmail" class="ltr" type="email" data-allow-autofill></div></div>'+
+    '<div class="row"><div class="fl"><label>'+t("country")+'</label><select id="amCountry">'+cs.map(function(c){ return '<option value="'+esc(c.code)+'"'+(c.code===cur?' selected':'')+'>'+flagOf(c.code)+' '+esc(countryName(c)||c.code)+'</option>' }).join("")+'</select></div>'+
+    '<div class="fl"><label>'+GX("amAgency")+'</label><input id="amAgency" data-allow-autofill placeholder="'+esc(GX("amAgencyPH"))+'"></div></div>'+
+    '<label class="xcheck"><input type="checkbox" id="amSend" checked><span>'+GX("amSendPw")+'</span></label>'+
+    '<div class="xactions"><button type="button" class="ab ok" id="amCreate">'+GX("amCreate")+'</button><span class="xmsg" id="amMsg"></span></div><div id="amDone"></div></div></div>';
+  document.body.appendChild(ov);
+  var close=function(){ ov.remove() }; ov.querySelector(".admdm-x").onclick=close; ov.onclick=function(e){ if(e.target===ov) close() };
+  $("#amCreate").onclick=async function(){ var btn=this, m=$("#amMsg");
+    var name=$("#amName").value.trim(), fam=$("#amFam").value.trim(), phone=$("#amPhone").value.replace(/\D/g,""), email=$("#amEmail").value.trim(), cc=$("#amCountry").value, ag=$("#amAgency").value.trim(), send=$("#amSend").checked;
+    if(!name){ m.textContent=GX("am_noname"); $("#amName").focus(); return } if(phone.length<8){ m.textContent=GX("am_badphone"); $("#amPhone").focus(); return }
+    var pw=(function(){ var A="abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789", s=""; var r=new Uint32Array(8); crypto.getRandomValues(r); for(var i=0;i<8;i++) s+=A[r[i]%A.length]; return s })();
+    btn.disabled=true; m.style.color=""; m.textContent=t("saving");
+    try{ var h=await sha(pw);
+      var r=await DB.rpc("bk_admin_create_member",{p_token:ADM.token,p_phone:phone,p_name:name,p_family:fam||null,p_email:email||null,p_country:cc,p_hash:h,p_agency_name:ag||null,p_password_plain:send?pw:null,p_send:send});
+      var d=(r&&r.data)||{}; if(r&&r.error) throw r.error; if(d.error) throw new Error(GX("am_"+d.error)||d.error);
+      if(send){ try{ await intakeAdmin("tick") }catch(e2){} }
+      m.textContent="";
+      $("#amDone").innerHTML='<div class="done2" style="margin-top:12px;text-align:start"><b>'+GX("amDone")+'</b><p style="margin:8px 0 0;font-size:14px">'+GX("amMemberNo")+' <b class="ltr">'+esc(d.member_no||"")+'</b> · <span class="ltr">'+esc(d.phone||"")+'</span>'+(d.agency_id?' · '+GX("amAgencyMade"):'')+'</p>'+
+        '<p style="margin:8px 0 0;font-size:14px">'+GX("amPw")+' <b class="ltr" style="user-select:all;font-size:16px;letter-spacing:1px">'+esc(pw)+'</b> <button type="button" class="ab" data-ecopy="'+esc(pw)+'">'+GX("engCopy")+'</button></p>'+
+        '<div class="hintx" style="margin-top:6px">'+(send?GX("amPwSent"):GX("amPwKeep"))+'</div></div>';
+      ov.querySelectorAll("[data-ecopy]").forEach(function(b){ b.onclick=function(){ try{ navigator.clipboard.writeText(b.dataset.ecopy) }catch(e){} b.textContent="✓" } });
+      ["amName","amFam","amPhone","amEmail","amAgency"].forEach(function(id){ $("#"+id).value="" }); btn.disabled=false;
+      ADM._uactLoaded=false; adminLoad();
+    }catch(e){ btn.disabled=false; m.style.color="var(--danger)"; m.textContent=e.message||"error" } };
+  $("#amName").focus();
+}
 async function admDirectMsg(o){
   var old=$("#admDm"); if(old) old.remove();
   var ov=document.createElement("div"); ov.className="admdm-ov"; ov.id="admDm";
@@ -1731,6 +1767,7 @@ function wireAdmin(){
   if($("#afTabu")) $("#afTabu").onchange=function(){ filterRows("aListBody", ($("#aqL")||{}).value, ($("#afStatus")||{}).value, this.value, ($("#afDeal")||{}).value) };
   if($("#afDeal")) $("#afDeal").onchange=function(){ filterRows("aListBody", ($("#aqL")||{}).value, ($("#afStatus")||{}).value, ($("#afTabu")||{}).value, this.value) };
   if($("#aqU")) $("#aqU").oninput=function(){ filterRows("aUserBody", this.value, "") };
+  if($("#amOpen")) $("#amOpen").onclick=function(){ admAddMember() };
   ["report","feedback","ticket"].forEach(function(k){ var q=$("#aq"+k); if(!q) return; q.oninput=function(){ var v=this.value.trim().toLowerCase();
     $$("#inboxRows"+k+" [data-emailrow]").forEach(function(r){ r.style.display = (!v || ((r.dataset.rowText||"")+" "+r.textContent).toLowerCase().indexOf(v)>-1) ? "" : "none" }) } });
 
@@ -2487,7 +2524,8 @@ function adminUsersBody(d){
     '<select id="uLevelPick" class="lvlpick"><option value="">'+t("allLevels")+'</option>'+LEVELS_ALL.map(function(lv){ return '<option value="'+lv+'"'+(ADM.userLevelFilter===lv?" selected":"")+'>'+t("lv_"+lv)+'</option>' }).join("")+'</select>'+
     '<select id="uBlockPick" class="lvlpick"><option value="">'+t("allUsers")+'</option><option value="active"'+(ADM.userBlockedFilter==="active"?" selected":"")+'>'+t("activeOnly")+'</option><option value="blocked"'+(ADM.userBlockedFilter==="blocked"?" selected":"")+'>'+t("blockedOnly")+'</option></select>'+
     '<select id="uActPick" class="lvlpick"><option value="">'+GX("colLastSeen")+'</option><option value="1"'+(ADM.userActFilter==="1"?" selected":"")+'>'+GX("act24")+'</option><option value="7"'+(ADM.userActFilter==="7"?" selected":"")+'>'+GX("act7")+'</option><option value="30"'+(ADM.userActFilter==="30"?" selected":"")+'>'+GX("act30")+'</option><option value="old"'+(ADM.userActFilter==="old"?" selected":"")+'>'+GX("actOld")+'</option></select>'+
-    '<span class="n" style="font-size:13px;color:var(--grey)"><span class="ltr">'+list.length+'</span> '+GX("uCount")+'</span></div>';
+    '<span class="n" style="font-size:13px;color:var(--grey)"><span class="ltr">'+list.length+'</span> '+GX("uCount")+'</span>'+
+    '<button type="button" class="ab ok" id="amOpen">+ '+GX("amBtn")+'</button></div>';
   toolbar=adminVerifyHtml()+toolbar;
   var rows=list.map(function(u){
     var nm=((u.name||"")+" "+(u.family_name||"")).trim()||"—", isAdmin=u.role==="admin", open=ADM.userOpen===u.id;
