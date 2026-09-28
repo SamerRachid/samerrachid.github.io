@@ -4967,6 +4967,7 @@ function listing(id){
     (x.oag?'<a class="nm" data-agopen="'+x.oag+'" style="cursor:pointer">'+esc(ownerName)+posterBadge+'</a>'
      :x.uid?'<a class="nm" data-byuser="'+x.uid+'" data-name="'+(x.who||"")+'" style="cursor:pointer">'+ownerName+posterBadge+'</a>'
           :'<b class="nm">'+ownerName+posterBadge+'</b>')+
+    (x.oag&&x.oagPerson?'<div class="sm">'+GX("agPersonL")+': <b>'+esc(x.oagPerson)+'</b></div>':'')+
     '<div class="sm">'+(x.oJoined?t("memberSince")+' <span class="ltr">'+new Date(x.oJoined).getFullYear()+'</span> · ':'')+
      (x.orCount?'<span class="ltr" style="color:var(--gold)">'+stars(x.orAvg)+'</span> <b class="ltr">'+x.orAvg+'</b> <span class="ltr">('+x.orCount+')</span>':t("noReviews"))+'</div>'+
     '<div class="sm">'+t("replies")+'</div></div></div>'+
@@ -8600,7 +8601,7 @@ function fromRow(r){
     ocity:r.owner_city||null, ocountry:r.owner_country||null, oav:r.owner_avatar||null, clogo:!!r.owner_card_logo,
     aid:r.area_id||null,
     olevel:r.owner_level||"member", closedAt:r.closed_at||null, oJoined:r.owner_created_at||null,
-    otype:r.owner_type||"member", oag:r.owner_agency_id||null, oagName:r.owner_agency_name||null, oagVer:!!r.owner_agency_verified,
+    otype:r.owner_type||"member", oag:r.owner_agency_id||null, oagName:r.owner_agency_name||null, oagVer:!!r.owner_agency_verified, oagPerson:r.owner_agency_person||null,
     orAvg:r.owner_rating_avg||null, orCount:r.owner_rating_count||0, dir:r.direction||null,
     lm:r.landmark||"", lat:r.lat||null, lng:r.lng||null,
     lease:r.lease_months||null, adv:r.advance_months||null,
