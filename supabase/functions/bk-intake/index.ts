@@ -768,6 +768,23 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
         if (g && (g.areas || []).length && !missing.includes("area")) missing.push("area");
       }
     }
+    // no governorate in the message: an agency that works in exactly one governorate (or a member whose profile city
+    // names one) gets it by default, and the neighbourhood is then matched inside it
+    if (!fields.governorate_id) {
+      const govs = (Array.isArray(d.agency_govs) && d.agency_govs.length ? d.agency_govs : Array.isArray(d.user_agency_govs) ? d.user_agency_govs : []) as string[];
+      // several governorates (دمشق + ريف دمشق): the one whose area list contains the neighbourhood written in the message
+      const wantArea = raw.area || fields.landmark || "";
+      const byArea = govs.length > 1 && wantArea ? govs.map((n) => findGov(tax, n)).filter(Boolean).filter((gg: any) => findArea(gg, wantArea)) : [];
+      const cand = govs.length === 1 ? govs[0] : byArea.length === 1 ? byArea[0].ar : (d.user_city || null);
+      const g = cand ? findGov(tax, cand) : null;
+      if (g) {
+        fields.governorate = g.ar; fields.governorate_id = g.id; missing = missing.filter((m) => m !== "governorate");
+        const want = raw.area || fields.landmark || ""; const a = want ? findArea(g, want) : null;
+        if (a) { fields.area = a[1]; fields.area_id = a[0]; if (fields.landmark && norm(fields.landmark) === norm(a[1])) delete fields.landmark; missing = missing.filter((m) => m !== "area"); }
+        else if ((g.areas || []).length && !missing.includes("area")) missing.push("area");
+        await log(draftId, d.chat_id, "info", "gov_defaulted", { governorate: g.ar, from: govs.length === 1 ? "agency" : "profile_city", area: fields.area || null });
+      }
+    }
     if (d.source !== "web" && photos === 0) missing.push("photos");   // a listing sent by message needs at least one photo (the site form has its own gate)
   } catch (e) { err = errStr(e); }
   // a buyer / tenant looking for a property, not an owner offering one: point them to the matching search and to

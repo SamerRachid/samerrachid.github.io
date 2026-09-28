@@ -3101,9 +3101,13 @@ function ikRow(x){
   var open=String(ADM.ikOpen)===String(x.id), photos=Array.isArray(x.photos)?x.photos:[], d=ADM.ik||{};
   var head=esc(x.agency_name||x.sender_name||x.chat_id||""), sub=ikSrc(x)+(x.by_admin?' · '+GX("ik_byOwner"):'')+(x.sender_name&&x.agency_name?' · '+esc(x.sender_name):'');
   var line=(x.summary||"").split("\n").filter(function(l){ return l && !/^📋/.test(l) }).slice(0,2).join(" · ") || (x.raw_text||"").slice(0,90);
-  return '<div class="erow ikrow'+(open?' open':'')+'">'+
-    '<div class="ecode"><b>#'+x.id+'</b><div><b>'+scopeFlag(x.country_code)+head+'</b><small class="usub">'+sub+'</small></div></div>'+
-    '<div class="ewho">'+esc(line)+'<small>'+photos.length+' '+GX("ik_photos")+' · '+(x.messages||0)+' '+GX("ik_msgs")+(x.country_code&&x.country_code!=="SY"?' · '+flagOf(x.country_code):'')+'</small></div>'+
+  var selectable=["published","cancelled"].indexOf(x.status)<0, sel=!!(ADM.ikSel&&ADM.ikSel[x.id]);
+  var miss=(Array.isArray(x.missing)?x.missing:[]).map(function(m){ return GX("ik_m_"+m)!=="ik_m_"+m?GX("ik_m_"+m):m });
+  var thumbs=photos.slice(0,4).map(function(p){ return '<img src="'+esc(p.thumb_url||p.url)+'" alt="" loading="lazy">' }).join("");
+  return '<div class="erow ikrow'+(open?' open':'')+(sel?' iksel':'')+'">'+
+    '<div class="ecode">'+(selectable?'<label class="ikchk"><input type="checkbox" data-ikchk="'+x.id+'"'+(sel?' checked':'')+'></label>':'<span class="ikchk"></span>')+'<b>#'+x.id+'</b><div><b>'+scopeFlag(x.country_code)+head+'</b><small class="usub">'+sub+'</small></div></div>'+
+    '<div class="ewho">'+(thumbs?'<span class="ikthumbs">'+thumbs+'</span>':'')+esc(line)+'<small>'+photos.length+' '+GX("ik_photos")+' · '+(x.messages||0)+' '+GX("ik_msgs")+(x.country_code&&x.country_code!=="SY"?' · '+flagOf(x.country_code):'')+'</small>'+
+    (miss.length&&selectable?'<small class="ikmiss">'+GX("ik_missing")+': '+esc(miss.join("، "))+'</small>':'')+'</div>'+
     '<div class="eclient">'+ikPill(x.status)+(x.listing_ref?' <a class="elink" data-open="'+x.listing_id+'">'+esc(x.listing_ref)+'</a>':'')+(x.error&&!open?'<small style="color:var(--danger)">'+esc(String(x.error)).slice(0,60)+'</small>':'')+'</div>'+
     '<div class="eperiod"><span class="ltr">'+when(x.created_at)+'</span><small>$'+(+x.cost_usd||0).toFixed(4)+'</small></div>'+
     '<div class="eacts"><button type="button" class="ab" data-ikopen="'+x.id+'">'+(open?GX("ik_close"):GX("ik_open"))+'</button></div>'+
@@ -3169,9 +3173,15 @@ function adminIntakeBody(){
     '<div class="xactions"><button type="button" class="ab ok" id="ikNtfSave">'+t("save")+'</button><button type="button" class="ab" id="ikNtfTest">'+GX("ik_ntfTest")+'</button><span class="xmsg" id="ikNtfMsg"></span></div>'+
   '</div></div>';
   var filters=[["all",GX("ik_fAll")],["attention",GX("ik_fAttention")],["open",GX("ik_fOpen")],["published",GX("ik_published")],["cancelled",GX("ik_cancelled")]];
+  // bulk bar: tick several drafts, give them all a governorate / an agency, publish or cancel them in one go
+  var selIds=Object.keys(ADM.ikSel||{}).filter(function(k){ return ADM.ikSel[k] }), nSel=selIds.length;
+  var bulk='<div class="ikbulk'+(nSel?' on':'')+'"><label class="xcheck"><input type="checkbox" id="ikSelAll"><span>'+GX("ik_selAll")+'</span></label><b class="ltr">'+nSel+'</b> '+GX("ik_selected")+
+    '<select id="ikBulkGov"><option value="">'+GX("ik_bulkGov")+'</option>'+Object.keys(D.GEO).map(function(g){ return '<option value="'+esc(g)+'">'+gN(g)+'</option>' }).join("")+'</select><button type="button" class="ab" id="ikBulkGovGo"'+(nSel?'':' disabled')+'>'+GX("ik_apply")+'</button>'+
+    '<select id="ikBulkAg"><option value="">'+GX("ik_pickAgency")+'</option>'+(d.agencies||[]).map(function(g){ return '<option value="'+g.id+'">'+esc(g.name)+'</option>' }).join("")+'</select><button type="button" class="ab" id="ikBulkAgGo"'+(nSel?'':' disabled')+'>'+GX("ik_apply")+'</button>'+
+    '<span class="ikbulk-sep"></span><button type="button" class="ab ok" id="ikBulkPubP"'+(nSel?'':' disabled')+'>'+GX("ik_pubPending")+'</button><button type="button" class="ab ok" id="ikBulkPubL"'+(nSel?'':' disabled')+'>'+GX("ik_pubLive")+'</button><button type="button" class="ab" id="ikBulkCancel"'+(nSel?'':' disabled')+'>'+t("cancel")+'</button><span class="xmsg" id="ikBulkMsg"></span></div>';
   var drafts='<div class="blk"><h3>'+GX("ik_draftsH")+' <span class="n">'+list.length+'</span></h3><div class="in eng-in">'+
     '<div class="ikfilters">'+filters.map(function(x){ return '<button type="button" class="ab'+(x[0]===f?' on':'')+'" data-ikf-filter="'+x[0]+'">'+x[1]+'</button>' }).join("")+'<button type="button" class="ab" id="ikReload" style="margin-inline-start:auto">'+AICO.refresh+'</button></div>'+
-    (list.length ? '<div class="elist">'+list.map(ikRow).join("")+'</div>' : '<div class="adashempty">'+GX("ik_none")+'</div>')+'</div></div>';
+    (list.length ? bulk+'<div class="elist">'+list.map(ikRow).join("")+'</div>' : '<div class="adashempty">'+GX("ik_none")+'</div>')+'</div></div>';
   var logs='<div class="blk"><h3>'+GX("ik_logH")+'</h3><div class="in eng-in"><div class="iklog">'+(d.log||[]).slice(0,40).map(function(l){ return '<div class="iklog-r lvl-'+esc(l.level||"info")+'"><span class="ltr">'+when(l.created_at)+'</span><b>'+esc(l.event)+'</b><i>'+(l.draft_id?'#'+l.draft_id:'')+'</i><span>'+esc(JSON.stringify(l.detail||{})).slice(0,160)+'</span></div>' }).join("")+'</div></div></div>';
   return stats+conn+notify+settings+drafts+logs }
 function wireAdminIntake(){
@@ -3206,6 +3216,21 @@ function wireAdminIntake(){
   $$("[data-ikread]").forEach(function(b){ b.onclick=async function(){ var id=this.dataset.ikread, m=$("#ikMsg"+id); busy(this,true); if(m){ m.style.color="var(--grey)"; m.textContent=GX("qfBusy") } try{ await saveDraft(id); await intakeAdmin("read",{draft_id:+id,quiet:true}); reload() }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } } });
   $$("[data-ikpub]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.ikpub.split(":"), m=$("#ikMsg"+p[0]); busy(this,true); if(m){ m.style.color="var(--grey)"; m.textContent=GX("qfBusy") }
     try{ await saveDraft(p[0]); var r=await intakeAdmin("publish",{draft_id:+p[0],status:p[1]}); admToast(GX("ik_pubDone").replace("{r}",r.ref||"")); syncAdminTodo(); reload() }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } } });
+  // bulk actions over the ticked drafts
+  ADM.ikSel=ADM.ikSel||{};
+  $$("[data-ikchk]").forEach(function(c){ c.onchange=function(){ ADM.ikSel[this.dataset.ikchk]=this.checked; render() } });
+  if($("#ikSelAll")) $("#ikSelAll").onchange=function(){ var on=this.checked; $$("[data-ikchk]").forEach(function(c){ ADM.ikSel[c.dataset.ikchk]=on }); render() };
+  var selected=function(){ return Object.keys(ADM.ikSel).filter(function(k){ return ADM.ikSel[k] }) };
+  var runBulk=async function(label, fn){ var ids=selected(), m=$("#ikBulkMsg"), ok=0, bad=[]; if(!ids.length) return;
+    for(var i=0;i<ids.length;i++){ if(m){ m.style.color="var(--grey)"; m.textContent=label+" "+(i+1)+"/"+ids.length } try{ await fn(ids[i]); ok++ }catch(e){ bad.push("#"+ids[i]+": "+(e.message||"error")) } }
+    ADM.ikSel={}; admToast(GX("ik_bulkDone").replace("{n}",ok)+(bad.length?" · "+bad.length+" ✗":""), bad.length?"bad":undefined); if(bad.length) alert(bad.join("\n")); syncAdminTodo(); reload() };
+  if($("#ikBulkGovGo")) $("#ikBulkGovGo").onclick=function(){ var g=$("#ikBulkGov").value; if(!g) return; runBulk(GX("ik_apply"), function(id){ return rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:{fields:{governorate:g,governorate_id:null,area_id:null}}}) }) };
+  if($("#ikBulkAgGo")) $("#ikBulkAgGo").onclick=function(){ var a=$("#ikBulkAg").value; if(!a) return; runBulk(GX("ik_apply"), function(id){ return rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:{agency_id:a}}) }) };
+  var ikErr=function(code){ code=String(code||"error"); var k=code.replace(/^.*?:\s*/,""); return GX("ik_e_"+k)!=="ik_e_"+k?GX("ik_e_"+k):code };
+  var bulkPub=function(status){ return function(){ if(!confirm(GX("ik_bulkPubQ").replace("{n}",selected().length))) return; runBulk(GX("ik_publishing"), async function(id){ var r; try{ r=await intakeAdmin("publish",{draft_id:+id,status:status}) }catch(e){ throw new Error(ikErr(e.message)) } if(r&&r.error) throw new Error(ikErr(r.error)) }) } };
+  if($("#ikBulkPubP")) $("#ikBulkPubP").onclick=bulkPub("pending");
+  if($("#ikBulkPubL")) $("#ikBulkPubL").onclick=bulkPub("live");
+  if($("#ikBulkCancel")) $("#ikBulkCancel").onclick=function(){ if(!confirm(GX("ik_bulkCancelQ").replace("{n}",selected().length))) return; runBulk(t("cancel"), function(id){ return rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:{status:"cancelled"}}) }) };
   $$("[data-ikcancel]").forEach(function(b){ b.onclick=async function(){ var id=this.dataset.ikcancel; busy(this,true); try{ await rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:{status:"cancelled"}}); reload() }catch(e){ admToast(e.message||"error","bad"); busy(this,false) } } });
   $$("[data-ikdel]").forEach(function(b){ b.onclick=async function(){ var id=this.dataset.ikdel; if(!confirm(GX("ik_delConfirm"))) return; busy(this,true); try{ await rpc("bk_admin_intake_delete",{p_token:ADM.token,p_id:+id}); ADM.ikOpen=null; syncAdminTodo(); reload() }catch(e){ admToast(e.message||"error","bad"); busy(this,false) } } });
 }
