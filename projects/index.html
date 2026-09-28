@@ -2144,6 +2144,7 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .acbar-c .flg{width:18px;height:12px}.acbar-c.on{background:var(--navy);color:#fff;border-color:var(--navy)}.acbar-c.off{opacity:.55}.acbar-c:hover{border-color:var(--gold)}
 /* admin: direct-message dialog */
 .admdm-ov{position:fixed;inset:0;background:rgba(9,14,26,.55);z-index:1400;display:flex;align-items:center;justify-content:center;padding:16px}
+.agq{margin:0 0 8px;font-size:14px}
 .admdm{background:#fff;border-radius:16px;width:min(560px,100%);max-height:92vh;overflow:auto;box-shadow:0 30px 80px rgba(0,0,0,.35);font-size:14px}.admdm.admdm-wide{width:min(760px,100%)}
 .admdm-h{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}.admdm-h b{font-size:15px;color:var(--navy)}
 .admdm-x{border:0;background:var(--page);width:32px;height:32px;border-radius:50%;font-size:20px;cursor:pointer;color:var(--ink)}
@@ -5772,7 +5773,7 @@ function agencyFormFields(){
     '<div class="fl"><label>'+GX("f_agDesc")+'</label><textarea id="agDesc" maxlength="600">'+esc(a.description||"")+'</textarea></div>'+
     '<div class="fl"><label>'+GX("f_agSpecs")+'</label><div class="ag-pills sel" id="agSpecs">'+AG_SPECS.map(function(k){ return '<button type="button" class="'+(specs.indexOf(k)>-1?"on":"")+'" data-agspec="'+k+'">'+agSpecLabel(k)+'</button>' }).join("")+'</div></div>'+
     '<div class="fl"><label>'+GX("f_agGovs")+'</label><div class="ag-pills sel" id="agGovs">'+govs.map(function(g){ return '<button type="button" class="'+(selG.indexOf(g)>-1?"on":"")+'" data-aggov="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
-    (areaOpts.length?'<div class="fl"><label>'+GX("f_agAreas")+'</label><div class="ag-pills sel wrap" id="agAreas">'+areaOpts.map(function(p){ return '<button type="button" class="'+(selA.indexOf(p[1])>-1?"on":"")+'" data-agarea2="'+esc(p[1])+'">'+aN(p[1])+'</button>' }).join("")+'</div></div>':'')+
+    (areaOpts.length?'<div class="fl"><label>'+GX("f_agAreas")+'</label><input id="agAreaQ" class="agq" placeholder="'+esc(GX("agAreaSearch"))+'" data-allow-autofill autocomplete="off"><div class="ag-pills sel wrap" id="agAreas">'+areaOpts.map(function(p){ return '<button type="button" class="'+(selA.indexOf(p[1])>-1?"on":"")+'" data-agarea2="'+esc(p[1])+'">'+aN(p[1])+'</button>' }).join("")+'</div></div>':'')+
     '<div class="xactions"><button class="btn-n" id="agSave" style="width:auto">'+t("saveChanges")+'</button><span class="xmsg" id="agMsg"></span></div>' }
 /* ── account › channels: the member's own Telegram link and per-channel consent (contacts row) ── */
 async function loadMyChannels(){ if(!USER) return; var uid=USER.id; try{ var r=await rpc("bk_member_channels",{}); if(USER&&USER.id===uid){ ACC.ch=r||{}; ACC.chUid=uid } }catch(e){ if(USER&&USER.id===uid){ ACC.ch={}; ACC.chUid=uid } } }
@@ -6749,6 +6750,8 @@ function wireProjects(){
 /* admin */
 var AGENCIES=null, AGENCY=null, MYAGENCY=null, MYINTAKE=null, AGF={g:"",spec:"",q:""}, ADM_AG=null, AG_SPECS=["sale","rent","commercial","land"];
 function agSpecLabel(k){ return GX("spec_"+k) }
+// loose Arabic matching for the area search boxes (no diacritics, أ/إ/آ → ا, ة → ه, ى → ي, leading ال dropped)
+function agNorm(s){ return String(s||"").replace(/[ً-ْـ]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/^ال/,"").toLowerCase().trim() }
 async function loadAgencies(){ if(!DB){ AGENCIES=[]; return } try{ var r=await DB.rpc("bk_public_agencies",cArgs()); AGENCIES=(r&&r.data)||[] }catch(e){ AGENCIES=[] } }
 async function loadAgency(id){ if(!DB){ AGENCY={missing:true,id:id}; return } try{ var r=await DB.rpc("bk_agency_get",{p_id:+id}); AGENCY=(r&&r.data)||{missing:true,id:id} }catch(e){ AGENCY={missing:true,id:id} } }
 async function loadMyAgency(){ if(!DB||!USER){ MYAGENCY=false; return } try{ var r=await DB.rpc("bk_agency_mine",{p_token:USER.token||null}); MYAGENCY=(r&&r.data)||false }catch(e){ MYAGENCY=false } }
@@ -6912,6 +6915,7 @@ function wireAgencies(){
     var collectAg=function(){ MYAGENCY=Object.assign({},MYAGENCY||{},{name:$("#agName").value,phone:$("#agPhone").value,whatsapp:$("#agWa").value,email:$("#agEmail").value,website:$("#agWeb").value,address:$("#agAddress").value,description:$("#agDesc").value,
       specialties:$$("#agSpecs .on").map(function(b){ return b.dataset.agspec }),gov_names:$$("#agGovs .on").map(function(b){ return b.dataset.aggov }),area_names:$$("#agAreas .on").map(function(b){ return b.dataset.agarea2 })}) };
     $$("[data-agspec],[data-agarea2]").forEach(function(b){ b.onclick=function(){ this.classList.toggle("on") } });
+    if($("#agAreaQ")) $("#agAreaQ").oninput=function(){ var q=agNorm(this.value); $$("[data-agarea2]").forEach(function(b){ b.style.display=(!q||b.classList.contains("on")||agNorm(b.textContent).indexOf(q)>-1||agNorm(b.dataset.agarea2).indexOf(q)>-1)?"":"none" }) };
     $$("[data-aggov]").forEach(function(b){ b.onclick=function(){ this.classList.toggle("on"); collectAg(); render() } });
     if($("#agSave")) $("#agSave").onclick=async function(){ collectAg(); var m=$("#agMsg"), a=MYAGENCY;
       if(!a.name||!a.name.trim()){ if(m){ m.style.color="var(--danger)"; m.textContent=GX("f_agName") } return }
@@ -10516,6 +10520,7 @@ var GX_T={
   navListings:{ar:"الإعلانات",en:"Listings",de:"Anzeigen"}, navMarketing:{ar:"التسويق والإيرادات",en:"Marketing & revenue",de:"Marketing & Umsatz"},
   navWebsite:{ar:"الموقع",en:"Website",de:"Website"}, navSystem:{ar:"النظام",en:"System",de:"System"},
   dlgDiscardQ:{ar:"إغلاق النافذة وفقدان ما كتبته؟",en:"Close and lose what you typed?",de:"Schließen und Eingaben verwerfen?"},
+  agAreaSearch:{ar:"ابحث عن منطقة… (Enter يختار النتيجة الوحيدة)",en:"Search areas… (Enter picks a single match)",de:"Gebiet suchen… (Enter wählt den einzigen Treffer)"},
   uAgencyBtn:{ar:"المكتب",en:"Agency",de:"Büro"}, agEditT:{ar:"صفحة المكتب",en:"Agency page",de:"Büroseite"}, agNewBtn:{ar:"إضافة مكتب",en:"Add agency",de:"Büro hinzufügen"}, agPickMember:{ar:"العضو صاحب المكتب",en:"Member who owns the agency",de:"Mitglied, dem das Büro gehört"},
   agEditNew:{ar:"لا مكتب لهذا العضو بعد. املأ البيانات واحفظ؛ تُنشأ الصفحة معتمدة مباشرة وتظهر في دليل المكاتب.",en:"This member has no agency yet. Fill in and save; the page is created approved and listed at once.",de:"Dieses Mitglied hat noch kein Büro. Ausfüllen und speichern; die Seite wird sofort freigegeben."}, agEditExisting:{ar:"تعديل صفحة المكتب الحالية (الحالة: {s}).",en:"Editing the existing agency page (status: {s}).",de:"Bestehende Büroseite bearbeiten (Status: {s})."},
   agSavedAdmin:{ar:"حُفظت صفحة المكتب.",en:"Agency page saved.",de:"Büroseite gespeichert."},
