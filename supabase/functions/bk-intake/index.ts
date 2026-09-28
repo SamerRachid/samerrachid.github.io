@@ -318,6 +318,7 @@ const T = {
     published: (ref: string, url: string) => `✅ تم نشر الإعلان (${ref})\n${url}`,
     pending: (ref: string) => `✅ استلمنا الإعلان (${ref}) وسيظهر على الموقع بعد مراجعة الإدارة.`,
     failed: `تعذّر النشر تلقائياً؛ أحلنا الإعلان إلى الإدارة لإكماله.`,
+    duplicate: (ref: string) => `يبدو أن هذا الإعلان مكرر لإعلانك المنشور (${ltr(ref)}) 🤔 لم ننشره مرة ثانية، وستراجعه الإدارة.\nإن كان عقاراً مختلفاً فأرسل ما يميّزه (المنطقة، المساحة، السعر) وسننشره.`,
     readFailed: `تعذّرت قراءة الإعلان الآن؛ أحلناه إلى الإدارة.`,
     deedNone: `• الطابو: غير مذكور (سيُنشر «بدون طابو»)`,
     condDefault: `• الحالة: غير مذكورة (سيُنشر «سليم»)`,
@@ -370,6 +371,7 @@ const T = {
     published: (ref: string, url: string) => `✅ Published (${ref})\n${url}`,
     pending: (ref: string) => `✅ Received (${ref}). It appears on the site after the team's review.`,
     failed: `Automatic publishing failed; the listing was handed to the team.`,
+    duplicate: (ref: string) => `This looks like a duplicate of your published listing (${ltr(ref)}) 🤔 It was not published again; the team will review it.\nIf it is a different property, send what sets it apart (area, size, price) and we will publish it.`,
     readFailed: `Could not read the listing right now; it was handed to the team.`,
     deedNone: `• Deed: not stated (published as "no deed")`,
     condDefault: `• Condition: not stated (published as "intact")`,
@@ -825,6 +827,20 @@ async function publishDraft(draftId: number, force?: string | null, opts: { quie
   const d = await rpc<any>("bk_intake_get", { p_draft: draftId });
   if (!d) return { error: "nodraft" };
   const lang = d.user_lang === "en" ? "en" : "ar"; const t = tx(lang);
+  // the same property sent twice within a week (the sender re-sent the bot's own summary with more photos, for
+  // instance) is not published again: it goes to the panel as "duplicate of SY…" — the admin can still force it
+  if (!force && d.user_id) {
+    const f = d.fields || {};
+    const q = sb.from("listings").select("id,ref").eq("user_id", d.user_id).in("status", ["live", "pending"]).gt("created_at", new Date(Date.now() - 7 * 86400_000).toISOString()).limit(1);
+    if (f.deal) q.eq("deal", f.deal); if (f.property_type) q.eq("property_type", f.property_type); if (f.area_m2) q.eq("area_m2", f.area_m2); if (f.rooms != null) q.eq("rooms", f.rooms);
+    const { data: dup } = await q;
+    if (dup && dup.length) {
+      await rpc("bk_intake_set", { p_draft: draftId, p_patch: { status: "review", error: "duplicate: " + dup[0].ref } });
+      await log(draftId, d.chat_id, "warn", "duplicate_suspected", { of: dup[0].ref, listing_id: dup[0].id });
+      if (!opts.quiet && d.source !== "web") await reply(d.source, d.chat_id, t.duplicate(dup[0].ref));
+      return { error: "duplicate", of: dup[0].ref };
+    }
+  }
   const pub = await rpc<any>("bk_intake_publish", { p_draft: draftId, p_force_status: force || null });
   if (!pub?.ok) {
     if (pub?.error === "already") { await log(draftId, d.chat_id, "info", "publish_already", pub); return pub; }   // the first publish answered the sender
