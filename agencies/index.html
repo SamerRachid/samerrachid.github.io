@@ -566,6 +566,9 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
 .profmeta .bio{font-size:14px;color:var(--body);margin-top:8px;max-width:60ch;line-height:1.8}
 .vbadge{background:var(--ok-w);color:var(--ok);font-size:12px;font-weight:700;
   padding:3px 9px;border-radius:5px;vertical-align:middle;white-space:nowrap}
+.vbadge.soft{background:var(--gold-w);color:#8a5d10}
+.au-types{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}.aubody label.au-type{display:flex;flex-direction:column;gap:3px;border:1.5px solid var(--line);border-radius:10px;padding:9px 10px;cursor:pointer;text-align:center;margin:0}.au-type input{display:none}.au-type b{display:block;font-size:14px;color:var(--navy)}.au-type small{display:block;font-size:11.5px;color:var(--grey);line-height:1.35}.aubody label.au-type.on{border-color:var(--gold);background:var(--gold-w)}
+@media(max-width:480px){.au-types{grid-template-columns:1fr}.aubody label.au-type{flex-direction:row;align-items:center;justify-content:space-between;text-align:start}}
 .profstats{display:flex;gap:22px;margin-inline-start:auto;text-align:center}
 .profstats b{display:block;font-size:22px;font-weight:700;color:var(--navy)}
 .profstats span{font-size:12.5px;color:var(--grey)}
@@ -4062,7 +4065,7 @@ async function storageUpload(path, file, opts){
   return DB.storage.from("photos").upload(path, file, opts||{}) }
 
 var MEMBER_FNS={bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,
-  bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_own_delete:1,bk_delete_account:1,bk_my_rewards:1,bk_use_feature_credit:1,
+  bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_own_delete:1,bk_delete_account:1,bk_my_rewards:1,bk_use_feature_credit:1,bk_set_account_type:1,
   bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
   bk_search_del:1,bk_search_list:1,bk_search_save:1,bk_set_avatar:1,bk_set_bio:1,bk_set_currency:1,
   bk_update_profile:1,bk_feedback:1,bk_report:1,bk_contact:1,bk_log_view:1};
@@ -4194,6 +4197,9 @@ function authModal(){
  }
  else if(AU.step===1){                                           /* sign up */
   body='<form class="aubody" id="auSignupForm">'+
+   // who is signing up: an owner/individual, a broker under their own name, or an agency (name + logo shown instead of the person)
+   '<div class="auf"><label>'+GX("auTypeL")+'</label><div class="au-types">'+[["member",GX("acctMember"),GX("auTypeMemberP")],["broker",GX("acctBroker"),GX("auTypeBrokerP")],["agency",GX("acctAgency"),GX("auTypeAgencyP")]].map(function(o){
+     return '<label class="au-type'+((AU.type||"member")===o[0]?' on':'')+'"><input type="radio" name="auType" value="'+o[0]+'"'+((AU.type||"member")===o[0]?' checked':'')+'><b>'+o[1]+'</b><small>'+o[2]+'</small></label>' }).join("")+'</div></div>'+
    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">'+
    '<div class="auf"><label>'+t("firstName")+'</label><input id="auName" autocomplete="off" value=""></div>'+
    '<div class="auf"><label>'+t("familyName")+'</label><input id="auFam" autocomplete="off" value=""></div></div>'+
@@ -4521,7 +4527,10 @@ function card(x,i,isListView){
                : typeName+', <span class="ltr">'+x.m2+'</span> '+t("sqm")+' '+GX("lIn")+' '+aN(x.a);
  var perm2 = (x.d!=="rent" && x.m2) ? '<span class="cpm"><span class="ltr">$'+Math.round(x.p/x.m2)+'</span>/'+t("sqm")+'</span>' : (x.d==="rent"?'<span class="cpm">'+t("monthlyRent")+'</span>':'');
  var deedPill = (x.d!=="rent" && D.TABU[x.tb]) ? '<span class="cpill'+(strongDeed(x.tb)?' green':'')+'">'+(strongDeed(x.tb)?'<span class="tabu-green">'+D.TABU[x.tb][li()]+'</span>':D.TABU[x.tb][li()])+'</span>' : '';
- var poster = (x.clogo && x.oav && !x.ow) ? '<span class="cpill agency"><img src="'+x.oav+'" alt="">'+(x.who||t("agent"))+'</span>' : '<span class="cpill soft">'+(x.ow?t("owner"):t("agent"))+'</span>';
+ // who posted: an agency shows its name (and logo when allowed) + ✓, a broker shows "broker", everyone else "owner"
+ var poster = x.oag ? '<span class="cpill agency">'+(x.clogo&&x.oav?'<img src="'+x.oav+'" alt="">':'')+esc(x.oagName||x.who||GX("acctAgency"))+(x.oagVer?' ✓':'')+'</span>'
+   : x.otype==="broker" ? '<span class="cpill soft">'+GX("acctBroker")+'</span>'
+   : (x.clogo && x.oav && !x.ow) ? '<span class="cpill agency"><img src="'+x.oav+'" alt="">'+(x.who||t("agent"))+'</span>' : '<span class="cpill soft">'+(x.ow?t("owner"):t("agent"))+'</span>';
  var since = '<span class="csince">'+GX("cSince").replace("{d}",'<span class="ltr">'+x.days+'</span>')+'</span>';
  var desc = isListView && x.ds && dsOf(x) ? '<p class="cdesc">'+dsOf(x)+'</p>' : '';
 
@@ -4944,15 +4953,18 @@ function listing(id){
    '<div class="lmapnote">'+I.pin+' '+aN(x.a)+(ar?'، ':', ')+gN(x.g)+(x.lm?' · '+x.lm:'')+'</div></section>' : '';
 
  /* ── sticky side: price and contact ── */
- var ownerName = x.who||(x.ow?t("owner"):t("agent"));
+ var ownerName = x.oag ? (x.oagName||x.who) : (x.who||(x.ow?t("owner"):t("agent")));
+ // public identity: an agency links to its page and carries the agency badge (no member level badge); a broker carries "broker"
+ var posterBadge = x.oag ? ' <span class="vbadge">'+(x.oagVer?'✓ ':'')+GX("acctAgency")+'</span>' : x.otype==="broker" ? ' <span class="vbadge soft">'+GX("acctBroker")+'</span>'+levelBadge(x.olevel) : levelBadge(x.olevel);
  var side='<aside class="lside">'+
   '<div class="lprice">'+
    '<div class="big">'+priceBlock(x,1)+(x.negot?' <span class="negot">'+t("negot")+'</span>':'')+'</div>'+
    '<div class="sub">'+(isRent?t("monthlyRent"):'<span class="ltr">$'+Math.round(x.p/x.m2)+'</span> '+t("perm"))+'</div>'+
    priceContextHtml(x)+
    '<div class="lowner">'+avatar(x.oav,ownerName,48)+'<div>'+
-    (x.uid?'<a class="nm" data-byuser="'+x.uid+'" data-name="'+(x.who||"")+'" style="cursor:pointer">'+ownerName+levelBadge(x.olevel)+'</a>'
-          :'<b class="nm">'+ownerName+levelBadge(x.olevel)+'</b>')+
+    (x.oag?'<a class="nm" data-agopen="'+x.oag+'" style="cursor:pointer">'+esc(ownerName)+posterBadge+'</a>'
+     :x.uid?'<a class="nm" data-byuser="'+x.uid+'" data-name="'+(x.who||"")+'" style="cursor:pointer">'+ownerName+posterBadge+'</a>'
+          :'<b class="nm">'+ownerName+posterBadge+'</b>')+
     '<div class="sm">'+(x.oJoined?t("memberSince")+' <span class="ltr">'+new Date(x.oJoined).getFullYear()+'</span> · ':'')+
      (x.orCount?'<span class="ltr" style="color:var(--gold)">'+stars(x.orAvg)+'</span> <b class="ltr">'+x.orAvg+'</b> <span class="ltr">('+x.orCount+')</span>':t("noReviews"))+'</div>'+
     '<div class="sm">'+t("replies")+'</div></div></div>'+
@@ -5281,7 +5293,9 @@ var REVSTARS=0;
 async function loadByUser(uid){
   REVSTARS=0;
   if(!DB) return;
-  try{ var pr=await DB.rpc("bk_profile",{p_user:uid}); if(pr&&pr.data&&!pr.data.error) BYUSER.profile=pr.data }catch(e){}
+  try{ var pr=await DB.rpc("bk_profile",{p_user:uid}); if(pr&&pr.data&&!pr.data.error){ BYUSER.profile=pr.data;
+    // a member with an approved agency has ONE public page: the agency's (old links to the person land there too)
+    if(pr.data.agency_id && VIEW==="by:"+uid){ AGENCY=null; VIEW="agency:"+pr.data.agency_id; await loadAgency(pr.data.agency_id); return } } }catch(e){}
   try{ var r=await DB.rpc("bk_by_user",{p_user:uid});
        if(r&&r.data){ BYUSER.rows=r.data.map(fromRow);
          if(r.data[0]) BYUSER.city=[r.data[0].owner_city,r.data[0].owner_country].filter(Boolean).join("، ");
@@ -5299,7 +5313,7 @@ function byUserView(){
  '<div class="profcard">'+
   '<div class="profhead">'+avatar(p.avatar_url,nm,86,"big")+
    '<div class="profmeta">'+
-    '<h1>'+nm+levelBadge(p.level)+(p.deed_verified?' <span class="vbadge">✓ '+t("verified")+'</span>':'')+'</h1>'+
+    '<h1>'+nm+(p.account_type==="broker"?' <span class="vbadge soft">'+GX("acctBroker")+'</span>':'')+levelBadge(p.level)+(p.deed_verified?' <span class="vbadge">✓ '+t("verified")+'</span>':'')+'</h1>'+
     (rv.count?'<div class="ratingline"><span class="starsbig">'+stars(rv.avg)+'</span>'+
       '<b class="ltr">'+rv.avg+'</b><span class="ltr">('+rv.count+')</span></div>'
      :'<div class="ratingline" style="color:var(--light)">'+t("noReviews")+'</div>')+
@@ -5313,7 +5327,15 @@ function byUserView(){
     '<div><b class="ltr">'+(p.total||rows.length)+'</b><span>'+t("totalAds")+'</span></div>'+
    '</div>'+
   '</div></div>'+
- (!isSelf ? '<div class="blk" style="margin-top:16px"><h3><span class="n">★</span>'+t("rateMember")+'</h3><div class="in">'+
+ reviewsBlock(rv,isSelf,t("rateMember"))+
+ (rows.length?'<h2 style="font-size:18px;font-weight:700;margin:20px 0 12px">'+t("theirAds")+'</h2>'+
+   '<div class="res">'+rows.map(function(x,i){return card(x,i,false)}).join("")+'</div>'
+  :'<div class="done2" style="margin-top:16px"><b>'+t("noneMine")+'</b></div>')+'</div>'}
+
+// the "rate" box + the list of reviews, shared by the member page and the agency page (reviews live on the account)
+function reviewsBlock(rv,isSelf,title){
+ rv=rv||{avg:null,count:0,list:[]};
+ return (!isSelf ? '<div class="blk" style="margin-top:16px"><h3><span class="n">★</span>'+title+'</h3><div class="in">'+
    (USER || (window.ADM&&ADM.token)
     ? '<div class="starpick" id="starpick">'+[1,2,3,4,5].map(function(nS){
         return '<span data-star="'+nS+'" class="'+(nS<=REVSTARS?"on":"")+'">★</span>'}).join("")+'</div>'+
@@ -5330,11 +5352,7 @@ function byUserView(){
      '<div><div><b style="font-size:13.5px">'+(rr.author_name||t("userDefault"))+'</b>'+
      '<span class="ltr" style="color:var(--gold);margin-inline-start:8px">'+stars(rr.stars)+'</span></div>'+
      (rr.body?'<p style="font-size:13.5px;color:var(--body);margin-top:3px">'+rr.body+'</p>':'')+'</div></div>'}).join("")+
-  '</div></div>' : '')+
- (rows.length?'<h2 style="font-size:18px;font-weight:700;margin:20px 0 12px">'+t("theirAds")+'</h2>'+
-   '<div class="res">'+rows.map(function(x,i){return card(x,i,false)}).join("")+'</div>'
-  :'<div class="done2" style="margin-top:16px"><b>'+t("noneMine")+'</b></div>')+'</div>'}
-
+  '</div></div>' : '') }
 /* ── who we are ── */
 function about(){
  var A=D.ABOUT[L], cl=cLocal;
@@ -5771,6 +5789,7 @@ function agencyFormFields(){
     '<div class="row"><div class="fl"><label>'+GX("f_agWa")+'</label><input data-allow-autofill id="agWa" class="ltr" value="'+esc(a.whatsapp||"")+'"></div><div class="fl"><label>'+GX("f_agEmail")+'</label><input data-allow-autofill id="agEmail" class="ltr" value="'+esc(a.email||"")+'"></div></div>'+
     '<div class="row"><div class="fl"><label>'+GX("f_agWeb")+'</label><input data-allow-autofill id="agWeb" class="ltr" value="'+esc(a.website||"")+'" placeholder="https://"></div><div class="fl"><label>'+GX("f_agAddress")+'</label><input data-allow-autofill id="agAddress" value="'+esc(a.address||"")+'"></div></div>'+
     '<div class="fl"><label>'+GX("f_agDesc")+'</label><textarea id="agDesc" maxlength="600">'+esc(a.description||"")+'</textarea></div>'+
+    '<div class="fl"><label>'+GX("agContactPersonL")+'</label><input data-allow-autofill id="agContact" value="'+esc(a.contact_person||"")+'" placeholder="'+esc(GX("agContactPersonPH"))+'"></div>'+
     '<div class="fl"><label>'+GX("f_agSpecs")+'</label><div class="ag-pills sel" id="agSpecs">'+AG_SPECS.map(function(k){ return '<button type="button" class="'+(specs.indexOf(k)>-1?"on":"")+'" data-agspec="'+k+'">'+agSpecLabel(k)+'</button>' }).join("")+'</div></div>'+
     '<div class="fl"><label>'+GX("f_agGovs")+'</label><div class="ag-pills sel" id="agGovs">'+govs.map(function(g){ return '<button type="button" class="'+(selG.indexOf(g)>-1?"on":"")+'" data-aggov="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
     (areaOpts.length?'<div class="fl"><label>'+GX("f_agAreas")+'</label><input id="agAreaQ" class="agq" placeholder="'+esc(GX("agAreaSearch"))+'" data-allow-autofill autocomplete="off"><div class="ag-pills sel wrap" id="agAreas">'+areaOpts.map(function(p){ return '<button type="button" class="'+(selA.indexOf(p[1])>-1?"on":"")+'" data-agarea2="'+esc(p[1])+'">'+aN(p[1])+'</button>' }).join("")+'</div></div>':'')+
@@ -5813,9 +5832,9 @@ function wireAccountChannels(){
 function account(){
  if(!USER) return gate();
  var ch=myChannels();
- var isAg=!!(MYAGENCY&&MYAGENCY.id), showAg=isAg||ACC.agForm, approved=isAg&&MYAGENCY.status==="approved";
+ var acctType=USER.account_type||"member", isAg=!!(MYAGENCY&&MYAGENCY.id), showAg=isAg||ACC.agForm||acctType==="agency", approved=isAg&&MYAGENCY.status==="approved";
  var hasIntake=approved && MYINTAKE && MYINTAKE.agency && MYINTAKE.agency.intake_enabled && MYINTAKE.enabled!==false;
- var nav=[["agency",ACI.agency,isAg?GX("accAgency"):GX("accBecomeAgency"),isAg?agStatusPill(MYAGENCY.status):""]]
+ var nav=(showAg?[["agency",ACI.agency,isAg?GX("accAgency"):GX("accBecomeAgency"),isAg?agStatusPill(MYAGENCY.status):""]]:[])
    .concat(hasIntake?[["intake",ACI.intake,GX("aiTitle"),(MYINTAKE.agency.paired?'<span class="st st-live">'+GX("aiPaired")+'</span>':'')]]:[])
    .concat([["me",ACI.me,GX("accMe"),""],["channels",ACI.channels,GX("accChannels"),(ch&&ch.tg_linked?'<span class="st st-live">'+GX("accChLinked")+'</span>':"")],["security",ACI.lock,GX("accSecurity"),""]]);
  var cur=ACC.sec||(isAg?"agency":"me");
@@ -5827,15 +5846,17 @@ function account(){
      accLogoHtml(true)+agencyFormFields();
  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("accTitle")+'</div></div>'+
   '<div class="wrap acct2">'+
-   '<div class="acct-h">'+avatar(USER.avatar_url,USER.name,52,"big")+'<div><h1>'+esc(fullName(USER))+'</h1><p>'+(USER.member_no?'<span class="memno" title="'+esc(GX("accMemberNo"))+'"><span class="ltr">'+esc(USER.member_no)+'</span></span> · ':'')+(isAg?esc(MYAGENCY.name)+' · ':'')+'<span class="ltr">'+esc(USER.phone||"")+'</span></p></div></div>'+
+   '<div class="acct-h">'+avatar(USER.avatar_url,USER.name,52,"big")+'<div><h1>'+(approved?esc(MYAGENCY.name)+' <span class="vbadge">'+(MYAGENCY.verified?'✓ ':'')+GX("acctAgency")+'</span>':esc(fullName(USER))+(acctType==="broker"?' <span class="vbadge soft">'+GX("acctBroker")+'</span>':''))+'</h1><p>'+(USER.member_no?'<span class="memno" title="'+esc(GX("accMemberNo"))+'"><span class="ltr">'+esc(USER.member_no)+'</span></span> · ':'')+(approved?GX("accPersonal")+': '+esc(fullName(USER))+' · ':'')+'<span class="ltr">'+esc(USER.phone||"")+'</span></p></div></div>'+
    '<div class="acct-grid"><nav class="acct-nav" aria-label="'+esc(GX("accTitle"))+'">'+nav.map(function(n){ return '<a class="'+(n[0]===cur?"on":"")+'" data-acsec="'+n[0]+'">'+n[1]+'<span>'+n[2]+'</span>'+(n[3]?'<span class="acnav-st">'+n[3]+'</span>':'')+'</a>' }).join("")+'</nav>'+
    '<div class="acct-main">'+
-    sec("agency", isAg?GX("accAgency"):GX("accBecomeAgency"), agencyBody, "")+
+    (showAg?sec("agency", isAg?GX("accAgency"):GX("accBecomeAgency"), agencyBody, ""):'')+
     (hasIntake?'<section class="acsec" id="acs-intake">'+agencyIntakeHtml()+'</section>':'')+
     sec("me", GX("accMe"),
       '<div class="row"><div class="fl"><label>'+t("firstName")+'</label><input id="acName" autocomplete="off" value="'+esc(USER.name)+'"></div><div class="fl"><label>'+t("familyName")+'</label><input id="acFam" autocomplete="off" value="'+esc(USER.family_name)+'"></div></div>'+
       '<div class="row"><div class="fl"><label>'+t("city")+'</label><input id="acCity" autocomplete="off" value="'+esc(USER.city)+'"></div><div class="fl"><label>'+t("country")+'</label><select id="acCountry">'+(function(){ var cur=String(USER.country||COUNTRY||"SY").toUpperCase(), list=countryList().slice(); if(!list.some(function(c){ return c.code===cur })) list.push({code:cur,name_ar:cur,name_en:cur}); return list.map(function(c){ return '<option value="'+esc(c.code)+'"'+(c.code===cur?' selected':'')+'>'+flagOf(c.code)+' '+esc(countryName(c)||c.code)+'</option>' }).join("") })()+'</select></div></div>'+
       '<div class="fl"><label>'+t("bio")+'</label><textarea id="acBio" maxlength="300" placeholder="'+t("bioPH")+'">'+esc(USER.bio)+'</textarea></div>'+
+      // account type: member / broker / agency — decides how the account is shown to visitors; changing it takes effect at once (an agency page still needs approval)
+      '<div class="fl"><label>'+GX("accTypeL")+'</label><select id="acType">'+[["member",GX("acctMember")],["broker",GX("acctBroker")],["agency",GX("acctAgency")]].map(function(o){ return '<option value="'+o[0]+'"'+(acctType===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select><div class="hintx">'+GX("accTypeHint")+'</div></div>'+
       (showAg?'':accLogoHtml(false))+
       '<div class="xactions"><button class="btn-n" id="acSave" style="width:auto">'+t("saveChanges")+'</button><span class="xmsg" id="acMsg"></span></div>', "")+
     sec("channels", GX("accChannels"), accChannelsHtml(ch), "")+
@@ -6784,21 +6805,25 @@ function agencyPage(id){
   if(a.missing) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:18px">'+t("notFound")+'</b><div style="margin-top:18px"><button class="btn-n" data-go="agencies">'+GX("agDirShort")+'</button></div></div></div>';
   var mine=D.LIST.filter(function(x){ return x.uid===a.user_id && (!x.status||x.status==="live") });
   var wa=(a.whatsapp||a.phone||"").replace(/\D/g,"");
+  var rv=a.reviews||{avg:null,count:0,list:[]}, isSelf=!!(USER&&USER.id===a.user_id);
+  BYUSER=BYUSER||{}; BYUSER.id=a.user_id;   // the rate box targets the account behind the agency
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a data-go="agencies">'+GX("agDirShort")+'</a><i>›</i>'+esc(a.name)+'</div></div>'+
    '<div class="wrap agprof">'+
-    '<div class="profcard"><div class="profhead">'+avatar(a.logo_url,a.name,86,"big")+'<div class="profmeta"><h1>'+esc(a.name)+(a.verified?' <span class="vbadge">✓ '+GX("agVerified")+'</span>':'')+'</h1>'+
+    '<div class="profcard"><div class="profhead">'+avatar(a.logo_url,a.name,86,"big")+'<div class="profmeta"><h1>'+esc(a.name)+' <span class="vbadge">'+(a.verified?'✓ ':'')+GX("acctAgency")+'</span></h1>'+
+      (rv.count?'<div class="ratingline"><span class="starsbig">'+stars(rv.avg)+'</span><b class="ltr">'+rv.avg+'</b><span class="ltr">('+rv.count+')</span></div>':'<div class="ratingline" style="color:var(--light)">'+t("noReviews")+'</div>')+
       '<div class="agspecs big">'+(a.specialties||[]).map(function(k){ return '<i>'+agSpecLabel(k)+'</i>' }).join("")+'</div>'+
       (a.address?'<div class="pl">'+esc(a.address)+'</div>':'')+(a.member_since?'<div class="pl">'+GX("agSince").replace("{y}",'<span class="ltr">'+new Date(a.member_since).getFullYear()+'</span>')+'</div>':'')+
       (a.description?'<p class="bio">'+esc(a.description)+'</p>':'')+'</div>'+
      '<div class="profstats"><div><b class="ltr">'+(a.live||0)+'</b><span>'+t("liveAds")+'</span></div><div><b class="ltr">'+(a.closed||0)+'</b><span>'+t("soldAds")+'</span></div><div><b class="ltr">'+((a.area_names||[]).length)+'</b><span>'+GX("f_agAreas")+'</span></div></div></div>'+
     '<div class="agcontact">'+(a.phone?'<a class="btn-n" href="tel:'+esc(a.phone)+'">'+MI.phone+GX("agCall")+'</a>':'')+(wa?'<a class="btn-n wa" href="https://wa.me/'+wa+'" target="_blank" rel="noopener">'+MI.msgs+GX("agWa")+'</a>':'')+
       (a.email?'<a class="gh" href="mailto:'+esc(a.email)+'">'+MI.mail+GX("agEmail")+'</a>':'')+(a.website?'<a class="gh" href="'+esc(a.website)+'" target="_blank" rel="noopener">'+MI.about+GX("agWeb")+'</a>':'')+
-      '<a class="gh" data-agseller="'+esc(a.user_id)+'">'+MI.mine+GX("agMemberPage")+'</a>'+
       (USER&&USER.id===a.user_id?'<a class="gh agown" data-go="agencyform">'+GX("accManage")+'</a>':'')+'</div>'+   // the owner: straight to the edit page (Telegram link card lives there)
+    (a.contact_person?'<div class="hintx" style="margin-top:8px">'+GX("agContactPersonL")+': <b>'+esc(a.contact_person)+'</b></div>':'')+
     ((a.gov_names||[]).length||(a.area_names||[]).length ? '<div class="blk" style="margin-top:16px"><h3>'+GX("agAreasServed")+'</h3><div class="in"><div class="agchips">'+
       (a.gov_names||[]).map(function(g){ return '<a class="chip" data-go="search" data-gov="'+esc(g)+'">'+gN(g)+'</a>' }).join("")+(a.area_names||[]).map(function(x){ return '<a class="chip soft" data-agarea="'+esc(x)+'">'+aN(x)+'</a>' }).join("")+'</div></div></div>' : '')+
     '<h2 style="font-size:18px;font-weight:700;margin:22px 0 12px">'+GX("agListingsH")+' <span class="ltr" style="color:var(--grey);font-weight:500">('+mine.length+')</span></h2>'+
     (mine.length?'<div class="res">'+mine.map(function(x,i){ return card(x,i,false) }).join("")+'</div>':'<div class="resempty"><b>'+GX("agNoListings")+'</b></div>')+
+    reviewsBlock(rv,isSelf,GX("agRate"))+
    '</div>' }
 function agencyFormPage(){ if(!USER) return gate(); ACC.agForm=true; return account() }
 /* ── message intake on the site: paste a WhatsApp text into the post form; the agency's "post by message" block ── */
@@ -6913,6 +6938,7 @@ function wireAgencies(){
     if(VIEW==="account") wireAccountChannels();
     if(!$("#agName")) return;
     var collectAg=function(){ MYAGENCY=Object.assign({},MYAGENCY||{},{name:$("#agName").value,phone:$("#agPhone").value,whatsapp:$("#agWa").value,email:$("#agEmail").value,website:$("#agWeb").value,address:$("#agAddress").value,description:$("#agDesc").value,
+      contact_person:($("#agContact")||{}).value||"",
       specialties:$$("#agSpecs .on").map(function(b){ return b.dataset.agspec }),gov_names:$$("#agGovs .on").map(function(b){ return b.dataset.aggov }),area_names:$$("#agAreas .on").map(function(b){ return b.dataset.agarea2 })}) };
     $$("[data-agspec],[data-agarea2]").forEach(function(b){ b.onclick=function(){ this.classList.toggle("on") } });
     if($("#agAreaQ")) $("#agAreaQ").oninput=function(){ var q=agNorm(this.value); $$("[data-agarea2]").forEach(function(b){ b.style.display=(!q||b.classList.contains("on")||agNorm(b.textContent).indexOf(q)>-1||agNorm(b.dataset.agarea2).indexOf(q)>-1)?"":"none" }) };
@@ -6920,8 +6946,8 @@ function wireAgencies(){
     if($("#agSave")) $("#agSave").onclick=async function(){ collectAg(); var m=$("#agMsg"), a=MYAGENCY;
       if(!a.name||!a.name.trim()){ if(m){ m.style.color="var(--danger)"; m.textContent=GX("f_agName") } return }
       this.disabled=true;
-      try{ var r=await DB.rpc("bk_agency_save",{p_token:USER.token||null,p_name:a.name,p_description:a.description||null,p_phone:a.phone||null,p_whatsapp:a.whatsapp||null,p_email:a.email||null,p_website:a.website||null,p_address:a.address||null,p_govs:a.gov_names||[],p_areas:a.area_names||[],p_specialties:a.specialties||[]});
-        if(r.error) throw r.error; MYAGENCY=r.data||a; AGENCIES=null; render(); var m2=$("#agMsg"); if(m2){ m2.style.color="var(--ok)"; m2.textContent = MYAGENCY.status==="approved" ? GX("agSavedOk") : GX("agSaved") } }
+      try{ var r=await DB.rpc("bk_agency_save",{p_token:USER.token||null,p_name:a.name,p_description:a.description||null,p_phone:a.phone||null,p_whatsapp:a.whatsapp||null,p_email:a.email||null,p_website:a.website||null,p_address:a.address||null,p_govs:a.gov_names||[],p_areas:a.area_names||[],p_specialties:a.specialties||[],p_contact_person:a.contact_person||null});
+        if(r.error) throw r.error; MYAGENCY=r.data||a; AGENCIES=null; if(USER&&USER.account_type!=="agency"){ USER.account_type="agency"; saveSession(USER) } render(); var m2=$("#agMsg"); if(m2){ m2.style.color="var(--ok)"; m2.textContent = MYAGENCY.status==="approved" ? GX("agSavedOk") : GX("agSaved") } }
       catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } this.disabled=false } };
   }
 }
@@ -8126,6 +8152,7 @@ function wireAuth(){
  if($("#auForgot"))$("#auForgot").onclick=function(){AU.step=5;render()};
 
  /* ── sign up ── */
+ $$("input[name=auType]").forEach(function(i){ i.onchange=function(){ AU.type=this.value; $$(".au-type").forEach(function(l){ l.classList.toggle("on", l.querySelector("input").checked) }) } });
  if($("#auStart"))$("#auStart").onclick=function(){
    var p=($("#auPhone").value||"").replace(/\D/g,"");
    if(!$("#auName").value.trim()) return err("badName");
@@ -8136,6 +8163,7 @@ function wireAuth(){
    if($("#auPass").value!==$("#auPass2").value) return err("noMatch");
    AU.cc=$("#auCC").value; AU.phone=p;
    AU.name=$("#auName").value.trim(); AU.fam=$("#auFam").value.trim();
+   AU.type=(($("input[name=auType]:checked")||{}).value)||"member";
    AU.currency=($("#auCurrency")||{}).value||"USD";
    var auEm=($("#auEmail")?$("#auEmail").value:"").trim().toLowerCase();
    AU.email=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(auEm)?auEm:"";   // optional — silently dropped if left blank or not a valid address, never blocks signup
@@ -8151,8 +8179,9 @@ function wireAuth(){
    if(u.preferred_currency && (((countryOf(COUNTRY)||{}).currencies)||["USD"]).indexOf(u.preferred_currency)>-1){ CUR=u.preferred_currency; curPrefSet(COUNTRY,CUR) }
    AU.step=4; render(); loadNotifications().then(render); startNotifPolling() };
  var doRegister=async function(){
-   var u=await rpc("bk_register",{p_ticket:AU.ticket, p_secret:AU.secret, p_name:AU.name, p_family:AU.fam, p_hash:await sha(AU.pass), p_currency:AU.currency||"USD", p_lang:L});
+   var u=await rpc("bk_register",{p_ticket:AU.ticket, p_secret:AU.secret, p_name:AU.name, p_family:AU.fam, p_hash:await sha(AU.pass), p_currency:AU.currency||"USD", p_lang:L, p_type:AU.type||"member"});
    afterAuth(u);
+   if(AU.type==="agency"){ ACC.agForm=true; ACC.sec="agency" }   // an agency signs up → its page form is the first thing it sees in the account
    if(AU.consent!=null){ var cv=AU.consent?"subscribed":"unsubscribed"; rpc("bk_member_consent",{p_wa:cv,p_email:cv}).catch(function(){}) }
    ACC.ch=null; loadMyChannels().then(render) };   // the welcome screen's Telegram button needs the member's contact id
  var verifyGone=function(why){ err(why==="rejected"?GX("vRejected"):why==="error"?GX("vExpired"):GX("vExpired")) };
@@ -8270,6 +8299,7 @@ function wireAuth(){
    }catch(e){ b.disabled=false; b.textContent=GX("accDelBtn"); m.style.color="var(--danger)";
         m.textContent = e.message==="badpass"?t("wrongPass"):e.message==="admin"?GX("accDelAdmin"):e.message } };
 
+ if($("#acType")) $("#acType").onchange=async function(){ var v=this.value, sel=this; try{ await rpc("bk_set_account_type",{p_type:v}); USER.account_type=v; saveSession(USER); if(v==="agency"){ ACC.agForm=true; ACC.sec="agency" } render(); alert(GX("accTypeSaved")) }catch(e){ alert(e.message||"error"); sel.value=USER.account_type||"member" } };
  if($("#cpSave"))$("#cpSave").onclick=async function(){
    var m=$("#cpMsg"), b=this;
    if(($("#cpNew").value||"").length<6){ m.style.color="var(--danger)"; m.textContent=t("shortPass"); return }
@@ -8308,7 +8338,7 @@ function wireAuth(){
      // a member reviews with their own session; an admin browsing without one leaves the review as themselves via the admin RPC
      if(USER) await rpc("bk_review_set",{p_author:USER.id, p_target:BYUSER.id, p_stars:REVSTARS, p_body:($("#revBody")||{}).value||null});
      else await rpc("bk_admin_review_set",{p_token:ADM.token, p_target:BYUSER.id, p_stars:REVSTARS, p_body:($("#revBody")||{}).value||null});
-     await loadByUser(BYUSER.id);
+     if(VIEW.indexOf("agency:")===0 && AGENCY){ REVSTARS=0; await loadAgency(AGENCY.id) } else await loadByUser(BYUSER.id);
      if(m){ m.style.color="var(--ok)"; m.textContent=t("savedOk") }
      render();
    }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" }
@@ -8565,6 +8595,7 @@ function fromRow(r){
     ocity:r.owner_city||null, ocountry:r.owner_country||null, oav:r.owner_avatar||null, clogo:!!r.owner_card_logo,
     aid:r.area_id||null,
     olevel:r.owner_level||"member", closedAt:r.closed_at||null, oJoined:r.owner_created_at||null,
+    otype:r.owner_type||"member", oag:r.owner_agency_id||null, oagName:r.owner_agency_name||null, oagVer:!!r.owner_agency_verified,
     orAvg:r.owner_rating_avg||null, orCount:r.owner_rating_count||0, dir:r.direction||null,
     lm:r.landmark||"", lat:r.lat||null, lng:r.lng||null,
     lease:r.lease_months||null, adv:r.advance_months||null,
@@ -10459,7 +10490,11 @@ var GX_T={
   agEmpty:{ar:"لا مكاتب مطابقة بعد.",en:"No matching agencies yet.",de:"Noch keine passenden Büros."}, agEmptyCta:{ar:"كن أول مكتب في هذه المنطقة على بلكون.",en:"Be the first agency for this area on Balkoun.",de:"Seien Sie das erste Büro für dieses Gebiet auf Balkoun."},
   agAreasServed:{ar:"المناطق التي يخدمها المكتب",en:"Areas served",de:"Bediente Gebiete"}, agCall:{ar:"اتصال",en:"Call",de:"Anrufen"}, agWa:{ar:"واتساب",en:"WhatsApp",de:"WhatsApp"}, agEmail:{ar:"بريد",en:"Email",de:"E-Mail"}, agWeb:{ar:"الموقع",en:"Website",de:"Website"},
   agListingsH:{ar:"إعلانات المكتب",en:"The agency's listings",de:"Anzeigen des Büros"}, agNoListings:{ar:"لا إعلانات حيّة حالياً.",en:"No live listings at the moment.",de:"Derzeit keine aktiven Anzeigen."},
-  agMemberPage:{ar:"صفحة العضو والتقييمات",en:"Member page and reviews",de:"Mitgliedsseite und Bewertungen"}, agSince:{ar:"على بلكون منذ {y}",en:"On Balkoun since {y}",de:"Auf Balkoun seit {y}"},
+  agMemberPage:{ar:"صفحة العضو والتقييمات",en:"Member page and reviews",de:"Mitgliedsseite und Bewertungen"},
+  acctMember:{ar:"عضو",en:"Member",de:"Mitglied",fr:"Membre"}, acctBroker:{ar:"وسيط عقاري",en:"Real-estate broker",de:"Immobilienmakler",fr:"Courtier immobilier"}, acctAgency:{ar:"مكتب عقاري",en:"Real-estate agency",de:"Immobilienbüro",fr:"Agence immobilière"},
+  auTypeL:{ar:"أنا",en:"I am",de:"Ich bin",fr:"Je suis"}, auTypeMemberP:{ar:"مالك أو باحث عن عقار",en:"an owner or a home seeker",de:"Eigentümer oder Suchender",fr:"propriétaire ou chercheur"}, auTypeBrokerP:{ar:"أعمل باسمي الشخصي",en:"working under my own name",de:"arbeite unter eigenem Namen",fr:"travaille sous mon nom"}, auTypeAgencyP:{ar:"مكتب باسم وشعار",en:"an office with a name and logo",de:"Büro mit Name und Logo",fr:"une agence avec nom et logo"},
+  accTypeL:{ar:"نوع الحساب",en:"Account type",de:"Kontotyp",fr:"Type de compte"}, accTypeHint:{ar:"يحدد كيف يظهر حسابك للزوار: العضو باسمه، الوسيط باسمه مع شارة «وسيط عقاري»، والمكتب باسم المكتب وشعاره (بعد اعتماد صفحة المكتب).",en:"Decides how visitors see you: a member by name, a broker by name with a broker badge, an agency by its name and logo (once its page is approved).",de:"Bestimmt, wie Besucher Sie sehen: Mitglied mit Namen, Makler mit Namen und Makler-Abzeichen, Büro mit Büroname und Logo (nach Freigabe der Seite).",fr:"Détermine comment les visiteurs vous voient."}, accTypeSaved:{ar:"تم تغيير نوع الحساب.",en:"Account type changed.",de:"Kontotyp geändert.",fr:"Type de compte modifié."},
+  accPersonal:{ar:"حسابك الشخصي",en:"Your personal account",de:"Ihr persönliches Konto",fr:"Votre compte personnel"}, agContactPersonL:{ar:"اسم المسؤول عن التواصل (اختياري)",en:"Contact person (optional)",de:"Ansprechpartner (optional)",fr:"Personne à contacter (facultatif)"}, agContactPersonPH:{ar:"يظهر في صفحة المكتب فقط إن كتبته",en:"Shown on the agency page only if filled",de:"Nur sichtbar, wenn ausgefüllt",fr:"Affiché uniquement si rempli"}, agRate:{ar:"قيّم هذا المكتب",en:"Rate this agency",de:"Dieses Büro bewerten",fr:"Noter cette agence"}, agSince:{ar:"على بلكون منذ {y}",en:"On Balkoun since {y}",de:"Auf Balkoun seit {y}"},
   agFormT:{ar:"بيانات المكتب",en:"Agency profile",de:"Büroprofil"},
   agFormP:{ar:"أكمل بيانات مكتبك ليظهر في دليل المكاتب بعد موافقة فريق بلكون. كل ما تحفظه هنا يظهر للزوار كما هو.",en:"Complete your agency profile to appear in the directory once the Balkoun team approves it. Everything you save here is shown to visitors as is.",de:"Vervollständigen Sie Ihr Büroprofil, um nach Freigabe im Verzeichnis zu erscheinen. Alles hier wird Besuchern so angezeigt."},
   agLogoHint:{ar:"شعار المكتب هو صورة حسابك؛ غيّره من",en:"Your account photo is the agency logo; change it under",de:"Ihr Profilbild ist das Büro-Logo; ändern unter"},
@@ -11225,7 +11260,7 @@ function engAddForm(){ var today=new Date(); var iso=today.getFullYear()+"-"+Str
   '<div class="row3x"><div class="fl"><label>'+GX("engClient")+'</label><input data-allow-autofill id="eaClient"></div><div class="fl"><label>'+t("phoneNumberL")+'</label><input data-allow-autofill id="eaPhone" class="ltr"></div><div class="fl"><label>'+GX("engNotes")+'</label><input data-allow-autofill id="eaNotes"></div></div>'+
   '<div class="row"><div class="fl"><label>'+GX("engFrom")+'</label><input type="date" id="eaFrom" value="'+iso+'"></div><div class="fl"><label>'+GX("engTo")+'</label><input type="date" id="eaTo"></div></div>'+
   '<div class="xactions"><button class="ab ok" id="engAddSave">'+t("save")+'</button><button class="ab" id="engAddCancel">'+t("cancel")+'</button><span class="xmsg" id="eaMsg"></span></div></div></div>' }
-var LEVELS_ALL=["member","silver","gold","trusted","vip","partner","trusted_agency"];
+var LEVELS_ALL=["member","silver","gold","trusted","vip","partner"];   // "trusted_agency" retired 2026-09-28: the agency's own ✓ says it
 var ST_PLANS={free:{storage:1024,egress:5120}, pro:{storage:102400,egress:256000}};
 function stSize(b){ b=+b||0; if(b<1024) return b+' B'; if(b<1048576) return Math.round(b/1024)+' KB'; if(b<1073741824) return (Math.round(b/1048576*10)/10)+' MB'; return (Math.round(b/1073741824*100)/100)+' GB' }
 function applyGeo(geo){
