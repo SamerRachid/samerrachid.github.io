@@ -906,7 +906,8 @@ function adminAgenciesBody(){
       (a.status==="approved"?'<div class="agintk"><b>'+GX("tIntake")+'</b>'+
         '<button type="button" class="ab'+(a.intake_enabled?' on':'')+'" data-agintake="'+a.id+':'+(a.intake_enabled?"0":"1")+'">'+(a.intake_enabled?GX("agIntakeOn"):GX("agIntakeOff"))+'</button>'+
         (a.intake_enabled?'<button type="button" class="ab'+(a.intake_trusted?' on':'')+'" data-agtrust="'+a.id+':'+(a.intake_trusted?"0":"1")+'">'+(a.intake_trusted?GX("agTrustOn"):GX("agTrustOff"))+'</button>'+
-          (a.intake_telegram?'<span class="st st-live">'+GX("agPairedTg")+(a.intake_telegram_name?' · '+esc(a.intake_telegram_name):'')+'</span>':'<span class="st st-pending">'+GX("agNotPaired")+'</span>')+
+          '<span class="st st-live" title="'+esc(GX("agAutoWaHint"))+'">'+GX("agAutoWa")+'</span>'+
+          (a.intake_telegram?'<span class="st st-live">'+GX("agPairedTg")+(a.intake_telegram_name?' · '+esc(a.intake_telegram_name):'')+'</span>':'<span class="st st-pending" title="'+esc(GX("agNotPairedHint"))+'">'+GX("agNotPaired")+'</span>')+
           (a.intake_code?'<small class="ltr">'+GX("agIntakeCode")+' <b>'+esc(a.intake_code)+'</b></small><button type="button" class="ab" data-agcode="'+a.id+'" title="'+esc(GX("agNewCodeHint"))+'">'+GX("agNewCode")+'</button>':''):'<small>'+GX("agIntakeHint")+'</small>')+'</div>':'')+
       '</div>' }).join("")+'</div></div></div>' }
 async function adminLoad(){
