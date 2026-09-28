@@ -40,7 +40,10 @@ async function admAgencyEdit(o){
   var ov=document.createElement("div"); ov.className="admdm-ov"; ov.id="admDm";
   ov.innerHTML='<div class="admdm admdm-wide"><div class="admdm-h"><b>'+GX("agEditT")+(o.name?' · '+esc(o.name):'')+'</b><button type="button" class="admdm-x" aria-label="×">×</button></div><div class="admdm-b"><div class="done2"><b>'+t("loading")+'</b></div></div></div>';
   document.body.appendChild(ov);
-  var close=function(){ ov.remove() }; ov.querySelector(".admdm-x").onclick=close; ov.onclick=function(e){ if(e.target===ov) close() };
+  // a form this long never closes on a stray click outside it; only the × does, and it asks first when something was typed
+  var close=function(){ ov.remove() };
+  var dirty=function(){ var n=$("#agName"); return !!(n && (n.value.trim() || $("#agDesc").value.trim() || $$("#admDm .ag-pills .on").length)) && !a.id };
+  ov.querySelector(".admdm-x").onclick=function(){ if(dirty() && !confirm(GX("dlgDiscardQ"))) return; close() };
   var body=ov.querySelector(".admdm-b"), uid=o.user_id||"", a={}, logoUrl=null;
   var members=((ADM.data&&ADM.data.users)||[]).filter(function(u){ return u.role!=="admin" });
   var load=async function(){ if(!uid){ a={}; return } var r=await DB.rpc("bk_admin_agency_get",{p_token:ADM.token,p_user:uid}); a=(r&&r.data)||{}; if(r&&r.error) throw r.error; logoUrl=a.avatar_url||null };
@@ -93,7 +96,8 @@ function admAddMember(){
     '<label class="xcheck"><input type="checkbox" id="amSend" checked><span>'+GX("amSendPw")+'</span></label>'+
     '<div class="xactions"><button type="button" class="ab ok" id="amCreate">'+GX("amCreate")+'</button><span class="xmsg" id="amMsg"></span></div><div id="amDone"></div></div></div>';
   document.body.appendChild(ov);
-  var close=function(){ ov.remove() }; ov.querySelector(".admdm-x").onclick=close; ov.onclick=function(e){ if(e.target===ov) close() };
+  var close=function(){ ov.remove() };
+  ov.querySelector(".admdm-x").onclick=function(){ var typed=["amName","amPhone","amAgency"].some(function(id){ return ($("#"+id)||{}).value }); if(typed && !$("#amDone").innerHTML && !confirm(GX("dlgDiscardQ"))) return; close() };
   $("#amCreate").onclick=async function(){ var btn=this, m=$("#amMsg");
     var name=$("#amName").value.trim(), fam=$("#amFam").value.trim(), phone=$("#amPhone").value.replace(/\D/g,""), email=$("#amEmail").value.trim(), cc=$("#amCountry").value, ag=$("#amAgency").value.trim(), send=$("#amSend").checked;
     if(!name){ m.textContent=GX("am_noname"); $("#amName").focus(); return } if(phone.length<8){ m.textContent=GX("am_badphone"); $("#amPhone").focus(); return }
