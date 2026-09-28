@@ -1078,6 +1078,14 @@ function wireAdmin(){
 
   $$("[data-uopen]").forEach(function(e){ e.onclick=function(){ ADM.userOpen = ADM.userOpen===e.dataset.uopen ? null : e.dataset.uopen; ADM.rateTarget=null; ADM.pwTarget=null; render() }});
   $$("[data-umsg]").forEach(function(e){ e.onclick=function(){ ADM.notifTargetUid=e.dataset.umsg; admGo("msgs") }});
+  // open the site in a new tab signed in as this member (their listings are then posted under their own account)
+  $$("[data-uloginas]").forEach(function(e){ e.onclick=async function(){
+    if(!confirm(GX("uLoginAsQ").replace("{n}",e.dataset.name||""))) return;
+    e.disabled=true;
+    try{ var r=await DB.rpc("bk_admin_login_as",{p_token:ADM.token,p_user:e.dataset.uloginas}); var d=(r&&r.data)||{}; if(r&&r.error) throw r.error; if(d.error) throw new Error(d.error==="isadmin"?GX("delUserIsAdmin"):d.error);
+      saveSession(d); try{ localStorage.setItem("balkoun_as_admin","1") }catch(x){}
+      window.open("/mine","_blank"); admToast(GX("uLoginAsOk").replace("{n}",e.dataset.name||"")) }
+    catch(err){ admToast(err.message||"error","bad") } e.disabled=false } });
   $$("[data-udm],[data-cdm]").forEach(function(e){ e.onclick=function(){ admDirectMsg({user_id:e.dataset.udm||null, contact_id:e.dataset.cdm||null, name:e.dataset.name||""}) }});
   $$("[data-arate]").forEach(function(e){ e.onclick=function(){
     ADM.rateTarget=e.dataset.arate; ADM.rateStars=0; ADM.rateMsg=""; ADM.pwTarget=null; render() }});
@@ -2546,6 +2554,7 @@ function adminUsersBody(d){
         '<div class="ugroup"><b>'+GX("uSummary")+'</b><div class="ubtns">'+
           '<button class="ab" data-byuser="'+u.id+'" data-name="'+esc(nm)+'">'+GX("uViewListings")+' ('+(u.listings||0)+')</button>'+
           '<button class="ab" data-umsg="'+u.id+'">'+GX("uMessage")+'</button>'+
+          (isAdmin?'':'<button class="ab" data-uloginas="'+u.id+'" data-name="'+esc(nm)+'" title="'+esc(GX("uLoginAsHint"))+'">'+GX("uLoginAs")+'</button>')+
           '<button class="ab ok" data-udm="'+u.id+'" data-name="'+esc(nm)+'">'+GX("dmBtn")+'</button>'+
           '<button class="ab" data-arate="'+u.id+'">★ '+t("rateMember")+'</button></div></div>'+
         '<div class="ugroup"><b>'+GX("uModeration")+'</b><div class="ubtns">'+
