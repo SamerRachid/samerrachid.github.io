@@ -532,7 +532,7 @@ async function askClaude(model: string, system: string, taxText: string, user: s
   const noSampling = /^claude-(opus-4-[78]|opus-5|sonnet-5|fable-|mythos-)/.test(model);
   const noForce = /^claude-(fable-5-1|mythos-5-1)/.test(model);
   const body = {
-    model, max_tokens: 1500, ...(noSampling ? {} : { temperature: 0 }),
+    model, max_tokens: 4000, ...(noSampling ? {} : { temperature: 0 }),   // a long, detailed listing (many amenities, long description) overflowed 1500 → "stop_reason=max_tokens"
     system: [{ type: "text", text: system }, { type: "text", text: "TAXONOMY\n" + taxText, cache_control: { type: "ephemeral" } }],
     messages: [{ role: "user", content: user }],
     tools: [noForce ? { ...tool, strict: true, input_schema: { ...tool.input_schema, additionalProperties: false } } : tool],
