@@ -775,14 +775,15 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
       // several governorates (دمشق + ريف دمشق): the one whose area list contains the neighbourhood written in the message
       const wantArea = raw.area || fields.landmark || "";
       const byArea = govs.length > 1 && wantArea ? govs.map((n) => findGov(tax, n)).filter(Boolean).filter((gg: any) => findArea(gg, wantArea)) : [];
-      const cand = govs.length === 1 ? govs[0] : byArea.length === 1 ? byArea[0].ar : (d.user_city || null);
+      // otherwise the bot ASKS for the governorate (owner's rule): no guessing from the profile city for multi-governorate agencies
+      const cand = govs.length === 1 ? govs[0] : byArea.length === 1 ? byArea[0].ar : null;
       const g = cand ? findGov(tax, cand) : null;
       if (g) {
         fields.governorate = g.ar; fields.governorate_id = g.id; missing = missing.filter((m) => m !== "governorate");
         const want = raw.area || fields.landmark || ""; const a = want ? findArea(g, want) : null;
         if (a) { fields.area = a[1]; fields.area_id = a[0]; if (fields.landmark && norm(fields.landmark) === norm(a[1])) delete fields.landmark; missing = missing.filter((m) => m !== "area"); }
         else if ((g.areas || []).length && !missing.includes("area")) missing.push("area");
-        await log(draftId, d.chat_id, "info", "gov_defaulted", { governorate: g.ar, from: govs.length === 1 ? "agency" : "profile_city", area: fields.area || null });
+        await log(draftId, d.chat_id, "info", "gov_defaulted", { governorate: g.ar, from: govs.length === 1 ? "agency_single_gov" : "area_match", area: fields.area || null });
       }
     }
     if (d.source !== "web" && photos === 0) missing.push("photos");   // a listing sent by message needs at least one photo (the site form has its own gate)
