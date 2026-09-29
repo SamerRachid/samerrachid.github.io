@@ -7285,9 +7285,13 @@ function positionDropUpOrDown(input,drop){
     if(!input.getBoundingClientRect) return;
     var rect=input.getBoundingClientRect();
     var vh=window.innerHeight||document.documentElement.clientHeight||800;
-    var spaceBelow=vh-rect.bottom, needed=304;
-    if(spaceBelow<needed && rect.top>needed){ drop.classList.add("flip-up") }
-    else { drop.classList.remove("flip-up") }
+    // the fixed header covers the top of the page: a list flipped upward must not run under it, else its first rows
+    // (دمشق, ريف دمشق) are cut off with no way to scroll to them — so the list is also capped to the room it really has
+    var head=document.querySelector("header,.topbar,.hdr"), headH=head&&head.getBoundingClientRect?Math.max(0,head.getBoundingClientRect().bottom):0;
+    var spaceBelow=vh-rect.bottom-12, spaceAbove=rect.top-headH-12, wantH=Math.min(420, Math.max(spaceBelow, spaceAbove));
+    var up = spaceBelow<304 && spaceAbove>spaceBelow;
+    drop.classList.toggle("flip-up", up);
+    drop.style.maxHeight=Math.max(180, Math.min(420, up?spaceAbove:spaceBelow))+"px";
   }catch(e){}
 }
 function markGreenTabu(root){
