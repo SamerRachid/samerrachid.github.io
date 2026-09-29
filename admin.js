@@ -3105,7 +3105,8 @@ function ikFieldsForm(x){
     inp("governorate",GX("ik_f_gov"))+inp("area",GX("ik_f_area"))+inp("landmark",GX("ik_f_landmark"))+
     inp("price",GX("ik_f_price"),"number")+inp("currency",GX("ik_f_cur"))+inp("area_m2",GX("ik_f_m2"),"number")+
     inp("rooms",GX("ik_f_rooms"),"number")+inp("baths",GX("ik_f_baths"),"number")+inp("living_rooms",GX("ik_f_living"),"number")+inp("floor",GX("ik_f_floor"),"number")+inp("year_built",GX("ik_f_year"),"number")+
-    inp("tabu",GX("ik_f_tabu"))+inp("condition",GX("ik_f_cond"))+sel("rental_period",GX("ik_f_period"),[["yearly",t("periodYearly")],["monthly",t("periodMonthly")],["weekly",t("periodWeekly")],["daily",t("periodDaily")]])+
+    sel("tabu",GX("ik_f_tabu"),Object.keys(D.TABU).map(function(k){ return [k,D.TABU[k][li()]] }).concat([["none",({ar:"بدون طابو",en:"No deed",de:"Kein Grundbuch"})[L]||"بدون طابو"]]))+
+    sel("condition",GX("ik_f_cond"),Object.keys(D.COND||{}).map(function(k){ return [k,D.COND[k][li()]] }).concat(Object.keys(D.LANDC||{}).map(function(k){ return [k,D.LANDC[k][li()]] })))+sel("rental_period",GX("ik_f_period"),[["yearly",t("periodYearly")],["monthly",t("periodMonthly")],["weekly",t("periodWeekly")],["daily",t("periodDaily")]])+
     inp("contact_phone",GX("ik_f_phone"),"tel")+chk("furnished",GX("ik_f_furn"))+chk("negotiable",GX("ik_f_negot"))+
     '<div class="fl wide"><label>'+GX("ik_f_desc")+'</label><textarea data-ikf="description">'+v("description")+'</textarea></div>'+
   '</div>' }
