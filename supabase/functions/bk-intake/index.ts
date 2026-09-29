@@ -650,11 +650,32 @@ function areaFromText(fields: Record<string, any>, missing: string[], rawText: s
   if (!hits.length && !govSaid) { hits = scan(all); switched = !!own; }
   if (!hits.length) return null;
   const best = hits[0];
-  if (hits.some((h) => h.n === best.n && h.g.id !== best.g.id)) return null;   // the same name in two governorates: ask
+  const twins = hits.filter((h) => h.n === best.n);
+  if (twins.length > 1) {   // the same name in several governorates: the sender is asked which one, with the list
+    const govs = Array.from(new Set(twins.map((h) => h.g.ar)));
+    if (!fields.governorate_id) { const i = missing.indexOf("governorate"); if (i < 0) missing.push("governorate"); }
+    return { event: "area_ambiguous", detail: { area: best.a[1], governorates: govs, ambiguous: true } };
+  }
   fields.governorate = best.g.ar; fields.governorate_id = best.g.id; fields.area = best.a[1]; fields.area_id = best.a[0];
   if (fields.landmark && norm(fields.landmark) === best.n) delete fields.landmark;
   for (const k of ["area", "governorate"]) { const i = missing.indexOf(k); if (i >= 0) missing.splice(i, 1); }
   return { event: "area_from_text", detail: { area: best.a[1], governorate: best.g.ar, switched_governorate: switched } };
+}
+// "الجزيرة الأولى" → الحسكة: a governorate that is written nowhere in the message (and not vouched for by a neighbourhood
+// unique to it) is a guess — dropped, so the agency default / the written area / a question decides instead
+function govGuard(fields: Record<string, any>, missing: string[], rawText: string, tax: any): { event: string; detail: any } | null {
+  if (!fields.governorate_id) return null;
+  const g = (tax.governorates || []).find((x: any) => x.id === fields.governorate_id);
+  const said = norm(rawText);
+  const govWritten = !!g && [g.ar, g.en].filter(Boolean).some((n: string) => said.includes(norm(n)));
+  const areaN = fields.area ? norm(fields.area) : "";
+  const areaGovs = areaN ? (tax.governorates || []).filter((x: any) => (x.areas || []).some((a: any) => norm(a[1]) === areaN)).length : 0;
+  if (govWritten || (areaN && areaGovs === 1)) return null;
+  const picked = g ? g.ar : fields.governorate;
+  delete fields.governorate; delete fields.governorate_id; delete fields.area; delete fields.area_id;
+  const i = missing.indexOf("area"); if (i >= 0) missing.splice(i, 1);
+  if (!missing.includes("governorate")) missing.push("governorate");
+  return { event: "gov_not_in_text", detail: { picked, area: fields.area || null } };
 }
 function areaGuards(fields: Record<string, any>, missing: string[], raw: Record<string, any>, rawText: string, tax: any): { event: string; detail: any }[] {
   const out: { event: string; detail: any }[] = [];
@@ -860,6 +881,10 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   const memberNo = d.by_admin && !d.agency_id ? (rawText.match(MEMBER_NO) || [])[1] : undefined;
   const user = `Sender: ${d.sender_name || "?"}${d.agency_name ? " (agency: " + d.agency_name + ")" : ""}\nPhotos attached: ${photos}\n\nMESSAGE:\n${(memberNo ? rawText.replace(MEMBER_NO, " ") : rawText).slice(0, 6000)}`;
   let fields: Record<string, any> = {}, missing: string[] = [], usage: Usage = { in: 0, out: 0, cache_write: 0, cache_read: 0 }, cost = 0, err: string | null = null, raw: Record<string, any> = {}, attributed: string | null = null;
+  let ambig: { area: string; governorates: string[] } | null = null;   // "الصناعة is in دمشق / اللاذقية…": asked with the list
+  const missLabel = (m: string) => (m === "governorate" && ambig)
+    ? (lang === "en" ? `governorate (${ambig.area} exists in ${ambig.governorates.join(", ")}; which one?)` : `المحافظة (${ambig.area} موجودة في ${ambig.governorates.join("، ")}، أيها؟)`)
+    : (lang === "en" ? MISSING_EN : MISSING_AR)[m];
   // the admin sent only a membership number: remember whom the coming listing is for and wait for its details —
   // no model read, no empty listing parked in the panel (the draft waits as needs_info; the next message joins it)
   if (memberNo && photos === 0 && rawText.replace(MEMBER_NO, " ").replace(/[\s.,،:;\-_]+/g, "").length < 12) {
@@ -876,6 +901,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
     // the model must not swap an unknown neighbourhood for a look-alike from the list (العدوي → العسالي): the chosen
     // area has to actually be written in the message; otherwise it becomes a landmark and the area is asked for
     for (const w of areaGuards(fields, missing, raw, rawText, tax)) await log(draftId, d.chat_id, "warn", w.event, w.detail);
+    { const w = govGuard(fields, missing, rawText, tax); if (w) await log(draftId, d.chat_id, "warn", w.event, w.detail); }
     // no governorate in the message: an agency that works in exactly one governorate (or a member whose profile city
     // names one) gets it by default, and the neighbourhood is then matched inside it
     if (!fields.governorate_id) {
@@ -894,7 +920,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
         await log(draftId, d.chat_id, "info", "gov_defaulted", { governorate: g.ar, from: govs.length === 1 ? "agency_single_gov" : "area_match", area: fields.area || null });
       }
     }
-    { const hit = areaFromText(fields, missing, rawText, tax); if (hit) await log(draftId, d.chat_id, "info", hit.event, hit.detail); }
+    { const hit = areaFromText(fields, missing, rawText, tax); if (hit) { await log(draftId, d.chat_id, "info", hit.event, hit.detail); if (hit.detail?.ambiguous) ambig = hit.detail; } }
     if (d.source !== "web" && photos === 0) missing.push("photos");   // a listing sent by message needs at least one photo (the site form has its own gate)
   } catch (e) { err = errStr(e); }
   // a buyer / tenant looking for a property, not an owner offering one: point them to the matching search and to
@@ -936,7 +962,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   // a transient reading failure goes back to the queue instead of failing the sender's listing
   if (err && !/no_key|claude 4\d\d/.test(err) && (d.reads || 0) < 3) status = "collecting";
   const sum = err ? null : summary(fields, tax, photos, lang) + (attributed ? "\n" + t.attributed(attributed) : "") + (suggested ? "\n" + t.suggested(suggested) : "") +
-    (status === "review" ? "" : (missing.length ? t.missing(missing.map((m) => (lang === "en" ? MISSING_EN : MISSING_AR)[m]).join("، ")) : t.confirmLine));
+    (status === "review" ? "" : (missing.length ? t.missing(missing.map(missLabel).join("، ")) : t.confirmLine));
   const saved = await rpc<any>("bk_intake_save_read", { p_draft: draftId, p_fields: fields, p_missing: missing, p_summary: sum, p_status: status, p_model: c.intake_model || null, p_in: usage.in, p_out: usage.out, p_cost: cost, p_error: err });
   if (saved?.skipped) return saved;                                              // cancelled or changed while reading: say nothing
   if (saved?.status === "collecting") { scheduleTick(); return saved; }         // more arrived (or a retry is due) → read again later
@@ -947,7 +973,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
     if (err) await reply(d.source, d.chat_id, t.readFailed);
     else if (saved?.status === "review") await reply(d.source, d.chat_id, sum + "\n\n" + (d.by_admin ? t.reviewAdmin : t.reviewNote));
     // still missing something: ask for it in a short message (no full list every time); the full summary comes when complete
-    else if (saved?.status === "needs_info") await reply(d.source, d.chat_id, multi + (brief(fields, tax, lang) + t.missing(missing.map((m) => (lang === "en" ? MISSING_EN : MISSING_AR)[m]).join(lang === "en" ? ", " : "، "))).trim());
+    else if (saved?.status === "needs_info") await reply(d.source, d.chat_id, multi + (brief(fields, tax, lang) + t.missing(missing.map(missLabel).join(lang === "en" ? ", " : "، "))).trim());
     else await reply(d.source, d.chat_id, multi + sum!);
   }
   if (err) await log(draftId, d.chat_id, "error", "read_failed", { error: err, reads: d.reads });
@@ -1686,6 +1712,7 @@ async function routeAdmin(req: Request): Promise<Response> {
       const text = latinDigits(String(b.text || "").slice(0, 6000));
       const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax), "MESSAGE:\n" + text); const s = settle(r.fields, tax);
       const warnings = areaGuards(s.fields, s.missing, r.fields, text, tax);   // the same rules the real read enforces
+      { const w = govGuard(s.fields, s.missing, text, tax); if (w) warnings.push(w); }
       { const hit = areaFromText(s.fields, s.missing, text, tax); if (hit) warnings.push(hit); }
       return json({ ok: true, fields: s.fields, missing: s.missing, summary: summary(s.fields, tax, 0, "ar"), usage: r.usage, cost: costOf(r.usage, c), raw: r.fields, warnings });
     }
