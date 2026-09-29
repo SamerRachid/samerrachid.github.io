@@ -653,7 +653,7 @@ function adminView(){
        var isExpired = now>until;
        var statusClass = isActive?"live":isExpired?"expired":"pending";
        var statusText = isActive?t("featureActiveNow"):isExpired?t("featureExpired"):t("featureScheduled");
-       return '<tr><td class="ltr">'+scopeFlag(f.country_code)+(f.ref||f.id)+'</td><td>'+(f.poster_name||'—')+(f.featured_source==="reward"?' <span class="chip gold">★ '+GX("rwSrcReward")+'</span>':'')+'</td>'+
+       return '<tr><td class="ltr">'+scopeFlag(f.country_code)+(f.ref||f.id)+'</td><td>'+(f.poster_name||'—')+(f.featured_source==="reward"?' <span class="chip gold">★ '+GX("rwSrcReward")+'</span>':'')+(f.status&&f.status!=="live"?' <span class="chip" style="color:var(--warn)">'+GX("featPendingTag")+'</span>':'')+'</td>'+
         '<td class="ltr">'+from.toLocaleDateString()+'</td><td class="ltr">'+(f.featured_source==="reward"?until.toLocaleString():until.toLocaleDateString())+'</td>'+
         '<td><span class="st st-'+statusClass+'">'+statusText+'</span></td>'+
         '<td><button class="ab bad" data-unfeat="'+f.id+'">'+t("unfeature")+'</button></td></tr>'}).join("")+
@@ -1687,17 +1687,21 @@ function wireAdmin(){
                           (function wireFeaturedListingSearch(){
     var input=$("#ftListingSearch"), drop=$("#ftListingDrop"), hidden=$("#ftListing");
     if(!input||!drop||!hidden) return;
-    var allListings=(ADM.data&&ADM.data.listings)||[];
+    // only listings that can appear on the site: live first, then pending (marked — a featured pending listing stays
+    // invisible until it is approved); searchable by number, poster, area, governorate or type
+    var allListings=((ADM.data&&ADM.data.listings)||[]).filter(function(l){ return l.status==="live"||l.status==="pending" })
+      .sort(function(a,b){ return (a.status==="live"?0:1)-(b.status==="live"?0:1) || String(b.created_at||"").localeCompare(String(a.created_at||"")) });
+    var typeOf=function(l){ return (D.TYPES[l.property_type]||[])[li()]||l.property_type||"" };
     var renderMatches=function(q){
       var qq=(q||"").trim().toLowerCase();
       var matches = !qq ? allListings.slice(0,30) : allListings.filter(function(l){
-        var ref=(l.ref||String(l.id)).toLowerCase();
-        var name=(l.poster_name||"").toLowerCase();
-        return ref.indexOf(qq)>-1 || name.indexOf(qq)>-1;
+        var hay=[(l.ref||String(l.id)),l.poster_name,l.agency_name,l.area,l.gov,typeOf(l)].join(" ").toLowerCase();
+        return hay.indexOf(qq)>-1;
       }).slice(0,30);
       drop.innerHTML = matches.length ? matches.map(function(l){
         return '<div class="chipsel-opt" data-ftpicklisting="1" data-lid="'+l.id+'" data-lref="'+((l.ref||l.id)+"").replace(/"/g,"&quot;")+'" data-lname="'+((l.poster_name||"").replace(/"/g,"&quot;"))+'">'+
-          (l.ref||l.id)+' — '+(l.poster_name||"")+' ($'+(l.price_usd||0).toLocaleString("en")+')</div>'}).join("")
+          (l.ref||l.id)+' — '+esc(l.agency_name||l.poster_name||"")+' · '+esc(typeOf(l))+(l.area?' · '+esc(l.area):'')+' ($'+(l.price_usd||0).toLocaleString("en")+')'+
+          (l.status!=="live"?' <span class="chip" style="color:var(--warn)">'+GX("featPendingTag")+'</span>':'')+'</div>'}).join("")
         : '<div class="chipsel-empty">'+t("noResultsFor")+'</div>';
       $$(".chipsel-drop.on").forEach(function(d){ if(d!==drop) d.classList.remove("on") });
       drop.classList.add("on");
