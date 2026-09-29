@@ -129,18 +129,22 @@ begin
 
   cc := coalesce(nullif(upper(p_country),''), s->>'country_code', 'SY');
   if d.id is null then
-    -- a photo right after a publish belongs to that listing
+    -- a photo right after the chat's LATEST draft was published belongs to that listing; a photo right after the latest
+    -- draft went to the panel for review joins that draft (the sender is still sending photos of the same property)
     if kind = 'photo' then
-      select * into prev from intake_drafts
-       where source = p_source and chat_id = p_chat_id and status = 'published' and listing_id is not null
-         and published_at > now() - interval '5 minutes'
-       order by published_at desc limit 1;
-      if prev.id is not null then
+      select * into prev from intake_drafts where source = p_source and chat_id = p_chat_id order by created_at desc limit 1;
+      if prev.id is not null and prev.status = 'published' and prev.listing_id is not null and prev.published_at > now() - interval '5 minutes' then
         update intake_messages set draft_id = prev.id where source = p_source and external_id = p_external_id;
         replied := exists (select 1 from intake_log where draft_id = prev.id and event = 'photo_attached' and created_at > now() - interval '90 seconds');
         insert into intake_log (draft_id, chat_id, event, detail) values (prev.id, p_chat_id, 'photo_attached', jsonb_build_object('listing_id', prev.listing_id));
         return json_build_object('attach_listing', prev.listing_id, 'draft_id', prev.id, 'replied_recently', replied, 'sender', s, 'guided', guided,
           'ref', (select ref from listings where id = prev.listing_id));
+      elsif prev.id is not null and prev.status = 'review' and prev.updated_at > now() - interval '10 minutes' then
+        update intake_messages set draft_id = prev.id where source = p_source and external_id = p_external_id;
+        replied := exists (select 1 from intake_log where draft_id = prev.id and event = 'photo_to_review' and created_at > now() - interval '90 seconds');
+        insert into intake_log (draft_id, chat_id, event) values (prev.id, p_chat_id, 'photo_to_review');
+        return json_build_object('draft_id', prev.id, 'status', prev.status, 'attach_review', true, 'replied_recently', replied, 'is_new', false, 'sender', s,
+          'country_code', prev.country_code, 'photo_count', jsonb_array_length(prev.photos), 'has_text', prev.raw_text <> '', 'guided', guided);
       end if;
     end if;
     select count(*) into n_today from intake_drafts where source = p_source and chat_id = p_chat_id and created_at > now() - interval '24 hours';

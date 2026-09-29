@@ -317,6 +317,7 @@ const T = {
     undoNone: `لا يوجد إعلان ملغى حديثاً لاستعادته. أرسل تفاصيل العقار من جديد.`,
     expiredPrev: (title: string) => `ملاحظة: إعلانك السابق${title ? " («" + title + "»)" : ""} لم يُنشر وأُغلق بعد يوم من دون رد.\nاكتب «رجّع» إن أردت إكماله، وإلا أكمل هذا الإعلان الجديد.`,
     attached: (ref: string) => `أُضيفت الصورة إلى إعلانك المنشور (${ltr(ref)}) ✅`,
+    attachedReview: `أُضيفت الصورة إلى الإعلان الذي ينتظر في اللوحة ✅`,
     multi: (n: number) => `لاحظت أكثر من عقار في الرسالة (${n})؛ قرأت الأول فقط. بعد نشره أرسل كل عقار برسالة منفصلة مع صوره.\n\n`,
     paired: (n: string) => `تم ربط هذه المحادثة بمكتب «${n}» ✅\nأرسل الآن تفاصيل أول عقار مع صوره، وعندما تنتهي اكتب «تم».`,
     pairedAdmin: `تم ربط هذه المحادثة بحساب الإدارة ✅ كل ما تحوّله هنا يُقرأ ويظهر في لوحة التحكم لاختيار المكتب ونشره.`,
@@ -380,6 +381,7 @@ const T = {
     undoNone: `There is no recently cancelled listing to restore. Send the property details again.`,
     expiredPrev: (title: string) => `Note: your previous listing${title ? " (" + title + ")" : ""} was not published and was closed after a day without a reply.\nWrite "undo" to continue it, otherwise carry on with this new one.`,
     attached: (ref: string) => `Photo added to your published listing (${ltr(ref)}) ✅`,
+    attachedReview: `Photo added to the listing waiting in the panel ✅`,
     multi: (n: number) => `I noticed more than one property in the message (${n}); I read the first only. After it is published, send each property in a separate message with its photos.\n\n`,
     paired: (n: string) => `This chat is now linked to "${n}" ✅\nSend the first property with its photos, then write "done".`,
     pairedAdmin: `This chat is linked to the admin account ✅ Anything forwarded here is read and appears in the panel to pick the agency and publish.`,
@@ -1325,6 +1327,8 @@ async function handleIncoming(m: Incoming) {
       }
     }
   }
+  // a photo for the listing that just went to the panel for review: stored above; one short acknowledgement
+  if (r.attach_review) { if (m.kind === "photo" && !r.replied_recently) await reply(m.source, m.chat, tt.attachedReview); return; }
   if (r.command_after) { await runCommandAfterPhoto(m, r, tt); return; }
   // like a person: a text is read right away and answered with what was understood / what is still missing;
   // a photo that was the last missing piece completes the listing without another paid read
