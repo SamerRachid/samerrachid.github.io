@@ -1190,6 +1190,7 @@ function wireAdmin(){
       if(!row.g&&r.governorate_id&&window.GEO_META){ var gname=Object.keys(GEO_META.govId||{}).filter(function(k){ return GEO_META.govId[k]===r.governorate_id })[0]; if(gname){ row.g=gname; var ak=Object.keys(GEO_META.areaId||{}).filter(function(k){ return GEO_META.areaId[k]===r.area_id })[0]; row.a=ak?ak.slice(gname.length+1):"" } }
       EDIT.row=row; EDIT.lat=row.lat||null; EDIT.lng=row.lng||null;
       try{ var ph=await rpc("bk_photos",{p_listing:id}); EDIT.photos=ph||[] }catch(e){}   // the same photo / video manager the member sees
+      try{ var ags=ADM_AG||await rpcScoped("bk_admin_agencies",{p_token:ADM.token,p_country:admScope()}); EDIT.agencies=(ags||[]).filter(function(a){ return a.status==="approved" }) }catch(e){ EDIT.agencies=[] }   // to move the listing to another agency
       render();
     }catch(err){ alert(err.message||"error"); VIEW="admin"; render() }
   }});
