@@ -551,7 +551,8 @@ Rules:
 - Prices: "85 ألف" = 85000, "مليون و200" = 1200000. The words ألف / مليون multiply ONLY a small number written before them (85 ألف = 85000, 1.2 مليون = 1200000). When the number is already large the word is just a label and must NOT multiply: "66000 ألف دولار" = 66000, "250000 ألف" = 250000, "1500000 مليون" = 1500000. Sanity check: a Syrian apartment is roughly 10,000–500,000 USD; if your reading is far outside that, re-read the number. "$", "دولار", "USD" → USD. "ل.س", "ليرة" → SYP in Syria. "ل.ل" → LBP. "دينار" → JOD in Jordan, IQD in Iraq, KWD in Kuwait. "جنيه" → EGP. "ريال" → SAR in Saudi Arabia, QAR in Qatar, OMR in Oman, YER in Yemen. "درهم" → AED in the Emirates, MAD in Morocco. If no currency is written, use USD.
 - Sizes: "متر" / "م2" = square metres; "دونم" = 1000 m²; "هكتار" = 10000 m².
 - Deal: "للبيع" = sale; "للإيجار"/"للأجار"/"آجار" = rent. A monthly or yearly amount ("شهري", "بالشهر", "سنوي") means rent. If the message has neither a sale/rent word nor a rental period, LEAVE "deal" OUT and add "deal" to missing — never guess it from the price.
-- Land ("أرض") uses the land types (resid/agri/comm) and land conditions; shops/offices use commercial types.
+- Land ("أرض") uses the land types (resid/agri/comm/indust/tourist: "أرض سياحية" = tourist, "أرض صناعية" = indust) and land conditions; shops/offices/clinics use commercial types. "فندق", "منشأة سياحية", "خان" = hotel. "عيادة" = clinic.
+- "شقة فندقية", "شقة مفروشة فندقية", "للإيجار اليومي" / daily or weekly furnished rentals = hotelapt, which is always deal = rent (rental_period daily/weekly/monthly as written).
 - Rooms: "غرفتين" = 2, "3 غرف وصالون" = rooms 3, living_rooms 1. Floor: "أرضي" = 0, "أول" = 1, "تسوية" = -1.
 - Deed words: "طابو أخضر" = green, "حصص سهمية"/"أسهم" = shares, "حكم محكمة" = court, "وكالة" = poa, "بدون طابو" = none (only codes present in the taxonomy). For a sale with no deed word, add "tabu" to missing.
 - Condition: "سليم"/"جاهز"/"ديلوكس" = intact, "على العظم" = shell, "بحاجة ترميم" = repair, "معفش" = stripped (Syria only), "متضرر" = damaged.
@@ -650,6 +651,7 @@ function settle(f: Record<string, any>, tax: any) {
   delete out.missing; delete out.confidence; delete out.notes;
   const types = (tax.types || []).map((t: any) => t.code);
   if (!types.includes(out.property_type)) delete out.property_type;
+  if (out.property_type === "hotelapt") out.deal = "rent";   // serviced / hotel apartments are let, never sold
   const g = findGov(tax, out.governorate); if (g) { out.governorate = g.ar; out.governorate_id = g.id; } else { delete out.governorate; }
   const a = findArea(g, out.area); if (a) { out.area = a[1]; out.area_id = a[0]; } else { if (out.area && !out.landmark) out.landmark = out.area; delete out.area; }
   const cur = String(out.currency || "USD").toUpperCase(); const curs = [...(tax.country.currencies || []), "USD"];
