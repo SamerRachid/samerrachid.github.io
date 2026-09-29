@@ -331,6 +331,8 @@ const T = {
     reviewNote: `تمت القراءة، لكن الإعلان يحتاج نظرة من الإدارة قبل النشر. سنتابعه من لوحة التحكم.`,
     suggested: (n: string) => `• المكتب المقترح: ${n}`,
     attributed: (n: string) => `• المعلن: ${n}`,
+    memberSet: (n: string) => `تمام ✅ سيُنسب الإعلان التالي إلى: ${n}\nأرسل الآن تفاصيله وصوره.`,
+    memberUnknown: (no: string) => `لم أجد عضواً برقم ${ltr(no)} 🤔 تأكد من الرقم أو أرسل الإعلان واختر المكتب من اللوحة.`,
     published: (ref: string, url: string) => `✅ تم نشر الإعلان (${ref})\n${url}\n\nصور إضافية خلال 5 دقائق تُضاف إلى هذا الإعلان. ولإعلان آخر أرسل تفاصيله وصوره مباشرة.`,
     pending: (ref: string) => `✅ استلمنا الإعلان (${ref}) وسيظهر على الموقع بعد مراجعة الإدارة.\n\nلإعلان آخر أرسل تفاصيله وصوره مباشرة.`,
     failed: `تعذّر النشر تلقائياً؛ أحلنا الإعلان إلى الإدارة لإكماله.`,
@@ -392,6 +394,8 @@ const T = {
     reviewNote: `Read, but the listing needs a look from the team before publishing. We will follow up from the panel.`,
     suggested: (n: string) => `• Suggested agency: ${n}`,
     attributed: (n: string) => `• Listed for: ${n}`,
+    memberSet: (n: string) => `OK ✅ The next listing will be attributed to: ${n}\nSend its details and photos now.`,
+    memberUnknown: (no: string) => `No member found with number ${ltr(no)} 🤔 Check the number, or send the listing and pick the agency in the panel.`,
     published: (ref: string, url: string) => `✅ Published (${ref})\n${url}\n\nExtra photos within 5 minutes are added to this listing. For another listing, just send its details and photos.`,
     pending: (ref: string) => `✅ Received (${ref}). It appears on the site after the team's review.\n\nFor another listing, just send its details and photos.`,
     failed: `Automatic publishing failed; the listing was handed to the team.`,
@@ -793,6 +797,16 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   const memberNo = d.by_admin && !d.agency_id ? (rawText.match(MEMBER_NO) || [])[1] : undefined;
   const user = `Sender: ${d.sender_name || "?"}${d.agency_name ? " (agency: " + d.agency_name + ")" : ""}\nPhotos attached: ${photos}\n\nMESSAGE:\n${(memberNo ? rawText.replace(MEMBER_NO, " ") : rawText).slice(0, 6000)}`;
   let fields: Record<string, any> = {}, missing: string[] = [], usage: Usage = { in: 0, out: 0, cache_write: 0, cache_read: 0 }, cost = 0, err: string | null = null, raw: Record<string, any> = {}, attributed: string | null = null;
+  // the admin sent only a membership number: remember whom the coming listing is for and wait for its details —
+  // no model read, no empty listing parked in the panel (the draft waits as needs_info; the next message joins it)
+  if (memberNo && photos === 0 && rawText.replace(MEMBER_NO, " ").replace(/[\s.,،:;\-_]+/g, "").length < 12) {
+    const at = await rpc<any>("bk_intake_attach_member", { p_draft: draftId, p_member_no: memberNo.replace(/\s+/g, "").toUpperCase() });
+    const who = at?.ok ? `${at.name} (${at.member_no})` : memberNo;
+    await rpc("bk_intake_save_read", { p_draft: draftId, p_fields: {}, p_missing: ["deal", "property_type", "governorate", "price", "area_m2", "photos"], p_summary: t.attributed(who), p_status: "needs_info", p_model: null, p_in: 0, p_out: 0, p_cost: 0, p_error: null });
+    await log(draftId, d.chat_id, "info", at?.ok ? "member_set" : "member_unknown", { member_no: memberNo });
+    if (!opts.quiet && d.source !== "web") await reply(d.source, d.chat_id, at?.ok ? t.memberSet(who) : t.memberUnknown(memberNo));
+    return { status: "needs_info", member: !!at?.ok };
+  }
   try {
     const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax), user);
     usage = r.usage; raw = r.fields; const s = settle(r.fields, tax); fields = s.fields; missing = s.missing; cost = costOf(usage, c);
@@ -1293,7 +1307,7 @@ async function handleIncoming(m: Incoming) {
     return;
   }
   // content — first listing ever from this chat: the how-to goes out once, before anything else
-  if (r.is_new && !r.guided) { await reply(m.source, m.chat, tt.guide(r.country_code || r.sender?.country_code || null)); await log(r.draft_id, m.chat, "info", "guide_sent", { source: m.source }); }
+  if (r.is_new && !r.guided && !r.sender?.is_admin) { await reply(m.source, m.chat, tt.guide(r.country_code || r.sender?.country_code || null)); await log(r.draft_id, m.chat, "info", "guide_sent", { source: m.source }); }
   if (r.expired_prev) await reply(m.source, m.chat, tt.expiredPrev(String(r.expired_prev.title || "")));
   if (m.kind === "photo" && m.fetchMedia && r.draft_id) {
     const mx = cfgInt(c.intake_max_photos, 12);
