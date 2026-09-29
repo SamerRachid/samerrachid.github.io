@@ -1189,6 +1189,7 @@ function wireAdmin(){
       // the raw row carries ids, not names: resolve the governorate / area names the edit form shows and saves
       if(!row.g&&r.governorate_id&&window.GEO_META){ var gname=Object.keys(GEO_META.govId||{}).filter(function(k){ return GEO_META.govId[k]===r.governorate_id })[0]; if(gname){ row.g=gname; var ak=Object.keys(GEO_META.areaId||{}).filter(function(k){ return GEO_META.areaId[k]===r.area_id })[0]; row.a=ak?ak.slice(gname.length+1):"" } }
       EDIT.row=row; EDIT.lat=row.lat||null; EDIT.lng=row.lng||null;
+      try{ var ph=await rpc("bk_photos",{p_listing:id}); EDIT.photos=ph||[] }catch(e){}   // the same photo / video manager the member sees
       render();
     }catch(err){ alert(err.message||"error"); VIEW="admin"; render() }
   }});
