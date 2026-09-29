@@ -1777,7 +1777,7 @@ html[data-cc="SY"] .typecell.tl[data-type="clinic"]{--tile:url(/assets/home/roof
 .home-hero .stabs button:not(.on):hover{color:var(--navy)}
 /* desktop: every pill sizes to its own label first, then they share the leftover; rooms is back in the bar where it fits */
 .home-hero .srow{display:flex;flex-wrap:nowrap;gap:6px;align-items:stretch;min-width:0}
-.home-hero .srow .sf{flex:1 1 0;min-width:0}.home-hero .srow .sf-rooms{flex:.8 1 0;min-width:96px}   /* equal shares: a long chosen name (شقة مفروشة فندقية) truncates instead of squeezing the other fields */.home-hero .srow .sgo,.home-hero .srow .sgo-map{flex:none}
+.home-hero .srow .sf{flex:1 1 0;min-width:0}.home-hero .srow .sf-rooms{flex:.8 1 0;min-width:96px}.home-hero .srow .sf-price{flex:.8 1 0;min-width:92px}.home-hero .srow .sf-deed{flex:1.25 1 0}   /* equal shares: a long chosen name (شقة مفروشة فندقية) truncates instead of squeezing the other fields */.home-hero .srow .sgo,.home-hero .srow .sgo-map{flex:none}
 @media(min-width:701px) and (max-width:1199px){.home-hero .srow .sf-rooms{display:none}}
 @media(min-width:701px){html[lang="fr"] .home-hero .srow .sf-rooms{display:none}}   /* French labels are the longest: rooms stays in the results list there */
 .home-hero .sf{border:1px solid var(--line);border-radius:9px;padding:0;min-height:40px;height:40px;background:#fff;position:relative;transition:border-color .2s,box-shadow .2s;display:flex;align-items:stretch}
@@ -7443,7 +7443,7 @@ function heroSearchBarHtml(){
         '<option value="yes"'+(F.furn==="yes"?" selected":"")+'>'+t("furnYes")+'</option>'+
         '<option value="no"'+(F.furn==="no"?" selected":"")+'>'+t("furnNo")+'</option>'+
        '</select>'+CHEV+'</div>'
-     : '<div class="sf">'+chipSelect("csTabu",t("deed"),F.tbs||[],function(v){
+     : '<div class="sf sf-deed">'+chipSelect("csTabu",t("deed"),F.tbs||[],function(v){
         return D.TABU[v]?D.TABU[v][li()]:v},true)+'</div>')+
    '<div class="sf sf-rooms">'+chipSelect("csRooms",GX("roomsField"),F.rooms||[],roomsLabel,true)+'</div>'+
    '<div class="sf sf-price"><button type="button" class="pricetrig" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
