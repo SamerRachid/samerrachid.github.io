@@ -1777,7 +1777,7 @@ html[data-cc="SY"] .typecell.tl[data-type="clinic"]{--tile:url(/assets/home/roof
 .home-hero .stabs button:not(.on):hover{color:var(--navy)}
 /* desktop: every pill sizes to its own label first, then they share the leftover; rooms is back in the bar where it fits */
 .home-hero .srow{display:flex;flex-wrap:nowrap;gap:6px;align-items:stretch;min-width:0}
-.home-hero .srow .sf{flex:1 1 0;min-width:0}.home-hero .srow .sf-rooms{flex:.6 1 0}   /* equal shares: a long chosen name (شقة مفروشة فندقية) truncates instead of squeezing the other fields */.home-hero .srow .sgo,.home-hero .srow .sgo-map{flex:none}
+.home-hero .srow .sf{flex:1 1 0;min-width:0}.home-hero .srow .sf-rooms{flex:.8 1 0;min-width:96px}   /* equal shares: a long chosen name (شقة مفروشة فندقية) truncates instead of squeezing the other fields */.home-hero .srow .sgo,.home-hero .srow .sgo-map{flex:none}
 @media(min-width:701px) and (max-width:1199px){.home-hero .srow .sf-rooms{display:none}}
 @media(min-width:701px){html[lang="fr"] .home-hero .srow .sf-rooms{display:none}}   /* French labels are the longest: rooms stays in the results list there */
 .home-hero .sf{border:1px solid var(--line);border-radius:9px;padding:0;min-height:40px;height:40px;background:#fff;position:relative;transition:border-color .2s,box-shadow .2s;display:flex;align-items:stretch}
