@@ -631,7 +631,7 @@ function findArea(g: any, name: string) {
 // longest name first — fills it in. With no governorate known, the area must be unique across the country's governorates.
 function areaFromText(fields: Record<string, any>, missing: string[], rawText: string, tax: any): { event: string; detail: any } | null {
   if (fields.area_id) return null;
-  const said = " " + norm(rawText).replace(/[^p{L}p{N}s]/gu, " ").replace(/s+/g, " ") + " ";
+  const said = " " + norm(rawText).replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ") + " ";
   const scan = (govs: any[]) => {
     const hits: { g: any; a: any; n: string }[] = [];
     for (const g of govs) for (const a of (g.areas || [])) {
