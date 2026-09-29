@@ -436,6 +436,10 @@ function adminView(){
      '<input type="checkbox" id="aReqApproval"'+(st2.require_approval?" checked":"")+'>'+
      '<span>'+t("approvalModeL")+'</span></label>'+
     '<div class="hintx" style="margin-top:8px">'+t("approvalModeH2")+'</div>'+
+    '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-top:14px">'+
+     '<input type="checkbox" id="aAgencyAuto"'+(st2.agency_auto_approve!==false?" checked":"")+'>'+
+     '<span>'+GX("agAutoApproveL")+'</span></label>'+
+    '<div class="hintx" style="margin-top:8px">'+GX("agAutoApproveHint")+'</div>'+
     '<div style="font-size:12.5px;color:var(--ok);margin-top:8px" id="aSettingsMsg"></div>'+
    '</div></div>'+
    '<div class="blk" style="margin-top:16px"><h3>'+t("perMemberApproval")+'</h3><div class="in">'+
@@ -1505,6 +1509,10 @@ function wireAdmin(){
     rpc("bk_admin_card_logos",{p_token:ADM.token}).then(function(r){ ADM.cardLogos=Array.isArray(r)?r:[]; render() }).catch(function(){});
   }
 
+  if($("#aAgencyAuto")) $("#aAgencyAuto").onchange=async function(){
+    var box=this;
+    try{ await rpc("bk_admin_set_agency_auto",{p_token:ADM.token,p_on:box.checked}); var m=$("#aSettingsMsg"); if(m) m.textContent=t("savedOk"); if(ADM.settings) ADM.settings.agency_auto_approve=box.checked }
+    catch(e){ box.checked=!box.checked; admToast(e.message||"error","bad") } };
   if($("#aReqApproval")) $("#aReqApproval").onchange=async function(){
     var box=this;
     try{
