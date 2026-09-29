@@ -5266,7 +5266,13 @@ function editView(){
    '<div class="fl"><label>'+t("advanceM")+'</label><input type="number" id="eAdv" value="'+(x.adv||"")+'" autocomplete="off"></div>'+
    '<div class="fl"><label>'+t("depositL")+'</label><input type="number" id="eDep" value="'+(x.dep||"")+'" autocomplete="off"></div></div>':'')+
  '</div></div>'+
- '<div class="blk"><h3><span class="n">2</span>'+t("detH")+'</h3><div class="in">'+
+   (EDIT.isAdmin ? '<div class="blk"><h3><span class="n">A</span>'+GX("edBasicsH")+'</h3><div class="in">'+
+   '<div class="row"><div class="fl"><label>'+t("forsale")+' / '+t("forrent")+'</label><select id="eDeal"><option value="sale"'+(x.d==="sale"?" selected":"")+'>'+t("forsale")+'</option><option value="rent"'+(x.d==="rent"?" selected":"")+'>'+t("forrent")+'</option></select></div>'+
+   '<div class="fl"><label>'+t("ptype")+'</label><select id="eType">'+Object.keys(D.TYPES).map(function(k){ return '<option value="'+k+'"'+(x.t===k?" selected":"")+'>'+D.TYPES[k][li()]+'</option>' }).join("")+'</select></div></div>'+
+   '<div class="row"><div class="fl"><label>'+t("gov")+'</label><select id="eGov" data-cur="'+esc(x.g||"")+'"></select></div><div class="fl"><label>'+t("area")+'</label><select id="eAreaSel" data-cur="'+esc(x.a||"")+'"></select></div></div>'+
+   '<div class="row"><div class="fl"><label>'+GX("ik_f_landmark")+'</label><input id="eLandmark" value="'+esc(x.lm||"")+'" autocomplete="off"></div><div class="fl"><label>'+GX("ik_f_phone")+'</label><input id="ePhone" class="ltr" value="'+esc(x.tel||"")+'" autocomplete="off"></div></div>'+
+   '<div class="hintx">'+GX("edBasicsHint")+'</div></div></div>' : '')+
+'<div class="blk"><h3><span class="n">2</span>'+t("detH")+'</h3><div class="in">'+
   '<div class="fl"><label>'+t("kFloor")+'</label><select id="eFloor">'+
    '<option value="">—</option>'+[-1,0].concat(Array.apply(null,{length:20}).map(function(_,n){return n+1}))
      .map(function(v){return '<option value="'+v+'"'+(String(v)===String(x.fl)?" selected":"")+'>'+floorLabel(v)+'</option>'}).join("")+
@@ -7791,6 +7797,11 @@ function wire(){
    VIEW="edit"; scrollTo(0,0); render();
    try{ var r=await rpc("bk_photos",{p_listing:+id}); EDIT.photos=r||[]; render() }catch(e){} };
 
+  if(VIEW==="edit"&&EDIT.isAdmin&&$("#eGov")&&!$("#eGov").options.length){
+   var gs=$("#eGov"), as=$("#eAreaSel"); fillGeo(gs,as,false,false);
+   if(gs.dataset.cur&&D.GEO[gs.dataset.cur]){ gs.value=gs.dataset.cur; gs.dispatchEvent(new Event("change")); if(as.dataset.cur) as.value=as.dataset.cur }
+   as.insertAdjacentHTML("afterbegin",'<option value="">'+t("allareas")+'</option>'); if(!as.dataset.cur) as.value="";
+ }
  $$("[data-delphoto]").forEach(function(e){ e.onclick=async function(){
    try{ await rpc("bk_photo_del",{p_user:USER.id,p_photo:+e.dataset.delphoto});
         EDIT.photos=EDIT.photos.filter(function(p){return String(p.id)!==e.dataset.delphoto});
@@ -7866,6 +7877,13 @@ function wire(){
      if($$(".eamen").length) patch.amenities = $$(".eamen:checked").map(function(c){return c.value});
      if(EDIT.locTouched){ patch.lat=EDIT.lat; patch.lng=EDIT.lng; }
      if(EDIT.isAdmin){
+              if($("#eDeal")){
+         patch.deal=v("eDeal"); patch.property_type=v("eType");
+         var gname=v("eGov"), aname=v("eAreaSel"), gid=(GEO_META.govId||{})[gname];
+         if(gid){ patch.governorate_id=gid; patch.area_id=aname?((GEO_META.areaId||{})[gname+"/"+aname]||null):null }
+         patch.landmark=v("eLandmark").trim()||null;
+         if(v("ePhone").trim()) patch.contact_phone=v("ePhone").trim();
+       }
        await rpc("bk_admin_edit_listing",{p_token:ADM.token, p_id:+EDIT.id, p_patch:patch});
        VIEW="admin"; scrollTo(0,0); render();
      } else {
@@ -10674,6 +10692,8 @@ var GX_T={
   bellIntake:{ar:"مسوّدات رسائل بانتظارك",en:"Message drafts waiting for you",de:"Nachrichten-Entwürfe warten"},
   deedShort:{ar:"الملكية",en:"Deed",de:"Grundbuch",fr:"Titre"},
   featPendingTag:{ar:"بانتظار الموافقة — لا يظهر حتى يُعتمد",en:"Pending approval — hidden until approved",de:"Wartet auf Freigabe — bis dahin unsichtbar"},
+  edBasicsH:{ar:"الأساسيات (للإدارة)",en:"Basics (admin)",de:"Grunddaten (Admin)"},
+  edBasicsHint:{ar:"نوع العقار والبيع أو الإيجار والمكان لا يغيّرها العضو بنفسه؛ التغيير هنا يظهر فوراً في الإعلان.",en:"The member cannot change the type, deal or place; changes here apply to the listing immediately.",de:"Typ, Art und Ort kann das Mitglied nicht selbst ändern; Änderungen hier gelten sofort."},
   ik_notRead:{ar:"لم تُقرأ بعد",en:"Not read yet",de:"Noch nicht gelesen"}, ik_noPhoto:{ar:"بلا صور",en:"No photos",de:"Keine Fotos"},
   ik_collecting:{ar:"قيد التجميع",en:"Collecting",de:"Wird gesammelt"}, ik_reading:{ar:"قيد القراءة",en:"Reading",de:"Wird gelesen"}, ik_ready:{ar:"بانتظار موافقة المرسل",en:"Awaiting sender's OK",de:"Wartet auf Bestätigung"}, ik_needs_info:{ar:"ينقص معلومات",en:"Missing details",de:"Angaben fehlen"}, ik_review:{ar:"بانتظارك",en:"Needs you",de:"Wartet auf Sie"}, ik_published:{ar:"منشور",en:"Published",de:"Veröffentlicht"}, ik_cancelled:{ar:"ملغى",en:"Cancelled",de:"Abgebrochen"}, ik_failed:{ar:"فشل",en:"Failed",de:"Fehlgeschlagen"}, ik_web:{ar:"الموقع",en:"Website",de:"Website"},
   ik_st_open:{ar:"قيد التجميع أو بانتظار المرسل",en:"Collecting or awaiting sender",de:"In Sammlung / wartet auf Absender"}, ik_st_attention:{ar:"بانتظارك",en:"Need you",de:"Warten auf Sie"}, ik_st_published:{ar:"منشورة",en:"Published",de:"Veröffentlicht"}, ik_st_today:{ar:"آخر 24 ساعة",en:"Last 24 hours",de:"Letzte 24 Stunden"}, ik_st_cost:{ar:"تكلفة القراءة هذا الشهر",en:"Reading cost this month",de:"Lesekosten diesen Monat"},
