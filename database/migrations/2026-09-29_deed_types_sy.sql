@@ -25,3 +25,8 @@ where not exists (select 1 from deed_types d where d.country_code = v.country_co
 -- bk_intake_publish() skips the 'noarea' gate for rent + farm/chalet, and the site prints the size only when present (m2Txt()).
 alter table listings alter column area_m2 drop not null;
 -- constraint recreated as: check (area_m2 is null or area_m2 > 0)
+
+-- later: bk_intake_due() requeues drafts that failed only because the model API was down (error 'claude 5xx' / network):
+--   status → collecting, error null, reads 0, every 10 minutes for two days — so an Anthropic outage (2026-09-29 14:28 UTC,
+--   "Elevated errors on the Claude API") never leaves listings stuck at "فشل"; the sender gets the normal summary once
+--   the service is back.
