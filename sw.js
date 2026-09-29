@@ -3,7 +3,7 @@
    app shell answers when the network is down. Static files (brand, photos, fonts): cache first with a
    background refresh. Database calls are never cached. The version below changes whenever this file
    changes, which retires old caches. */
-const VERSION = "bk-2026-09-18a";
+const VERSION = "bk-2026-09-29a";
 const SHELL = VERSION + "-shell";
 const STATIC = VERSION + "-static";
 const PHOTOS = VERSION + "-photos";
@@ -26,7 +26,9 @@ const isApi = (url) => /supabase\.co$/.test(url.hostname) && !/\/storage\//.test
 
 async function networkFirstPage(req) {
   try {
-    const res = await fetch(req);
+    // always revalidate the page with the server: admin.js is fetched fresh on every open, so a page served from the
+    // browser's HTTP cache (GitHub Pages: 10 minutes) would pair old CSS with new panel code right after a deploy
+    const res = await fetch(req, { cache: "no-cache" });
     if (res && res.ok) { const c = await caches.open(SHELL); c.put("/index.html", res.clone()); }
     return res;
   } catch (e) {
