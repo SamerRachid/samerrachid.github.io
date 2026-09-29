@@ -1777,7 +1777,7 @@ html[data-cc="SY"] .typecell.tl[data-type="clinic"]{--tile:url(/assets/home/roof
 .home-hero .stabs button:not(.on):hover{color:var(--navy)}
 /* desktop: every pill sizes to its own label first, then they share the leftover; rooms is back in the bar where it fits */
 .home-hero .srow{display:flex;flex-wrap:nowrap;gap:6px;align-items:stretch;min-width:0}
-.home-hero .srow .sf{flex:1 1 0;min-width:0}.home-hero .srow .sf-rooms{flex:.8 1 0;min-width:96px}.home-hero .srow .sf-price{flex:.8 1 0;min-width:92px}.home-hero .srow .sf-deed{flex:1.25 1 0}   /* equal shares: a long chosen name (شقة مفروشة فندقية) truncates instead of squeezing the other fields */.home-hero .srow .sgo,.home-hero .srow .sgo-map{flex:none}
+.home-hero .srow .sf{flex:1 1 0;min-width:0}.home-hero .srow .sf-rooms{flex:.8 1 0;min-width:96px}.home-hero .srow .sf-price{flex:.8 1 0;min-width:92px}.home-hero .srow .sf-deed{flex:1 1 0}   /* equal shares: a long chosen name (شقة مفروشة فندقية) truncates instead of squeezing the other fields */.home-hero .srow .sgo,.home-hero .srow .sgo-map{flex:none}
 @media(min-width:701px) and (max-width:1199px){.home-hero .srow .sf-rooms{display:none}}
 @media(min-width:701px){html[lang="fr"] .home-hero .srow .sf-rooms{display:none}}   /* French labels are the longest: rooms stays in the results list there */
 .home-hero .sf{border:1px solid var(--line);border-radius:9px;padding:0;min-height:40px;height:40px;background:#fff;position:relative;transition:border-color .2s,box-shadow .2s;display:flex;align-items:stretch}
@@ -7443,7 +7443,7 @@ function heroSearchBarHtml(){
         '<option value="yes"'+(F.furn==="yes"?" selected":"")+'>'+t("furnYes")+'</option>'+
         '<option value="no"'+(F.furn==="no"?" selected":"")+'>'+t("furnNo")+'</option>'+
        '</select>'+CHEV+'</div>'
-     : '<div class="sf sf-deed">'+chipSelect("csTabu",t("deed"),F.tbs||[],function(v){
+     : '<div class="sf sf-deed">'+chipSelect("csTabu",GX("deedShort"),F.tbs||[],function(v){
         return D.TABU[v]?D.TABU[v][li()]:v},true)+'</div>')+
    '<div class="sf sf-rooms">'+chipSelect("csRooms",GX("roomsField"),F.rooms||[],roomsLabel,true)+'</div>'+
    '<div class="sf sf-price"><button type="button" class="pricetrig" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
@@ -10670,6 +10670,7 @@ var GX_T={
   tIntake:{ar:"النشر بالرسائل",en:"Message intake",de:"Inserate per Nachricht"},
   desc_intake:{ar:"إعلانات تصل برسالة (تيليغرام، واتساب، أو نص ملصوق في الموقع) تُقرأ آلياً وتُنشر تحت اسم المكتب. هنا الربط، الإعدادات، المسوّدات، والسجل.",en:"Listings that arrive by message (Telegram, WhatsApp, or text pasted on the site) are read automatically and published under the agency. Connections, settings, drafts and the log live here.",de:"Anzeigen, die per Nachricht kommen (Telegram, WhatsApp oder eingefügter Text), werden automatisch gelesen und unter dem Büro veröffentlicht. Verbindungen, Einstellungen, Entwürfe und Protokoll."},
   bellIntake:{ar:"مسوّدات رسائل بانتظارك",en:"Message drafts waiting for you",de:"Nachrichten-Entwürfe warten"},
+  deedShort:{ar:"الملكية",en:"Deed",de:"Grundbuch",fr:"Titre"},
   ik_notRead:{ar:"لم تُقرأ بعد",en:"Not read yet",de:"Noch nicht gelesen"}, ik_noPhoto:{ar:"بلا صور",en:"No photos",de:"Keine Fotos"},
   ik_collecting:{ar:"قيد التجميع",en:"Collecting",de:"Wird gesammelt"}, ik_reading:{ar:"قيد القراءة",en:"Reading",de:"Wird gelesen"}, ik_ready:{ar:"بانتظار موافقة المرسل",en:"Awaiting sender's OK",de:"Wartet auf Bestätigung"}, ik_needs_info:{ar:"ينقص معلومات",en:"Missing details",de:"Angaben fehlen"}, ik_review:{ar:"بانتظارك",en:"Needs you",de:"Wartet auf Sie"}, ik_published:{ar:"منشور",en:"Published",de:"Veröffentlicht"}, ik_cancelled:{ar:"ملغى",en:"Cancelled",de:"Abgebrochen"}, ik_failed:{ar:"فشل",en:"Failed",de:"Fehlgeschlagen"}, ik_web:{ar:"الموقع",en:"Website",de:"Website"},
   ik_st_open:{ar:"قيد التجميع أو بانتظار المرسل",en:"Collecting or awaiting sender",de:"In Sammlung / wartet auf Absender"}, ik_st_attention:{ar:"بانتظارك",en:"Need you",de:"Warten auf Sie"}, ik_st_published:{ar:"منشورة",en:"Published",de:"Veröffentlicht"}, ik_st_today:{ar:"آخر 24 ساعة",en:"Last 24 hours",de:"Letzte 24 Stunden"}, ik_st_cost:{ar:"تكلفة القراءة هذا الشهر",en:"Reading cost this month",de:"Lesekosten diesen Monat"},
