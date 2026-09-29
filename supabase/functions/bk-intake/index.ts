@@ -1357,6 +1357,13 @@ async function handleIncoming(m: Incoming) {
     const claimed = await rpc<any>("bk_intake_claim", { p_draft: r.draft_id });
     if (claimed) { await safeRead(m, r.draft_id, tt); return; }
   }
+  // an album whose first photo carries the listing text: the text is complete, only the album's other photos are still
+  // landing (Telegram delivers them one by one within seconds) → a short pause, then read, instead of the 90-second wait
+  if (m.kind === "photo" && r.draft_id && (m.text || "").trim().length >= 10) {
+    await delay(7000);
+    const claimed = await rpc<any>("bk_intake_claim", { p_draft: r.draft_id });
+    if (claimed) { await safeRead(m, r.draft_id, tt); return; }
+  }
   if (m.kind === "photo" && r.draft_id && await completeAfterPhoto(m, r.draft_id)) return;
   if (r.is_new) await reply(m.source, m.chat, tt.gotFirst);
   scheduleTick();
