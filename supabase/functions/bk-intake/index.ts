@@ -626,6 +626,27 @@ function findArea(g: any, name: string) {
 //  1. the chosen area must actually be written in the message — no look-alike swaps (العدوي → العسالي)
 //  2. a name that only ever follows a transport word ("مكرو خط المهاجرين عباب الشقة") is how to get there, not the area
 // in both cases the area is dropped (kept as landmark) and asked for; returns the warnings to log
+// the model left the neighbourhood empty (or guessed one that was dropped) although a listed area name is written in
+// the message ("شقة سيدي مقداد على الشارع العام"): a deterministic pass over the governorate's own list — whole words only,
+// longest name first — fills it in. With no governorate known, the area must be unique across the country's governorates.
+function areaFromText(fields: Record<string, any>, missing: string[], rawText: string, tax: any): { event: string; detail: any } | null {
+  if (fields.area_id) return null;
+  const said = " " + norm(rawText).replace(/[^p{L}p{N}s]/gu, " ").replace(/s+/g, " ") + " ";
+  const govs = (tax.governorates || []).filter((g: any) => !fields.governorate_id || g.id === fields.governorate_id);
+  const hits: { g: any; a: any; n: string }[] = [];
+  for (const g of govs) for (const a of (g.areas || [])) {
+    const n = norm(a[1]); if (n.length < 5) continue;
+    if (said.includes(" " + n + " ") || said.includes(" ال" + n + " ")) hits.push({ g, a, n });
+  }
+  if (!hits.length) return null;
+  hits.sort((x, y) => y.n.length - x.n.length);
+  const best = hits[0];
+  if (!fields.governorate_id && hits.some((h) => h.n === best.n && h.g.id !== best.g.id)) return null;   // the same name in two governorates: ask
+  fields.governorate = best.g.ar; fields.governorate_id = best.g.id; fields.area = best.a[1]; fields.area_id = best.a[0];
+  if (fields.landmark && norm(fields.landmark) === best.n) delete fields.landmark;
+  for (const k of ["area", "governorate"]) { const i = missing.indexOf(k); if (i >= 0) missing.splice(i, 1); }
+  return { event: "area_from_text", detail: { area: best.a[1], governorate: best.g.ar } };
+}
 function areaGuards(fields: Record<string, any>, missing: string[], raw: Record<string, any>, rawText: string, tax: any): { event: string; detail: any }[] {
   const out: { event: string; detail: any }[] = [];
   if (!fields.area) return out;
@@ -864,6 +885,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
         await log(draftId, d.chat_id, "info", "gov_defaulted", { governorate: g.ar, from: govs.length === 1 ? "agency_single_gov" : "area_match", area: fields.area || null });
       }
     }
+    { const hit = areaFromText(fields, missing, rawText, tax); if (hit) await log(draftId, d.chat_id, "info", hit.event, hit.detail); }
     if (d.source !== "web" && photos === 0) missing.push("photos");   // a listing sent by message needs at least one photo (the site form has its own gate)
   } catch (e) { err = errStr(e); }
   // a buyer / tenant looking for a property, not an owner offering one: point them to the matching search and to
@@ -1655,6 +1677,7 @@ async function routeAdmin(req: Request): Promise<Response> {
       const text = latinDigits(String(b.text || "").slice(0, 6000));
       const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax), "MESSAGE:\n" + text); const s = settle(r.fields, tax);
       const warnings = areaGuards(s.fields, s.missing, r.fields, text, tax);   // the same rules the real read enforces
+      { const hit = areaFromText(s.fields, s.missing, text, tax); if (hit) warnings.push(hit); }
       return json({ ok: true, fields: s.fields, missing: s.missing, summary: summary(s.fields, tax, 0, "ar"), usage: r.usage, cost: costOf(r.usage, c), raw: r.fields, warnings });
     }
     catch (e) { return json({ error: errStr(e) }, 502); }
