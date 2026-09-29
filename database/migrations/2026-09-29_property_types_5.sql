@@ -25,3 +25,6 @@ update countries set types = types || '[{"code":"hotelapt","ar":"شقة مفرو
 -- exact text); it was re-applied with a whitespace-tolerant regexp_replace and now lists all 24 codes.
 update countries set types = types || '[{"code":"hall","ar":"صالة أفراح ومناسبات","en":"Event hall","fr":"Salle des fêtes"},{"code":"showroom","ar":"صالة عرض","en":"Showroom","fr":"Salle d''exposition"},{"code":"station","ar":"محطة وقود","en":"Fuel station","fr":"Station-service"},{"code":"workshop","ar":"ورشة","en":"Workshop","fr":"Atelier"}]'::jsonb
  where jsonb_array_length(coalesce(types,'[]'::jsonb)) > 0 and not (types @> '[{"code":"hall"}]'::jsonb);
+
+-- later: 'house' منزل (residential) added the same way — 25 types. Bot: "منزل"/"بيت" = house unless the text clearly
+-- describes a flat (floor + elevator, "شقة") or an Arab courtyard house (حوش، أرض ديار).

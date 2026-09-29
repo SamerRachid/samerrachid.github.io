@@ -102,7 +102,7 @@ const tabuName = (k, lang) => (D.TABU[k] ? D.TABU[k][LI[lang]] : k);
 const TYPE_PL_AR = { apartment:"شقق", arab:"بيوت عربية", villa:"فلل", floor:"طوابق", building:"أبنية", chalet:"شاليهات", farm:"مزارع",
   shop:"محلات", office:"مكاتب", restaurant:"مطاعم", warehouse:"مستودعات", factory:"معامل", resid:"أراضٍ سكنية", agri:"أراضٍ زراعية", comm:"أراضٍ تجارية", land:"أراضٍ",
   hotelapt:"شقق مفروشة فندقية", clinic:"عيادات", hotel:"فنادق ومنشآت سياحية", indust:"أراضٍ صناعية", tourist:"أراضٍ سياحية",
-  hall:"صالات أفراح ومناسبات", showroom:"صالات عرض", station:"محطات وقود", workshop:"ورش" };
+  house:"منازل", hall:"صالات أفراح ومناسبات", showroom:"صالات عرض", station:"محطات وقود", workshop:"ورش" };
 const typePlural = (k, lang) => lang === "ar" ? (TYPE_PL_AR[k] || typeName(k, "ar")) : lang === "en" ? typeName(k, "en") + (/[sxz]$|house$/i.test(typeName(k, "en")) ? "s" : "s") : typeName(k, "de");
 const govName = (g, lang) => lang === "ar" ? g.name_ar : lang === "en" ? (g.name_en || (D.GOVN[g.name_ar] || [])[0] || g.name_ar) : ((D.GOVN[g.name_ar] || [])[1] || g.name_en || g.name_ar);
 // areas have no English names in the database yet: fall back to the URL slug, title-cased (mezzeh → Mezzeh)
