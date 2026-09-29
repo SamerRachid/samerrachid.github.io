@@ -16,3 +16,7 @@ where not exists (select 1 from deed_types d where d.country_code = v.country_co
 -- same day: bk_intake_message() no longer applies intake_daily_limit (default 30 drafts per chat per day) to admin chats —
 -- the owner forwards whole agency batches from his own Telegram and hit the cap. Applied live with regexp_replace:
 --   if n_today >= coalesce(bk_intake_int(cfg->>'intake_daily_limit'), 30) and not coalesce((s->>'is_admin')::boolean, false) then
+-- later the same day: the daily draft cap is lifted for agencies and brokers too (owner's request) — it now applies only to
+-- plain members. bk_intake_sender() returns 'account_type' (users.account_type) and the condition became:
+--   ... and not coalesce((s->>'is_admin')::boolean,false) and s->>'agency_id' is null
+--       and coalesce(s->>'account_type','member') not in ('broker','agency') then
