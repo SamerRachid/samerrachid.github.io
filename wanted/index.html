@@ -4920,7 +4920,7 @@ function listing(id){
  /* ── key facts ── */
  var fact=function(icon,val,lab){ return '<div class="lf"><i>'+icon+'</i><b>'+val+'</b><span>'+lab+'</span></div>' };
  var facts='<section class="lfacts">'+
-   fac(x.m2?t(I.area,'<span class="ltr">'+x.m2+'</span>',t("sqm")):"")+
+   (x.m2?fac(I.area,'<span class="ltr">'+x.m2+'</span>',t("sqm")):"")+
    (x.r?fact(I.bed,'<span class="ltr">'+x.r+'</span>',t("kRooms")):'')+
    (x.b?fact(I.bath,'<span class="ltr">'+x.b+'</span>',t("kBaths")):'')+
    (x.living?fact(I.sofa,'<span class="ltr">'+x.living+'</span>',t("kLiving")):'')+
