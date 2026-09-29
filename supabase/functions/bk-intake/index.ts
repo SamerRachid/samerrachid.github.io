@@ -318,6 +318,7 @@ const T = {
     expiredPrev: (title: string) => `ملاحظة: إعلانك السابق${title ? " («" + title + "»)" : ""} لم يُنشر وأُغلق بعد يوم من دون رد.\nاكتب «رجّع» إن أردت إكماله، وإلا أكمل هذا الإعلان الجديد.`,
     attached: (ref: string) => `أُضيفت الصورة إلى إعلانك المنشور (${ltr(ref)}) ✅`,
     attachedReview: `أُضيفت الصورة إلى الإعلان الذي ينتظر في اللوحة ✅`,
+    photosStill: (n: number, list: string) => `وصلت الصور (${n}) ✅ بقي قبل النشر: ${list}.`,
     multi: (n: number) => `لاحظت أكثر من عقار في الرسالة (${n})؛ قرأت الأول فقط. بعد نشره أرسل كل عقار برسالة منفصلة مع صوره.\n\n`,
     paired: (n: string) => `تم ربط هذه المحادثة بمكتب «${n}» ✅\nأرسل الآن تفاصيل أول عقار مع صوره، وعندما تنتهي اكتب «تم».`,
     pairedAdmin: `تم ربط هذه المحادثة بحساب الإدارة ✅ كل ما تحوّله هنا يُقرأ ويظهر في لوحة التحكم لاختيار المكتب ونشره.`,
@@ -382,6 +383,7 @@ const T = {
     expiredPrev: (title: string) => `Note: your previous listing${title ? " (" + title + ")" : ""} was not published and was closed after a day without a reply.\nWrite "undo" to continue it, otherwise carry on with this new one.`,
     attached: (ref: string) => `Photo added to your published listing (${ltr(ref)}) ✅`,
     attachedReview: `Photo added to the listing waiting in the panel ✅`,
+    photosStill: (n: number, list: string) => `Photos received (${n}) ✅ Still needed before publishing: ${list}.`,
     multi: (n: number) => `I noticed more than one property in the message (${n}); I read the first only. After it is published, send each property in a separate message with its photos.\n\n`,
     paired: (n: string) => `This chat is now linked to "${n}" ✅\nSend the first property with its photos, then write "done".`,
     pairedAdmin: `This chat is linked to the admin account ✅ Anything forwarded here is read and appears in the panel to pick the agency and publish.`,
@@ -1363,7 +1365,21 @@ async function handleIncoming(m: Incoming) {
 // from the saved fields (no model call) and move on to the confirmation step
 async function completeAfterPhoto(m: Incoming, draftId: number): Promise<boolean> {
   const d = await rpc<any>("bk_intake_get", { p_draft: draftId });
-  if (!d || !Array.isArray(d.missing) || d.missing.length !== 1 || d.missing[0] !== "photos") return false;
+  if (!d || !Array.isArray(d.missing)) return false;
+  // photos arrived but something else is still missing (the area, the price…): tick "photos" off and remind once
+  // what is still needed, so the sender is not left wondering whether the photos landed
+  if (d.status === "needs_info" && d.missing.includes("photos") && d.missing.length > 1 && Array.isArray(d.photos) && d.photos.length) {
+    const rest = d.missing.filter((x: string) => x !== "photos");
+    await sb.from("intake_drafts").update({ missing: rest, updated_at: new Date().toISOString() }).eq("id", draftId);
+    const { data: recent } = await sb.from("intake_log").select("id").eq("draft_id", draftId).eq("event", "photo_ack").gt("created_at", new Date(Date.now() - 90_000).toISOString()).limit(1);
+    if (!recent || !recent.length) {
+      await log(draftId, m.chat, "info", "photo_ack", { photos: d.photos.length, missing: rest });
+      const c = await cfg(); const lang = c.intake_reply_lang === "en" ? "en" : (d.user_lang === "en" ? "en" : "ar"); const t = tx(lang);
+      await reply(m.source, m.chat, t.photosStill(d.photos.length, rest.map((x: string) => (lang === "en" ? MISSING_EN : MISSING_AR)[x]).join(lang === "en" ? ", " : "، ")));
+    }
+    return true;
+  }
+  if (d.missing.length !== 1 || d.missing[0] !== "photos") return false;
   if (!(Array.isArray(d.photos) && d.photos.length) || !["needs_info", "collecting"].includes(d.status)) return false;
   const claimed = await rpc<any>("bk_intake_claim", { p_draft: draftId }); if (!claimed) return false;
   const c = await cfg(); const lang = c.intake_reply_lang === "en" ? "en" : (d.user_lang === "en" ? "en" : "ar"); const t = tx(lang);
