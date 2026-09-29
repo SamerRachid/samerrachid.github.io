@@ -20,3 +20,8 @@ where not exists (select 1 from deed_types d where d.country_code = v.country_co
 -- plain members. bk_intake_sender() returns 'account_type' (users.account_type) and the condition became:
 --   ... and not coalesce((s->>'is_admin')::boolean,false) and s->>'agency_id' is null
 --       and coalesce(s->>'account_type','member') not in ('broker','agency') then
+
+-- later: farms and chalets let by the day need no size — listings.area_m2 is now nullable (check: null or > 0),
+-- bk_intake_publish() skips the 'noarea' gate for rent + farm/chalet, and the site prints the size only when present (m2Txt()).
+alter table listings alter column area_m2 drop not null;
+-- constraint recreated as: check (area_m2 is null or area_m2 > 0)
