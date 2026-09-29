@@ -4534,13 +4534,13 @@ function card(x,i,isListView){
  var f=function(icon,v,unit){ return '<span>'+icon+'<b class="ltr">'+v+'</b>'+(unit?' '+unit:'')+'</span>' };
  var facts = '<div class="cfacts">'+
    (x.r?f(I.bed,x.r):'')+(x.b?f(I.bath,x.b):'')+(x.living&&isListView?f(I.sofa,x.living):'')+
-   f(I.area,x.m2,t("sqm"))+
+   (x.m2?f(I.area,x.m2,t("sqm")):'')+
    ((isListView && x.fl!==null&&x.fl!==undefined&&x.fl!=="")?'<span>'+I.floor+floorLabel(x.fl)+'</span>':'')+
    (isLand&&condName?'<span>'+I.cond+condName+'</span>':'')+
   '</div>';
 
- var title = ar ? typeName+' '+'<span class="ltr">'+x.m2+'</span> '+t("sqm")+' '+GX("lIn")+' '+aN(x.a)
-               : typeName+', <span class="ltr">'+x.m2+'</span> '+t("sqm")+' '+GX("lIn")+' '+aN(x.a);
+ var title = ar ? typeName+' '+m2Txt(x)+' '+GX("lIn")+' '+aN(x.a)
+               : typeName+m2Txt(x,", ")+' '+GX("lIn")+' '+aN(x.a);
  var perm2 = (x.d!=="rent" && x.m2) ? '<span class="cpm"><span class="ltr">$'+Math.round(x.p/x.m2)+'</span>/'+t("sqm")+'</span>' : (x.d==="rent"?'<span class="cpm">'+t("monthlyRent")+'</span>':'');
  var deedPill = (x.d!=="rent" && D.TABU[x.tb]) ? '<span class="cpill'+(strongDeed(x.tb)?' green':'')+'">'+(strongDeed(x.tb)?'<span class="tabu-green">'+D.TABU[x.tb][li()]+'</span>':D.TABU[x.tb][li()])+'</span>' : '';
  // who posted: an agency shows its name (and logo when allowed) + ✓, a broker shows "broker", everyone else "owner"
@@ -4764,7 +4764,7 @@ function rsMapInit(){
 function rsMiniCard(x){
   var photos=(x.photos&&x.photos.length)?x.photos:(x.cover?[x.cover]:[]), cover=photos[0]||null, typeName=D.TYPES[x.t]?D.TYPES[x.t][li()]:"";
   return '<div class="rs-mini">'+(cover?'<img src="'+cover+'" alt="">':'<div class="rs-mini-np">'+t("photos")+'</div>')+
-    '<div class="rs-mini-b"><b class="ltr">'+money(x.p)+'</b><div class="rs-mini-t">'+typeName+' <span class="ltr">'+x.m2+'</span> '+t("sqm")+'</div><div class="rs-mini-l">'+aN(x.a)+(L==="ar"?"، ":", ")+gN(x.g)+'</div>'+
+    '<div class="rs-mini-b"><b class="ltr">'+money(x.p)+'</b><div class="rs-mini-t">'+typeName+m2Txt(x," ")+'</div><div class="rs-mini-l">'+aN(x.a)+(L==="ar"?"، ":", ")+gN(x.g)+'</div>'+
     '<button type="button" class="rs-mini-go" data-rsgo="'+x.id+'">'+GX("rsOpenListing")+'</button></div></div>' }
 function rsPinShow(x,m,o){
   o=o||{}; if(!RS.map) return;
@@ -4873,7 +4873,7 @@ function listing(id){
  var I=LICON, ar=L==="ar", isRent=x.d==="rent", hasFl=(x.fl!==null&&x.fl!==undefined&&x.fl!=="");
  var typeName=D.TYPES[x.t]?D.TYPES[x.t][li()]:"", condName=(D.COND[x.cd]||D.LANDC[x.cd]||["",""," ",""])[li()];
  var deedName=D.TABU[x.tb]?D.TABU[x.tb][li()]:"";
- var m2=function(){ return '<span class="ltr">'+x.m2+'</span> '+t("sqm") };
+ var m2=function(){ return m2Txt(x) };
 
  /* ── gallery: one large photo and a mosaic of the next ones; every photo opens the lightbox ── */
  var n=nAll, galCls="lgal n"+Math.min(n,5);
@@ -4920,7 +4920,7 @@ function listing(id){
  /* ── key facts ── */
  var fact=function(icon,val,lab){ return '<div class="lf"><i>'+icon+'</i><b>'+val+'</b><span>'+lab+'</span></div>' };
  var facts='<section class="lfacts">'+
-   fact(I.area,'<span class="ltr">'+x.m2+'</span>',t("sqm"))+
+   fac(x.m2?t(I.area,'<span class="ltr">'+x.m2+'</span>',t("sqm")):"")+
    (x.r?fact(I.bed,'<span class="ltr">'+x.r+'</span>',t("kRooms")):'')+
    (x.b?fact(I.bath,'<span class="ltr">'+x.b+'</span>',t("kBaths")):'')+
    (x.living?fact(I.sofa,'<span class="ltr">'+x.living+'</span>',t("kLiving")):'')+
@@ -8604,6 +8604,8 @@ var DEMO = null;          // the bundled sample listings
 var AREA_PRICES = {};     // area_id -> {listings, avg_price_per_m2} from v_area_prices (live sale listings)
 var ONLINE = false;
 
+// size text for a listing; farms and chalets let by the day may have none
+function m2Txt(x,pre){ return x.m2?(pre||"")+'<span class="ltr">'+x.m2+'</span> '+t("sqm"):"" }
 function fromRow(r){
   var txt = r.description || "";
   return {id:r.id, ref:r.ref, g:r.governorate_ar, a:r.area_ar||"",
