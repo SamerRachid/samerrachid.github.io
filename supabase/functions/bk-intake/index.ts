@@ -1587,7 +1587,16 @@ async function routeAdmin(req: Request): Promise<Response> {
   if (a === "read") {
     const id = +b.draft_id; if (!id) return json({ error: "draft_id" }, 400);
     if (!(await adminCan(b.token, id))) return json({ error: "unauthorised" }, 403);
-    const claimed = await rpc<any>("bk_intake_claim", { p_draft: id }); if (!claimed) return json({ error: "cannot claim" }, 409);
+    // the panel may re-read a cancelled draft (it comes back as an open one) and a draft the bot gave up on (reads cap)
+    let claimed = await rpc<any>("bk_intake_claim", { p_draft: id });
+    if (!claimed) {
+      const d0 = await rpc<any>("bk_intake_get", { p_draft: id });
+      if (d0 && d0.status !== "published") {
+        await sb.from("intake_drafts").update({ status: "collecting", error: null, reads: 0, claimed_at: null, updated_at: new Date().toISOString() }).eq("id", id);
+        claimed = await rpc<any>("bk_intake_claim", { p_draft: id });
+      }
+    }
+    if (!claimed) return json({ error: "cannot claim" }, 409);
     try { const r = await readDraft(id, { quiet: !!b.quiet }); return json({ ok: true, draft: r }); }
     catch (e) { await rpc("bk_intake_set", { p_draft: id, p_patch: { status: "failed", error: errStr(e) } }); return json({ error: errStr(e) }, 500); }
   }
