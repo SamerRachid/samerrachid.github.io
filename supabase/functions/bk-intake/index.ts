@@ -300,7 +300,7 @@ const T = {
   ar: {
     guide: GUIDE.ar,
     welcome: (_name: string) => GUIDE.ar(null),
-    gotFirst: `استلمت ✅ أكمل إرسال الصور وأي تفاصيل أخرى، وعندما تنتهي اكتب «تم» لأراجع الإعلان وأخبرك إن نقص شيء.`,
+    gotFirst: `استلمت ✅ سأقرأ الإعلان بعد وصول كل الصور خلال دقيقة ونصف، أو اكتب «تم» لأقرأه الآن.`,
     gotMore: `تمام ✅ سأحدّث الإعلان خلال دقيقة ونصف، أو اكتب «تم» الآن.`,
     unknown: `مرحباً 👋 هذه القناة مخصّصة للمكاتب المعتمدة في بلكون لنشر إعلاناتها تلقائياً.\nللانضمام: سجّل مكتبك على balkoun.com/agencyform ثم اطلب تفعيل النشر بالرسائل.`,
     blocked: `عذراً، هذا الحساب موقوف.`,
@@ -364,7 +364,7 @@ const T = {
   en: {
     guide: GUIDE.en,
     welcome: (_name: string) => GUIDE.en(null),
-    gotFirst: `Received ✅ Keep sending photos and any other details; when you are done write "done" and I will review the listing and tell you if anything is missing.`,
+    gotFirst: `Received ✅ I will read the listing once all photos are in, within a minute and a half, or write "done" to read it now.`,
     gotMore: `OK ✅ I will update the listing in a minute and a half, or write "done" now.`,
     unknown: `Hello 👋 This channel is for approved Balkoun agencies to publish listings automatically.\nTo join: register your agency at balkoun.com/agencyform and ask for message posting.`,
     blocked: `Sorry, this account is suspended.`,
@@ -558,6 +558,7 @@ Rules:
 - The description must be a clean Arabic paragraph written for the website: no phone numbers, no prices, no emojis, no hashtags, no "للتواصل". Keep facts only; do not invent.
 - Put in "missing" every required fact that the message truly does not state: deal, property_type, governorate, price, area_m2 (and tabu for a sale).
 - Intent: if the sender is LOOKING for a property ("أبحث عن", "أريد", "بدي", "مطلوب", "أدور على", "looking for", "I want to buy/rent"), set intent = "wanted" and still fill the fields they ask for (type, place, deal, budget as price). A property being offered is intent = "listing". A question or chat is "other".
+- Transport lines are NOT the neighbourhood: a name after "مكرو", "ميكرو", "خط", "سرفيس", "باص", "كراج" ("مكرو خط المهاجرين عباب الشقة" = the Muhajireen microbus line passes by) tells how to reach the place; never take that name as the area. Same for "قريب من", "بعد", "مقابل", "جانب" + a place: that is a landmark, not the area, unless the message clearly says the property is IN it. If the true neighbourhood is not stated, leave area empty and put the way-finding text in landmark.
 - More than one property in one message (two apartments, a flat and a shop…): set listings_count to how many, and fill every field for the FIRST property only. Do not mix facts of different properties. One property = listings_count 1.
 - Answer only by calling the tool.`;
 
@@ -616,6 +617,31 @@ function findGov(tax: any, name: string) {
 function findArea(g: any, name: string) {
   if (!g || !name) return null; const n = norm(name);
   return (g.areas || []).find((a: any) => norm(a[1]) === n || norm(a[2] || "") === n) || (g.areas || []).find((a: any) => norm(a[1]).includes(n) || n.includes(norm(a[1]))) || null;
+}
+// rules the model keeps getting wrong, enforced on its answer (shared by the real read and the panel's test box):
+//  1. the chosen area must actually be written in the message — no look-alike swaps (العدوي → العسالي)
+//  2. a name that only ever follows a transport word ("مكرو خط المهاجرين عباب الشقة") is how to get there, not the area
+// in both cases the area is dropped (kept as landmark) and asked for; returns the warnings to log
+function areaGuards(fields: Record<string, any>, missing: string[], raw: Record<string, any>, rawText: string, tax: any): { event: string; detail: any }[] {
+  const out: { event: string; detail: any }[] = [];
+  if (!fields.area) return out;
+  const g = (tax.governorates || []).find((x: any) => x.id === fields.governorate_id);
+  const a = g ? (g.areas || []).find((x: any) => x[0] === fields.area_id) : null;
+  const said = norm(rawText), names = [fields.area, a ? a[2] : ""].filter(Boolean).map(norm);
+  const drop = () => { delete fields.area; delete fields.area_id; if (g && (g.areas || []).length && !missing.includes("area")) missing.push("area"); };
+  if (!names.some((n) => n && said.includes(n))) {
+    out.push({ event: "area_not_in_text", detail: { picked: fields.area, landmark: raw.area || raw.landmark || null } });
+    if (!fields.landmark && raw.area && norm(raw.area) !== norm(fields.area)) fields.landmark = raw.area;
+    drop(); return out;
+  }
+  const nm = norm(fields.area); let i = said.indexOf(nm), seen = 0, transport = 0;
+  while (nm && i >= 0) { seen++; if (/(مكرو|ميكرو|خط|سرفيس|سرافيس|باص|كراج)\s*(ال)?$/.test(said.slice(Math.max(0, i - 14), i))) transport++; i = said.indexOf(nm, i + nm.length); }
+  if (seen && seen === transport) {
+    out.push({ event: "area_transport_line", detail: { picked: fields.area } });
+    if (!fields.landmark) fields.landmark = fields.area;
+    drop();
+  }
+  return out;
 }
 // tidy what the model returned against the taxonomy; compute what is still missing
 function settle(f: Record<string, any>, tax: any) {
@@ -814,17 +840,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
     usage = r.usage; raw = r.fields; const s = settle(r.fields, tax); fields = s.fields; missing = s.missing; cost = costOf(usage, c);
     // the model must not swap an unknown neighbourhood for a look-alike from the list (العدوي → العسالي): the chosen
     // area has to actually be written in the message; otherwise it becomes a landmark and the area is asked for
-    if (fields.area) {
-      const g = (tax.governorates || []).find((x: any) => x.id === fields.governorate_id);
-      const a = g ? (g.areas || []).find((x: any) => x[0] === fields.area_id) : null;
-      const said = norm(rawText), names = [fields.area, a ? a[2] : ""].filter(Boolean).map(norm);
-      if (!names.some((n) => n && said.includes(n))) {
-        await log(draftId, d.chat_id, "warn", "area_not_in_text", { picked: fields.area, landmark: raw.area || raw.landmark || null });
-        if (!fields.landmark && raw.area && norm(raw.area) !== norm(fields.area)) fields.landmark = raw.area;
-        delete fields.area; delete fields.area_id;
-        if (g && (g.areas || []).length && !missing.includes("area")) missing.push("area");
-      }
-    }
+    for (const w of areaGuards(fields, missing, raw, rawText, tax)) await log(draftId, d.chat_id, "warn", w.event, w.detail);
     // no governorate in the message: an agency that works in exactly one governorate (or a member whose profile city
     // names one) gets it by default, and the neighbourhood is then matched inside it
     if (!fields.governorate_id) {
@@ -1609,7 +1625,12 @@ async function routeAdmin(req: Request): Promise<Response> {
   if (a === "tick") return json({ ok: true, read: await tick() });
   if (a === "test_claude") {
     const c = await cfg(); const tax = await rpc<any>("bk_intake_taxonomy", { p_country: b.country || "SY" });
-    try { const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax), "MESSAGE:\n" + latinDigits(String(b.text || "").slice(0, 6000))); const s = settle(r.fields, tax); return json({ ok: true, fields: s.fields, missing: s.missing, summary: summary(s.fields, tax, 0, "ar"), usage: r.usage, cost: costOf(r.usage, c), raw: r.fields }); }
+    try {
+      const text = latinDigits(String(b.text || "").slice(0, 6000));
+      const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax), "MESSAGE:\n" + text); const s = settle(r.fields, tax);
+      const warnings = areaGuards(s.fields, s.missing, r.fields, text, tax);   // the same rules the real read enforces
+      return json({ ok: true, fields: s.fields, missing: s.missing, summary: summary(s.fields, tax, 0, "ar"), usage: r.usage, cost: costOf(r.usage, c), raw: r.fields, warnings });
+    }
     catch (e) { return json({ error: errStr(e) }, 502); }
   }
   if (a === "test_photo") {
