@@ -3109,19 +3109,31 @@ function ikFieldsForm(x){
     inp("contact_phone",GX("ik_f_phone"),"tel")+chk("furnished",GX("ik_f_furn"))+chk("negotiable",GX("ik_f_negot"))+
     '<div class="fl wide"><label>'+GX("ik_f_desc")+'</label><textarea data-ikf="description">'+v("description")+'</textarea></div>'+
   '</div>' }
+// the one line that tells what the draft is: the summary's informative lines (place, size, price…), never the
+// filler ones ("not stated", photo count); a draft not read yet shows the start of the raw message instead
+function ikLine(x){
+  var lines=(x.summary||"").split("\n").map(function(l){ return l.replace(/^[•\-\s]+/,"").trim() })
+    .filter(function(l){ return l && !/^📋/.test(l) && !/غير مذكور|not stated|nicht angegeben|^الصور:|^Photos:|^Fotos:|^المعلن:|^Listed for:|^المكتب المقترح|^Suggested agency|اكتملت المعلومات|All set|تمت القراءة|^نعم|^لا ←|^yes|^no →|قبل النشر|Before publishing|«لا»|"no"/.test(l) && !/^(عقار|Property|Immobilie)$/.test(l) });
+  if(lines.length) return {text:lines.slice(0,3).join(" · "), raw:false};
+  var raw=(x.raw_text||"").replace(/\s+/g," ").trim();
+  return raw ? {text:raw.slice(0,110), raw:true} : {text:GX("ik_notRead"), raw:true} }
 function ikRow(x){
   var open=String(ADM.ikOpen)===String(x.id), photos=Array.isArray(x.photos)?x.photos:[], d=ADM.ik||{};
-  var head=esc(x.agency_name||x.sender_name||x.chat_id||""), sub=ikSrc(x)+(x.by_admin?' · '+GX("ik_byOwner"):'')+(x.sender_name&&x.agency_name?' · '+esc(x.sender_name):'');
-  var line=(x.summary||"").split("\n").filter(function(l){ return l && !/^📋/.test(l) }).slice(0,2).join(" · ") || (x.raw_text||"").slice(0,90);
-  var selectable=["published","cancelled"].indexOf(x.status)<0, sel=!!(ADM.ikSel&&ADM.ikSel[x.id]);
+  var who=x.agency_name||x.sender_name||x.chat_id||"", second=x.sender_name&&x.agency_name?x.sender_name:"";
+  var src=ikSrc(x)+(x.by_admin?' · '+GX("ik_byOwner"):'')+(second?' · '+esc(second):'')+(x.country_code&&x.country_code!=="SY"?' · '+flagOf(x.country_code):'');
+  var line=ikLine(x);
+  var selectable=["published","cancelled"].indexOf(x.status)<0, sel=!!(selectable&&ADM.ikSel&&ADM.ikSel[x.id]);
   var miss=(Array.isArray(x.missing)?x.missing:[]).map(function(m){ return GX("ik_m_"+m)!=="ik_m_"+m?GX("ik_m_"+m):m });
-  var thumbs=photos.slice(0,4).map(function(p){ return '<img src="'+esc(p.thumb_url||p.url)+'" alt="" loading="lazy">' }).join("");
-  return '<div class="erow ikrow'+(open?' open':'')+(sel?' iksel':'')+'">'+
-    '<div class="ecode">'+(selectable?'<label class="ikchk"><input type="checkbox" data-ikchk="'+x.id+'"'+(sel?' checked':'')+'></label>':'<span class="ikchk"></span>')+'<b>#'+x.id+'</b><div><b>'+scopeFlag(x.country_code)+head+'</b><small class="usub">'+sub+'</small></div></div>'+
-    '<div class="ewho">'+(thumbs?'<span class="ikthumbs">'+thumbs+'</span>':'')+esc(line)+'<small>'+photos.length+' '+GX("ik_photos")+' · '+(x.messages||0)+' '+GX("ik_msgs")+(x.country_code&&x.country_code!=="SY"?' · '+flagOf(x.country_code):'')+'</small>'+
-    (miss.length&&selectable?'<small class="ikmiss">'+GX("ik_missing")+': '+esc(miss.join("، "))+'</small>':'')+'</div>'+
-    '<div class="eclient">'+ikPill(x.status)+(x.listing_ref?' <a class="elink" data-open="'+x.listing_id+'">'+esc(x.listing_ref)+'</a>':'')+(x.error&&!open?'<small style="color:var(--danger)">'+esc(String(x.error)).slice(0,60)+'</small>':'')+'</div>'+
-    '<div class="eperiod"><span class="ltr">'+when(x.created_at)+'</span><small>$'+(+x.cost_usd||0).toFixed(4)+'</small></div>'+
+  var cover=photos.length ? '<img src="'+esc(photos[0].thumb_url||photos[0].url)+'" alt="" loading="lazy">'+(photos.length>1?'<i class="ltr">'+photos.length+'</i>':'') : GX("ik_noPhoto");
+  return '<div class="ikr'+(open?' open':'')+(sel?' iksel':'')+'">'+
+    (selectable?'<label class="ikchk"><input type="checkbox" data-ikchk="'+x.id+'"'+(sel?' checked':'')+'></label>':'<span class="ikchk"></span>')+
+    '<div class="ikpic">'+cover+'</div>'+
+    '<div class="ikmain"><div class="ikhead"><span class="iknum">#'+x.id+'</span><span>'+scopeFlag(x.country_code)+esc(who)+'</span><span class="iksrc">'+src+'</span></div>'+
+      '<div class="iksum'+(line.raw?' raw':'')+'" title="'+esc(line.text)+'">'+esc(line.text)+'</div>'+
+      '<div class="ikmeta">'+photos.length+' '+GX("ik_photos")+' · '+(x.messages||0)+' '+GX("ik_msgs")+(x.error&&!open?' · <span style="color:var(--danger)">'+esc(String(x.error)).slice(0,60)+'</span>':'')+'</div>'+
+      (miss.length&&selectable?'<span class="ikmiss">'+GX("ik_missing")+': '+esc(miss.join("، "))+'</span>':'')+'</div>'+
+    '<div class="ikst">'+ikPill(x.status)+(x.listing_ref?' <a class="elink" data-open="'+x.listing_id+'">'+esc(x.listing_ref)+'</a>':'')+'</div>'+
+    '<div class="ikwhen"><b class="ltr">'+when(x.created_at)+'</b><span class="ltr">$'+(+x.cost_usd||0).toFixed(3)+'</span></div>'+
     '<div class="eacts"><button type="button" class="ab" data-ikopen="'+x.id+'">'+(open?GX("ik_close"):GX("ik_open"))+'</button></div>'+
     (open ? '<div class="eedit ikdetail" data-ikid="'+x.id+'"><div class="ikcols">'+
       '<div><b>'+GX("ik_rawH")+'</b><pre class="ikpre">'+esc(x.raw_text||"—")+'</pre>'+(x.error?'<div class="hintx" style="color:var(--danger)">'+esc(String(x.error))+'</div>':'')+(x.summary?'<pre class="ikpre">'+esc(x.summary)+'</pre>':'')+
@@ -3186,11 +3198,15 @@ function adminIntakeBody(){
   '</div></div>';
   var filters=[["all",GX("ik_fAll")],["attention",GX("ik_fAttention")],["open",GX("ik_fOpen")],["published",GX("ik_published")],["cancelled",GX("ik_cancelled")]];
   // bulk bar: tick several drafts, give them all a governorate / an agency, publish or cancel them in one go
-  var selIds=Object.keys(ADM.ikSel||{}).filter(function(k){ return ADM.ikSel[k] }), nSel=selIds.length;
-  var bulk='<div class="ikbulk'+(nSel?' on':'')+'"><label class="xcheck"><input type="checkbox" id="ikSelAll"><span>'+GX("ik_selAll")+'</span></label><b class="ltr">'+nSel+'</b> '+GX("ik_selected")+
-    '<select id="ikBulkGov"><option value="">'+GX("ik_bulkGov")+'</option>'+Object.keys(D.GEO).map(function(g){ return '<option value="'+esc(g)+'">'+gN(g)+'</option>' }).join("")+'</select><button type="button" class="ab" id="ikBulkGovGo"'+(nSel?'':' disabled')+'>'+GX("ik_apply")+'</button>'+
-    '<select id="ikBulkAg"><option value="">'+GX("ik_pickAgency")+'</option>'+(d.agencies||[]).map(function(g){ return '<option value="'+g.id+'">'+esc(g.name)+'</option>' }).join("")+'</select><button type="button" class="ab" id="ikBulkAgGo"'+(nSel?'':' disabled')+'>'+GX("ik_apply")+'</button>'+
-    '<span class="ikbulk-sep"></span><button type="button" class="ab ok" id="ikBulkPubP"'+(nSel?'':' disabled')+'>'+GX("ik_pubPending")+'</button><button type="button" class="ab ok" id="ikBulkPubL"'+(nSel?'':' disabled')+'>'+GX("ik_pubLive")+'</button><button type="button" class="ab" id="ikBulkCancel"'+(nSel?'':' disabled')+'>'+t("cancel")+'</button><span class="xmsg" id="ikBulkMsg"></span></div>';
+  // only ticks on drafts that are visible AND still actionable count (a tick left over from another filter is dropped)
+  var visIds={}; list.forEach(function(x){ if(["published","cancelled"].indexOf(x.status)<0) visIds[x.id]=true });
+  ADM.ikSel=ADM.ikSel||{}; Object.keys(ADM.ikSel).forEach(function(k){ if(!visIds[k]) delete ADM.ikSel[k] });
+  var selIds=Object.keys(ADM.ikSel).filter(function(k){ return ADM.ikSel[k] }), nSel=selIds.length, nVis=Object.keys(visIds).length;
+  var bulk='<div class="ikbulk'+(nSel?' on':'')+'">'+
+    '<div class="ikb-row"><label class="xcheck"><input type="checkbox" id="ikSelAll"'+(nVis&&nSel===nVis?' checked':'')+'><span>'+GX("ik_selAll")+'</span></label><span><b class="ikb-n ltr">'+nSel+'</b> '+GX("ik_selected")+'</span>'+
+      '<span class="ikb-set"><select id="ikBulkGov"><option value="">'+GX("ik_bulkGov")+'</option>'+Object.keys(D.GEO).map(function(g){ return '<option value="'+esc(g)+'">'+gN(g)+'</option>' }).join("")+'</select><button type="button" class="ab" id="ikBulkGovGo"'+(nSel?'':' disabled')+'>'+GX("ik_apply")+'</button></span>'+
+      '<span class="ikb-set"><select id="ikBulkAg"><option value="">'+GX("ik_pickAgency")+'</option>'+(d.agencies||[]).map(function(g){ return '<option value="'+g.id+'">'+esc(g.name)+'</option>' }).join("")+'</select><button type="button" class="ab" id="ikBulkAgGo"'+(nSel?'':' disabled')+'>'+GX("ik_apply")+'</button></span></div>'+
+    '<div class="ikb-row"><button type="button" class="ab ok" id="ikBulkPubL"'+(nSel?'':' disabled')+'>'+GX("ik_pubLive")+'</button><button type="button" class="ab" id="ikBulkPubP"'+(nSel?'':' disabled')+'>'+GX("ik_pubPending")+'</button><button type="button" class="ab bad" id="ikBulkCancel"'+(nSel?'':' disabled')+'>'+t("cancel")+'</button><span class="xmsg" id="ikBulkMsg"></span></div></div>';
   var drafts='<div class="blk"><h3>'+GX("ik_draftsH")+' <span class="n">'+list.length+'</span></h3><div class="in eng-in">'+
     '<div class="ikfilters">'+filters.map(function(x){ return '<button type="button" class="ab'+(x[0]===f?' on':'')+'" data-ikf-filter="'+x[0]+'">'+x[1]+'</button>' }).join("")+'<button type="button" class="ab" id="ikReload" style="margin-inline-start:auto">'+AICO.refresh+'</button></div>'+
     (list.length ? bulk+'<div class="elist">'+list.map(ikRow).join("")+'</div>' : '<div class="adashempty">'+GX("ik_none")+'</div>')+'</div></div>';
@@ -3203,7 +3219,7 @@ function wireAdminIntake(){
   var reload=function(){ ADM._ikLoaded=false; render() };
   var busy=function(btn,on){ if(btn){ btn.disabled=on; btn.classList.toggle("busy",on) } };
   if($("#ikReload")) $("#ikReload").onclick=function(){ ADM.ikStatus=null; reload() };
-  $$("[data-ikf-filter]").forEach(function(b){ b.onclick=function(){ ADM.ikFilter=this.dataset.ikfFilter; render() } });
+  $$("[data-ikf-filter]").forEach(function(b){ b.onclick=function(){ ADM.ikFilter=this.dataset.ikfFilter; ADM.ikSel={}; render() } });
   $$("[data-ikopen]").forEach(function(b){ b.onclick=function(){ ADM.ikOpen = String(ADM.ikOpen)===this.dataset.ikopen ? null : this.dataset.ikopen; render() } });
   if($("#ikSetupTg")) $("#ikSetupTg").onclick=async function(){ busy(this,true); try{ var r=await intakeAdmin("setup_telegram"); admToast("@"+(r.bot||"")+" ✓"); ADM.ikStatus=null; reload() }catch(e){ admToast(e.message||"error","bad"); busy(this,false) } };
   if($("#ikAdminCode")) $("#ikAdminCode").onclick=async function(){ busy(this,true); try{ await intakeAdmin("admin_code"); reload() }catch(e){ admToast(e.message||"error","bad"); busy(this,false) } };
