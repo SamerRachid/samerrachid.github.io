@@ -5290,7 +5290,7 @@ function editView(){
   '<div class="fl" style="margin-bottom:0"><label class="req">'+t("descL")+'</label>'+
    '<textarea id="eDesc" maxlength="1200">'+(x.ds?dsOf(x):"")+'</textarea></div>'+
  '</div></div>'+
- (EDIT.isAdmin ? '' :
+ (false ? '' :   /* the admin manages photos and videos here too (bk_admin_photo_add / bk_admin_photo_del) */
   '<div class="blk"><h3><span class="n">3</span>'+t("managePhotos")+'</h3><div class="in">'+
    '<div class="shots" id="ePhotos">'+
     (EDIT.photos||[]).filter(function(p){ return p.kind!=="video" }).map(function(p){
@@ -7808,7 +7808,7 @@ function wire(){
    as.insertAdjacentHTML("afterbegin",'<option value="">'+t("allareas")+'</option>'); if(!as.dataset.cur) as.value="";
  }
  $$("[data-delphoto]").forEach(function(e){ e.onclick=async function(){
-   try{ await rpc("bk_photo_del",{p_user:USER.id,p_photo:+e.dataset.delphoto});
+   try{ if(EDIT.isAdmin) await rpc("bk_admin_photo_del",{p_token:ADM.token,p_photo:+e.dataset.delphoto}); else await rpc("bk_photo_del",{p_user:USER.id,p_photo:+e.dataset.delphoto});
         EDIT.photos=EDIT.photos.filter(function(p){return String(p.id)!==e.dataset.delphoto});
         LOADED.mine=false; render();
    }catch(x){ alert(x.message||"error") } }});
@@ -7832,7 +7832,7 @@ function wire(){
          if(uF.error) throw new Error(uF.error.message);
          var tU=null; var uT=await storageUpload(pT,thumb,{contentType:"image/jpeg"});
          if(!uT.error) tU=DB.storage.from("photos").getPublicUrl(pT).data.publicUrl;
-         await rpc("bk_photo_add",{p_user:USER.id,p_listing:+EDIT.id,
+         await photoAddRpc({p_user:USER&&USER.id,p_listing:+EDIT.id,
            p_url:DB.storage.from("photos").getPublicUrl(pF).data.publicUrl,
            p_thumb:tU,p_sort:(EDIT.photos.length+i)});
        }catch(err){ if(msg) msg.textContent=err.message||"error" }
@@ -8528,7 +8528,7 @@ async function uploadListingVideo(listingId, v, onProgress, viaRpc){
   await storageUploadXhr(pV, v.file, ctype, onProgress);
   var poster=null; if(v.poster){ var uP=await storageUpload(pP, v.poster, {contentType:"image/jpeg", upsert:false}); if(!uP.error) poster=DB.storage.from("photos").getPublicUrl(pP).data.publicUrl }
   var url=DB.storage.from("photos").getPublicUrl(pV).data.publicUrl, dur=Math.round(v.duration||0);
-  if(viaRpc){ var r=await rpc("bk_photo_add",{p_user:USER.id,p_listing:+listingId,p_url:url,p_thumb:poster,p_sort:1000,p_token:USER.token||null,p_kind:"video",p_duration:dur,p_size:v.size}); if(r&&r.error) throw new Error(r.error==="video_limit"?GX("videoLimit"):r.error==="video_off"?GX("videoOff"):r.error) }
+  if(viaRpc){ var r=await photoAddRpc({p_user:USER&&USER.id,p_listing:+listingId,p_url:url,p_thumb:poster,p_sort:1000,p_token:(USER&&USER.token)||null,p_kind:"video",p_duration:dur,p_size:v.size}); if(r&&r.error) throw new Error(r.error==="video_limit"?GX("videoLimit"):r.error==="video_off"?GX("videoOff"):r.error) }
   else { var pr=await DB.from("listing_photos").insert({listing_id:listingId, url:url, thumb_url:poster, sort_order:1000, kind:"video", duration_s:dur, size_bytes:v.size}).select(); if(pr.error) throw new Error(pr.error.message) }
   return {url:url, poster:poster} }
 function videoPickHtml(){
@@ -8628,6 +8628,12 @@ var AREA_PRICES = {};     // area_id -> {listings, avg_price_per_m2} from v_area
 var ONLINE = false;
 
 // size text for a listing; farms and chalets let by the day may have none
+// photo / video rows for a listing: the member's own RPC, or the admin one when the panel opened the edit form
+function photoAddRpc(a){
+  if(typeof EDIT!=="undefined"&&EDIT&&EDIT.isAdmin&&typeof ADM!=="undefined"&&ADM.token)
+    return rpc("bk_admin_photo_add",{p_token:ADM.token,p_listing:a.p_listing,p_url:a.p_url,p_thumb:a.p_thumb||null,p_sort:a.p_sort==null?null:a.p_sort,p_kind:a.p_kind||"photo",p_duration:a.p_duration||null,p_size:a.p_size||null});
+  return rpc("bk_photo_add",a);
+}
 function m2Txt(x,pre){ return x.m2?(pre||"")+'<span class="ltr">'+x.m2+'</span> '+t("sqm"):"" }
 function fromRow(r){
   var txt = r.description || "";
