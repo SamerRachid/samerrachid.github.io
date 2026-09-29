@@ -5239,7 +5239,7 @@ function editView(){
    '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+x.p+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur","USD")+'</div>'+
    (x.orig&&x.orig>x.p?'<div class="hintx">'+t("wasPrice")+' <span class="ltr">'+money(x.orig)+'</span></div>':'')+
    '</div>'+
-  '<div class="fl"><label class="req">'+t("areaM")+'</label><input type="number" id="eArea" value="'+x.m2+'" autocomplete="off"></div></div>'+
+  '<div class="fl"><label class="req">'+t("areaM")+'</label><input type="number" id="eArea" value="'+(x.m2||"")+'" autocomplete="off"></div></div>'+
   '<div class="row3">'+
   '<div class="fl"><label>'+t("kRooms")+'</label><input type="number" id="eRooms" value="'+(x.r||"")+'" autocomplete="off"></div>'+
   '<div class="fl"><label>'+t("kBaths")+'</label><input type="number" id="eBaths" value="'+(x.b||"")+'" autocomplete="off"></div>'+
