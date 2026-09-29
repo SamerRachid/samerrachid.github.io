@@ -636,7 +636,7 @@ function areaFromText(fields: Record<string, any>, missing: string[], rawText: s
     const hits: { g: any; a: any; n: string }[] = [];
     for (const g of govs) for (const a of (g.areas || [])) {
       const n = norm(a[1]); if (n.length < 5) continue;
-      if (said.includes(" " + n + " ") || said.includes(" ال" + n + " ")) hits.push({ g, a, n });
+      if ((said.includes(" " + n + " ") || said.includes(" ال" + n + " ")) && !areaIsNoun(a[1], rawText)) hits.push({ g, a, n });
     }
     return hits.sort((x, y) => y.n.length - x.n.length);
   };
@@ -677,6 +677,15 @@ function govGuard(fields: Record<string, any>, missing: string[], rawText: strin
   if (!missing.includes("governorate")) missing.push("governorate");
   return { event: "gov_not_in_text", detail: { picked, area: fields.area || null } };
 }
+// place names that are also ordinary listing words: "الكسوة: جيدة جداً" is the finishing, not the town of الكسوة in Rif
+// Dimashq. Such a name counts as a place only when the text does not use it as that word.
+const NOUN_AREAS: Record<string, RegExp> = {
+  "كسوه": /(?:^|\s)(?:ال)?كسوه\s*(?::|：|جيده|سوبر|ديلوكس|ممتازه|كامله|حجر|جديده|فاخره|عاديه|وسط|متوسطه|قديمه|حديثه|راقيه)/,
+  "صناعه": /منطقه\s+(?:ال)?صناعيه|(?:ال)?صناعه\s+(?:الخفيفه|الثقيله)/,
+};
+function areaIsNoun(area: string, rawText: string): boolean {
+  const re = NOUN_AREAS[norm(area)]; return !!(re && re.test(norm(rawText)));
+}
 function areaGuards(fields: Record<string, any>, missing: string[], raw: Record<string, any>, rawText: string, tax: any): { event: string; detail: any }[] {
   const out: { event: string; detail: any }[] = [];
   if (!fields.area) return out;
@@ -684,6 +693,7 @@ function areaGuards(fields: Record<string, any>, missing: string[], raw: Record<
   const a = g ? (g.areas || []).find((x: any) => x[0] === fields.area_id) : null;
   const said = norm(rawText), names = [fields.area, a ? a[2] : ""].filter(Boolean).map(norm);
   const drop = () => { delete fields.area; delete fields.area_id; if (g && (g.areas || []).length && !missing.includes("area")) missing.push("area"); };
+  if (areaIsNoun(fields.area, rawText)) { out.push({ event: "area_is_noun", detail: { picked: fields.area } }); drop(); return out; }
   if (!names.some((n) => n && said.includes(n))) {
     out.push({ event: "area_not_in_text", detail: { picked: fields.area, landmark: raw.area || raw.landmark || null } });
     if (!fields.landmark && raw.area && norm(raw.area) !== norm(fields.area)) fields.landmark = raw.area;
