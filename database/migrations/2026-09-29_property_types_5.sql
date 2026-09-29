@@ -28,3 +28,5 @@ update countries set types = types || '[{"code":"hall","ar":"صالة أفراح
 
 -- later: 'house' منزل (residential) added the same way — 25 types. Bot: "منزل"/"بيت" = house unless the text clearly
 -- describes a flat (floor + elevator, "شقة") or an Arab courtyard house (حوش، أرض ديار).
+
+-- later: 'plot' أرض (land with no kind stated) added to the land family (LANDT, land_types, publish/edit section) — 26 types.
