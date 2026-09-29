@@ -2528,16 +2528,28 @@ body.rs-lock{overflow:hidden}
 .iktest textarea{width:100%;min-height:70px;margin-top:8px;border:1px solid var(--line-2);border-radius:10px;padding:8px 10px;font:inherit;font-size:13.5px}
 .ikpre{white-space:pre-wrap;word-break:break-word;background:var(--page);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:12.5px;max-height:260px;overflow:auto;margin:6px 0 0;font-family:inherit}
 .ikfilters{display:flex;gap:6px;flex-wrap:wrap;padding:12px 18px;border-bottom:1px solid var(--line)}.ikfilters .ab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
-.ikrow{grid-template-columns:minmax(180px,1.1fr) minmax(200px,2fr) minmax(150px,1fr) minmax(120px,.8fr) auto}
-.ikbulk{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--page);font-size:13px}.ikbulk.on{background:#fff8ea}.ikbulk select{max-width:190px;font-size:13px;padding:6px 8px}.ikbulk-sep{flex:1 1 8px}.ikbulk .xcheck{margin:0}
-.ikchk{display:inline-flex;align-items:center;width:22px;flex:none}.ikchk input{width:16px;height:16px;margin:0}.ikrow.iksel{background:#fffaf0}.ikrow .ecode{display:flex;align-items:center;gap:8px}
-.ikthumbs{display:inline-flex;gap:3px;margin-inline-end:8px;vertical-align:middle}.ikthumbs img{width:30px;height:30px;object-fit:cover;border-radius:5px;border:1px solid var(--line)}.ikmiss{display:block;color:var(--danger);font-weight:600}
+/* drafts list: one calm row per draft — tick · cover · who/what · status · when/cost · open */
+.ikr{display:grid;grid-template-columns:24px 56px minmax(0,1fr) 120px 118px auto;gap:10px 14px;align-items:center;padding:12px 18px;border-bottom:1px solid var(--line);font-size:13px}
+.ikr.open{background:#F8F9FB}.ikr.iksel{background:#fffaf0}
+.ikchk{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;flex:none}.ikchk input{width:16px;height:16px;margin:0}
+.ikpic{width:56px;height:56px;border-radius:10px;border:1px solid var(--line);background:var(--page);display:flex;align-items:center;justify-content:center;color:var(--light);font-size:11px;overflow:hidden;position:relative}.ikpic img{width:100%;height:100%;object-fit:cover;display:block}.ikpic i{position:absolute;inset-inline-end:3px;bottom:3px;font-style:normal;font-size:10.5px;font-weight:700;color:#fff;background:rgba(15,23,42,.7);border-radius:6px;padding:0 5px;line-height:16px}
+.ikmain{min-width:0}.ikhead{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:700;color:var(--ink);line-height:1.4}
+.iknum{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:600;font-size:12px;color:var(--navy);background:var(--gold-w);border:1px solid #EDDCB6;border-radius:6px;padding:1px 6px}
+.iksrc{font-weight:500;color:var(--grey);font-size:12px}
+.iksum{color:var(--ink);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.iksum.raw{color:var(--grey)}
+.ikmeta{color:var(--grey);font-size:12px;margin-top:2px}.ikmiss{display:block;color:var(--danger);font-weight:600;font-size:12px;margin-top:2px}
+.ikwhen{color:var(--grey);font-size:12px;line-height:1.5}.ikwhen b{display:block;color:var(--ink);font-weight:600}
+.ikr .eedit{grid-column:1/-1}
+.ikbulk{display:flex;flex-direction:column;gap:8px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--page);font-size:13px}.ikbulk.on{background:#fff8ea}
+.ikb-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.ikb-row .xcheck{margin:0}.ikb-n{font-weight:700;color:var(--navy)}
+.ikb-set{display:inline-flex;align-items:center;gap:4px;padding-inline-start:10px;border-inline-start:1px solid var(--line-2)}.ikb-set select{max-width:200px;font-size:13px;padding:6px 8px}
+@media(max-width:900px){.ikr{grid-template-columns:24px 48px minmax(0,1fr)}.ikr .ikst,.ikr .ikwhen,.ikr .eacts{grid-column:3}.ikr .eacts{justify-content:flex-start}}
 .ikdetail .ikcols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .ikphotos{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.ikphotos img{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
 .ikfields{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:6px}.ikfields .fl{margin:0}.ikfields .fl label{font-size:11.5px}.ikfields .fl.wide{grid-column:1/-1}.ikfields textarea{min-height:90px}
 .ikdetail .xactions select{max-width:260px}
 .iklog{display:flex;flex-direction:column}.iklog-r{display:grid;grid-template-columns:150px 150px 50px 1fr;gap:10px;padding:6px 18px;border-bottom:1px solid var(--line);font-size:12px;color:var(--grey)}.iklog-r b{color:var(--ink)}.iklog-r.lvl-error b{color:var(--danger)}.iklog-r.lvl-warn b{color:var(--warn)}
-@media(max-width:900px){.ikdetail .ikcols{grid-template-columns:1fr}.ikrow{grid-template-columns:1fr 1fr}.iklog-r{grid-template-columns:1fr 1fr}.ikc{grid-template-columns:1fr;gap:4px}}
+@media(max-width:900px){.ikdetail .ikcols{grid-template-columns:1fr}.iklog-r{grid-template-columns:1fr 1fr}.ikc{grid-template-columns:1fr;gap:4px}}
 .agcontact .agown{border-color:var(--gold);color:var(--gold-dk);font-weight:700}
 /* one account page: side navigation, sections */
 .acct2{max-width:1080px;padding:22px 18px 60px}
@@ -10654,6 +10666,7 @@ var GX_T={
   tIntake:{ar:"النشر بالرسائل",en:"Message intake",de:"Inserate per Nachricht"},
   desc_intake:{ar:"إعلانات تصل برسالة (تيليغرام، واتساب، أو نص ملصوق في الموقع) تُقرأ آلياً وتُنشر تحت اسم المكتب. هنا الربط، الإعدادات، المسوّدات، والسجل.",en:"Listings that arrive by message (Telegram, WhatsApp, or text pasted on the site) are read automatically and published under the agency. Connections, settings, drafts and the log live here.",de:"Anzeigen, die per Nachricht kommen (Telegram, WhatsApp oder eingefügter Text), werden automatisch gelesen und unter dem Büro veröffentlicht. Verbindungen, Einstellungen, Entwürfe und Protokoll."},
   bellIntake:{ar:"مسوّدات رسائل بانتظارك",en:"Message drafts waiting for you",de:"Nachrichten-Entwürfe warten"},
+  ik_notRead:{ar:"لم تُقرأ بعد",en:"Not read yet",de:"Noch nicht gelesen"}, ik_noPhoto:{ar:"بلا صور",en:"No photos",de:"Keine Fotos"},
   ik_collecting:{ar:"قيد التجميع",en:"Collecting",de:"Wird gesammelt"}, ik_reading:{ar:"قيد القراءة",en:"Reading",de:"Wird gelesen"}, ik_ready:{ar:"بانتظار موافقة المرسل",en:"Awaiting sender's OK",de:"Wartet auf Bestätigung"}, ik_needs_info:{ar:"ينقص معلومات",en:"Missing details",de:"Angaben fehlen"}, ik_review:{ar:"بانتظارك",en:"Needs you",de:"Wartet auf Sie"}, ik_published:{ar:"منشور",en:"Published",de:"Veröffentlicht"}, ik_cancelled:{ar:"ملغى",en:"Cancelled",de:"Abgebrochen"}, ik_failed:{ar:"فشل",en:"Failed",de:"Fehlgeschlagen"}, ik_web:{ar:"الموقع",en:"Website",de:"Website"},
   ik_st_open:{ar:"قيد التجميع أو بانتظار المرسل",en:"Collecting or awaiting sender",de:"In Sammlung / wartet auf Absender"}, ik_st_attention:{ar:"بانتظارك",en:"Need you",de:"Warten auf Sie"}, ik_st_published:{ar:"منشورة",en:"Published",de:"Veröffentlicht"}, ik_st_today:{ar:"آخر 24 ساعة",en:"Last 24 hours",de:"Letzte 24 Stunden"}, ik_st_cost:{ar:"تكلفة القراءة هذا الشهر",en:"Reading cost this month",de:"Lesekosten diesen Monat"},
   ik_connH:{ar:"الربط",en:"Connections",de:"Verbindungen"},
