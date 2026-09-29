@@ -3256,7 +3256,12 @@ function wireAdminIntake(){
   if($("#ikBulkGovGo")) $("#ikBulkGovGo").onclick=function(){ var g=$("#ikBulkGov").value; if(!g) return; runBulk(GX("ik_apply"), function(id){ return rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:{fields:{governorate:g,governorate_id:null,area_id:null}}}) }) };
   if($("#ikBulkAgGo")) $("#ikBulkAgGo").onclick=function(){ var a=$("#ikBulkAg").value; if(!a) return; runBulk(GX("ik_apply"), function(id){ return rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:{agency_id:a}}) }) };
   var ikErr=function(code){ code=String(code||"error"); var k=code.replace(/^.*?:\s*/,""); return GX("ik_e_"+k)!=="ik_e_"+k?GX("ik_e_"+k):code };
-  var bulkPub=function(status){ return function(){ if(!confirm(GX("ik_bulkPubQ").replace("{n}",selected().length))) return; runBulk(GX("ik_publishing"), async function(id){ var r; try{ r=await intakeAdmin("publish",{draft_id:+id,status:status}) }catch(e){ throw new Error(ikErr(e.message)) } if(r&&r.error) throw new Error(ikErr(r.error)) }) } };
+  // an agency / governorate picked in the bar but not yet applied is applied on the way to publishing (no separate "apply" click needed)
+  var bulkPub=function(status){ return function(){ if(!confirm(GX("ik_bulkPubQ").replace("{n}",selected().length))) return;
+    var ag=($("#ikBulkAg")||{}).value||"", gov=($("#ikBulkGov")||{}).value||"";
+    runBulk(GX("ik_publishing"), async function(id){ var r;
+      if(ag||gov){ var patch={}; if(ag) patch.agency_id=ag; if(gov) patch.fields={governorate:gov,governorate_id:null,area_id:null}; await rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:patch}) }
+      try{ r=await intakeAdmin("publish",{draft_id:+id,status:status}) }catch(e){ throw new Error(ikErr(e.message)) } if(r&&r.error) throw new Error(ikErr(r.error)) }) } };
   if($("#ikBulkPubP")) $("#ikBulkPubP").onclick=bulkPub("pending");
   if($("#ikBulkPubL")) $("#ikBulkPubL").onclick=bulkPub("live");
   if($("#ikBulkCancel")) $("#ikBulkCancel").onclick=function(){ if(!confirm(GX("ik_bulkCancelQ").replace("{n}",selected().length))) return; runBulk(t("cancel"), function(id){ return rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:{status:"cancelled"}}) }) };
