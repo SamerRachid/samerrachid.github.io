@@ -632,20 +632,29 @@ function findArea(g: any, name: string) {
 function areaFromText(fields: Record<string, any>, missing: string[], rawText: string, tax: any): { event: string; detail: any } | null {
   if (fields.area_id) return null;
   const said = " " + norm(rawText).replace(/[^p{L}p{N}s]/gu, " ").replace(/s+/g, " ") + " ";
-  const govs = (tax.governorates || []).filter((g: any) => !fields.governorate_id || g.id === fields.governorate_id);
-  const hits: { g: any; a: any; n: string }[] = [];
-  for (const g of govs) for (const a of (g.areas || [])) {
-    const n = norm(a[1]); if (n.length < 5) continue;
-    if (said.includes(" " + n + " ") || said.includes(" ال" + n + " ")) hits.push({ g, a, n });
-  }
+  const scan = (govs: any[]) => {
+    const hits: { g: any; a: any; n: string }[] = [];
+    for (const g of govs) for (const a of (g.areas || [])) {
+      const n = norm(a[1]); if (n.length < 5) continue;
+      if (said.includes(" " + n + " ") || said.includes(" ال" + n + " ")) hits.push({ g, a, n });
+    }
+    return hits.sort((x, y) => y.n.length - x.n.length);
+  };
+  const all = tax.governorates || [];
+  const own = fields.governorate_id ? all.find((g: any) => g.id === fields.governorate_id) : null;
+  let hits = own ? scan([own]) : [];
+  // nothing inside the governorate the model chose, and that governorate is not written in the message (it was a guess):
+  // the area written in the text decides the governorate instead
+  const govSaid = own ? said.includes(" " + norm(own.ar) + " ") || said.includes(" ال" + norm(own.ar) + " ") : false;
+  let switched = false;
+  if (!hits.length && !govSaid) { hits = scan(all); switched = !!own; }
   if (!hits.length) return null;
-  hits.sort((x, y) => y.n.length - x.n.length);
   const best = hits[0];
-  if (!fields.governorate_id && hits.some((h) => h.n === best.n && h.g.id !== best.g.id)) return null;   // the same name in two governorates: ask
+  if (hits.some((h) => h.n === best.n && h.g.id !== best.g.id)) return null;   // the same name in two governorates: ask
   fields.governorate = best.g.ar; fields.governorate_id = best.g.id; fields.area = best.a[1]; fields.area_id = best.a[0];
   if (fields.landmark && norm(fields.landmark) === best.n) delete fields.landmark;
   for (const k of ["area", "governorate"]) { const i = missing.indexOf(k); if (i >= 0) missing.splice(i, 1); }
-  return { event: "area_from_text", detail: { area: best.a[1], governorate: best.g.ar } };
+  return { event: "area_from_text", detail: { area: best.a[1], governorate: best.g.ar, switched_governorate: switched } };
 }
 function areaGuards(fields: Record<string, any>, missing: string[], raw: Record<string, any>, rawText: string, tax: any): { event: string; detail: any }[] {
   const out: { event: string; detail: any }[] = [];
