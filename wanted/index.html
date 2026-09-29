@@ -5272,6 +5272,10 @@ function editView(){
    '<div class="fl"><label>'+t("ptype")+'</label><select id="eType">'+Object.keys(D.TYPES).map(function(k){ return '<option value="'+k+'"'+(x.t===k?" selected":"")+'>'+D.TYPES[k][li()]+'</option>' }).join("")+'</select></div></div>'+
    '<div class="row"><div class="fl"><label>'+t("gov")+'</label><select id="eGov" data-cur="'+esc(x.g||"")+'"></select></div><div class="fl"><label>'+t("area")+'</label><select id="eAreaSel" data-cur="'+esc(x.a||"")+'"></select></div></div>'+
    '<div class="row"><div class="fl"><label>'+GX("ik_f_landmark")+'</label><input id="eLandmark" value="'+esc(x.lm||"")+'" autocomplete="off"></div><div class="fl"><label>'+GX("ik_f_phone")+'</label><input id="ePhone" class="ltr" value="'+esc(x.tel||"")+'" autocomplete="off"></div></div>'+
+   '<div class="fl"><label>'+GX("edOwnerL")+'</label><select id="eOwner" data-cur="'+esc(String(x.uid||""))+'">'+
+     '<option value="'+esc(String(x.uid||""))+'">'+GX("edOwnerCur")+': '+esc(((EDIT.agencies||[]).filter(function(a){ return String(a.user_id)===String(x.uid||"") }).map(function(a){ return a.name })[0])||x.oagName||x.who||"")+'</option>'+
+     (EDIT.agencies||[]).filter(function(a){ return a.user_id && String(a.user_id)!==String(x.uid||"") }).map(function(a){ return '<option value="'+esc(String(a.user_id))+'">'+esc(a.name)+(a.user_name?' — '+esc(a.user_name):'')+'</option>' }).join("")+
+   '</select><div class="hintx">'+GX("edOwnerHint")+'</div></div>'+
    '<div class="hintx">'+GX("edBasicsHint")+'</div></div></div>' : '')+
 '<div class="blk"><h3><span class="n">2</span>'+t("detH")+'</h3><div class="in">'+
   '<div class="fl"><label>'+t("kFloor")+'</label><select id="eFloor">'+
@@ -7888,6 +7892,7 @@ function wire(){
          if(gid){ patch.governorate_id=gid; patch.area_id=aname?((GEO_META.areaId||{})[gname+"/"+aname]||null):null }
          patch.landmark=v("eLandmark").trim()||null;
          if(v("ePhone").trim()) patch.contact_phone=v("ePhone").trim();
+         if($("#eOwner")&&v("eOwner")&&v("eOwner")!==$("#eOwner").dataset.cur) patch.user_id=v("eOwner");   // moved to another agency / member
        }
        await rpc("bk_admin_edit_listing",{p_token:ADM.token, p_id:+EDIT.id, p_patch:patch});
        VIEW="admin"; scrollTo(0,0); render();
@@ -10704,6 +10709,9 @@ var GX_T={
   deedShort:{ar:"الملكية",en:"Deed",de:"Grundbuch",fr:"Titre"},
   featPendingTag:{ar:"بانتظار الموافقة — لا يظهر حتى يُعتمد",en:"Pending approval — hidden until approved",de:"Wartet auf Freigabe — bis dahin unsichtbar"},
   edBasicsH:{ar:"الأساسيات (للإدارة)",en:"Basics (admin)",de:"Grunddaten (Admin)"},
+  edOwnerL:{ar:"المعلن (المكتب صاحب الإعلان)",en:"Poster (the agency that owns the listing)",de:"Inserent (das Büro, dem die Anzeige gehört)"},
+  edOwnerCur:{ar:"الحالي",en:"Current",de:"Aktuell"},
+  edOwnerHint:{ar:"اختيار مكتب آخر ينقل الإعلان إليه بكل صوره وتفاصيله ورقمه، ويظهر في صفحته فوراً. لا حاجة لحذفه وإعادة إنشائه.",en:"Picking another agency moves the listing to it with all photos, details and its number; it appears on that agency's page at once.",de:"Ein anderes Büro übernimmt die Anzeige samt Fotos, Details und Nummer sofort."},
   dsPriceH:{ar:"نسب الأسعار",en:"Price percentages",de:"Preis-Prozente"},
   dsPriceCutOn:{ar:"إظهار نسبة التخفيض (↓ %) على البطاقات وصفحة الإعلان",en:"Show the price-cut badge (↓ %) on cards and the listing page",de:"Preisnachlass-Abzeichen (↓ %) anzeigen"},
   dsPriceCtxOn:{ar:"إظهار مقارنة السعر بمتوسط المنطقة (% أعلى/أقل) في صفحة الإعلان",en:"Show the area-average comparison (% above/below) on the listing page",de:"Vergleich mit dem Gebietsdurchschnitt (% über/unter) anzeigen"},
