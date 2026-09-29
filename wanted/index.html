@@ -3673,7 +3673,7 @@ function priceBlock(x,big){
   var pct = cut ? Math.round((1 - x.p/x.orig)*100) : 0;
   return '<span class="ltr">'+money(x.p)+'</span>'+
    (cut ? ' <span class="wasprice ltr">'+money(x.orig)+'</span>'+
-          '<span class="cutbadge">↓ '+pct+'%</span>' : '');
+          (SX("price_cut_pct_on",true)!==false ? '<span class="cutbadge">↓ '+pct+'%</span>' : '') : '');
 }
 var money=function(v){return CUR==="USD"?"$"+Number(v).toLocaleString("en")
   :(v*(curRate())).toLocaleString("en")+" "+curLabel(CUR,L)};
@@ -5044,6 +5044,7 @@ var LICON=(function(){
 // "12% below the area average · $455/m² · 7 listings" — only when the area has enough live
 // sale listings for an average to mean anything
 function priceContextHtml(x){
+  if(SX("price_context_on",true)===false) return '';   // panel switch: البحث والبطاقات → البطاقات
   var ap = x.aid && AREA_PRICES[x.aid];
   if(x.d==="rent" || !ap || +ap.listings < 3 || !x.m2 || !+ap.avg_price_per_m2) return '';
   var avg = +ap.avg_price_per_m2, mine = x.p/x.m2, diff = Math.round((mine-avg)/avg*100);
@@ -10693,6 +10694,10 @@ var GX_T={
   deedShort:{ar:"الملكية",en:"Deed",de:"Grundbuch",fr:"Titre"},
   featPendingTag:{ar:"بانتظار الموافقة — لا يظهر حتى يُعتمد",en:"Pending approval — hidden until approved",de:"Wartet auf Freigabe — bis dahin unsichtbar"},
   edBasicsH:{ar:"الأساسيات (للإدارة)",en:"Basics (admin)",de:"Grunddaten (Admin)"},
+  dsPriceH:{ar:"نسب الأسعار",en:"Price percentages",de:"Preis-Prozente"},
+  dsPriceCutOn:{ar:"إظهار نسبة التخفيض (↓ %) على البطاقات وصفحة الإعلان",en:"Show the price-cut badge (↓ %) on cards and the listing page",de:"Preisnachlass-Abzeichen (↓ %) anzeigen"},
+  dsPriceCtxOn:{ar:"إظهار مقارنة السعر بمتوسط المنطقة (% أعلى/أقل) في صفحة الإعلان",en:"Show the area-average comparison (% above/below) on the listing page",de:"Vergleich mit dem Gebietsdurchschnitt (% über/unter) anzeigen"},
+  dsPriceHint:{ar:"السعر السابق المشطوب يبقى ظاهراً عند التخفيض؛ هذان المفتاحان يخفيان النسب فقط.",en:"The struck-through old price stays on a price cut; these switches hide the percentages only.",de:"Der durchgestrichene alte Preis bleibt sichtbar; diese Schalter blenden nur die Prozente aus."},
   edBasicsHint:{ar:"نوع العقار والبيع أو الإيجار والمكان لا يغيّرها العضو بنفسه؛ التغيير هنا يظهر فوراً في الإعلان.",en:"The member cannot change the type, deal or place; changes here apply to the listing immediately.",de:"Typ, Art und Ort kann das Mitglied nicht selbst ändern; Änderungen hier gelten sofort."},
   ik_notRead:{ar:"لم تُقرأ بعد",en:"Not read yet",de:"Noch nicht gelesen"}, ik_noPhoto:{ar:"بلا صور",en:"No photos",de:"Keine Fotos"},
   ik_collecting:{ar:"قيد التجميع",en:"Collecting",de:"Wird gesammelt"}, ik_reading:{ar:"قيد القراءة",en:"Reading",de:"Wird gelesen"}, ik_ready:{ar:"بانتظار موافقة المرسل",en:"Awaiting sender's OK",de:"Wartet auf Bestätigung"}, ik_needs_info:{ar:"ينقص معلومات",en:"Missing details",de:"Angaben fehlen"}, ik_review:{ar:"بانتظارك",en:"Needs you",de:"Wartet auf Sie"}, ik_published:{ar:"منشور",en:"Published",de:"Veröffentlicht"}, ik_cancelled:{ar:"ملغى",en:"Cancelled",de:"Abgebrochen"}, ik_failed:{ar:"فشل",en:"Failed",de:"Fehlgeschlagen"}, ik_web:{ar:"الموقع",en:"Website",de:"Website"},
