@@ -726,7 +726,8 @@ function settle(f: Record<string, any>, tax: any) {
   if (!out.governorate_id) missing.push("governorate");
   else if (!out.area_id && (g.areas || []).length) missing.push("area");   // the neighbourhood, when the governorate has a list of them
   if (!out.price) missing.push("price");
-  if (!out.area_m2) missing.push("area_m2");
+  // a farm or chalet let by the day/season is advertised by its features, not its m² (owner's rule): size optional there
+  if (!out.area_m2 && !(out.deal === "rent" && ["farm", "chalet"].includes(out.property_type))) missing.push("area_m2");
   if (out.deal === "sale" && !out.tabu && (tax.deeds || []).length) missing.push("tabu");   // the site's own form requires the deed for a sale
   return { fields: out, missing };
 }
