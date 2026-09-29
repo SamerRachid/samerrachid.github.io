@@ -556,7 +556,7 @@ Rules:
 - Land ("أرض") uses the land types (resid/agri/comm/indust/tourist: "أرض سياحية" = tourist, "أرض صناعية" = indust) and land conditions; shops/offices/clinics use commercial types. "فندق", "منشأة سياحية", "خان" = hotel. "عيادة" = clinic. "صالة أفراح", "صالة مناسبات", "قاعة احتفالات" = hall. "صالة عرض", "معرض سيارات" = showroom. "كازية", "محطة وقود", "بنزينة" = station. "ورشة", "معمل صغير" = workshop (a real factory stays factory).
 - "شقة فندقية", "شقة مفروشة فندقية", "للإيجار اليومي" / daily or weekly furnished rentals = hotelapt, which is always deal = rent (rental_period daily/weekly/monthly as written).
 - Rooms: "غرفتين" = 2, "3 غرف وصالون" = rooms 3, living_rooms 1. Floor: "أرضي" = 0, "أول" = 1, "تسوية" = -1.
-- Deed words: "طابو أخضر" = green, "حصص سهمية"/"أسهم" = shares, "حكم محكمة" = court, "حكم محكمة موصوف" = court_desc, "وكالة" = poa, "طابو زراعي"/"سند 25"/"مشاع زراعي" = agri, "تنازل جمعية"/"جمعية سكنية"/"سجل مؤقت" = coop, "طابو إسكان"/"مؤسسة الإسكان" = housing, "بدون طابو"/"عقد عرفي"/"مخالفات" = none (only codes present in the taxonomy). For a sale with no deed word, add "tabu" to missing.
+- Deed words: "طابو أخضر" = green — and "طابو أخضر 2400 سهم" is STILL green (2400 shares = the whole property, the standard way to say a full green deed); only "أسهم من طابو أخضر" or fewer than 2400 shares = shares. "حصص سهمية"/"أسهم" = shares, "حكم محكمة" = court, "حكم محكمة موصوف" = court_desc, "وكالة" = poa, "طابو زراعي"/"سند 25"/"مشاع زراعي" = agri, "تنازل جمعية"/"جمعية سكنية"/"سجل مؤقت" = coop, "طابو إسكان"/"مؤسسة الإسكان" = housing, "بدون طابو"/"عقد عرفي"/"مخالفات" = none (only codes present in the taxonomy). For a sale with no deed word, add "tabu" to missing.
 - Condition: "سليم"/"جاهز"/"ديلوكس" = intact, "على العظم" = shell, "بحاجة ترميم" = repair, "معفش" = stripped (Syria only), "متضرر" = damaged.
 - The description must be a clean Arabic paragraph written for the website: no phone numbers, no prices, no emojis, no hashtags, no "للتواصل". Keep facts only; do not invent.
 - Put in "missing" every required fact that the message truly does not state: deal, property_type, governorate, price, area_m2 (and tabu for a sale).
@@ -709,8 +709,15 @@ function areaGuards(fields: Record<string, any>, missing: string[], raw: Record<
   return out;
 }
 // tidy what the model returned against the taxonomy; compute what is still missing
-function settle(f: Record<string, any>, tax: any) {
+function settle(f: Record<string, any>, tax: any, rawText?: string) {
   const out: Record<string, any> = { ...f };
+  // "طابو أخضر 2400 سهم" is a full green deed, not shares — the model keeps tripping on the word سهم
+  if (rawText && (out.tabu === "shares" || out.tabu === "green")) {
+    const said = norm(latinDigits(rawText));
+    const n = said.match(/(\d{2,4})\s*(?:سهم|اسهم)/);
+    if (out.tabu === "shares" && n && +n[1] >= 2400 && /طابو\s*(?:ال)?اخضر/.test(said) && !/(?:اسهم|سهم|حصه|حصص)\s+من/.test(said)) out.tabu = "green";
+    if (out.tabu === "green" && n && +n[1] < 2400) out.tabu = "shares";   // "1200 سهم طابو أخضر" is a share of a green deed
+  }
   delete out.missing; delete out.confidence; delete out.notes;
   const types = (tax.types || []).map((t: any) => t.code);
   if (!types.includes(out.property_type)) delete out.property_type;
@@ -908,7 +915,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   }
   try {
     const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax), user);
-    usage = r.usage; raw = r.fields; const s = settle(r.fields, tax); fields = s.fields; missing = s.missing; cost = costOf(usage, c);
+    usage = r.usage; raw = r.fields; const s = settle(r.fields, tax, rawText); fields = s.fields; missing = s.missing; cost = costOf(usage, c);
     // the model must not swap an unknown neighbourhood for a look-alike from the list (العدوي → العسالي): the chosen
     // area has to actually be written in the message; otherwise it becomes a landmark and the area is asked for
     for (const w of areaGuards(fields, missing, raw, rawText, tax)) await log(draftId, d.chat_id, "warn", w.event, w.detail);
@@ -1721,7 +1728,7 @@ async function routeAdmin(req: Request): Promise<Response> {
     const c = await cfg(); const tax = await rpc<any>("bk_intake_taxonomy", { p_country: b.country || "SY" });
     try {
       const text = latinDigits(String(b.text || "").slice(0, 6000));
-      const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax), "MESSAGE:\n" + text); const s = settle(r.fields, tax);
+      const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax), "MESSAGE:\n" + text); const s = settle(r.fields, tax, text);
       const warnings = areaGuards(s.fields, s.missing, r.fields, text, tax);   // the same rules the real read enforces
       { const w = govGuard(s.fields, s.missing, text, tax); if (w) warnings.push(w); }
       { const hit = areaFromText(s.fields, s.missing, text, tax); if (hit) warnings.push(hit); }
