@@ -17,3 +17,11 @@ update countries set types = types || '[{"code":"hotelapt","ar":"شقة مفرو
 -- Site (index.html): D_TYPES_SY + FR labels, LANDT/COMMT, RENT_ONLY_TYPES (post form locks the deal to rent), home type
 -- groups, tiles; scripts/generate-pages.mjs plurals; scripts/generate-listings.mjs icons; Edge Function SYSTEM rules +
 -- settle() forcing rent for hotelapt.
+
+-- 2026-09-29 (later) · four more commercial types, same wiring: hall صالة أفراح ومناسبات · showroom صالة عرض ·
+-- station محطة وقود · workshop ورشة. Appended to every country's types (ar/en/fr), to the SY fallback and
+-- commercial_types in bk_intake_taxonomy(), and to bk_intake_publish()'s whitelist + commercial section.
+-- NOTE: the publish whitelist had silently kept the original 15 codes (the first replace() never matched its
+-- exact text); it was re-applied with a whitespace-tolerant regexp_replace and now lists all 24 codes.
+update countries set types = types || '[{"code":"hall","ar":"صالة أفراح ومناسبات","en":"Event hall","fr":"Salle des fêtes"},{"code":"showroom","ar":"صالة عرض","en":"Showroom","fr":"Salle d''exposition"},{"code":"station","ar":"محطة وقود","en":"Fuel station","fr":"Station-service"},{"code":"workshop","ar":"ورشة","en":"Workshop","fr":"Atelier"}]'::jsonb
+ where jsonb_array_length(coalesce(types,'[]'::jsonb)) > 0 and not (types @> '[{"code":"hall"}]'::jsonb);

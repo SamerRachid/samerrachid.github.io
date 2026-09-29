@@ -44,7 +44,7 @@ const LANGS = { ar: { dir: "rtl", prefix: "", og: "ar_SY" }, en: { dir: "ltr", p
 // TYPE_AR feeds the Arabic folder slug. Do NOT rename existing keys or values
 // here — that would move every already-indexed URL.
 const TYPE_AR = { apartment:"شقة", arab:"بيت عربي", villa:"فيلا", floor:"طابق كامل", building:"بناء كامل", shop:"محل تجاري", office:"مكتب", resid:"أرض سكنية", agri:"أرض زراعية", comm:"أرض تجارية" };
-const TYPE_ICON = { apartment:"🏢", arab:"🏛️", villa:"🏡", floor:"🏢", building:"🏬", chalet:"🏖️", farm:"🌾", shop:"🏪", office:"🏢", land:"🗺️", restaurant:"🍽️", warehouse:"🏭", factory:"🏭", resid:"🗺️", agri:"🌱", comm:"🗺️", hotelapt:"🛎️", clinic:"🩺", hotel:"🏨", indust:"🏗️", tourist:"⛰️" };
+const TYPE_ICON = { apartment:"🏢", arab:"🏛️", villa:"🏡", floor:"🏢", building:"🏬", chalet:"🏖️", farm:"🌾", shop:"🏪", office:"🏢", land:"🗺️", restaurant:"🍽️", warehouse:"🏭", factory:"🏭", resid:"🗺️", agri:"🌱", comm:"🗺️", hotelapt:"🛎️", clinic:"🩺", hotel:"🏨", indust:"🏗️", tourist:"⛰️", hall:"🎉", showroom:"🖼️", station:"⛽", workshop:"🔧" };
 const typeName = (k, lang) => (D.TYPES[k] ? D.TYPES[k][LI[lang]] : (TYPE_AR[k] || k));
 const tabuName = (k, lang) => (D.TABU[k] ? D.TABU[k][LI[lang]] : (k === "none" ? { ar: "بدون طابو", en: "No deed", de: "Kein Grundbuch" }[lang] : k));
 const condName = (k, lang) => (D.COND[k] ? D.COND[k][LI[lang]] : (D.LANDC && D.LANDC[k] ? D.LANDC[k][LI[lang]] : k));
