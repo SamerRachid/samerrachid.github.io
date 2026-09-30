@@ -9308,6 +9308,8 @@ function viewFromHash(){
   if(p[0]==="unsub"&&p[1]) return "unsub:"+p[1];
   if(p[0]==="regions") return "areas";
   if(p[0]==="post-by-message") return "postmsg";
+  // balkoun.com/#/signup (posters, QR codes): the home page with the sign-up form already open
+  if(p[0]==="signup"||p[0]==="join"){ if(typeof AU!=="undefined"&&!(typeof USER!=="undefined"&&USER&&USER.id)){ AU.open=true; AU.mode="up"; AU.step=1; setTimeout(function(){ try{ render() }catch(e){} },0) } return "home" }
   if(["search","post","postmsg","mine","saved","searches","msgs","account","about","contact","contactus","privacy","terms","admin","mapsearch","agencies","agencyform","projects","wanted","wantedform"].indexOf(p[0])>-1){
     if(p[0]==="search" && qs) applyFilterFromQuery(qs);
     return p[0];
