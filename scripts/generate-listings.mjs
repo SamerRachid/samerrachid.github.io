@@ -123,7 +123,7 @@ function renderPage(l, photos, lang) {
 
   const hero = cover
     ? `<a class="hero" href="${esc(cover)}" target="_blank" rel="noopener"><img src="${esc(cover)}" alt="${esc(title)}" width="1080" height="608" fetchpriority="high"></a>`
-    : `<div class="hero ph" role="img" aria-label="${esc(typeLabel)}"><span>${typeIcon}</span><small>${esc(typeLabel)}</small></div>`;
+    : `<div class="hero ph" role="img" aria-label="${esc(typeLabel)}"><img src="${SITE}/brand/logo-light.png" alt="Balkoun" width="240" height="69"></div>`;
   const thumbStrip = thumbs.length ? `<div class="thumbs">${thumbs.map((p, i) => `<a href="${esc(p)}" target="_blank" rel="noopener"><img src="${esc(p)}" alt="${esc(typeLabel)} — ${W.photoN(i + 2)}" loading="lazy"></a>`).join("")}</div>` : "";
 
   const pills = [tabuLabel ? pill(esc(tabuLabel), l.tabu === "green" ? "ok" : "grey") : "", l.by_owner ? pill(W.ownerPill, "gold") : "", pill(ltr(refCode), "muted")].filter(Boolean).join("");
@@ -208,7 +208,7 @@ img{display:block;max-width:100%}
 .hero{display:block;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:var(--navy-2);box-shadow:var(--sh)}
 .hero img{width:100%;height:100%;object-fit:cover}
 .hero.ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:rgba(255,255,255,.85)}
-.hero.ph span{font-size:64px;line-height:1}.hero.ph small{font-size:15px;font-weight:600}
+.hero.ph img{width:40%;max-width:260px;height:auto;object-fit:contain}
 .thumbs{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:8px}
 .thumbs a{display:block;aspect-ratio:4/3;border-radius:8px;overflow:hidden;background:var(--navy-w)}
 .thumbs img{width:100%;height:100%;object-fit:cover}

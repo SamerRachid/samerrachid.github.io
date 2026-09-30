@@ -359,7 +359,7 @@ const T = {
     hello: GUIDE.ar(null),
     contact: (n: string) => `للتواصل مع إدارة بلكون: ${ltr(n)}\nوإذا أردت نشر إعلان، أرسل تفاصيله وصوره هنا مباشرة وسأساعدك.`,
     thanks: `على الرحب والسعة 🙏 متى أردت نشر إعلان جديد أرسل تفاصيله هنا.`,
-    notListing: `تمام 👍 أرسل لي تفاصيل العقار هنا كما تكتبها لصديق: نوع العقار، بيع أم إيجار، المحافظة والحي، المساحة، السعر، نوع الطابو، مع صورة واحدة على الأقل.\nيمكنك إرسالها برسالة واحدة أو عدة رسائل، وسأسألك عن أي شيء ناقص.`,
+    notListing: `تمام 👍 أرسل لي تفاصيل العقار هنا كما تكتبها لصديق: نوع العقار، بيع أم إيجار، المحافظة والحي، المساحة، السعر، نوع الطابو، والصور إن وجدت (الإعلانات التي فيها صور تحصل على مشاهدات أكثر).\nيمكنك إرسالها برسالة واحدة أو عدة رسائل، وسأسألك عن أي شيء ناقص.`,
     wantedReply: (search: string, wanted: string) => `يبدو أنك تبحث عن عقار ولا تعرض واحداً 🙂\nهذه الإعلانات التي تطابق طلبك على بلكون:\n${search}\n\nوإذا أردت أن تصلك عروض المكاتب والمالكين، انشر طلب «مطلوب» مجاناً من هنا:\n${wanted}\n\nولنشر إعلان عقار تملكه أرسل تفاصيله وصوره هنا.`,
   },
   en: {
@@ -424,7 +424,7 @@ const T = {
     hello: GUIDE.en(null),
     contact: (n: string) => `To reach the Balkoun team: ${ltr(n)}\nIf you want to post a listing, just send its details and photos here and I will help.`,
     thanks: `You are welcome 🙏 Whenever you want to post a new listing, send its details here.`,
-    notListing: `Sure 👍 Send me the property details here the way you would tell a friend: property type, sale or rent, governorate and area, size, price, deed type, plus at least one photo.\nOne message or several, as you like; I will ask about anything missing.`,
+    notListing: `Sure 👍 Send me the property details here the way you would tell a friend: property type, sale or rent, governorate and area, size, price, deed type, plus photos if you have them (listings with photos get more views).\nOne message or several, as you like; I will ask about anything missing.`,
     wantedReply: (search: string, wanted: string) => `It looks like you are looking for a property rather than offering one 🙂\nHere are the listings on Balkoun that match your request:\n${search}\n\nIf you want agencies and owners to send you offers, post a free "wanted" request here:\n${wanted}\n\nTo publish a property you own, send its details and photos here.`,
   },
 };
@@ -767,7 +767,7 @@ function summary(f: Record<string, any>, tax: any, photos: number, lang: string)
   if (f.price) L.push("• " + (ar ? "السعر: " : "Price: ") + fmtNum(f.price) + " " + (f.currency === "USD" ? "$" : f.currency) + (f.deal === "rent" && f.rental_period ? " / " + ({ daily: ar ? "يومي" : "day", weekly: ar ? "أسبوعي" : "week", monthly: ar ? "شهري" : "month", yearly: ar ? "سنوي" : "year" } as any)[f.rental_period] : "") + (f.negotiable === false ? (ar ? " (غير قابل للتفاوض)" : " (not negotiable)") : ""));
   if (f.deal === "rent" && !f.rental_period) L.push(tt.periodDefault);
   if (f.amenities?.length) L.push("• " + f.amenities.join("، "));
-  L.push("• " + (ar ? "الصور: " : "Photos: ") + photos);
+  L.push("• " + (ar ? "الصور: " : "Photos: ") + photos + (photos ? "" : (ar ? " (اختياري، لكن الصور تزيد المشاهدات كثيراً)" : " (optional, but photos get far more views)")));
   return L.join("\n");
 }
 // one line of "what I understood so far" for the follow-up questions — the full summary is kept for the end
@@ -939,7 +939,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
       }
     }
     { const hit = areaFromText(fields, missing, rawText, tax); if (hit) { await log(draftId, d.chat_id, "info", hit.event, hit.detail); if (hit.detail?.ambiguous) ambig = hit.detail; } }
-    if (d.source !== "web" && photos === 0) missing.push("photos");   // a listing sent by message needs at least one photo (the site form has its own gate)
+    // photos are optional everywhere (2026-09-30): a listing without photos publishes with the Balkoun logo as its cover
   } catch (e) { err = errStr(e); }
   // a buyer / tenant looking for a property, not an owner offering one: point them to the matching search and to
   // the free "wanted" request instead of opening a listing draft for the admin
