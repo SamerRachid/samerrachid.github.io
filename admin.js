@@ -419,7 +419,7 @@ function adminView(){
    '<div class="blk"><h3>'+GX("videoSetH")+'</h3><div class="in">'+
     '<div class="hintx" style="margin-bottom:10px">'+GX("videoSetHint")+'</div>'+
     '<label style="display:flex;gap:8px;align-items:center;font-size:14px;margin-bottom:10px"><input type="checkbox" id="scVideoOn"'+(videoCfg().on?' checked':'')+'>'+GX("videoEnabledL")+'</label>'+
-    '<div class="row"><div class="fl"><label>'+GX("videoMaxMbL")+'</label><input id="scVideoMb" type="number" min="5" max="50" value="'+videoCfg().mb+'"></div>'+
+    '<div class="row"><div class="fl"><label>'+GX("videoMaxMbL")+'</label><input id="scVideoMb" type="number" min="5" max="100" value="'+videoCfg().mb+'"></div>'+
     '<div class="fl"><label>'+GX("videoMaxSL")+'</label><input id="scVideoS" type="number" min="10" max="600" value="'+videoCfg().s+'"></div>'+
     '<div class="fl"><label>'+GX("videoMaxNL")+'</label><input id="scVideoN" type="number" min="1" max="5" value="'+videoCfg().n+'"></div></div>'+
     '<button class="ab ok" id="scVideoSave">'+t("save")+'</button>'+
@@ -1744,7 +1744,7 @@ function wireAdmin(){
   if($("#scHeroGapM")) $("#scHeroGapM").oninput=function(){ this.removeAttribute("data-empty"); var lbl=$("#scHeroGapMVal"); if(lbl) lbl.textContent=this.value+"px";
   };
                 if($("#scVideoSave")) $("#scVideoSave").onclick=function(){
-    var mb=Math.min(50, Math.max(5, parseInt(($("#scVideoMb")||{}).value,10)||50)), sec=Math.max(10, parseInt(($("#scVideoS")||{}).value,10)||90), n=Math.max(1, parseInt(($("#scVideoN")||{}).value,10)||1);
+    var mb=Math.min(100, Math.max(5, parseInt(($("#scVideoMb")||{}).value,10)||100)), sec=Math.max(10, parseInt(($("#scVideoS")||{}).value,10)||90), n=Math.max(1, parseInt(($("#scVideoN")||{}).value,10)||1);
     saveSiteContent({extras:{video_enabled:!!($("#scVideoOn")||{}).checked, video_max_mb:mb, video_max_s:sec, video_max:n}},"scVideoMsg",this);
   };
   if($("#scStorageLimitSave")) $("#scStorageLimitSave").onclick=function(){
