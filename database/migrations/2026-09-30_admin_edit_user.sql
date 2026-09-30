@@ -1,0 +1,5 @@
+-- 2026-09-30: admin panel edits a member's details and sees their listings inside the panel.
+-- bk_admin_get_user(p_token, p_user) -> {id, member_no, name, family_name, phone, email, city, country, bio, role}
+-- bk_admin_edit_user(p_token, p_user, p_patch jsonb) : keys name, family_name, phone, email, city, country, bio
+--   guards: bk_admin_guard on the member's country; admins cannot be edited by others; phone normalised to +digits,
+--   'phone_taken' when another member has it, 'bad_country' unless 2 letters, 'unauthorised' if outside admin scope.

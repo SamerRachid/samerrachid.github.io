@@ -270,7 +270,9 @@ function adminView(){
 
  if(ADM.tab==="dashboard"){ body = adminDashboardBody(s); }
  else if(ADM.tab==="listings"){
-  body='<div class="afilters"><input id="aqL" placeholder="'+t("searchPH")+'" class="asearch">'+
+  var LL=(d.listings||[]); if(ADM.listUser&&ADM.listUser.id) LL=LL.filter(function(l){ return l.poster_id===ADM.listUser.id });
+  body=(ADM.listUser?'<div class="ulchip"><span>'+GX("uListChip").replace("{n}",esc(ADM.listUser.name||""))+' · <b class="ltr">'+LL.length+'</b></span><button type="button" class="ab" id="ulClear">✕ '+GX("uListAll")+'</button></div>':'')+
+   '<div class="afilters"><input id="aqL" placeholder="'+t("searchPH")+'" class="asearch">'+
    '<select id="afStatus"><option value="">'+t("allStatus")+'</option>'+
    ["pending","rejected","live","hidden","sold","rented","expired","removed"].map(function(k){
      return '<option value="'+k+'">'+(k==="hidden"?GX("st_hidden"):k==="rejected"?GX("st_rejected"):t("st_"+k))+'</option>'}).join("")+'</select>'+
@@ -281,11 +283,11 @@ function adminView(){
      return '<option value="'+k+'">'+D.TABU[k][li()]+'</option>'}).join("")+'</select>'+
    '<select id="afSort"><option value="new"'+(ADM.listSort!=="views"&&ADM.listSort!=="contacts"?" selected":"")+'>'+GX("sortNewest")+'</option><option value="views"'+(ADM.listSort==="views"?" selected":"")+'>'+GX("sortViews")+'</option><option value="contacts"'+(ADM.listSort==="contacts"?" selected":"")+'>'+GX("sortContacts")+'</option></select></div>'+
   '<div class="dash-top" style="margin:8px 0">'+rangeTabs()+'</div>'+
-  '<div style="font-size:12.5px;color:var(--grey);margin:8px 0"><span id="aListCount"><span class="ltr">'+(d.listings||[]).length+'</span> '+t("listingsTab")+'</span></div>'+
+  '<div style="font-size:12.5px;color:var(--grey);margin:8px 0"><span id="aListCount"><span class="ltr">'+LL.length+'</span> '+t("listingsTab")+'</span></div>'+
   '<div class="atable ltable"><table><thead><tr>'+
    [t("listingsTab"),t("deed"),GX("colViews"),t("postedBy"),t("status"),''].map(function(h){return '<th>'+h+'</th>'}).join("")+
    '</tr></thead><tbody id="aListBody">'+
-   (d.listings||[]).slice().sort(function(a,b){ var A=(ADM.lstats||{})[a.id]||{}, B=(ADM.lstats||{})[b.id]||{}; if(ADM.listSort==="views") return (+B.views||0)-(+A.views||0); if(ADM.listSort==="contacts") return (+B.contacts||0)-(+A.contacts||0); return 0 }).map(function(l){
+   LL.slice().sort(function(a,b){ var A=(ADM.lstats||{})[a.id]||{}, B=(ADM.lstats||{})[b.id]||{}; if(ADM.listSort==="views") return (+B.views||0)-(+A.views||0); if(ADM.listSort==="contacts") return (+B.contacts||0)-(+A.contacts||0); return 0 }).map(function(l){
      var ls=(ADM.lstats||{})[l.id]||{}, typeName=(D.TYPES[l.property_type]?D.TYPES[l.property_type][li()]:(l.property_type||""));
      var stLabel = l.status==="hidden"?GX("st_hidden"):l.status==="rejected"?GX("st_rejected"):(t("st_"+l.status)||l.status);
      return '<tr data-row-status="'+l.status+'" data-row-tabu="'+(l.tabu||"")+'" data-row-deal="'+(l.deal||"")+'" data-row-text="'+((l.gov||"")+" "+(l.area||"")+" "+(l.poster_name||"")+" "+l.ref).toLowerCase()+'">'+
@@ -1156,6 +1158,25 @@ function wireAdmin(){
     ADM.pwTarget=e.dataset.apw; ADM.pwMsg=""; ADM.rateTarget=null; render() }});
   if($("#aRevCancel")) $("#aRevCancel").onclick=function(){ ADM.rateTarget=null; render() };
   if($("#aPwCancel")) $("#aPwCancel").onclick=function(){ ADM.pwTarget=null; render() };
+  // edit a member's own details from the panel (name, phone, email, city, country, bio)
+  $$("[data-uedit]").forEach(function(e){ e.onclick=async function(){
+    if(ADM.uEdit===e.dataset.uedit){ ADM.uEdit=null; render(); return }
+    ADM.uEdit=e.dataset.uedit; ADM.uEditData=null; ADM.uEditMsg=""; ADM.uEditLoading=true; ADM.pwTarget=null; ADM.rateTarget=null; render();
+    try{ var r=await rpc("bk_admin_get_user",{p_token:ADM.token,p_user:ADM.uEdit}); ADM.uEditData=r||{} }
+    catch(err){ ADM.uEditMsg=err.message||"error" }
+    ADM.uEditLoading=false; render() }});
+  if($("#ueCancel")) $("#ueCancel").onclick=function(){ ADM.uEdit=null; render() };
+  if($("#ueSave")) $("#ueSave").onclick=async function(){
+    var v=function(id){ var el=$("#"+id); return el?el.value:"" };
+    var patch={name:v("ueName"),family_name:v("ueFamily"),phone:v("uePhone"),email:v("ueEmail"),city:v("ueCity"),country:v("ueCountry"),bio:v("ueBio")};
+    if(!patch.name.trim()){ ADM.uEditMsg=t("firstName"); render(); return }
+    this.disabled=true;
+    try{ await rpc("bk_admin_edit_user",{p_token:ADM.token,p_user:ADM.uEdit,p_patch:patch}); ADM.uEdit=null; admToast(t("savedOk")); await adminLoad() }
+    catch(err){ var m=err.message||"error"; ADM.uEditMsg = m==="phone_taken"?GX("uPhoneTaken") : m==="isadmin"?GX("delUserIsAdmin") : m; render() }
+  };
+  // the member's listings, filtered inside the panel's listings tab
+  $$("[data-ulist]").forEach(function(e){ e.onclick=function(){ ADM.listUser={id:e.dataset.ulist,name:e.dataset.name||""}; admGo("listings") }});
+  if($("#ulClear")) $("#ulClear").onclick=function(){ ADM.listUser=null; render() };
   $$("[data-astar]").forEach(function(s){ s.onclick=function(){ ADM.rateStars=+this.dataset.astar; render() } });
   if($("#aRevSave")) $("#aRevSave").onclick=async function(){
     if(!ADM.rateStars){ ADM.rateMsg=t("pickStars"); render(); return }
@@ -2629,7 +2650,9 @@ function adminUsersBody(d){
     if(open && !isAdmin){
       html+='<tr class="udetail"><td colspan="9"><div class="udrawer">'+
         '<div class="ugroup"><b>'+GX("uSummary")+'</b><div class="ubtns">'+
-          '<button class="ab" data-byuser="'+u.id+'" data-name="'+esc(nm)+'">'+GX("uViewListings")+' ('+(u.listings||0)+')</button>'+
+          '<button class="ab" data-ulist="'+u.id+'" data-name="'+esc(nm)+'">'+GX("uViewListings")+' ('+(u.listings||0)+')</button>'+
+          '<button class="ab" data-uedit="'+u.id+'">'+GX("uEditInfo")+'</button>'+
+          '<a class="ab" data-byuser="'+u.id+'" data-name="'+esc(nm)+'" style="text-decoration:none">'+GX("uPublicPage")+'</a>'+
           '<button class="ab" data-umsg="'+u.id+'">'+GX("uMessage")+'</button>'+
           (isAdmin?'':'<button class="ab" data-uloginas="'+u.id+'" data-name="'+esc(nm)+'" title="'+esc(GX("uLoginAsHint"))+'">'+GX("uLoginAs")+'</button>'+
           '<button class="ab" data-uagency="'+u.id+'" data-name="'+esc(nm)+'">'+GX("uAgencyBtn")+'</button>')+
@@ -2644,6 +2667,14 @@ function adminUsersBody(d){
           '<button class="ab '+(u.blocked?"ok":"bad")+'" data-ablock="'+u.id+'" data-on="'+(u.blocked?"0":"1")+'">'+(u.blocked?t("unblock"):t("block"))+'</button>'+
           (ADM.isSuper&&!isAdmin?'<button class="ab bad" data-adeluser="'+u.id+'" data-name="'+esc(nm)+'">'+GX("uDelete")+'</button>':'')+'</div>'+
           (ADM.isSuper&&!isAdmin?'<div class="hintx">'+GX("uDeleteHint")+'</div>':'')+'</div>'+
+        '<div class="ugroup" style="grid-column:1/-1"><b>'+GX("uListingsH")+'</b>'+(function(){
+          var ls=(d.listings||[]).filter(function(l){ return l.poster_id===u.id });
+          if(!ls.length) return '<div class="hintx">'+GX("uNoListings")+'</div>';
+          return '<div class="ulist">'+ls.slice(0,30).map(function(l){
+            var typeName=D.TYPES[l.property_type]?D.TYPES[l.property_type][li()]:(l.property_type||"");
+            var stLabel=l.status==="hidden"?GX("st_hidden"):l.status==="rejected"?GX("st_rejected"):(t("st_"+l.status)||l.status);
+            return '<div class="ulrow"><b class="ltr adlink" data-open="'+l.id+'">'+(l.ref||l.id)+'</b><span>'+typeName+(l.area?' · '+l.area:'')+' · <i class="ltr">$'+Number(l.price_usd||0).toLocaleString("en")+'</i></span><span class="st st-'+l.status+'">'+stLabel+'</span><button class="ab" data-adopen="'+l.id+'">'+t("edit")+'</button></div>' }).join("")+
+            (ls.length>30?'<div class="hintx ltr">+'+(ls.length-30)+'</div>':'')+'</div>' })()+'</div>'+
         '</div></td></tr>';
     }
     if(ADM.rateTarget===u.id){
@@ -2659,6 +2690,19 @@ function adminUsersBody(d){
         '<div class="xactions" style="flex-wrap:wrap"><input id="aNewPass" type="text" placeholder="'+t("min6")+'" style="max-width:220px">'+
         '<button class="ab ok" id="aPwSave">'+t("savePass")+'</button><button class="ab" id="aPwCancel">'+t("cancel")+'</button><span class="xmsg">'+(ADM.pwMsg||"")+'</span></div>'+
         '<div class="hintx" style="margin-top:6px">'+t("adminPwHint")+'</div></div></td></tr>';
+    }
+    if(ADM.uEdit===u.id){
+      var ue=ADM.uEditData||{}, fl=function(id,label,val,type){ return '<div class="fl"><label>'+label+'</label><input id="'+id+'" type="'+(type||"text")+'" value="'+esc(val||"")+'"'+(type==="tel"?' class="ltr" dir="ltr"':'')+'></div>' };
+      html+='<tr class="udetail"><td colspan="9"><div class="udrawer" style="display:block">'+
+        '<b style="font-size:13.5px">'+GX("uEditInfo")+' — '+esc(nm)+'</b>'+
+        (ADM.uEditLoading ? '<div class="hintx" style="margin-top:8px">…</div>' :
+        '<div class="row" style="margin-top:8px;flex-wrap:wrap">'+fl("ueName",t("firstName"),ue.name)+fl("ueFamily",t("familyName"),ue.family_name)+fl("uePhone",GX("uPhoneL"),ue.phone,"tel")+'</div>'+
+        '<div class="row" style="flex-wrap:wrap">'+fl("ueEmail",GX("uEmailL"),ue.email,"email")+fl("ueCity",t("city"),ue.city)+
+          '<div class="fl"><label>'+t("country")+'</label><select id="ueCountry">'+(ADM.countries||[]).map(function(c){ return '<option value="'+c.code+'"'+((ue.country||"")===c.code?" selected":"")+'>'+esc(countryName(c))+'</option>' }).join("")+((ADM.countries||[]).some(function(c){ return c.code===(ue.country||"") })?'':'<option value="'+esc(ue.country||"")+'" selected>'+esc(ue.country||"—")+'</option>')+'</select></div></div>'+
+        '<div class="fl"><label>'+t("bio")+'</label><textarea id="ueBio" maxlength="300" rows="2" style="width:100%">'+esc(ue.bio||"")+'</textarea></div>'+
+        '<div class="hintx">'+GX("uEditHint")+'</div>'+
+        '<div class="xactions"><button class="ab ok" id="ueSave">'+t("save")+'</button><button class="ab" id="ueCancel">'+t("cancel")+'</button><span class="xmsg">'+(ADM.uEditMsg||"")+'</span></div>')+
+        '</div></td></tr>';
     }
     return html }).join("");
   return toolbar+'<div class="atable atable-stack utable"><table><thead><tr>'+
