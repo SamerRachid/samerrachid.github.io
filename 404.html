@@ -424,7 +424,7 @@ html.js .rv.in{opacity:1;transform:none}
   font-size:11px;text-align:center;padding:6px}
 .adslot-foot{position:absolute;bottom:0;inset-inline-start:0;inset-inline-end:0;
   display:flex;gap:6px;padding:6px 6px 5px;justify-content:center;flex-wrap:wrap}
-.adslot-foot span{font-weight:600;position:relative;z-index:1;text-shadow:0 1px 3px rgba(0,0,0,.75)}.adslot-place{z-index:1;text-shadow:0 1px 3px rgba(0,0,0,.75)}
+.adslot-foot span{font-weight:600;position:relative;z-index:1;text-shadow:var(--ad-ts,0 1px 3px rgba(0,0,0,.75))}.adslot-place{z-index:1;text-shadow:var(--ad-ts,0 1px 3px rgba(0,0,0,.75))}
 .adslot-place{position:absolute;top:3px;inset-inline-start:5px;font-weight:600;
   padding:1px 6px;border-radius:4px}
 .adslot-overtext{position:absolute;inset-inline-start:0;inset-inline-end:0;
@@ -6007,6 +6007,9 @@ function adSlotsRow(){
   var locSize = SITE.ad_location_size||9;
   var textColor = SITE.ad_text_color||"#ffffff";
   var shadeRgb = hexToRgb(SITE.ad_shade_color||"#090e1a");
+  // the dark glow behind the caption text only helps light text; dark text on a light shade gets none (it reads as a smudge)
+  var tcRgb = hexToRgb(textColor)||"255,255,255", tcParts = String(tcRgb).split(",").map(Number), tcLum = (0.299*tcParts[0]+0.587*tcParts[1]+0.114*tcParts[2])/255;
+  var tShadow = "--ad-ts:" + (tcLum < 0.5 ? "none" : "0 1px 3px rgba(0,0,0,.75)") + ";";
   // no more slicing to the first 16 — every active ad is rendered
   // into the track, and the carousel scrolls/rotates through however
   // many there actually are, showing only a handful at a time
@@ -6027,13 +6030,13 @@ function adSlotsRow(){
      var place=[a.l_area_name?aN(a.l_area_name):"", a.l_gov?gN(a.l_gov):""].filter(Boolean).join(", ");
      media = '<img class="adslot-rotimg" src="'+a.l_photos[0]+'" data-photos="'+
        encodeURIComponent(JSON.stringify(a.l_photos))+'" data-idx="0" alt="'+esc([(a.l_type&&D.TYPES[a.l_type])?D.TYPES[a.l_type][li()]:"", place].filter(Boolean).join(" · "))+'" loading="lazy">'+
-       '<div class="adslot-foot" style="font-size:var(--ris);color:'+textColor+';'+
+       '<div class="adslot-foot" style="'+tShadow+'font-size:var(--ris);color:'+textColor+';'+
          'background:linear-gradient(to top,rgba('+shadeRgb+',.85) 0%,rgba('+shadeRgb+',.55) 55%,transparent 100%)">'+
         (a.l_rooms?'<span>'+(showIcons?ICON_BED:"")+a.l_rooms+(showIcons?"":" "+t("rooms"))+'</span>':'')+
         (a.l_baths?'<span>'+(showIcons?ICON_BATH:"")+a.l_baths+(showIcons?"":" "+t("baths"))+'</span>':'')+
         (a.l_area?'<span class="ltr">'+(showIcons?ICON_AREA:"")+a.l_area+(showIcons?"":" "+t("sqm"))+'</span>':'')+
        '</div>'+
-       (place&&showLoc?'<div class="adslot-place" style="font-size:var(--los);color:'+textColor+';background:rgba('+shadeRgb+',.6)">'+place+'</div>':'');
+       (place&&showLoc?'<div class="adslot-place" style="'+tShadow+'font-size:var(--los);color:'+textColor+';background:rgba('+shadeRgb+',.6)">'+place+'</div>':'');
    } else if(isVideoEmbed){
      var vInfo = videoEmbedInfo(a.video_embed_url);
      media = vInfo ? '<iframe class="adslot-embed" src="'+vInfo.embedUrl+'" '+
