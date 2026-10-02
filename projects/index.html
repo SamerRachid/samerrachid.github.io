@@ -3684,7 +3684,8 @@ function priceBlock(x,big){
    (cut ? ' <span class="wasprice ltr">'+money(x.orig)+'</span>'+
           (SX("price_cut_pct_on",true)!==false ? '<span class="cutbadge">↓ '+pct+'%</span>' : '') : '');
 }
-var money=function(v){return CUR==="USD"?"$"+Number(v).toLocaleString("en")
+var money=function(v){ if(v==null||v===""||isNaN(+v)) return GX("priceOnRequest");   // no price on the listing → "السعر عند التواصل"
+  return CUR==="USD"?"$"+Number(v).toLocaleString("en")
   :(v*(curRate())).toLocaleString("en")+" "+curLabel(CUR,L)};
 var AR_ORD=["","أول","ثاني","ثالث","رابع","خامس","سادس","سابع","ثامن","تاسع","عاشر",
  "حادي عشر","ثاني عشر","ثالث عشر","رابع عشر","خامس عشر",
@@ -4617,8 +4618,8 @@ function passesFilter(x, skipField){
   if(F.sec&&secOf(x.t)!==F.sec) return false;
   if(skipField!=="deal" && F.deal&&x.d!==F.deal) return false;
   if(skipField!=="price"){
-    if(F.pmin&&x.p<F.pmin) return false;
-    if(F.pmax&&x.p>F.pmax) return false;
+    if(F.pmin&&(x.p==null||x.p<F.pmin)) return false;   // "price on request" listings stay only while no price range is set
+    if(F.pmax&&(x.p==null||x.p>F.pmax)) return false;
   }
   if(skipField!=="rooms" && !roomsPass(x)) return false;
   if(F.ownerOnly && !x.ow) return false;
@@ -4630,8 +4631,9 @@ var RS={map:null,mapOn:null,pins:{}};
 function rsMapOn(){ if(RS.mapOn===null){ var st=null; try{ st=localStorage.getItem("balkoun_rsmap") }catch(e){} RS.mapOn = st===null ? SX("results_map_default",true)!==false : st==="1" } return RS.mapOn }
 function rsResults(){
  var r=D.LIST.filter(function(x){ return passesFilter(x,null) });
- if(F.sort==="lo")r.sort(function(a,b){return a.p-b.p});
- if(F.sort==="hi")r.sort(function(a,b){return b.p-a.p});
+ var pv=function(x,big){ return x.p==null ? (big?Infinity:Infinity) : x.p };   // no price → always last, whichever way the sort goes
+ if(F.sort==="lo")r.sort(function(a,b){return pv(a)-pv(b)});
+ if(F.sort==="hi")r.sort(function(a,b){return (b.p==null?-Infinity:b.p)-(a.p==null?-Infinity:a.p)});
  if(F.sort==="area")r.sort(function(a,b){return b.m2-a.m2});
  r.sort(function(a,b){return (b.featured?1:0)-(a.featured?1:0)});   // featured first, stable within
  return r }
@@ -5200,7 +5202,7 @@ function post(){
    '<textarea id="pd" autocomplete="off" maxlength="1200" placeholder="'+t("descPH")+'"></textarea>'+
    '<div class="hintx" style="text-align:end"><span id="dc">0</span> / 1200</div></div></div></div>'+
  '<div class="blk saleonly" id="deedBlk"><h3><span class="n">4</span>'+t("p4")+'</h3><div class="in">'+
-  '<div class="fl" style="margin-bottom:0"><label class="req">'+t("deed")+'</label>'+
+  '<div class="fl" style="margin-bottom:0"><label>'+t("deed")+'</label>'+
   '<div class="pick" id="ptabu">'+pk(D.TABU,"tb2")+'</div>'+
   '<div class="deedbox g" id="dbG">'+t("deedG")+'</div>'+
   '<div class="deedbox y" id="dbY">'+t("deedY")+'</div></div></div></div>'+
@@ -5246,8 +5248,8 @@ function editView(){
  '<h1 style="font-size:22px;font-weight:700">'+t("editListing")+' <span class="ltr" style="font-size:14px;color:var(--grey)">'+(x.ref||x.id)+'</span></h1>'+
  '<p style="color:var(--grey);font-size:14px;margin-bottom:16px">'+t("editP")+'</p>'+
  '<div class="blk"><h3><span class="n">1</span>'+t("price")+'</h3><div class="in">'+
-  '<div class="row"><div class="fl"><label class="req">'+t("price")+'</label>'+
-   '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+x.p+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur","USD")+'</div>'+
+  '<div class="row"><div class="fl"><label>'+t("price")+'</label>'+
+   '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+(x.p==null?"":x.p)+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur","USD")+'</div>'+
    (x.orig&&x.orig>x.p?'<div class="hintx">'+t("wasPrice")+' <span class="ltr">'+money(x.orig)+'</span></div>':'')+
    '</div>'+
   '<div class="fl"><label class="req">'+t("areaM")+'</label><input type="number" id="eArea" value="'+(x.m2||"")+'" autocomplete="off"></div></div>'+
@@ -5293,7 +5295,7 @@ function editView(){
      .map(function(v){return '<option value="'+v+'"'+(String(v)===String(x.fl)?" selected":"")+'>'+floorLabel(v)+'</option>'}).join("")+
    '</select></div>'+
   '<div class="fl"><label class="req">'+t("cond")+'</label><div class="pick">'+pk(D.COND,"ecd",x.cd)+'</div></div>'+
-  (x.d==="rent" ? '' : '<div class="fl"><label class="req">'+t("deed")+'</label><div class="pick">'+pk(D.TABU,"etb",x.tb)+'</div></div>') +
+  (x.d==="rent" ? '' : '<div class="fl"><label>'+t("deed")+'</label><div class="pick">'+pk(D.TABU,"etb",x.tb)+'</div></div>') +
   (x.d==="rent" ? '<div class="fl"><div class="chkgrid">'+
     '<label><input type="checkbox" id="eBills"'+(x.bills?" checked":"")+'> '+t("billsL")+'</label></div></div>' : '') +
   '<div class="fl"><label>'+t("amH")+'</label><div class="chkgrid">'+
@@ -5962,11 +5964,10 @@ function checkPost(){
  if(!isLand && !v("pr"))need.push(t("kRooms"));
  if(!isLand && !v("pb"))need.push(t("kBaths"));
  if(!$('input[name=cd2]:checked'))need.push(t("cond"));
- if(!isRent && !$('input[name=tb2]:checked'))need.push(t("deed"));
+ // the deed and the price are optional (2026-10-02): a listing without them publishes with "السعر عند التواصل" and no deed pill
  if(v("pd").trim().length<30)need.push(t("descL"));
  var needPh = 0;   // photos and videos are optional (listings with photos get more views; the hint says so)
  if(NEW.photos.length<needPh)need.push(t("photos"));
- if(!v("pp"))need.push(t("price"));
  if(v("ptel").replace(/\D/g,"").length<9)need.push(t("tel"));
  [["k1",true],["k2",!!v("pg")||true],["k3",!!v("pm2")],
   ["k4",isRent||!!$('input[name=tb2]:checked')],["k5",NEW.photos.length>=needPh],["k6",!!v("pp")]]
@@ -8975,7 +8976,7 @@ async function savePost(){
       property_type: val("ptype"),
       governorate_id: g.data.id,
       area_id: (a.data&&a.data[0])?a.data[0].id:null,
-      price_usd: toUsdFrom(parseInt(val("pp"),10), val("pcur")),
+      price_usd: val("pp") ? toUsdFrom(parseInt(val("pp"),10), val("pcur")) : null,   // empty → "السعر عند التواصل"
       area_m2: Math.round((parseFloat(val("pm2"))||0) * (parseInt(val("pUnit"),10)||1)),
       rooms: secOf(val("ptype"))==="land" ? null : (parseInt(val("pr"),10)||null),
       baths: secOf(val("ptype"))==="land" ? null : (parseInt(val("pb"),10)||null),
@@ -8984,8 +8985,8 @@ async function savePost(){
       year_built: parseInt(val("py"),10)||null,
       power_hours: parseInt(val("pel"),10)||null,
       tabu: ($('input[name=dl]:checked')||{}).value==="rent"
-              ? "none"
-              : $('input[name=tb2]:checked').value,
+              ? null
+              : (($('input[name=tb2]:checked')||{}).value||null),
       condition: $('input[name=cd2]:checked').value,
       description: val("pd"),
       contact_phone: (function(){
@@ -10752,6 +10753,7 @@ var GX_T={
   desc_intake:{ar:"إعلانات تصل برسالة (تيليغرام، واتساب، أو نص ملصوق في الموقع) تُقرأ آلياً وتُنشر تحت اسم المكتب. هنا الربط، الإعدادات، المسوّدات، والسجل.",en:"Listings that arrive by message (Telegram, WhatsApp, or text pasted on the site) are read automatically and published under the agency. Connections, settings, drafts and the log live here.",de:"Anzeigen, die per Nachricht kommen (Telegram, WhatsApp oder eingefügter Text), werden automatisch gelesen und unter dem Büro veröffentlicht. Verbindungen, Einstellungen, Entwürfe und Protokoll."},
   bellIntake:{ar:"مسوّدات رسائل بانتظارك",en:"Message drafts waiting for you",de:"Nachrichten-Entwürfe warten"},
   deedShort:{ar:"الملكية",en:"Deed",de:"Grundbuch",fr:"Titre"},
+  priceOnRequest:{ar:"السعر عند التواصل",en:"Price on request",de:"Preis auf Anfrage",fr:"Prix sur demande"},
   pickArea:{ar:"اختر الحي أو البلدة",en:"Choose the area",de:"Gebiet wählen",fr:"Choisir le quartier"}, areaOther:{ar:"أخرى… غير موجودة في القائمة",en:"Other… not in the list",de:"Andere… nicht in der Liste",fr:"Autre… pas dans la liste"},
   areaOtherPH:{ar:"اكتب اسم الحي أو القرية",en:"Type the neighbourhood or village",de:"Stadtteil oder Dorf eingeben",fr:"Quartier ou village"}, areaOtherHint:{ar:"يُنشر إعلانك بهذا الاسم كمَعلم، وتضيفه الإدارة إلى القائمة قريباً.",en:"Your listing is published with this name as its landmark; the team adds it to the list soon.",de:"Ihre Anzeige erscheint mit diesem Namen als Orientierungspunkt; das Team ergänzt die Liste bald.",fr:"Votre annonce paraît avec ce nom comme repère ; l'équipe l'ajoutera bientôt à la liste."},
   maintH:{ar:"وضع الصيانة",en:"Maintenance mode",de:"Wartungsmodus"}, maintOn:{ar:"إظهار صفحة «الموقع في صيانة» للزوار",en:"Show the “under maintenance” page to visitors",de:"Wartungsseite für Besucher anzeigen"},
