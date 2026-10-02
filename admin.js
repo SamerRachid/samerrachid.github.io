@@ -2685,7 +2685,7 @@ function adminUsersBody(d){
           return '<div class="ulist">'+ls.slice(0,30).map(function(l){
             var typeName=D.TYPES[l.property_type]?D.TYPES[l.property_type][li()]:(l.property_type||"");
             var stLabel=l.status==="hidden"?GX("st_hidden"):l.status==="rejected"?GX("st_rejected"):(t("st_"+l.status)||l.status);
-            return '<div class="ulrow"><b class="ltr adlink" data-open="'+l.id+'">'+(l.ref||l.id)+'</b><span>'+typeName+(l.area?' · '+l.area:'')+' · <i class="ltr">$'+Number(l.price_usd||0).toLocaleString("en")+'</i></span><span class="st st-'+l.status+'">'+stLabel+'</span><button class="ab" data-adopen="'+l.id+'">'+t("edit")+'</button></div>' }).join("")+
+            return '<div class="ulrow"><b class="ltr adlink" data-open="'+l.id+'">'+(l.ref||l.id)+'</b><span>'+typeName+(l.area?' · '+l.area:'')+' · <i class="ltr">'+admPrice(l.price_usd)+'</i></span><span class="st st-'+l.status+'">'+stLabel+'</span><button class="ab" data-adopen="'+l.id+'">'+t("edit")+'</button></div>' }).join("")+
             (ls.length>30?'<div class="hintx ltr">+'+(ls.length-30)+'</div>':'')+'</div>' })()+'</div>'+
         '</div></td></tr>';
     }
