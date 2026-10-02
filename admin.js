@@ -3217,7 +3217,7 @@ function ikLine(x){
   var raw=(x.raw_text||"").replace(/\s+/g," ").trim();
   return raw ? {text:raw.slice(0,110), raw:true} : {text:GX("ik_notRead"), raw:true} }
 function ikRow(x){
-  var open=String(ADM.ikOpen)===String(x.id), photos=Array.isArray(x.photos)?x.photos:[], d=ADM.ik||{};
+  var open=String(ADM.ikOpen)===String(x.id), all=Array.isArray(x.photos)?x.photos:[], photos=all.filter(function(p){ return p&&p.kind!=="video" }), nVid=all.length-photos.length, d=ADM.ik||{};
   var who=x.agency_name||x.sender_name||x.chat_id||"", second=x.sender_name&&x.agency_name?x.sender_name:"";
   var src=ikSrc(x)+(x.by_admin?' · '+GX("ik_byOwner"):'')+(second?' · '+esc(second):'')+(x.country_code&&x.country_code!=="SY"?' · '+flagOf(x.country_code):'');
   var line=ikLine(x);
@@ -3229,7 +3229,7 @@ function ikRow(x){
     '<div class="ikpic">'+cover+'</div>'+
     '<div class="ikmain"><div class="ikhead"><span class="iknum">#'+x.id+'</span><span>'+scopeFlag(x.country_code)+esc(who)+'</span><span class="iksrc">'+src+'</span></div>'+
       '<div class="iksum'+(line.raw?' raw':'')+'" title="'+esc(line.text)+'">'+esc(line.text)+'</div>'+
-      '<div class="ikmeta">'+photos.length+' '+GX("ik_photos")+' · '+(x.messages||0)+' '+GX("ik_msgs")+(x.error&&!open?' · <span style="color:var(--danger)">'+esc(String(x.error)).slice(0,60)+'</span>':'')+'</div>'+
+      '<div class="ikmeta">'+photos.length+' '+GX("ik_photos")+(nVid?' · 🎬 '+nVid:'')+' · '+(x.messages||0)+' '+GX("ik_msgs")+(x.error&&!open?' · <span style="color:var(--danger)">'+esc(String(x.error)).slice(0,60)+'</span>':'')+'</div>'+
       (miss.length&&selectable?'<span class="ikmiss">'+GX("ik_missing")+': '+esc(miss.join("، "))+'</span>':'')+'</div>'+
     '<div class="ikst">'+ikPill(x.status)+(x.listing_ref?' <a class="elink" data-open="'+x.listing_id+'">'+esc(x.listing_ref)+'</a>':'')+'</div>'+
     '<div class="ikwhen"><b class="ltr">'+when(x.created_at)+'</b><span class="ltr">$'+(+x.cost_usd||0).toFixed(3)+'</span></div>'+
@@ -3274,6 +3274,7 @@ function adminIntakeBody(){
     '<div class="chkgrid">'+chk("intake_enabled",GX("ik_on"))+chk("intake_telegram_on","Telegram")+chk("intake_whatsapp_on","WhatsApp")+chk("intake_keep_text",GX("ik_keepText"))+'</div>'+
     '<div class="hintx">'+GX("ik_keepTextHint")+'</div>'+
     '<div class="row3">'+num("intake_wait_s",GX("ik_wait"),90,20,900)+num("intake_max_photos",GX("ik_maxPhotos"),12,1,30)+num("intake_daily_limit",GX("ik_daily"),30,1,500)+'</div>'+
+    '<div class="row3">'+num("intake_max_videos",GX("ik_maxVideos"),1,0,5)+num("intake_video_max_mb",GX("ik_videoMb"),50,5,100)+num("intake_video_max_s",GX("ik_videoSec"),180,10,600)+'</div><div class="hintx">'+GX("ik_videoHint")+'</div>'+
     '<div class="row3">'+sel("intake_model",GX("ik_model"),[["claude-haiku-4-5-20251001","Claude Haiku 4.5"],["claude-sonnet-5","Claude Sonnet 5"],["claude-opus-5","Claude Opus 5"]])+num("intake_price_in",GX("ik_priceIn"),1,0,100,0.01)+num("intake_price_out",GX("ik_priceOut"),5,0,500,0.01)+'</div>'+
     '<div class="row3">'+sel("intake_reply_lang",GX("ik_lang"),[["ar","العربية"],["en","English"]])+txt("intake_wa_display",GX("ik_waDisplay"))+txt("intake_contact_phone",GX("ik_contactPhone"))+'</div>'+
     '<div class="row">'+txt("intake_contact_email",GX("ik_contactEmail"))+'</div>'+

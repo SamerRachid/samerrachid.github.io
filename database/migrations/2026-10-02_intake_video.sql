@@ -1,0 +1,10 @@
+-- Balkoun · 2026-10-02 · video by message (Telegram / WhatsApp / WAHA). The video never reaches the AI (no tokens):
+-- it is stored as sent under intake/<draft>/, moved to photos/listings/<id>/ on publish, and shown on the listing page.
+--   draft.photos entries carry kind 'video' (path, url, bytes, mime, duration);
+--   bk_intake_add_photo(): caps videos by intake_max_videos (default 1) and photos by intake_max_photos, separately;
+--   bk_intake_listing_add_photo(): same, for a video sent right after a publish (kind + duration_s saved);
+--   bk_intake_publish(): listing_photos gets the entry's kind and duration_s;
+--   bk_intake_message(): a bare video follows the bare-photo rules (joins the just-published / in-review listing,
+--                        unless «جديد» was written since).
+-- Panel (intake settings): intake_max_videos, intake_video_max_mb (default 50), intake_video_max_s (default 180).
+-- Limits that are not ours: Telegram's Bot API hands over files up to 20 MB; WhatsApp compresses videos to ~16 MB.

@@ -66,6 +66,7 @@ const GRAPH = "https://graph.facebook.com/v21.0";
 const FN_URL = SUPABASE_URL.replace(/\/$/, "") + "/functions/v1/bk-intake";
 const MAX_PHOTO_BYTES = 12 * 1024 * 1024;   // refused outright
 const MAX_DECODE_BYTES = 4 * 1024 * 1024;   // above this the file is asked again "as a photo" (the 2 s CPU budget)
+const TG_FILE_LIMIT = 20 * 1024 * 1024;     // Telegram's Bot API hands over files up to 20 MB only
 
 const sb = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
 
@@ -161,9 +162,9 @@ async function tg(method: string, body: Record<string, unknown>) {
   if (!j.ok) throw new Error("telegram " + method + ": " + (j.description || r.status));
   return j.result;
 }
-async function tgDownload(fileId: string): Promise<{ bytes: Uint8Array; size: number; mime: string }> {
+async function tgDownload(fileId: string, maxBytes = MAX_PHOTO_BYTES): Promise<{ bytes: Uint8Array; size: number; mime: string }> {
   const f = await tg("getFile", { file_id: fileId });
-  if (f.file_size && f.file_size > MAX_PHOTO_BYTES) throw new Error("too_big");
+  if (f.file_size && f.file_size > maxBytes) throw new Error("too_big");
   let r: Response;
   try { r = await fetch(`https://api.telegram.org/file/bot${ENV.tg}/${f.file_path}`); } catch { throw new Error("telegram file: network"); }
   if (!r.ok) throw new Error("telegram file " + r.status);
@@ -229,7 +230,7 @@ async function wahaStatus(): Promise<{ configured: boolean; ok?: boolean; status
 }
 // incoming media from a WAHA webhook arrives as a direct URL on the WAHA server itself (not a media id
 // needing a lookup step like Telegram/Meta) — still needs the API key header to actually download it.
-async function wahaDownloadMedia(url: string): Promise<{ bytes: Uint8Array; size: number; mime: string }> {
+async function wahaDownloadMedia(url: string, maxBytes = MAX_PHOTO_BYTES): Promise<{ bytes: Uint8Array; size: number; mime: string }> {
   // WAHA builds the link with its own WHATSAPP_API_HOSTNAME (localhost by default), so only the path is trusted
   // and the host is always the gateway we already talk to.
   try { const u = new URL(url); url = ENV.wahaUrl.replace(/\/$/, "") + u.pathname + u.search; } catch { /* keep as is */ }
@@ -237,7 +238,7 @@ async function wahaDownloadMedia(url: string): Promise<{ bytes: Uint8Array; size
   try { r = await fetch(url, { headers: { "X-Api-Key": ENV.wahaKey } }); } catch { throw new Error("waha media: network"); }
   if (!r.ok) throw new Error("waha media " + r.status);
   const bytes = new Uint8Array(await r.arrayBuffer());
-  if (bytes.length > MAX_PHOTO_BYTES) throw new Error("too_big");
+  if (bytes.length > maxBytes) throw new Error("too_big");
   return { bytes, size: bytes.length, mime: r.headers.get("content-type") || "" };
 }
 // email sending: "from" info@balkoun.com through Resend — a plain REST call with a static API-key header,
@@ -263,12 +264,12 @@ async function sendOtpEmail(to: string, code: string) {
 async function emailStatus(): Promise<{ configured: boolean }> {
   return { configured: !!ENV.resendKey };   // "the secret is set" is treated as ready, same as the other channels
 }
-async function waDownload(mediaId: string): Promise<{ bytes: Uint8Array; size: number; mime: string }> {
+async function waDownload(mediaId: string, maxBytes = MAX_PHOTO_BYTES): Promise<{ bytes: Uint8Array; size: number; mime: string }> {
   let m: Response;
   try { m = await fetch(`${GRAPH}/${mediaId}`, { headers: { Authorization: "Bearer " + ENV.waToken } }); } catch { throw new Error("whatsapp media: network"); }
   if (!m.ok) throw new Error("whatsapp media meta " + m.status);
   const meta = await m.json();
-  if (meta.file_size && meta.file_size > MAX_PHOTO_BYTES) throw new Error("too_big");
+  if (meta.file_size && meta.file_size > maxBytes) throw new Error("too_big");
   let r: Response;
   try { r = await fetch(meta.url, { headers: { Authorization: "Bearer " + ENV.waToken } }); } catch { throw new Error("whatsapp media: network"); }
   if (!r.ok) throw new Error("whatsapp media " + r.status);
@@ -327,7 +328,13 @@ const T = {
     notApproved: `مكتبك لم يُعتمد بعد. سيعمل الربط بعد اعتماد الإدارة.`,
     photoMax: (n: number) => `وصلنا الحد الأقصى للصور (${n}). الصور الإضافية لن تُضاف.`,
     photoBad: `تعذّرت معالجة هذه الصورة. أرسلها كصورة عادية (وليس كملف)، بصيغة JPG أو PNG.`,
-    videoNo: `الفيديو غير مدعوم عبر الرسائل حالياً؛ يمكن إضافته من الموقع بعد النشر.`,
+    videoNo: `هذا النوع من الملفات غير مدعوم هنا. أرسل الصور كصور، والفيديو كفيديو عادي من المعرض.`,
+    audioNo: `الرسائل الصوتية غير مدعومة؛ اكتب التفاصيل نصاً من فضلك.`,
+    videoGot: `استلمت الفيديو 🎬 سيظهر مع الإعلان.`,
+    videoBig: (mb: number) => `الفيديو كبير؛ الحد ${mb} MB. أرسله مضغوطاً أو أقصر.`,
+    videoLong: (min: number) => `الفيديو أطول من الحد (${min} دقائق). أرسل مقطعاً أقصر.`,
+    videoMax: (n: number) => `وصلنا الحد الأقصى للفيديو في الإعلان (${n}).`,
+    videoBad: `تعذّرت معالجة الفيديو. أرسله كفيديو عادي من المعرض (MP4).`,
     confirmLine: `\n\nاكتملت المعلومات ✅\nنعم ← ينشر\nلا ← يلغي\nأو اكتب التصحيح مباشرة، مثل: «السعر 75 ألف»`,
     areaConfirmLine: (name: string) => `\n\n📍 «${name}» ليست في قائمة أحيائنا بعد. هل هي اسم الحي أو القرية؟\nنعم ← ينشر بهذا الاسم\nلا ← اكتب الاسم الصحيح بعد «لا»، مثل: «لا، كفر زيتا»\nأو اكتب أي تصحيح آخر مباشرة`,
     areaAskName: `تمام، اكتب اسم الحي أو القرية الصحيح.`,
@@ -397,7 +404,13 @@ const T = {
     notApproved: `Your agency is not approved yet. Linking works once the team approves it.`,
     photoMax: (n: number) => `Photo limit reached (${n}). Extra photos are not added.`,
     photoBad: `Could not process this photo. Send it as a normal photo (not a file), JPG or PNG.`,
-    videoNo: `Video is not supported by message yet; it can be added on the site after publishing.`,
+    videoNo: `This kind of file is not supported here. Send photos as photos and video as a normal gallery video.`,
+    audioNo: `Voice messages are not supported; please write the details as text.`,
+    videoGot: `Video received 🎬 It will show with the listing.`,
+    videoBig: (mb: number) => `The video is too large; the limit is ${mb} MB. Send it compressed or shorter.`,
+    videoLong: (min: number) => `The video is longer than the limit (${min} minutes). Send a shorter clip.`,
+    videoMax: (n: number) => `The listing already has the maximum number of videos (${n}).`,
+    videoBad: `Could not process the video. Send it as a normal gallery video (MP4).`,
     confirmLine: `\n\nAll set ✅\nyes → publish\nno → cancel\nor write the correction directly, e.g. "price 75 thousand"`,
     areaConfirmLine: (name: string) => `\n\n📍 "${name}" is not in our list of areas yet. Is it the neighbourhood or village name?\nyes → publish with this name\nno → write the right name after "no", e.g. "no, Kafr Zita"\nor write any other correction directly`,
     areaAskName: `OK, write the correct neighbourhood or village name.`,
@@ -477,8 +490,8 @@ async function processPhoto(bytes: Uint8Array, wm: Wm): Promise<{ full: Uint8Arr
   await stamp(img, wm); await stamp(thumb, wm);
   return { full: await img.encodeJPEG(80), thumb: await thumb.encodeJPEG(72), w: img.width, h: img.height };
 }
-async function upload(path: string, bytes: Uint8Array) {
-  const { error } = await sb.storage.from(BUCKET).upload(path, bytes, { contentType: "image/jpeg", upsert: true });
+async function upload(path: string, bytes: Uint8Array, contentType = "image/jpeg") {
+  const { error } = await sb.storage.from(BUCKET).upload(path, bytes, { contentType, upsert: true });
   if (error) throw new Error("upload " + path + ": " + error.message);
 }
 const decodable = (mime: string, bytes: Uint8Array) => {
@@ -514,6 +527,23 @@ async function storeListingPhoto(listingId: number, bytes: Uint8Array, mime: str
   await upload(pF, out.full); await upload(pT, out.thumb);
   const res = await rpc<any>("bk_intake_listing_add_photo", { p_listing: listingId, p_photo: { url: publicUrl(pF), thumb_url: publicUrl(pT), bytes: out.full.length, w: out.w, h: out.h } });
   if (!res || res.ok === false || res.error) { await sb.storage.from(BUCKET).remove([pF, pT]); }
+  return res;
+}
+
+// a video sent with a listing: kept as it came (no transcoding on this runtime), under intake/<draft>/ until publish
+const videoExt = (mime: string) => /quicktime/.test(mime) ? "mov" : /webm/.test(mime) ? "webm" : /3gpp/.test(mime) ? "3gp" : "mp4";
+async function storeVideo(draftId: number, bytes: Uint8Array, mime: string, duration?: number) {
+  const p = `intake/${draftId}/${Date.now()}-v-${randomCode(5).toLowerCase()}.${videoExt(mime)}`;
+  await upload(p, bytes, mime || "video/mp4");
+  const res = await rpc<any>("bk_intake_add_photo", { p_draft: draftId, p_photo: { kind: "video", path: p, url: publicUrl(p), bytes: bytes.length, mime, duration: duration || null } });
+  if (res && res.ok === false) await sb.storage.from(BUCKET).remove([p]);
+  return res;
+}
+async function storeListingVideo(listingId: number, bytes: Uint8Array, mime: string, duration?: number) {
+  const p = `photos/listings/${listingId}/${Date.now()}-v-${randomCode(5).toLowerCase()}.${videoExt(mime)}`;
+  await upload(p, bytes, mime || "video/mp4");
+  const res = await rpc<any>("bk_intake_listing_add_photo", { p_listing: listingId, p_photo: { kind: "video", url: publicUrl(p), bytes: bytes.length, duration: duration || null } });
+  if (!res || res.ok === false || res.error) await sb.storage.from(BUCKET).remove([p]);
   return res;
 }
 
@@ -774,7 +804,7 @@ function settle(f: Record<string, any>, tax: any, rawText?: string) {
 }
 const MISSING_AR: Record<string, string> = { deal: "هل هو للبيع أم للإيجار", property_type: "نوع العقار (شقة، بيت، أرض…)", governorate: "المحافظة", area: "الحي أو المنطقة", price: "السعر", area_m2: "المساحة بالمتر", tabu: "نوع الطابو", photos: "صورة واحدة على الأقل" };
 const MISSING_EN: Record<string, string> = { deal: "sale or rent", property_type: "property type (apartment, house, land…)", governorate: "governorate", area: "the neighbourhood / area", price: "price", area_m2: "size in m²", tabu: "deed type", photos: "at least one photo" };
-function summary(f: Record<string, any>, tax: any, photos: number, lang: string): string {
+function summary(f: Record<string, any>, tax: any, photos: number, lang: string, videos = 0): string {
   const t = (code: string, list: any[]) => (list || []).find((x: any) => x.code === code);
   const ty = t(f.property_type, tax.types); const deed = t(f.tabu, tax.deeds);
   const cond = t(f.condition, [...(tax.conditions || []), ...(tax.land_conditions || [])]);
@@ -795,7 +825,7 @@ function summary(f: Record<string, any>, tax: any, photos: number, lang: string)
   if (f.deal === "sale" && !deed) L.push(tt.deedNone);
   if (f.deal === "rent" && !f.rental_period) L.push(tt.periodDefault);
   if (f.amenities?.length) L.push("• " + f.amenities.join("، "));
-  L.push("• " + (ar ? "الصور: " : "Photos: ") + photos + (photos ? "" : (ar ? " (اختياري، لكن الصور تزيد المشاهدات كثيراً)" : " (optional, but photos get far more views)")));
+  L.push("• " + (ar ? "الصور: " : "Photos: ") + photos + (videos ? (ar ? ` · فيديو: ${videos}` : ` · video: ${videos}`) : "") + (photos ? "" : (ar ? " (اختياري، لكن الصور تزيد المشاهدات كثيراً)" : " (optional, but photos get far more views)")));
   return L.join("\n");
 }
 // one line of "what I understood so far" for the follow-up questions — the full summary is kept for the end
@@ -919,7 +949,8 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   if (!d) return null;
   const c = await cfg(); const lang = c.intake_reply_lang === "en" ? "en" : (d.user_lang === "en" ? "en" : "ar"); const t = tx(lang);
   const tax = await rpc<any>("bk_intake_taxonomy", { p_country: d.country_code });
-  const photos = Array.isArray(d.photos) ? d.photos.length : 0;
+  const photos = Array.isArray(d.photos) ? d.photos.filter((p: any) => p?.kind !== "video").length : 0;
+  const videos = Array.isArray(d.photos) ? d.photos.filter((p: any) => p?.kind === "video").length : 0;
   // a membership number (SYM1007) written into a forwarded message names the member the listing is for —
   // not advertised anywhere on the site; it is pulled out before the model reads the text
   const MEMBER_NO = /\b([A-Z]{2}\s?M\s?\d{3,8})\b/i;
@@ -1032,7 +1063,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   }
   // a transient reading failure goes back to the queue instead of failing the sender's listing
   if (err && !/no_key|claude 4\d\d/.test(err) && (d.reads || 0) < 3) status = "collecting";
-  const sum = err ? null : summary(fields, tax, photos, lang) + (attributed ? "\n" + t.attributed(attributed) : "") + (suggested ? "\n" + t.suggested(suggested) : "") +
+  const sum = err ? null : summary(fields, tax, photos, lang, videos) + (attributed ? "\n" + t.attributed(attributed) : "") + (suggested ? "\n" + t.suggested(suggested) : "") +
     (status === "review" ? "" : (missing.length ? t.missing(missing.map(missLabel).join("، ")) : (fields.area_pending === "1" && fields.area_text ? t.areaConfirmLine(fields.area_text) : t.confirmLine)));
   const saved = await rpc<any>("bk_intake_save_read", { p_draft: draftId, p_fields: fields, p_missing: missing, p_summary: sum, p_status: status, p_model: c.intake_model || null, p_in: usage.in, p_out: usage.out, p_cost: cost, p_error: err });
   if (saved?.skipped) return saved;                                              // cancelled or changed while reading: say nothing
@@ -1328,7 +1359,7 @@ async function applyAreaText(m: Incoming, draftId: number, text: string, tt: any
   else { if (f.landmark && norm(f.landmark) === norm(f.area_text || "")) f.landmark = name; else if (!f.landmark) f.landmark = name; f.area_text = name; f.area_confirmed = "1"; delete f.area_pending;
          if (f.governorate_id) await rpc("bk_intake_area_suggest", { p_gov: f.governorate_id, p_name: name, p_sample: (d.raw_text || "").slice(0, 200) }); }
   const c = await cfg(); const lang = c.intake_reply_lang === "en" ? "en" : (d.user_lang === "en" ? "en" : "ar"); const t = tx(lang);
-  const sum = summary(f, tax, Array.isArray(d.photos) ? d.photos.length : 0, lang) + t.confirmLine;
+  const sum = summary(f, tax, (d.photos || []).filter((p: any) => p?.kind !== "video").length, lang, (d.photos || []).filter((p: any) => p?.kind === "video").length) + t.confirmLine;
   await rpc("bk_intake_set", { p_draft: draftId, p_patch: { fields: f, status: "ready", summary: sum } });
   await log(draftId, m.chat, "info", a ? "area_set_known" : "area_set_new", { name, area_id: a ? a[0] : null });
   await reply(m.source, m.chat, t.areaSet(a ? a[1] : name) + "\n\n" + sum);
@@ -1411,9 +1442,9 @@ async function handleIncoming(m: Incoming) {
     return;
   }
   if (/^\/start\b/i.test(m.text || "")) { await sendGuide(m, c); return; }
-  if (m.kind === "video" || m.kind === "audio") {
-    const s = await rpc<any>("bk_intake_sender", { p_source: m.source, p_chat_id: m.chat }); if (s?.enabled) await reply(m.source, m.chat, t.videoNo);
-    // a video whose caption carries the listing text: the video is skipped, the text is read like any message
+  // voice notes, documents and media the channel cannot hand over: told once; a caption with the listing text is still read
+  if (m.kind === "audio" || (m.kind === "video" && !m.fetchMedia)) {
+    const s = await rpc<any>("bk_intake_sender", { p_source: m.source, p_chat_id: m.chat }); if (s?.enabled) await reply(m.source, m.chat, m.kind === "audio" ? t.audioNo : t.videoNo);
     if ((m.text || "").trim().length >= 10) { m.kind = "text"; m.media = null; m.fetchMedia = undefined; m.size = undefined; }
     else return;
   }
@@ -1474,6 +1505,12 @@ async function handleIncoming(m: Incoming) {
   }
   // a photo within minutes after a publish: into that listing, not a new draft
   if (r.attach_listing) {
+    if (m.kind === "video" && m.fetchMedia) {
+      try { const f = await m.fetchMedia(); const res = await storeListingVideo(r.attach_listing, f.bytes, f.mime || m.media?.mime || "video/mp4", m.media?.duration);
+        if (res && res.ok === false && res.reason === "max") await reply(m.source, m.chat, tt.videoMax(res.max || 1)); else if (res?.ok && !r.replied_recently) await reply(m.source, m.chat, tt.attached(r.ref || "")); }
+      catch (e) { await log(r.draft_id, m.chat, "warn", "video_failed", { error: errStr(e), listing: r.attach_listing }); await reply(m.source, m.chat, tt.videoBad); }
+      return;
+    }
     if (m.kind === "photo" && m.fetchMedia) {
       if (m.size && m.size > MAX_PHOTO_BYTES) { await reply(m.source, m.chat, tt.photoBad); return; }
       try {
@@ -1517,8 +1554,28 @@ async function handleIncoming(m: Incoming) {
       }
     }
   }
+  // a video: stored as sent (no AI, no tokens) and shown with the listing; capped by count, size and length from the panel
+  if (m.kind === "video" && m.fetchMedia && r.draft_id) {
+    const maxMb = cfgInt(c.intake_video_max_mb, 50), maxS = cfgInt(c.intake_video_max_s, 180), maxN = cfgInt(c.intake_max_videos, 1);
+    if (maxN <= 0) await reply(m.source, m.chat, tt.videoNo);
+    else if (m.media?.duration && m.media.duration > maxS) await reply(m.source, m.chat, tt.videoLong(Math.round(maxS / 60)));
+    else if (m.size && m.size > Math.min(maxMb * 1024 * 1024, m.source === "telegram" ? TG_FILE_LIMIT : Infinity)) await reply(m.source, m.chat, tt.videoBig(m.source === "telegram" ? Math.min(maxMb, 20) : maxMb));
+    else {
+      try {
+        const f = await m.fetchMedia();
+        if (f.bytes.length > maxMb * 1024 * 1024) throw new Error("too_big");
+        const res = await storeVideo(r.draft_id, f.bytes, f.mime || m.media?.mime || "video/mp4", m.media?.duration);
+        if (res && res.ok === false && res.reason === "max") await reply(m.source, m.chat, tt.videoMax(res.max || maxN));
+        else if (res?.ok && !(m.text || "").trim()) await reply(m.source, m.chat, tt.videoGot);
+      } catch (e) {
+        const msg = errStr(e);
+        await log(r.draft_id, m.chat, "warn", "video_failed", { error: msg, size: m.size || null });
+        await reply(m.source, m.chat, /too_big/.test(msg) ? tt.videoBig(m.source === "telegram" ? Math.min(maxMb, 20) : maxMb) : tt.videoBad);
+      }
+    }
+  }
   // a photo for the listing that just went to the panel for review: stored above; one short acknowledgement
-  if (r.attach_review) { if (m.kind === "photo" && !r.replied_recently) await reply(m.source, m.chat, tt.attachedReview); return; }
+  if (r.attach_review) { if ((m.kind === "photo" || m.kind === "video") && !r.replied_recently) await reply(m.source, m.chat, tt.attachedReview); return; }
   if (r.command_after) { await runCommandAfterPhoto(m, r, tt); return; }
   // like a person: a text is read right away and answered with what was understood / what is still missing;
   // a photo that was the last missing piece completes the listing without another paid read
@@ -1528,7 +1585,7 @@ async function handleIncoming(m: Incoming) {
   }
   // an album whose first photo carries the listing text: the text is complete, only the album's other photos are still
   // landing (Telegram delivers them one by one within seconds) → a short pause, then read, instead of the 90-second wait
-  if (m.kind === "photo" && r.draft_id && (m.text || "").trim().length >= 10) {
+  if ((m.kind === "photo" || m.kind === "video") && r.draft_id && (m.text || "").trim().length >= 10) {
     await delay(7000);
     const claimed = await rpc<any>("bk_intake_claim", { p_draft: r.draft_id });
     if (claimed) { await safeRead(m, r.draft_id, tt); return; }
@@ -1561,7 +1618,7 @@ async function completeAfterPhoto(m: Incoming, draftId: number): Promise<boolean
   const c = await cfg(); const lang = c.intake_reply_lang === "en" ? "en" : (d.user_lang === "en" ? "en" : "ar"); const t = tx(lang);
   const tax = await rpc<any>("bk_intake_taxonomy", { p_country: d.country_code });
   const status = d.by_admin && !d.agency_id ? "review" : "ready";
-  const sum = summary(d.fields || {}, tax, d.photos.length, lang) + (status === "review" ? "" : t.confirmLine);
+  const sum = summary(d.fields || {}, tax, d.photos.filter((p: any) => p?.kind !== "video").length, lang, d.photos.filter((p: any) => p?.kind === "video").length) + (status === "review" ? "" : t.confirmLine);
   const saved = await rpc<any>("bk_intake_save_read", { p_draft: draftId, p_fields: d.fields || {}, p_missing: [], p_summary: sum, p_status: status, p_model: null, p_in: 0, p_out: 0, p_cost: 0, p_error: null });
   if (!saved || saved.skipped) return true;
   if (saved.status === "collecting") { scheduleTick(); return true; }
@@ -1586,7 +1643,7 @@ async function routeTelegram(req: Request): Promise<Response> {
   let kind = "text", media: any = null, size: number | undefined, fetchMedia: Incoming["fetchMedia"];
   if (Array.isArray(msg.photo) && msg.photo.length) { kind = "photo"; const ph = msg.photo[msg.photo.length - 1]; media = { file_id: ph.file_id, w: ph.width, h: ph.height, size: ph.file_size }; size = ph.file_size; fetchMedia = () => tgDownload(ph.file_id); }
   else if (msg.document && /^image\//.test(msg.document.mime_type || "")) { kind = "photo"; media = { file_id: msg.document.file_id, size: msg.document.file_size, mime: msg.document.mime_type }; size = msg.document.file_size; fetchMedia = () => tgDownload(msg.document.file_id); }
-  else if (msg.video || msg.video_note || msg.animation) kind = "video";
+  else if (msg.video || msg.video_note || msg.animation) { const v = msg.video || msg.video_note || msg.animation; kind = "video"; media = { file_id: v.file_id, size: v.file_size, mime: v.mime_type || "video/mp4", duration: v.duration }; size = v.file_size; fetchMedia = () => tgDownload(v.file_id, TG_FILE_LIMIT); }
   else if (msg.voice || msg.audio) kind = "audio";
   else if (msg.location) { kind = "location"; media = { lat: msg.location.latitude, lng: msg.location.longitude }; }
   const text = msg.text ?? msg.caption ?? null;
@@ -1616,7 +1673,7 @@ async function routeWhatsApp(req: Request): Promise<Response> {
       if (msg.type === "text") text = msg.text?.body ?? null;
       else if (msg.type === "image") { kind = "photo"; media = { id: msg.image?.id, mime: msg.image?.mime_type, sha256: msg.image?.sha256 }; text = msg.image?.caption ?? null; fetchMedia = () => waDownload(msg.image.id); }
       else if (msg.type === "document" && /^image\//.test(msg.document?.mime_type || "")) { kind = "photo"; media = { id: msg.document.id, mime: msg.document.mime_type }; text = msg.document?.caption ?? null; fetchMedia = () => waDownload(msg.document.id); }
-      else if (msg.type === "video") kind = "video";
+      else if (msg.type === "video") { kind = "video"; media = { id: msg.video?.id, mime: msg.video?.mime_type || "video/mp4" }; text = msg.video?.caption ?? null; if (msg.video?.id) fetchMedia = () => waDownload(msg.video.id, 100 * 1024 * 1024); }
       else if (msg.type === "audio") kind = "audio";
       else if (msg.type === "location") { kind = "location"; media = { lat: msg.location?.latitude, lng: msg.location?.longitude }; }
       else if (msg.type === "button" || msg.type === "interactive") text = msg.button?.text || msg.interactive?.button_reply?.title || msg.interactive?.list_reply?.title || null;
@@ -1666,7 +1723,8 @@ async function routeWahaIncoming(req: Request): Promise<Response> {
   let kind = "text", media: any = null, fetchMedia: Incoming["fetchMedia"];
   const mime = p.media?.mimetype || "";
   if (p.hasMedia && p.media?.url && /^image\//.test(mime)) { kind = "photo"; media = { url: p.media.url, mime }; fetchMedia = () => wahaDownloadMedia(p.media.url); }
-  else if (p.hasMedia) kind = "video";   // any other WAHA media (video/audio/document) — same bucket as Telegram's, not read
+  else if (p.hasMedia && p.media?.url && /^video\//.test(mime)) { kind = "video"; media = { url: p.media.url, mime }; fetchMedia = () => wahaDownloadMedia(p.media.url, 100 * 1024 * 1024); }
+  else if (p.hasMedia) kind = "video";   // any other WAHA media (audio/document) — not read; without fetchMedia it only gets the "not supported" note
   const text = p.body ?? null;
   if (kind === "text" && !text) return json({ ok: true });
   const work = handleIncoming({ source: "whatsapp", chat, externalId: String(p.id || (chat + ":" + p.timestamp)), kind, text, media, payload: { waha: true, timestamp: p.timestamp }, senderName: p.notifyName || p._data?.notifyName || "", lang: "ar", fetchMedia });
