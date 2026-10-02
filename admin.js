@@ -2803,7 +2803,7 @@ function geoSuggestCard(g,inline){
     (items.length ? '<div class="ikbulk'+(nSel?' on':'')+'" style="border-radius:10px;border:1px solid var(--line);margin-bottom:8px"><div class="ikb-row"><label class="xcheck"><input type="checkbox" id="sugSelAll"'+(nSel&&nSel===items.length?' checked':'')+'><span>'+GX("ik_selAll")+'</span></label><span><b class="ikb-n ltr">'+nSel+'</b> '+GX("ik_selected")+'</span>'+
         '<button type="button" class="ab ok" id="sugApprove"'+(nSel?'':' disabled')+'>'+GX("sugApprove")+'</button><button type="button" class="ab" id="sugApproveAll">'+GX("sugApproveAll")+'</button><button type="button" class="ab bad" id="sugReject"'+(nSel?'':' disabled')+'>'+GX("sugReject")+'</button><span class="xmsg" id="sugMsg"></span></div></div>'+
       '<div class="sugtable">'+items.map(function(x){
-        return '<label class="sugrow'+(sel[x.id]?' on':'')+'"><input type="checkbox" data-sug="'+x.id+'"'+(sel[x.id]?' checked':'')+'>'+
+        return '<label class="sugrow'+(sel[x.id]?' on':'')+(x.kind==="geo"?' geo':'')+'"><input type="checkbox" data-sug="'+x.id+'"'+(sel[x.id]?' checked':'')+'>'+
           '<b>'+esc(x.name_ar)+'</b><span class="ltr sugen">'+esc(x.name_en||"")+'</span>'+
           '<span class="sugk">'+(x.kind==="geo"?GX("sugGeo")+' '+esc(x.area_name||""):GX("sugNew"))+'</span>'+
           '<span class="sugs">'+src(x.source)+(x.place?' · '+esc(x.place):'')+(x.source==="bot"?' · '+GX("sugMentions")+' <b class="ltr">'+(x.mentions||1)+'</b>':'')+'</span>'+
