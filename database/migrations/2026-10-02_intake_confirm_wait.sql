@@ -1,0 +1,10 @@
+-- Balkoun · 2026-10-02 · «نعم» sent while the bot is still reading the sender's last message.
+-- Seen live: a sender got the summary, a second message (a video) arrived, the bot re-read the draft, the sender said
+-- «نعم» during that read and got "لا يوجد إعلان جاهز للنشر". Now:
+--   bk_intake_message(): confirm on a draft in 'reading' / 'collecting' sets fields.auto_confirm = '1' and returns
+--                        command 'confirm_wait' (bot: "لحظة ⏳ ما زلت أقرأ آخر رسالة. سأنشر فور اكتمال القراءة");
+--   bk_intake_save_read(): keeps fields.auto_confirm across the read (its `keep` set: lat, lng, auto_confirm);
+--   Edge Function readDraft(): a read that ends 'ready' with auto_confirm publishes right away (log 'auto_confirm').
+-- Also: a video / voice message whose caption carries the listing text is read as text (the media itself is skipped
+-- with the usual "video not supported yet" note).
+-- Applied live with regexp_replace()/replace() on the two function bodies.

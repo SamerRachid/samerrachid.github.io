@@ -308,6 +308,7 @@ const T = {
     empty: `لم يصلني شيء بعد. أرسل تفاصيل العقار والصور أولاً.`,
     reading: `جارٍ قراءة الإعلان… ⏳`,
     noReady: `لا يوجد إعلان جاهز للنشر الآن. أرسل التفاصيل والصور ثم اكتب «تم».`,
+    confirmWait: `لحظة ⏳ ما زلت أقرأ آخر رسالة. سأنشر الإعلان فور اكتمال القراءة.`,
     cancelled: `تم إلغاء الإعلان ✅\nأرسل تفاصيل إعلان جديد متى شئت، أو اكتب «رجّع» خلال 10 دقائق لاستعادته.`,
     newDraft: `تمام، ابدأ بإرسال تفاصيل الإعلان الجديد.`,
     help: GUIDE.ar(null),
@@ -377,6 +378,7 @@ const T = {
     empty: `Nothing received yet. Send the property details and photos first.`,
     reading: `Reading the listing… ⏳`,
     noReady: `No listing is ready to publish. Send the details and photos, then write "done".`,
+    confirmWait: `One moment ⏳ I am still reading your last message. The listing is published as soon as I finish.`,
     cancelled: `Listing cancelled ✅\nSend a new one whenever you like, or write "undo" within 10 minutes to bring it back.`,
     newDraft: `OK, start sending the new listing.`,
     help: GUIDE.en(null),
@@ -1035,6 +1037,14 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   const saved = await rpc<any>("bk_intake_save_read", { p_draft: draftId, p_fields: fields, p_missing: missing, p_summary: sum, p_status: status, p_model: c.intake_model || null, p_in: usage.in, p_out: usage.out, p_cost: cost, p_error: err });
   if (saved?.skipped) return saved;                                              // cancelled or changed while reading: say nothing
   if (saved?.status === "collecting") { scheduleTick(); return saved; }         // more arrived (or a retry is due) → read again later
+  // the sender said «نعم» while this read was running: publish now instead of asking again
+  if (saved?.status === "ready" && saved?.fields?.auto_confirm === "1" && !d.by_admin) {
+    const f2 = { ...(saved.fields || {}) }; delete f2.auto_confirm;
+    await rpc("bk_intake_set", { p_draft: draftId, p_patch: { fields: f2 } });
+    await log(draftId, d.chat_id, "info", "auto_confirm", {});
+    if (!opts.quiet && d.source !== "web") { await reply(d.source, d.chat_id, sum!); await publishDraft(draftId); }
+    return saved;
+  }
   if (!opts.quiet && d.source !== "web") {
     // two properties in one message: the first was read; the sender is told to send the rest one by one
     const multi = "";   // several units in one message are ONE listing now ("شقة عدد 2", owner's rule) — no "send them separately" notice
@@ -1401,7 +1411,12 @@ async function handleIncoming(m: Incoming) {
     return;
   }
   if (/^\/start\b/i.test(m.text || "")) { await sendGuide(m, c); return; }
-  if (m.kind === "video" || m.kind === "audio") { const s = await rpc<any>("bk_intake_sender", { p_source: m.source, p_chat_id: m.chat }); if (s?.enabled) await reply(m.source, m.chat, t.videoNo); return; }
+  if (m.kind === "video" || m.kind === "audio") {
+    const s = await rpc<any>("bk_intake_sender", { p_source: m.source, p_chat_id: m.chat }); if (s?.enabled) await reply(m.source, m.chat, t.videoNo);
+    // a video whose caption carries the listing text: the video is skipped, the text is read like any message
+    if ((m.text || "").trim().length >= 10) { m.kind = "text"; m.media = null; m.fetchMedia = undefined; m.size = undefined; }
+    else return;
+  }
   // small talk: greetings, "how do I reach you", thanks — answered like a person, nothing stored
   if (m.kind === "text" && m.text && m.text.trim().length <= 60) {
     const a = latinDigits(m.text).trim().replace(/[.!؟?،,]+$/, "").toLowerCase();
@@ -1438,6 +1453,7 @@ async function handleIncoming(m: Incoming) {
   if (r.reason === "limit") { await reply(m.source, m.chat, tt.limit); return; }
   if (r.command === "help") { await reply(m.source, m.chat, tt.guide(r.sender?.country_code || null)); if (!r.guided) await log(null, m.chat, "info", "guide_sent", { source: m.source }); return; }
   if (r.command === "nothing") { await reply(m.source, m.chat, tt.nothing); return; }
+  if (r.command === "confirm_wait") { await reply(m.source, m.chat, tt.confirmWait); return; }   // «نعم» mid-read: kept, publishes when the read ends
   if (r.command === "cancel") { await reply(m.source, m.chat, r.draft_id ? tt.cancelled : tt.nothing); return; }
   if (r.command === "new") { await reply(m.source, m.chat, tt.newDraft); return; }
   // «رجّع»: the listing cancelled a moment ago (or closed after a day) comes back; merged with anything sent since
