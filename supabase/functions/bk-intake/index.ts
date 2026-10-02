@@ -888,9 +888,13 @@ const SEARCH_TOOL = {
       condition: { type: "string", description: "a condition code from the taxonomy (conditions, or land_conditions for land) when the query names one, else omit" },
       by_owner: { type: "boolean", description: "true when the visitor wants listings from the owner directly (من المالك / بدون وسيط / بدون مكتب / owner only); omit otherwise" },
       keyword: { type: "string", description: "a short leftover term (a landmark, a feature) not covered by the fields above, or omit" },
+      intent: { type: "string", enum: ["listings", "agency", "page", "help"], description: "listings = looking for properties (default); agency = looking for a real-estate office / agent by name or place; page = wants to do something on the site (post a listing, post a wanted request, open the map, agencies directory, contact, guides, account, projects); help = a question about how Balkoun works" },
+      agency_name: { type: "string", description: "intent agency: the office / agent name as written (without the words مكتب/شركة), or omit" },
+      page: { type: "string", enum: ["post", "wanted", "agencies", "map", "contact", "about", "guides", "account", "projects"], description: "intent page: which page" },
+      answer: { type: "string", description: "intent help: a short friendly answer (max 2 sentences) in the visitor's language, from the SITE FACTS only" },
       confidence: { type: "number", description: "0–1 how confident this is a real-estate search rather than noise" },
     },
-    required: ["confidence"],
+    required: ["confidence", "intent"],
   },
 };
 const SEARCH_SYSTEM = `You read a short free-text search box entry (Arabic, sometimes English, often Syrian/Levantine dialect) on a real-estate site and turn it into search filters over Balkoun's own listings.
@@ -904,6 +908,8 @@ Rules:
 - "من المالك"/"بدون وسيط"/"بدون مكتب"/"owner only" = by_owner true.
 - Condition words map to the taxonomy's condition codes exactly like a listing: "سليم"/"جاهز"/"ديلوكس" = intact, "على العظم" = shell, "بحاجة ترميم" = repair, "معفش" = stripped (Syria only), "إكساء قديم"/"كسوة قديمة" = old, "متضرر" = damaged (only codes present in the taxonomy).
 - If the query names a real place that is not in the taxonomy (a street, a compound, a landmark), put it in "keyword", not governorate/area. Do not put words already captured by another field (a type, a place, "مفروشة", a deed) into keyword.
+- INTENT. Most queries look for properties → intent listings. "مكتب X", "مكاتب عقارية في حماة", "وكيل عقاري", "شركة X للعقارات", a proper name followed by عقارات → intent agency (agency_name = the name without مكتب/شركة; governorate if a place is named). "بدي انشر إعلان", "كيف أضيف عقاري", "أضف إعلان" → page post. "مطلوب شقة…"/"أبحث عن… بلغوني" → page wanted. "الخريطة" → page map. "المكاتب"/"دليل المكاتب" → page agencies. "تواصل"/"اتصل بكم"/"رقمكم" → page contact. "من أنتم" → page about. "دليل المشتري"/"نصائح" → page guides. "حسابي"/"إعلاناتي" → page account. "مشاريع جديدة"/"قيد الإنشاء" → page projects. A question about how the site works → intent help with a short answer from the SITE FACTS.
+- SITE FACTS (for help answers): Balkoun is a free real-estate marketplace for Syria and Arab countries. Posting is free: press «أضف إعلانك» on the site, or send the listing text and photos to Balkoun on WhatsApp or Telegram and the bot publishes it. Buyers can post a free «مطلوب» request and get matching offers. Offices register as مكتب عقاري and get a page with their listings and reviews. Listings can be edited or deleted from «حسابي». Search by governorate, area, type, price, deed, rooms; the map shows listings by location. The AI box understands plain-language searches. Contact and support are on the «تواصل» page.
 - Answer only by calling the tool.`;
 function settleSearch(f: Record<string, any>, tax: any) {
   const out: Record<string, any> = {};
@@ -922,6 +928,11 @@ function settleSearch(f: Record<string, any>, tax: any) {
   if (f.by_owner === true) out.by_owner = true;
   if (!out.deal && (out.furnished !== undefined || out.rental_period)) out.deal = "rent";   // a furnished / period word is a rent word (the price-only guess stays forbidden)
   if (f.keyword) out.keyword = String(f.keyword).trim().slice(0, 80);
+  // beyond listings: an office by name, a page to open, or a short help answer
+  out.intent = ["listings", "agency", "page", "help"].includes(f.intent) ? f.intent : "listings";
+  if (out.intent === "agency" && f.agency_name) out.agency_name = String(f.agency_name).replace(/^(مكتب|شركة|وكالة|مؤسسة)\s+/, "").trim().slice(0, 60);
+  if (out.intent === "page" && ["post", "wanted", "agencies", "map", "contact", "about", "guides", "account", "projects"].includes(f.page)) out.page = f.page; else if (out.intent === "page") out.intent = "listings";
+  if (out.intent === "help" && f.answer) out.answer = String(f.answer).trim().slice(0, 400); else if (out.intent === "help") out.intent = "listings";
   return out;
 }
 function searchSummary(f: Record<string, any>, tax: any, lang: string): string {
