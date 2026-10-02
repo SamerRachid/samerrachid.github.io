@@ -547,7 +547,7 @@ const TOOL = {
       confidence: { type: "number", description: "0–1 how sure you are the message is one real listing" },
       notes: { type: "string", description: "anything odd: two listings in one message, contradictory numbers, not a listing at all" },
       intent: { type: "string", enum: ["listing", "wanted", "other"], description: "listing = the sender OFFERS a property for sale or rent; wanted = the sender is LOOKING for a property to buy or rent (أبحث عن، أريد، بدي، مطلوب، أدور على); other = a question or anything else" },
-      listings_count: { type: "integer", description: "how many DIFFERENT properties the message offers; 1 normally. When more than 1, all other fields describe the FIRST property only" },
+      listings_count: { type: "integer", description: "how many units the message offers together (2 apartments = 2); 1 normally. The other fields describe the first unit; the price is the total when one total is written" },
     },
     required: ["description", "missing", "confidence"],   // deal / property_type are left out when the message does not say them, so they can be asked for
   },
@@ -562,7 +562,7 @@ Rules:
 - Land ("أرض") uses the land types (plot = "أرض" with no kind stated; resid/agri/comm/indust/tourist: "أرض سياحية" = tourist, "أرض صناعية" = indust) and land conditions; shops/offices/clinics use commercial types. "فندق", "منشأة سياحية", "خان" = hotel. "عيادة" = clinic. "صالة أفراح", "صالة مناسبات", "قاعة احتفالات" = hall. "صالة عرض", "معرض سيارات" = showroom. "كازية", "محطة وقود", "بنزينة" = station. "ورشة", "معمل صغير" = workshop (a real factory stays factory).
 - "شقة فندقية", "شقة مفروشة فندقية", "للإيجار اليومي" / daily or weekly furnished rentals = hotelapt, which is always deal = rent (rental_period daily/weekly/monthly as written).
 - Rooms: "غرفتين" = 2, "3 غرف وصالون" = rooms 3, living_rooms 1. Floor: "أرضي" = 0, "أول" = 1, "تسوية" = -1.
-- Deed words: "طابو أخضر" = green — and "طابو أخضر 2400 سهم" is STILL green (2400 shares = the whole property, the standard way to say a full green deed); only "أسهم من طابو أخضر" or fewer than 2400 shares = shares. "حصص سهمية"/"أسهم" = shares, "حكم محكمة" = court, "حكم محكمة موصوف" = court_desc, "وكالة" = poa, "طابو زراعي"/"سند 25"/"مشاع زراعي" = agri, "تنازل جمعية"/"جمعية سكنية"/"سجل مؤقت" = coop, "طابو إسكان"/"مؤسسة الإسكان" = housing, "بدون طابو"/"عقد عرفي"/"مخالفات" = none (only codes present in the taxonomy). For a sale with no deed word, add "tabu" to missing.
+- Deed words: "طابو أخضر" = green — and "طابو أخضر 2400 سهم" is STILL green (2400 shares = the whole property, the standard way to say a full green deed); only "أسهم من طابو أخضر" or fewer than 2400 shares = shares. "حصص سهمية"/"أسهم" = shares, "حكم محكمة" = court, "حكم محكمة موصوف" = court_desc, "وكالة" = poa, "وضع يد" / "واضع يد" = possession, "طابو زراعي"/"سند 25"/"مشاع زراعي" = agri, "تنازل جمعية"/"جمعية سكنية"/"سجل مؤقت" = coop, "طابو إسكان"/"مؤسسة الإسكان" = housing, "بدون طابو"/"عقد عرفي"/"مخالفات" = none (only codes present in the taxonomy). For a sale with no deed word, add "tabu" to missing.
 - Condition: "سليم"/"جاهز"/"ديلوكس" = intact, "على العظم" = shell, "بحاجة ترميم" = repair, "معفش" = stripped (Syria only), "متضرر" = damaged. "إكساء قديم"/"كسوة قديمة"/"اكساء قديم"/"اكساء عادي" = old (an old but usable finishing); old finishing alone is NOT repair. But if the sender also says it needs repair ("بحاجة ترميم", "يحتاج ترميم", "بدها ترميم", "بدو ترميم"), repair wins over old. Set repair only when the sender says the property needs repair ("بحاجة ترميم", "يحتاج ترميم", "بدو ترميم").
 - Floor: "ط" is the abbreviation of "طابق" ("ط 3" / "ط3" = floor 3, "ط أرضي" = ground, "ط أخير" = top floor); it is not a typo and not part of an area name.
 - The description must be a clean Arabic paragraph written for the website: no phone numbers, no prices, no emojis, no hashtags, no "للتواصل". Keep facts only; do not invent.
@@ -570,7 +570,7 @@ Rules:
 - Intent: if the sender is LOOKING for a property ("أبحث عن", "أريد", "بدي", "مطلوب", "أدور على", "looking for", "I want to buy/rent"), set intent = "wanted" and still fill the fields they ask for (type, place, deal, budget as price). A property being offered is intent = "listing". A question or chat is "other".
 - Property type: keep the word the sender used ("فيلا" = villa, "شقة" = apartment, "بيت عربي" = arab, "منزل" or "بيت" = house). A "منزل" that clearly describes a flat (a floor number with an elevator, "شقة" written too) is apartment; "حوش", "أرض ديار", "ساحة سماوية" = arab; otherwise "منزل"/"بيت" stays house.
 - Transport lines are NOT the neighbourhood: a name after "مكرو", "ميكرو", "خط", "سرفيس", "باص", "كراج" ("مكرو خط المهاجرين عباب الشقة" = the Muhajireen microbus line passes by) tells how to reach the place; never take that name as the area. Same for "قريب من", "بعد", "مقابل", "جانب" + a place: that is a landmark, not the area, unless the message clearly says the property is IN it. If the true neighbourhood is not stated, leave area empty and put the way-finding text in landmark.
-- More than one property in one message (two apartments, a flat and a shop…): set listings_count to how many, and fill every field for the FIRST property only. Do not mix facts of different properties. One property = listings_count 1. A main property offered TOGETHER with an attached unit at ONE price (a wedding hall + its booking office, a shop + its depot, a house + its garden or roof) is ONE listing: listings_count 1, area_m2 = the main unit, the attached unit goes into the description.
+- Several units offered together in one message (two apartments in the same building, three shops…): ONE listing. Set listings_count to the number of units, property_type = their type, area_m2 / rooms / floor of the first unit, price = the total if one total is written (else the first unit's price), and mention every unit in the description. Never split them. One property = listings_count 1. A main property offered TOGETHER with an attached unit at ONE price (a wedding hall + its booking office, a shop + its depot, a house + its garden or roof) is ONE listing: listings_count 1, area_m2 = the main unit, the attached unit goes into the description.
 - Answer only by calling the tool.`;
 
 function taxonomyText(tax: any): string {
@@ -715,12 +715,10 @@ function areaGuards(fields: Record<string, any>, missing: string[], raw: Record<
   }
   return out;
 }
-// the sender's text as the listing description: phone numbers, links, "#" marks and bot commands removed, lines kept
+// the sender's text as the listing description, verbatim (owner's rule: phone numbers stay) — only bot command words
+// on their own line and the membership number are dropped, and whitespace is tidied
 function keepSenderText(s: string): string {
   return String(s || "")
-    .replace(/https?:\/\/\S+/g, " ")
-    .replace(/\+?\d[\d\s\-()]{7,}\d/g, " ")                 // phone numbers (the contact field carries the number)
-    .replace(/#(\S)/g, "$1")                                  // #مساحة70متر → مساحة70متر
     .replace(/^\s*(تم|تمام|نعم|لا|جديد|done|yes|no|new)\s*$/gim, "")
     .replace(/[ \t]+/g, " ").replace(/\s*\n\s*/g, "\n").replace(/\n{3,}/g, "\n\n").trim().slice(0, 1200);
 }
@@ -774,7 +772,7 @@ function summary(f: Record<string, any>, tax: any, photos: number, lang: string)
   const cond = t(f.condition, [...(tax.conditions || []), ...(tax.land_conditions || [])]);
   const ar = lang !== "en"; const tt = tx(lang);
   const L: string[] = [ar ? "📋 خلاصة الإعلان" : "📋 Listing summary"];
-  L.push("• " + (ty ? (ar ? ty.ar : ty.en) : (ar ? "عقار" : "Property")) + (f.deal ? " " + (f.deal === "rent" ? (ar ? "للإيجار" : "for rent") : (ar ? "للبيع" : "for sale")) : ""));
+  L.push("• " + (ty ? (ar ? ty.ar : ty.en) : (ar ? "عقار" : "Property")) + (Number(f.units) > 1 ? (ar ? ` عدد ${f.units}` : ` × ${f.units}`) : "") + (f.deal ? " " + (f.deal === "rent" ? (ar ? "للإيجار" : "for rent") : (ar ? "للبيع" : "for sale")) : ""));
   const areaShown = f.area || (f.area_text ? f.area_text + (ar ? " (غير موجودة في القائمة بعد)" : " (not in our list yet)") : "");
   const lm = f.landmark && norm(f.landmark) !== norm(f.area_text || "") ? f.landmark : "";
   const place = [f.governorate, areaShown, lm].filter(Boolean).join(" – "); if (place) L.push("• " + place);
@@ -945,6 +943,9 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
       const kept = keepSenderText(memberNo ? rawText.replace(MEMBER_NO, " ") : rawText);
       if (kept.length >= 20) fields.description = kept;
     }
+    // two apartments in one message = one listing titled "شقة عدد 2" (owner's rule); the full text already lists them
+    { const n = Number(raw.listings_count) || 1;
+      if (n > 1 && fields.property_type) { fields.units = n; const ty = (tax.types || []).find((x: any) => x.code === fields.property_type); if (ty) fields.title = `${ty.ar} عدد ${n}` + (fields.area ? ` في ${fields.area}` : ""); await log(draftId, d.chat_id, "info", "multi_units", { n }); } }
     // a place the taxonomy lacks (the model put it in landmark or named an unknown area): queue it for the admin's
     // "مناطق مقترحة" list, counted per mention — the list grows from real messages, nothing is published by itself
     if (fields.governorate_id && !fields.area_id) {
@@ -1026,8 +1027,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   if (saved?.status === "collecting") { scheduleTick(); return saved; }         // more arrived (or a retry is due) → read again later
   if (!opts.quiet && d.source !== "web") {
     // two properties in one message: the first was read; the sender is told to send the rest one by one
-    const multi = !err && !d.by_admin && Number(raw.listings_count) > 1 ? t.multi(Number(raw.listings_count)) : "";
-    if (multi) await log(draftId, d.chat_id, "info", "multi_listing", { n: Number(raw.listings_count) });
+    const multi = "";   // several units in one message are ONE listing now ("شقة عدد 2", owner's rule) — no "send them separately" notice
     if (err) await reply(d.source, d.chat_id, t.readFailed);
     else if (saved?.status === "review") await reply(d.source, d.chat_id, sum + "\n\n" + (d.by_admin ? t.reviewAdmin : t.reviewNote));
     // still missing something: ask for it in a short message (no full list every time); the full summary comes when complete
