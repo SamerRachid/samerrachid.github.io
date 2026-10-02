@@ -298,7 +298,7 @@ html.js .rv.in{opacity:1;transform:none}
 .aisearch-go:disabled{opacity:.6;cursor:default}
 @media(max-width:640px){.aisearch-pill{height:var(--sbar-h-m,var(--sbar-h,48px));max-width:var(--sbar-w-m,var(--sbar-w,100%))}.aisearch-badge{padding:0 10px;font-size:11.5px}.aisearch-pill input{padding-inline-start:90px;font-size:13px}}
 .aisearch-result{margin-top:9px;text-align:center;font-size:13px;line-height:1.5;color:var(--grey)}
-.aisearch-result.warn{color:var(--warn)}
+.aisearch-result.warn{color:var(--warn)}.aisearch-result.ok{color:var(--ink);font-size:14px;background:var(--gold-w);border:1px solid var(--gold);border-radius:10px;padding:8px 12px;text-shadow:none}
 .aisearch-result.danger{color:var(--danger)}
 .ai-understood{display:flex;align-items:center;gap:10px;background:var(--gold-w);border:1px solid var(--gold);border-radius:12px;padding:10px 14px;margin-top:18px;color:var(--navy);font-size:13.5px}
 .ai-understood svg{flex:none;width:18px;height:18px;color:var(--gold)}
@@ -2550,6 +2550,7 @@ body.rs-lock{overflow:hidden}
 .maint-card button{background:var(--gold,#D9A441);color:#0B1630;border:0;border-radius:12px;padding:12px 26px;font:700 15px/1 inherit;cursor:pointer}.maint-card button:hover{filter:brightness(1.08)}
 .maint-card small{display:block;margin-top:18px;color:rgba(255,255,255,.45);letter-spacing:.5px}
 html.maint-on{overflow:hidden}
+.areaq{display:block;width:100%;margin-bottom:6px;padding:8px 10px;border:1px dashed var(--line-2);border-radius:8px;font:inherit;font-size:13.5px;background:#fffdf7}.areaq:focus{border-style:solid;border-color:var(--gold);outline:none}
 .sugbox{border:1px solid var(--gold);border-radius:12px;padding:12px 14px;margin:4px 0 16px;background:#fffdf7}.sughd{display:flex;align-items:center;gap:8px;font-size:15px;margin-bottom:6px}.sughd .n{background:var(--gold);color:#fff;border-radius:999px;padding:1px 9px;font-size:12.5px;font-weight:700}
 .sugtable{display:flex;flex-direction:column;max-height:520px;overflow:auto}.sugrow{display:grid;grid-template-columns:22px minmax(120px,1.2fr) minmax(90px,1fr) minmax(110px,1fr) minmax(140px,1.4fr) 28px;gap:6px 10px;align-items:center;padding:8px 6px;border-bottom:1px solid var(--line);font-size:13px;cursor:pointer}.sugrow.on{background:#fffaf0}.sugrow.geo b{color:var(--grey);font-weight:600}.sugrow.geo .sugk{color:var(--grey)}.sugrow input{width:16px;height:16px;margin:0}.sugrow .sugen,.sugrow .sugs{color:var(--grey);font-size:12px}.sugrow .sugk{font-size:12px;color:var(--navy)}.sugrow .sugsmp{grid-column:2/-1;color:var(--light);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:900px){.sugrow{grid-template-columns:22px 1fr 28px}.sugrow .sugen,.sugrow .sugk,.sugrow .sugs{grid-column:2}}
@@ -3095,7 +3096,7 @@ body.mdw-open .mobfab{display:none}
 .home-hero .aisearch.thinking .aisearch-star svg{animation:aiStar 1.6s ease-in-out infinite}
 @keyframes aiStar{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.22)}100%{transform:rotate(360deg) scale(1)}}
 .home-hero .aisearch-result{margin-top:9px;text-align:center;font-size:13px;line-height:1.5;color:rgba(255,255,255,.88);text-shadow:0 1px 8px rgba(9,14,26,.5)}
-.home-hero .aisearch-result.warn{color:#FFD98A}
+.home-hero .aisearch-result.warn{color:#FFD98A}.home-hero .aisearch-result.ok{color:var(--ink);text-shadow:none}
 .home-hero .aisearch-result.danger{color:#FFB4B4}
 .home-hero .aisearch-result.busy{color:rgba(255,255,255,.8)}
 .home-hero .aisearch.glass .aisearch-pill{background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(16px) saturate(1.25);backdrop-filter:blur(16px) saturate(1.25);box-shadow:0 24px 56px -26px rgba(9,14,26,.7),inset 0 0 0 1px rgba(255,255,255,.42)}
@@ -5946,8 +5947,24 @@ function fillGeo(gs,as,withAll,multi){
    as.innerHTML=(multi?'<option value="">'+t("addArea")+'</option>':(withAll?'<option value="">'+t("allareas")+'</option>':'<option value="">'+GX("pickArea")+'</option>'))+
      opts.map(function(a){return '<option value="'+a+'"'+(!multi&&F.a===a?" selected":"")+'>'+aN(a)+'</option>'}).join("")+
      (postForm?'<option value="__other__">'+GX("areaOther")+'</option>':'');
-   if(postForm&&!as._otherWired){ as._otherWired=true; as.addEventListener("change",function(){ var o=document.getElementById("paOther"), h=document.getElementById("paOtherHint"), on=as.value==="__other__"; if(o){ o.style.display=on?"":"none"; if(on) o.focus() } if(h) h.style.display=on?"":"none"; if(typeof checkPost==="function") checkPost() }) }};
+   if(postForm&&!as._otherWired){ as._otherWired=true; as.addEventListener("change",function(){ var o=document.getElementById("paOther"), h=document.getElementById("paOtherHint"), on=as.value==="__other__"; if(o){ o.style.display=on?"":"none"; if(on) o.focus() } if(h) h.style.display=on?"":"none"; if(typeof checkPost==="function") checkPost() }) }
+   if(!multi && !withAll) areaTypeAhead(as)};
  gs.addEventListener("change",fill); fill()}
+// a search box glued above a (long) area <select>: typing filters the options, one match selects itself (owner's rule:
+// no scrolling through 1,400 villages). The full option list is remembered per fill, so clearing the box restores it.
+function areaTypeAhead(as){
+  if(!as) return;
+  as._opts=[].slice.call(as.options).map(function(o){ return {v:o.value,t:o.textContent} });
+  var q=as._q;
+  if(!q){ q=document.createElement("input"); q.type="search"; q.className="areaq"; q.setAttribute("data-allow-autofill",""); q.autocomplete="off"; q.placeholder=GX("areaSearchPH"); as.parentNode.insertBefore(q,as); as._q=q;
+    q.addEventListener("input",function(){ var n=kwNorm(q.value), cur=as.value;
+      var keep=as._opts.filter(function(o){ return !o.v || o.v==="__other__" || !n || kwNorm(o.t).indexOf(n)>-1 || kwNorm(o.v).indexOf(n)>-1 });
+      as.innerHTML=keep.map(function(o){ return '<option value="'+esc(o.v)+'">'+esc(o.t)+'</option>' }).join("");
+      var real=keep.filter(function(o){ return o.v && o.v!=="__other__" });
+      if(n && real.length===1){ as.value=real[0].v; as.dispatchEvent(new Event("change",{bubbles:true})) }
+      else if(keep.some(function(o){ return o.v===cur })) as.value=cur; }) }
+  else q.value="";
+}
 
 function checkPost(){
  var need=[],v=function(id){return ($("#"+id)||{}).value||""};
@@ -7596,9 +7613,19 @@ async function aiSearchRun(){
     var r=await fetch(intakeUrl("search"),{method:"POST",headers:{"Content-Type":"application/json","apikey":CONFIG.supabaseKey,"Authorization":"Bearer "+CONFIG.supabaseKey},body:JSON.stringify({vid:VID,text:text,country:COUNTRY,lang:L==="en"?"en":"ar"})});
     var j=null; try{ j=await r.json() }catch(e){ j={} }
     if(!r.ok||!j||j.error) throw new Error(j&&j.error==="no_key"?GX("qfNoKey"):j&&j.error==="limit"?GX("aiSearchLimit"):GX("aiSearchFail"));
+    var f=j.fields||{};
+    // beyond listings: a short help answer, an office by name, or the page the visitor is asking for
+    if(f.intent==="help" && f.answer){ aiSearchMsg(f.answer,"ok"); btn.disabled=false; if(box) box.classList.remove("thinking"); return }
+    if(f.intent==="agency"){ AGF={g:f.governorate||"",spec:"",q:f.agency_name||text}; VIEW="agencies"; scrollTo(0,0); render(); return }
+    if(f.intent==="page" && f.page){
+      var goMap={post:"post",wanted:"wanted",agencies:"agencies",map:"mapsearch",contact:"contact",about:"about",account:"account",projects:"projects"};
+      if(f.page==="guides"){ location.href=cPre()+(L==="ar"?"":"/"+L)+"/guides/"; return }
+      var el=document.querySelector('[data-go="'+goMap[f.page]+'"]'); if(el){ el.click(); return }
+      VIEW=goMap[f.page]; scrollTo(0,0); render(); return }
     // nothing recognisable (a greeting, a random sentence): say so instead of dumping every listing
-    if(!j.fields || !Object.keys(j.fields).length || (typeof j.confidence==="number" && j.confidence<0.35)) throw new Error(GX("aiSearchNoMatch"));
-    aiApplyFilters(j.fields||{});
+    var hasFilter=["deal","property_types","governorate","area","price_min","price_max","rooms_min","tabu","furnished","rental_period","condition","by_owner","keyword"].some(function(k){ return f[k]!==undefined && f[k]!=="" && !(Array.isArray(f[k])&&!f[k].length) });
+    if(!hasFilter || (typeof j.confidence==="number" && j.confidence<0.35)) throw new Error(GX("aiSearchNoMatch"));
+    aiApplyFilters(f);
     AI_UNDERSTOOD=j.summary||null;
     VIEW="search"; scrollTo(0,0); render();
     return;   // the bar is gone with the home page; nothing to restore
@@ -10754,6 +10781,7 @@ var GX_T={
   bellIntake:{ar:"مسوّدات رسائل بانتظارك",en:"Message drafts waiting for you",de:"Nachrichten-Entwürfe warten"},
   deedShort:{ar:"الملكية",en:"Deed",de:"Grundbuch",fr:"Titre"},
   priceOnRequest:{ar:"السعر عند التواصل",en:"Price on request",de:"Preis auf Anfrage",fr:"Prix sur demande"},
+  areaSearchPH:{ar:"🔍 اكتب أول حروف الحي أو القرية…",en:"🔍 Type the first letters of the area…",de:"🔍 Anfangsbuchstaben des Gebiets…",fr:"🔍 Premières lettres du quartier…"},
   pickArea:{ar:"اختر الحي أو البلدة",en:"Choose the area",de:"Gebiet wählen",fr:"Choisir le quartier"}, areaOther:{ar:"أخرى… غير موجودة في القائمة",en:"Other… not in the list",de:"Andere… nicht in der Liste",fr:"Autre… pas dans la liste"},
   areaOtherPH:{ar:"اكتب اسم الحي أو القرية",en:"Type the neighbourhood or village",de:"Stadtteil oder Dorf eingeben",fr:"Quartier ou village"}, areaOtherHint:{ar:"يُنشر إعلانك بهذا الاسم كمَعلم، وتضيفه الإدارة إلى القائمة قريباً.",en:"Your listing is published with this name as its landmark; the team adds it to the list soon.",de:"Ihre Anzeige erscheint mit diesem Namen als Orientierungspunkt; das Team ergänzt die Liste bald.",fr:"Votre annonce paraît avec ce nom comme repère ; l'équipe l'ajoutera bientôt à la liste."},
   maintH:{ar:"وضع الصيانة",en:"Maintenance mode",de:"Wartungsmodus"}, maintOn:{ar:"إظهار صفحة «الموقع في صيانة» للزوار",en:"Show the “under maintenance” page to visitors",de:"Wartungsseite für Besucher anzeigen"},
@@ -10987,12 +11015,12 @@ var GX_T={
   qfMenuP:{ar:"الصق الوصف وبلكون يعبّي الاستمارة",en:"Paste the description, we fill the form",de:"Text einfügen — wir füllen das Formular"},
   aiSearchBadge:{ar:"اسأل AI",en:"Ask AI",de:"KI fragen"},
   aiSearchThinking:{ar:"نفهم طلبك…",en:"Understanding your search…",de:"Ihre Suche wird verstanden…"},
-  aiSearchNoMatch:{ar:"لم نفهم طلباً عقارياً من هذا النص. جرّب مثلاً: شقة 3 غرف بالمزة تحت 80 ألف دولار",en:"That didn't read as a property search. Try something like: 3-bedroom apartment in Mazzeh under $80,000",de:"Das war keine erkennbare Immobiliensuche. Versuchen Sie z. B.: 3-Zimmer-Wohnung in Mazzeh unter 80.000 $"},
-  aiSearchPH:{ar:"ابحث عن منزل أحلامك باستخدام الذكاء الاصطناعي",en:"Search for your dream home using AI",de:"Suchen Sie Ihr Traumhaus mit KI"},
+  aiSearchNoMatch:{ar:"لم أفهم الطلب. اكتب ما تبحث عنه (شقة 3 غرف بالمزة تحت 80 ألف)، أو اسم مكتب، أو سؤالاً عن الموقع",en:"That didn't read as a property search. Try something like: 3-bedroom apartment in Mazzeh under $80,000",de:"Das war keine erkennbare Immobiliensuche. Versuchen Sie z. B.: 3-Zimmer-Wohnung in Mazzeh unter 80.000 $"},
+  aiSearchPH:{ar:"اسأل عن عقار، أو مكتب، أو كيف تنشر إعلانك…",en:"Search for your dream home using AI",de:"Suchen Sie Ihr Traumhaus mit KI"},
   aiSearchPHm:{ar:"ابحث بكلماتك عن منزل أحلامك",en:"Describe your dream home",de:"Beschreiben Sie Ihr Traumhaus"},
   aiSearchEx1:{ar:"مثال: شقة 3 غرف بالمزة تحت 80 ألف دولار",en:"e.g. 3-bedroom apartment in Mazzeh under $80,000",de:"z. B. 3-Zimmer-Wohnung in Mazzeh unter 80.000 $"},
   aiSearchEx2:{ar:"مثال: فيلا للبيع في اللاذقية على البحر",en:"e.g. villa for sale in Latakia by the sea",de:"z. B. Villa zum Verkauf in Latakia am Meer"},
-  aiSearchEx3:{ar:"مثال: محل تجاري للإيجار في حلب",en:"e.g. shop for rent in Aleppo",de:"z. B. Laden zur Miete in Aleppo"},
+  aiSearchEx3:{ar:"مثال: مكتب الأيهم العقاري · أو: كيف أنشر إعلاني؟",en:"e.g. shop for rent in Aleppo",de:"z. B. Laden zur Miete in Aleppo"},
   aiSearchGo:{ar:"بحث",en:"Search",de:"Suchen"},
   aiSearchBusy:{ar:"لحظة…",en:"One moment…",de:"Einen Moment…"},
   aiSearchShort:{ar:"اكتب وصف البحث أولاً",en:"Type what you're looking for first",de:"Bitte zuerst eingeben, wonach Sie suchen"},
