@@ -693,7 +693,7 @@ function areaGuards(fields: Record<string, any>, missing: string[], raw: Record<
   const g = (tax.governorates || []).find((x: any) => x.id === fields.governorate_id);
   const a = g ? (g.areas || []).find((x: any) => x[0] === fields.area_id) : null;
   const said = norm(rawText), names = [fields.area, a ? a[2] : ""].filter(Boolean).map(norm);
-  const drop = () => { delete fields.area; delete fields.area_id; if (g && (g.areas || []).length && !missing.includes("area")) missing.push("area"); };
+  const drop = () => { delete fields.area; delete fields.area_id; if (g && (g.areas || []).length && !fields.landmark && !missing.includes("area")) missing.push("area"); };
   if (areaIsNoun(fields.area, rawText)) { out.push({ event: "area_is_noun", detail: { picked: fields.area } }); drop(); return out; }
   if (!names.some((n) => n && said.includes(n))) {
     out.push({ event: "area_not_in_text", detail: { picked: fields.area, landmark: raw.area || raw.landmark || null } });
@@ -708,6 +708,15 @@ function areaGuards(fields: Record<string, any>, missing: string[], raw: Record<
     drop();
   }
   return out;
+}
+// the sender's text as the listing description: phone numbers, links, "#" marks and bot commands removed, lines kept
+function keepSenderText(s: string): string {
+  return String(s || "")
+    .replace(/https?:\/\/\S+/g, " ")
+    .replace(/\+?\d[\d\s\-()]{7,}\d/g, " ")                 // phone numbers (the contact field carries the number)
+    .replace(/#(\S)/g, "$1")                                  // #مساحة70متر → مساحة70متر
+    .replace(/^\s*(تم|تمام|نعم|لا|جديد|done|yes|no|new)\s*$/gim, "")
+    .replace(/[ \t]+/g, " ").replace(/\s*\n\s*/g, "\n").replace(/\n{3,}/g, "\n\n").trim().slice(0, 1200);
 }
 // tidy what the model returned against the taxonomy; compute what is still missing
 function settle(f: Record<string, any>, tax: any, rawText?: string) {
@@ -742,7 +751,9 @@ function settle(f: Record<string, any>, tax: any, rawText?: string) {
   if (!["sale", "rent"].includes(out.deal)) missing.push("deal");
   if (!out.property_type) missing.push("property_type");
   if (!out.governorate_id) missing.push("governorate");
-  else if (!out.area_id && (g.areas || []).length) missing.push("area");   // the neighbourhood, when the governorate has a list of them
+  // the neighbourhood: asked for only when the message names no place at all; an unknown place rides along as the
+  // landmark (owner's rule: a missing area must never block the sender — the admin adds it from the suggestions list)
+  else if (!out.area_id && (g.areas || []).length && !out.landmark) missing.push("area");
   if (!out.price) missing.push("price");
   // a farm or chalet let by the day/season is advertised by its features, not its m² (owner's rule): size optional there
   if (!out.area_m2 && !(out.deal === "rent" && ["farm", "chalet"].includes(out.property_type))) missing.push("area_m2");
@@ -920,6 +931,12 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
     // the model must not swap an unknown neighbourhood for a look-alike from the list (العدوي → العسالي): the chosen
     // area has to actually be written in the message; otherwise it becomes a landmark and the area is asked for
     for (const w of areaGuards(fields, missing, raw, rawText, tax)) await log(draftId, d.chat_id, "warn", w.event, w.detail);
+    // the description is the sender's own words (owner's rule): only phone numbers, links, "#" marks and the membership
+    // number are taken out; the model's rewrite is used only when the panel switches this off
+    if (c.intake_keep_text !== false && c.intake_keep_text !== "false") {
+      const kept = keepSenderText(memberNo ? rawText.replace(MEMBER_NO, " ") : rawText);
+      if (kept.length >= 20) fields.description = kept;
+    }
     // a place the taxonomy lacks (the model put it in landmark or named an unknown area): queue it for the admin's
     // "مناطق مقترحة" list, counted per mention — the list grows from real messages, nothing is published by itself
     if (fields.governorate_id && !fields.area_id) {
@@ -944,7 +961,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
         fields.governorate = g.ar; fields.governorate_id = g.id; missing = missing.filter((m) => m !== "governorate");
         const want = raw.area || fields.landmark || ""; const a = want ? findArea(g, want) : null;
         if (a) { fields.area = a[1]; fields.area_id = a[0]; if (fields.landmark && norm(fields.landmark) === norm(a[1])) delete fields.landmark; missing = missing.filter((m) => m !== "area"); }
-        else if ((g.areas || []).length && !missing.includes("area")) missing.push("area");
+        else { if (!fields.landmark && want) fields.landmark = want; if ((g.areas || []).length && !fields.landmark && !missing.includes("area")) missing.push("area"); }
         await log(draftId, d.chat_id, "info", "gov_defaulted", { governorate: g.ar, from: govs.length === 1 ? "agency_single_gov" : "area_match", area: fields.area || null });
       }
     }
