@@ -11391,8 +11391,12 @@ function applyGeo(geo){
   geo.a.forEach(function(a){ var gname=byId[a[1]]; if(!gname) return; GEO[gname].push(a[2]); meta.areaId[gname+"/"+a[2]]=a[0]; meta.areaSlug[gname+"/"+a[2]]=a[4]; meta.kind[gname][a[2]]=a[5]||"area"; if(a[3]) meta.areaEn[a[2]]=a[3]; if(a[6]!=null&&a[7]!=null) meta.areaLL[gname+"/"+a[2]]=[+a[6],+a[7]] });
   // keep the old English/German names where the database has none
   Object.keys(GOVN).forEach(function(k){ if(D.GOVN&&D.GOVN[k]&&!(geo.g.find(function(g){return g[1]===k})||[])[2]) GOVN[k]=D.GOVN[k] });
+  // governorates merged into another (ريف حماة → حماة): old links, saved filters and agency profiles still name them
+  meta.merged={}; Object.keys(geo.m||{}).forEach(function(s){ var v=geo.m[s]; if(v&&v[1]&&v[2]) meta.merged[v[1]]=v[2] });
   D.GEO=GEO; D.GOVN=GOVN; GEO_META=meta;
+  try{ if(typeof F==="object"&&F){ if(Array.isArray(F.govs)) F.govs=F.govs.map(govAlias).filter(function(x,i,a){ return a.indexOf(x)===i }); if(F.g) F.g=govAlias(F.g) } }catch(e){}
 }
+function govAlias(name){ var m=GEO_META&&GEO_META.merged; return (m&&m[name])||name }
 function applyGeoCache(){ try{ var c=localStorage.getItem(geoCacheKey()); if(c) applyGeo(JSON.parse(c)) }catch(e){} }
 async function loadGeo(){
   if(!DB) return;
