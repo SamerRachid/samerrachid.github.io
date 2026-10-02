@@ -481,6 +481,9 @@ ${g.sections.map((s) => `<section><h2>${esc(s.h[lang])}</h2>${s.p.map((p) => `<p
   return { url, html: shell({ lang, title: g.title[lang] + " | Balkoun", desc: g.lede[lang].slice(0, 158), canonical: url, alts: altsFor(rel), jsonld: ld, body, footLinks }) };
 }
 
+function redirectHtml(to, lang) {
+  return `<!DOCTYPE html><html lang="${lang}"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="0;url=${to}"><link rel="canonical" href="${to}"><meta name="robots" content="noindex, follow"><title>Balkoun</title></head><body><a href="${to}">${to}</a><script>location.replace(${JSON.stringify(to)})</script></body></html>`;
+}
 function write(url, html) {
   const rel = url.replace(SITE, "").replace(/^\//, "");
   const dir = path.join(ROOT, rel);
@@ -499,8 +502,8 @@ async function main() {
   for (const c of allCountries.filter((c) => !c.enabled && !c.is_default)) fs.rmSync(path.join(ROOT, c.code.toLowerCase()), { recursive: true, force: true });
 
   const [govsAll, areasAll, listingsAll, prices] = await Promise.all([
-    all("governorates", "id,name_ar,name_en,slug,sort_order,country_code", "sort_order.asc,id.asc"),
-    all("areas", "id,governorate_id,name_ar,name_en,slug", "id.asc"),
+    all("governorates", "id,name_ar,name_en,slug,sort_order,country_code,enabled,merged_into", "sort_order.asc,id.asc"),
+    all("areas", "id,governorate_id,name_ar,name_en,slug,enabled", "id.asc"),
     all("v_listings", "id,deal,property_type,governorate_id,governorate_ar,area_id,area_ar,landmark,price_usd,area_m2,rooms,floor,tabu,rental_period,is_featured,cover_url,created_at,status,country_code", "created_at.desc"),
     all("v_area_prices", "area_id,listings,avg_price_per_m2", "area_id.asc"),
   ]);
@@ -517,9 +520,11 @@ async function main() {
     const base = path.join(ROOT, CTX.prefix.replace(/^\//, ""));
     const govs = govsAll.filter((g) => (g.country_code || "SY") === c.code);
     const govIds = new Set(govs.map((g) => g.id));
-    const areas = areasAll.filter((a) => govIds.has(a.governorate_id));
+    const areas = areasAll.filter((a) => govIds.has(a.governorate_id) && a.enabled !== false);
     const live = listingsAll.filter((l) => l.status === "live" && DEAL[l.deal] && govIds.has(l.governorate_id));
-    const usableGovs = govs.filter((g) => g.slug);
+    // a governorate merged into another (ريف حماة → حماة) is disabled: no pages of its own, only redirects (below)
+    const usableGovs = govs.filter((g) => g.slug && g.enabled !== false && !g.merged_into);
+    const mergedGovs = govs.filter((g) => g.slug && g.merged_into && govById.get(g.merged_into)?.slug);
 
     const counts = { gov: new Map(), area: new Map() };
     for (const l of live) {
@@ -562,6 +567,8 @@ async function main() {
             write(ap.url, ap.html); urls.push({ loc: ap.url, priority: "0.8" });
           }
         }
+        // old URLs of a merged governorate keep working: a tiny page that sends the visitor (and search engines) on
+        for (const r of mergedGovs) { const c = govById.get(r.merged_into); const to = pageUrl(lang, `${DEAL[deal].slug}/${c.slug}/`); write(pageUrl(lang, `${DEAL[deal].slug}/${r.slug}/`), redirectHtml(to, lang)); }
       }
       const idx = areasIndex({ lang, govs: usableGovs, areasByGov, counts, footLinks }); write(idx.url, idx.html); urls.push({ loc: idx.url, priority: "0.6" });
       const ab = aboutPage({ lang, footLinks }); write(ab.url, ab.html); urls.push({ loc: ab.url, priority: "0.5" });
