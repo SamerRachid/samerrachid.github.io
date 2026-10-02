@@ -1019,7 +1019,13 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
       // otherwise the bot ASKS for the governorate (owner's rule): no guessing from the profile city for multi-governorate agencies
       const cand = govs.length === 1 ? govs[0] : byArea.length === 1 ? byArea[0].ar : null;
       const g = cand ? findGov(tax, cand) : null;
-      if (g) {
+      // the agency's default governorate vs. a place written in the message that belongs to ANOTHER governorate
+      // (a Hama agency writing "شارع بغداد", a Damascus street): no silent default — the sender is asked which one
+      const guess = raw.governorate ? findGov(tax, raw.governorate) : null;
+      const guessArea = g && guess && guess.id !== g.id ? findArea(guess, raw.area || fields.landmark || "") : null;
+      const conflict = !!(guessArea && norm(rawText).includes(norm(guessArea[1])));
+      if (conflict) { if (!missing.includes("governorate")) missing.push("governorate"); await log(draftId, d.chat_id, "warn", "gov_conflict", { agency_gov: g!.ar, text_gov: guess!.ar, area: guessArea![1] }); }
+      if (g && !conflict) {
         fields.governorate = g.ar; fields.governorate_id = g.id; missing = missing.filter((m) => m !== "governorate");
         const want = raw.area || fields.landmark || ""; const a = want ? findArea(g, want) : null;
         if (a) { fields.area = a[1]; fields.area_id = a[0]; if (fields.landmark && norm(fields.landmark) === norm(a[1])) delete fields.landmark; missing = missing.filter((m) => m !== "area"); }
