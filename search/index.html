@@ -6855,7 +6855,7 @@ function agCard(a){
 function agenciesPage(){
   var list=AGENCIES, govs=Object.keys(D.GEO);
   var rows=(list||[]).filter(function(a){ if(AGF.g && (a.gov_names||[]).indexOf(AGF.g)===-1) return false; if(AGF.spec && (a.specialties||[]).indexOf(AGF.spec)===-1) return false;
-    if(AGF.q){ var q=AGF.q.toLowerCase(), hay=[a.name,a.description,(a.gov_names||[]).map(gN).join(" "),(a.area_names||[]).map(aN).join(" ")].join(" ").toLowerCase(); if(hay.indexOf(q)===-1) return false } return true });
+    if(AGF.q){ var q=kwNorm(AGF.q), hay=kwNorm([a.name,a.description,(a.gov_names||[]).map(gN).join(" "),(a.area_names||[]).map(aN).join(" ")].join(" ")); if(hay.indexOf(q)===-1) return false } return true });
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("agDirShort")+'</div></div>'+
    '<div class="wrap agdir">'+
     '<div class="ag-hero"><div><div class="eyebrow">'+HX("ownE")+'</div><h1>'+GX("agDir")+'</h1><p>'+GX("agDirP")+'</p></div><a class="gold" data-go="agencyform">'+GX("agRegister")+'</a></div>'+
@@ -7616,7 +7616,12 @@ async function aiSearchRun(){
     var f=j.fields||{};
     // beyond listings: a short help answer, an office by name, or the page the visitor is asking for
     if(f.intent==="help" && f.answer){ aiSearchMsg(f.answer,"ok"); btn.disabled=false; if(box) box.classList.remove("thinking"); return }
-    if(f.intent==="agency"){ AGF={g:f.governorate||"",spec:"",q:f.agency_name||text}; VIEW="agencies"; scrollTo(0,0); render(); return }
+    if(f.intent==="agency"){
+      // the directory, narrowed to the office named (or the governorate); a name nothing matches falls back to the whole directory
+      if(AGENCIES===null) await loadAgencies();
+      var qn=f.agency_name?kwNorm(f.agency_name):"", hit=qn&&(AGENCIES||[]).some(function(a){ return kwNorm(a.name).indexOf(qn)>-1 });
+      AGF={g:f.governorate||"",spec:"",q:hit?f.agency_name:""};
+      VIEW="agencies"; scrollTo(0,0); render(); return }
     if(f.intent==="page" && f.page){
       var goMap={post:"post",wanted:"wanted",agencies:"agencies",map:"mapsearch",contact:"contact",about:"about",account:"account",projects:"projects"};
       if(f.page==="guides"){ location.href=cPre()+(L==="ar"?"":"/"+L)+"/guides/"; return }
