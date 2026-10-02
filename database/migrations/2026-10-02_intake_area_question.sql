@@ -1,0 +1,27 @@
+-- Balkoun · 2026-10-02 · the bot's area question (owner's rule): when a message names a place that is not in the
+-- governorate's list, the listing is NOT blocked. The summary asks "is «X» the neighbourhood / village name?":
+--   «نعم»              → publish with X as the landmark (area_text), admin alerted (bk_notify_push, event 'listing')
+--   «لا، <name>»       → <name> taken as the area: linked if known, else kept as the confirmed area text
+--   «لا»               → bot asks for the name; the NEXT text message is the name
+-- Draft field flags: area_text, area_pending ('1' while the question is open), area_confirmed ('1' after the sender
+-- answered), area_wait ('1' between «لا» and the name). Applied live by inserting this block into bk_intake_message()
+-- right before `if soft_no then` (so a bare «لا» is an answer to the area question, not a cancel, while it is open):
+--
+--   if d.id is not null and kind = 'text' and d.fields->>'area_wait' = '1' and cmd is null and not soft_no then
+--     update intake_drafts set fields = fields - 'area_wait', updated_at = now() where id = d.id;
+--     update intake_messages set draft_id = d.id where source = p_source and external_id = p_external_id;
+--     return json_build_object('command','area_set','draft_id',d.id,'text',tx,'sender',s,'guided',guided);
+--   end if;
+--   if d.id is not null and kind = 'text' and d.status = 'ready' and d.fields->>'area_pending' = '1' and cmdtx ~* '^(لا|لأ|كلا|no|nope)([.!،,:\s]|$)' then
+--     update intake_messages set draft_id = d.id where source = p_source and external_id = p_external_id;
+--     if cmdtx ~* '^(لا|لأ|كلا|no|nope)[.!،,:\s]+\S' then
+--       return json_build_object('command','area_set','draft_id',d.id,'text',regexp_replace(tx, '^(لا|لأ|كلا|no|nope)[.!،,:\s]+', ''),'sender',s,'guided',guided);
+--     end if;
+--     update intake_drafts set fields = fields || '{"area_wait":"1"}'::jsonb, updated_at = now() where id = d.id;
+--     return json_build_object('command','area_ask','draft_id',d.id,'sender',s,'guided',guided);
+--   end if;
+--
+-- Edge Function side: readDraft sets area_text/area_pending, summary() shows "X (غير موجودة في القائمة بعد)",
+-- applyAreaText() handles area_set, publishDraft() pushes the admin alert "📍 إعلان بمنطقة غير موجودة".
+-- Also today: bk_area_suggest_public(gov, name) for the site's post form ("أخرى" option), and
+-- bk_admin_area_suggest_apply links listings whose landmark contains an approved name.

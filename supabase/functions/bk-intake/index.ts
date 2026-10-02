@@ -328,6 +328,9 @@ const T = {
     photoBad: `تعذّرت معالجة هذه الصورة. أرسلها كصورة عادية (وليس كملف)، بصيغة JPG أو PNG.`,
     videoNo: `الفيديو غير مدعوم عبر الرسائل حالياً؛ يمكن إضافته من الموقع بعد النشر.`,
     confirmLine: `\n\nاكتملت المعلومات ✅\nنعم ← ينشر\nلا ← يلغي\nأو اكتب التصحيح مباشرة، مثل: «السعر 75 ألف»`,
+    areaConfirmLine: (name: string) => `\n\n📍 «${name}» ليست في قائمة أحيائنا بعد. هل هي اسم الحي أو القرية؟\nنعم ← ينشر بهذا الاسم\nلا ← اكتب الاسم الصحيح بعد «لا»، مثل: «لا، كفر زيتا»\nأو اكتب أي تصحيح آخر مباشرة`,
+    areaAskName: `تمام، اكتب اسم الحي أو القرية الصحيح.`,
+    areaSet: (name: string) => `سجّلت المنطقة: «${name}» ✅`,
     missing: (list: string) => `\n\nقبل النشر أحتاج منك: ${list}.\nأرسلها هنا وسأكمل الإعلان 🙏\n(«لا» يلغي هذا الإعلان)`,
     reviewAdmin: `تمت القراءة ✅ الإعلان بانتظارك في لوحة التحكم لاختيار المكتب ونشره.`,
     reviewNote: `تمت القراءة، لكن الإعلان يحتاج نظرة من الإدارة قبل النشر. سنتابعه من لوحة التحكم.`,
@@ -393,6 +396,9 @@ const T = {
     photoBad: `Could not process this photo. Send it as a normal photo (not a file), JPG or PNG.`,
     videoNo: `Video is not supported by message yet; it can be added on the site after publishing.`,
     confirmLine: `\n\nAll set ✅\nyes → publish\nno → cancel\nor write the correction directly, e.g. "price 75 thousand"`,
+    areaConfirmLine: (name: string) => `\n\n📍 "${name}" is not in our list of areas yet. Is it the neighbourhood or village name?\nyes → publish with this name\nno → write the right name after "no", e.g. "no, Kafr Zita"\nor write any other correction directly`,
+    areaAskName: `OK, write the correct neighbourhood or village name.`,
+    areaSet: (name: string) => `Area noted: "${name}" ✅`,
     missing: (list: string) => `\n\nBefore publishing I still need: ${list}.\nSend it here and I will complete the listing 🙏\n("no" cancels this listing)`,
     reviewAdmin: `Read ✅ The listing is waiting in the panel to pick the agency and publish.`,
     reviewNote: `Read, but the listing needs a look from the team before publishing. We will follow up from the panel.`,
@@ -769,7 +775,9 @@ function summary(f: Record<string, any>, tax: any, photos: number, lang: string)
   const ar = lang !== "en"; const tt = tx(lang);
   const L: string[] = [ar ? "📋 خلاصة الإعلان" : "📋 Listing summary"];
   L.push("• " + (ty ? (ar ? ty.ar : ty.en) : (ar ? "عقار" : "Property")) + (f.deal ? " " + (f.deal === "rent" ? (ar ? "للإيجار" : "for rent") : (ar ? "للبيع" : "for sale")) : ""));
-  const place = [f.governorate, f.area, f.landmark].filter(Boolean).join(" – "); if (place) L.push("• " + place);
+  const areaShown = f.area || (f.area_text ? f.area_text + (ar ? " (غير موجودة في القائمة بعد)" : " (not in our list yet)") : "");
+  const lm = f.landmark && norm(f.landmark) !== norm(f.area_text || "") ? f.landmark : "";
+  const place = [f.governorate, areaShown, lm].filter(Boolean).join(" – "); if (place) L.push("• " + place);
   const facts = [f.area_m2 ? `${fmtNum(f.area_m2)} ${ar ? "م²" : "m²"}` : "", f.rooms ? `${f.rooms} ${ar ? "غرف" : "rooms"}` : "", f.living_rooms ? `${f.living_rooms} ${ar ? "صالون" : "living"}` : "", f.baths ? `${f.baths} ${ar ? "حمام" : "baths"}` : "", f.floor != null ? `${ar ? "طابق" : "floor"} ${f.floor}` : ""].filter(Boolean);
   if (facts.length) L.push("• " + facts.join(" · "));
   const st = [deed ? (ar ? deed.ar : deed.en) : "", cond ? cond.ar : "", f.furnished ? (ar ? "مفروش" : "furnished") : ""].filter(Boolean);
@@ -940,8 +948,13 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
     // a place the taxonomy lacks (the model put it in landmark or named an unknown area): queue it for the admin's
     // "مناطق مقترحة" list, counted per mention — the list grows from real messages, nothing is published by itself
     if (fields.governorate_id && !fields.area_id) {
-      const cand = String(raw.area || "").trim() || (fields.landmark && String(fields.landmark).split(/[،,\-–]/)[0].trim().split(/\s+/).length <= 3 ? String(fields.landmark).split(/[،,\-–]/)[0].trim() : "");
+      const prev = (d.fields || {}) as Record<string, any>;
+      // a name the sender already confirmed or typed in the area question survives a re-read
+      const cand = prev.area_confirmed === "1" && prev.area_text ? String(prev.area_text)
+        : String(raw.area || "").trim() || (fields.landmark && String(fields.landmark).split(/[،,\-–]/)[0].trim().split(/\s+/).length <= 3 ? String(fields.landmark).split(/[،,\-–]/)[0].trim() : "");
       if (cand && /[؀-ۿ]/.test(cand) && !/^(قرب|جانب|بعد|مقابل|خلف|أمام|طريق|شارع|دوار|جامع|مشفى|مدرسة|كازية|كراج)/.test(cand)) {
+        fields.area_text = cand; if (!fields.landmark) fields.landmark = cand;
+        if (prev.area_confirmed === "1") fields.area_confirmed = "1"; else fields.area_pending = "1";   // the summary asks: is this the area's name?
         const sg = await rpc<any>("bk_intake_area_suggest", { p_gov: fields.governorate_id, p_name: cand, p_sample: rawText.slice(0, 200) });
         if (sg?.ok) await log(draftId, d.chat_id, "info", "area_suggested", { name: cand, mentions: sg.mentions });
       }
@@ -1007,7 +1020,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   // a transient reading failure goes back to the queue instead of failing the sender's listing
   if (err && !/no_key|claude 4\d\d/.test(err) && (d.reads || 0) < 3) status = "collecting";
   const sum = err ? null : summary(fields, tax, photos, lang) + (attributed ? "\n" + t.attributed(attributed) : "") + (suggested ? "\n" + t.suggested(suggested) : "") +
-    (status === "review" ? "" : (missing.length ? t.missing(missing.map(missLabel).join("، ")) : t.confirmLine));
+    (status === "review" ? "" : (missing.length ? t.missing(missing.map(missLabel).join("، ")) : (fields.area_pending === "1" && fields.area_text ? t.areaConfirmLine(fields.area_text) : t.confirmLine)));
   const saved = await rpc<any>("bk_intake_save_read", { p_draft: draftId, p_fields: fields, p_missing: missing, p_summary: sum, p_status: status, p_model: c.intake_model || null, p_in: usage.in, p_out: usage.out, p_cost: cost, p_error: err });
   if (saved?.skipped) return saved;                                              // cancelled or changed while reading: say nothing
   if (saved?.status === "collecting") { scheduleTick(); return saved; }         // more arrived (or a retry is due) → read again later
@@ -1068,6 +1081,12 @@ async function publishDraft(draftId: number, force?: string | null, opts: { quie
   const cc = String(pub.country_code || "SY").toLowerCase();
   const url = SITE + (cc === "sy" ? "" : "/" + cc) + "/listing/" + pub.listing_id;
   if (!opts.quiet && d.source !== "web") await reply(d.source, d.chat_id, pub.status === "live" ? t.published(pub.ref, url) : t.pending(pub.ref));
+  // published with a place that is not in the areas list: the admin is told right away (owner's rule) and adds it by hand
+  { const f = d.fields || {}; const place = f.area_text || (!f.area_id ? f.landmark : "");
+    if (!f.area_id && place) {
+      await log(draftId, d.chat_id, "info", "published_unknown_area", { listing_id: pub.listing_id, place });
+      await rpc("bk_notify_push", { p_event: "listing", p_title: "📍 إعلان بمنطقة غير موجودة: " + pub.ref, p_body: `${f.governorate || ""} – «${place}» ليست في قائمة المناطق. أضفها من اللوحة ← المناطق ← مناطق مقترحة، ويُربط الإعلان بها تلقائياً.`, p_link: SITE + "/admin", p_cc: pub.country_code || null });
+    } }
   return { ...pub, url };
 }
 // ───────────────────────────── admin notifications → Telegram ─────────────────────────────
@@ -1275,6 +1294,25 @@ async function runCommandAfterPhoto(m: Incoming, r: any, tt: any) {
     await safePublish(m, r.draft_id, tt);
   }
 }
+// the sender answered the area question with a name: a known area is linked, an unknown one is kept as the confirmed
+// area text (published as the landmark, queued for the admin); the summary comes back for the final yes
+async function applyAreaText(m: Incoming, draftId: number, text: string, tt: any) {
+  const d = await rpc<any>("bk_intake_get", { p_draft: draftId }); if (!d) return;
+  const name = text.replace(/^(الحي|الحيّ|المنطقة|القرية|اسم الحي|اسم المنطقة)\s*[:：]?\s*/, "").replace(/[.。!]+$/, "").trim().slice(0, 60);
+  if (name.length < 2) { await reply(m.source, m.chat, tt.areaAskName); return; }
+  const f: Record<string, any> = { ...(d.fields || {}) };
+  const tax = await rpc<any>("bk_intake_taxonomy", { p_country: d.country_code });
+  const g = (tax.governorates || []).find((x: any) => x.id === f.governorate_id);
+  const a = g ? findArea(g, name) : null;
+  if (a) { f.area = a[1]; f.area_id = a[0]; if (f.landmark && norm(f.landmark) === norm(f.area_text || "")) delete f.landmark; delete f.area_text; delete f.area_pending; delete f.area_confirmed; }
+  else { if (f.landmark && norm(f.landmark) === norm(f.area_text || "")) f.landmark = name; else if (!f.landmark) f.landmark = name; f.area_text = name; f.area_confirmed = "1"; delete f.area_pending;
+         if (f.governorate_id) await rpc("bk_intake_area_suggest", { p_gov: f.governorate_id, p_name: name, p_sample: (d.raw_text || "").slice(0, 200) }); }
+  const c = await cfg(); const lang = c.intake_reply_lang === "en" ? "en" : (d.user_lang === "en" ? "en" : "ar"); const t = tx(lang);
+  const sum = summary(f, tax, Array.isArray(d.photos) ? d.photos.length : 0, lang) + t.confirmLine;
+  await rpc("bk_intake_set", { p_draft: draftId, p_patch: { fields: f, status: "ready", summary: sum } });
+  await log(draftId, m.chat, "info", a ? "area_set_known" : "area_set_new", { name, area_id: a ? a[0] : null });
+  await reply(m.source, m.chat, t.areaSet(a ? a[1] : name) + "\n\n" + sum);
+}
 async function sendGuide(m: Incoming, c: Cfg) {
   const s = await rpc<any>("bk_intake_sender", { p_source: m.source, p_chat_id: m.chat });
   const lang = c.intake_reply_lang === "en" ? "en" : (s?.lang === "en" ? "en" : "ar");
@@ -1393,6 +1431,9 @@ async function handleIncoming(m: Incoming) {
   if (r.command === "cancel") { await reply(m.source, m.chat, r.draft_id ? tt.cancelled : tt.nothing); return; }
   if (r.command === "new") { await reply(m.source, m.chat, tt.newDraft); return; }
   // «رجّع»: the listing cancelled a moment ago (or closed after a day) comes back; merged with anything sent since
+  // the area question: «لا» → ask for the name; «لا، كفر زيتا» or the next message → take it as the area
+  if (r.command === "area_ask") { await reply(m.source, m.chat, tt.areaAskName); return; }
+  if (r.command === "area_set") { await applyAreaText(m, r.draft_id, String(r.text || ""), tt); return; }
   if (r.command === "undo") {
     if (!r.restored) { await reply(m.source, m.chat, tt.undoNone); return; }
     if (r.status === "collecting") {
