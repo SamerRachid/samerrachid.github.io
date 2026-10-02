@@ -793,6 +793,8 @@ function settle(f: Record<string, any>, tax: any, rawText?: string) {
   const types = (tax.types || []).map((t: any) => t.code);
   if (!types.includes(out.property_type)) delete out.property_type;
   if (out.property_type === "hotelapt") out.deal = "rent";   // serviced / hotel apartments are let, never sold
+  // "منزل" on a numbered floor or with a lift is a flat (owner's rule); the model keeps saying "house"
+  if (rawText && out.property_type === "house" && types.includes("apartment") && /(طابق\s*(\d|اول|أول|ثاني|تاني|ثالث|رابع|خامس|ارضي|أرضي)|مصعد)/.test(latinDigits(rawText))) out.property_type = "apartment";
   // "أرض" stays "أرض" (owner's rule): a land kind is kept only when its word is actually in the message
   if (rawText && types.includes("plot")) {
     const KIND: Record<string, RegExp> = { agri: /زراع/, resid: /سكني/, comm: /تجاري/, indust: /صناعي/, tourist: /سياحي/ };

@@ -1,0 +1,7 @@
+-- Balkoun · 2026-10-02 · found by tests/bot/sql-scenarios.sql.
+-- Since review drafts stay open for 10 minutes (corrections), the open-draft lookup in bk_intake_message() caught a bare
+-- photo/video sent to a review draft before the "join review draft" branch could run: the photo landed in the draft but the
+-- sender got no acknowledgement. Now, right after the lookup:
+--   if d.status = 'review' and kind in ('photo','video') and tx = '' → log 'photo_to_review' and return attach_review=true
+--   (bot: "وصلت الصورة وأُضيفت إلى الإعلان قيد المراجعة").
+-- Applied live with replace() on the function body (anchor: "was := d.status;").
