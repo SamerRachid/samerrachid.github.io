@@ -444,6 +444,14 @@ function adminView(){
     '<div class="hintx" style="margin-top:8px">'+GX("agAutoApproveHint")+'</div>'+
     '<div style="font-size:12.5px;color:var(--ok);margin-top:8px" id="aSettingsMsg"></div>'+
    '</div></div>'+
+   // maintenance switch: one for the whole site (global extras); admins and the panel are never covered
+   '<div class="blk" style="margin-top:16px"><h3>'+GX("maintH")+'</h3><div class="in" id="maintCfg">'+
+    '<label class="xcheck" style="margin:0 0 8px"><input type="checkbox" id="maintOn"'+(GSX("maintenance_on",false)===true||GSX("maintenance_on",false)==="true"?' checked':'')+'><span><b>'+GX("maintOn")+'</b></span></label>'+
+    '<div class="hintx" style="margin-bottom:10px">'+GX("maintHint")+'</div>'+
+    '<div class="row"><div class="fl"><label>'+GX("maintMsgAr")+'</label><textarea id="maintMsgAr" rows="2" data-allow-autofill placeholder="'+esc(GX("maintPH"))+'">'+escOnce(GSX("maintenance_msg_ar",""))+'</textarea></div>'+
+    '<div class="fl"><label>'+GX("maintMsgEn")+'</label><textarea id="maintMsgEn" rows="2" class="ltr" data-allow-autofill placeholder="'+esc(GX("maintPH"))+'">'+escOnce(GSX("maintenance_msg_en",""))+'</textarea></div></div>'+
+    '<div class="xactions"><button type="button" class="ab'+(GSX("maintenance_on",false)===true||GSX("maintenance_on",false)==="true"?' bad':' ok')+'" id="maintSave">'+t("save")+'</button><span class="xmsg" id="maintMsg"></span></div>'+
+   '</div></div>'+
    '<div class="blk" style="margin-top:16px"><h3>'+t("perMemberApproval")+'</h3><div class="in">'+
     '<div class="hintx">'+t("perMemberApprovalH")+'</div>'+
     (canTab("users")?'<button type="button" class="ab" data-goto="users" style="margin-top:8px">'+t("usersTab")+' ↗</button>':'')+
@@ -1534,6 +1542,10 @@ function wireAdmin(){
     var box=this;
     try{ await rpc("bk_admin_set_agency_auto",{p_token:ADM.token,p_on:box.checked}); var m=$("#aSettingsMsg"); if(m) m.textContent=t("savedOk"); if(ADM.settings) ADM.settings.agency_auto_approve=box.checked }
     catch(e){ box.checked=!box.checked; admToast(e.message||"error","bad") } };
+  if($("#maintSave")) $("#maintSave").onclick=async function(){ var m=$("#maintMsg"), on=!!$("#maintOn").checked; this.disabled=true;
+    if(on && !confirm(GX("maintOn")+"؟")) { this.disabled=false; return }
+    try{ await saveGlobalExtras({maintenance_on:on, maintenance_msg_ar:String($("#maintMsgAr").value||"").trim()||null, maintenance_msg_en:String($("#maintMsgEn").value||"").trim()||null}); admToast(GX("saved")); render() }
+    catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } this.disabled=false } };
   if($("#aReqApproval")) $("#aReqApproval").onchange=async function(){
     var box=this;
     try{

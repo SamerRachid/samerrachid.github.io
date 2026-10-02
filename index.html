@@ -2547,6 +2547,13 @@ body.rs-lock{overflow:hidden}
 .ikbulk{display:flex;flex-direction:column;gap:8px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--page);font-size:13px}.ikbulk.on{background:#fff8ea}
 .ikb-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.ikb-row .xcheck{margin:0}.ikb-n{font-weight:700;color:var(--navy)}
 .ikb-set{display:inline-flex;align-items:center;gap:4px;padding-inline-start:10px;border-inline-start:1px solid var(--line-2)}.ikb-set select{max-width:200px;font-size:13px;padding:6px 8px}
+#maint{position:fixed;inset:0;z-index:99999;background:radial-gradient(1200px 600px at 70% -10%,#1E2E55 0%,#0B1630 55%,#070E20 100%);color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;font-family:var(--fd,inherit)}
+.maint-card{max-width:520px;width:100%;text-align:center;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:40px 28px 30px;backdrop-filter:blur(6px);box-shadow:0 30px 80px -30px rgba(0,0,0,.7)}
+.maint-logo{display:flex;justify-content:center;margin-bottom:18px}.maint-logo svg,.maint-logo img{height:54px;width:auto}.maint-logo b{font-size:30px;color:var(--gold,#D9A441)}
+.maint-card h1{font-size:28px;margin:0 0 10px;color:var(--gold,#D9A441);line-height:1.3}.maint-card p{font-size:16px;line-height:1.8;color:rgba(255,255,255,.85);margin:0 0 22px}
+.maint-card button{background:var(--gold,#D9A441);color:#0B1630;border:0;border-radius:12px;padding:12px 26px;font:700 15px/1 inherit;cursor:pointer}.maint-card button:hover{filter:brightness(1.08)}
+.maint-card small{display:block;margin-top:18px;color:rgba(255,255,255,.45);letter-spacing:.5px}
+html.maint-on{overflow:hidden}
 .sugbox{border:1px solid var(--gold);border-radius:12px;padding:12px 14px;margin:4px 0 16px;background:#fffdf7}.sughd{display:flex;align-items:center;gap:8px;font-size:15px;margin-bottom:6px}.sughd .n{background:var(--gold);color:#fff;border-radius:999px;padding:1px 9px;font-size:12.5px;font-weight:700}
 .sugtable{display:flex;flex-direction:column;max-height:520px;overflow:auto}.sugrow{display:grid;grid-template-columns:22px minmax(120px,1.2fr) minmax(90px,1fr) minmax(110px,1fr) minmax(140px,1.4fr) 28px;gap:6px 10px;align-items:center;padding:8px 6px;border-bottom:1px solid var(--line);font-size:13px;cursor:pointer}.sugrow.on{background:#fffaf0}.sugrow.geo b{color:var(--grey);font-weight:600}.sugrow.geo .sugk{color:var(--grey)}.sugrow input{width:16px;height:16px;margin:0}.sugrow .sugen,.sugrow .sugs{color:var(--grey);font-size:12px}.sugrow .sugk{font-size:12px;color:var(--navy)}.sugrow .sugsmp{grid-column:2/-1;color:var(--light);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:900px){.sugrow{grid-template-columns:22px 1fr 28px}.sugrow .sugen,.sugrow .sugk,.sugrow .sugs{grid-column:2}}
@@ -8739,7 +8746,27 @@ async function loadSiteContent(){
       applySectionGapVars();
       if(PREVIEW && _pvLast) applyPreview(Object.assign({},_pvLast,{rerender:true}));
     }
+    // the maintenance switch is one for the whole site (kept in the Syrian row's extras)
+    var gex = COUNTRY==="SY" ? (SITE&&SITE.extras) : null;
+    if(COUNTRY!=="SY"){ try{ var rg=await DB.from("site_content").select("extras").eq("id",1).limit(1); if(!rg.error&&rg.data&&rg.data.length) gex=rg.data[0].extras }catch(e){} }
+    if(gex&&typeof gex==="string"){ try{ gex=JSON.parse(gex) }catch(e){ gex=null } }
+    applyMaintenance(gex||{});
   }catch(e){}
+}
+// "الموقع في صيانة": a full-screen notice for visitors while the admin works; admins (panel token) and the panel route
+// itself pass through. Text comes from the panel (optional), with a warm default in the visitor's language.
+function maintenanceBypass(){ try{ if(localStorage.getItem("balkoun_adm")) return true }catch(e){} return /^#\/?admin/.test(location.hash||"") || /\/admin\/?$/.test(location.pathname||""); }
+function applyMaintenance(gex){
+  var on = gex && (gex.maintenance_on===true || gex.maintenance_on==="true");
+  var el = document.getElementById("maint");
+  if(!on || maintenanceBypass()){ if(el) el.remove(); document.documentElement.classList.remove("maint-on"); return }
+  var ar = L==="ar", custom = String(gex["maintenance_msg_"+(ar?"ar":"en")] || "").trim();
+  var title = ar ? "نرتّب البيت قليلاً 🛠️" : L==="de" ? "Wir räumen kurz auf 🛠️" : "A little housekeeping 🛠️";
+  var body = custom || (ar ? "بلكون في صيانة قصيرة لنجهّز لك تجربة أفضل. عُد بعد قليل وستجد كل شيء في مكانه." : L==="de" ? "Balkoun wird gerade kurz gewartet. Schau in ein paar Minuten wieder vorbei." : "Balkoun is down for a short maintenance to make things better. Please try again in a little while.");
+  var btn = ar ? "حاول مرة أخرى" : L==="de" ? "Erneut versuchen" : "Try again";
+  var html = '<div class="maint-card"><div class="maint-logo"><img src="/brand/logo-light.png" alt="بلكون"></div><h1>'+esc(title)+'</h1><p>'+esc(body)+'</p><button type="button" onclick="location.reload()">'+btn+'</button><small>balkoun.com</small></div>';
+  if(!el){ el=document.createElement("div"); el.id="maint"; el.setAttribute("dir", ar?"rtl":"ltr"); document.body.appendChild(el) }
+  el.innerHTML = html; document.documentElement.classList.add("maint-on");
 }
 var _featuredPollTimer=null;
 async function syncFeaturedFromServer(){
@@ -10719,6 +10746,10 @@ var GX_T={
   desc_intake:{ar:"إعلانات تصل برسالة (تيليغرام، واتساب، أو نص ملصوق في الموقع) تُقرأ آلياً وتُنشر تحت اسم المكتب. هنا الربط، الإعدادات، المسوّدات، والسجل.",en:"Listings that arrive by message (Telegram, WhatsApp, or text pasted on the site) are read automatically and published under the agency. Connections, settings, drafts and the log live here.",de:"Anzeigen, die per Nachricht kommen (Telegram, WhatsApp oder eingefügter Text), werden automatisch gelesen und unter dem Büro veröffentlicht. Verbindungen, Einstellungen, Entwürfe und Protokoll."},
   bellIntake:{ar:"مسوّدات رسائل بانتظارك",en:"Message drafts waiting for you",de:"Nachrichten-Entwürfe warten"},
   deedShort:{ar:"الملكية",en:"Deed",de:"Grundbuch",fr:"Titre"},
+  maintH:{ar:"وضع الصيانة",en:"Maintenance mode",de:"Wartungsmodus"}, maintOn:{ar:"إظهار صفحة «الموقع في صيانة» للزوار",en:"Show the “under maintenance” page to visitors",de:"Wartungsseite für Besucher anzeigen"},
+  maintHint:{ar:"يغطي الموقع كله في كل الدول برسالة لطيفة وزر «حاول مرة أخرى». المشرفون يرون الموقع عادياً، ولوحة التحكم تعمل. الصفحات الثابتة للإعلانات تبقى مفتوحة لمحركات البحث.",en:"Covers the whole site in every country with a friendly note and a “try again” button. Admins see the site normally and the panel keeps working. Static listing pages stay open for search engines.",de:"Deckt die ganze Website in allen Ländern mit einem freundlichen Hinweis ab. Admins sehen die Seite normal."},
+  maintMsgAr:{ar:"نص الرسالة بالعربية (اختياري)",en:"Arabic message (optional)",de:"Arabischer Text (optional)"}, maintMsgEn:{ar:"نص الرسالة بالإنجليزية (اختياري)",en:"English message (optional)",de:"Englischer Text (optional)"},
+  maintPH:{ar:"اتركه فارغاً للنص الافتراضي: بلكون في صيانة قصيرة لنجهّز لك تجربة أفضل…",en:"Leave empty for the default text",de:"Leer lassen für den Standardtext"},
   sugH:{ar:"مناطق مقترحة",en:"Suggested areas",de:"Vorgeschlagene Gebiete"}, sugHint:{ar:"نوعان من الأسطر: ➕ منطقة جديدة ليست في بلكون، أو منطقة موجودة أصلاً ينقصها موقعها على الخريطة فتُضاف لها الإحداثيات فقط. لا شيء يتغير في الموقع حتى تعتمده هنا. 📍 = مع إحداثيات.",en:"Neighbourhoods and towns found by the OpenStreetMap import or named by senders in the bot, not in the list yet. Nothing shows on the site until you approve it here. 📍 = has coordinates.",de:"Von OpenStreetMap importierte oder von Absendern genannte Orte, die noch nicht in der Liste sind. Erst nach Freigabe sichtbar. 📍 = mit Koordinaten."},
   sugNew:{ar:"➕ منطقة جديدة",en:"➕ New area",de:"➕ Neues Gebiet"}, sugGeo:{ar:"موجودة في بلكون · تُضاف إحداثياتها على الخريطة فقط:",en:"Already in Balkoun · only its map coordinates are added:",de:"Bereits vorhanden · nur Koordinaten werden ergänzt:"}, sugSrcOsm:{ar:"خرائط OSM",en:"OSM maps",de:"OSM-Karten"}, sugSrcBot:{ar:"البوت",en:"Bot",de:"Bot"}, sugSrcAdmin:{ar:"الإدارة",en:"Admin",de:"Admin"},
   sugMentions:{ar:"مرات الذكر",en:"mentions",de:"Nennungen"}, sugApprove:{ar:"اعتماد المحدد",en:"Approve selected",de:"Auswahl freigeben"}, sugApproveAll:{ar:"اعتماد كل مقترحات المحافظة",en:"Approve all for this governorate",de:"Alle für dieses Gouvernement freigeben"}, sugReject:{ar:"رفض المحدد",en:"Reject selected",de:"Auswahl ablehnen"},
