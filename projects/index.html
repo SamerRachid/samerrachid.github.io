@@ -7711,6 +7711,7 @@ function wire(){
    var w=b.closest(".qfteaser-wrap"); if(w&&w.parentElement) w.parentElement.remove() } });
  $$("[data-go]").forEach(function(e){e.onclick=function(ev){ev.preventDefault();
    if(e.dataset.go==="post"){NEW={photos:[],lat:null,lng:null}}
+   if(e.dataset.go==="agencies"){ AGF={g:"",spec:"",q:""} }   // the directory opens clean from the menu; a filter left by the AI bar or a search must not stick
    if(e.dataset.go==="mapsearch"){ MAPSEARCH.deal = F.deal==="rent" ? "rent" : "sale" }   // the map starts on the deal chosen in the search bar
    if(e.dataset.go==="mine"){LOADED.mine=false}
    if(e.dataset.go==="mine"){loadListings().then(render)}
