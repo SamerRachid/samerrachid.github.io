@@ -531,17 +531,22 @@ async function storeListingPhoto(listingId: number, bytes: Uint8Array, mime: str
 }
 
 // a video sent with a listing: kept as it came (no transcoding on this runtime), under intake/<draft>/ until publish
-const videoExt = (mime: string) => /quicktime/.test(mime) ? "mov" : /webm/.test(mime) ? "webm" : /3gpp/.test(mime) ? "3gp" : "mp4";
-async function storeVideo(draftId: number, bytes: Uint8Array, mime: string, duration?: number) {
+// gateways label videos loosely (WAHA served "application/mp4"); the bucket accepts the video/* family only
+const normVideoMime = (m: string) => { const s = String(m || "").toLowerCase();
+  return /^video\/(mp4|quicktime|webm|3gpp|x-matroska|x-m4v)$/.test(s) ? s : /quicktime|\bmov\b/.test(s) ? "video/quicktime" : /webm/.test(s) ? "video/webm" : /3gp/.test(s) ? "video/3gpp" : /matroska|mkv/.test(s) ? "video/x-matroska" : "video/mp4"; };
+const videoExt = (mime: string) => /quicktime/.test(mime) ? "mov" : /webm/.test(mime) ? "webm" : /3gpp/.test(mime) ? "3gp" : /matroska/.test(mime) ? "mkv" : "mp4";
+async function storeVideo(draftId: number, bytes: Uint8Array, mimeIn: string, duration?: number) {
+  const mime = normVideoMime(mimeIn);
   const p = `intake/${draftId}/${Date.now()}-v-${randomCode(5).toLowerCase()}.${videoExt(mime)}`;
-  await upload(p, bytes, mime || "video/mp4");
+  await upload(p, bytes, mime);
   const res = await rpc<any>("bk_intake_add_photo", { p_draft: draftId, p_photo: { kind: "video", path: p, url: publicUrl(p), bytes: bytes.length, mime, duration: duration || null } });
   if (res && res.ok === false) await sb.storage.from(BUCKET).remove([p]);
   return res;
 }
-async function storeListingVideo(listingId: number, bytes: Uint8Array, mime: string, duration?: number) {
+async function storeListingVideo(listingId: number, bytes: Uint8Array, mimeIn: string, duration?: number) {
+  const mime = normVideoMime(mimeIn);
   const p = `photos/listings/${listingId}/${Date.now()}-v-${randomCode(5).toLowerCase()}.${videoExt(mime)}`;
-  await upload(p, bytes, mime || "video/mp4");
+  await upload(p, bytes, mime);
   const res = await rpc<any>("bk_intake_listing_add_photo", { p_listing: listingId, p_photo: { kind: "video", url: publicUrl(p), bytes: bytes.length, duration: duration || null } });
   if (!res || res.ok === false || res.error) await sb.storage.from(BUCKET).remove([p]);
   return res;
@@ -1506,7 +1511,7 @@ async function handleIncoming(m: Incoming) {
   // a photo within minutes after a publish: into that listing, not a new draft
   if (r.attach_listing) {
     if (m.kind === "video" && m.fetchMedia) {
-      try { const f = await m.fetchMedia(); const res = await storeListingVideo(r.attach_listing, f.bytes, f.mime || m.media?.mime || "video/mp4", m.media?.duration);
+      try { const f = await m.fetchMedia(); const res = await storeListingVideo(r.attach_listing, f.bytes, m.media?.mime || f.mime || "video/mp4", m.media?.duration);
         if (res && res.ok === false && res.reason === "max") await reply(m.source, m.chat, tt.videoMax(res.max || 1)); else if (res?.ok && !r.replied_recently) await reply(m.source, m.chat, tt.attached(r.ref || "")); }
       catch (e) { await log(r.draft_id, m.chat, "warn", "video_failed", { error: errStr(e), listing: r.attach_listing }); await reply(m.source, m.chat, tt.videoBad); }
       return;
@@ -1564,7 +1569,7 @@ async function handleIncoming(m: Incoming) {
       try {
         const f = await m.fetchMedia();
         if (f.bytes.length > maxMb * 1024 * 1024) throw new Error("too_big");
-        const res = await storeVideo(r.draft_id, f.bytes, f.mime || m.media?.mime || "video/mp4", m.media?.duration);
+        const res = await storeVideo(r.draft_id, f.bytes, m.media?.mime || f.mime || "video/mp4", m.media?.duration);
         if (res && res.ok === false && res.reason === "max") await reply(m.source, m.chat, tt.videoMax(res.max || maxN));
         else if (res?.ok && !(m.text || "").trim()) await reply(m.source, m.chat, tt.videoGot);
       } catch (e) {
