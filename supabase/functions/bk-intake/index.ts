@@ -920,6 +920,15 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
     // the model must not swap an unknown neighbourhood for a look-alike from the list (العدوي → العسالي): the chosen
     // area has to actually be written in the message; otherwise it becomes a landmark and the area is asked for
     for (const w of areaGuards(fields, missing, raw, rawText, tax)) await log(draftId, d.chat_id, "warn", w.event, w.detail);
+    // a place the taxonomy lacks (the model put it in landmark or named an unknown area): queue it for the admin's
+    // "مناطق مقترحة" list, counted per mention — the list grows from real messages, nothing is published by itself
+    if (fields.governorate_id && !fields.area_id) {
+      const cand = String(raw.area || "").trim() || (fields.landmark && String(fields.landmark).split(/[،,\-–]/)[0].trim().split(/\s+/).length <= 3 ? String(fields.landmark).split(/[،,\-–]/)[0].trim() : "");
+      if (cand && /[؀-ۿ]/.test(cand) && !/^(قرب|جانب|بعد|مقابل|خلف|أمام|طريق|شارع|دوار|جامع|مشفى|مدرسة|كازية|كراج)/.test(cand)) {
+        const sg = await rpc<any>("bk_intake_area_suggest", { p_gov: fields.governorate_id, p_name: cand, p_sample: rawText.slice(0, 200) });
+        if (sg?.ok) await log(draftId, d.chat_id, "info", "area_suggested", { name: cand, mentions: sg.mentions });
+      }
+    }
     { const w = govGuard(fields, missing, rawText, tax); if (w) await log(draftId, d.chat_id, "warn", w.event, w.detail); }
     // no governorate in the message: an agency that works in exactly one governorate (or a member whose profile city
     // names one) gets it by default, and the neighbourhood is then matched inside it

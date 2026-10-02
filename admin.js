@@ -2206,7 +2206,7 @@ function hsInspAds(){
       fSlider(hsT("f_adGap"),"c:ad_carousel_gap","x:ad_carousel_gap_m",-60,80,2,"px",0),
       '<div class="row">'+fNum(hsT("f_adGlide"),"x:ad_glide_seconds",1,15,0.5,3.5,true)+fNum(GX("xAdVideoMax"),"x:ad_video_max_mb",1,100,1,8)+'</div>');
   } else if(sd==="look"){
-    H.push(fGrp(GX("adColorsSub")), '<div class="row">'+fColor(t("adTextColorL"),"c:ad_text_color","#ffffff")+fColor(t("adShadeColorL"),"c:ad_shade_color","#090e1a")+'</div>',
+    H.push(fGrp(GX("adColorsSub")), '<div class="row">'+fColor(t("adTextColorL"),"c:ad_text_color","#ffffff")+fColor(t("adShadeColorL"),"c:ad_shade_color","#090e1a")+'</div>', fSlider(GX("adShadeOpL"),"x:ad_shade_opacity",null,0,100,5,"%",100,true), fHint(GX("adShadeOpHint")),
       fGrp(GX("adInfoSub")), fHint(hsT("dualHint")), fSwitch(t("adStyleIcons"),"c:ad_use_icons",true,true), fDual(t("adTextSizeL"),"c:ad_roominfo_size","x:ad_roominfo_size_m",7,20,1,true),
       fSwitch(t("showAdLocation"),"c:ad_location_enabled",true,true), fDual(t("adTextSizeL")+" — "+t("adLocationH"),"c:ad_location_size","x:ad_location_size_m",7,20,1,true),
       fGrp(GX("adTagSub")), fSwitch(t("showAdTag"),"c:ad_tag_enabled",true,true), fHint(hsT("textsHint")), fText(t("adTagTextL"),"c:ad_tag",t("adTag")), fDual(t("adTextSizeL")+" — "+GX("adTagSub"),"c:ad_tag_size","x:ad_tag_size_m",7,20,1,true));
@@ -2771,7 +2771,7 @@ function geoAdminBody(){
   var kindSel=function(v,id){ return '<select data-gk="'+id+'">'+["city","area","village"].map(function(k){return '<option value="'+k+'"'+(v===k?" selected":"")+'>'+GX(k)+'</option>'}).join("")+'</select>' };
   return '<div class="blk"><h3>'+GX("geoH")+'</h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+GX("geoHint")+'</div>'+countryBar+
    '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px"><select id="geoGov" style="padding:8px 12px;border:1px solid var(--line-2);border-radius:8px;font-size:14px">'+
-     govs.map(function(x){return '<option value="'+x.id+'"'+(g&&x.id===g.id?" selected":"")+'>'+esc(x.name_ar)+' ('+x.areas+' · '+x.listings+' '+GX("listings")+')'+(x.enabled?"":" · ✕")+'</option>'}).join("")+'</select>'+
+     govs.map(function(x){ var ns=ADM.geoSug&&ADM.geoSug.counts&&ADM.geoSug.counts[x.id]; return '<option value="'+x.id+'"'+(g&&x.id===g.id?" selected":"")+'>'+esc(x.name_ar)+' ('+x.areas+' · '+x.listings+' '+GX("listings")+(ns?' · '+GX("sugN").replace("{n}",ns):'')+')'+(x.enabled?"":" · ✕")+'</option>'}).join("")+'</select>'+
      '<button class="ab" id="geoGovAddOpen">+ '+GX("cGovAdd")+'</button>'+
      (g&&g.slug?'<a class="mini" style="color:var(--navy);border-color:var(--line-2)" href="/for-sale/'+esc(g.slug)+'/" target="_blank" rel="noopener">'+GX("pages")+' ↗</a>':'')+
      '<span id="geoMsg" style="font-size:12.5px;color:var(--ok)"></span></div>'+govAdd+
@@ -2784,7 +2784,28 @@ function geoAdminBody(){
        '<input data-ga="sort_order:'+a.id+'" value="'+(a.sort_order||100)+'" type="number" style="width:64px"><input type="checkbox" data-ga="enabled:'+a.id+'"'+(a.enabled?" checked":"")+'><span class="ltr">'+a.listings+'</span>'+
        '<span style="display:flex;gap:4px"><button class="ab ok" data-geosave="'+a.id+'">'+GX("save")+'</button>'+(a.listings>0?'':'<button class="ab" data-geodel="'+a.id+'" style="color:var(--danger)">'+GX("del")+'</button>')+'</span>' }).join("")+
      '<input id="geoNewName" placeholder="'+GX("nameAr")+'" style="border-color:var(--gold)"><input id="geoNewEn" placeholder="'+GX("nameEn")+'"><input id="geoNewSlug" placeholder="'+GX("slug")+'" class="ltr">'+kindSel("area","new")+'<input id="geoNewOrder" type="number" value="100" style="width:64px"><span></span><span></span><button class="ab ok" id="geoAdd">'+GX("add")+'</button>'+
-   '</div></div></div>';
+   '</div></div></div>'+geoSuggestCard(g);
+}
+// "مناطق مقترحة": places found by the OpenStreetMap import or named by senders in the bot, waiting for the admin's yes
+function geoSuggestCard(g){
+  var S=ADM.geoSug; if(!g) return '';
+  if(!S) return '<div class="blk" style="margin-top:16px"><h3>'+GX("sugH")+'</h3><div class="in"><div class="hintx">'+t("loading")+'</div></div></div>';
+  var items=(S.items||[]).filter(function(x){ return x.governorate_id===g.id }), sel=ADM.geoSugSel||{};
+  var nSel=items.filter(function(x){ return sel[x.id] }).length;
+  var src=function(s){ return GX(s==="osm"?"sugSrcOsm":s==="bot"?"sugSrcBot":"sugSrcAdmin") };
+  return '<div class="blk" style="margin-top:16px"><h3>'+GX("sugH")+' <span class="n">'+items.length+'</span></h3><div class="in">'+
+    '<div class="hintx" style="margin-bottom:10px">'+GX("sugHint")+'</div>'+
+    (items.length ? '<div class="ikbulk'+(nSel?' on':'')+'" style="border-radius:10px;border:1px solid var(--line);margin-bottom:8px"><div class="ikb-row"><label class="xcheck"><input type="checkbox" id="sugSelAll"'+(nSel&&nSel===items.length?' checked':'')+'><span>'+GX("ik_selAll")+'</span></label><span><b class="ikb-n ltr">'+nSel+'</b> '+GX("ik_selected")+'</span>'+
+        '<button type="button" class="ab ok" id="sugApprove"'+(nSel?'':' disabled')+'>'+GX("sugApprove")+'</button><button type="button" class="ab" id="sugApproveAll">'+GX("sugApproveAll")+'</button><button type="button" class="ab bad" id="sugReject"'+(nSel?'':' disabled')+'>'+GX("sugReject")+'</button><span class="xmsg" id="sugMsg"></span></div></div>'+
+      '<div class="sugtable">'+items.map(function(x){
+        return '<label class="sugrow'+(sel[x.id]?' on':'')+'"><input type="checkbox" data-sug="'+x.id+'"'+(sel[x.id]?' checked':'')+'>'+
+          '<b>'+esc(x.name_ar)+'</b><span class="ltr sugen">'+esc(x.name_en||"")+'</span>'+
+          '<span class="sugk">'+(x.kind==="geo"?GX("sugGeo")+' '+esc(x.area_name||""):GX("sugNew"))+'</span>'+
+          '<span class="sugs">'+src(x.source)+(x.place?' · '+esc(x.place):'')+(x.source==="bot"?' · '+GX("sugMentions")+' <b class="ltr">'+(x.mentions||1)+'</b>':'')+'</span>'+
+          '<span class="suggeo" title="'+(x.lat?esc(x.lat+', '+x.lng):'')+'">'+(x.lat?'📍':'—')+'</span>'+
+          (x.sample?'<small class="sugsmp" title="'+esc(x.sample)+'">'+esc(String(x.sample).slice(0,70))+'</small>':'')+'</label>' }).join("")+'</div>'
+    : '<div class="adashempty">'+GX("sugNone")+'</div>')+
+  '</div></div>';
 }
 function admAllowed(code){ var m=ADM.myCountries||[]; return !m.length || m.indexOf(code)>-1 }
 function admCountries(){ return (ADM.countries||[]).filter(function(c){ return admAllowed(c.code) }) }
