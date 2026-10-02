@@ -10,6 +10,9 @@
 --   listings, contacts, campaigns, area_suggestions → governorate_id = city
 --   wanted.gov_name, projects.gov_name → city name;  agencies.gov_names → rural name replaced by city name (deduped)
 --   governorates(rural) → enabled = false, merged_into = city
+-- DONE 2026-10-02: حماة (8→7) first, then حلب 4→3, حمص 6→5, اللاذقية 10→9, طرطوس 12→11, إدلب 14→13, درعا 16→15,
+-- دير الزور 20→19, الرقة 22→21, الحسكة 24→23. Damascus (1) and Rif Dimashq (2) untouched by the owner's choice.
+-- Suggested areas approved for every merged governorate + السويداء and القنيطرة (Damascus/Rif suggestions left pending).
 alter table public.governorates add column if not exists merged_into int references governorates(id);
 
 create or replace function public.bk_admin_merge_gov(p_token text, p_rural int, p_city int) returns json
