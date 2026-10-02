@@ -2547,6 +2547,8 @@ body.rs-lock{overflow:hidden}
 .ikbulk{display:flex;flex-direction:column;gap:8px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--page);font-size:13px}.ikbulk.on{background:#fff8ea}
 .ikb-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.ikb-row .xcheck{margin:0}.ikb-n{font-weight:700;color:var(--navy)}
 .ikb-set{display:inline-flex;align-items:center;gap:4px;padding-inline-start:10px;border-inline-start:1px solid var(--line-2)}.ikb-set select{max-width:200px;font-size:13px;padding:6px 8px}
+.sugtable{display:flex;flex-direction:column}.sugrow{display:grid;grid-template-columns:22px minmax(120px,1.2fr) minmax(90px,1fr) minmax(110px,1fr) minmax(140px,1.4fr) 28px;gap:6px 10px;align-items:center;padding:8px 6px;border-bottom:1px solid var(--line);font-size:13px;cursor:pointer}.sugrow.on{background:#fffaf0}.sugrow input{width:16px;height:16px;margin:0}.sugrow .sugen,.sugrow .sugs{color:var(--grey);font-size:12px}.sugrow .sugk{font-size:12px;color:var(--navy)}.sugrow .sugsmp{grid-column:2/-1;color:var(--light);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:900px){.sugrow{grid-template-columns:22px 1fr 28px}.sugrow .sugen,.sugrow .sugk,.sugrow .sugs{grid-column:2}}
 @media(max-width:900px){.ikr{grid-template-columns:24px 48px minmax(0,1fr)}.ikr .ikst,.ikr .ikwhen,.ikr .eacts{grid-column:3}.ikr .eacts{justify-content:flex-start}}
 .ikdetail .ikcols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .ikphotos{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.ikphotos img{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
@@ -6007,6 +6009,7 @@ function adSlotsRow(){
   var locSize = SITE.ad_location_size||9;
   var textColor = SITE.ad_text_color||"#ffffff";
   var shadeRgb = hexToRgb(SITE.ad_shade_color||"#090e1a");
+  var so = SX("ad_shade_opacity",100); so = (so===""||so==null||isNaN(+so)) ? 100 : +so; var shadeOp = Math.max(0,Math.min(100,so))/100;   // panel slider: 0 = no shade behind the captions
   // the dark glow behind the caption text only helps light text; dark text on a light shade gets none (it reads as a smudge)
   var tcRgb = hexToRgb(textColor)||"255,255,255", tcParts = String(tcRgb).split(",").map(Number), tcLum = (0.299*tcParts[0]+0.587*tcParts[1]+0.114*tcParts[2])/255;
   var tShadow = "--ad-ts:" + (tcLum < 0.5 ? "none" : "0 1px 3px rgba(0,0,0,.75)") + ";";
@@ -6024,19 +6027,19 @@ function adSlotsRow(){
    var manualImgs = (!isLinked && !isVideoEmbed && !isUploadedVideo && a.image_urls && a.image_urls.length) ? a.image_urls : null;
    var external = !isLinked && !isVideoEmbed && a.link_url;
    var media;
-   var overlayTop = a.overlay_top ? '<div class="adslot-overtext adslot-overtop" style="font-size:var(--ris);color:'+textColor+';background:linear-gradient(to bottom,rgba('+shadeRgb+',.85) 0%,transparent 100%)">'+a.overlay_top+'</div>' : '';
-   var overlayBottom = a.overlay_bottom ? '<div class="adslot-overtext adslot-overbottom" style="font-size:var(--ris);color:'+textColor+';background:linear-gradient(to top,rgba('+shadeRgb+',.85) 0%,transparent 100%)">'+a.overlay_bottom+'</div>' : '';
+   var overlayTop = a.overlay_top ? '<div class="adslot-overtext adslot-overtop" style="font-size:var(--ris);color:'+textColor+';background:linear-gradient(to bottom,rgba('+shadeRgb+','+(.85*shadeOp)+') 0%,transparent 100%)">'+a.overlay_top+'</div>' : '';
+   var overlayBottom = a.overlay_bottom ? '<div class="adslot-overtext adslot-overbottom" style="font-size:var(--ris);color:'+textColor+';background:linear-gradient(to top,rgba('+shadeRgb+','+(.85*shadeOp)+') 0%,transparent 100%)">'+a.overlay_bottom+'</div>' : '';
    if(isLinked){
      var place=[a.l_area_name?aN(a.l_area_name):"", a.l_gov?gN(a.l_gov):""].filter(Boolean).join(", ");
      media = '<img class="adslot-rotimg" src="'+a.l_photos[0]+'" data-photos="'+
        encodeURIComponent(JSON.stringify(a.l_photos))+'" data-idx="0" alt="'+esc([(a.l_type&&D.TYPES[a.l_type])?D.TYPES[a.l_type][li()]:"", place].filter(Boolean).join(" · "))+'" loading="lazy">'+
        '<div class="adslot-foot" style="'+tShadow+'font-size:var(--ris);color:'+textColor+';'+
-         'background:linear-gradient(to top,rgba('+shadeRgb+',.85) 0%,rgba('+shadeRgb+',.55) 55%,transparent 100%)">'+
+         'background:linear-gradient(to top,rgba('+shadeRgb+','+(.85*shadeOp)+') 0%,rgba('+shadeRgb+','+(.55*shadeOp)+') 55%,transparent 100%)">'+
         (a.l_rooms?'<span>'+(showIcons?ICON_BED:"")+a.l_rooms+(showIcons?"":" "+t("rooms"))+'</span>':'')+
         (a.l_baths?'<span>'+(showIcons?ICON_BATH:"")+a.l_baths+(showIcons?"":" "+t("baths"))+'</span>':'')+
         (a.l_area?'<span class="ltr">'+(showIcons?ICON_AREA:"")+a.l_area+(showIcons?"":" "+t("sqm"))+'</span>':'')+
        '</div>'+
-       (place&&showLoc?'<div class="adslot-place" style="'+tShadow+'font-size:var(--los);color:'+textColor+';background:rgba('+shadeRgb+',.6)">'+place+'</div>':'');
+       (place&&showLoc?'<div class="adslot-place" style="'+tShadow+'font-size:var(--los);color:'+textColor+';background:rgba('+shadeRgb+','+(.6*shadeOp)+')">'+place+'</div>':'');
    } else if(isVideoEmbed){
      var vInfo = videoEmbedInfo(a.video_embed_url);
      media = vInfo ? '<iframe class="adslot-embed" src="'+vInfo.embedUrl+'" '+
@@ -10715,6 +10718,11 @@ var GX_T={
   desc_intake:{ar:"إعلانات تصل برسالة (تيليغرام، واتساب، أو نص ملصوق في الموقع) تُقرأ آلياً وتُنشر تحت اسم المكتب. هنا الربط، الإعدادات، المسوّدات، والسجل.",en:"Listings that arrive by message (Telegram, WhatsApp, or text pasted on the site) are read automatically and published under the agency. Connections, settings, drafts and the log live here.",de:"Anzeigen, die per Nachricht kommen (Telegram, WhatsApp oder eingefügter Text), werden automatisch gelesen und unter dem Büro veröffentlicht. Verbindungen, Einstellungen, Entwürfe und Protokoll."},
   bellIntake:{ar:"مسوّدات رسائل بانتظارك",en:"Message drafts waiting for you",de:"Nachrichten-Entwürfe warten"},
   deedShort:{ar:"الملكية",en:"Deed",de:"Grundbuch",fr:"Titre"},
+  sugH:{ar:"مناطق مقترحة",en:"Suggested areas",de:"Vorgeschlagene Gebiete"}, sugHint:{ar:"أحياء وبلدات وجدها استيراد خرائط OpenStreetMap أو ذكرها المرسلون في رسائلهم وليست في القائمة بعد. لا تظهر في الموقع حتى تعتمدها هنا. 📍 = مع إحداثيات.",en:"Neighbourhoods and towns found by the OpenStreetMap import or named by senders in the bot, not in the list yet. Nothing shows on the site until you approve it here. 📍 = has coordinates.",de:"Von OpenStreetMap importierte oder von Absendern genannte Orte, die noch nicht in der Liste sind. Erst nach Freigabe sichtbar. 📍 = mit Koordinaten."},
+  sugNew:{ar:"منطقة جديدة",en:"New area",de:"Neues Gebiet"}, sugGeo:{ar:"إحداثيات لـ",en:"Coordinates for",de:"Koordinaten für"}, sugSrcOsm:{ar:"خرائط OSM",en:"OSM maps",de:"OSM-Karten"}, sugSrcBot:{ar:"البوت",en:"Bot",de:"Bot"}, sugSrcAdmin:{ar:"الإدارة",en:"Admin",de:"Admin"},
+  sugMentions:{ar:"مرات الذكر",en:"mentions",de:"Nennungen"}, sugApprove:{ar:"اعتماد المحدد",en:"Approve selected",de:"Auswahl freigeben"}, sugApproveAll:{ar:"اعتماد كل مقترحات المحافظة",en:"Approve all for this governorate",de:"Alle für dieses Gouvernement freigeben"}, sugReject:{ar:"رفض المحدد",en:"Reject selected",de:"Auswahl ablehnen"},
+  sugNone:{ar:"لا مقترحات لهذه المحافظة",en:"No suggestions for this governorate",de:"Keine Vorschläge für dieses Gouvernement"}, sugDone:{ar:"تم {n} · تخطّي {s}",en:"{n} done · {s} skipped",de:"{n} erledigt · {s} übersprungen"}, sugN:{ar:"{n} مقترح",en:"{n} suggested",de:"{n} vorgeschlagen"},
+  sugRejectQ:{ar:"رفض {n} مقترحاً؟ لن تُقترح هذه الأسماء مرة أخرى.",en:"Reject {n} suggestions? These names will not be suggested again.",de:"{n} Vorschläge ablehnen? Diese Namen werden nicht erneut vorgeschlagen."}, sugApproveAllQ:{ar:"اعتماد {n} مقترحاً وإضافتها إلى مناطق هذه المحافظة؟",en:"Approve {n} suggestions and add them to this governorate?",de:"{n} Vorschläge freigeben und hinzufügen?"},
   featPendingTag:{ar:"بانتظار الموافقة — لا يظهر حتى يُعتمد",en:"Pending approval — hidden until approved",de:"Wartet auf Freigabe — bis dahin unsichtbar"},
   edBasicsH:{ar:"الأساسيات (للإدارة)",en:"Basics (admin)",de:"Grunddaten (Admin)"},
   agAutoApproveL:{ar:"اعتماد المكاتب الجديدة تلقائياً عند التسجيل",en:"Approve new agencies automatically at sign-up",de:"Neue Büros bei der Registrierung automatisch freigeben"},
@@ -11126,7 +11134,7 @@ var GX_T={
   adRowH:{ar:"صف المربعات",en:"The ad row",de:"Die Werbereihe"}, adLookH:{ar:"شكل المربع",en:"Square design",de:"Gestaltung des Quadrats"},
   adPreview:{ar:"معاينة مباشرة",en:"Live preview",de:"Live-Vorschau"}, adPreviewHint:{ar:"تتغير المعاينة فور تعديل أي حقل؛ اضغط حفظ لتطبيقها على الموقع.",en:"The preview updates as you edit; press Save to apply it to the site.",de:"Die Vorschau folgt jeder Änderung; mit Speichern wird sie auf der Website aktiv."},
   adSizeHint:{ar:"100 إلى 260 بكسل. على الجوال يُصغَّر المربع تلقائياً حتى 130 ليبقى الصف داخل الشاشة.",en:"100 to 260 px. On phones the square is capped at 130 so the row still fits.",de:"100 bis 260 px. Auf dem Handy wird auf 130 begrenzt, damit die Reihe passt."},
-  adColorsSub:{ar:"الألوان",en:"Colours",de:"Farben"}, adInfoSub:{ar:"معلومات العقار على الصورة",en:"Property info on the photo",de:"Objektinfos auf dem Foto"}, adTagSub:{ar:"شارة «إعلان»",en:"“Ad” tag",de:"„Anzeige“-Marke"},
+  adShadeOpL:{ar:"شدة التظليل خلف النص",en:"Shade strength behind the text",de:"Stärke der Abdunklung hinter dem Text"}, adShadeOpHint:{ar:"100% = التظليل الكامل، 0% = بلا تظليل (يبقى ظل خفيف حول النص الفاتح فقط).",en:"100% = full shade, 0% = none (light text keeps a faint glow only).",de:"100 % = volle Abdunklung, 0 % = keine (heller Text behält nur einen leichten Schein)."}, adColorsSub:{ar:"الألوان",en:"Colours",de:"Farben"}, adInfoSub:{ar:"معلومات العقار على الصورة",en:"Property info on the photo",de:"Objektinfos auf dem Foto"}, adTagSub:{ar:"شارة «إعلان»",en:"“Ad” tag",de:"„Anzeige“-Marke"},
   xDefaultHint:{ar:"اتركه فارغاً لاستخدام القيمة الافتراضية.",en:"Leave empty to use the default.",de:"Leer lassen für den Standardwert."},
   xHomeH:{ar:"الحركة والسلوك",en:"Motion & behaviour",de:"Bewegung & Verhalten"},
   xOpening:{ar:"مشهد الافتتاح (كلمة بلكون تصعد ثم يهبط الرأس)",en:"Opening scene (the brand word lifts, then the header comes down)",de:"Eröffnungsszene (Markenwort hebt sich, dann kommt der Header)"},
@@ -11370,10 +11378,20 @@ var PER_COUNTRY_TABS={intake:1,mainpage:1,banners:1,ads:1,design:1,contact:1,geo
 function wireGeoAdmin(){
   if(ADM.tab!=="geo") return;
   ADM.geoCountry=ADM.geoCountry||COUNTRY;
-  if(!ADM._geoLoaded || ADM._geoLoadedFor!==ADM.geoCountry){ ADM._geoLoaded=true; ADM._geoLoadedFor=ADM.geoCountry;
-    Promise.all([DB.rpc("bk_admin_geo_list",{p_token:ADM.token,p_country:ADM.geoCountry}), ADM.countries?Promise.resolve(null):DB.rpc("bk_admin_countries",{p_token:ADM.token})]).then(function(rs){ if(rs[1]&&rs[1].data) ADM.countries=rs[1].data; if(rs[0]&&rs[0].data){ ADM.geo=rs[0].data; render() } }); return }
+  if(!ADM._geoLoaded || ADM._geoLoadedFor!==ADM.geoCountry){ ADM._geoLoaded=true; ADM._geoLoadedFor=ADM.geoCountry; ADM.geoSug=null; ADM.geoSugSel={};
+    Promise.all([DB.rpc("bk_admin_geo_list",{p_token:ADM.token,p_country:ADM.geoCountry}), ADM.countries?Promise.resolve(null):DB.rpc("bk_admin_countries",{p_token:ADM.token}), DB.rpc("bk_admin_area_suggestions",{p_token:ADM.token,p_country:ADM.geoCountry})]).then(function(rs){ if(rs[1]&&rs[1].data) ADM.countries=rs[1].data; if(rs[2]&&rs[2].data) ADM.geoSug=rs[2].data; if(rs[0]&&rs[0].data){ ADM.geo=rs[0].data; render() } }); return }
   var msg=function(s,bad){ var m=$("#geoMsg"); if(m){ m.textContent=s; m.style.color=bad?"var(--danger)":"var(--ok)" } };
-  var reload=function(){ return DB.rpc("bk_admin_geo_list",{p_token:ADM.token,p_country:ADM.geoCountry}).then(function(r){ if(r&&r.data) ADM.geo=r.data; if(ADM.geoCountry==="SY") loadGeo(); render() }) };
+  var reload=function(){ return Promise.all([DB.rpc("bk_admin_geo_list",{p_token:ADM.token,p_country:ADM.geoCountry}), DB.rpc("bk_admin_area_suggestions",{p_token:ADM.token,p_country:ADM.geoCountry})]).then(function(rs){ if(rs[0]&&rs[0].data) ADM.geo=rs[0].data; if(rs[1]&&rs[1].data) ADM.geoSug=rs[1].data; if(ADM.geoCountry==="SY") loadGeo(); render() }) };
+  // suggested areas: tick, approve (→ areas) or reject
+  ADM.geoSugSel=ADM.geoSugSel||{};
+  $$("[data-sug]").forEach(function(c){ c.onchange=function(){ ADM.geoSugSel[this.dataset.sug]=this.checked; render() } });
+  if($("#sugSelAll")) $("#sugSelAll").onchange=function(){ var on=this.checked; $$("[data-sug]").forEach(function(c){ ADM.geoSugSel[c.dataset.sug]=on }); render() };
+  var sugRun=function(ids,action){ var m=$("#sugMsg"); if(!ids.length) return; if(m){ m.style.color="var(--grey)"; m.textContent=GX("qfBusy") }
+    DB.rpc("bk_admin_area_suggest_apply",{p_token:ADM.token,p_ids:ids.map(Number),p_action:action}).then(function(r){ if(r.error) return err(r.error); ADM.geoSugSel={}; admToast(GX("sugDone").replace("{n}",(r.data&&r.data.done)||0).replace("{s}",(r.data&&r.data.skipped)||0)); reload() }) };
+  var sugSelected=function(){ return Object.keys(ADM.geoSugSel).filter(function(k){ return ADM.geoSugSel[k] }) };
+  if($("#sugApprove")) $("#sugApprove").onclick=function(){ sugRun(sugSelected(),"approve") };
+  if($("#sugReject")) $("#sugReject").onclick=function(){ if(!confirm(GX("sugRejectQ").replace("{n}",sugSelected().length))) return; sugRun(sugSelected(),"reject") };
+  if($("#sugApproveAll")) $("#sugApproveAll").onclick=function(){ var ids=$$("[data-sug]").map(function(c){ return c.dataset.sug }); if(!confirm(GX("sugApproveAllQ").replace("{n}",ids.length))) return; sugRun(ids,"approve") };
   $$("[data-geocountry]").forEach(function(b){ b.onclick=function(){ ADM.geoCountry=b.dataset.geocountry; ADM.geoGov=null; ADM.geoGovAddOpen=false; render() } });
   if($("#geoGovAddOpen")) $("#geoGovAddOpen").onclick=function(){ ADM.geoGovAddOpen=true; render() };
   if($("#geoGovAddCancel")) $("#geoGovAddCancel").onclick=function(){ ADM.geoGovAddOpen=false; render() };
