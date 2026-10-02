@@ -1,0 +1,8 @@
+-- Balkoun · 2026-10-02 · «جديد» really starts a new listing (bug seen live: after «جديد», bare photos sent before the
+-- text were glued onto the previous listing by the "photo right after a publish / review" rules).
+-- Applied live by three regexp_replace() patches on bk_intake_message():
+--   1. the «جديد» branch logs intake_log 'new_by_sender' for the chat even when no draft was open;
+--   2. the "bare photo within 5 min after a publish joins that listing" rule is skipped when a 'new_by_sender' mark is
+--      newer than the publish;
+--   3. the "bare photo within 10 min after a draft went to review joins it" rule is skipped the same way.
+-- So the first photo after «جديد» opens a fresh draft, and the text that follows belongs to it.
