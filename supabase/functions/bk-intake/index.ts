@@ -343,7 +343,8 @@ const T = {
     failed: `تعذّر النشر تلقائياً؛ أحلنا الإعلان إلى الإدارة لإكماله.`,
     duplicate: (ref: string) => `يبدو أن هذا الإعلان مكرر لإعلانك المنشور (${ltr(ref)}) 🤔 لم ننشره مرة ثانية، وستراجعه الإدارة.\nإن كان عقاراً مختلفاً فأرسل ما يميّزه (المنطقة، المساحة، السعر) وسننشره.`,
     readFailed: `تعذّرت قراءة الإعلان الآن؛ أحلناه إلى الإدارة.`,
-    deedNone: `• الطابو: غير مذكور (سيُنشر «بدون طابو»)`,
+    deedNone: `• الطابو: غير مذكور`,
+    priceOnRequest: `• السعر: عند التواصل`,
     condDefault: `• الحالة: غير مذكورة (سيُنشر «سليم»)`,
     periodDefault: `• فترة الإيجار: غير مذكورة (سنوي)`,
     verifyAsk: (tail: string) => `للتحقق من رقمك في بلكون (المنتهي بـ ${tail}) اضغط الزر أدناه «مشاركة رقمي» 👇\nلن نستخدم الرقم لأي غرض آخر.`,
@@ -411,7 +412,8 @@ const T = {
     failed: `Automatic publishing failed; the listing was handed to the team.`,
     duplicate: (ref: string) => `This looks like a duplicate of your published listing (${ltr(ref)}) 🤔 It was not published again; the team will review it.\nIf it is a different property, send what sets it apart (area, size, price) and we will publish it.`,
     readFailed: `Could not read the listing right now; it was handed to the team.`,
-    deedNone: `• Deed: not stated (published as "no deed")`,
+    deedNone: `• Deed: not stated`,
+    priceOnRequest: `• Price: on request`,
     condDefault: `• Condition: not stated (published as "intact")`,
     periodDefault: `• Rental period: not stated (yearly)`,
     verifyAsk: (tail: string) => `To verify your Balkoun number (ending in ${tail}) tap "Share my number" below 👇\nWe use it for nothing else.`,
@@ -758,10 +760,9 @@ function settle(f: Record<string, any>, tax: any, rawText?: string) {
   // the neighbourhood: asked for only when the message names no place at all; an unknown place rides along as the
   // landmark (owner's rule: a missing area must never block the sender — the admin adds it from the suggestions list)
   else if (!out.area_id && (g.areas || []).length && !out.landmark) missing.push("area");
-  if (!out.price) missing.push("price");
+  // price and deed are optional (owner's rule, 2026-10-02): no price → "السعر عند التواصل", no deed word → nothing shown
   // a farm or chalet let by the day/season is advertised by its features, not its m² (owner's rule): size optional there
   if (!out.area_m2 && !(out.deal === "rent" && ["farm", "chalet"].includes(out.property_type))) missing.push("area_m2");
-  if (out.deal === "sale" && !out.tabu && (tax.deeds || []).length) missing.push("tabu");   // the site's own form requires the deed for a sale
   return { fields: out, missing };
 }
 const MISSING_AR: Record<string, string> = { deal: "هل هو للبيع أم للإيجار", property_type: "نوع العقار (شقة، بيت، أرض…)", governorate: "المحافظة", area: "الحي أو المنطقة", price: "السعر", area_m2: "المساحة بالمتر", tabu: "نوع الطابو", photos: "صورة واحدة على الأقل" };
@@ -783,6 +784,8 @@ function summary(f: Record<string, any>, tax: any, photos: number, lang: string)
   // no "will be published without a deed" line any more: a sale without a deed word is asked for it before publishing
   if (!cond) L.push(tt.condDefault);
   if (f.price) L.push("• " + (ar ? "السعر: " : "Price: ") + fmtNum(f.price) + " " + (f.currency === "USD" ? "$" : f.currency) + (f.deal === "rent" && f.rental_period ? " / " + ({ daily: ar ? "يومي" : "day", weekly: ar ? "أسبوعي" : "week", monthly: ar ? "شهري" : "month", yearly: ar ? "سنوي" : "year" } as any)[f.rental_period] : "") + (f.negotiable === false ? (ar ? " (غير قابل للتفاوض)" : " (not negotiable)") : ""));
+  if (!f.price) L.push(tt.priceOnRequest);
+  if (f.deal === "sale" && !deed) L.push(tt.deedNone);
   if (f.deal === "rent" && !f.rental_period) L.push(tt.periodDefault);
   if (f.amenities?.length) L.push("• " + f.amenities.join("، "));
   L.push("• " + (ar ? "الصور: " : "Photos: ") + photos + (photos ? "" : (ar ? " (اختياري، لكن الصور تزيد المشاهدات كثيراً)" : " (optional, but photos get far more views)")));

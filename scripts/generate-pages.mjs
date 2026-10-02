@@ -337,7 +337,7 @@ function card(l, avg, lang) {
   return `<a class="card${l.is_featured ? " feat" : ""}" href="${listingUrl(l, lang)}">
 <div class="ph">${l.cover_url ? `<img src="${esc(l.cover_url)}" alt="${esc(typeName(l.property_type, lang))} ${lang === "ar" ? "في" : "in"} ${esc(aname || gname)}" loading="lazy" width="800" height="600">` : `<div class="nop">${W.noPhoto}</div>`}
 <div class="badges">${l.is_featured ? `<span class="badge feat">${W.featured}</span>` : ""}${deedOk ? `<span class="badge ok">${W.greenDeed}</span>` : ""}</div></div>
-<div class="cb"><div class="p">${ltr(money(l.price_usd))}${isRent ? ` <small>/ ${l.rental_period === "yearly" ? W.yearly : W.monthly}</small>` : ""}</div>
+<div class="cb"><div class="p">${l.price_usd == null ? (lang === "ar" ? "السعر عند التواصل" : lang === "de" ? "Preis auf Anfrage" : "Price on request") : ltr(money(l.price_usd))}${isRent ? ` <small>/ ${l.rental_period === "yearly" ? W.yearly : W.monthly}</small>` : ""}</div>
 <div class="cb-loc">${esc([aname, gname].filter(Boolean).join(sep))}${l.landmark && lang === "ar" ? ` · ${esc(l.landmark)}` : ""}</div>
 <div class="cb-details"><span class="cb-type">${esc(typeName(l.property_type, lang))}</span>${l.rooms != null ? `<span>${ltr(l.rooms)} ${W.rooms}</span>` : ""}${l.area_m2 ? `<span>${ltr(l.area_m2)} ${W.sqm}</span>` : ""}${l.floor != null ? `<span>${W.floorAbbr} ${ltr(l.floor)}</span>` : ""}${l.tabu ? `<span class="cb-deed">${esc(tabuName(l.tabu, lang))}</span>` : ""}${diff != null && Math.abs(diff) >= 5 ? `<span style="color:${diff < 0 ? "var(--ok)" : "var(--gold-dk)"};font-weight:600;margin-inline-start:auto">${diff < 0 ? W.belowAvg(Math.abs(diff) + "%") : W.aboveAvg(Math.abs(diff) + "%")}</span>` : ""}</div>
 </div></a>`;

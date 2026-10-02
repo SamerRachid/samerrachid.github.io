@@ -65,7 +65,8 @@ const S = {
 const slugAr = (s) => String(s || "").replace(/[^\p{L}\p{N}\s-]/gu, "").trim().replace(/\s+/g, "-").slice(0, 60);
 const slugLatin = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-").slice(0, 60);
 const esc = (s) => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-const money = (v) => "$" + Number(v).toLocaleString("en");
+const money = (v) => v == null ? "" : "$" + Number(v).toLocaleString("en");
+const POR = { ar: "السعر عند التواصل", en: "Price on request", de: "Preis auf Anfrage" };
 const has = (v) => v !== null && v !== undefined && v !== "";
 const ltr = (s) => `<span class="ltr">${esc(s)}</span>`;
 const nl2br = (s) => esc(s).replace(/\r\n|\r|\n/g, "<br>");
@@ -266,7 +267,7 @@ footer .note{width:100%;color:rgba(255,255,255,.5);font-size:13px}
   <section class="card">
     <h1>${esc(typeLabel)} ${esc(dealLabel)}${sizeTxt ? ` — ${ltr(l.area_m2)} ${W.sqm}` : ""}${place ? ` ${esc(W.inPlace(place))}` : ""}</h1>
     ${place ? `<div class="place">${esc(place)}</div>` : ""}
-    <div class="pricerow"><span class="price">${ltr(money(l.price_usd))}${periodLabel ? `<small> / ${esc(periodLabel)}</small>` : ""}</span><span class="deal">${esc(dealLabel)}</span>${l.price_negotiable ? `<span class="neg">${W.negotiable}</span>` : ""}</div>
+    <div class="pricerow"><span class="price">${l.price_usd == null ? esc(POR[lang] || POR.en) : ltr(money(l.price_usd))}${periodLabel ? `<small> / ${esc(periodLabel)}</small>` : ""}</span><span class="deal">${esc(dealLabel)}</span>${l.price_negotiable ? `<span class="neg">${W.negotiable}</span>` : ""}</div>
     <div class="pills">${pills}</div>
   </section>
   ${facts ? `<section class="card"><h2>${W.details}</h2><div class="facts">${facts}</div></section>` : ""}
