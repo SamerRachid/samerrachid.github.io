@@ -795,8 +795,8 @@ function brief(f: Record<string, any>, tax: any, lang: string): string {
   const a = g ? (g.areas || []).find((x: any) => x[0] === f.area_id || x[1] === f.area) : null;
   const gName = g ? (ar ? g.ar : (g.en || g.ar)) : f.governorate, aName = a ? (ar ? a[1] : (a[2] || a[1])) : f.area;
   const parts = [
-    ty ? (ar ? ty.ar : ty.en) + (f.deal ? " " + (f.deal === "rent" ? (ar ? "للإيجار" : "for rent") : (ar ? "للبيع" : "for sale")) : "") : "",
-    [gName, aName].filter(Boolean).join(" – "),
+    ty ? (ar ? ty.ar : ty.en) + (Number(f.units) > 1 ? (ar ? ` عدد ${f.units}` : ` × ${f.units}`) : "") + (f.deal ? " " + (f.deal === "rent" ? (ar ? "للإيجار" : "for rent") : (ar ? "للبيع" : "for sale")) : "") : "",
+    [gName, aName || (f.area_text ? f.area_text + (ar ? " (غير موجودة في القائمة بعد)" : " (not in our list yet)") : "")].filter(Boolean).join(" – "),
     f.area_m2 ? `${fmtNum(f.area_m2)} ${ar ? "م²" : "m²"}` : "",
     f.rooms ? `${f.rooms} ${ar ? "غرف" : "rooms"}` : "",
     f.price ? fmtNum(f.price) + " " + (f.currency === "USD" ? "$" : f.currency) : "",
@@ -953,7 +953,9 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
       // a name the sender already confirmed or typed in the area question survives a re-read
       const cand = prev.area_confirmed === "1" && prev.area_text ? String(prev.area_text)
         : String(raw.area || "").trim() || (fields.landmark && String(fields.landmark).split(/[،,\-–]/)[0].trim().split(/\s+/).length <= 3 ? String(fields.landmark).split(/[،,\-–]/)[0].trim() : "");
-      if (cand && /[؀-ۿ]/.test(cand) && !/^(قرب|جانب|بعد|مقابل|خلف|أمام|طريق|شارع|دوار|جامع|مشفى|مدرسة|كازية|كراج)/.test(cand)) {
+      // only a name the sender actually wrote (a confirmed one, or one found in the message) — never a model guess
+      const written = prev.area_confirmed === "1" || (cand && norm(rawText).includes(norm(cand)));
+      if (cand && written && /[؀-ۿ]/.test(cand) && !/^(قرب|جانب|بعد|مقابل|خلف|أمام|طريق|شارع|دوار|جامع|مشفى|مدرسة|كازية|كراج)/.test(cand)) {
         fields.area_text = cand; if (!fields.landmark) fields.landmark = cand;
         if (prev.area_confirmed === "1") fields.area_confirmed = "1"; else fields.area_pending = "1";   // the summary asks: is this the area's name?
         const sg = await rpc<any>("bk_intake_area_suggest", { p_gov: fields.governorate_id, p_name: cand, p_sample: rawText.slice(0, 200) });
