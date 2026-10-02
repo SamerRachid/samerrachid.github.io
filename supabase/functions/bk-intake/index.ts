@@ -612,7 +612,9 @@ Rules:
 - Several units offered together in one message (two apartments in the same building, three shops…): ONE listing. Set listings_count to the number of units, property_type = their type, area_m2 / rooms / floor of the first unit, price = the total if one total is written (else the first unit's price), and mention every unit in the description. Never split them. One property = listings_count 1. A main property offered TOGETHER with an attached unit at ONE price (a wedding hall + its booking office, a shop + its depot, a house + its garden or roof) is ONE listing: listings_count 1, area_m2 = the main unit, the attached unit goes into the description.
 - Answer only by calling the tool.`;
 
-function taxonomyText(tax: any): string {
+// the taxonomy sent to the model. With ~4,500 Syrian areas the full list is ~60k tokens per read, so when the message
+// (or the sender's agency) points at particular governorates only THEIR area lists go in; the others are named only
+function taxonomyText(tax: any, onlyGovs?: Set<number> | null): string {
   const L: string[] = [];
   L.push(`country: ${tax.country.code} ${tax.country.name_ar} — currencies: ${(tax.country.currencies || []).join(", ")}`);
   L.push(`types (code = Arabic / English): ` + (tax.types || []).map((t: any) => `${t.code}=${t.ar}/${t.en}`).join("; "));
@@ -621,8 +623,22 @@ function taxonomyText(tax: any): string {
   L.push(`directions: ` + (tax.directions || []).map((d: any) => `${d.code}=${d.ar}`).join("; "));
   L.push(`amenities: ` + (tax.amenities || []).join(" | ") + `\nland_amenities: ` + (tax.land_amenities || []).join(" | "));
   L.push(`governorates and their areas (Arabic / English):`);
-  for (const g of tax.governorates || []) L.push(`- ${g.ar} / ${g.en}: ` + (g.areas || []).map((a: any) => a[1] + (a[2] ? "/" + a[2] : "")).join(", "));
+  for (const g of tax.governorates || []) {
+    if (onlyGovs && onlyGovs.size && !onlyGovs.has(g.id)) { L.push(`- ${g.ar} / ${g.en}: (areas not listed — not this governorate)`); continue; }
+    L.push(`- ${g.ar} / ${g.en}: ` + (g.areas || []).map((a: any) => a[1] + (a[2] ? "/" + a[2] : "")).join(", "));
+  }
   return L.join("\n");
+}
+// which governorates a message can be about: named in the text, or the sender's agency governorates, or the draft's own
+function govsForRead(tax: any, rawText: string, d: any): Set<number> | null {
+  const said = norm(rawText); const out = new Set<number>();
+  for (const g of tax.governorates || []) { const n = norm(g.ar); if (n && (said.includes(n) || said.includes(norm("ريف " + g.ar)))) out.add(g.id); }
+  if (!out.size) {
+    const names = (Array.isArray(d.agency_govs) && d.agency_govs.length ? d.agency_govs : Array.isArray(d.user_agency_govs) ? d.user_agency_govs : []) as string[];
+    for (const n of names) { const g = findGov(tax, n); if (g) out.add(g.id); }
+    const prevGov = d.fields?.governorate_id; if (prevGov) out.add(prevGov);
+  }
+  return out.size ? out : null;   // nothing to go on → the full taxonomy
 }
 type Usage = { in: number; out: number; cache_write: number; cache_read: number };
 async function askClaude(model: string, system: string, taxText: string, user: string, opts?: { tool?: any; toolName?: string }): Promise<{ fields: Record<string, any>; usage: Usage }> {
@@ -978,7 +994,8 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
     return { status: "needs_info", member: !!at?.ok };
   }
   try {
-    const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax), user);
+    const govSet = govsForRead(tax, rawText, d);
+    const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax, govSet), user);
     usage = r.usage; raw = r.fields; const s = settle(r.fields, tax, rawText); fields = s.fields; missing = s.missing; cost = costOf(usage, c);
     // the model must not swap an unknown neighbourhood for a look-alike from the list (العدوي → العسالي): the chosen
     // area has to actually be written in the message; otherwise it becomes a landmark and the area is asked for
@@ -1375,6 +1392,8 @@ async function applyAreaText(m: Incoming, draftId: number, text: string, tt: any
   await log(draftId, m.chat, "info", a ? "area_set_known" : "area_set_new", { name, area_id: a ? a[0] : null });
   await reply(m.source, m.chat, t.areaSet(a ? a[1] : name) + "\n\n" + sum);
 }
+// does a caption carry listing text? Arabic letters or a real number, some length, and not a client's auto-label
+const captionIsText = (t: string) => { const s = String(t || "").trim(); return s.length >= 15 && (/[؀-ۿ]/.test(s) || /\d{2,}/.test(s)) && !/^(video|photo|image|voice|audio|document|file)\s+(from|by)\s/i.test(s) && !/^(IMG|VID|DSC|PXL|MOV)[_-]?\d/i.test(s); };
 async function sendGuide(m: Incoming, c: Cfg) {
   const s = await rpc<any>("bk_intake_sender", { p_source: m.source, p_chat_id: m.chat });
   const lang = c.intake_reply_lang === "en" ? "en" : (s?.lang === "en" ? "en" : "ar");
@@ -1453,6 +1472,8 @@ async function handleIncoming(m: Incoming) {
     return;
   }
   if (/^\/start\b/i.test(m.text || "")) { await sendGuide(m, c); return; }
+  // a media caption counts as listing text only when it reads like one ("Video from Samer", "IMG_2031" and the like are dropped)
+  if ((m.kind === "photo" || m.kind === "video" || m.kind === "audio") && m.text && !captionIsText(m.text)) m.text = null;
   // voice notes, documents and media the channel cannot hand over: told once; a caption with the listing text is still read
   if (m.kind === "audio" || (m.kind === "video" && !m.fetchMedia)) {
     const s = await rpc<any>("bk_intake_sender", { p_source: m.source, p_chat_id: m.chat }); if (s?.enabled) await reply(m.source, m.chat, m.kind === "audio" ? t.audioNo : t.videoNo);
