@@ -5145,7 +5145,8 @@ function post(){
    '</select></div></div></div>'+
  '<div class="blk"><h3><span class="n">2</span>'+t("p2")+'</h3><div class="in"><div class="row">'+
   '<div class="fl"><label class="req">'+t("gov")+'</label><select id="pg"></select></div>'+
-  '<div class="fl"><label class="req">'+t("area")+'</label><select id="pa"></select></div></div>'+
+  '<div class="fl"><label class="req">'+t("area")+'</label><select id="pa"></select>'+
+    '<input id="paOther" autocomplete="off" maxlength="60" placeholder="'+esc(GX("areaOtherPH"))+'" style="display:none;margin-top:6px;border-color:var(--gold)"><div class="hintx" id="paOtherHint" style="display:none">'+GX("areaOtherHint")+'</div></div></div>'+
   '<div class="fl" style="margin-bottom:0"><label>'+t("landmark")+'</label><input id="plm" autocomplete="off">'+
   '<div class="hintx">'+t("landmarkH")+'</div></div></div></div>'+
  '<div class="blk"><h3><span class="n">3</span>'+t("p3")+'</h3><div class="in"><div class="row3">'+
@@ -5937,8 +5938,13 @@ function fillGeo(gs,as,withAll,multi){
  var fill=function(){
    var opts=(gs.value&&D.GEO[gs.value])?D.GEO[gs.value]:[];
    if(multi) opts=opts.filter(function(a){return (F.areas||[]).indexOf(a)===-1});
-   as.innerHTML=(multi?'<option value="">'+t("addArea")+'</option>':(withAll?'<option value="">'+t("allareas")+'</option>':''))+
-     opts.map(function(a){return '<option value="'+a+'"'+(!multi&&F.a===a?" selected":"")+'>'+aN(a)+'</option>'}).join("")};
+   // the post form (single pick, no "all"): the sender chooses on purpose, and a place missing from the list is allowed —
+   // "other" opens a free-text box; the listing goes out with the place as its landmark and the admin gets it as a suggestion
+   var postForm=!multi&&!withAll;
+   as.innerHTML=(multi?'<option value="">'+t("addArea")+'</option>':(withAll?'<option value="">'+t("allareas")+'</option>':'<option value="">'+GX("pickArea")+'</option>'))+
+     opts.map(function(a){return '<option value="'+a+'"'+(!multi&&F.a===a?" selected":"")+'>'+aN(a)+'</option>'}).join("")+
+     (postForm?'<option value="__other__">'+GX("areaOther")+'</option>':'');
+   if(postForm&&!as._otherWired){ as._otherWired=true; as.addEventListener("change",function(){ var o=document.getElementById("paOther"), h=document.getElementById("paOtherHint"), on=as.value==="__other__"; if(o){ o.style.display=on?"":"none"; if(on) o.focus() } if(h) h.style.display=on?"":"none"; if(typeof checkPost==="function") checkPost() }) }};
  gs.addEventListener("change",fill); fill()}
 
 function checkPost(){
@@ -5949,6 +5955,7 @@ function checkPost(){
    var ccRaw=v("pcc")||(USER&&USER.phone?ccOf(USER.phone):phoneCC());
    telPrev.textContent = dRaw ? ("→ +"+ccRaw+" "+dRaw) : "";
  }
+ if(!v("pa") || (v("pa")==="__other__" && v("paOther").trim().length<2)) need.push(t("area"));
  if(!v("pm2"))need.push(t("areaM"));
  var isLand = secOf(v("ptype"))==="land";
  var isRent = ($('input[name=dl]:checked')||{}).value==="rent";
@@ -8954,8 +8961,11 @@ async function savePost(){
     // governorate name -> id
     var g = await DB.from("governorates").select("id").eq("name_ar",val("pg")).single();
     if(g.error) throw g.error;
-    var a = await DB.from("areas").select("id")
+    var otherArea = val("pa")==="__other__" ? val("paOther").trim() : "";
+    var a = otherArea ? {data:[]} : await DB.from("areas").select("id")
               .eq("governorate_id",g.data.id).eq("name_ar",val("pa")).limit(1);
+    // a place that is not in the list yet: it rides along as the landmark and lands in the admin's suggestions
+    if(otherArea){ try{ await DB.rpc("bk_area_suggest_public",{p_gov:g.data.id,p_name:otherArea}) }catch(e){} }
 
     var sec = secOf(val("ptype"));
 
@@ -8986,7 +8996,7 @@ async function savePost(){
         return "+"+cc+d;
       })(),
       contact_name: fullName(USER)||null,
-      landmark: val("plm")||null,
+      landmark: (otherArea ? otherArea + (val("plm") ? " · " + val("plm") : "") : val("plm")) || null,
       lease_months:   ($('input[name=dl]:checked')||{}).value==="rent" ? (parseInt(val("pLease"),10)||null) : null,
       advance_months: ($('input[name=dl]:checked')||{}).value==="rent" ? (parseInt(val("pAdv"),10)||null)   : null,
       deposit_usd:    ($('input[name=dl]:checked')||{}).value==="rent" ? (parseInt(val("pDep"),10)||null)   : null,
@@ -10742,6 +10752,8 @@ var GX_T={
   desc_intake:{ar:"إعلانات تصل برسالة (تيليغرام، واتساب، أو نص ملصوق في الموقع) تُقرأ آلياً وتُنشر تحت اسم المكتب. هنا الربط، الإعدادات، المسوّدات، والسجل.",en:"Listings that arrive by message (Telegram, WhatsApp, or text pasted on the site) are read automatically and published under the agency. Connections, settings, drafts and the log live here.",de:"Anzeigen, die per Nachricht kommen (Telegram, WhatsApp oder eingefügter Text), werden automatisch gelesen und unter dem Büro veröffentlicht. Verbindungen, Einstellungen, Entwürfe und Protokoll."},
   bellIntake:{ar:"مسوّدات رسائل بانتظارك",en:"Message drafts waiting for you",de:"Nachrichten-Entwürfe warten"},
   deedShort:{ar:"الملكية",en:"Deed",de:"Grundbuch",fr:"Titre"},
+  pickArea:{ar:"اختر الحي أو البلدة",en:"Choose the area",de:"Gebiet wählen",fr:"Choisir le quartier"}, areaOther:{ar:"أخرى… غير موجودة في القائمة",en:"Other… not in the list",de:"Andere… nicht in der Liste",fr:"Autre… pas dans la liste"},
+  areaOtherPH:{ar:"اكتب اسم الحي أو القرية",en:"Type the neighbourhood or village",de:"Stadtteil oder Dorf eingeben",fr:"Quartier ou village"}, areaOtherHint:{ar:"يُنشر إعلانك بهذا الاسم كمَعلم، وتضيفه الإدارة إلى القائمة قريباً.",en:"Your listing is published with this name as its landmark; the team adds it to the list soon.",de:"Ihre Anzeige erscheint mit diesem Namen als Orientierungspunkt; das Team ergänzt die Liste bald.",fr:"Votre annonce paraît avec ce nom comme repère ; l'équipe l'ajoutera bientôt à la liste."},
   maintH:{ar:"وضع الصيانة",en:"Maintenance mode",de:"Wartungsmodus"}, maintOn:{ar:"إظهار صفحة «الموقع في صيانة» للزوار",en:"Show the “under maintenance” page to visitors",de:"Wartungsseite für Besucher anzeigen"},
   maintHint:{ar:"يغطي الموقع كله في كل الدول برسالة لطيفة وزر «حاول مرة أخرى». المشرفون يرون الموقع عادياً، ولوحة التحكم تعمل. الصفحات الثابتة للإعلانات تبقى مفتوحة لمحركات البحث.",en:"Covers the whole site in every country with a friendly note and a “try again” button. Admins see the site normally and the panel keeps working. Static listing pages stay open for search engines.",de:"Deckt die ganze Website in allen Ländern mit einem freundlichen Hinweis ab. Admins sehen die Seite normal."},
   maintMsgAr:{ar:"نص الرسالة بالعربية (اختياري)",en:"Arabic message (optional)",de:"Arabischer Text (optional)"}, maintMsgEn:{ar:"نص الرسالة بالإنجليزية (اختياري)",en:"English message (optional)",de:"Englischer Text (optional)"},
@@ -10763,7 +10775,9 @@ var GX_T={
   dsPriceCtxOn:{ar:"إظهار مقارنة السعر بمتوسط المنطقة (% أعلى/أقل) في صفحة الإعلان",en:"Show the area-average comparison (% above/below) on the listing page",de:"Vergleich mit dem Gebietsdurchschnitt (% über/unter) anzeigen"},
   dsPriceHint:{ar:"السعر السابق المشطوب يبقى ظاهراً عند التخفيض؛ هذان المفتاحان يخفيان النسب فقط.",en:"The struck-through old price stays on a price cut; these switches hide the percentages only.",de:"Der durchgestrichene alte Preis bleibt sichtbar; diese Schalter blenden nur die Prozente aus."},
   edBasicsHint:{ar:"نوع العقار والبيع أو الإيجار والمكان لا يغيّرها العضو بنفسه؛ التغيير هنا يظهر فوراً في الإعلان.",en:"The member cannot change the type, deal or place; changes here apply to the listing immediately.",de:"Typ, Art und Ort kann das Mitglied nicht selbst ändern; Änderungen hier gelten sofort."},
-  ik_notRead:{ar:"لم تُقرأ بعد",en:"Not read yet",de:"Noch nicht gelesen"}, ik_noPhoto:{ar:"بلا صور",en:"No photos",de:"Keine Fotos"},
+  ik_notRead:{ar:"لم تُقرأ بعد",en:"Not read yet",de:"Noch nicht gelesen"},
+  ik_keepText:{ar:"الوصف = نص المرسل كما كتبه",en:"Description = the sender's own text",de:"Beschreibung = Originaltext des Absenders"},
+  ik_keepTextHint:{ar:"مفعّل: يُنشر الإعلان بنص المرسل نفسه بعد حذف أرقام الهواتف والروابط وعلامات #. معطّل: يعيد الذكاء الاصطناعي صياغة الوصف.",en:"On: the listing is published with the sender's text (phone numbers, links and # marks removed). Off: the AI rewrites the description.",de:"An: Originaltext des Absenders (ohne Telefonnummern, Links, #). Aus: KI formuliert die Beschreibung neu."}, ik_noPhoto:{ar:"بلا صور",en:"No photos",de:"Keine Fotos"},
   ik_collecting:{ar:"قيد التجميع",en:"Collecting",de:"Wird gesammelt"}, ik_reading:{ar:"قيد القراءة",en:"Reading",de:"Wird gelesen"}, ik_ready:{ar:"بانتظار موافقة المرسل",en:"Awaiting sender's OK",de:"Wartet auf Bestätigung"}, ik_needs_info:{ar:"ينقص معلومات",en:"Missing details",de:"Angaben fehlen"}, ik_review:{ar:"بانتظارك",en:"Needs you",de:"Wartet auf Sie"}, ik_published:{ar:"منشور",en:"Published",de:"Veröffentlicht"}, ik_cancelled:{ar:"ملغى",en:"Cancelled",de:"Abgebrochen"}, ik_failed:{ar:"فشل",en:"Failed",de:"Fehlgeschlagen"}, ik_web:{ar:"الموقع",en:"Website",de:"Website"},
   ik_st_open:{ar:"قيد التجميع أو بانتظار المرسل",en:"Collecting or awaiting sender",de:"In Sammlung / wartet auf Absender"}, ik_st_attention:{ar:"بانتظارك",en:"Need you",de:"Warten auf Sie"}, ik_st_published:{ar:"منشورة",en:"Published",de:"Veröffentlicht"}, ik_st_today:{ar:"آخر 24 ساعة",en:"Last 24 hours",de:"Letzte 24 Stunden"}, ik_st_cost:{ar:"تكلفة القراءة هذا الشهر",en:"Reading cost this month",de:"Lesekosten diesen Monat"},
   ik_connH:{ar:"الربط",en:"Connections",de:"Verbindungen"},
