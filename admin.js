@@ -2778,22 +2778,27 @@ function geoAdminBody(){
    (g?'<div class="geogov" style="display:grid;grid-template-columns:1fr 1fr 1fr auto auto;gap:8px;align-items:center;padding:10px;background:var(--page);border-radius:8px;margin-bottom:12px">'+
      '<input data-gg="name_ar" value="'+escOnce(g.name_ar)+'" placeholder="'+GX("nameAr")+'"><input data-gg="name_en" value="'+escOnce(g.name_en||"")+'" placeholder="'+GX("nameEn")+'"><input data-gg="slug" value="'+escOnce(g.slug||"")+'" placeholder="'+GX("slug")+'" class="ltr">'+
      '<label style="display:flex;gap:6px;align-items:center;font-size:13px"><input type="checkbox" data-gg="enabled"'+(g.enabled?" checked":"")+'>'+GX("shown")+'</label><button class="ab ok" id="geoGovSave">'+GX("save")+'</button></div>':'')+
+   geoSuggestCard(g,true)+
    '<div class="geotable" style="display:grid;grid-template-columns:1.4fr 1fr 1fr .8fr .5fr .5fr auto auto;gap:6px 8px;align-items:center;font-size:13.5px">'+
      '<b>'+GX("nameAr")+'</b><b>'+GX("nameEn")+'</b><b>'+GX("slug")+'</b><b>'+GX("kind")+'</b><b>'+GX("order")+'</b><b>'+GX("shown")+'</b><b>'+GX("listings")+'</b><b></b>'+
      rows.map(function(a){ return '<input data-ga="name_ar:'+a.id+'" value="'+escOnce(a.name_ar)+'"><input data-ga="name_en:'+a.id+'" value="'+escOnce(a.name_en||"")+'"><input data-ga="slug:'+a.id+'" value="'+escOnce(a.slug||"")+'" class="ltr">'+kindSel(a.kind,a.id)+
        '<input data-ga="sort_order:'+a.id+'" value="'+(a.sort_order||100)+'" type="number" style="width:64px"><input type="checkbox" data-ga="enabled:'+a.id+'"'+(a.enabled?" checked":"")+'><span class="ltr">'+a.listings+'</span>'+
        '<span style="display:flex;gap:4px"><button class="ab ok" data-geosave="'+a.id+'">'+GX("save")+'</button>'+(a.listings>0?'':'<button class="ab" data-geodel="'+a.id+'" style="color:var(--danger)">'+GX("del")+'</button>')+'</span>' }).join("")+
      '<input id="geoNewName" placeholder="'+GX("nameAr")+'" style="border-color:var(--gold)"><input id="geoNewEn" placeholder="'+GX("nameEn")+'"><input id="geoNewSlug" placeholder="'+GX("slug")+'" class="ltr">'+kindSel("area","new")+'<input id="geoNewOrder" type="number" value="100" style="width:64px"><span></span><span></span><button class="ab ok" id="geoAdd">'+GX("add")+'</button>'+
-   '</div></div></div>'+geoSuggestCard(g);
+   '</div></div></div>';
 }
-// "مناطق مقترحة": places found by the OpenStreetMap import or named by senders in the bot, waiting for the admin's yes
-function geoSuggestCard(g){
+// "مناطق مقترحة": places found by the OpenStreetMap import or named by senders in the bot, waiting for the admin's yes.
+// Shown ABOVE the (long) areas table of the chosen governorate, so it is the first thing seen after picking one.
+function geoSuggestCard(g,inline){
   var S=ADM.geoSug; if(!g) return '';
-  if(!S) return '<div class="blk" style="margin-top:16px"><h3>'+GX("sugH")+'</h3><div class="in"><div class="hintx">'+t("loading")+'</div></div></div>';
+  var wrap=function(inner,n){ return inline ? '<div class="sugbox"><div class="sughd"><b>'+GX("sugH")+'</b><span class="n">'+n+'</span></div>'+inner+'</div>'
+                                           : '<div class="blk" style="margin-top:16px"><h3>'+GX("sugH")+' <span class="n">'+n+'</span></h3><div class="in">'+inner+'</div></div>' };
+  if(!S) return wrap('<div class="hintx">'+t("loading")+'</div>',0);
   var items=(S.items||[]).filter(function(x){ return x.governorate_id===g.id }), sel=ADM.geoSugSel||{};
+  if(inline && !items.length) return '';
   var nSel=items.filter(function(x){ return sel[x.id] }).length;
   var src=function(s){ return GX(s==="osm"?"sugSrcOsm":s==="bot"?"sugSrcBot":"sugSrcAdmin") };
-  return '<div class="blk" style="margin-top:16px"><h3>'+GX("sugH")+' <span class="n">'+items.length+'</span></h3><div class="in">'+
+  return wrap(
     '<div class="hintx" style="margin-bottom:10px">'+GX("sugHint")+'</div>'+
     (items.length ? '<div class="ikbulk'+(nSel?' on':'')+'" style="border-radius:10px;border:1px solid var(--line);margin-bottom:8px"><div class="ikb-row"><label class="xcheck"><input type="checkbox" id="sugSelAll"'+(nSel&&nSel===items.length?' checked':'')+'><span>'+GX("ik_selAll")+'</span></label><span><b class="ikb-n ltr">'+nSel+'</b> '+GX("ik_selected")+'</span>'+
         '<button type="button" class="ab ok" id="sugApprove"'+(nSel?'':' disabled')+'>'+GX("sugApprove")+'</button><button type="button" class="ab" id="sugApproveAll">'+GX("sugApproveAll")+'</button><button type="button" class="ab bad" id="sugReject"'+(nSel?'':' disabled')+'>'+GX("sugReject")+'</button><span class="xmsg" id="sugMsg"></span></div></div>'+
@@ -2804,8 +2809,7 @@ function geoSuggestCard(g){
           '<span class="sugs">'+src(x.source)+(x.place?' · '+esc(x.place):'')+(x.source==="bot"?' · '+GX("sugMentions")+' <b class="ltr">'+(x.mentions||1)+'</b>':'')+'</span>'+
           '<span class="suggeo" title="'+(x.lat?esc(x.lat+', '+x.lng):'')+'">'+(x.lat?'📍':'—')+'</span>'+
           (x.sample?'<small class="sugsmp" title="'+esc(x.sample)+'">'+esc(String(x.sample).slice(0,70))+'</small>':'')+'</label>' }).join("")+'</div>'
-    : '<div class="adashempty">'+GX("sugNone")+'</div>')+
-  '</div></div>';
+    : '<div class="adashempty">'+GX("sugNone")+'</div>'), items.length);
 }
 function admAllowed(code){ var m=ADM.myCountries||[]; return !m.length || m.indexOf(code)>-1 }
 function admCountries(){ return (ADM.countries||[]).filter(function(c){ return admAllowed(c.code) }) }
