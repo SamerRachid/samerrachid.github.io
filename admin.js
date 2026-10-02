@@ -292,7 +292,7 @@ function adminView(){
      var stLabel = l.status==="hidden"?GX("st_hidden"):l.status==="rejected"?GX("st_rejected"):(t("st_"+l.status)||l.status);
      return '<tr data-row-status="'+l.status+'" data-row-tabu="'+(l.tabu||"")+'" data-row-deal="'+(l.deal||"")+'" data-row-text="'+((l.gov||"")+" "+(l.area||"")+" "+(l.poster_name||"")+" "+l.ref).toLowerCase()+'">'+
      '<td><div class="lcell"><b class="ltr adlink" data-open="'+l.id+'">'+scopeFlag(l.country_code)+(l.ref||l.id)+'</b>'+
-       '<div class="lsub">'+typeName+' · <span class="ltr">$'+Number(l.price_usd).toLocaleString("en")+'</span>'+(l.deal==="rent"?' · '+t("rent"):'')+'</div>'+
+       '<div class="lsub">'+typeName+' · <span class="ltr">'+admPrice(l.price_usd)+'</span>'+(l.deal==="rent"?' · '+t("rent"):'')+'</div>'+
        '<div class="lsub">'+(l.area?l.area+"، ":"")+(l.gov||"")+'</div></div></td>'+
      '<td><span class="tag '+cls(l.tabu)+'">'+(D.TABU[l.tabu]?D.TABU[l.tabu][li()]:(l.tabu||"—"))+'</span><div class="lsub"><span class="ltr">'+(l.photos||0)+'</span> '+t("photos")+'</div></td>'+
      '<td><div class="lperf"><span><b class="ltr">'+(ls.views!=null?ls.views:"…")+'</b> '+GX("colViews")+(ls.views_total!=null?' <small class="ltr">/ '+ls.views_total+'</small>':'')+'</span>'+
@@ -1745,7 +1745,7 @@ function wireAdmin(){
       }).slice(0,30);
       drop.innerHTML = matches.length ? matches.map(function(l){
         return '<div class="chipsel-opt" data-ftpicklisting="1" data-lid="'+l.id+'" data-lref="'+((l.ref||l.id)+"").replace(/"/g,"&quot;")+'" data-lname="'+((l.poster_name||"").replace(/"/g,"&quot;"))+'">'+
-          (l.ref||l.id)+' — '+esc(l.agency_name||l.poster_name||"")+' · '+esc(typeOf(l))+(l.area?' · '+esc(l.area):'')+' ($'+(l.price_usd||0).toLocaleString("en")+')'+
+          (l.ref||l.id)+' — '+esc(l.agency_name||l.poster_name||"")+' · '+esc(typeOf(l))+(l.area?' · '+esc(l.area):'')+' ('+admPrice(l.price_usd)+')'+
           (l.status!=="live"?' <span class="chip" style="color:var(--warn)">'+GX("featPendingTag")+'</span>':'')+'</div>'}).join("")
         : '<div class="chipsel-empty">'+t("noResultsFor")+'</div>';
       $$(".chipsel-drop.on").forEach(function(d){ if(d!==drop) d.classList.remove("on") });
@@ -2238,7 +2238,7 @@ function hsInspAds(){
         '<div class="fl"><label>'+t("adModeUpload")+'</label><div class="hs-up"><input type="file" accept="image/*,video/mp4,video/webm" multiple data-hsaup="1">'+(imgs.length?'<button type="button" class="ab" data-hsaclear="1">'+hsT("adClearMedia")+'</button>':'')+'</div><div class="hintx hs-upmsg"></div></div>',
         fHint(GX("adVideoHint").replace("{max}",adVideoMaxMb())+" "+t("adMultiUploadHint")), aText(t("adLinkUrlL"),"link_url",a.link_url,"https://..."));
     } else if(mode==="linked"){
-      H.push('<div class="fl"><label>'+t("adPickListingL")+'</label><select data-hsa="linked_listing_id" data-hst="str"><option value="">—</option>'+lst.map(function(l){ return '<option value="'+l.id+'"'+(String(l.id)===String(a.linked_listing_id||"")?' selected':'')+'>'+esc(String(l.ref||l.id))+' — '+esc(String(l.poster_name||""))+' ($'+Number(l.price_usd||0).toLocaleString("en")+')</option>' }).join("")+'</select></div>', fHint(t("adLinkedHint")));
+      H.push('<div class="fl"><label>'+t("adPickListingL")+'</label><select data-hsa="linked_listing_id" data-hst="str"><option value="">—</option>'+lst.map(function(l){ return '<option value="'+l.id+'"'+(String(l.id)===String(a.linked_listing_id||"")?' selected':'')+'>'+esc(String(l.ref||l.id))+' — '+esc(String(l.poster_name||""))+' ('+admPrice(l.price_usd)+')</option>' }).join("")+'</select></div>', fHint(t("adLinkedHint")));
     } else {
       H.push(aText(t("adVideoUrlL"),"video_embed_url",a.video_embed_url,"https://www.youtube.com/watch?v=..."), fHint(t("adVideoEmbedHint")), aText(t("adVideoLinkL"),"link_url",a.link_url,"https://..."));
     }
@@ -2824,6 +2824,8 @@ function geoSuggestCard(g,inline){
     : '<div class="adashempty">'+GX("sugNone")+'</div>'), items.length);
 }
 function admAllowed(code){ var m=ADM.myCountries||[]; return !m.length || m.indexOf(code)>-1 }
+// a listing's price in the panel: a number, or "السعر عند التواصل" when none was given (never "$0")
+function admPrice(v){ return (v==null||v===""||isNaN(+v)) ? GX("priceOnRequest") : "$"+Number(v).toLocaleString("en") }
 function admCountries(){ return (ADM.countries||[]).filter(function(c){ return admAllowed(c.code) }) }
 function admResetScope(){   // everything that was loaded for one country scope is loaded again for the new one
   ADM._gen=(ADM._gen||0)+1;
@@ -2858,11 +2860,16 @@ function admSectionize(){
   var key="bk_adm_fold_"+ADM.tab, folds={}; try{ folds=JSON.parse(localStorage.getItem(key)||"{}")||{} }catch(e){}
   blks.forEach(function(b,i){ var h=b.firstElementChild; b.classList.add("afoldable"); if(folds[i]) b.classList.add("folded");
     h.onclick=function(e){ if(e.target.closest("button,a,input,select,label,[data-atab]")) return; b.classList.toggle("folded"); folds[i]=b.classList.contains("folded")?1:0; try{ localStorage.setItem(key,JSON.stringify(folds)) }catch(x){} } });
-  if(blks.length<5) return;
+  if(blks.length<2) return;   // every page with two or more cards gets the sticky section bar (owner: "no more scrolling to find a part")
   var nav=document.createElement("nav"); nav.className="asecnav"; nav.setAttribute("aria-label",GX("secNav"));
-  nav.innerHTML=blks.map(function(b,i){ var tt=titleOf(b.firstElementChild); return tt?'<button type="button" data-sec="'+i+'">'+esc(tt)+'</button>':'' }).join("");
-  var head=main.querySelector(".apage-h"); if(head) head.insertAdjacentElement("afterend",nav); else main.prepend(nav);
-  nav.onclick=function(e){ var btn=e.target.closest("[data-sec]"); if(!btn) return; var b=blks[+btn.dataset.sec]; if(!b) return; b.classList.remove("folded"); var y=b.getBoundingClientRect().top+window.scrollY-118; window.scrollTo({top:y,behavior:"smooth"}) };
+  nav.innerHTML=blks.map(function(b,i){ var tt=titleOf(b.firstElementChild); return tt?'<button type="button" data-sec="'+i+'">'+esc(tt)+'</button>':'' }).join("")+'<button type="button" class="asec-top" data-top="1" title="'+esc(GX("secTop"))+'">↑</button>';
+  // the bar sits right above the first card, below the page header, the country bar and any sub-tabs
+  blks[0].insertAdjacentElement("beforebegin",nav);
+  nav.onclick=function(e){ if(e.target.closest("[data-top]")){ window.scrollTo({top:0,behavior:"smooth"}); return } var btn=e.target.closest("[data-sec]"); if(!btn) return; var b=blks[+btn.dataset.sec]; if(!b) return; b.classList.remove("folded"); var y=b.getBoundingClientRect().top+window.scrollY-118; window.scrollTo({top:y,behavior:"smooth"}) };
+  // scroll-spy: the bar highlights the card currently on screen
+  if("IntersectionObserver" in window){ var btns=nav.querySelectorAll("[data-sec]"), vis={};
+    var io=new IntersectionObserver(function(es){ es.forEach(function(x){ vis[blks.indexOf(x.target)]=x.isIntersecting }); var first=blks.findIndex(function(b,i){ return vis[i] }); btns.forEach(function(bt){ bt.classList.toggle("on",+bt.dataset.sec===first) }) },{rootMargin:"-120px 0px -55% 0px",threshold:0});
+    blks.forEach(function(b){ io.observe(b) }); ADM._secIO&&ADM._secIO.disconnect(); ADM._secIO=io }
 }
 // tables read as cards on phones: every cell learns its column title (CSS shows it as a label under 700px)
 function admTablesToCards(){

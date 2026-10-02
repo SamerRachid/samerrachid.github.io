@@ -2555,6 +2555,35 @@ body.rs-lock{overflow:hidden}
 .maint-card small{display:block;margin-top:18px;color:rgba(255,255,255,.45);letter-spacing:.5px}
 html.maint-on{overflow:hidden}
 .areaq{display:block;width:100%;margin-bottom:6px;padding:8px 10px;border:1px dashed var(--line-2);border-radius:8px;font:inherit;font-size:13.5px;background:#fffdf7}.areaq:focus{border-style:solid;border-color:var(--gold);outline:none}
+/* ── admin panel: one spacing scale and one card language (2026-10-02 "professional pass") ────────────────────────
+   8-point grid: 8 / 16 / 24; cards 24px inside, 16px apart; one header style; forms on a 2-column grid; tables with a
+   sticky head; primary action dark, secondary outline, danger red; a sticky section bar on every page ───────────── */
+.adm .acontent{padding:24px 28px 80px;max-width:1200px}
+.adm .apage-h{margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.adm .apage-h h1{font-size:24px;letter-spacing:-.01em}.adm .apage-h p{font-size:14px;line-height:1.6}
+.adm .blk{margin:0 0 16px;border-radius:12px;border-color:#E3E6EC;box-shadow:0 1px 2px rgba(20,33,61,.04),0 0 0 1px rgba(20,33,61,.02)}
+.adm .blk>h3{font-size:15px;font-weight:700;padding:14px 20px;min-height:52px;color:var(--navy);background:#FBFBFD;border-radius:12px 12px 0 0}
+.adm .blk>h3 .n{background:var(--navy);color:#fff;border-radius:999px;padding:1px 9px;font-size:12px;font-weight:700}
+.adm .blk>.in{padding:20px;gap:16px}.adm .blk>.in>.hintx:first-child{margin-top:-4px}
+.adm .blk.folded>.in,.adm .blk.folded>.atable,.adm .blk.folded>.elist,.adm .blk.folded>.in~*{display:none}
+.adm .afoldable>h3{cursor:pointer;user-select:none}.adm .afoldable>h3::after{content:"⌄";margin-inline-start:auto;color:var(--light);font-size:14px;transition:transform .2s}.adm .blk.folded>h3::after{transform:rotate(180deg)}.adm .blk.folded>h3{border-bottom:0;border-radius:12px}
+.adm .row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.adm .row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.adm .fl label{font-size:12.5px;font-weight:600;color:var(--grey);margin:0}
+.adm .fl input,.adm .fl select,.adm .fl textarea{min-height:40px;border-radius:9px}
+.adm .ab{min-height:36px;padding:0 14px;border-radius:9px;font-size:13px;font-weight:600;display:inline-flex;align-items:center;gap:6px;line-height:1}
+.adm .acontent .ab.ok{box-shadow:0 1px 2px rgba(20,33,61,.15)}
+.adm .acontent .ab.bad{background:#fff;color:var(--danger);border-color:#EBC9C6}.adm .acontent .ab.bad:hover{background:#FFF3F2}
+.adm .xactions{margin-top:4px;padding-top:16px;border-top:1px solid var(--line);gap:10px}.adm .xactions .xmsg{margin-inline-start:auto}
+.adm .atable{border-radius:12px;border-color:#E3E6EC;max-height:70vh}.adm .atable table{font-size:13px}.adm .atable th{position:sticky;top:0;z-index:2;padding:10px 14px}.adm .atable td{padding:10px 14px}.adm .atable tr:hover td{background:#FBFBFD}
+.adm .ikfilters,.adm .ikbulk{padding-left:20px;padding-right:20px}
+.adm .asecnav{top:62px;margin:-4px 0 16px;padding:10px 0;gap:6px;background:linear-gradient(#F3F4F7 85%,rgba(243,244,247,0))}
+.adm .asecnav button{padding:7px 13px;font-size:12.5px;border-radius:999px}.adm .asecnav button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.adm .asecnav .asec-top{margin-inline-start:auto;border-color:transparent;color:var(--grey)}
+.adm .astats{gap:16px;margin-bottom:20px}.adm .astat{padding:18px;border-radius:12px}
+.adm .chkgrid{gap:10px 20px}.adm .xcheck{margin:0;font-size:13.5px}
+.adm .hintx{font-size:12.5px;line-height:1.65;color:var(--grey)}
+.adm .done2,.adm .adashempty{padding:28px;text-align:center;color:var(--grey);border:1px dashed var(--line-2);border-radius:12px;background:#FBFBFD}
+@media(max-width:900px){.adm .acontent{padding:16px 14px 70px}.adm .row,.adm .row3{grid-template-columns:1fr}.adm .blk>.in{padding:16px}.adm .blk>h3{padding:12px 16px}}
 .sugbox{border:1px solid var(--gold);border-radius:12px;padding:12px 14px;margin:4px 0 16px;background:#fffdf7}.sughd{display:flex;align-items:center;gap:8px;font-size:15px;margin-bottom:6px}.sughd .n{background:var(--gold);color:#fff;border-radius:999px;padding:1px 9px;font-size:12.5px;font-weight:700}
 .sugtable{display:flex;flex-direction:column;max-height:520px;overflow:auto}.sugrow{display:grid;grid-template-columns:22px minmax(120px,1.2fr) minmax(90px,1fr) minmax(110px,1fr) minmax(140px,1.4fr) 28px;gap:6px 10px;align-items:center;padding:8px 6px;border-bottom:1px solid var(--line);font-size:13px;cursor:pointer}.sugrow.on{background:#fffaf0}.sugrow.geo b{color:var(--grey);font-weight:600}.sugrow.geo .sugk{color:var(--grey)}.sugrow input{width:16px;height:16px;margin:0}.sugrow .sugen,.sugrow .sugs{color:var(--grey);font-size:12px}.sugrow .sugk{font-size:12px;color:var(--navy)}.sugrow .sugsmp{grid-column:2/-1;color:var(--light);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @media(max-width:900px){.sugrow{grid-template-columns:22px 1fr 28px}.sugrow .sugen,.sugrow .sugk,.sugrow .sugs{grid-column:2}}
@@ -10790,6 +10819,7 @@ var GX_T={
   desc_intake:{ar:"إعلانات تصل برسالة (تيليغرام، واتساب، أو نص ملصوق في الموقع) تُقرأ آلياً وتُنشر تحت اسم المكتب. هنا الربط، الإعدادات، المسوّدات، والسجل.",en:"Listings that arrive by message (Telegram, WhatsApp, or text pasted on the site) are read automatically and published under the agency. Connections, settings, drafts and the log live here.",de:"Anzeigen, die per Nachricht kommen (Telegram, WhatsApp oder eingefügter Text), werden automatisch gelesen und unter dem Büro veröffentlicht. Verbindungen, Einstellungen, Entwürfe und Protokoll."},
   bellIntake:{ar:"مسوّدات رسائل بانتظارك",en:"Message drafts waiting for you",de:"Nachrichten-Entwürfe warten"},
   deedShort:{ar:"الملكية",en:"Deed",de:"Grundbuch",fr:"Titre"},
+  secTop:{ar:"إلى الأعلى",en:"Back to top",de:"Nach oben"},
   priceOnRequest:{ar:"السعر عند التواصل",en:"Price on request",de:"Preis auf Anfrage",fr:"Prix sur demande"},
   areaSearchPH:{ar:"🔍 اكتب أول حروف الحي أو القرية…",en:"🔍 Type the first letters of the area…",de:"🔍 Anfangsbuchstaben des Gebiets…",fr:"🔍 Premières lettres du quartier…"},
   pickArea:{ar:"اختر الحي أو البلدة",en:"Choose the area",de:"Gebiet wählen",fr:"Choisir le quartier"}, areaOther:{ar:"أخرى… غير موجودة في القائمة",en:"Other… not in the list",de:"Andere… nicht in der Liste",fr:"Autre… pas dans la liste"},
@@ -11593,10 +11623,22 @@ window.PWA=(function(){
     window.addEventListener("load", function(){
       navigator.serviceWorker.register("/sw.js").then(function(reg){
         // a new worker installed while the page is open: offer a one-tap update
-        reg.addEventListener("updatefound", function(){ var nw=reg.installing; if(!nw) return; nw.addEventListener("statechange", function(){ if(nw.state==="installed" && navigator.serviceWorker.controller){ toast(GX("pwaUpdate"), GX("pwaReload"), function(){ nw.postMessage("skipWaiting"); location.reload() }) } }) });
+        // a new worker installed while the page is open: on a read-only page it takes over and the page reloads itself
+        // (like any website after a deploy); in the middle of a form the visitor gets the one-tap toast instead
+        var quiet=function(){ return /^(home|search|mapsearch|agencies|projects|wanted|about|contact|contactus|areas)$/.test(VIEW||"") || /^(listing|agency:|by:)/.test(VIEW||"") };
+        reg.addEventListener("updatefound", function(){ var nw=reg.installing; if(!nw) return; nw.addEventListener("statechange", function(){ if(nw.state==="installed" && navigator.serviceWorker.controller){
+          if(quiet()){ window._swAutoReload=true; nw.postMessage("skipWaiting") } else toast(GX("pwaUpdate"), GX("pwaReload"), function(){ nw.postMessage("skipWaiting"); location.reload() }) } }) });
+        navigator.serviceWorker.addEventListener("controllerchange", function(){ if(window._swAutoReload){ window._swAutoReload=false; location.reload() } });
+        // every return to the tab (or a navigation away and back) asks the server for a fresh copy, so an old page never stays open unnoticed
+        setInterval(function(){ try{ reg.update() }catch(e){} }, 15*60*1000);
       }).catch(function(){});
     });
   }
+  // data freshness like any live site: coming back to the tab after a while, or landing here from the browser's
+  // back/forward cache, refetches listings, site settings and areas in the background and re-renders if they changed
+  var _hiddenAt=0;
+  document.addEventListener("visibilitychange", function(){ if(document.hidden){ _hiddenAt=Date.now(); return } if(_hiddenAt && Date.now()-_hiddenAt>60*1000){ _hiddenAt=0; try{ refreshListingsOnNavigate(); loadSiteContent(); loadGeo(); if(typeof syncFeaturedFromServer==="function") syncFeaturedFromServer() }catch(e){} } });
+  window.addEventListener("pageshow", function(e){ if(e.persisted){ try{ refreshListingsOnNavigate(); loadSiteContent(); loadGeo() }catch(x){} } });
   window.addEventListener("offline", function(){ toast(GX("pwaOffline")) });
   return { installable:installable, install:install, standalone:standalone, ios:iosSafari };
 })();
