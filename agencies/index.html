@@ -1312,6 +1312,8 @@ footer{font-size:14px}
 .lbtn svg{flex:none}
 .lbtn.navy{background:var(--navy);color:#fff;margin-top:16px}.lbtn.navy:hover{background:#1C2E52}
 .lbtn.wa{background:#1FA855;color:#fff}.lbtn.wa:hover{background:#178f47}
+.hidephone-note{margin-top:10px;padding:10px 12px;border-radius:10px;background:var(--page);border:1px solid var(--line);font-size:13px;color:var(--grey);line-height:1.5}
+.hp-switch{margin:14px 0 4px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--page)}.hp-switch .hintx{margin-top:6px}.hp-switch .xmsg{display:block;margin-top:4px;font-size:12.5px;color:var(--gold-dark,#8a6a1a)}
 .lbtn.line{background:#fff;color:var(--navy);border-color:var(--line-2)}.lbtn.line:hover{background:var(--navy-w)}
 .lacts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
 .lacts button{background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 4px;font:inherit;font-size:12px;font-weight:600;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
@@ -4411,7 +4413,7 @@ async function storageUpload(path, file, opts){
   // "InvalidSignature" — so that path is parked until Supabase resolves it.)
   return DB.storage.from("photos").upload(path, file, opts||{}) }
 
-var MEMBER_FNS={bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,
+var MEMBER_FNS={bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,bk_set_hide_phone:1,
   bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_own_delete:1,bk_delete_account:1,bk_my_rewards:1,bk_use_feature_credit:1,bk_set_account_type:1,
   bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
   bk_search_del:1,bk_search_list:1,bk_search_save:1,bk_set_avatar:1,bk_set_bio:1,bk_set_currency:1,
@@ -5318,10 +5320,15 @@ function listing(id){
     '<div class="sm">'+(x.oJoined?t("memberSince")+' <span class="ltr">'+new Date(x.oJoined).getFullYear()+'</span> · ':'')+
      (x.orCount?'<span class="ltr" style="color:var(--gold)">'+stars(x.orAvg)+'</span> <b class="ltr">'+x.orAvg+'</b> <span class="ltr">('+x.orCount+')</span>':t("noReviews"))+'</div>'+
     '<div class="sm">'+t("replies")+'</div></div></div>'+
-   '<button class="lbtn navy" id="ph">'+I.phone+t("showPhone")+'</button>'+
-   (x.tel?'<a class="lbtn line" id="callBtn" href="tel:'+x.tel.replace(/\s/g,"")+'">'+I.phone+t("callBtn")+'</a>':'')+
-   (x.wa?'<button class="lbtn wa" id="wab">'+I.wa+t("waMsg")+'</button>':'')+
-   '<button class="lbtn line" id="reqv">'+I.cal+t("reqVisit")+'</button>'+
+   // the owner hides their number (account switch): no phone / call / WhatsApp — a request form reaches them instead
+   (x.hidePhone
+     ? '<div class="hidephone-note">'+GX("hpNote")+'</div>'+
+       '<button class="lbtn navy" id="reqv">'+I.cal+t("reqVisit")+'</button>'+
+       '<button class="lbtn line" id="inqMsg">'+I.wa+GX("hpMessage")+'</button>'
+     : '<button class="lbtn navy" id="ph">'+I.phone+t("showPhone")+'</button>'+
+       (x.tel?'<a class="lbtn line" id="callBtn" href="tel:'+x.tel.replace(/\s/g,"")+'">'+I.phone+t("callBtn")+'</a>':'')+
+       (x.wa?'<button class="lbtn wa" id="wab">'+I.wa+t("waMsg")+'</button>':'')+
+       '<button class="lbtn line" id="reqv">'+I.cal+t("reqVisit")+'</button>')+
    '<div class="lacts">'+
     '<button id="savl">'+I.heart+'<span>'+(SAVED.indexOf(String(x.id))>-1?t("savedL"):t("saveL"))+'</span></button>'+
     '<button id="shr">'+I.share+'<span>'+t("shareL")+'</span></button>'+
@@ -5344,8 +5351,10 @@ function listing(id){
   '</div>'+side+'</div></div>'+
  // on phones the contact card ends up below everything, so a fixed bar keeps the two actions in reach
  '<div class="contactbar">'+
-  (x.tel?'<a class="cb-call" id="callBtn2" href="tel:'+x.tel.replace(/\s/g,"")+'">'+t("callBtn")+'</a>':'')+
-  (x.wa?'<button class="cb-wa" id="wab2">'+t("waMsg")+'</button>':'<button class="cb-wa" id="ph2">'+t("showPhone")+'</button>')+
+  (x.hidePhone
+    ? '<button class="cb-call" id="inqMsg2">'+GX("hpMessage")+'</button><button class="cb-wa" id="reqv2">'+t("reqVisit")+'</button>'
+    : (x.tel?'<a class="cb-call" id="callBtn2" href="tel:'+x.tel.replace(/\s/g,"")+'">'+t("callBtn")+'</a>':'')+
+      (x.wa?'<button class="cb-wa" id="wab2">'+t("waMsg")+'</button>':'<button class="cb-wa" id="ph2">'+t("showPhone")+'</button>'))+
  '</div>'+
  similarListingsSection(x)}
 
@@ -5812,6 +5821,38 @@ function contactUsPage(){
   '<span id="cuMsg" style="font-size:13.5px;color:var(--danger)">'+(CU.msg||"")+'</span></div>'+
  '</div></div></div>'}
 
+/* ── visit / message request to an owner who hides their number (also "message the agency" on agency pages) ── */
+var INQ={open:false,listing:null,toUser:null,ref:"",kind:"visit",sent:false,msg:""};
+function inquiryModal(){
+ if(!INQ.open) return "";
+ var body = INQ.sent
+  ? '<div class="aubody"><div class="audone"><div class="tk">✓</div>'+
+    '<b style="font-size:17px">'+GX("hpSentT")+'</b>'+
+    '<p style="font-size:13.5px;color:var(--grey);margin-top:5px">'+GX("hpSentP")+'</p></div>'+
+    '<button class="aub" id="inqClose2" style="margin-top:14px">'+t("okBtn2")+'</button></div>'
+  : '<div class="aubody">'+
+    '<p class="hintx" style="margin:0 0 10px">'+GX(INQ.kind==="visit"?"hpFormVisit":"hpFormMsg")+'</p>'+
+    '<div class="auf"><label>'+t("firstName")+'</label><input id="inqName" data-allow-autofill autocomplete="name" value="'+esc(USER?fullName(USER):"")+'"></div>'+
+    '<div class="auf"><label>'+GX("hpYourPhone")+'</label><input id="inqPhone" data-allow-autofill class="ltr" inputmode="tel" autocomplete="tel" value="'+esc((USER&&USER.phone)||"")+'" placeholder="+963…"></div>'+
+    '<div class="auf"><label>'+GX("hpMsgL")+'</label><textarea id="inqText" data-allow-autofill maxlength="1000" style="width:100%;min-height:90px;border:1px solid var(--line-2);border-radius:6px;padding:10px;font-family:inherit">'+esc(INQ.kind==="visit"?GX("hpVisitDefault"):"")+'</textarea></div>'+
+    '<button class="aub" id="inqSend">'+t("send")+'</button>'+
+    '<div class="auerr" id="inqMsgErr">'+(INQ.msg||"")+'</div></div>';
+ return '<div class="au on" id="inqOv"><div class="aubox">'+
+  '<div class="autop"><b>'+(INQ.kind==="visit"?t("reqVisit"):GX("hpMessage"))+(INQ.ref?' <span class="ltr" style="font-weight:500;color:var(--light)">'+esc(INQ.ref)+'</span>':'')+'</b><button id="inqX">✕</button></div>'+
+  body+'</div></div>'}
+function wireInquiry(){
+ if($("#inqX")) $("#inqX").onclick=function(){ INQ.open=false; render() };
+ if($("#inqClose2")) $("#inqClose2").onclick=function(){ INQ.open=false; render() };
+ if($("#inqOv")) $("#inqOv").onclick=function(ev){ if(ev.target.id==="inqOv"){ INQ.open=false; render() } };
+ if($("#inqSend")) $("#inqSend").onclick=async function(){
+   var nm=($("#inqName").value||"").trim(), ph=($("#inqPhone").value||"").trim(), tx=($("#inqText").value||"").trim();
+   if(nm.length<2){ INQ.msg=GX("hpNeedName"); render(); return }
+   if(ph.replace(/\D/g,"").length<8){ INQ.msg=GX("hpNeedPhone"); render(); return }
+   this.disabled=true; this.textContent=t("saving");
+   try{ await rpc("bk_inquiry_send",{p_listing:INQ.listing?+INQ.listing:null, p_to_user:INQ.toUser||null, p_name:nm, p_phone:ph, p_message:tx, p_kind:INQ.kind, p_user:(USER&&USER.id)||null, p_token:(USER&&USER.token)||null});
+        INQ.sent=true; INQ.msg=""; render() }
+   catch(e){ var m=String(e.message||"error"); INQ.msg = m==="limit"?GX("hpLimit") : m==="phone"?GX("hpNeedPhone") : m; this.disabled=false; this.textContent=t("send"); render() } };
+}
 var RPT={open:false,id:null,sent:false,msg:""};
 function reportModal(){
  if(!RPT.open) return "";
@@ -6224,6 +6265,8 @@ function account(){
       // account type: member / broker / agency — decides how the account is shown to visitors; changing it takes effect at once (an agency page still needs approval)
       '<div class="fl"><label>'+GX("accTypeL")+'</label><select id="acType">'+[["member",GX("acctMember")],["broker",GX("acctBroker")],["agency",GX("acctAgency")]].map(function(o){ return '<option value="'+o[0]+'"'+(acctType===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select><div class="hintx">'+GX("accTypeHint")+'</div></div>'+
       (showAg?'':accLogoHtml(false))+
+      // ONE switch (owner's rule): hides the number from every listing, the agency page and what the bot publishes
+      '<div class="hp-switch"><label class="xcheck"><input type="checkbox" id="acHidePhone"'+(USER.hide_phone?' checked':'')+'><span><b>'+GX("hpSwitch")+'</b></span></label><div class="hintx">'+GX("hpSwitchHint")+'</div><span class="xmsg" id="acHpMsg"></span></div>'+
       '<div class="xactions"><button class="btn-n" id="acSave" style="width:auto">'+t("saveChanges")+'</button><span class="xmsg" id="acMsg"></span></div>', "")+
     sec("channels", GX("accChannels"), accChannelsHtml(ch), "")+
     sec("security", GX("accSecurity"),
@@ -7176,7 +7219,7 @@ function agCard(a){
     (a.description?'<p class="agdesc">'+esc(a.description).slice(0,150)+(a.description.length>150?"…":"")+'</p>':'')+
     '<div class="agareas">'+MI.map+'<span>'+((a.gov_names||[]).map(gN).join(ar?"، ":", ")||"—")+(areas.length?' · '+areas.join(ar?"، ":", ")+(more>0?' <b>+'+more+'</b>':''):'')+'</span></div>'+
     '<div class="agfoot"><span class="agcount">'+GX("agLive").replace("{n}",'<b class="ltr">'+(a.live||0)+'</b>')+'</span>'+
-      '<span class="agacts">'+((a.whatsapp||a.phone)?'<a class="agbtn wa" href="https://wa.me/'+esc(String(a.whatsapp||a.phone).replace(/\D/g,""))+'" target="_blank" rel="noopener" data-stop>'+MI.msgs+'</a>':'')+(a.phone?'<a class="agbtn" href="tel:'+esc(a.phone)+'" data-stop>'+MI.phone+'</a>':'')+'</span></div></div>' }
+      '<span class="agacts">'+(a.hide_phone?'<a class="agbtn" data-aginq="'+a.id+'" data-aguser="'+esc(a.user_id||"")+'" data-stop title="'+esc(GX("hpMessageAg"))+'">'+MI.msgs+'</a>':'')+((a.whatsapp||a.phone)?'<a class="agbtn wa" href="https://wa.me/'+esc(String(a.whatsapp||a.phone).replace(/\D/g,""))+'" target="_blank" rel="noopener" data-stop>'+MI.msgs+'</a>':'')+(a.phone?'<a class="agbtn" href="tel:'+esc(a.phone)+'" data-stop>'+MI.phone+'</a>':'')+'</span></div></div>' }
 function agenciesPage(){
   var list=AGENCIES, govs=Object.keys(D.GEO);
   var rows=(list||[]).filter(function(a){ if(AGF.g && (a.gov_names||[]).indexOf(AGF.g)===-1) return false; if(AGF.spec && (a.specialties||[]).indexOf(AGF.spec)===-1) return false;
@@ -7207,7 +7250,7 @@ function agencyPage(id){
       (a.address?'<div class="pl">'+esc(a.address)+'</div>':'')+(a.member_since?'<div class="pl">'+GX("agSince").replace("{y}",'<span class="ltr">'+new Date(a.member_since).getFullYear()+'</span>')+'</div>':'')+
       (a.description?'<p class="bio">'+esc(a.description)+'</p>':'')+'</div>'+
      '<div class="profstats"><div><b class="ltr">'+(a.live||0)+'</b><span>'+t("liveAds")+'</span></div><div><b class="ltr">'+(a.closed||0)+'</b><span>'+t("soldAds")+'</span></div><div><b class="ltr">'+((a.area_names||[]).length)+'</b><span>'+GX("f_agAreas")+'</span></div></div></div>'+
-    '<div class="agcontact">'+(a.phone?'<a class="btn-n" href="tel:'+esc(a.phone)+'">'+MI.phone+GX("agCall")+'</a>':'')+(wa?'<a class="btn-n wa" href="https://wa.me/'+wa+'" target="_blank" rel="noopener">'+MI.msgs+GX("agWa")+'</a>':'')+
+    '<div class="agcontact">'+(a.hide_phone?'<a class="btn-n" id="agInq" style="cursor:pointer">'+MI.msgs+GX("hpMessageAg")+'</a>':'')+(a.phone?'<a class="btn-n" href="tel:'+esc(a.phone)+'">'+MI.phone+GX("agCall")+'</a>':'')+(wa?'<a class="btn-n wa" href="https://wa.me/'+wa+'" target="_blank" rel="noopener">'+MI.msgs+GX("agWa")+'</a>':'')+
       (a.email?'<a class="gh" href="mailto:'+esc(a.email)+'">'+MI.mail+GX("agEmail")+'</a>':'')+(a.website?'<a class="gh" href="'+esc(a.website)+'" target="_blank" rel="noopener">'+MI.about+GX("agWeb")+'</a>':'')+
       (USER&&USER.id===a.user_id?'<a class="gh agown" data-go="agencyform">'+GX("accManage")+'</a>':'')+'</div>'+   // the owner: straight to the edit page (Telegram link card lives there)
     ((a.gov_names||[]).length||(a.area_names||[]).length ? '<div class="blk" style="margin-top:16px"><h3>'+GX("agAreasServed")+'</h3><div class="in"><div class="agchips">'+
@@ -8161,9 +8204,16 @@ function wire(){
      if(!tel){ this.textContent=t("noPhone"); return }
      this.innerHTML='<span class="ltr">'+tel+'</span>'; log("reveal_phone") };
 
+   // a hidden number: the visit request and the message both go through the in-site form (the owner is reached by
+   // Balkoun: bell, Telegram, WhatsApp from our number); otherwise the visit request opens WhatsApp as before
+   var openInq=function(kind){ INQ={open:true,listing:LX.id,toUser:LX.uid||null,ref:"BK-"+LX.id,kind:kind,sent:false,msg:""}; log(kind==="visit"?"visit_request":"message_request"); render() };
    if($("#reqv")) $("#reqv").onclick=function(){
+     if(LX.hidePhone){ openInq("visit"); return }
      if(!dig){ alert(t("noPhone")); return }
      log("visit_request"); window.open(waLink(t("waVisit")+" "+ctx),"_blank") };
+   if($("#reqv2")) $("#reqv2").onclick=function(){ openInq("visit") };
+   if($("#inqMsg")) $("#inqMsg").onclick=function(){ openInq("message") };
+   if($("#inqMsg2")) $("#inqMsg2").onclick=function(){ openInq("message") };
 
    if($("#savl")) $("#savl").onclick=async function(){
      if(!USER){ AU.open=true; AU.mode="up"; AU.step=1; render(); return }
@@ -8356,6 +8406,10 @@ function wire(){
  if($("#rptX")) $("#rptX").onclick=function(){ RPT.open=false; render() };
  if($("#rptClose2")) $("#rptClose2").onclick=function(){ RPT.open=false; render() };
  if($("#rptOv")) $("#rptOv").onclick=function(ev){ if(ev.target.id==="rptOv"){RPT.open=false;render()} };
+ wireInquiry();
+ // agency page / directory card of an agency whose owner hides the number: "message the agency" → the same request form
+ if($("#agInq")) $("#agInq").onclick=function(){ var a=AGENCY||{}; INQ={open:true,listing:null,toUser:a.user_id||null,ref:a.name||"",kind:"message",sent:false,msg:""}; render() };
+ $$("[data-aginq]").forEach(function(b){ b.onclick=function(ev){ ev.stopPropagation(); ev.preventDefault(); var ag=(AGENCIES||[]).find(function(x){ return String(x.id)===String(b.dataset.aginq) })||{}; INQ={open:true,listing:null,toUser:b.dataset.aguser||ag.user_id||null,ref:ag.name||"",kind:"message",sent:false,msg:""}; render() } });
  if($("#rptSend")) $("#rptSend").onclick=async function(){
    this.disabled=true; this.textContent=t("saving");
    try{ await rpc("bk_report",{p_listing:+RPT.id,
@@ -8676,6 +8730,11 @@ function wireAuth(){
  if($("#auTgNudge"))$("#auTgNudge").onclick=function(){ acTgPoll() };
 
  /* ── account settings ── */
+ if($("#acHidePhone")) $("#acHidePhone").onchange=async function(){
+   var on=this.checked, box=this, m=$("#acHpMsg"); box.disabled=true; if(m) m.textContent=t("saving");
+   try{ var r=await rpc("bk_set_hide_phone",{p_on:on}); USER.hide_phone=!!(r&&r.hide_phone); saveSession(USER); if(m) m.textContent=GX(on?"hpOnOk":"hpOffOk") }
+   catch(e){ box.checked=!on; if(m) m.textContent=e.message||"error" }
+   box.disabled=false };
  if($("#acSave"))$("#acSave").onclick=async function(){
    this.disabled=true; this.textContent=t("saving");
    var self=this;
@@ -9042,7 +9101,7 @@ function fromRow(r){
     rentalPeriod:r.rental_period||null, featured:!!r.is_featured,
     am:r.amenities||[],
     photos:null,
-    tel:r.contact_phone||"", wa:r.accepts_whatsapp!==false, negot:r.price_negotiable!==false,
+    tel:r.contact_phone||"", wa:r.accepts_whatsapp!==false && !r.owner_hide_phone, hidePhone:!!r.owner_hide_phone, negot:r.price_negotiable!==false,
     cover:r.cover_url||null,
     who:r.contact_name||r.owner_name||"",
     ds:[txt,txt,txt]};
@@ -9809,7 +9868,7 @@ function render(){
  var body= VIEW==="home"?home(): VIEW==="search"?search(): VIEW==="post"?post():
           VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="privacy"?legalPage("privacy"): VIEW==="terms"?legalPage("terms"): VIEW==="areas"?areasView(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="postmsg"?postMsgPage(): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW.indexOf("unsub:")===0?unsubPage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): listing(VIEW.split(":")[1]);
  document.body.classList.remove("mdw-open");
- $("#app").innerHTML=header()+body+footer()+authModal()+reportModal();
+ $("#app").innerHTML=header()+body+footer()+authModal()+reportModal()+inquiryModal();
  setTimeout(fabCheck,50);
  (function(){ var P={home:"/",search:"/search",wanted:"/wanted",agencies:"/agencies",projects:"/projects",about:"/about",contact:"/contact",contactus:"/contactus",post:"/post",mapsearch:"/mapsearch",areas:"/regions",mine:"/mine",saved:"/saved",searches:"/searches",msgs:"/msgs",account:"/account"}, pre=(typeof cPre==="function")?cPre():"";
    $$("#app a[data-go]:not([href])").forEach(function(a){ var g=a.dataset.go, p=P[g]; if(!p){ a.setAttribute("role","button"); return } var q=a.dataset.deal?"?deal="+a.dataset.deal:""; a.setAttribute("href",(pre+p).replace(/\/+$/,"")||"/"); if(q) a.setAttribute("href",a.getAttribute("href")+q) });
@@ -10848,6 +10907,18 @@ document.documentElement.classList.add("js");
    cities vs. neighbourhoods; the built-in list is only the offline fallback. */
 var GEO_META={govId:{},govSlug:{},areaId:{},areaSlug:{},kind:{}};
 var GX_T={
+  // hide-my-number (2026-10-03): the account switch, the listing page without phone buttons, the request form
+  hpSwitch:{ar:"إخفاء رقمي عن الزوار",en:"Hide my number from visitors",de:"Meine Nummer vor Besuchern verbergen"},
+  hpSwitchHint:{ar:"لن يظهر رقمك في إعلاناتك ولا في صفحة مكتبك ولا فيما ينشره البوت. يتواصل معك المهتمون عبر «طلب معاينة» أو «مراسلة المعلن»، وتصلك طلباتهم في تنبيهات حسابك وعلى تيليغرام وواتساب من رقم بلكون. ينطبق فورًا على كل إعلاناتك.",en:"Your number will not appear on your listings, your agency page or what the bot publishes. Interested people reach you through “Visit request” or “Message the advertiser”; their requests arrive in your account alerts, on Telegram and on WhatsApp from Balkoun's number. Applies to all your listings at once.",de:"Ihre Nummer erscheint weder in Ihren Anzeigen noch auf Ihrer Büroseite. Interessenten erreichen Sie über „Besichtigung anfragen“ oder „Nachricht“; Anfragen kommen in Ihr Konto, auf Telegram und per WhatsApp von Balkouns Nummer."},
+  hpOnOk:{ar:"تم ✓ رقمك مخفي الآن في كل إعلاناتك",en:"Done ✓ your number is now hidden on all your listings",de:"Erledigt ✓ Ihre Nummer ist jetzt in allen Anzeigen verborgen"}, hpOffOk:{ar:"تم ✓ رقمك ظاهر من جديد",en:"Done ✓ your number is visible again",de:"Erledigt ✓ Ihre Nummer ist wieder sichtbar"},
+  hpNote:{ar:"المعلن يفضّل التواصل عبر الموقع. أرسل طلب معاينة أو رسالة وتصله فورًا.",en:"The advertiser prefers contact through the site. Send a visit request or a message and it reaches them at once.",de:"Der Anbieter bevorzugt Kontakt über die Website. Senden Sie eine Anfrage oder Nachricht."},
+  hpMessage:{ar:"مراسلة المعلن",en:"Message the advertiser",de:"Nachricht an den Anbieter"}, hpMessageAg:{ar:"مراسلة المكتب",en:"Message the agency",de:"Nachricht an das Büro"},
+  hpFormVisit:{ar:"اترك اسمك ورقمك وموعدًا يناسبك، ويصل الطلب إلى المعلن مباشرة.",en:"Leave your name, number and a time that suits you; the request goes straight to the advertiser.",de:"Hinterlassen Sie Name, Nummer und einen passenden Termin; die Anfrage geht direkt an den Anbieter."},
+  hpFormMsg:{ar:"اكتب رسالتك واترك رقمك ليرد عليك المعلن.",en:"Write your message and leave your number so the advertiser can reply.",de:"Schreiben Sie Ihre Nachricht und hinterlassen Sie Ihre Nummer."},
+  hpYourPhone:{ar:"رقمك (للرد عليك)",en:"Your number (for the reply)",de:"Ihre Nummer (für die Antwort)"}, hpMsgL:{ar:"الرسالة",en:"Message",de:"Nachricht"},
+  hpVisitDefault:{ar:"مرحباً، أرغب بمعاينة هذا العقار. الموعد المناسب لي: ",en:"Hello, I would like to visit this property. A time that suits me: ",de:"Hallo, ich möchte diese Immobilie besichtigen. Passender Termin: "},
+  hpSentT:{ar:"وصل طلبك إلى المعلن ✓",en:"Your request reached the advertiser ✓",de:"Ihre Anfrage ist beim Anbieter ✓"}, hpSentP:{ar:"سيتواصل معك على الرقم الذي تركته.",en:"They will contact you on the number you left.",de:"Sie werden unter der angegebenen Nummer kontaktiert."},
+  hpNeedName:{ar:"اكتب اسمك",en:"Enter your name",de:"Name eingeben"}, hpNeedPhone:{ar:"اكتب رقمًا صحيحًا",en:"Enter a valid number",de:"Gültige Nummer eingeben"}, hpLimit:{ar:"أرسلت طلبات كافية لهذا الإعلان اليوم. انتظر رد المعلن.",en:"You have sent enough requests for this listing today. Wait for the advertiser's reply.",de:"Sie haben heute genug Anfragen gesendet."},
   mdMenu:{ar:"القائمة",en:"Menu",de:"Menü"}, mdClose:{ar:"إغلاق",en:"Close",de:"Schließen"},
   mdAccount:{ar:"حسابي",en:"My account",de:"Mein Konto"}, mdSearch:{ar:"البحث",en:"Search",de:"Suche"},
   mdDiscover:{ar:"اكتشف",en:"Discover",de:"Entdecken"}, mdSite:{ar:"بلكون",en:"Balkoun",de:"Balkoun"},
