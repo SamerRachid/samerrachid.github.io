@@ -408,7 +408,7 @@ function adminView(){
    // maintenance switch: one for the whole site (global extras); admins and the panel are never covered
    '<div class="blk" style="margin-top:16px"><h3>'+GX("maintH")+'</h3><div class="in" id="maintCfg">'+
     '<label class="xcheck" style="margin:0 0 8px"><input type="checkbox" id="maintOn"'+(GSX("maintenance_on",false)===true||GSX("maintenance_on",false)==="true"?' checked':'')+'><span><b>'+GX("maintOn")+'</b></span></label>'+
-    '<div class="hintx" style="margin-bottom:10px">'+GX("maintHint")+'</div>'+
+    '<div class="hintx" style="margin-bottom:10px">'+GX("maintHint")+' <a href="/?maintpreview=1" target="_blank" rel="noopener" style="font-weight:600">'+GX("maintPreview")+' ↗</a></div>'+
     '<div class="row"><div class="fl"><label>'+GX("maintMsgAr")+'</label><textarea id="maintMsgAr" rows="2" data-allow-autofill placeholder="'+esc(GX("maintPH"))+'">'+escOnce(GSX("maintenance_msg_ar",""))+'</textarea></div>'+
     '<div class="fl"><label>'+GX("maintMsgEn")+'</label><textarea id="maintMsgEn" rows="2" class="ltr" data-allow-autofill placeholder="'+esc(GX("maintPH"))+'">'+escOnce(GSX("maintenance_msg_en",""))+'</textarea></div></div>'+
     '<div class="xactions"><button type="button" class="ab'+(GSX("maintenance_on",false)===true||GSX("maintenance_on",false)==="true"?' bad':' ok')+'" id="maintSave">'+t("save")+'</button><span class="xmsg" id="maintMsg"></span></div>'+
