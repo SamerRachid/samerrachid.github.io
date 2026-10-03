@@ -2812,6 +2812,16 @@ html.maint-on{overflow:hidden}
 .adm .fl input[type=color]{height:32px}.adm .fl input[type=file],.adm .blk .in>input[type=file]{padding:8px 10px}
 .adm .health{gap:8px}.adm .hitem{padding:8px 10px;gap:0;border-radius:10px}.adm .hitem b{font-size:16px;line-height:1.3}.adm .hitem span{font-size:11px}
 .adm .adashcard h4{font-size:13px;margin:0 0 6px}
+/* users table: one row per member — the two selects side by side, the two switches in one cell with tiny captions */
+.adm .usel{display:flex;gap:6px;flex-wrap:nowrap}.adm .usel .lvlpick{display:inline-block;width:auto;max-width:118px;margin:0!important}
+.adm .uswitches{display:flex;gap:12px;align-items:center;white-space:nowrap}.adm .uswitches>span{display:inline-flex;flex-direction:column;align-items:center;gap:2px}.adm .uswitches small{font-size:10.5px;color:var(--p-ink2,#616161);line-height:1}
+.adm .ujoin{display:none}.adm .atable td .usub{white-space:nowrap}
+.adm .atable td.unum{white-space:nowrap}.adm .useen,.adm .useen-fresh{white-space:nowrap;font-size:12.5px}
+.adm .atable table{table-layout:auto}
+.adm .atable th,.adm .atable td{padding:8px 10px}
+.adm .usel .lvlpick{max-width:100px;padding:0 4px}
+.adm .ucell .uname{display:inline-block;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+@media(max-width:700px){.adm .ujoin{display:inline}}
 @media(max-width:700px){.adm .ab,.adm .acontent .ab{height:36px;min-height:36px}.adm input:not([type=checkbox]):not([type=radio]),.adm select,.adm .fl input,.adm .fl select{height:36px;line-height:34px}}
 .acsec .blk .in{display:flex;flex-direction:column;gap:14px}.acsec .fl{margin:0}.acsec .xactions{margin-top:0}
 .acs-status{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.asadmin{position:fixed;left:0;right:0;bottom:0;z-index:9000;display:flex;gap:12px;align-items:center;justify-content:center;flex-wrap:wrap;background:#8a1c1c;color:#fff;font-size:13.5px;padding:9px 14px;box-shadow:0 -4px 16px rgba(0,0,0,.25)}.asadmin button{border:1px solid #fff;background:transparent;color:#fff;border-radius:8px;padding:5px 12px;font:inherit;font-weight:700;cursor:pointer}body:has(.asadmin) .fab{bottom:60px}
@@ -11031,6 +11041,7 @@ var GX_T={
   areaSearchPH:{ar:"🔍 اكتب أول حروف الحي أو القرية…",en:"🔍 Type the first letters of the area…",de:"🔍 Anfangsbuchstaben des Gebiets…",fr:"🔍 Premières lettres du quartier…"},
   pickArea:{ar:"اختر الحي أو البلدة",en:"Choose the area",de:"Gebiet wählen",fr:"Choisir le quartier"}, areaOther:{ar:"أخرى… غير موجودة في القائمة",en:"Other… not in the list",de:"Andere… nicht in der Liste",fr:"Autre… pas dans la liste"},
   areaOtherPH:{ar:"اكتب اسم الحي أو القرية",en:"Type the neighbourhood or village",de:"Stadtteil oder Dorf eingeben",fr:"Quartier ou village"}, areaOtherHint:{ar:"يُنشر إعلانك بهذا الاسم كمَعلم، وتضيفه الإدارة إلى القائمة قريباً.",en:"Your listing is published with this name as its landmark; the team adds it to the list soon.",de:"Ihre Anzeige erscheint mit diesem Namen als Orientierungspunkt; das Team ergänzt die Liste bald.",fr:"Votre annonce paraît avec ce nom comme repère ; l'équipe l'ajoutera bientôt à la liste."},
+  uSettingsCol:{ar:"الإعدادات",en:"Settings",de:"Einstellungen"},
   maintPreview:{ar:"معاينة صفحة الصيانة كما يراها الزائر",en:"Preview the maintenance page as a visitor",de:"Wartungsseite als Besucher ansehen"},
   maintH:{ar:"وضع الصيانة",en:"Maintenance mode",de:"Wartungsmodus"}, maintOn:{ar:"إظهار صفحة «الموقع في صيانة» للزوار",en:"Show the “under maintenance” page to visitors",de:"Wartungsseite für Besucher anzeigen"},
   maintHint:{ar:"يغطي الموقع كله في كل الدول برسالة لطيفة وزر «حاول مرة أخرى». المشرفون يرون الموقع عادياً من متصفحهم (لذلك لن تراه أنت إلا من رابط المعاينة أو نافذة خاصة)، ولوحة التحكم تعمل. الصفحات الثابتة للإعلانات تبقى مفتوحة لمحركات البحث.",en:"Covers the whole site in every country with a friendly note and a “try again” button. Admins see the site normally and the panel keeps working. Static listing pages stay open for search engines.",de:"Deckt die ganze Website in allen Ländern mit einem freundlichen Hinweis ab. Admins sehen die Seite normal."},
