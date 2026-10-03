@@ -564,7 +564,7 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
 .profmeta{min-width:200px;flex:1}
 .profmeta h1{font-size:22px;font-weight:700;line-height:1.5}
 .profmeta .pl{font-size:13.5px;color:var(--grey)}
-.profmeta .bio{font-size:14px;color:var(--body);margin-top:8px;max-width:60ch;line-height:1.8}
+.profmeta .bio{font-size:14px;color:var(--body);margin-top:8px;max-width:60ch;line-height:1.8;white-space:pre-line}   /* longer bios keep their paragraphs (2026-10-03) */
 .vbadge{background:var(--ok-w);color:var(--ok);font-size:12px;font-weight:700;
   padding:3px 9px;border-radius:5px;vertical-align:middle;white-space:nowrap}
 .vbadge.soft{background:var(--gold-w);color:#8a5d10}
@@ -6213,7 +6213,7 @@ function agencyFormFields(){
   return '<div class="row"><div class="fl"><label class="req">'+GX("f_agName")+'</label><input data-allow-autofill id="agName" value="'+esc(a.name||"")+'"></div><div class="fl"><label>'+GX("f_agPhone")+'</label><input data-allow-autofill id="agPhone" class="ltr" value="'+esc(a.phone||USER.phone||"")+'"></div></div>'+
     '<div class="row"><div class="fl"><label>'+GX("f_agWa")+'</label><input data-allow-autofill id="agWa" class="ltr" value="'+esc(a.whatsapp||"")+'"></div><div class="fl"><label>'+GX("f_agEmail")+'</label><input data-allow-autofill id="agEmail" class="ltr" value="'+esc(a.email||"")+'"></div></div>'+
     '<div class="row"><div class="fl"><label>'+GX("f_agWeb")+'</label><input data-allow-autofill id="agWeb" class="ltr" value="'+esc(a.website||"")+'" placeholder="https://"></div><div class="fl"><label>'+GX("f_agAddress")+'</label><input data-allow-autofill id="agAddress" value="'+esc(a.address||"")+'"></div></div>'+
-    '<div class="fl"><label>'+GX("f_agDesc")+'</label><textarea id="agDesc" maxlength="600">'+esc(a.description||"")+'</textarea></div>'+
+    '<div class="fl"><label>'+GX("f_agDesc")+'</label><textarea id="agDesc" maxlength="2000" rows="6">'+esc(a.description||"")+'</textarea><div class="hintx">'+GX("bioLimitHint").replace("{n}","2000")+'</div></div>'+
     '<div class="fl"><label>'+GX("agContactPersonL")+'</label><input data-allow-autofill id="agContact" value="'+esc(a.contact_person||"")+'" placeholder="'+esc(GX("agContactPersonPH"))+'"></div>'+
     '<div class="fl"><label>'+GX("f_agSpecs")+'</label><div class="ag-pills sel" id="agSpecs">'+AG_SPECS.map(function(k){ return '<button type="button" class="'+(specs.indexOf(k)>-1?"on":"")+'" data-agspec="'+k+'">'+agSpecLabel(k)+'</button>' }).join("")+'</div></div>'+
     '<div class="fl"><label>'+GX("f_agGovs")+'</label><div class="ag-pills sel" id="agGovs">'+govs.map(function(g){ return '<button type="button" class="'+(selG.indexOf(g)>-1?"on":"")+'" data-aggov="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
@@ -6280,7 +6280,7 @@ function account(){
     sec("me", GX("accMe"),
       '<div class="row"><div class="fl"><label>'+t("firstName")+'</label><input id="acName" autocomplete="off" value="'+esc(USER.name)+'"></div><div class="fl"><label>'+t("familyName")+'</label><input id="acFam" autocomplete="off" value="'+esc(USER.family_name)+'"></div></div>'+
       '<div class="row"><div class="fl"><label>'+t("city")+'</label><input id="acCity" autocomplete="off" value="'+esc(USER.city)+'"></div><div class="fl"><label>'+t("country")+'</label><select id="acCountry">'+(function(){ var cur=String(USER.country||COUNTRY||"SY").toUpperCase(), list=countryList().slice(); if(!list.some(function(c){ return c.code===cur })) list.push({code:cur,name_ar:cur,name_en:cur}); return list.map(function(c){ return '<option value="'+esc(c.code)+'"'+(c.code===cur?' selected':'')+'>'+flagOf(c.code)+' '+esc(countryName(c)||c.code)+'</option>' }).join("") })()+'</select></div></div>'+
-      '<div class="fl"><label>'+t("bio")+'</label><textarea id="acBio" maxlength="300" placeholder="'+t("bioPH")+'">'+esc(USER.bio)+'</textarea></div>'+
+      '<div class="fl"><label>'+t("bio")+'</label><textarea id="acBio" maxlength="1500" rows="5" placeholder="'+t("bioPH")+'">'+esc(USER.bio)+'</textarea><div class="hintx">'+GX("bioLimitHint").replace("{n}","1500")+'</div></div>'+
       // account type: member / broker / agency — decides how the account is shown to visitors; changing it takes effect at once (an agency page still needs approval)
       '<div class="fl"><label>'+GX("accTypeL")+'</label><select id="acType">'+[["member",GX("acctMember")],["broker",GX("acctBroker")],["agency",GX("acctAgency")]].map(function(o){ return '<option value="'+o[0]+'"'+(acctType===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select><div class="hintx">'+GX("accTypeHint")+'</div></div>'+
       (showAg?'':accLogoHtml(false))+
@@ -10946,6 +10946,7 @@ var GX_T={
   hpSentPMember:{ar:"سيصلك رد المعلن في «رسائلي» وفي تنبيهاتك، وعلى رقمك إن تركته.",en:"The advertiser's reply comes to “My messages” and your alerts, and to your number if you left one.",de:"Die Antwort kommt in „Meine Nachrichten“ und Ihre Benachrichtigungen."},
   inqFrom:{ar:"من",en:"From",de:"Von"}, inqTo:{ar:"إلى",en:"To",de:"An"}, inqNoPhone:{ar:"بلا رقم، الرد من هنا",en:"no number, reply from here",de:"keine Nummer, hier antworten"},
   inqAwaitYou:{ar:"بانتظار ردك",en:"Awaiting your reply",de:"Wartet auf Ihre Antwort"}, inqGuestReply:{ar:"زائر بلا حساب: تواصل معه على رقمه",en:"Guest without an account: contact them on their number",de:"Gast ohne Konto: über die Nummer kontaktieren"},
+  bioLimitHint:{ar:"حتى {n} حرف، ويمكنك استخدام فقرات.",en:"Up to {n} characters; paragraphs are kept.",de:"Bis zu {n} Zeichen; Absätze bleiben erhalten."},
   photoMaxHint:{ar:"حتى {n} صورة",en:"up to {n} photos",de:"bis zu {n} Fotos"}, photoMaxHit:{ar:"الحد {n} صورة لكل إعلان؛ أُخذت الصور الأولى فقط.",en:"The limit is {n} photos per listing; only the first ones were taken.",de:"Höchstens {n} Fotos pro Anzeige; nur die ersten wurden übernommen."},
   hpNeedName:{ar:"اكتب اسمك",en:"Enter your name",de:"Name eingeben"}, hpNeedPhone:{ar:"اكتب رقمًا صحيحًا",en:"Enter a valid number",de:"Gültige Nummer eingeben"}, hpLimit:{ar:"أرسلت طلبات كافية لهذا الإعلان اليوم. انتظر رد المعلن.",en:"You have sent enough requests for this listing today. Wait for the advertiser's reply.",de:"Sie haben heute genug Anfragen gesendet."},
   mdMenu:{ar:"القائمة",en:"Menu",de:"Menü"}, mdClose:{ar:"إغلاق",en:"Close",de:"Schließen"},
