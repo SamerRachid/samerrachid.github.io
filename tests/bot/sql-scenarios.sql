@@ -182,6 +182,19 @@ begin
   out := out || pg_temp.chk('captioned_photo_after_review_opens_own_draft', (r->>'is_new')::boolean and (r->>'draft_id')::bigint <> d2 and (select status from intake_drafts where id=d2) = 'review', r::text);
   r := bk_intake_message('whatsapp', 'tb-33c', ch, 'text', 'Delete');
   out := out || pg_temp.chk('delete_word_cancels_open_draft', r->>'command' = 'cancel' and (r->>'draft_id')::bigint <> d2, r::text);
+  -- decorations before the offer word ("🔥 #للبيع …") still make it a new listing; «جديد» lets go of EVERY review draft
+  r := bk_intake_message('whatsapp', 'tb-33d', ch, 'photo', E'🔥 #للبيع شقة أرضية مميزة 🔥\n📍 قرب دوار البيطرة 110 متر\nالسعر 60 ألف', '{"mime":"image/jpeg"}'::jsonb); d1 := (r->>'draft_id')::bigint;
+  out := out || pg_temp.chk('decorated_caption_after_review_opens_own_draft', (r->>'is_new')::boolean and d1 <> d2, r::text);
+  update intake_drafts set status='review', summary='s', updated_at=now(), created_at=now()-interval '10 seconds' where id = d1;
+  r := bk_intake_message('whatsapp', 'tb-33e', ch, 'text', 'جديد');
+  r := bk_intake_message('whatsapp', 'tb-33f', ch, 'photo', E'#للبيع محل في حمص الوعر 40 متر\nالسعر 30 ألف', '{"mime":"image/jpeg"}'::jsonb);
+  out := out || pg_temp.chk('new_releases_all_review_drafts', (r->>'is_new')::boolean and (r->>'draft_id')::bigint not in (d1, d2) and (select count(*) from intake_drafts where id in (d1,d2) and status='review') = 2, r::text);
+  -- «تصحيح السعر 45 ألف» on one line: the word is dropped and the rest joins the draft as a correction
+  d1 := (r->>'draft_id')::bigint;
+  update intake_drafts set status='ready', summary='s', missing='{}', updated_at=now() where id = d1;
+  r := bk_intake_message('whatsapp', 'tb-33g', ch, 'text', 'تصحيح: السعر 45 ألف');
+  out := out || pg_temp.chk('fix_word_with_text_is_correction', r->>'command' is null and (r->>'draft_id')::bigint = d1 and (select raw_text ~ 'السعر 45 ألف$' and raw_text !~ 'تصحيح' from intake_drafts where id=d1), r::text);
+  update intake_drafts set status='cancelled', error='test' where id = d1;
 
   -- 19. «جديد» while the listing waits in the panel (review) keeps it there; the chat only lets go of it (no more photos join it)
   d2 := (r->>'draft_id')::bigint;

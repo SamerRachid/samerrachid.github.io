@@ -48,6 +48,11 @@ begin
     when cmdtx ~* '^(تصحيح|تعديل|صحح|صحّح|عدل|عدّل|correct|correction|edit|fix)[.!]?$' then 'fix'
     when cmdtx ~* '^(إضافة|اضافة|أضف|اضف|زيادة|add|more)[.!]?$' then 'add'
     else null end;
+  -- «تصحيح السعر 45 ألف» on one line: the word is dropped, the rest is the correction text
+  if kind = 'text' and cmd is null and cmdtx ~* '^(تصحيح|تعديل|صحح|صحّح|عدل|عدّل|correction|correct|edit|fix)[\s:،,.\-]+\S' then
+    tx := regexp_replace(tx, '^(تصحيح|تعديل|صحح|صحّح|عدل|عدّل|correction|correct|edit|fix)[\s:،,.\-]+', '', 'i');
+    cmdtx := regexp_replace(cmdtx, '^(تصحيح|تعديل|صحح|صحّح|عدل|عدّل|correction|correct|edit|fix)[\s:،,.\-]+', '', 'i');
+  end if;
   soft_no := cmd is null and kind = 'text' and cmdtx ~* '^(لا|لأ|كلا|no|nope)[.!]?$';
   if cmd is not null and kind <> 'text' then cmd_after := cmd; cmd := null; end if;
 
@@ -204,7 +209,9 @@ begin
     -- a listing already waiting in the panel (review) is NOT cancelled by «جديد»: the chat merely lets go of it
     -- (no more photos / corrections join it); the admin decides in the panel. Anything else open is cancelled.
     if d.id is not null and d.status = 'review' then
-      update intake_drafts set fields = coalesce(fields,'{}'::jsonb) || '{"chat_closed":"1"}'::jsonb where id = d.id;
+      -- every review draft of this chat lets go, not only the newest: otherwise the next message falls back to an older one
+      update intake_drafts set fields = coalesce(fields,'{}'::jsonb) || '{"chat_closed":"1"}'::jsonb
+       where source = p_source and chat_id = p_chat_id and status = 'review' and coalesce(fields->>'chat_closed','') <> '1';
       insert into intake_log (draft_id, chat_id, event, detail) values (d.id, p_chat_id, 'new_by_sender', '{"kept_review":true}'::jsonb);
     elsif d.id is not null then
       update intake_drafts set status = 'cancelled', error = null, updated_at = now() where id = d.id;
@@ -261,9 +268,10 @@ begin
 
   -- a fresh listing (text opening with للبيع/للإيجار/مطلوب) while the previous one was already read: it opens its own
   -- draft; the previous one keeps waiting (panel review / sender confirmation). Photos that follow join the newest draft.
-  -- (a photo or video whose caption is the listing text counts the same as a text)
+  -- (a photo or video whose caption is the listing text counts the same as a text; decorations before the word —
+  --  "🔥 #للبيع شقة…" — do not hide it: the offer word just has to be near the start of a message of some length)
   if d.id is not null and tx <> '' and d.status in ('review','ready','needs_info') and coalesce(d.raw_text,'') <> ''
-     and cmdtx ~* '^\s*#?\s*(للبيع|للإيجار|للايجار|للأجار|للاجار|للآجار|مطلوب)(\s|$|،|:|_)' then
+     and length(cmdtx) >= 30 and left(cmdtx, 30) ~* '(للبيع|للإيجار|للايجار|للأجار|للاجار|للآجار|مطلوب)(\s|$|،|:|_)' then
     insert into intake_log (draft_id, chat_id, event, detail) values (d.id, p_chat_id, 'next_listing', jsonb_build_object('left_status', d.status));
     d := null;
   end if;
