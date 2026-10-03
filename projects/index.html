@@ -9083,7 +9083,8 @@ async function loadSiteContent(){
 }
 // "الموقع في صيانة": a full-screen notice for visitors while the admin works; admins (panel token) and the panel route
 // itself pass through. Text comes from the panel (optional), with a warm default in the visitor's language.
-function maintenanceBypass(){ if(/[?&]maintpreview=1/.test(location.search||"")) return false; try{ if(localStorage.getItem("balkoun_adm")) return true }catch(e){} return /^#\/?admin/.test(location.hash||"") || /\/admin\/?$/.test(location.pathname||""); }
+var MAINT_PREVIEW=/[?&#]maintpreview=1/.test(location.href||"");   // read once at load: the router strips the query string before the content arrives
+function maintenanceBypass(){ if(MAINT_PREVIEW) return false; try{ if(localStorage.getItem("balkoun_adm")) return true }catch(e){} return /^#\/?admin/.test(location.hash||"") || /\/admin\/?$/.test(location.pathname||""); }
 function applyMaintenance(gex){
   var on = gex && (gex.maintenance_on===true || gex.maintenance_on==="true");
   var el = document.getElementById("maint");
