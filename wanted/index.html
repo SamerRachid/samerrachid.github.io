@@ -1182,13 +1182,16 @@ footer{font-size:14px}
 .cfoot{display:flex;flex-direction:column;gap:6px;margin-top:auto;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--light)}
 .cfoot .cf1{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow:hidden;min-height:24px}
 .cfoot .cf1>*{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cfoot .cf1>.cpill:first-child:not(.agency){flex:0 0 auto}   /* the deed never truncates; the agency name gives way */
+.cfoot .cf1>.cpill:first-child:not(.agency){flex:0 0 auto}
+.cfoot .cf1>.cpill.agency{display:inline-block;line-height:18px;vertical-align:middle}.cfoot .cf1>.cpill.agency img{display:inline-block;vertical-align:middle;margin-inline-end:4px}   /* the deed never truncates; the agency name gives way */
 @media(max-width:640px){.pager a,.pager button,.rs-pager a{min-width:40px;min-height:40px}}
 .cfoot .cf2{display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;color:var(--light)}
 .cfoot .cf2 .cref{margin-inline-start:auto}
 /* card rhythm (2026-10-03): the photo box is always 4:3, the title / place / facts are one line each, the footer is two fixed rows */
 .card.c2 .ph{aspect-ratio:4/3}.card.c2 .ph img,.card.c2 .ph .nophoto,.card.c2 .ph video.vcover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .card.c2 .cfacts{flex-wrap:nowrap;overflow:hidden;min-height:22px}
+.card.c2{container-type:inline-size}
+@container (max-width:200px){.card.c2 .cpm{display:none}.card.c2 .cfoot .cf1 .cpill.agency{display:none}.card.c2 .cfacts span:nth-child(n+3){display:none}.card.c2 .cprice .p{font-size:16px}.card.c2 .cfoot .cf2 .csince{display:none}}
 .card.c2 .cfacts span{flex:0 0 auto}
 .card.c2 .cloc{min-height:19px}.card.c2 .ctitle{min-height:21px}
 .cpill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--navy-w);color:var(--navy)}
@@ -2500,20 +2503,20 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .rs-avgrow{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--line);color:var(--ink)}.rs-avgrow:last-child{border-bottom:0}.rs-avgrow .ltr{color:var(--gold-dk);font-weight:700}
 /* phones: compact horizontal cards (photo beside the facts) so three results fit one screen */
 @media(max-width:640px){
-  .rs .res:not(.list-view){grid-template-columns:1fr;gap:10px}
-  .rs .res:not(.list-view) .card{display:flex;flex-direction:row;height:150px;overflow:hidden}
-  .rs .res:not(.list-view) .card .ph{width:132px;flex-shrink:0;height:100%;aspect-ratio:auto;position:relative}
-  .rs .res:not(.list-view) .card .ph img,.rs .res:not(.list-view) .card .ph .nophoto,.rs .res:not(.list-view) .card .ph video.vcover{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;object-fit:cover}
-  .rs .res:not(.list-view) .card .ph::after{height:40%}
-  .rs .res:not(.list-view) .card .bd{top:6px;inset-inline-start:6px;gap:4px}.rs .res:not(.list-view) .card .bd span{font-size:10.5px;padding:2px 7px}
-  .rs .res:not(.list-view) .card .cfav{width:40px;height:40px;top:4px;inset-inline-end:4px;background:rgba(255,255,255,.8)}.rs .res:not(.list-view) .card .cpc{bottom:6px;inset-inline-end:6px;font-size:11px}
-  .rs .res:not(.list-view) .card .cb{flex:1;min-width:0;padding:9px 10px 8px;display:flex;flex-direction:column;justify-content:flex-start;gap:3px}
-  .rs .res:not(.list-view) .card .cprice .p{font-size:17px}.rs .res:not(.list-view) .card .cpm{font-size:11px}
-  .rs .res:not(.list-view) .card .ctitle{font-size:13px;min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .rs .res:not(.list-view) .card .cloc{font-size:11.5px;min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .rs .res:not(.list-view) .card .cfacts{font-size:12px;gap:10px;min-height:0;margin-top:0}.rs .res:not(.list-view) .card .cfacts svg{width:14px;height:14px}
-  .rs .res:not(.list-view) .card .cfoot{margin-top:auto;padding-top:5px;font-size:11px;gap:0}.rs .res:not(.list-view) .card .cfoot .cf2{display:none}.rs .res:not(.list-view) .card .cfoot .cf1{min-height:22px}
-  .rs .res:not(.list-view) .card .cpill{font-size:10.5px;padding:2px 7px}.rs .res:not(.list-view) .card .cpill.agency img{width:14px;height:14px}
+  .res:not(.list-view){grid-template-columns:1fr;gap:10px}
+  .res:not(.list-view) .card{display:flex;flex-direction:row;height:150px;overflow:hidden}
+  .res:not(.list-view) .card .ph{width:132px;flex-shrink:0;height:100%;aspect-ratio:auto;position:relative}
+  .res:not(.list-view) .card .ph img,.rs .res:not(.list-view) .card .ph .nophoto,.rs .res:not(.list-view) .card .ph video.vcover{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;object-fit:cover}
+  .res:not(.list-view) .card .ph::after{height:40%}
+  .res:not(.list-view) .card .bd{top:6px;inset-inline-start:6px;gap:4px}.rs .res:not(.list-view) .card .bd span{font-size:10.5px;padding:2px 7px}
+  .res:not(.list-view) .card .cfav{width:40px;height:40px;top:4px;inset-inline-end:4px;background:rgba(255,255,255,.8)}.rs .res:not(.list-view) .card .cpc{bottom:6px;inset-inline-end:6px;font-size:11px}
+  .res:not(.list-view) .card .cb{flex:1;min-width:0;padding:9px 10px 8px;display:flex;flex-direction:column;justify-content:flex-start;gap:3px}
+  .res:not(.list-view) .card .cprice .p{font-size:17px}.rs .res:not(.list-view) .card .cpm{font-size:11px}
+  .res:not(.list-view) .card .ctitle{font-size:13px;min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .res:not(.list-view) .card .cloc{font-size:11.5px;min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .res:not(.list-view) .card .cfacts{font-size:12px;gap:10px;min-height:0;margin-top:0}.rs .res:not(.list-view) .card .cfacts svg{width:14px;height:14px}
+  .res:not(.list-view) .card .cfoot{margin-top:auto;padding-top:5px;font-size:11px;gap:0}.rs .res:not(.list-view) .card .cfoot .cf2{display:none}.rs .res:not(.list-view) .card .cfoot .cf1{min-height:22px}
+  .res:not(.list-view) .card .cpill{font-size:10.5px;padding:2px 7px}.rs .res:not(.list-view) .card .cpill.agency img{width:14px;height:14px}
 }
 @media(max-width:900px){
   .rs-bar{position:static;z-index:auto}
@@ -4868,13 +4871,13 @@ function card(x,i,isListView){
 
  var title = ar ? typeName+' '+m2Txt(x)+' '+GX("lIn")+' '+aN(x.a)
                : typeName+m2Txt(x,", ")+' '+GX("lIn")+' '+aN(x.a);
- var perm2 = (x.d!=="rent" && x.m2) ? '<span class="cpm"><span class="ltr">$'+Math.round(x.p/x.m2)+'</span>/'+t("sqm")+'</span>' : (x.d==="rent"?'<span class="cpm">'+t("monthlyRent")+'</span>':'');
+ var perm2 = (x.d!=="rent" && x.m2 && +x.p>0) ? '<span class="cpm"><span class="ltr">$'+Math.round(x.p/x.m2)+'</span>/'+t("sqm")+'</span>' : (x.d==="rent"?'<span class="cpm">'+t("monthlyRent")+'</span>':'');
  var deedPill = (x.d!=="rent" && D.TABU[x.tb]) ? '<span class="cpill'+(strongDeed(x.tb)?' green':'')+'">'+(strongDeed(x.tb)?'<span class="tabu-green">'+D.TABU[x.tb][li()]+'</span>':D.TABU[x.tb][li()])+'</span>' : '';
  // who posted: an agency shows its name (and logo when allowed) + ✓, a broker shows "broker", everyone else "owner"
  var poster = x.oag ? '<span class="cpill agency">'+(x.clogo&&x.oav?'<img src="'+x.oav+'" alt="">':'')+esc(x.oagName||x.who||GX("acctAgency"))+(x.oagVer?' ✓':'')+'</span>'
    : x.otype==="broker" ? '<span class="cpill soft">'+GX("acctBroker")+'</span>'
    : (x.clogo && x.oav && !x.ow) ? '<span class="cpill agency"><img src="'+x.oav+'" alt="">'+(x.who||t("agent"))+'</span>' : '<span class="cpill soft">'+(x.ow?t("owner"):t("agent"))+'</span>';
- var since = '<span class="csince">'+GX("cSince").replace("{d}",'<span class="ltr">'+x.days+'</span>')+'</span>';
+ var since = '<span class="csince">'+(x.days>0?GX("cSince").replace("{d}",'<span class="ltr">'+x.days+'</span>'):GX("cToday"))+'</span>';
  var desc = isListView && x.ds && dsOf(x) ? '<p class="cdesc">'+dsOf(x)+'</p>' : '';
 
  return '<a class="card c2'+(isListView?' c2-list':'')+(x.featured?' card-featured':'')+'"'+(x.featured?' style="--feat-bright:'+featBright+'%"':'')+' data-open="'+x.id+'">'+
@@ -5242,7 +5245,7 @@ function listing(id){
             : typeName+', '+m2()+' '+GX("lIn")+' '+aN(x.a);
  var head='<div class="lhead">'+tags+'<h1>'+h1+'</h1>'+
    '<div class="lloc">'+I.pin+'<span>'+aN(x.a)+(ar?'، ':', ')+gN(x.g)+(x.lm?' · '+x.lm:'')+'</span></div>'+
-   '<div class="lmeta"><span>'+t("ref")+' <span class="ltr">'+(x.ref||x.id)+'</span></span><span>'+t("posted")+' <span class="ltr">'+x.days+'d</span></span>'+
+   '<div class="lmeta"><span>'+t("ref")+' <span class="ltr">'+(x.ref||x.id)+'</span></span><span>'+t("posted")+' '+(x.days>0?GX("cSince").replace("{d}",'<span class="ltr">'+x.days+'</span>'):GX("cToday"))+'</span>'+
    '<span><span class="ltr">'+x.vw+'</span> '+t("views")+'</span><span><span class="ltr">'+x.sv+'</span> '+t("saved")+'</span></div></div>';
 
  /* ── key facts ── */
@@ -11002,7 +11005,7 @@ var GX_T={
   heroBgSketchL:{ar:"رسم دمشق بخطوط ذهبية على الكحلي (يُرسم ثم يلمع)",en:"Gold line drawing of Damascus on navy (draws itself, then shines)",de:"Goldene Linienzeichnung von Damaskus auf Dunkelblau"},
   price:{ar:"السعر",en:"Price",de:"Preis"}, anyPrice:{ar:"أي سعر",en:"Any price",de:"Jeder Preis"}, from:{ar:"من",en:"From",de:"Von"}, to:{ar:"إلى",en:"To",de:"Bis"}, done:{ar:"تم",en:"Done",de:"Fertig"},
   upTo:{ar:"حتى",en:"Up to",de:"Bis"}, andUp:{ar:"وأكثر",en:"and up",de:"und mehr"}, map:{ar:"الخريطة",en:"Map",de:"Karte"},
-  cSince:{ar:"منذ {d} يوم",en:"{d} days ago",de:"vor {d} Tagen"},
+  cSince:{ar:"منذ {d} يوم",en:"{d} days ago",de:"vor {d} Tagen"}, cToday:{ar:"اليوم",en:"today",de:"heute"},
   lAllPhotos:{ar:"كل الصور",en:"All photos",de:"Alle Fotos"}, lIn:{ar:"في",en:"in",de:"in"},
   byOwner:{ar:"من المالك مباشرة",en:"Direct from owner",de:"Direkt vom Eigentümer"},
   lgProp:{ar:"العقار",en:"The property",de:"Das Objekt"}, lgLoc:{ar:"الموقع",en:"Location",de:"Lage"}, lgRent:{ar:"شروط الإيجار",en:"Rental terms",de:"Mietbedingungen"},
