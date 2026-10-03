@@ -6122,7 +6122,7 @@ function accLogoHtml(forAgency){
     (USER.avatar_url?'<button type="button" class="gh" id="avDel" style="width:auto;margin:0">'+t("removePhoto")+'</button>':'')+'</div><div class="hintx" id="avMsg"></div></div>'+
     '<input type="file" id="avFile" accept="image/*" hidden></div>' }
 function agencyFormFields(){
-  var a=MYAGENCY||{}, govs=Object.keys(D.GEO), selG=a.gov_names||[], selA=a.area_names||[], specs=a.specialties||[];
+  var a=MYAGENCY||{name:ACC.agPrefill||""}, govs=Object.keys(D.GEO), selG=a.gov_names||[], selA=a.area_names||[], specs=a.specialties||[];
   var areaOpts=selG.reduce(function(acc,g){ return acc.concat((D.GEO[g]||[]).map(function(x){ return [g,x] })) },[]);
   return '<div class="row"><div class="fl"><label class="req">'+GX("f_agName")+'</label><input data-allow-autofill id="agName" value="'+esc(a.name||"")+'"></div><div class="fl"><label>'+GX("f_agPhone")+'</label><input data-allow-autofill id="agPhone" class="ltr" value="'+esc(a.phone||USER.phone||"")+'"></div></div>'+
     '<div class="row"><div class="fl"><label>'+GX("f_agWa")+'</label><input data-allow-autofill id="agWa" class="ltr" value="'+esc(a.whatsapp||"")+'"></div><div class="fl"><label>'+GX("f_agEmail")+'</label><input data-allow-autofill id="agEmail" class="ltr" value="'+esc(a.email||"")+'"></div></div>'+
@@ -6181,6 +6181,7 @@ function account(){
  var agencyBody = !showAg
    ? '<div class="accta"><div><b>'+GX("accCtaT")+'</b><p>'+GX("accCtaP")+'</p></div><button type="button" class="btn-n" id="agStart" style="width:auto">'+GX("agRegister")+'</button></div>'
    : (MYAGENCY===null?'<div class="hintx">'+t("loading")+'</div>':'')+
+     (ACC.agJustCreated&&isAg?'<div class="done2" style="margin-bottom:12px;text-align:start"><b>'+GX("agJustCreated").replace("{n}",esc(MYAGENCY.name||""))+'</b></div>':'')+
      (isAg?'<div class="acs-status">'+agStatusPill(MYAGENCY.status)+(approved?' <a data-agopen="'+MYAGENCY.id+'" class="agviewlink">'+GX("agView")+'</a>':' <span class="hintx" style="display:inline">'+GX("accPendingHint")+'</span>')+'</div>':'<p class="hintx">'+GX("agFormP")+'</p>')+
      accLogoHtml(true)+agencyFormFields();
  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("accTitle")+'</div></div>'+
@@ -7310,6 +7311,7 @@ function wireAgencies(){
     if($("#agSave")) $("#agSave").onclick=async function(){ collectAg(); var m=$("#agMsg"), a=MYAGENCY;
       if(!a.name||!a.name.trim()){ if(m){ m.style.color="var(--danger)"; m.textContent=GX("f_agName") } return }
       this.disabled=true;
+      ACC.agJustCreated=false;
       try{ var r=await DB.rpc("bk_agency_save",{p_token:USER.token||null,p_name:a.name,p_description:a.description||null,p_phone:a.phone||null,p_whatsapp:a.whatsapp||null,p_email:a.email||null,p_website:a.website||null,p_address:a.address||null,p_govs:a.gov_names||[],p_areas:a.area_names||[],p_specialties:a.specialties||[],p_contact_person:a.contact_person||null});
         if(r.error) throw r.error; MYAGENCY=r.data||a; AGENCIES=null; if(USER&&USER.account_type!=="agency"){ USER.account_type="agency"; saveSession(USER) } render(); var m2=$("#agMsg"); if(m2){ m2.style.color="var(--ok)"; m2.textContent = MYAGENCY.status==="approved" ? GX("agSavedOk") : GX("agSaved") } }
       catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } this.disabled=false } };
@@ -8584,7 +8586,7 @@ function wireAuth(){
    var u=await rpc("bk_register",{p_ticket:AU.ticket, p_secret:AU.secret, p_name:AU.name, p_family:AU.fam, p_hash:await sha(AU.pass), p_currency:AU.currency||"USD", p_lang:L, p_type:AU.type||"member"});
    afterAuth(u);
    if(AU.type==="agency"){ ACC.agForm=true; ACC.sec="agency";   // an agency signs up → its page is created at once (pending your approval) and its form is the first thing it sees
-     if(AU.agencyName){ try{ var ag=await DB.rpc("bk_agency_save",{p_token:u.token,p_name:AU.agencyName,p_phone:u.phone||null,p_whatsapp:u.phone||null,p_country:COUNTRY||"SY"}); if(ag&&ag.data&&!ag.error) MYAGENCY=ag.data }catch(e){} } }
+     if(AU.agencyName){ ACC.agPrefill=AU.agencyName; try{ var ag=await DB.rpc("bk_agency_save",{p_token:u.token,p_name:AU.agencyName,p_phone:u.phone||null,p_whatsapp:u.phone||null,p_country:COUNTRY||"SY"}); if(ag&&ag.data&&!ag.error){ MYAGENCY=ag.data; ACC.agJustCreated=true } }catch(e){} } }
    if(AU.consent!=null){ var cv=AU.consent?"subscribed":"unsubscribed"; rpc("bk_member_consent",{p_wa:cv,p_email:cv}).catch(function(){}) }
    ACC.ch=null; loadMyChannels().then(render) };   // the welcome screen's Telegram button needs the member's contact id
  var verifyGone=function(why){ err(why==="rejected"?GX("vRejected"):why==="error"?GX("vExpired"):GX("vExpired")) };
@@ -10932,7 +10934,8 @@ var GX_T={
   accTypeL:{ar:"نوع الحساب",en:"Account type",de:"Kontotyp",fr:"Type de compte"}, accTypeHint:{ar:"يحدد كيف يظهر حسابك للزوار: العضو باسمه، الوسيط باسمه مع شارة «وسيط عقاري»، والمكتب باسم المكتب وشعاره (بعد اعتماد صفحة المكتب).",en:"Decides how visitors see you: a member by name, a broker by name with a broker badge, an agency by its name and logo (once its page is approved).",de:"Bestimmt, wie Besucher Sie sehen: Mitglied mit Namen, Makler mit Namen und Makler-Abzeichen, Büro mit Büroname und Logo (nach Freigabe der Seite).",fr:"Détermine comment les visiteurs vous voient."}, accTypeSaved:{ar:"تم تغيير نوع الحساب.",en:"Account type changed.",de:"Kontotyp geändert.",fr:"Type de compte modifié."},
   accPersonal:{ar:"حسابك الشخصي",en:"Your personal account",de:"Ihr persönliches Konto",fr:"Votre compte personnel"}, agContactPersonL:{ar:"اسم المسؤول عن التواصل (اختياري)",en:"Contact person (optional)",de:"Ansprechpartner (optional)",fr:"Personne à contacter (facultatif)"}, agContactPersonPH:{ar:"يظهر تحت اسم المكتب؛ امسحه إن لم ترد إظهاره",en:"Shown under the agency name; clear it to hide",de:"Erscheint unter dem Büronamen; leeren zum Ausblenden",fr:"Affiché sous le nom de l’agence ; effacez pour masquer"}, agRate:{ar:"قيّم هذا المكتب",en:"Rate this agency",de:"Dieses Büro bewerten",fr:"Noter cette agence"}, agPersonL:{ar:"المسؤول",en:"Contact",de:"Ansprechpartner",fr:"Contact"}, agSince:{ar:"على بلكون منذ {y}",en:"On Balkoun since {y}",de:"Auf Balkoun seit {y}"},
   agFormT:{ar:"بيانات المكتب",en:"Agency profile",de:"Büroprofil"},
-  agFormP:{ar:"أكمل بيانات مكتبك ليظهر في دليل المكاتب بعد موافقة فريق بلكون. كل ما تحفظه هنا يظهر للزوار كما هو.",en:"Complete your agency profile to appear in the directory once the Balkoun team approves it. Everything you save here is shown to visitors as is.",de:"Vervollständigen Sie Ihr Büroprofil, um nach Freigabe im Verzeichnis zu erscheinen. Alles hier wird Besuchern so angezeigt."},
+  agFormP:{ar:"أكمل بيانات مكتبك: المناطق التي يغطيها، تخصصه، ووصفه القصير. كل ما تحفظه هنا يظهر للزوار في دليل المكاتب كما هو.",en:"Complete your agency profile: the areas it covers, its specialties and a short description. Everything you save here is shown to visitors in the directory as is.",de:"Vervollständigen Sie Ihr Büroprofil: Gebiete, Schwerpunkte und eine kurze Beschreibung. Alles hier wird Besuchern im Verzeichnis so angezeigt."},
+  agJustCreated:{ar:"تم إنشاء صفحة مكتبك «{n}» مع تسجيلك ✅ ما تبقّى هنا اختياري: المناطق والتخصص والوصف والشعار، لتظهر صفحتك كاملة في الدليل.",en:"Your agency page “{n}” was created with your signup ✅ The rest here is optional: areas, specialties, description and logo, so the page looks complete in the directory.",de:"Ihre Büroseite „{n}“ wurde mit der Anmeldung erstellt ✅ Der Rest hier ist optional: Gebiete, Schwerpunkte, Beschreibung und Logo."},
   agLogoHint:{ar:"شعار المكتب هو صورة حسابك؛ غيّره من",en:"Your account photo is the agency logo; change it under",de:"Ihr Profilbild ist das Büro-Logo; ändern unter"},
   agAccountP:{ar:"أنت مكتب عقاري؟ سجّل بيانات المكتب ليجدك الباحثون في منطقتك عبر دليل المكاتب.",en:"Are you an agency? Register your agency so searchers in your area find you in the directory.",de:"Sind Sie ein Büro? Registrieren Sie es, damit Suchende Sie im Verzeichnis finden."},
   f_agName:{ar:"اسم المكتب",en:"Agency name",de:"Name des Büros"}, f_agDesc:{ar:"نبذة عن المكتب",en:"About the agency",de:"Über das Büro"}, f_agPhone:{ar:"هاتف المكتب",en:"Agency phone",de:"Telefon"},
