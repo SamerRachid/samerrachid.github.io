@@ -6,7 +6,8 @@
 --   • to edit / add photos / delete a published listing the sender sends ITS NUMBER (SY10281, "10281", "رقم الإعلان 10281"):
 --     the bot opens it (intake_log listing_opened, 30-minute session) and offers 1 تعديل · 2 إضافة صور/فيديو · 3 حذف · لا خروج;
 --     inside the session texts are corrections (fix_published), photos/videos are attached (attach_listing), «تم»/«لا»/
---     «جديد» or a new listing text close it (listing_closed). Admin chats can open any listing; members only their own.
+--     «جديد» close it (listing_closed). Admin chats can open any listing; members only their own.
+--   • «جديد» is THE way to start a fresh listing while another one is open (owner: the words للبيع/للإيجار never decide it)
 CREATE OR REPLACE FUNCTION public.bk_intake_message(p_source text, p_external_id text, p_chat_id text, p_kind text, p_text text, p_media jsonb DEFAULT NULL::jsonb, p_payload jsonb DEFAULT NULL::jsonb, p_sender_name text DEFAULT NULL::text, p_country text DEFAULT NULL::text)
  RETURNS json
  LANGUAGE plpgsql
@@ -92,10 +93,6 @@ begin
         update intake_messages set draft_id = ldraft where source = p_source and external_id = p_external_id;
         return json_build_object('command','listing_closed','listing_id',lid,'ref',lref,'draft_id',ldraft,'sender',s,'guided',guided);
       end if;
-    elsif length(cmdtx) >= 20 and cmdtx ~* '(للبيع|للإيجار|للايجار|للأجار|للاجار|للآجار|مطلوب|for sale|for rent)' then
-      -- a new listing text ("شقة للبيع في المزة …") ends the session; the text goes on to open its own draft
-      insert into intake_log (draft_id, chat_id, event, detail) values (ldraft, p_chat_id, 'listing_closed', jsonb_build_object('listing_id', lid, 'by', 'new_listing_text'));
-      sess := null;
     elsif lmode is null then
       -- anything else before an option was picked: the menu again
       update intake_messages set draft_id = ldraft where source = p_source and external_id = p_external_id;
@@ -266,17 +263,10 @@ begin
       'empty', d.id is null or (coalesce(d.raw_text,'') = '' and jsonb_array_length(d.photos) = 0));
   end if;
 
-  -- a fresh listing (text opening with للبيع/للإيجار/مطلوب) while the previous one was already read: it opens its own
-  -- draft; the previous one keeps waiting (panel review / sender confirmation). Photos that follow join the newest draft.
-  -- (a photo or video whose caption is the listing text counts the same as a text; decorations before the word —
-  --  "🔥 #للبيع شقة…" — do not hide it: the offer word just has to be near the start of a message of some length)
-  if d.id is not null and tx <> '' and d.status in ('review','ready','needs_info') and coalesce(d.raw_text,'') <> ''
-     and length(cmdtx) >= 30 and left(cmdtx, 30) ~* '(للبيع|للإيجار|للايجار|للأجار|للاجار|للآجار|مطلوب)(\s|$|،|:|_)' then
-    insert into intake_log (draft_id, chat_id, event, detail) values (d.id, p_chat_id, 'next_listing', jsonb_build_object('left_status', d.status));
-    d := null;
-  end if;
+  -- (owner's rule, 2026-10-03: only «جديد» starts a fresh listing while another one is open — the words للبيع/للإيجار
+  --  in a message never decide that, since nobody knows where a sender will write them)
 
-  cc := coalesce(nullif(upper(p_country),''), s->>'country_code', 'SY');
+  cc :=coalesce(nullif(upper(p_country),''), s->>'country_code', 'SY');
   if d.id is null then
     select count(*) into n_today from intake_drafts where source = p_source and chat_id = p_chat_id and created_at > now() - interval '24 hours';
     -- admin, agency and broker chats are never rate-limited (they send whole batches); the cap is for plain members

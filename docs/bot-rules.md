@@ -25,11 +25,13 @@ fools the bot, add it to `tests/bot/` and fix it in the weekly batch (see "How c
    own listings; admin chats open any. A new listing text closes the session. «جديد» at any time starts fresh; it
    cancels a draft the sender is still building or confirming, but never a listing that already waits in the panel
    (review): that one stays for the admin; the chat only lets go of it.
-4b. **Several listings, one chat.** Send each listing as its own message followed by its photos: a text that opens
-   with للبيع/للإيجار/مطلوب while the previous listing was already read opens its own draft, and the photos that follow
-   join the newest one. No «جديد» needed. Two listings pasted in ONE message are split into two drafts, but the photos
-   sent with that message all stay on the first (the bot cannot tell which photo belongs to which); the admin removes
-   the wrong ones in the panel. A generic word heading a landmark («مدرسة المناضل», «جانب الجامع») is never the area.
+4b. **Several listings, one chat: «جديد» starts each one** (owner, 2026-10-03). While a listing is open (being built,
+   waiting for «نعم», or waiting in the panel for the last 10 minutes), every text and photo belongs to it, whatever
+   words it holds: the words للبيع/للإيجار never start a new listing by themselves, because nobody knows where a
+   sender writes them. Write «جديد», then send the next listing with its photos. After a publish or a cancel nothing is
+   open, so the next message simply opens a new listing without «جديد». Two listings pasted in ONE message are still
+   split into two drafts, but the photos sent with that message all stay on the first. A generic word heading a
+   landmark («مدرسة المناضل», «جانب الجامع») is never the area.
 5. **The sender's words are the description.** Verbatim, including the phone number; only command words and the
    membership number are dropped. The model's rewrite is used only when the panel switches `intake_keep_text` off.
 6. **The how-to is sent once** per chat (not to admins) and again on «مساعدة».

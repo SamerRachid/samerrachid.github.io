@@ -130,8 +130,10 @@ begin
   r := bk_intake_message('whatsapp', 'tb-25k', ch, 'text', 'SY9999999');
   out := out || pg_temp.chk('unknown_number_is_reported', r->>'command' = 'listing_notfound', r::text);
   r := bk_intake_message('whatsapp', 'tb-25l', ch, 'text', lref);
-  r := bk_intake_message('whatsapp', 'tb-25m', ch, 'text', 'شقة للبيع في المزة 100 متر 3 غرف 50 ألف');
-  out := out || pg_temp.chk('listing_text_in_session_opens_new_draft', (r->>'is_new')::boolean and r->>'command' is null, r::text);
+  r := bk_intake_message('whatsapp', 'tb-25m', ch, 'text', 'جديد');
+  out := out || pg_temp.chk('new_closes_opened_listing', r->>'command' = 'new', r::text);
+  r := bk_intake_message('whatsapp', 'tb-25m2', ch, 'text', 'شقة للبيع في المزة 100 متر 3 غرف 50 ألف');
+  out := out || pg_temp.chk('text_after_new_is_fresh_draft', (r->>'is_new')::boolean and r->>'command' is null, r::text);
   update intake_drafts set status='cancelled', error='test' where id = (r->>'draft_id')::bigint;
   -- «تصحيح» / «إضافة» while a summary waits → short prompts; with nothing open → the "send the number" hint
   r := bk_intake_message('whatsapp', 'tb-25n', ch, 'text', 'شقة للبيع في حماة 100 متر 40 ألف'); d1 := (r->>'draft_id')::bigint;
@@ -162,29 +164,28 @@ begin
   r := bk_intake_publish(d1);
   out := out || pg_temp.chk('publish_without_size', (r->>'ok')::boolean and (select area_m2 is null from listings where id = (r->>'listing_id')::bigint), r::text);
 
-  -- 18. a text that opens with للبيع/للإيجار while the previous draft is in review or ready opens ITS OWN draft; the
-  --     previous one stays where it was; a bare photo afterwards joins the newest draft (2026-10-03, photos-went-to-the-first bug)
+  -- 18. «جديد» is THE way to start a fresh listing (owner, 2026-10-03): a text with للبيع while a draft is open JOINS
+  --     that draft; after «جديد» it opens its own; a bare photo afterwards joins the newest draft
   r := bk_intake_message('whatsapp', 'tb-29', ch, 'text', 'شقة للبيع في حماة 100 متر 40 ألف'); d2 := (r->>'draft_id')::bigint;
-  update intake_drafts set status='review', summary='s', updated_at=now(), created_at=now()-interval '1 minute' where id = d2;
-  r := bk_intake_message('whatsapp', 'tb-30', ch, 'text', E'#للبيع محل في حمص الوعر 40 متر\nالسعر 30 ألف'); d1 := (r->>'draft_id')::bigint;
-  out := out || pg_temp.chk('next_listing_opens_own_draft', (r->>'is_new')::boolean and d1 <> d2 and (select status from intake_drafts where id=d2) = 'review', r::text);
+  update intake_drafts set status='ready', summary='s', missing='{}', updated_at=now(), created_at=now()-interval '1 minute' where id = d2;
+  r := bk_intake_message('whatsapp', 'tb-30', ch, 'text', E'#للبيع محل في حمص الوعر 40 متر\nالسعر 30 ألف');
+  out := out || pg_temp.chk('offer_word_alone_never_opens_a_draft', (r->>'is_new')::boolean = false and (r->>'draft_id')::bigint = d2, r::text);
+  r := bk_intake_message('whatsapp', 'tb-30b', ch, 'text', 'جديد');
+  r := bk_intake_message('whatsapp', 'tb-30c', ch, 'text', E'#للبيع محل في حمص الوعر 40 متر\nالسعر 30 ألف'); d1 := (r->>'draft_id')::bigint;
+  out := out || pg_temp.chk('new_then_text_opens_own_draft', (r->>'is_new')::boolean and d1 <> d2 and (select status from intake_drafts where id=d2) = 'cancelled', r::text);
   r := bk_intake_message('whatsapp', 'tb-31', ch, 'photo', null, '{"mime":"image/jpeg"}'::jsonb);
-  out := out || pg_temp.chk('photo_after_next_listing_joins_newest', (r->>'draft_id')::bigint = d1 and r->>'attach_review' is null, r::text);
-  update intake_drafts set status='ready', summary='s', missing='{}', updated_at=now(), created_at=now()-interval '30 seconds' where id = d1;
-  r := bk_intake_message('whatsapp', 'tb-32', ch, 'text', 'للإيجار شقة مفروشة في المزة 300 دولار شهري');
-  out := out || pg_temp.chk('next_listing_leaves_ready_draft', (r->>'is_new')::boolean and (r->>'draft_id')::bigint <> d1 and (select status from intake_drafts where id=d1) = 'ready', r::text);
+  out := out || pg_temp.chk('photo_after_new_text_joins_newest', (r->>'draft_id')::bigint = d1 and r->>'attach_review' is null, r::text);
   r := bk_intake_message('whatsapp', 'tb-33', ch, 'text', 'الطابق الثاني مع مصعد');
-  out := out || pg_temp.chk('plain_detail_text_still_joins_open_draft', (r->>'is_new')::boolean = false and (r->>'draft_id')::bigint <> d1, r::text);
-  -- a PHOTO whose caption is a new listing, right after the previous one went to review, opens its own draft too
-  d2 := (r->>'draft_id')::bigint;
+  out := out || pg_temp.chk('plain_detail_text_still_joins_open_draft', (r->>'is_new')::boolean = false and (r->>'draft_id')::bigint = d1, r::text);
+  d2 := d1;
   update intake_drafts set status='review', summary='s', updated_at=now(), created_at=now()-interval '20 seconds' where id = d2;
-  r := bk_intake_message('whatsapp', 'tb-33b', ch, 'photo', E'#للبيع شقة ارضية بالصناعة 95 متر\nالسعر 45 ألف', '{"mime":"image/jpeg"}'::jsonb);
-  out := out || pg_temp.chk('captioned_photo_after_review_opens_own_draft', (r->>'is_new')::boolean and (r->>'draft_id')::bigint <> d2 and (select status from intake_drafts where id=d2) = 'review', r::text);
+  r := bk_intake_message('whatsapp', 'tb-33b', ch, 'text', 'جديد');
+  r := bk_intake_message('whatsapp', 'tb-33b2', ch, 'photo', E'#للبيع شقة ارضية بالصناعة 95 متر\nالسعر 45 ألف', '{"mime":"image/jpeg"}'::jsonb);
+  out := out || pg_temp.chk('new_then_captioned_photo_opens_own_draft', (r->>'is_new')::boolean and (r->>'draft_id')::bigint <> d2 and (select status from intake_drafts where id=d2) = 'review', r::text);
   r := bk_intake_message('whatsapp', 'tb-33c', ch, 'text', 'Delete');
   out := out || pg_temp.chk('delete_word_cancels_open_draft', r->>'command' = 'cancel' and (r->>'draft_id')::bigint <> d2, r::text);
-  -- decorations before the offer word ("🔥 #للبيع …") still make it a new listing; «جديد» lets go of EVERY review draft
+  -- «جديد» lets go of EVERY review draft of the chat, not only the newest
   r := bk_intake_message('whatsapp', 'tb-33d', ch, 'photo', E'🔥 #للبيع شقة أرضية مميزة 🔥\n📍 قرب دوار البيطرة 110 متر\nالسعر 60 ألف', '{"mime":"image/jpeg"}'::jsonb); d1 := (r->>'draft_id')::bigint;
-  out := out || pg_temp.chk('decorated_caption_after_review_opens_own_draft', (r->>'is_new')::boolean and d1 <> d2, r::text);
   update intake_drafts set status='review', summary='s', updated_at=now(), created_at=now()-interval '10 seconds' where id = d1;
   r := bk_intake_message('whatsapp', 'tb-33e', ch, 'text', 'جديد');
   r := bk_intake_message('whatsapp', 'tb-33f', ch, 'photo', E'#للبيع محل في حمص الوعر 40 متر\nالسعر 30 ألف', '{"mime":"image/jpeg"}'::jsonb);
