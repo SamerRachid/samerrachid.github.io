@@ -1,0 +1,7 @@
+-- Balkoun · 2026-10-02 · «تخطي» (skip): the sender publishes without the optional details the bot asked for.
+--   bk_intake_message(): new command 'skip' (تخطي|تخطى|تجاوز|skip) → returns command 'skip' with the draft id, status
+--                        and its missing list; the bot decides (governorate / type / deal can never be skipped).
+--   bk_intake_publish(): a missing size is no longer an error ('noarea' removed) — area_m2 stays null and the site
+--                        already hides an empty m² (cards, detail, static pages); the summary says «المساحة: غير مذكورة».
+--   bk_intake_set():     accepts "missing" in the patch (clears the list before publishing).
+-- Applied live with replace() on the three function bodies.

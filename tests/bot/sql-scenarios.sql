@@ -115,5 +115,19 @@ begin
   r := bk_intake_patch_listing(d2);
   out := out || pg_temp.chk('patch_listing_applies_fields', (r->>'ok')::boolean and (select price_usd = 45000 and area_m2 = 90 and tabu = 'green' from listings where id=37), r::text || (select row_to_json(x)::text from (select price_usd, area_m2, tabu from listings where id=37) x));
 
+  -- 17. «تخطي»: the command is recognised with the draft's missing list; publishing works without a size
+  update intake_drafts set status='cancelled', error='test' where chat_id = ch and status not in ('cancelled');
+  r := bk_intake_message('whatsapp', 'tb-26', ch, 'text', 'تخطي');
+  out := out || pg_temp.chk('skip_without_draft_is_skip_null', r->>'command' = 'skip' and r->>'draft_id' is null, r::text);
+  r := bk_intake_message('whatsapp', 'tb-27', ch, 'text', 'شقة للبيع في حماة حي الحاضر 3 غرف'); d1 := (r->>'draft_id')::bigint;
+  update intake_drafts set status='needs_info', summary='s', missing='{area_m2}', updated_at=now(), created_at=now()+interval '3 seconds',
+         fields='{"deal":"sale","property_type":"apartment","governorate_id":7,"governorate":"حماة","rooms":3,"description":"شقة للبيع في حماة حي الحاضر 3 غرف وصالون طابق ثاني"}'::jsonb where id = d1;
+  r := bk_intake_message('whatsapp', 'tb-28', ch, 'text', 'تخطي');
+  out := out || pg_temp.chk('skip_returns_missing_list', r->>'command' = 'skip' and (r->>'draft_id')::bigint = d1 and r->'missing'->>0 = 'area_m2', r::text);
+  r := bk_intake_set(d1, '{"missing":[],"status":"ready"}'::jsonb);
+  out := out || pg_temp.chk('set_clears_missing', (select coalesce(array_length(missing,1),0) = 0 and status = 'ready' from intake_drafts where id=d1), r::text);
+  r := bk_intake_publish(d1);
+  out := out || pg_temp.chk('publish_without_size', (r->>'ok')::boolean and (select area_m2 is null from listings where id = (r->>'listing_id')::bigint), r::text);
+
   raise exception E'BOT_SQL_SCENARIOS fails=% %', (select n from bk_f), out;
 end $$;

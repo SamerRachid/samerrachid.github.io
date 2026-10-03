@@ -7,10 +7,11 @@ fools the bot, add it to `tests/bot/` and fix it in the weekly batch (see "How c
 1. **One message publishes.** A message with the property facts (and photos, optional) is read and published right
    away; the sender gets the summary and the link. No «نعم» step for chats. Panel drafts (web) and admin forwards still
    confirm / go to review.
-2. **One question at most.** The bot asks only for what it truly cannot publish without: sale or rent, the property
-   type, the governorate, the size (except farms/chalets let by the day), and the neighbourhood only when the message
-   names no place at all. Everything is asked in one message. Price and deed are optional («السعر عند التواصل»,
-   deed «غير مذكور»). Photos are optional.
+2. **One question at most, and «تخطي» ends it.** The bot asks once for: sale or rent, the property type, the
+   governorate, the size, and the neighbourhood only when the message names no place at all. Everything is asked in
+   one message. The sender can answer **«تخطي» / skip** and the listing publishes without the optional parts (size
+   shown as «غير مذكورة», no neighbourhood, no price, no deed, no photos). Only three things can never be skipped,
+   because the listing cannot be filed without them: governorate, property type, sale-or-rent.
 3. **Unknown places never block.** A neighbourhood/village that is not in our list publishes as written (shown as the
    landmark, kept as `area_text`); the admin gets a Telegram alert and adds it from المناطق ← مناطق مقترحة, which links
    the listing. The sender is **not** asked "is this the area's name?".
@@ -37,7 +38,6 @@ fools the bot, add it to `tests/bot/` and fix it in the weekly batch (see "How c
 - "Video from Samer"-style captions and media-only messages are not read as text.
 
 ## How changes happen
-- Bugs seen during the week are **recorded as test cases**, not fixed one by one. One fixed day a week: fix all,
-  run `tests/bot/sql-scenarios.sql` (must say `fails=0`) and `node tests/bot/read-cases.mjs <token>`, deploy once.
-- Only an outage that stops publishing is fixed immediately.
+- The owner wants problems fixed as soon as they show up (2026-10-02). Every fix still ships with its test case:
+  run `tests/bot/sql-scenarios.sql` (must say `fails=0`) and `node tests/bot/read-cases.mjs <token>` before deploying.
 - Every change to a rule above is written here first, dated, with the owner's decision.

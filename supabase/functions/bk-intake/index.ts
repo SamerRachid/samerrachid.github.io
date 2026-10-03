@@ -294,8 +294,8 @@ const GUIDE_AREA: Record<string, [string, string]> = { SY: ["المزة", "Mazze
 const guideArea = (cc: string | null | undefined, lang: string) => (GUIDE_AREA[String(cc || "SY").toUpperCase()] || GUIDE_AREA.SY)[lang === "en" ? 1 : 0];
 // the one how-to, sent once per chat (intake_log guide_sent) and again on «مساعدة» / a greeting
 const GUIDE = {
-  ar: (cc?: string | null) => `أهلاً بك في بلكون 👋\nأنشر إعلان عقارك من هنا برسالة واحدة.\n\nأرسل الصور واكتب التفاصيل كما تحكيها لصديق، مثلاً:\n«شقة للبيع في ${guideArea(cc, "ar")}، 150 متر، 3 غرف${String(cc || "SY").toUpperCase() === "SY" ? "، طابو أخضر" : ""}، 80 ألف دولار»\n\nأقرأ الرسالة وأنشر الإعلان مباشرة وأرسل لك رابطه. إذا نقصت معلومة أساسية أسألك عنها مرة واحدة.\n\nبعد النشر، خلال ساعة:\n• اكتب أي تصحيح مباشرة: «السعر 75 ألف» ← يُعدَّل الإعلان\n• إلغاء ← يحذف الإعلان\n• صور إضافية ← تُضاف إليه\n\nلإعلان آخر أرسل تفاصيله وصوره. مساعدة ← هذا الشرح\n\nتفضّل 🙂`,
-  en: (cc?: string | null) => `Welcome to Balkoun 👋\nI publish your property listing from here with one message.\n\nSend the photos and write the details the way you would tell a friend, e.g.:\n"Apartment for sale in ${guideArea(cc, "en")}, 150 m², 3 rooms${String(cc || "SY").toUpperCase() === "SY" ? ", green deed" : ""}, 80 thousand dollars"\n\nI read it, publish the listing right away and send you its link. If an essential detail is missing, I ask once.\n\nAfter publishing, within an hour:\n• write any correction directly: "price 75 thousand" → the listing is updated\n• cancel → removes the listing\n• extra photos → are added to it\n\nFor another listing, send its details and photos. help → this guide\n\nGo ahead 🙂`,
+  ar: (cc?: string | null) => `أهلاً بك في بلكون 👋\nأنشر إعلان عقارك من هنا برسالة واحدة.\n\nأرسل الصور واكتب التفاصيل كما تحكيها لصديق، مثلاً:\n«شقة للبيع في ${guideArea(cc, "ar")}، 150 متر، 3 غرف${String(cc || "SY").toUpperCase() === "SY" ? "، طابو أخضر" : ""}، 80 ألف دولار»\n\nأقرأ الرسالة وأنشر الإعلان مباشرة وأرسل لك رابطه. إذا نقصت معلومة أسألك عنها مرة واحدة، واكتب «تخطي» إن أردت النشر من دونها.\n\nبعد النشر، خلال ساعة:\n• اكتب أي تصحيح مباشرة: «السعر 75 ألف» ← يُعدَّل الإعلان\n• إلغاء ← يحذف الإعلان\n• صور إضافية ← تُضاف إليه\n\nلإعلان آخر أرسل تفاصيله وصوره. مساعدة ← هذا الشرح\n\nتفضّل 🙂`,
+  en: (cc?: string | null) => `Welcome to Balkoun 👋\nI publish your property listing from here with one message.\n\nSend the photos and write the details the way you would tell a friend, e.g.:\n"Apartment for sale in ${guideArea(cc, "en")}, 150 m², 3 rooms${String(cc || "SY").toUpperCase() === "SY" ? ", green deed" : ""}, 80 thousand dollars"\n\nI read it, publish the listing right away and send you its link. If a detail is missing I ask once; write "skip" to publish without it.\n\nAfter publishing, within an hour:\n• write any correction directly: "price 75 thousand" → the listing is updated\n• cancel → removes the listing\n• extra photos → are added to it\n\nFor another listing, send its details and photos. help → this guide\n\nGo ahead 🙂`,
 };
 const T = {
   ar: {
@@ -340,7 +340,11 @@ const T = {
     areaConfirmLine: (name: string) => `\n\n📍 «${name}» ليست في قائمة أحيائنا بعد. هل هي اسم الحي أو القرية؟\nنعم ← ينشر بهذا الاسم\nلا ← اكتب الاسم الصحيح بعد «لا»، مثل: «لا، كفر زيتا»\nأو اكتب أي تصحيح آخر مباشرة`,
     areaAskName: `تمام، اكتب اسم الحي أو القرية الصحيح.`,
     areaSet: (name: string) => `سجّلت المنطقة: «${name}» ✅`,
-    missing: (list: string) => `\n\nقبل النشر أحتاج منك: ${list}.\nأرسلها هنا وسأكمل الإعلان 🙏\n(«لا» يلغي هذا الإعلان)`,
+    missing: (list: string) => `\n\nقبل النشر أحتاج منك: ${list}.\nأرسلها هنا وسأنشر الإعلان 🙏\nأو اكتب «تخطي» لنشره من دونها · «لا» يلغيه`,
+    skipNeed: (list: string) => `يمكنني النشر من دون بقية التفاصيل، لكن أحتاج على الأقل: ${list}.\nأرسلها هنا وسأنشر الإعلان مباشرة.`,
+    skipNone: `لا يوجد إعلان ينتظر معلومة الآن 🙂 أرسل تفاصيل العقار وصوره لنشر إعلان.`,
+    skipWait: `تمام ✅ سأنشر الإعلان فور اكتمال القراءة من دون التفاصيل الناقصة.`,
+    sizeNone: `• المساحة: غير مذكورة`,
     reviewAdmin: `تمت القراءة ✅ الإعلان بانتظارك في لوحة التحكم لاختيار المكتب ونشره.`,
     reviewNote: `تمت القراءة، لكن الإعلان يحتاج نظرة من الإدارة قبل النشر. سنتابعه من لوحة التحكم.`,
     suggested: (n: string) => `• المكتب المقترح: ${n}`,
@@ -421,7 +425,11 @@ const T = {
     areaConfirmLine: (name: string) => `\n\n📍 "${name}" is not in our list of areas yet. Is it the neighbourhood or village name?\nyes → publish with this name\nno → write the right name after "no", e.g. "no, Kafr Zita"\nor write any other correction directly`,
     areaAskName: `OK, write the correct neighbourhood or village name.`,
     areaSet: (name: string) => `Area noted: "${name}" ✅`,
-    missing: (list: string) => `\n\nBefore publishing I still need: ${list}.\nSend it here and I will complete the listing 🙏\n("no" cancels this listing)`,
+    missing: (list: string) => `\n\nBefore publishing I still need: ${list}.\nSend it here and I publish the listing 🙏\nOr write "skip" to publish without it · "no" cancels it`,
+    skipNeed: (list: string) => `I can publish without the other details, but I need at least: ${list}.\nSend it here and I publish right away.`,
+    skipNone: `No listing is waiting for a detail right now 🙂 Send the property details and photos to publish one.`,
+    skipWait: `OK ✅ I publish as soon as the read is done, without the missing details.`,
+    sizeNone: `• Size: not given`,
     reviewAdmin: `Read ✅ The listing is waiting in the panel to pick the agency and publish.`,
     reviewNote: `Read, but the listing needs a look from the team before publishing. We will follow up from the panel.`,
     suggested: (n: string) => `• Suggested agency: ${n}`,
@@ -849,6 +857,7 @@ function summary(f: Record<string, any>, tax: any, photos: number, lang: string,
   const place = [f.governorate, areaShown, lm].filter(Boolean).join(" – "); if (place) L.push("• " + place);
   const facts = [f.area_m2 ? `${fmtNum(f.area_m2)} ${ar ? "م²" : "m²"}` : "", f.rooms ? `${f.rooms} ${ar ? "غرف" : "rooms"}` : "", f.living_rooms ? `${f.living_rooms} ${ar ? "صالون" : "living"}` : "", f.baths ? `${f.baths} ${ar ? "حمام" : "baths"}` : "", f.floor != null ? `${ar ? "طابق" : "floor"} ${f.floor}` : ""].filter(Boolean);
   if (facts.length) L.push("• " + facts.join(" · "));
+  if (!f.area_m2 && !(f.deal === "rent" && ["farm", "chalet"].includes(f.property_type))) L.push(tt.sizeNone);
   const st = [deed ? (ar ? deed.ar : deed.en) : "", cond ? cond.ar : "", f.furnished ? (ar ? "مفروش" : "furnished") : ""].filter(Boolean);
   if (st.length) L.push("• " + st.join(" · "));
   // no "will be published without a deed" line any more: a sale without a deed word is asked for it before publishing
@@ -1028,6 +1037,8 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
     const govSet = govsForRead(tax, rawText, d);
     const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax, govSet), user);
     usage = r.usage; raw = r.fields; const s = settle(r.fields, tax, rawText); fields = s.fields; missing = s.missing; cost = costOf(usage, c);
+    // the sender already said «تخطي»: only what cannot be skipped is still asked for
+    if ((d.fields || {}).skip_ok === "1") { fields.skip_ok = "1"; missing = missing.filter((k) => HARD_MISSING.includes(k)); }
     // the model must not swap an unknown neighbourhood for a look-alike from the list (العدوي → العسالي): the chosen
     // area has to actually be written in the message; otherwise it becomes a landmark and the area is asked for
     for (const w of areaGuards(fields, missing, raw, rawText, tax)) await log(draftId, d.chat_id, "warn", w.event, w.detail);
@@ -1425,6 +1436,25 @@ async function applyAreaText(m: Incoming, draftId: number, text: string, tt: any
   await log(draftId, m.chat, "info", a ? "area_set_known" : "area_set_new", { name, area_id: a ? a[0] : null });
   await reply(m.source, m.chat, t.areaSet(a ? a[1] : name) + "\n\n" + sum);
 }
+// what «تخطي» can never skip: without these the listing cannot be placed or filed at all
+const HARD_MISSING = ["governorate", "property_type", "deal"];
+async function skipMissing(m: Incoming, r: any, tt: any) {
+  if (!r.draft_id) { await reply(m.source, m.chat, tt.skipNone); return; }
+  const d = await rpc<any>("bk_intake_get", { p_draft: r.draft_id }); if (!d) { await reply(m.source, m.chat, tt.skipNone); return; }
+  const c = await cfg(); const lang = c.intake_reply_lang === "en" ? "en" : (d.user_lang === "en" ? "en" : "ar"); const t = tx(lang);
+  const f = { ...(d.fields || {}), skip_ok: "1" };
+  if (d.status === "needs_info" || d.status === "ready") {
+    const hard = (Array.isArray(d.missing) ? d.missing : []).filter((k: string) => HARD_MISSING.includes(k));
+    if (hard.length) { await reply(m.source, m.chat, t.skipNeed(hard.map((k: string) => (lang === "en" ? MISSING_EN : MISSING_AR)[k]).join(lang === "en" ? ", " : "، "))); return; }
+    await rpc("bk_intake_set", { p_draft: d.id, p_patch: { fields: f, missing: [], status: "ready" } });
+    await log(d.id, m.chat, "info", "skipped_by_sender", { missing: d.missing });
+    await safePublish(m, d.id, tt); return;
+  }
+  // not read yet (collecting / reading): remembered; the read that follows publishes without the optional details
+  await rpc("bk_intake_set", { p_draft: d.id, p_patch: { fields: f } });
+  await reply(m.source, m.chat, t.skipWait);
+  if (d.status === "collecting") { const claimed = await rpc<any>("bk_intake_claim", { p_draft: d.id }); if (claimed) await safeRead(m, d.id, tt); }
+}
 // the sender corrected a listing published within the hour («السعر 75 ألف», «الطابق الثالث»): the original text plus the
 // correction is read again, only the facts that changed are written over the draft and the live listing; the photos stay
 const FIX_KEYS = ["deal", "property_type", "price", "currency", "negotiable", "area_m2", "rooms", "baths", "living_rooms", "floor", "floors_total", "tabu", "condition", "furnished", "rental_period", "area", "area_id", "landmark"];
@@ -1591,6 +1621,8 @@ async function handleIncoming(m: Incoming) {
   if (r.command === "cancel") { await reply(m.source, m.chat, r.draft_id ? tt.cancelled : tt.nothing); return; }
   // «إلغاء» within an hour after a publish: the listing is off the site (SQL set it hidden); «رجّع» brings it back
   if (r.command === "cancel_published") { await reply(m.source, m.chat, tt.removed(r.ref || "")); return; }
+  // «تخطي»: publish without the optional details that were asked for (size, neighbourhood, price, deed, photos)
+  if (r.command === "skip") { await skipMissing(m, r, tt); return; }
   // a short text within an hour after a publish is a correction to that listing, not a new one
   if (r.command === "fix_published") { await fixPublished(m, r, tt); return; }
   if (r.command === "new") { await reply(m.source, m.chat, tt.newDraft); return; }
