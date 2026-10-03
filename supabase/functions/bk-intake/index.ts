@@ -294,8 +294,8 @@ const GUIDE_AREA: Record<string, [string, string]> = { SY: ["المزة", "Mazze
 const guideArea = (cc: string | null | undefined, lang: string) => (GUIDE_AREA[String(cc || "SY").toUpperCase()] || GUIDE_AREA.SY)[lang === "en" ? 1 : 0];
 // the one how-to, sent once per chat (intake_log guide_sent) and again on «مساعدة» / a greeting
 const GUIDE = {
-  ar: (cc?: string | null) => `أهلاً بك في بلكون 👋\nأنشر إعلان عقارك من هنا برسالة واحدة.\n\nأرسل الصور واكتب التفاصيل كما تحكيها لصديق، مثلاً:\n«شقة للبيع في ${guideArea(cc, "ar")}، 150 متر، 3 غرف${String(cc || "SY").toUpperCase() === "SY" ? "، طابو أخضر" : ""}، 80 ألف دولار»\n\nأقرأ الرسالة وأنشر الإعلان مباشرة وأرسل لك رابطه. إذا نقصت معلومة أسألك عنها مرة واحدة، واكتب «تخطي» إن أردت النشر من دونها.\n\nبعد النشر، خلال ساعة:\n• اكتب أي تصحيح مباشرة: «السعر 75 ألف» ← يُعدَّل الإعلان\n• إلغاء ← يحذف الإعلان\n• صور إضافية ← تُضاف إليه\n\nلإعلان آخر أرسل تفاصيله وصوره. مساعدة ← هذا الشرح\n\nتفضّل 🙂`,
-  en: (cc?: string | null) => `Welcome to Balkoun 👋\nI publish your property listing from here with one message.\n\nSend the photos and write the details the way you would tell a friend, e.g.:\n"Apartment for sale in ${guideArea(cc, "en")}, 150 m², 3 rooms${String(cc || "SY").toUpperCase() === "SY" ? ", green deed" : ""}, 80 thousand dollars"\n\nI read it, publish the listing right away and send you its link. If a detail is missing I ask once; write "skip" to publish without it.\n\nAfter publishing, within an hour:\n• write any correction directly: "price 75 thousand" → the listing is updated\n• cancel → removes the listing\n• extra photos → are added to it\n\nFor another listing, send its details and photos. help → this guide\n\nGo ahead 🙂`,
+  ar: (cc?: string | null) => `أهلاً بك في بلكون 👋\nأنشر إعلان عقارك من هنا برسالة واحدة.\n\nأرسل الصور واكتب التفاصيل كما تحكيها لصديق، مثلاً:\n«شقة للبيع في ${guideArea(cc, "ar")}، 150 متر، 3 غرف${String(cc || "SY").toUpperCase() === "SY" ? "، طابو أخضر" : ""}، 80 ألف دولار»\n\nأقرأ الرسالة وأرسل لك ملخص الإعلان، ثم تختار:\n• نعم ← أنشره وأرسل لك رابطه\n• لا ← ألغيه\n• تصحيح ← ثم اكتب التصحيح، مثل: «السعر 75 ألف»\n• إضافة ← ثم أرسل صوراً أو فيديو أو معلومات إضافية\nإذا نقصت معلومة أسألك عنها مرة واحدة، واكتب «تخطي» إن أردت النشر من دونها.\n\nبعد النشر:\n• لإعلان جديد اكتب «جديد» ثم أرسل تفاصيله وصوره\n• للتعديل أو الحذف أو إضافة صور لاحقاً أرسل رقم الإعلان (مثل SY10281) وأفتحه لك\n\nمساعدة ← هذا الشرح\n\nتفضّل 🙂`,
+  en: (cc?: string | null) => `Welcome to Balkoun 👋\nI publish your property listing from here with one message.\n\nSend the photos and write the details the way you would tell a friend, e.g.:\n"Apartment for sale in ${guideArea(cc, "en")}, 150 m², 3 rooms${String(cc || "SY").toUpperCase() === "SY" ? ", green deed" : ""}, 80 thousand dollars"\n\nI read it and send you a summary, then you choose:\n• yes → I publish it and send you the link\n• no → I cancel it\n• correct → then write the correction, e.g. "price 75 thousand"\n• add → then send photos, a video or more details\nIf a detail is missing I ask once; write "skip" to publish without it.\n\nAfter publishing:\n• for a new listing write "new", then send its details and photos\n• to edit, delete or add photos later, send the listing number (e.g. SY10281) and I open it for you\n\nhelp → this guide\n\nGo ahead 🙂`,
 };
 const T = {
   ar: {
@@ -336,14 +336,22 @@ const T = {
     videoLong: (min: number) => `الفيديو أطول من الحد (${min} دقائق). أرسل مقطعاً أقصر.`,
     videoMax: (n: number) => `وصلنا الحد الأقصى للفيديو في الإعلان (${n}).`,
     videoBad: `تعذّرت معالجة الفيديو. أرسله كفيديو عادي من المعرض (MP4).`,
-    confirmLine: `\n\nاكتملت المعلومات ✅\nنعم ← ينشر\nلا ← يلغي\nأو اكتب التصحيح مباشرة، مثل: «السعر 75 ألف»`,
+    confirmLine: `\n\nاكتملت المعلومات ✅ ماذا تريد؟\nنعم ← نشر الإعلان\nلا ← إلغاؤه\nتصحيح ← ثم اكتب التصحيح، مثل: «السعر 75 ألف»\nإضافة ← ثم أرسل صوراً أو فيديو أو معلومات إضافية`,
+    fixAsk: `تمام ✏️ اكتب التصحيح الآن، مثل: «السعر 75 ألف» أو «الطابق الثالث»، وأرسل لك الملخص المعدَّل.`,
+    addAsk: `تمام ➕ أرسل الصور أو الفيديو أو المعلومات الإضافية الآن، وعندما تنتهي اكتب «تم».`,
+    fixAskNone: `لا يوجد إعلان مفتوح الآن. لتعديل إعلان منشور أرسل رقمه (مثل SY10281) وأفتحه لك.`,
+    listingMenu: (ref: string, url: string) => `فتحت الإعلان (${ltr(ref)}) 📂\n${url}\n\nماذا تريد؟\n1 ← تعديل المعلومات\n2 ← إضافة صور أو فيديو\n3 ← حذف الإعلان\nلا ← خروج`,
+    listingEditAsk: (ref: string) => `تمام ✏️ اكتب التعديل على الإعلان (${ltr(ref)})، مثل: «السعر 75 ألف» أو «المساحة 120 متر». يمكنك إرسال أكثر من تعديل، وعندما تنتهي اكتب «تم».`,
+    listingAddAsk: (ref: string) => `تمام ➕ أرسل الصور أو الفيديو الآن وتُضاف إلى الإعلان (${ltr(ref)}). عندما تنتهي اكتب «تم».`,
+    listingClosed: `أغلقت الإعلان ✅ لإعلان جديد اكتب «جديد» ثم أرسل تفاصيله وصوره.`,
+    listingNotFound: (ref: string) => `لم أجد إعلاناً منشوراً برقم ${ltr(ref)} في حسابك 🤔 تأكد من الرقم كما ورد في رسالة النشر (مثل SY10281).`,
     areaConfirmLine: (name: string) => `\n\n📍 «${name}» ليست في قائمة أحيائنا بعد. هل هي اسم الحي أو القرية؟\nنعم ← ينشر بهذا الاسم\nلا ← اكتب الاسم الصحيح بعد «لا»، مثل: «لا، كفر زيتا»\nأو اكتب أي تصحيح آخر مباشرة`,
     areaAskName: `تمام، اكتب اسم الحي أو القرية الصحيح.`,
     areaSet: (name: string) => `سجّلت المنطقة: «${name}» ✅`,
     missing: (list: string) => `\n\nقبل النشر أحتاج منك: ${list}.\nأرسلها هنا وسأنشر الإعلان 🙏\nأو اكتب «تخطي» لنشره من دونها · «لا» يلغيه`,
     skipNeed: (list: string) => `يمكنني النشر من دون بقية التفاصيل، لكن أحتاج على الأقل: ${list}.\nأرسلها هنا وسأنشر الإعلان مباشرة.`,
     skipNone: `لا يوجد إعلان ينتظر معلومة الآن 🙂 أرسل تفاصيل العقار وصوره لنشر إعلان.`,
-    skipWait: `تمام ✅ سأنشر الإعلان فور اكتمال القراءة من دون التفاصيل الناقصة.`,
+    skipWait: `تمام ✅ سأرسل لك ملخص الإعلان فور اكتمال القراءة، من دون التفاصيل الناقصة.`,
     sizeNone: `• المساحة: غير مذكورة`,
     splitNote: (n: number) => `لاحظت ${n} عقارات في رسالتك، فجعلت لكل واحد إعلانه الخاص ✅ أقرؤها الآن واحدًا واحدًا. الصور التي أرسلتها تُضاف إلى الأول؛ أرسل صور الباقي بعد ملخص كل واحد.`,
     reviewAdmin: `تمت القراءة ✅ الإعلان بانتظارك في لوحة التحكم لاختيار المكتب ونشره.`,
@@ -352,11 +360,11 @@ const T = {
     attributed: (n: string) => `• المعلن: ${n}`,
     memberSet: (n: string) => `تمام ✅ سيُنسب الإعلان التالي إلى: ${n}\nأرسل الآن تفاصيله وصوره.`,
     memberUnknown: (no: string) => `لم أجد عضواً برقم ${ltr(no)} 🤔 تأكد من الرقم أو أرسل الإعلان واختر المكتب من اللوحة.`,
-    published: (ref: string, url: string) => `✅ تم نشر الإعلان (${ref})\n${url}\n\nخلال ساعة: اكتب أي تصحيح مباشرة («السعر 75 ألف») وأعدّله، أو «إلغاء» لحذفه. صور إضافية تُضاف إليه.\nلإعلان آخر أرسل تفاصيله وصوره.`,
+    published: (ref: string, url: string) => `✅ تم نشر الإعلان (${ref})\n${url}\n\n• لإعلان جديد اكتب «جديد» ثم أرسل تفاصيله وصوره.\n• للتعديل أو الحذف أو إضافة صور أو فيديو لاحقاً أرسل رقم الإعلان (${ref}) وأفتحه لك.`,
     removed: (ref: string) => `🗑️ حُذف الإعلان (${ltr(ref)}) من الموقع ✅\nاكتب «رجّع» خلال 10 دقائق لإعادته.`,
     listingBack: (ref: string, url: string) => `رجّعنا الإعلان (${ltr(ref)}) إلى الموقع ✅\n${url}`,
     fixed: (ref: string, url: string, lines: string) => `✏️ عدّلت الإعلان (${ltr(ref)}) ✅\n${lines}\n${url}`,
-    fixNone: (ref: string) => `لم أفهم التعديل على الإعلان (${ltr(ref)}) 🤔 اكتبه بوضوح، مثل: «السعر 75 ألف» أو «المساحة 120 متر».\nولإعلان جديد ابدأ بـ«للبيع» أو «للإيجار» مع التفاصيل.`,
+    fixNone: (ref: string) => `لم أفهم التعديل على الإعلان (${ltr(ref)}) 🤔 اكتبه بوضوح، مثل: «السعر 75 ألف» أو «المساحة 120 متر».\nوعندما تنتهي اكتب «تم».`,
     pending: (ref: string) => `✅ استلمنا الإعلان (${ref}) وسيظهر على الموقع بعد مراجعة الإدارة.\n\nلإعلان آخر أرسل تفاصيله وصوره مباشرة.`,
     failed: `تعذّر النشر تلقائياً؛ أحلنا الإعلان إلى الإدارة لإكماله.`,
     duplicate: (ref: string) => `يبدو أن هذا الإعلان مكرر لإعلانك المنشور (${ltr(ref)}) 🤔 لم ننشره مرة ثانية، وستراجعه الإدارة.\nإن كان عقاراً مختلفاً فأرسل ما يميّزه (المنطقة، المساحة، السعر) وسننشره.`,
@@ -422,14 +430,22 @@ const T = {
     videoLong: (min: number) => `The video is longer than the limit (${min} minutes). Send a shorter clip.`,
     videoMax: (n: number) => `The listing already has the maximum number of videos (${n}).`,
     videoBad: `Could not process the video. Send it as a normal gallery video (MP4).`,
-    confirmLine: `\n\nAll set ✅\nyes → publish\nno → cancel\nor write the correction directly, e.g. "price 75 thousand"`,
+    confirmLine: `\n\nAll set ✅ What next?\nyes → publish the listing\nno → cancel it\ncorrect → then write the correction, e.g. "price 75 thousand"\nadd → then send photos, a video or more details`,
+    fixAsk: `OK ✏️ Write the correction now, e.g. "price 75 thousand" or "third floor", and I send the updated summary.`,
+    addAsk: `OK ➕ Send the photos, video or extra details now; write "done" when finished.`,
+    fixAskNone: `No listing is open right now. To edit a published listing, send its number (e.g. SY10281) and I open it for you.`,
+    listingMenu: (ref: string, url: string) => `Listing (${ltr(ref)}) opened 📂\n${url}\n\nWhat would you like?\n1 → edit the details\n2 → add photos or a video\n3 → delete the listing\nno → exit`,
+    listingEditAsk: (ref: string) => `OK ✏️ Write the change to listing (${ltr(ref)}), e.g. "price 75 thousand" or "size 120 m". You can send several; write "done" when finished.`,
+    listingAddAsk: (ref: string) => `OK ➕ Send the photos or video now and they are added to listing (${ltr(ref)}). Write "done" when finished.`,
+    listingClosed: `Listing closed ✅ For a new listing write "new", then send its details and photos.`,
+    listingNotFound: (ref: string) => `I could not find a published listing numbered ${ltr(ref)} in your account 🤔 Check the number as it appeared in the publish message (e.g. SY10281).`,
     areaConfirmLine: (name: string) => `\n\n📍 "${name}" is not in our list of areas yet. Is it the neighbourhood or village name?\nyes → publish with this name\nno → write the right name after "no", e.g. "no, Kafr Zita"\nor write any other correction directly`,
     areaAskName: `OK, write the correct neighbourhood or village name.`,
     areaSet: (name: string) => `Area noted: "${name}" ✅`,
     missing: (list: string) => `\n\nBefore publishing I still need: ${list}.\nSend it here and I publish the listing 🙏\nOr write "skip" to publish without it · "no" cancels it`,
     skipNeed: (list: string) => `I can publish without the other details, but I need at least: ${list}.\nSend it here and I publish right away.`,
     skipNone: `No listing is waiting for a detail right now 🙂 Send the property details and photos to publish one.`,
-    skipWait: `OK ✅ I publish as soon as the read is done, without the missing details.`,
+    skipWait: `OK ✅ I send you the summary as soon as the read is done, without the missing details.`,
     sizeNone: `• Size: not given`,
     splitNote: (n: number) => `I found ${n} properties in your message, so each gets its own listing ✅ Reading them one by one now. The photos you sent go to the first; send the others' photos after each summary.`,
     reviewAdmin: `Read ✅ The listing is waiting in the panel to pick the agency and publish.`,
@@ -438,11 +454,11 @@ const T = {
     attributed: (n: string) => `• Listed for: ${n}`,
     memberSet: (n: string) => `OK ✅ The next listing will be attributed to: ${n}\nSend its details and photos now.`,
     memberUnknown: (no: string) => `No member found with number ${ltr(no)} 🤔 Check the number, or send the listing and pick the agency in the panel.`,
-    published: (ref: string, url: string) => `✅ Published (${ref})\n${url}\n\nWithin an hour: write any correction directly ("price 75 thousand") and I update it, or "cancel" to remove it. Extra photos are added to it.\nFor another listing, send its details and photos.`,
+    published: (ref: string, url: string) => `✅ Published (${ref})\n${url}\n\n• For a new listing write "new", then send its details and photos.\n• To edit, delete or add photos or a video later, send the listing number (${ref}) and I open it for you.`,
     removed: (ref: string) => `🗑️ Listing (${ltr(ref)}) removed from the site ✅\nWrite "undo" within 10 minutes to bring it back.`,
     listingBack: (ref: string, url: string) => `Listing (${ltr(ref)}) is back on the site ✅\n${url}`,
     fixed: (ref: string, url: string, lines: string) => `✏️ Listing (${ltr(ref)}) updated ✅\n${lines}\n${url}`,
-    fixNone: (ref: string) => `I could not understand the change to listing (${ltr(ref)}) 🤔 Write it plainly, e.g. "price 75 thousand" or "size 120 m".\nFor a new listing, start with "for sale" or "for rent" and the details.`,
+    fixNone: (ref: string) => `I could not understand the change to listing (${ltr(ref)}) 🤔 Write it plainly, e.g. "price 75 thousand" or "size 120 m".\nWrite "done" when finished.`,
     pending: (ref: string) => `✅ Received (${ref}). It appears on the site after the team's review.\n\nFor another listing, just send its details and photos.`,
     failed: `Automatic publishing failed; the listing was handed to the team.`,
     duplicate: (ref: string) => `This looks like a duplicate of your published listing (${ltr(ref)}) 🤔 It was not published again; the team will review it.\nIf it is a different property, send what sets it apart (area, size, price) and we will publish it.`,
@@ -1181,17 +1197,16 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   }
   // a transient reading failure goes back to the queue instead of failing the sender's listing
   if (err && !/no_key|claude 4\d\d/.test(err) && (d.reads || 0) < 3) status = "collecting";
-  // a complete read from a chat publishes right away (owner's rule, 2026-10-02: one message, no «نعم» step); the sender
-  // gets the summary + the link and has an hour to correct or cancel. Drafts opened from the panel (web) still confirm.
-  const autoPub = status === "ready" && !d.by_admin && d.source !== "web";
+  // a complete read ends with the summary and the question (owner's rule, 2026-10-03: نعم / لا / تصحيح / إضافة); nothing
+  // publishes before the sender's «نعم». The only exception: a «نعم» that arrived while the bot was still reading.
   const sum = err ? null : summary(fields, tax, photos, lang, videos) + (attributed ? "\n" + t.attributed(attributed) : "") + (suggested ? "\n" + t.suggested(suggested) : "") +
-    (status === "review" || autoPub ? "" : (missing.length ? t.missing(missing.map(missLabel).join("، ")) : t.confirmLine));
+    (status === "review" ? "" : (missing.length ? t.missing(missing.map(missLabel).join("، ")) : t.confirmLine));
   const saved = await rpc<any>("bk_intake_save_read", { p_draft: draftId, p_fields: fields, p_missing: missing, p_summary: sum, p_status: status, p_model: c.intake_model || null, p_in: usage.in, p_out: usage.out, p_cost: cost, p_error: err });
   if (saved?.skipped) return saved;                                              // cancelled or changed while reading: say nothing
   if (saved?.status === "collecting") { scheduleTick(); return saved; }         // more arrived (or a retry is due) → read again later
-  if (saved?.status === "ready" && !d.by_admin && d.source !== "web") {
-    if (saved?.fields?.auto_confirm === "1") { const f2 = { ...(saved.fields || {}) }; delete f2.auto_confirm; await rpc("bk_intake_set", { p_draft: draftId, p_patch: { fields: f2 } }); }
-    await log(draftId, d.chat_id, "info", "auto_publish", {});
+  if (saved?.status === "ready" && !d.by_admin && d.source !== "web" && saved?.fields?.auto_confirm === "1") {
+    const f2 = { ...(saved.fields || {}) }; delete f2.auto_confirm; await rpc("bk_intake_set", { p_draft: draftId, p_patch: { fields: f2 } });
+    await log(draftId, d.chat_id, "info", "auto_publish", { reason: "yes_mid_read" });
     if (!opts.quiet) { await reply(d.source, d.chat_id, sum!); await publishDraft(draftId); }
     return saved;
   }
@@ -1493,9 +1508,12 @@ async function skipMissing(m: Incoming, r: any, tt: any) {
   if (d.status === "needs_info" || d.status === "ready") {
     const hard = (Array.isArray(d.missing) ? d.missing : []).filter((k: string) => HARD_MISSING.includes(k));
     if (hard.length) { await reply(m.source, m.chat, t.skipNeed(hard.map((k: string) => (lang === "en" ? MISSING_EN : MISSING_AR)[k]).join(lang === "en" ? ", " : "، "))); return; }
-    await rpc("bk_intake_set", { p_draft: d.id, p_patch: { fields: f, missing: [], status: "ready" } });
+    // the summary comes back without the skipped details; the sender still answers «نعم» to publish (owner's rule)
+    const tax = await rpc<any>("bk_intake_taxonomy", { p_country: d.country_code });
+    const sum = summary(f, tax, (d.photos || []).filter((p: any) => p?.kind !== "video").length, lang, (d.photos || []).filter((p: any) => p?.kind === "video").length) + t.confirmLine;
+    await rpc("bk_intake_set", { p_draft: d.id, p_patch: { fields: f, missing: [], status: "ready", summary: sum } });
     await log(d.id, m.chat, "info", "skipped_by_sender", { missing: d.missing });
-    await safePublish(m, d.id, tt); return;
+    await reply(m.source, m.chat, sum); return;
   }
   // not read yet (collecting / reading): remembered; the read that follows publishes without the optional details
   await rpc("bk_intake_set", { p_draft: d.id, p_patch: { fields: f } });
@@ -1675,11 +1693,20 @@ async function handleIncoming(m: Incoming) {
   if (r.command === "nothing") { await reply(m.source, m.chat, tt.nothing); return; }
   if (r.command === "confirm_wait") { await reply(m.source, m.chat, tt.confirmWait); return; }   // «نعم» mid-read: kept, publishes when the read ends
   if (r.command === "cancel") { await reply(m.source, m.chat, r.draft_id ? tt.cancelled : tt.nothing); return; }
-  // «إلغاء» within an hour after a publish: the listing is off the site (SQL set it hidden); «رجّع» brings it back
+  // option 3 of an opened listing: it is off the site (SQL set it hidden); «رجّع» within 10 minutes brings it back
   if (r.command === "cancel_published") { await reply(m.source, m.chat, tt.removed(r.ref || "")); return; }
-  // «تخطي»: publish without the optional details that were asked for (size, neighbourhood, price, deed, photos)
+  // «تخطي»: the summary without the optional details that were asked for (size, neighbourhood, price, deed, photos)
   if (r.command === "skip") { await skipMissing(m, r, tt); return; }
-  // a short text within an hour after a publish is a correction to that listing, not a new one
+  // «تصحيح» / «إضافة» while the summary is on the table: a short prompt; the next message joins the draft and it is re-read
+  if (r.command === "fix_ask") { await reply(m.source, m.chat, r.draft_id ? tt.fixAsk : tt.fixAskNone); return; }
+  if (r.command === "add_ask") { await reply(m.source, m.chat, r.draft_id ? tt.addAsk : tt.fixAskNone); return; }
+  // a published listing opened by its number: the 3-option menu, then edits / photos / delete inside that session
+  if (r.command === "listing_menu") { const cc = String(r.country_code || r.sender?.country_code || "SY").toLowerCase(); await reply(m.source, m.chat, tt.listingMenu(r.ref || "", SITE + (cc === "sy" ? "" : "/" + cc) + "/listing/" + r.listing_id)); return; }
+  if (r.command === "listing_edit_ask") { await reply(m.source, m.chat, tt.listingEditAsk(r.ref || "")); return; }
+  if (r.command === "listing_add_ask") { await reply(m.source, m.chat, tt.listingAddAsk(r.ref || "")); return; }
+  if (r.command === "listing_closed") { await reply(m.source, m.chat, tt.listingClosed); return; }
+  if (r.command === "listing_notfound") { await reply(m.source, m.chat, tt.listingNotFound(r.ref || "")); return; }
+  // a correction inside an opened listing's edit session
   if (r.command === "fix_published") { await fixPublished(m, r, tt); return; }
   if (r.command === "new") { await reply(m.source, m.chat, tt.newDraft); return; }
   // «رجّع»: the listing cancelled a moment ago (or closed after a day) comes back; merged with anything sent since

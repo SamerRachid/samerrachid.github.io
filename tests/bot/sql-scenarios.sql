@@ -9,7 +9,7 @@ create function pg_temp.chk(name text, ok boolean, got text) returns text langua
   select E'\n' || case when ok then 'PASS ' else 'FAIL ' end || name || case when ok then '' else ' | got: ' || coalesce(got,'null') end
 $f$;
 do $$
-declare uid uuid; ag bigint; ch text := '+10000000099'; r json; d1 bigint; d2 bigint; out text := '';
+declare uid uuid; ag bigint; ch text := '+10000000099'; r json; d1 bigint; d2 bigint; out text := ''; lref text;
 begin
   insert into users (phone, name, pass_hash, phone_verified, lang, country) values (ch, 'اختبار آلي', 'x', true, 'ar', 'SY') returning id into uid;
   insert into agencies (user_id, name, phone, whatsapp, status, country_code, intake_enabled) values (uid, 'مكتب الاختبار الآلي', ch, ch, 'approved', 'SY', true) returning id into ag;
@@ -47,11 +47,12 @@ begin
   r := bk_intake_message('whatsapp', 'tb-9', ch, 'text', 'لا');
   out := out || pg_temp.chk('no_while_collecting_is_text', r->>'command' is null and r->>'status' = 'collecting', r::text);
 
-  -- 8. bare photo within 5 min after a publish joins that listing (rule: only when the published draft is the sender's latest)
+  -- 8. a bare photo after a publish is NOT glued to that listing any more (2026-10-03: no one-hour window): a new draft
   update intake_drafts set status='cancelled', error='test' where chat_id = ch;
   update intake_drafts set status='published', listing_id=37, published_at=now()-interval '2 minutes', created_at=now()+interval '1 second' /* now() is frozen inside the transaction: make d1 the newest draft */ where id = d1;
   r := bk_intake_message('whatsapp', 'tb-10', ch, 'photo', null, '{"mime":"image/jpeg"}'::jsonb);
-  out := out || pg_temp.chk('bare_photo_attaches_to_published', (r->>'attach_listing')::int = 37, r::text);
+  out := out || pg_temp.chk('bare_photo_after_publish_is_new', (r->>'is_new')::boolean and r->>'attach_listing' is null, r::text);
+  update intake_drafts set status='cancelled', error='test' where id = (r->>'draft_id')::bigint;
 
   -- 9. a photo WITH a caption after a publish is a new listing
   r := bk_intake_message('whatsapp', 'tb-11', ch, 'photo', 'شقة للبيع في المزة 150 متر 90 ألف', '{"mime":"image/jpeg"}'::jsonb);
@@ -95,21 +96,53 @@ begin
   r := bk_intake_message('whatsapp', 'tb-20', ch, 'text', 'بيت عربي للبيع في حمص باب الدريب');
   out := out || pg_temp.chk('old_review_draft_is_closed', (r->>'is_new')::boolean and (r->>'draft_id')::bigint <> d2, r::text);
 
-  -- 16. the hour after a publish: a short text is a correction, a listing-shaped text is a new listing,
-  --     «إلغاء» takes the listing off the site, «رجّع» brings it back (timestamps nudged past the frozen now())
+  -- 16. after a publish (2026-10-03 rules): any text is a NEW listing — no fix window; a published listing is edited by
+  --     sending ITS NUMBER: menu → 1 edit / 2 add photos / 3 delete; «رجّع» undoes a delete; «تم»/«لا» close the session
   update intake_drafts set status='cancelled', error='test' where chat_id = ch and status not in ('cancelled');
   update intake_drafts set status='published', listing_id=37, published_at=now()+interval '1 second', created_at=now()+interval '2 seconds', updated_at=now() where id = d2;
+  update listings set user_id = uid, status = 'live' where id = 37; lref := (select ref from listings where id = 37);
   r := bk_intake_message('whatsapp', 'tb-21', ch, 'text', 'السعر 45 ألف');
-  out := out || pg_temp.chk('short_text_after_publish_is_fix', r->>'command' = 'fix_published' and (r->>'listing_id')::int = 37 and r->>'text' = 'السعر 45 ألف', r::text);
-  r := bk_intake_message('whatsapp', 'tb-22', ch, 'text', 'الشقة طابق ثالث مع مصعد');
-  out := out || pg_temp.chk('short_type_word_text_is_fix', r->>'command' = 'fix_published', r::text);
-  r := bk_intake_message('whatsapp', 'tb-23', ch, 'text', 'شقة للبيع في المزة 100 متر 3 غرف 50 ألف');
-  out := out || pg_temp.chk('listing_text_after_publish_is_new', (r->>'is_new')::boolean and r->>'command' is null, r::text);
+  out := out || pg_temp.chk('short_text_after_publish_opens_new_draft', (r->>'is_new')::boolean and r->>'command' is null, r::text);
   update intake_drafts set status='cancelled', error='test' where id = (r->>'draft_id')::bigint;
-  r := bk_intake_message('whatsapp', 'tb-24', ch, 'text', 'إلغاء');
-  out := out || pg_temp.chk('cancel_after_publish_hides_listing', r->>'command' = 'cancel_published' and (select status from listings where id=37) = 'hidden', r::text);
-  r := bk_intake_message('whatsapp', 'tb-25', ch, 'text', 'رجّع');
+  r := bk_intake_message('whatsapp', 'tb-22', ch, 'text', lref);
+  out := out || pg_temp.chk('listing_number_opens_menu', r->>'command' = 'listing_menu' and (r->>'listing_id')::int = 37 and (r->>'draft_id')::bigint = d2, r::text);
+  r := bk_intake_message('whatsapp', 'tb-23', ch, 'text', 'لا');
+  out := out || pg_temp.chk('no_closes_opened_listing', r->>'command' = 'listing_closed', r::text);
+  r := bk_intake_message('whatsapp', 'tb-24', ch, 'text', 'رقم الإعلان ' || regexp_replace(lref, '\D', '', 'g'));
+  out := out || pg_temp.chk('bare_number_with_words_opens_menu', r->>'command' = 'listing_menu' and (r->>'listing_id')::int = 37, r::text);
+  r := bk_intake_message('whatsapp', 'tb-25', ch, 'text', '1');
+  out := out || pg_temp.chk('option_1_asks_for_edit', r->>'command' = 'listing_edit_ask', r::text);
+  r := bk_intake_message('whatsapp', 'tb-25b', ch, 'text', 'السعر 45 ألف');
+  out := out || pg_temp.chk('edit_text_is_fix_published', r->>'command' = 'fix_published' and (r->>'listing_id')::int = 37 and (r->>'draft_id')::bigint = d2 and r->>'text' = 'السعر 45 ألف', r::text);
+  r := bk_intake_message('whatsapp', 'tb-25c', ch, 'text', 'تم');
+  out := out || pg_temp.chk('done_closes_edit_session', r->>'command' = 'listing_closed', r::text);
+  r := bk_intake_message('whatsapp', 'tb-25d', ch, 'text', lref);
+  r := bk_intake_message('whatsapp', 'tb-25e', ch, 'text', '2');
+  out := out || pg_temp.chk('option_2_asks_for_photos', r->>'command' = 'listing_add_ask', r::text);
+  r := bk_intake_message('whatsapp', 'tb-25f', ch, 'photo', null, '{"mime":"image/jpeg"}'::jsonb);
+  out := out || pg_temp.chk('photo_in_add_session_attaches', (r->>'attach_listing')::int = 37, r::text);
+  r := bk_intake_message('whatsapp', 'tb-25g', ch, 'text', 'تم');
+  r := bk_intake_message('whatsapp', 'tb-25h', ch, 'text', lref);
+  r := bk_intake_message('whatsapp', 'tb-25i', ch, 'text', '3');
+  out := out || pg_temp.chk('option_3_hides_listing', r->>'command' = 'cancel_published' and (select status from listings where id=37) = 'hidden', r::text);
+  r := bk_intake_message('whatsapp', 'tb-25j', ch, 'text', 'رجّع');
   out := out || pg_temp.chk('undo_restores_hidden_listing', (r->>'listing_restored')::boolean and (select status from listings where id=37) = 'live', r::text);
+  r := bk_intake_message('whatsapp', 'tb-25k', ch, 'text', 'SY9999999');
+  out := out || pg_temp.chk('unknown_number_is_reported', r->>'command' = 'listing_notfound', r::text);
+  r := bk_intake_message('whatsapp', 'tb-25l', ch, 'text', lref);
+  r := bk_intake_message('whatsapp', 'tb-25m', ch, 'text', 'شقة للبيع في المزة 100 متر 3 غرف 50 ألف');
+  out := out || pg_temp.chk('listing_text_in_session_opens_new_draft', (r->>'is_new')::boolean and r->>'command' is null, r::text);
+  update intake_drafts set status='cancelled', error='test' where id = (r->>'draft_id')::bigint;
+  -- «تصحيح» / «إضافة» while a summary waits → short prompts; with nothing open → the "send the number" hint
+  r := bk_intake_message('whatsapp', 'tb-25n', ch, 'text', 'شقة للبيع في حماة 100 متر 40 ألف'); d1 := (r->>'draft_id')::bigint;
+  update intake_drafts set status='ready', summary='s', missing='{}', updated_at=now(), created_at=now()+interval '3 seconds' where id = d1;
+  r := bk_intake_message('whatsapp', 'tb-25o', ch, 'text', 'تصحيح');
+  out := out || pg_temp.chk('fix_word_asks_for_correction', r->>'command' = 'fix_ask' and (r->>'draft_id')::bigint = d1, r::text);
+  r := bk_intake_message('whatsapp', 'tb-25p', ch, 'text', 'إضافة');
+  out := out || pg_temp.chk('add_word_asks_for_more', r->>'command' = 'add_ask' and (r->>'draft_id')::bigint = d1, r::text);
+  update intake_drafts set status='cancelled', error='test' where id = d1;
+  r := bk_intake_message('whatsapp', 'tb-25q', ch, 'text', 'تعديل');
+  out := out || pg_temp.chk('fix_word_without_draft', r->>'command' = 'fix_ask' and r->>'draft_id' is null, r::text);
   -- the patch function: the draft's corrected fields land on the listing (same conversions as publish)
   update intake_drafts set fields = coalesce(fields,'{}'::jsonb) || '{"price":"45000","currency":"USD","area_m2":"90","deal":"sale","tabu":"green"}'::jsonb where id = d2;
   r := bk_intake_patch_listing(d2);

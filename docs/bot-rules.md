@@ -4,24 +4,27 @@ Decided by the owner; a future change needs the owner's word, not a hunch from o
 fools the bot, add it to `tests/bot/` and fix it in the weekly batch (see "How changes happen" below).
 
 ## The sender's experience
-1. **One message publishes.** A message with the property facts (and photos, optional) is read and published right
-   away; the sender gets the summary and the link. No «نعم» step for chats. Panel drafts (web) and admin forwards still
-   confirm / go to review.
+1. **Summary first, then the question** (owner's rule, 2026-10-03; replaces the earlier "one message publishes").
+   A message with the property facts (and photos, optional) is read; the sender gets the summary and chooses:
+   **نعم** → publish · **لا** → cancel · **تصحيح** → then writes the correction («السعر 75 ألف») · **إضافة** → then sends
+   photos, a video or more details and writes «تم». Nothing publishes before «نعم» (a «نعم» sent while the bot was
+   still reading counts). Admin forwards still go to the panel for review.
 2. **One question at most, and «تخطي» ends it.** The bot asks once for: sale or rent, the property type, the
    governorate, the size, and the neighbourhood only when the message names no place at all. Everything is asked in
-   one message. The sender can answer **«تخطي» / skip** and the listing publishes without the optional parts (size
+   one message. The sender can answer **«تخطي» / skip** and the summary comes back without the optional parts (size
    shown as «غير مذكورة», no neighbourhood, no price, no deed, no photos). Only three things can never be skipped,
    because the listing cannot be filed without them: governorate, property type, sale-or-rent.
 3. **Unknown places never block.** A neighbourhood/village that is not in our list publishes as written (shown as the
    landmark, kept as `area_text`); the admin gets a Telegram alert and adds it from المناطق ← مناطق مقترحة, which links
    the listing. The sender is **not** asked "is this the area's name?".
-4. **The hour after publishing** (nothing new started since):
-   - a short text («السعر 75 ألف», «الطابق الثالث», «طابو أخضر») **corrects** the listing — only the changed facts are
-     written; a listing-shaped text (للبيع/للإيجار + details) is a **new** listing;
-   - «إلغاء» takes the listing off the site; «رجّع» within 10 minutes brings it back;
-   - bare photos/videos within 5 minutes are added to it; «جديد» ends all of that and starts fresh.
-   - «جديد» cancels a draft the sender is still building or confirming, but never a listing that already waits in the
-     panel (review): that one stays for the admin; the chat only lets go of it.
+4. **After publishing there is no edit window.** The publish message says: for a new listing write «جديد» then send it
+   (optional: any text after a publish simply opens a new listing); to edit, delete or add photos later **send the
+   listing's number** (SY10281, «10281», «رقم الإعلان 10281»). The bot opens it for 30 minutes and offers:
+   **1** edit the details (then every text is a correction, «تم» ends) · **2** add photos / video (then every photo or
+   video is attached) · **3** delete («رجّع» within 10 minutes brings it back) · **لا** exit. A member opens only their
+   own listings; admin chats open any. A new listing text closes the session. «جديد» at any time starts fresh; it
+   cancels a draft the sender is still building or confirming, but never a listing that already waits in the panel
+   (review): that one stays for the admin; the chat only lets go of it.
 4b. **Several listings, one chat.** Send each listing as its own message followed by its photos: a text that opens
    with للبيع/للإيجار/مطلوب while the previous listing was already read opens its own draft, and the photos that follow
    join the newest one. No «جديد» needed. Two listings pasted in ONE message are split into two drafts, but the photos
