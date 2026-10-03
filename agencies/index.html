@@ -2755,7 +2755,13 @@ html.maint-on{overflow:hidden}
 .adm .adm-top select,.adm .adm-top .adm-lang,.adm .adm-top .adm-country{background:#303030;border:1px solid #303030;color:#fff;height:30px;font-size:12.5px;border-radius:8px;padding:0 8px;max-width:160px}
 .adm .adm-top select option{color:#303030;background:#fff}
 .adm .adm-top .ab{height:30px;min-height:30px;padding:0 10px;font-size:12.5px}
-.adm .adm-me .ava2{width:26px;height:26px;font-size:12px}.adm .adm-me-n{font-size:12.5px}.adm .adm-sub{font-size:11.5px}.adm .adm-logo{font-size:18px}
+.adm .adm-me .ava2{width:26px;height:26px;font-size:12px}
+/* red flashing badge in the top bar on every panel page while the site is in maintenance mode */
+.adm .adm-maint{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:0;border-radius:8px;background:#dc2626;color:#fff;font:700 12.5px var(--f);cursor:pointer;white-space:nowrap;animation:admblink 1.2s steps(1,end) infinite;box-shadow:0 0 0 0 rgba(220,38,38,.6)}
+.adm .adm-maint:hover{animation:none;background:#b91c1c}
+@keyframes admblink{0%,55%{background:#dc2626}56%,100%{background:#7f1d1d}}
+@media(prefers-reduced-motion:reduce){.adm .adm-maint{animation:none}}
+@media(max-width:900px){.adm .adm-maint{padding:0 8px;font-size:11.5px}}.adm .adm-me-n{font-size:12.5px}.adm .adm-sub{font-size:11.5px}.adm .adm-logo{font-size:18px}
 /* page header, sub-tabs, section pills, country line */
 .adm .apage-h{margin-bottom:12px}.adm .apage-h h1{font-size:20px;line-height:1.3;margin:0 0 2px}.adm .apage-h p{font-size:12.5px;line-height:1.5;margin:0}.adm .apage-crumb{font-size:11.5px}
 .adm .asubtabs{margin-bottom:10px}.adm .asubtabs button{padding:0 12px;height:30px;font-size:12.5px}
@@ -11086,6 +11092,7 @@ var GX_T={
   uViewsShort:{ar:"مشاهدة/30 يومًا",en:"views/30d",de:"Aufrufe/30T"}, rvText:{ar:"نص التقييم",en:"Review text",de:"Bewertungstext"},
   uSettingsCol:{ar:"الإعدادات",en:"Settings",de:"Einstellungen"}, uMemberCol:{ar:"العضو",en:"Member",de:"Mitglied"},
   agColAgency:{ar:"المكتب",en:"Agency",de:"Büro"}, agColCoverage:{ar:"التغطية",en:"Coverage",de:"Abdeckung"}, agColOwner:{ar:"المالك",en:"Owner",de:"Inhaber"}, agSpecL:{ar:"التخصص",en:"Specialties",de:"Schwerpunkte"}, agIntakeOnShort:{ar:"مفعّل",en:"On",de:"An"}, agIntakeOffShort:{ar:"متوقف",en:"Off",de:"Aus"}, memberNoL:{ar:"رقم العضوية",en:"Member no.",de:"Mitgliedsnr."},
+  maintBadge:{ar:"وضع الصيانة مفعّل",en:"Maintenance mode ON",de:"Wartungsmodus AN"}, maintBadgeHint:{ar:"الزوار يرون صفحة الصيانة الآن. اضغط للانتقال إلى الإعدادات وإطفائه.",en:"Visitors see the maintenance page right now. Click to open settings and turn it off.",de:"Besucher sehen gerade die Wartungsseite. Klicken, um sie in den Einstellungen abzuschalten."},
   maintPreview:{ar:"معاينة صفحة الصيانة كما يراها الزائر",en:"Preview the maintenance page as a visitor",de:"Wartungsseite als Besucher ansehen"},
   maintH:{ar:"وضع الصيانة",en:"Maintenance mode",de:"Wartungsmodus"}, maintOn:{ar:"إظهار صفحة «الموقع في صيانة» للزوار",en:"Show the “under maintenance” page to visitors",de:"Wartungsseite für Besucher anzeigen"},
   maintHint:{ar:"يغطي الموقع كله في كل الدول برسالة لطيفة وزر «حاول مرة أخرى». المشرفون يرون الموقع عادياً من متصفحهم (لذلك لن تراه أنت إلا من رابط المعاينة أو نافذة خاصة)، ولوحة التحكم تعمل. الصفحات الثابتة للإعلانات تبقى مفتوحة لمحركات البحث.",en:"Covers the whole site in every country with a friendly note and a “try again” button. Admins see the site normally and the panel keeps working. Static listing pages stay open for search engines.",de:"Deckt die ganze Website in allen Ländern mit einem freundlichen Hinweis ab. Admins sehen die Seite normal."},
