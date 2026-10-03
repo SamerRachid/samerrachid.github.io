@@ -25,7 +25,9 @@ fools the bot, add it to `tests/bot/` and fix it in the weekly batch (see "How c
    own listings; admin chats open any. A new listing text closes the session. «جديد» at any time starts fresh; it
    cancels a draft the sender is still building or confirming, but never a listing that already waits in the panel
    (review): that one stays for the admin; the chat only lets go of it.
-4b. **Several listings, one chat: «جديد» starts each one** (owner, 2026-10-03). While a listing is open (being built,
+4b. **One listing at a time; «جديد» starts each one** (owner, 2026-10-03, reaffirmed after a 10-message batch from
+   a real agency glued into one failed draft: no batch mode, no per-message splitting, no numbered answers — "no more
+   confusion"; the failure reply and the client guide say to send one listing, answer its summary, then «جديد»). While a listing is open (being built,
    waiting for «نعم», or waiting in the panel for the last 10 minutes), every text and photo belongs to it, whatever
    words it holds: the words للبيع/للإيجار never start a new listing by themselves, because nobody knows where a
    sender writes them. Write «جديد», then send the next listing with its photos. After a publish or a cancel nothing is
