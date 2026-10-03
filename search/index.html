@@ -8207,10 +8207,9 @@ function wire(){
    // a hidden number: the visit request and the message both go through the in-site form (the owner is reached by
    // Balkoun: bell, Telegram, WhatsApp from our number); otherwise the visit request opens WhatsApp as before
    var openInq=function(kind){ INQ={open:true,listing:LX.id,toUser:LX.uid||null,ref:"BK-"+LX.id,kind:kind,sent:false,msg:""}; log(kind==="visit"?"visit_request":"message_request"); render() };
-   if($("#reqv")) $("#reqv").onclick=function(){
-     if(LX.hidePhone){ openInq("visit"); return }
-     if(!dig){ alert(t("noPhone")); return }
-     log("visit_request"); window.open(waLink(t("waVisit")+" "+ctx),"_blank") };
+   // «طلب معاينة» always goes through the in-site form (owner, 2026-10-03): the request is recorded and reaches the owner
+   // on the site, Telegram and WhatsApp; the call / WhatsApp buttons stay for owners who show their number
+   if($("#reqv")) $("#reqv").onclick=function(){ openInq("visit") };
    if($("#reqv2")) $("#reqv2").onclick=function(){ openInq("visit") };
    if($("#inqMsg")) $("#inqMsg").onclick=function(){ openInq("message") };
    if($("#inqMsg2")) $("#inqMsg2").onclick=function(){ openInq("message") };
