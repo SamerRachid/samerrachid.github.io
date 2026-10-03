@@ -2782,7 +2782,7 @@ html.maint-on{overflow:hidden}
 [dir=rtl] .adm .xswitch input:checked+i::after{transform:translateX(-14px)}
 .adm .pick span,.adm .pick label{font-size:12.5px}
 .adm .csetup{padding:8px 10px;gap:2px}.adm .csetup b{font-size:12.5px}.adm .csetup span{font-size:11.5px}
-.adm .astats{gap:10px}.adm .astat{padding:12px}.adm .astat b{font-size:20px;line-height:1.2}.adm .astat span{font-size:12px}
+.adm .astats{gap:10px;grid-template-columns:repeat(auto-fit,minmax(136px,1fr))}.adm .astat{padding:12px}.adm .astat b{font-size:20px;line-height:1.2}.adm .astat span{font-size:12px}
 .adm .arange button{padding:4px 10px;font-size:12px}
 /* tables: one line per cell, middle aligned, compact */
 .adm .atable th,.adm .atable td{padding:8px 12px}
@@ -2822,6 +2822,8 @@ html.maint-on{overflow:hidden}
 .adm .usel .lvlpick{max-width:100px;padding:0 4px}
 .adm .ucell .uname{display:inline-block;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
 .adm .utable td.unum,.adm .utable .useen,.adm .utable .useen-fresh{font-size:12px}
+.adm .utable td:first-child{width:27%;max-width:300px}.adm .utable .ucell .usub{white-space:normal;line-height:1.35}.adm .utable .ucell .usub .ltr{display:inline-block}
+.adm .utable{overflow-x:auto}
 .adm .utable td .usub .ltr{letter-spacing:0}
 @media(max-width:1366px){.adm .utable th:nth-child(4),.adm .utable td:nth-child(4){display:none}.adm .utable .usub .ltr+ .ltr{display:none}}
 @media(max-width:700px){.adm .ujoin{display:inline}.adm .utable td:nth-child(4){display:flex}}
@@ -11044,7 +11046,7 @@ var GX_T={
   areaSearchPH:{ar:"🔍 اكتب أول حروف الحي أو القرية…",en:"🔍 Type the first letters of the area…",de:"🔍 Anfangsbuchstaben des Gebiets…",fr:"🔍 Premières lettres du quartier…"},
   pickArea:{ar:"اختر الحي أو البلدة",en:"Choose the area",de:"Gebiet wählen",fr:"Choisir le quartier"}, areaOther:{ar:"أخرى… غير موجودة في القائمة",en:"Other… not in the list",de:"Andere… nicht in der Liste",fr:"Autre… pas dans la liste"},
   areaOtherPH:{ar:"اكتب اسم الحي أو القرية",en:"Type the neighbourhood or village",de:"Stadtteil oder Dorf eingeben",fr:"Quartier ou village"}, areaOtherHint:{ar:"يُنشر إعلانك بهذا الاسم كمَعلم، وتضيفه الإدارة إلى القائمة قريباً.",en:"Your listing is published with this name as its landmark; the team adds it to the list soon.",de:"Ihre Anzeige erscheint mit diesem Namen als Orientierungspunkt; das Team ergänzt die Liste bald.",fr:"Votre annonce paraît avec ce nom comme repère ; l'équipe l'ajoutera bientôt à la liste."},
-  uSettingsCol:{ar:"الإعدادات",en:"Settings",de:"Einstellungen"},
+  uSettingsCol:{ar:"الإعدادات",en:"Settings",de:"Einstellungen"}, uMemberCol:{ar:"العضو",en:"Member",de:"Mitglied"},
   maintPreview:{ar:"معاينة صفحة الصيانة كما يراها الزائر",en:"Preview the maintenance page as a visitor",de:"Wartungsseite als Besucher ansehen"},
   maintH:{ar:"وضع الصيانة",en:"Maintenance mode",de:"Wartungsmodus"}, maintOn:{ar:"إظهار صفحة «الموقع في صيانة» للزوار",en:"Show the “under maintenance” page to visitors",de:"Wartungsseite für Besucher anzeigen"},
   maintHint:{ar:"يغطي الموقع كله في كل الدول برسالة لطيفة وزر «حاول مرة أخرى». المشرفون يرون الموقع عادياً من متصفحهم (لذلك لن تراه أنت إلا من رابط المعاينة أو نافذة خاصة)، ولوحة التحكم تعمل. الصفحات الثابتة للإعلانات تبقى مفتوحة لمحركات البحث.",en:"Covers the whole site in every country with a friendly note and a “try again” button. Admins see the site normally and the panel keeps working. Static listing pages stay open for search engines.",de:"Deckt die ganze Website in allen Ländern mit einem freundlichen Hinweis ab. Admins sehen die Seite normal."},
