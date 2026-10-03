@@ -129,5 +129,19 @@ begin
   r := bk_intake_publish(d1);
   out := out || pg_temp.chk('publish_without_size', (r->>'ok')::boolean and (select area_m2 is null from listings where id = (r->>'listing_id')::bigint), r::text);
 
+  -- 18. a text that opens with للبيع/للإيجار while the previous draft is in review or ready opens ITS OWN draft; the
+  --     previous one stays where it was; a bare photo afterwards joins the newest draft (2026-10-03, photos-went-to-the-first bug)
+  r := bk_intake_message('whatsapp', 'tb-29', ch, 'text', 'شقة للبيع في حماة 100 متر 40 ألف'); d2 := (r->>'draft_id')::bigint;
+  update intake_drafts set status='review', summary='s', updated_at=now(), created_at=now()-interval '1 minute' where id = d2;
+  r := bk_intake_message('whatsapp', 'tb-30', ch, 'text', E'#للبيع محل في حمص الوعر 40 متر\nالسعر 30 ألف'); d1 := (r->>'draft_id')::bigint;
+  out := out || pg_temp.chk('next_listing_opens_own_draft', (r->>'is_new')::boolean and d1 <> d2 and (select status from intake_drafts where id=d2) = 'review', r::text);
+  r := bk_intake_message('whatsapp', 'tb-31', ch, 'photo', null, '{"mime":"image/jpeg"}'::jsonb);
+  out := out || pg_temp.chk('photo_after_next_listing_joins_newest', (r->>'draft_id')::bigint = d1 and r->>'attach_review' is null, r::text);
+  update intake_drafts set status='ready', summary='s', missing='{}', updated_at=now(), created_at=now()-interval '30 seconds' where id = d1;
+  r := bk_intake_message('whatsapp', 'tb-32', ch, 'text', 'للإيجار شقة مفروشة في المزة 300 دولار شهري');
+  out := out || pg_temp.chk('next_listing_leaves_ready_draft', (r->>'is_new')::boolean and (r->>'draft_id')::bigint <> d1 and (select status from intake_drafts where id=d1) = 'ready', r::text);
+  r := bk_intake_message('whatsapp', 'tb-33', ch, 'text', 'الطابق الثاني مع مصعد');
+  out := out || pg_temp.chk('plain_detail_text_still_joins_open_draft', (r->>'is_new')::boolean = false and (r->>'draft_id')::bigint <> d1, r::text);
+
   raise exception E'BOT_SQL_SCENARIOS fails=% %', (select n from bk_f), out;
 end $$;

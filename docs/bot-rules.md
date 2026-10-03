@@ -20,6 +20,11 @@ fools the bot, add it to `tests/bot/` and fix it in the weekly batch (see "How c
      written; a listing-shaped text (للبيع/للإيجار + details) is a **new** listing;
    - «إلغاء» takes the listing off the site; «رجّع» within 10 minutes brings it back;
    - bare photos/videos within 5 minutes are added to it; «جديد» ends all of that and starts fresh.
+4b. **Several listings, one chat.** Send each listing as its own message followed by its photos: a text that opens
+   with للبيع/للإيجار/مطلوب while the previous listing was already read opens its own draft, and the photos that follow
+   join the newest one. No «جديد» needed. Two listings pasted in ONE message are split into two drafts, but the photos
+   sent with that message all stay on the first (the bot cannot tell which photo belongs to which); the admin removes
+   the wrong ones in the panel. A generic word heading a landmark («مدرسة المناضل», «جانب الجامع») is never the area.
 5. **The sender's words are the description.** Verbatim, including the phone number; only command words and the
    membership number are dropped. The model's rewrite is used only when the panel switches `intake_keep_text` off.
 6. **The how-to is sent once** per chat (not to admins) and again on «مساعدة».
@@ -31,7 +36,8 @@ fools the bot, add it to `tests/bot/` and fix it in the weekly batch (see "How c
 - Several units in one message = **one** listing titled «شقة عدد N», total price, full text in the description.
 - Deed words include «وضع يد» → possession. «طابو أخضر 2400 سهم» is a full green deed.
 - Transport lines (مكرو/خط/سرفيس/باص/كراج + name) and «قرب/جانب/بعد/مقابل + place» are landmarks, never the area.
-- A name is an area only if it is written in the message (no look-alike swaps: العدوي ≠ العسالي).
+- A name is an area only if it is written in the message (no look-alike swaps: العدوي ≠ العسالي), and a governorate
+  written nowhere is never guessed: «الصناعة» exists in four governorates, so the sender is asked which one.
 - «ريف X» with no rural governorate of its own → X. Multi-governorate agencies are asked for the governorate when the
   text does not settle it (a Hama agency writing a Damascus street → ask).
 - Video: stored as sent (no AI), up to 3 minutes / panel size limit; Telegram caps files at 20 MB.
