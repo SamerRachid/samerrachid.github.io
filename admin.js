@@ -2815,8 +2815,11 @@ function admSectionize(){
   var blks=[].slice.call(main.querySelectorAll(".blk")).filter(function(b){ var h=b.firstElementChild; return h && h.tagName==="H3" && b.querySelector(":scope > .in") });
   var titleOf=function(h){ var t=""; h.childNodes.forEach(function(n){ if(n.nodeType===3) t+=n.textContent; else if(n.nodeType===1 && !/^(BUTTON|A|INPUT|SELECT|LABEL)$/.test(n.tagName) && !n.classList.contains("n")) t+=n.textContent }); return t.replace(/\s+/g," ").trim().slice(0,40) };
   var key="bk_adm_fold_"+ADM.tab, folds={}; try{ folds=JSON.parse(localStorage.getItem(key)||"{}")||{} }catch(e){}
-  blks.forEach(function(b,i){ var h=b.firstElementChild; b.classList.add("afoldable"); if(folds[i]) b.classList.add("folded");
+  // secondary cards start folded (users: the two phone-verification cards sit above the member table); the admin's own toggle wins
+  var defFold=function(i){ return ADM.tab==="users" && i<2 };
+  blks.forEach(function(b,i){ var h=b.firstElementChild; b.classList.add("afoldable"); if(folds[i]===undefined ? defFold(i) : folds[i]) b.classList.add("folded");
     h.onclick=function(e){ if(e.target.closest("button,a,input,select,label,[data-atab]")) return; b.classList.toggle("folded"); folds[i]=b.classList.contains("folded")?1:0; try{ localStorage.setItem(key,JSON.stringify(folds)) }catch(x){} } });
+  main.classList.toggle("acols", blks.length>=4);   // pages made of many cards flow in two columns on wide screens (density pass 2026-10-03)
   if(blks.length<2) return;   // every page with two or more cards gets the sticky section bar (owner: "no more scrolling to find a part")
   var nav=document.createElement("nav"); nav.className="asecnav"; nav.setAttribute("aria-label",GX("secNav"));
   nav.innerHTML=blks.map(function(b,i){ var tt=titleOf(b.firstElementChild); return tt?'<button type="button" data-sec="'+i+'">'+esc(tt)+'</button>':'' }).join("")+'<button type="button" class="asec-top" data-top="1" title="'+esc(GX("secTop"))+'">↑</button>';
