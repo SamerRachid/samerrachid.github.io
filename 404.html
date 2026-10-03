@@ -5828,12 +5828,12 @@ function inquiryModal(){
  var body = INQ.sent
   ? '<div class="aubody"><div class="audone"><div class="tk">✓</div>'+
     '<b style="font-size:17px">'+GX("hpSentT")+'</b>'+
-    '<p style="font-size:13.5px;color:var(--grey);margin-top:5px">'+GX("hpSentP")+'</p></div>'+
+    '<p style="font-size:13.5px;color:var(--grey);margin-top:5px">'+(USER?GX("hpSentPMember"):GX("hpSentP"))+'</p></div>'+
     '<button class="aub" id="inqClose2" style="margin-top:14px">'+t("okBtn2")+'</button></div>'
   : '<div class="aubody">'+
     '<p class="hintx" style="margin:0 0 10px">'+GX(INQ.kind==="visit"?"hpFormVisit":"hpFormMsg")+'</p>'+
     '<div class="auf"><label>'+t("firstName")+'</label><input id="inqName" data-allow-autofill autocomplete="name" value="'+esc(USER?fullName(USER):"")+'"></div>'+
-    '<div class="auf"><label>'+GX("hpYourPhone")+'</label><input id="inqPhone" data-allow-autofill class="ltr" inputmode="tel" autocomplete="tel" value="'+esc((USER&&USER.phone)||"")+'" placeholder="+963…"></div>'+
+    '<div class="auf"><label>'+GX("hpYourPhone")+(USER?' <small style="color:var(--light);font-weight:400">'+GX("hpPhoneOptional")+'</small>':'')+'</label><input id="inqPhone" data-allow-autofill class="ltr" inputmode="tel" autocomplete="tel" value="'+esc((USER&&USER.phone)||"")+'" placeholder="+963…"></div>'+
     '<div class="auf"><label>'+GX("hpMsgL")+'</label><textarea id="inqText" data-allow-autofill maxlength="1000" style="width:100%;min-height:90px;border:1px solid var(--line-2);border-radius:6px;padding:10px;font-family:inherit">'+esc(INQ.kind==="visit"?GX("hpVisitDefault"):"")+'</textarea></div>'+
     '<button class="aub" id="inqSend">'+t("send")+'</button>'+
     '<div class="auerr" id="inqMsgErr">'+(INQ.msg||"")+'</div></div>';
@@ -5847,7 +5847,8 @@ function wireInquiry(){
  if($("#inqSend")) $("#inqSend").onclick=async function(){
    var nm=($("#inqName").value||"").trim(), ph=($("#inqPhone").value||"").trim(), tx=($("#inqText").value||"").trim();
    if(nm.length<2){ INQ.msg=GX("hpNeedName"); render(); return }
-   if(ph.replace(/\D/g,"").length<8){ INQ.msg=GX("hpNeedPhone"); render(); return }
+   // a signed-in member may leave the number empty (the owner answers in رسائلي); a guest has to give one
+   if(ph.replace(/\D/g,"").length<8 && (ph.replace(/\D/g,"").length>0 || !USER)){ INQ.msg=GX("hpNeedPhone"); render(); return }
    this.disabled=true; this.textContent=t("saving");
    try{ await rpc("bk_inquiry_send",{p_listing:INQ.listing?+INQ.listing:null, p_to_user:INQ.toUser||null, p_name:nm, p_phone:ph, p_message:tx, p_kind:INQ.kind, p_user:(USER&&USER.id)||null, p_token:(USER&&USER.token)||null});
         INQ.sent=true; INQ.msg=""; render() }
@@ -6047,8 +6048,26 @@ async function loadMyMessages(){
 var REPLY_OPEN=null;
 function msgsView(){
  if(!USER) return gate();
- var reports=MYMSGS.reports||[], feedback=MYMSGS.feedback||[];
- var total=reports.length+feedback.length;
+ var reports=MYMSGS.reports||[], feedback=MYMSGS.feedback||[], inquiries=MYMSGS.inquiries||[];
+ var total=reports.length+feedback.length+inquiries.length;
+ // a visit / message request between two members (or a guest and an owner): the thread lives here for both sides
+ var inqItem=function(q){
+   var key="inquiry:"+q.id, thread=q.thread||[], me=q.role||"owner", other=q.other_name||t("owner");
+   var bubble=function(sender,body,ts){ var mine=sender===me; return '<div class="msgbubble '+(mine?"mine":"theirs")+'"><div class="msgwho">'+(mine?t("you"):esc(other))+'</div><div class="msgbody">'+esc(body)+'</div><div class="msgts">'+when(ts)+'</div></div>' };
+   var headT=(q.kind==="message"?GX("hpMessage"):t("reqVisit"))+(q.listing_ref?' · <a data-open="'+q.listing_id+'" class="ltr" style="font-weight:600">'+esc(q.listing_ref)+'</a>':'');
+   var meta=(me==="owner"?GX("inqFrom"):GX("inqTo"))+' <b>'+esc(other)+'</b>'+(q.other_phone?' · <span class="ltr" style="user-select:all">'+esc(q.other_phone)+'</span>':(me==="owner"?' · '+GX("inqNoPhone"):''))+(q.other_user?' · <a data-byuser="'+esc(q.other_user)+'" data-name="'+esc(other)+'" style="cursor:pointer">'+GX("agView")+'</a>':'');
+   return '<div class="blk" style="margin-bottom:14px"><div class="in">'+
+    '<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><b style="font-size:14.5px">'+headT+'</b><span style="font-size:12px;color:var(--light)">'+when(q.created_at)+'</span></div>'+
+    '<div class="hintx" style="margin:4px 0 8px">'+meta+'</div>'+
+    '<div class="msgthread">'+bubble("requester", q.message||(q.kind==="message"?"":GX("hpVisitDefault")), q.created_at)+thread.map(function(f){ return bubble(f.sender, f.body, f.created_at) }).join("")+'</div>'+
+    (thread.length||me!=="owner" ? '' : '<div style="font-size:12.5px;color:var(--light);margin-top:8px">'+GX("inqAwaitYou")+'</div>')+
+    '<div style="margin-top:12px">'+
+     (REPLY_OPEN===key
+      ? '<textarea id="replyBox_inquiry_'+q.id+'" class="replybox" data-replykey="'+key+'" maxlength="1000" placeholder="'+t("replyPH")+'"></textarea>'+
+        '<div style="display:flex;gap:8px;margin-top:6px"><button class="btn-n" data-sendfollowup="'+key+'" style="padding:8px 16px">'+t("send")+'</button><button class="gh" data-cancelreply="1" style="margin:0;padding:8px 14px">'+t("cancel")+'</button></div>'
+      : (q.other_user||me==="requester" ? '<button class="gh" data-openreply="'+key+'" style="margin:0;padding:8px 16px">'+t("replyBtn")+'</button>' : '<span class="hintx" style="display:inline">'+GX("inqGuestReply")+'</span>')+
+        '<button class="gh" data-deletechat="'+key+'" style="margin:0;margin-inline-start:8px;padding:8px 14px;color:var(--danger)">'+t("deleteChat")+'</button>')+
+    '</div></div></div>' };
  var item=function(m,isReport){
    var key=(isReport?"report":"feedback")+":"+m.id;
    var thread=m.thread||[];
@@ -6085,7 +6104,7 @@ function msgsView(){
  '<div class="wrap" style="max-width:760px;padding:22px 18px 50px">'+
  '<div class="topbar"><h1>'+t("myMessages")+'</h1><span class="n"><span class="ltr">'+total+'</span></span></div>'+
  (total
-   ? reports.map(function(m){return item(m,true)}).join("")+feedback.map(function(m){return item(m,false)}).join("")
+   ? inquiries.map(inqItem).join("")+reports.map(function(m){return item(m,true)}).join("")+feedback.map(function(m){return item(m,false)}).join("")
    : '<div class="done2"><b style="font-size:17px">'+t("noMessages")+'</b>'+
      '<p style="color:var(--grey);font-size:14px;margin-top:6px">'+t("noMessagesP")+'</p></div>')+
  '</div>'}
@@ -10917,6 +10936,10 @@ var GX_T={
   hpYourPhone:{ar:"رقمك (للرد عليك)",en:"Your number (for the reply)",de:"Ihre Nummer (für die Antwort)"}, hpMsgL:{ar:"الرسالة",en:"Message",de:"Nachricht"},
   hpVisitDefault:{ar:"مرحباً، أرغب بمعاينة هذا العقار. الموعد المناسب لي: ",en:"Hello, I would like to visit this property. A time that suits me: ",de:"Hallo, ich möchte diese Immobilie besichtigen. Passender Termin: "},
   hpSentT:{ar:"وصل طلبك إلى المعلن ✓",en:"Your request reached the advertiser ✓",de:"Ihre Anfrage ist beim Anbieter ✓"}, hpSentP:{ar:"سيتواصل معك على الرقم الذي تركته.",en:"They will contact you on the number you left.",de:"Sie werden unter der angegebenen Nummer kontaktiert."},
+  hpPhoneOptional:{ar:"(اختياري لأعضاء بلكون، يصلك الرد في «رسائلي»)",en:"(optional for members; the reply comes to “My messages”)",de:"(für Mitglieder optional; die Antwort kommt in „Meine Nachrichten“)"},
+  hpSentPMember:{ar:"سيصلك رد المعلن في «رسائلي» وفي تنبيهاتك، وعلى رقمك إن تركته.",en:"The advertiser's reply comes to “My messages” and your alerts, and to your number if you left one.",de:"Die Antwort kommt in „Meine Nachrichten“ und Ihre Benachrichtigungen."},
+  inqFrom:{ar:"من",en:"From",de:"Von"}, inqTo:{ar:"إلى",en:"To",de:"An"}, inqNoPhone:{ar:"بلا رقم، الرد من هنا",en:"no number, reply from here",de:"keine Nummer, hier antworten"},
+  inqAwaitYou:{ar:"بانتظار ردك",en:"Awaiting your reply",de:"Wartet auf Ihre Antwort"}, inqGuestReply:{ar:"زائر بلا حساب: تواصل معه على رقمه",en:"Guest without an account: contact them on their number",de:"Gast ohne Konto: über die Nummer kontaktieren"},
   hpNeedName:{ar:"اكتب اسمك",en:"Enter your name",de:"Name eingeben"}, hpNeedPhone:{ar:"اكتب رقمًا صحيحًا",en:"Enter a valid number",de:"Gültige Nummer eingeben"}, hpLimit:{ar:"أرسلت طلبات كافية لهذا الإعلان اليوم. انتظر رد المعلن.",en:"You have sent enough requests for this listing today. Wait for the advertiser's reply.",de:"Sie haben heute genug Anfragen gesendet."},
   mdMenu:{ar:"القائمة",en:"Menu",de:"Menü"}, mdClose:{ar:"إغلاق",en:"Close",de:"Schließen"},
   mdAccount:{ar:"حسابي",en:"My account",de:"Mein Konto"}, mdSearch:{ar:"البحث",en:"Search",de:"Suche"},
