@@ -39,7 +39,7 @@ begin
   cmdtx := translate(tx, '٠١٢٣٤٥٦٧٨٩۰۱۲۳۴۵۶۷۸۹', '01234567890123456789');
   cmd := case
     when cmdtx ~* '^(1|نعم|انشر|نشر|publish|ok|اوك|أوك|✅)[.!]?$' then 'confirm'
-    when cmdtx ~* '^(2|إلغاء|الغاء|الغي|ألغي|الغيه|ألغيه|الغه|لا تنشر|cancel|x|❌)[.!]?$' then 'cancel'
+    when cmdtx ~* '^(2|إلغاء|الغاء|الغي|ألغي|الغيه|ألغيه|الغه|لا تنشر|حذف|احذف|إحذف|شطب|cancel|delete|remove|x|❌)[.!]?$' then 'cancel'
     when cmdtx ~* '^(تم|تمام|انتهيت|خلص|خلاص|done|end|finish)[.!]?$' then 'done'
     when cmdtx ~* '^(جديد|إعلان جديد|اعلان جديد|new|/new)$' then 'new'
     when cmdtx ~* '^(مساعدة|help|/help|\?|؟)$' then 'help'
@@ -87,7 +87,7 @@ begin
         update intake_messages set draft_id = ldraft where source = p_source and external_id = p_external_id;
         return json_build_object('command','listing_closed','listing_id',lid,'ref',lref,'draft_id',ldraft,'sender',s,'guided',guided);
       end if;
-    elsif kind = 'text' and length(cmdtx) >= 20 and cmdtx ~* '(للبيع|للإيجار|للايجار|للأجار|للاجار|للآجار|مطلوب|for sale|for rent)' then
+    elsif length(cmdtx) >= 20 and cmdtx ~* '(للبيع|للإيجار|للايجار|للأجار|للاجار|للآجار|مطلوب|for sale|for rent)' then
       -- a new listing text ("شقة للبيع في المزة …") ends the session; the text goes on to open its own draft
       insert into intake_log (draft_id, chat_id, event, detail) values (ldraft, p_chat_id, 'listing_closed', jsonb_build_object('listing_id', lid, 'by', 'new_listing_text'));
       sess := null;
@@ -261,7 +261,8 @@ begin
 
   -- a fresh listing (text opening with للبيع/للإيجار/مطلوب) while the previous one was already read: it opens its own
   -- draft; the previous one keeps waiting (panel review / sender confirmation). Photos that follow join the newest draft.
-  if d.id is not null and kind = 'text' and d.status in ('review','ready','needs_info') and coalesce(d.raw_text,'') <> ''
+  -- (a photo or video whose caption is the listing text counts the same as a text)
+  if d.id is not null and tx <> '' and d.status in ('review','ready','needs_info') and coalesce(d.raw_text,'') <> ''
      and cmdtx ~* '^\s*#?\s*(للبيع|للإيجار|للايجار|للأجار|للاجار|للآجار|مطلوب)(\s|$|،|:|_)' then
     insert into intake_log (draft_id, chat_id, event, detail) values (d.id, p_chat_id, 'next_listing', jsonb_build_object('left_status', d.status));
     d := null;

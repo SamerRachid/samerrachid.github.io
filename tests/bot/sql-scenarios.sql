@@ -175,6 +175,13 @@ begin
   out := out || pg_temp.chk('next_listing_leaves_ready_draft', (r->>'is_new')::boolean and (r->>'draft_id')::bigint <> d1 and (select status from intake_drafts where id=d1) = 'ready', r::text);
   r := bk_intake_message('whatsapp', 'tb-33', ch, 'text', 'الطابق الثاني مع مصعد');
   out := out || pg_temp.chk('plain_detail_text_still_joins_open_draft', (r->>'is_new')::boolean = false and (r->>'draft_id')::bigint <> d1, r::text);
+  -- a PHOTO whose caption is a new listing, right after the previous one went to review, opens its own draft too
+  d2 := (r->>'draft_id')::bigint;
+  update intake_drafts set status='review', summary='s', updated_at=now(), created_at=now()-interval '20 seconds' where id = d2;
+  r := bk_intake_message('whatsapp', 'tb-33b', ch, 'photo', E'#للبيع شقة ارضية بالصناعة 95 متر\nالسعر 45 ألف', '{"mime":"image/jpeg"}'::jsonb);
+  out := out || pg_temp.chk('captioned_photo_after_review_opens_own_draft', (r->>'is_new')::boolean and (r->>'draft_id')::bigint <> d2 and (select status from intake_drafts where id=d2) = 'review', r::text);
+  r := bk_intake_message('whatsapp', 'tb-33c', ch, 'text', 'Delete');
+  out := out || pg_temp.chk('delete_word_cancels_open_draft', r->>'command' = 'cancel' and (r->>'draft_id')::bigint <> d2, r::text);
 
   -- 19. «جديد» while the listing waits in the panel (review) keeps it there; the chat only lets go of it (no more photos join it)
   d2 := (r->>'draft_id')::bigint;

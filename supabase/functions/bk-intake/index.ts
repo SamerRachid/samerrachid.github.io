@@ -857,6 +857,12 @@ function settle(f: Record<string, any>, tax: any, rawText?: string) {
     if (out.tabu === "green" && n && +n[1] < 2400) out.tabu = "shares";   // "1200 سهم طابو أخضر" is a share of a green deed
   }
   delete out.missing; delete out.confidence; delete out.notes;
+  // counts the model could not read come back as "<UNKNOWN>" / "" now and then: never a number → dropped, not shown
+  for (const k of ["rooms", "baths", "living_rooms", "floor", "floors_total", "area_m2", "price", "year_built", "power_hours"]) {
+    if (out[k] == null) continue;
+    const n = typeof out[k] === "number" ? out[k] : Number(latinDigits(String(out[k])).replace(/[^\d.]/g, ""));
+    if (!Number.isFinite(n) || String(out[k]).trim() === "") delete out[k]; else out[k] = n;
+  }
   const types = (tax.types || []).map((t: any) => t.code);
   if (!types.includes(out.property_type)) delete out.property_type;
   if (out.property_type === "hotelapt") out.deal = "rent";   // serviced / hotel apartments are let, never sold
