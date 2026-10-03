@@ -850,7 +850,7 @@ function keepSenderText(s: string): string {
 // the bot loses its phone numbers too (9+ digits with optional separators, Arabic-Indic digits included)
 function stripPhones(s: string): string {
   return String(s || "")
-    .replace(/(?:\+|00)?[\d٠-٩][\d٠-٩\s\-.()]{7,}[\d٠-٩]/g, (m) => (m.replace(/\D/g, "").length >= 9 ? " " : m))
+    .replace(/(?:\+|00)?[\d٠-٩][\d٠-٩\s\-.()]{7,}[\d٠-٩]/g, (m) => ((m.match(/[\d٠-٩]/g) || []).length >= 9 ? " " : m))
     .replace(/(?:للتواصل|للاتصال|للإستفسار|للاستفسار|اتصل|واتس(?:اب)?|واتساب)\s*[:：]?\s*(?:⤵|👇|☎|📞|📱)*\s*$/gm, "")
     .replace(/[ \t]+/g, " ").replace(/\s*\n\s*/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
 }
