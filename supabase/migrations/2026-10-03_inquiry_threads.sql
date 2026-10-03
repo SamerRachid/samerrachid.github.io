@@ -43,7 +43,7 @@ begin
   title := case when l.id is not null then kind_ar || ' على إعلانك ' || coalesce(l.ref, '') else kind_ar || ' من زائر' end;
   if p_user is not null then select member_no into member_no_txt from users where id = p_user; end if;
   body := visitor_name || case when member_no_txt is not null then ' (عضو ' || member_no_txt || ')' else '' end
-          || case when vis_phone is not null then ' · ' || vis_phone else ' · بلا رقم، الرد من «رسائلي»' end
+          || case when vis_phone is not null then ' · ' || vis_phone else '' end
           || case when coalesce(trim(p_message),'') <> '' then E'\n' || left(trim(p_message), 600) else '' end
           || case when l.id is not null then E'\n' || 'https://balkoun.com' || case when cc = 'sy' then '' else '/' || cc end || '/listing/' || l.id else '' end
           || E'\n' || 'للرد: https://balkoun.com/#/msgs';
