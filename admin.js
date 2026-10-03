@@ -57,7 +57,7 @@ async function admAgencyEdit(o){
       '<div class="row"><div class="fl"><label class="req">'+GX("f_agName")+'</label><input id="agName" data-allow-autofill value="'+esc(a.name||"")+'"></div><div class="fl"><label>'+GX("f_agPhone")+'</label><input id="agPhone" class="ltr" data-allow-autofill value="'+esc(a.phone||"")+'"></div></div>'+
       '<div class="row"><div class="fl"><label>'+GX("f_agWa")+'</label><input id="agWa" class="ltr" data-allow-autofill value="'+esc(a.whatsapp||"")+'"></div><div class="fl"><label>'+GX("f_agEmail")+'</label><input id="agEmail" class="ltr" data-allow-autofill value="'+esc(a.email||"")+'"></div></div>'+
       '<div class="row"><div class="fl"><label>'+GX("f_agWeb")+'</label><input id="agWeb" class="ltr" data-allow-autofill value="'+esc(a.website||"")+'" placeholder="https://"></div><div class="fl"><label>'+GX("f_agAddress")+'</label><input id="agAddress" data-allow-autofill value="'+esc(a.address||"")+'"></div></div>'+
-      '<div class="fl"><label>'+GX("f_agDesc")+'</label><textarea id="agDesc" maxlength="600" data-allow-autofill>'+esc(a.description||"")+'</textarea></div>'+
+      '<div class="fl"><label>'+GX("f_agDesc")+'</label><textarea id="agDesc" maxlength="2000" rows="6" data-allow-autofill>'+esc(a.description||"")+'</textarea></div>'+
       '<div class="fl"><label>'+GX("agContactPersonL")+'</label><input id="agContact" data-allow-autofill value="'+esc(a.contact_person||"")+'" placeholder="'+esc(GX("agContactPersonPH"))+'"></div>'+
       '<div class="fl"><label>'+GX("f_agSpecs")+'</label><div class="ag-pills sel" id="agSpecs">'+AG_SPECS.map(function(k){ return '<button type="button" class="'+(specs.indexOf(k)>-1?"on":"")+'" data-agspec="'+k+'">'+agSpecLabel(k)+'</button>' }).join("")+'</div></div>'+
       '<div class="fl"><label>'+GX("f_agGovs")+'</label><div class="ag-pills sel" id="agGovs">'+govs.map(function(g){ return '<button type="button" class="'+(selG.indexOf(g)>-1?"on":"")+'" data-aggov="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
@@ -2712,7 +2712,7 @@ function adminUsersBody(d){
           fl("ueName",t("firstName"),ue.name)+fl("ueFamily",t("familyName"),ue.family_name)+fl("uePhone",GX("uPhoneL"),ue.phone,"tel")+
           fl("ueEmail",GX("uEmailL"),ue.email,"email")+fl("ueCity",t("city"),ue.city)+
           '<div class="fl"><label>'+t("country")+'</label><select id="ueCountry">'+(ADM.countries||[]).map(function(c){ return '<option value="'+c.code+'"'+((ue.country||"")===c.code?" selected":"")+'>'+esc(countryName(c))+'</option>' }).join("")+((ADM.countries||[]).some(function(c){ return c.code===(ue.country||"") })?'':'<option value="'+esc(ue.country||"")+'" selected>'+esc(ue.country||"—")+'</option>')+'</select></div>'+
-          '<div class="fl"><label>'+t("bio")+'</label><textarea id="ueBio" maxlength="300" rows="2" style="width:100%">'+esc(ue.bio||"")+'</textarea></div>'+
+          '<div class="fl"><label>'+t("bio")+'</label><textarea id="ueBio" maxlength="1500" rows="4" style="width:100%">'+esc(ue.bio||"")+'</textarea></div>'+
           '<div class="hintx">'+GX("uEditHint")+'</div>'+
           '<div class="xactions"><button class="ab ok" id="ueSave">'+t("save")+'</button><button class="ab" id="ueCancel">'+t("cancel")+'</button><span class="xmsg">'+(ADM.uEditMsg||"")+'</span></div>')+
           '</div>';
@@ -2779,7 +2779,7 @@ function adminUsersBody(d){
         '<div class="row" style="margin-top:8px;flex-wrap:wrap">'+fl("ueName",t("firstName"),ue.name)+fl("ueFamily",t("familyName"),ue.family_name)+fl("uePhone",GX("uPhoneL"),ue.phone,"tel")+'</div>'+
         '<div class="row" style="flex-wrap:wrap">'+fl("ueEmail",GX("uEmailL"),ue.email,"email")+fl("ueCity",t("city"),ue.city)+
           '<div class="fl"><label>'+t("country")+'</label><select id="ueCountry">'+(ADM.countries||[]).map(function(c){ return '<option value="'+c.code+'"'+((ue.country||"")===c.code?" selected":"")+'>'+esc(countryName(c))+'</option>' }).join("")+((ADM.countries||[]).some(function(c){ return c.code===(ue.country||"") })?'':'<option value="'+esc(ue.country||"")+'" selected>'+esc(ue.country||"—")+'</option>')+'</select></div></div>'+
-        '<div class="fl"><label>'+t("bio")+'</label><textarea id="ueBio" maxlength="300" rows="2" style="width:100%">'+esc(ue.bio||"")+'</textarea></div>'+
+        '<div class="fl"><label>'+t("bio")+'</label><textarea id="ueBio" maxlength="1500" rows="4" style="width:100%">'+esc(ue.bio||"")+'</textarea></div>'+
         '<div class="hintx">'+GX("uEditHint")+'</div>'+
         '<div class="xactions"><button class="ab ok" id="ueSave">'+t("save")+'</button><button class="ab" id="ueCancel">'+t("cancel")+'</button><span class="xmsg">'+(ADM.uEditMsg||"")+'</span></div>')+
         '</div></td></tr>';
