@@ -1,0 +1,4 @@
+-- Balkoun · 2026-10-02 · admin listings page redesign needs two more columns per listing in bk_admin_data():
+--   cover : first photo's thumb (or url) — listing_photos where kind='photo', by sort_order
+--   via   : the intake draft's source ('whatsapp' / 'telegram') when the listing came through the bot, else null
+-- Applied live with replace() on the function body (anchor: "... as photos from listings l join governorates g ...").

@@ -269,46 +269,7 @@ function adminView(){
  var body="";
 
  if(ADM.tab==="dashboard"){ body = adminDashboardBody(s); }
- else if(ADM.tab==="listings"){
-  var LL=(d.listings||[]); if(ADM.listUser&&ADM.listUser.id) LL=LL.filter(function(l){ return l.poster_id===ADM.listUser.id });
-  body=(ADM.listUser?'<div class="ulchip"><span>'+GX("uListChip").replace("{n}",esc(ADM.listUser.name||""))+' · <b class="ltr">'+LL.length+'</b></span><button type="button" class="ab" id="ulClear">✕ '+GX("uListAll")+'</button></div>':'')+
-   '<div class="afilters"><input id="aqL" placeholder="'+t("searchPH")+'" class="asearch">'+
-   '<select id="afStatus"><option value="">'+t("allStatus")+'</option>'+
-   ["pending","rejected","live","hidden","sold","rented","expired","removed"].map(function(k){
-     return '<option value="'+k+'">'+(k==="hidden"?GX("st_hidden"):k==="rejected"?GX("st_rejected"):t("st_"+k))+'</option>'}).join("")+'</select>'+
-   '<select id="afDeal"><option value="">'+t("allDeals")+'</option>'+
-   '<option value="sale">'+t("buy")+'</option><option value="rent">'+t("rent")+'</option></select>'+
-   '<select id="afTabu"><option value="">'+t("allDeeds")+'</option>'+
-   Object.keys(D.TABU).map(function(k){
-     return '<option value="'+k+'">'+D.TABU[k][li()]+'</option>'}).join("")+'</select>'+
-   '<select id="afSort"><option value="new"'+(ADM.listSort!=="views"&&ADM.listSort!=="contacts"?" selected":"")+'>'+GX("sortNewest")+'</option><option value="views"'+(ADM.listSort==="views"?" selected":"")+'>'+GX("sortViews")+'</option><option value="contacts"'+(ADM.listSort==="contacts"?" selected":"")+'>'+GX("sortContacts")+'</option></select></div>'+
-  '<div class="dash-top" style="margin:8px 0">'+rangeTabs()+'</div>'+
-  '<div style="font-size:12.5px;color:var(--grey);margin:8px 0"><span id="aListCount"><span class="ltr">'+LL.length+'</span> '+t("listingsTab")+'</span></div>'+
-  '<div class="atable ltable"><table><thead><tr>'+
-   [t("listingsTab"),t("deed"),GX("colViews"),t("postedBy"),t("status"),''].map(function(h){return '<th>'+h+'</th>'}).join("")+
-   '</tr></thead><tbody id="aListBody">'+
-   LL.slice().sort(function(a,b){ var A=(ADM.lstats||{})[a.id]||{}, B=(ADM.lstats||{})[b.id]||{}; if(ADM.listSort==="views") return (+B.views||0)-(+A.views||0); if(ADM.listSort==="contacts") return (+B.contacts||0)-(+A.contacts||0); return 0 }).map(function(l){
-     var ls=(ADM.lstats||{})[l.id]||{}, typeName=(D.TYPES[l.property_type]?D.TYPES[l.property_type][li()]:(l.property_type||""));
-     var stLabel = l.status==="hidden"?GX("st_hidden"):l.status==="rejected"?GX("st_rejected"):(t("st_"+l.status)||l.status);
-     return '<tr data-row-status="'+l.status+'" data-row-tabu="'+(l.tabu||"")+'" data-row-deal="'+(l.deal||"")+'" data-row-text="'+((l.gov||"")+" "+(l.area||"")+" "+(l.poster_name||"")+" "+l.ref).toLowerCase()+'">'+
-     '<td><div class="lcell"><b class="ltr adlink" data-open="'+l.id+'">'+scopeFlag(l.country_code)+(l.ref||l.id)+'</b>'+
-       '<div class="lsub">'+typeName+' · <span class="ltr">'+admPrice(l.price_usd)+'</span>'+(l.deal==="rent"?' · '+t("rent"):'')+'</div>'+
-       '<div class="lsub">'+(l.area?l.area+"، ":"")+(l.gov||"")+'</div></div></td>'+
-     '<td><span class="tag '+cls(l.tabu)+'">'+(D.TABU[l.tabu]?D.TABU[l.tabu][li()]:(l.tabu||"—"))+'</span><div class="lsub"><span class="ltr">'+(l.photos||0)+'</span> '+t("photos")+'</div></td>'+
-     '<td><div class="lperf"><span><b class="ltr">'+(ls.views!=null?ls.views:"…")+'</b> '+GX("colViews")+(ls.views_total!=null?' <small class="ltr">/ '+ls.views_total+'</small>':'')+'</span>'+
-       '<span><b class="ltr">'+(ls.contacts!=null?ls.contacts:"…")+'</b> '+GX("colContacts")+'</span>'+
-       '<span><b class="ltr">'+(ls.saves!=null?ls.saves:"…")+'</b> '+GX("colSaves")+'</span></div></td>'+
-     '<td>'+(l.poster_id?'<a data-byuser="'+l.poster_id+'" data-name="'+(l.poster_name||"")+'" class="uname">'+(l.poster_name||"—")+'</a>':'<span>'+(l.poster_name||"—")+'</span>')+(l.poster_phone?'<div class="lsub ltr">'+l.poster_phone+'</div>':'')+'</td>'+
-     '<td><span class="st st-'+l.status+'">'+stLabel+'</span>'+(l.is_featured?'<div class="lsub" style="color:#8A6522">★ '+t("featuredBadgeDefault")+'</div>':'')+'</td>'+
-     '<td class="lacts">'+
-       '<button class="ab" data-adopen="'+l.id+'">'+t("edit")+'</button>'+
-       (l.status==="pending"?'<button class="ab ok" data-alive="'+l.id+'">'+t("approve")+'</button><button class="ab bad" data-areject="'+l.id+'">'+GX("rejectBtn")+'</button>':'')+
-       (l.status==="rejected"?'<button class="ab ok" data-alive="'+l.id+'">'+t("approve")+'</button>':'')+
-       (l.status==="hidden"?'<button class="ab ok" data-alive="'+l.id+'">'+GX("unhide")+'</button>':'')+
-       (l.status==="live"?'<button class="ab" data-apend="'+l.id+'">'+t("hide")+'</button>':'')+
-       '<button class="ab bad" data-adel="'+l.id+'">'+t("del")+'</button></td></tr>'}).join("")+
-   '</tbody></table></div>';
- }
+ else if(ADM.tab==="listings"){ body = adminListingsBody(d); }
 
  else if(ADM.tab==="users"){
   body = adminUsersBody(d);
@@ -1278,7 +1239,6 @@ function wireAdmin(){
     rpcScoped("bk_admin_listing_stats",{p_token:ADM.token,p_days:ADM.range,p_country:admScope()}).then(function(r){ var m={}; (r||[]).forEach(function(x){ m[x.id]=x }); ADM.lstats=m; render() }).catch(function(){});
   }
   $$("[data-arange]").forEach(function(b){ b.onclick=function(){ ADM.range=+this.dataset.arange; render() } });
-  if($("#afSort")) $("#afSort").onchange=function(){ ADM.listSort=this.value; render() };
   if($("#uActPick")) $("#uActPick").onchange=function(){ ADM.userActFilter=this.value; render() };
   if(ADM.tab==="storage" && !ADM._storageReportLoaded){
     ADM._storageReportLoaded=true;
@@ -1878,10 +1838,7 @@ function wireAdmin(){
     var countEl=$("#aListCount");
     if(countEl) countEl.innerHTML = '<span class="ltr">'+visible+'</span> '+t("listingsTab");
   };
-    if($("#aqL")) $("#aqL").oninput=function(){ filterRows("aListBody", this.value, ($("#afStatus")||{}).value, ($("#afTabu")||{}).value, ($("#afDeal")||{}).value) };
-  if($("#afStatus")) $("#afStatus").onchange=function(){ filterRows("aListBody", ($("#aqL")||{}).value, this.value, ($("#afTabu")||{}).value, ($("#afDeal")||{}).value) };
-  if($("#afTabu")) $("#afTabu").onchange=function(){ filterRows("aListBody", ($("#aqL")||{}).value, ($("#afStatus")||{}).value, this.value, ($("#afDeal")||{}).value) };
-  if($("#afDeal")) $("#afDeal").onchange=function(){ filterRows("aListBody", ($("#aqL")||{}).value, ($("#afStatus")||{}).value, ($("#afTabu")||{}).value, this.value) };
+  if(ADM.tab==="listings") wireAdminListings();   // the listings page wires its own search / filters / drawer / bulk bar
   if($("#aqU")) $("#aqU").oninput=function(){ filterRows("aUserBody", this.value, "") };
   if($("#amOpen")) $("#amOpen").onclick=function(){ admAddMember() };
   ["report","feedback","ticket"].forEach(function(k){ var q=$("#aq"+k); if(!q) return; q.oninput=function(){ var v=this.value.trim().toLowerCase();
@@ -3374,4 +3331,126 @@ function wireAdminIntake(){
   if($("#ikBulkCancel")) $("#ikBulkCancel").onclick=function(){ if(!confirm(GX("ik_bulkCancelQ").replace("{n}",selected().length))) return; runBulk(t("cancel"), function(id){ return rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:{status:"cancelled"}}) }) };
   $$("[data-ikcancel]").forEach(function(b){ b.onclick=async function(){ var id=this.dataset.ikcancel; busy(this,true); try{ await rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:{status:"cancelled"}}); reload() }catch(e){ admToast(e.message||"error","bad"); busy(this,false) } } });
   $$("[data-ikdel]").forEach(function(b){ b.onclick=async function(){ var id=this.dataset.ikdel; if(!confirm(GX("ik_delConfirm"))) return; busy(this,true); try{ await rpc("bk_admin_intake_delete",{p_token:ADM.token,p_id:+id}); ADM.ikOpen=null; syncAdminTodo(); reload() }catch(e){ admToast(e.message||"error","bad"); busy(this,false) } } });
+}
+
+// ───────────── listings page (2026-10-02 redesign): one toolbar, pill filters, fixed-column table, side drawer, bulk bar ─────────────
+// patterns: Shopify/Polaris index table + bulk actions, Stripe side drawer, Linear row rhythm, Material semantic status colours
+function admWhen(iso){
+  if(!iso) return ""; var d=new Date(iso), n=new Date(); if(isNaN(d)) return "";
+  var hm=d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+  if(d.toDateString()===n.toDateString()) return GX("whToday")+" "+hm;
+  var y=new Date(n); y.setDate(n.getDate()-1); if(d.toDateString()===y.toDateString()) return GX("whYesterday")+" "+hm;
+  return d.toLocaleDateString(L==="ar"?"ar-u-nu-latn":"en-GB",{day:"numeric",month:"short"}) + (d.getFullYear()!==n.getFullYear()?" "+d.getFullYear():"");
+}
+function admNormQ(s){ return String(s||"").toLowerCase().replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/[ً-ْـ]/g,"").replace(/\s+/g," ").trim() }
+function admStLabel(s){ return s==="hidden"?GX("st_hidden"):s==="rejected"?GX("st_rejected"):(t("st_"+s)||s) }
+function admTypeName(l){ return D.TYPES[l.property_type]?D.TYPES[l.property_type][li()]:(l.property_type||"") }
+function admDealLabel(l){ return l.deal==="rent"?GX("lfForRent"):GX("lfForSale") }
+function admListTitle(l){ return admTypeName(l)+' '+admDealLabel(l)+(l.area?' · '+esc(l.area):(l.gov?' · '+esc(l.gov):''))+(l.area_m2?' · <span class="ltr">'+(+l.area_m2).toLocaleString("en")+'</span> '+t("sqm"):'') }
+function admListingsFiltered(d){
+  var all=(d.listings||[]); var f=ADM.lf=ADM.lf||{q:"",status:"",gov:"",type:"",who:"",src:"",sort:"new"};
+  if(ADM.lstatus){ f.status=ADM.lstatus; ADM.lstatus=null }                       // a bell / dashboard jump pre-filters by status
+  if(ADM.listUser&&ADM.listUser.id) all=all.filter(function(l){ return l.poster_id===ADM.listUser.id });
+  var q=admNormQ(f.q);
+  var LL=all.filter(function(l){
+    if(f.status && l.status!==f.status) return false;
+    if(f.gov && (l.gov||"")!==f.gov) return false;
+    if(f.type && l.property_type!==f.type) return false;
+    if(f.who && (l.agency_name||l.poster_name||"")!==f.who) return false;
+    if(f.src==="bot" && !l.via) return false; if(f.src==="site" && l.via) return false;
+    if(q){ var hay=admNormQ([l.ref,l.id,l.gov,l.area,l.poster_name,l.agency_name,l.poster_phone,l.contact_phone,admTypeName(l),l.price_usd,admStLabel(l.status)].join(" ")); if(hay.indexOf(q)<0) return false }
+    return true });
+  var S=ADM.lstats||{};
+  LL.sort(function(a,b){ var A=S[a.id]||{},B=S[b.id]||{}; if(f.sort==="views") return (+B.views||0)-(+A.views||0); if(f.sort==="contacts") return (+B.contacts||0)-(+A.contacts||0); if(f.sort==="price") return (+b.price_usd||0)-(+a.price_usd||0); return new Date(b.created_at)-new Date(a.created_at) });
+  return {all:all, LL:LL, f:f, S:S};
+}
+function adminListingsBody(d){
+  var R=admListingsFiltered(d), all=R.all, LL=R.LL, f=R.f, S=R.S;
+  var uniq=function(fn){ var m={}; all.forEach(function(x){ var k=fn(x); if(k) m[k]=(m[k]||0)+1 }); return Object.keys(m).sort(function(a,b){ return m[b]-m[a] }).map(function(k){ return [k,k,m[k]] }) };
+  var pill=function(key,label,items,cur,id){ return '<label class="lfc'+(cur?' on':'')+'"><span>'+label+':</span><select data-lf="'+key+'"'+(id?' id="'+id+'"':'')+'><option value="">'+GX("lfAll")+'</option>'+items.map(function(it){ return '<option value="'+esc(it[0])+'"'+(cur===it[0]?' selected':'')+'>'+esc(it[1])+(it[2]!=null?' ('+it[2]+')':'')+'</option>' }).join("")+'</select></label>' };
+  var stItems=["pending","live","hidden","rejected","sold","rented","expired","removed"].map(function(k){ var n=all.filter(function(l){ return l.status===k }).length; return n?[k,admStLabel(k),n]:null }).filter(Boolean);
+  var tyItems=uniq(function(l){ return l.property_type }).map(function(it){ return [it[0], D.TYPES[it[0]]?D.TYPES[it[0]][li()]:it[0], it[2]] });
+  var sortItems=[["new",GX("sortNewest")],["views",GX("sortViews")],["contacts",GX("sortContacts")],["price",GX("lfSortPrice")]];
+  var pend=all.filter(function(l){ return l.status==="pending" }).length;
+  var anyF=f.q||f.status||f.gov||f.type||f.who||f.src;
+  ADM.lsel=ADM.lsel||{}; var vis={}; LL.forEach(function(l){ vis[l.id]=1 }); Object.keys(ADM.lsel).forEach(function(k){ if(!vis[k]) delete ADM.lsel[k] });
+  var selIds=Object.keys(ADM.lsel).filter(function(k){ return ADM.lsel[k] }), nSel=selIds.length; ADM._lvis=LL.map(function(l){ return l.id });
+  var open=ADM.lopen?(LL.filter(function(l){ return l.id===ADM.lopen })[0]||all.filter(function(l){ return l.id===ADM.lopen })[0]):null; if(!open) ADM.lopen=null;
+  var rows=LL.map(function(l){ var sel=!!ADM.lsel[l.id];
+    return '<tr class="lrow'+(sel?' sel':'')+(ADM.lopen===l.id?' open':'')+'" data-lrow="'+l.id+'">'+
+      '<td class="lchk"><input type="checkbox" data-lsel="'+l.id+'"'+(sel?' checked':'')+' aria-label="select"></td>'+
+      '<td><div class="lt">'+(l.cover?'<img src="'+esc(l.cover)+'" alt="" loading="lazy">':'<span class="lph">'+GX("lfNoPhotos")+'</span>')+'<div class="ltt"><b>'+scopeFlag(l.country_code)+admListTitle(l)+(l.is_featured?' <i class="lstar" title="'+t("featuredBadgeDefault")+'">★</i>':'')+'</b>'+
+        '<small><span class="ltr">'+esc(l.ref||l.id)+'</span>'+(l.area&&l.gov?' · '+esc(l.gov):'')+(l.photos?' · 📷 <span class="ltr">'+l.photos+'</span>':'')+(l.via?' · <em class="lbot">'+GX("lfBot")+'</em> '+(l.via==="telegram"?"Telegram":l.via==="whatsapp"?"WhatsApp":esc(l.via)):'')+'</small></div></div></td>'+
+      '<td><span class="st st-'+l.status+'">'+admStLabel(l.status)+'</span></td>'+
+      '<td class="lprice">'+(l.price_usd!=null&&l.price_usd!==""&&!isNaN(+l.price_usd)?'<span class="ltr">'+admPrice(l.price_usd)+'</span>':'<small>'+GX("lfPOR")+'</small>')+'</td>'+
+      '<td class="lwho">'+esc(l.agency_name||l.poster_name||"—")+(l.agency_name&&l.poster_name&&l.agency_name!==l.poster_name?'<small>'+esc(l.poster_name)+'</small>':(l.poster_phone?'<small class="ltr">'+esc(l.poster_phone)+'</small>':''))+'</td>'+
+      '<td class="lwhen"><span class="ltr">'+admWhen(l.created_at)+'</span></td></tr>' }).join("");
+  return (ADM.listUser?'<div class="ulchip"><span>'+GX("uListChip").replace("{n}",esc(ADM.listUser.name||""))+' · <b class="ltr">'+all.length+'</b></span><button type="button" class="ab" id="ulClear">✕ '+GX("uListAll")+'</button></div>':'')+
+   '<div class="lbar"><span class="lcnt"><b class="ltr">'+LL.length+'</b>'+(LL.length!==all.length?' / <span class="ltr">'+all.length+'</span>':'')+' '+t("listingsTab")+(pend?'<span class="lpend">· '+GX("lfPendingN").replace("{n}",pend)+'</span>':'')+'</span>'+
+     '<label class="lq">'+AICO.search+'<input id="aqL" value="'+esc(f.q||"")+'" placeholder="'+t("searchPH")+'" autocomplete="off"></label>'+rangeTabs()+'</div>'+
+   '<div class="lfilters">'+pill("status",GX("lfStatus"),stItems,f.status,"afStatus")+pill("gov",GX("lfGov"),uniq(function(l){ return l.gov }),f.gov)+pill("type",GX("lfType"),tyItems,f.type)+pill("who",GX("lfWho"),uniq(function(l){ return l.agency_name||l.poster_name }),f.who)+
+     pill("src",GX("lfSrc"),[["bot",GX("lfBot"),all.filter(function(l){ return l.via }).length],["site",GX("lfSite"),all.filter(function(l){ return !l.via }).length]],f.src)+pill("sort",GX("lfSort"),sortItems,f.sort!=="new"?f.sort:"")+
+     (anyF?'<button type="button" class="lfclear" id="lfClear">'+GX("lfClear")+'</button>':'')+'</div>'+
+   '<div class="lpage'+(open?' has-drawer':'')+'"><div class="ltbl">'+
+     (nSel?'<div class="lbulk"><span><b class="ltr">'+nSel+'</b> '+GX("lfSelected")+'</span><button type="button" class="lx" id="lselNone">✕ '+GX("lfUnsel")+'</button><span class="sp"></span>'+
+       '<button type="button" class="ab" data-lbulk="live">'+GX("lfBulkLive")+'</button><button type="button" class="ab" data-lbulk="hidden">'+GX("lfBulkHide")+'</button><button type="button" class="ab bad" data-lbulk="del">'+GX("lfBulkDel")+'</button></div>':'')+
+     '<table>'+
+     '<colgroup><col style="width:36px"><col><col style="width:132px"><col style="width:112px"><col style="width:150px"><col style="width:104px"></colgroup>'+
+     '<thead><tr><th><input type="checkbox" id="lselAll"'+(LL.length&&nSel===LL.length?' checked':'')+' aria-label="select all"></th><th>'+GX("colListing")+'</th><th>'+t("status")+'</th><th>'+GX("price")+'</th><th>'+GX("lfWho")+'</th><th>'+GX("colDate")+'</th></tr></thead>'+
+     '<tbody id="aListBody">'+(rows||'<tr><td colspan="6" class="lnone">'+GX("lfNone")+'</td></tr>')+'</tbody></table>'+
+   '</div>'+(open?admListingDrawer(open,S[open.id]||{}):'')+'</div>';
+}
+function admListingDrawer(l,ls){
+  var cc=String(l.country_code||"SY").toLowerCase(), pub=(cc==="sy"?"":"/"+cc)+"/listing/"+l.id;
+  var deed=D.TABU[l.tabu]?D.TABU[l.tabu][li()]:(l.tabu||"—"), cond=(D.COND&&D.COND[l.condition])?D.COND[l.condition][li()]:((D.LANDC&&D.LANDC[l.condition])?D.LANDC[l.condition][li()]:"");
+  var acts='<button class="ab" data-adopen="'+l.id+'">✏️ '+t("edit")+'</button>'+
+    (l.status==="pending"?'<button class="ab ok" data-alive="'+l.id+'">'+t("approve")+'</button><button class="ab bad" data-areject="'+l.id+'">'+GX("rejectBtn")+'</button>':'')+
+    (l.status==="rejected"?'<button class="ab ok" data-alive="'+l.id+'">'+t("approve")+'</button>':'')+
+    (l.status==="hidden"?'<button class="ab ok" data-alive="'+l.id+'">'+GX("unhide")+'</button>':'')+
+    (l.status==="live"?'<button class="ab" data-apend="'+l.id+'">'+t("hide")+'</button>':'')+
+    '<a class="ab" href="'+pub+'" target="_blank" rel="noopener">↗ '+GX("lfPublic")+'</a>'+
+    '<button class="ab bad" data-adel="'+l.id+'">'+t("del")+'</button>';
+  return '<aside class="ldrawer" id="lDrawer">'+
+    '<div class="ld-hd"><span class="st st-'+l.status+'">'+admStLabel(l.status)+'</span><h2 class="ltr">'+esc(l.ref||l.id)+'</h2>'+(l.is_featured?'<span class="lstar" title="'+t("featuredBadgeDefault")+'">★</span>':'')+'<button type="button" class="lx" id="ldClose" aria-label="'+GX("lfClose")+'">✕</button></div>'+
+    (l.cover?'<img class="ld-cover" src="'+esc(l.cover)+'" alt="">':'<div class="ld-cover ph">'+GX("lfNoPhotos")+'</div>')+
+    '<div class="ld-acts">'+acts+'</div>'+
+    '<div class="ld-sec">'+GX("lfData")+'</div><dl class="ld-kv">'+
+      '<dt>'+GX("lfType")+'</dt><dd>'+admTypeName(l)+' · '+admDealLabel(l)+'</dd>'+
+      '<dt>'+GX("price")+'</dt><dd class="ltr">'+admPrice(l.price_usd)+'</dd>'+
+      '<dt>'+GX("lfSize")+'</dt><dd>'+(l.area_m2?'<span class="ltr">'+(+l.area_m2).toLocaleString("en")+'</span> '+t("sqm"):'—')+'</dd>'+
+      (l.deal!=="rent"?'<dt>'+t("deed")+'</dt><dd>'+esc(deed)+'</dd>':'')+
+      (cond?'<dt>'+GX("ik_f_cond")+'</dt><dd>'+esc(cond)+'</dd>':'')+
+      '<dt>'+GX("lfPlace")+'</dt><dd>'+esc([l.gov,l.area].filter(Boolean).join(" – ")||"—")+'</dd>'+
+      '<dt>'+GX("lfWho")+'</dt><dd>'+(l.poster_id?'<a data-byuser="'+l.poster_id+'" data-name="'+esc(l.poster_name||"")+'" class="uname">'+esc(l.poster_name||"—")+'</a>':esc(l.poster_name||"—"))+(l.agency_name?'<br><small>'+GX("lfAgency")+': '+esc(l.agency_name)+'</small>':'')+'</dd>'+
+      '<dt>'+GX("lfPhone")+'</dt><dd class="ltr">'+esc(l.contact_phone||l.poster_phone||"—")+'</dd>'+
+      '<dt>'+t("photos")+'</dt><dd class="ltr">'+(l.photos||0)+'</dd>'+
+      '<dt>'+GX("lfCreated")+'</dt><dd><span class="ltr">'+admWhen(l.created_at)+'</span></dd>'+
+    '</dl>'+
+    '<div class="ld-sec">'+GX("lfPerf")+' · '+GX("r"+(ADM.range||7))+'</div><div class="ld-perf"><div><b class="ltr">'+(ls.views!=null?ls.views:"…")+'</b><span>'+GX("colViews")+'</span></div><div><b class="ltr">'+(ls.contacts!=null?ls.contacts:"…")+'</b><span>'+GX("colContacts")+'</span></div><div><b class="ltr">'+(ls.saves!=null?ls.saves:"…")+'</b><span>'+GX("colSaves")+'</span></div></div>'+
+    '<div class="ld-sec">'+GX("lfSource")+'</div><dl class="ld-kv"><dt>'+GX("lfChannel")+'</dt><dd>'+(l.via?GX("lfViaBot")+' · '+(l.via==="telegram"?"Telegram":l.via==="whatsapp"?"WhatsApp":esc(l.via)):GX("lfViaSite"))+'</dd></dl>'+
+    '<div class="ld-sp"></div>'+
+  '</aside>';
+}
+function wireAdminListings(){
+  var q=$("#aqL"); if(q){ q.oninput=function(){ var v=this.value; clearTimeout(ADM._lqT); ADM._lqT=setTimeout(function(){ ADM.lf.q=v; render(); var el=$("#aqL"); if(el){ el.focus(); try{ el.setSelectionRange(el.value.length,el.value.length) }catch(e){} } },160) } }
+  $$("[data-lf]").forEach(function(s){ s.onchange=function(){ ADM.lf[this.dataset.lf]=this.value; if(this.dataset.lf==="sort"){ ADM.lf.sort=this.value||"new"; ADM.listSort=ADM.lf.sort } render() } });
+  if($("#lfClear")) $("#lfClear").onclick=function(){ ADM.lf={q:"",status:"",gov:"",type:"",who:"",src:"",sort:"new"}; render() };
+  $$("[data-lsel]").forEach(function(c){ c.onchange=function(){ ADM.lsel[this.dataset.lsel]=this.checked; render() }; c.onclick=function(e){ e.stopPropagation() } });
+  if($("#lselAll")) $("#lselAll").onchange=function(){ var on=this.checked; ADM.lsel={}; if(on) (ADM._lvis||[]).forEach(function(id){ ADM.lsel[id]=true }); render() };
+  if($("#lselNone")) $("#lselNone").onclick=function(){ ADM.lsel={}; render() };
+  $$("tr[data-lrow]").forEach(function(tr){ tr.onclick=function(e){ if(e.target.closest("input,button,a,select")) return; var id=+this.dataset.lrow; ADM.lopen=(ADM.lopen===id?null:id); render(); if(ADM.lopen && window.innerWidth<=1100){ var dr=$("#lDrawer"); if(dr) dr.scrollTop=0 } } });
+  if($("#ldClose")) $("#ldClose").onclick=function(){ ADM.lopen=null; render() };
+  $$("[data-lbulk]").forEach(function(b){ b.onclick=async function(){
+    var what=this.dataset.lbulk, ids=Object.keys(ADM.lsel).filter(function(k){ return ADM.lsel[k] }); if(!ids.length) return;
+    var label=what==="live"?GX("lfBulkLive"):what==="hidden"?GX("lfBulkHide"):GX("lfBulkDel");
+    if(!confirm(GX("lfBulkQ").replace("{a}",label).replace("{n}",ids.length))) return;
+    if(what==="del" && !confirm(t("confirmDel"))) return;
+    this.disabled=true; var done=0, fail=0;
+    for(var i=0;i<ids.length;i++){ var id=+ids[i]; try{
+        if(what==="del"){ await trashListingFiles(id); await rpc("bk_admin_delete_listing",{p_token:ADM.token,p_listing:id}) }
+        else await rpc("bk_admin_set_status",{p_token:ADM.token,p_listing:id,p_status:what});
+        done++ }catch(e){ fail++ } }
+    ADM.lsel={}; if(what==="del") ADM.lopen=null;
+    await adminLoad(); admToast(GX("lfBulkDone").replace("{n}",done)+(fail?" · ✕ "+fail:""), fail?"bad":"ok");
+  } });
 }
