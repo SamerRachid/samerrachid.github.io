@@ -846,6 +846,18 @@ function keepSenderText(s: string): string {
     .replace(/^\s*(تم|تمام|نعم|لا|جديد|done|yes|no|new)\s*$/gim, "")
     .replace(/[ \t]+/g, " ").replace(/\s*\n\s*/g, "\n").replace(/\n{3,}/g, "\n\n").trim().slice(0, 1200);
 }
+// "hide my number" (account switch, 2026-10-03): the owner's listings never show a phone, so the text they send through
+// the bot loses its phone numbers too (9+ digits with optional separators, Arabic-Indic digits included)
+function stripPhones(s: string): string {
+  return String(s || "")
+    .replace(/(?:\+|00)?[\d٠-٩][\d٠-٩\s\-.()]{7,}[\d٠-٩]/g, (m) => (m.replace(/\D/g, "").length >= 9 ? " " : m))
+    .replace(/(?:للتواصل|للاتصال|للإستفسار|للاستفسار|اتصل|واتس(?:اب)?|واتساب)\s*[:：]?\s*(?:⤵|👇|☎|📞|📱)*\s*$/gm, "")
+    .replace(/[ \t]+/g, " ").replace(/\s*\n\s*/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+async function senderHidesPhone(d: any): Promise<boolean> {
+  if (!d?.user_id) return false;
+  try { const { data } = await sb.from("users").select("hide_phone").eq("id", d.user_id).maybeSingle(); return !!data?.hide_phone; } catch { return false; }
+}
 // tidy what the model returned against the taxonomy; compute what is still missing
 function settle(f: Record<string, any>, tax: any, rawText?: string) {
   const out: Record<string, any> = { ...f };
@@ -1114,7 +1126,9 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
     // the description is the sender's own words (owner's rule): only phone numbers, links, "#" marks and the membership
     // number are taken out; the model's rewrite is used only when the panel switches this off
     if (c.intake_keep_text !== false && c.intake_keep_text !== "false") {
-      const kept = keepSenderText(memberNo ? rawText.replace(MEMBER_NO, " ") : rawText);
+      let kept = keepSenderText(memberNo ? rawText.replace(MEMBER_NO, " ") : rawText);
+      // the sender hides their number (account switch): phone numbers come out of the published text
+      if (await senderHidesPhone(d)) { const s2 = stripPhones(kept); if (s2 !== kept) { kept = s2; fields.phone_hidden = "1"; await log(draftId, d.chat_id, "info", "phone_stripped", {}); } }
       if (kept.length >= 20) fields.description = kept;
     }
     // two apartments in one message = one listing titled "شقة عدد 2" (owner's rule); the full text already lists them
@@ -1545,7 +1559,7 @@ async function fixPublished(m: Incoming, r: any, tt: any) {
     if (changed.includes("area_id")) { delete f2.area_text; }
     if (!changed.length) { await log(d.id, m.chat, "info", "fix_nochange", { text: fix }); await reply(m.source, m.chat, t.fixNone(r.ref || "")); return; }
     // the correction is part of the sender's words (the description is their text, owner's rule)
-    if (c.intake_keep_text !== false && c.intake_keep_text !== "false") { const kept = keepSenderText(rawText + "\n" + fix); if (kept.length >= 20) f2.description = kept; }
+    if (c.intake_keep_text !== false && c.intake_keep_text !== "false") { let kept = keepSenderText(rawText + "\n" + fix); if (await senderHidesPhone(d)) kept = stripPhones(kept); if (kept.length >= 20) f2.description = kept; }
     await rpc("bk_intake_set", { p_draft: d.id, p_patch: { fields: f2 } });
     const pat = await rpc<any>("bk_intake_patch_listing", { p_draft: d.id });
     if (!pat?.ok) throw new Error("patch: " + (pat?.error || "?"));
