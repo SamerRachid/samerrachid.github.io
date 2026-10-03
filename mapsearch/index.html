@@ -459,7 +459,7 @@ html.js .rv.in{opacity:1;transform:none}
 .res.list-view .card .ph{width:min(var(--card-size,238px),260px);flex-shrink:0;height:100%;aspect-ratio:auto;position:relative}
 .res.list-view .card .ph img,.res.list-view .card .ph .nophoto{height:100%;aspect-ratio:auto}
 .res.list-view .card .bd{top:6px;inset-inline-start:6px;gap:4px}
-.res.list-view .card .bd span{font-size:9.5px;padding:2px 6px}
+.res.list-view .card .bd span{font-size:10.5px;padding:2px 7px}
 .res.list-view .card .cb{flex:1;display:flex;flex-direction:column;justify-content:center;min-width:0;overflow:hidden;padding:10px 14px}
 .res.list-view .card .cb-toprow{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
 .res.list-view .card .cb-toprow .p{font-size:18px;white-space:nowrap}
@@ -1159,7 +1159,7 @@ footer{font-size:14px}
 .card.c2 .ph img{aspect-ratio:4/3;width:100%;height:auto;object-fit:cover;display:block}
 .card.c2 .ph::after{content:"";position:absolute;inset:auto 0 0 0;height:46%;background:linear-gradient(to top,rgba(9,14,26,.55),transparent);pointer-events:none}
 .card.c2 .bd{top:10px;inset-inline-start:10px;gap:5px;z-index:2}
-.cbg{font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.95);color:var(--navy)}
+.cbg{font-size:11px;font-weight:800;padding:4px 9px;border-radius:999px;background:rgba(255,255,255,.95);color:var(--navy);line-height:1.3}
 .cbg.gold{background:var(--gold);color:#1A1206}.cbg.ok{background:var(--ok);color:#fff}
 .cfav{position:absolute;top:10px;inset-inline-end:10px;z-index:3;width:34px;height:34px;border-radius:50%;border:none;background:rgba(255,255,255,.92);color:var(--navy);display:grid;place-items:center;cursor:pointer;transition:transform .2s,background .2s}
 .cfav:hover{background:#fff;transform:scale(1.06)}
@@ -1179,7 +1179,18 @@ footer{font-size:14px}
 .cfacts span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .cfacts svg{color:var(--gold-dk,#8A6522);opacity:.95;width:16px;height:16px}
 .cfacts b{font-weight:700}
-.cfoot{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--light)}
+.cfoot{display:flex;flex-direction:column;gap:6px;margin-top:auto;padding-top:10px;border-top:1px solid var(--line);font-size:11.5px;color:var(--light)}
+.cfoot .cf1{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;overflow:hidden;min-height:24px}
+.cfoot .cf1>*{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cfoot .cf1>.cpill:first-child:not(.agency){flex:0 0 auto}   /* the deed never truncates; the agency name gives way */
+@media(max-width:640px){.pager a,.pager button,.rs-pager a{min-width:40px;min-height:40px}}
+.cfoot .cf2{display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;color:var(--light)}
+.cfoot .cf2 .cref{margin-inline-start:auto}
+/* card rhythm (2026-10-03): the photo box is always 4:3, the title / place / facts are one line each, the footer is two fixed rows */
+.card.c2 .ph{aspect-ratio:4/3}.card.c2 .ph img,.card.c2 .ph .nophoto,.card.c2 .ph video.vcover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.card.c2 .cfacts{flex-wrap:nowrap;overflow:hidden;min-height:22px}
+.card.c2 .cfacts span{flex:0 0 auto}
+.card.c2 .cloc{min-height:19px}.card.c2 .ctitle{min-height:21px}
 .cpill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--navy-w);color:var(--navy)}
 .cpill.green{background:var(--ok-w)}
 .cpill.soft{background:#F1F2F4;color:var(--grey)}
@@ -1198,8 +1209,9 @@ footer{font-size:14px}
 .resempty b{color:var(--ink);font-size:16px}
 /* list view: photo at the start, everything else beside it, description included */
 .res.list-view{gap:14px}
-.res.list-view .card.c2{flex-direction:row;height:auto;min-height:200px}
+.res.list-view .card.c2{flex-direction:row;height:220px}
 .res.list-view .card.c2 .ph{width:min(36%,320px);flex:none;height:auto;aspect-ratio:auto}
+.res.list-view .card.c2 .cb{min-width:0;overflow:hidden}
 .res.list-view .card.c2 .ph img{height:100%;aspect-ratio:auto;position:absolute;inset:0}
 .res.list-view .card.c2 .ph .nophoto{height:100%}
 .res.list-view .card.c2 .cb{padding:16px 20px 14px;gap:6px}
@@ -1210,6 +1222,7 @@ footer{font-size:14px}
 .res.list-view .cdesc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:13px;line-height:1.7;color:var(--grey);margin:2px 0 0}
 .res.list-view .cfoot{font-size:12px}
 @media(max-width:640px){
+  .cfav{width:40px;height:40px}
   .res{grid-template-columns:repeat(auto-fill,minmax(var(--card-size-mobile,160px),1fr));gap:12px}
   .rtop{padding:8px 10px;gap:8px}
   .rtop .viewtoggle button span{display:none}
@@ -2488,14 +2501,19 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 /* phones: compact horizontal cards (photo beside the facts) so three results fit one screen */
 @media(max-width:640px){
   .rs .res:not(.list-view){grid-template-columns:1fr;gap:10px}
-  .rs .res:not(.list-view) .card{display:flex;flex-direction:row;min-height:124px;overflow:hidden}
-  .rs .res:not(.list-view) .card .ph{width:128px;flex-shrink:0;height:auto;aspect-ratio:auto;position:relative}
-  .rs .res:not(.list-view) .card .ph img,.rs .res:not(.list-view) .card .ph .nophoto{height:100%;aspect-ratio:auto;object-fit:cover}
-  .rs .res:not(.list-view) .card .bd{top:6px;inset-inline-start:6px;gap:4px}.rs .res:not(.list-view) .card .bd span{font-size:9.5px;padding:2px 6px}
-  .rs .res:not(.list-view) .card .cb{flex:1;min-width:0;padding:8px 10px;display:flex;flex-direction:column;justify-content:center;gap:2px}
-  .rs .res:not(.list-view) .card .cprice .p{font-size:16px}.rs .res:not(.list-view) .card .ctitle{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .rs .res:not(.list-view) .card .cloc{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rs .res:not(.list-view) .card .cfacts{font-size:11.5px;gap:8px}
-  .rs .res:not(.list-view) .card .cfoot{margin-top:2px;padding-top:4px;font-size:10.5px;gap:6px}.rs .res:not(.list-view) .card .cfoot .cref,.rs .res:not(.list-view) .card .cfoot .csince{display:none}
+  .rs .res:not(.list-view) .card{display:flex;flex-direction:row;height:150px;overflow:hidden}
+  .rs .res:not(.list-view) .card .ph{width:132px;flex-shrink:0;height:100%;aspect-ratio:auto;position:relative}
+  .rs .res:not(.list-view) .card .ph img,.rs .res:not(.list-view) .card .ph .nophoto,.rs .res:not(.list-view) .card .ph video.vcover{position:absolute;inset:0;width:100%;height:100%;aspect-ratio:auto;object-fit:cover}
+  .rs .res:not(.list-view) .card .ph::after{height:40%}
+  .rs .res:not(.list-view) .card .bd{top:6px;inset-inline-start:6px;gap:4px}.rs .res:not(.list-view) .card .bd span{font-size:10.5px;padding:2px 7px}
+  .rs .res:not(.list-view) .card .cfav{width:40px;height:40px;top:4px;inset-inline-end:4px;background:rgba(255,255,255,.8)}.rs .res:not(.list-view) .card .cpc{bottom:6px;inset-inline-end:6px;font-size:11px}
+  .rs .res:not(.list-view) .card .cb{flex:1;min-width:0;padding:9px 10px 8px;display:flex;flex-direction:column;justify-content:flex-start;gap:3px}
+  .rs .res:not(.list-view) .card .cprice .p{font-size:17px}.rs .res:not(.list-view) .card .cpm{font-size:11px}
+  .rs .res:not(.list-view) .card .ctitle{font-size:13px;min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rs .res:not(.list-view) .card .cloc{font-size:11.5px;min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rs .res:not(.list-view) .card .cfacts{font-size:12px;gap:10px;min-height:0;margin-top:0}.rs .res:not(.list-view) .card .cfacts svg{width:14px;height:14px}
+  .rs .res:not(.list-view) .card .cfoot{margin-top:auto;padding-top:5px;font-size:11px;gap:0}.rs .res:not(.list-view) .card .cfoot .cf2{display:none}.rs .res:not(.list-view) .card .cfoot .cf1{min-height:22px}
+  .rs .res:not(.list-view) .card .cpill{font-size:10.5px;padding:2px 7px}.rs .res:not(.list-view) .card .cpill.agency img{width:14px;height:14px}
 }
 @media(max-width:900px){
   .rs-bar{position:static;z-index:auto}
@@ -2881,7 +2899,7 @@ html.maint-on{overflow:hidden}
 @media(max-width:860px){.acct-grid{grid-template-columns:1fr;gap:14px}.acct-nav{position:static;flex-direction:row;overflow-x:auto;padding:6px;scrollbar-width:none}.acct-nav a{white-space:nowrap;padding:8px 12px;font-size:13px}.acct-nav .acnav-st{display:none}.accta{grid-template-columns:1fr}.acct-h h1{font-size:20px}}
 /* coming-soon services */
 .hnav .hsoon{display:inline-flex;align-items:center;gap:6px}
-.hnav .hsoon i{font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.04em;color:#1A1206;background:var(--gold);border-radius:999px;padding:1px 6px;line-height:1.5;transform:translateY(-7px)}
+.hnav .hsoon i{font-style:normal;font-size:10px;font-weight:800;letter-spacing:.04em;color:#1A1206;background:var(--gold);border-radius:999px;padding:1px 6px;line-height:1.5;transform:translateY(-7px)}
 /* header links never break into two lines; when the signed-in tools need the room, the gaps tighten first and the coming-soon links step back into the menu */
 @media(min-width:861px){.hnav a{white-space:nowrap}.hbar{gap:14px}.hbar .logo{margin-left:0}.htools{gap:14px}.hnav{gap:14px;font-size:14px}.hnav .hsoon{position:relative;padding-inline-end:0}.hnav .hsoon i{position:absolute;top:-2px;inset-inline-end:-6px;transform:none;font-size:6px;letter-spacing:.02em;padding:0 4px;line-height:1.8}[dir=rtl] .hnav .hsoon{direction:rtl}}
 @media(min-width:861px) and (max-width:1240px){.hnav a[data-soon]{display:none}}
@@ -3110,7 +3128,7 @@ html[lang=fr] .htools a.gold{white-space:nowrap}
 @media(max-width:1000px){.adm .agcard2{grid-template-columns:1fr}.adm .agc-acts{justify-content:flex-start}}
 @media(max-width:700px){.ag-hero h1{font-size:22px}.ag-filters input{max-width:none}.agcontact a{flex:1 1 44%;justify-content:center}}
 /* "new" tag + gold spinning pin on every map button */
-.newtag{position:absolute;top:-8px;inset-inline-end:-6px;font-style:normal;font-size:9.5px;font-weight:800;letter-spacing:.03em;background:var(--gold);color:#1A1206;border-radius:999px;padding:1px 6px;line-height:1.6;box-shadow:0 2px 6px rgba(9,14,26,.25);pointer-events:none;z-index:2}
+.newtag{position:absolute;top:-8px;inset-inline-end:-6px;font-style:normal;font-size:10.5px;font-weight:800;letter-spacing:.03em;background:var(--gold);color:#1A1206;border-radius:999px;padding:1px 6px;line-height:1.6;box-shadow:0 2px 6px rgba(9,14,26,.25);pointer-events:none;z-index:2}
 .home-hero .sgo-map,.rs-maptg,.rs-mbar #rsMMap{position:relative;overflow:visible}
 body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
 .rs-maptg svg,.rs-mbar #rsMMap svg{color:var(--gold);animation:pinSpin 5s cubic-bezier(.6,0,.3,1) 3s infinite;transform-style:preserve-3d}
@@ -4866,7 +4884,7 @@ function card(x,i,isListView){
    '<div class="ctitle">'+title+'</div>'+
    '<div class="cloc">'+I.pin+'<span>'+aN(x.a)+(ar?'، ':', ')+gN(x.g)+'</span></div>'+
    facts+desc+
-   '<div class="cfoot">'+deedPill+poster+since+'<span class="cref ltr">'+(x.ref||x.id)+'</span></div>'+
+   '<div class="cfoot"><div class="cf1">'+deedPill+poster+'</div><div class="cf2">'+since+'<span class="cref ltr">'+(x.ref||x.id)+'</span></div></div>'+
   '</div></a>'}
 
 /* ── search ── */
