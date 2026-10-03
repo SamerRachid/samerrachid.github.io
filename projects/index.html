@@ -2826,6 +2826,11 @@ html.maint-on{overflow:hidden}
 .adm .usel .lvlpick{max-width:94px;padding:0 4px}
 .adm .ucell .uname{display:inline-block;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
 .adm .utable td.unum,.adm .utable .useen,.adm .utable .useen-fresh{font-size:12px}
+/* count cells: number first in a fixed-width slot so the column reads as one straight line; the muted detail under it */
+.adm .ucount{text-align:start;white-space:nowrap}.adm .ucount b{display:inline-block;min-width:3ch;text-align:end;font-size:13px;font-weight:650;font-variant-numeric:tabular-nums}
+.adm .ucount small{display:block;color:var(--p-ink2,#616161);font-size:11px;font-weight:400;margin-top:1px}.adm .ucount .ustar{color:#C9972B}.adm .ucount .udash{color:#b5b5b5}
+.adm .ucount .sflag{margin:0 0 0 4px;vertical-align:-1px}
+.adm .utable{max-height:none}
 .adm .utable td:first-child{width:27%;max-width:300px}.adm .utable .ucell .usub{white-space:normal;line-height:1.35}.adm .utable .ucell .usub .ltr{display:inline-block}
 .adm .utable{overflow-x:auto}
 /* member / agency drawers (same shell as the listings drawer) */
