@@ -34,6 +34,8 @@ fools the bot, add it to `tests/bot/` and fix it in the weekly batch (see "How c
    landmark («مدرسة المناضل», «جانب الجامع») is never the area.
 5. **The sender's words are the description.** Verbatim, including the phone number; only command words and the
    membership number are dropped. The model's rewrite is used only when the panel switches `intake_keep_text` off.
+   Exception (2026-10-03): a member who turned on «إخفاء رقمي» in their account gets phone numbers stripped from the
+   published text, and their listings show no phone at all — visitors use the visit/message request instead.
 6. **The how-to is sent once** per chat (not to admins) and again on «مساعدة».
 
 ## Reading rules (what the fields mean)
