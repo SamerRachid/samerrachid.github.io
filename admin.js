@@ -791,6 +791,7 @@ function adminView(){
   '<header class="adm-top">'+
    '<button class="adm-burger" id="aSidebarToggle" aria-label="'+t("menu")+'">≡</button>'+
    '<div class="adm-brand"><span class="adm-logo">'+CONFIG.brand+'</span><span class="adm-sub">'+t("adminPanel")+'</span></div>'+
+   ((GSX("maintenance_on",false)===true||GSX("maintenance_on",false)==="true")?'<button type="button" class="adm-maint" data-atab="settings" title="'+esc(GX("maintBadgeHint"))+'">🛠 '+GX("maintBadge")+'</button>':'')+
    '<label class="adm-q">'+AICO.search+'<input id="aNavQ" placeholder="'+GX("aNavSearch")+'" autocomplete="off"></label>'+
    '<div class="adm-actions">'+
     adminCountrySelHtml()+'<select class="adm-lang" id="aLang" aria-label="'+GX("aLang")+'">'+["ar","en","de"].map(function(k){ return '<option value="'+k+'"'+(k===L?' selected':'')+'>'+D.I18N[k].name+'</option>' }).join("")+'</select>'+
