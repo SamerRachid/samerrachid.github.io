@@ -9373,6 +9373,7 @@ var _adminAlertsPollTimer=null;
 function syncAdminAlerts(){
   if(!DB || !ADM.token) return;
   syncAdminTodo();
+  if(typeof syncVisitorsNow==="function") syncVisitorsNow();
   rpc("bk_admin_notifications",{p_token:ADM.token}).then(function(r){
     if(!r) return;
     var newUnread = r.unread||0;
@@ -9916,7 +9917,20 @@ function logView(){
     try{ DB.rpc("bk_log_view2",{p_path:location.pathname+location.search,p_view:VIEW.split(":")[0],
       p_user:(USER&&USER.id)||null,p_country:c||null,p_token:(USER&&USER.token)||null,p_visitor:VID,p_device:deviceKind(),p_referrer:ref,p_site_country:COUNTRY}).then(null,function(){}) }catch(e){}
   });
+  visitorPing(false);
 }
+// presence: every open tab (member or guest) says "still here" once a minute while visible → admin "visitors now"
+var _vpLast=0;
+function visitorPing(force){
+  if(PREVIEW || !DB || !VID || document.hidden || (ADM&&ADM.token&&VIEW==="admin")) return;
+  if(!force && Date.now()-_vpLast<20000) return;
+  _vpLast=Date.now();
+  resolveCountry().then(function(c){
+    try{ DB.rpc("bk_visitor_ping",{p_visitor:VID,p_device:deviceKind(),p_site_country:COUNTRY,p_user:(USER&&USER.id)||null,p_view:VIEW.split(":")[0],p_country:c||null}).then(null,function(){}) }catch(e){}
+  });
+}
+setInterval(function(){ visitorPing(true) }, 60000);
+document.addEventListener("visibilitychange", function(){ if(!document.hidden) visitorPing(false) });
 // ad squares: impressions once per page load, clicks when a square is opened
 function logAds(events){
   if(PREVIEW || !DB || !events || !events.length) return;
@@ -11704,7 +11718,7 @@ var GX_T={
   colViews:{ar:"مشاهدات",en:"Views",de:"Aufrufe"}, colContacts:{ar:"تواصل",en:"Contacts",de:"Kontakte"}, colSaves:{ar:"حفظ",en:"Saves",de:"Gespeichert"}, colClicks:{ar:"نقرات",en:"Clicks",de:"Klicks"}, colCtr:{ar:"نسبة النقر",en:"CTR",de:"CTR"},
   colImpr:{ar:"ظهور",en:"Impressions",de:"Impressionen"}, colFrom:{ar:"من أين",en:"From where",de:"Woher"}, colLastSeen:{ar:"آخر نشاط",en:"Last active",de:"Zuletzt aktiv"}, colTotal:{ar:"الإجمالي",en:"Total",de:"Gesamt"},
   pagesH:{ar:"الصفحات الأكثر زيارة",en:"Most visited pages",de:"Meistbesuchte Seiten"}, countriesH:{ar:"الدول",en:"Countries",de:"Länder"}, devicesH:{ar:"الأجهزة",en:"Devices",de:"Geräte"}, referrersH:{ar:"مصادر الزيارات",en:"Traffic sources",de:"Besucherquellen"},
-  contactKindsH:{ar:"أنواع التواصل",en:"Contact types",de:"Kontaktarten"}, usersActH:{ar:"نشاط الأعضاء",en:"Member activity",de:"Mitgliederaktivität"}, listingsStatusH:{ar:"الإعلانات حسب الحالة",en:"Listings by status",de:"Anzeigen nach Status"},
+  contactKindsH:{ar:"أنواع التواصل",en:"Contact types",de:"Kontaktarten"}, usersActH:{ar:"نشاط الأعضاء",en:"Member activity",de:"Mitgliederaktivität"}, visNowH:{ar:"على الموقع الآن",en:"On the site now",de:"Jetzt auf der Seite"}, visNowHint:{ar:"كل من فتح صفحة خلال آخر 5 دقائق، أعضاء وزوّار. يتحدّث كل دقيقة.",en:"Everyone who opened a page in the last 5 minutes, members and guests. Refreshes every minute.",de:"Alle, die in den letzten 5 Minuten eine Seite geöffnet haben, Mitglieder und Gäste. Aktualisiert jede Minute."}, visMembers:{ar:"أعضاء",en:"Members",de:"Mitglieder"}, visGuests:{ar:"زوّار",en:"Guests",de:"Gäste"}, visMobile:{ar:"هاتف",en:"Phone",de:"Handy"}, visDesktop:{ar:"كمبيوتر",en:"Desktop",de:"Desktop"}, vis30m:{ar:"آخر 30 دقيقة",en:"Last 30 min",de:"Letzte 30 Min."}, visPages:{ar:"الصفحات المفتوحة",en:"Open pages",de:"Geöffnete Seiten"}, visCountries:{ar:"من أين",en:"From where",de:"Woher"}, visMembersNow:{ar:"الأعضاء المتصلون الآن",en:"Members online now",de:"Mitglieder jetzt online"}, visNone:{ar:"لا أحد على الموقع في هذه اللحظة.",en:"Nobody on the site at this moment.",de:"Gerade niemand auf der Seite."}, kVisitorsNow:{ar:"على الموقع الآن",en:"On the site now",de:"Jetzt auf der Seite"}, visPage_search:{ar:"البحث",en:"Search",de:"Suche"}, visPage_listing:{ar:"صفحة إعلان",en:"Listing page",de:"Inseratseite"}, visPage_post:{ar:"إضافة إعلان",en:"Post form",de:"Inserat aufgeben"}, visPage_account:{ar:"الحساب",en:"Account",de:"Konto"}, visPage_msgs:{ar:"الرسائل",en:"Messages",de:"Nachrichten"}, visPage_agencies:{ar:"المكاتب",en:"Agencies",de:"Büros"}, visPage_agency:{ar:"صفحة مكتب",en:"Agency page",de:"Büroseite"}, visPage_projects:{ar:"المشاريع",en:"Projects",de:"Projekte"}, visPage_wanted:{ar:"مطلوب",en:"Wanted",de:"Gesucht"}, visPage_mapsearch:{ar:"الخريطة",en:"Map",de:"Karte"}, visPage_mylistings:{ar:"إعلاناتي",en:"My listings",de:"Meine Inserate"}, listingsStatusH:{ar:"الإعلانات حسب الحالة",en:"Listings by status",de:"Anzeigen nach Status"},
   healthH:{ar:"صحة الموقع",en:"Site health",de:"Zustand der Website"},
   hPending:{ar:"بانتظار المراجعة",en:"Pending review",de:"Wartet auf Prüfung"}, hReports:{ar:"بلاغات مفتوحة",en:"Open reports",de:"Offene Meldungen"}, hFeedback:{ar:"شكاوى مفتوحة",en:"Open feedback",de:"Offenes Feedback"},
   hNoPhotos:{ar:"إعلانات بلا صور",en:"Listings without photos",de:"Anzeigen ohne Fotos"}, hFeatExp:{ar:"تمييز ينتهي خلال 3 أيام",en:"Featured ending in 3 days",de:"Hervorhebung endet in 3 Tagen"}, hBlocked:{ar:"أعضاء محظورون",en:"Blocked members",de:"Gesperrte Mitglieder"},
