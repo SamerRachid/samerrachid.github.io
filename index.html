@@ -653,6 +653,8 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
   background:#14213D;color:#9AA3AC;font-size:12.5px;font-weight:600}
 .nophoto img,.mappin-nophoto img{width:55%!important;max-width:200px!important;min-height:0!important;height:auto!important;aspect-ratio:auto!important;object-fit:contain!important;opacity:.95}
 .card .ph .nophoto{aspect-ratio:4/3}
+.card .ph video.vcover{width:100%;height:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:#0D1729;pointer-events:none}
+.res.list-view .card .ph video.vcover{height:100%;aspect-ratio:auto}
 
 .wasprice{text-decoration:line-through;color:var(--light);font-size:.62em;font-weight:500;margin-inline-start:6px}
 .cutbadge{background:#EAF5EF;color:var(--ok);font-size:.55em;font-weight:700;
@@ -4627,7 +4629,7 @@ function card(x,i,isListView){
  var badges = (showFeatBadge?'<span class="cbg gold">'+featBadgeText+'</span>':'')+(isNew?'<span class="cbg ok">'+t("newBadge")+'</span>':'')+(x.videos&&x.videos.length?'<span class="cbg vid">▶ '+GX("videoBadge")+'</span>':'');
  var photo = '<div class="ph">'+
    (closed?'<div class="stamp'+(x.status==="rented"?" stamp-r":"")+'">'+(x.status==="rented"?t("st_rented"):t("st_sold"))+'</div>':'')+
-   (cover ? '<img src="'+cover+'" alt="'+esc(typeName)+'" loading="lazy">' : '<div class="nophoto"><img src="/brand/logo-light.png" alt="بلكون" loading="lazy"></div>')+
+   (cover ? '<img src="'+cover+'" alt="'+esc(typeName)+'" loading="lazy">' : (x.videos&&x.videos[0]&&x.videos[0].url) ? '<video class="vcover" muted playsinline preload="metadata" src="'+x.videos[0].url+'#t=0.5"></video>' : '<div class="nophoto"><img src="/brand/logo-light.png" alt="بلكون" loading="lazy"></div>')+
    (badges?'<div class="bd">'+badges+'</div>':'')+
    '<button type="button" class="cfav'+(saved?' on':'')+'" data-fav="'+x.id+'" aria-label="'+t("saveL")+'">'+I.heart+'</button>'+
    (photos.length>1?'<span class="cpc">'+I.cam+' <span class="ltr">'+photos.length+'</span></span>':'')+

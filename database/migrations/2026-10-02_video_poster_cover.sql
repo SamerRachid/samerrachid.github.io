@@ -1,0 +1,7 @@
+-- Balkoun · 2026-10-02 · a listing with a video and no photos shows a frame of the video, not the logo.
+--   v_listings.cover_url : first photo, else the first video's thumb_url (poster)          [create or replace view]
+--   bk_admin_data.cover  : same fallback for the admin listings table                         [replace() on the body]
+-- Bot (Edge Function): Telegram's video thumbnail (video.thumbnail.file_id) and WAHA's base64 jpeg in _data.body are
+--   uploaded next to the video as "<stem>-poster.jpg" and saved as thumb_url (draft photos carry thumb_path too, so the
+--   poster moves with the video at publish). Site cards: a video without poster renders <video preload="metadata">
+--   (its own first frame) instead of the logo. Videos uploaded from the website already had a canvas poster.

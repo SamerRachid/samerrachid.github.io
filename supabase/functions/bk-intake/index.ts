@@ -553,21 +553,37 @@ async function storeListingPhoto(listingId: number, bytes: Uint8Array, mime: str
 const normVideoMime = (m: string) => { const s = String(m || "").toLowerCase();
   return /^video\/(mp4|quicktime|webm|3gpp|x-matroska|x-m4v)$/.test(s) ? s : /quicktime|\bmov\b/.test(s) ? "video/quicktime" : /webm/.test(s) ? "video/webm" : /3gp/.test(s) ? "video/3gpp" : /matroska|mkv/.test(s) ? "video/x-matroska" : "video/mp4"; };
 const videoExt = (mime: string) => /quicktime/.test(mime) ? "mov" : /webm/.test(mime) ? "webm" : /3gpp/.test(mime) ? "3gp" : /matroska/.test(mime) ? "mkv" : "mp4";
-async function storeVideo(draftId: number, bytes: Uint8Array, mimeIn: string, duration?: number) {
+// the poster (a frame of the video) comes from the gateway: Telegram sends a thumbnail file, WAHA a small base64 jpeg
+// in _data.body; stored next to the video as "-poster.jpg" so cards / static pages show it instead of the logo
+async function uploadPoster(stem: string, poster?: Uint8Array | null): Promise<string | null> {
+  if (!poster || poster.length < 200) return null;
+  try { const pp = stem + "-poster.jpg"; await upload(pp, poster, "image/jpeg"); return publicUrl(pp); } catch { return null; }
+}
+async function storeVideo(draftId: number, bytes: Uint8Array, mimeIn: string, duration?: number, poster?: Uint8Array | null) {
   const mime = normVideoMime(mimeIn);
-  const p = `intake/${draftId}/${Date.now()}-v-${randomCode(5).toLowerCase()}.${videoExt(mime)}`;
+  const stem = `intake/${draftId}/${Date.now()}-v-${randomCode(5).toLowerCase()}`, p = stem + "." + videoExt(mime);
   await upload(p, bytes, mime);
-  const res = await rpc<any>("bk_intake_add_photo", { p_draft: draftId, p_photo: { kind: "video", path: p, url: publicUrl(p), bytes: bytes.length, mime, duration: duration || null } });
-  if (res && res.ok === false) await sb.storage.from(BUCKET).remove([p]);
+  const thumb = await uploadPoster(stem, poster);
+  const res = await rpc<any>("bk_intake_add_photo", { p_draft: draftId, p_photo: { kind: "video", path: p, url: publicUrl(p), thumb_path: thumb ? stem + "-poster.jpg" : undefined, thumb_url: thumb || undefined, bytes: bytes.length, mime, duration: duration || null } });
+  if (res && res.ok === false) await sb.storage.from(BUCKET).remove(thumb ? [p, stem + "-poster.jpg"] : [p]);
   return res;
 }
-async function storeListingVideo(listingId: number, bytes: Uint8Array, mimeIn: string, duration?: number) {
+async function storeListingVideo(listingId: number, bytes: Uint8Array, mimeIn: string, duration?: number, poster?: Uint8Array | null) {
   const mime = normVideoMime(mimeIn);
-  const p = `photos/listings/${listingId}/${Date.now()}-v-${randomCode(5).toLowerCase()}.${videoExt(mime)}`;
+  const stem = `photos/listings/${listingId}/${Date.now()}-v-${randomCode(5).toLowerCase()}`, p = stem + "." + videoExt(mime);
   await upload(p, bytes, mime);
-  const res = await rpc<any>("bk_intake_listing_add_photo", { p_listing: listingId, p_photo: { kind: "video", url: publicUrl(p), bytes: bytes.length, duration: duration || null } });
-  if (!res || res.ok === false || res.error) await sb.storage.from(BUCKET).remove([p]);
+  const thumb = await uploadPoster(stem, poster);
+  const res = await rpc<any>("bk_intake_listing_add_photo", { p_listing: listingId, p_photo: { kind: "video", url: publicUrl(p), thumb_url: thumb || undefined, bytes: bytes.length, duration: duration || null } });
+  if (!res || res.ok === false || res.error) await sb.storage.from(BUCKET).remove(thumb ? [p, stem + "-poster.jpg"] : [p]);
   return res;
+}
+// the gateway's own thumbnail of a video, if it sent one
+async function videoPoster(m: Incoming): Promise<Uint8Array | null> {
+  try {
+    if (m.media?.thumb_id) { const t = await tgDownload(String(m.media.thumb_id), 2 * 1024 * 1024); return t.bytes; }
+    if (m.media?.thumb_b64) { const b = String(m.media.thumb_b64).replace(/^data:[^,]*,/, ""); return Uint8Array.from(atob(b), (c) => c.charCodeAt(0)); }
+  } catch (e) { await log(null, m.chat, "warn", "poster_failed", { error: errStr(e) }); }
+  return null;
 }
 
 // ───────────────────────────── reading with Claude ─────────────────────────────
@@ -1646,7 +1662,7 @@ async function handleIncoming(m: Incoming) {
   // a photo within minutes after a publish: into that listing, not a new draft
   if (r.attach_listing) {
     if (m.kind === "video" && m.fetchMedia) {
-      try { const f = await m.fetchMedia(); const res = await storeListingVideo(r.attach_listing, f.bytes, m.media?.mime || f.mime || "video/mp4", m.media?.duration);
+      try { const f = await m.fetchMedia(); const res = await storeListingVideo(r.attach_listing, f.bytes, m.media?.mime || f.mime || "video/mp4", m.media?.duration, await videoPoster(m));
         if (res && res.ok === false && res.reason === "max") await reply(m.source, m.chat, tt.videoMax(res.max || 1)); else if (res?.ok && !r.replied_recently) await reply(m.source, m.chat, tt.attached(r.ref || "")); }
       catch (e) { await log(r.draft_id, m.chat, "warn", "video_failed", { error: errStr(e), listing: r.attach_listing }); await reply(m.source, m.chat, tt.videoBad); }
       return;
@@ -1704,7 +1720,7 @@ async function handleIncoming(m: Incoming) {
       try {
         const f = await m.fetchMedia();
         if (f.bytes.length > maxMb * 1024 * 1024) throw new Error("too_big");
-        const res = await storeVideo(r.draft_id, f.bytes, m.media?.mime || f.mime || "video/mp4", m.media?.duration);
+        const res = await storeVideo(r.draft_id, f.bytes, m.media?.mime || f.mime || "video/mp4", m.media?.duration, await videoPoster(m));
         if (res && res.ok === false && res.reason === "max") await reply(m.source, m.chat, tt.videoMax(res.max || maxN));
         else if (res?.ok && !(m.text || "").trim()) await reply(m.source, m.chat, tt.videoGot);
       } catch (e) {
@@ -1783,7 +1799,7 @@ async function routeTelegram(req: Request): Promise<Response> {
   let kind = "text", media: any = null, size: number | undefined, fetchMedia: Incoming["fetchMedia"];
   if (Array.isArray(msg.photo) && msg.photo.length) { kind = "photo"; const ph = msg.photo[msg.photo.length - 1]; media = { file_id: ph.file_id, w: ph.width, h: ph.height, size: ph.file_size }; size = ph.file_size; fetchMedia = () => tgDownload(ph.file_id); }
   else if (msg.document && /^image\//.test(msg.document.mime_type || "")) { kind = "photo"; media = { file_id: msg.document.file_id, size: msg.document.file_size, mime: msg.document.mime_type }; size = msg.document.file_size; fetchMedia = () => tgDownload(msg.document.file_id); }
-  else if (msg.video || msg.video_note || msg.animation) { const v = msg.video || msg.video_note || msg.animation; kind = "video"; media = { file_id: v.file_id, size: v.file_size, mime: v.mime_type || "video/mp4", duration: v.duration }; size = v.file_size; fetchMedia = () => tgDownload(v.file_id, TG_FILE_LIMIT); }
+  else if (msg.video || msg.video_note || msg.animation) { const v = msg.video || msg.video_note || msg.animation; kind = "video"; media = { file_id: v.file_id, size: v.file_size, mime: v.mime_type || "video/mp4", duration: v.duration, thumb_id: (v.thumbnail || v.thumb || {}).file_id || null }; size = v.file_size; fetchMedia = () => tgDownload(v.file_id, TG_FILE_LIMIT); }
   else if (msg.voice || msg.audio) kind = "audio";
   else if (msg.location) { kind = "location"; media = { lat: msg.location.latitude, lng: msg.location.longitude }; }
   const text = msg.text ?? msg.caption ?? null;
@@ -1863,7 +1879,7 @@ async function routeWahaIncoming(req: Request): Promise<Response> {
   let kind = "text", media: any = null, fetchMedia: Incoming["fetchMedia"];
   const mime = p.media?.mimetype || "";
   if (p.hasMedia && p.media?.url && /^image\//.test(mime)) { kind = "photo"; media = { url: p.media.url, mime }; fetchMedia = () => wahaDownloadMedia(p.media.url); }
-  else if (p.hasMedia && p.media?.url && /^video\//.test(mime)) { kind = "video"; media = { url: p.media.url, mime }; fetchMedia = () => wahaDownloadMedia(p.media.url, 100 * 1024 * 1024); }
+  else if (p.hasMedia && p.media?.url && /^video\//.test(mime)) { kind = "video"; const tb = typeof p._data?.body === "string" && p._data.body.length > 200 && /^[A-Za-z0-9+/=\s]+$/.test(p._data.body.slice(0, 400)) ? p._data.body : null; media = { url: p.media.url, mime, thumb_b64: tb }; fetchMedia = () => wahaDownloadMedia(p.media.url, 100 * 1024 * 1024); }
   else if (p.hasMedia) kind = "video";   // any other WAHA media (audio/document) — not read; without fetchMedia it only gets the "not supported" note
   const text = p.body ?? null;
   if (kind === "text" && !text) return json({ ok: true });
