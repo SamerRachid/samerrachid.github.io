@@ -353,12 +353,12 @@ function adminView(){
  else if(ADM.tab==="reviews"){
   body=(d.reviews||[]).length
    ? '<div class="atable"><table><thead><tr>'+
-     [t("targetCol"),t("byCol"),t("ratingCol"),t("fbBody"),''].map(function(h){return '<th>'+h+'</th>'}).join("")+
+     [t("targetCol"),t("byCol"),t("ratingCol"),GX("rvText"),''].map(function(h){return '<th>'+h+'</th>'}).join("")+
      '</tr></thead><tbody>'+
      d.reviews.map(function(r){
        return '<tr><td>'+(r.target_name||"—")+'</td><td>'+(r.author_name||"—")+'</td>'+
        '<td class="ltr" style="color:var(--gold)">'+stars(r.stars)+'</td>'+
-       '<td style="max-width:260px">'+(r.body||"")+'</td>'+
+       '<td style="max-width:320px;white-space:normal;color:var(--grey)">'+(r.body?esc(r.body):'<span style="opacity:.5">—</span>')+'</td>'+
        '<td><button class="ab bad" data-delreview="'+r.id+'">'+t("del")+'</button></td></tr>'}).join("")+
      '</tbody></table></div>'
    : '<div class="done2"><b>'+t("noReviewsAdmin")+'</b></div>';
@@ -804,7 +804,7 @@ function adminView(){
   '<div class="ashell">'+
    '<nav class="asidebar" id="aSidebar">'+NAV.map(function(g){ return sec(g.g, g.items.map(function(it){ return it[4] ? tab(it[0],it[1],it[2],it[3]) : "" }), g.items[0][0], g.items.some(function(it){ return it[0]===ADM.tab })) }).join("")+'</nav>'+
    '<main class="acontent">'+(ADM.token&&!ADM.data?'<div class="aloading">'+t("loading")+'</div>':'')+'<div class="apage-h"><div>'+'<div class="apage-crumb">'+curGroup+(ADM.scope==="ALL"?(curGroup?' · ':'')+'🌍 '+GX("cAll")+'</div>':COUNTRY!=="SY"?(curGroup?' · ':'')+flagOf(COUNTRY)+' '+esc(countryName(countryOf(COUNTRY)))+'</div>':'</div>')+'<h1>'+curLabel+'</h1>'+
-    (GX_T["desc_"+ADM.tab]?'<p>'+GX("desc_"+ADM.tab)+'</p>':'')+'</div></div>'+subBar+adminCountryBar()+(ADM.tab==="settings"&&typeof admLegalCard==="function"?admLegalCard():'')+body+'</main>'+
+    (GX_T["desc_"+ADM.tab]?'<p>'+GX("desc_"+ADM.tab)+'</p>':'')+'</div>'+adminCountryBar()+'</div>'+subBar+(ADM.tab==="settings"&&typeof admLegalCard==="function"?admLegalCard():'')+body+'</main>'+
   '</div></div>'}
 function adminWantedBody(){
   var list=ADM_W; if(!list) return '<div class="blk"><div class="in adashempty">'+t("loading")+'</div></div>';
@@ -2605,9 +2605,9 @@ function adminUsersBody(d){
     var nm=((u.name||"")+" "+(u.family_name||"")).trim()||"—", isAdmin=u.role==="admin", open=ADM.userOpen===u.id;
     var joined=u.created_at?new Date(u.created_at).toLocaleDateString(L==="ar"?"ar-SY":L==="de"?"de-DE":L==="fr"?"fr-FR":"en-GB",{year:"numeric",month:"short",day:"numeric"}):"";
     var html='<tr data-row-text="'+esc((nm+" "+(u.phone||"")+" "+(u.member_no||"")).toLowerCase())+'" class="'+(open?"uopen":"")+'">'+
-      '<td data-label="'+t("contactName")+'"><div class="ucell">'+avatar(u.avatar_url,u.name,36)+'<div>'+scopeFlag(u.country)+'<a data-byuser="'+u.id+'" data-name="'+esc(nm)+'" class="uname">'+esc(nm)+'</a>'+levelBadge(u.level)+(u.phone_verified===false?' <span class="st st-removed" title="'+esc(GX("uUnverified"))+'">'+GX("uUnverified")+'</span>':'')+
-        '<div class="usub">'+(u.member_no?'<b class="ltr">'+esc(u.member_no)+'</b> · ':'')+'<span class="ltr">'+(u.phone||GX("uNoPhone"))+'</span>'+(joined?' <span class="ujoin">· '+GX("uJoined")+' '+joined+'</span>':'')+'</div></div></div></td>'+
-      '<td data-label="'+GX("colLastSeen")+'">'+(function(){ var d=lastSeen(u), a=uact[u.id]||{}; var fresh=d && (Date.now()-d.getTime())<86400000; return '<span class="'+(fresh?"useen-fresh":"useen")+'">'+(d?when(d.toISOString()):GX("never"))+'</span>'+(a.views_30d?'<div class="usub"><span class="ltr">'+a.views_30d+'</span> '+GX("kViews")+' · 30d</div>':'') })()+'</td>'+
+      '<td data-label="'+t("contactName")+'"><div class="ucell">'+avatar(u.avatar_url,u.name,36)+'<div>'+scopeFlag(u.country)+'<span class="uline"><a data-byuser="'+u.id+'" data-name="'+esc(nm)+'" class="uname">'+esc(nm)+'</a>'+levelBadge(u.level)+'</span>'+
+        '<div class="usub">'+(u.member_no?'<b class="ltr">'+esc(u.member_no)+'</b> · ':'')+'<span class="ltr">'+(u.phone||GX("uNoPhone"))+'</span>'+(u.phone_verified===false?' · <span class="uunv" title="'+esc(GX("uUnverified"))+'">'+GX("uUnverified")+'</span>':'')+(joined?' <span class="ujoin">· '+GX("uJoined")+' '+joined+'</span>':'')+'</div></div></div></td>'+
+      '<td data-label="'+GX("colLastSeen")+'">'+(function(){ var d=lastSeen(u), a=uact[u.id]||{}; var fresh=d && (Date.now()-d.getTime())<86400000; return '<span class="'+(fresh?"useen-fresh":"useen")+'">'+(d?when(d.toISOString()):GX("never"))+'</span>'+(a.views_30d?'<div class="usub" title="'+esc(GX("kViews"))+' · 30d"><span class="ltr">'+a.views_30d+'</span> '+GX("uViewsShort")+'</div>':'') })()+'</td>'+
       '<td data-label="'+t("myAds")+'" class="ltr unum">'+(u.countries?'<span class="sflag">'+String(u.countries).split(",").map(function(cc){ return flagSvg(cc) }).join("")+'</span>':'')+(u.listings||0)+(uact[u.id]&&uact[u.id].live_listings!=null?' <small style="color:var(--light)">('+uact[u.id].live_listings+' '+t("st_live")+')</small>':'')+'</td>'+
       '<td data-label="'+t("ratingCol")+'" class="ltr unum">'+(u.rating?'★ '+u.rating:'—')+'</td>'+
       '<td data-label="'+t("levelCol")+'">'+(isAdmin?'<span class="lvl lvl-vip">Admin</span>':'<div class="usel"><select class="lvlpick" data-utype="'+u.id+'" title="'+esc(GX("accTypeL"))+'">'+[["member",GX("acctMember")],["broker",GX("acctBroker")],["agency",GX("acctAgency")]].map(function(o){ return '<option value="'+o[0]+'"'+((u.account_type||"member")===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select>'+
