@@ -3297,7 +3297,8 @@ function ikLine(x){
 function ikRow(x){
   var open=String(ADM.ikOpen)===String(x.id), all=Array.isArray(x.photos)?x.photos:[], photos=all.filter(function(p){ return p&&p.kind!=="video" }), nVid=all.length-photos.length, d=ADM.ik||{};
   var who=x.agency_name||x.sender_name||x.chat_id||"", second=x.sender_name&&x.agency_name?x.sender_name:"";
-  var src=ikSrc(x)+(x.by_admin?' · '+GX("ik_byOwner"):'')+(second?' · '+esc(second):'')+(x.country_code&&x.country_code!=="SY"?' · '+flagOf(x.country_code):'');
+  // the chat's own number (WhatsApp) sits next to the channel, so the admin sees who sent it without opening the member
+  var src=ikSrc(x)+(x.source==="whatsapp"&&x.chat_id?' <span class="ltr" style="user-select:all">'+esc(x.chat_id)+'</span>':'')+(x.by_admin?' · '+GX("ik_byOwner"):'')+(second?' · '+esc(second):'')+(x.country_code&&x.country_code!=="SY"?' · '+flagOf(x.country_code):'');
   var line=ikLine(x);
   var selectable=["published","cancelled"].indexOf(x.status)<0, sel=!!(selectable&&ADM.ikSel&&ADM.ikSel[x.id]);
   var miss=(Array.isArray(x.missing)?x.missing:[]).map(function(m){ return GX("ik_m_"+m)!=="ik_m_"+m?GX("ik_m_"+m):m });
