@@ -294,8 +294,8 @@ const GUIDE_AREA: Record<string, [string, string]> = { SY: ["المزة", "Mazze
 const guideArea = (cc: string | null | undefined, lang: string) => (GUIDE_AREA[String(cc || "SY").toUpperCase()] || GUIDE_AREA.SY)[lang === "en" ? 1 : 0];
 // the one how-to, sent once per chat (intake_log guide_sent) and again on «مساعدة» / a greeting
 const GUIDE = {
-  ar: (cc?: string | null) => `أهلاً بك في بلكون 👋\nأنشر إعلان عقارك من هنا خلال دقائق.\n\nكل ما عليك: أرسل الصور واكتب التفاصيل كما تحكيها لصديق، مثلاً:\n«شقة للبيع في ${guideArea(cc, "ar")}، 150 متر، 3 غرف${String(cc || "SY").toUpperCase() === "SY" ? "، طابو أخضر" : ""}، 80 ألف دولار»\n\nلكل عقار: أرسل صوره مع التفاصيل في تعليق الصور، أو التفاصيل أولاً ثم الصور. صور إضافية بلا نص تنضم إلى الإعلان نفسه.\n\nأُجهّز الإعلان وأعرضه عليك قبل النشر، وإذا نقصت معلومة أسألك عنها.\n\nبعدها:\nنعم ← ينشر\nلا ← يلغي\nأو اكتب التصحيح مباشرة: «السعر 75 ألف»\n\nجديد ← إعلان آخر · مساعدة ← هذا الشرح\n\nتفضّل، أرسل الصور والتفاصيل 🙂`,
-  en: (cc?: string | null) => `Welcome to Balkoun 👋\nI publish your property listing from here in minutes.\n\nJust send the photos and write the details the way you would tell a friend, e.g.:\n"Apartment for sale in ${guideArea(cc, "en")}, 150 m², 3 rooms${String(cc || "SY").toUpperCase() === "SY" ? ", green deed" : ""}, 80 thousand dollars"\n\nFor each property: send its photos with the details in the photo caption, or the details first and then the photos. Extra photos without text join the same listing.\n\nI prepare the listing and show it to you before publishing; if something is missing, I ask you.\n\nThen:\nyes → publish\nno → cancel\nor write the correction directly: "price 75 thousand"\n\nnew → another listing · help → this guide\n\nGo ahead, send the photos and details 🙂`,
+  ar: (cc?: string | null) => `أهلاً بك في بلكون 👋\nأنشر إعلان عقارك من هنا برسالة واحدة.\n\nأرسل الصور واكتب التفاصيل كما تحكيها لصديق، مثلاً:\n«شقة للبيع في ${guideArea(cc, "ar")}، 150 متر، 3 غرف${String(cc || "SY").toUpperCase() === "SY" ? "، طابو أخضر" : ""}، 80 ألف دولار»\n\nأقرأ الرسالة وأنشر الإعلان مباشرة وأرسل لك رابطه. إذا نقصت معلومة أساسية أسألك عنها مرة واحدة.\n\nبعد النشر، خلال ساعة:\n• اكتب أي تصحيح مباشرة: «السعر 75 ألف» ← يُعدَّل الإعلان\n• إلغاء ← يحذف الإعلان\n• صور إضافية ← تُضاف إليه\n\nلإعلان آخر أرسل تفاصيله وصوره. مساعدة ← هذا الشرح\n\nتفضّل 🙂`,
+  en: (cc?: string | null) => `Welcome to Balkoun 👋\nI publish your property listing from here with one message.\n\nSend the photos and write the details the way you would tell a friend, e.g.:\n"Apartment for sale in ${guideArea(cc, "en")}, 150 m², 3 rooms${String(cc || "SY").toUpperCase() === "SY" ? ", green deed" : ""}, 80 thousand dollars"\n\nI read it, publish the listing right away and send you its link. If an essential detail is missing, I ask once.\n\nAfter publishing, within an hour:\n• write any correction directly: "price 75 thousand" → the listing is updated\n• cancel → removes the listing\n• extra photos → are added to it\n\nFor another listing, send its details and photos. help → this guide\n\nGo ahead 🙂`,
 };
 const T = {
   ar: {
@@ -347,7 +347,11 @@ const T = {
     attributed: (n: string) => `• المعلن: ${n}`,
     memberSet: (n: string) => `تمام ✅ سيُنسب الإعلان التالي إلى: ${n}\nأرسل الآن تفاصيله وصوره.`,
     memberUnknown: (no: string) => `لم أجد عضواً برقم ${ltr(no)} 🤔 تأكد من الرقم أو أرسل الإعلان واختر المكتب من اللوحة.`,
-    published: (ref: string, url: string) => `✅ تم نشر الإعلان (${ref})\n${url}\n\nصور إضافية خلال 5 دقائق تُضاف إلى هذا الإعلان. ولإعلان آخر أرسل تفاصيله وصوره مباشرة.`,
+    published: (ref: string, url: string) => `✅ تم نشر الإعلان (${ref})\n${url}\n\nخلال ساعة: اكتب أي تصحيح مباشرة («السعر 75 ألف») وأعدّله، أو «إلغاء» لحذفه. صور إضافية تُضاف إليه.\nلإعلان آخر أرسل تفاصيله وصوره.`,
+    removed: (ref: string) => `🗑️ حُذف الإعلان (${ltr(ref)}) من الموقع ✅\nاكتب «رجّع» خلال 10 دقائق لإعادته.`,
+    listingBack: (ref: string, url: string) => `رجّعنا الإعلان (${ltr(ref)}) إلى الموقع ✅\n${url}`,
+    fixed: (ref: string, url: string, lines: string) => `✏️ عدّلت الإعلان (${ltr(ref)}) ✅\n${lines}\n${url}`,
+    fixNone: (ref: string) => `لم أفهم التعديل على الإعلان (${ltr(ref)}) 🤔 اكتبه بوضوح، مثل: «السعر 75 ألف» أو «المساحة 120 متر».\nولإعلان جديد ابدأ بـ«للبيع» أو «للإيجار» مع التفاصيل.`,
     pending: (ref: string) => `✅ استلمنا الإعلان (${ref}) وسيظهر على الموقع بعد مراجعة الإدارة.\n\nلإعلان آخر أرسل تفاصيله وصوره مباشرة.`,
     failed: `تعذّر النشر تلقائياً؛ أحلنا الإعلان إلى الإدارة لإكماله.`,
     duplicate: (ref: string) => `يبدو أن هذا الإعلان مكرر لإعلانك المنشور (${ltr(ref)}) 🤔 لم ننشره مرة ثانية، وستراجعه الإدارة.\nإن كان عقاراً مختلفاً فأرسل ما يميّزه (المنطقة، المساحة، السعر) وسننشره.`,
@@ -424,7 +428,11 @@ const T = {
     attributed: (n: string) => `• Listed for: ${n}`,
     memberSet: (n: string) => `OK ✅ The next listing will be attributed to: ${n}\nSend its details and photos now.`,
     memberUnknown: (no: string) => `No member found with number ${ltr(no)} 🤔 Check the number, or send the listing and pick the agency in the panel.`,
-    published: (ref: string, url: string) => `✅ Published (${ref})\n${url}\n\nExtra photos within 5 minutes are added to this listing. For another listing, just send its details and photos.`,
+    published: (ref: string, url: string) => `✅ Published (${ref})\n${url}\n\nWithin an hour: write any correction directly ("price 75 thousand") and I update it, or "cancel" to remove it. Extra photos are added to it.\nFor another listing, send its details and photos.`,
+    removed: (ref: string) => `🗑️ Listing (${ltr(ref)}) removed from the site ✅\nWrite "undo" within 10 minutes to bring it back.`,
+    listingBack: (ref: string, url: string) => `Listing (${ltr(ref)}) is back on the site ✅\n${url}`,
+    fixed: (ref: string, url: string, lines: string) => `✏️ Listing (${ltr(ref)}) updated ✅\n${lines}\n${url}`,
+    fixNone: (ref: string) => `I could not understand the change to listing (${ltr(ref)}) 🤔 Write it plainly, e.g. "price 75 thousand" or "size 120 m".\nFor a new listing, start with "for sale" or "for rent" and the details.`,
     pending: (ref: string) => `✅ Received (${ref}). It appears on the site after the team's review.\n\nFor another listing, just send its details and photos.`,
     failed: `Automatic publishing failed; the listing was handed to the team.`,
     duplicate: (ref: string) => `This looks like a duplicate of your published listing (${ltr(ref)}) 🤔 It was not published again; the team will review it.\nIf it is a different property, send what sets it apart (area, size, price) and we will publish it.`,
@@ -1043,7 +1051,8 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
       const written = prev.area_confirmed === "1" || (cand && norm(rawText).includes(norm(cand)));
       if (cand && written && /[؀-ۿ]/.test(cand) && !/^(قرب|جانب|بعد|مقابل|خلف|أمام|طريق|شارع|دوار|جامع|مشفى|مدرسة|كازية|كراج)/.test(cand)) {
         fields.area_text = cand; if (!fields.landmark) fields.landmark = cand;
-        if (prev.area_confirmed === "1") fields.area_confirmed = "1"; else fields.area_pending = "1";   // the summary asks: is this the area's name?
+        // no question to the sender about the name (owner's rule, 2026-10-02): it publishes as written and the admin
+        // gets the "منطقة غير موجودة" alert at publish time and adds it from the suggestions list
         const sg = await rpc<any>("bk_intake_area_suggest", { p_gov: fields.governorate_id, p_name: cand, p_sample: rawText.slice(0, 200) });
         if (sg?.ok) await log(draftId, d.chat_id, "info", "area_suggested", { name: cand, mentions: sg.mentions });
       }
@@ -1114,17 +1123,18 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   }
   // a transient reading failure goes back to the queue instead of failing the sender's listing
   if (err && !/no_key|claude 4\d\d/.test(err) && (d.reads || 0) < 3) status = "collecting";
+  // a complete read from a chat publishes right away (owner's rule, 2026-10-02: one message, no «نعم» step); the sender
+  // gets the summary + the link and has an hour to correct or cancel. Drafts opened from the panel (web) still confirm.
+  const autoPub = status === "ready" && !d.by_admin && d.source !== "web";
   const sum = err ? null : summary(fields, tax, photos, lang, videos) + (attributed ? "\n" + t.attributed(attributed) : "") + (suggested ? "\n" + t.suggested(suggested) : "") +
-    (status === "review" ? "" : (missing.length ? t.missing(missing.map(missLabel).join("، ")) : (fields.area_pending === "1" && fields.area_text ? t.areaConfirmLine(fields.area_text) : t.confirmLine)));
+    (status === "review" || autoPub ? "" : (missing.length ? t.missing(missing.map(missLabel).join("، ")) : t.confirmLine));
   const saved = await rpc<any>("bk_intake_save_read", { p_draft: draftId, p_fields: fields, p_missing: missing, p_summary: sum, p_status: status, p_model: c.intake_model || null, p_in: usage.in, p_out: usage.out, p_cost: cost, p_error: err });
   if (saved?.skipped) return saved;                                              // cancelled or changed while reading: say nothing
   if (saved?.status === "collecting") { scheduleTick(); return saved; }         // more arrived (or a retry is due) → read again later
-  // the sender said «نعم» while this read was running: publish now instead of asking again
-  if (saved?.status === "ready" && saved?.fields?.auto_confirm === "1" && !d.by_admin) {
-    const f2 = { ...(saved.fields || {}) }; delete f2.auto_confirm;
-    await rpc("bk_intake_set", { p_draft: draftId, p_patch: { fields: f2 } });
-    await log(draftId, d.chat_id, "info", "auto_confirm", {});
-    if (!opts.quiet && d.source !== "web") { await reply(d.source, d.chat_id, sum!); await publishDraft(draftId); }
+  if (saved?.status === "ready" && !d.by_admin && d.source !== "web") {
+    if (saved?.fields?.auto_confirm === "1") { const f2 = { ...(saved.fields || {}) }; delete f2.auto_confirm; await rpc("bk_intake_set", { p_draft: draftId, p_patch: { fields: f2 } }); }
+    await log(draftId, d.chat_id, "info", "auto_publish", {});
+    if (!opts.quiet) { await reply(d.source, d.chat_id, sum!); await publishDraft(draftId); }
     return saved;
   }
   if (!opts.quiet && d.source !== "web") {
@@ -1235,13 +1245,13 @@ async function notifyFlush(): Promise<number> {
 // them. Placeholders: {name} {wa} {tg} {contact} {email} {site}
 const WELCOME_DEFAULT: Record<string, Record<string, string>> = {
   ar: {
-    whatsapp: `أهلاً بك في بلكون 👋\nحسابك جاهز الآن.\n\nلنشر إعلان عقارك: أرسل تفاصيله وصوره هنا مباشرة (نوع العقار، بيع أم إيجار، المحافظة والحي، المساحة، السعر، الطابو) وسأجهّز الإعلان لك وأعرضه عليك قبل النشر.\nأو انشره بنفسك من الموقع: {site}/post\n\nللتواصل مع الإدارة: {contact}\nالبريد الرسمي: {email}`,
+    whatsapp: `أهلاً بك في بلكون 👋\nحسابك جاهز الآن.\n\nلنشر إعلان عقارك: أرسل تفاصيله وصوره هنا مباشرة (نوع العقار، بيع أم إيجار، المحافظة والحي، المساحة، السعر، الطابو) وأنشره لك مباشرة وأرسل لك رابطه.\nأو انشره بنفسك من الموقع: {site}/post\n\nللتواصل مع الإدارة: {contact}\nالبريد الرسمي: {email}`,
     email_subject: `أهلاً بك في بلكون`,
     email: `أهلاً بك في بلكون،\n\nتم إنشاء حسابك بنجاح ورقمك موثّق.\n\nيمكنك نشر إعلان عقارك بطريقتين:\n• برسالة: أرسل التفاصيل والصور على واتساب {wa} أو على تيليغرام @{tg}، وبلكون ينشره لك.\n• من الموقع: {site}/post\n\nللتواصل مع الإدارة: {contact} · {email}\nستصلك إشعارات بلكون على هذا البريد. لإيقافها استخدم الرابط أسفل أي رسالة.\n\nمع تحيات فريق بلكون\n{site}`,
-    telegram: `تم ربط حسابك ✅ أهلاً بك في بلكون 👋\n\nمن هنا يمكنك نشر إعلاناتك مباشرة: أرسل تفاصيل العقار وصوره، وسأسألك عمّا ينقص ثم أعرض عليك الملخص لتوافق على النشر.\n\nللتواصل مع الإدارة: {contact}\nالبريد الرسمي: {email}`,
+    telegram: `تم ربط حسابك ✅ أهلاً بك في بلكون 👋\n\nمن هنا يمكنك نشر إعلاناتك مباشرة: أرسل تفاصيل العقار وصوره برسالة واحدة وأنشره لك مباشرة؛ إن نقصت معلومة أساسية أسألك عنها.\n\nللتواصل مع الإدارة: {contact}\nالبريد الرسمي: {email}`,
   },
   en: {
-    whatsapp: `Welcome to Balkoun 👋\nYour account is ready.\n\nTo post a listing: send the property details and photos right here (type, sale or rent, governorate and area, size, price, deed) and I will prepare the listing and show it to you before publishing.\nOr post it yourself on the site: {site}/post\n\nTo reach the team: {contact}\nOfficial email: {email}`,
+    whatsapp: `Welcome to Balkoun 👋\nYour account is ready.\n\nTo post a listing: send the property details and photos right here (type, sale or rent, governorate and area, size, price, deed) and I publish it right away and send you the link.\nOr post it yourself on the site: {site}/post\n\nTo reach the team: {contact}\nOfficial email: {email}`,
     email_subject: `Welcome to Balkoun`,
     email: `Welcome to Balkoun,\n\nYour account was created and your phone number is verified.\n\nYou can post a listing in two ways:\n• By message: send the details and photos on WhatsApp {wa} or Telegram @{tg}, and Balkoun publishes it for you.\n• On the site: {site}/post\n\nTo reach the team: {contact} · {email}\nBalkoun notifications will arrive at this address. Use the link at the bottom of any message to stop them.\n\nThe Balkoun team\n{site}`,
     telegram: `Account linked ✅ Welcome to Balkoun 👋\n\nYou can post your listings right here: send the property details and photos, I will ask for anything missing and then show you the summary to approve.\n\nTo reach the team: {contact}\nOfficial email: {email}`,
@@ -1415,6 +1425,44 @@ async function applyAreaText(m: Incoming, draftId: number, text: string, tt: any
   await log(draftId, m.chat, "info", a ? "area_set_known" : "area_set_new", { name, area_id: a ? a[0] : null });
   await reply(m.source, m.chat, t.areaSet(a ? a[1] : name) + "\n\n" + sum);
 }
+// the sender corrected a listing published within the hour («السعر 75 ألف», «الطابق الثالث»): the original text plus the
+// correction is read again, only the facts that changed are written over the draft and the live listing; the photos stay
+const FIX_KEYS = ["deal", "property_type", "price", "currency", "negotiable", "area_m2", "rooms", "baths", "living_rooms", "floor", "floors_total", "tabu", "condition", "furnished", "rental_period", "area", "area_id", "landmark"];
+async function fixPublished(m: Incoming, r: any, tt: any) {
+  const d = await rpc<any>("bk_intake_get", { p_draft: r.draft_id }); if (!d || !d.listing_id) { await reply(m.source, m.chat, tt.fixNone(r.ref || "")); return; }
+  const c = await cfg(); const lang = c.intake_reply_lang === "en" ? "en" : (d.user_lang === "en" ? "en" : "ar"); const t = tx(lang); const ar = lang !== "en";
+  const fix = String(r.text || "").trim();
+  try {
+    const tax = await rpc<any>("bk_intake_taxonomy", { p_country: d.country_code });
+    const rawText = latinDigits(d.raw_text || "");
+    const user = `Sender: ${d.sender_name || "?"}\n\nMESSAGE:\n${rawText.slice(0, 6000)}\n\nCORRECTION FROM THE SENDER (overrides the message above where they differ):\n${latinDigits(fix)}`;
+    const res = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax, govsForRead(tax, rawText, d)), user);
+    const s = settle(res.fields, tax, rawText + "\n" + fix); const nf = s.fields;
+    for (const w of areaGuards(nf, s.missing, res.fields, rawText + "\n" + fix, tax)) await log(d.id, m.chat, "warn", w.event, w.detail);
+    const prev = (d.fields || {}) as Record<string, any>; const f2 = { ...prev }; const changed: string[] = [];
+    for (const k of FIX_KEYS) { if (nf[k] == null || nf[k] === "") continue; if (JSON.stringify(nf[k]) !== JSON.stringify(prev[k])) { f2[k] = nf[k]; changed.push(k); } }
+    if (changed.includes("area_id")) { delete f2.area_text; }
+    if (!changed.length) { await log(d.id, m.chat, "info", "fix_nochange", { text: fix }); await reply(m.source, m.chat, t.fixNone(r.ref || "")); return; }
+    // the correction is part of the sender's words (the description is their text, owner's rule)
+    if (c.intake_keep_text !== false && c.intake_keep_text !== "false") { const kept = keepSenderText(rawText + "\n" + fix); if (kept.length >= 20) f2.description = kept; }
+    await rpc("bk_intake_set", { p_draft: d.id, p_patch: { fields: f2 } });
+    const pat = await rpc<any>("bk_intake_patch_listing", { p_draft: d.id });
+    if (!pat?.ok) throw new Error("patch: " + (pat?.error || "?"));
+    await log(d.id, m.chat, "info", "listing_fixed", { changed, text: fix, cost: costOf(res.usage, c) });
+    const ty = (tax.types || []).find((x: any) => x.code === f2.property_type); const deed = (tax.deeds || []).find((x: any) => x.code === f2.tabu);
+    const LBL: Record<string, string> = ar ? { deal: "النوع", property_type: "العقار", price: "السعر", area_m2: "المساحة", rooms: "الغرف", baths: "الحمامات", living_rooms: "الصالون", floor: "الطابق", floors_total: "عدد الطوابق", tabu: "الطابو", condition: "الحالة", furnished: "الفرش", rental_period: "مدة الإيجار", area: "المنطقة", landmark: "قرب" }
+                                            : { deal: "deal", property_type: "property", price: "price", area_m2: "size", rooms: "rooms", baths: "baths", living_rooms: "living", floor: "floor", floors_total: "floors", tabu: "deed", condition: "condition", furnished: "furnished", rental_period: "period", area: "area", landmark: "near" };
+    const val = (k: string) => k === "price" ? fmtNum(f2.price) + " " + (f2.currency === "USD" ? "$" : f2.currency) : k === "area_m2" ? fmtNum(f2.area_m2) + (ar ? " م²" : " m²") : k === "deal" ? (f2.deal === "rent" ? (ar ? "للإيجار" : "rent") : (ar ? "للبيع" : "sale"))
+      : k === "property_type" ? (ty ? (ar ? ty.ar : ty.en) : f2.property_type) : k === "tabu" ? (deed ? deed.ar : f2.tabu) : k === "furnished" ? (f2.furnished ? (ar ? "مفروش" : "furnished") : (ar ? "غير مفروش" : "unfurnished")) : String(f2[k]);
+    const lines = changed.filter((k) => LBL[k]).map((k) => `• ${LBL[k]}: ${val(k)}`).join("\n");
+    const cc = String(pat.country_code || "SY").toLowerCase();
+    await reply(m.source, m.chat, t.fixed(pat.ref || r.ref || "", SITE + (cc === "sy" ? "" : "/" + cc) + "/listing/" + d.listing_id, lines));
+  } catch (e) {
+    await log(d.id, m.chat, "error", "fix_failed", { error: errStr(e), text: fix });
+    await rpc("bk_notify_push", { p_event: "listing", p_title: "✏️ تصحيح لم يُطبَّق: " + (r.ref || ""), p_body: `المرسل كتب بعد النشر: «${fix.slice(0, 200)}». طبّقه يدوياً من اللوحة.`, p_link: SITE + "/admin", p_cc: d.country_code || null });
+    await reply(m.source, m.chat, t.fixNone(r.ref || ""));
+  }
+}
 // does a caption carry listing text? Arabic letters or a real number, some length, and not a client's auto-label
 const captionIsText = (t: string) => { const s = String(t || "").trim(); return s.length >= 15 && (/[؀-ۿ]/.test(s) || /\d{2,}/.test(s)) && !/^(video|photo|image|voice|audio|document|file)\s+(from|by)\s/i.test(s) && !/^(IMG|VID|DSC|PXL|MOV)[_-]?\d/i.test(s); };
 async function sendGuide(m: Incoming, c: Cfg) {
@@ -1541,6 +1589,10 @@ async function handleIncoming(m: Incoming) {
   if (r.command === "nothing") { await reply(m.source, m.chat, tt.nothing); return; }
   if (r.command === "confirm_wait") { await reply(m.source, m.chat, tt.confirmWait); return; }   // «نعم» mid-read: kept, publishes when the read ends
   if (r.command === "cancel") { await reply(m.source, m.chat, r.draft_id ? tt.cancelled : tt.nothing); return; }
+  // «إلغاء» within an hour after a publish: the listing is off the site (SQL set it hidden); «رجّع» brings it back
+  if (r.command === "cancel_published") { await reply(m.source, m.chat, tt.removed(r.ref || "")); return; }
+  // a short text within an hour after a publish is a correction to that listing, not a new one
+  if (r.command === "fix_published") { await fixPublished(m, r, tt); return; }
   if (r.command === "new") { await reply(m.source, m.chat, tt.newDraft); return; }
   // «رجّع»: the listing cancelled a moment ago (or closed after a day) comes back; merged with anything sent since
   // the area question: «لا» → ask for the name; «لا، كفر زيتا» or the next message → take it as the area
@@ -1548,6 +1600,7 @@ async function handleIncoming(m: Incoming) {
   if (r.command === "area_set") { await applyAreaText(m, r.draft_id, String(r.text || ""), tt); return; }
   if (r.command === "undo") {
     if (!r.restored) { await reply(m.source, m.chat, tt.undoNone); return; }
+    if (r.listing_restored) { const cc = String(r.sender?.country_code || "SY").toLowerCase(); await reply(m.source, m.chat, tt.listingBack(r.ref || "", SITE + (cc === "sy" ? "" : "/" + cc) + "/listing/" + r.listing_id)); return; }
     if (r.status === "collecting") {
       await reply(m.source, m.chat, r.merged ? tt.undoMerged : tt.reading);
       const claimed = await rpc<any>("bk_intake_claim", { p_draft: r.draft_id });

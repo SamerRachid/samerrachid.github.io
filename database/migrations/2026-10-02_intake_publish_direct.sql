@@ -1,0 +1,16 @@
+-- Balkoun · 2026-10-02 · "one message and done" for the text-to-listing bot (owner's decision: comfort first, fewer changes).
+-- Bot (Edge Function readDraft): a complete read from a chat PUBLISHES RIGHT AWAY — no «نعم» step; the sender gets the
+--   summary + the link. Drafts opened from the panel (source 'web') and admin forwards (review) keep the confirm step.
+--   The area question («هل X اسم الحي؟») is gone: an unknown place publishes as written (landmark + area_text) and the
+--   admin gets the "📍 إعلان بمنطقة غير موجودة" alert as before.
+-- bk_intake_message(), the hour after a publish (nothing else open, no «جديد» since):
+--   «إلغاء»            → listings.status = 'hidden', log 'listing_removed_by_sender', returns command 'cancel_published'
+--   «رجّع» (10 min)     → listings.status back to 'live', log 'listing_restored_by_sender', returns listing_restored = true
+--   short text (< 160 chars, no sale/rent/wanted word, and either no property-type word or ≤ 5 words)
+--                      → log 'fix_by_sender', returns command 'fix_published' with the text (the bot re-reads original +
+--                        correction and writes only the changed facts); a listing-shaped text still opens a new draft.
+-- NEW bk_intake_patch_listing(p_draft): rewrites the published listing from the draft's fields with the same conversions
+--   bk_intake_publish() uses (price → USD, deed check, section from type, rent → no deed…); photos untouched; log 'listing_patched'.
+--   Execute revoked from anon/authenticated (service role only).
+-- Applied live with replace() on the bk_intake_message body (anchors: "if cmd = 'cancel' then", "if cmd = 'undo' then",
+-- "if d.id is null then" after the country line) + create or replace of the new function.

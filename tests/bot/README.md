@@ -20,6 +20,8 @@ Note: `now()` is frozen inside the transaction, so "newest draft" setups use `no
 First run (2026-10-02) found one real bug: a bare photo sent to a draft under review landed silently — fixed in
 `database/migrations/2026-10-02_intake_review_photo_ack.sql`.
 
+The fixed product rules the suite protects are in `docs/bot-rules.md`.
+
 ## 2. Reading (Edge Function + Claude, ~0.5¢ per case)
 `read-cases.mjs` — sends each message through the bot's own `test_claude` route (same prompt, same code guards) and
 checks the fields that matter: type, deal, area vs landmark, price, deed, units.

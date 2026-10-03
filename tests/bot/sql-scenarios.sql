@@ -95,5 +95,25 @@ begin
   r := bk_intake_message('whatsapp', 'tb-20', ch, 'text', 'بيت عربي للبيع في حمص باب الدريب');
   out := out || pg_temp.chk('old_review_draft_is_closed', (r->>'is_new')::boolean and (r->>'draft_id')::bigint <> d2, r::text);
 
+  -- 16. the hour after a publish: a short text is a correction, a listing-shaped text is a new listing,
+  --     «إلغاء» takes the listing off the site, «رجّع» brings it back (timestamps nudged past the frozen now())
+  update intake_drafts set status='cancelled', error='test' where chat_id = ch and status not in ('cancelled');
+  update intake_drafts set status='published', listing_id=37, published_at=now()+interval '1 second', created_at=now()+interval '2 seconds', updated_at=now() where id = d2;
+  r := bk_intake_message('whatsapp', 'tb-21', ch, 'text', 'السعر 45 ألف');
+  out := out || pg_temp.chk('short_text_after_publish_is_fix', r->>'command' = 'fix_published' and (r->>'listing_id')::int = 37 and r->>'text' = 'السعر 45 ألف', r::text);
+  r := bk_intake_message('whatsapp', 'tb-22', ch, 'text', 'الشقة طابق ثالث مع مصعد');
+  out := out || pg_temp.chk('short_type_word_text_is_fix', r->>'command' = 'fix_published', r::text);
+  r := bk_intake_message('whatsapp', 'tb-23', ch, 'text', 'شقة للبيع في المزة 100 متر 3 غرف 50 ألف');
+  out := out || pg_temp.chk('listing_text_after_publish_is_new', (r->>'is_new')::boolean and r->>'command' is null, r::text);
+  update intake_drafts set status='cancelled', error='test' where id = (r->>'draft_id')::bigint;
+  r := bk_intake_message('whatsapp', 'tb-24', ch, 'text', 'إلغاء');
+  out := out || pg_temp.chk('cancel_after_publish_hides_listing', r->>'command' = 'cancel_published' and (select status from listings where id=37) = 'hidden', r::text);
+  r := bk_intake_message('whatsapp', 'tb-25', ch, 'text', 'رجّع');
+  out := out || pg_temp.chk('undo_restores_hidden_listing', (r->>'listing_restored')::boolean and (select status from listings where id=37) = 'live', r::text);
+  -- the patch function: the draft's corrected fields land on the listing (same conversions as publish)
+  update intake_drafts set fields = coalesce(fields,'{}'::jsonb) || '{"price":"45000","currency":"USD","area_m2":"90","deal":"sale","tabu":"green"}'::jsonb where id = d2;
+  r := bk_intake_patch_listing(d2);
+  out := out || pg_temp.chk('patch_listing_applies_fields', (r->>'ok')::boolean and (select price_usd = 45000 and area_m2 = 90 and tabu = 'green' from listings where id=37), r::text || (select row_to_json(x)::text from (select price_usd, area_m2, tabu from listings where id=37) x));
+
   raise exception E'BOT_SQL_SCENARIOS fails=% %', (select n from bk_f), out;
 end $$;
