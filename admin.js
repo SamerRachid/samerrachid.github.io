@@ -1265,6 +1265,7 @@ function wireAdmin(){
   if(!ADM.range) ADM.range=7;
   if((ADM.tab==="dashboard"||ADM.tab==="stats"||ADM.tab==="ads") && (!ADM._anLoaded || ADM._anRange!==ADM.range)){
     ADM._anLoaded=true; ADM._anRange=ADM.range;
+    syncVisitorsNow();
     rpcScoped("bk_admin_analytics",{p_token:ADM.token,p_days:ADM.range,p_country:admScope()}).then(function(r){ ADM.an=r; render() }).catch(function(e){ ADM.anErr=e.message||String(e); render() });
   }
   if(ADM.tab==="users" && !ADM._uactLoaded){
@@ -2530,6 +2531,7 @@ function kpiCard(label,cur,prev,color,sparkKey){
 function kpiGrid(an,full){
   var k=an.kpi||{};
   return '<div class="kpis">'+
+    '<div id="kpiVisNow">'+kpiCard(GX("kVisitorsNow"),(ADM.vis||{}).total,null,"#D97706")+'</div>'+
     kpiCard(GX("kViews"),k.views,k.views_prev,"var(--navy)","views")+
     kpiCard(GX("kVisitors"),k.visitors,k.visitors_prev,"#2563EB","visitors")+
     kpiCard(GX("kListingViews"),k.listing_views,k.listing_views_prev,"#7C3AED")+
@@ -2576,7 +2578,31 @@ function adminDashboardBody(s){
       '<div class="blk"><h3>'+GX("usersActH")+'</h3><div class="in">'+barList([{k:GX("act24"),n:an.users_activity.last_24h},{k:GX("act7"),n:an.users_activity.last_7d},{k:GX("act30"),n:an.users_activity.last_30d},{k:GX("actOld"),n:an.users_activity.older}],function(x){ return x.k },"n","var(--ok)")+'</div></div>'+
     '</div>'+
     '<div class="agrid2" style="margin-top:16px">'+healthStrip(an)+alerts+'</div>'+
-    '<div class="blk" style="margin-top:16px"><h3>'+t("storageUsageH")+'</h3><div class="in">'+storageUsageCardBody()+'</div></div>';
+    '<div class="agrid2" style="margin-top:16px"><div id="visNowBlk">'+visitorsNowBlock()+'</div>'+
+      '<div class="blk"><h3>'+t("storageUsageH")+'</h3><div class="in">'+storageUsageCardBody()+'</div></div></div>';
+}
+// "on the site now": members + guests whose tab pinged within 5 minutes (visitor_presence); polled with the alerts
+function visitorsNowBlock(){
+  var v=ADM.vis;
+  var pill=function(l,n,c){ return '<span class="chip" style="font-size:12.5px;padding:4px 10px'+(c?';color:'+c:'')+'"><b class="ltr">'+fmtN(n||0)+'</b> '+l+'</span>' };
+  var pageName=function(k){ return k==="home" ? t("home") : (GX_T["visPage_"+k] ? GX("visPage_"+k) : k) };
+  var body = !v ? '<div class="adashempty">'+t("loading")+'</div>' :
+    !v.total ? '<div class="adashempty">'+GX("visNone")+'</div>' :
+    '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">'+pill(GX("visMembers"),v.members,"var(--ok)")+pill(GX("visGuests"),v.guests)+pill(GX("visMobile"),v.mobile)+pill(GX("visDesktop"),v.desktop)+pill(GX("vis30m"),v.last_30m,"var(--grey)")+'</div>'+
+    '<div class="agrid2" style="gap:12px">'+
+      '<div><div class="hintx" style="margin-bottom:6px">'+GX("visPages")+'</div>'+barList((v.pages||[]).map(function(x){ return {k:pageName(x.view), n:x.n} }),function(x){ return x.k },"n","#D97706")+'</div>'+
+      '<div><div class="hintx" style="margin-bottom:6px">'+GX("visCountries")+'</div>'+barList((v.countries||[]).map(function(x){ var c=countryOf(x.country); return {k:(c?countryName(c):x.country), n:x.n} }),function(x){ return x.k },"n","var(--gold)")+'</div>'+
+    '</div>'+
+    ((v.members_list||[]).length ? '<div class="hintx" style="margin:12px 0 6px">'+GX("visMembersNow")+'</div><div class="onlinelist">'+v.members_list.map(function(u){ return '<a data-byuser="'+u.id+'" data-name="'+esc(u.name||"")+'" class="onlinerow"><span class="onlinedot"></span>'+esc(u.name||t("anonGuest"))+'<span class="ltr" style="margin-inline-start:auto;color:var(--light);font-size:11.5px">'+(u.device==="mobile"?GX("visMobile"):GX("visDesktop"))+' · '+when(u.last_seen)+'</span></a>' }).join("")+'</div>' : '');
+  return '<div class="blk"><h3>'+GX("visNowH")+' <span class="ltr" style="color:var(--grey);font-weight:400">('+fmtN(v?v.total:0)+')</span></h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+GX("visNowHint")+'</div>'+body+'</div></div>';
+}
+function syncVisitorsNow(){
+  if(!ADM.token) return;
+  rpcScoped("bk_admin_visitors_now",{p_token:ADM.token,p_country:admScope()}).then(function(r){
+    ADM.vis=r||null;
+    var b=document.getElementById("visNowBlk"); if(b) b.innerHTML=visitorsNowBlock();
+    var k=document.getElementById("kpiVisNow"); if(k) k.innerHTML=kpiCard(GX("kVisitorsNow"),(ADM.vis||{}).total,null,"#D97706");
+  }).catch(function(){});
 }
 function adminAnalyticsBody(){
   var an=ADM.an, st=ADM.stats;
