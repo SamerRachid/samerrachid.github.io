@@ -22,7 +22,7 @@
 //                              went quiet, flush pending admin alerts, AND flush queued marketing/notification campaign
 //                              sends (campaignFlush) — the campaign composer only enqueues rows in campaign_sends; this
 //                              same per-minute cron tick is what actually calls WhatsApp/Telegram/email for them.
-//   POST /bk-intake/admin      { token, action, ... }  status | setup_telegram | read | publish | tick | test_claude | test_photo | admin_code
+//   POST /bk-intake/admin      { token, action, ... }  status | setup_telegram | read | publish | tick | test_claude | test_photo | video_poster | admin_code
 //   GET  /bk-intake/health
 //
 // secrets (Supabase → Edge Functions → Secrets): TELEGRAM_BOT_TOKEN, WA_TOKEN, WA_PHONE_ID, WA_APP_SECRET,
@@ -2043,6 +2043,22 @@ async function routeAdmin(req: Request): Promise<Response> {
       return json({ ok: true, fields: s.fields, missing: s.missing, summary: summary(s.fields, tax, 0, "ar"), usage: r.usage, cost: costOf(r.usage, c), raw: r.fields, warnings });
     }
     catch (e) { return json({ error: errStr(e) }, 502); }
+  }
+  if (a === "video_poster") {
+    // a frame of a video (jpeg, base64) becomes that video's poster: used to backfill videos that arrived without a
+    // gateway thumbnail; the file sits next to the video and listing_photos.thumb_url points at it
+    try {
+      const photoId = Number(b.photo_id); const b64 = String(b.jpeg_b64 || "").replace(/^data:[^,]*,/, "");
+      if (!photoId || b64.length < 200) return json({ error: "photo_id and jpeg_b64 required" }, 400);
+      const { data: ph } = await sb.from("listing_photos").select("id,listing_id,url,kind").eq("id", photoId).maybeSingle();
+      if (!ph || ph.kind !== "video") return json({ error: "no such video" }, 404);
+      const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      const base = String(ph.url).split("/").pop()!.replace(/\.[a-z0-9]+$/i, "");
+      const pp = `photos/listings/${ph.listing_id}/${base}-poster.jpg`;
+      await upload(pp, bytes, "image/jpeg");
+      const r = await rpc<any>("bk_intake_photo_set_thumb", { p_photo: photoId, p_url: publicUrl(pp) });
+      return json({ ok: true, thumb_url: publicUrl(pp), r });
+    } catch (e) { return json({ error: errStr(e) }, 500); }
   }
   if (a === "test_photo") {
     // processes one of the site's own photos, to prove the image pipeline runs on this runtime and how long it takes
