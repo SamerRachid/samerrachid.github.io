@@ -2814,16 +2814,23 @@ html.maint-on{overflow:hidden}
 .adm .adashcard h4{font-size:13px;margin:0 0 6px}
 /* users table: one row per member — the two selects side by side, the two switches in one cell with tiny captions */
 .adm .usel{display:flex;gap:6px;flex-wrap:nowrap}.adm .usel .lvlpick{display:inline-block;width:auto;max-width:118px;margin:0!important}
-.adm .uswitches{display:flex;gap:12px;align-items:center;white-space:nowrap}.adm .uswitches>span{display:inline-flex;flex-direction:column;align-items:center;gap:2px}.adm .uswitches small{font-size:10.5px;color:var(--p-ink2,#616161);line-height:1}
+.adm .uswitches{display:flex;gap:8px;align-items:center;white-space:nowrap}.adm .uswitches>span{display:inline-flex;flex-direction:column;align-items:center;gap:2px}.adm .uswitches small{font-size:10.5px;color:var(--p-ink2,#616161);line-height:1}
 .adm .ujoin{display:none}.adm .atable td .usub{white-space:nowrap}
 .adm .atable td.unum{white-space:nowrap}.adm .useen,.adm .useen-fresh{white-space:nowrap;font-size:12.5px}
 .adm .atable table{table-layout:auto}
 .adm .atable th,.adm .atable td{padding:8px 10px}
-.adm .usel .lvlpick{max-width:100px;padding:0 4px}
+.adm .usel .lvlpick{max-width:94px;padding:0 4px}
 .adm .ucell .uname{display:inline-block;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
 .adm .utable td.unum,.adm .utable .useen,.adm .utable .useen-fresh{font-size:12px}
 .adm .utable td:first-child{width:27%;max-width:300px}.adm .utable .ucell .usub{white-space:normal;line-height:1.35}.adm .utable .ucell .usub .ltr{display:inline-block}
 .adm .utable{overflow-x:auto}
+.adm .uline{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;min-width:0}.adm .uline .uname{flex:0 1 auto}.adm .uline .lvl{flex:none}
+.adm .uunv{color:var(--p-crit,#8e1f0b);font-weight:600}
+/* the country line lives in the page header now */
+.adm .apage-h{align-items:center;flex-wrap:wrap;gap:10px 16px}
+.adm .apage-h .acbar.slim{margin:0;padding:0;min-height:0;background:transparent;border:0;box-shadow:none;gap:8px;font-size:12.5px;color:var(--p-ink2,#616161)}
+.adm .apage-h .acbar-list>span{display:none}.adm .apage-h .acbar-now svg,.adm .apage-h .acbar-now img{width:18px;height:13px}
+.adm .apage-h .acbar-sel{height:30px;font-size:12.5px;max-width:170px;background:#fff}
 .adm .utable td .usub .ltr{letter-spacing:0}
 @media(max-width:1366px){.adm .utable th:nth-child(4),.adm .utable td:nth-child(4){display:none}.adm .utable .usub .ltr+ .ltr{display:none}}
 @media(max-width:700px){.adm .ujoin{display:inline}.adm .utable td:nth-child(4){display:flex}}
@@ -11046,6 +11053,7 @@ var GX_T={
   areaSearchPH:{ar:"🔍 اكتب أول حروف الحي أو القرية…",en:"🔍 Type the first letters of the area…",de:"🔍 Anfangsbuchstaben des Gebiets…",fr:"🔍 Premières lettres du quartier…"},
   pickArea:{ar:"اختر الحي أو البلدة",en:"Choose the area",de:"Gebiet wählen",fr:"Choisir le quartier"}, areaOther:{ar:"أخرى… غير موجودة في القائمة",en:"Other… not in the list",de:"Andere… nicht in der Liste",fr:"Autre… pas dans la liste"},
   areaOtherPH:{ar:"اكتب اسم الحي أو القرية",en:"Type the neighbourhood or village",de:"Stadtteil oder Dorf eingeben",fr:"Quartier ou village"}, areaOtherHint:{ar:"يُنشر إعلانك بهذا الاسم كمَعلم، وتضيفه الإدارة إلى القائمة قريباً.",en:"Your listing is published with this name as its landmark; the team adds it to the list soon.",de:"Ihre Anzeige erscheint mit diesem Namen als Orientierungspunkt; das Team ergänzt die Liste bald.",fr:"Votre annonce paraît avec ce nom comme repère ; l'équipe l'ajoutera bientôt à la liste."},
+  uViewsShort:{ar:"مشاهدة/30 يومًا",en:"views/30d",de:"Aufrufe/30T"}, rvText:{ar:"نص التقييم",en:"Review text",de:"Bewertungstext"},
   uSettingsCol:{ar:"الإعدادات",en:"Settings",de:"Einstellungen"}, uMemberCol:{ar:"العضو",en:"Member",de:"Mitglied"},
   maintPreview:{ar:"معاينة صفحة الصيانة كما يراها الزائر",en:"Preview the maintenance page as a visitor",de:"Wartungsseite als Besucher ansehen"},
   maintH:{ar:"وضع الصيانة",en:"Maintenance mode",de:"Wartungsmodus"}, maintOn:{ar:"إظهار صفحة «الموقع في صيانة» للزوار",en:"Show the “under maintenance” page to visitors",de:"Wartungsseite für Besucher anzeigen"},
