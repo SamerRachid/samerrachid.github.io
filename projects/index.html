@@ -4629,7 +4629,7 @@ function card(x,i,isListView){
  var badges = (showFeatBadge?'<span class="cbg gold">'+featBadgeText+'</span>':'')+(isNew?'<span class="cbg ok">'+t("newBadge")+'</span>':'')+(x.videos&&x.videos.length?'<span class="cbg vid">▶ '+GX("videoBadge")+'</span>':'');
  var photo = '<div class="ph">'+
    (closed?'<div class="stamp'+(x.status==="rented"?" stamp-r":"")+'">'+(x.status==="rented"?t("st_rented"):t("st_sold"))+'</div>':'')+
-   (cover ? '<img src="'+cover+'" alt="'+esc(typeName)+'" loading="lazy">' : (x.videos&&x.videos[0]&&x.videos[0].url) ? '<video class="vcover" muted playsinline preload="metadata" src="'+x.videos[0].url+'#t=0.5"></video>' : '<div class="nophoto"><img src="/brand/logo-light.png" alt="بلكون" loading="lazy"></div>')+
+   (cover ? '<img src="'+cover+'" alt="'+esc(typeName)+'" loading="lazy">' : (x.videos&&x.videos[0]&&x.videos[0].url) ? '<video class="vcover" muted playsinline preload="metadata" src="'+x.videos[0].url+'#t=0.5" onerror="this.outerHTML='<div class=nophoto><img src=/brand/logo-light.png alt=بلكون></div>'"></video>' : '<div class="nophoto"><img src="/brand/logo-light.png" alt="بلكون" loading="lazy"></div>')+
    (badges?'<div class="bd">'+badges+'</div>':'')+
    '<button type="button" class="cfav'+(saved?' on':'')+'" data-fav="'+x.id+'" aria-label="'+t("saveL")+'">'+I.heart+'</button>'+
    (photos.length>1?'<span class="cpc">'+I.cam+' <span class="ltr">'+photos.length+'</span></span>':'')+
