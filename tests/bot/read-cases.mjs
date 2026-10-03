@@ -23,6 +23,9 @@ const CASES = [
   { name: "greeting is not a listing", text: "مرحبا كيفكم، بدي اسأل عن طريقة النشر عندكم", raw: { intent: "other" } },
   { name: "rent with monthly price", text: "شقة للأجار في حمص الوعر 120 متر مفروشة 250 دولار بالشهر", expect: { deal: "rent", property_type: "apartment", rental_period: "monthly", furnished: true, price: 250 }, areaIs: "الوعر" },
   { name: "shop for rent", text: "محل تجاري للإيجار في حلب الجميلية 40 متر 500 دولار شهري", expect: { deal: "rent", property_type: "shop", area_m2: 40, price: 500 }, areaIs: "الجميلية" },
+  { name: "landmark head word (مدرسة) is not the area, unwritten governorate is not guessed", text: "#للبيع شقة ارضية بالصناعة مقابل نادي النضال جانب مدرسة المناضل الطابق ارضي\nالمساحة 95 متر\nغرفتين وصالون\nالسعر 45 ألف دولار وبازار",
+    expect: { deal: "sale", property_type: "apartment", area_m2: 95, price: 45000 }, areaNot: "مدرسة", govNot: "حلب" },
+  { name: "generic word with ال is still a place", text: "شقة للبيع في طرطوس بالكورنيش 120 متر 80 ألف", expect: { deal: "sale", area_m2: 120, price: 80000 }, areaIs: "الكورنيش" },
   { name: "villa in a farm village", text: "فيلا للبيع في ريف دمشق يعفور 500 متر مع حديقة 3 ملايين دولار", expect: { deal: "sale", property_type: "villa", area_m2: 500, price: 3000000 }, areaIs: "يعفور" },
 ];
 
@@ -37,6 +40,7 @@ for (const c of CASES) {
   for (const [k, v] of Object.entries(c.raw || {})) if (raw[k] !== v) bad.push(`raw.${k}=${JSON.stringify(raw[k])} (want ${JSON.stringify(v)})`);
   if (c.areaIs && norm(f.area) !== norm(c.areaIs)) bad.push(`area=${JSON.stringify(f.area)} (want ${c.areaIs})`);
   if (c.areaNot && norm(f.area) === norm(c.areaNot)) bad.push(`area must not be ${c.areaNot}`);
+  if (c.govNot && norm(f.governorate) === norm(c.govNot)) bad.push(`governorate must not be ${c.govNot}`);
   if (bad.length) { fail++; console.log("FAIL", c.name, "\n     ", bad.join(" · ")); } else { pass++; console.log("PASS", c.name); }
 }
 console.log(`\n${pass} passed, ${fail} failed`);

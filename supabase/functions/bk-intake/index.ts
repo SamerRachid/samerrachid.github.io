@@ -734,7 +734,8 @@ function areaFromText(fields: Record<string, any>, missing: string[], rawText: s
     const hits: { g: any; a: any; n: string }[] = [];
     for (const g of govs) for (const a of (g.areas || [])) {
       const n = norm(a[1]); if (n.length < 5) continue;
-      if ((said.includes(" " + n + " ") || said.includes(" ال" + n + " ")) && !areaIsNoun(a[1], rawText)) hits.push({ g, a, n });
+      // whole word, with or without ال, also glued to ب/ل/و ("بالصناعة", "للمزة", "وبالروضة")
+      if (new RegExp(`\\s(?:و|ف)?(?:ب|ل)?(?:ال)?${n}\\s`, "u").test(said) && !areaIsNoun(a[1], rawText)) hits.push({ g, a, n });
     }
     return hits.sort((x, y) => y.n.length - x.n.length);
   };
@@ -781,8 +782,24 @@ const NOUN_AREAS: Record<string, RegExp> = {
   "كسوه": /(?:^|\s)(?:ال)?كسوه\s*(?::|：|جيده|سوبر|ديلوكس|ممتازه|كامله|حجر|جديده|فاخره|عاديه|وسط|متوسطه|قديمه|حديثه|راقيه)/,
   "صناعه": /منطقه\s+(?:ال)?صناعيه|(?:ال)?صناعه\s+(?:الخفيفه|الثقيله)/,
 };
+// ordinary place words that also sit in the areas list ("مدرسة" in Aleppo, "الروضة" in six governorates, "الجامع" in
+// Hama): "جانب مدرسة المناضل" names a landmark, not the neighbourhood. Such a word counts as the area only when the
+// message uses it as a place — "حي الروضة", "منطقة الكورنيش", "بالروضة" — not when it heads a landmark ("مدرسة X").
+const GENERIC_PLACE_WORDS = new Set(["مدرسه", "جامع", "مسجد", "نادي", "شارع", "ساحه", "مشفي", "مستشفي", "جامعه", "سوق", "محطه", "كراج", "دوار", "مدينه", "حي", "منطقه", "قريه", "بلده", "مزرعه", "بناء", "برج", "مجمع", "فندق", "مطعم", "حديقه", "مركز", "معمل", "مصنع", "مخفر", "بريد", "كنيسه", "مقبره", "جسر", "نفق", "مول", "صيدليه", "عياده", "مكتب", "مكتبه", "شركه", "محل", "قصر", "بيت", "دار", "نهر", "جبل", "وادي", "سد", "بحيره", "مطار", "مرفا", "ميناء", "جزيره", "بستان", "كرم", "مخيم", "ملعب", "معهد", "كليه", "ثانويه", "روضه", "مؤسسه", "بنك", "مصرف", "فرن", "قلعه", "مقام", "ضريح", "شاليه", "فيلا", "مزار", "كازيه", "طريق", "كورنيش", "اوتوستراد", "مبني", "عماره", "سكن", "ضاحيه", "مشروع", "تل", "عين", "بئر", "خان", "حمام", "سينما", "مسرح", "متحف", "نقابه", "وزاره", "مديريه", "بلديه", "محافظه", "ناحيه"]);
 function areaIsNoun(area: string, rawText: string): boolean {
-  const re = NOUN_AREAS[norm(area)]; return !!(re && re.test(norm(rawText)));
+  const n = norm(area), said = norm(rawText);
+  const re = NOUN_AREAS[n]; if (re && re.test(said)) return true;
+  if (!GENERIC_PLACE_WORDS.has(n)) return false;
+  // it is a place when some mention carries ال (or follows حي/منطقة/…) and is not itself the head of a landmark:
+  // "بالروضة", "حي الروضة" → place · "مدرسة المناضل", "جانب الجامع الكبير", "مقابل نادي النضال" → landmark
+  const re2 = new RegExp(`(?:^|\\s)((?:حي|منطقه|ضاحيه|بلده|قريه|ناحيه)\\s+)?(?:و|ف)?(?:ب|في\\s+)?(ال)?${n}(?=\\s|$|[،,.:؛])`, "gu");
+  const LANDMARK_HEAD = /(جانب|مقابل|قرب|بقرب|خلف|امام|قدام|بجانب|جنب|بعد|قبل|حد|عند|ورا|وراء|تحت|فوق|مجاور|قبال)\s*$/;
+  for (const m of said.matchAll(re2)) {
+    if (!m[1] && !m[2]) continue;                                   // bare word heading a name
+    if (LANDMARK_HEAD.test(said.slice(0, m.index))) continue;      // "جانب الـ…"
+    return false;
+  }
+  return true;
 }
 function areaGuards(fields: Record<string, any>, missing: string[], raw: Record<string, any>, rawText: string, tax: any): { event: string; detail: any }[] {
   const out: { event: string; detail: any }[] = [];
