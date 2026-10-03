@@ -403,6 +403,10 @@ function adminView(){
      '<input type="checkbox" id="aAgencyAuto"'+(st2.agency_auto_approve!==false?" checked":"")+'>'+
      '<span>'+GX("agAutoApproveL")+'</span></label>'+
     '<div class="hintx" style="margin-top:8px">'+GX("agAutoApproveHint")+'</div>'+
+    '<label style="display:flex;align-items:center;gap:10px;cursor:pointer;margin-top:14px">'+
+     '<input type="checkbox" id="aPostAll"'+(GSX("verify_required_post",true)===false||GSX("verify_required_post",true)==="false"?" checked":"")+'>'+
+     '<span>'+GX("postAllL")+'</span></label>'+
+    '<div class="hintx" style="margin-top:8px">'+GX("postAllHint")+'</div>'+
     '<div style="font-size:12.5px;color:var(--ok);margin-top:8px" id="aSettingsMsg"></div>'+
    '</div></div>'+
    // maintenance switch: one for the whole site (global extras); admins and the panel are never covered
@@ -1534,6 +1538,10 @@ function wireAdmin(){
     if(on && !confirm(GX("maintOn")+"؟")) { this.disabled=false; return }
     try{ await saveGlobalExtras({maintenance_on:on, maintenance_msg_ar:String($("#maintMsgAr").value||"").trim()||null, maintenance_msg_en:String($("#maintMsgEn").value||"").trim()||null}); admToast(GX("saved")); render() }
     catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } this.disabled=false } };
+  if($("#aPostAll")) $("#aPostAll").onchange=async function(){
+    var box=this;
+    try{ await saveGlobalExtras({verify_required_post:!box.checked}); var m=$("#aSettingsMsg"); if(m) m.textContent=t("savedOk") }
+    catch(e){ box.checked=!box.checked; admToast(e.message||"error","bad") } };
   if($("#aReqApproval")) $("#aReqApproval").onchange=async function(){
     var box=this;
     try{
