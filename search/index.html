@@ -2090,6 +2090,7 @@ h1,h2,h3,.logo,.hero h1{letter-spacing:0}
 .agrid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
 .agrid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
 .agrid2>.blk,.agrid3>.blk{margin-top:0!important}
+.agrid2,.agrid3{align-items:start}   /* a short card next to a tall one keeps its own height instead of an empty stretched frame */
 .health{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
 .hitem{background:#F8F9FB;border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:start;font:inherit;cursor:default;display:flex;flex-direction:column;gap:2px}
 button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
@@ -4571,7 +4572,7 @@ function authModal(){
   body='<div class="aubody"><div class="audone"><div class="tk">✓</div>'+
    '<b style="font-size:17px">'+t("welcome")+' '+esc(fullName(USER))+'</b>'+
    '<div style="font-size:12.5px;color:var(--light);margin-top:4px" class="ltr">'+(USER?USER.phone:"")+'</div>'+
-   '<p style="font-size:13.5px;color:var(--grey);margin-top:6px">'+(USER&&USER.phone_verified===false?GX("vPendingNote"):t("nowYouCan"))+'</p></div>'+
+   '<p style="font-size:13.5px;color:var(--grey);margin-top:6px">'+(USER&&USER.phone_verified===false&&needsVerify()?GX("vPendingNote"):t("nowYouCan"))+'</p></div>'+
    accTgNudgeHtml()+
    '<button class="aub" id="auGo" style="margin-top:14px">'+t("okBtn2")+'</button></div>';
  }
@@ -11092,6 +11093,7 @@ var GX_T={
   uViewsShort:{ar:"مشاهدة/30 يومًا",en:"views/30d",de:"Aufrufe/30T"}, rvText:{ar:"نص التقييم",en:"Review text",de:"Bewertungstext"},
   uSettingsCol:{ar:"الإعدادات",en:"Settings",de:"Einstellungen"}, uMemberCol:{ar:"العضو",en:"Member",de:"Mitglied"},
   agColAgency:{ar:"المكتب",en:"Agency",de:"Büro"}, agColCoverage:{ar:"التغطية",en:"Coverage",de:"Abdeckung"}, agColOwner:{ar:"المالك",en:"Owner",de:"Inhaber"}, agSpecL:{ar:"التخصص",en:"Specialties",de:"Schwerpunkte"}, agIntakeOnShort:{ar:"مفعّل",en:"On",de:"An"}, agIntakeOffShort:{ar:"متوقف",en:"Off",de:"Aus"}, memberNoL:{ar:"رقم العضوية",en:"Member no.",de:"Mitgliedsnr."},
+  postAllL:{ar:"السماح لكل الأعضاء بالنشر فور التسجيل (بدون انتظار تأكيد الرقم)",en:"Let every member post right after signing up (no number confirmation needed)",de:"Alle Mitglieder dürfen sofort nach der Anmeldung inserieren"}, postAllHint:{ar:"عند التفعيل، العضو العادي ينشر مثل المكاتب من لحظة تسجيله، ويبقى تأكيد الرقم شارة ثقة فقط. للإيقاف لشخص بعينه: «حظر» من درج العضو، أو «إخفاء» المكتب من صفحة المكاتب، أو أطفئ «نشر تلقائي» لعضو فتذهب إعلاناته للمراجعة.",en:"When on, a regular member posts like an agency from the moment they sign up; number confirmation stays a trust badge only. To stop one person: “block” in the member drawer, “hide” the agency in the agencies page, or turn off “auto publish” for a member so their listings go to review.",de:"Wenn aktiv, inseriert jedes Mitglied sofort wie ein Büro; die Nummernbestätigung bleibt nur ein Vertrauenszeichen. Einzelne stoppen: „Sperren“ im Mitgliedsfenster, Büro „ausblenden“ oder „automatisch veröffentlichen“ für ein Mitglied abschalten."},
   maintBadge:{ar:"وضع الصيانة مفعّل",en:"Maintenance mode ON",de:"Wartungsmodus AN"}, maintBadgeHint:{ar:"الزوار يرون صفحة الصيانة الآن. اضغط للانتقال إلى الإعدادات وإطفائه.",en:"Visitors see the maintenance page right now. Click to open settings and turn it off.",de:"Besucher sehen gerade die Wartungsseite. Klicken, um sie in den Einstellungen abzuschalten."},
   maintPreview:{ar:"معاينة صفحة الصيانة كما يراها الزائر",en:"Preview the maintenance page as a visitor",de:"Wartungsseite als Besucher ansehen"},
   maintH:{ar:"وضع الصيانة",en:"Maintenance mode",de:"Wartungsmodus"}, maintOn:{ar:"إظهار صفحة «الموقع في صيانة» للزوار",en:"Show the “under maintenance” page to visitors",de:"Wartungsseite für Besucher anzeigen"},
