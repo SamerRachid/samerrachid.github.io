@@ -5878,6 +5878,9 @@ function syncAdminTodo(){
   if(!DB || !ADM.token) return Promise.resolve();
   return rpc("bk_admin_todo",{p_token:ADM.token,p_country:admScope()}).then(function(r){ if(!r) return; var before=adminTodoTotal(); ADM.todo=r; var after=adminTodoTotal();
     var w=$(".adbell-w"); if(w){ var tmp=document.createElement("div"); tmp.innerHTML=adminBellHtml(); w.replaceWith(tmp.firstElementChild); wireAdminBell() }
+    // the drafts page keeps its list from when it opened; when the bell says more listings wait for review than the
+    // list holds (they arrived from the bot meanwhile), the list is fetched again (owner, 2026-10-03: "bell says 4, list says 0")
+    if(ADM.tab==="intake" && ADM.ik && ADM._ikLoaded){ var rev=(ADM.ik.drafts||[]).filter(function(x){ return x.status==="review" }).length; if((+r.intake_review||0)!==rev){ ADM._ikLoaded=false; render() } }
     if(before!==after && document.title.indexOf("(")!==0) document.title = (after?"("+after+") ":"")+document.title.replace(/^\(\d+\+?\) /,"") }).catch(function(){}) }
 /* ── saved properties ── */
 var SAVEDFULL=[];
