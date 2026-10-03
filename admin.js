@@ -2674,7 +2674,7 @@ function adminUsersBody(d){
     }
     return html }).join("");
   return toolbar+'<div class="atable atable-stack utable"><table><thead><tr>'+
-    [t("contactName"),GX("colLastSeen"),t("myAds"),t("ratingCol"),t("levelCol"),GX("uSettingsCol"),t("role"),''].map(function(h){ return '<th>'+h+'</th>' }).join("")+
+    [GX("uMemberCol"),GX("colLastSeen"),t("myAds"),t("ratingCol"),t("levelCol"),GX("uSettingsCol"),t("role"),''].map(function(h){ return '<th>'+h+'</th>' }).join("")+
     '</tr></thead><tbody id="aUserBody">'+rows+'</tbody></table></div>';
 }
 function stFileRow(f, actions, kindLabel){
