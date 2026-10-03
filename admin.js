@@ -863,29 +863,51 @@ function adminProjectEditor(p){
    '</div></div>' }
 function adminAgenciesBody(){
   var list=ADM_AG; if(!list) return '<div class="blk"><div class="in adashempty">'+t("loading")+'</div></div>';
-  var newBtn='<button type="button" class="ab ok" id="agmNew" style="margin-inline-start:auto">+ '+GX("agNewBtn")+'</button>';
-  if(!list.length) return '<div class="blk"><h3>'+GX("tAgencies")+newBtn+'</h3><div class="in adashempty">'+(ADM.agErr?'<span style="color:var(--danger)">'+esc(ADM.agErr)+'</span>':GX("agNone"))+'</div></div>';
+  var newBtn='<button type="button" class="ab ok" id="agmNew">+ '+GX("agNewBtn")+'</button>';
+  if(!list.length) return '<div class="lbar"><span class="lcnt">'+GX("tAgencies")+'</span><span class="sp" style="flex:1"></span>'+newBtn+'</div><div class="blk"><div class="in adashempty">'+(ADM.agErr?'<span style="color:var(--danger)">'+esc(ADM.agErr)+'</span>':GX("agNone"))+'</div></div>';
   var pend=list.filter(function(a){ return a.status==="pending" }).length, sep=L==="ar"?"، ":", ";
-  // one card per agency: identity | coverage and numbers | status + actions, and a second line for message intake
-  return '<div class="blk"><h3>'+GX("tAgencies")+(pend?' <span class="n">'+pend+'</span>':'')+newBtn+'</h3><div class="in eng-in"><div class="elist">'+list.map(function(a){
-    var meta=[(a.gov_names||[]).map(gN).join(sep)||"—", (a.specialties||[]).map(agSpecLabel).join(" · "), ((a.area_names||[]).length?a.area_names.length+' '+GX("f_agAreas"):'')].filter(Boolean);
-    return '<div class="agcard2">'+
-      '<div class="agc-id">'+avatar(a.logo_url,a.name,44,"aglogo")+'<div><b>'+scopeFlag(a.country_code)+esc(a.name)+(a.verified?' <span class="vbadge">✓</span>':'')+'</b><small>'+esc(a.user_name||"")+(a.user_phone?' · <span class="ltr">'+esc(a.user_phone)+'</span>':'')+'</small></div></div>'+
-      '<div class="agc-meta"><span>'+meta.join(' <i>·</i> ')+'</span><small><span class="ltr">'+(a.live||0)+'</span> '+t("liveAds")+' · '+GX("agSinceDate")+' <span class="ltr">'+String(a.created_at||"").slice(0,10)+'</span></small></div>'+
-      '<div class="agc-acts">'+agStatusPill(a.status)+
+  var q=admNormQ(ADM.agQ||""), LL=q?list.filter(function(a){ return admNormQ([a.name,a.user_name,a.user_phone,(a.gov_names||[]).map(gN).join(" ")].join(" ")).indexOf(q)>-1 }):list;
+  var open=ADM.agOpen?list.filter(function(a){ return a.id===ADM.agOpen })[0]:null; if(!open) ADM.agOpen=null;
+  var rows=LL.map(function(a){
+    var cover=(a.gov_names||[]).map(gN).join(sep)||"—", spec=(a.specialties||[]).map(agSpecLabel).join(" · ");
+    return '<tr class="lrow'+(open&&open.id===a.id?' open':'')+'" data-agrow="'+a.id+'">'+
+      '<td><div class="lt">'+avatar(a.logo_url,a.name,36,"aglogo")+'<div class="ltt"><b>'+scopeFlag(a.country_code)+esc(a.name)+(a.verified?' <span class="vbadge">✓</span>':'')+'</b><small>'+esc(a.user_name||"")+(a.user_phone?' · <span class="ltr">'+esc(a.user_phone)+'</span>':'')+'</small></div></div></td>'+
+      '<td class="agcov"><span>'+esc(cover)+'</span>'+(spec?'<small>'+spec+((a.area_names||[]).length?' · '+a.area_names.length+' '+GX("f_agAreas"):'')+'</small>':((a.area_names||[]).length?'<small>'+a.area_names.length+' '+GX("f_agAreas")+'</small>':''))+'</td>'+
+      '<td class="ltr unum">'+(a.live||0)+'</td>'+
+      '<td>'+agStatusPill(a.status)+'</td>'+
+      '<td>'+(a.status!=="approved"?'<span class="hintx">—</span>':(a.intake_enabled?'<span class="st st-live">'+GX("agIntakeOnShort")+'</span>'+(a.intake_telegram?' <span class="st st-published" title="Telegram">TG</span>':''):'<span class="st st-hidden">'+GX("agIntakeOffShort")+'</span>'))+'</td>'+
+      '<td class="lwhen"><span class="ltr">'+admWhen(a.created_at)+'</span></td></tr>' }).join("");
+  var drawer='';
+  if(open){ var a=open;
+    drawer='<aside class="ldrawer" id="agDrawer"><div class="ld-hd">'+avatar(a.logo_url,a.name,30,"aglogo")+'<h2>'+esc(a.name)+(a.verified?' <span class="vbadge">✓</span>':'')+'</h2>'+agStatusPill(a.status)+'<button type="button" class="lx" id="agdClose" aria-label="'+GX("lfClose")+'">✕</button></div>'+
+      '<div class="ld-acts">'+
         (a.status!=="approved"?'<button type="button" class="ab ok" data-agset="'+a.id+':approved">'+GX("agApprove")+'</button>':'')+
         (a.status==="pending"?'<button type="button" class="ab bad" data-agset="'+a.id+':rejected">'+GX("agReject")+'</button>':'')+
         (a.status==="approved"?'<button type="button" class="ab" data-agset="'+a.id+':hidden">'+GX("agHide")+'</button>':'')+
         '<button type="button" class="ab" data-agver="'+a.id+':'+(a.verified?"0":"1")+'">'+(a.verified?GX("agUnverify"):GX("agVerify"))+'</button>'+
         '<button type="button" class="ab" data-agedit="'+a.user_id+'" data-name="'+esc(a.name)+'">'+t("edit")+'</button>'+
-        (a.status==="approved"?'<a class="ab" href="/agency/'+a.id+'" target="_blank" rel="noopener">'+GX("agView")+'</a>':'')+'</div>'+
-      (a.status==="approved"?'<div class="agintk"><b>'+GX("tIntake")+'</b>'+
-        '<button type="button" class="ab'+(a.intake_enabled?' on':'')+'" data-agintake="'+a.id+':'+(a.intake_enabled?"0":"1")+'">'+(a.intake_enabled?GX("agIntakeOn"):GX("agIntakeOff"))+'</button>'+
-        (a.intake_enabled?'<button type="button" class="ab'+(a.intake_trusted?' on':'')+'" data-agtrust="'+a.id+':'+(a.intake_trusted?"0":"1")+'">'+(a.intake_trusted?GX("agTrustOn"):GX("agTrustOff"))+'</button>'+
-          '<span class="st st-live" title="'+esc(GX("agAutoWaHint"))+'">'+GX("agAutoWa")+'</span>'+
-          (a.intake_telegram?'<span class="st st-live">'+GX("agPairedTg")+(a.intake_telegram_name?' · '+esc(a.intake_telegram_name):'')+'</span>':'<span class="st st-pending" title="'+esc(GX("agNotPairedHint"))+'">'+GX("agNotPaired")+'</span>')+
-          (a.intake_code?'<small class="ltr">'+GX("agIntakeCode")+' <b>'+esc(a.intake_code)+'</b></small><button type="button" class="ab" data-agcode="'+a.id+'" title="'+esc(GX("agNewCodeHint"))+'">'+GX("agNewCode")+'</button>':''):'<small>'+GX("agIntakeHint")+'</small>')+'</div>':'')+
-      '</div>' }).join("")+'</div></div></div>' }
+        (a.status==="approved"?'<a class="ab" href="/agency/'+a.id+'" target="_blank" rel="noopener">↗ '+GX("agView")+'</a>':'')+'</div>'+
+      '<div class="ld-sec">'+GX("lfData")+'</div><dl class="ld-kv">'+
+        '<dt>'+GX("agColOwner")+'</dt><dd>'+esc(a.user_name||"—")+'</dd>'+
+        '<dt>'+GX("lfPhone")+'</dt><dd class="ltr">'+esc(a.user_phone||"—")+'</dd>'+
+        '<dt>'+GX("agColCoverage")+'</dt><dd>'+esc((a.gov_names||[]).map(gN).join(sep)||"—")+((a.area_names||[]).length?'<br><small>'+(a.area_names||[]).map(aN).join(sep)+'</small>':'')+'</dd>'+
+        ((a.specialties||[]).length?'<dt>'+GX("agSpecL")+'</dt><dd>'+(a.specialties||[]).map(agSpecLabel).join(" · ")+'</dd>':'')+
+        '<dt>'+t("liveAds")+'</dt><dd class="ltr">'+(a.live||0)+'</dd>'+
+        '<dt>'+GX("agSinceDate")+'</dt><dd class="ltr">'+String(a.created_at||"").slice(0,10)+'</dd>'+
+      '</dl>'+
+      (a.status==="approved"?'<div class="ld-sec">'+GX("tIntake")+'</div><div class="ld-acts">'+
+        '<button type="button" class="ab'+(a.intake_enabled?' ok':'')+'" data-agintake="'+a.id+':'+(a.intake_enabled?"0":"1")+'">'+(a.intake_enabled?GX("agIntakeOn"):GX("agIntakeOff"))+'</button>'+
+        (a.intake_enabled?'<button type="button" class="ab'+(a.intake_trusted?' ok':'')+'" data-agtrust="'+a.id+':'+(a.intake_trusted?"0":"1")+'">'+(a.intake_trusted?GX("agTrustOn"):GX("agTrustOff"))+'</button>':'')+'</div>'+
+        (a.intake_enabled?'<dl class="ld-kv"><dt>WhatsApp</dt><dd>'+GX("agAutoWa")+'</dd><dt>Telegram</dt><dd>'+(a.intake_telegram?GX("agPairedTg")+(a.intake_telegram_name?' · '+esc(a.intake_telegram_name):''):GX("agNotPaired"))+'</dd>'+
+          (a.intake_code?'<dt>'+GX("agIntakeCode")+'</dt><dd><b class="ltr">'+esc(a.intake_code)+'</b> <button type="button" class="ab" data-agcode="'+a.id+'" title="'+esc(GX("agNewCodeHint"))+'" style="min-height:26px;height:26px;padding:0 8px;font-size:11.5px">'+GX("agNewCode")+'</button></dd>':'')+'</dl>':'<div class="hintx ld-pan">'+GX("agIntakeHint")+'</div>'):'')+
+      '<div class="ld-sp"></div></aside>';
+  }
+  return '<div class="lbar"><span class="lcnt"><b class="ltr">'+LL.length+'</b> '+GX("tAgencies")+(pend?'<span class="lpend">· '+pend+' '+GX("st_pending")+'</span>':'')+'</span>'+
+      '<label class="lq">'+AICO.search+'<input id="agQ" value="'+esc(ADM.agQ||"")+'" placeholder="'+t("searchPH")+'" autocomplete="off"></label>'+newBtn+'</div>'+
+    '<div class="lpage'+(drawer?' has-drawer':'')+'"><div class="ltbl agtable"><table>'+
+      '<colgroup><col><col style="width:26%"><col style="width:84px"><col style="width:120px"><col style="width:140px"><col style="width:96px"></colgroup>'+
+      '<thead><tr><th>'+GX("agColAgency")+'</th><th>'+GX("agColCoverage")+'</th><th>'+t("liveAds")+'</th><th>'+t("status")+'</th><th>'+GX("tIntake")+'</th><th>'+GX("colDate")+'</th></tr></thead>'+
+      '<tbody>'+(rows||'<tr><td colspan="6" class="lnone">'+GX("lfNone")+'</td></tr>')+'</tbody></table></div>'+drawer+'</div>' }
 async function adminLoad(){
   ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._anLoaded=false; ADM._uactLoaded=false; ADM._lstatsLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._featuredListLoaded=false;
   ADM._storageUsageLoaded=false;
@@ -1108,10 +1130,15 @@ function wireAdmin(){
   if($("#uBlockPick")) $("#uBlockPick").onchange=function(){ ADM.userBlockedFilter=this.value; render() };
 
   $$("[data-uopen]").forEach(function(e){ e.onclick=function(){ ADM.userOpen = ADM.userOpen===e.dataset.uopen ? null : e.dataset.uopen; ADM.rateTarget=null; ADM.pwTarget=null; render() }});
+  $$("tr[data-urow]").forEach(function(tr){ tr.onclick=function(e){ if(e.target.closest("input,button,a,select,label")) return; var id=this.dataset.urow; ADM.userOpen=(ADM.userOpen===id?null:id); ADM.rateTarget=null; ADM.pwTarget=null; ADM.uEdit=null; render() } });
+  if($("#udClose")) $("#udClose").onclick=function(){ ADM.userOpen=null; ADM.rateTarget=null; ADM.pwTarget=null; ADM.uEdit=null; render() };
+  $$("tr[data-agrow]").forEach(function(tr){ tr.onclick=function(e){ if(e.target.closest("input,button,a,select,label")) return; var id=+this.dataset.agrow; ADM.agOpen=(ADM.agOpen===id?null:id); render() } });
+  if($("#agdClose")) $("#agdClose").onclick=function(){ ADM.agOpen=null; render() };
   $$("[data-umsg]").forEach(function(e){ e.onclick=function(){ ADM.notifTargetUid=e.dataset.umsg; admGo("msgs") }});
   $$("[data-uagency]").forEach(function(e){ e.onclick=function(){ admAgencyEdit({user_id:e.dataset.uagency,name:e.dataset.name||""}) } });
   $$("[data-agedit]").forEach(function(e){ e.onclick=function(){ admAgencyEdit({user_id:e.dataset.agedit,name:e.dataset.name||""}) } });
   if($("#agmNew")) $("#agmNew").onclick=function(){ admAgencyEdit({}) };
+  if($("#agQ")) $("#agQ").oninput=function(){ var v=this.value; clearTimeout(ADM._agQT); ADM._agQT=setTimeout(function(){ ADM.agQ=v; render(); var el=$("#agQ"); if(el){ el.focus(); try{ el.setSelectionRange(el.value.length,el.value.length) }catch(e){} } },160) };
   // open the site in a new tab signed in as this member (their listings are then posted under their own account)
   $$("[data-uloginas]").forEach(function(e){ e.onclick=async function(){
     if(!confirm(GX("uLoginAsQ").replace("{n}",e.dataset.name||""))) return;
@@ -2604,7 +2631,7 @@ function adminUsersBody(d){
   var rows=list.map(function(u){
     var nm=((u.name||"")+" "+(u.family_name||"")).trim()||"—", isAdmin=u.role==="admin", open=ADM.userOpen===u.id;
     var joined=u.created_at?new Date(u.created_at).toLocaleDateString(L==="ar"?"ar-SY":L==="de"?"de-DE":L==="fr"?"fr-FR":"en-GB",{year:"numeric",month:"short",day:"numeric"}):"";
-    var html='<tr data-row-text="'+esc((nm+" "+(u.phone||"")+" "+(u.member_no||"")).toLowerCase())+'" class="'+(open?"uopen":"")+'">'+
+    var html='<tr data-row-text="'+esc((nm+" "+(u.phone||"")+" "+(u.member_no||"")).toLowerCase())+'" class="lrow'+(open?" open":"")+'"'+(isAdmin?'':' data-urow="'+u.id+'"')+'>'+
       '<td data-label="'+t("contactName")+'"><div class="ucell">'+avatar(u.avatar_url,u.name,36)+'<div>'+scopeFlag(u.country)+'<span class="uline"><a data-byuser="'+u.id+'" data-name="'+esc(nm)+'" class="uname">'+esc(nm)+'</a>'+levelBadge(u.level)+'</span>'+
         '<div class="usub">'+(u.member_no?'<b class="ltr">'+esc(u.member_no)+'</b> · ':'')+'<span class="ltr">'+(u.phone||GX("uNoPhone"))+'</span>'+(u.phone_verified===false?' · <span class="uunv" title="'+esc(GX("uUnverified"))+'">'+GX("uUnverified")+'</span>':'')+(joined?' <span class="ujoin">· '+GX("uJoined")+' '+joined+'</span>':'')+'</div></div></div></td>'+
       '<td data-label="'+GX("colLastSeen")+'">'+(function(){ var d=lastSeen(u), a=uact[u.id]||{}; var fresh=d && (Date.now()-d.getTime())<86400000; return '<span class="'+(fresh?"useen-fresh":"useen")+'">'+(d?when(d.toISOString()):GX("never"))+'</span>'+(a.views_30d?'<div class="usub" title="'+esc(GX("kViews"))+' · 30d"><span class="ltr">'+a.views_30d+'</span> '+GX("uViewsShort")+'</div>':'') })()+'</td>'+
@@ -2613,8 +2640,79 @@ function adminUsersBody(d){
       '<td data-label="'+t("levelCol")+'">'+(isAdmin?'<span class="lvl lvl-vip">Admin</span>':'<div class="usel"><select class="lvlpick" data-utype="'+u.id+'" title="'+esc(GX("accTypeL"))+'">'+[["member",GX("acctMember")],["broker",GX("acctBroker")],["agency",GX("acctAgency")]].map(function(o){ return '<option value="'+o[0]+'"'+((u.account_type||"member")===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select>'+
         '<select class="lvlpick" data-uid="'+u.id+'" title="'+GX("uLevelHint")+'">'+LEVELS_ALL.map(function(lv){ return '<option value="'+lv+'"'+(u.level===lv?" selected":"")+'>'+t("lv_"+lv)+'</option>' }).join("")+'</select></div>')+'</td>'+
       '<td data-label="'+GX("uSettingsCol")+'">'+(isAdmin?'':'<div class="uswitches"><span title="'+esc(GX("uAutoHint"))+'">'+sw("skipRev",u.id,u.skip_review,GX("uAutoHint"))+'<small>'+t("autoApprove")+'</small></span><span title="'+esc(GX("cardLogoHint"))+'">'+sw("cardLogo",u.id,(ADM.cardLogos||[]).indexOf(u.id)>-1,GX("cardLogoHint"))+'<small>'+GX("cardLogoCol")+'</small></span></div>')+'</td>'+
-      '<td data-label="'+t("role")+'"><span class="st '+(u.blocked?"st-removed":"st-live")+'">'+(u.blocked?GX("uBlocked"):GX("uActive"))+'</span></td>'+
-      '<td data-label="">'+(isAdmin?'':'<button class="ab" data-uopen="'+u.id+'">'+(open?GX("uClose"):GX("uActions")+' ▾')+'</button>')+'</td></tr>';
+      '<td data-label="'+t("role")+'"><span class="st '+(u.blocked?"st-removed":"st-live")+'">'+(u.blocked?GX("uBlocked"):GX("uActive"))+'</span></td></tr>';
+    return html }).join("");
+  // the member drawer (listings pattern): identity, actions, facts, moderation, danger, the member's listings, and the
+  // rate / password / edit panels when one of them is open
+  var openId=ADM.userOpen||ADM.rateTarget||ADM.pwTarget||ADM.uEdit||null, ou=openId?list.filter(function(u){ return u.id===openId })[0]:null;
+  var drawer='';
+  if(ou && ou.role!=="admin"){ (function(u){
+      var nm=((u.name||"")+" "+(u.family_name||"")).trim()||"—", isAdmin=false, d2=lastSeen(u), a2=uact[u.id]||{};
+      var joined=u.created_at?new Date(u.created_at).toLocaleDateString(L==="ar"?"ar-u-nu-latn":L==="de"?"de-DE":L==="fr"?"fr-FR":"en-GB",{year:"numeric",month:"short",day:"numeric"}):"";
+      var html='<aside class="ldrawer" id="uDrawer"><div class="ld-hd">'+avatar(u.avatar_url,u.name,30)+'<h2>'+esc(nm)+'</h2>'+levelBadge(u.level)+'<span class="st '+(u.blocked?"st-removed":"st-live")+'">'+(u.blocked?GX("uBlocked"):GX("uActive"))+'</span><button type="button" class="lx" id="udClose" aria-label="'+GX("lfClose")+'">✕</button></div>'+
+        '<div class="ld-acts">'+
+          '<button class="ab" data-ulist="'+u.id+'" data-name="'+esc(nm)+'">'+GX("uViewListings")+' ('+(u.listings||0)+')</button>'+
+          '<button class="ab" data-uedit="'+u.id+'">'+GX("uEditInfo")+'</button>'+
+          '<a class="ab" data-byuser="'+u.id+'" data-name="'+esc(nm)+'" style="text-decoration:none">'+GX("uPublicPage")+'</a>'+
+          '<button class="ab" data-umsg="'+u.id+'">'+GX("uMessage")+'</button>'+
+          '<button class="ab" data-uloginas="'+u.id+'" data-name="'+esc(nm)+'" title="'+esc(GX("uLoginAsHint"))+'">'+GX("uLoginAs")+'</button>'+
+          '<button class="ab" data-uagency="'+u.id+'" data-name="'+esc(nm)+'">'+GX("uAgencyBtn")+'</button>'+
+          '<button class="ab ok" data-udm="'+u.id+'" data-name="'+esc(nm)+'">'+GX("dmBtn")+'</button>'+
+          '<button class="ab" data-arate="'+u.id+'">★ '+t("rateMember")+'</button></div>'+
+        '<div class="ld-sec">'+t("levelCol")+'</div><div class="ld-pan usel">'+
+          '<select class="lvlpick" data-utype="'+u.id+'" title="'+esc(GX("accTypeL"))+'">'+[["member",GX("acctMember")],["broker",GX("acctBroker")],["agency",GX("acctAgency")]].map(function(o){ return '<option value="'+o[0]+'"'+((u.account_type||"member")===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select>'+
+          '<select class="lvlpick" data-uid="'+u.id+'" title="'+GX("uLevelHint")+'">'+LEVELS_ALL.map(function(lv){ return '<option value="'+lv+'"'+(u.level===lv?" selected":"")+'>'+t("lv_"+lv)+'</option>' }).join("")+'</select></div>'+
+        '<div class="ld-sec">'+GX("lfData")+'</div><dl class="ld-kv">'+
+          (u.member_no?'<dt>'+GX("memberNoL")+'</dt><dd class="ltr">'+esc(u.member_no)+'</dd>':'')+
+          '<dt>'+GX("lfPhone")+'</dt><dd class="ltr">'+esc(u.phone||GX("uNoPhone"))+(u.phone_verified===false?' <span class="uunv">'+GX("uUnverified")+'</span>':'')+'</dd>'+
+          (joined?'<dt>'+GX("uJoined")+'</dt><dd>'+joined+'</dd>':'')+
+          '<dt>'+GX("colLastSeen")+'</dt><dd>'+(d2?when(d2.toISOString()):GX("never"))+(a2.views_30d?' · <span class="ltr">'+a2.views_30d+'</span> '+GX("uViewsShort"):'')+'</dd>'+
+          '<dt>'+t("myAds")+'</dt><dd class="ltr">'+(u.listings||0)+(a2.live_listings!=null?' ('+a2.live_listings+' '+t("st_live")+')':'')+'</dd>'+
+          '<dt>'+t("ratingCol")+'</dt><dd class="ltr">'+(u.rating?'★ '+u.rating:'—')+'</dd>'+
+        '</dl>'+
+        '<div class="ld-sec">'+GX("uModeration")+'</div><div class="ld-acts">'+
+          (u.avatar_url?'<button class="ab" data-clravatar="'+u.id+'">'+t("clearPhoto")+'</button>':'')+
+          (u.bio?'<button class="ab" data-clrbio="'+u.id+'">'+t("clearBio")+'</button>':'')+
+          (can("passwords")?'<button class="ab" data-apw="'+u.id+'">'+t("resetPass")+'</button>':'')+
+          (!u.avatar_url&&!u.bio&&!can("passwords")?'<span class="hintx">—</span>':'')+'</div>'+
+        '<div class="ld-sec">'+GX("uDanger")+'</div><div class="ld-acts">'+
+          '<button class="ab '+(u.blocked?"ok":"bad")+'" data-ablock="'+u.id+'" data-on="'+(u.blocked?"0":"1")+'">'+(u.blocked?t("unblock"):t("block"))+'</button>'+
+          (ADM.isSuper?'<button class="ab bad" data-adeluser="'+u.id+'" data-name="'+esc(nm)+'">'+GX("uDelete")+'</button>':'')+'</div>'+
+          (ADM.isSuper?'<div class="hintx ld-pan">'+GX("uDeleteHint")+'</div>':'');
+      if(ADM.rateTarget===u.id){
+        html+='<div class="ld-sec">'+t("rateMember")+'</div><div class="ld-pan">'+
+          '<div class="starpick" id="astarpick">'+[1,2,3,4,5].map(function(nS){ return '<span data-astar="'+nS+'" class="'+(nS<=ADM.rateStars?"on":"")+'">★</span>' }).join("")+'</div>'+
+          '<textarea id="aRevBody" maxlength="300" placeholder="'+t("reviewPH")+'" style="margin-top:8px;width:100%"></textarea>'+
+          '<div class="xactions"><button class="ab ok" id="aRevSave">'+t("submitReview")+'</button><button class="ab" id="aRevCancel">'+t("cancel")+'</button><span class="xmsg">'+(ADM.rateMsg||"")+'</span></div></div>';
+      }
+      if(ADM.pwTarget===u.id){
+        html+='<div class="ld-sec">'+t("resetPass")+'</div><div class="ld-pan">'+
+          '<div class="xactions" style="flex-wrap:wrap"><input id="aNewPass" type="text" placeholder="'+t("min6")+'" style="max-width:220px">'+
+          '<button class="ab ok" id="aPwSave">'+t("savePass")+'</button><button class="ab" id="aPwCancel">'+t("cancel")+'</button><span class="xmsg">'+(ADM.pwMsg||"")+'</span></div>'+
+          '<div class="hintx" style="margin-top:6px">'+t("adminPwHint")+'</div></div>';
+      }
+      if(ADM.uEdit===u.id){
+        var ue=ADM.uEditData||{}, fl=function(id,label,val,type){ return '<div class="fl"><label>'+label+'</label><input id="'+id+'" type="'+(type||"text")+'" value="'+esc(val||"")+'"'+(type==="tel"?' class="ltr" dir="ltr"':'')+'></div>' };
+        html+='<div class="ld-sec">'+GX("uEditInfo")+'</div><div class="ld-pan">'+
+          (ADM.uEditLoading ? '<div class="hintx">…</div>' :
+          fl("ueName",t("firstName"),ue.name)+fl("ueFamily",t("familyName"),ue.family_name)+fl("uePhone",GX("uPhoneL"),ue.phone,"tel")+
+          fl("ueEmail",GX("uEmailL"),ue.email,"email")+fl("ueCity",t("city"),ue.city)+
+          '<div class="fl"><label>'+t("country")+'</label><select id="ueCountry">'+(ADM.countries||[]).map(function(c){ return '<option value="'+c.code+'"'+((ue.country||"")===c.code?" selected":"")+'>'+esc(countryName(c))+'</option>' }).join("")+((ADM.countries||[]).some(function(c){ return c.code===(ue.country||"") })?'':'<option value="'+esc(ue.country||"")+'" selected>'+esc(ue.country||"—")+'</option>')+'</select></div>'+
+          '<div class="fl"><label>'+t("bio")+'</label><textarea id="ueBio" maxlength="300" rows="2" style="width:100%">'+esc(ue.bio||"")+'</textarea></div>'+
+          '<div class="hintx">'+GX("uEditHint")+'</div>'+
+          '<div class="xactions"><button class="ab ok" id="ueSave">'+t("save")+'</button><button class="ab" id="ueCancel">'+t("cancel")+'</button><span class="xmsg">'+(ADM.uEditMsg||"")+'</span></div>')+
+          '</div>';
+      }
+      html+='<div class="ld-sec">'+GX("uListingsH")+'</div><div class="ld-pan">'+(function(){
+          var ls=(d.listings||[]).filter(function(l){ return l.poster_id===u.id });
+          if(!ls.length) return '<div class="hintx">'+GX("uNoListings")+'</div>';
+          return '<div class="ulist">'+ls.slice(0,30).map(function(l){
+            var typeName=D.TYPES[l.property_type]?D.TYPES[l.property_type][li()]:(l.property_type||"");
+            var stLabel=l.status==="hidden"?GX("st_hidden"):l.status==="rejected"?GX("st_rejected"):(t("st_"+l.status)||l.status);
+            return '<div class="ulrow"><b class="ltr adlink" data-open="'+l.id+'">'+(l.ref||l.id)+'</b><span>'+typeName+(l.area?' · '+l.area:'')+' · <i class="ltr">'+admPrice(l.price_usd)+'</i></span><span class="st st-'+l.status+'">'+stLabel+'</span><button class="ab" data-adopen="'+l.id+'">'+t("edit")+'</button></div>' }).join("")+
+            (ls.length>30?'<div class="hintx ltr">+'+(ls.length-30)+'</div>':'')+'</div>' })()+'</div><div class="ld-sp"></div></aside>';
+      drawer=html; })(ou) }
+  if(false){ (function(u,nm,isAdmin,open){ var html='';
     if(open && !isAdmin){
       html+='<tr class="udetail"><td colspan="9"><div class="udrawer">'+
         '<div class="ugroup"><b>'+GX("uSummary")+'</b><div class="ubtns">'+
@@ -2672,10 +2770,10 @@ function adminUsersBody(d){
         '<div class="xactions"><button class="ab ok" id="ueSave">'+t("save")+'</button><button class="ab" id="ueCancel">'+t("cancel")+'</button><span class="xmsg">'+(ADM.uEditMsg||"")+'</span></div>')+
         '</div></td></tr>';
     }
-    return html }).join("");
-  return toolbar+'<div class="atable atable-stack utable"><table><thead><tr>'+
-    [GX("uMemberCol"),GX("colLastSeen"),t("myAds"),t("ratingCol"),t("levelCol"),GX("uSettingsCol"),t("role"),''].map(function(h){ return '<th>'+h+'</th>' }).join("")+
-    '</tr></thead><tbody id="aUserBody">'+rows+'</tbody></table></div>';
+    return html })(null,"",false,false) }
+  return toolbar+'<div class="lpage'+(drawer?' has-drawer':'')+'"><div class="atable atable-stack utable"><table><thead><tr>'+
+    [GX("uMemberCol"),GX("colLastSeen"),t("myAds"),t("ratingCol"),t("levelCol"),GX("uSettingsCol"),t("role")].map(function(h){ return '<th>'+h+'</th>' }).join("")+
+    '</tr></thead><tbody id="aUserBody">'+rows+'</tbody></table></div>'+drawer+'</div>';
 }
 function stFileRow(f, actions, kindLabel){
   var full=String(f.name), inTrash=full.indexOf("trash/")===0, p=inTrash?full.slice(6):full, parts=p.split("/"), base=parts.pop(), folder=parts.join("/");
