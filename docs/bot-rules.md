@@ -44,6 +44,9 @@ fools the bot, add it to `tests/bot/` and fix it in the weekly batch (see "How c
 - Property type = the sender's word: فيلا → villa, بيت عربي → arab, منزل/بيت → house, except a منزل on a numbered
   floor or with a lift → apartment. «أرض» alone → plot; زراعية/سكنية/تجارية/صناعية/سياحية only when written.
   شقة فندقية → hotelapt, always rent.
+  تراس / تيراس / شقة تراس → terrace (2026-10-03; a roof-level flat with a terrace, section homes).
+- Condition: سليم/جاهز → intact; ديلوكس → deluxe; سوبر ديلوكس → superdeluxe (both added 2026-10-03); إكساء قديم → old;
+  بحاجة ترميم → repair; على العظم → shell; معفش → stripped (SY only); متضرر → damaged.
 - Several units in one message = **one** listing titled «شقة عدد N», total price, full text in the description.
 - Deed words include «وضع يد» → possession. «طابو أخضر 2400 سهم» is a full green deed.
 - Transport lines (مكرو/خط/سرفيس/باص/كراج + name) and «قرب/جانب/بعد/مقابل + place» are landmarks, never the area.

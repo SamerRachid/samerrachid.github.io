@@ -102,7 +102,7 @@ const tabuName = (k, lang) => (D.TABU[k] ? D.TABU[k][LI[lang]] : k);
 const TYPE_PL_AR = { apartment:"شقق", arab:"بيوت عربية", villa:"فلل", floor:"طوابق", building:"أبنية", chalet:"شاليهات", farm:"مزارع",
   shop:"محلات", office:"مكاتب", restaurant:"مطاعم", warehouse:"مستودعات", factory:"معامل", resid:"أراضٍ سكنية", agri:"أراضٍ زراعية", comm:"أراضٍ تجارية", land:"أراضٍ",
   hotelapt:"شقق مفروشة فندقية", clinic:"عيادات", hotel:"فنادق ومنشآت سياحية", indust:"أراضٍ صناعية", tourist:"أراضٍ سياحية",
-  house:"منازل", plot:"أراضٍ", hall:"صالات أفراح ومناسبات", showroom:"صالات عرض", station:"محطات وقود", workshop:"ورش" };
+  house:"منازل", terrace:"تراسات", plot:"أراضٍ", hall:"صالات أفراح ومناسبات", showroom:"صالات عرض", station:"محطات وقود", workshop:"ورش" };
 const typePlural = (k, lang) => lang === "ar" ? (TYPE_PL_AR[k] || typeName(k, "ar")) : lang === "en" ? typeName(k, "en") + (/[sxz]$|house$/i.test(typeName(k, "en")) ? "s" : "s") : typeName(k, "de");
 const govName = (g, lang) => lang === "ar" ? g.name_ar : lang === "en" ? (g.name_en || (D.GOVN[g.name_ar] || [])[0] || g.name_ar) : ((D.GOVN[g.name_ar] || [])[1] || g.name_en || g.name_ar);
 // areas have no English names in the database yet: fall back to the URL slug, title-cased (mezzeh → Mezzeh)
@@ -185,7 +185,7 @@ const appHome = (lang) => lang === "ar" ? SITE + cpre() + "/" : `${SITE}${cpre()
 const slugLatin = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-").slice(0, 60);
 const slugAr = (s) => String(s || "").replace(/[^\p{L}\p{N}\s-]/gu, "").trim().replace(/\s+/g, "-").slice(0, 60);
 // listing page URL per language: must match generate-listings.mjs exactly
-const TYPE_AR_SLUG = { apartment:"شقة", arab:"بيت عربي", villa:"فيلا", floor:"طابق كامل", building:"بناء كامل", shop:"محل تجاري", office:"مكتب", resid:"أرض سكنية", agri:"أرض زراعية", comm:"أرض تجارية" };
+const TYPE_AR_SLUG = { apartment:"شقة", terrace:"تراس", arab:"بيت عربي", villa:"فيلا", floor:"طابق كامل", building:"بناء كامل", shop:"محل تجاري", office:"مكتب", resid:"أرض سكنية", agri:"أرض زراعية", comm:"أرض تجارية" };
 let govById = new Map(), areaById = new Map();
 function listingUrl(l, lang) {
   if (lang === "ar") return `${SITE}${cpre()}/listing/${l.id}-${slugAr((TYPE_AR_SLUG[l.property_type] || l.property_type) + " " + (l.area_ar || "") + " " + l.governorate_ar)}/`;
