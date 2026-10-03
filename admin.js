@@ -95,16 +95,20 @@ function admAddMember(){
   ov.innerHTML='<div class="admdm"><div class="admdm-h"><b>'+GX("amTitle")+'</b><button type="button" class="admdm-x" aria-label="×">×</button></div><div class="admdm-b">'+
     '<div class="hintx" style="margin-bottom:10px">'+GX("amHint")+'</div>'+
     '<div class="row"><div class="fl"><label>'+t("firstName")+'</label><input id="amName" data-allow-autofill></div><div class="fl"><label>'+t("familyName")+'</label><input id="amFam" data-allow-autofill></div></div>'+
-    '<div class="row"><div class="fl"><label>'+GX("amPhone")+'</label><input id="amPhone" class="ltr" inputmode="tel" placeholder="+963 9xx xxx xxx" data-allow-autofill></div><div class="fl"><label>'+GX("amEmail")+'</label><input id="amEmail" class="ltr" type="email" data-allow-autofill></div></div>'+
+    '<div class="row"><div class="fl"><label>'+GX("amPhone")+'</label><div class="pw">'+ccSelect("amCC",(cur&&typeof countryOf==="function"&&countryOf(cur)&&countryOf(cur).phone_code)?String(countryOf(cur).phone_code).replace(/\D/g,""):phoneCC())+'<input id="amPhone" class="ltr" inputmode="tel" data-allow-autofill></div></div><div class="fl"><label>'+GX("amEmail")+'</label><input id="amEmail" class="ltr" type="email" data-allow-autofill></div></div>'+
     '<div class="row"><div class="fl"><label>'+t("country")+'</label><select id="amCountry">'+cs.map(function(c){ return '<option value="'+esc(c.code)+'"'+(c.code===cur?' selected':'')+'>'+flagOf(c.code)+' '+esc(countryName(c)||c.code)+'</option>' }).join("")+'</select></div>'+
     '<div class="fl"><label>'+GX("amAgency")+'</label><input id="amAgency" data-allow-autofill placeholder="'+esc(GX("amAgencyPH"))+'"></div></div>'+
     '<label class="xcheck"><input type="checkbox" id="amSend" checked><span>'+GX("amSendPw")+'</span></label>'+
     '<div class="xactions"><button type="button" class="ab ok" id="amCreate">'+GX("amCreate")+'</button><span class="xmsg" id="amMsg"></span></div><div id="amDone"></div></div></div>';
   document.body.appendChild(ov);
+  if(typeof wireOneCCPicker==="function") wireOneCCPicker("amCC");
+  // the country of the account and the dial code move together (the admin may still pick another code afterwards)
+  if($("#amCountry")) $("#amCountry").onchange=function(){ var c=typeof countryOf==="function"?countryOf(this.value):null; var code=c&&c.phone_code?String(c.phone_code).replace(/\D/g,""):""; var h=$("#amCC"); if(code && h){ h.value=code; if(typeof updateCCPickerZone==="function") updateCCPickerZone("amCC") } };
   var close=function(){ ov.remove() };
   ov.querySelector(".admdm-x").onclick=function(){ var typed=["amName","amPhone","amAgency"].some(function(id){ return ($("#"+id)||{}).value }); if(typed && !$("#amDone").innerHTML && !confirm(GX("dlgDiscardQ"))) return; close() };
   $("#amCreate").onclick=async function(){ var btn=this, m=$("#amMsg");
-    var name=$("#amName").value.trim(), fam=$("#amFam").value.trim(), phone=$("#amPhone").value.replace(/\D/g,""), email=$("#amEmail").value.trim(), cc=$("#amCountry").value, ag=$("#amAgency").value.trim(), send=$("#amSend").checked;
+    var nat=$("#amPhone").value.replace(/\D/g,"").replace(/^0+/,""), dial=($("#amCC")||{}).value||phoneCC();
+    var name=$("#amName").value.trim(), fam=$("#amFam").value.trim(), phone=dial+nat, email=$("#amEmail").value.trim(), cc=$("#amCountry").value, ag=$("#amAgency").value.trim(), send=$("#amSend").checked;
     if(!name){ m.textContent=GX("am_noname"); $("#amName").focus(); return } if(phone.length<8){ m.textContent=GX("am_badphone"); $("#amPhone").focus(); return }
     var pw=(function(){ var A="abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ23456789", s=""; var r=new Uint32Array(8); crypto.getRandomValues(r); for(var i=0;i<8;i++) s+=A[r[i]%A.length]; return s })();
     btn.disabled=true; m.style.color=""; m.textContent=t("saving");
