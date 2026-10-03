@@ -46,7 +46,7 @@ begin
           || case when vis_phone is not null then ' · ' || vis_phone else '' end
           || case when coalesce(trim(p_message),'') <> '' then E'\n' || left(trim(p_message), 600) else '' end
           || case when l.id is not null then E'\n' || 'https://balkoun.com' || case when cc = 'sy' then '' else '/' || cc end || '/listing/' || l.id else '' end
-          || E'\n' || 'للرد: https://balkoun.com/#/msgs';
+          || E'\n\n' || 'لا تردّ على هذه الرسالة هنا؛ ردّ من موقع بلكون ← «رسائلي»: https://balkoun.com/#/msgs';
   -- 1) the bell on the site
   insert into notifications (user_id, type, title, body, link) values (owner, 'admin_msg', title, body, link);
   -- 2) Telegram + 3) WhatsApp, through the campaign queue the bot flushes every minute ("direct: " = no footer)
@@ -127,14 +127,14 @@ begin
       select trim(coalesce(name,'')||' '||coalesce(family_name,'')) into who from users where id = p_user;
       insert into notifications (user_id, type, title, body, link)
         values (other, 'admin_msg', 'رد من ' || coalesce(nullif(who,''), 'عضو') || case when i.property_id is not null then ' على ' || (case when me='owner' then 'طلبك' else 'طلب المعاينة' end) else '' end,
-                left(trim(p_body), 600) || E'\n' || 'للرد: https://balkoun.com/#/msgs', '/#/msgs?inquiry=' || p_id);
+                left(trim(p_body), 600) || E'\n\n' || 'لا تردّ على هذه الرسالة هنا؛ ردّ من موقع بلكون ← «رسائلي»: https://balkoun.com/#/msgs', '/#/msgs?inquiry=' || p_id);
       -- the other side's Telegram / WhatsApp too, when they have them (same queue, "direct: " = no footer)
       select * into c from contacts where user_id = other order by created_at limit 1;
       if c.id is not null and (c.tg_chat_id is not null or coalesce(c.phone,'') <> '') then
         insert into campaigns (title, kind, channels, body_ar, body_en, country_code, consent_required, status, created_by, sent_at)
           values ('direct: inquiry reply ' || p_id, 'manual', array['whatsapp','telegram'],
-                  '💬 رد من ' || coalesce(nullif(who,''), 'عضو') || ' في بلكون:' || E'\n' || left(trim(p_body), 600) || E'\n' || 'للرد: https://balkoun.com/#/msgs',
-                  '💬 رد من ' || coalesce(nullif(who,''), 'عضو') || ' في بلكون:' || E'\n' || left(trim(p_body), 600) || E'\n' || 'للرد: https://balkoun.com/#/msgs',
+                  '💬 رد من ' || coalesce(nullif(who,''), 'عضو') || ' في بلكون:' || E'\n' || left(trim(p_body), 600) || E'\n\n' || 'لا تردّ على هذه الرسالة هنا؛ ردّ من موقع بلكون ← «رسائلي»: https://balkoun.com/#/msgs',
+                  '💬 رد من ' || coalesce(nullif(who,''), 'عضو') || ' في بلكون:' || E'\n' || left(trim(p_body), 600) || E'\n\n' || 'لا تردّ على هذه الرسالة هنا؛ ردّ من موقع بلكون ← «رسائلي»: https://balkoun.com/#/msgs',
                   c.country_code, false, 'sending', p_user, now()) returning id into camp;
         if c.tg_chat_id is not null then insert into campaign_sends (campaign_id, trigger_type, listing_id, contact_id, channel, status) values (camp, 'manual', i.property_id, c.id, 'telegram', 'queued'); end if;
         if coalesce(c.phone,'') <> '' then insert into campaign_sends (campaign_id, trigger_type, listing_id, contact_id, channel, status) values (camp, 'manual', i.property_id, c.id, 'whatsapp', 'queued'); end if;
