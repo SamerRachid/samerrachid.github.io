@@ -26,7 +26,7 @@ async function storageRestore(paths){
        if(j && j.error) return {data:null, error:{message:j.error}};
        return {data:{restored:j.restored||[], failed:j.failed||[]}, error:null} }
   catch(e){ return {data:null, error:e} } }
-var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super",campaigns:"campaigns"};
+var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",house:"users",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super",campaigns:"campaigns"};
 // sidebar groups: one entry in the sidebar, sub-tabs rendered as a segmented bar on the page (the tab bodies stay keyed by the real tab)
 var ADM_GROUPS={inbox:["reports","feedback","tickets","msgs"],promo:["ads","featured","banners","engage"],system:["settings","storage","admins","danger"]};
 function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab)>-1) return g } return null }
@@ -350,6 +350,7 @@ function adminView(){
    }, t("noFeedback"), "bk_admin_delete_feedback");
  }
 
+ else if(ADM.tab==="house"){ body=adminHouseBody(); }
  else if(ADM.tab==="reviews"){
   body=(d.reviews||[]).length
    ? '<div class="atable"><table><thead><tr>'+
@@ -780,7 +781,7 @@ function adminView(){
    {g:t("navOverview"), items:[["dashboard",t("dashboardTab"),null,AICO.dash,true],["stats",t("visitorStats"),null,AICO.chart,can("stats")],["inbox",t("navInboxH"),inboxN||null,AICO.bell,true]]},
    {g:GX("navCountries"), items:[["countries",GX("countriesTab"),null,AICO.globe,ADM.isSuper]]},
    {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["photos",GX("tMedia"),null,AICO.image,can("listings")],["wanted_adm",GX("tWanted"),(ADM.todo||{}).pending_wanted||null,AICO.search,can("listings")],["intake",GX("tIntake"),(ADM.todo||{}).intake_review||null,AICO.contact||AICO.bell,can("listings")]]},
-   {g:t("navPeople"), items:[["users",t("usersTab"),(ADM.todo||{}).verify_pending||s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")]]},
+   {g:t("navPeople"), items:[["users",t("usersTab"),(ADM.todo||{}).verify_pending||s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")],["house",GX("tHouse"),null,AICO.users,can("users")]]},
    {g:GX("navMarketing"), items:[["promo",GX("tPromo"),null,AICO.ads,true],["projects_adm",GX("tProjects"),null,AICO.building,can("listings")||can("ads")],["campaigns",GX("tCampaigns"),null,AICO.megaphone,can("campaigns")]]},
    {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")],["system",GX("navSystem"),null,AICO.gear,true]]}
  ];
@@ -1409,6 +1410,8 @@ function wireAdmin(){
   }
   if(ADM.tab!=="intake"){ ADM._ikLoaded=false }
   if(ADM.tab==="intake"){ wireAdminIntake() }
+  if(ADM.tab!=="house"){ ADM._houseLoaded=false }
+  if(ADM.tab==="house"){ wireAdminHouse() }
   if(ADM.tab==="agencies_adm"){
     if(!ADM._agLoaded){ ADM._agLoaded=true; ADM.agErr=null; rpcScoped("bk_admin_agencies",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM_AG=r||[]; render() }).catch(function(e){ ADM_AG=[]; ADM.agErr=e.message||"error"; render() }) }
     $$("[data-agset]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.agset.split(":"); if(p[1]==="rejected" && !confirm(GX("confirmReject"))) return; try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+p[0],p_status:p[1]}); ADM._agLoaded=false; render() }catch(e){ alert(e.message||"error") } } });
@@ -3318,6 +3321,29 @@ function ikRow(x){
         '<button type="button" class="ab bad" data-ikdel="'+x.id+'">'+t("del")+'</button><span class="xmsg" id="ikMsg'+x.id+'"></span>'+
       '</div></div>' : '')+
   '</div>' }
+/* ── Browsing accounts (owner, 2026-10-03): ten in-house members with no phone and the number hidden; the admin signs in as
+   any of them to browse or post. Data: bk_admin_house_accounts; sign-in reuses the users page's bk_admin_login_as. ── */
+function adminHouseBody(){
+  var rows=ADM.house;
+  if(rows===undefined) return '<div class="blk"><div class="in adashempty">'+(ADM.houseErr?'<span style="color:var(--danger)">'+esc(ADM.houseErr)+'</span>':t("loading"))+'</div></div>';
+  var head='<div class="blk"><h3>'+GX("tHouse")+' <span class="n">'+(rows||[]).length+'</span></h3><div class="in">'+
+    '<div class="hintx" style="margin-bottom:12px">'+GX("houseHint")+'</div>'+
+    ((rows||[]).length ? '<div class="atable"><table><thead><tr>'+[GX("houseName"),GX("houseNo"),t("city"),GX("houseListings"),GX("houseSeen"),GX("houseState"),''].map(function(h){ return '<th>'+h+'</th>' }).join("")+'</tr></thead><tbody>'+
+      rows.map(function(u){ var nm=((u.name||"")+" "+(u.family_name||"")).trim();
+        return '<tr><td><div style="display:flex;align-items:center;gap:8px">'+avatar(u.avatar_url,nm,28)+'<b>'+esc(nm)+'</b></div></td>'+
+          '<td class="ltr">'+esc(u.member_no||"")+'</td><td>'+esc(u.city||"")+'</td>'+
+          '<td class="ltr">'+(+u.listings||0)+(+u.listings_total>+u.listings?' <small style="color:var(--light)">/ '+u.listings_total+'</small>':'')+'</td>'+
+          '<td class="ltr">'+(u.last_seen_at?when(u.last_seen_at):'—')+'</td>'+
+          '<td>'+(u.blocked?'<span class="st st-expired">'+GX("uBlocked")+'</span>':'<span class="st st-live">'+GX("houseHidden")+'</span>')+'</td>'+
+          '<td><div class="eacts"><button class="ab ok" data-uloginas="'+u.id+'" data-name="'+esc(nm)+'" title="'+esc(GX("houseLoginHint"))+'">'+GX("houseLogin")+'</button>'+
+            '<a class="ab" data-byuser="'+u.id+'" data-name="'+esc(nm)+'" href="/by/'+u.id+'" target="_blank" rel="noopener">'+GX("agView")+'</a></div></td></tr>' }).join("")+
+      '</tbody></table></div>' : '<div class="adashempty">'+GX("houseNone")+'</div>')+
+  '</div></div>';
+  return head }
+function wireAdminHouse(){
+  if(!ADM._houseLoaded){ ADM._houseLoaded=true; ADM.houseErr=null; ADM.house=undefined;
+    rpc("bk_admin_house_accounts",{p_token:ADM.token}).then(function(r){ ADM.house=r||[]; render() }).catch(function(e){ ADM.house=[]; ADM.houseErr=e.message||"error"; render() }) }
+}
 function adminIntakeBody(){
   var d=ADM.ik; if(!d) return '<div class="blk"><div class="in adashempty">'+(ADM.ikErr?'<span style="color:var(--danger)">'+esc(ADM.ikErr)+'</span>':t("loading"))+'</div></div>';
   var cfg=d.cfg||{}, c=d.counts||{}, st=ADM.ikStatus, f=ADM.ikFilter||"all", fnUrl=CONFIG.supabaseUrl+"/functions/v1/bk-intake";
