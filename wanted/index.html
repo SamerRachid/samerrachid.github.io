@@ -2782,7 +2782,9 @@ html.maint-on{overflow:hidden}
 [dir=rtl] .adm .xswitch input:checked+i::after{transform:translateX(-14px)}
 .adm .pick span,.adm .pick label{font-size:12.5px}
 .adm .csetup{padding:8px 10px;gap:2px}.adm .csetup b{font-size:12.5px}.adm .csetup span{font-size:11.5px}
-.adm .astats{gap:10px;grid-template-columns:repeat(auto-fit,minmax(136px,1fr))}.adm .astat{padding:12px}.adm .astat b{font-size:20px;line-height:1.2}.adm .astat span{font-size:12px}
+.adm .astats{gap:10px;grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}.adm .astat{padding:12px;min-width:0}.adm .astat b{font-size:20px;line-height:1.2}.adm .astat span{font-size:12px;white-space:normal}
+.adm .astat svg,.adm .astat canvas,.adm .astat .spark{width:100%!important;max-width:100%;height:auto}
+.adm .acontent.acols>.asecnav+.blk{grid-column:1/-1}
 .adm .arange button{padding:4px 10px;font-size:12px}
 /* tables: one line per cell, middle aligned, compact */
 .adm .atable th,.adm .atable td{padding:8px 12px}
@@ -2826,6 +2828,7 @@ html.maint-on{overflow:hidden}
 .adm .utable{overflow-x:auto}
 .adm .uline{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;min-width:0}.adm .uline .uname{flex:0 1 auto}.adm .uline .lvl{flex:none}
 .adm .uunv{color:var(--p-crit,#8e1f0b);font-weight:600}
+@media(max-width:1500px){.adm .uswitches small{display:none}.adm .uswitches{gap:10px}}
 /* the country line lives in the page header now */
 .adm .apage-h{align-items:center;flex-wrap:wrap;gap:10px 16px}
 .adm .apage-h .acbar.slim{margin:0;padding:0;min-height:0;background:transparent;border:0;box-shadow:none;gap:8px;font-size:12.5px;color:var(--p-ink2,#616161)}
