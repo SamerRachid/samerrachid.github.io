@@ -2200,6 +2200,65 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .ltable .lacts{white-space:nowrap;text-align:end}
 .ltable .lacts .ab{margin:2px}
 .ltable .tag{white-space:nowrap}
+/* admin listings page 2026-10-02: one toolbar, pill filters, fixed columns, side drawer, bulk bar */
+.lbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.lbar .lcnt{font-size:13px;color:var(--grey)}.lbar .lcnt b{color:var(--ink);font-weight:600}.lbar .lcnt .lpend{color:#8A6522;margin-inline-start:6px}
+.lbar .lq{flex:1 1 260px;display:flex;align-items:center;gap:8px;border:1px solid var(--line-2);border-radius:10px;background:#fff;padding:0 12px;height:38px;min-width:200px;max-width:420px;margin-inline-start:auto}
+.lbar .lq svg{width:16px;height:16px;color:var(--grey);flex:none}.lbar .lq input{border:0;background:none;font:inherit;font-size:13.5px;width:100%;outline:none;padding:0;height:100%}
+.lfilters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.lfc{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--line-2);background:#fff;border-radius:999px;padding:0 6px 0 12px;height:32px;font-size:12.5px;color:var(--grey);cursor:pointer;max-width:100%}
+[dir=rtl] .lfc{padding:0 12px 0 6px}
+.lfc.on{border-color:var(--navy);background:#EEF2F8;color:var(--navy)}
+.lfc select{border:0;background:transparent;font:600 12.5px var(--f);color:var(--ink);padding:0 4px;height:30px;max-width:180px;cursor:pointer;outline:none}
+.lfc.on select{color:var(--navy)}
+.lfclear{border:0;background:none;font:inherit;font-size:12.5px;color:var(--grey);cursor:pointer;padding:6px 8px;text-decoration:underline dotted}
+.lpage{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
+.lpage.has-drawer{grid-template-columns:minmax(0,1fr) 360px}
+.lpage.has-drawer .ltbl th:nth-child(5),.lpage.has-drawer .ltbl td:nth-child(5),.lpage.has-drawer .ltbl th:nth-child(6),.lpage.has-drawer .ltbl td:nth-child(6){display:none}
+.ltbl{background:#fff;border:1px solid #E3E6EC;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(20,33,61,.04)}
+.ltbl table{width:100%;border-collapse:collapse;table-layout:fixed}
+.ltbl th{background:#FAFBFD;text-align:start;font-weight:600;color:var(--grey);font-size:12px;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.ltbl td{padding:0 12px;height:58px;border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;font-size:13px}
+.ltbl tr:last-child td{border-bottom:0}
+.ltbl tr.lrow{cursor:pointer}.ltbl tr.lrow:hover td{background:#F8FAFC}.ltbl tr.lrow.sel td{background:#F2F7FF}.ltbl tr.lrow.open td{background:#EEF2F8;box-shadow:inset 3px 0 0 var(--navy)}
+[dir=rtl] .ltbl tr.lrow.open td{box-shadow:inset -3px 0 0 var(--navy)}
+.ltbl .lchk{width:36px;padding-inline-end:0}.ltbl .lchk input{width:16px;height:16px;margin:0;vertical-align:middle;cursor:pointer}
+.lt{display:flex;align-items:center;gap:10px;min-width:0}
+.lt img,.lt .lph{width:48px;height:38px;border-radius:6px;object-fit:cover;background:#E6EBF2;flex:none}
+.lt .lph{display:grid;place-items:center;color:#8AA0B8;font-size:11px;font-weight:600}
+.ltt{min-width:0}.ltt b{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;color:var(--ink)}
+.ltt small{display:block;color:var(--grey);font-size:12px;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.ltt .lbot{font-style:normal;color:#6D28D9;background:#F1EBFF;border-radius:6px;padding:0 6px;font-weight:600;font-size:11px}
+.ltt .lstar{font-style:normal;color:#C9972B}
+.ltbl .st{display:inline-flex;align-items:center;gap:6px;font-size:12px}.ltbl .st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;flex:none}
+.ltbl .lprice{font-weight:600}.ltbl .lprice small{font-weight:500;color:var(--grey);font-size:12px}
+.ltbl .lwho small{display:block;color:var(--grey);font-size:11.5px}
+.ltbl .lwhen{color:var(--grey);font-size:12.5px}
+.ltbl .lnone{height:auto;padding:36px 16px;text-align:center;color:var(--grey);white-space:normal}
+.lbulk{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:10px 14px;background:var(--navy);color:#fff;font-size:13px}
+.lbulk .sp{flex:1}.lbulk .ab{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.22);color:#fff;min-height:32px;padding:0 12px;font-size:12.5px}
+.lbulk .ab.bad{background:rgba(220,38,38,.25)}.lbulk .lx{background:none;border:0;color:#fff;opacity:.8;cursor:pointer;font:inherit}
+.ldrawer{position:sticky;top:76px;background:#fff;border:1px solid #E3E6EC;border-radius:12px;box-shadow:0 1px 2px rgba(20,33,61,.04);max-height:calc(100vh - 96px);overflow:auto}
+.ld-hd{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--line)}
+.ld-hd h2{margin:0;font-size:15px;flex:1;font-weight:700}
+.ld-hd .lx{background:none;border:0;color:var(--grey);cursor:pointer;font-size:18px;line-height:1;padding:4px}
+.ld-cover{display:block;width:100%;aspect-ratio:16/10;object-fit:cover;background:#E6EBF2}
+.ld-cover.ph{display:grid;place-items:center;color:#8AA0B8;font-size:13px}
+.ld-acts{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line)}
+.ld-acts .ab{min-height:34px;padding:0 12px;font-size:12.5px;margin:0;text-decoration:none}
+.ld-sec{font-size:11.5px;color:var(--grey);font-weight:700;letter-spacing:.3px;margin:14px 16px 8px;text-transform:uppercase}
+.ld-kv{display:grid;grid-template-columns:108px minmax(0,1fr);gap:7px 12px;margin:0 16px;font-size:13px}
+.ld-kv dt{color:var(--grey);margin:0}.ld-kv dd{margin:0;font-weight:500;min-width:0;overflow-wrap:anywhere}
+[dir=rtl] .ld-kv dd.ltr{text-align:right}
+@media(max-width:1100px){.ld-cover,.ld-cover.ph{aspect-ratio:16/7;max-height:180px}}
+.ld-perf{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 16px}
+.ld-perf div{border:1px solid var(--line);border-radius:10px;padding:8px 10px;text-align:center}.ld-perf b{display:block;font-size:16px}.ld-perf span{font-size:11.5px;color:var(--grey)}
+.ld-pick{padding:40px 20px;text-align:center;color:var(--grey);font-size:13px}
+.ld-note{margin:12px 16px 16px;background:#FFF4E0;color:#8A5A0B;border-radius:8px;padding:10px 12px;font-size:12.5px}
+.ld-sp{height:16px}
+@media(max-width:1100px){.lpage.has-drawer{grid-template-columns:minmax(0,1fr)}.ldrawer{position:fixed;inset:auto 0 0 0;z-index:95;max-height:82vh;border-radius:16px 16px 0 0;box-shadow:0 -12px 40px rgba(9,14,26,.25)}}
+@media(max-width:800px){.ltbl th:nth-child(5),.ltbl td:nth-child(5),.ltbl th:nth-child(6),.ltbl td:nth-child(6){display:none}.lbar .lq{max-width:none;margin-inline-start:0}}
+@media(max-width:560px){.ltbl th:nth-child(4),.ltbl td:nth-child(4){display:none}.ltbl td{height:64px}}
 .adperf-id{display:flex;align-items:center;gap:10px;min-width:180px}
 .adperf-id .adminadthumb span{font-size:10px;color:var(--grey);text-align:center;display:grid;place-items:center;height:100%}
 .adlook{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}
@@ -11220,6 +11279,13 @@ var GX_T={
   chVisits:{ar:"الزيارات والزوّار",en:"Visits and visitors",de:"Besuche und Besucher"}, chGrowth:{ar:"النمو: أعضاء وإعلانات جديدة",en:"Growth: new members and listings",de:"Wachstum: neue Mitglieder und Anzeigen"},
   chEngage:{ar:"التفاعل: تواصل ونقرات إعلانات",en:"Engagement: contacts and ad clicks",de:"Interaktion: Kontakte und Anzeigenklicks"},
   topListingsH:{ar:"الإعلانات الأكثر مشاهدة",en:"Most viewed listings",de:"Meistgesehene Anzeigen"}, topAdsH:{ar:"أداء المربعات الإعلانية",en:"Ad square performance",de:"Leistung der Werbequadrate"},
+  lfAll:{ar:"الكل",en:"All",de:"Alle"}, lfStatus:{ar:"الحالة",en:"Status",de:"Status"}, lfGov:{ar:"المحافظة",en:"Governorate",de:"Gouvernement"}, lfType:{ar:"النوع",en:"Type",de:"Art"}, lfWho:{ar:"المعلن",en:"Advertiser",de:"Anbieter"}, lfSrc:{ar:"المصدر",en:"Source",de:"Quelle"}, lfSort:{ar:"الترتيب",en:"Sort",de:"Sortierung"},
+  lfBot:{ar:"بوت",en:"Bot",de:"Bot"}, lfSite:{ar:"الموقع",en:"Website",de:"Website"}, lfClear:{ar:"مسح الفلاتر",en:"Clear filters",de:"Filter löschen"}, lfSelected:{ar:"محدد",en:"selected",de:"ausgewählt"}, lfSelAll:{ar:"تحديد الظاهر",en:"Select visible",de:"Sichtbare wählen"}, lfUnsel:{ar:"إلغاء التحديد",en:"Clear selection",de:"Auswahl aufheben"},
+  lfBulkLive:{ar:"نشر / إظهار",en:"Publish / unhide",de:"Veröffentlichen"}, lfBulkHide:{ar:"إخفاء",en:"Hide",de:"Verbergen"}, lfBulkDel:{ar:"حذف",en:"Delete",de:"Löschen"}, lfBulkQ:{ar:"تطبيق «{a}» على {n} إعلانًا؟",en:"Apply “{a}” to {n} listings?",de:"„{a}“ auf {n} Anzeigen anwenden?"}, lfBulkDone:{ar:"تم على {n} إعلانًا",en:"Done on {n} listings",de:"Erledigt für {n} Anzeigen"},
+  lfNone:{ar:"لا إعلانات تطابق هذه الفلاتر",en:"No listings match these filters",de:"Keine Anzeigen passen zu diesen Filtern"}, lfPick:{ar:"اختر إعلانًا من القائمة لعرض تفاصيله هنا",en:"Pick a listing from the list to see its details here",de:"Wähle eine Anzeige aus der Liste"}, lfPublic:{ar:"الصفحة العامة",en:"Public page",de:"Öffentliche Seite"}, lfClose:{ar:"إغلاق",en:"Close",de:"Schließen"},
+  lfData:{ar:"البيانات",en:"Details",de:"Daten"}, lfSource:{ar:"المصدر",en:"Source",de:"Quelle"}, lfPerf:{ar:"الأداء",en:"Performance",de:"Leistung"}, lfCreated:{ar:"أُنشئ",en:"Created",de:"Erstellt"}, lfPendingN:{ar:"{n} بانتظار المراجعة",en:"{n} awaiting review",de:"{n} warten auf Prüfung"}, lfCount:{ar:"{n} إعلانًا",en:"{n} listings",de:"{n} Anzeigen"},
+  lfForSale:{ar:"للبيع",en:"for sale",de:"zu verkaufen"}, lfForRent:{ar:"للإيجار",en:"for rent",de:"zu vermieten"}, lfPOR:{ar:"عند التواصل",en:"on request",de:"auf Anfrage"},
+  whToday:{ar:"اليوم",en:"Today",de:"Heute"}, whYesterday:{ar:"أمس",en:"Yesterday",de:"Gestern"}, lfSortPrice:{ar:"الأعلى سعرًا",en:"Highest price",de:"Höchster Preis"}, colDate:{ar:"التاريخ",en:"Date",de:"Datum"}, colListing:{ar:"الإعلان",en:"Listing",de:"Anzeige"}, lfNoPhotos:{ar:"بلا صور",en:"No photos",de:"Keine Fotos"}, lfPlace:{ar:"المنطقة",en:"Place",de:"Ort"}, lfSize:{ar:"المساحة",en:"Size",de:"Fläche"}, lfPhone:{ar:"الهاتف",en:"Phone",de:"Telefon"}, lfAgency:{ar:"المكتب",en:"Agency",de:"Büro"}, lfChannel:{ar:"القناة",en:"Channel",de:"Kanal"}, lfViaSite:{ar:"نُشر من الموقع",en:"Posted on the website",de:"Über die Website"}, lfViaBot:{ar:"نُشر عبر البوت",en:"Published through the bot",de:"Über den Bot"},
   colViews:{ar:"مشاهدات",en:"Views",de:"Aufrufe"}, colContacts:{ar:"تواصل",en:"Contacts",de:"Kontakte"}, colSaves:{ar:"حفظ",en:"Saves",de:"Gespeichert"}, colClicks:{ar:"نقرات",en:"Clicks",de:"Klicks"}, colCtr:{ar:"نسبة النقر",en:"CTR",de:"CTR"},
   colImpr:{ar:"ظهور",en:"Impressions",de:"Impressionen"}, colFrom:{ar:"من أين",en:"From where",de:"Woher"}, colLastSeen:{ar:"آخر نشاط",en:"Last active",de:"Zuletzt aktiv"}, colTotal:{ar:"الإجمالي",en:"Total",de:"Gesamt"},
   pagesH:{ar:"الصفحات الأكثر زيارة",en:"Most visited pages",de:"Meistbesuchte Seiten"}, countriesH:{ar:"الدول",en:"Countries",de:"Länder"}, devicesH:{ar:"الأجهزة",en:"Devices",de:"Geräte"}, referrersH:{ar:"مصادر الزيارات",en:"Traffic sources",de:"Besucherquellen"},
