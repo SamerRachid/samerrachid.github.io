@@ -2222,8 +2222,8 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .ltbl th{background:#FAFBFD;text-align:start;font-weight:600;color:var(--grey);font-size:12px;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
 .ltbl td{padding:0 12px;height:58px;border-bottom:1px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;font-size:13px}
 .ltbl tr:last-child td{border-bottom:0}
-.ltbl tr.lrow{cursor:pointer}.ltbl tr.lrow:hover td{background:#F8FAFC}.ltbl tr.lrow.sel td{background:#F2F7FF}.ltbl tr.lrow.open td{background:#EEF2F8;box-shadow:inset 3px 0 0 var(--navy)}
-[dir=rtl] .ltbl tr.lrow.open td{box-shadow:inset -3px 0 0 var(--navy)}
+.ltbl tr.lrow{cursor:pointer}.ltbl tr.lrow:hover td{background:#F8FAFC}.ltbl tr.lrow.sel td{background:#F2F7FF}.ltbl tr.lrow.open td{background:#EEF2F8}.ltbl tr.lrow.open td:first-child{box-shadow:inset 3px 0 0 var(--navy)}
+[dir=rtl] .ltbl tr.lrow.open td:first-child{box-shadow:inset -3px 0 0 var(--navy)}
 .ltbl .lchk{width:36px;padding-inline-end:0}.ltbl .lchk input{width:16px;height:16px;margin:0;vertical-align:middle;cursor:pointer}
 .lt{display:flex;align-items:center;gap:10px;min-width:0}
 .lt img,.lt .lph{width:48px;height:38px;border-radius:6px;object-fit:cover;background:#E6EBF2;flex:none}
@@ -2723,8 +2723,8 @@ html.maint-on{overflow:hidden}
 .adm .atable th,.adm .ltbl th{background:#fff;color:var(--p-ink2);font-size:12px;font-weight:500;text-transform:none;letter-spacing:0;border-bottom:1px solid var(--p-line)}
 .adm .atable td,.adm .ltbl td{border-bottom:1px solid var(--p-line2);color:var(--p-ink)}
 .adm .atable tbody tr:hover td,.adm .ltbl tr.lrow:hover td{background:var(--p-hover)}
-.adm .ltbl tr.lrow.sel td{background:#f1f8ff}.adm .ltbl tr.lrow.open td{background:var(--p-sel);box-shadow:inset 3px 0 0 var(--p-dark)}
-[dir=rtl] .adm .ltbl tr.lrow.open td{box-shadow:inset -3px 0 0 var(--p-dark)}
+.adm .ltbl tr.lrow.sel td{background:#f1f8ff}.adm .ltbl tr.lrow.open td{background:var(--p-sel);box-shadow:none}.adm .ltbl tr.lrow.open td:first-child{box-shadow:inset 3px 0 0 var(--p-dark)}
+[dir=rtl] .adm .ltbl tr.lrow.open td:first-child{box-shadow:inset -3px 0 0 var(--p-dark)}
 .adm .lfc{border-color:var(--p-line);color:var(--p-ink2);height:30px;box-shadow:0 1px 0 rgba(26,26,26,.05)}.adm .lfc select{font-weight:550;color:var(--p-ink)}
 .adm .lfc.on{border-color:var(--p-dark);background:#fff;color:var(--p-ink)}.adm .lfc.on select{color:var(--p-ink)}
 .adm .lbar .lq{border-color:#8a8a8a;height:34px;border-radius:8px}
@@ -2785,6 +2785,7 @@ html.maint-on{overflow:hidden}
 .adm .astats{gap:10px;grid-template-columns:repeat(auto-fit,minmax(120px,1fr))}.adm .astat{padding:12px;min-width:0}.adm .astat b{font-size:20px;line-height:1.2}.adm .astat span{font-size:12px;white-space:normal}
 .adm .astat svg,.adm .astat canvas,.adm .astat .spark{width:100%!important;max-width:100%;height:auto}
 .adm .acontent.acols>.asecnav+.blk{grid-column:1/-1}
+.adm .kpis{grid-template-columns:repeat(auto-fit,minmax(124px,1fr));gap:10px}.adm .kpi{padding:10px 12px 8px;border-radius:12px;gap:2px}.adm .kpi b{font-size:20px}.adm .kpi small,.adm .kpi span{font-size:11.5px;white-space:normal}.adm .kpi svg{width:100%;height:auto}
 .adm .arange button{padding:4px 10px;font-size:12px}
 /* tables: one line per cell, middle aligned, compact */
 .adm .atable th,.adm .atable td{padding:8px 12px}
@@ -2826,6 +2827,25 @@ html.maint-on{overflow:hidden}
 .adm .utable td.unum,.adm .utable .useen,.adm .utable .useen-fresh{font-size:12px}
 .adm .utable td:first-child{width:27%;max-width:300px}.adm .utable .ucell .usub{white-space:normal;line-height:1.35}.adm .utable .ucell .usub .ltr{display:inline-block}
 .adm .utable{overflow-x:auto}
+/* member / agency drawers (same shell as the listings drawer) */
+.adm .ld-hd .ava,.adm .ld-hd .aglogo{flex:none}.adm .ld-hd h2{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adm .ld-pan{margin:0 16px 12px;font-size:13px}.adm .ld-pan .fl{margin-bottom:8px}.adm .ld-pan .ulist{margin-top:0}
+.adm .ld-acts .ab.ok{background:var(--p-dark,#303030);color:#fff;border-color:var(--p-dark,#303030)}
+.adm .ldrawer .starpick{font-size:22px}
+.adm .lpage.has-drawer .utable th:nth-child(4),.adm .lpage.has-drawer .utable td:nth-child(4),.adm .lpage.has-drawer .utable th:nth-child(6),.adm .lpage.has-drawer .utable td:nth-child(6){display:none}
+.adm .utable tr.lrow{cursor:pointer}.adm .utable tr.lrow.open td{background:var(--p-sel,#f1f1f1)}.adm .utable tr.lrow.open td:first-child{box-shadow:inset -3px 0 0 var(--p-dark,#303030)}
+.adm .lpage.has-drawer .utable th:nth-child(5),.adm .lpage.has-drawer .utable td:nth-child(5){display:none}
+.adm .ld-pan.usel{display:flex;gap:8px}.adm .ld-pan.usel .lvlpick{flex:1;max-width:none}
+.adm .agtable .agcov span{display:block;overflow:hidden;text-overflow:ellipsis}.adm .agtable .agcov small{display:block;color:var(--p-ink2,#616161);font-size:11.5px;overflow:hidden;text-overflow:ellipsis}
+.adm .agtable .lt .aglogo{width:36px;height:36px;border-radius:8px;object-fit:cover;flex:none}
+.adm .agtable table{table-layout:auto}.adm .agtable td:first-child{max-width:280px;min-width:170px}.adm .agtable td.agcov{max-width:260px}.adm .agtable td{white-space:nowrap}
+.adm .ltbl{overflow-x:auto;overflow-y:hidden}
+.adm .lpage.has-drawer .agtable td.agcov{max-width:170px}.adm .lpage.has-drawer .agtable td:first-child{min-width:150px;max-width:220px}
+.adm .lpage.has-drawer .utable td,.adm .lpage.has-drawer .agtable td,.adm .lpage.has-drawer .utable th,.adm .lpage.has-drawer .agtable th{padding:8px 8px}
+.adm .lpage.has-drawer .utable .ucell .uname{max-width:140px}.adm .lpage.has-drawer .utable .usub{white-space:normal}
+.adm .agtable td.unum{font-weight:600}
+.adm .lbar .ab.ok{background:var(--p-dark,#303030);color:#fff;border-color:var(--p-dark,#303030)}
+.adm .lpage.has-drawer .agtable th:nth-child(5),.adm .lpage.has-drawer .agtable td:nth-child(5),.adm .lpage.has-drawer .agtable th:nth-child(6),.adm .lpage.has-drawer .agtable td:nth-child(6){display:none}
 .adm .uline{display:flex;align-items:center;gap:6px;flex-wrap:nowrap;min-width:0}.adm .uline .uname{flex:0 1 auto}.adm .uline .lvl{flex:none}
 .adm .uunv{color:var(--p-crit,#8e1f0b);font-weight:600}
 @media(max-width:1500px){.adm .uswitches small{display:none}.adm .uswitches{gap:10px}}
@@ -11058,6 +11078,7 @@ var GX_T={
   areaOtherPH:{ar:"اكتب اسم الحي أو القرية",en:"Type the neighbourhood or village",de:"Stadtteil oder Dorf eingeben",fr:"Quartier ou village"}, areaOtherHint:{ar:"يُنشر إعلانك بهذا الاسم كمَعلم، وتضيفه الإدارة إلى القائمة قريباً.",en:"Your listing is published with this name as its landmark; the team adds it to the list soon.",de:"Ihre Anzeige erscheint mit diesem Namen als Orientierungspunkt; das Team ergänzt die Liste bald.",fr:"Votre annonce paraît avec ce nom comme repère ; l'équipe l'ajoutera bientôt à la liste."},
   uViewsShort:{ar:"مشاهدة/30 يومًا",en:"views/30d",de:"Aufrufe/30T"}, rvText:{ar:"نص التقييم",en:"Review text",de:"Bewertungstext"},
   uSettingsCol:{ar:"الإعدادات",en:"Settings",de:"Einstellungen"}, uMemberCol:{ar:"العضو",en:"Member",de:"Mitglied"},
+  agColAgency:{ar:"المكتب",en:"Agency",de:"Büro"}, agColCoverage:{ar:"التغطية",en:"Coverage",de:"Abdeckung"}, agColOwner:{ar:"المالك",en:"Owner",de:"Inhaber"}, agSpecL:{ar:"التخصص",en:"Specialties",de:"Schwerpunkte"}, agIntakeOnShort:{ar:"مفعّل",en:"On",de:"An"}, agIntakeOffShort:{ar:"متوقف",en:"Off",de:"Aus"}, memberNoL:{ar:"رقم العضوية",en:"Member no.",de:"Mitgliedsnr."},
   maintPreview:{ar:"معاينة صفحة الصيانة كما يراها الزائر",en:"Preview the maintenance page as a visitor",de:"Wartungsseite als Besucher ansehen"},
   maintH:{ar:"وضع الصيانة",en:"Maintenance mode",de:"Wartungsmodus"}, maintOn:{ar:"إظهار صفحة «الموقع في صيانة» للزوار",en:"Show the “under maintenance” page to visitors",de:"Wartungsseite für Besucher anzeigen"},
   maintHint:{ar:"يغطي الموقع كله في كل الدول برسالة لطيفة وزر «حاول مرة أخرى». المشرفون يرون الموقع عادياً من متصفحهم (لذلك لن تراه أنت إلا من رابط المعاينة أو نافذة خاصة)، ولوحة التحكم تعمل. الصفحات الثابتة للإعلانات تبقى مفتوحة لمحركات البحث.",en:"Covers the whole site in every country with a friendly note and a “try again” button. Admins see the site normally and the panel keeps working. Static listing pages stay open for search engines.",de:"Deckt die ganze Website in allen Ländern mit einem freundlichen Hinweis ab. Admins sehen die Seite normal."},
