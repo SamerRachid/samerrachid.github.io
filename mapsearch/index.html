@@ -1171,7 +1171,7 @@ footer{font-size:14px}
 .cprice{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
 .cprice .p{font-size:20px;font-weight:800;color:var(--navy);white-space:nowrap}
 .cpm{font-size:12px;color:var(--grey);white-space:nowrap}
-.ctitle{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ctitle{font-size:14.5px;font-weight:700;color:var(--ink);line-height:1.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cloc{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--grey);white-space:nowrap;overflow:hidden}
 .cloc svg{color:var(--gold);flex:none}
 .cloc span{overflow:hidden;text-overflow:ellipsis}
@@ -1191,7 +1191,7 @@ footer{font-size:14px}
 .card.c2 .ph{aspect-ratio:4/3}.card.c2 .ph img,.card.c2 .ph .nophoto,.card.c2 .ph video.vcover{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .card.c2 .cfacts{flex-wrap:nowrap;overflow:hidden;min-height:22px}
 .card.c2{container-type:inline-size}
-@container (max-width:200px){.card.c2 .cpm{display:none}.card.c2 .cfoot .cf1 .cpill.agency{display:none}.card.c2 .cfacts span:nth-child(n+3){display:none}.card.c2 .cprice .p{font-size:16px}.card.c2 .cfoot .cf2 .csince{display:none}}
+@container (max-width:200px){.card.c2 .cfacts .cfc{display:none}.card.c2 .cpm{display:none}.card.c2 .cfoot .cf1 .cpill.agency{display:none}.card.c2 .cfacts span:nth-child(n+3){display:none}.card.c2 .cprice .p{font-size:16px}.card.c2 .cfoot .cf2 .csince{display:none}}
 .card.c2 .cfacts span{flex:0 0 auto}
 .card.c2 .cloc{min-height:19px}.card.c2 .ctitle{min-height:21px}
 .cpill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:var(--navy-w);color:var(--navy)}
@@ -2512,7 +2512,8 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
   .res:not(.list-view) .card .cfav{width:40px;height:40px;top:4px;inset-inline-end:4px;background:rgba(255,255,255,.8)}.rs .res:not(.list-view) .card .cpc{bottom:6px;inset-inline-end:6px;font-size:11px}
   .res:not(.list-view) .card .cb{flex:1;min-width:0;padding:9px 10px 8px;display:flex;flex-direction:column;justify-content:flex-start;gap:3px}
   .res:not(.list-view) .card .cprice .p{font-size:17px}.rs .res:not(.list-view) .card .cpm{font-size:11px}
-  .res:not(.list-view) .card .ctitle{font-size:13px;min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .res:not(.list-view) .card .ctitle{font-size:13px;line-height:1.7;min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .res:not(.list-view) .card .cprice .p{line-height:1.3}.res:not(.list-view) .card .cfacts .cfc{display:none}
   .res:not(.list-view) .card .cloc{font-size:11.5px;min-height:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .res:not(.list-view) .card .cfacts{font-size:12px;gap:10px;min-height:0;margin-top:0}.rs .res:not(.list-view) .card .cfacts svg{width:14px;height:14px}
   .res:not(.list-view) .card .cfoot{margin-top:auto;padding-top:5px;font-size:11px;gap:0}.rs .res:not(.list-view) .card .cfoot .cf2{display:none}.rs .res:not(.list-view) .card .cfoot .cf1{min-height:22px}
@@ -4866,7 +4867,7 @@ function card(x,i,isListView){
    (x.r?f(I.bed,x.r):'')+(x.b?f(I.bath,x.b):'')+(x.living&&isListView?f(I.sofa,x.living):'')+
    (x.m2?f(I.area,x.m2,t("sqm")):'')+
    ((isListView && x.fl!==null&&x.fl!==undefined&&x.fl!=="")?'<span>'+I.floor+floorLabel(x.fl)+'</span>':'')+
-   (isLand&&condName?'<span>'+I.cond+condName+'</span>':'')+
+   (isLand&&condName?'<span class="cfc">'+I.cond+condName+'</span>':'')+
   '</div>';
 
  var title = ar ? typeName+' '+m2Txt(x)+' '+GX("lIn")+' '+aN(x.a)
@@ -4885,7 +4886,7 @@ function card(x,i,isListView){
   '<div class="cb">'+
    '<div class="cprice"><span class="p">'+priceBlock(x)+'</span>'+perm2+'</div>'+
    '<div class="ctitle">'+title+'</div>'+
-   '<div class="cloc">'+I.pin+'<span>'+aN(x.a)+(ar?'، ':', ')+gN(x.g)+'</span></div>'+
+   '<div class="cloc">'+I.pin+'<span>'+[aN(x.a),gN(x.g)].filter(Boolean).join(ar?'، ':', ')+'</span></div>'+
    facts+desc+
    '<div class="cfoot"><div class="cf1">'+deedPill+poster+'</div><div class="cf2">'+since+'<span class="cref ltr">'+(x.ref||x.id)+'</span></div></div>'+
   '</div></a>'}
