@@ -143,5 +143,14 @@ begin
   r := bk_intake_message('whatsapp', 'tb-33', ch, 'text', 'الطابق الثاني مع مصعد');
   out := out || pg_temp.chk('plain_detail_text_still_joins_open_draft', (r->>'is_new')::boolean = false and (r->>'draft_id')::bigint <> d1, r::text);
 
+  -- 19. «جديد» while the listing waits in the panel (review) keeps it there; the chat only lets go of it (no more photos join it)
+  d2 := (r->>'draft_id')::bigint;
+  update intake_drafts set status='cancelled', error='test' where chat_id = ch and status not in ('cancelled','published') and id <> d2;
+  update intake_drafts set status='review', summary='s', updated_at=now(), created_at=now()+interval '5 seconds' where id = d2;
+  r := bk_intake_message('whatsapp', 'tb-34', ch, 'text', 'جديد');
+  out := out || pg_temp.chk('new_keeps_review_draft', r->>'command' = 'new' and (select status from intake_drafts where id=d2) = 'review', r::text);
+  r := bk_intake_message('whatsapp', 'tb-35', ch, 'photo', null, '{"mime":"image/jpeg"}'::jsonb);
+  out := out || pg_temp.chk('photo_after_new_does_not_join_review', (r->>'is_new')::boolean and (r->>'draft_id')::bigint <> d2, r::text);
+
   raise exception E'BOT_SQL_SCENARIOS fails=% %', (select n from bk_f), out;
 end $$;

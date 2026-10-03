@@ -20,6 +20,8 @@ fools the bot, add it to `tests/bot/` and fix it in the weekly batch (see "How c
      written; a listing-shaped text (للبيع/للإيجار + details) is a **new** listing;
    - «إلغاء» takes the listing off the site; «رجّع» within 10 minutes brings it back;
    - bare photos/videos within 5 minutes are added to it; «جديد» ends all of that and starts fresh.
+   - «جديد» cancels a draft the sender is still building or confirming, but never a listing that already waits in the
+     panel (review): that one stays for the admin; the chat only lets go of it.
 4b. **Several listings, one chat.** Send each listing as its own message followed by its photos: a text that opens
    with للبيع/للإيجار/مطلوب while the previous listing was already read opens its own draft, and the photos that follow
    join the newest one. No «جديد» needed. Two listings pasted in ONE message are split into two drafts, but the photos

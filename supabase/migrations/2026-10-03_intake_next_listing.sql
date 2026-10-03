@@ -1,7 +1,9 @@
 -- 2026-10-03 · bot: a text that opens with للبيع/للإيجار/مطلوب while the previous draft was already read (review / ready /
 -- needs_info) opens its OWN draft instead of being appended to the previous one. The previous draft keeps waiting where it
 -- was (panel review, or the sender's confirmation). Bare photos that follow join the newest draft, so "text → photos →
--- next text → its photos" lands each photo on its own listing. Only this block is new; the rest is the function as deployed.
+-- next text → its photos" lands each photo on its own listing.
+-- Same day, second change: «جديد» no longer cancels a draft that already waits in the panel (review) — the admin had typed
+-- «جديد» between forwards and lost four listings. The chat just lets go of it (fields.chat_closed = 1).
 CREATE OR REPLACE FUNCTION public.bk_intake_message(p_source text, p_external_id text, p_chat_id text, p_kind text, p_text text, p_media jsonb DEFAULT NULL::jsonb, p_payload jsonb DEFAULT NULL::jsonb, p_sender_name text DEFAULT NULL::text, p_country text DEFAULT NULL::text)
  RETURNS json
  LANGUAGE plpgsql
@@ -46,7 +48,8 @@ begin
   select * into d from intake_drafts
    where source = p_source and chat_id = p_chat_id
      and ((status in ('collecting','reading') and last_message_at > now() - interval '12 hours')
-       or (status in ('ready','needs_info') and updated_at > now() - interval '24 hours') or (status = 'review' and updated_at > now() - interval '10 minutes'))
+       or (status in ('ready','needs_info') and updated_at > now() - interval '24 hours')
+       or (status = 'review' and updated_at > now() - interval '10 minutes' and coalesce(fields->>'chat_closed','') <> '1'))
    order by created_at desc limit 1;
   was := d.status;
   -- a bare photo/video while the listing sits in the panel for review (10-minute window): joins it, short acknowledgement
@@ -111,7 +114,12 @@ begin
     return json_build_object('command','cancel','draft_id',d.id,'sender',s,'guided',guided);
   end if;
   if cmd = 'new' then
-    if d.id is not null then
+    -- a listing already waiting in the panel (review) is NOT cancelled by «جديد»: the chat merely lets go of it
+    -- (no more photos / corrections join it); the admin decides in the panel. Anything else open is cancelled.
+    if d.id is not null and d.status = 'review' then
+      update intake_drafts set fields = coalesce(fields,'{}'::jsonb) || '{"chat_closed":"1"}'::jsonb where id = d.id;
+      insert into intake_log (draft_id, chat_id, event, detail) values (d.id, p_chat_id, 'new_by_sender', '{"kept_review":true}'::jsonb);
+    elsif d.id is not null then
       update intake_drafts set status = 'cancelled', error = null, updated_at = now() where id = d.id;
       insert into intake_log (draft_id, chat_id, event) values (d.id, p_chat_id, 'new_by_sender');
     end if;
@@ -194,7 +202,7 @@ begin
         insert into intake_log (draft_id, chat_id, event, detail) values (prev.id, p_chat_id, 'photo_attached', jsonb_build_object('listing_id', prev.listing_id));
         return json_build_object('attach_listing', prev.listing_id, 'draft_id', prev.id, 'replied_recently', replied, 'sender', s, 'guided', guided,
           'ref', (select ref from listings where id = prev.listing_id));
-      elsif prev.id is not null and prev.status = 'review' and prev.updated_at > now() - interval '10 minutes' and not exists (select 1 from intake_log l where l.chat_id = p_chat_id and l.event = 'new_by_sender' and l.created_at > prev.updated_at) then
+      elsif prev.id is not null and prev.status = 'review' and prev.updated_at > now() - interval '10 minutes' and coalesce(prev.fields->>'chat_closed','') <> '1' and not exists (select 1 from intake_log l where l.chat_id = p_chat_id and l.event = 'new_by_sender' and l.created_at > prev.updated_at) then
         update intake_messages set draft_id = prev.id where source = p_source and external_id = p_external_id;
         replied := exists (select 1 from intake_log where draft_id = prev.id and event = 'photo_to_review' and created_at > now() - interval '90 seconds');
         insert into intake_log (draft_id, chat_id, event) values (prev.id, p_chat_id, 'photo_to_review');
