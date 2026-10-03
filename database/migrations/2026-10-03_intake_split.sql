@@ -1,0 +1,7 @@
+-- Balkoun · 2026-10-03 · one message with several properties ("#للبيع شقة… \n#للبيع شقة أخرى…") used to be read as ONE listing
+-- (the first property; the rest ended up in its description). Now:
+--   Edge Function splitListings(): splits at each line that starts a new offer word (للبيع/للإيجار…) when every part is
+--     ≥ 25 chars and carries numbers; several units of one property (no second offer line) still stay one listing.
+--   bk_intake_split(p_draft, p_texts): keeps the first text on the draft (fields.split_done) and creates one more draft per
+--     extra text for the same sender (fields.split_from); the bot reads each one and tells the sender (splitNote).
+--   Photos sent with the message stay with the first property.

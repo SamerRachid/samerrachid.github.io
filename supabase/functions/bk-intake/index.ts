@@ -345,6 +345,7 @@ const T = {
     skipNone: `لا يوجد إعلان ينتظر معلومة الآن 🙂 أرسل تفاصيل العقار وصوره لنشر إعلان.`,
     skipWait: `تمام ✅ سأنشر الإعلان فور اكتمال القراءة من دون التفاصيل الناقصة.`,
     sizeNone: `• المساحة: غير مذكورة`,
+    splitNote: (n: number) => `لاحظت ${n} عقارات في رسالتك، فجعلت لكل واحد إعلانه الخاص ✅ أقرؤها الآن واحدًا واحدًا. الصور التي أرسلتها تُضاف إلى الأول؛ أرسل صور الباقي بعد ملخص كل واحد.`,
     reviewAdmin: `تمت القراءة ✅ الإعلان بانتظارك في لوحة التحكم لاختيار المكتب ونشره.`,
     reviewNote: `تمت القراءة، لكن الإعلان يحتاج نظرة من الإدارة قبل النشر. سنتابعه من لوحة التحكم.`,
     suggested: (n: string) => `• المكتب المقترح: ${n}`,
@@ -430,6 +431,7 @@ const T = {
     skipNone: `No listing is waiting for a detail right now 🙂 Send the property details and photos to publish one.`,
     skipWait: `OK ✅ I publish as soon as the read is done, without the missing details.`,
     sizeNone: `• Size: not given`,
+    splitNote: (n: number) => `I found ${n} properties in your message, so each gets its own listing ✅ Reading them one by one now. The photos you sent go to the first; send the others' photos after each summary.`,
     reviewAdmin: `Read ✅ The listing is waiting in the panel to pick the agency and publish.`,
     reviewNote: `Read, but the listing needs a look from the team before publishing. We will follow up from the panel.`,
     suggested: (n: string) => `• Suggested agency: ${n}`,
@@ -1036,6 +1038,18 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
     if (!opts.quiet && d.source !== "web") await reply(d.source, d.chat_id, t.mediaOnly);
     return { status: "needs_info", media_only: true };
   }
+  if (!(d.fields || {}).split_done) {
+    const parts = splitListings(rawText);
+    if (parts.length > 1) {
+      const sp = await rpc<any>("bk_intake_split", { p_draft: draftId, p_texts: parts });
+      if (sp?.ok) {
+        await log(draftId, d.chat_id, "info", "split", { n: parts.length, ids: sp.ids });
+        if (!opts.quiet && d.source !== "web") await reply(d.source, d.chat_id, t.splitNote(parts.length));
+        for (const id of (sp.ids || [])) { const cl = await rpc<any>("bk_intake_claim", { p_draft: id }); if (cl) background(readDraft(id, opts)); }
+        return readDraft(draftId, opts);   // this draft now holds the first property only
+      }
+    }
+  }
   const missLabel = (m: string) => (m === "governorate" && ambig)
     ? (lang === "en" ? `governorate (${ambig.area} exists in ${ambig.governorates.join(", ")}; which one?)` : `المحافظة (${ambig.area} موجودة في ${ambig.governorates.join("، ")}، أيها؟)`)
     : (lang === "en" ? MISSING_EN : MISSING_AR)[m];
@@ -1508,6 +1522,15 @@ async function fixPublished(m: Incoming, r: any, tt: any) {
     await rpc("bk_notify_push", { p_event: "listing", p_title: "✏️ تصحيح لم يُطبَّق: " + (r.ref || ""), p_body: `المرسل كتب بعد النشر: «${fix.slice(0, 200)}». طبّقه يدوياً من اللوحة.`, p_link: SITE + "/admin", p_cc: d.country_code || null });
     await reply(m.source, m.chat, t.fixNone(r.ref || ""));
   }
+}
+// one message holding several properties ("#للبيع شقة… / #للبيع شقة أخرى…" on a new line): split at each line that starts a
+// new offer, when every part is long enough and carries numbers of its own; several UNITS of one property stay one listing
+function splitListings(txt: string): string[] {
+  const re = /\n+\s*(?=#?\s*(?:للبيع|للإيجار|للايجار|للأجار|للاجار|للآجار)(?:\s|$|،|:|_))/g;
+  const parts = String(txt || "").split(re).map((s) => s.trim()).filter((s) => s.length >= 25);
+  if (parts.length < 2) return [txt];
+  const ok = parts.filter((p) => /\d/.test(p));
+  return ok.length >= 2 ? ok : [txt];
 }
 // does a caption carry listing text? Arabic letters or a real number, some length, and not a client's auto-label
 const captionIsText = (t: string) => { const s = String(t || "").trim(); return s.length >= 15 && (/[؀-ۿ]/.test(s) || /\d{2,}/.test(s)) && !/^(video|photo|image|voice|audio|document|file)\s+(from|by)\s/i.test(s) && !/^(IMG|VID|DSC|PXL|MOV)[_-]?\d/i.test(s); };
