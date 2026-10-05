@@ -9885,6 +9885,8 @@ async function resolveCountry(){
   return _viewCountry;
 }
 // one anonymous id per browser so visitors can be counted (never shared with other services)
+// campaign tag (?src=fb…) read at load, before the router rewrites the URL and drops the query string
+var SRC_TAG=(function(){ try{ var m=location.search.match(/[?&]src=([\w-]{1,40})/); if(m){ localStorage.setItem("balkoun_src",m[1]); return m[1] } }catch(e){} return null })();
 var VID=(function(){ try{ var v=localStorage.getItem("balkoun_vid"); if(!v){ v=Math.random().toString(36).slice(2,10)+Date.now().toString(36); localStorage.setItem("balkoun_vid",v) } return v }catch(e){ return null } })();
 var _refLogged=false;
 function deviceKind(){ return (window.innerWidth<=700 || /Mobi|Android|iPhone/i.test(navigator.userAgent)) ? "mobile" : "desktop" }
@@ -9916,7 +9918,7 @@ function logView(){
   if(!DB || (ADM&&ADM.token&&VIEW==="admin")) return;
   var ref=""; if(!_refLogged){ _refLogged=true; ref=(document.referrer||"").replace(/^https?:\/\//,"").split("/")[0]; if(ref===location.host) ref="";
     // campaign links (balkoun.com/…?src=fb-damas) → the source wins over the referrer and is remembered for this visitor
-    var srcTag=(location.search.match(/[?&]src=([\w-]{1,40})/)||[])[1]; if(srcTag){ ref="src:"+srcTag; try{ localStorage.setItem("balkoun_src",srcTag) }catch(e){} } }
+    var srcTag=SRC_TAG||(location.search.match(/[?&]src=([\w-]{1,40})/)||[])[1]; if(srcTag){ ref="src:"+srcTag } }
   resolveCountry().then(function(c){
     try{ DB.rpc("bk_log_view2",{p_path:location.pathname+location.search,p_view:VIEW.split(":")[0],
       p_user:(USER&&USER.id)||null,p_country:c||null,p_token:(USER&&USER.token)||null,p_visitor:VID,p_device:deviceKind(),p_referrer:ref,p_site_country:COUNTRY}).then(null,function(){}) }catch(e){}
