@@ -8917,8 +8917,10 @@ function wireAuth(){
      if(USER) await rpc("bk_review_set",{p_author:USER.id, p_target:BYUSER.id, p_stars:REVSTARS, p_body:($("#revBody")||{}).value||null});
      else await rpc("bk_admin_review_set",{p_token:ADM.token, p_target:BYUSER.id, p_stars:REVSTARS, p_body:($("#revBody")||{}).value||null});
      if(VIEW.indexOf("agency:")===0 && AGENCY){ REVSTARS=0; await loadAgency(AGENCY.id) } else await loadByUser(BYUSER.id);
-     if(m){ m.style.color="var(--ok)"; m.textContent=t("savedOk") }
      render();
+     // render() rebuilt the box, so the confirmation has to be written into the new element (it used to vanish instantly)
+     var m2=$("#revMsg"); if(m2){ m2.style.color="var(--ok)"; m2.textContent="✓ "+t("savedOk") }
+     if(typeof toast==="function") toast("✓ "+t("savedOk"));
    }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" }
      this.disabled=false; this.textContent=t("submitReview") }};
 }
