@@ -1202,6 +1202,7 @@ function wireAdmin(){
   };
 
   // open the full listing editor
+  wireAdmPromo();
   $$("[data-adopen]").forEach(function(e){ e.onclick=async function(){
     // full parity with a member's own "Edit listing" page — location,
     // every detail field, all of it — rather than the old handful-
@@ -3572,6 +3573,7 @@ function admListingDrawer(l,ls){
   var cc=String(l.country_code||"SY").toLowerCase(), pub=(cc==="sy"?"":"/"+cc)+"/listing/"+l.id;
   var deed=D.TABU[l.tabu]?D.TABU[l.tabu][li()]:(l.tabu||"—"), cond=(D.COND&&D.COND[l.condition])?D.COND[l.condition][li()]:((D.LANDC&&D.LANDC[l.condition])?D.LANDC[l.condition][li()]:"");
   var acts='<button class="ab" data-adopen="'+l.id+'">✏️ '+t("edit")+'</button>'+
+    (l.status==="live"?'<button class="ab" data-apromo="'+l.id+'"'+(ADM.promo&&String(ADM.promo.id)===String(l.id)?' style="background:var(--navy);color:#fff"':'')+'>📣 '+GX("promoBtn")+'</button>':'')+
     (l.status==="pending"?'<button class="ab ok" data-alive="'+l.id+'">'+t("approve")+'</button><button class="ab bad" data-areject="'+l.id+'">'+GX("rejectBtn")+'</button>':'')+
     (l.status==="rejected"?'<button class="ab ok" data-alive="'+l.id+'">'+t("approve")+'</button>':'')+
     (l.status==="hidden"?'<button class="ab ok" data-alive="'+l.id+'">'+GX("unhide")+'</button>':'')+
@@ -3582,6 +3584,7 @@ function admListingDrawer(l,ls){
     '<div class="ld-hd"><span class="st st-'+l.status+'">'+admStLabel(l.status)+'</span><h2 class="ltr">'+esc(l.ref||l.id)+'</h2>'+(l.is_featured?'<span class="lstar" title="'+t("featuredBadgeDefault")+'">★</span>':'')+'<button type="button" class="lx" id="ldClose" aria-label="'+GX("lfClose")+'">✕</button></div>'+
     (l.cover?'<img class="ld-cover" src="'+esc(l.cover)+'" alt="">':'<div class="ld-cover ph">'+GX("lfNoPhotos")+'</div>')+
     '<div class="ld-acts">'+acts+'</div>'+
+    (ADM.promo&&String(ADM.promo.id)===String(l.id)?admPromoHtml(l):'')+
     '<div class="ld-sec">'+GX("lfData")+'</div><dl class="ld-kv">'+
       '<dt>'+GX("lfType")+'</dt><dd>'+admTypeName(l)+' · '+admDealLabel(l)+'</dd>'+
       '<dt>'+GX("price")+'</dt><dd class="ltr">'+admPrice(l.price_usd)+'</dd>'+
@@ -3621,4 +3624,124 @@ function wireAdminListings(){
     ADM.lsel={}; if(what==="del") ADM.lopen=null;
     await adminLoad(); admToast(GX("lfBulkDone").replace("{n}",done)+(fail?" · ✕ "+fail:""), fail?"bad":"ok");
   } });
+}
+
+/* ── «منشور» / promo generator (2026-10-05): from any listing, one click gives the admin a ready group post
+   (text + tracking link), a branded image (4:5 or 1:1) and a short silent reel (MP4, Chrome/Edge). Everything is
+   built in the browser from the listing's own data; nothing is sent anywhere. ── */
+var PROMO_SRC=[["fb-damas","فيسبوك · عقارات دمشق"],["fb-aleppo","فيسبوك · عقارات حلب"],["fb-homs","فيسبوك · عقارات حمص"],["fb-diaspora","فيسبوك · سوريين بالخارج"],["wa","واتساب"],["tg","تيليغرام"],["ig","إنستغرام"],["tt","تيك توك"],["yt","يوتيوب شورتس"]];
+function promoRow(l){ var x=(typeof D!=="undefined"&&D.LIST||[]).find(function(r){ return String(r.id)===String(l.id) }); return x||null }
+function promoLink(l){ var cc=String(l.country_code||"SY").toLowerCase(); var src=(ADM.promo&&ADM.promo.src)||"fb-damas"; return "https://balkoun.com"+(cc==="sy"?"":"/"+cc)+"/listing/"+l.id+"?src="+src }
+function promoTitle(l,x){ var ty=admTypeName(l); var m2=l.area_m2?(+l.area_m2).toLocaleString("en")+" م²":""; var place=[l.area,l.gov].filter(Boolean); return [ty,m2].filter(Boolean).join(" ")+(place.length?" في "+place[0]:"") }
+function promoText(l){
+  var x=promoRow(l)||{}; var deed=D.TABU[l.tabu]?D.TABU[l.tabu][0]:""; var cond=(D.COND&&D.COND[l.condition])?D.COND[l.condition][0]:((D.LANDC&&D.LANDC[l.condition])?D.LANDC[l.condition][0]:"");
+  var lines=[];
+  lines.push((l.deal==="rent"?"🏠 للإيجار: ":"🏠 للبيع: ")+promoTitle(l,x)+(l.area&&l.gov?"، "+l.gov:""));
+  if(l.price_usd!=null&&l.price_usd!=="") lines.push("💵 "+Number(l.price_usd).toLocaleString("en")+" دولار"+(x.negot?" (قابل للتفاوض)":"")+(l.deal==="rent"?(x.rentalPeriod==="daily"?" يومياً":x.rentalPeriod==="weekly"?" أسبوعياً":x.rentalPeriod==="yearly"?" سنوياً":" شهرياً"):""));
+  var facts=[]; if(x.r) facts.push(x.r+" غرف"); if(x.b) facts.push(x.b+" حمام"); if(x.fl!==""&&x.fl!=null&&x.fl!==undefined&&String(x.fl)!=="") facts.push("طابق "+x.fl); if(x.furn) facts.push("مفروش");
+  if(facts.length) lines.push("🛏 "+facts.join(" · "));
+  var legal=[]; if(l.deal!=="rent"&&deed) legal.push("طابو: "+deed); if(cond) legal.push(cond); if(legal.length) lines.push("📜 "+legal.join(" · "));
+  var ds=String(x.ds||l.description||"").replace(/\s+/g," ").trim(); if(ds){ if(ds.length>170) ds=ds.slice(0,170).replace(/\s\S*$/,"")+"…"; lines.push(""); lines.push(ds) }
+  lines.push(""); lines.push("📍 التفاصيل والصور والتواصل مع صاحب الإعلان على بلكون:"); lines.push(promoLink(l));
+  lines.push(""); lines.push("ببلاش · بلا عمولة · من المالك مباشرة");
+  var tags=["#بلكون","#عقارات_سوريا"]; if(l.gov) tags.push("#عقارات_"+String(l.gov).replace(/\s+/g,"_")); if(l.area) tags.push("#"+String(l.area).replace(/\s+/g,"_")); lines.push(tags.join(" "));
+  return lines.join("\n");
+}
+function admPromoHtml(l){
+  var p=ADM.promo||{}; var text=promoText(l);
+  return '<div class="ld-sec">📣 '+GX("promoH")+'</div><div class="promo" id="promoBox">'+
+    '<div class="hintx" style="margin-bottom:8px">'+GX("promoHint")+'</div>'+
+    '<label class="lfc on" style="margin-bottom:8px"><span>'+GX("promoSrc")+':</span><select id="promoSrc">'+PROMO_SRC.map(function(s){ return '<option value="'+s[0]+'"'+(p.src===s[0]?' selected':'')+'>'+s[1]+'</option>' }).join("")+'</select></label>'+
+    '<textarea id="promoText" readonly style="width:100%;min-height:230px;font-family:inherit;font-size:13.5px;line-height:1.55;border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff;direction:rtl">'+esc(text)+'</textarea>'+
+    '<div class="ld-acts" style="margin-top:8px"><button class="ab ok" id="promoCopy">📋 '+GX("promoCopy")+'</button>'+
+      '<button class="ab" data-promoimg="45">🖼 '+GX("promoImg45")+'</button><button class="ab" data-promoimg="11">🖼 '+GX("promoImg11")+'</button>'+
+      '<button class="ab" id="promoReel">🎬 '+GX("promoReel")+'</button></div>'+
+    '<div id="promoOut" style="margin-top:10px">'+(p.img?'<img src="'+p.img+'" style="width:100%;border-radius:12px;border:1px solid var(--line)"><div class="ld-acts" style="margin-top:6px"><a class="ab ok" download="balkoun-'+esc(l.ref||l.id)+'.png" href="'+p.img+'">⬇ '+GX("promoDownload")+'</a></div>':'')+
+      (p.reel?'<video src="'+p.reel+'" controls playsinline style="width:100%;border-radius:12px;border:1px solid var(--line);margin-top:8px"></video><div class="ld-acts" style="margin-top:6px"><a class="ab ok" download="balkoun-'+esc(l.ref||l.id)+'-reel.mp4" href="'+p.reel+'">⬇ '+GX("promoDownloadReel")+'</a></div>':'')+
+      (p.busy?'<div class="hintx" id="promoBusy">'+esc(p.busy)+'</div>':'')+'</div>'+
+  '</div>';
+}
+function wireAdmPromo(){
+  $$("[data-apromo]").forEach(function(b){ b.onclick=function(){ var id=this.dataset.apromo; ADM.promo=(ADM.promo&&String(ADM.promo.id)===String(id))?null:{id:id,src:"fb-damas"}; render() } });
+  var sel=$("#promoSrc"); if(sel) sel.onchange=function(){ ADM.promo.src=this.value; ADM.promo.img=null; ADM.promo.reel=null; render() };
+  var cp=$("#promoCopy"); if(cp) cp.onclick=function(){ var ta=$("#promoText"); var btn=this; var done=function(){ btn.textContent="✓ "+GX("promoCopied"); setTimeout(function(){ btn.textContent="📋 "+GX("promoCopy") },1600) }; try{ navigator.clipboard.writeText(ta.value).then(done,function(){ ta.select(); document.execCommand("copy"); done() }) }catch(e){ ta.select(); document.execCommand("copy"); done() } };
+  $$("[data-promoimg]").forEach(function(b){ b.onclick=async function(){ var fmt=this.dataset.promoimg; var l=admPromoListing(); if(!l) return; ADM.promo.busy=GX("promoWorking"); ADM.promo.img=null; render(); try{ ADM.promo.img=await promoImage(l,fmt) }catch(e){ ADM.promo.busy=String(e&&e.message||e); render(); return } ADM.promo.busy=""; render() } });
+  var rb=$("#promoReel"); if(rb) rb.onclick=async function(){ var l=admPromoListing(); if(!l) return; if(typeof VideoEncoder==="undefined"){ ADM.promo.busy=GX("promoReelNoSupport"); render(); return } ADM.promo.busy=GX("promoWorking"); ADM.promo.reel=null; render(); try{ ADM.promo.reel=await promoReel(l,function(pct){ var el=$("#promoBusy"); if(el) el.textContent=GX("promoWorking")+" "+pct+"%" }) }catch(e){ ADM.promo.busy=String(e&&e.message||e); render(); return } ADM.promo.busy=""; render() };
+}
+function admPromoListing(){ var id=ADM.promo&&ADM.promo.id; return ((ADM.data&&ADM.data.listings)||[]).find(function(l){ return String(l.id)===String(id) })||null }
+function promoPhotos(l){ var x=promoRow(l); var ph=(x&&x.photos||[]).slice(); if(!ph.length&&l.cover) ph=[l.cover]; return ph.slice(0,6) }
+function promoLoadImg(src){ return new Promise(function(res,rej){ var im=new Image(); im.crossOrigin="anonymous"; im.onload=function(){ res(im) }; im.onerror=function(){ rej(new Error("photo")) }; im.src=src }) }
+function promoCoverDraw(ctx,im,x,y,w,h,zoom,dx,dy){ var s=Math.max(w/im.width,h/im.height)*(zoom||1); var sw=im.width*s, sh=im.height*s; ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip(); ctx.drawImage(im, x+(w-sw)/2+(dx||0), y+(h-sh)/2+(dy||0), sw, sh); ctx.restore() }
+function promoRound(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath() }
+function promoWrap(ctx,text,maxW){ var words=String(text).split(/\s+/), lines=[], cur=""; words.forEach(function(w){ var tst=cur?cur+" "+w:w; if(ctx.measureText(tst).width>maxW&&cur){ lines.push(cur); cur=w } else cur=tst }); if(cur) lines.push(cur); return lines.slice(0,2) }
+async function promoAssets(){ if(promoAssets._c) return promoAssets._c; try{ await document.fonts.load("800 60px 'Noto Kufi Arabic'"); await document.fonts.load("700 40px 'Noto Kufi Arabic'") }catch(e){} var logo=null; try{ logo=await promoLoadImg("/brand/logo-light.png") }catch(e){} promoAssets._c={logo:logo}; return promoAssets._c }
+/* the branded card shared by the image and the reel: photo on top, navy panel with title / price / facts, footer line */
+function promoPaint(ctx,W,H,l,x,photo,opt){
+  opt=opt||{}; var navy="#14213D", gold="#E6B655", sand="#CFC4AE";
+  ctx.fillStyle=navy; ctx.fillRect(0,0,W,H);
+  var ph=Math.round(H*(opt.photoShare||0.62));
+  if(photo) promoCoverDraw(ctx,photo,0,0,W,ph,opt.zoom||1,opt.dx||0,opt.dy||0); else { ctx.fillStyle="#0D1729"; ctx.fillRect(0,0,W,ph) }
+  var g=ctx.createLinearGradient(0,ph-220,0,ph); g.addColorStop(0,"rgba(20,33,61,0)"); g.addColorStop(1,"rgba(20,33,61,1)"); ctx.fillStyle=g; ctx.fillRect(0,ph-220,W,220);
+  // deal badge top-right
+  ctx.direction="rtl"; ctx.textAlign="right"; ctx.textBaseline="middle";
+  var badge=l.deal==="rent"?"للإيجار":"للبيع"; ctx.font="800 "+Math.round(W*0.034)+"px 'Noto Kufi Arabic'"; var bw=ctx.measureText(badge).width+Math.round(W*0.05);
+  promoRound(ctx,W-40-bw,40,bw,Math.round(W*0.062),Math.round(W*0.031)); ctx.fillStyle=gold; ctx.fill(); ctx.fillStyle=navy; ctx.fillText(badge,W-40-Math.round(W*0.025),40+Math.round(W*0.031));
+  // logo top-left
+  if(opt.logo){ var lw=Math.round(W*0.26), lh=Math.round(lw*opt.logo.height/opt.logo.width); ctx.globalAlpha=.95; ctx.drawImage(opt.logo,36,34,lw,lh); ctx.globalAlpha=1 }
+  // text panel
+  var y=ph+Math.round(W*0.02), pad=Math.round(W*0.055), maxW=W-2*pad;
+  ctx.fillStyle="#fff"; ctx.font="800 "+Math.round(W*0.056)+"px 'Noto Kufi Arabic'"; var title=promoTitle(l,x); var tl=promoWrap(ctx,title,maxW); var lhgt=Math.round(W*0.075);
+  tl.forEach(function(ln,i){ ctx.fillText(ln,W-pad,y+lhgt/2+i*lhgt) }); y+=tl.length*lhgt+Math.round(W*0.012);
+  ctx.fillStyle=sand; ctx.font="500 "+Math.round(W*0.03)+"px 'Noto Kufi Arabic'"; var place=[l.area,l.gov].filter(Boolean).join("، "); if(place){ ctx.fillText("📍 "+place,W-pad,y+Math.round(W*0.02)); y+=Math.round(W*0.058) }
+  // price
+  var price=(l.price_usd!=null&&l.price_usd!=="")?"$"+Number(l.price_usd).toLocaleString("en"):"السعر عند التواصل"; ctx.fillStyle=gold; ctx.font="800 "+Math.round(W*0.082)+"px 'Noto Kufi Arabic'"; ctx.direction="ltr"; ctx.textAlign="right"; ctx.fillText(price,W-pad,y+Math.round(W*0.045)); ctx.direction="rtl";
+  if(l.deal==="rent"){ ctx.fillStyle=sand; ctx.font="500 "+Math.round(W*0.028)+"px 'Noto Kufi Arabic'"; ctx.textAlign="left"; ctx.fillText(x.rentalPeriod==="daily"?"يومياً":x.rentalPeriod==="yearly"?"سنوياً":"شهرياً",pad,y+Math.round(W*0.045)); ctx.textAlign="right" }
+  y+=Math.round(W*0.105);
+  // fact chips
+  var chips=[]; if(l.area_m2) chips.push((+l.area_m2).toLocaleString("en")+" م²"); if(x.r) chips.push(x.r+" غرف"); if(x.b) chips.push(x.b+" حمام"); var deed=l.deal!=="rent"&&D.TABU[l.tabu]?D.TABU[l.tabu][0]:""; if(deed) chips.push(deed); var cond=(D.COND&&D.COND[l.condition])?D.COND[l.condition][0]:""; if(cond&&chips.length<4) chips.push(cond);
+  ctx.font="700 "+Math.round(W*0.027)+"px 'Noto Kufi Arabic'"; var cx=W-pad, ch=Math.round(W*0.052);
+  chips.forEach(function(c){ var w=ctx.measureText(c).width+Math.round(W*0.04); if(cx-w<pad) return; promoRound(ctx,cx-w,y,w,ch,ch/2); ctx.fillStyle=(c===deed&&/أخضر/.test(deed))?"#1f8f5f":"rgba(255,255,255,.12)"; ctx.fill(); ctx.fillStyle="#fff"; ctx.fillText(c,cx-Math.round(W*0.02),y+ch/2); cx-=w+Math.round(W*0.012) });
+  // footer
+  var fy=H-Math.round(W*0.06); ctx.fillStyle="rgba(255,255,255,.14)"; ctx.fillRect(pad,fy-Math.round(W*0.045),W-2*pad,2);
+  ctx.fillStyle=gold; ctx.font="800 "+Math.round(W*0.03)+"px 'Noto Kufi Arabic'"; ctx.fillText("ببلاش · بلا عمولة",W-pad,fy);
+  ctx.fillStyle="#fff"; ctx.font="700 "+Math.round(W*0.03)+"px Lato, 'Noto Kufi Arabic'"; ctx.direction="ltr"; ctx.textAlign="left"; ctx.fillText("balkoun.com",pad,fy); ctx.direction="rtl"; ctx.textAlign="right";
+}
+async function promoImage(l,fmt){
+  var x=promoRow(l)||{}; var W=1080, H=fmt==="11"?1080:1350; var photos=promoPhotos(l); var photo=null; if(photos.length){ try{ photo=await promoLoadImg(photos[0]) }catch(e){} }
+  var A=await promoAssets(); var c=document.createElement("canvas"); c.width=W; c.height=H; var ctx=c.getContext("2d");
+  promoPaint(ctx,W,H,l,x,photo,{logo:A.logo,photoShare:fmt==="11"?0.56:0.62});
+  return c.toDataURL("image/png");
+}
+/* 12-second silent reel: each photo with a slow push-in, the card's text panel at the bottom, end card with the logo */
+async function promoReel(l,onPct){
+  var x=promoRow(l)||{}; var W=1080, H=1920, FPS=24; var photos=promoPhotos(l); var imgs=[];
+  for(var i=0;i<photos.length;i++){ try{ imgs.push(await promoLoadImg(photos[i])) }catch(e){} }
+  if(!imgs.length) throw new Error(GX("lfNoPhotos"));
+  var A=await promoAssets();
+  var M=await import("https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.3/build/mp4-muxer.min.mjs");
+  var muxer=new M.Muxer({ target:new M.ArrayBufferTarget(), video:{ codec:"avc", width:W, height:H }, fastStart:"in-memory" });
+  var enc=new VideoEncoder({ output:function(chunk,meta){ muxer.addVideoChunk(chunk,meta) }, error:function(e){ throw e } });
+  enc.configure({ codec:"avc1.4d0032", width:W, height:H, bitrate:7_000_000, framerate:FPS });
+  var per=Math.max(2.2, Math.min(3.2, 10/imgs.length)); var total=Math.round((imgs.length*per+2.4)*FPS);
+  var c=document.createElement("canvas"); c.width=W; c.height=H; var ctx=c.getContext("2d");
+  for(var f=0; f<total; f++){
+    var t=f/FPS; var idx=Math.min(imgs.length-1, Math.floor(t/per)); var u=(t-idx*per)/per;
+    if(t<imgs.length*per){
+      var zoom=1.04+0.10*u; var dx=(idx%2?1:-1)*40*u;
+      promoPaint(ctx,W,H,l,x,imgs[idx],{logo:A.logo,photoShare:0.66,zoom:zoom,dx:dx,dy:-20*u});
+      // crossfade with the next photo at the end of each slot
+      if(u>0.86&&idx<imgs.length-1){ ctx.globalAlpha=(u-0.86)/0.14; promoCoverDraw(ctx,imgs[idx+1],0,0,W,Math.round(H*0.66),1.04,0,0); ctx.globalAlpha=1; var g=ctx.createLinearGradient(0,Math.round(H*0.66)-220,0,Math.round(H*0.66)); g.addColorStop(0,"rgba(20,33,61,0)"); g.addColorStop(1,"rgba(20,33,61,1)"); ctx.fillStyle=g; ctx.fillRect(0,Math.round(H*0.66)-220,W,220) }
+      // photo counter
+      ctx.fillStyle="rgba(0,0,0,.45)"; promoRound(ctx,40,Math.round(H*0.66)-110,120,56,28); ctx.fill(); ctx.fillStyle="#fff"; ctx.font="700 26px Lato"; ctx.direction="ltr"; ctx.textAlign="center"; ctx.fillText((idx+1)+" / "+imgs.length,100,Math.round(H*0.66)-82); ctx.direction="rtl"; ctx.textAlign="right";
+    } else {
+      var k=Math.min(1,(t-imgs.length*per)/0.5); ctx.fillStyle="#14213D"; ctx.fillRect(0,0,W,H);
+      if(A.logo){ var lw=640, lh=Math.round(lw*A.logo.height/A.logo.width); ctx.globalAlpha=k; ctx.drawImage(A.logo,(W-lw)/2,H/2-lh-30,lw,lh); ctx.globalAlpha=1 }
+      ctx.globalAlpha=k; ctx.fillStyle="#E6B655"; ctx.font="800 50px 'Noto Kufi Arabic'"; ctx.textAlign="center"; ctx.fillText("ببلاش · بلا عمولة",W/2,H/2+90); ctx.fillStyle="#fff"; ctx.font="700 46px Lato"; ctx.direction="ltr"; ctx.fillText("balkoun.com",W/2,H/2+170); ctx.direction="rtl"; ctx.textAlign="right"; ctx.globalAlpha=1;
+    }
+    var frame=new VideoFrame(c,{timestamp:Math.round(f*1e6/FPS), duration:Math.round(1e6/FPS)});
+    enc.encode(frame,{keyFrame:f%48===0}); frame.close();
+    if(f%6===0){ if(onPct) onPct(Math.round(f/total*100)); await new Promise(function(r){ setTimeout(r,0) }) }
+  }
+  await enc.flush(); enc.close(); muxer.finalize();
+  var blob=new Blob([muxer.target.buffer],{type:"video/mp4"}); return URL.createObjectURL(blob);
 }
