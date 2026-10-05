@@ -26,7 +26,7 @@ async function storageRestore(paths){
        if(j && j.error) return {data:null, error:{message:j.error}};
        return {data:{restored:j.restored||[], failed:j.failed||[]}, error:null} }
   catch(e){ return {data:null, error:e} } }
-var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",house:"users",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super",campaigns:"campaigns"};
+var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",house:"users",outreach:"users",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super",campaigns:"campaigns"};
 // sidebar groups: one entry in the sidebar, sub-tabs rendered as a segmented bar on the page (the tab bodies stay keyed by the real tab)
 var ADM_GROUPS={inbox:["reports","feedback","tickets","msgs"],promo:["ads","featured","banners","engage"],system:["settings","storage","admins","danger"]};
 function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab)>-1) return g } return null }
@@ -355,6 +355,7 @@ function adminView(){
  }
 
  else if(ADM.tab==="house"){ body=adminHouseBody(); }
+ else if(ADM.tab==="outreach"){ body=adminOutreachBody(); }
  else if(ADM.tab==="reviews"){
   body=(d.reviews||[]).length
    ? '<div class="atable"><table><thead><tr>'+
@@ -785,7 +786,7 @@ function adminView(){
    {g:t("navOverview"), items:[["dashboard",t("dashboardTab"),null,AICO.dash,true],["stats",t("visitorStats"),null,AICO.chart,can("stats")],["inbox",t("navInboxH"),inboxN||null,AICO.bell,true]]},
    {g:GX("navCountries"), items:[["countries",GX("countriesTab"),null,AICO.globe,ADM.isSuper]]},
    {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["photos",GX("tMedia"),null,AICO.image,can("listings")],["wanted_adm",GX("tWanted"),(ADM.todo||{}).pending_wanted||null,AICO.search,can("listings")],["intake",GX("tIntake"),(ADM.todo||{}).intake_review||null,AICO.contact||AICO.bell,can("listings")]]},
-   {g:t("navPeople"), items:[["users",t("usersTab"),(ADM.todo||{}).verify_pending||s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")],["house",GX("tHouse"),null,AICO.users,can("users")]]},
+   {g:t("navPeople"), items:[["users",t("usersTab"),(ADM.todo||{}).verify_pending||s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")],["house",GX("tHouse"),null,AICO.users,can("users")],["outreach",GX("tOutreach"),(ADM.out||[]).filter(function(o){ return o.next_at&&new Date(o.next_at)<=new Date()&&o.stage!=="active"&&o.stage!=="declined" }).length||null,AICO.contact,can("users")]]},
    {g:GX("navMarketing"), items:[["promo",GX("tPromo"),null,AICO.ads,true],["projects_adm",GX("tProjects"),null,AICO.building,can("listings")||can("ads")],["campaigns",GX("tCampaigns"),null,AICO.megaphone,can("campaigns")]]},
    {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")],["system",GX("navSystem"),null,AICO.gear,true]]}
  ];
@@ -1418,6 +1419,8 @@ function wireAdmin(){
   if(ADM.tab==="intake"){ wireAdminIntake() }
   if(ADM.tab!=="house"){ ADM._houseLoaded=false }
   if(ADM.tab==="house"){ wireAdminHouse() }
+  if(ADM.tab!=="outreach"){ ADM._outLoaded=false }
+  if(ADM.tab==="outreach"){ wireAdminOutreach() }
   if(ADM.tab==="agencies_adm"){
     if(!ADM._agLoaded){ ADM._agLoaded=true; ADM.agErr=null; rpcScoped("bk_admin_agencies",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM_AG=r||[]; render() }).catch(function(e){ ADM_AG=[]; ADM.agErr=e.message||"error"; render() }) }
     $$("[data-agset]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.agset.split(":"); if(p[1]==="rejected" && !confirm(GX("confirmReject"))) return; try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+p[0],p_status:p[1]}); ADM._agLoaded=false; render() }catch(e){ alert(e.message||"error") } } });
@@ -2580,7 +2583,8 @@ function adminDashboardBody(s){
     '</div>'+
     '<div class="agrid2" style="margin-top:16px">'+healthStrip(an)+alerts+'</div>'+
     '<div class="agrid2" style="margin-top:16px"><div id="visNowBlk">'+visitorsNowBlock()+'</div>'+
-      '<div class="blk"><h3>'+t("storageUsageH")+'</h3><div class="in">'+storageUsageCardBody()+'</div></div></div>';
+      '<div class="blk"><h3>'+GX("srcH")+'</h3><div class="in"><div class="hintx" style="margin-bottom:8px">'+GX("srcHint")+'</div>'+(function(){ var s=(an.referrers||[]).filter(function(r){ return /^src:/.test(r.referrer||"") }).map(function(r){ return {k:r.referrer.slice(4), n:r.n} }); return s.length?barList(s,function(x){ return x.k },"n","#D97706"):'<div class="adashempty">'+GX("srcNone")+'</div>' })()+'</div></div></div>'+
+    '<div class="blk" style="margin-top:16px"><h3>'+t("storageUsageH")+'</h3><div class="in">'+storageUsageCardBody()+'</div></div>';
 }
 // "on the site now": members + guests whose tab pinged within 5 minutes (visitor_presence); polled with the alerts
 function visitorsNowBlock(){
@@ -3744,4 +3748,77 @@ async function promoReel(l,onPct){
   }
   await enc.flush(); enc.close(); muxer.finalize();
   var blob=new Blob([muxer.target.buffer],{type:"video/mp4"}); return URL.createObjectURL(blob);
+}
+
+/* ── «المكاتب المستهدفة» outreach tracker (2026-10-05): the owner's pipeline of offices being courted. Stages new →
+   messaged → replied → agreed → account → first_listing → active (or declined). A row links to the member once the
+   office signs up (phone match suggested, one click). WhatsApp button opens the chat with the pitch pre-filled. ── */
+var OUT_STAGES=["new","messaged","replied","agreed","account","first_listing","active","declined"];
+function outStageLabel(s){ return GX("outSt_"+s) }
+function outDigits(p){ var d=String(p||"").replace(/\D/g,""); if(d.length===10&&d[0]==="0") d="963"+d.slice(1); if(d.length===9&&d[0]==="9") d="963"+d; return d }
+function outWaLink(o){ var d=outDigits(o.phone); if(!d) return ""; var msg=GX("outTemplate").replace(/\{name\}/g,(o.name||"").trim()).replace(/\{source\}/g,(o.source||"").trim()); return "https://wa.me/"+d+"?text="+encodeURIComponent(msg) }
+function adminOutreachBody(){
+  var rows=ADM.out; if(rows===undefined) return '<div class="blk"><div class="in adashempty">'+(ADM.outErr?'<span style="color:var(--danger)">'+esc(ADM.outErr)+'</span>':t("loading"))+'</div></div>';
+  rows=rows||[]; var f=ADM.outFilter||"open", q=(ADM.outQ||"").trim().toLowerCase();
+  var counts={}; OUT_STAGES.forEach(function(s){ counts[s]=rows.filter(function(o){ return o.stage===s }).length });
+  var due=rows.filter(function(o){ return o.next_at && new Date(o.next_at)<=new Date() && o.stage!=="active" && o.stage!=="declined" }).length;
+  var list=rows.filter(function(o){
+    if(f==="open" && (o.stage==="active"||o.stage==="declined")) return false;
+    if(f==="due" && !(o.next_at && new Date(o.next_at)<=new Date())) return false;
+    if(OUT_STAGES.indexOf(f)>-1 && o.stage!==f) return false;
+    if(q){ var hay=[o.name,o.phone,o.city,o.area,o.source,o.notes].join(" ").toLowerCase(); if(hay.indexOf(q)===-1) return false }
+    return true });
+  var pipe='<div class="ikstats">'+OUT_STAGES.map(function(s){ return '<button type="button" class="ikstat'+(f===s?' on':'')+'" data-outf="'+s+'" style="cursor:pointer;border:0;background:'+(f===s?'var(--navy)':'#fff')+';color:'+(f===s?'#fff':'inherit')+'"><b class="ltr">'+counts[s]+'</b><span>'+outStageLabel(s)+'</span></button>' }).join("")+'</div>';
+  var tools='<div class="rtop" style="margin:10px 0"><input id="outQ" class="aq" placeholder="'+esc(GX("outSearchPH"))+'" value="'+esc(ADM.outQ||"")+'" data-allow-autofill style="max-width:260px">'+
+    '<button type="button" class="ab'+(f==="open"?' ok':'')+'" data-outf="open">'+GX("outOpen")+'</button>'+
+    '<button type="button" class="ab'+(f==="due"?' ok':'')+'" data-outf="due">⏰ '+GX("outDue")+(due?' <b class="ltr">'+due+'</b>':'')+'</button>'+
+    '<button type="button" class="ab'+(f==="all"?' ok':'')+'" data-outf="all">'+GX("lfAll")+'</button>'+
+    '<button type="button" class="ab ok" id="outAdd" style="margin-inline-start:auto">+ '+GX("outAdd")+'</button></div>';
+  var addForm=ADM.outAdd?'<div class="blk" style="margin-bottom:12px"><h3>'+GX("outAdd")+'</h3><div class="in"><div class="row3x">'+
+      '<div class="fl"><label>'+GX("outName")+'</label><input id="oaName" data-allow-autofill placeholder="'+esc(GX("outNamePH"))+'"></div>'+
+      '<div class="fl"><label>'+GX("lfPhone")+'</label><input id="oaPhone" class="ltr" data-allow-autofill inputmode="tel" placeholder="09xx xxx xxx"></div>'+
+      '<div class="fl"><label>'+t("city")+'</label><input id="oaCity" data-allow-autofill value="دمشق"></div></div>'+
+    '<div class="row3x"><div class="fl"><label>'+GX("outArea")+'</label><input id="oaArea" data-allow-autofill placeholder="'+esc(GX("outAreaPH"))+'"></div>'+
+      '<div class="fl"><label>'+GX("outSource")+'</label><input id="oaSource" data-allow-autofill placeholder="'+esc(GX("outSourcePH"))+'"></div>'+
+      '<div class="fl"><label>'+GX("outNotes")+'</label><input id="oaNotes" data-allow-autofill></div></div>'+
+    '<div class="ld-acts"><button class="ab ok" id="oaSave">'+t("save")+'</button><button class="ab" id="oaCancel">'+t("cancel")+'</button><span id="oaMsg" class="hintx"></span></div></div></div>':'';
+  var fmtD=function(iso){ return iso?when(iso):"—" };
+  var trs=list.map(function(o){
+    var linked=o.user_id?'<a data-byuser="'+o.user_id+'" data-name="'+esc((o.user_name||"")+" "+(o.user_family||""))+'" class="uname">'+esc(((o.user_name||"")+" "+(o.user_family||"")).trim()||o.member_no||GX("agView"))+'</a>'+(o.listings!=null?' · <span class="ltr">'+o.listings+'</span> '+GX("houseListings"):''):
+      (o.match_user?'<button type="button" class="ab" data-outlink="'+o.id+':'+o.match_user+'" title="'+esc(GX("outLinkHint"))+'">🔗 '+esc(o.match_name||GX("outLink"))+'</button>':'<span class="hintx">—</span>');
+    var overdue=o.next_at && new Date(o.next_at)<=new Date() && o.stage!=="active" && o.stage!=="declined";
+    return '<tr'+(overdue?' style="background:#FFF7E6"':'')+'>'+
+      '<td><b>'+esc(o.name)+'</b>'+(o.area||o.city?'<br><small>'+esc([o.area,o.city].filter(Boolean).join(" · "))+'</small>':'')+(o.source?'<br><small style="color:var(--light)">'+esc(o.source)+'</small>':'')+'</td>'+
+      '<td class="ltr">'+(o.phone?esc(o.phone):'—')+'</td>'+
+      '<td><select class="lvlpick" data-outstage="'+o.id+'">'+OUT_STAGES.map(function(s){ return '<option value="'+s+'"'+(o.stage===s?' selected':'')+'>'+outStageLabel(s)+'</option>' }).join("")+'</select></td>'+
+      '<td>'+linked+'</td>'+
+      '<td class="ltr"><small>'+fmtD(o.last_contact_at)+'</small></td>'+
+      '<td><input type="date" class="ltr" data-outnext="'+o.id+'" value="'+(o.next_at?new Date(o.next_at).toISOString().slice(0,10):'')+'" style="width:140px"'+(overdue?' title="'+esc(GX("outDue"))+'"':'')+'></td>'+
+      '<td><input data-outnotes="'+o.id+'" value="'+esc(o.notes||"")+'" placeholder="…" style="width:170px" data-allow-autofill></td>'+
+      '<td><div class="eacts">'+(o.phone?'<a class="ab ok" href="'+outWaLink(o)+'" target="_blank" rel="noopener" data-outwa="'+o.id+'">💬 '+GX("outWa")+'</a>':'')+
+        '<button type="button" class="ab" data-outtouch="'+o.id+'" title="'+esc(GX("outTouchHint"))+'">✓ '+GX("outTouch")+'</button>'+
+        '<button type="button" class="ab bad" data-outdel="'+o.id+'">'+t("del")+'</button></div></td></tr>' }).join("");
+  var table=list.length?'<div class="atable"><table><thead><tr>'+[GX("outName"),GX("lfPhone"),GX("outStage"),GX("outAccount"),GX("outLast"),GX("outNext"),GX("outNotes"),""].map(function(h){ return '<th>'+h+'</th>' }).join("")+'</tr></thead><tbody>'+trs+'</tbody></table></div>':'<div class="adashempty">'+GX("outNone")+'</div>';
+  return '<div class="blk"><h3>'+GX("tOutreach")+' <span class="n">'+rows.length+'</span></h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+GX("outHint")+'</div>'+pipe+tools+'</div></div>'+addForm+'<div class="blk"><div class="in" style="padding:0">'+table+'</div></div>'+
+    '<div class="blk" style="margin-top:12px"><h3>'+GX("outTemplateH")+'</h3><div class="in"><div class="hintx" style="margin-bottom:6px">'+GX("outTemplateHint")+'</div><pre style="white-space:pre-wrap;font-family:inherit;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;direction:rtl">'+esc(GX("outTemplate"))+'</pre></div></div>';
+}
+function wireAdminOutreach(){
+  if(!ADM._outLoaded){ ADM._outLoaded=true; ADM.outErr=null; ADM.out=undefined;
+    rpcScoped("bk_admin_outreach_list",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.out=r||[]; render() }).catch(function(e){ ADM.out=[]; ADM.outErr=e.message||"error"; render() }) }
+  var reload=function(){ return rpcScoped("bk_admin_outreach_list",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.out=r||[]; render() }) };
+  var save=function(id,data){ return rpc("bk_admin_outreach_save",{p_token:ADM.token,p_id:id,p_data:data}) };
+  $$("[data-outf]").forEach(function(b){ b.onclick=function(){ ADM.outFilter=this.dataset.outf; render() } });
+  var q=$("#outQ"); if(q){ q.oninput=function(){ ADM.outQ=this.value; clearTimeout(q._t); q._t=setTimeout(function(){ var pos=q.selectionStart; render(); var nq=$("#outQ"); if(nq){ nq.focus(); try{ nq.setSelectionRange(pos,pos) }catch(e){} } },350) } }
+  var add=$("#outAdd"); if(add) add.onclick=function(){ ADM.outAdd=!ADM.outAdd; render(); var n=$("#oaName"); if(n) n.focus() };
+  var cancel=$("#oaCancel"); if(cancel) cancel.onclick=function(){ ADM.outAdd=false; render() };
+  var sv=$("#oaSave"); if(sv) sv.onclick=async function(){ var m=$("#oaMsg"); var data={name:$("#oaName").value,phone:$("#oaPhone").value,city:$("#oaCity").value,area:$("#oaArea").value,source:$("#oaSource").value,notes:$("#oaNotes").value,stage:"new",country_code:(admScope()&&admScope()!=="ALL")?admScope():COUNTRY};
+    if(data.name.trim().length<2){ if(m) m.textContent=GX("outNeedName"); return } this.disabled=true;
+    try{ var r=await save(null,data); if(r&&r.error){ if(m) m.textContent=r.error; this.disabled=false; return } ADM.outAdd=false; await reload() }catch(e){ if(m) m.textContent=e.message||"error"; this.disabled=false } };
+  $$("[data-outstage]").forEach(function(s){ s.onchange=async function(){ var id=+this.dataset.outstage; var st=this.value; var patch={stage:st}; if(st==="messaged") patch.last_contact_at=new Date().toISOString(); try{ await save(id,patch); await reload() }catch(e){ alert(e.message||"error") } } });
+  $$("[data-outnext]").forEach(function(i){ i.onchange=async function(){ var id=+this.dataset.outnext; try{ await save(id,{next_at:this.value?new Date(this.value+"T09:00:00").toISOString():""}); await reload() }catch(e){ alert(e.message||"error") } } });
+  $$("[data-outnotes]").forEach(function(i){ i.onchange=async function(){ var id=+this.dataset.outnotes; try{ await save(id,{notes:this.value}) }catch(e){ alert(e.message||"error") } } });
+  $$("[data-outwa]").forEach(function(a){ a.addEventListener("click",function(){ var id=+this.dataset.outwa; var o=(ADM.out||[]).find(function(r){ return r.id===id }); var patch={last_contact_at:new Date().toISOString()}; if(o&&o.stage==="new") patch.stage="messaged"; save(id,patch).then(reload).catch(function(){}) }) });
+  $$("[data-outtouch]").forEach(function(b){ b.onclick=async function(){ var id=+this.dataset.outtouch; try{ await save(id,{last_contact_at:new Date().toISOString()}); await reload() }catch(e){ alert(e.message||"error") } } });
+  $$("[data-outlink]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.outlink.split(":"); try{ await save(+p[0],{user_id:p[1],stage:"account"}); await reload() }catch(e){ alert(e.message||"error") } } });
+  $$("[data-outdel]").forEach(function(b){ b.onclick=async function(){ if(!confirm(GX("outDelConfirm"))) return; try{ await rpc("bk_admin_outreach_delete",{p_token:ADM.token,p_id:+this.dataset.outdel}); await reload() }catch(e){ alert(e.message||"error") } } });
 }
