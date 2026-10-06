@@ -10106,7 +10106,7 @@ function homeTrustHtml(){
    '</div></div></section>';
 }
 
-function heroBgTypeEff(){ var v=SITE.hero_bg_type||"sketch"; if(v==="sketch" && !SKETCH_BUILDERS[COUNTRY]) return "none"; if(v==="scene3d" && !SCENE3D_BUILDERS[COUNTRY]) return "none"; return v }   // a drawn scene shows only where the country has one; the rest stay blank
+function heroBgTypeEff(){ var v=SITE.hero_bg_type||"sketch"; var vm=SX("hero_bg_type_m",""); if(vm && window.matchMedia && matchMedia("(max-width:700px)").matches) v=vm; if(v==="sketch" && !SKETCH_BUILDERS[COUNTRY]) return "none"; if(v==="scene3d" && !SCENE3D_BUILDERS[COUNTRY]) return "none"; return v }   // phones may have their own type (extras.hero_bg_type_m; "" = same as desktop) so a heavy drawing is never built there; a drawn scene shows only where the country has one; the rest stay blank
 function bandImgHtml(){
   var src=HU("band_img", COUNTRY==="SY"?"/assets/home/umayyad.jpg":""); if(!src) return "";
   var alt=HT("band_img_alt", COUNTRY==="SY"?({ar:"الجامع الأموي في دمشق",en:"The Umayyad Mosque in Damascus",de:"Die Umayyaden-Moschee in Damaskus"}[L]||"The Umayyad Mosque in Damascus"):"");
