@@ -2137,7 +2137,7 @@ var HS_T={
  tickerHint:{ar:"يظهر فقط عندما تتوفر أسعار كافية (٤ مناطق على الأقل بثلاثة إعلانات فأكثر).",en:"Shows only when enough prices exist (at least 4 areas with 3+ listings).",de:"Erscheint nur bei genug Preisen (mind. 4 Gebiete mit 3+ Anzeigen)."},
  devOnlyHint:{ar:"تظهر هنا خيارات الجهاز المختار في الأعلى فقط؛ بدّل إلى الجوال لترى خياراته.",en:"Only the options for the device chosen above are shown; switch to Phone to see its options.",de:"Nur die Optionen des oben gewählten Geräts werden gezeigt; auf Handy umschalten für dessen Optionen."},
  f_opening:{ar:"مشهد الافتتاح (كلمة بلكون تصعد ثم يهبط الرأس)",en:"Opening scene (the word rises, then the header drops in)",de:"Eröffnungsszene (Wort steigt, Kopfzeile fällt ein)"}, f_cursor:{ar:"نقطة المؤشر الذهبية (كمبيوتر)",en:"Gold cursor dot (desktop)",de:"Goldener Cursorpunkt (Desktop)"},
- f_phMode:{ar:"العنوان على الجوال",en:"Headline on the phone",de:"Überschrift am Handy"}, ph_after:{ar:"يدخل بعد انتهاء الرسم ويدفعه جانباً",en:"Enters after the drawing rests and pushes it aside",de:"Kommt nach der Zeichnung und schiebt sie beiseite"}, ph_now:{ar:"يظهر مباشرة فوق الرسم",en:"Shows immediately over the drawing",de:"Sofort über der Zeichnung"},
+ f_phMode:{ar:"العنوان على الجوال",en:"Headline on the phone",de:"Überschrift am Handy"}, f_h1Delay:{ar:"تأخير ظهور العنوان (ثانية)",en:"Headline delay (seconds)",de:"Verzögerung der Überschrift (Sek.)"}, f_h1DelayHint:{ar:"يُحسب بعد ارتفاع كلمة الافتتاح. 0 = مع الشريط مباشرة.",en:"Counted after the opening word lifts. 0 = together with the bar.",de:"Nach dem Eröffnungswort gezählt. 0 = sofort."}, f_h1DelayM:{ar:"تأخير ظهور العنوان على الجوال (ثانية)",en:"Headline delay on the phone (seconds)",de:"Verzögerung am Handy (Sek.)"}, f_h1DelayMHint:{ar:"اتركه فارغاً ليتبع الخيار أعلاه (ينتظر انتهاء الرسم). اكتب رقماً ليظهر العنوان بعد هذا الوقت من فتح الصفحة مهما كان حال الرسم.",en:"Leave empty to follow the option above (waits for the drawing). Enter a number and the headline comes that many seconds after the page opens, drawing or not.",de:"Leer: folgt der Option oben. Zahl: Überschrift nach so vielen Sekunden."}, auto:{ar:"تلقائي",en:"auto",de:"auto"}, ph_after:{ar:"يدخل بعد انتهاء الرسم ويدفعه جانباً",en:"Enters after the drawing rests and pushes it aside",de:"Kommt nach der Zeichnung und schiebt sie beiseite"}, ph_now:{ar:"يظهر مباشرة فوق الرسم",en:"Shows immediately over the drawing",de:"Sofort über der Zeichnung"},
  f_secPad:{ar:"المسافة بين الأقسام (px)",en:"Space between sections (px)",de:"Abstand zwischen Abschnitten (px)"},
  g_logo:{ar:"الشعار",en:"Logo",de:"Logo"}, g_pwa:{ar:"التطبيق على الهاتف",en:"Phone app",de:"Handy-App"}, f_pwaBanner:{ar:"إظهار شريط «ثبّت التطبيق» على الهاتف",en:"Show the install-app bar on phones",de:"Leiste 'App installieren' auf Handys zeigen"}, f_pwaDays:{ar:"إعادة إظهاره بعد (أيام)",en:"Show again after (days)",de:"Erneut zeigen nach (Tagen)"}, f_logoVar:{ar:"شكل الشعار في الترويسة والقائمة",en:"Logo in the header and menu",de:"Logo in Kopfzeile und Menü"}, lv_full:{ar:"الرمز + بلكون + BALKOUN",en:"Mark + بلكون + BALKOUN",de:"Zeichen + بلكون + BALKOUN"}, lv_mw:{ar:"الرمز + بلكون",en:"Mark + بلكون",de:"Zeichen + بلكون"}, lv_word:{ar:"الاسم فقط",en:"Name only",de:"Nur der Name"}, f_logoH:{ar:"ارتفاع الرمز (px)",en:"Mark height (px)",de:"Höhe des Zeichens (px)"}, g_motion:{ar:"الحركة",en:"Motion",de:"Bewegung"}, g_spacing:{ar:"المسافات",en:"Spacing",de:"Abstände"},
  upload:{ar:"رفع ملف…",en:"Upload…",de:"Hochladen…"}, uploading:{ar:"جارٍ الرفع…",en:"Uploading…",de:"Lädt hoch…"}, clearImg:{ar:"الافتراضية",en:"Default",de:"Standard"},
@@ -2220,7 +2220,7 @@ function hsInspAds(){
       fSwitch(hsT("f_adsSponsoredOn"),"x:ads_sponsored_on",true,true), fText(hsT("f_adsSponsored"),"x:ads_sponsored",GX_T.sponsored[hsLang()]),
       fGrp(hsT("g_look")), fHint(hsT("dualHint")),
       fDual(hsT("f_adSize"),"c:ad_square_size","x:ad_square_size_m",90,260,5,true), fHint(GX("adSizeHint")),
-      fSlider(hsT("f_adGap"),"c:ad_carousel_gap","x:ad_carousel_gap_m",-60,80,2,"px",0),
+      fSlider(hsT("f_adGap"),"c:ad_carousel_gap","x:ad_carousel_gap_m",-240,80,2,"px",0),
       '<div class="row">'+fNum(hsT("f_adGlide"),"x:ad_glide_seconds",1,15,0.5,3.5,true)+fNum(GX("xAdVideoMax"),"x:ad_video_max_mb",1,100,1,8)+'</div>');
   } else if(sd==="look"){
     H.push(fGrp(GX("adColorsSub")), '<div class="row">'+fColor(t("adTextColorL"),"c:ad_text_color","#ffffff")+fColor(t("adShadeColorL"),"c:ad_shade_color","#090e1a")+'</div>', fSlider(GX("adShadeOpL"),"x:ad_shade_opacity",null,0,100,5,"%",100,true), fHint(GX("adShadeOpHint")),
@@ -2344,7 +2344,7 @@ function hsInspHome(){
       fSwitch(hsT("f_adsTitleOn"),"x:ads_title_on",true,true), fText(hsT("f_adsTitle"),"x:ads_row_title",GX_T.adsH[hsLang()]),
       fSwitch(hsT("f_adsSponsoredOn"),"x:ads_sponsored_on",true,true), fText(hsT("f_adsSponsored"),"x:ads_sponsored",GX_T.sponsored[hsLang()]),
       fGrp(hsT("g_look")), fHint(hsT("dualHint")),
-      fDual(hsT("f_adSize"),"c:ad_square_size","x:ad_square_size_m",100,260,5), fSlider(hsT("f_adGap"),"c:ad_carousel_gap","x:ad_carousel_gap_m",-60,80,2,"px",0),
+      fDual(hsT("f_adSize"),"c:ad_square_size","x:ad_square_size_m",100,260,5), fSlider(hsT("f_adGap"),"c:ad_carousel_gap","x:ad_carousel_gap_m",-240,80,2,"px",0),
       fNum(hsT("f_adGlide"),"x:ad_glide_seconds",1,15,0.5,3.5,true), fGo(hsT("go_ads"),"ads"));
   } else if(sd==="banners"){
     H.push(fSwitch(hsT("showSec"),"x:home_banners_on",true,true), fSel(hsT("bSlot"),"x:banners_slot",[["flow",hsT("bSlotFlow")],["top",hsT("bSlotTop")]],"flow",true), fHint(hsT("bannersHint")), fGo(hsT("go_banners"),"banners"));
@@ -2379,8 +2379,8 @@ function hsInspHome(){
     H.push(fGrp(hsT("g_pwa")), fSwitch(hsT("f_pwaBanner"),"x:pwa_banner",true,false), fNum(hsT("f_pwaDays"),"x:pwa_banner_days",1,90,1,14,false));
     H.push(fGrp(hsT("g_logo")), fSel(hsT("f_logoVar"),"x:logo_variant",[["full",hsT("lv_full")],["markword",hsT("lv_mw")],["word",hsT("lv_word")]],"full",true), fSlider(hsT("f_logoH"),"x:logo_h","x:logo_h_m",22,48,1,"px",phone?30:34));
     H.push(fGrp(hsT("g_motion")), fHint(hsT("devOnlyHint")), fSwitch(hsT("f_opening"),"x:opening_enabled",true));
-    if(!phone) H.push(fSwitch(hsT("f_cursor"),"x:cursor_dot_enabled",true,true));
-    if(phone) H.push(fSel(hsT("f_phMode"),"x:phone_headline_mode",[["after",hsT("ph_after")],["immediate",hsT("ph_now")]],"after",true));
+    if(!phone) H.push(fSwitch(hsT("f_cursor"),"x:cursor_dot_enabled",true,true), fNum(hsT("f_h1Delay"),"x:h1_delay",0,10,0.1,0.45), fHint(hsT("f_h1DelayHint")));
+    if(phone) H.push(fSel(hsT("f_phMode"),"x:phone_headline_mode",[["after",hsT("ph_after")],["immediate",hsT("ph_now")]],"after",true), fNum(hsT("f_h1DelayM"),"x:h1_delay_m",0,15,0.1,hsT("auto")), fHint(hsT("f_h1DelayMHint")));
     H.push(fGrp(hsT("g_spacing")), fHint(hsT("dualHint")), fSlider(hsT("f_secPad"),"x:sec_pad","x:sec_pad_m",0,120,2,"px",phone?22:40));
   }
   return {title:title,H:H};
