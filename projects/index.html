@@ -927,6 +927,18 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
 .badgebtn.lvl-vip.on{background:var(--gold-w);color:#8A6522}
 .badgebtn.lvl-partner.on{background:var(--navy-w);color:var(--navy)}
 
+/* ── home: "about the market" text block ── */
+.aboutsec .aboutcols{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:28px;align-items:start;margin-top:10px}
+.aboutsec .aboutp p{font-size:15.5px;line-height:1.95;color:var(--ink);margin:0 0 12px}
+.aboutsec .aboutlinks .govs{display:flex;flex-wrap:wrap;gap:8px}
+.aboutsec .aboutmore{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+@media(max-width:860px){.aboutsec .aboutcols{grid-template-columns:1fr;gap:16px}.aboutsec .aboutp p{font-size:14.5px;line-height:1.85}}
+/* ── crawlable home content written by scripts/generate-pages.mjs (see <!--seo-home-->); the first render replaces it ── */
+.seo-home{background:var(--navy);color:#fff;padding:28px 18px 40px;max-width:1220px;margin:0 auto;font-family:inherit}
+.seo-home h1{font-size:28px;line-height:1.4;margin:0 0 10px}.seo-home p{color:rgba(255,255,255,.85);line-height:1.9;max-width:900px}
+.seo-home h2{font-size:18px;margin:24px 0 10px;color:#E3B563}.seo-home ul{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}
+.seo-home li a{display:inline-block;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:6px 12px;color:#fff;text-decoration:none;font-size:13.5px}
+.seo-home .seo-list li a{border-radius:12px;font-size:14px;padding:8px 12px;max-width:100%}
 /* ── reviews / stars ── */
 .ratingline{display:flex;align-items:center;gap:8px;margin-top:5px;font-size:14px}
 .starsbig{color:var(--gold);font-size:17px;letter-spacing:1px}
@@ -10037,7 +10049,15 @@ var HX_T={
   t2p:{ar:"مع كل عقار، متوسط سعر المتر في منطقته خلال آخر ثلاثين يوماً.",en:"Every listing shows the average price per m² in its area over the last thirty days.",de:"Jede Anzeige zeigt den Durchschnittspreis pro m² im Gebiet der letzten dreißig Tage."},
   t3:{ar:"تواصل مباشر",en:"Direct contact",de:"Direkter Kontakt"},
   t3p:{ar:"اتصال أو واتساب مع المالك أو المكتب. لا وسطاء، ولا عمولة مخفية.",en:"Call or WhatsApp the owner or agency. No middlemen, no hidden commission.",de:"Anruf oder WhatsApp direkt an Eigentümer oder Büro. Keine Vermittler, keine versteckte Provision."},
-  mapNote:{ar:"خريطة تقريبية · حجم النقطة يعكس عدد الإعلانات الحيّة",en:"Approximate map · dot size reflects live listings",de:"Ungefähre Karte · Punktgröße zeigt aktive Anzeigen"}
+  mapNote:{ar:"خريطة تقريبية · حجم النقطة يعكس عدد الإعلانات الحيّة",en:"Approximate map · dot size reflects live listings",de:"Ungefähre Karte · Punktgröße zeigt aktive Anzeigen"},
+  popE:{ar:"الأكثر مشاهدة",en:"Most viewed",de:"Meistgesehen"}, popH:{ar:"ما يتابعه الناس هذا الأسبوع",en:"What people are watching this week",de:"Was diese Woche gefragt ist"}, popS:{ar:"الإعلانات التي فتحها الزوار أكثر من غيرها. سعر المتر في منطقتها معروض مع كل إعلان.",en:"The listings visitors opened most. The area's price per m² shows on each one.",de:"Die am häufigsten geöffneten Anzeigen, jeweils mit dem Quadratmeterpreis des Gebiets."},
+  aboutE:{ar:"عقارات سوريا",en:"Real estate in Syria",de:"Immobilien in Syrien"},
+  aboutH:{ar:"سوق العقارات في سوريا، بمكان واحد وبلغة واضحة",en:"Syria's property market, in one place and in plain words",de:"Syriens Immobilienmarkt, an einem Ort und klar erklärt"},
+  aboutP:{ar:"بلكون موقع عقاري سوري يجمع الشقق والبيوت والفلل والأراضي والمحلات للبيع والإيجار في كل المحافظات: دمشق وريفها، حلب، حمص، حماة، اللاذقية، طرطوس، درعا، السويداء، دير الزور، الحسكة، الرقة، إدلب والقنيطرة. كل إعلان يحمل حالة الطابو (أخضر، حكم محكمة، أسهم أو غيرها) ومتوسط سعر المتر في منطقته خلال الشهر الأخير، لتعرف إن كان السعر معقولاً قبل أن تتصل.\nينشر المالكون والمكاتب العقارية إعلاناتهم مجاناً وبلا عمولة، بالصور أو بالفيديو، ويتواصل المشتري أو المستأجر معهم مباشرة بالهاتف أو واتساب. وللسوريين في المهجر: تصفّح بالعربية أو الإنجليزية أو الألمانية، أسعار بالدولار، ودليل عملي للشراء من الخارج ونقل الملكية.",
+          en:"Balkoun is a Syrian property site that gathers apartments, houses, villas, land and shops for sale and rent across every governorate: Damascus and its countryside, Aleppo, Homs, Hama, Latakia, Tartus, Daraa, Suwayda, Deir ez-Zor, Hasakah, Raqqa, Idlib and Quneitra. Every listing shows the title-deed status (green deed, court ruling, shares and more) and the area's average price per m² over the last month, so you know whether a price is fair before you call.\nOwners and agencies publish for free and without commission, with photos or video, and buyers and tenants contact them directly by phone or WhatsApp. For Syrians abroad: browse in Arabic, English or German, prices in dollars, and a practical guide to buying from abroad and transferring ownership.",
+          de:"Balkoun ist eine syrische Immobilienseite mit Wohnungen, Häusern, Villen, Grundstücken und Läden zum Kauf und zur Miete in allen Gouvernements: Damaskus und Umland, Aleppo, Homs, Hama, Latakia, Tartus, Daraa, Suwaida, Deir ez-Zor, Hasaka, Raqqa, Idlib und Quneitra. Jede Anzeige zeigt den Status des Grundbuchs (grüner Auszug, Gerichtsurteil, Anteile u. a.) und den Durchschnittspreis pro m² im Gebiet des letzten Monats.\nEigentümer und Büros inserieren kostenlos und ohne Provision, mit Fotos oder Video; Käufer und Mieter kontaktieren sie direkt per Telefon oder WhatsApp. Für Syrer im Ausland: Arabisch, Englisch oder Deutsch, Preise in Dollar und ein Leitfaden zum Kauf aus dem Ausland."},
+  aboutH_x:{ar:"سوق العقارات في بلدك، بمكان واحد وبلغة واضحة",en:"Your country's property market, in one place",de:"Der Immobilienmarkt Ihres Landes, an einem Ort"},
+  aboutP_x:{ar:"بلكون منصة عقارية عربية: شقق وبيوت وأراضٍ للبيع والإيجار في كل المحافظات، مع نوع الملكية ومتوسط سعر المتر في كل إعلان. ينشر المالكون والمكاتب مجاناً وبلا عمولة، ويتواصل المشتري معهم مباشرة.",en:"Balkoun is an Arab property platform: apartments, houses and land for sale and rent in every governorate, with the ownership type and the area's price per m² on each listing. Owners and agencies publish for free, buyers contact them directly.",de:"Balkoun ist eine arabische Immobilienplattform: Wohnungen, Häuser und Grundstücke in allen Gouvernements, mit Eigentumsart und Quadratmeterpreis auf jeder Anzeige."}
 };
 var FR_HX={pickE:"Commencez ici", navColl:"Collections", navAreas:"Explorer les quartiers", navGuide:"Guide de l'acheteur", navAgencies:"Pour les agences", govE:"Explorer les quartiers", guideE:"Guide de l'acheteur", ownE:"Pour les propriétaires et agences", collE:"Collections choisies", collH:"Pas seulement une recherche. Une découverte.", collS:"Des collections d'annonces vérifiées, parce que les plus belles maisons ne se résument pas à un nombre de pièces.", trE:"Pourquoi Balkoun", trH:"Un marché que nous connaissons maison par maison.", n1:"quartiers", n2:"gouvernorats", n3:"commission acheteur", t1:"Propriété vérifiée avant publication", t1p:"Le type de titre apparaît sur chaque annonce, et rien n'est publié avant l'examen des documents.", t2:"Un prix en contexte", t2p:"Chaque annonce affiche le prix moyen du m² dans son quartier sur les trente derniers jours.", t3:"Contact direct", t3p:"Appelez ou écrivez sur WhatsApp au propriétaire ou à l'agence. Sans intermédiaire ni commission cachée.", mapNote:"Carte approximative · la taille des points reflète les annonces en ligne"};
 Object.keys(FR_HX).forEach(function(k){ if(HX_T[k]) HX_T[k].fr=FR_HX[k] });
@@ -10046,7 +10066,7 @@ function HX(k){ var o=HX_T[k]||{}; if(k==="trP" && COUNTRY!=="SY"){ var c=countr
   return cLocal(o[L]||o.en||"") }
 
 /* every homepage section below the hero, in the admin's order; each has a show switch (home_<k>_on) and text overrides (<k>_<field>_<lang>) */
-var HOME_SECS=["ads","feat","banners","ticker","projects","wanted","colls","types","trust","expl","band","guides"];
+var HOME_SECS=["ads","feat","banners","ticker","projects","wanted","popular","colls","types","trust","expl","about","band","guides"];
 // a saved order that predates a section gets it at its default place (right after the one before it), not at the end
 function homeOrder(){ var o=SX("home_order",null); if(typeof o==="string"){ try{ o=JSON.parse(o) }catch(e){ o=null } } var r=Array.isArray(o)?o.filter(function(k){ return HOME_SECS.indexOf(k)>-1 }):[]; HOME_SECS.forEach(function(k,i){ if(r.indexOf(k)<0){ var p=i?r.indexOf(HOME_SECS[i-1]):-1; r.splice(p<0?r.length:p+1,0,k) } }); return r }
 // featured listings (admin-featured or earned with the free-feature reward): live ones, newest window first
@@ -10067,6 +10087,8 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
     ticker:function(){ return HSON("ticker") ? marketTickerHtml() : "" },
     projects:function(){ return homeProjectsHtml() },
     wanted:function(){ return homeWantedHtml() },
+    popular:function(){ return HSON("popular") ? homePopularHtml() : "" },
+    about:function(){ return HSON("about") ? homeAboutHtml() : "" },
     colls:function(){ return (COUNTRY==="SY" && HSON("colls")) ? homeCollectionsHtml() : "" },   // curated Syrian collections; other countries get theirs later
     types:function(){ return HSON("types") ? '<div class="wrap"><section class="sec" id="typesSec"><div class="eyebrow">'+HT("types_eyebrow",HX("pickE"))+'</div><h2>'+HT("types_h",t("pickH"))+'</h2>'+typeList()+'</section></div>' : "" },
     trust:function(){ return HSON("trust") ? homeTrustHtml() : "" },
@@ -10081,6 +10103,21 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
   };
   return homeOrder().map(function(k){ return S[k] ? S[k]() : "" }).join("");
 }
+// the most viewed live listings (views come with the public listing rows); hides itself until a few listings have been seen
+function homePopularHtml(){
+  var n=Math.max(4, Math.min(12, +SX("popular_n",8)||8));
+  var list=D.LIST.filter(function(x){ return (x.status||"live")==="live" && (+x.vw||0)>0 }).sort(function(a,b){ return (+b.vw||0)-(+a.vw||0) }).slice(0,n);
+  if(list.length<3) return "";
+  return '<div class="wrap"><section class="sec" id="popularSec"><div class="eyebrow">'+HT("popular_eyebrow",HX("popE"))+'</div><h2>'+HT("popular_h",HX("popH"))+'</h2><div class="sub">'+HT("popular_sub",HX("popS"))+'</div>'+
+    '<div class="res">'+list.map(function(x,i){ return card(x,i,false) }).join("")+'</div></section></div>' }
+// a short, honest text about the market the site serves (what search engines and first-time visitors both need to read), with the governorates as links
+function homeAboutHtml(){
+  var govs=Object.keys(D.GEO).filter(function(g){ return D.GEO[g].length });
+  var p=HT("about_p",HX(COUNTRY==="SY"?"aboutP":"aboutP_x"));
+  return '<div class="wrap"><section class="sec aboutsec" id="aboutSec"><div class="eyebrow">'+HT("about_eyebrow",HX("aboutE"))+'</div><h2>'+HT("about_h",HX(COUNTRY==="SY"?"aboutH":"aboutH_x"))+'</h2>'+
+    '<div class="aboutcols"><div class="aboutp">'+p.split(/\n+/).map(function(x){ return x.trim()?'<p>'+x+'</p>':'' }).join("")+'</div>'+
+    '<div class="aboutlinks"><div class="govs">'+govs.map(function(g){ return '<a data-go="search" data-gov="'+g+'">'+gN(g)+'<span class="ltr">'+D.GEO[g].length+'</span></a>' }).join("")+'</div>'+
+    '<div class="aboutmore"><a class="gh" data-go="agencies">'+GX("agDirShort")+'</a>'+(COUNTRY==="SY"?'<a class="gh" href="'+(L==="ar"?"":"/"+L)+'/guides/">'+GX("guidesAll")+'</a>':'')+'<a class="gh" data-go="post">'+t("bandBtn")+'</a></div></div></div></section></div>' }
 function homeCollectionsHtml(){
   var cards=[["damascene","c1","c1s","دمشق"],["orchards","c2","c2s","دمشق"],["latakia","c3","c3s","اللاذقية"],["bloudan","c4","c4s","ريف دمشق"]];
   return '<div class="wrap"><section class="sec" id="collsSec"><div class="eyebrow">'+HT("colls_eyebrow",HX("collE"))+'</div><h2>'+HT("colls_h",HX("collH"))+'</h2><div class="sub">'+HT("colls_sub",HX("collS"))+'</div>'+
