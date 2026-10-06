@@ -1794,10 +1794,14 @@ html[data-cc="SY"] .typecell.tl[data-type="clinic"]{--tile:url(/assets/home/roof
 /* ── 2026-09-05 hero search bar: one slim white bar, compact fields (name in the box until chosen), price range, clear map button ── */
 .home-hero .sbar{background:#fff;border:0;border-radius:13px;box-shadow:0 28px 64px -26px rgba(9,14,26,.7);padding:5px;gap:5px;align-items:stretch;max-width:1220px;overflow:visible}
 .home-hero .sbar.aiglow{box-shadow:0 28px 64px -26px rgba(9,14,26,.7),0 0 0 1px rgba(227,181,99,.35)}
-.home-hero .sbar.aiglow::before,.home-hero .sbar.aiglow::after{content:"";position:absolute;pointer-events:none;background:linear-gradient(90deg,rgba(255,220,140,0) 0%,rgba(255,220,140,0) 24%,#E3B563 38%,#FFF8E6 50%,#E3B563 62%,rgba(255,220,140,0) 76%,rgba(255,220,140,0) 100%) 0 0/200% 100% no-repeat;animation:sbarShine 5.2s linear infinite}
+.home-hero .sbar.aiglow::before,.home-hero .sbar.aiglow::after{content:"";position:absolute;pointer-events:none;background:linear-gradient(90deg,rgba(255,220,140,0) 0%,rgba(255,220,140,0) 24%,#E3B563 38%,#FFF8E6 50%,#E3B563 62%,rgba(255,220,140,0) 76%,rgba(255,220,140,0) 100%) 0 0/200% 100% no-repeat;animation:sbarShine var(--shine-dur,5.2s) linear infinite}
 .home-hero .sbar.aiglow::before{inset:-3px;border-radius:16px;padding:3px;z-index:3;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
 .home-hero .sbar.aiglow::after{inset:-8px;border-radius:20px;padding:8px;z-index:-1;filter:blur(10px);opacity:.9;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
 @keyframes sbarShine{0%{background-position:-100% 0}72%,100%{background-position:200% 0}}
+.home-hero .aisearch.aiglow .aisearch-pill::before,.home-hero .aisearch.aiglow .aisearch-pill::after{content:"";position:absolute;pointer-events:none;background:linear-gradient(90deg,rgba(255,220,140,0) 0%,rgba(255,220,140,0) 24%,#E3B563 38%,#FFF8E6 50%,#E3B563 62%,rgba(255,220,140,0) 76%,rgba(255,220,140,0) 100%) 0 0/200% 100% no-repeat;animation:sbarShine var(--shine-dur,5.2s) linear infinite}
+.home-hero .aisearch.aiglow .aisearch-pill::before{inset:-3px;border-radius:17px;padding:3px;z-index:3;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
+.home-hero .aisearch.aiglow .aisearch-pill::after{inset:-8px;border-radius:22px;padding:8px;z-index:-1;filter:blur(10px);opacity:.9;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
+@media (prefers-reduced-motion:reduce){.home-hero .aisearch.aiglow .aisearch-pill::before,.home-hero .aisearch.aiglow .aisearch-pill::after{animation:none;background-position:50% 0}}
 @media (prefers-reduced-motion:reduce){.home-hero .sbar.aiglow::before,.home-hero .sbar.aiglow::after{animation:none;background-position:50% 0}}
 .home-hero .stabs{background:var(--page);border:0;border-radius:10px;padding:3px;gap:2px;margin:0;align-items:center}
 .home-hero .stabs button{border:0;border-radius:8px;padding:0 13px;height:34px;font:600 15px var(--fd);color:var(--grey);background:transparent;transition:color .2s,background .2s,box-shadow .2s}
@@ -8012,7 +8016,8 @@ function aiSearchBarHtml(){
   var on=function(k,d){ var v=SX(k,d); return !(v===false||v==="false") };
   if(!on("ai_bar_on",true)) return "";
   var glass=SX("ai_bar_glass",false)===true||SX("ai_bar_glass",false)==="true";
-  return '<div class="aisearch'+(glass?" glass":"")+'" id="aiSearchBox">'+
+  var glow=SX("ai_bar_glow",false)===true||SX("ai_bar_glow",false)==="true";
+  return '<div class="aisearch'+(glass?" glass":"")+(glow?" aiglow":"")+'" id="aiSearchBox">'+
     '<div class="aisearch-pill">'+
       '<span class="aisearch-badge">'+AI_SPARKLE+'<span>'+GX("aiSearchBadge")+'</span></span>'+
       '<input id="aiSearchInput" type="text" data-allow-autofill autocomplete="off" enterkeyhint="search" placeholder="'+esc(GX(innerWidth<=640?"aiSearchPHm":"aiSearchPH"))+'" maxlength="200" aria-label="'+esc(GX("aiSearchPH"))+'">'+
@@ -11818,7 +11823,8 @@ function applySiteExtras(){ try{ var R=document.documentElement.style;
   setOr("--ad-ris-m",SX("ad_roominfo_size_m","")); setOr("--ad-los-m",SX("ad_location_size_m","")); setOr("--ad-tgs-m",SX("ad_tag_size_m",""));
   ["sk_x","sk_y","h1_x","h1_y","sbar_y","sbar_w","sbar_h","ai_bar_y"].forEach(function(k){ setOr("--"+k.replace(/_/g,"-"),SX(k,"")); setOr("--"+k.replace(/_/g,"-")+"-m",SX(k+"_m","")) });
   var sc=SX("sk_scale",""), scm=SX("sk_scale_m",""); setOr("--sk-scale",sc===""?"":(+sc/100),""); setOr("--sk-scale-m",scm===""?"":(+scm/100),"");
-  setOr("--sec-pad",SX("sec_pad","")); setOr("--sec-pad-m",SX("sec_pad_m","")); setOr("--logo-h",SX("logo_h","")); setOr("--logo-h-m",SX("logo_h_m",""));
+  setOr("--sec-pad",SX("sec_pad","")); setOr("--sec-pad-m",SX("sec_pad_m",""));
+  var shd=parseFloat(SX("sbar_glow_speed","")); setOr("--shine-dur", isNaN(shd)||shd<=0?"":shd, "s");   // seconds per pass of the golden shine (search bar + AI bar) setOr("--logo-h",SX("logo_h","")); setOr("--logo-h-m",SX("logo_h_m",""));
   document.body.classList.toggle("nav-nomenu-d", SX("nav_menu_desktop",true)===false);
   document.body.classList.toggle("nav-nonew", SX("nav_map_new",true)===false);
   document.body.classList.toggle("nav-nolinks-d", SX("nav_links_desktop",true)===false);
