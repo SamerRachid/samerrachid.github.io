@@ -3890,7 +3890,7 @@ async function switchCountry(code, o){
   applyCountryDeeds();
   SITE=loadSiteCache(); applyCardSizeVar(); applyBannerSizeVar(); applySectionGapVars();
   D.LIST=[]; D.GEO={}; D.GOVN={}; GEO_META={govId:{},govSlug:{},areaId:{},areaSlug:{},kind:{}}; applyGeoCache();
-  CNT={total:0,green:0,owner:0,week:0,byType:{},byGov:{},byDeal:{},byTypeDeal:{}}; AD_SLOTS=[]; WANTED=null; AGENCIES=null; PROJECTS=null;
+  CNT={total:0,green:0,owner:0,week:0,byType:{},byGov:{},byDeal:{},byTypeDeal:{}}; AD_SLOTS=loadAdsCache(code); WANTED=null; AGENCIES=null; PROJECTS=null;
   try{ F.govs=[]; F.areas=[]; F.g=""; F.a=""; F.page=1 }catch(e){}
   if(!o.keepView) VIEW="home";
   try{ history.replaceState(null,"",routePath()) }catch(e){}
@@ -9228,7 +9228,8 @@ var SITE = loadSiteCache();
 applyCardSizeVar();
 applyBannerSizeVar();
 applySectionGapVars();
-var AD_SLOTS = [];
+function loadAdsCache(code){ try{ var c=localStorage.getItem("balkoun_ads_"+code); var a=c&&JSON.parse(c); return Array.isArray(a)?a:[] }catch(e){ return [] } }   // last row seen for this country: painted at boot so the hero does not jump when the live row arrives
+var AD_SLOTS = loadAdsCache(COUNTRY);
 function applySectionGapVars(){
   try{
     document.documentElement.style.setProperty("--hero-gap", (SITE.hero_gap!=null?SITE.hero_gap:0)+"px");
@@ -9409,7 +9410,7 @@ async function loadAdSlots(){
   if(!DB) return;
   try{
     var r = await DB.rpc("bk_public_ad_slots",cArgs());
-    if(r && r.data) AD_SLOTS = r.data;
+    if(r && r.data){ AD_SLOTS = r.data; try{ localStorage.setItem("balkoun_ads_"+COUNTRY, JSON.stringify(AD_SLOTS)) }catch(e){} }   // cached like SITE: the next load paints the row at once instead of inserting it a second later
     if(PREVIEW && _pvLast && _pvLast.adSlots) applyPreview(_pvLast);
   }catch(e){}
 }
@@ -10186,7 +10187,8 @@ var _openingActive=false,_openingT0=0;
 function initOpening(){
   // plays on every load of the home page (a refresh included); in-app navigation back to home does not re-run it
   if(VIEW!=="home" || PREVIEW) return;
-  if(SX("opening_enabled",true)===false) return;
+  var oe=SX("opening_enabled",true); if(window.innerWidth<=700){ var om=SX("opening_enabled_m",""); if(om!=="") oe=(om===true||om==="true") }   // phones may differ (extras.opening_enabled_m; "" = same as desktop)
+  if(oe===false||oe==="false") return;
   if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
   var c=document.createElement("div"); c.className="curtain";
   c.innerHTML='<div class="cw cwl"><span><span class="blogo">'+brandMark()+'<span class="blogo-w"><b>'+esc(CONFIG.brand)+'</b><small>BALKOUN</small></span></span></span></div>';
@@ -11824,7 +11826,8 @@ function applySiteExtras(){ try{ var R=document.documentElement.style;
   ["sk_x","sk_y","h1_x","h1_y","sbar_y","sbar_w","sbar_h","ai_bar_y"].forEach(function(k){ setOr("--"+k.replace(/_/g,"-"),SX(k,"")); setOr("--"+k.replace(/_/g,"-")+"-m",SX(k+"_m","")) });
   var sc=SX("sk_scale",""), scm=SX("sk_scale_m",""); setOr("--sk-scale",sc===""?"":(+sc/100),""); setOr("--sk-scale-m",scm===""?"":(+scm/100),"");
   setOr("--sec-pad",SX("sec_pad","")); setOr("--sec-pad-m",SX("sec_pad_m",""));
-  var shd=parseFloat(SX("sbar_glow_speed","")); setOr("--shine-dur", isNaN(shd)||shd<=0?"":shd, "s");   // seconds per pass of the golden shine (search bar + AI bar) setOr("--logo-h",SX("logo_h","")); setOr("--logo-h-m",SX("logo_h_m",""));
+  setOr("--logo-h",SX("logo_h","")); setOr("--logo-h-m",SX("logo_h_m",""));
+  var shd=parseFloat(SX("sbar_glow_speed","")); setOr("--shine-dur", isNaN(shd)||shd<=0?"":shd, "s");   // seconds per pass of the golden shine (search bar + AI bar)
   document.body.classList.toggle("nav-nomenu-d", SX("nav_menu_desktop",true)===false);
   document.body.classList.toggle("nav-nonew", SX("nav_map_new",true)===false);
   document.body.classList.toggle("nav-nolinks-d", SX("nav_links_desktop",true)===false);
