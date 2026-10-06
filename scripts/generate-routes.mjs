@@ -40,7 +40,9 @@ function writeCopy(app, dir, url, title, desc, extra) {
     .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${esc(title)}">`)
     .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${esc(desc)}">`)
     // the language alternates describe the Syrian home page only
-    .replace(/<link rel="alternate" hreflang="[^"]*" href="[^"]*">\n?/g, "");
+    .replace(/<link rel="alternate" hreflang="[^"]*" href="[^"]*">\n?/g, "")
+    // the crawlable home block belongs to / only (duplicate text on /search etc. would compete with the home)
+    .replace(/<!--seo-home-->[\s\S]*?<!--\/seo-home-->/, "");
   if (extra) html = extra(html);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, "index.html"), html);

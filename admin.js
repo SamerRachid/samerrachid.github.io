@@ -2099,6 +2099,8 @@ var HS_T={
  ads:{ar:"المربعات الإعلانية",en:"Ad squares",de:"Werbekacheln"}, feat:{ar:"الإعلانات المميزة",en:"Featured listings",de:"Hervorgehobene Inserate"}, banners:{ar:"البانرات",en:"Banners",de:"Banner"},
  featHint:{ar:"يعرض الإعلانات المميزة النشطة (من الإدارة أو من مكافأة التمييز المجاني). يختفي القسم تلقائياً حين لا يوجد إعلان مميز.",en:"Shows the active featured listings (by the admin or via the free-feature reward). The section hides itself when nothing is featured.",de:"Zeigt die aktiven hervorgehobenen Inserate (vom Admin oder über die Gratis-Belohnung). Ohne hervorgehobene Inserate blendet sich der Abschnitt aus."},
  ticker:{ar:"نبض السوق",en:"Market pulse",de:"Marktpuls"}, colls:{ar:"مجموعات مختارة",en:"Collections",de:"Sammlungen"},
+ popular:{ar:"الأكثر مشاهدة",en:"Most viewed",de:"Meistgesehen"}, f_popN:{ar:"عدد الإعلانات في القسم",en:"Listings shown",de:"Anzahl Inserate"}, popHint:{ar:"يرتّب الإعلانات الحيّة حسب عدد المشاهدات. يختفي القسم تلقائياً حين تكون المشاهدات قليلة.",en:"Live listings ordered by views. The section hides itself while views are still few.",de:"Aktive Inserate nach Aufrufen sortiert; blendet sich bei wenigen Aufrufen aus."},
+ about:{ar:"عن عقارات سوريا (نص تعريفي)",en:"About real estate in Syria (text)",de:"Über Immobilien in Syrien (Text)"}, aboutHint:{ar:"فقرة تعريفية بالسوق والموقع تظهر للزائر ولمحركات البحث معاً، مع روابط المحافظات. اكتبها بلغة طبيعية واذكر المدن والخدمات؛ هذا ما يربط الصفحة بعبارات مثل «عقارات سوريا».",en:"An introduction to the market and the site, read by visitors and search engines alike, with governorate links. Write naturally and name the cities and services.",de:"Einführungstext zu Markt und Seite, für Besucher und Suchmaschinen, mit Links zu den Gouvernements."},
  types:{ar:"أنواع العقارات",en:"Property types",de:"Objektarten"},
  trust:{ar:"لماذا بلكون",en:"Why Balkoun",de:"Warum Balkoun"}, expl:{ar:"استكشف المناطق",en:"Explore areas",de:"Gebiete entdecken"},
  band:{ar:"شريط المالكين",en:"Owners band",de:"Eigentümer-Band"}, guides:{ar:"دليل المشتري",en:"Buyer's guide",de:"Käuferratgeber"},
@@ -2352,6 +2354,10 @@ function hsInspHome(){
     H.push(fSwitch(hsT("showSec"),"x:home_ticker_on",true,true), fHint(hsT("tickerHint")), fText(hsT("f_h"),"x:ticker_h",""), fText(hsT("f_sub"),"x:ticker_sub",""));
   } else if(sd==="feat"){
     H.push(fSwitch(hsT("showSec"),"x:home_feat_on",true,true), fHint(hsT("featHint")), fSecTexts("feat",HX("featE"),HX("featH"),HX("featS")), fGo(hsT("go_featured"),"featured"));
+  } else if(sd==="popular"){
+    H.push(fSwitch(hsT("showSec"),"x:home_popular_on",true,true), fHint(hsT("popHint")), fNum(hsT("f_popN"),"x:popular_n",4,12,1,8,true), fHint(hsT("textsHint")), fSecTexts("popular",HX("popE"),HX("popH"),HX("popS")));
+  } else if(sd==="about"){
+    H.push(fSwitch(hsT("showSec"),"x:home_about_on",true,true), fHint(hsT("aboutHint")), fHint(hsT("textsHint")), fText(hsT("f_eyebrow"),"x:about_eyebrow",HX("aboutE")), fText(hsT("f_h"),"x:about_h",HX(COUNTRY==="SY"?"aboutH":"aboutH_x")), fArea(hsT("f_p"),"x:about_p",HX(COUNTRY==="SY"?"aboutP":"aboutP_x")));
   } else if(sd==="colls"){
     H.push(fSwitch(hsT("showSec"),"x:home_colls_on",true,true), fHint(hsT("textsHint")), fSecTexts("colls",HX("collE"),HX("collH"),HX("collS")), fSwitch(hsT("f_credit"),"x:colls_credit_on",true,true));
     [["c1","c1s","دمشق","damascene"],["c2","c2s","دمشق","orchards"],["c3","c3s","اللاذقية","latakia"],["c4","c4s","ريف دمشق","bloudan"]].forEach(function(c,i){ var n=i+1;
@@ -2413,7 +2419,7 @@ function hsOutlineBanners(){
 function hsOutlineHome(){
   var m=hsMerged(), ex=m.extras, site=m.site;
   var isOn=function(key){ var p=hsParts(key), v=p.col?site[p.name]:ex[p.name]; return v==null||v===""?true:(v!==false&&v!=="false") };
-  var ICO={ads:AICO.ads,feat:AICO.star,banners:AICO.banner,ticker:AICO.chart,projects:AICO.building,wanted:AICO.search,colls:ICON_GRID,types:AICO.listings,trust:AICO.shield,expl:AICO.map,band:AICO.users,guides:AICO.star};
+  var ICO={ads:AICO.ads,feat:AICO.star,banners:AICO.banner,ticker:AICO.chart,projects:AICO.building,wanted:AICO.search,popular:AICO.eye,about:AICO.globe,colls:ICON_GRID,types:AICO.listings,trust:AICO.shield,expl:AICO.map,band:AICO.users,guides:AICO.star};
   var item=function(k,o){ o=o||{}; var on=o.eye?isOn(o.eye):o.bgEye?(((HS.device==="phone"&&ex.hero_bg_type_m)?ex.hero_bg_type_m:(site.hero_bg_type||"sketch"))!=="none"):true; var selK=o.selAs||k; var isSel=HS.sel===selK || (k==="hero" && HS.sel.indexOf("hero_")===0);
     return '<div class="hs-item'+(isSel?' on':'')+(o.child?' child':'')+(on?'':' off')+'" data-hssel="'+selK+'">'+(o.ico?'<span class="hs-ico">'+o.ico+'</span>':'')+'<span class="hs-name">'+hsT(k)+(o.sub?'<small class="hs-sub">'+o.sub+'</small>':'')+'</span>'+
       (o.mv?'<button type="button" class="hs-mv" data-hsmv="'+k+':-1" title="'+hsT("up")+'">▲</button><button type="button" class="hs-mv" data-hsmv="'+k+':1" title="'+hsT("down")+'">▼</button>':'')+

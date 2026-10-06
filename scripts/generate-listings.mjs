@@ -87,6 +87,22 @@ const urlFor = (l, lang) => `${SITE}${CUR_PRE}${LANGS[lang].prefix}/listing/${sl
 const appLink = (lang, p) => `${SITE}${CUR_PRE}/${p}${lang === "ar" ? "" : `?lang=${lang}`}`;
 const MARK = `<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="19" y="19" width="62" height="62" fill="none" stroke="currentColor" stroke-width="7"/><path d="M50 5 95 50 50 95 5 50Z" fill="none" stroke="#C4881F" stroke-width="9"/><rect x="42.5" y="42.5" width="15" height="15" fill="currentColor"/></svg>`;
 
+// a tiny 200 page at the id-only address the app links to (/listing/325, also the promo links): search engines get the title,
+// description, image and the canonical slug page; a visitor is sent on into the app (hash route, query kept so ?src= tags count).
+// Without it GitHub Pages answered these addresses with 404.html and a 404 status, so every internal link looked broken to Google.
+function stubPage(l, photos) {
+  const W = S.ar, typeLabel = typeName(l.property_type, "ar"), dealLabel = l.deal === "rent" ? W.forRent : W.forSale;
+  const sizeTxt = has(l.area_m2) ? `${l.area_m2} ${W.sqm}` : "", areaName = areaNm(l, "ar"), gov = govName(l, "ar");
+  const title = `${typeLabel} ${dealLabel} ${sizeTxt} — ${areaName} ${gov} | بلكون`.replace(/\s+/g, " ");
+  const desc = ([`${typeLabel} ${dealLabel} ${W.inPlace([areaName, gov].filter(Boolean).join(W.sep))}`, sizeTxt, has(l.rooms) ? `${l.rooms} ${W.roomsShort}` : "", l.tabu ? tabuName(l.tabu, "ar") : "", money(l.price_usd)].filter(Boolean).join(W.sep) + ".").slice(0, 155);
+  const url = urlFor(l, "ar"), cover = photos[0] || l.cover_url || SITE + "/brand/og-image.png", app = `${CUR_PRE}/`;
+  return `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><meta name="robots" content="noindex, follow"><link rel="canonical" href="${url}">
+<meta property="og:type" content="product"><meta property="og:site_name" content="Balkoun"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${url}"><meta property="og:image" content="${esc(cover)}"><meta name="twitter:card" content="summary_large_image">
+<style>body{margin:0;background:#14213D;color:#fff;font:15px/1.7 system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;text-align:center}a{color:#E3B563}</style></head>
+<body><div><p>${esc(title)}</p><a href="${url}">فتح الإعلان</a></div>
+<script>location.replace(${JSON.stringify(app)}+location.search+"#/listing/${l.id}")</script></body></html>`;
+}
 function renderPage(l, photos, lang) {
   const W = S[lang], L = LANGS[lang];
   const typeLabel = typeName(l.property_type, lang);
@@ -324,6 +340,7 @@ async function main() {
       fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(path.join(dir, "index.html"), renderPage(l, photos, lang)); n++;
     }
+    const sdir = path.join(ROOT, CUR_PRE.replace(/^\//, ""), "listing", String(l.id)); fs.mkdirSync(sdir, { recursive: true }); fs.writeFileSync(path.join(sdir, "index.html"), stubPage(l, photos));
   }
   console.log(`Wrote ${n} listing page(s) in ar/en/de. (sitemap.xml is written by generate-pages.mjs)`);
 }

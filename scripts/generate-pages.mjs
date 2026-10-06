@@ -35,6 +35,11 @@ async function sb(endpoint) {
   if (!res.ok) throw new Error(`Supabase ${res.status}: ${endpoint}`);
   return res.json();
 }
+async function sbRpc(fn, body) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, { method: "POST", headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
+  if (!res.ok) throw new Error(`Supabase rpc ${res.status}: ${fn}`);
+  return res.json();
+}
 async function all(table, select, order) {
   const out = [];
   for (let from = 0; ; from += 1000) {
@@ -481,6 +486,43 @@ ${g.sections.map((s) => `<section><h2>${esc(s.h[lang])}</h2>${s.p.map((p) => `<p
   return { url, html: shell({ lang, title: g.title[lang] + " | Balkoun", desc: g.lede[lang].slice(0, 158), canonical: url, alts: altsFor(rel), jsonld: ld, body, footLinks }) };
 }
 
+// ── agencies: one crawlable Arabic page per office at the address the app links to (/agency/13/) ──
+const SPEC_AR = { sale: "بيع", rent: "إيجار", commercial: "تجاري", land: "أراضٍ" };
+function agencyPage({ a, listings, footLinks }) {
+  const lang = "ar", W = S.ar, rel = `agency/${a.id}/`, url = `${SITE}${cpre()}/${rel}`;
+  const govs = (a.gov_names || []).join("، ");
+  const c = crumbs(lang, [{ name: "المكاتب العقارية", href: `${SITE}${cpre()}/agencies/` }, { name: a.name }]);
+  const paras = String(a.description || "").split(/\n+/).map((x) => x.trim()).filter(Boolean);
+  const desc = (`${a.name}: مكتب عقاري${govs ? " في " + govs : ""}، ${listings.length} إعلاناً على بلكون. ` + paras.join(" ")).replace(/\s+/g, " ").slice(0, 155);
+  const phone = a.hide_phone ? "" : String(a.phone || "").replace(/\D/g, ""), wa = a.hide_phone ? "" : String(a.whatsapp || a.phone || "").replace(/\D/g, "");
+  const body = `${c.html}<div class="pagehead"><div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">${a.logo_url ? `<img src="${esc(a.logo_url)}" alt="${esc(a.name)}" width="86" height="86" style="border-radius:18px;object-fit:cover;background:#fff">` : ""}<div><h1 style="margin:0">${esc(a.name)}${a.verified ? ' <span class="badge ok" style="vertical-align:middle">مكتب موثّق</span>' : ""}</h1>${a.contact_person ? `<p class="sub" style="margin:4px 0 0">المسؤول: ${esc(a.contact_person)}</p>` : ""}<p class="sub" style="margin:4px 0 0">${(a.specialties || []).map((k) => SPEC_AR[k] || esc(k)).join(" · ")}${govs ? ` · ${esc(govs)}` : ""}</p></div></div>
+${paras.length ? `<div class="article" style="margin-top:16px">${paras.map((x) => `<p>${esc(x)}</p>`).join("")}</div>` : ""}
+<div class="acts" style="margin-top:14px">${phone ? `<a class="o" href="tel:+${phone}">اتصال</a>` : ""}${wa ? `<a class="g" href="https://wa.me/${wa}">واتساب</a>` : ""}<a class="o" href="${SITE}${cpre()}/#/agency/${a.id}">فتح في التطبيق</a></div></div>
+${(a.area_names || []).length ? `<section class="sec"><h2>مناطق العمل</h2><div class="chips">${a.area_names.map((x) => `<span class="chip">${esc(x)}</span>`).join("")}</div></section>` : ""}
+<section class="sec"><h2>إعلانات المكتب <span class="ltr" style="color:var(--grey);font-weight:500">(${listings.length})</span></h2>${listings.length ? `<div class="grid" style="margin-top:14px">${listings.slice(0, 60).map((l) => card(l, l.area_id ? avgByArea.get(l.area_id) : null, lang)).join("")}</div>` : `<p class="sub">لا إعلانات حيّة حالياً.</p>`}</section>`;
+  const ld = [c.ld, { "@context":"https://schema.org", "@type":"RealEstateAgent", name: a.name, url, ...(a.logo_url ? { image: a.logo_url } : {}), ...(phone ? { telephone: "+" + phone } : {}), areaServed: (a.gov_names || []).map((n) => ({ "@type":"AdministrativeArea", name: n })), description: paras.join(" ").slice(0, 300) }];
+  return { url, html: shell({ lang, title: `${a.name} | مكتب عقاري${govs ? " في " + govs : ""} | بلكون`, desc, canonical: url, alts: { ar: url }, jsonld: ld, body, image: a.logo_url, footLinks }) };
+}
+
+// ── the Arabic home is the app (index.html): its #app starts empty, so Google read nothing of it. The build writes a crawlable
+//    block between <!--seo-home--> markers (headline, intro, governorates, latest listings, offices, guides); the app's first render replaces it. ──
+function homeSeoBlock({ govs, counts, latest, agencies }) {
+  const W = S.ar;
+  const src = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  const m = src.match(/aboutP:\{ar:"((?:[^"\\]|\\.)*)"/); let about = ""; try { about = m ? JSON.parse('"' + m[1] + '"') : ""; } catch (e) { about = ""; }
+  const topGovs = govs.filter((g) => (counts.gov.get(g.id) || 0) > 0).sort((a, b) => (counts.gov.get(b.id) || 0) - (counts.gov.get(a.id) || 0));
+  return `<!--seo-home--><div class="seo-home" id="seoHome"><h1>${esc(W.homeH1)}</h1><p>${esc(W.homeLede)}</p>${about.split(/\n+/).filter(Boolean).map((x) => `<p>${esc(x)}</p>`).join("")}
+<h2>${W.browseByGov}</h2><ul>${topGovs.map((g) => `<li><a href="${pageUrl("ar", `for-sale/${g.slug}/`)}">عقارات ${esc(govName(g, "ar"))} <span class="ltr">(${counts.gov.get(g.id)})</span></a></li>`).join("")}<li><a href="${pageUrl("ar", "areas/")}">${W.allAreas}</a></li></ul>
+<h2>${W.latest}</h2><ul class="seo-list">${latest.map((l) => `<li><a href="${listingUrl(l, "ar")}">${esc(typeName(l.property_type, "ar"))} ${l.deal === "rent" ? W.forRent : W.forSale}${l.area_m2 ? ` <span class="ltr">${l.area_m2}</span> ${W.sqm}` : ""} — ${esc([l.area_ar, l.governorate_ar].filter(Boolean).join("، "))}${l.price_usd != null ? ` · ${ltr(money(l.price_usd))}` : ""}</a></li>`).join("")}</ul>
+${agencies.length ? `<h2>مكاتب عقارية على بلكون</h2><ul>${agencies.slice(0, 8).map((a) => `<li><a href="${SITE}${cpre()}/agency/${a.id}/">${esc(a.name)}</a></li>`).join("")}</ul>` : ""}
+${CTX.isDefault ? `<h2>أدلة عملية للشراء والإيجار</h2><ul>${GUIDES.map((g) => `<li><a href="${pageUrl("ar", `guides/${g.slug}/`)}">${esc(g.title.ar)}</a></li>`).join("")}</ul>` : ""}</div><!--/seo-home-->`;
+}
+function injectHomeSeo(block) {
+  const f = path.join(ROOT, "index.html"), src = fs.readFileSync(f, "utf8");
+  const re = /<!--seo-home-->[\s\S]*?<!--\/seo-home-->/;
+  const out = re.test(src) ? src.replace(re, () => block) : src.replace('<div id="app" role="main">', () => '<div id="app" role="main">' + block);
+  if (out !== src) fs.writeFileSync(f, out);
+}
 function redirectHtml(to, lang) {
   return `<!DOCTYPE html><html lang="${lang}"><head><meta charset="UTF-8"><meta http-equiv="refresh" content="0;url=${to}"><link rel="canonical" href="${to}"><meta name="robots" content="noindex, follow"><title>Balkoun</title></head><body><a href="${to}">${to}</a><script>location.replace(${JSON.stringify(to)})</script></body></html>`;
 }
@@ -504,13 +546,13 @@ async function main() {
   const [govsAll, areasAll, listingsAll, prices] = await Promise.all([
     all("governorates", "id,name_ar,name_en,slug,sort_order,country_code,enabled,merged_into", "sort_order.asc,id.asc"),
     all("areas", "id,governorate_id,name_ar,name_en,slug,enabled", "id.asc"),
-    all("v_listings", "id,deal,property_type,governorate_id,governorate_ar,area_id,area_ar,landmark,price_usd,area_m2,rooms,floor,tabu,rental_period,is_featured,cover_url,created_at,status,country_code", "created_at.desc"),
+    all("v_listings", "id,user_id,deal,property_type,governorate_id,governorate_ar,area_id,area_ar,landmark,price_usd,area_m2,rooms,floor,tabu,rental_period,is_featured,cover_url,created_at,status,country_code", "created_at.desc"),
     all("v_area_prices", "area_id,listings,avg_price_per_m2", "area_id.asc"),
   ]);
   govById = new Map(govsAll.map((g) => [g.id, g])); areaById = new Map(areasAll.map((a) => [a.id, a]));
   avgByArea = new Map(prices.filter((p) => p.listings >= 3).map((p) => [p.area_id, Number(p.avg_price_per_m2)]));
   const marketByArea = new Map(prices.map((p) => [p.area_id, p]));
-  const listingDirsOf = (base) => fs.existsSync(base) ? fs.readdirSync(base).filter((d) => fs.existsSync(path.join(base, d, "index.html"))) : [];
+  const listingDirsOf = (base) => fs.existsSync(base) ? fs.readdirSync(base).filter((d) => !/^\d+$/.test(d) && fs.existsSync(path.join(base, d, "index.html"))) : [];   // the numeric id-only stubs are noindex pointers, not sitemap entries
   const today = new Date().toISOString().slice(0, 10);
   const entries = []; let total = 0;
 
@@ -580,6 +622,17 @@ async function main() {
       }
       if (lang !== "ar") { const hp = homePage({ lang, govs: usableGovs, counts, latest: live.slice(0, 12), footLinks }); write(hp.url, hp.html); urls.push({ loc: hp.url, priority: "0.9" }); }
     }
+
+    // offices: one page each (the app links to /agency/<id>; these answer 200 with the office's listings)
+    let agencies = [];
+    try { agencies = (await sbRpc("bk_public_agencies", { p_country: c.code })) || []; } catch (e) { console.warn("agencies unreadable:", e.message); }
+    fs.rmSync(path.join(base, "agency"), { recursive: true, force: true });
+    for (const a of agencies) {
+      const al = live.filter((l) => l.user_id === a.user_id);
+      const ap = agencyPage({ a, listings: al, footLinks: footLinksFor("ar") }); write(ap.url, ap.html); urls.push({ loc: ap.url, priority: al.length ? "0.7" : "0.5" });
+    }
+    // the crawlable block inside the Arabic home (index.html) for the default country
+    if (CTX.isDefault) { try { injectHomeSeo(homeSeoBlock({ govs: usableGovs, counts, latest: live.slice(0, 10), agencies: agencies.filter((a) => live.some((l) => l.user_id === a.user_id)) })); } catch (e) { console.warn("home block skipped:", e.message); } }
 
     // the app routes that have their own 200 page (see generate-routes.mjs)
     const routeUrls = ["search", "mapsearch", "wanted", "agencies", "projects"].filter((r) => fs.existsSync(path.join(base, r, "index.html"))).map((r) => ({ loc: `${SITE}${CTX.prefix}/${r}/`, priority: "0.6" }));
