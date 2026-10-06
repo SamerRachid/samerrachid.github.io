@@ -10216,6 +10216,7 @@ function phoneHeadline(){
     // the drawing gives way once the headline's edge reaches it (the scene's own camera animation is on this element, so the push is a WAAPI animation too)
     var st=document.querySelector(".home-hero .sk-stage"); if(st && st.animate){ var dir=(typeof rtlNow==="function"&&rtlNow())?-1:1; try{ st.animate([{transform:"translateX(0)"},{transform:"translateX("+(dir*24)+"vw)"}],{duration:1200,delay:340,easing:"cubic-bezier(.25,.1,.2,1.06)",fill:"forwards"}) }catch(e){} }
   };
+  var hdm=parseFloat(SX("h1_delay_m","")); if(!isNaN(hdm)){ setTimeout(go, Math.max(80, Math.round(hdm*1000))); return }   // extras.h1_delay_m = seconds after the page opens (set: fixed timing; empty: follow the mode below)
   if(SX("phone_headline_mode","after")==="immediate"){ setTimeout(go,80); return }
   document.addEventListener("sk-rest", function(){ setTimeout(go,600) }, {once:true});
   if(!_phTimer) _phTimer=setTimeout(go, PH_WAIT_MAX);   // if the scene never reports (another background type), the headline still comes
@@ -10233,7 +10234,7 @@ function heroChoreo(){
     el.classList.add("choreo"); el.style.animationDelay=(base+p[1])+"ms"; settle(el,"choreo");
   });
   // the headline slides in from its own side while the drawing shrinks away from it (they run together)
-  var h1=$(".hero h1"); if(h1 && !(window.innerWidth<=700)){ h1.classList.add("choreo-slide"); h1.style.animationDelay=(base+450)+"ms"; settle(h1,"choreo-slide") }
+  var h1=$(".hero h1"); if(h1 && !(window.innerWidth<=700)){ var hd1=parseFloat(SX("h1_delay","")); if(isNaN(hd1)) hd1=0.45; h1.classList.add("choreo-slide"); h1.style.animationDelay=(base+Math.round(hd1*1000))+"ms"; settle(h1,"choreo-slide") }   // extras.h1_delay = seconds after the opening word lifts
 }
 
 /* ── "Damascus in gold lines": hero_bg_type = sketch ──
