@@ -1798,7 +1798,7 @@ html[data-cc="SY"] .typecell.tl[data-type="clinic"]{--tile:url(/assets/home/roof
 .home-hero .sbar.aiglow::before{inset:-3px;border-radius:16px;padding:3px;z-index:3;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
 .home-hero .sbar.aiglow::after{inset:-8px;border-radius:20px;padding:8px;z-index:-1;filter:blur(10px);opacity:.9;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
 @keyframes sbarShine{0%{background-position:-100% 0}72%,100%{background-position:200% 0}}
-.home-hero .aisearch.aiglow .aisearch-pill::before,.home-hero .aisearch.aiglow .aisearch-pill::after{content:"";position:absolute;pointer-events:none;background:linear-gradient(90deg,rgba(255,220,140,0) 0%,rgba(255,220,140,0) 24%,#E3B563 38%,#FFF8E6 50%,#E3B563 62%,rgba(255,220,140,0) 76%,rgba(255,220,140,0) 100%) 0 0/200% 100% no-repeat;animation:sbarShine var(--shine-dur,5.2s) linear infinite}
+.home-hero .aisearch.aiglow .aisearch-pill::before,.home-hero .aisearch.aiglow .aisearch-pill::after{content:"";position:absolute;pointer-events:none;background:linear-gradient(90deg,rgba(255,220,140,0) 0%,rgba(255,220,140,0) 24%,#E3B563 38%,#FFF8E6 50%,#E3B563 62%,rgba(255,220,140,0) 76%,rgba(255,220,140,0) 100%) 0 0/200% 100% no-repeat;animation:sbarShine var(--shine-dur-ai,var(--shine-dur,5.2s)) linear infinite}
 .home-hero .aisearch.aiglow .aisearch-pill::before{inset:-3px;border-radius:17px;padding:3px;z-index:3;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
 .home-hero .aisearch.aiglow .aisearch-pill::after{inset:-8px;border-radius:22px;padding:8px;z-index:-1;filter:blur(10px);opacity:.9;-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
 @media (prefers-reduced-motion:reduce){.home-hero .aisearch.aiglow .aisearch-pill::before,.home-hero .aisearch.aiglow .aisearch-pill::after{animation:none;background-position:50% 0}}
@@ -11827,7 +11827,8 @@ function applySiteExtras(){ try{ var R=document.documentElement.style;
   var sc=SX("sk_scale",""), scm=SX("sk_scale_m",""); setOr("--sk-scale",sc===""?"":(+sc/100),""); setOr("--sk-scale-m",scm===""?"":(+scm/100),"");
   setOr("--sec-pad",SX("sec_pad","")); setOr("--sec-pad-m",SX("sec_pad_m",""));
   setOr("--logo-h",SX("logo_h","")); setOr("--logo-h-m",SX("logo_h_m",""));
-  var shd=parseFloat(SX("sbar_glow_speed","")); setOr("--shine-dur", isNaN(shd)||shd<=0?"":shd, "s");   // seconds per pass of the golden shine (search bar + AI bar)
+  var shd=parseFloat(SX("sbar_glow_speed","")); setOr("--shine-dur", isNaN(shd)||shd<=0?"":shd, "s");   // seconds per pass of the golden shine (search bar; the AI bar inherits it unless it has its own)
+  var shda=parseFloat(SX("ai_bar_glow_speed","")); setOr("--shine-dur-ai", isNaN(shda)||shda<=0?"":shda, "s");
   document.body.classList.toggle("nav-nomenu-d", SX("nav_menu_desktop",true)===false);
   document.body.classList.toggle("nav-nonew", SX("nav_map_new",true)===false);
   document.body.classList.toggle("nav-nolinks-d", SX("nav_links_desktop",true)===false);
