@@ -1942,6 +1942,11 @@ h1,h2,h3,.logo,.hero h1{letter-spacing:0}
 .adm-q{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:0 12px;height:36px;width:min(320px,30vw);color:#fff;margin-inline-start:10px}
 .adm-q input{background:none;border:0;color:#fff;font:inherit;font-size:13.5px;width:100%;outline:none;padding:0}
 .adm-q input::placeholder{color:rgba(255,255,255,.55)}
+.adm-q{position:relative}
+.anav-hits{position:absolute;top:calc(100% + 6px);inset-inline-start:0;width:min(440px,92vw);background:#fff;color:var(--ink);border-radius:12px;box-shadow:0 18px 50px -18px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.06);z-index:60;overflow:hidden;text-align:start}
+.anav-hits button{display:block;width:100%;text-align:start;padding:9px 14px;border:0;border-bottom:1px solid #F0F1F4;background:none;font:inherit;color:var(--ink);cursor:pointer}
+.anav-hits button:last-child{border-bottom:0}.anav-hits button.on,.anav-hits button:hover{background:#F4F6FA}
+.anav-hits b{display:block;font-size:13.5px;font-weight:700}.anav-hits small{display:block;color:var(--grey);font-size:12px;margin-top:2px}.anav-none{padding:12px 14px;color:var(--grey);font-size:13px}
 .adm-actions{margin-inline-start:auto;display:flex;align-items:center;gap:8px}
 .adm .adm-top .ab{background:rgba(255,255,255,.08);color:#fff;border:1px solid rgba(255,255,255,.18);height:34px;padding:0 12px;border-radius:9px;margin:0;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;white-space:nowrap;font-weight:600}
 .adm .adm-top .ab:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.3)}
@@ -11255,7 +11260,7 @@ var GX_T={
   lgProp:{ar:"العقار",en:"The property",de:"Das Objekt"}, lgLoc:{ar:"الموقع",en:"Location",de:"Lage"}, lgRent:{ar:"شروط الإيجار",en:"Rental terms",de:"Mietbedingungen"},
   adsH:{ar:"إعلانات مميزة",en:"Featured adverts",de:"Anzeigen"},
   // admin panel 2026-09: navigation, page descriptions, new settings
-  aNavSearch:{ar:"ابحث في لوحة التحكم…",en:"Search the panel…",de:"Im Panel suchen…"},
+  aNavSearch:{ar:"ابحث في لوحة التحكم… (مثلاً: روّج)",en:"Search the panel… (e.g. promote)",de:"Im Panel suchen…"}, aNavNone:{ar:"لا نتائج. جرّب كلمة أخرى.",en:"No results. Try another word.",de:"Keine Treffer."},
   navListings:{ar:"الإعلانات",en:"Listings",de:"Anzeigen"}, navMarketing:{ar:"التسويق والإيرادات",en:"Marketing & revenue",de:"Marketing & Umsatz"},
   navWebsite:{ar:"الموقع",en:"Website",de:"Website"}, navSystem:{ar:"النظام",en:"System",de:"System"},
   dlgDiscardQ:{ar:"إغلاق النافذة وفقدان ما كتبته؟",en:"Close and lose what you typed?",de:"Schließen und Eingaben verwerfen?"},
