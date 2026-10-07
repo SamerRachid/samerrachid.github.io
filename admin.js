@@ -3741,6 +3741,8 @@ function promoPaint(ctx,W,H,l,x,photo,opt){
   var ph=Math.round(H*(opt.photoShare||0.62));
   if(photo) promoCoverDraw(ctx,photo,0,0,W,ph,opt.zoom||1,opt.dx||0,opt.dy||0); else { ctx.fillStyle="#0D1729"; ctx.fillRect(0,0,W,ph) }
   var g=ctx.createLinearGradient(0,ph-220,0,ph); g.addColorStop(0,"rgba(20,33,61,0)"); g.addColorStop(1,"rgba(20,33,61,1)"); ctx.fillStyle=g; ctx.fillRect(0,ph-220,W,220);
+  // top scrim so the logo stays legible over light/busy photos too
+  var gt=ctx.createLinearGradient(0,0,0,220); gt.addColorStop(0,"rgba(20,33,61,.6)"); gt.addColorStop(1,"rgba(20,33,61,0)"); ctx.fillStyle=gt; ctx.fillRect(0,0,W,220);
   // deal badge top-right
   ctx.direction="rtl"; ctx.textAlign="right"; ctx.textBaseline="middle";
   var badge=l.deal==="rent"?"للإيجار":"للبيع"; ctx.font="800 "+Math.round(W*0.034)+"px 'Noto Kufi Arabic'"; var bw=ctx.measureText(badge).width+Math.round(W*0.05);
