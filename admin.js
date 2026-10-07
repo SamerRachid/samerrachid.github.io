@@ -3711,6 +3711,7 @@ function admPromoHtml(l){
   return '<div class="ld-sec">📣 '+GX("promoH")+'</div><div class="promo" id="promoBox">'+
     '<div class="hintx" style="margin-bottom:8px">'+GX("promoHint")+'</div>'+
     '<label class="lfc on" style="margin-bottom:8px"><span>'+GX("promoSrc")+':</span><select id="promoSrc">'+PROMO_SRC.map(function(s){ return '<option value="'+s[0]+'"'+(p.src===s[0]?' selected':'')+'>'+s[1]+'</option>' }).join("")+'</select></label>'+
+    '<label class="lfc on" style="margin-bottom:8px"><input type="checkbox" id="promoNoPrice"'+(p.hidePrice?' checked':'')+'> <span>'+GX("promoHidePrice")+'</span></label>'+
     '<textarea id="promoText" readonly style="width:100%;min-height:230px;font-family:inherit;font-size:13.5px;line-height:1.55;border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff;direction:rtl">'+esc(text)+'</textarea>'+
     '<div class="ld-acts" style="margin-top:8px"><button class="ab ok" id="promoCopy">📋 '+GX("promoCopy")+'</button>'+
       '<button class="ab" data-promoimg="45">🖼 '+GX("promoImg45")+'</button><button class="ab" data-promoimg="11">🖼 '+GX("promoImg11")+'</button>'+
@@ -3723,9 +3724,10 @@ function admPromoHtml(l){
 function wireAdmPromo(){
   $$("[data-apromo]").forEach(function(b){ b.onclick=function(){ var id=this.dataset.apromo; ADM.promo=(ADM.promo&&String(ADM.promo.id)===String(id))?null:{id:id,src:"fb-damas"}; render() } });
   var sel=$("#promoSrc"); if(sel) sel.onchange=function(){ ADM.promo.src=this.value; ADM.promo.img=null; ADM.promo.reel=null; render() };
+  var np=$("#promoNoPrice"); if(np) np.onchange=function(){ ADM.promo.hidePrice=this.checked; ADM.promo.img=null; ADM.promo.reel=null; render() };
   var cp=$("#promoCopy"); if(cp) cp.onclick=function(){ var ta=$("#promoText"); var btn=this; var done=function(){ btn.textContent="✓ "+GX("promoCopied"); setTimeout(function(){ btn.textContent="📋 "+GX("promoCopy") },1600) }; try{ navigator.clipboard.writeText(ta.value).then(done,function(){ ta.select(); document.execCommand("copy"); done() }) }catch(e){ ta.select(); document.execCommand("copy"); done() } };
-  $$("[data-promoimg]").forEach(function(b){ b.onclick=async function(){ var fmt=this.dataset.promoimg; var l=admPromoListing(); if(!l) return; ADM.promo.busy=GX("promoWorking"); ADM.promo.img=null; render(); try{ ADM.promo.img=await promoImage(l,fmt) }catch(e){ ADM.promo.busy=String(e&&e.message||e); render(); return } ADM.promo.busy=""; render() } });
-  var rb=$("#promoReel"); if(rb) rb.onclick=async function(){ var l=admPromoListing(); if(!l) return; if(typeof VideoEncoder==="undefined"){ ADM.promo.busy=GX("promoReelNoSupport"); render(); return } ADM.promo.busy=GX("promoWorking"); ADM.promo.reel=null; render(); try{ ADM.promo.reel=await promoReel(l,function(pct){ var el=$("#promoBusy"); if(el) el.textContent=GX("promoWorking")+" "+pct+"%" }) }catch(e){ ADM.promo.busy=String(e&&e.message||e); render(); return } ADM.promo.busy=""; render() };
+  $$("[data-promoimg]").forEach(function(b){ b.onclick=async function(){ var fmt=this.dataset.promoimg; var l=admPromoListing(); if(!l) return; ADM.promo.busy=GX("promoWorking"); ADM.promo.img=null; render(); try{ ADM.promo.img=await promoImage(l,fmt,{hidePrice:!!ADM.promo.hidePrice}) }catch(e){ ADM.promo.busy=String(e&&e.message||e); render(); return } ADM.promo.busy=""; render() } });
+  var rb=$("#promoReel"); if(rb) rb.onclick=async function(){ var l=admPromoListing(); if(!l) return; if(typeof VideoEncoder==="undefined"){ ADM.promo.busy=GX("promoReelNoSupport"); render(); return } ADM.promo.busy=GX("promoWorking"); ADM.promo.reel=null; render(); try{ ADM.promo.reel=await promoReel(l,{hidePrice:!!ADM.promo.hidePrice},function(pct){ var el=$("#promoBusy"); if(el) el.textContent=GX("promoWorking")+" "+pct+"%" }) }catch(e){ ADM.promo.busy=String(e&&e.message||e); render(); return } ADM.promo.busy=""; render() };
 }
 function admPromoListing(){ var id=ADM.promo&&ADM.promo.id; return ((ADM.data&&ADM.data.listings)||[]).find(function(l){ return String(l.id)===String(id) })||null }
 function promoPhotos(l){ var x=promoRow(l); var ph=(x&&x.photos||[]).slice(); if(!ph.length&&l.cover) ph=[l.cover]; return ph.slice(0,6) }
@@ -3755,9 +3757,13 @@ function promoPaint(ctx,W,H,l,x,photo,opt){
   tl.forEach(function(ln,i){ ctx.fillText(ln,W-pad,y+lhgt/2+i*lhgt) }); y+=tl.length*lhgt+Math.round(W*0.012);
   ctx.fillStyle=sand; ctx.font="500 "+Math.round(W*0.03)+"px 'Noto Kufi Arabic'"; var place=[l.area,l.gov].filter(Boolean).join("، "); if(place){ ctx.fillText("📍 "+place,W-pad,y+Math.round(W*0.02)); y+=Math.round(W*0.058) }
   // price
-  var price=(l.price_usd!=null&&l.price_usd!=="")?"$"+Number(l.price_usd).toLocaleString("en"):"السعر عند التواصل"; ctx.fillStyle=gold; ctx.font="800 "+Math.round(W*0.082)+"px 'Noto Kufi Arabic'"; ctx.direction="ltr"; ctx.textAlign="right"; ctx.fillText(price,W-pad,y+Math.round(W*0.045)); ctx.direction="rtl";
-  if(l.deal==="rent"){ ctx.fillStyle=sand; ctx.font="500 "+Math.round(W*0.028)+"px 'Noto Kufi Arabic'"; ctx.textAlign="left"; ctx.fillText(x.rentalPeriod==="daily"?"يومياً":x.rentalPeriod==="yearly"?"سنوياً":"شهرياً",pad,y+Math.round(W*0.045)); ctx.textAlign="right" }
-  y+=Math.round(W*0.105);
+  if(!opt.hidePrice){
+    var price=(l.price_usd!=null&&l.price_usd!=="")?"$"+Number(l.price_usd).toLocaleString("en"):"السعر عند التواصل"; ctx.fillStyle=gold; ctx.font="800 "+Math.round(W*0.082)+"px 'Noto Kufi Arabic'"; ctx.direction="ltr"; ctx.textAlign="right"; ctx.fillText(price,W-pad,y+Math.round(W*0.045)); ctx.direction="rtl";
+    if(l.deal==="rent"){ ctx.fillStyle=sand; ctx.font="500 "+Math.round(W*0.028)+"px 'Noto Kufi Arabic'"; ctx.textAlign="left"; ctx.fillText(x.rentalPeriod==="daily"?"يومياً":x.rentalPeriod==="yearly"?"سنوياً":"شهرياً",pad,y+Math.round(W*0.045)); ctx.textAlign="right" }
+    y+=Math.round(W*0.105);
+  } else {
+    y+=Math.round(W*0.025);
+  }
   // fact chips
   var chips=[]; if(l.area_m2) chips.push((+l.area_m2).toLocaleString("en")+" م²"); if(x.r) chips.push(x.r+" غرف"); if(x.b) chips.push(x.b+" حمام"); var deed=l.deal!=="rent"&&D.TABU[l.tabu]?D.TABU[l.tabu][0]:""; if(deed) chips.push(deed); var cond=(D.COND&&D.COND[l.condition])?D.COND[l.condition][0]:""; if(cond&&chips.length<4) chips.push(cond);
   ctx.font="700 "+Math.round(W*0.027)+"px 'Noto Kufi Arabic'"; var cx=W-pad, ch=Math.round(W*0.052);
@@ -3767,15 +3773,15 @@ function promoPaint(ctx,W,H,l,x,photo,opt){
   ctx.fillStyle=gold; ctx.font="800 "+Math.round(W*0.03)+"px 'Noto Kufi Arabic'"; ctx.fillText("ببلاش · بلا عمولة",W-pad,fy);
   ctx.fillStyle="#fff"; ctx.font="700 "+Math.round(W*0.03)+"px Lato, 'Noto Kufi Arabic'"; ctx.direction="ltr"; ctx.textAlign="left"; ctx.fillText("balkoun.com",pad,fy); ctx.direction="rtl"; ctx.textAlign="right";
 }
-async function promoImage(l,fmt){
-  var x=promoRow(l)||{}; var W=1080, H=fmt==="11"?1080:1350; var photos=promoPhotos(l); var photo=null; if(photos.length){ try{ photo=await promoLoadImg(photos[0]) }catch(e){} }
+async function promoImage(l,fmt,opt){
+  opt=opt||{}; var x=promoRow(l)||{}; var W=1080, H=fmt==="11"?1080:1350; var photos=promoPhotos(l); var photo=null; if(photos.length){ try{ photo=await promoLoadImg(photos[0]) }catch(e){} }
   var A=await promoAssets(); var c=document.createElement("canvas"); c.width=W; c.height=H; var ctx=c.getContext("2d");
-  promoPaint(ctx,W,H,l,x,photo,{logo:A.logo,photoShare:fmt==="11"?0.56:0.62});
+  promoPaint(ctx,W,H,l,x,photo,{logo:A.logo,photoShare:fmt==="11"?0.56:0.62,hidePrice:opt.hidePrice});
   return c.toDataURL("image/png");
 }
 /* 12-second silent reel: each photo with a slow push-in, the card's text panel at the bottom, end card with the logo */
-async function promoReel(l,onPct){
-  var x=promoRow(l)||{}; var W=1080, H=1920, FPS=24; var photos=promoPhotos(l); var imgs=[];
+async function promoReel(l,opt,onPct){
+  opt=opt||{}; var x=promoRow(l)||{}; var W=1080, H=1920, FPS=24; var photos=promoPhotos(l); var imgs=[];
   for(var i=0;i<photos.length;i++){ try{ imgs.push(await promoLoadImg(photos[i])) }catch(e){} }
   if(!imgs.length) throw new Error(GX("lfNoPhotos"));
   var A=await promoAssets();
@@ -3789,7 +3795,7 @@ async function promoReel(l,onPct){
     var t=f/FPS; var idx=Math.min(imgs.length-1, Math.floor(t/per)); var u=(t-idx*per)/per;
     if(t<imgs.length*per){
       var zoom=1.04+0.10*u; var dx=(idx%2?1:-1)*40*u;
-      promoPaint(ctx,W,H,l,x,imgs[idx],{logo:A.logo,photoShare:0.66,zoom:zoom,dx:dx,dy:-20*u});
+      promoPaint(ctx,W,H,l,x,imgs[idx],{logo:A.logo,photoShare:0.66,zoom:zoom,dx:dx,dy:-20*u,hidePrice:opt.hidePrice});
       // crossfade with the next photo at the end of each slot
       if(u>0.86&&idx<imgs.length-1){ ctx.globalAlpha=(u-0.86)/0.14; promoCoverDraw(ctx,imgs[idx+1],0,0,W,Math.round(H*0.66),1.04,0,0); ctx.globalAlpha=1; var g=ctx.createLinearGradient(0,Math.round(H*0.66)-220,0,Math.round(H*0.66)); g.addColorStop(0,"rgba(20,33,61,0)"); g.addColorStop(1,"rgba(20,33,61,1)"); ctx.fillStyle=g; ctx.fillRect(0,Math.round(H*0.66)-220,W,220) }
       // photo counter
