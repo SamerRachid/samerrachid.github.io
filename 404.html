@@ -2985,6 +2985,9 @@ html[lang=fr] .htools a.gold{white-space:nowrap}
 .lgal .lg-vid{position:absolute;bottom:calc(96px + 10px + 14px);inset-inline-start:14px;z-index:3;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:6px 14px 6px 6px;background:rgba(9,14,26,.78);color:#fff;font:700 13px var(--fd);cursor:pointer;backdrop-filter:blur(4px)}
 .lgal .lg-vid:hover{background:rgba(9,14,26,.92)}.lgal{position:relative}
 .lg-main video.main{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;display:block;background:#0D1729}
+.lg-main .gvclose{position:absolute;top:10px;inset-inline-end:10px;z-index:4;width:36px;height:36px;border-radius:50%;border:0;background:rgba(9,14,26,.62);color:#fff;font:400 24px/36px var(--fd);text-align:center;cursor:pointer;backdrop-filter:blur(4px);box-shadow:0 4px 14px -6px rgba(0,0,0,.7)}
+.lg-main .gvclose:hover{background:rgba(9,14,26,.9)}
+.lgal .lg-main.onvid~.lg-all{inset-inline-end:58px}
 .lg-main.onvid{background:#0D1729}
 .gthv{position:relative;width:100%;height:100%;min-height:0;cursor:pointer;background:#0D1729;display:grid;place-items:center;opacity:.9;overflow:hidden}
 .gthv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
@@ -3994,6 +3997,7 @@ var VIEWMODE = (function(){
 })();
 var NEW={photos:[],lat:null,lng:null};
 var VLB_OPEN=false, _vlbFor=null;   // video lightbox on a listing page
+var GVID_OFF=false;   // the × on the gallery video: hides it and shows the photos (or the poster when there are none); back to slide 1 brings it back
 var SAVED=[];
 var LOADED={};
 var HOMEDEAL="sale";
@@ -5294,9 +5298,9 @@ function listing(id){
  var IMGS = (x.photos&&x.photos.length) ? x.photos : [];
  var VOFF = VIDS.length?1:0;   // the video, when there is one, is the first slide of the gallery
  // a newly opened listing always starts at its first slide
- if(window._lastLid!==String(x.id)){ window._lastLid=String(x.id); GI=0 }
+ if(window._lastLid!==String(x.id)){ window._lastLid=String(x.id); GI=0; GVID_OFF=false }
  var nAll = IMGS.length+VOFF; if(GI>=nAll) GI=0;
- var onVid = !!(VOFF && GI===0), pi = Math.max(0, GI-VOFF), curImg = IMGS[pi]||"";
+ var onVid = !!(VOFF && GI===0 && !GVID_OFF), pi = Math.max(0, GI-VOFF), curImg = IMGS[pi]||(GVID_OFF&&VIDS.length?(VIDS[0].poster||""):"");
  var I=LICON, ar=L==="ar", isRent=x.d==="rent", hasFl=(x.fl!==null&&x.fl!==undefined&&x.fl!=="");
  var typeName=D.TYPES[x.t]?D.TYPES[x.t][li()]:"", condName=(D.COND[x.cd]||D.LANDC[x.cd]||["",""," ",""])[li()];
  var deedName=D.TABU[x.tb]?D.TABU[x.tb][li()]:"";
@@ -5309,14 +5313,14 @@ function listing(id){
  var gal='<div class="'+galCls+'">'+
   (n
     ? '<figure class="lg-main'+(onVid?' onvid':'')+'" style="--bg:url(&quot;'+(onVid?(VIDS[0].poster||""):curImg)+'&quot;)">'+
-      (onVid ? '<video class="main" id="gvideo" controls playsinline preload="metadata"'+wmVideoAttrs()+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'+wmOverlayHtml()
-             : '<img class="main" id="gmain" src="'+curImg+'" alt="'+esc(typeName)+'">')+
+      (onVid ? '<video class="main" id="gvideo" controls playsinline preload="metadata"'+wmVideoAttrs()+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'+wmOverlayHtml()+'<button type="button" class="gvclose" id="gVidClose" aria-label="'+esc(GX("mdClose"))+'">×</button>'
+             : (curImg ? '<img class="main" id="gmain" src="'+curImg+'" alt="'+esc(typeName)+'">' : '<div class="nophoto lg-none"><img src="/brand/logo-light.png" alt="بلكون"></div>'))+
       (n>1 ? '<button class="gnav" id="gPrev" aria-label="prev" style="'+(rtlNow()?"right":"left")+':12px">‹</button><button class="gnav" id="gNext" aria-label="next" style="'+(rtlNow()?"left":"right")+':12px">›</button>' : '')+
       '<div class="gcount"><span class="ltr">'+(GI+1)+' / '+n+'</span></div></figure>'+
       (n>1 ? '<div class="lg-side" id="gth">'+thumbs.join("")+'</div>' : '')+
       (IMGS.length>1 ? '<button class="lg-all" id="gAll">'+I.grid+GX("lAllPhotos")+' <span class="ltr">('+IMGS.length+')</span></button>' : '')
     : '<div class="nophoto lg-none"><img src="/brand/logo-light.png" alt="بلكون"></div>')+
-  (VIDS.length && !onVid ? '<button type="button" class="lg-vid" id="gVid"><span class="vplay">▶</span>'+GX("videoWatch")+'</button>' : '')+
+  (VIDS.length && !onVid && !GVID_OFF ? '<button type="button" class="lg-vid" id="gVid"><span class="vplay">▶</span>'+GX("videoWatch")+'</button>' : '')+
  '</div>';
 
  /* ── lightbox (unchanged behaviour) ── */
@@ -8253,7 +8257,7 @@ function wire(){
    var set=function(n){
      if(!N2) return;
      var g0=GI; GI=(n+N2)%N2;
-     if(V2 && (GI===0 || g0===0)){ render(); return }   // to or from the video slide: the main element changes, so redraw
+     if(V2 && (GI===0 || g0===0)){ if(GI===0) GVID_OFF=false; render(); return }   // to or from the video slide: the main element changes, so redraw (coming back to slide 1 brings a closed video back)
      var p2=GI-V2, g=$("#gmain"); if(g) g.src=IM2[p2];
      var fg=$(".lg-main"); if(fg) fg.style.setProperty("--bg",'url("'+IM2[p2]+'")');
      var c=$(".gcount span"); if(c) c.textContent=(GI+1)+" / "+N2;
@@ -8284,6 +8288,7 @@ function wire(){
    if($("#lbClose")) $("#lbClose").onclick=function(){ LIGHTBOX_OPEN=false; render() };
    if($("#gAll")) $("#gAll").onclick=function(){ LIGHTBOX_OPEN=true; render() };
    if($("#gVid")) $("#gVid").onclick=function(e){ e.stopPropagation(); VLB_OPEN=true; render() };
+   if($("#gVidClose")) $("#gVidClose").onclick=function(e){ e.stopPropagation(); var v=$("#gvideo"); if(v){ try{ v.pause() }catch(x){} } window._gvState=null; GVID_OFF=true; if(IM2.length) GI=1; render() };
    if($("#vlbClose")) $("#vlbClose").onclick=function(){ VLB_OPEN=false; render() };
    if($("#vlb")) $("#vlb").onclick=function(e){ if(e.target===this){ VLB_OPEN=false; render() } };
    if($("#lightbox")) $("#lightbox").onclick=function(e){ if(e.target===this){ LIGHTBOX_OPEN=false; render() } };
