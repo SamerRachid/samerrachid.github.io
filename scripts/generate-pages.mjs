@@ -447,13 +447,18 @@ ${chan.length ? `<div class="chans">${chan.map((x) => `<a class="chan" href="${e
 }
 
 // English and German home pages (the Arabic home is the app itself at /)
-function homePage({ lang, govs, counts, latest, footLinks }) {
+function homePage({ lang, govs, counts, latest, footLinks, agencies = [] }) {
   const W = S[lang], url = pageUrl(lang, "");
+  const about = appText("aboutP", lang), aboutH = appText("aboutH", lang);
+  const aboutHtml = about ? `<section class="sec"><h2>${esc(aboutH)}</h2>${about.split(/\n+/).filter(Boolean).map((x) => `<p style="line-height:1.9;max-width:900px">${esc(x)}</p>`).join("")}</section>` : "";
+  const agHtml = agencies.length ? `<section class="sec"><h2>${lang === "de" ? "Immobilienbüros auf Balkoun" : "Real estate agencies on Balkoun"}</h2><div class="chips">${agencies.slice(0, 8).map((a) => `<a class="chip" href="${SITE}${cpre()}/agency/${a.id}/">${esc(a.name)}</a>`).join("")}</div></section>` : "";
   const topGovs = govs.filter((g) => (counts.gov.get(g.id) || 0) > 0).sort((a, b) => (counts.gov.get(b.id) || 0) - (counts.gov.get(a.id) || 0));
   const body = `<section class="hero"><h1>${esc(W.homeH1)}</h1><p>${esc(W.homeLede)}</p>
 <div class="acts"><a class="g" href="${searchUrl(lang, { deal: "sale" })}">${esc(W.forSale[0].toUpperCase() + W.forSale.slice(1))}</a><a class="o" href="${searchUrl(lang, { deal: "rent" })}">${esc(W.forRent[0].toUpperCase() + W.forRent.slice(1))}</a><a class="o" href="${appUrl(lang, "mapsearch")}">${W.map}</a></div></section>
+${aboutHtml}
 <section class="sec"><h2>${W.browseByGov}</h2><div class="chips">${(topGovs.length ? topGovs : govs).map((g) => `<a class="chip" href="${pageUrl(lang, `for-sale/${g.slug}/`)}">${esc(govName(g, lang))}${counts.gov.get(g.id) ? ` <b>${ltr(counts.gov.get(g.id))}</b>` : ""}</a>`).join("")}<a class="chip" href="${pageUrl(lang, "areas/")}" style="color:var(--grey)">${W.allAreas}</a></div></section>
 ${latest.length ? `<section class="sec"><h2>${W.latest}</h2><div class="grid" style="margin-top:14px">${latest.map((l) => card(l, l.area_id ? avgByArea.get(l.area_id) : null, lang)).join("")}</div><p style="margin-top:14px"><a class="gold" href="${searchUrl(lang, {})}">${W.openApp}</a></p></section>` : ""}
+${agHtml}
 <section class="sec"><h2>${W.whyH}</h2><div class="why">${W.why.map((w) => `<div><h3>${esc(w[0])}</h3><p>${esc(w[1])}</p></div>`).join("")}</div></section>`;
   const ld = [{ "@context":"https://schema.org", "@type":"WebSite", name: "Balkoun", url: SITE, inLanguage: lang, description: W.homeDesc },
     { "@context":"https://schema.org", "@type":"Organization", name: "Balkoun", alternateName: "بلكون", url: SITE, logo: SITE + "/brand/og-image.png", areaServed: ENABLED.map((c) => c.code) }];
@@ -506,12 +511,17 @@ ${(a.area_names || []).length ? `<section class="sec"><h2>مناطق العمل<
 
 // ── the Arabic home is the app (index.html): its #app starts empty, so Google read nothing of it. The build writes a crawlable
 //    block between <!--seo-home--> markers (headline, intro, governorates, latest listings, offices, guides); the app's first render replaces it. ──
-function homeSeoBlock({ govs, counts, latest, agencies }) {
-  const W = S.ar;
+function appText(key, lang) {   // a default text from the app's HX_T table (index.html), e.g. appText("aboutP","en")
   const src = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
-  const m = src.match(/aboutP:\{ar:"((?:[^"\\]|\\.)*)"/); let about = ""; try { about = m ? JSON.parse('"' + m[1] + '"') : ""; } catch (e) { about = ""; }
+  const m = src.match(new RegExp(key + ":\\{[\\s\\S]{0,4000}?" + lang + ":\"((?:[^\"\\\\]|\\\\.)*)\""));
+  try { return m ? JSON.parse('"' + m[1] + '"') : ""; } catch (e) { return ""; }
+}
+function homeSeoBlock({ govs, counts, latest, agencies, extras }) {
+  const W = S.ar, ex = extras || {};
+  const about = String(ex.about_p_ar || "").trim() || appText("aboutP", "ar");
+  const aboutH = String(ex.about_h_ar || "").trim() || appText("aboutH", "ar");
   const topGovs = govs.filter((g) => (counts.gov.get(g.id) || 0) > 0).sort((a, b) => (counts.gov.get(b.id) || 0) - (counts.gov.get(a.id) || 0));
-  return `<!--seo-home--><div class="seo-home" id="seoHome"><h1>${esc(W.homeH1)}</h1><p>${esc(W.homeLede)}</p>${about.split(/\n+/).filter(Boolean).map((x) => `<p>${esc(x)}</p>`).join("")}
+  return `<!--seo-home--><div class="seo-home" id="seoHome"><h1>${esc(W.homeH1)}</h1><p>${esc(W.homeLede)}</p><h2>${esc(aboutH)}</h2>${about.split(/\n+/).filter(Boolean).map((x) => `<p>${esc(x)}</p>`).join("")}
 <h2>${W.browseByGov}</h2><ul>${topGovs.map((g) => `<li><a href="${pageUrl("ar", `for-sale/${g.slug}/`)}">عقارات ${esc(govName(g, "ar"))} <span class="ltr">(${counts.gov.get(g.id)})</span></a></li>`).join("")}<li><a href="${pageUrl("ar", "areas/")}">${W.allAreas}</a></li></ul>
 <h2>${W.latest}</h2><ul class="seo-list">${latest.map((l) => `<li><a href="${listingUrl(l, "ar")}">${esc(typeName(l.property_type, "ar"))} ${l.deal === "rent" ? W.forRent : W.forSale}${l.area_m2 ? ` <span class="ltr">${l.area_m2}</span> ${W.sqm}` : ""} — ${esc([l.area_ar, l.governorate_ar].filter(Boolean).join("، "))}${l.price_usd != null ? ` · ${ltr(money(l.price_usd))}` : ""}</a></li>`).join("")}</ul>
 ${agencies.length ? `<h2>مكاتب عقارية على بلكون</h2><ul>${agencies.slice(0, 8).map((a) => `<li><a href="${SITE}${cpre()}/agency/${a.id}/">${esc(a.name)}</a></li>`).join("")}</ul>` : ""}
@@ -620,7 +630,6 @@ async function main() {
         const gi = guidesIndex({ lang, footLinks }); write(gi.url, gi.html); urls.push({ loc: gi.url, priority: "0.7" });
         for (const g of GUIDES) { const gp = guidePage({ lang, g, footLinks }); write(gp.url, gp.html); urls.push({ loc: gp.url, priority: "0.7" }); }
       }
-      if (lang !== "ar") { const hp = homePage({ lang, govs: usableGovs, counts, latest: live.slice(0, 12), footLinks }); write(hp.url, hp.html); urls.push({ loc: hp.url, priority: "0.9" }); }
     }
 
     // offices: one page each (the app links to /agency/<id>; these answer 200 with the office's listings)
@@ -631,8 +640,9 @@ async function main() {
       const al = live.filter((l) => l.user_id === a.user_id);
       const ap = agencyPage({ a, listings: al, footLinks: footLinksFor("ar") }); write(ap.url, ap.html); urls.push({ loc: ap.url, priority: al.length ? "0.7" : "0.5" });
     }
+    for (const lang of ["en", "de"]) { const hp = homePage({ lang, govs: usableGovs, counts, latest: live.slice(0, 12), footLinks: footLinksFor(lang), agencies: agencies.filter((a) => live.some((l) => l.user_id === a.user_id)) }); write(hp.url, hp.html); urls.push({ loc: hp.url, priority: "0.9" }); }
     // the crawlable block inside the Arabic home (index.html) for the default country
-    if (CTX.isDefault) { try { injectHomeSeo(homeSeoBlock({ govs: usableGovs, counts, latest: live.slice(0, 10), agencies: agencies.filter((a) => live.some((l) => l.user_id === a.user_id)) })); } catch (e) { console.warn("home block skipped:", e.message); } }
+    if (CTX.isDefault) { try { injectHomeSeo(homeSeoBlock({ govs: usableGovs, counts, latest: live.slice(0, 10), agencies: agencies.filter((a) => live.some((l) => l.user_id === a.user_id)), extras: legalExtras })); } catch (e) { console.warn("home block skipped:", e.message); } }
 
     // the app routes that have their own 200 page (see generate-routes.mjs)
     const routeUrls = ["search", "mapsearch", "wanted", "agencies", "projects"].filter((r) => fs.existsSync(path.join(base, r, "index.html"))).map((r) => ({ loc: `${SITE}${CTX.prefix}/${r}/`, priority: "0.6" }));
