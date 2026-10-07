@@ -8355,7 +8355,7 @@ function wire(){
   if(VIEW==="edit"&&$("#eGov")&&!$("#eGov").options.length){
    var gs=$("#eGov"), as=$("#eAreaSel"); fillGeo(gs,as,false,false);
    if(gs.dataset.cur&&D.GEO[gs.dataset.cur]){ gs.value=gs.dataset.cur; gs.dispatchEvent(new Event("change")); if(as.dataset.cur) as.value=as.dataset.cur }
-   as.insertAdjacentHTML("afterbegin",'<option value="">'+t("allareas")+'</option>'); if(!as.dataset.cur) as.value="";
+   as.insertAdjacentHTML("afterbegin",'<option value="">'+(EDIT.isAdmin?t("allareas"):GX("pickArea"))+'</option>'); if(!as.dataset.cur) as.value="";   // a member picks a place; "all areas" is the admin's wildcard
  }
  $$("[data-delphoto]").forEach(function(e){ e.onclick=async function(){
    try{ if(EDIT.isAdmin) await rpc("bk_admin_photo_del",{p_token:ADM.token,p_photo:+e.dataset.delphoto}); else await rpc("bk_photo_del",{p_user:USER.id,p_photo:+e.dataset.delphoto});
