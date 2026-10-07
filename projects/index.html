@@ -930,6 +930,7 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
 /* ── home: "about the market" text block ── */
 .aboutsec .aboutcols{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:28px;align-items:start;margin-top:10px}
 .aboutsec .aboutp p{font-size:15.5px;line-height:1.95;color:var(--ink);margin:0 0 12px}
+.home-hero .aboutsec{padding-top:8px}
 .aboutsec .aboutlinks .govs{display:flex;flex-wrap:wrap;gap:8px}
 .aboutsec .aboutmore{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
 @media(max-width:860px){.aboutsec .aboutcols{grid-template-columns:1fr;gap:16px}.aboutsec .aboutp p{font-size:14.5px;line-height:1.85}}
@@ -10066,9 +10067,9 @@ function HX(k){ var o=HX_T[k]||{}; if(k==="trP" && COUNTRY!=="SY"){ var c=countr
   return cLocal(o[L]||o.en||"") }
 
 /* every homepage section below the hero, in the admin's order; each has a show switch (home_<k>_on) and text overrides (<k>_<field>_<lang>) */
-var HOME_SECS=["ads","feat","banners","ticker","projects","wanted","popular","colls","types","trust","expl","about","band","guides"];
+var HOME_SECS=["about","ads","feat","banners","ticker","projects","wanted","popular","colls","types","trust","expl","band","guides"];
 // a saved order that predates a section gets it at its default place (right after the one before it), not at the end
-function homeOrder(){ var o=SX("home_order",null); if(typeof o==="string"){ try{ o=JSON.parse(o) }catch(e){ o=null } } var r=Array.isArray(o)?o.filter(function(k){ return HOME_SECS.indexOf(k)>-1 }):[]; HOME_SECS.forEach(function(k,i){ if(r.indexOf(k)<0){ var p=i?r.indexOf(HOME_SECS[i-1]):-1; r.splice(p<0?r.length:p+1,0,k) } }); return r }
+function homeOrder(){ var o=SX("home_order",null); if(typeof o==="string"){ try{ o=JSON.parse(o) }catch(e){ o=null } } var r=Array.isArray(o)?o.filter(function(k){ return HOME_SECS.indexOf(k)>-1 }):[]; HOME_SECS.forEach(function(k,i){ if(r.indexOf(k)<0){ if(!i){ r.unshift(k); return } var p=r.indexOf(HOME_SECS[i-1]); r.splice(p<0?r.length:p+1,0,k) } }); return r }
 // featured listings (admin-featured or earned with the free-feature reward): live ones, newest window first
 function homeFeaturedHtml(){
   var list=D.LIST.filter(function(x){ return x.featured && (x.status||"live")==="live" }).slice(0,8);
