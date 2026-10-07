@@ -10075,7 +10075,7 @@ function HX(k){ var o=HX_T[k]||{}; if(k==="trP" && COUNTRY!=="SY"){ var c=countr
   return cLocal(o[L]||o.en||"") }
 
 /* every homepage section below the hero, in the admin's order; each has a show switch (home_<k>_on) and text overrides (<k>_<field>_<lang>) */
-var HOME_SECS=["about","ads","feat","banners","ticker","projects","wanted","popular","colls","types","trust","expl","band","guides"];
+var HOME_SECS=["ads","about","feat","banners","ticker","projects","wanted","popular","colls","types","trust","expl","band","guides"];
 // a saved order that predates a section gets it at its default place (right after the one before it), not at the end
 function homeOrder(){ var o=SX("home_order",null); if(typeof o==="string"){ try{ o=JSON.parse(o) }catch(e){ o=null } } var r=Array.isArray(o)?o.filter(function(k){ return HOME_SECS.indexOf(k)>-1 }):[]; HOME_SECS.forEach(function(k,i){ if(r.indexOf(k)<0){ if(!i){ r.unshift(k); return } var p=r.indexOf(HOME_SECS[i-1]); r.splice(p<0?r.length:p+1,0,k) } }); return r }
 // featured listings (admin-featured or earned with the free-feature reward): live ones, newest window first
