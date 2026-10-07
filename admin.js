@@ -32,6 +32,42 @@ var ADM_GROUPS={inbox:["reports","feedback","tickets","msgs"],promo:["ads","feat
 function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab)>-1) return g } return null }
 function admResolveTab(k){ if(!ADM_GROUPS[k]) return k; var last=(ADM._sub||{})[k]; if(last&&canTab(last)) return last; return ADM_GROUPS[k].filter(canTab)[0]||k }
 function canTab(k){ if(ADM_GROUPS[k]) return ADM_GROUPS[k].some(canTab); var p=TAB_PERM[k]; if(p===undefined) return can(k); if(p==="super") return !!ADM.isSuper; if(Array.isArray(p)) return p.some(can); return can(p) }
+// ── panel search: tabs + the features inside them (buttons, cards, settings) with the words people use for them ──
+function admNorm(s){ return String(s||"").toLowerCase().replace(/[\u064B-\u0652\u0670\u0640]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/\s+/g," ").trim() }
+var ADM_FEATURES=[
+ {tab:"listings", k:"روج ترويج promo promote share منشور فيسبوك نص جاهز صورة إعلان reel ريل", l:{ar:"زر «روّج» (نص ومنشور وصورة وريل جاهزة للإعلان)",en:"“Promote” button (ready post, image and reel for a listing)",de:"„Bewerben“ (Beitrag, Bild, Reel für ein Inserat)"}, w:{ar:"الإعلانات ← افتح إعلاناً حيّاً ← زر «روّج» في بطاقة التفاصيل",en:"Listings → open a live listing → “Promote” in the details card",de:"Inserate → Inserat öffnen → „Bewerben“"}},
+ {tab:"featured", k:"تمييز مميز featured feature star نجمة", l:{ar:"تمييز إعلان / الإعلانات المميزة",en:"Feature a listing / featured listings",de:"Inserat hervorheben"}, w:{ar:"التسويق ← الترويج ← المميزة",en:"Marketing → Promotions → Featured",de:"Marketing → Hervorgehoben"}},
+ {tab:"outreach", k:"مكاتب مستهدفة outreach pipeline واتساب رسالة نموذجية متابعة", l:{ar:"دفتر المكاتب المستهدفة (متابعة المكاتب)",en:"Agency outreach tracker",de:"Büro-Akquise"}, w:{ar:"الأعضاء ← المكاتب المستهدفة",en:"People → Agency outreach",de:"Mitglieder → Büro-Akquise"}},
+ {tab:"dashboard", k:"الزوار الآن زوار visitors now online متصلين رابط تتبع src", l:{ar:"الزوار الآن وروابط التتبّع",en:"Visitors now and campaign links",de:"Besucher jetzt und Kampagnenlinks"}, w:{ar:"نظرة عامة ← الرئيسية (البطاقات)",en:"Overview → Dashboard cards",de:"Übersicht → Dashboard"}},
+ {tab:"mainpage", k:"خلفية رسم دمشق sketch background جوال فيديو صورة الخلفية", l:{ar:"نوع الخلفية والرسم (كمبيوتر/جوال)",en:"Hero background and drawing (desktop/phone)",de:"Hintergrund und Zeichnung"}, w:{ar:"الصفحة الرئيسية ← الخلفية والرسم",en:"Home page → Background and drawing",de:"Startseite → Hintergrund"}},
+ {tab:"mainpage", k:"تأخير العنوان headline delay افتتاح opening حركة motion مؤشر cursor", l:{ar:"الحركة: مشهد الافتتاح وتأخير العنوان",en:"Motion: opening scene and headline delay",de:"Bewegung: Eröffnung und Verzögerung"}, w:{ar:"الصفحة الرئيسية ← الحركة والمسافات",en:"Home page → Motion and spacing",de:"Startseite → Bewegung und Abstände"}},
+ {tab:"mainpage", k:"وميض ذهبي glow shine شريط البحث الذكي ai bar سرعة", l:{ar:"الوميض الذهبي وسرعته (شريط البحث والشريط الذكي)",en:"Golden shine and its speed (search bar, AI bar)",de:"Goldglanz und Geschwindigkeit"}, w:{ar:"الصفحة الرئيسية ← شريط البحث",en:"Home page → Search bar",de:"Startseite → Suchleiste"}},
+ {tab:"mainpage", k:"مربعات إعلانية squares موضع الصف رأسي ارتفاع حجم المربع", l:{ar:"المربعات الإعلانية: الحجم وموضع الصف",en:"Ad squares: size and row position",de:"Werbekacheln: Größe und Position"}, w:{ar:"الصفحة الرئيسية ← المربعات الإعلانية",en:"Home page → Ad squares",de:"Startseite → Werbekacheln"}},
+ {tab:"mainpage", k:"الأكثر مشاهدة most viewed popular عن عقارات سوريا نص تعريفي about seo ترتيب الأقسام sections order", l:{ar:"أقسام الرئيسية: الأكثر مشاهدة، عن عقارات سوريا، الترتيب",en:"Home sections: most viewed, about, ordering",de:"Startseiten-Abschnitte"}, w:{ar:"الصفحة الرئيسية ← قائمة الأقسام (الأسهم للترتيب، العين للإخفاء)",en:"Home page → sections list (arrows reorder, eye hides)",de:"Startseite → Abschnitte"}},
+ {tab:"mainpage", k:"شعار logo حجم الشعار هيدر header", l:{ar:"الشعار في الهيدر (الشكل والحجم)",en:"Header logo (variant and size)",de:"Logo im Header"}, w:{ar:"الصفحة الرئيسية ← الحركة والمسافات ← الشعار",en:"Home page → Motion and spacing → Logo",de:"Startseite → Logo"}},
+ {tab:"settings", k:"صيانة maintenance إغلاق الموقع قانوني شروط خصوصية terms privacy", l:{ar:"وضع الصيانة والنصوص القانونية",en:"Maintenance mode and legal texts",de:"Wartungsmodus und Rechtstexte"}, w:{ar:"الموقع ← النظام ← الإعدادات",en:"Website → System → Settings",de:"Website → System → Einstellungen"}},
+ {tab:"settings", k:"تحقق verification واتساب تيليغرام بريد otp رمز قنوات", l:{ar:"قنوات التحقق (واتساب / تيليغرام / بريد) لكل دولة",en:"Verification channels (WhatsApp / Telegram / email) per country",de:"Verifizierungskanäle"}, w:{ar:"الموقع ← النظام ← الإعدادات ← التحقق",en:"Website → System → Settings → Verification",de:"System → Einstellungen"}},
+ {tab:"house", k:"حسابات تجريبية test accounts اختبار", l:{ar:"الحسابات التجريبية (للاختبار الآمن)",en:"Test accounts (safe testing)",de:"Testkonten"}, w:{ar:"الأعضاء ← حسابات تجريبية",en:"People → Test accounts",de:"Mitglieder → Testkonten"}},
+ {tab:"campaigns", k:"حملات رسائل تسويق جماعي contacts دفتر العناوين newsletter إشعار إعلان جديد", l:{ar:"الحملات ودفتر جهات الاتصال",en:"Campaigns and the contacts notebook",de:"Kampagnen und Kontakte"}, w:{ar:"التسويق ← الحملات",en:"Marketing → Campaigns",de:"Marketing → Kampagnen"}},
+ {tab:"intake", k:"بوت واتساب intake استقبال إعلانات رسائل واردة مراجعة", l:{ar:"إعلانات البوت الواردة (واتساب/تيليغرام) ومراجعتها",en:"Bot intake (WhatsApp/Telegram) and review",de:"Bot-Eingang"}, w:{ar:"الإعلانات ← الوارد",en:"Listings → Intake",de:"Inserate → Eingang"}},
+ {tab:"photos", k:"صور وسائط media storage مساحة حذف صور", l:{ar:"مكتبة الوسائط والمساحة",en:"Media library and storage",de:"Medien und Speicher"}, w:{ar:"الإعلانات ← مكتبة الوسائط",en:"Listings → Media",de:"Inserate → Medien"}},
+ {tab:"geo", k:"مناطق محافظات geo areas governorates خريطة إحداثيات", l:{ar:"المحافظات والمناطق",en:"Governorates and areas",de:"Gouvernements und Gebiete"}, w:{ar:"الموقع ← المناطق",en:"Website → Areas",de:"Website → Gebiete"}},
+ {tab:"design", k:"تصميم بطاقات ألوان خط design cards fonts", l:{ar:"تصميم البطاقات والخطوط",en:"Card design and fonts",de:"Kartendesign"}, w:{ar:"الموقع ← التصميم",en:"Website → Design",de:"Website → Design"}},
+ {tab:"contact", k:"تواصل social فيسبوك إنستغرام رقم الهاتف بريد الموقع", l:{ar:"صفحة التواصل والروابط الاجتماعية",en:"Contact page and social links",de:"Kontakt und Social Links"}, w:{ar:"الموقع ← التواصل",en:"Website → Contact",de:"Website → Kontakt"}},
+ {tab:"banners", k:"بانر banners لافتات", l:{ar:"البانرات",en:"Banners",de:"Banner"}, w:{ar:"التسويق ← الترويج ← البانرات",en:"Marketing → Promotions → Banners",de:"Marketing → Banner"}},
+ {tab:"ads", k:"مربعات إعلانية مدفوعة ad slots رعاية sponsor", l:{ar:"المربعات الإعلانية (الإدارة والمحتوى)",en:"Ad squares (content and sponsors)",de:"Werbekacheln (Inhalt)"}, w:{ar:"التسويق ← الترويج ← المربعات",en:"Marketing → Promotions → Ad squares",de:"Marketing → Kacheln"}},
+ {tab:"admins", k:"مشرفين صلاحيات admins permissions", l:{ar:"المشرفون والصلاحيات",en:"Admins and permissions",de:"Admins und Rechte"}, w:{ar:"الموقع ← النظام ← المشرفون",en:"Website → System → Admins",de:"System → Admins"}},
+ {tab:"users", k:"أعضاء مستخدمين إخفاء الرقم hide phone توثيق عضو حظر", l:{ar:"الأعضاء: توثيق، إخفاء الرقم، حظر",en:"Members: verify, hide phone, block",de:"Mitglieder"}, w:{ar:"الأعضاء ← المستخدمون",en:"People → Users",de:"Mitglieder → Nutzer"}},
+ {tab:"stats", k:"إحصائيات زوار statistics analytics مصادر", l:{ar:"زوّار وإحصائيات",en:"Visitors and statistics",de:"Besucher und Statistik"}, w:{ar:"نظرة عامة ← زوّار وإحصائيات",en:"Overview → Visitors",de:"Übersicht → Besucher"}}
+];
+function admNavIndex(NAV,SUB){
+  var idx=[]; var li=L==="de"?"de":L==="en"?"en":"ar";
+  NAV.forEach(function(g){ g.items.forEach(function(it){ if(!it[4]) return; var d=GX_T["desc_"+it[0]]?GX("desc_"+it[0]):""; idx.push({tab:it[0], label:it[1], where:g.g, text:admNorm(it[1]+" "+g.g+" "+d+" "+it[0])}) }) });
+  Object.keys(SUB).forEach(function(k){ if(!canTab(k)) return; var gk=admGroupOf(k), gl=""; NAV.forEach(function(g){ g.items.forEach(function(it){ if(it[0]===gk) gl=g.g+" › "+it[1] }) }); var d=GX_T["desc_"+k]?GX("desc_"+k):""; idx.push({tab:k, label:SUB[k][0], where:gl, text:admNorm(SUB[k][0]+" "+gl+" "+d+" "+k)}) });
+  ADM_FEATURES.forEach(function(f){ if(!canTab(f.tab)) return; idx.push({tab:f.tab, label:f.l[li]||f.l.en, where:f.w[li]||f.w.en, hint:f.w[li]||f.w.en, text:admNorm(f.k+" "+(f.l.ar||"")+" "+(f.l.en||"")+" "+(f.w.ar||"")+" "+(f.w.en||""))}) });
+  return idx;
+}
+function admNavHits(q){ q=admNorm(q); if(!q) return []; var words=q.split(" ").filter(Boolean); return (ADM._navIndex||[]).filter(function(h){ return words.every(function(w){ return h.text.indexOf(w)>-1 }) }).slice(0,8) }
 function admGo(tab){ if(!tab) return; if(!canTab(tab)){ admToast(GX("noPermTab"),"bad"); return } tab=admResolveTab(tab); if(tab!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return; ADM.tab=tab; window._admMobileDetail=false; render(); try{ window.scrollTo(0,0) }catch(e){} }
 // "راسل": one direct message to one person on WhatsApp / Telegram / email, from the users list or the contacts list
 // "المكتب": create or edit a member's agency page from the panel (name, contacts, coverage, specialties, logo)
@@ -791,6 +827,7 @@ function adminView(){
    {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")],["system",GX("navSystem"),null,AICO.gear,true]]}
  ];
  NAV.forEach(function(g){ g.items.forEach(function(it){ it[4]=canTab(it[0]) }) });   // the sidebar follows the same permission map as every other way into a tab
+ ADM._navIndex=admNavIndex(NAV,SUB);
  var curGroupKey=admGroupOf(ADM.tab); if(curGroupKey){ ADM._sub=ADM._sub||{}; ADM._sub[curGroupKey]=ADM.tab }
  var curLabel=t("adminPanel"), curGroup="";
  NAV.forEach(function(g){ g.items.forEach(function(it){ if(it[0]===ADM.tab || it[0]===curGroupKey){ curLabel=it[1]; curGroup=g.g } }) });
@@ -802,7 +839,7 @@ function adminView(){
    '<button class="adm-burger" id="aSidebarToggle" aria-label="'+t("menu")+'">≡</button>'+
    '<div class="adm-brand"><span class="adm-logo">'+CONFIG.brand+'</span><span class="adm-sub">'+t("adminPanel")+'</span></div>'+
    ((GSX("maintenance_on",false)===true||GSX("maintenance_on",false)==="true")?'<button type="button" class="adm-maint" data-atab="settings" title="'+esc(GX("maintBadgeHint"))+'">🛠 '+GX("maintBadge")+'</button>':'')+
-   '<label class="adm-q">'+AICO.search+'<input id="aNavQ" placeholder="'+GX("aNavSearch")+'" autocomplete="off"></label>'+
+   '<label class="adm-q">'+AICO.search+'<input id="aNavQ" placeholder="'+GX("aNavSearch")+'" autocomplete="off"><div class="anav-hits" id="aNavHits" hidden></div></label>'+
    '<div class="adm-actions">'+
     adminCountrySelHtml()+'<select class="adm-lang" id="aLang" aria-label="'+GX("aLang")+'">'+["ar","en","de"].map(function(k){ return '<option value="'+k+'"'+(k===L?' selected':'')+'>'+D.I18N[k].name+'</option>' }).join("")+'</select>'+
     adminBellHtml()+
@@ -1089,11 +1126,18 @@ function wireAdmin(){
     document.addEventListener("click",function(e){ var sb=$("#aSidebar"); if(sb && sb.classList.contains("on") && !e.target.closest("#aSidebar,#aSidebarToggle")) sb.classList.remove("on") });
     document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ var sb=$("#aSidebar"); if(sb) sb.classList.remove("on") } }) }
   $$("#aSidebar .asidebar-label").forEach(function(b){ b.onclick=function(){ var g=this.closest(".asidebar-group"); if(!g) return; g.classList.toggle("folded"); var f=g.classList.contains("folded"); ADM_FOLDS[g.dataset.gkey]=f; this.setAttribute("aria-expanded",f?"false":"true"); try{ localStorage.setItem("bk_adm_folds",JSON.stringify(ADM_FOLDS)) }catch(e){} } });
-  var nq=$("#aNavQ"); if(nq){ nq.oninput=function(){ var q=this.value.trim().toLowerCase();
+  var nq=$("#aNavQ"); if(nq){ var hitsBox=$("#aNavHits"), hitSel=0;
+    var drawHits=function(){ var q=nq.value.trim(), hits=admNavHits(q); hitSel=0; if(!hitsBox) return; if(!q){ hitsBox.hidden=true; hitsBox.innerHTML=""; return }
+      hitsBox.hidden=false; hitsBox.innerHTML = hits.length ? hits.map(function(h,i){ return '<button type="button" data-hit="'+i+'" class="'+(i===hitSel?'on':'')+'"><b>'+esc(h.label)+'</b><small>'+esc(h.where||"")+'</small></button>' }).join("") : '<div class="anav-none">'+GX("aNavNone")+'</div>';
+      $$("#aNavHits [data-hit]").forEach(function(b){ b.onmousedown=function(e){ e.preventDefault(); pick(+b.dataset.hit) } }) };
+    var pick=function(i){ var hits=admNavHits(nq.value.trim()), h=hits[i]; if(!h) return; nq.value=""; if(hitsBox){ hitsBox.hidden=true } admGo(h.tab); if(h.hint) setTimeout(function(){ admToast(h.hint) },350) };
+    nq.oninput=function(){ var q=admNorm(this.value);
     $$("#aSidebar .asidebar-group").forEach(function(g){ g.classList.toggle("folded", !q && !!ADM_FOLDS[g.dataset.gkey] && !g.querySelector("a.on")) });   // a search opens every group; clearing it restores the folds
-    $$("#aSidebar a[data-atab]").forEach(function(a){ a.hidden = !!q && a.textContent.toLowerCase().indexOf(q)===-1 });
-    $$("#aSidebar .asidebar-group").forEach(function(g){ g.hidden = !!q && !g.querySelector("a[data-atab]:not([hidden])") }) };
-    nq.onkeydown=function(e){ if(e.key==="Enter"){ var a=$("#aSidebar a[data-atab]:not([hidden])"); if(a) a.click() } } }
+    $$("#aSidebar a[data-atab]").forEach(function(a){ a.hidden = !!q && admNorm(a.textContent).indexOf(q)===-1 });
+    $$("#aSidebar .asidebar-group").forEach(function(g){ g.hidden = !!q && !g.querySelector("a[data-atab]:not([hidden])") }); drawHits() };
+    nq.onfocus=function(){ if(nq.value.trim()) drawHits() }; nq.onblur=function(){ setTimeout(function(){ if(hitsBox) hitsBox.hidden=true },150) };
+    nq.onkeydown=function(e){ var n=$$("#aNavHits [data-hit]").length; if(e.key==="ArrowDown"&&n){ e.preventDefault(); hitSel=(hitSel+1)%n } else if(e.key==="ArrowUp"&&n){ e.preventDefault(); hitSel=(hitSel-1+n)%n } else if(e.key==="Enter"){ e.preventDefault(); if(n) pick(hitSel); else { var a=$("#aSidebar a[data-atab]:not([hidden])"); if(a) a.click() } return } else if(e.key==="Escape"){ nq.value=""; nq.oninput(); return } else return;
+      $$("#aNavHits [data-hit]").forEach(function(b,i){ b.classList.toggle("on",i===hitSel) }) } }
   if($("#aLang")) $("#aLang").onchange=function(){ L=this.value; try{localStorage.setItem("balkoun_lang",L)}catch(err){} render() };
   if(!ADM.countries && !ADM._cLoading && DB && ADM.token){ ADM._cLoading=true; DB.rpc("bk_admin_countries",{p_token:ADM.token}).then(function(r){ ADM._cLoading=false; if(r&&r.data&&r.data.length>1){ ADM.countries=r.data; render() } else if(r&&r.data) ADM.countries=r.data }) }
   if($("#aCountry")) $("#aCountry").onchange=function(){ admPickCountry(this.value) }
