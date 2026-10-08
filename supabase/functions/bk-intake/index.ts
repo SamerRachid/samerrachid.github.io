@@ -767,6 +767,9 @@ function areaFromText(fields: Record<string, any>, missing: string[], rawText: s
   const govSaid = own ? said.includes(" " + norm(own.ar) + " ") || said.includes(" ال" + norm(own.ar) + " ") : false;
   let switched = false;
   if (!hits.length && !govSaid) { hits = scan(all); switched = !!own; }
+  // the governorate IS written but the place is not in it ("في دمشق … ببيلا": a Rif Dimashq town people file under
+  // the capital): a long, country-unique name written in the text wins over the loosely written governorate
+  if (!hits.length && govSaid) { const h2 = scan(all).filter((h) => h.n.length >= 5); if (h2.length === 1) { hits = h2; switched = true; } }
   if (!hits.length) return null;
   const best = hits[0];
   const twins = hits.filter((h) => h.n === best.n);
