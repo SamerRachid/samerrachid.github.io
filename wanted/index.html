@@ -5343,7 +5343,7 @@ function listing(id){
  var head='<div class="lhead">'+tags+'<h1>'+h1+'</h1>'+
    '<div class="lloc">'+I.pin+'<span>'+aN(x.a)+(ar?'، ':', ')+gN(x.g)+(x.lm?' · '+x.lm:'')+'</span></div>'+
    '<div class="lmeta"><span>'+t("ref")+' <span class="ltr">'+(x.ref||x.id)+'</span></span><span>'+t("posted")+' '+(x.days>0?GX("cSince").replace("{d}",'<span class="ltr">'+x.days+'</span>'):GX("cToday"))+'</span>'+
-   '<span><span class="ltr">'+x.vw+'</span> '+t("views")+'</span><span><span class="ltr">'+x.sv+'</span> '+t("saved")+'</span></div></div>';
+   (SX("listing_stats_public",true)!==false ? '<span><span class="ltr">'+x.vw+'</span> '+t("views")+'</span><span><span class="ltr">'+x.sv+'</span> '+t("saved")+'</span>' : '')+'</div></div>';
 
  /* ── key facts ── */
  var fact=function(icon,val,lab){ return '<div class="lf"><i>'+icon+'</i><b>'+val+'</b><span>'+lab+'</span></div>' };
@@ -11399,7 +11399,7 @@ var GX_T={
   dsPriceH:{ar:"نسب الأسعار",en:"Price percentages",de:"Preis-Prozente"},
   dsPriceCutOn:{ar:"إظهار نسبة التخفيض (↓ %) على البطاقات وصفحة الإعلان",en:"Show the price-cut badge (↓ %) on cards and the listing page",de:"Preisnachlass-Abzeichen (↓ %) anzeigen"},
   dsPriceCtxOn:{ar:"إظهار مقارنة السعر بمتوسط المنطقة (% أعلى/أقل) في صفحة الإعلان",en:"Show the area-average comparison (% above/below) on the listing page",de:"Vergleich mit dem Gebietsdurchschnitt (% über/unter) anzeigen"},
-  dsPriceHint:{ar:"السعر السابق المشطوب يبقى ظاهراً عند التخفيض؛ هذان المفتاحان يخفيان النسب فقط.",en:"The struck-through old price stays on a price cut; these switches hide the percentages only.",de:"Der durchgestrichene alte Preis bleibt sichtbar; diese Schalter blenden nur die Prozente aus."},
+  dsPriceHint:{ar:"السعر السابق المشطوب يبقى ظاهراً عند التخفيض؛ هذان المفتاحان يخفيان النسب فقط.",en:"The struck-through old price stays on a price cut; these switches hide the percentages only.",de:"Der durchgestrichene alte Preis bleibt sichtbar; diese Schalter blenden nur die Prozente aus."}, dsStatsH:{ar:"المشاهدات والحفظ",en:"Views and saves",de:"Aufrufe und Speicherungen"}, dsStatsOn:{ar:"إظهار عدد المشاهدات والحفظ في صفحة الإعلان",en:"Show the views/saves count on the listing page",de:"Aufrufe/Speicherungen auf der Anzeigenseite zeigen"},
   edBasicsHint:{ar:"نوع العقار والبيع أو الإيجار والمكان لا يغيّرها العضو بنفسه؛ التغيير هنا يظهر فوراً في الإعلان.",en:"The member cannot change the type, deal or place; changes here apply to the listing immediately.",de:"Typ, Art und Ort kann das Mitglied nicht selbst ändern; Änderungen hier gelten sofort."},
   ik_notRead:{ar:"لم تُقرأ بعد",en:"Not read yet",de:"Noch nicht gelesen"},
   ik_maxVideos:{ar:"فيديو لكل إعلان (0 = إيقاف)",en:"Videos per listing (0 = off)",de:"Videos pro Anzeige (0 = aus)"}, ik_videoMb:{ar:"حجم الفيديو الأقصى (MB)",en:"Max video size (MB)",de:"Max. Videogröße (MB)"}, ik_videoSec:{ar:"مدة الفيديو القصوى (ثانية)",en:"Max video length (seconds)",de:"Max. Videolänge (Sekunden)"},
