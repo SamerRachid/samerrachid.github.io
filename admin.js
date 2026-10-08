@@ -2323,7 +2323,8 @@ function hsInspBanners(){
 function hsInspDesign(){
   var sd=HS.sel, H=[], title=hsT(sd);
   if(sd==="cards"){ H.push(fHint(hsT("dualHint")), fDual(hsT("cardW"),"c:card_min_width","c:card_min_width_mobile",90,500,10), fHint(hsT("cardHint")),
-      fGrp(GX("dsPriceH")), fSwitch(GX("dsPriceCutOn"),"x:price_cut_pct_on",true,true), fSwitch(GX("dsPriceCtxOn"),"x:price_context_on",true,true), fHint(GX("dsPriceHint"))); }
+      fGrp(GX("dsPriceH")), fSwitch(GX("dsPriceCutOn"),"x:price_cut_pct_on",true,true), fSwitch(GX("dsPriceCtxOn"),"x:price_context_on",true,true), fHint(GX("dsPriceHint")),
+      fGrp(GX("dsStatsH")), fSwitch(GX("dsStatsOn"),"x:listing_stats_public",true,true)); }
   else if(sd==="badges"){ H.push(fGrp(t("featuredH")), fSwitch(t("showFeaturedBadge"),"c:featured_badge_enabled",true,true), fHint(hsT("textsHint")), fText(t("featuredBadgeTextL"),"c:featured_badge",t("featuredBadgeDefault")),
       fSlider(t("featuredBrightnessL"),"c:featured_brightness",null,0,100,5,"%",20,true), fHint(t("featuredBrightnessHint")), fGrp(t("newBadgeH")), fNum(t("newBadgeHoursL"),"c:new_badge_hours",0,720,1,24,true), fHint(t("newBadgeHint"))); }
   else if(sd==="watermark"){
