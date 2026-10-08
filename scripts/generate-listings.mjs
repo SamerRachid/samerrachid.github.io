@@ -18,6 +18,7 @@
 import fs from "fs";
 import path from "path";
 import vm from "vm";
+import { renderOgCard } from "./generate-og.mjs";
 
 const SUPABASE_URL = "https://coajrqynjrptujmzjjdh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"; // public anon key — safe, RLS restricts it to live listings
@@ -74,6 +75,34 @@ const pill = (text, cls) => `<span class="pill ${cls || ""}">${text}</span>`;
 const fact = (label, value) => has(value) ? `<div class="fact"><span class="fl">${esc(label)}</span><span class="fv">${value}</span></div>` : "";
 const jsonForScript = (obj) => JSON.stringify(obj).replace(/</g, "\\u003c");
 
+// branded share-image per listing (assets/og/<id>.jpg) — this is what a plain balkoun.com/listing/<id> link
+// unfurls into on Facebook/WhatsApp/Telegram (og:image below), so it carries the logo and price like the
+// admin "روّج" promo image, unlike the plain cover photo used as the page's own hero. Skipped once the file
+// exists — a listing's price/photo changing later won't regenerate it; delete the file to force a refresh.
+const OGDIR = path.join(ROOT, "assets", "og");
+fs.mkdirSync(OGDIR, { recursive: true });
+async function ogImageFor(l, photos) {
+  const file = path.join(OGDIR, `${l.id}.jpg`), publicPath = `${SITE}/assets/og/${l.id}.jpg`;
+  if (fs.existsSync(file)) return publicPath;
+  const cover = photos[0] || l.cover_url || null;
+  if (!cover) return null;
+  try {
+    const W = S.ar, typeLabel = typeName(l.property_type, "ar"), dealLabel = l.deal === "rent" ? W.forRent : W.forSale;
+    const areaName = areaNm(l, "ar"), gov = govName(l, "ar"), sizeTxt = has(l.area_m2) ? `${l.area_m2} م2` : "";
+    const title = `${typeLabel} ${dealLabel}${sizeTxt ? " " + sizeTxt : ""} — ${[areaName, gov].filter(Boolean).join("، ")}`.replace(/\s+/g, " ").trim();
+    const isRent = l.deal === "rent";
+    const periodLabel = isRent && l.rental_period && PERIOD[l.rental_period] ? PERIOD[l.rental_period][0] : "";
+    const deed = !isRent && l.tabu ? tabuName(l.tabu, "ar") : "";
+    const buf = await renderOgCard({
+      coverUrl: cover, title, place: [areaName, gov].filter(Boolean).join("، "),
+      price: l.price_usd == null ? POR.ar : money(l.price_usd), dealLabel, isRent, periodLabel, deed,
+      areaTxt: sizeTxt, roomsTxt: has(l.rooms) ? `${l.rooms} غرف` : "",
+    });
+    fs.writeFileSync(file, buf);
+    return publicPath;
+  } catch (e) { console.warn(`OG image failed for listing ${l.id}:`, e.message); return null; }
+}
+
 let govById = new Map(), areaById = new Map();
 const govName = (l, lang) => { const g = govById.get(l.governorate_id); if (lang === "ar" || !g) return l.governorate_ar; return lang === "en" ? (g.name_en || (D.GOVN[g.name_ar] || [])[0] || g.name_ar) : ((D.GOVN[g.name_ar] || [])[1] || g.name_en || g.name_ar); };
 const titleSlug = (s) => String(s || "").split("-").filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
@@ -90,20 +119,21 @@ const MARK = `<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="19" y="19" 
 // a tiny 200 page at the id-only address the app links to (/listing/325, also the promo links): search engines get the title,
 // description, image and the canonical slug page; a visitor is sent on into the app (hash route, query kept so ?src= tags count).
 // Without it GitHub Pages answered these addresses with 404.html and a 404 status, so every internal link looked broken to Google.
-function stubPage(l, photos) {
+function stubPage(l, photos, ogPath) {
   const W = S.ar, typeLabel = typeName(l.property_type, "ar"), dealLabel = l.deal === "rent" ? W.forRent : W.forSale;
   const sizeTxt = has(l.area_m2) ? `${l.area_m2} ${W.sqm}` : "", areaName = areaNm(l, "ar"), gov = govName(l, "ar");
   const title = `${typeLabel} ${dealLabel} ${sizeTxt} — ${areaName} ${gov} | بلكون`.replace(/\s+/g, " ");
   const desc = ([`${typeLabel} ${dealLabel} ${W.inPlace([areaName, gov].filter(Boolean).join(W.sep))}`, sizeTxt, has(l.rooms) ? `${l.rooms} ${W.roomsShort}` : "", l.tabu ? tabuName(l.tabu, "ar") : "", money(l.price_usd)].filter(Boolean).join(W.sep) + ".").slice(0, 155);
   const url = urlFor(l, "ar"), cover = photos[0] || l.cover_url || SITE + "/brand/og-image.png", app = `${CUR_PRE}/`;
+  const shareImg = ogPath || cover, dims = ogPath ? `<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">` : "";
   return `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><meta name="robots" content="noindex, follow"><link rel="canonical" href="${url}">
-<meta property="og:type" content="product"><meta property="og:site_name" content="Balkoun"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${url}"><meta property="og:image" content="${esc(cover)}"><meta name="twitter:card" content="summary_large_image">
+<meta property="og:type" content="product"><meta property="og:site_name" content="Balkoun"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${url}"><meta property="og:image" content="${esc(shareImg)}">${dims}<meta name="twitter:card" content="summary_large_image">
 <style>body{margin:0;background:#14213D;color:#fff;font:15px/1.7 system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;text-align:center}a{color:#E3B563}</style></head>
 <body><div><p>${esc(title)}</p><a href="${url}">فتح الإعلان</a></div>
 <script>location.replace(${JSON.stringify(app)}+location.search+"#/listing/${l.id}")</script></body></html>`;
 }
-function renderPage(l, photos, lang) {
+function renderPage(l, photos, lang, ogPath) {
   const W = S[lang], L = LANGS[lang];
   const typeLabel = typeName(l.property_type, lang);
   const typeIcon = TYPE_ICON[l.property_type] || "🏠";
@@ -130,6 +160,8 @@ function renderPage(l, photos, lang) {
   const allPhotos = photos.length ? photos : (l.cover_url ? [l.cover_url] : []);
   const cover = allPhotos[0] || "";
   const thumbs = allPhotos.slice(1, 7);
+  const shareImg = ogPath || cover || SITE + "/brand/og-image.png";
+  const shareDims = ogPath ? `<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">` : "";
 
   const phoneDigits = (l.contact_phone || "").replace(/\D/g, "");
   const tel = phoneDigits ? `tel:+${phoneDigits}` : null;
@@ -189,12 +221,12 @@ ${["ar", "en", "de"].map((k) => `<link rel="alternate" hreflang="${k}" href="${a
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:url" content="${url}">
-<meta property="og:image" content="${esc(cover || SITE + "/brand/og-image.png")}">
+<meta property="og:image" content="${esc(shareImg)}">${shareDims}
 <meta property="og:locale" content="${L.og}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(desc)}">
-<meta name="twitter:image" content="${esc(cover || SITE + "/brand/og-image.png")}">
+<meta name="twitter:image" content="${esc(shareImg)}">
 <link rel="icon" type="image/svg+xml" href="${SITE}/brand/favicon.svg"><link rel="apple-touch-icon" href="${SITE}/brand/apple-touch-icon.png">
 <script type="application/ld+json">${jsonForScript(jsonLd)}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -335,12 +367,13 @@ async function main() {
     try { photoRows = await sb(`listing_photos?select=url,thumb_url,kind&listing_id=eq.${l.id}&order=sort_order`); } catch (e) { console.warn(`Photos fetch failed for listing ${l.id}:`, e.message); }
     const photos = photoRows.filter((p) => p.kind !== "video").map((p) => p.url);
     l.videos = photoRows.filter((p) => p.kind === "video");
+    const ogPath = await ogImageFor(l, photos);
     for (const lang of ["ar", "en", "de"]) {
       const dir = path.join(ROOT, CUR_PRE.replace(/^\//, ""), LANGS[lang].prefix.replace(/^\//, ""), "listing", slugFor(l, lang));
       fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(path.join(dir, "index.html"), renderPage(l, photos, lang)); n++;
+      fs.writeFileSync(path.join(dir, "index.html"), renderPage(l, photos, lang, ogPath)); n++;
     }
-    const sdir = path.join(ROOT, CUR_PRE.replace(/^\//, ""), "listing", String(l.id)); fs.mkdirSync(sdir, { recursive: true }); fs.writeFileSync(path.join(sdir, "index.html"), stubPage(l, photos));
+    const sdir = path.join(ROOT, CUR_PRE.replace(/^\//, ""), "listing", String(l.id)); fs.mkdirSync(sdir, { recursive: true }); fs.writeFileSync(path.join(sdir, "index.html"), stubPage(l, photos, ogPath));
   }
   console.log(`Wrote ${n} listing page(s) in ar/en/de. (sitemap.xml is written by generate-pages.mjs)`);
 }

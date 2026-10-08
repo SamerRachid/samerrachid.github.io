@@ -1,0 +1,11 @@
+{
+  "name": "balkoun-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "node scripts/generate-listings.mjs && node scripts/generate-pages.mjs"
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "^1.0.10"
+  }
+}
