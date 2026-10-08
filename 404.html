@@ -6467,10 +6467,10 @@ function checkPost(){
  }
  if(!v("pa") || (v("pa")==="__other__" && v("paOther").trim().length<2)) need.push(t("area"));
  if(!v("pm2"))need.push(t("areaM"));
- var isLand = secOf(v("ptype"))==="land";
+ var isLand = secOf(v("ptype"))==="land", isHomes = secOf(v("ptype"))==="homes";
  var isRent = ($('input[name=dl]:checked')||{}).value==="rent";
- if(!isLand && !v("pr"))need.push(t("kRooms"));
- if(!isLand && !v("pb"))need.push(t("kBaths"));
+ if(isHomes && !v("pr"))need.push(t("kRooms"));   // rooms and baths are a home's facts; a shop, office or warehouse publishes without them
+ if(isHomes && !v("pb"))need.push(t("kBaths"));
  if(!$('input[name=cd2]:checked'))need.push(t("cond"));
  // the deed and the price are optional (2026-10-02): a listing without them publishes with "السعر عند التواصل" and no deed pill
  if(v("pd").trim().length<30)need.push(t("descL"));
@@ -8601,6 +8601,7 @@ function wire(){
      $$(".homes-c").forEach(function(e){e.style.display=isLand?"none":""});
      $$(".land-c").forEach(function(e){e.style.display=isLand?"":"none"});
      $$(".homes-f").forEach(function(e){e.style.display=isLand?"none":""});
+     var isHomesT=secOf(ptypeVal)==="homes"; $$(".homes-f label").forEach(function(l){ l.classList.toggle("req",isHomesT) });   // the red star only where the count is required
      var LIVING_ROOM_TYPES=["apartment","terrace","arab","villa"];
      var showLiving = LIVING_ROOM_TYPES.indexOf(ptypeVal)>-1;
      $$(".livingroom-f").forEach(function(e){e.style.display=showLiving?"":"none"});

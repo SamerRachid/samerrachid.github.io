@@ -1986,9 +1986,15 @@ async function routeWeb(req: Request): Promise<Response> {
   await log(null, "web:" + uid, "info", "web_read", { country: b.country || "SY" });   // counted before the paid call, failures included
   const tax = await rpc<any>("bk_intake_taxonomy", { p_country: b.country || "SY" });
   try {
-    const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax), "MESSAGE:\n" + latinDigits(text));
-    const s = settle(r.fields, tax);
-    await log(null, "web:" + uid, "info", "web_read_done", { cost: costOf(r.usage, c), in: r.usage.in, out: r.usage.out, missing: s.missing });
+    const t = latinDigits(text);
+    const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax), "MESSAGE:\n" + t);
+    const s = settle(r.fields, tax, t);
+    // the same guards the WhatsApp/Telegram read enforces: no look-alike area swaps, and a guessed governorate gives way to the
+    // area actually written in the text ("المليحة" → ريف دمشق, not the model's default دمشق)
+    const warnings = areaGuards(s.fields, s.missing, r.fields, t, tax);
+    { const w = govGuard(s.fields, s.missing, t, tax); if (w) warnings.push(w); }
+    { const hit = areaFromText(s.fields, s.missing, t, tax); if (hit) warnings.push(hit); }
+    await log(null, "web:" + uid, "info", "web_read_done", { cost: costOf(r.usage, c), in: r.usage.in, out: r.usage.out, missing: s.missing, warnings: warnings.map((w: any) => w.event) });
     return json({ ok: true, fields: s.fields, missing: s.missing, summary: summary(s.fields, tax, 0, "ar"), notes: r.fields.notes || null, confidence: r.fields.confidence ?? null });
   } catch (e) {
     const err = errStr(e); await log(null, "web:" + uid, "error", "web_read_failed", { error: err });
