@@ -18,7 +18,7 @@
 import fs from "fs";
 import path from "path";
 import vm from "vm";
-import { renderOgCard } from "./generate-og.mjs";
+import { renderOgCard, OG_WIDTH, OG_HEIGHT } from "./generate-og.mjs";
 
 const SUPABASE_URL = "https://coajrqynjrptujmzjjdh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"; // public anon key — safe, RLS restricts it to live listings
@@ -86,7 +86,7 @@ const jsonForScript = (obj) => JSON.stringify(obj).replace(/</g, "\\u003c");
 // object in Storage (folder photos/listings/<id>/og-share.jpg) to force a refresh.
 async function ogImageFor(l, photos) {
   const objPath = `listings/${l.id}/og-share.jpg`, publicPath = `${SUPABASE_URL}/storage/v1/object/public/photos/photos/${objPath}`;
-  try { const head = await fetch(publicPath, { method: "HEAD" }); if (head.ok) return publicPath; } catch (e) {}
+  if (!process.env.OG_FORCE_REGEN) { try { const head = await fetch(publicPath, { method: "HEAD" }); if (head.ok) return publicPath; } catch (e) {} }
   const cover = photos[0] || l.cover_url || null;
   if (!cover) return null;
   try {
@@ -96,13 +96,13 @@ async function ogImageFor(l, photos) {
     const isRent = l.deal === "rent";
     const periodLabel = isRent && l.rental_period && PERIOD[l.rental_period] ? PERIOD[l.rental_period][0] : "";
     const deed = !isRent && l.tabu ? tabuName(l.tabu, "ar") : "";
-    const buf = await renderOgCard({
+    const og = await renderOgCard({
       coverUrl: cover, title, place: [areaName, gov].filter(Boolean).join("، "),
       price: l.price_usd == null ? POR.ar : money(l.price_usd), dealLabel, isRent, periodLabel, deed,
       areaTxt: sizeTxt, roomsTxt: has(l.rooms) ? `${l.rooms} غرف` : "",
     });
     const up = await fetch(`${SUPABASE_URL}/storage/v1/object/photos/photos/${objPath}`, {
-      method: "POST", headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "image/jpeg", "x-upsert": "true" }, body: buf,
+      method: "POST", headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "image/jpeg", "x-upsert": "true" }, body: og.buffer,
     });
     if (!up.ok) throw new Error(`upload ${up.status}: ${await up.text()}`);
     return publicPath;
@@ -131,7 +131,7 @@ function stubPage(l, photos, ogPath) {
   const title = `${typeLabel} ${dealLabel} ${sizeTxt} — ${areaName} ${gov} | بلكون`.replace(/\s+/g, " ");
   const desc = ([`${typeLabel} ${dealLabel} ${W.inPlace([areaName, gov].filter(Boolean).join(W.sep))}`, sizeTxt, has(l.rooms) ? `${l.rooms} ${W.roomsShort}` : "", l.tabu ? tabuName(l.tabu, "ar") : "", money(l.price_usd)].filter(Boolean).join(W.sep) + ".").slice(0, 155);
   const url = urlFor(l, "ar"), cover = photos[0] || l.cover_url || SITE + "/brand/og-image.png", app = `${CUR_PRE}/`;
-  const shareImg = ogPath || cover, dims = ogPath ? `<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">` : "";
+  const shareImg = ogPath || cover, dims = ogPath ? `<meta property="og:image:width" content="${OG_WIDTH}"><meta property="og:image:height" content="${OG_HEIGHT}">` : "";
   return `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><meta name="robots" content="noindex, follow"><link rel="canonical" href="${url}">
 <meta property="og:type" content="product"><meta property="og:site_name" content="Balkoun"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${url}"><meta property="og:image" content="${esc(shareImg)}">${dims}<meta name="twitter:card" content="summary_large_image">
@@ -167,7 +167,7 @@ function renderPage(l, photos, lang, ogPath) {
   const cover = allPhotos[0] || "";
   const thumbs = allPhotos.slice(1, 7);
   const shareImg = ogPath || cover || SITE + "/brand/og-image.png";
-  const shareDims = ogPath ? `<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">` : "";
+  const shareDims = ogPath ? `<meta property="og:image:width" content="${OG_WIDTH}"><meta property="og:image:height" content="${OG_HEIGHT}">` : "";
 
   const phoneDigits = (l.contact_phone || "").replace(/\D/g, "");
   const tel = phoneDigits ? `tel:+${phoneDigits}` : null;

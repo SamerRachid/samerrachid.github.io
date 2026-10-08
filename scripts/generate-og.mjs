@@ -46,14 +46,19 @@ function ellipsize(ctx, text, maxW) {
   return s + "…";
 }
 
+const CARD_W = 1200, CARD_H = 630, SCALE = 2;
+export const OG_WIDTH = CARD_W * SCALE, OG_HEIGHT = CARD_H * SCALE; // actual pixel size of the rendered file — callers use this for og:image:width/height
+
 // l: the v_listings row (same shape generate-listings.mjs works with). coverUrl: first photo URL or null.
 // title/place/price/deed/periodLabel/dealLabel: plain Arabic strings already formatted by the caller (kept
 // here so this module doesn't duplicate generate-listings.mjs's label tables).
 export async function renderOgCard({ coverUrl, title, place, price, dealLabel, isRent, periodLabel, deed, areaTxt, roomsTxt }) {
   ensureFonts();
-  const W = 1200, H = 630, navy = "#14213D", gold = "#E6B655", sand = "#CFC4AE";
+  const W = CARD_W, H = CARD_H, navy = "#14213D", gold = "#E6B655", sand = "#CFC4AE";
   const ph = Math.round(H * 0.62); // photo on top, solid panel below — same split as the admin promo image,
-  const c = createCanvas(W, H); const ctx = c.getContext("2d"); // so text never has to fight a busy/captioned photo for legibility
+  const c = createCanvas(W * SCALE, H * SCALE); const ctx = c.getContext("2d"); // so text never has to fight a busy/captioned photo for legibility
+  ctx.scale(SCALE, SCALE); // render at 2x and downsample on encode — sharp on retina feeds, crisper text/photo than 1x
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
   ctx.fillStyle = navy; ctx.fillRect(0, 0, W, H);
   let photo = null;
   if (coverUrl) { try { const r = await fetch(coverUrl); if (r.ok) photo = await loadImage(Buffer.from(await r.arrayBuffer())); } catch (e) { console.warn("OG cover fetch failed:", coverUrl, e.message); } }
@@ -99,5 +104,5 @@ export async function renderOgCard({ coverUrl, title, place, price, dealLabel, i
   ctx.fillStyle = gold; ctx.font = "800 19px Kufi"; ctx.fillText("ببلاش · بلا عمولة", W - pad, fy);
   ctx.fillStyle = "#fff"; ctx.font = "700 19px Kufi"; ctx.direction = "ltr"; ctx.textAlign = "left"; ctx.fillText("balkoun.com", pad, fy); ctx.direction = "rtl"; ctx.textAlign = "right";
 
-  return c.toBuffer("image/jpeg", 0.86);
+  return { buffer: c.toBuffer("image/jpeg", 0.92), width: OG_WIDTH, height: OG_HEIGHT };
 }
