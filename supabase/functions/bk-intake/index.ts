@@ -734,7 +734,10 @@ function findGov(tax: any, name: string) {
 }
 function findArea(g: any, name: string) {
   if (!g || !name) return null; const n = norm(name);
-  return (g.areas || []).find((a: any) => norm(a[1]) === n || norm(a[2] || "") === n) || (g.areas || []).find((a: any) => norm(a[1]).includes(n) || n.includes(norm(a[1]))) || null;
+  // exact name first; then a whole word of a compound name ("المزة فيلات غربية" ← "المزة") — never a bare substring
+  // ("بيلا" used to land in "أبو حبيلات")
+  return (g.areas || []).find((a: any) => norm(a[1]) === n || norm(a[2] || "") === n)
+    || (n.length >= 4 ? (g.areas || []).find((a: any) => norm(a[1]).split(" ").includes(n) || n.split(" ").includes(norm(a[1]))) : null) || null;
 }
 // rules the model keeps getting wrong, enforced on its answer (shared by the real read and the panel's test box):
 //  1. the chosen area must actually be written in the message — no look-alike swaps (العدوي → العسالي)
