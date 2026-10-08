@@ -75,15 +75,18 @@ const pill = (text, cls) => `<span class="pill ${cls || ""}">${text}</span>`;
 const fact = (label, value) => has(value) ? `<div class="fact"><span class="fl">${esc(label)}</span><span class="fv">${value}</span></div>` : "";
 const jsonForScript = (obj) => JSON.stringify(obj).replace(/</g, "\\u003c");
 
-// branded share-image per listing (assets/og/<id>.jpg) — this is what a plain balkoun.com/listing/<id> link
-// unfurls into on Facebook/WhatsApp/Telegram (og:image below), so it carries the logo and price like the
-// admin "روّج" promo image, unlike the plain cover photo used as the page's own hero. Skipped once the file
-// exists — a listing's price/photo changing later won't regenerate it; delete the file to force a refresh.
-const OGDIR = path.join(ROOT, "assets", "og");
-fs.mkdirSync(OGDIR, { recursive: true });
+// branded share-image per listing — this is what a plain balkoun.com/listing/<id> link unfurls into on
+// Facebook/WhatsApp/Telegram (og:image below), so it carries the logo and price like the admin "روّج" promo
+// image, unlike the plain cover photo used as the page's own hero. Uploaded to Supabase Storage rather than
+// committed as a GitHub Pages file: GitHub Pages' CDN (Fastly) silently truncates the body of any file fetched
+// with a Range request while still claiming the full Content-Length — reproduces on any balkoun.com static
+// asset, not just this one — and crawlers like Facebook's DO send Range requests, so the "page" they rendered
+// was a cut-off, garbled JPEG. Supabase Storage (already hosting every listing photo) handles Range correctly.
+// Skipped once the object exists — a listing's price/photo changing later won't regenerate it; delete the
+// object in Storage (folder photos/listings/<id>/og-share.jpg) to force a refresh.
 async function ogImageFor(l, photos) {
-  const file = path.join(OGDIR, `${l.id}.jpg`), publicPath = `${SITE}/assets/og/${l.id}.jpg`;
-  if (fs.existsSync(file)) return publicPath;
+  const objPath = `listings/${l.id}/og-share.jpg`, publicPath = `${SUPABASE_URL}/storage/v1/object/public/photos/photos/${objPath}`;
+  try { const head = await fetch(publicPath, { method: "HEAD" }); if (head.ok) return publicPath; } catch (e) {}
   const cover = photos[0] || l.cover_url || null;
   if (!cover) return null;
   try {
@@ -98,7 +101,10 @@ async function ogImageFor(l, photos) {
       price: l.price_usd == null ? POR.ar : money(l.price_usd), dealLabel, isRent, periodLabel, deed,
       areaTxt: sizeTxt, roomsTxt: has(l.rooms) ? `${l.rooms} غرف` : "",
     });
-    fs.writeFileSync(file, buf);
+    const up = await fetch(`${SUPABASE_URL}/storage/v1/object/photos/photos/${objPath}`, {
+      method: "POST", headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "image/jpeg", "x-upsert": "true" }, body: buf,
+    });
+    if (!up.ok) throw new Error(`upload ${up.status}: ${await up.text()}`);
     return publicPath;
   } catch (e) { console.warn(`OG image failed for listing ${l.id}:`, e.message); return null; }
 }
