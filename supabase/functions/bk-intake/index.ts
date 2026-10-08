@@ -2065,6 +2065,14 @@ async function routeAdmin(req: Request): Promise<Response> {
     background(notifyFlush());
     return json(out);
   }
+  // the admin writes to a WhatsApp chat from the bot's number (customer care on a draft/listing): { to: "+963…", text }
+  if (a === "wa_message") {
+    const to = String(b.to || "").replace(/[^\d+]/g, ""), text = String(b.text || "").trim();
+    if (to.replace(/\D/g, "").length < 8 || text.length < 2 || text.length > 2000) return json({ error: "bad request" }, 400);
+    try { await wahaSend(to, text); } catch (e) { return json({ error: errStr(e) }, 502); }
+    await log(null, to, "info", "admin_message", { chars: text.length });
+    return json({ ok: true });
+  }
   if (a === "notify_test") {
     await rpc("bk_admin_notify_test", { p_token: b.token });
     const n = await notifyFlush();
