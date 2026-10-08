@@ -3693,11 +3693,11 @@ var PROMO_SRC=[["fb-damas","فيسبوك · عقارات دمشق"],["fb-aleppo"
 function promoRow(l){ var x=(typeof D!=="undefined"&&D.LIST||[]).find(function(r){ return String(r.id)===String(l.id) }); return x||null }
 function promoLink(l){ var cc=String(l.country_code||"SY").toLowerCase(); var src=(ADM.promo&&ADM.promo.src)||"fb-damas"; return "https://balkoun.com"+(cc==="sy"?"":"/"+cc)+"/listing/"+l.id+"?src="+src }
 function promoTitle(l,x){ var ty=admTypeName(l); var m2=l.area_m2?(+l.area_m2).toLocaleString("en")+" م²":""; var place=[l.area,l.gov].filter(Boolean); return [ty,m2].filter(Boolean).join(" ")+(place.length?" في "+place[0]:"") }
-function promoText(l){
-  var x=promoRow(l)||{}; var deed=D.TABU[l.tabu]?D.TABU[l.tabu][0]:""; var cond=(D.COND&&D.COND[l.condition])?D.COND[l.condition][0]:((D.LANDC&&D.LANDC[l.condition])?D.LANDC[l.condition][0]:"");
+function promoText(l,opt){
+  opt=opt||{}; var x=promoRow(l)||{}; var deed=D.TABU[l.tabu]?D.TABU[l.tabu][0]:""; var cond=(D.COND&&D.COND[l.condition])?D.COND[l.condition][0]:((D.LANDC&&D.LANDC[l.condition])?D.LANDC[l.condition][0]:"");
   var lines=[];
   lines.push((l.deal==="rent"?"🏠 للإيجار: ":"🏠 للبيع: ")+promoTitle(l,x)+(l.area&&l.gov?"، "+l.gov:""));
-  if(l.price_usd!=null&&l.price_usd!=="") lines.push("💵 "+Number(l.price_usd).toLocaleString("en")+" دولار"+(x.negot?" (قابل للتفاوض)":"")+(l.deal==="rent"?(x.rentalPeriod==="daily"?" يومياً":x.rentalPeriod==="weekly"?" أسبوعياً":x.rentalPeriod==="yearly"?" سنوياً":" شهرياً"):""));
+  if(!opt.hidePrice&&l.price_usd!=null&&l.price_usd!=="") lines.push("💵 "+Number(l.price_usd).toLocaleString("en")+" دولار"+(x.negot?" (قابل للتفاوض)":"")+(l.deal==="rent"?(x.rentalPeriod==="daily"?" يومياً":x.rentalPeriod==="weekly"?" أسبوعياً":x.rentalPeriod==="yearly"?" سنوياً":" شهرياً"):""));
   var facts=[]; if(x.r) facts.push(x.r+" غرف"); if(x.b) facts.push(x.b+" حمام"); if(x.fl!==""&&x.fl!=null&&x.fl!==undefined&&String(x.fl)!=="") facts.push("طابق "+x.fl); if(x.furn) facts.push("مفروش");
   if(facts.length) lines.push("🛏 "+facts.join(" · "));
   var legal=[]; if(l.deal!=="rent"&&deed) legal.push("طابو: "+deed); if(cond) legal.push(cond); if(legal.length) lines.push("📜 "+legal.join(" · "));
@@ -3708,7 +3708,7 @@ function promoText(l){
   return lines.join("\n");
 }
 function admPromoHtml(l){
-  var p=ADM.promo||{}; var text=promoText(l);
+  var p=ADM.promo||{}; var text=promoText(l,{hidePrice:p.hidePrice});
   return '<div class="ld-sec">📣 '+GX("promoH")+'</div><div class="promo" id="promoBox">'+
     '<div class="hintx" style="margin-bottom:8px">'+GX("promoHint")+'</div>'+
     '<label class="lfc on" style="margin-bottom:8px"><span>'+GX("promoSrc")+':</span><select id="promoSrc">'+PROMO_SRC.map(function(s){ return '<option value="'+s[0]+'"'+(p.src===s[0]?' selected':'')+'>'+s[1]+'</option>' }).join("")+'</select></label>'+
