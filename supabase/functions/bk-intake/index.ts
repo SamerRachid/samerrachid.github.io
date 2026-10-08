@@ -749,9 +749,10 @@ function areaFromText(fields: Record<string, any>, missing: string[], rawText: s
   const scan = (govs: any[]) => {
     const hits: { g: any; a: any; n: string }[] = [];
     for (const g of govs) for (const a of (g.areas || [])) {
-      const n = norm(a[1]); if (n.length < 5) continue;
-      // whole word, with or without ال, also glued to ب/ل/و ("بالصناعة", "للمزة", "وبالروضة")
-      if (new RegExp(`\\s(?:و|ف)?(?:ب|ل)?(?:ال)?${n}\\s`, "u").test(said) && !areaIsNoun(a[1], rawText)) hits.push({ g, a, n });
+      const n = norm(a[1]); if (n.length < 3) continue;
+      // whole word, with or without ال, also glued to ب/ل/و ("بالصناعة", "للمزة", "وبالروضة"); a short name (المزة → "مزه") counts only when written with its ال, so a bare syllable inside another word never matches
+      const re = n.length < 5 ? new RegExp(`\\s(?:و|ف)?(?:ب|ل)?ال${n}\\s`, "u") : new RegExp(`\\s(?:و|ف)?(?:ب|ل)?(?:ال)?${n}\\s`, "u");
+      if (re.test(said) && !areaIsNoun(a[1], rawText)) hits.push({ g, a, n });
     }
     return hits.sort((x, y) => y.n.length - x.n.length);
   };
