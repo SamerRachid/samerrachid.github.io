@@ -666,6 +666,26 @@ Rules:
 
 // the taxonomy sent to the model. With ~4,500 Syrian areas the full list is ~60k tokens per read, so when the message
 // (or the sender's agency) points at particular governorates only THEIR area lists go in; the others are named only
+// places learned from published listings and corrections ("ساحة المرجة" → دمشق/المرجة, "شام فيو" → ريف دمشق/الصبورة):
+// shown to the model and applied deterministically before the text scan
+let _places: { at: number; cc: string; rows: any[] } | null = null;
+async function refreshPlaces(cc: string) {
+  if (_places && _places.cc === cc && Date.now() - _places.at < 60_000) return _places.rows;
+  const { data } = await sb.from("intake_places").select("phrase,phrase_norm,governorate_id,area_id,hits").eq("country_code", cc).order("hits", { ascending: false }).limit(400);
+  _places = { at: Date.now(), cc, rows: data || [] }; return _places.rows;
+}
+const placeKey = (s: string) => norm(s).replace(/^(?:و|ف)?(?:ب|في |من )?(?:ال)?(?:قرب|بالقرب من|بقرب|جانب|بجانب|جنب|مقابل|خلف|امام|قدام|بعد|قبل|عند|مجاور|محاذي|قريب من|قريبه من)\s+/, "").replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ").trim();
+// after a publish: the landmark the sender wrote now points at a confirmed governorate/area
+async function learnPlace(cc: string, fields: Record<string, any>) {
+  try {
+    const lm = String(fields?.landmark || "").trim(); if (!lm || !fields.governorate_id || !fields.area_id) return;
+    const key = placeKey(lm); if (key.length < 4 || key.length > 60) return;
+    const { data: ex } = await sb.from("intake_places").select("id,governorate_id,area_id,hits").eq("country_code", cc).eq("phrase_norm", key).limit(1);
+    if (ex && ex.length) { if (ex[0].governorate_id === fields.governorate_id && ex[0].area_id === fields.area_id) await sb.from("intake_places").update({ hits: (ex[0].hits || 1) + 1, updated_at: new Date().toISOString() }).eq("id", ex[0].id); return; }
+    await sb.from("intake_places").insert({ country_code: cc, phrase: lm.slice(0, 80), phrase_norm: key, governorate_id: fields.governorate_id, area_id: fields.area_id, source: "publish" });
+    _places = null;
+  } catch { /* learning never blocks a publish */ }
+}
 function taxonomyText(tax: any, onlyGovs?: Set<number> | null): string {
   const L: string[] = [];
   L.push(`country: ${tax.country.code} ${tax.country.name_ar} — currencies: ${(tax.country.currencies || []).join(", ")}`);
@@ -679,12 +699,27 @@ function taxonomyText(tax: any, onlyGovs?: Set<number> | null): string {
     if (onlyGovs && onlyGovs.size && !onlyGovs.has(g.id)) { L.push(`- ${g.ar} / ${g.en}: (areas not listed — not this governorate)`); continue; }
     L.push(`- ${g.ar} / ${g.en}: ` + (g.areas || []).map((a: any) => a[1] + (a[2] ? "/" + a[2] : "")).join(", "));
   }
+  const pl = (_places && _places.cc === tax.country.code) ? _places.rows : [];
+  if (pl.length) {
+    const gById = new Map((tax.governorates || []).map((g: any) => [g.id, g]));
+    L.push(`known landmarks → governorate / area (when the message names one of these, use its governorate and area unless the text clearly says another place):`);
+    for (const r of pl.slice(0, 300)) { const g = gById.get(r.governorate_id); const a = g ? (g.areas || []).find((x: any) => x[0] === r.area_id) : null; if (g && a) L.push(`- ${r.phrase} → ${g.ar} / ${a[1]}`); }
+  }
   return L.join("\n");
 }
 // which governorates a message can be about: named in the text, or the sender's agency governorates, or the draft's own
 function govsForRead(tax: any, rawText: string, d: any): Set<number> | null {
   const said = norm(rawText); const out = new Set<number>();
   for (const g of tax.governorates || []) { const n = norm(g.ar); if (n && (said.includes(n) || said.includes(norm("ريف " + g.ar)))) out.add(g.id); }
+  // a governorate whose area/town name is written in the message is a candidate too ("ببيلا", "المزة"): the reader must
+  // see that governorate's list even when the agency sits elsewhere (a Hama office posting Damascus homes)
+  const words = " " + said.replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ") + " ";
+  for (const g of tax.governorates || []) for (const a of (g.areas || [])) {
+    const n = norm(a[1]); if (n.length < 3) continue;
+    const re = n.length < 5 ? new RegExp(`\\s(?:و|ف)?(?:ب|ل)?ال${n}\\s`, "u") : new RegExp(`\\s(?:و|ف)?(?:ب|ل)?(?:ال)?${n}\\s`, "u");
+    if (re.test(words) && !areaIsNoun(a[1], rawText)) { out.add(g.id); break; }
+  }
+  for (const r of ((_places && _places.cc === tax.country.code) ? _places.rows : [])) if (r.phrase_norm && words.includes(" " + r.phrase_norm + " ")) out.add(r.governorate_id);
   if (!out.size) {
     const names = (Array.isArray(d.agency_govs) && d.agency_govs.length ? d.agency_govs : Array.isArray(d.user_agency_govs) ? d.user_agency_govs : []) as string[];
     for (const n of names) { const g = findGov(tax, n); if (g) out.add(g.id); }
@@ -749,6 +784,17 @@ function findArea(g: any, name: string) {
 function areaFromText(fields: Record<string, any>, missing: string[], rawText: string, tax: any): { event: string; detail: any } | null {
   if (fields.area_id) return null;
   const said = " " + norm(rawText).replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ") + " ";
+  // a landmark we already know (learned from published listings): it decides governorate and area
+  const known = ((_places && _places.cc === tax.country.code) ? _places.rows : []).filter((r: any) => r.phrase_norm && r.phrase_norm.length >= 4 && said.includes(" " + r.phrase_norm + " ")).sort((a: any, b: any) => b.phrase_norm.length - a.phrase_norm.length);
+  if (known.length) {
+    const r = known[0]; const g = (tax.governorates || []).find((x: any) => x.id === r.governorate_id); const a = g ? (g.areas || []).find((x: any) => x[0] === r.area_id) : null;
+    if (g && a) {
+      const from = fields.governorate || null;
+      fields.governorate = g.ar; fields.governorate_id = g.id; fields.area = a[1]; fields.area_id = a[0];
+      for (const k of ["governorate", "area"]) { const i = missing.indexOf(k); if (i >= 0) missing.splice(i, 1); }
+      return { event: "place_known", detail: { phrase: r.phrase, governorate: g.ar, area: a[1], from } };
+    }
+  }
   const scan = (govs: any[]) => {
     const hits: { g: any; a: any; n: string }[] = [];
     for (const g of govs) for (const a of (g.areas || [])) {
@@ -1124,6 +1170,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   }
   try {
     const govSet = govsForRead(tax, rawText, d);
+    await refreshPlaces(tax.country.code);
     const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax, govSet), user);
     usage = r.usage; raw = r.fields; const s = settle(r.fields, tax, rawText); fields = s.fields; missing = s.missing; cost = costOf(usage, c);
     // the sender already said «تخطي»: only what cannot be skipped is still asked for
@@ -1266,6 +1313,7 @@ async function publishDraft(draftId: number, force?: string | null, opts: { quie
     const { data: dup } = await q; if (dup && dup.length) dupOf = dup[0];
   }
   const pub = await rpc<any>("bk_intake_publish", { p_draft: draftId, p_force_status: force || null });
+  if (pub?.ok) await learnPlace(pub.country_code || d.country_code || "SY", d.fields || {});
   if (pub?.ok && dupOf) {
     await log(draftId, d.chat_id, "warn", "duplicate_suspected", { of: dupOf.ref, listing_id: dupOf.id, new_listing: pub.listing_id });
     await rpc("bk_notify_push", { p_event: "listing", p_title: "⚠️ إعلان مكرر محتمل: " + pub.ref, p_body: `نفس المواصفات والمكان لإعلان ${dupOf.ref} من العضو نفسه (${d.sender_name || d.chat_id}). راجع الاثنين واحذف المكرر إن لزم.`, p_link: SITE + "/admin", p_cc: pub.country_code || null });
@@ -1559,6 +1607,7 @@ async function fixPublished(m: Incoming, r: any, tt: any) {
     const tax = await rpc<any>("bk_intake_taxonomy", { p_country: d.country_code });
     const rawText = latinDigits(d.raw_text || "");
     const user = `Sender: ${d.sender_name || "?"}\n\nMESSAGE:\n${rawText.slice(0, 6000)}\n\nCORRECTION FROM THE SENDER (overrides the message above where they differ):\n${latinDigits(fix)}`;
+    await refreshPlaces(tax.country.code);
     const res = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax, govsForRead(tax, rawText, d)), user);
     const s = settle(res.fields, tax, rawText + "\n" + fix); const nf = s.fields;
     for (const w of areaGuards(nf, s.missing, res.fields, rawText + "\n" + fix, tax)) await log(d.id, m.chat, "warn", w.event, w.detail);
@@ -1995,7 +2044,8 @@ async function routeWeb(req: Request): Promise<Response> {
   const tax = await rpc<any>("bk_intake_taxonomy", { p_country: b.country || "SY" });
   try {
     const t = latinDigits(text);
-    const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax), "MESSAGE:\n" + t);
+    await refreshPlaces(tax.country.code);
+    const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax, govsForRead(tax, t, {})), "MESSAGE:\n" + t);
     const s = settle(r.fields, tax, t);
     // the same guards the WhatsApp/Telegram read enforces: no look-alike area swaps, and a guessed governorate gives way to the
     // area actually written in the text ("المليحة" → ريف دمشق, not the model's default دمشق)
@@ -2145,7 +2195,8 @@ async function routeAdmin(req: Request): Promise<Response> {
     const c = await cfg(); const tax = await rpc<any>("bk_intake_taxonomy", { p_country: b.country || "SY" });
     try {
       const text = latinDigits(String(b.text || "").slice(0, 6000));
-      const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax), "MESSAGE:\n" + text); const s = settle(r.fields, tax, text);
+      await refreshPlaces(tax.country.code);
+      const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax, govsForRead(tax, text, {})), "MESSAGE:\n" + text); const s = settle(r.fields, tax, text);
       const warnings = areaGuards(s.fields, s.missing, r.fields, text, tax);   // the same rules the real read enforces
       { const w = govGuard(s.fields, s.missing, text, tax); if (w) warnings.push(w); }
       { const hit = areaFromText(s.fields, s.missing, text, tax); if (hit) warnings.push(hit); }
