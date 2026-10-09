@@ -4436,10 +4436,27 @@ async function rpc(fn,args){
   if(MEMBER_FNS[fn] && args.p_token===undefined) args.p_token=(USER&&USER.token)||null;
   var r=await DB.rpc(fn,args);
   if(r.error) throw r.error;
-  if(r.data&&r.data.error) throw new Error(r.data.error);
+  if(r.data&&r.data.error){
+    // the server only ever says "unauthorised" for a dead/expired/revoked member session token — every member
+    // RPC goes through this one wrapper, so this is the one place to catch it instead of each of the ~40 call
+    // sites silently failing or showing a raw error (the old behaviour: the client kept USER "logged in" and
+    // kept retrying the same dead token on every action)
+    if(r.data.error==="unauthorised" && MEMBER_FNS[fn] && USER) sessionExpired();
+    throw new Error(r.data.error);
+  }
   // several functions hand back the caller's own profile without the token — keep the session
   if(r.data && USER && USER.token && !r.data.token && r.data.id===USER.id && r.data.phone) r.data.token=USER.token;
   return r.data}
+var _sessionExpiredShown=false;
+function sessionExpired(){
+  if(_sessionExpiredShown) return; _sessionExpiredShown=true;   // several calls can fail in the same burst; handle it once
+  USER=null; clearSession(); NOTIFS={items:[],unread:0}; MYLIST=null; SAVEDFULL=[]; SAVED=[]; SEARCHES=[];
+  LOADED.mine=false; LOADED.saved=false; LOADED.msgs=false; LOADED.searches=false;
+  if(_notifPollTimer){ clearInterval(_notifPollTimer); _notifPollTimer=null }
+  AU.open=true; AU.mode="in"; AU.step=1;
+  render();
+  setTimeout(function(){ try{ alert(GX("sessionExpired")) }catch(e){} },30);
+}
 /* ── HTML escaping ───────────────────────────────────────────────────
    Every view builds HTML by string concatenation, so anything that came
    from the database is escaped once, at the boundary (see the DB.rpc hook
@@ -11416,6 +11433,7 @@ var GX_T={
   qfm_deal:{ar:"بيع أم إيجار",en:"sale or rent",de:"Verkauf oder Miete"}, qfm_property_type:{ar:"نوع العقار",en:"property type",de:"Objektart"}, qfm_governorate:{ar:"المحافظة",en:"governorate",de:"Provinz"}, qfm_area:{ar:"المنطقة",en:"area",de:"Gebiet"}, qfm_tabu:{ar:"الطابو",en:"deed",de:"Grundbuch"}, qfm_price:{ar:"السعر",en:"price",de:"Preis"}, qfm_area_m2:{ar:"المساحة",en:"size",de:"Fläche"},
   qfFail:{ar:"تعذّرت القراءة الآن. أكمل الحقول يدوياً.",en:"Could not read it right now. Fill the fields by hand.",de:"Lesen gerade nicht möglich. Bitte Felder von Hand ausfüllen."},
   qfNoKey:{ar:"القراءة الآلية غير مفعّلة بعد.",en:"Automatic reading is not switched on yet.",de:"Das automatische Lesen ist noch nicht aktiviert."},
+  sessionExpired:{ar:"انتهت صلاحية جلستك. الرجاء تسجيل الدخول مجدداً.",en:"Your session has expired. Please sign in again.",de:"Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."},
   qfLogin:{ar:"سجّل الدخول أولاً.",en:"Log in first.",de:"Bitte zuerst anmelden."}, qfLimit:{ar:"وصلت إلى الحد اليومي للقراءة الآلية.",en:"Daily limit for automatic reading reached.",de:"Tageslimit für das automatische Lesen erreicht."},
   qfShort:{ar:"الصق نص الإعلان أولاً.",en:"Paste the listing text first.",de:"Bitte zuerst den Anzeigentext einfügen."},
   qfShared:{ar:"وصلتنا الرسالة المشتركة من هاتفك.",en:"The shared message from your phone arrived.",de:"Die geteilte Nachricht von Ihrem Telefon ist angekommen."},
