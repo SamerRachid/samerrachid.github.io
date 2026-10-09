@@ -9481,7 +9481,8 @@ async function _loadListingsImpl(){
     console.warn("v_listings failed, falling back to listings:", e.message||e);
     // fall back to the raw table + a manual governorate lookup
     try{
-      var r2 = await DB.from("listings").select("*")
+      // explicit columns: contact_phone_private is not granted to anon, so select("*") would be refused
+      var r2 = await DB.from("listings").select("id,ref,user_id,status,section,deal,property_type,governorate_id,area_id,landmark,lat,lng,price_usd,orig_price,closed_reason,price_negotiable,area_m2,rooms,baths,floor,floors_total,year_built,tabu,deed_doc_url,condition,power_hours,generator_amps,water_schedule,heating,finish_level,furnished,lease_months,advance_months,deposit_usd,bills_included,amenities,description,contact_phone,contact_name,accepts_whatsapp,by_owner,views,saves,created_at,updated_at,published_at,expires_at,closed_at,direction,rental_period,is_featured,featured_from,featured_until,living_rooms,country_code,price_local,price_cur")
                  .eq("country_code",COUNTRY).in("status",["live","pending"]).order("created_at",{ascending:false}).limit(1000);
       if(r2.error) throw r2.error;
       var gv = await DB.from("governorates").select("id,name_ar");
