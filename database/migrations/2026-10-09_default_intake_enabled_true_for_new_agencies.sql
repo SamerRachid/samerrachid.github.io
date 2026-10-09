@@ -1,0 +1,22 @@
+-- 2026-10-09 — owner decision: every newly-approved agency should be able to publish listings by WhatsApp/
+-- Telegram message immediately, with no separate manual "enable" step by the admin. Regular members already
+-- get this by default via the global site_content.extras.intake_member_listing_on flag (set 2026-10-03); the
+-- only gap was agencies.intake_enabled defaulting to false on every new row, requiring a manual per-agency
+-- toggle in the panel. Incident that surfaced this: agency 58 (approved) sent two real WhatsApp messages
+-- (one a correctly-formatted land listing, 3500 m² in Dumar, Damascus, 51% owner share) that the bot
+-- silently treated as "unknown sender" because nobody had flipped this switch for them.
+--
+-- Existing agencies are untouched (only the column DEFAULT changes, applying only to future INSERTs); the
+-- owner can still turn it off per-agency from the panel at any time if it causes a problem.
+--
+-- Already applied live via apply_migration. The owner separately resolved agency 58 by hand (turned its
+-- switch on) and asked for their message to be processed: a throwaway admin session created the normal
+-- intake_drafts row from their real message text (mirroring exactly what bk_intake_message would have
+-- inserted for an enabled sender) and the live bk-intake "read" admin action ran the real Claude reader on
+-- it — not a hand-typed guess. Result: property_type=plot, governorate=دمشق, area=دمر (area_id 35 resolved
+-- correctly), area_m2=3500, only "deal" (sale/rent) left missing since the message never said so explicitly
+-- (correct per the reader's own rule: never guess deal from context). The bot sent its real summary + that
+-- one question to the agency's real WhatsApp automatically, as part of its normal flow; nothing was
+-- published, pending the agency's own confirmation. The temporary admin session token was expired
+-- immediately after use.
+alter table public.agencies alter column intake_enabled set default true;
