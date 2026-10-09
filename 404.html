@@ -9421,7 +9421,11 @@ function listingsSignature(list){
   return list.map(function(x){ return x.id+":"+x.status+":"+x.p+":"+(x.featured?1:0) }).sort().join("|");
 }
 async function syncListingsFromServer(){
-  if(!DB) return;
+  // a hidden/background tab still ran this every 30s — the full catalogue (hundreds of KB) — for nothing
+  // visible; visitorPing() already skips itself the same way. The visibilitychange handler below already
+  // catches up with an immediate refresh once a tab hidden for over a minute becomes visible again, so
+  // nothing goes stale here.
+  if(!DB || document.hidden) return;
   try{
     var before = listingsSignature(D.LIST);
     await _loadListingsImpl();
