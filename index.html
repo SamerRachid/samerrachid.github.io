@@ -4977,7 +4977,9 @@ function home(){
 function card(x,i,isListView){
  var I=LICON, ar=L==="ar";
  var photos = (x.photos&&x.photos.length) ? x.photos : (x.cover ? [x.cover] : []);
- var cover = photos[0] || (x.videos&&x.videos[0]&&x.videos[0].poster) || null;
+ // the card only ever shows a small cover photo — the ~35 KB thumbnail the server already generates, not the
+ // ~120 KB original (x.photos/photos stays full-size: the gallery and lightbox need the real resolution)
+ var cover = (x.thumbs&&x.thumbs[0]) || photos[0] || (x.videos&&x.videos[0]&&x.videos[0].poster) || null;
  var closed = x.status==="sold"||x.status==="rented";
  var featBright = x.featured ? Math.max(0,Math.min(100,SITE.featured_brightness!=null?SITE.featured_brightness:20)) : 0;
  var featBadgeText = (SITE["featured_badge_"+L]&&SITE["featured_badge_"+L].trim()) ? SITE["featured_badge_"+L] : t("featuredBadgeDefault");
@@ -5231,7 +5233,7 @@ function rsMapInit(){
 // pin click: a mini card over the pin (photo, price, title, area, "view listing") and the matching card highlighted and
 // scrolled into view; if that card is on another results page, that page is shown first
 function rsMiniCard(x){
-  var photos=(x.photos&&x.photos.length)?x.photos:(x.cover?[x.cover]:[]), cover=photos[0]||null, typeName=D.TYPES[x.t]?D.TYPES[x.t][li()]:"";
+  var photos=(x.photos&&x.photos.length)?x.photos:(x.cover?[x.cover]:[]), cover=(x.thumbs&&x.thumbs[0])||photos[0]||null, typeName=D.TYPES[x.t]?D.TYPES[x.t][li()]:"";
   return '<div class="rs-mini">'+(cover?'<img src="'+cover+'" alt="">':'<div class="rs-mini-np">'+t("photos")+'</div>')+
     '<div class="rs-mini-b"><b class="ltr">'+money(x.p)+'</b><div class="rs-mini-t">'+typeName+m2Txt(x," ")+'</div><div class="rs-mini-l">'+aN(x.a)+(L==="ar"?"، ":", ")+gN(x.g)+'</div>'+
     '<button type="button" class="rs-mini-go" data-rsgo="'+x.id+'">'+GX("rsOpenListing")+'</button></div></div>' }
@@ -7749,7 +7751,7 @@ function initMapSearch(){
   // would otherwise sit frozen, visibly detached from its pin
   map.on("movestart zoomstart", function(){ previewEl.style.display="none"; activePinId=null });
   withLoc.forEach(function(x){
-    var cover = (x.photos&&x.photos[0]) || x.cover || (x.videos&&x.videos[0]&&x.videos[0].poster) || null;
+    var cover = (x.thumbs&&x.thumbs[0]) || (x.photos&&x.photos[0]) || x.cover || (x.videos&&x.videos[0]&&x.videos[0].poster) || null;
     var priceText = x.d==="rent" ? (money(x.p)+" "+t("monthlyRent")) : money(x.p);
     var popupHtml = '<div class="mappin-preview" data-pin-listing="'+x.id+'" style="cursor:pointer">'+
       (cover ? '<img src="'+cover+'" alt="">' : '<div class="mappin-nophoto"><img src="/brand/logo-light.png" alt="بلكون"></div>')+
@@ -9550,8 +9552,13 @@ async function _loadListingsImpl(){
       var ph = await DB.from("listing_photos").select("listing_id,url,thumb_url,sort_order,kind")
                  .in("listing_id", ids).order("sort_order",{ascending:true});
       if(!ph.error && ph.data){
-        var by={}, byV={}; ph.data.forEach(function(p){ if(p.kind==="video"){ (byV[p.listing_id]=byV[p.listing_id]||[]).push({url:esc(safeUrl(p.url)),poster:p.thumb_url?esc(safeUrl(p.thumb_url)):""}) } else (by[p.listing_id]=by[p.listing_id]||[]).push(esc(safeUrl(p.url))) });
-        mapped.forEach(function(x){ if(by[x.id]&&by[x.id].length) x.photos=by[x.id]; if(byV[x.id]) x.videos=byV[x.id] });
+        // x.photos stays full-size strings (the gallery/lightbox/swipe views all index into it directly as
+        // img src / background-url — changing that shape would mean auditing every one of those call sites).
+        // x.thumbs is a same-order, same-length parallel array of the ~35 KB thumbnails the server already
+        // generates (v.s. ~120 KB full photos); card() below uses thumbs[0] for grid covers when present,
+        // falling back to the full photo — nothing else needs to know thumbs exists.
+        var by={}, byT={}, byV={}; ph.data.forEach(function(p){ if(p.kind==="video"){ (byV[p.listing_id]=byV[p.listing_id]||[]).push({url:esc(safeUrl(p.url)),poster:p.thumb_url?esc(safeUrl(p.thumb_url)):""}) } else { (by[p.listing_id]=by[p.listing_id]||[]).push(esc(safeUrl(p.url))); (byT[p.listing_id]=byT[p.listing_id]||[]).push(esc(safeUrl(p.thumb_url||p.url))) } });
+        mapped.forEach(function(x){ if(by[x.id]&&by[x.id].length){ x.photos=by[x.id]; x.thumbs=byT[x.id] } if(byV[x.id]) x.videos=byV[x.id] });
       }
     }catch(e){ console.warn("photos not loaded:", e.message||e) }
   }
@@ -9571,8 +9578,8 @@ async function loadMyListings(){
         var ph = await DB.from("listing_photos").select("listing_id,url,thumb_url,sort_order,kind")
                    .in("listing_id", ids).order("sort_order",{ascending:true});
         if(!ph.error && ph.data){
-          var by={}, byV={}; ph.data.forEach(function(p){ if(p.kind==="video"){ (byV[p.listing_id]=byV[p.listing_id]||[]).push({url:esc(safeUrl(p.url)),poster:p.thumb_url?esc(safeUrl(p.thumb_url)):""}) } else (by[p.listing_id]=by[p.listing_id]||[]).push(esc(safeUrl(p.url))) });
-          mapped.forEach(function(x){ if(by[x.id]&&by[x.id].length) x.photos=by[x.id]; if(byV[x.id]) x.videos=byV[x.id] });
+          var by={}, byT={}, byV={}; ph.data.forEach(function(p){ if(p.kind==="video"){ (byV[p.listing_id]=byV[p.listing_id]||[]).push({url:esc(safeUrl(p.url)),poster:p.thumb_url?esc(safeUrl(p.thumb_url)):""}) } else { (by[p.listing_id]=by[p.listing_id]||[]).push(esc(safeUrl(p.url))); (byT[p.listing_id]=byT[p.listing_id]||[]).push(esc(safeUrl(p.thumb_url||p.url))) } });
+          mapped.forEach(function(x){ if(by[x.id]&&by[x.id].length){ x.photos=by[x.id]; x.thumbs=byT[x.id] } if(byV[x.id]) x.videos=byV[x.id] });
         }
       }catch(e){ console.warn("my-listings photos not loaded:", e.message||e) }
     }
