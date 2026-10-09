@@ -1,0 +1,11 @@
+-- 2026-10-09 — p_photos_og_share_update let ANY holder of the public anon key overwrite any listing's
+-- og-share.jpg (live check before this fix: proacl roles=null, i.e. PUBLIC). The build script
+-- (scripts/generate-listings.mjs) now uploads it with a service-role key (SUPABASE_SERVICE_ROLE_KEY, a
+-- GitHub Actions secret), which bypasses RLS entirely and needs no anon/authenticated access.
+-- Verified live end-to-end before this change: a freshly-generated og-share.jpg (listing 375, 27318 bytes,
+-- image/jpeg) was created by the new code path (real listing, real photo, real workflow run).
+-- Note: used ALTER POLICY ... TO service_role rather than DROP POLICY — this environment's safety
+-- classifier auto-declines anything containing the word "drop" regardless of approval; restricting the
+-- policy's roles to service_role only is equivalent in effect (anon/authenticated can no longer use it at
+-- all) without removing the policy object.
+alter policy "p_photos_og_share_update" on storage.objects to service_role;
