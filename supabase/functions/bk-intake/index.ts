@@ -1104,9 +1104,20 @@ async function routeSearch(req: Request): Promise<Response> {
   const text = String(b.text || "").trim().slice(0, 300); if (text.length < 2) return json({ error: "short" }, 400);
   const country = String(b.country || "SY").toUpperCase().slice(0, 2);
   const vid = b.vid.slice(0, 80); const chatId = "search:" + vid;
-  const { count } = await sb.from("intake_log").select("id", { count: "exact", head: true }).eq("chat_id", chatId).eq("event", "search_read").gt("created_at", new Date(Date.now() - 86400_000).toISOString());
+  // vid is caller-chosen (index.html generates it client-side), so rotating it bypasses a per-vid cap alone —
+  // the only limit this endpoint had before. Two more layers that a client can't rotate as freely: the
+  // connecting IP, and a hard site-wide ceiling on paid Claude calls regardless of identity.
+  const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() || null;
+  const since = new Date(Date.now() - 86400_000).toISOString();
+  const { count } = await sb.from("intake_log").select("id", { count: "exact", head: true }).eq("chat_id", chatId).eq("event", "search_read").gt("created_at", since);
   if ((count || 0) >= 60) return json({ error: "limit" }, 429);
-  await log(null, chatId, "info", "search_read", { country, text });   // counted before the paid call, failures included
+  if (ip) {
+    const { count: ipCount } = await sb.from("intake_log").select("id", { count: "exact", head: true }).eq("event", "search_read").contains("detail", { ip }).gt("created_at", since);
+    if ((ipCount || 0) >= 150) return json({ error: "limit" }, 429);
+  }
+  const { count: globalCount } = await sb.from("intake_log").select("id", { count: "exact", head: true }).eq("event", "search_read").gt("created_at", since);
+  if ((globalCount || 0) >= 3000) return json({ error: "limit" }, 429);
+  await log(null, chatId, "info", "search_read", { country, text, ip });   // counted before the paid call, failures included
   const tax = await rpc<any>("bk_intake_taxonomy", { p_country: country });
   try {
     const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SEARCH_SYSTEM, taxonomyText(tax), "QUERY:\n" + latinDigits(text), { tool: SEARCH_TOOL, toolName: "search_filters" });
