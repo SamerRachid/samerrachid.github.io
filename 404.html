@@ -75,7 +75,10 @@
  ═══════════════════════════════════════════════════════════════════════
 -->
 <link rel="preconnect" href="https://coajrqynjrptujmzjjdh.supabase.co" crossorigin><link rel="dns-prefetch" href="https://coajrqynjrptujmzjjdh.supabase.co"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFkCqIzA.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFkCqIzAUWw.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/lato/v25/S6u9w4BMUTPHh6UVSwiPGQ3q5d0.woff2">
+<!-- no font `rel=preload`: Google Fonts rotates the exact file hash behind this CSS, and a stale hardcoded
+     preload href downloads a file nothing uses AND the real one the CSS below points to — confirmed live: none
+     of the 3 previously hardcoded URLs appear in Google's current CSS response at all. preconnect above already
+     warms the connection; the stylesheet itself is the only accurate source of which files are actually needed. -->
 <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
 <script src="/vendor/supabase-2.114.0.es2017.min.js" integrity="sha384-H9XQgeFDejz7cF0dTyKEueeMcuAM2KvDuI9fGCYNLMagHsKcvzSim+StmCzQiFUY"></script>
 <script src="/vendor/morphdom-2.7.4.min.js" integrity="sha384-1Kpyy6fJtxPI22Yq5Lt3SzKVMJDfDDChb4HFf0stEn8pNSz3e9Mvgfjv5hrqsT1U"></script>
