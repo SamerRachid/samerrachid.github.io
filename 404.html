@@ -5426,7 +5426,7 @@ function listing(id){
  var side='<aside class="lside">'+
   '<div class="lprice">'+
    '<div class="big">'+priceBlock(x,1)+(x.negot?' <span class="negot">'+t("negot")+'</span>':'')+'</div>'+
-   '<div class="sub">'+(isRent?t("monthlyRent"):'<span class="ltr">$'+Math.round(x.p/x.m2)+'</span> '+t("perm"))+'</div>'+
+   '<div class="sub">'+(isRent?t("monthlyRent"):(x.p>0&&x.m2>0?'<span class="ltr">$'+Math.round(x.p/x.m2)+'</span> '+t("perm"):''))+'</div>'+
    origPriceLine(x)+
    priceContextHtml(x)+
    '<div class="lowner">'+avatar(x.oav,ownerName,48)+'<div>'+
@@ -5505,7 +5505,7 @@ var LICON=(function(){
 function priceContextHtml(x){
   if(SX("price_context_on",true)===false) return '';   // panel switch: البحث والبطاقات → البطاقات
   var ap = x.aid && AREA_PRICES[x.aid];
-  if(x.d==="rent" || !ap || +ap.listings < 3 || !x.m2 || !+ap.avg_price_per_m2) return '';
+  if(x.d==="rent" || !ap || +ap.listings < 3 || !x.m2 || !(x.p>0) || !+ap.avg_price_per_m2) return '';
   var avg = +ap.avg_price_per_m2, mine = x.p/x.m2, diff = Math.round((mine-avg)/avg*100);
   var W = {ar:["أقل من متوسط المنطقة","أعلى من متوسط المنطقة","بسعر متوسط المنطقة","إعلان"],
            en:["below the area average","above the area average","at the area average","listings"],
