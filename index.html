@@ -12144,9 +12144,19 @@ function applyGeo(geo){
 }
 function govAlias(name){ var m=GEO_META&&GEO_META.merged; return (m&&m[name])||name }
 function applyGeoCache(){ try{ var c=localStorage.getItem(geoCacheKey()); if(c) applyGeo(JSON.parse(c)) }catch(e){} }
-async function loadGeo(){
+var GEO_MAX_AGE_MS = 24*3600000;   // governorates/areas change only through an admin edit, which already force-reloads itself
+async function loadGeo(force){
   if(!DB) return;
-  try{ var r=await DB.rpc("bk_geo",cArgs()); if(r&&r.data&&r.data.g&&r.data.g.length){ applyGeo(r.data); try{ localStorage.setItem(geoCacheKey(), JSON.stringify(r.data)) }catch(e){} } }catch(e){}
+  // applyGeoCache() already hydrated D.GEO synchronously at boot from the same cache this reads, so skipping
+  // the network call here never means stale data on screen for longer than GEO_MAX_AGE_MS — it only means not
+  // re-downloading the whole ~400 KB governorate/area payload on every page load and every tab-focus/pageshow
+  if(!force){
+    try{
+      var c=JSON.parse(localStorage.getItem(geoCacheKey())||"null");
+      if(c && c._at && Date.now()-c._at < GEO_MAX_AGE_MS) return;
+    }catch(e){}
+  }
+  try{ var r=await DB.rpc("bk_geo",cArgs()); if(r&&r.data&&r.data.g&&r.data.g.length){ applyGeo(r.data); try{ r.data._at=Date.now(); localStorage.setItem(geoCacheKey(), JSON.stringify(r.data)) }catch(e){} } }catch(e){}
 }
 function geoKind(gov, area){ return (GEO_META.kind[gov]||{})[area]||"area" }
 function cPre(){ return COUNTRY==="SY" ? "" : "/"+COUNTRY.toLowerCase() }   // static pages of another country live under /lb/, /jo/ …
@@ -12163,7 +12173,7 @@ function wireGeoAdmin(){
   if(!ADM._geoLoaded || ADM._geoLoadedFor!==ADM.geoCountry){ ADM._geoLoaded=true; ADM._geoLoadedFor=ADM.geoCountry; ADM.geoSug=null; ADM.geoSugSel={};
     Promise.all([DB.rpc("bk_admin_geo_list",{p_token:ADM.token,p_country:ADM.geoCountry}), ADM.countries?Promise.resolve(null):DB.rpc("bk_admin_countries",{p_token:ADM.token}), DB.rpc("bk_admin_area_suggestions",{p_token:ADM.token,p_country:ADM.geoCountry})]).then(function(rs){ if(rs[1]&&rs[1].data) ADM.countries=rs[1].data; if(rs[2]&&rs[2].data) ADM.geoSug=rs[2].data; if(rs[0]&&rs[0].data){ ADM.geo=rs[0].data; render() } }); return }
   var msg=function(s,bad){ var m=$("#geoMsg"); if(m){ m.textContent=s; m.style.color=bad?"var(--danger)":"var(--ok)" } };
-  var reload=function(){ return Promise.all([DB.rpc("bk_admin_geo_list",{p_token:ADM.token,p_country:ADM.geoCountry}), DB.rpc("bk_admin_area_suggestions",{p_token:ADM.token,p_country:ADM.geoCountry})]).then(function(rs){ if(rs[0]&&rs[0].data) ADM.geo=rs[0].data; if(rs[1]&&rs[1].data) ADM.geoSug=rs[1].data; if(ADM.geoCountry==="SY") loadGeo(); render() }) };
+  var reload=function(){ return Promise.all([DB.rpc("bk_admin_geo_list",{p_token:ADM.token,p_country:ADM.geoCountry}), DB.rpc("bk_admin_area_suggestions",{p_token:ADM.token,p_country:ADM.geoCountry})]).then(function(rs){ if(rs[0]&&rs[0].data) ADM.geo=rs[0].data; if(rs[1]&&rs[1].data) ADM.geoSug=rs[1].data; if(ADM.geoCountry==="SY") loadGeo(true); render() }) };
   // suggested areas: tick, approve (→ areas) or reject
   ADM.geoSugSel=ADM.geoSugSel||{};
   $$("[data-sug]").forEach(function(c){ c.onchange=function(){ ADM.geoSugSel[this.dataset.sug]=this.checked; render() } });
