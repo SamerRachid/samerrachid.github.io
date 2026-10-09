@@ -3,7 +3,7 @@
    app shell answers when the network is down. Static files (brand, photos, fonts): cache first with a
    background refresh. Database calls are never cached. The version below changes whenever this file
    changes, which retires old caches. */
-const VERSION = "bk-2026-10-09d";
+const VERSION = "bk-2026-10-09e";
 const SHELL = VERSION + "-shell";
 const STATIC = VERSION + "-static";
 const PHOTOS = VERSION + "-photos";
@@ -29,12 +29,18 @@ const isStatic = (url) => sameOrigin(url) && (/^\/(brand|assets)\//.test(url.pat
 const isFont = (url) => /fonts\.(googleapis|gstatic)\.com$/.test(url.hostname);
 const isApi = (url) => /supabase\.co$/.test(url.hostname) && !/\/storage\//.test(url.pathname);
 
-async function networkFirstPage(req) {
+async function networkFirstPage(req, url) {
   try {
     // always revalidate the page with the server: admin.js is fetched fresh on every open, so a page served from the
     // browser's HTTP cache (GitHub Pages: 10 minutes) would pair old CSS with new panel code right after a deploy
     const res = await fetch(req, { cache: "no-cache" });
-    if (res && res.ok) { const c = await caches.open(SHELL); c.put("/index.html", res.clone()); }
+    // every same-origin navigation goes through this function (the static listing/governorate/area pages
+    // included, not just the SPA shell) — only "/" and "/index.html" are actually the app shell; storing any
+    // other page under that same cache key would make the offline fallback whatever page was last visited
+    // (and for a /listing/<id>/ stub, whose own script does location.replace() back into the SPA, a reload loop)
+    if (res && res.ok && (url.pathname === "/" || url.pathname === "/index.html")) {
+      const c = await caches.open(SHELL); c.put("/index.html", res.clone());
+    }
     return res;
   } catch (e) {
     const c = await caches.open(SHELL);
@@ -65,7 +71,7 @@ self.addEventListener("fetch", (e) => {
   if (req.method === "POST" && sameOrigin(url) && /^\/post\/?$/.test(url.pathname)) { e.respondWith(handleShare(req)); return; }
   if (req.method !== "GET") return;
   if (isApi(url)) return;                                   // live data, always from the network
-  if (isNav(req) && sameOrigin(url)) { e.respondWith(networkFirstPage(req)); return; }
+  if (isNav(req) && sameOrigin(url)) { e.respondWith(networkFirstPage(req, url)); return; }
   if (isStatic(url) || isFont(url)) { e.respondWith(staleWhileRevalidate(req, STATIC, 200)); return; }
   if (isPhoto(url)) { e.respondWith(staleWhileRevalidate(req, PHOTOS, 300)); return; }
 });
