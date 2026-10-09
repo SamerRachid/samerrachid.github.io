@@ -4017,6 +4017,7 @@ var NEW={photos:[],lat:null,lng:null};
 var VLB_OPEN=false, _vlbFor=null;   // video lightbox on a listing page
 var GVID_OFF=false;   // the × on the gallery video: hides it and shows the photos (or the poster when there are none); back to slide 1 brings it back
 var SAVED=[];
+var MYLIST=null;   // the member's own listings, any status (live/pending/hidden/rejected/sold/rented…) — unlike D.LIST, which only ever holds public live/pending rows
 var LOADED={};
 var HOMEDEAL="sale";
 var USER=null, AU={mode:"in",step:1,cc:"963",phone:"",name:"",code:"",email:""};
@@ -4530,7 +4531,7 @@ async function storageUpload(path, file, opts){
   return DB.storage.from("photos").upload(path, file, opts||{}) }
 
 var MEMBER_FNS={bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,bk_set_hide_phone:1,
-  bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_own_delete:1,bk_delete_account:1,bk_my_rewards:1,bk_use_feature_credit:1,bk_set_account_type:1,
+  bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_my_listings:1,bk_own_delete:1,bk_delete_account:1,bk_my_rewards:1,bk_use_feature_credit:1,bk_set_account_type:1,
   bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
   bk_search_del:1,bk_search_list:1,bk_search_save:1,bk_set_avatar:1,bk_set_bio:1,bk_set_currency:1,
   bk_update_profile:1,bk_feedback:1,bk_report:1,bk_contact:1,bk_log_view:1};
@@ -5294,7 +5295,10 @@ function searchAlternatives(){
 }
 /* ── listing detail ── */
 function listing(id){
- var x=D.LIST.filter(function(l){return String(l.id)===String(id)})[0];
+ // D.LIST only ever holds public live/pending (+recently-closed) rows; a hidden/rejected/long-closed listing of
+ // the viewer's own still has to open (to view or edit it), so MYLIST (scoped server-side to the caller's own
+ // uid — never another member's data) is the fallback once it has loaded
+ var x=D.LIST.filter(function(l){return String(l.id)===String(id)})[0] || (MYLIST||[]).filter(function(l){return String(l.id)===String(id)})[0];
  if(!x && !LISTINGS_LOADED) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2">'+
    '<b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>';
  if(!x) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2">'+
@@ -6283,7 +6287,9 @@ function mine(){
  if(!USER) return gate();
  if(!myRewards() && !RW.loading) loadMyRewards();
  var rw=myRewards()||{}, canUse=rw.credits>0&&!(rw.active_until&&new Date(rw.active_until)>new Date());
- var r=D.LIST.filter(function(x){ return x.uid && USER.id && x.uid===USER.id; })
+ if(MYLIST===null) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2">'+
+   '<b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>';
+ var r=MYLIST.slice()
    .sort(function(a,b){
      var ac=(a.status==="sold"||a.status==="rented")?1:0;
      var bc=(b.status==="sold"||b.status==="rented")?1:0;
@@ -8439,7 +8445,10 @@ function wire(){
    this.disabled=true; this.textContent=t("saving");
    try{
      var patch={};
-     if(v("ePrice")){ patch.price_usd=toUsdFrom(v("ePrice"), v("ecur")); var ec=(v("ecur")||"USD").toUpperCase(); patch.price_local = ec!=="USD" ? +v("ePrice") : null; patch.price_cur = ec!=="USD" ? ec : null; }
+     // always set price_usd (even to null): the server only clears a field when its key is present in the
+     // patch at all, so leaving the key out when the field is cleared (the old behaviour) silently kept the old price
+     if(v("ePrice").trim()){ patch.price_usd=toUsdFrom(v("ePrice"), v("ecur")); var ec=(v("ecur")||"USD").toUpperCase(); patch.price_local = ec!=="USD" ? +v("ePrice") : null; patch.price_cur = ec!=="USD" ? ec : null; }
+     else { patch.price_usd=null; patch.price_local=null; patch.price_cur=null; }
      if(v("eArea"))  patch.area_m2=+v("eArea");
      patch.rooms = v("eRooms")?+v("eRooms"):null;
      patch.baths = v("eBaths")?+v("eBaths"):null;
@@ -8474,7 +8483,7 @@ function wire(){
          if(gid2){ patch.governorate_id=gid2; patch.area_id=aname2?((GEO_META.areaId||{})[gname2+"/"+aname2]||null):null }
          if($("#eLandmark")) patch.landmark=v("eLandmark").trim()||null; }
        await rpc("bk_edit",{p_user:USER.id, p_id:+EDIT.id, p_patch:patch});
-       LOADED.mine=false; await loadListings();
+       LOADED.mine=false; await Promise.all([loadListings(),loadMyListings()]);
        VIEW="listing:"+EDIT.id; scrollTo(0,0); render();
      }
    }catch(e){ EDIT.msg=(e.message||"error"); this.disabled=false;
@@ -8489,7 +8498,7 @@ function wire(){
           p_status:(LX.d==="rent"?"rented":"sold"),
           p_reason:(LX.d==="rent"?"rented":"sold")});
         LOADED.mine=false; D.LIST=D.LIST.filter(function(l){return String(l.id)!==String(id)});
-        await Promise.all([loadListings(),loadCounts()]);
+        await Promise.all([loadListings(),loadMyListings(),loadCounts()]);
         VIEW="mine"; scrollTo(0,0); render();
    }catch(e){ b.textContent=t("markSold");
         alert((e.message==="notyours")?t("notYours"):(e.message||"error")) }};
@@ -8515,8 +8524,9 @@ function wire(){
      await trashListingFiles(id);
      await rpc("bk_own_delete",{p_user:USER.id, p_id:+id});
      D.LIST=D.LIST.filter(function(l){return String(l.id)!==String(id)});
+     if(MYLIST) MYLIST=MYLIST.filter(function(l){return String(l.id)!==String(id)});
      LOADED.mine=false;
-     await Promise.all([loadListings(),loadCounts()]);
+     await Promise.all([loadListings(),loadMyListings(),loadCounts()]);
      VIEW="mine"; scrollTo(0,0); render();
    }catch(e){
      alert(e.message==="notyours"?t("notYours"):(e.message||"error"));
@@ -8530,12 +8540,14 @@ function wire(){
    if(!confirm(GX("rwUseQ").replace("{h}",rw.hours||24))) return;
    e.disabled=true; e.textContent=t("saving");
    try{ await rpc("bk_use_feature_credit",{p_listing:+e.dataset.rwuse});
-        RW.data=null; await Promise.all([loadMyRewards(),loadListings(),loadAdSlots()]); syncFeaturedFromServer(); render(); alert(GX("rwUsed")) }
+        RW.data=null; await Promise.all([loadMyRewards(),loadListings(),loadMyListings(),loadAdSlots()]); syncFeaturedFromServer(); render(); alert(GX("rwUsed")) }
    catch(x){ e.disabled=false; var m=x.message||"error"; alert(GX("rwErr_"+m)!=="rwErr_"+m?GX("rwErr_"+m):m); RW.data=null; loadMyRewards() } }});
  $$("[data-editid]").forEach(function(e){ e.onclick=async function(ev){
    ev.preventDefault(); ev.stopPropagation();
    var id=e.dataset.editid;
-   var _er=D.LIST.filter(function(l){return String(l.id)===String(id)})[0];
+   // data-editid is only ever generated from "mine" (own listings, any status) — MYLIST has it even when
+   // the status (hidden/rejected/sold…) means it was never loaded into the public D.LIST at all
+   var _er=(MYLIST||[]).filter(function(l){return String(l.id)===String(id)})[0] || D.LIST.filter(function(l){return String(l.id)===String(id)})[0];
    EDIT={id:id,row:_er,msg:"",photos:[],lat:(_er&&_er.lat)||null,lng:(_er&&_er.lng)||null,locTouched:false};
    VIEW="edit"; scrollTo(0,0); render();
    try{ var r=await rpc("bk_photos",{p_listing:+id}); EDIT.photos=r||[]; render() }catch(x){} }});
@@ -8595,7 +8607,7 @@ function wire(){
  if(VIEW==="saved"&&USER&&!SAVEDFULL.length&&!LOADED.saved){
    LOADED.saved=true; loadSaved().then(function(){render()}) }
  if(VIEW==="mine"&&USER&&!LOADED.mine){
-   LOADED.mine=true; loadListings().then(function(){render()}) }
+   LOADED.mine=true; loadMyListings().then(function(){render()}) }
 
  if(VIEW==="post"&&USER&&!NEW.done&&!needsVerify()){
    fillGeo($("#pg"),$("#pa"),false);
@@ -9523,6 +9535,28 @@ async function _loadListingsImpl(){
     }catch(e){ console.warn("photos not loaded:", e.message||e) }
   }
   if(DBCOUNT) D.LIST = mapped.concat(DEMO);
+}
+
+// "My ads": every listing the member owns, any status — D.LIST only ever holds public live/pending rows
+// (plus sold/rented for 7 days), so a rejected, hidden, or long-closed listing must come from here instead.
+async function loadMyListings(){
+  if(!DB||!USER) { MYLIST=[]; return }
+  try{
+    var r = await rpc("bk_my_listings",{});
+    var mapped = (r||[]).map(fromRow);
+    if(mapped.length){
+      try{
+        var ids = mapped.map(function(x){return x.id});
+        var ph = await DB.from("listing_photos").select("listing_id,url,thumb_url,sort_order,kind")
+                   .in("listing_id", ids).order("sort_order",{ascending:true});
+        if(!ph.error && ph.data){
+          var by={}, byV={}; ph.data.forEach(function(p){ if(p.kind==="video"){ (byV[p.listing_id]=byV[p.listing_id]||[]).push({url:esc(safeUrl(p.url)),poster:p.thumb_url?esc(safeUrl(p.thumb_url)):""}) } else (by[p.listing_id]=by[p.listing_id]||[]).push(esc(safeUrl(p.url))) });
+          mapped.forEach(function(x){ if(by[x.id]&&by[x.id].length) x.photos=by[x.id]; if(byV[x.id]) x.videos=byV[x.id] });
+        }
+      }catch(e){ console.warn("my-listings photos not loaded:", e.message||e) }
+    }
+    MYLIST = mapped;
+  }catch(e){ console.warn("loadMyListings failed:", e.message||e); MYLIST = MYLIST||[] }
 }
 
 async function savePost(){
