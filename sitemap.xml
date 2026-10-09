@@ -102,6 +102,7 @@
   <url><loc>https://balkoun.com/for-rent/damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.7</priority></url>
   <url><loc>https://balkoun.com/for-rent/damascus/mezzeh/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/for-rent/damascus/mezzeh-villas-west/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/for-rent/damascus/salihiyah/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/for-rent/damascus/bab-shrqy/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/for-rent/damascus/sba-bhrat/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/for-rent/damascus/baghdad-street/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
@@ -225,6 +226,7 @@
   <url><loc>https://balkoun.com/en/for-rent/damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.7</priority></url>
   <url><loc>https://balkoun.com/en/for-rent/damascus/mezzeh/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/en/for-rent/damascus/mezzeh-villas-west/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/en/for-rent/damascus/salihiyah/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/en/for-rent/damascus/bab-shrqy/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/en/for-rent/damascus/sba-bhrat/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/en/for-rent/damascus/baghdad-street/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
@@ -348,6 +350,7 @@
   <url><loc>https://balkoun.com/de/for-rent/damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.7</priority></url>
   <url><loc>https://balkoun.com/de/for-rent/damascus/mezzeh/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/de/for-rent/damascus/mezzeh-villas-west/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/de/for-rent/damascus/salihiyah/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/de/for-rent/damascus/bab-shrqy/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/de/for-rent/damascus/sba-bhrat/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/de/for-rent/damascus/baghdad-street/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
@@ -658,6 +661,7 @@
   <url><loc>https://balkoun.com/listing/402-شقة-دمشق/</loc><lastmod>2026-10-09</lastmod><priority>0.9</priority></url>
   <url><loc>https://balkoun.com/listing/403-شقة-مزة-فيلات-غربية-دمشق/</loc><lastmod>2026-10-09</lastmod><priority>0.9</priority></url>
   <url><loc>https://balkoun.com/listing/404-house-حمورية-ريف-دمشق/</loc><lastmod>2026-10-09</lastmod><priority>0.9</priority></url>
+  <url><loc>https://balkoun.com/listing/405-شقة-الصالحية-دمشق/</loc><lastmod>2026-10-09</lastmod><priority>0.9</priority></url>
   <url><loc>https://balkoun.com/listing/41-فيلا-مزة-فيلات-غربية-دمشق/</loc><lastmod>2026-10-09</lastmod><priority>0.9</priority></url>
   <url><loc>https://balkoun.com/listing/42-شقة-البرامكة-دمشق/</loc><lastmod>2026-10-09</lastmod><priority>0.9</priority></url>
   <url><loc>https://balkoun.com/listing/43-أرض-تجارية-صحنايا-ريف-دمشق/</loc><lastmod>2026-10-09</lastmod><priority>0.9</priority></url>
@@ -984,6 +988,7 @@
   <url><loc>https://balkoun.com/en/listing/402-apartment-damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/en/listing/403-apartment-mezzeh-western-villas-damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/en/listing/404-house-hammouriyah-rural-damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/en/listing/405-apartment-salihiyeh-damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/en/listing/41-villa-mezzeh-western-villas-damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/en/listing/42-apartment-baramkeh-damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/en/listing/43-commercial-land-sahnaya-rural-damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
@@ -1310,6 +1315,7 @@
   <url><loc>https://balkoun.com/de/listing/402-apartment-damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/de/listing/403-apartment-mezzeh-western-villas-damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/de/listing/404-house-hammouriyah-rural-damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/de/listing/405-apartment-salihiyeh-damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/de/listing/41-villa-mezzeh-western-villas-damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/de/listing/42-apartment-baramkeh-damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/de/listing/43-commercial-land-sahnaya-rural-damascus/</loc><lastmod>2026-10-09</lastmod><priority>0.8</priority></url>
