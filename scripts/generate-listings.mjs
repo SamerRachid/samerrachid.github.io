@@ -22,6 +22,11 @@ import { renderOgCard, OG_WIDTH, OG_HEIGHT } from "./generate-og.mjs";
 
 const SUPABASE_URL = "https://coajrqynjrptujmzjjdh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"; // public anon key — safe, RLS restricts it to live listings
+// service-role key, GitHub Actions secret only (never hardcoded): the og-share.jpg upload is the one write this
+// script does, and writing it with the public key would mean anyone holding that same public key could overwrite
+// any listing's share image. The storage policy no longer grants anon/authenticated write on that path — only this
+// key (which bypasses RLS) can.
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 const SITE = "https://balkoun.com";
 const ROOT = path.resolve(".");
 let CUR_PRE = "", CUR_CN = { code: "SY", ar: "سوريا", en: "Syria", de: "Syrien" };   // the current listing's country: URL prefix and names
@@ -101,8 +106,9 @@ async function ogImageFor(l, photos) {
       price: l.price_usd == null ? POR.ar : money(l.price_usd), dealLabel, isRent, periodLabel, deed,
       areaTxt: sizeTxt, roomsTxt: has(l.rooms) ? `${l.rooms} غرف` : "",
     });
+    if (!SUPABASE_SERVICE_KEY) throw new Error("SUPABASE_SERVICE_ROLE_KEY is not set — og-share.jpg upload needs the service-role key, the public key no longer has write access");
     const up = await fetch(`${SUPABASE_URL}/storage/v1/object/photos/photos/${objPath}`, {
-      method: "POST", headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "image/jpeg", "x-upsert": "true" }, body: og.buffer,
+      method: "POST", headers: { apikey: SUPABASE_SERVICE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`, "Content-Type": "image/jpeg", "x-upsert": "true" }, body: og.buffer,
     });
     if (!up.ok) throw new Error(`upload ${up.status}: ${await up.text()}`);
     return publicPath;

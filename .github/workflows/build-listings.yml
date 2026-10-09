@@ -32,6 +32,8 @@ jobs:
         run: npm install
 
       - name: Generate listing pages
+        env:
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/generate-listings.mjs
 
       - name: Generate governorate and area pages + sitemap
