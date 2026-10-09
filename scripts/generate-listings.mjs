@@ -158,8 +158,11 @@ function renderPage(l, photos, lang, ogPath) {
   const place = [areaName, gov].filter(Boolean).join(W.sep);
 
   const sizeTxt = has(l.area_m2) ? `${l.area_m2} ${W.sqm}` : "";
-  const title = lang === "ar" ? `${typeLabel} ${dealLabel} ${sizeTxt} — ${areaName} ${gov} | بلكون`
-    : `${typeLabel} ${dealLabel}${sizeTxt ? `, ${sizeTxt}` : ""} ${W.inPlace(place)}, ${CUR_CN[lang] || CUR_CN.en} | Balkoun`;
+  // the ref (unique per listing) keeps the <title> unique even when two listings share the same type, size,
+  // deal and area — a common collision with 1000+ listings in a market with a limited set of area/type/size
+  // combinations (772 of 1,164 pages shared a title before this)
+  const title = lang === "ar" ? `${typeLabel} ${dealLabel} ${sizeTxt} — ${areaName} ${gov} (${l.ref}) | بلكون`
+    : `${typeLabel} ${dealLabel}${sizeTxt ? `, ${sizeTxt}` : ""} ${W.inPlace(place)} (${l.ref}), ${CUR_CN[lang] || CUR_CN.en} | Balkoun`;
   const leadBits = [`${typeLabel} ${dealLabel} ${W.inPlace(place)}`, sizeTxt, has(l.rooms) ? `${l.rooms} ${W.roomsShort}` : "", tabuLabel, money(l.price_usd)].filter(Boolean);
   const lead = leadBits.join(W.sep) + ".";
   const ownText = (l.description || "").replace(/\s+/g, " ").trim();
@@ -210,7 +213,9 @@ function renderPage(l, photos, lang, ogPath) {
   const jsonLd = {
     "@context": "https://schema.org", "@type": "RealEstateListing", "name": title, "description": l.description || desc, "url": url, "inLanguage": lang,
     "datePosted": l.created_at, "identifier": refCode, ...(allPhotos.length ? { "image": allPhotos } : {}),
-    "offers": { "@type": "Offer", "price": l.price_usd, "priceCurrency": "USD", "availability": "https://schema.org/InStock", "url": url },
+    // schema.org's Offer.price must be a number when present; a price-on-request listing (price_usd null) used
+    // to emit "price":null, which fails structured-data validation — omit the key entirely instead
+    "offers": { "@type": "Offer", ...(has(l.price_usd) ? { "price": l.price_usd } : {}), "priceCurrency": "USD", "availability": "https://schema.org/InStock", "url": url },
     "address": { "@type": "PostalAddress", "addressLocality": areaName || gov, "addressRegion": gov, "addressCountry": CUR_CN.code },
     ...(has(l.lat) && has(l.lng) ? { "geo": { "@type": "GeoCoordinates", "latitude": l.lat, "longitude": l.lng } } : {}),
     ...(has(l.area_m2) ? { "floorSize": { "@type": "QuantitativeValue", "value": l.area_m2, "unitCode": "MTK" } } : {}),
