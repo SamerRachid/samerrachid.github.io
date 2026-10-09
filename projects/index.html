@@ -1,4 +1,10 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8">
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><script>/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+(function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
+  window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
+  window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
+  // the app has not drawn after 12 s although the script ran: that is a failure too (a network or data step that never returned)
+  setTimeout(function(){ var a=document.getElementById("app"); if(a && a.querySelector("#seoHome")) rep("app not rendered after 12s", null, null, null) },12000);
+})();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>مشاريع جديدة وقيد الإنشاء في سوريا بالتقسيط | بلكون</title>
 <meta name="description" content="مشاريع سكنية جديدة وقيد الإنشاء من المطوّرين مباشرة، بخطط دفع واضحة: دفعة أولى وأقساط شهرية. New projects in Syria.">
