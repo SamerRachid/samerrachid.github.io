@@ -3,7 +3,7 @@
    app shell answers when the network is down. Static files (brand, photos, fonts): cache first with a
    background refresh. Database calls are never cached. The version below changes whenever this file
    changes, which retires old caches. */
-const VERSION = "bk-2026-10-09c";
+const VERSION = "bk-2026-10-09d";
 const SHELL = VERSION + "-shell";
 const STATIC = VERSION + "-static";
 const PHOTOS = VERSION + "-photos";
@@ -20,7 +20,12 @@ self.addEventListener("activate", (e) => {
 const isNav = (req) => req.mode === "navigate" || (req.headers.get("accept") || "").includes("text/html");
 const sameOrigin = (url) => url.origin === self.location.origin;
 const isPhoto = (url) => /supabase\.co\/storage\//.test(url.href) || /\.(jpe?g|png|webp|gif)$/i.test(url.pathname);
-const isStatic = (url) => sameOrigin(url) && (/^\/(brand|assets)\//.test(url.pathname) || /\.(css|js|svg|woff2?)$/i.test(url.pathname) && url.pathname !== "/sw.js");
+// admin.js is requested as /admin.js?v=<Date.now()> (ensureAdminJs in index.html) specifically so every
+// admin panel open always gets the live file, bypassing both the browser's HTTP cache and GitHub Pages' CDN
+// cache (10 min) — never cache-worthy, since the query string is different every single time. Caching it
+// here anyway meant every open added a brand-new ~470 KB Cache Storage entry that could never be reused
+// (trim(200) let this balloon to tens of MB), for zero benefit. Excluded the same way /sw.js already is.
+const isStatic = (url) => sameOrigin(url) && (/^\/(brand|assets)\//.test(url.pathname) || /\.(css|js|svg|woff2?)$/i.test(url.pathname) && url.pathname !== "/sw.js" && url.pathname !== "/admin.js");
 const isFont = (url) => /fonts\.(googleapis|gstatic)\.com$/.test(url.hostname);
 const isApi = (url) => /supabase\.co$/.test(url.hostname) && !/\/storage\//.test(url.pathname);
 
