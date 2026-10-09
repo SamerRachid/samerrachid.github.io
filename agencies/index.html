@@ -71,7 +71,10 @@
  ═══════════════════════════════════════════════════════════════════════
 -->
 <link rel="preconnect" href="https://coajrqynjrptujmzjjdh.supabase.co" crossorigin><link rel="dns-prefetch" href="https://coajrqynjrptujmzjjdh.supabase.co"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOMFFkCqIzA.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/notokufiarabic/v27/CSRk4ydQnPyaDxEXLFF6LZVLKrodrOYFFkCqIzAUWw.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="https://fonts.gstatic.com/s/lato/v25/S6u9w4BMUTPHh6UVSwiPGQ3q5d0.woff2">
+<!-- no font `rel=preload`: Google Fonts rotates the exact file hash behind this CSS, and a stale hardcoded
+     preload href downloads a file nothing uses AND the real one the CSS below points to — confirmed live: none
+     of the 3 previously hardcoded URLs appear in Google's current CSS response at all. preconnect above already
+     warms the connection; the stylesheet itself is the only accurate source of which files are actually needed. -->
 <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
 <script src="/vendor/supabase-2.114.0.es2017.min.js" integrity="sha384-H9XQgeFDejz7cF0dTyKEueeMcuAM2KvDuI9fGCYNLMagHsKcvzSim+StmCzQiFUY"></script>
 <script src="/vendor/morphdom-2.7.4.min.js" integrity="sha384-1Kpyy6fJtxPI22Yq5Lt3SzKVMJDfDDChb4HFf0stEn8pNSz3e9Mvgfjv5hrqsT1U"></script>
@@ -12136,9 +12139,19 @@ function applyGeo(geo){
 }
 function govAlias(name){ var m=GEO_META&&GEO_META.merged; return (m&&m[name])||name }
 function applyGeoCache(){ try{ var c=localStorage.getItem(geoCacheKey()); if(c) applyGeo(JSON.parse(c)) }catch(e){} }
-async function loadGeo(){
+var GEO_MAX_AGE_MS = 24*3600000;   // governorates/areas change only through an admin edit, which already force-reloads itself
+async function loadGeo(force){
   if(!DB) return;
-  try{ var r=await DB.rpc("bk_geo",cArgs()); if(r&&r.data&&r.data.g&&r.data.g.length){ applyGeo(r.data); try{ localStorage.setItem(geoCacheKey(), JSON.stringify(r.data)) }catch(e){} } }catch(e){}
+  // applyGeoCache() already hydrated D.GEO synchronously at boot from the same cache this reads, so skipping
+  // the network call here never means stale data on screen for longer than GEO_MAX_AGE_MS — it only means not
+  // re-downloading the whole ~400 KB governorate/area payload on every page load and every tab-focus/pageshow
+  if(!force){
+    try{
+      var c=JSON.parse(localStorage.getItem(geoCacheKey())||"null");
+      if(c && c._at && Date.now()-c._at < GEO_MAX_AGE_MS) return;
+    }catch(e){}
+  }
+  try{ var r=await DB.rpc("bk_geo",cArgs()); if(r&&r.data&&r.data.g&&r.data.g.length){ applyGeo(r.data); try{ r.data._at=Date.now(); localStorage.setItem(geoCacheKey(), JSON.stringify(r.data)) }catch(e){} } }catch(e){}
 }
 function geoKind(gov, area){ return (GEO_META.kind[gov]||{})[area]||"area" }
 function cPre(){ return COUNTRY==="SY" ? "" : "/"+COUNTRY.toLowerCase() }   // static pages of another country live under /lb/, /jo/ …
@@ -12155,7 +12168,7 @@ function wireGeoAdmin(){
   if(!ADM._geoLoaded || ADM._geoLoadedFor!==ADM.geoCountry){ ADM._geoLoaded=true; ADM._geoLoadedFor=ADM.geoCountry; ADM.geoSug=null; ADM.geoSugSel={};
     Promise.all([DB.rpc("bk_admin_geo_list",{p_token:ADM.token,p_country:ADM.geoCountry}), ADM.countries?Promise.resolve(null):DB.rpc("bk_admin_countries",{p_token:ADM.token}), DB.rpc("bk_admin_area_suggestions",{p_token:ADM.token,p_country:ADM.geoCountry})]).then(function(rs){ if(rs[1]&&rs[1].data) ADM.countries=rs[1].data; if(rs[2]&&rs[2].data) ADM.geoSug=rs[2].data; if(rs[0]&&rs[0].data){ ADM.geo=rs[0].data; render() } }); return }
   var msg=function(s,bad){ var m=$("#geoMsg"); if(m){ m.textContent=s; m.style.color=bad?"var(--danger)":"var(--ok)" } };
-  var reload=function(){ return Promise.all([DB.rpc("bk_admin_geo_list",{p_token:ADM.token,p_country:ADM.geoCountry}), DB.rpc("bk_admin_area_suggestions",{p_token:ADM.token,p_country:ADM.geoCountry})]).then(function(rs){ if(rs[0]&&rs[0].data) ADM.geo=rs[0].data; if(rs[1]&&rs[1].data) ADM.geoSug=rs[1].data; if(ADM.geoCountry==="SY") loadGeo(); render() }) };
+  var reload=function(){ return Promise.all([DB.rpc("bk_admin_geo_list",{p_token:ADM.token,p_country:ADM.geoCountry}), DB.rpc("bk_admin_area_suggestions",{p_token:ADM.token,p_country:ADM.geoCountry})]).then(function(rs){ if(rs[0]&&rs[0].data) ADM.geo=rs[0].data; if(rs[1]&&rs[1].data) ADM.geoSug=rs[1].data; if(ADM.geoCountry==="SY") loadGeo(true); render() }) };
   // suggested areas: tick, approve (→ areas) or reject
   ADM.geoSugSel=ADM.geoSugSel||{};
   $$("[data-sug]").forEach(function(c){ c.onchange=function(){ ADM.geoSugSel[this.dataset.sug]=this.checked; render() } });
