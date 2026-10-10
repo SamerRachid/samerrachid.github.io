@@ -2800,8 +2800,10 @@ html.maint-on{overflow:hidden}
 .adm .promo .pseg button{border:0;background:transparent;border-radius:999px;padding:6px 14px;font:inherit;font-size:13px;color:var(--grey);cursor:pointer}
 .adm .promo .pseg button.on{background:var(--navy);color:#fff}
 /* intake owner picker (type to search a member / office) */
-.adm .ikown{min-width:280px;flex:1 1 280px}.adm .ikown .chipsel-box{padding:0 10px;gap:6px}.adm .ikown .chipsel-drop{max-height:320px;overflow:auto;z-index:30}
-.adm .ikown-x{border:0;background:transparent;color:var(--grey);cursor:pointer;font-size:13px;padding:0 4px}
+.adm .ikpick{min-width:260px;width:320px;flex:0 1 320px;margin:0;padding:0}.adm .ikpick .chipsel-box{padding:0 10px;gap:6px;height:32px;border-radius:8px}.adm .ikpick .chipsel-drop{max-height:320px;overflow:auto;z-index:30;text-align:start}
+.adm .ikpick-x{border:0;background:transparent;color:var(--grey);cursor:pointer;font-size:13px;padding:0 4px}
+/* a search box inside .adm: the box carries the frame, the input inside it must not get the generic admin input frame (double border) */
+.adm .chipsel .chipsel-input{border:0!important;box-shadow:none!important;height:100%!important;padding:0!important;background:transparent!important;border-radius:0!important}
 .chipsel-grp{padding:8px 13px 4px;font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.3px;border-top:1px solid var(--line)}.chipsel-grp:first-child{border-top:0}
 /* «ترويج» dialog (admin): centred box over the page */
 .pm-ov{align-items:center;justify-content:center;padding:16px}
