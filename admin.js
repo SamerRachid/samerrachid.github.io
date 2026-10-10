@@ -3746,26 +3746,34 @@ function promoCoverDraw(ctx,im,x,y,w,h,zoom,dx,dy){ var s=Math.max(w/im.width,h/
 function promoRound(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath() }
 function promoWrap(ctx,text,maxW){ var words=String(text).split(/\s+/), lines=[], cur=""; words.forEach(function(w){ var tst=cur?cur+" "+w:w; if(ctx.measureText(tst).width>maxW&&cur){ lines.push(cur); cur=w } else cur=tst }); if(cur) lines.push(cur); return lines.slice(0,2) }
 async function promoAssets(){ if(promoAssets._c) return promoAssets._c; try{ await document.fonts.load("800 60px 'Noto Kufi Arabic'"); await document.fonts.load("700 40px 'Noto Kufi Arabic'") }catch(e){} var logo=null; try{ logo=await promoLoadImg("/brand/logo-light.png") }catch(e){} promoAssets._c={logo:logo}; return promoAssets._c }
-/* the branded card shared by the image and the reel: photo on top, navy panel with title / price / facts, footer line */
+/* the branded card shared by the image and the reel: full-bleed photo, a translucent scrim fading in over its lower part,
+   title / price / facts sitting on the footer line — the same geometry the og share-card got on 2026-10-10 (the owner
+   asked for the solid navy block to go, the text to sit lower, and the "📍 city" line to go since the title already
+   names the place). Returns the text block's top and the logo's bottom so the reel can place its photo counter. */
 function promoPaint(ctx,W,H,l,x,photo,opt){
   opt=opt||{}; var navy="#14213D", gold="#E6B655", sand="#CFC4AE";
   ctx.fillStyle=navy; ctx.fillRect(0,0,W,H);
-  var ph=Math.round(H*(opt.photoShare||0.62));
-  if(photo) promoCoverDraw(ctx,photo,0,0,W,ph,opt.zoom||1,opt.dx||0,opt.dy||0); else { ctx.fillStyle="#0D1729"; ctx.fillRect(0,0,W,ph) }
-  var g=ctx.createLinearGradient(0,ph-220,0,ph); g.addColorStop(0,"rgba(20,33,61,0)"); g.addColorStop(1,"rgba(20,33,61,1)"); ctx.fillStyle=g; ctx.fillRect(0,ph-220,W,220);
+  if(photo) promoCoverDraw(ctx,photo,0,0,W,H,opt.zoom||1,opt.dx||0,opt.dy||0); else { ctx.fillStyle="#0D1729"; ctx.fillRect(0,0,W,H) }
+  // reel crossfade: the next photo blended over the current one, under the scrim and text
+  if(opt.photo2&&opt.fade>0){ ctx.globalAlpha=Math.min(1,opt.fade); promoCoverDraw(ctx,opt.photo2,0,0,W,H,1.04,0,0); ctx.globalAlpha=1 }
   // top scrim so the logo stays legible over light/busy photos too
   var gt=ctx.createLinearGradient(0,0,0,220); gt.addColorStop(0,"rgba(20,33,61,.6)"); gt.addColorStop(1,"rgba(20,33,61,0)"); ctx.fillStyle=gt; ctx.fillRect(0,0,W,220);
-  // deal badge top-right
+  // measure the text block first so it can sit on the footer; the bottom scrim starts just above it
   ctx.direction="rtl"; ctx.textAlign="right"; ctx.textBaseline="middle";
+  var pad=Math.round(W*0.055), maxW=W-2*pad, lhgt=Math.round(W*0.075), ch=Math.round(W*0.052);
+  var titleFont="800 "+Math.round(W*0.056)+"px 'Noto Kufi Arabic'"; ctx.font=titleFont; var title=promoTitle(l,x); var tl=promoWrap(ctx,title,maxW);
+  var fy=H-Math.round(W*0.06), ruleY=fy-Math.round(W*0.045), chipsY=ruleY-Math.round(W*0.03)-ch;
+  var priceH=opt.hidePrice?Math.round(W*0.025):Math.round(W*0.105);
+  var top=chipsY-priceH-tl.length*lhgt-Math.round(W*0.012);
+  var g0=top-Math.round(W*0.16), g=ctx.createLinearGradient(0,g0,0,H); g.addColorStop(0,"rgba(20,33,61,0)"); g.addColorStop((top-g0)/(H-g0),"rgba(20,33,61,.62)"); g.addColorStop(1,"rgba(20,33,61,.92)"); ctx.fillStyle=g; ctx.fillRect(0,g0,W,H-g0);
+  // deal badge top-right
   var badge=l.deal==="rent"?"للإيجار":"للبيع"; ctx.font="800 "+Math.round(W*0.034)+"px 'Noto Kufi Arabic'"; var bw=ctx.measureText(badge).width+Math.round(W*0.05);
   promoRound(ctx,W-40-bw,40,bw,Math.round(W*0.062),Math.round(W*0.031)); ctx.fillStyle=gold; ctx.fill(); ctx.fillStyle=navy; ctx.fillText(badge,W-40-Math.round(W*0.025),40+Math.round(W*0.031));
   // logo top-left
-  if(opt.logo){ var lw=Math.round(W*0.26), lh=Math.round(lw*opt.logo.height/opt.logo.width); ctx.globalAlpha=.95; ctx.drawImage(opt.logo,36,34,lw,lh); ctx.globalAlpha=1 }
-  // text panel
-  var y=ph+Math.round(W*0.02), pad=Math.round(W*0.055), maxW=W-2*pad;
-  ctx.fillStyle="#fff"; ctx.font="800 "+Math.round(W*0.056)+"px 'Noto Kufi Arabic'"; var title=promoTitle(l,x); var tl=promoWrap(ctx,title,maxW); var lhgt=Math.round(W*0.075);
+  var lh=0; if(opt.logo){ var lw=Math.round(W*0.26); lh=Math.round(lw*opt.logo.height/opt.logo.width); ctx.globalAlpha=.95; ctx.drawImage(opt.logo,36,34,lw,lh); ctx.globalAlpha=1 }
+  // text block
+  var y=top; ctx.fillStyle="#fff"; ctx.font=titleFont;
   tl.forEach(function(ln,i){ ctx.fillText(ln,W-pad,y+lhgt/2+i*lhgt) }); y+=tl.length*lhgt+Math.round(W*0.012);
-  ctx.fillStyle=sand; ctx.font="500 "+Math.round(W*0.03)+"px 'Noto Kufi Arabic'"; var place=[l.area,l.gov].filter(Boolean).join("، "); if(place){ ctx.fillText("📍 "+place,W-pad,y+Math.round(W*0.02)); y+=Math.round(W*0.058) }
   // price
   if(!opt.hidePrice){
     var price=(l.price_usd!=null&&l.price_usd!=="")?"$"+Number(l.price_usd).toLocaleString("en"):"السعر عند التواصل"; ctx.fillStyle=gold; ctx.font="800 "+Math.round(W*0.082)+"px 'Noto Kufi Arabic'"; ctx.direction="ltr"; ctx.textAlign="right"; ctx.fillText(price,W-pad,y+Math.round(W*0.045)); ctx.direction="rtl";
@@ -3782,11 +3790,12 @@ function promoPaint(ctx,W,H,l,x,photo,opt){
   var fy=H-Math.round(W*0.06); ctx.fillStyle="rgba(255,255,255,.14)"; ctx.fillRect(pad,fy-Math.round(W*0.045),W-2*pad,2);
   ctx.fillStyle=gold; ctx.font="800 "+Math.round(W*0.03)+"px 'Noto Kufi Arabic'"; ctx.fillText("ببلاش · بلا عمولة",W-pad,fy);
   ctx.fillStyle="#fff"; ctx.font="700 "+Math.round(W*0.03)+"px Lato, 'Noto Kufi Arabic'"; ctx.direction="ltr"; ctx.textAlign="left"; ctx.fillText("balkoun.com",pad,fy); ctx.direction="rtl"; ctx.textAlign="right";
+  return {top:top, logoBottom:34+lh};
 }
 async function promoImage(l,fmt,opt){
   opt=opt||{}; var x=promoRow(l)||{}; var W=1080, H=fmt==="11"?1080:1350; var photos=promoPhotos(l); var photo=null; if(photos.length){ try{ photo=await promoLoadImg(photos[0]) }catch(e){} }
   var A=await promoAssets(); var c=document.createElement("canvas"); c.width=W; c.height=H; var ctx=c.getContext("2d");
-  promoPaint(ctx,W,H,l,x,photo,{logo:A.logo,photoShare:fmt==="11"?0.56:0.62,hidePrice:opt.hidePrice});
+  promoPaint(ctx,W,H,l,x,photo,{logo:A.logo,hidePrice:opt.hidePrice});
   return c.toDataURL("image/png");
 }
 /* 12-second silent reel: each photo with a slow push-in, the card's text panel at the bottom, end card with the logo */
@@ -3805,14 +3814,16 @@ async function promoReel(l,opt,onPct){
     var t=f/FPS; var idx=Math.min(imgs.length-1, Math.floor(t/per)); var u=(t-idx*per)/per;
     if(t<imgs.length*per){
       var zoom=1.04+0.10*u; var dx=(idx%2?1:-1)*40*u;
-      promoPaint(ctx,W,H,l,x,imgs[idx],{logo:A.logo,photoShare:0.66,zoom:zoom,dx:dx,dy:-20*u,hidePrice:opt.hidePrice});
-      // crossfade with the next photo at the end of each slot
-      if(u>0.86&&idx<imgs.length-1){ ctx.globalAlpha=(u-0.86)/0.14; promoCoverDraw(ctx,imgs[idx+1],0,0,W,Math.round(H*0.66),1.04,0,0); ctx.globalAlpha=1; var g=ctx.createLinearGradient(0,Math.round(H*0.66)-220,0,Math.round(H*0.66)); g.addColorStop(0,"rgba(20,33,61,0)"); g.addColorStop(1,"rgba(20,33,61,1)"); ctx.fillStyle=g; ctx.fillRect(0,Math.round(H*0.66)-220,W,220) }
-      // photo counter
-      ctx.fillStyle="rgba(0,0,0,.45)"; promoRound(ctx,40,Math.round(H*0.66)-110,120,56,28); ctx.fill(); ctx.fillStyle="#fff"; ctx.font="700 26px Lato"; ctx.direction="ltr"; ctx.textAlign="center"; ctx.fillText((idx+1)+" / "+imgs.length,100,Math.round(H*0.66)-82); ctx.direction="rtl"; ctx.textAlign="right";
+      // crossfade with the next photo at the end of each slot — promoPaint blends it under the scrim and text
+      var next=(u>0.86&&idx<imgs.length-1)?imgs[idx+1]:null;
+      var r=promoPaint(ctx,W,H,l,x,imgs[idx],{logo:A.logo,zoom:zoom,dx:dx,dy:-20*u,hidePrice:opt.hidePrice,photo2:next,fade:next?(u-0.86)/0.14:0});
+      // photo counter, under the logo (the photo now runs the full height, so there is no panel edge to sit on)
+      var cy=r.logoBottom+26; ctx.fillStyle="rgba(0,0,0,.45)"; promoRound(ctx,40,cy,120,56,28); ctx.fill(); ctx.fillStyle="#fff"; ctx.font="700 26px Lato"; ctx.direction="ltr"; ctx.textAlign="center"; ctx.fillText((idx+1)+" / "+imgs.length,100,cy+28); ctx.direction="rtl"; ctx.textAlign="right";
     } else {
-      var k=Math.min(1,(t-imgs.length*per)/0.5); ctx.fillStyle="#14213D"; ctx.fillRect(0,0,W,H);
-      if(A.logo){ var lw=640, lh=Math.round(lw*A.logo.height/A.logo.width); ctx.globalAlpha=k; ctx.drawImage(A.logo,(W-lw)/2,H/2-lh-30,lw,lh); ctx.globalAlpha=1 }
+      var te=t-imgs.length*per, k=Math.min(1,te/0.5); ctx.fillStyle="#14213D"; ctx.fillRect(0,0,W,H);
+      // end card: the logo spins in on its vertical axis — one full turn, easing out — then holds
+      if(A.logo){ var lw=640, lh=Math.round(lw*A.logo.height/A.logo.width); var p=Math.min(1,te/1.3), ang=2*Math.PI*(1-Math.pow(1-p,3));
+        ctx.save(); ctx.globalAlpha=k; ctx.translate(W/2,H/2-30-lh/2); ctx.scale(Math.cos(ang),1); ctx.drawImage(A.logo,-lw/2,-lh/2,lw,lh); ctx.restore() }
       ctx.globalAlpha=k; ctx.fillStyle="#E6B655"; ctx.font="800 50px 'Noto Kufi Arabic'"; ctx.textAlign="center"; ctx.fillText("ببلاش · بلا عمولة",W/2,H/2+90); ctx.fillStyle="#fff"; ctx.font="700 46px Lato"; ctx.direction="ltr"; ctx.fillText("balkoun.com",W/2,H/2+170); ctx.direction="rtl"; ctx.textAlign="right"; ctx.globalAlpha=1;
     }
     var frame=new VideoFrame(c,{timestamp:Math.round(f*1e6/FPS), duration:Math.round(1e6/FPS)});
