@@ -11,6 +11,7 @@
 //  runs headless in GitHub Actions, not in a browser.
 // ════════════════════════════════════════════════════════════════════
 import { createCanvas, loadImage, GlobalFonts } from "@napi-rs/canvas";
+import sharp from "sharp";
 import fs from "fs";
 import path from "path";
 
@@ -35,10 +36,6 @@ async function getLogo() {
 function round(ctx, x, y, w, h, r) {
   ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
 }
-function coverDraw(ctx, im, x, y, w, h) {
-  const s = Math.max(w / im.width, h / im.height); const sw = im.width * s, sh = im.height * s;
-  ctx.save(); ctx.beginPath(); ctx.rect(x, y, w, h); ctx.clip(); ctx.drawImage(im, x + (w - sw) / 2, y + (h - sh) / 2, sw, sh); ctx.restore();
-}
 function ellipsize(ctx, text, maxW) {
   if (ctx.measureText(text).width <= maxW) return text;
   let s = text;
@@ -62,8 +59,21 @@ export async function renderOgCard({ coverUrl, title, place, dealLabel, deed, ro
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
   ctx.fillStyle = navy; ctx.fillRect(0, 0, W, H);
   let photo = null;
-  if (coverUrl) { try { const r = await fetch(coverUrl); if (r.ok) photo = await loadImage(Buffer.from(await r.arrayBuffer())); } catch (e) { console.warn("OG cover fetch failed:", coverUrl, e.message); } }
-  if (photo) coverDraw(ctx, photo, 0, 0, W, H); else { ctx.fillStyle = "#0D1729"; ctx.fillRect(0, 0, W, H); }
+  if (coverUrl) {
+    try {
+      const r = await fetch(coverUrl);
+      if (r.ok) {
+        const raw = Buffer.from(await r.arrayBuffer());
+        // listing photos are often small/phone-compressed and get stretched well past their native size to
+        // cover the card; @napi-rs/canvas's own drawImage() resampling for that stretch looks soft. Resizing
+        // with sharp first (free, runs locally, no API) — Lanczos3 plus a mild sharpen — to the exact physical
+        // pixel size, then compositing it onto the canvas 1:1, is noticeably crisper for zero added cost.
+        const resized = await sharp(raw).resize(W * SCALE, H * SCALE, { fit: "cover", position: "centre", kernel: sharp.kernel.lanczos3 }).sharpen({ sigma: 1 }).png().toBuffer();
+        photo = await loadImage(resized);
+      }
+    } catch (e) { console.warn("OG cover fetch failed:", coverUrl, e.message); }
+  }
+  if (photo) ctx.drawImage(photo, 0, 0, W, H); else { ctx.fillStyle = "#0D1729"; ctx.fillRect(0, 0, W, H); }
 
   // scrim the top for the logo/badge, and fade the bottom of the photo into a translucent (not solid) panel —
   // the photo stays faintly visible behind the text instead of being cut off by a hard navy block
