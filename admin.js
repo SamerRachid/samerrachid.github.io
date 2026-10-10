@@ -3708,8 +3708,15 @@ function promoText(l,opt){
   return lines.join("\n");
 }
 function admPromoHtml(l){
-  var p=ADM.promo||{}; var text=promoText(l,{hidePrice:p.hidePrice});
-  return '<div class="ld-sec">📣 '+GX("promoH")+'</div><div class="promo" id="promoBox">'+
+  var p=ADM.promo||{}; var text=promoText(l,{hidePrice:p.hidePrice}); var curSrc=p.src||"fb-damas";
+  return '<div class="ld-sec">🔗 '+GX("promoLinksH")+'</div><div class="promo-links" style="margin-bottom:14px">'+
+    '<div class="hintx" style="margin-bottom:8px">'+GX("promoLinksHint")+'</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">'+PROMO_SRC.map(function(s){
+      return '<button type="button" class="ab'+(curSrc===s[0]?' ok':'')+'" data-promolinksrc="'+s[0]+'">'+s[1]+'</button>' }).join("")+'</div>'+
+    '<div style="display:flex;gap:8px;align-items:center"><input type="text" id="promoLinkOut" readonly dir="ltr" value="'+esc(promoLink(l))+'" style="flex:1;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;font-size:13.5px;background:#fff">'+
+      '<button class="ab ok" id="promoLinkCopy" style="flex:none">📋 '+GX("promoLinkCopy")+'</button></div>'+
+  '</div>'+
+  '<div class="ld-sec">📣 '+GX("promoH")+'</div><div class="promo" id="promoBox">'+
     '<div class="hintx" style="margin-bottom:8px">'+GX("promoHint")+'</div>'+
     '<label class="lfc on" style="margin-bottom:8px"><span>'+GX("promoSrc")+':</span><select id="promoSrc">'+PROMO_SRC.map(function(s){ return '<option value="'+s[0]+'"'+(p.src===s[0]?' selected':'')+'>'+s[1]+'</option>' }).join("")+'</select></label>'+
     '<label class="lfc on" style="margin-bottom:8px"><input type="checkbox" id="promoNoPrice"'+(p.hidePrice?' checked':'')+'> <span>'+GX("promoHidePrice")+'</span></label>'+
@@ -3724,6 +3731,8 @@ function admPromoHtml(l){
 }
 function wireAdmPromo(){
   $$("[data-apromo]").forEach(function(b){ b.onclick=function(){ var id=this.dataset.apromo; ADM.promo=(ADM.promo&&String(ADM.promo.id)===String(id))?null:{id:id,src:"fb-damas"}; render() } });
+  $$("[data-promolinksrc]").forEach(function(b){ b.onclick=function(){ ADM.promo.src=this.dataset.promolinksrc; ADM.promo.img=null; ADM.promo.reel=null; render() } });
+  var lc=$("#promoLinkCopy"); if(lc) lc.onclick=function(){ var inp=$("#promoLinkOut"); var btn=this; var done=function(){ btn.textContent="✓ "+GX("promoCopied"); setTimeout(function(){ btn.textContent="📋 "+GX("promoLinkCopy") },1600) }; try{ navigator.clipboard.writeText(inp.value).then(done,function(){ inp.select(); document.execCommand("copy"); done() }) }catch(e){ inp.select(); document.execCommand("copy"); done() } };
   var sel=$("#promoSrc"); if(sel) sel.onchange=function(){ ADM.promo.src=this.value; ADM.promo.img=null; ADM.promo.reel=null; render() };
   var np=$("#promoNoPrice"); if(np) np.onchange=function(){ ADM.promo.hidePrice=this.checked; ADM.promo.img=null; ADM.promo.reel=null; render() };
   var cp=$("#promoCopy"); if(cp) cp.onclick=function(){ var ta=$("#promoText"); var btn=this; var done=function(){ btn.textContent="✓ "+GX("promoCopied"); setTimeout(function(){ btn.textContent="📋 "+GX("promoCopy") },1600) }; try{ navigator.clipboard.writeText(ta.value).then(done,function(){ ta.select(); document.execCommand("copy"); done() }) }catch(e){ ta.select(); document.execCommand("copy"); done() } };
