@@ -50,46 +50,44 @@ const CARD_W = 1200, CARD_H = 630, SCALE = 2;
 export const OG_WIDTH = CARD_W * SCALE, OG_HEIGHT = CARD_H * SCALE; // actual pixel size of the rendered file — callers use this for og:image:width/height
 
 // l: the v_listings row (same shape generate-listings.mjs works with). coverUrl: first photo URL or null.
-// title/place/price/deed/periodLabel/dealLabel: plain Arabic strings already formatted by the caller (kept
-// here so this module doesn't duplicate generate-listings.mjs's label tables).
-export async function renderOgCard({ coverUrl, title, place, price, dealLabel, isRent, periodLabel, deed, areaTxt, roomsTxt }) {
+// title/place/deed/dealLabel: plain Arabic strings already formatted by the caller (kept here so this module
+// doesn't duplicate generate-listings.mjs's label tables). No price: the owner asked for the card to carry
+// less text, and price was the one line that pushed everything else down with it.
+export async function renderOgCard({ coverUrl, title, place, dealLabel, deed, roomsTxt }) {
   ensureFonts();
-  const W = CARD_W, H = CARD_H, navy = "#14213D", gold = "#E6B655", sand = "#CFC4AE";
-  const ph = Math.round(H * 0.62); // photo on top, solid panel below — same split as the admin promo image,
-  const c = createCanvas(W * SCALE, H * SCALE); const ctx = c.getContext("2d"); // so text never has to fight a busy/captioned photo for legibility
-  ctx.scale(SCALE, SCALE); // render at 2x and downsample on encode — sharp on retina feeds, crisper text/photo than 1x
+  const W = CARD_W, H = CARD_H, navy = "#14213D", sand = "#CFC4AE";
+  const ph = Math.round(H * 0.72); // the photo now runs almost the full card height; the text panel below used to
+  const c = createCanvas(W * SCALE, H * SCALE); const ctx = c.getContext("2d"); // be a solid block covering ~38% of it — with the price line gone there's less text to carry, so it shrank to
+  ctx.scale(SCALE, SCALE); // render at 2x and downsample on encode — sharp on retina feeds, crisper text/photo than 1x // a scrim (below) instead of a hard-edged solid panel
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
   ctx.fillStyle = navy; ctx.fillRect(0, 0, W, H);
   let photo = null;
   if (coverUrl) { try { const r = await fetch(coverUrl); if (r.ok) photo = await loadImage(Buffer.from(await r.arrayBuffer())); } catch (e) { console.warn("OG cover fetch failed:", coverUrl, e.message); } }
-  if (photo) coverDraw(ctx, photo, 0, 0, W, ph); else { ctx.fillStyle = "#0D1729"; ctx.fillRect(0, 0, W, ph); }
+  if (photo) coverDraw(ctx, photo, 0, 0, W, H); else { ctx.fillStyle = "#0D1729"; ctx.fillRect(0, 0, W, H); }
 
-  // fade the bottom of the photo into the solid panel, and scrim the top for the logo/badge
+  // scrim the top for the logo/badge, and fade the bottom of the photo into a translucent (not solid) panel —
+  // the photo stays faintly visible behind the text instead of being cut off by a hard navy block
   let g = ctx.createLinearGradient(0, 0, 0, 150); g.addColorStop(0, "rgba(20,33,61,.6)"); g.addColorStop(1, "rgba(20,33,61,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, W, 150);
-  g = ctx.createLinearGradient(0, ph - 110, 0, ph); g.addColorStop(0, "rgba(20,33,61,0)"); g.addColorStop(1, navy); ctx.fillStyle = g; ctx.fillRect(0, ph - 110, W, 110);
-  ctx.fillStyle = navy; ctx.fillRect(0, ph, W, H - ph);
+  g = ctx.createLinearGradient(0, ph - 70, 0, H); g.addColorStop(0, "rgba(20,33,61,0)"); g.addColorStop(1, "rgba(20,33,61,.88)"); ctx.fillStyle = g; ctx.fillRect(0, ph - 70, W, H - (ph - 70));
 
   ctx.direction = "rtl"; ctx.textAlign = "right"; ctx.textBaseline = "middle";
   // deal badge, top-right
   ctx.font = "800 30px KufiXB"; const bw = ctx.measureText(dealLabel).width + 50;
-  round(ctx, W - 40 - bw, 36, bw, 56, 28); ctx.fillStyle = gold; ctx.fill(); ctx.fillStyle = navy; ctx.fillText(dealLabel, W - 40 - 25, 36 + 28);
+  round(ctx, W - 40 - bw, 36, bw, 56, 28); ctx.fillStyle = "#E6B655"; ctx.fill(); ctx.fillStyle = navy; ctx.fillText(dealLabel, W - 40 - 25, 36 + 28);
   // logo, top-left
   const logo = await getLogo();
   if (logo) { const lw = 220, lh = Math.round(lw * logo.height / logo.width); ctx.globalAlpha = .95; ctx.drawImage(logo, 40, 32, lw, lh); ctx.globalAlpha = 1; }
 
-  // text block, in the solid panel below the photo, right-aligned
+  // text block, over the scrim, right-aligned
   const pad = 46, maxW = W - 2 * pad;
   let y = ph + 44;
   ctx.fillStyle = "#fff"; ctx.font = "800 36px KufiXB";
   ctx.fillText(ellipsize(ctx, title, maxW), W - pad, y); y += 40;
   if (place) { ctx.fillStyle = sand; ctx.font = "500 21px Kufi"; ctx.fillText(place, W - pad, y); y += 36; }
-  ctx.fillStyle = gold; ctx.font = "800 44px KufiXB"; ctx.direction = "ltr"; ctx.textAlign = "right";
-  ctx.fillText(price, W - pad, y);
-  if (isRent && periodLabel) { ctx.fillStyle = sand; ctx.font = "500 19px Kufi"; ctx.textAlign = "left"; ctx.fillText(periodLabel, pad, y); ctx.textAlign = "right"; }
-  ctx.direction = "rtl"; y += 38;
+  y += 12;
 
-  // fact chips
-  const chips = [areaTxt, roomsTxt, deed].filter(Boolean).slice(0, 3);
+  // fact chips — area dropped: it's already in the title above, this row used to repeat it
+  const chips = [roomsTxt, deed].filter(Boolean).slice(0, 2);
   if (chips.length) {
     ctx.font = "700 18px KufiXB"; let cx = W - pad; const ch = 32;
     chips.forEach((ctext) => {
@@ -99,9 +97,8 @@ export async function renderOgCard({ coverUrl, title, place, price, dealLabel, i
     });
   }
 
-  // footer
+  // footer — just the domain now; the "بلا عمولة" tagline was its own removed line
   const fy = H - 20; ctx.fillStyle = "rgba(255,255,255,.16)"; ctx.fillRect(pad, fy - 18, W - 2 * pad, 1);
-  ctx.fillStyle = gold; ctx.font = "800 19px Kufi"; ctx.fillText("ببلاش · بلا عمولة", W - pad, fy);
   ctx.fillStyle = "#fff"; ctx.font = "700 19px Kufi"; ctx.direction = "ltr"; ctx.textAlign = "left"; ctx.fillText("balkoun.com", pad, fy); ctx.direction = "rtl"; ctx.textAlign = "right";
 
   // PNG, not JPEG: @napi-rs/canvas 1.0.10's bundled JPEG encoder silently corrupts this exact image — large

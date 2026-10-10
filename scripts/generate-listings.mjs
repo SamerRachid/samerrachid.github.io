@@ -99,12 +99,10 @@ async function ogImageFor(l, photos) {
     const areaName = areaNm(l, "ar"), gov = govName(l, "ar"), sizeTxt = has(l.area_m2) ? `${l.area_m2} م2` : "";
     const title = `${typeLabel} ${dealLabel}${sizeTxt ? " " + sizeTxt : ""} — ${[areaName, gov].filter(Boolean).join("، ")}`.replace(/\s+/g, " ").trim();
     const isRent = l.deal === "rent";
-    const periodLabel = isRent && l.rental_period && PERIOD[l.rental_period] ? PERIOD[l.rental_period][0] : "";
     const deed = !isRent && l.tabu ? tabuName(l.tabu, "ar") : "";
     const og = await renderOgCard({
       coverUrl: cover, title, place: [areaName, gov].filter(Boolean).join("، "),
-      price: l.price_usd == null ? POR.ar : money(l.price_usd), dealLabel, isRent, periodLabel, deed,
-      areaTxt: sizeTxt, roomsTxt: has(l.rooms) ? `${l.rooms} غرف` : "",
+      dealLabel, deed, roomsTxt: has(l.rooms) ? `${l.rooms} غرف` : "",
     });
     if (!SUPABASE_SERVICE_KEY) throw new Error("SUPABASE_SERVICE_ROLE_KEY is not set — og-share.png upload needs the service-role key, the public key no longer has write access");
     const up = await fetch(`${SUPABASE_URL}/storage/v1/object/photos/photos/${objPath}`, {
