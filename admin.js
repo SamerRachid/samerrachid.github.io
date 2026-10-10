@@ -3569,7 +3569,7 @@ function adminIntakeBody(){
   var bulk='<div class="ikbulk'+(nSel?' on':'')+'">'+
     '<div class="ikb-row"><label class="xcheck"><input type="checkbox" id="ikSelAll"'+(nVis&&nSel===nVis?' checked':'')+'><span>'+GX("ik_selAll")+'</span></label><span><b class="ikb-n ltr">'+nSel+'</b> '+GX("ik_selected")+'</span>'+
       '<span class="ikb-set"><select id="ikBulkGov"><option value="">'+GX("ik_bulkGov")+'</option>'+Object.keys(D.GEO).map(function(g){ return '<option value="'+esc(g)+'">'+gN(g)+'</option>' }).join("")+'</select><button type="button" class="ab" id="ikBulkGovGo"'+(nSel?'':' disabled')+'>'+GX("ik_apply")+'</button></span>'+
-      '<span class="ikb-set">'+ikOwnerCombo(d,null,"bulk")+'<button type="button" class="ab" id="ikBulkAgGo"'+(nSel?'':' disabled')+'>'+GX("ik_apply")+'</button></span></div>'+
+      '<span class="ikb-set">'+ikOwnerCombo(d,null,"bulk")+'</span></div>'+
     '<div class="ikb-row"><button type="button" class="ab ok" id="ikBulkPubL"'+(nSel?'':' disabled')+'>'+GX("ik_pubLive")+'</button><button type="button" class="ab" id="ikBulkPubP"'+(nSel?'':' disabled')+'>'+GX("ik_pubPending")+'</button><button type="button" class="ab bad" id="ikBulkCancel"'+(nSel?'':' disabled')+'>'+t("cancel")+'</button><span class="xmsg" id="ikBulkMsg"></span></div></div>';
   var drafts='<div class="blk"><h3>'+GX("ik_draftsH")+' <span class="n">'+list.length+'</span></h3><div class="in eng-in">'+
     '<div class="ikfilters">'+filters.map(function(x){ return '<button type="button" class="ab'+(x[0]===f?' on':'')+'" data-ikf-filter="'+x[0]+'">'+x[1]+'</button>' }).join("")+'<button type="button" class="ab" id="ikReload" style="margin-inline-start:auto">'+AICO.refresh+'</button></div>'+
@@ -3618,7 +3618,8 @@ function wireAdminIntake(){
     for(var i=0;i<ids.length;i++){ if(m){ m.style.color="var(--grey)"; m.textContent=label+" "+(i+1)+"/"+ids.length } try{ await fn(ids[i]); ok++ }catch(e){ bad.push("#"+ids[i]+": "+(e.message||"error")) } }
     ADM.ikSel={}; admToast(GX("ik_bulkDone").replace("{n}",ok)+(bad.length?" · "+bad.length+" ✗":""), bad.length?"bad":undefined); if(bad.length) alert(bad.join("\n")); syncAdminTodo(); reload() };
   if($("#ikBulkGovGo")) $("#ikBulkGovGo").onclick=function(){ var g=$("#ikBulkGov").value; if(!g) return; runBulk(GX("ik_apply"), function(id){ return rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:{fields:{governorate:g,governorate_id:null,area_id:null}}}) }) };
-  if($("#ikBulkAgGo")) $("#ikBulkAgGo").onclick=function(){ var a=$("#ikBulkAg").value; if(!a) return; runBulk(GX("ik_apply"), function(id){ return rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:ikOwnerPatch(a)}) }) };
+  // picking an owner in the bulk bar applies it to the selected drafts at once (no extra button)
+  if($("#ikBulkAg")) $("#ikBulkAg").addEventListener("change", function(){ var a=this.value; if(!a) return; if(!Object.keys(ADM.ikSel||{}).some(function(k){ return ADM.ikSel[k] })){ admToast(GX("ik_selectFirst"),"bad"); return } runBulk(GX("ik_apply"), function(id){ return rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:ikOwnerPatch(a)}) }) });
   var ikErr=function(code){ code=String(code||"error"); var k=code.replace(/^.*?:\s*/,""); return GX("ik_e_"+k)!=="ik_e_"+k?GX("ik_e_"+k):code };
   // an agency / governorate picked in the bar but not yet applied is applied on the way to publishing (no separate "apply" click needed)
   var bulkPub=function(status){ return function(){ if(!confirm(GX("ik_bulkPubQ").replace("{n}",selected().length))) return;
@@ -3849,7 +3850,7 @@ function wireIkOwnerCombos(){
       m.forEach(function(r){ if(r.grp!==lastGrp){ h+='<div class="chipsel-grp">'+esc(r.grp)+'</div>'; lastGrp=r.grp } h+='<div class="chipsel-opt" data-ikownv="'+esc(r.v)+'">'+esc(r.label)+'</div>' });
       drop.innerHTML=h||'<div class="chipsel-empty">'+t("noResultsFor")+'</div>';
       $$(".chipsel-drop.on").forEach(function(o){ if(o!==drop) o.classList.remove("on") }); drop.classList.add("on");
-      drop.querySelectorAll("[data-ikownv]").forEach(function(o){ o.onmousedown=function(e){ e.preventDefault(); hidden.value=this.dataset.ikownv; input.value=this.textContent; drop.classList.remove("on"); input.dispatchEvent(new Event("change",{bubbles:true})) } }) };
+      drop.querySelectorAll("[data-ikownv]").forEach(function(o){ o.onmousedown=function(e){ e.preventDefault(); hidden.value=this.dataset.ikownv; input.value=this.textContent; drop.classList.remove("on"); hidden.dispatchEvent(new Event("change",{bubbles:true})) } }) };
     input.addEventListener("focus",function(){ show(hidden.value?"":this.value) });
     input.addEventListener("input",function(){ hidden.value=""; show(this.value) });
     input.addEventListener("keydown",function(e){ if(e.key==="Escape") drop.classList.remove("on"); if(e.key==="Enter"){ e.preventDefault(); var f=drop.querySelector("[data-ikownv]"); if(f&&drop.classList.contains("on")) f.onmousedown(e) } });
