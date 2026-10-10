@@ -896,7 +896,7 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
 .shot2{position:relative;border-radius:6px;overflow:hidden;border:1px solid var(--line);aspect-ratio:4/3}
 .shot2 img{width:100%;height:100%;object-fit:cover}
 .shot2 .rm{position:absolute;top:4px;inset-inline-end:4px;background:rgba(13,23,41,.8);color:#fff;border:none;width:21px;height:21px;border-radius:50%;cursor:pointer;font-size:12px;line-height:1}
-.shot2 .cv{position:absolute;bottom:0;inset-inline:0;background:rgba(20,33,61,.85);color:#fff;font-size:10.5px;text-align:center;padding:2px}
+.shot2 .cv{position:absolute;bottom:0;left:0;right:0;background:rgba(20,33,61,.85);color:#fff;font-size:10.5px;text-align:center;padding:2px}
 .tipbox{background:var(--navy-w);border:1px solid #D7DEEC;border-radius:6px;padding:12px 15px;font-size:13px;color:#2E3E5E;line-height:1.85;margin-top:13px}
 .deedbox{border-radius:6px;padding:12px 15px;margin-top:11px;font-size:13px;line-height:1.8;display:none}
 .deedbox.on{display:block}
@@ -1383,7 +1383,7 @@ footer{font-size:14px}
 }
 .contactbar{display:none}
 @media(max-width:960px){
-  .contactbar{display:flex;gap:10px;position:fixed;bottom:0;inset-inline:0;z-index:1090;background:#fff;
+  .contactbar{display:flex;gap:10px;position:fixed;bottom:0;left:0;right:0;z-index:1090;background:#fff;
     padding:10px 14px calc(10px + env(safe-area-inset-bottom));border-top:1px solid var(--line);
     box-shadow:0 -6px 18px -8px rgba(9,14,26,.25)}
   .contactbar a,.contactbar button{flex:1;text-align:center;font:inherit;font-weight:700;font-size:15px;
@@ -1419,7 +1419,7 @@ footer{font-size:14px}
 @media(max-width:860px){.blogo{--logo-h:var(--logo-h-m,30px)}.mdw-top .blogo{--logo-h:26px}.blogo-w small{color:#9DB0CC}}
 @media(max-width:640px){.logo{padding:4px 0;font-size:21px}}
 .hnav a{position:relative;padding:4px 0}
-.hnav a::after{content:"";position:absolute;inset-inline:0;bottom:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:right;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+.hnav a::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--gold);transform:scaleX(0);transform-origin:right;transition:transform .35s cubic-bezier(.2,.7,.2,1)}
 [dir=ltr] .hnav a::after{transform-origin:left}
 .hnav a:hover::after{transform:scaleX(1)}
 .gold,.sgo,.mini,.btn{transition:background .25s,color .25s,border-color .25s,transform .25s cubic-bezier(.2,.7,.2,1),box-shadow .25s}
@@ -1634,7 +1634,7 @@ footer{font-size:14px}
 .chip{transition:background .15s}
 @keyframes sheetUp{from{transform:translateY(100%)}to{transform:none}}
 @media(max-width:640px){
-  .chipsel-drop.on{position:fixed;left:0!important;right:0!important;inset-inline:0!important;width:auto!important;min-width:0!important;max-width:100vw;box-sizing:border-box;bottom:0;top:auto;max-height:72vh;border-radius:18px 18px 0 0;padding:0 8px 0;z-index:1300;animation:sheetUp .28s cubic-bezier(.2,.7,.2,1);box-shadow:0 -12px 40px rgba(9,14,26,.35);display:flex;flex-direction:column}
+  .chipsel-drop.on{position:fixed;left:0!important;right:0!important;left:0!important;right:0!important;width:auto!important;min-width:0!important;max-width:100vw;box-sizing:border-box;bottom:0;top:auto;max-height:72vh;border-radius:18px 18px 0 0;padding:0 8px 0;z-index:1300;animation:sheetUp .28s cubic-bezier(.2,.7,.2,1);box-shadow:0 -12px 40px rgba(9,14,26,.35);display:flex;flex-direction:column}
   .chipsel-drop.on>.chipsel-opt,.chipsel-drop.on>.cs-h,.chipsel-drop.on>.chipsel-empty,.chipsel-drop.on>.cs-selected{flex:none}
   .cs-sheet-f{position:sticky;bottom:0;margin-top:auto;padding:10px 6px calc(12px + env(safe-area-inset-bottom));background:#fff;border-top:1px solid var(--line);display:flex;gap:8px;align-items:center}
   .cs-done{flex:1;height:46px;border:0;border-radius:12px;background:var(--navy);color:#fff;font:inherit;font-size:15px;font-weight:700;cursor:pointer}
@@ -1763,7 +1763,7 @@ html[data-cc="SY"] .typecell.tl[data-type="clinic"]{--tile:url(/assets/home/roof
 .coll img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
 .coll:hover img{transform:scale(1.06)}
 .coll .ph::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(15,27,51,.85),rgba(15,27,51,0) 55%)}
-.coll .t{position:absolute;inset-inline:20px;bottom:18px;z-index:1}
+.coll .t{position:absolute;left:20px;right:20px;bottom:18px;z-index:1}
 .coll .t b{display:block;font-family:var(--fd);font-size:22px;font-weight:600;line-height:1.3}
 .coll .t small{display:block;font-size:13px;color:rgba(255,255,255,.75);margin-top:4px}
 .credit{font-size:11.5px;color:var(--light);margin-top:12px}
@@ -1808,7 +1808,7 @@ html[data-cc="SY"] .typecell.tl[data-type="clinic"]{--tile:url(/assets/home/roof
   .band.frame{grid-template-columns:1fr}.band.frame .band-tx{padding:30px 26px}.band.frame .band-im{min-height:240px}
 }
 @media(max-width:640px){
-  .colls{gap:12px}.coll .t b{font-size:17px}.coll .t{inset-inline:14px;bottom:12px}
+  .colls{gap:12px}.coll .t b{font-size:17px}.coll .t{left:14px;right:14px;bottom:12px}
   .home-hero .sec{padding:60px 0 8px}
   .home-hero .hero{padding:84px 0 26px;min-height:0}
   .hero-credit{max-width:58%;inset-inline-start:12px;bottom:6px;line-height:1.3}
@@ -3524,6 +3524,11 @@ body.mdw-open .mobfab{display:none}
 .pm-card{margin:14px auto 0}
 .qfteaser-ico svg{width:24px;height:24px}
 @media(max-width:640px){.pm-btns{grid-template-columns:1fr}.pm-hero h1{font-size:22px}}
+
+/* ── logical-property fallback for browsers predating inset-inline-* support (~2021). Additive only —
+   gated so it never runs where the property above is understood, so nothing here can change how the
+   site looks in any current browser. Generated by scripts/gen-inset-fallback (one-off, not re-run). ── */
+@supports not (inset-inline-start: 1px){.navmore .menu{left:0;right:auto}[dir="rtl"] .navmore .menu{right:0;left:auto}#langMenu{left:auto;right:0}[dir="rtl"] #langMenu{right:auto;left:0}.bd{left:9px}[dir="rtl"] .bd{right:9px}.nph{right:8px}[dir="rtl"] .nph{left:8px}.cb-photoicons{left:0;right:0}[dir="rtl"] .cb-photoicons{right:0;left:0}.mappin-popup-custom::after{left:50%}[dir="rtl"] .mappin-popup-custom::after{right:50%}.sf .chipsel-drop{left:-16px}[dir="rtl"] .sf .chipsel-drop{right:-16px}.qfteaser-x{right:10px}[dir="rtl"] .qfteaser-x{left:10px}.aisearch-badge{left:4px}[dir="rtl"] .aisearch-badge{right:4px}.chipsel-drop{left:0;right:0}[dir="rtl"] .chipsel-drop{right:0;left:0}.adslot-visit{left:3px}[dir="rtl"] .adslot-visit{right:3px}.adslot-foot{left:0;right:0}[dir="rtl"] .adslot-foot{right:0;left:0}.adslot-place{left:5px}[dir="rtl"] .adslot-place{right:5px}.adslot-overtext{left:0;right:0}[dir="rtl"] .adslot-overtext{right:0;left:0}.adtag{right:3px}[dir="rtl"] .adtag{left:3px}.res.list-view .card .bd{left:6px}[dir="rtl"] .res.list-view .card .bd{right:6px}.lb-close{right:20px}[dir="rtl"] .lb-close{left:20px}.lb-count{left:50%}[dir="rtl"] .lb-count{right:50%}.shot2 .kb{left:4px}[dir="rtl"] .shot2 .kb{right:4px}.ccpick-drop{left:0}[dir="rtl"] .ccpick-drop{right:0}.pwtoggle{right:8px}[dir="rtl"] .pwtoggle{left:8px}.bellbadge{right:-4px}[dir="rtl"] .bellbadge{left:-4px}.notifmenu{right:0}[dir="rtl"] .notifmenu{left:0}.notifmenu.fx{right:auto}[dir="rtl"] .notifmenu.fx{left:auto}.notif-x{right:8px}[dir="rtl"] .notif-x{left:8px}.menu{right:0}[dir="rtl"] .menu{left:0}.shot2 .rm{right:4px}[dir="rtl"] .shot2 .rm{left:4px}.stamp{left:-34px}[dir="rtl"] .stamp{right:-34px}.card.c2 .bd{left:10px}[dir="rtl"] .card.c2 .bd{right:10px}.cfav{right:10px}[dir="rtl"] .cfav{left:10px}.cpc{right:10px}[dir="rtl"] .cpc{left:10px}.lgal .gcount{left:12px}[dir="rtl"] .lgal .gcount{right:12px}.lg-all{right:14px}[dir="rtl"] .lg-all{left:14px}.hero-credit{left:12px}[dir="rtl"] .hero-credit{right:12px}.curtain .cw::after{right:6px}[dir="rtl"] .curtain .cw::after{left:6px}.adslot-star{right:5px}[dir="rtl"] .adslot-star{left:5px}.adsec .adchip{left:8px}[dir="rtl"] .adsec .adchip{right:8px}.ad-prog i{left:0}[dir="rtl"] .ad-prog i{right:0}.menu::before{right:18px}[dir="rtl"] .menu::before{left:18px}.navmore .menu::before{right:auto;left:18px}[dir="rtl"] .navmore .menu::before{left:auto;right:18px}#langMenu::before{left:auto;right:18px}[dir="rtl"] #langMenu::before{right:auto;left:18px}.home-hero .pricepop{left:0}[dir="rtl"] .home-hero .pricepop{right:0}.anav-hits{left:0}[dir="rtl"] .anav-hits{right:0}.adbell-n{right:-6px}[dir="rtl"] .adbell-n{left:-6px}.adbell-m{right:0}[dir="rtl"] .adbell-m{left:0}.home-hero .hero h1{left:var(--h1-x,0px)}[dir="rtl"] .home-hero .hero h1{right:var(--h1-x,0px)}.rs .pricepop{left:0}[dir="rtl"] .rs .pricepop{right:0}.rs-morepop{right:0}[dir="rtl"] .rs-morepop{left:0}.ikpic i{right:3px}[dir="rtl"] .ikpic i{left:3px}.soon-x{right:10px}[dir="rtl"] .soon-x{left:10px}.vprev .vdur{left:8px}[dir="rtl"] .vprev .vdur{right:8px}.vprev .rm{right:6px}[dir="rtl"] .vprev .rm{left:6px}.lgal .lg-vid{left:14px}[dir="rtl"] .lgal .lg-vid{right:14px}.lg-main .gvclose{right:10px}[dir="rtl"] .lg-main .gvclose{left:10px}.lgal .lg-main.onvid~.lg-all{right:58px}[dir="rtl"] .lgal .lg-main.onvid~.lg-all{left:58px}.pjst{left:10px}[dir="rtl"] .pjst{right:10px}.pjfeat{right:10px}[dir="rtl"] .pjfeat{left:10px}.pjmain .pjst{left:14px}[dir="rtl"] .pjmain .pjst{right:14px}.pjthumb button{right:-6px}[dir="rtl"] .pjthumb button{left:-6px}.newtag{right:-6px}[dir="rtl"] .newtag{left:-6px}.mdw2-new{right:10px}[dir="rtl"] .mdw2-new{left:10px}.mdw2-q .mdw2-new{right:-4px}[dir="rtl"] .mdw2-q .mdw2-new{left:-4px}.hmb-dot{right:5px}[dir="rtl"] .hmb-dot{left:5px}.mdw-p{left:0}[dir="rtl"] .mdw-p{right:0}.xswitch i::after{left:2px}[dir="rtl"] .xswitch i::after{right:2px}.acch i::after{left:3px}[dir="rtl"] .acch i::after{right:3px}@media(max-width:700px){.mobfab{right:16px}[dir="rtl"] .mobfab{left:16px}.atable-stack thead{left:-9999px}[dir="rtl"] .atable-stack thead{right:-9999px}.lgal.n2 .lg-all,.lgal.n3 .lg-all,.lgal.n4 .lg-all{left:auto;right:12px}[dir="rtl"] .lgal.n2 .lg-all,[dir="rtl"] .lgal.n3 .lg-all,[dir="rtl"] .lgal.n4 .lg-all{right:auto;left:12px}.lg-all{right:12px}[dir="rtl"] .lg-all{left:12px}.home-hero .hero h1{left:var(--h1-x-m,var(--h1-x,0px))}[dir="rtl"] .home-hero .hero h1{right:var(--h1-x-m,var(--h1-x,0px))}.vlb .lb-close{right:12px}[dir="rtl"] .vlb .lb-close{left:12px}.lgal .lg-vid{left:10px}[dir="rtl"] .lgal .lg-vid{right:10px}}@media(max-width:640px){.hero-credit{left:12px}[dir="rtl"] .hero-credit{right:12px}.res:not(.list-view) .card .bd{left:6px}[dir="rtl"] .res:not(.list-view) .card .bd{right:6px}.res:not(.list-view) .card .cfav{right:4px}[dir="rtl"] .res:not(.list-view) .card .cfav{left:4px}.res:not(.list-view) .card .cpc{right:6px}[dir="rtl"] .res:not(.list-view) .card .cpc{left:6px}}@media(max-width:900px){.adm .asidebar{left:0}[dir="rtl"] .adm .asidebar{right:0}}@media(min-width:861px){.hnav .hsoon i{right:-6px}[dir="rtl"] .hnav .hsoon i{left:-6px}.hpill .hmb-dot{right:4px}[dir="rtl"] .hpill .hmb-dot{left:4px}}}
 </style><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
