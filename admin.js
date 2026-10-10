@@ -3823,13 +3823,15 @@ function wireAdmPromo(){
    2026-10-11: a type-to-search box instead of a <select> — with thousands of members a list cannot be scrolled; the
    admin types part of a name, office or phone and picks from the matches. The chosen value sits in a hidden
    [data-ikag] input so collect() / the bulk bar read it exactly as before. */
+// search folding: أ إ آ → ا, ة → ه, ى → ي, no tashkeel / tatweel, one space, Latin lower-case — so «احمد» finds «أحمد»
+function ikFold(s){ return String(s||"").toLowerCase().replace(/[ً-ْـ]/g,"").replace(/[أإآٱ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/\s+/g," ").trim() }
 function ikOwnerList(d){
   var ags=d.agencies||[], agUsers={}; ags.forEach(function(g){ if(g.user_id) agUsers[g.user_id]=1 });
   var rest=(d.members||[]).filter(function(u){ return !agUsers[u.id] });
-  var urow=function(grp){ return function(u){ var nm=[u.name,u.family_name].filter(Boolean).join(" "); return {v:"u:"+u.id, label:(nm||u.phone||u.id)+(nm&&u.phone?" · "+u.phone:""), grp:grp, q:(nm+" "+(u.phone||"")+" "+(u.member_no||"")).toLowerCase()} } };
+  var urow=function(grp){ return function(u){ var nm=[u.name,u.family_name].filter(Boolean).join(" "); return {v:"u:"+u.id, label:(nm||u.phone||u.id)+(nm&&u.phone?" · "+u.phone:""), grp:grp, q:ikFold(nm+" "+(u.phone||"")+" "+(u.member_no||""))} } };
   // three groups, matching the site's account types: offices (approved agencies, plus agency-type accounts that
   // have no approved agency row yet), brokers, and everyone else
-  return ags.map(function(g){ return {v:"a:"+g.id, label:g.name+(g.country_code&&g.country_code!=="SY"?" "+flagOf(g.country_code):""), grp:GX("ik_grpAgencies"), q:(g.name+" "+(g.phone||"")+" "+(g.whatsapp||"")).toLowerCase()} })
+  return ags.map(function(g){ return {v:"a:"+g.id, label:g.name+(g.country_code&&g.country_code!=="SY"?" "+flagOf(g.country_code):""), grp:GX("ik_grpAgencies"), q:ikFold(g.name+" "+(g.phone||"")+" "+(g.whatsapp||""))} })
     .concat(rest.filter(function(u){ return u.account_type==="agency" }).map(urow(GX("ik_grpAgencies"))))
     .concat(rest.filter(function(u){ return u.account_type==="broker" }).map(urow(GX("ik_grpBrokers"))))
     .concat(rest.filter(function(u){ return u.account_type!=="agency"&&u.account_type!=="broker" }).map(urow(GX("ik_grpMembers"))));
@@ -3845,13 +3847,15 @@ function wireIkOwnerCombos(){
   var d=ADM.ik||{}, all=null;
   $$("[data-ikownq]").forEach(function(input){
     var key=input.dataset.ikownq, box=input.closest(".ikpick"), drop=box.querySelector("[data-ikowndrop]"), hidden=box.querySelector("[data-ikag]");
-    var show=function(q){ all=all||ikOwnerList(d); var qq=(q||"").trim().toLowerCase().replace(/\s+/g," ");
+    var show=function(q){ all=all||ikOwnerList(d); var qq=ikFold(q);
       var m=(qq?all.filter(function(r){ return r.q.indexOf(qq)>-1 }):all).slice(0,40), lastGrp=null, h="";
       m.forEach(function(r){ if(r.grp!==lastGrp){ h+='<div class="chipsel-grp">'+esc(r.grp)+'</div>'; lastGrp=r.grp } h+='<div class="chipsel-opt" data-ikownv="'+esc(r.v)+'">'+esc(r.label)+'</div>' });
       drop.innerHTML=h||'<div class="chipsel-empty">'+t("noResultsFor")+'</div>';
       $$(".chipsel-drop.on").forEach(function(o){ if(o!==drop) o.classList.remove("on") }); drop.classList.add("on");
       drop.querySelectorAll("[data-ikownv]").forEach(function(o){ o.onmousedown=function(e){ e.preventDefault(); hidden.value=this.dataset.ikownv; input.value=this.textContent; drop.classList.remove("on"); hidden.dispatchEvent(new Event("change",{bubbles:true})) } }) };
     input.addEventListener("focus",function(){ show(hidden.value?"":this.value) });
+    // the admin page closes every open list on any document click — a click inside the box must not count
+    input.addEventListener("click",function(e){ e.stopPropagation(); if(!drop.classList.contains("on")) show(hidden.value?"":this.value) });
     input.addEventListener("input",function(){ hidden.value=""; show(this.value) });
     input.addEventListener("keydown",function(e){ if(e.key==="Escape") drop.classList.remove("on"); if(e.key==="Enter"){ e.preventDefault(); var f=drop.querySelector("[data-ikownv]"); if(f&&drop.classList.contains("on")) f.onmousedown(e) } });
     input.addEventListener("blur",function(){ setTimeout(function(){ drop.classList.remove("on"); if(!hidden.value) input.value="" },150) });
