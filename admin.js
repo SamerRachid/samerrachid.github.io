@@ -3707,43 +3707,52 @@ function promoText(l,opt){
   var tags=["#بلكون","#عقارات_سوريا"]; if(l.gov) tags.push("#عقارات_"+String(l.gov).replace(/\s+/g,"_")); if(l.area) tags.push("#"+String(l.area).replace(/\s+/g,"_")); lines.push(tags.join(" "));
   return lines.join("\n");
 }
+/* «روّج» box: ONE choice of where to post (drives the link, the text, the image and the reel alike), the tracked
+   link ready to copy, then the three outputs as tabs. The image tab renders itself as soon as it opens (and again
+   whenever the source / format / hide-price changes) — nothing to click; the reel keeps a button since it takes a
+   few seconds and needs Chrome/Edge. */
 function admPromoHtml(l){
-  var p=ADM.promo||{}; var text=promoText(l,{hidePrice:p.hidePrice}); var curSrc=p.src||"fb-damas";
-  return '<div class="ld-sec">🔗 '+GX("promoLinksH")+'</div><div class="promo-links" style="margin-bottom:14px">'+
-    '<div class="hintx" style="margin-bottom:8px">'+GX("promoLinksHint")+'</div>'+
-    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px">'+PROMO_SRC.map(function(s){
-      return '<button type="button" class="ab'+(curSrc===s[0]?' ok':'')+'" data-promolinksrc="'+s[0]+'">'+s[1]+'</button>' }).join("")+'</div>'+
-    '<div style="display:flex;gap:8px;align-items:center"><input type="text" id="promoLinkOut" readonly dir="ltr" value="'+esc(promoLink(l))+'" style="flex:1;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit;font-size:13.5px;background:#fff">'+
-      '<button class="ab ok" id="promoLinkCopy" style="flex:none">📋 '+GX("promoLinkCopy")+'</button></div>'+
-  '</div>'+
-  '<div class="ld-sec">📣 '+GX("promoH")+'</div><div class="promo" id="promoBox">'+
-    '<div class="hintx" style="margin-bottom:8px">'+GX("promoHint")+'</div>'+
-    '<label class="lfc on" style="margin-bottom:8px"><span>'+GX("promoSrc")+':</span><select id="promoSrc">'+PROMO_SRC.map(function(s){ return '<option value="'+s[0]+'"'+(p.src===s[0]?' selected':'')+'>'+s[1]+'</option>' }).join("")+'</select></label>'+
-    '<label class="lfc on" style="margin-bottom:8px"><input type="checkbox" id="promoNoPrice"'+(p.hidePrice?' checked':'')+'> <span>'+GX("promoHidePrice")+'</span></label>'+
-    '<textarea id="promoText" readonly style="width:100%;min-height:230px;font-family:inherit;font-size:13.5px;line-height:1.55;border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff;direction:rtl">'+esc(text)+'</textarea>'+
-    '<div class="ld-acts" style="margin-top:8px"><button class="ab ok" id="promoCopy">📋 '+GX("promoCopy")+'</button>'+
-      '<button class="ab" data-promoimg="45">🖼 '+GX("promoImg45")+'</button><button class="ab" data-promoimg="11">🖼 '+GX("promoImg11")+'</button>'+
-      '<button class="ab" id="promoReel">🎬 '+GX("promoReel")+'</button></div>'+
-    '<div id="promoOut" style="margin-top:10px">'+(p.img?'<img src="'+p.img+'" style="width:100%;border-radius:12px;border:1px solid var(--line)"><div class="ld-acts" style="margin-top:6px"><a class="ab ok" download="balkoun-'+esc(l.ref||l.id)+'.png" href="'+p.img+'">⬇ '+GX("promoDownload")+'</a></div>':'')+
-      (p.reel?'<video src="'+p.reel+'" controls playsinline style="width:100%;border-radius:12px;border:1px solid var(--line);margin-top:8px"></video><div class="ld-acts" style="margin-top:6px"><a class="ab ok" download="balkoun-'+esc(l.ref||l.id)+'-reel.mp4" href="'+p.reel+'">⬇ '+GX("promoDownloadReel")+'</a></div>':'')+
-      (p.busy?'<div class="hintx" id="promoBusy">'+esc(p.busy)+'</div>':'')+'</div>'+
+  var p=ADM.promo||{}, tab=p.tab||"text", fmt=p.fmt||"45", src=p.src||"fb-damas"; var text=promoText(l,{hidePrice:p.hidePrice});
+  var seg=function(items,attr,cur){ return '<div class="pseg">'+items.map(function(it){ return '<button type="button" class="'+(cur===it[0]?'on':'')+'" data-'+attr+'="'+it[0]+'">'+it[1]+'</button>' }).join("")+'</div>' };
+  var dl=function(href,name,label){ return '<div class="ld-acts"><a class="ab ok" download="'+name+'" href="'+href+'">⬇ '+label+'</a></div>' };
+  var body;
+  if(tab==="image") body=seg([["45",GX("promoFmt45")],["11",GX("promoFmt11")]],"promofmt",fmt)+(p.img?'<img src="'+p.img+'" class="pout">'+dl(p.img,"balkoun-"+esc(l.ref||l.id)+".png",GX("promoDownload")):'<div class="hintx" id="promoBusy">'+esc(p.busy||GX("promoWorking"))+'</div>');
+  else if(tab==="reel") body=(p.reel?'<video src="'+p.reel+'" controls playsinline class="pout"></video>'+dl(p.reel,"balkoun-"+esc(l.ref||l.id)+"-reel.mp4",GX("promoDownloadReel")):'<div class="ld-acts"><button class="ab ok" id="promoReel">🎬 '+GX("promoReel")+'</button></div>')+(p.busy?'<div class="hintx" id="promoBusy">'+esc(p.busy)+'</div>':'');
+  else body='<textarea id="promoText" readonly>'+esc(text)+'</textarea><div class="ld-acts"><button class="ab ok" id="promoCopy">📋 '+GX("promoCopy")+'</button></div>';
+  return '<div class="ld-sec">📣 '+GX("promoH")+'</div><div class="promo" id="promoBox">'+
+    '<div class="hintx">'+GX("promoHint")+'</div>'+
+    '<div class="prow"><label class="lfc on"><span>'+GX("promoSrc")+':</span><select id="promoSrc">'+PROMO_SRC.map(function(s){ return '<option value="'+s[0]+'"'+(src===s[0]?' selected':'')+'>'+s[1]+'</option>' }).join("")+'</select></label>'+
+      '<label class="lfc'+(p.hidePrice?' on':'')+'"><input type="checkbox" id="promoNoPrice"'+(p.hidePrice?' checked':'')+'> <span>'+GX("promoHidePrice")+'</span></label></div>'+
+    '<div class="prow"><input type="text" id="promoLinkOut" class="plink" readonly dir="ltr" value="'+esc(promoLink(l))+'"><button class="ab ok" id="promoLinkCopy">📋 '+GX("promoLinkCopy")+'</button></div>'+
+    seg([["text",GX("promoTabText")],["image",GX("promoTabImage")],["reel",GX("promoTabReel")]],"promotab",tab)+
+    '<div class="ptab">'+body+'</div>'+
   '</div>';
 }
 function wireAdmPromo(){
   $$("[data-apromo]").forEach(function(b){ b.onclick=function(){ var id=this.dataset.apromo; ADM.promo=(ADM.promo&&String(ADM.promo.id)===String(id))?null:{id:id,src:"fb-damas"}; render() } });
-  $$("[data-promolinksrc]").forEach(function(b){ b.onclick=function(){ ADM.promo.src=this.dataset.promolinksrc; ADM.promo.img=null; ADM.promo.reel=null; render() } });
-  var lc=$("#promoLinkCopy"); if(lc) lc.onclick=function(){ var inp=$("#promoLinkOut"); var btn=this; var done=function(){ btn.textContent="✓ "+GX("promoCopied"); setTimeout(function(){ btn.textContent="📋 "+GX("promoLinkCopy") },1600) }; try{ navigator.clipboard.writeText(inp.value).then(done,function(){ inp.select(); document.execCommand("copy"); done() }) }catch(e){ inp.select(); document.execCommand("copy"); done() } };
-  var sel=$("#promoSrc"); if(sel) sel.onchange=function(){ ADM.promo.src=this.value; ADM.promo.img=null; ADM.promo.reel=null; render() };
-  var np=$("#promoNoPrice"); if(np) np.onchange=function(){ ADM.promo.hidePrice=this.checked; ADM.promo.img=null; ADM.promo.reel=null; render() };
-  var cp=$("#promoCopy"); if(cp) cp.onclick=function(){ var ta=$("#promoText"); var btn=this; var done=function(){ btn.textContent="✓ "+GX("promoCopied"); setTimeout(function(){ btn.textContent="📋 "+GX("promoCopy") },1600) }; try{ navigator.clipboard.writeText(ta.value).then(done,function(){ ta.select(); document.execCommand("copy"); done() }) }catch(e){ ta.select(); document.execCommand("copy"); done() } };
-  $$("[data-promoimg]").forEach(function(b){ b.onclick=async function(){ var fmt=this.dataset.promoimg; var l=admPromoListing(); if(!l) return; ADM.promo.busy=GX("promoWorking"); ADM.promo.img=null; render(); try{ ADM.promo.img=await promoImage(l,fmt,{hidePrice:!!ADM.promo.hidePrice}) }catch(e){ ADM.promo.busy=String(e&&e.message||e); render(); return } ADM.promo.busy=""; render() } });
-  var rb=$("#promoReel"); if(rb) rb.onclick=async function(){ var l=admPromoListing(); if(!l) return; if(typeof VideoEncoder==="undefined"){ ADM.promo.busy=GX("promoReelNoSupport"); render(); return } ADM.promo.busy=GX("promoWorking"); ADM.promo.reel=null; render(); try{ ADM.promo.reel=await promoReel(l,{hidePrice:!!ADM.promo.hidePrice},function(pct){ var el=$("#promoBusy"); if(el) el.textContent=GX("promoWorking")+" "+pct+"%" }) }catch(e){ ADM.promo.busy=String(e&&e.message||e); render(); return } ADM.promo.busy=""; render() };
+  var p=ADM.promo; if(!p||!$("#promoBox")) return;
+  var reset=function(){ p.img=null; p.reel=null; p.busy="" };
+  var copy=function(btn,el,label){ var done=function(){ btn.textContent="✓ "+GX("promoCopied"); setTimeout(function(){ btn.textContent="📋 "+label },1600) }; try{ navigator.clipboard.writeText(el.value).then(done,function(){ el.select(); document.execCommand("copy"); done() }) }catch(e){ el.select(); document.execCommand("copy"); done() } };
+  var lc=$("#promoLinkCopy"); if(lc) lc.onclick=function(){ copy(this,$("#promoLinkOut"),GX("promoLinkCopy")) };
+  var cp=$("#promoCopy"); if(cp) cp.onclick=function(){ copy(this,$("#promoText"),GX("promoCopy")) };
+  var sel=$("#promoSrc"); if(sel) sel.onchange=function(){ p.src=this.value; reset(); render() };
+  var np=$("#promoNoPrice"); if(np) np.onchange=function(){ p.hidePrice=this.checked; reset(); render() };
+  $$("[data-promotab]").forEach(function(b){ b.onclick=function(){ p.tab=this.dataset.promotab; p.busy=""; render() } });
+  $$("[data-promofmt]").forEach(function(b){ b.onclick=function(){ p.fmt=this.dataset.promofmt; p.img=null; p.busy=""; render() } });
+  var rb=$("#promoReel"); if(rb) rb.onclick=async function(){ var l=admPromoListing(); if(!l) return; if(typeof VideoEncoder==="undefined"){ p.busy=GX("promoReelNoSupport"); render(); return } p.busy=GX("promoWorking"); p.reel=null; render(); try{ p.reel=await promoReel(l,{hidePrice:!!p.hidePrice},function(pct){ var el=$("#promoBusy"); if(el) el.textContent=GX("promoWorking")+" "+pct+"%" }) }catch(e){ p.busy=String(e&&e.message||e); render(); return } p.busy=""; render() };
+  // the image tab renders itself; a result is dropped if the source / format / price switch changed meanwhile
+  if((p.tab||"text")==="image"&&!p.img&&!p.busy){ var l=admPromoListing(); if(l){ var fmt=p.fmt||"45", key=[p.src,fmt,!!p.hidePrice].join("|"); p.busy=GX("promoWorking");
+    promoImage(l,fmt,{hidePrice:!!p.hidePrice}).then(function(u){ if(ADM.promo!==p||[p.src,p.fmt||"45",!!p.hidePrice].join("|")!==key) return; p.img=u; p.busy=""; render() },function(e){ if(ADM.promo!==p) return; p.busy=String(e&&e.message||e); render() }) } }
 }
 function admPromoListing(){ var id=ADM.promo&&ADM.promo.id; return ((ADM.data&&ADM.data.listings)||[]).find(function(l){ return String(l.id)===String(id) })||null }
 function promoPhotos(l){ var x=promoRow(l); var ph=(x&&x.photos||[]).slice(); if(!ph.length&&l.cover) ph=[l.cover]; return ph.slice(0,6) }
 function promoLoadImg(src){ return new Promise(function(res,rej){ var im=new Image(); im.crossOrigin="anonymous"; im.onload=function(){ res(im) }; im.onerror=function(){ rej(new Error("photo")) }; im.src=src }) }
 function promoCoverDraw(ctx,im,x,y,w,h,zoom,dx,dy){ var s=Math.max(w/im.width,h/im.height)*(zoom||1); var sw=im.width*s, sh=im.height*s; ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip(); ctx.drawImage(im, x+(w-sw)/2+(dx||0), y+(h-sh)/2+(dy||0), sw, sh); ctx.restore() }
 function promoRound(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath() }
+/* the site's brandMark() on a canvas (same 100-unit geometry): sand square, gold diamond rotated by `ang`, sand centre */
+function promoMark(ctx,cx,cy,s,ang){ var u=s/100; ctx.save(); ctx.translate(cx,cy); ctx.scale(u,u); ctx.lineWidth=7; ctx.strokeStyle="#CFC4AE"; ctx.strokeRect(-31,-31,62,62);
+  ctx.save(); ctx.rotate(ang||0); ctx.lineWidth=9; ctx.strokeStyle="#C4881F"; ctx.beginPath(); ctx.moveTo(0,-45); ctx.lineTo(45,0); ctx.lineTo(0,45); ctx.lineTo(-45,0); ctx.closePath(); ctx.stroke(); ctx.restore();
+  ctx.fillStyle="#CFC4AE"; ctx.fillRect(-7.5,-7.5,15,15); ctx.restore() }
 function promoWrap(ctx,text,maxW){ var words=String(text).split(/\s+/), lines=[], cur=""; words.forEach(function(w){ var tst=cur?cur+" "+w:w; if(ctx.measureText(tst).width>maxW&&cur){ lines.push(cur); cur=w } else cur=tst }); if(cur) lines.push(cur); return lines.slice(0,2) }
 async function promoAssets(){ if(promoAssets._c) return promoAssets._c; try{ await document.fonts.load("800 60px 'Noto Kufi Arabic'"); await document.fonts.load("700 40px 'Noto Kufi Arabic'") }catch(e){} var logo=null; try{ logo=await promoLoadImg("/brand/logo-light.png") }catch(e){} promoAssets._c={logo:logo}; return promoAssets._c }
 /* the branded card shared by the image and the reel: full-bleed photo, a translucent scrim fading in over its lower part,
@@ -3801,7 +3810,8 @@ async function promoImage(l,fmt,opt){
 /* 12-second silent reel: each photo with a slow push-in, the card's text panel at the bottom, end card with the logo */
 async function promoReel(l,opt,onPct){
   opt=opt||{}; var x=promoRow(l)||{}; var W=1080, H=1920, FPS=24; var photos=promoPhotos(l); var imgs=[];
-  for(var i=0;i<photos.length;i++){ try{ imgs.push(await promoLoadImg(photos[i])) }catch(e){} }
+  // one retry per photo: a single dropped connection to storage used to turn into "no photos" for the whole reel
+  for(var i=0;i<photos.length;i++){ try{ imgs.push(await promoLoadImg(photos[i])) }catch(e){ try{ imgs.push(await promoLoadImg(photos[i]+(photos[i].indexOf("?")>-1?"&":"?")+"r=1")) }catch(e2){} } }
   if(!imgs.length) throw new Error(GX("lfNoPhotos"));
   var A=await promoAssets();
   var M=await import("https://cdn.jsdelivr.net/npm/mp4-muxer@5.1.3/build/mp4-muxer.min.mjs");
@@ -3817,14 +3827,17 @@ async function promoReel(l,opt,onPct){
       // crossfade with the next photo at the end of each slot — promoPaint blends it under the scrim and text
       var next=(u>0.86&&idx<imgs.length-1)?imgs[idx+1]:null;
       var r=promoPaint(ctx,W,H,l,x,imgs[idx],{logo:A.logo,zoom:zoom,dx:dx,dy:-20*u,hidePrice:opt.hidePrice,photo2:next,fade:next?(u-0.86)/0.14:0});
-      // photo counter, under the logo (the photo now runs the full height, so there is no panel edge to sit on)
-      var cy=r.logoBottom+26; ctx.fillStyle="rgba(0,0,0,.45)"; promoRound(ctx,40,cy,120,56,28); ctx.fill(); ctx.fillStyle="#fff"; ctx.font="700 26px Lato"; ctx.direction="ltr"; ctx.textAlign="center"; ctx.fillText((idx+1)+" / "+imgs.length,100,cy+28); ctx.direction="rtl"; ctx.textAlign="right";
+      // photo counter under the logo — only when there is something to count
+      if(imgs.length>1){ var cy=r.logoBottom+26; ctx.fillStyle="rgba(0,0,0,.45)"; promoRound(ctx,40,cy,120,56,28); ctx.fill(); ctx.fillStyle="#fff"; ctx.font="700 26px Lato"; ctx.direction="ltr"; ctx.textAlign="center"; ctx.fillText((idx+1)+" / "+imgs.length,100,cy+28); ctx.direction="rtl"; ctx.textAlign="right" }
     } else {
       var te=t-imgs.length*per, k=Math.min(1,te/0.5); ctx.fillStyle="#14213D"; ctx.fillRect(0,0,W,H);
-      // end card: the logo spins in on its vertical axis — one full turn, easing out — then holds
-      if(A.logo){ var lw=640, lh=Math.round(lw*A.logo.height/A.logo.width); var p=Math.min(1,te/1.3), ang=2*Math.PI*(1-Math.pow(1-p,3));
-        ctx.save(); ctx.globalAlpha=k; ctx.translate(W/2,H/2-30-lh/2); ctx.scale(Math.cos(ang),1); ctx.drawImage(A.logo,-lw/2,-lh/2,lw,lh); ctx.restore() }
-      ctx.globalAlpha=k; ctx.fillStyle="#E6B655"; ctx.font="800 50px 'Noto Kufi Arabic'"; ctx.textAlign="center"; ctx.fillText("ببلاش · بلا عمولة",W/2,H/2+90); ctx.fillStyle="#fff"; ctx.font="700 46px Lato"; ctx.direction="ltr"; ctx.fillText("balkoun.com",W/2,H/2+170); ctx.direction="rtl"; ctx.textAlign="right"; ctx.globalAlpha=1;
+      // end card: the brand mark with only its gold diamond turning once (the header's hdrDiaSpin, ease-in-out over
+      // 1.3 s, square and centre still), the wordmark under it, then the tagline and domain
+      var sp=Math.min(1,te/1.3), ease=sp<.5?4*sp*sp*sp:1-Math.pow(-2*sp+2,3)/2;
+      ctx.globalAlpha=k; promoMark(ctx,W/2,H/2-190,260,2*Math.PI*ease);
+      ctx.fillStyle="#CFC4AE"; ctx.font="800 112px 'Noto Kufi Arabic'"; ctx.textAlign="center"; ctx.direction="rtl"; ctx.fillText("بلكون",W/2,H/2+30);
+      ctx.font="700 34px Lato"; ctx.direction="ltr"; try{ ctx.letterSpacing="12px" }catch(e){} ctx.fillText("BALKOUN",W/2+6,H/2+100); try{ ctx.letterSpacing="0px" }catch(e){}
+      ctx.fillStyle="#E6B655"; ctx.font="800 50px 'Noto Kufi Arabic'"; ctx.direction="rtl"; ctx.fillText("ببلاش · بلا عمولة",W/2,H/2+200); ctx.fillStyle="#fff"; ctx.font="700 46px Lato"; ctx.direction="ltr"; ctx.fillText("balkoun.com",W/2,H/2+280); ctx.direction="rtl"; ctx.textAlign="right"; ctx.globalAlpha=1;
     }
     var frame=new VideoFrame(c,{timestamp:Math.round(f*1e6/FPS), duration:Math.round(1e6/FPS)});
     enc.encode(frame,{keyFrame:f%48===0}); frame.close();
