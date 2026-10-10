@@ -5394,8 +5394,11 @@ function listing(id){
  if(_vlbFor!==x.id){ VLB_OPEN=false; _vlbFor=x.id }
  var IMGS = (x.photos&&x.photos.length) ? x.photos : [];
  var VOFF = VIDS.length?1:0;   // the video, when there is one, is the first slide of the gallery
- // a newly opened listing always starts at its first slide
- if(window._lastLid!==String(x.id)){ window._lastLid=String(x.id); GI=0; GVID_OFF=false }
+ // a newly opened listing always starts at its first slide — the first PHOTO when there is one (owner's rule,
+ // 2026-10-11: a video used to auto-show before any photo); only a video-only listing (no photos at all) opens on
+ // the video, since there is nothing else to show. The video stays one tap away: its own thumbnail in the strip,
+ // and the floating "watch video" pill over the photo (both already coded, just unreachable while onVid was forced).
+ if(window._lastLid!==String(x.id)){ window._lastLid=String(x.id); GI=IMGS.length?VOFF:0; GVID_OFF=false }
  var nAll = IMGS.length+VOFF; if(GI>=nAll) GI=0;
  var onVid = !!(VOFF && GI===0 && !GVID_OFF), pi = Math.max(0, GI-VOFF), curImg = IMGS[pi]||(GVID_OFF&&VIDS.length?(VIDS[0].poster||""):"");
  var I=LICON, ar=L==="ar", isRent=x.d==="rent", hasFl=(x.fl!==null&&x.fl!==undefined&&x.fl!=="");
