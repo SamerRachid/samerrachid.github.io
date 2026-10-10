@@ -1408,6 +1408,17 @@ function wireAdmin(){
     for(var i=0;i<folders.length;i++){ await clearStorageFolder(folders[i]); if(msg) msg.textContent=GX("stDeleting")+" "+(i+1)+"/"+folders.length }
     ADM._storageReportLoaded=false; ADM._storageUsageLoaded=false; ADM.storageReport=null; ADM.storageUsage=null; render();
   };
+  // leftover og-share.png.stale* copies (2026-10-11): generated artifacts from the share-card regen-via-rename
+  // trick, never a real photo or video — same bulk-delete pattern as trash/orphans, gated to super admins
+  if($("#stDelStale")) $("#stDelStale").onclick=async function(){
+    var n=this.dataset.n, btn=this, msg=$("#stStaleMsg");
+    if(!confirm(GX("stDelStaleConfirm").replace("{n}",n))) return;
+    btn.disabled=true; if(msg) msg.textContent=GX("stDeleting");
+    var paths=((ADM.storageReport&&ADM.storageReport.stale_paths)||[]).slice();
+    for(var i=0;i<paths.length;i+=100){ await storageRemove(paths.slice(i,i+100)); if(msg) msg.textContent=GX("stDeleting")+" "+Math.min(i+100,paths.length)+"/"+paths.length }
+    ADM._storageReportLoaded=false; ADM._storageUsageLoaded=false; ADM.storageReport=null; ADM.storageUsage=null; render();
+  };
+  $$("[data-stopenl]").forEach(function(b){ b.onclick=function(){ ADM.lopen=+this.dataset.stopenl; admGo("listings") } });
   if((ADM.tab==="dashboard"||ADM.tab==="stats"||ADM.tab==="storage") && !ADM._storageUsageLoaded){
     ADM._storageUsageLoaded=true;
     rpc("bk_admin_storage_usage",{p_token:ADM.token}).then(function(r){
@@ -2933,7 +2944,7 @@ function adminStorageBody(limitBlock){
   var total=+r.total_bytes||1;
   var kinds='<div class="blk" style="margin-top:16px"><h3>'+GX("stByKindH")+'</h3><div class="atable"><table><thead><tr><th>'+GX("stKind")+'</th><th>'+GX("stFiles")+'</th><th>'+GX("stSize")+'</th><th style="width:40%">'+GX("stShare")+'</th></tr></thead><tbody>'+
     (r.groups||[]).map(function(g){ var pct=Math.round(g.bytes/total*100); return '<tr><td>'+(GX_T["k_"+g.kind]?GX("k_"+g.kind):g.kind)+'</td><td class="ltr">'+g.files+'</td><td class="ltr"><b>'+stSize(g.bytes)+'</b></td>'+
-      '<td><div class="stbar"><i style="width:'+pct+'%;background:'+(g.kind==="orphans"?"var(--danger)":g.kind==="ad_videos"?"var(--gold)":"var(--navy)")+'"></i></div><span class="ltr stpct">'+pct+'%</span></td></tr>' }).join("")+
+      '<td><div class="stbar"><i style="width:'+pct+'%;background:'+((g.kind==="orphans"||g.kind==="stale_og")?"var(--danger)":g.kind==="ad_videos"?"var(--gold)":"var(--navy)")+'"></i></div><span class="ltr stpct">'+pct+'%</span></td></tr>' }).join("")+
     '</tbody></table></div></div>';
   var orphanFiles=(r.orphans||[]).reduce(function(a,o){ return a+(+o.files||0) },0), orphanBytes=(r.orphans||[]).reduce(function(a,o){ return a+(+o.bytes||0) },0);
   var orphans='<div class="blk" style="margin-top:16px"><h3><span class="hd2"><span>'+GX("stOrphansH")+'</span>'+(orphanFiles?'<small class="ltr" style="color:var(--danger)">'+orphanFiles+' '+' · '+stSize(orphanBytes)+'</small>':'')+'</span></h3><div class="in">'+
@@ -2944,6 +2955,26 @@ function adminStorageBody(limitBlock){
         (ADM.isSuper?'<div class="xactions"><button class="ab bad" id="stDelOrphans" data-n="'+orphanFiles+'">'+GX("stDelOrphans")+'</button><span class="xmsg" id="stDelMsg"></span></div>':'')
       : '<div class="adashempty" style="text-align:start;padding:6px 0;color:var(--ok)">✓ '+GX("stNoOrphans")+'</div>')+
     '</div></div>';
+  var staleN=(r.stale_paths||[]).length, staleB=+r.stale_bytes||0, staleItems=r.stale_items||[];
+  var staleTable = staleItems.length ? '<div class="stlist" style="margin-bottom:12px">'+
+      staleItems.map(function(f){ return stFileRow(f, (ADM.isSuper?'<button type="button" class="ab bad" data-stdel="'+esc(f.name)+'">'+t("del")+'</button>':'')) }).join("")+
+      (staleN>staleItems.length?'<div class="hintx">+'+(staleN-staleItems.length)+'</div>':'')+'</div>' : '';
+  var stale='<div class="blk" style="margin-top:16px"><h3><span class="hd2"><span>'+GX("stStaleH")+'</span>'+(staleN?'<small class="ltr" style="color:var(--danger)">'+staleN+' '+' · '+stSize(staleB)+'</small>':'')+'</span></h3><div class="in">'+
+    '<div class="hintx" style="margin-bottom:10px">'+GX("stStaleHint")+'</div>'+staleTable+
+    (staleN ? (ADM.isSuper?'<div class="xactions"><button class="ab bad" id="stDelStale" data-n="'+staleN+'">'+GX("stDelStale")+'</button><span class="xmsg" id="stStaleMsg"></span></div>':'')
+            : '<div class="adashempty" style="text-align:start;padding:6px 0;color:var(--ok)">✓ '+GX("stNoStale")+'</div>')+
+    '</div></div>';
+  var byL=r.by_listing||[];
+  var topListings = byL.length ? '<div class="blk" style="margin-top:16px"><h3>'+GX("stTopListingsH")+'</h3><div class="in">'+
+    '<div class="hintx" style="margin-bottom:10px">'+GX("stTopListingsHint")+'</div>'+
+    '<div class="atable"><table><thead><tr><th>BK</th><th>'+t("photos")+'</th><th>'+GX("stVideosCol")+'</th><th>'+GX("stSize")+'</th><th></th></tr></thead><tbody>'+
+    byL.map(function(x){ var cc=String(x.country_code||"SY").toLowerCase(), pub="https://balkoun.com"+(cc==="sy"?"":"/"+cc)+"/listing/"+x.id;
+      return '<tr><td class="ltr">'+scopeFlag(x.country_code)+esc(String(x.ref||x.id))+(x.status!=="live"?' <span class="chip" style="color:var(--warn)">'+admStLabel(x.status)+'</span>':'')+'</td>'+
+        '<td class="ltr">'+(x.n_photo||0)+' · '+stSize(x.photo_bytes||0)+'</td>'+
+        '<td class="ltr">'+(x.n_video?x.n_video+' · '+stSize(x.video_bytes||0):'—')+'</td>'+
+        '<td class="ltr"><b>'+stSize(x.total_bytes||0)+'</b></td>'+
+        '<td style="white-space:nowrap"><button type="button" class="ab" data-stopenl="'+x.id+'">'+GX("stOpenListing")+'</button> <a class="ab" href="'+pub+'" target="_blank" rel="noopener" style="text-decoration:none">'+GX("stOpen")+'</a></td></tr>' }).join("")+
+    '</tbody></table></div></div></div>' : '';
   var trashN=(r.trash_paths||[]).length, trashB=+r.trash_bytes||0;
   var trashItems=r.trash_items||[], pubT=CONFIG.supabaseUrl+"/storage/v1/object/public/photos/";
   var trashTable = trashItems.length ? '<div class="stlist" style="margin-bottom:12px">'+
@@ -2959,7 +2990,7 @@ function adminStorageBody(limitBlock){
     (r.top||[]).map(function(f){ var base=String(f.name).split("/").pop(); return '<tr><td class="ltr" style="max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(f.name)+'">'+esc(base)+'</td><td>'+(GX_T["k_"+f.kind]?GX("k_"+f.kind):f.kind)+'</td><td class="ltr"><b>'+stSize(f.bytes)+'</b></td><td class="ltr">'+(f.created||"")+'</td>'+
       '<td style="white-space:nowrap"><a class="ab" href="'+pub+encodeURI(f.name)+'" target="_blank" rel="noopener" style="text-decoration:none">'+GX("stOpen")+'</a>'+(ADM.isSuper?' <button type="button" class="ab bad" data-stdel="'+esc(f.name)+'">'+t("del")+'</button>':'')+'</td></tr>' }).join("")+'</tbody></table></div></div>';
   var tips='<div class="blk" style="margin-top:16px"><h3>'+GX("stTipsH")+'</h3><div class="in"><ul class="sttips"><li>'+GX("stTip1")+'</li><li>'+GX("stTip2")+'</li><li>'+GX("stTip3")+'</li></ul></div></div>';
-  return planCard+usage+limitBlock+kinds+trash+orphans+top+tips;
+  return planCard+usage+limitBlock+kinds+topListings+stale+trash+orphans+top+tips;
 }
 function geoAdminBody(){
   var G=ADM.geo; if(!G) return '<div class="done2"><b>'+t("loading")+'</b></div>';
