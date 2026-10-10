@@ -26,7 +26,7 @@ async function storageRestore(paths){
        if(j && j.error) return {data:null, error:{message:j.error}};
        return {data:{restored:j.restored||[], failed:j.failed||[]}, error:null} }
   catch(e){ return {data:null, error:e} } }
-var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",house:"users",outreach:"users",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super",campaigns:"campaigns"};
+var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",house:"users",outreach:"users",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",types:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super",campaigns:"campaigns"};
 // sidebar groups: one entry in the sidebar, sub-tabs rendered as a segmented bar on the page (the tab bodies stay keyed by the real tab)
 var ADM_GROUPS={inbox:["reports","feedback","tickets","msgs"],promo:["ads","featured","banners","engage"],system:["settings","storage","admins","danger"]};
 function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab)>-1) return g } return null }
@@ -409,6 +409,7 @@ function adminView(){
  else if(ADM.tab==="stats"){ body = adminAnalyticsBody(); }
 
  else if(ADM.tab==="geo"){ body = geoAdminBody(); }
+ else if(ADM.tab==="types"){ body = typesAdminBody(); }
  else if(ADM.tab==="countries"){ body = adminCountriesBody(); }
  else if(ADM.tab==="banners"){ body = hsStudioHtml("banners"); }
  else if(ADM.tab==="contact"){ body = hsStudioHtml("contact"); }
@@ -791,7 +792,7 @@ function adminView(){
    {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["photos",GX("tMedia"),null,AICO.image,can("listings")],["wanted_adm",GX("tWanted"),(ADM.todo||{}).pending_wanted||null,AICO.search,can("listings")],["intake",GX("tIntake"),(ADM.todo||{}).intake_review||null,AICO.contact||AICO.bell,can("listings")]]},
    {g:t("navPeople"), items:[["users",t("usersTab"),(ADM.todo||{}).verify_pending||s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")],["house",GX("tHouse"),null,AICO.users,can("users")],["outreach",GX("tOutreach"),(ADM.out||[]).filter(function(o){ return o.next_at&&new Date(o.next_at)<=new Date()&&o.stage!=="active"&&o.stage!=="declined" }).length||null,AICO.contact,can("users")]]},
    {g:GX("navMarketing"), items:[["promo",GX("tPromo"),null,AICO.ads,true],["projects_adm",GX("tProjects"),null,AICO.building,can("listings")||can("ads")],["campaigns",GX("tCampaigns"),null,AICO.megaphone,can("campaigns")]]},
-   {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")],["system",GX("navSystem"),null,AICO.gear,true]]}
+   {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["types",GX("ptTab"),null,AICO.building,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")],["system",GX("navSystem"),null,AICO.gear,true]]}
  ];
  NAV.forEach(function(g){ g.items.forEach(function(it){ it[4]=canTab(it[0]) }) });   // the sidebar follows the same permission map as every other way into a tab
  ADM._navIndex=admNavIndex(NAV,SUB);
@@ -1559,7 +1560,7 @@ function wireAdmin(){
   wireRewardsCard();
   if($("#pmMaxSave")) $("#pmMaxSave").onclick=async function(){ var n=parseInt(($("#pmMax")||{}).value,10); if(!(n>0)) return; this.disabled=true;
     try{ await saveGlobalExtras({ad_max_squares:n}); admToast(t("savedOk")); ADM._promosLoaded=false; render() }catch(e){ admToast(e.message||"error","bad"); this.disabled=false } };
-  wireGeoAdmin(); wireAdminCountries(); wireAdminCampaigns();
+  wireGeoAdmin(); wireTypesAdmin(); wireAdminCountries(); wireAdminCampaigns();
   if(ADM.tab==="settings" && !ADM._settingsLoaded){
     ADM._settingsLoaded=true;
     rpc("bk_admin_get_settings",{p_token:ADM.token}).then(function(r){
@@ -2988,6 +2989,42 @@ function geoAdminBody(){
        '<span style="display:flex;gap:4px"><button class="ab ok" data-geosave="'+a.id+'">'+GX("save")+'</button>'+(a.listings>0?'':'<button class="ab" data-geodel="'+a.id+'" style="color:var(--danger)">'+GX("del")+'</button>')+'</span>' }).join("")+
      '<input id="geoNewName" placeholder="'+GX("nameAr")+'" style="border-color:var(--gold)"><input id="geoNewEn" placeholder="'+GX("nameEn")+'"><input id="geoNewSlug" placeholder="'+GX("slug")+'" class="ltr">'+kindSel("area","new")+'<input id="geoNewOrder" type="number" value="100" style="width:64px"><span></span><span></span><button class="ab ok" id="geoAdd">'+GX("add")+'</button>'+
    '</div></div></div>';
+}
+/* «أنواع العقارات» (2026-10-11): the live property-type list, edited like the areas table and saved as one JSON array in
+   site_content.extras.property_types (global). The page's applyPropertyTypes() merges it into D.TYPES everywhere;
+   bk_intake_taxonomy reads the same list for the bot; the static generators merge it at build time. */
+var PT_SECS=[["homes","ptSecHomes"],["commercial","ptSecComm"],["land","ptSecLand"]];
+function ptRows(){ if(!ADM.ptRows){ ADM.ptRows=JSON.parse(JSON.stringify((typeof TYPE_ROWS!=="undefined"&&TYPE_ROWS)||typesDefault())) } return ADM.ptRows }
+function typesAdminBody(){
+  var rows=ptRows(), counts={}; ((ADM.data&&ADM.data.listings)||[]).forEach(function(l){ counts[l.property_type]=(counts[l.property_type]||0)+1 });
+  var secSel=function(v,i){ return '<select data-pt="sec:'+i+'">'+PT_SECS.map(function(s){ return '<option value="'+s[0]+'"'+(v===s[0]?' selected':'')+'>'+GX(s[1])+'</option>' }).join("")+'</select>' };
+  var grid='display:grid;grid-template-columns:.8fr 1.2fr 1.1fr 1.1fr 1.1fr .9fr .5fr .4fr .5fr auto;gap:6px 8px;align-items:center;font-size:13.5px';
+  return '<div class="blk"><h3>'+GX("ptH")+'</h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+GX("ptHint")+'</div>'+
+    '<div class="geotable" style="'+grid+'"><b>'+GX("ptCode")+'</b><b>'+GX("nameAr")+'</b><b>'+GX("nameEn")+'</b><b>'+GX("nameDe")+'</b><b>'+GX("nameFr")+'</b><b>'+GX("ptSec")+'</b><b>'+GX("order")+'</b><b>'+GX("shown")+'</b><b>'+GX("listings")+'</b><b></b>'+
+    rows.map(function(r,i){ var builtin=!!(typeof D_TYPES_BASE!=="undefined"&&D_TYPES_BASE[r.code]), n=counts[r.code]||0;
+      return '<span class="ltr" style="color:var(--grey);font-size:12px">'+esc(r.code)+(builtin?'':' <i style="color:var(--gold)">★</i>')+'</span>'+
+        '<input data-pt="ar:'+i+'" value="'+escOnce(r.ar||"")+'"><input data-pt="en:'+i+'" value="'+escOnce(r.en||"")+'"><input data-pt="de:'+i+'" value="'+escOnce(r.de||"")+'"><input data-pt="fr:'+i+'" value="'+escOnce(r.fr||"")+'">'+
+        secSel(r.sec||"homes",i)+'<input data-pt="order:'+i+'" type="number" value="'+(+r.order||0)+'" style="width:64px"><input type="checkbox" data-pt="on:'+i+'"'+(r.on!==false?' checked':'')+'><span class="ltr">'+n+'</span>'+
+        '<span>'+(builtin?'<small style="color:var(--grey)">'+GX("ptBuiltin")+'</small>':(n?'<small style="color:var(--grey)" title="'+GX("ptHasListings")+'">'+GX("ptHasListings")+'</small>':'<button class="ab" data-ptdel="'+i+'" style="color:var(--danger)">'+GX("del")+'</button>'))+'</span>' }).join("")+
+    '<input id="ptNewCode" placeholder="'+GX("ptCode")+'" class="ltr" style="border-color:var(--gold)"><input id="ptNewAr" placeholder="'+GX("nameAr")+'"><input id="ptNewEn" placeholder="'+GX("nameEn")+'"><input id="ptNewDe" placeholder="'+GX("nameDe")+'"><input id="ptNewFr" placeholder="'+GX("nameFr")+'">'+secSel("homes","new")+'<input id="ptNewOrder" type="number" value="'+((rows.length+1)*10)+'" style="width:64px"><span></span><span></span><button class="ab ok" id="ptAdd">'+GX("add")+'</button>'+
+    '</div><div class="xactions" style="margin-top:14px"><button type="button" class="ab ok" id="ptSave">'+GX("ptSave")+'</button><span class="xmsg" id="ptMsg"></span></div></div></div>';
+}
+function wireTypesAdmin(){
+  if(ADM.tab!=="types") return;
+  var rows=ptRows(), msg=function(s,bad){ var m=$("#ptMsg"); if(m){ m.textContent=s; m.style.color=bad?"var(--danger)":"var(--ok)" } };
+  var read=function(){ $$("[data-pt]").forEach(function(el){ var p=el.dataset.pt.split(":"), k=p[0], i=+p[1]; if(!rows[i]) return; rows[i][k]= el.type==="checkbox" ? el.checked : (k==="order" ? (+el.value||0) : el.value) }) };
+  $$("[data-pt]").forEach(function(el){ el.onchange=read });
+  var codeOk=function(c){ return /^[a-z][a-z0-9_]{1,23}$/.test(c) && !rows.some(function(r){ return r.code===c }) };
+  if($("#ptAdd")) $("#ptAdd").onclick=function(){ read(); var code=($("#ptNewCode").value||"").trim().toLowerCase(), ar=($("#ptNewAr").value||"").trim();
+    if(!codeOk(code)) return msg(GX("ptCodeBad"),true); if(!ar) return msg(GX("ptArBad"),true);
+    rows.push({code:code,ar:ar,en:$("#ptNewEn").value.trim(),de:$("#ptNewDe").value.trim(),fr:$("#ptNewFr").value.trim(),sec:$('[data-pt="sec:new"]').value,order:+$("#ptNewOrder").value||((rows.length+1)*10),on:true}); render() };
+  $$("[data-ptdel]").forEach(function(b){ b.onclick=function(){ read(); if(!confirm(GX("confirmDel"))) return; rows.splice(+this.dataset.ptdel,1); render() } });
+  if($("#ptSave")) $("#ptSave").onclick=async function(){ read();
+    var bad=rows.filter(function(r){ return r.on!==false && !String(r.ar||"").trim() }); if(bad.length) return msg(GX("ptArBad"),true);
+    var clean=rows.map(function(r){ return {code:r.code,ar:String(r.ar||"").trim(),en:String(r.en||"").trim(),de:String(r.de||"").trim(),fr:String(r.fr||"").trim(),sec:PT_SECS.some(function(s){ return s[0]===r.sec })?r.sec:"homes",order:+r.order||0,on:r.on!==false} })
+      .sort(function(a,b){ return a.order-b.order });
+    this.disabled=true; try{ await saveGlobalExtras({property_types:clean}); try{ var cur=SITE.extras; if(typeof cur==="string"){ try{ cur=JSON.parse(cur) }catch(e){ cur={} } } SITE.extras=Object.assign({},cur||{},{property_types:clean}); localStorage.setItem(siteCacheKey(),JSON.stringify(SITE)) }catch(e){}
+      try{ applyPropertyTypes() }catch(e){} ADM.ptRows=null; admToast(t("savedOk")); render() }catch(e){ this.disabled=false; msg(e.message||"error",true) } };
 }
 // "مناطق مقترحة": places found by the OpenStreetMap import or named by senders in the bot, waiting for the admin's yes.
 // Shown ABOVE the (long) areas table of the chosen governorate, so it is the first thing seen after picking one.

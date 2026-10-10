@@ -49,9 +49,17 @@ const LANGS = { ar: { dir: "rtl", prefix: "", og: "ar_SY" }, en: { dir: "ltr", p
 
 // TYPE_AR feeds the Arabic folder slug. Do NOT rename existing keys or values
 // here — that would move every already-indexed URL.
-const TYPE_AR = { apartment:"شقة", terrace:"تراس", arab:"بيت عربي", villa:"فيلا", floor:"طابق كامل", building:"بناء كامل", shop:"محل تجاري", office:"مكتب", resid:"أرض سكنية", agri:"أرض زراعية", comm:"أرض تجارية" };
-const TYPE_ICON = { apartment:"🏢", arab:"🏛️", villa:"🏡", floor:"🏢", building:"🏬", chalet:"🏖️", farm:"🌾", shop:"🏪", office:"🏢", land:"🗺️", restaurant:"🍽️", warehouse:"🏭", factory:"🏭", resid:"🗺️", agri:"🌱", comm:"🗺️", hotelapt:"🛎️", terrace:"🌇", clinic:"🩺", hotel:"🏨", indust:"🏗️", tourist:"⛰️", house:"🏠", plot:"🗺️", hall:"🎉", showroom:"🖼️", station:"⛽", workshop:"🔧" };
+const TYPE_AR = { apartment:"شقة", terrace:"تراس", arab:"بيت عربي", villa:"فيلا", duplex:"دوبلكس", floor:"طابق كامل", building:"بناء كامل", shop:"محل تجاري", office:"مكتب", resid:"أرض سكنية", agri:"أرض زراعية", comm:"أرض تجارية" };
+const TYPE_ICON = { apartment:"🏢", arab:"🏛️", villa:"🏡", duplex:"🏘️", floor:"🏢", building:"🏬", chalet:"🏖️", farm:"🌾", shop:"🏪", office:"🏢", land:"🗺️", restaurant:"🍽️", warehouse:"🏭", factory:"🏭", resid:"🗺️", agri:"🌱", comm:"🗺️", hotelapt:"🛎️", terrace:"🌇", clinic:"🩺", hotel:"🏨", indust:"🏗️", tourist:"⛰️", house:"🏠", plot:"🗺️", hall:"🎉", showroom:"🖼️", station:"⛽", workshop:"🔧" };
 const typeName = (k, lang) => (D.TYPES[k] ? D.TYPES[k][LI[lang]] : (TYPE_AR[k] || k));
+// site_content.extras.property_types (admin tab «أنواع العقارات»): [{code, ar, en, de, fr, sec, order, on}] — labels win
+// over the built-ins, a new code is added. Slug words (TYPE_AR) never change for existing keys; a new code gets its Arabic name.
+function mergePropertyTypes(rows) {
+  if (!Array.isArray(rows)) return;
+  for (const r of rows) { const k = String(r.code || "").trim(); if (!k || r.on === false) continue; const b = D.TYPES[k] || [];
+    D.TYPES[k] = [r.ar || b[0] || k, r.en || b[1] || r.ar || k, r.de || b[2] || r.en || r.ar || k];
+    if (!TYPE_AR[k]) TYPE_AR[k] = r.ar || k; }
+}
 const tabuName = (k, lang) => (D.TABU[k] ? D.TABU[k][LI[lang]] : (k === "none" ? { ar: "بدون طابو", en: "No deed", de: "Kein Grundbuch" }[lang] : k));
 const condName = (k, lang) => (D.COND[k] ? D.COND[k][LI[lang]] : (D.LANDC && D.LANDC[k] ? D.LANDC[k][LI[lang]] : k));
 const DIR = { s:["قبلي (جنوبي)","South","Süd"], n:["شمالي","North","Nord"], e:["شرقي","East","Ost"], w:["غربي","West","West"], se:["قبلي شرقي","South-east","Südost"], sw:["قبلي غربي","South-west","Südwest"], ne:["شمالي شرقي","North-east","Nordost"], nw:["شمالي غربي","North-west","Nordwest"] };
@@ -366,6 +374,9 @@ async function main() {
   } catch (e) { console.error("Fetch failed:", e.message); process.exit(1); }
   govById = new Map(govs.map((g) => [g.id, g])); areaById = new Map(areas.map((a) => [a.id, a]));
   console.log(`Found ${listings.length} live listing(s).`);
+  // the admin's live property-type list (renames + types added from the admin) on top of the page's built-in table
+  try { const ex = (await sb("site_content?select=extras&id=eq.1&limit=1"))[0]; mergePropertyTypes((ex && ex.extras && ex.extras.property_types) || null); }
+  catch (e) { console.warn("property types unreadable, built-ins only:", e.message); }
   let countries = [];
   try { countries = await sb("countries?select=code,name_ar,name_en,name_de,enabled,is_default&order=sort_order.asc"); if (!Array.isArray(countries) || !countries.length) throw new Error("empty list"); }
   catch (e) { console.warn("countries unreadable, Syria only:", e.message); countries = [{ code: "SY", name_ar: "سوريا", name_en: "Syria", name_de: "Syrien", enabled: true, is_default: true }]; }

@@ -104,7 +104,7 @@ const LANGS = {
 };
 const typeName = (k, lang) => (D.TYPES[k] ? D.TYPES[k][LI[lang]] : k);
 const tabuName = (k, lang) => (D.TABU[k] ? D.TABU[k][LI[lang]] : k);
-const TYPE_PL_AR = { apartment:"شقق", arab:"بيوت عربية", villa:"فلل", floor:"طوابق", building:"أبنية", chalet:"شاليهات", farm:"مزارع",
+const TYPE_PL_AR = { apartment:"شقق", arab:"بيوت عربية", villa:"فلل", duplex:"دوبلكسات", floor:"طوابق", building:"أبنية", chalet:"شاليهات", farm:"مزارع",
   shop:"محلات", office:"مكاتب", restaurant:"مطاعم", warehouse:"مستودعات", factory:"معامل", resid:"أراضٍ سكنية", agri:"أراضٍ زراعية", comm:"أراضٍ تجارية", land:"أراضٍ",
   hotelapt:"شقق مفروشة فندقية", clinic:"عيادات", hotel:"فنادق ومنشآت سياحية", indust:"أراضٍ صناعية", tourist:"أراضٍ سياحية",
   house:"منازل", terrace:"تراسات", plot:"أراضٍ", hall:"صالات أفراح ومناسبات", showroom:"صالات عرض", station:"محطات وقود", workshop:"ورش" };
@@ -190,7 +190,7 @@ const appHome = (lang) => lang === "ar" ? SITE + cpre() + "/" : `${SITE}${cpre()
 const slugLatin = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-").slice(0, 60);
 const slugAr = (s) => String(s || "").replace(/[^\p{L}\p{N}\s-]/gu, "").trim().replace(/\s+/g, "-").slice(0, 60);
 // listing page URL per language: must match generate-listings.mjs exactly
-const TYPE_AR_SLUG = { apartment:"شقة", terrace:"تراس", arab:"بيت عربي", villa:"فيلا", floor:"طابق كامل", building:"بناء كامل", shop:"محل تجاري", office:"مكتب", resid:"أرض سكنية", agri:"أرض زراعية", comm:"أرض تجارية" };
+const TYPE_AR_SLUG = { apartment:"شقة", terrace:"تراس", arab:"بيت عربي", villa:"فيلا", duplex:"دوبلكس", floor:"طابق كامل", building:"بناء كامل", shop:"محل تجاري", office:"مكتب", resid:"أرض سكنية", agri:"أرض زراعية", comm:"أرض تجارية" };
 let govById = new Map(), areaById = new Map();
 function listingUrl(l, lang) {
   if (lang === "ar") return `${SITE}${cpre()}/listing/${l.id}-${slugAr((TYPE_AR_SLUG[l.property_type] || l.property_type) + " " + (l.area_ar || "") + " " + l.governorate_ar)}/`;
@@ -599,6 +599,9 @@ async function main() {
     let site = null, legalExtras = {};
     try { site = (await sb(`site_content?select=phone_number,wa_number,email_address,fb_url,fb_name,ig_url,ig_name,yt_url,yt_name,tiktok_url,tiktok_name&country_code=eq.${c.code}&limit=1`))[0]; } catch (e) { console.warn("site_content unreadable:", e.message); }
     try { const ex = (await sb(`site_content?select=extras&id=eq.1&limit=1`))[0]; legalExtras = (ex && ex.extras) || {}; } catch (e) { console.warn("site_content extras unreadable:", e.message); }
+    // the admin's live property-type list (renames + types added from the admin) on top of the page's built-in table
+    if (Array.isArray(legalExtras.property_types)) for (const r of legalExtras.property_types) { const k = String(r.code || "").trim(); if (!k || r.on === false) continue; const b = D.TYPES[k] || [];
+      D.TYPES[k] = [r.ar || b[0] || k, r.en || b[1] || r.ar || k, r.de || b[2] || r.en || r.ar || k]; if (!TYPE_PL_AR[k]) TYPE_PL_AR[k] = r.ar || k; if (!TYPE_AR_SLUG[k]) TYPE_AR_SLUG[k] = r.ar || k; }
 
     const urls = [];
     for (const lang of ["ar", "en", "de"]) {
