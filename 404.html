@@ -6723,8 +6723,10 @@ function adSlotsRow(){
   // one, two or three squares: a still, centred row — the endless wheel only makes sense with more than fit at once
   // still when every square fits the screen width side by side (phone: 1–2 squares, desktop: up to ~8), glide otherwise
   var sqW = (function(){ try{ var m=matchMedia("(max-width:700px)").matches; var v=getComputedStyle(document.documentElement).getPropertyValue(m?"--ad-size-set-m":"--ad-size-set").trim(); return parseFloat(v)||(m?Math.min(sqSize,130):sqSize) }catch(e){ return sqSize } })();
-  var few = slots.length < 4 || slots.length*(sqW+10)-10 <= (window.innerWidth||1024)-28;
-  if(slots.length===3 && slots.length*(sqW+10)-10 > (window.innerWidth||1024)-28) few=false;
+  var fits = slots.length*(sqW+10)-10 <= (window.innerWidth||1024)-28;
+  // owner's rule (2026-10-11): the squares keep gliding even when they all fit on a wide screen — "few" (a static,
+  // centred row) is only for one or two squares, or when the studio switch «تحريك دائم» is off and they fit
+  var few = slots.length < 3 || (SX("ad_glide_always",true)===false && fits);
   var anyPaid = slots.some(function(a){ return !a.featured });
   // the carousel only actually needs to rotate/scroll if there are
   // more ads than comfortably fit — but the arrows and track markup

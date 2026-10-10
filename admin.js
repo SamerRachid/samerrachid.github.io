@@ -2202,7 +2202,7 @@ var HS_T={
  f_areasNum:{ar:"رقم عدد المناطق",en:"Areas number",de:"Anzahl Gebiete"}, f_listNum:{ar:"رقم عدد الإعلانات",en:"Listings number",de:"Anzahl Anzeigen"}, f_stats1:{ar:"العبارة الأولى",en:"First phrase",de:"Erste Phrase"}, f_stats2:{ar:"العبارة الثانية",en:"Second phrase",de:"Zweite Phrase"},
  f_adsOn:{ar:"إظهار صف المربعات تحت شريط البحث",en:"Show the ad row under the search bar",de:"Werbereihe unter der Suchleiste zeigen"}, f_adsTitle:{ar:"عنوان الصف",en:"Row title",de:"Titel der Reihe"}, f_adsSponsored:{ar:"كلمة «إعلان مدفوع»",en:"“Sponsored” word",de:"Wort „Gesponsert“"},
  f_adsTitleOn:{ar:"إظهار عنوان الصف",en:"Show the row title",de:"Titel der Reihe zeigen"}, f_adsSponsoredOn:{ar:"إظهار كلمة «إعلان مدفوع» (تظهر فقط مع مربع مدفوع)",en:"Show the “Sponsored” word (only when a paid square is present)",de:"Wort „Gesponsert“ zeigen (nur bei bezahlter Kachel)"},
- f_adSize:{ar:"حجم المربع (px)",en:"Square size (px)",de:"Kachelgröße (px)"}, f_adGap:{ar:"موضع الصف رأسياً",en:"Row vertical position",de:"Vertikale Position der Reihe"}, f_adGlide:{ar:"ثوانٍ لكل مربع",en:"Seconds per square",de:"Sekunden pro Kachel"},
+ f_adSize:{ar:"حجم المربع (px)",en:"Square size (px)",de:"Kachelgröße (px)"}, f_adGap:{ar:"موضع الصف رأسياً",en:"Row vertical position",de:"Vertikale Position der Reihe"}, f_adGlide:{ar:"ثوانٍ لكل مربع",en:"Seconds per square",de:"Sekunden pro Kachel"}, f_adGlideAlways:{ar:"تحريك دائم حتى لو اتّسعت المربّعات كلها",en:"Always glide, even when all squares fit",de:"Immer rotieren, auch wenn alle Kacheln passen"},
  go_ads:{ar:"كل إعدادات المربعات والإعلانات",en:"All ad square settings",de:"Alle Kachel-Einstellungen"}, go_banners:{ar:"إدارة البانرات",en:"Manage banners",de:"Banner verwalten"}, go_featured:{ar:"إدارة المميز والمكافأة",en:"Manage featured and the reward",de:"Hervorhebungen und Belohnung verwalten"},
  bannersHint:{ar:"البانرات الثلاثة ومحتواها تُدار في صفحة البانرات. هنا فقط تُظهر أو تُخفي شريط البانرات من الصفحة الرئيسية.",en:"The three banners and their content live on the Banners page. Here you only show or hide the banner strip on the homepage.",de:"Die drei Banner werden auf der Banner-Seite verwaltet. Hier nur Ein-/Ausblenden auf der Startseite."},
  f_eyebrow:{ar:"السطر الصغير فوق العنوان",en:"Small line above the title",de:"Kleine Zeile über dem Titel"}, f_h:{ar:"العنوان",en:"Title",de:"Titel"}, f_sub:{ar:"الوصف",en:"Description",de:"Beschreibung"},
@@ -2298,6 +2298,7 @@ function hsInspAds(){
       fDual(hsT("f_adSize"),"c:ad_square_size","x:ad_square_size_m",90,260,5,true), fHint(GX("adSizeHint")),
       fSlider(hsT("f_adGap"),"c:ad_carousel_gap","x:ad_carousel_gap_m",-240,80,2,"px",0),
       '<div class="row">'+fNum(hsT("f_adGlide"),"x:ad_glide_seconds",1,15,0.5,3.5,true)+fNum(GX("xAdVideoMax"),"x:ad_video_max_mb",1,100,1,8)+'</div>',
+      fSwitch(hsT("f_adGlideAlways"),"x:ad_glide_always",true,true),
       '<div class="row">'+fNum(hsT("f_adMax"),"x:ad_max_squares",1,40,1,15)+'</div>', fHint(GX("pmHint").replace("{m}",+hsVal("x:ad_max_squares")||15)));
   } else if(sd==="look"){
     H.push(fGrp(GX("adColorsSub")), '<div class="row">'+fColor(t("adTextColorL"),"c:ad_text_color","#ffffff")+fColor(t("adShadeColorL"),"c:ad_shade_color","#090e1a")+'</div>', fSlider(GX("adShadeOpL"),"x:ad_shade_opacity",null,0,100,5,"%",100,true), fHint(GX("adShadeOpHint")),
