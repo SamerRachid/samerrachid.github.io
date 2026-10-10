@@ -104,5 +104,14 @@ export async function renderOgCard({ coverUrl, title, place, price, dealLabel, i
   ctx.fillStyle = gold; ctx.font = "800 19px Kufi"; ctx.fillText("ببلاش · بلا عمولة", W - pad, fy);
   ctx.fillStyle = "#fff"; ctx.font = "700 19px Kufi"; ctx.direction = "ltr"; ctx.textAlign = "left"; ctx.fillText("balkoun.com", pad, fy); ctx.direction = "rtl"; ctx.textAlign = "right";
 
-  return { buffer: c.toBuffer("image/jpeg", 0.92), width: OG_WIDTH, height: OG_HEIGHT };
+  // PNG, not JPEG: @napi-rs/canvas 1.0.10's bundled JPEG encoder silently corrupts this exact image — large
+  // patches of the photo (never the solid-color panel/text) decode back as flat grayscale (R=G=B) after
+  // toBuffer("image/jpeg", ...), independent of the quality value (0.5 through 1 all produced the identical
+  // byte count, another sign the encoder itself is broken, not the input). Confirmed live: Facebook's share
+  // preview showed a grayscale cover photo with a normally-colored navy/gold text panel next to it — exactly
+  // what a photo-only corruption looks like. getImageData() right before encoding is correct every time; only
+  // the JPEG round-trip loses color, and PNG (lossless, no chroma subsampling to misencode) doesn't exhibit it
+  // at any canvas size or image dimension tried. Costs ~1MB instead of ~25KB per card, fetched once by a link-
+  // preview crawler rather than by every visitor, so the trade is worth it over a corrupted share image.
+  return { buffer: c.toBuffer("image/png"), width: OG_WIDTH, height: OG_HEIGHT };
 }

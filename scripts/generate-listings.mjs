@@ -22,7 +22,7 @@ import { renderOgCard, OG_WIDTH, OG_HEIGHT } from "./generate-og.mjs";
 
 const SUPABASE_URL = "https://coajrqynjrptujmzjjdh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"; // public anon key — safe, RLS restricts it to live listings
-// service-role key, GitHub Actions secret only (never hardcoded): the og-share.jpg upload is the one write this
+// service-role key, GitHub Actions secret only (never hardcoded): the og-share.png upload is the one write this
 // script does, and writing it with the public key would mean anyone holding that same public key could overwrite
 // any listing's share image. The storage policy no longer grants anon/authenticated write on that path — only this
 // key (which bypasses RLS) can.
@@ -88,9 +88,9 @@ const jsonForScript = (obj) => JSON.stringify(obj).replace(/</g, "\\u003c");
 // asset, not just this one — and crawlers like Facebook's DO send Range requests, so the "page" they rendered
 // was a cut-off, garbled JPEG. Supabase Storage (already hosting every listing photo) handles Range correctly.
 // Skipped once the object exists — a listing's price/photo changing later won't regenerate it; delete the
-// object in Storage (folder photos/listings/<id>/og-share.jpg) to force a refresh.
+// object in Storage (folder photos/listings/<id>/og-share.png) to force a refresh.
 async function ogImageFor(l, photos) {
-  const objPath = `listings/${l.id}/og-share.jpg`, publicPath = `${SUPABASE_URL}/storage/v1/object/public/photos/photos/${objPath}`;
+  const objPath = `listings/${l.id}/og-share.png`, publicPath = `${SUPABASE_URL}/storage/v1/object/public/photos/photos/${objPath}`;
   if (!process.env.OG_FORCE_REGEN) { try { const head = await fetch(publicPath, { method: "HEAD" }); if (head.ok) return publicPath; } catch (e) {} }
   const cover = photos[0] || l.cover_url || null;
   if (!cover) return null;
@@ -106,9 +106,9 @@ async function ogImageFor(l, photos) {
       price: l.price_usd == null ? POR.ar : money(l.price_usd), dealLabel, isRent, periodLabel, deed,
       areaTxt: sizeTxt, roomsTxt: has(l.rooms) ? `${l.rooms} غرف` : "",
     });
-    if (!SUPABASE_SERVICE_KEY) throw new Error("SUPABASE_SERVICE_ROLE_KEY is not set — og-share.jpg upload needs the service-role key, the public key no longer has write access");
+    if (!SUPABASE_SERVICE_KEY) throw new Error("SUPABASE_SERVICE_ROLE_KEY is not set — og-share.png upload needs the service-role key, the public key no longer has write access");
     const up = await fetch(`${SUPABASE_URL}/storage/v1/object/photos/photos/${objPath}`, {
-      method: "POST", headers: { apikey: SUPABASE_SERVICE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`, "Content-Type": "image/jpeg", "x-upsert": "true" }, body: og.buffer,
+      method: "POST", headers: { apikey: SUPABASE_SERVICE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_KEY}`, "Content-Type": "image/png", "x-upsert": "true" }, body: og.buffer,
     });
     if (!up.ok) throw new Error(`upload ${up.status}: ${await up.text()}`);
     return publicPath;
