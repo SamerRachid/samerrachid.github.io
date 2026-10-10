@@ -9402,6 +9402,8 @@ async function loadSiteContent(){
     if(!r.error && r.data && r.data.length){
       SITE = escDeep(r.data[0]);
       try{ localStorage.setItem(siteCacheKey(), JSON.stringify(SITE)) }catch(e){}
+      // geography changed in the admin since this visitor last downloaded it → refetch now, not in 24 h
+      try{ var gc=JSON.parse(localStorage.getItem(geoCacheKey())||"null"), gv=SX("geo_v"); if(gv && (!gc || String(gc._v)!==String(gv))) loadGeo(true).then(function(){ render() }) }catch(e){}
       applyCardSizeVar();
       applyBannerSizeVar();
       applySectionGapVars();
@@ -12200,19 +12202,24 @@ function applyGeo(geo){
 }
 function govAlias(name){ var m=GEO_META&&GEO_META.merged; return (m&&m[name])||name }
 function applyGeoCache(){ try{ var c=localStorage.getItem(geoCacheKey()); if(c) applyGeo(JSON.parse(c)) }catch(e){} }
-var GEO_MAX_AGE_MS = 24*3600000;   // governorates/areas change only through an admin edit, which already force-reloads itself
+var GEO_MAX_AGE_MS = 24*3600000;   // safety net only — an admin edit bumps extras.geo_v (DB trigger bk_geo_touch), which is what actually invalidates the cache
+var _geoReq=null;
 async function loadGeo(force){
   if(!DB) return;
   // applyGeoCache() already hydrated D.GEO synchronously at boot from the same cache this reads, so skipping
-  // the network call here never means stale data on screen for longer than GEO_MAX_AGE_MS — it only means not
-  // re-downloading the whole ~400 KB governorate/area payload on every page load and every tab-focus/pageshow
+  // the network call here never means stale data on screen — the cache carries the geo_v stamp it was fetched
+  // under (_v) and is dropped the moment site_content says the geography changed; the age cap is a fallback.
   if(!force){
     try{
-      var c=JSON.parse(localStorage.getItem(geoCacheKey())||"null");
-      if(c && c._at && Date.now()-c._at < GEO_MAX_AGE_MS) return;
+      var c=JSON.parse(localStorage.getItem(geoCacheKey())||"null"), gv=SX("geo_v");
+      if(c && c._at && Date.now()-c._at < GEO_MAX_AGE_MS && (!gv || String(c._v)===String(gv))) return;
     }catch(e){}
   }
-  try{ var r=await DB.rpc("bk_geo",cArgs()); if(r&&r.data&&r.data.g&&r.data.g.length){ applyGeo(r.data); try{ r.data._at=Date.now(); localStorage.setItem(geoCacheKey(), JSON.stringify(r.data)) }catch(e){} } }catch(e){}
+  if(_geoReq) return _geoReq;   // boot and loadSiteContent() can both ask at once — one download
+  _geoReq=(async function(){
+    try{ var r=await DB.rpc("bk_geo",cArgs()); if(r&&r.data&&r.data.g&&r.data.g.length){ applyGeo(r.data); try{ r.data._at=Date.now(); r.data._v=SX("geo_v")||null; localStorage.setItem(geoCacheKey(), JSON.stringify(r.data)) }catch(e){} } }catch(e){}
+  })();
+  try{ await _geoReq } finally{ _geoReq=null }
 }
 function geoKind(gov, area){ return (GEO_META.kind[gov]||{})[area]||"area" }
 function cPre(){ return COUNTRY==="SY" ? "" : "/"+COUNTRY.toLowerCase() }   // static pages of another country live under /lb/, /jo/ …
