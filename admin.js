@@ -648,40 +648,7 @@ function adminView(){
  else if(ADM.tab==="agencies_adm"){ body = adminAgenciesBody(); }
  else if(ADM.tab==="projects_adm"){ body = adminProjectsBody(); }
  else if(ADM.tab==="wanted_adm"){ body = adminWantedBody(); }
- else if(ADM.tab==="featured"){
-  var flist = ADM.featuredList||[];
-  var now = new Date();
-  body = '<div class="blk"><h3>'+t("featureNewH")+'</h3><div class="in">'+
-   '<div class="fl"><label>'+t("adPickListingL")+'</label>'+
-    '<div class="chipsel"><div class="chipsel-box">'+
-     '<input class="chipsel-input" id="ftListingSearch" autocomplete="off" placeholder="'+t("adSearchListingPH")+'">'+
-    '</div><div class="chipsel-drop" id="ftListingDrop"></div></div>'+
-    '<input type="hidden" id="ftListing" value="">'+
-   '</div>'+
-   '<div class="row">'+
-    '<div class="fl"><label>'+t("featureStartL")+'</label><input type="date" id="ftFrom" value="'+now.toISOString().slice(0,10)+'"></div>'+
-    '<div class="fl"><label>'+t("featureDaysL")+'</label><input type="number" id="ftDays" min="1" value="7"></div>'+
-   '</div>'+
-   '<button class="ab ok" id="ftSave">'+t("featureBtn")+'</button>'+
-   '<span id="ftMsg" style="font-size:12.5px;color:var(--danger);margin-inline-start:8px"></span>'+
-   (ADM._featCode?'<div class="ecodebox">'+GX("engCodeIs")+' <b class="ltr" data-ecopy="'+escOnce(ADM._featCode)+'">'+escOnce(ADM._featCode)+'</b> <button type="button" class="ab" data-ecopy="'+escOnce(ADM._featCode)+'">'+GX("engCopy")+'</button></div>':'')+
-  '</div></div>'+
-  '<div class="blk" style="margin-top:16px"><h3>'+t("featuredListH")+'</h3><div class="in">'+
-   (flist.length ? '<div class="atable"><table><thead><tr><th>BK</th><th>'+t("postedBy")+'</th><th>'+t("featureStartL")+'</th><th>'+t("featureEndL")+'</th><th>'+t("status")+'</th><th></th></tr></thead><tbody>'+
-     flist.map(function(f){
-       var from=new Date(f.featured_from), until=new Date(f.featured_until);
-       var isActive = now>=from && now<=until;
-       var isExpired = now>until;
-       var statusClass = isActive?"live":isExpired?"expired":"pending";
-       var statusText = isActive?t("featureActiveNow"):isExpired?t("featureExpired"):t("featureScheduled");
-       return '<tr><td class="ltr">'+scopeFlag(f.country_code)+(f.ref||f.id)+'</td><td>'+(f.poster_name||'—')+(f.featured_source==="reward"?' <span class="chip gold">★ '+GX("rwSrcReward")+'</span>':'')+(f.status&&f.status!=="live"?' <span class="chip" style="color:var(--warn)">'+GX("featPendingTag")+'</span>':'')+'</td>'+
-        '<td class="ltr">'+from.toLocaleDateString()+'</td><td class="ltr">'+(f.featured_source==="reward"?until.toLocaleString():until.toLocaleDateString())+'</td>'+
-        '<td><span class="st st-'+statusClass+'">'+statusText+'</span></td>'+
-        '<td><button class="ab bad" data-unfeat="'+f.id+'">'+t("unfeature")+'</button></td></tr>'}).join("")+
-     '</tbody></table></div>'
-    : '<div class="done2"><b>'+t("noFeatured")+'</b></div>')+
-  '</div></div>'+admRewardsCard();
- }
+ else if(ADM.tab==="featured"){ body = adminPromoBody(); }
 
  else if(ADM.tab==="danger"){
   body = '<div class="done2" style="margin-bottom:14px;text-align:start"><b>'+GX("dzScopeNote").replace("{c}", ADM.scope==="ALL"?GX("cAll"):esc(countryName(countryOf(COUNTRY)||{})))+'</b></div>'+
@@ -815,7 +782,7 @@ function adminView(){
  // sub-tabs of the grouped sidebar entries: [label, badge]
  var openTk=(ADM.tickets||[]).filter(function(x){ return x.status!=="done" }).length;
  var SUB={reports:[t("reportsTab"),s.openReports],feedback:[t("feedbackTab"),s.openFeedback],tickets:[GX("ticketsTab"),openTk],msgs:[t("msgsNotifTab"),ADM.alertsUnread],
-          ads:[t("adsTab"),null],featured:[t("featuredTab"),null],banners:[GX("tBanners"),null],engage:[GX("tEngage"),null],
+          ads:[t("adsTab"),null],featured:[GX("tPromote"),null],banners:[GX("tBanners"),null],engage:[GX("tEngage"),null],
           settings:[GX("tSystem"),null],storage:[GX("tStorage"),null],admins:[t("adminsTab"),null],danger:[t("dangerTab"),null]};
  var inboxN=(+s.openReports||0)+(+s.openFeedback||0)+openTk+(+ADM.alertsUnread||0);
  var NAV=[
@@ -848,7 +815,7 @@ function adminView(){
     '<button class="adm-me" id="aMyAccount" title="'+t("myAdminAccount")+'"><span class="ava2">'+initial+'</span><span class="adm-me-n">'+(ADM.meName||"")+'</span>'+(ADM.isSuper?'<i class="adm-super">'+t("superAdmin")+'</i>':'')+'</button>'+
     '<button class="ab" id="adOut" title="'+t("logout")+'">'+AICO.out+'<span>'+t("logout")+'</span></button>'+
    '</div></header>'+
-  (ADM.myAccountOpen ? adminMeCard() : '')+
+  (ADM.myAccountOpen ? adminMeCard() : '')+(ADM.pm ? admPmHtml() : '')+
   '<div class="ashell">'+
    '<nav class="asidebar" id="aSidebar">'+NAV.map(function(g){ return sec(g.g, g.items.map(function(it){ return it[4] ? tab(it[0],it[1],it[2],it[3]) : "" }), g.items[0][0], g.items.some(function(it){ return it[0]===ADM.tab })) }).join("")+'</nav>'+
    '<main class="acontent">'+(ADM.token&&!ADM.data?'<div class="aloading">'+t("loading")+'</div>':'')+'<div class="apage-h"><div>'+'<div class="apage-crumb">'+curGroup+(ADM.scope==="ALL"?(curGroup?' · ':'')+'🌍 '+GX("cAll")+'</div>':COUNTRY!=="SY"?(curGroup?' · ':'')+flagOf(COUNTRY)+' '+esc(countryName(countryOf(COUNTRY)))+'</div>':'</div>')+'<h1>'+curLabel+'</h1>'+
@@ -957,7 +924,7 @@ function adminAgenciesBody(){
       '<thead><tr><th>'+GX("agColAgency")+'</th><th>'+GX("agColCoverage")+'</th><th>'+t("liveAds")+'</th><th>'+t("status")+'</th><th>'+GX("tIntake")+'</th><th>'+GX("colDate")+'</th></tr></thead>'+
       '<tbody>'+(rows||'<tr><td colspan="6" class="lnone">'+GX("lfNone")+'</td></tr>')+'</tbody></table></div>'+drawer+'</div>' }
 async function adminLoad(){
-  ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._anLoaded=false; ADM._uactLoaded=false; ADM._lstatsLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._featuredListLoaded=false;
+  ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._anLoaded=false; ADM._uactLoaded=false; ADM._lstatsLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._promosLoaded=false;
   ADM._storageUsageLoaded=false;
   ["_adminsLoaded","_agLoaded","_geoLoaded","_ikLoaded","_meLoaded","_mediaUsedLoaded","_photosLoaded","_pjLoaded","_ticketsLoaded","_vfLoaded","_wLoaded"].forEach(function(k){ ADM[k]=false }); ADM._mediaLoadedCats={};   // every page re-fetches on refresh, not only the shared data
   ADM.dangerUnlocked=false;
@@ -1023,6 +990,97 @@ function wireRewardsCard(){
   $$("[data-rwrevoke]").forEach(function(b){ b.onclick=adjust(b.dataset.rwrevoke,b.dataset.name||"",-1) });
 }
 function saveGlobalExtras(patch){ return rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:patch},p_country:"SY"}).then(function(){ if(ADM.data){ ADM.data.gx=Object.assign({},ADM.data.gx||{},patch) } }) }
+
+/* ── «الترويج» (2026-10-11): one place for every placement an admin gives a listing. A listing is promoted in two
+   independent spots — the top of the search results (listings.featured_*) and a square in the home-page strip (a
+   linked ad_slots row, capped by extras.ad_max_squares) — ticked together or separately in one dialog, opened from
+   this tab's picker / table or from the «⭐ ترويج» button in the listing drawer. The member's free reward (top of
+   search for N hours) can be spent on his behalf from the same dialog, so it shows as used on his side. ── */
+function pmState(from,until,active){ var now=new Date(); if(!until) return '<span class="st st-expired">'+GX("pmNone")+'</span>'; var f=from?new Date(from):null, u=new Date(until);
+  if(active) return '<span class="st st-live">'+GX("pmActiveUntil").replace("{d}",u.toLocaleString())+'</span>';
+  if(u<now) return '<span class="st st-expired">'+GX("pmExpired").replace("{d}",u.toLocaleDateString())+'</span>';
+  return '<span class="st st-pending">'+GX("pmScheduled").replace("{a}",f?f.toLocaleDateString():"").replace("{b}",u.toLocaleDateString())+'</span>' }
+function pmErr(e){ var m=String((e&&e.message)||e||"error"); var k=(m.match(/max_squares|nocredit|notlive|nothing|baddays|nouser|active/)||[])[0]; return k&&GX_T["pmErr_"+k]?GX("pmErr_"+k):m }
+function adminPromoBody(){
+  var P=ADM.promos, rows=(P&&P.rows)||[], sq=(P&&P.squares)||{used:0,max:+GSX("ad_max_squares",15)||15};
+  return '<div class="blk"><h3>⭐ '+GX("pmH")+'</h3><div class="in">'+
+    '<div class="hintx" style="margin-bottom:10px">'+GX("pmHint").replace("{m}",sq.max)+'</div>'+
+    '<div class="fl"><label>'+t("adPickListingL")+'</label><div class="chipsel"><div class="chipsel-box"><input class="chipsel-input" id="ftListingSearch" autocomplete="off" placeholder="'+GX("pmPick")+'"></div><div class="chipsel-drop" id="ftListingDrop"></div></div><input type="hidden" id="ftListing" value=""></div>'+
+    '<div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap"><div class="fl" style="margin:0"><label>'+GX("pmSquaresMax")+'</label><input type="number" id="pmMax" min="1" max="40" value="'+esc(String(GSX("ad_max_squares",15)))+'" style="width:90px" data-allow-autofill></div><button type="button" class="ab" id="pmMaxSave">'+t("save")+'</button>'+
+      '<span style="font-size:13px;padding-bottom:8px">'+GX("pmSquares").replace("{u}",'<b class="ltr">'+(sq.used||0)+'</b>').replace("{m}",'<b class="ltr">'+sq.max+'</b>')+(sq.custom?' · '+GX("pmCustomN").replace("{n}",sq.custom):'')+'</span></div>'+
+    (P&&P.error?'<div class="hintx" style="color:var(--danger)">'+esc(P.error)+'</div>':'')+
+  '</div></div>'+
+  '<div class="blk" style="margin-top:16px"><h3>'+GX("pmListH")+'</h3><div class="in">'+
+   (!P?'<div class="hintx">'+t("loading")+'</div>':rows.length?'<div class="atable"><table><thead><tr><th>BK</th><th>'+t("postedBy")+'</th><th>'+GX("pmTop")+'</th><th>'+GX("pmHome")+'</th><th></th></tr></thead><tbody>'+
+     rows.map(function(r){ return '<tr><td class="ltr">'+scopeFlag(r.country_code)+esc(String(r.ref||r.id))+(r.status!=="live"?' <span class="chip" style="color:var(--warn)">'+admStLabel(r.status)+'</span>':'')+'</td>'+
+       '<td>'+esc(r.poster_name||"—")+(r.sponsor_name?'<br><small style="color:var(--grey)">'+esc(r.sponsor_name)+'</small>':'')+'</td>'+
+       '<td>'+(r.has_top?pmState(r.top_from,r.top_until,r.top_active)+(r.top_source==="reward"?' <span class="chip gold">★ '+GX("rwSrcReward")+'</span>':''):'—')+'</td>'+
+       '<td>'+(r.slot_id?pmState(r.home_from,r.home_until,r.home_active):'—')+'</td>'+
+       '<td style="white-space:nowrap"><button type="button" class="ab" data-pmopen="'+r.id+'">⭐ '+t("edit")+'</button></td></tr>' }).join("")+'</tbody></table></div>'
+    :'<div class="done2"><b>'+t("noFeatured")+'</b></div>')+
+  '</div></div>'+admRewardsCard();
+}
+function admLoadPromos(){ return rpcScoped("bk_admin_list_promos",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.promos=r||{rows:[],squares:{}}; render() }).catch(function(e){ ADM.promos={rows:[],squares:{},error:e.message||"error"}; render() }) }
+function admPmOpen(id){
+  ADM.pm={id:+id,info:null,top:false,home:false,from:new Date().toISOString().slice(0,10),days:7,client:"",credit:false,busy:false,msg:"",codes:null}; render();
+  rpc("bk_admin_promo_info",{p_token:ADM.token,p_listing:+id}).then(function(r){ var p=ADM.pm; if(!p||p.id!==+id) return; p.info=r||{};
+    var i=p.info; p.top=!(i.top&&i.top.active); p.home=false; if(i.home&&i.home.sponsor_name) p.client=i.home.sponsor_name; render() })
+  .catch(function(e){ if(ADM.pm&&ADM.pm.id===+id){ ADM.pm.msg=pmErr(e); render() } });
+}
+function admPmHtml(){
+  var p=ADM.pm; if(!p) return ""; var i=p.info, lst=((ADM.data&&ADM.data.listings)||[]).filter(function(l){ return String(l.id)===String(p.id) })[0]||{};
+  var ref=(i&&i.ref)||lst.ref||p.id, who=(i&&i.poster_name)||lst.poster_name||"";
+  var sq=(i&&i.squares)||{}, full=sq.max!=null && sq.used>=sq.max && !(i&&i.home&&i.home.active);
+  var m=i&&i.member, canCredit=!!(m&&m.credits>0&&!m.active_listing_id);
+  var line=function(lbl,o,kind){ var live=o&&(o.active||(o.until&&new Date(o.until)>new Date()));
+    return '<div class="pm-st"><span>'+lbl+'</span>'+(o?pmState(o.from,o.until,o.active)+(o.source==="reward"?' <span class="chip gold">★ '+GX("rwSrcReward")+'</span>':'')+(o.code?' <b class="ltr" style="font-size:12px" data-ecopy="'+esc(o.code)+'">'+esc(o.code)+'</b>':'')+(live?' <button type="button" class="ab bad" data-pmend="'+kind+'"'+(p.busy?' disabled':'')+'>'+GX("pmEnd")+'</button>':''):'<span class="st st-expired">'+GX("pmNone")+'</span>')+'</div>' };
+  var body;
+  if(!i) body='<div class="hintx">'+esc(p.msg||t("loading"))+'</div>';
+  else body='<div class="pm-sec">'+GX("pmNow")+'</div>'+line(GX("pmTop"),i.top,"top")+line(GX("pmHome"),i.home,"home")+
+    '<div class="pm-sec">'+GX("pmApply")+'</div>'+
+    '<div class="chkgrid"><label class="xcheck"><input type="checkbox" id="pmTop"'+(p.top?' checked':'')+'><span>'+GX("pmTop")+'</span></label>'+
+    '<label class="xcheck"><input type="checkbox" id="pmHome"'+(p.home?' checked':'')+(full?' disabled':'')+'><span>'+GX("pmHome")+'</span></label></div>'+
+    '<div class="hintx"'+(full?' style="color:var(--danger)"':'')+'>'+(full?GX("pmSquaresFull").replace("{m}",sq.max):GX("pmSquares").replace("{u}",sq.used).replace("{m}",sq.max))+'</div>'+
+    (m?'<label class="xcheck"'+(canCredit?'':' style="opacity:.65"')+'><input type="checkbox" id="pmCredit"'+(p.credit?' checked':'')+(canCredit?'':' disabled')+'><span>'+(canCredit?GX("pmUseCredit").replace("{n}",m.credits).replace("{h}",m.hours):(m.active_listing_id?GX("pmCreditActive"):GX("pmCreditNone")))+'</span></label><div class="hintx">'+GX("pmCreditNote")+'</div>':'')+
+    ((p.credit&&!p.home)?'':'<div class="row"><div class="fl"><label>'+t("featureStartL")+'</label><input type="date" id="pmFrom" value="'+esc(p.from)+'"></div><div class="fl"><label>'+t("featureDaysL")+'</label><input type="number" id="pmDays" min="1" max="365" value="'+esc(String(p.days))+'" data-allow-autofill></div></div>')+
+    '<div class="fl"><label>'+GX("pmClient")+'</label><input type="text" id="pmClient" value="'+esc(p.client||"")+'" data-allow-autofill></div>'+
+    '<div class="xactions"><button type="button" class="ab ok" id="pmApply"'+(p.busy?' disabled':'')+'>⭐ '+GX("pmApply")+'</button><span class="xmsg" id="pmMsg" style="color:var(--danger)">'+esc(p.msg||"")+'</span></div>'+
+    (p.codes&&(p.codes.top||p.codes.home)?'<div class="ecodebox">'+GX("engCodeIs")+' '+[p.codes.top,p.codes.home].filter(Boolean).map(function(c){ return '<b class="ltr" data-ecopy="'+esc(c)+'">'+esc(c)+'</b>' }).join(" · ")+'</div>':'');
+  return '<div class="adm-acct-ov pm-ov" id="pmOv"><div class="pm"><div class="meov-h"><b>⭐ '+GX("pmH")+' · <span class="ltr">'+esc(String(ref))+'</span>'+(who?' <small style="color:var(--grey);font-weight:400">· '+esc(who)+'</small>':'')+'</b><button type="button" class="ab" id="pmClose">✕</button></div><div class="pm-body">'+body+'</div></div></div>';
+}
+function admPmRefresh(r){
+  // after a change: the tab's table, the member balances, the drawer's star, the public squares and ad list
+  var p=ADM.pm, i=r||(p&&p.info); if(i&&ADM.data&&ADM.data.listings){ ADM.data.listings.forEach(function(l){ if(String(l.id)===String(i.id)) l.is_featured=!!(i.top&&i.top.active) }) }
+  ADM._engDays=null;
+  if(ADM.tab==="featured"){ admLoadPromos(); rpcScoped("bk_admin_rewards",{p_token:ADM.token,p_country:admScope()}).then(function(x){ ADM.rewards=x||{}; render() }).catch(function(){}) }
+  try{ if(typeof syncFeaturedFromServer==="function") syncFeaturedFromServer() }catch(e){}
+  try{ loadAdSlots() }catch(e){}
+  if(ADM._adSlotsLoaded) rpc("bk_admin_list_ads",{p_token:ADM.token,p_country:COUNTRY}).then(function(x){ ADM.adSlots=x||[] }).catch(function(){});
+}
+function wireAdmPm(){
+  $$("[data-pmopen]").forEach(function(b){ b.onclick=function(){ admPmOpen(this.dataset.pmopen) } });
+  var p=ADM.pm; if(!p||!$("#pmOv")) return;
+  var close=function(){ ADM.pm=null; render() };
+  $("#pmClose").onclick=close; $("#pmOv").onclick=function(e){ if(e.target.id==="pmOv") close() };
+  var g=function(id){ return $("#"+id) };
+  if(g("pmTop")) g("pmTop").onchange=function(){ p.top=this.checked; if(!p.top) p.credit=false; render() };
+  if(g("pmHome")) g("pmHome").onchange=function(){ p.home=this.checked; render() };
+  if(g("pmCredit")) g("pmCredit").onchange=function(){ p.credit=this.checked; if(p.credit) p.top=true; render() };
+  if(g("pmFrom")) g("pmFrom").onchange=function(){ p.from=this.value };
+  if(g("pmDays")) g("pmDays").onchange=function(){ p.days=parseInt(this.value,10)||0 };
+  if(g("pmClient")) g("pmClient").oninput=function(){ p.client=this.value };
+  var after=function(r){ p.info=r||p.info; p.codes={top:r&&r.code_top,home:r&&r.code_home}; p.busy=false; p.msg=""; p.top=false; p.home=false; p.credit=false; admPmRefresh(r); render() };
+  if(g("pmApply")) g("pmApply").onclick=async function(){
+    if(!p.top&&!p.home){ p.msg=GX("pmErr_nothing"); render(); return }
+    if(!(p.credit&&!p.home) && !(p.days>0&&p.from)){ p.msg=t("featureInvalidDates"); render(); return }
+    p.busy=true; p.msg=""; render();
+    try{ var r=await rpc("bk_admin_promote",{p_token:ADM.token,p_listing:p.id,p_top:!!p.top,p_home:!!p.home,p_from:p.from?new Date(p.from+"T00:00:00Z").toISOString():null,p_days:p.days||null,p_client:p.client||null,p_use_credit:!!p.credit});
+      admToast(t("savedOk")); after(r) }
+    catch(e){ p.busy=false; p.msg=pmErr(e); render() } };
+  $$("[data-pmend]").forEach(function(b){ b.onclick=async function(){ if(!confirm(GX("pmEndQ"))) return; var k=this.dataset.pmend; p.busy=true; render();
+    try{ var r=await rpc("bk_admin_promote_end",{p_token:ADM.token,p_listing:p.id,p_top:k==="top",p_home:k==="home"}); admToast(t("savedOk")); after(r) }
+    catch(e){ p.busy=false; p.msg=pmErr(e); render() } } });
+}
 function adminMeCard(){
   var me=ADM.me;
   if(!me) return '<div class="adm-acct"><div class="blk"><div class="in adashempty">'+t("loading")+'</div></div></div>';
@@ -1247,7 +1305,7 @@ function wireAdmin(){
   };
 
   // open the full listing editor
-  wireAdmPromo();
+  wireAdmPromo(); wireAdmPm();
   $$("[data-adopen]").forEach(function(e){ e.onclick=async function(){
     // full parity with a member's own "Edit listing" page — location,
     // every detail field, all of it — rather than the old handful-
@@ -1493,45 +1551,14 @@ function wireAdmin(){
         ADM.engAdd=false; ADM._engDays=null; ADM._featCode=null; ADM.engLastCode=r&&r.code||null; render() }catch(e){ if(m) m.textContent=e.message||"error" } };
   }
   $$("[data-ecopy]").forEach(function(b){ b.onclick=function(){ var c=this.dataset.ecopy, btn=this, old=btn.textContent; try{ navigator.clipboard.writeText(c).then(function(){ if(btn.tagName==="BUTTON"){ btn.textContent=GX("engCopied"); setTimeout(function(){ btn.textContent=old },1200) } }) }catch(e){ prompt(GX("engCode"),c) } } });
-  var reloadFeaturedList=async function(){
-    try{ var r=await rpcScoped("bk_admin_list_featured",{p_token:ADM.token,p_country:admScope()}); ADM.featuredList=r||[] }catch(e){}
-  };
-  if(ADM.tab==="featured" && !ADM._featuredListLoaded){
-    ADM._featuredListLoaded=true;
-    reloadFeaturedList().then(render);
+  if(ADM.tab==="featured" && !ADM._promosLoaded){
+    ADM._promosLoaded=true;
+    admLoadPromos();
     rpcScoped("bk_admin_rewards",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.rewards=r||{}; render() }).catch(function(e){ ADM.rewards={error:e.message||"error"}; render() });
   }
   wireRewardsCard();
-  if($("#ftSave")) $("#ftSave").onclick=async function(){
-    var listingId=($("#ftListing")||{}).value;
-    var fromVal=($("#ftFrom")||{}).value;
-    var days=parseInt(($("#ftDays")||{}).value,10);
-    var msgEl=$("#ftMsg");
-    if(!listingId){ if(msgEl) msgEl.textContent=t("adPickListingL"); return }
-    if(!fromVal || !days || days<1){ if(msgEl) msgEl.textContent=t("featureInvalidDates"); return }
-    this.disabled=true;
-    try{
-      var fr=await rpc("bk_admin_feature_listing",{p_token:ADM.token,p_listing:+listingId,
-        p_from:new Date(fromVal+"T00:00:00Z").toISOString(),p_days:days});
-      ADM._featCode = fr && fr.code ? fr.code : null;
-      await reloadFeaturedList();
-      syncFeaturedFromServer();
-      var si=$("#ftListingSearch"); if(si) si.value="";
-      var hi=$("#ftListing"); if(hi) hi.value="";
-      if(msgEl) msgEl.textContent="";
-      ADM._engDays=null;
-      render();
-    }catch(e){ if(msgEl) msgEl.textContent=e.message||"error"; this.disabled=false }
-  };
-  $$("[data-unfeat]").forEach(function(e){ e.onclick=async function(){
-    if(!confirm(t("confirmUnfeature"))) return;
-    try{
-      await rpc("bk_admin_unfeature_listing",{p_token:ADM.token,p_listing:+e.dataset.unfeat});
-      await reloadFeaturedList();
-      syncFeaturedFromServer();
-      render();
-    }catch(err){ alert(err.message||"error") }
-  }});
+  if($("#pmMaxSave")) $("#pmMaxSave").onclick=async function(){ var n=parseInt(($("#pmMax")||{}).value,10); if(!(n>0)) return; this.disabled=true;
+    try{ await saveGlobalExtras({ad_max_squares:n}); admToast(t("savedOk")); ADM._promosLoaded=false; render() }catch(e){ admToast(e.message||"error","bad"); this.disabled=false } };
   wireGeoAdmin(); wireAdminCountries(); wireAdminCampaigns();
   if(ADM.tab==="settings" && !ADM._settingsLoaded){
     ADM._settingsLoaded=true;
@@ -1806,6 +1833,7 @@ function wireAdmin(){
         hidden.value=this.dataset.lid;
         input.value=this.dataset.lref+(this.dataset.lname?" — "+this.dataset.lname:"");
         drop.classList.remove("on");
+        admPmOpen(this.dataset.lid);   // the promote tab: picking a listing opens its promote dialog at once
       }});
     };
     input.addEventListener("focus",function(){ renderMatches(this.value.indexOf("BK-")===0?"":this.value) });
@@ -2189,7 +2217,7 @@ var HS_T={
  upload:{ar:"رفع ملف…",en:"Upload…",de:"Hochladen…"}, uploading:{ar:"جارٍ الرفع…",en:"Uploading…",de:"Lädt hoch…"}, clearImg:{ar:"الافتراضية",en:"Default",de:"Standard"},
  previewNote:{ar:"المعاينة هي الصفحة الحقيقية بإعداداتك غير المحفوظة. لا تُسجَّل زياراتها في الإحصائيات.",en:"The preview is the real page with your unsaved settings. Its visits are not counted in analytics.",de:"Die Vorschau ist die echte Seite mit ungespeicherten Einstellungen. Ihre Aufrufe zählen nicht."},
  row:{ar:"إعدادات الصف",en:"Row settings",de:"Reihe"}, look:{ar:"شكل المربع",en:"Square design",de:"Kachel-Design"}, perf:{ar:"الأداء",en:"Performance",de:"Leistung"},
- squares:{ar:"المربعات",en:"The squares",de:"Die Kacheln"}, adNew:{ar:"مربع جديد",en:"New square",de:"Neue Kachel"}, addSquare:{ar:"+ إضافة مربع",en:"+ Add a square",de:"+ Kachel hinzufügen"},
+ squares:{ar:"المربعات",en:"The squares",de:"Die Kacheln"}, adNew:{ar:"مربع جديد",en:"New square",de:"Neue Kachel"}, addSquare:{ar:"+ إضافة مربع",en:"+ Add a square",de:"+ Kachel hinzufügen"}, f_adMax:{ar:"الحد الأقصى للمربّعات",en:"Maximum squares",de:"Maximale Kacheln"},
  delSquare:{ar:"حذف هذا المربع",en:"Delete this square",de:"Diese Kachel löschen"}, unsaved:{ar:"غير محفوظ",en:"unsaved",de:"ungespeichert"},
  adMedia:{ar:"الوسائط",en:"Media",de:"Medien"}, adSchedule:{ar:"الجدولة",en:"Schedule",de:"Zeitplan"}, adTexts:{ar:"النصوص",en:"Texts",de:"Texte"}, adInfo:{ar:"الأساسيات",en:"Basics",de:"Grundlagen"},
  adClearMedia:{ar:"إزالة الوسائط",en:"Remove media",de:"Medien entfernen"}, adSaveHint:{ar:"يُحفظ المربع مع زر «حفظ التغييرات» في الأعلى. المعاينة تعرضه فوراً.",en:"The square is saved with the “Save changes” button at the top. The preview shows it right away.",de:"Die Kachel wird mit „Änderungen speichern“ oben gespeichert. Die Vorschau zeigt sie sofort."},
@@ -2267,7 +2295,8 @@ function hsInspAds(){
       fGrp(hsT("g_look")), fHint(hsT("dualHint")),
       fDual(hsT("f_adSize"),"c:ad_square_size","x:ad_square_size_m",90,260,5,true), fHint(GX("adSizeHint")),
       fSlider(hsT("f_adGap"),"c:ad_carousel_gap","x:ad_carousel_gap_m",-240,80,2,"px",0),
-      '<div class="row">'+fNum(hsT("f_adGlide"),"x:ad_glide_seconds",1,15,0.5,3.5,true)+fNum(GX("xAdVideoMax"),"x:ad_video_max_mb",1,100,1,8)+'</div>');
+      '<div class="row">'+fNum(hsT("f_adGlide"),"x:ad_glide_seconds",1,15,0.5,3.5,true)+fNum(GX("xAdVideoMax"),"x:ad_video_max_mb",1,100,1,8)+'</div>',
+      '<div class="row">'+fNum(hsT("f_adMax"),"x:ad_max_squares",1,40,1,15)+'</div>', fHint(GX("pmHint").replace("{m}",+hsVal("x:ad_max_squares")||15)));
   } else if(sd==="look"){
     H.push(fGrp(GX("adColorsSub")), '<div class="row">'+fColor(t("adTextColorL"),"c:ad_text_color","#ffffff")+fColor(t("adShadeColorL"),"c:ad_shade_color","#090e1a")+'</div>', fSlider(GX("adShadeOpL"),"x:ad_shade_opacity",null,0,100,5,"%",100,true), fHint(GX("adShadeOpHint")),
       fGrp(GX("adInfoSub")), fHint(hsT("dualHint")), fSwitch(t("adStyleIcons"),"c:ad_use_icons",true,true), fDual(t("adTextSizeL"),"c:ad_roominfo_size","x:ad_roominfo_size_m",7,20,1,true),
@@ -2453,7 +2482,9 @@ function hsOutlineAds(){
     return '<div class="hs-item'+(HS.sel===k?' on':'')+(on?'':' off')+'" data-hssel="'+k+'"><span class="hs-ico hs-th">'+(th&&a.media_type!=="video"?'<img src="'+esc(th)+'" alt="">':AICO.image)+'</span><span class="hs-name">'+esc(String(hsAdName(a,i)))+(isNew||HS.adDraft[a.id]?' <i class="hs-dot"></i>':'')+'</span>'+
       (isNew?'':'<button type="button" class="hs-mv" data-hsamv="'+a.id+':up"'+(i===0?' disabled':'')+' title="'+hsT("up")+'">▲</button><button type="button" class="hs-mv" data-hsamv="'+a.id+':down"'+(i>=n-1||rows[i+1].id==="new"?' disabled':'')+' title="'+hsT("down")+'">▼</button>')+
       '<button type="button" class="hs-eye'+(on?'':' off')+'" data-hsaeye="'+a.id+'" title="'+hsT("show")+'">'+(on?AICO.eye:HS_ICO_EYEOFF)+'</button></div>' }).join("");
-  return fixed+'<div class="hs-out-h">'+hsT("squares")+' <span class="hs-count ltr">'+n+'</span></div>'+items+(HS.adNew?'':'<button type="button" class="ab hs-outbtn" id="hsAdNew">'+hsT("addSquare")+'</button>')+'<div class="hintx" style="padding:4px 14px 0">'+hsT("adMoveHint")+'</div>';
+  // the cap (site_content.extras.ad_max_squares, default 15) counts squares that are on and not expired
+  var maxSq=+hsVal("x:ad_max_squares")||15, usedSq=rows.filter(function(a){ return a.enabled!==false && (!a.expires_at||new Date(a.expires_at)>=new Date()) }).length;
+  return fixed+'<div class="hs-out-h">'+hsT("squares")+' <span class="hs-count ltr">'+usedSq+' / '+maxSq+'</span></div>'+items+(HS.adNew?'':(usedSq>=maxSq?'<div class="hintx" style="padding:4px 14px;color:var(--danger)">'+GX("pmSquaresFull").replace("{m}",maxSq)+'</div>':'<button type="button" class="ab hs-outbtn" id="hsAdNew">'+hsT("addSquare")+'</button>'))+'<div class="hintx" style="padding:4px 14px 0">'+hsT("adMoveHint")+'</div>';
 }
 function hsOutlineBanners(){
   var d=hsBDraft();
@@ -2522,7 +2553,7 @@ function hsWire(){
         var f=$("#hsFrame"); if(f&&f.contentWindow){ try{ f.contentWindow.postMessage({type:"bk-preview",reloadAds:true},location.origin) }catch(e){} } }
       HS.bPendingDel.forEach(function(u){ replaceStorageFile(u) }); HS.bPendingDel=[]; HS.bDraft=null; HS.bBefore=null; ADM._engDays=null;
       HS.draft={site:{},extras:{}}; applySectionGapVars(); applySiteExtras(); applyBannerSizeVar(); if(msg) msg.textContent=t("savedOk")+(codes.length?' · '+GX("engCodeIs")+' '+codes.join(", "):''); hsRenderOutline(); hsRenderInsp(); if(!adsChanged) hsPush(true);
-    }catch(e){ if(msg) msg.textContent=e.message||"error" }
+    }catch(e){ if(msg) msg.textContent=pmErr(e) }
     btn.textContent=hsT("saveAll"); hsDirtyUI() };
   /* outline: select, eye, move */
   $("#hsOutline").onpointerdown=async function(e){
@@ -2992,7 +3023,7 @@ function admResetScope(){   // everything that was loaded for one country scope 
   ADM._ikLoaded=false; ADM.ik=null; ADM._ticketsLoaded=false; ADM.tickets=null; ADM._vfLoaded=false; ADM.vf=undefined; ADM._reviewsLoaded=false; ADM._uactLoaded=false; ADM.uact=null; ADM._lstatsRange=null;
   ADM._photosLoaded=false; ADM.photosList=null;
   ADM._statsLoaded=false; ADM.stats=null; ADM._anLoaded=false; ADM.an=null; ADM.anErr=null; ADM._lstatsLoaded=false; ADM.lstats=null;
-  ADM._featuredListLoaded=false; ADM.featuredList=null; ADM._wLoaded=false; ADM_W=null; ADM._pjLoaded=false; ADM_PJ=null; ADM._agLoaded=false; ADM_AG=null; ADM._engDays=null; ADM.eng=null; ADM.todo=null;
+  ADM._promosLoaded=false; ADM.promos=null; ADM._wLoaded=false; ADM_W=null; ADM._pjLoaded=false; ADM_PJ=null; ADM._agLoaded=false; ADM_AG=null; ADM._engDays=null; ADM.eng=null; ADM.todo=null;
   ADM._geoLoaded=false; ADM.adSlots=null; ADM._adSlotsLoaded=false;
   ADM._cpgContactsLoaded=false; ADM.cpgContacts=null; ADM._cpgCampaignsLoaded=false; ADM.cpgCampaigns=null;
 }
@@ -3633,6 +3664,7 @@ function admListingDrawer(l,ls){
   var cc=String(l.country_code||"SY").toLowerCase(), pub=(cc==="sy"?"":"/"+cc)+"/listing/"+l.id;
   var deed=D.TABU[l.tabu]?D.TABU[l.tabu][li()]:(l.tabu||"—"), cond=(D.COND&&D.COND[l.condition])?D.COND[l.condition][li()]:((D.LANDC&&D.LANDC[l.condition])?D.LANDC[l.condition][li()]:"");
   var acts='<button class="ab" data-adopen="'+l.id+'">✏️ '+t("edit")+'</button>'+
+    (l.status==="live"?'<button class="ab" data-pmopen="'+l.id+'">⭐ '+GX("pmBtn")+'</button>':'')+
     (l.status==="live"?'<button class="ab" data-apromo="'+l.id+'"'+(ADM.promo&&String(ADM.promo.id)===String(l.id)?' style="background:var(--navy);color:#fff"':'')+'>📣 '+GX("promoBtn")+'</button>':'')+
     (l.status==="pending"?'<button class="ab ok" data-alive="'+l.id+'">'+t("approve")+'</button><button class="ab bad" data-areject="'+l.id+'">'+GX("rejectBtn")+'</button>':'')+
     (l.status==="rejected"?'<button class="ab ok" data-alive="'+l.id+'">'+t("approve")+'</button>':'')+
