@@ -3836,14 +3836,14 @@ function ikOwnerList(d){
 function ikOwnerCombo(d,x,key){
   var cur = x ? (x.agency_id ? "a:"+x.agency_id : (x.user_id ? "u:"+x.user_id : "")) : "";
   var hit=cur?ikOwnerList(d).filter(function(r){ return r.v===cur })[0]:null;
-  return '<div class="chipsel ikown" data-ikown="'+key+'"><div class="chipsel-box"><input class="chipsel-input" data-ikownq="'+key+'" autocomplete="off" placeholder="'+esc(GX("ik_ownerPH"))+'" value="'+esc(hit?hit.label:"")+'">'+
-    (cur?'<button type="button" class="ikown-x" data-ikownclear="'+key+'" title="'+esc(GX("ik_ownerNone"))+'">✕</button>':'')+'</div><div class="chipsel-drop" data-ikowndrop="'+key+'"></div>'+
+  return '<div class="chipsel ikpick" data-ikown="'+key+'"><div class="chipsel-box"><input class="chipsel-input" data-ikownq="'+key+'" autocomplete="off" placeholder="'+esc(GX("ik_ownerPH"))+'" value="'+esc(hit?hit.label:"")+'">'+
+    (cur?'<button type="button" class="ikpick-x" data-ikownclear="'+key+'" title="'+esc(GX("ik_ownerNone"))+'">✕</button>':'')+'</div><div class="chipsel-drop" data-ikowndrop="'+key+'"></div>'+
     '<input type="hidden" data-ikag="'+key+'"'+(key==="bulk"?' id="ikBulkAg"':'')+' value="'+esc(cur)+'"></div>';
 }
 function wireIkOwnerCombos(){
   var d=ADM.ik||{}, all=null;
   $$("[data-ikownq]").forEach(function(input){
-    var key=input.dataset.ikownq, box=input.closest(".ikown"), drop=box.querySelector("[data-ikowndrop]"), hidden=box.querySelector("[data-ikag]");
+    var key=input.dataset.ikownq, box=input.closest(".ikpick"), drop=box.querySelector("[data-ikowndrop]"), hidden=box.querySelector("[data-ikag]");
     var show=function(q){ all=all||ikOwnerList(d); var qq=(q||"").trim().toLowerCase().replace(/\s+/g," ");
       var m=(qq?all.filter(function(r){ return r.q.indexOf(qq)>-1 }):all).slice(0,40), lastGrp=null, h="";
       m.forEach(function(r){ if(r.grp!==lastGrp){ h+='<div class="chipsel-grp">'+esc(r.grp)+'</div>'; lastGrp=r.grp } h+='<div class="chipsel-opt" data-ikownv="'+esc(r.v)+'">'+esc(r.label)+'</div>' });
