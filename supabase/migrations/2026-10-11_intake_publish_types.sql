@@ -121,3 +121,57 @@ begin
   return json_build_object('ok', true, 'listing_id', l.id, 'ref', l.ref, 'status', l.status, 'user_id', l.user_id, 'country_code', l.country_code, 'photos', jsonb_array_length(ph));
 end $function$
 ;
+
+-- the same for edits a sender makes through the bot after publishing
+CREATE OR REPLACE FUNCTION public.bk_intake_patch_listing(p_draft bigint)
+ RETURNS json
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+ SET search_path TO 'public', 'extensions'
+AS $function$
+declare d intake_drafts; f jsonb; l listings; v_cc text; v_type text; v_sec text; v_deal text; v_rent boolean; ptxt text; v_price numeric; cur text; rate numeric; v_usd int; tax json;
+        v_m2 int; v_tabu text; v_cond text; v_aid int; v_descr text;
+begin
+  select * into d from intake_drafts where id = p_draft;
+  if d.id is null or d.listing_id is null then return json_build_object('error','nodraft'); end if;
+  select * into l from listings where id = d.listing_id for update;
+  if l.id is null then return json_build_object('error','nolisting'); end if;
+  f := coalesce(d.fields, '{}'::jsonb); v_cc := coalesce(l.country_code, 'SY');
+  v_deal := lower(coalesce(f->>'deal', l.deal)); if v_deal not in ('sale','rent') then v_deal := l.deal; end if; v_rent := v_deal = 'rent';
+  v_type := lower(coalesce(f->>'property_type', l.property_type));
+  -- the live type list (bk_intake_taxonomy), never a hard-coded copy
+  tax := bk_intake_taxonomy(v_cc);
+  if not exists (select 1 from json_array_elements(tax->'types') t where t->>'code' = v_type) then v_type := l.property_type; end if;
+  v_sec := case when exists (select 1 from json_array_elements_text(tax->'land_types') x where x = v_type) then 'land'
+                when exists (select 1 from json_array_elements_text(tax->'commercial_types') x where x = v_type) then 'commercial' else 'homes' end;
+  if v_type = 'hotelapt' then v_deal := 'rent'; v_rent := true; end if;
+  ptxt := regexp_replace(coalesce(f->>'price',''), '[^0-9.,]', '', 'g');
+  if ptxt ~ '^\d{1,3}(\.\d{3})+$' then ptxt := replace(ptxt, '.', ''); end if;
+  ptxt := replace(ptxt, ',', ''); v_price := bk_intake_num(ptxt);
+  cur := upper(coalesce(nullif(f->>'currency',''), 'USD'));
+  if v_price is null or v_price <= 0 then v_usd := null;
+  elsif cur = 'USD' then v_usd := round(v_price);
+  else tax := bk_intake_taxonomy(v_cc); rate := bk_intake_num(tax->'country'->'rates'->>cur); if rate is null or rate <= 0 then v_usd := l.price_usd; else v_usd := greatest(1, round(v_price / rate)); end if; end if;
+  v_m2 := bk_intake_int(f->>'area_m2'); if v_m2 is null or v_m2 <= 0 then v_m2 := l.area_m2; end if;
+  v_tabu := lower(coalesce(f->>'tabu',''));
+  if v_rent then v_tabu := null; elsif v_tabu = '' or not exists (select 1 from deed_types dt where dt.country_code = v_cc and dt.code = v_tabu) then v_tabu := null; end if;
+  v_cond := lower(coalesce(f->>'condition', l.condition, ''));
+  if v_sec = 'land' then if v_cond not in ('empty','built','fenced','planted') then v_cond := 'empty'; end if;
+  else if v_cond not in ('intact','deluxe','superdeluxe','old','repair','shell','stripped','damaged') or (v_cond = 'stripped' and v_cc <> 'SY') then v_cond := 'intact'; end if; end if;
+  v_aid := bk_intake_int(f->>'area_id'); if v_aid is not null and not exists (select 1 from areas where id = v_aid and governorate_id = l.governorate_id) then v_aid := null; end if;
+  v_descr := trim(coalesce(f->>'description','')); if length(v_descr) < 30 then v_descr := l.description; end if;
+  update listings x set
+    section = v_sec, deal = v_deal, property_type = v_type, price_usd = v_usd, price_local = case when cur <> 'USD' and v_price > 0 then v_price else null end, price_cur = case when cur <> 'USD' and v_price > 0 then cur else null end, price_negotiable = bk_intake_bool(f->>'negotiable', l.price_negotiable), area_m2 = v_m2,
+    rooms = case when v_sec = 'land' then null else coalesce(bk_intake_int(f->>'rooms'), l.rooms) end,
+    baths = case when v_sec = 'land' then null else coalesce(bk_intake_int(f->>'baths'), l.baths) end,
+    living_rooms = case when v_type in ('apartment','arab','villa') then coalesce(bk_intake_int(f->>'living_rooms'), l.living_rooms) else null end,
+    floor = coalesce(bk_intake_int(f->>'floor'), l.floor), floors_total = coalesce(bk_intake_int(f->>'floors_total'), l.floors_total),
+    tabu = v_tabu, condition = v_cond, furnished = bk_intake_bool(f->>'furnished', l.furnished),
+    rental_period = case when v_rent then (case when lower(f->>'rental_period') in ('daily','weekly','monthly','yearly') then lower(f->>'rental_period') else coalesce(l.rental_period, 'yearly') end) else null end,
+    area_id = coalesce(v_aid, l.area_id), landmark = coalesce(left(nullif(f->>'landmark',''), 120), l.landmark),
+    description = left(v_descr, 1200), updated_at = now()
+   where x.id = l.id returning * into l;
+  insert into intake_log (draft_id, chat_id, event, detail) values (d.id, d.chat_id, 'listing_patched', jsonb_build_object('listing_id', l.id));
+  return json_build_object('ok', true, 'listing_id', l.id, 'ref', l.ref, 'status', l.status, 'country_code', l.country_code);
+end $function$
+;
