@@ -3409,7 +3409,7 @@ function ikRow(x){
         (photos.length?'<div class="ikphotos">'+photos.map(function(p){ return '<a href="'+esc(p.url)+'" target="_blank" rel="noopener"><img src="'+esc(p.thumb_url||p.url)+'" alt="" loading="lazy"></a>' }).join("")+'</div>':'')+'</div>'+
       '<div><b>'+GX("ik_fieldsH")+'</b>'+ikFieldsForm(x)+'</div></div>'+
       '<div class="xactions">'+
-        '<select data-ikag="'+x.id+'"><option value="">'+GX("ik_pickAgency")+'</option>'+(d.agencies||[]).map(function(g){ return '<option value="'+g.id+'"'+(String(g.id)===String(x.agency_id)?' selected':'')+'>'+esc(g.name)+(g.country_code&&g.country_code!=="SY"?' '+flagOf(g.country_code):'')+'</option>' }).join("")+'</select>'+
+        '<select data-ikag="'+x.id+'">'+ikOwnerOptions(d,x)+'</select>'+
         '<button type="button" class="ab ok" data-iksave="'+x.id+'">'+t("save")+'</button>'+
         (x.status!=="published" ? '<button type="button" class="ab" data-ikread="'+x.id+'">'+GX("ik_readAgain")+'</button><button type="button" class="ab ok" data-ikpub="'+x.id+':pending">'+GX("ik_pubPending")+'</button><button type="button" class="ab ok" data-ikpub="'+x.id+':live">'+GX("ik_pubLive")+'</button>'+(x.status!=="cancelled"?'<button type="button" class="ab" data-ikcancel="'+x.id+'">'+t("cancel")+'</button>':'') : '')+
         '<button type="button" class="ab bad" data-ikdel="'+x.id+'">'+t("del")+'</button><span class="xmsg" id="ikMsg'+x.id+'"></span>'+
@@ -3499,7 +3499,7 @@ function adminIntakeBody(){
   var bulk='<div class="ikbulk'+(nSel?' on':'')+'">'+
     '<div class="ikb-row"><label class="xcheck"><input type="checkbox" id="ikSelAll"'+(nVis&&nSel===nVis?' checked':'')+'><span>'+GX("ik_selAll")+'</span></label><span><b class="ikb-n ltr">'+nSel+'</b> '+GX("ik_selected")+'</span>'+
       '<span class="ikb-set"><select id="ikBulkGov"><option value="">'+GX("ik_bulkGov")+'</option>'+Object.keys(D.GEO).map(function(g){ return '<option value="'+esc(g)+'">'+gN(g)+'</option>' }).join("")+'</select><button type="button" class="ab" id="ikBulkGovGo"'+(nSel?'':' disabled')+'>'+GX("ik_apply")+'</button></span>'+
-      '<span class="ikb-set"><select id="ikBulkAg"><option value="">'+GX("ik_pickAgency")+'</option>'+(d.agencies||[]).map(function(g){ return '<option value="'+g.id+'">'+esc(g.name)+'</option>' }).join("")+'</select><button type="button" class="ab" id="ikBulkAgGo"'+(nSel?'':' disabled')+'>'+GX("ik_apply")+'</button></span></div>'+
+      '<span class="ikb-set"><select id="ikBulkAg">'+ikOwnerOptions(d,null)+'</select><button type="button" class="ab" id="ikBulkAgGo"'+(nSel?'':' disabled')+'>'+GX("ik_apply")+'</button></span></div>'+
     '<div class="ikb-row"><button type="button" class="ab ok" id="ikBulkPubL"'+(nSel?'':' disabled')+'>'+GX("ik_pubLive")+'</button><button type="button" class="ab" id="ikBulkPubP"'+(nSel?'':' disabled')+'>'+GX("ik_pubPending")+'</button><button type="button" class="ab bad" id="ikBulkCancel"'+(nSel?'':' disabled')+'>'+t("cancel")+'</button><span class="xmsg" id="ikBulkMsg"></span></div></div>';
   var drafts='<div class="blk"><h3>'+GX("ik_draftsH")+' <span class="n">'+list.length+'</span></h3><div class="in eng-in">'+
     '<div class="ikfilters">'+filters.map(function(x){ return '<button type="button" class="ab'+(x[0]===f?' on':'')+'" data-ikf-filter="'+x[0]+'">'+x[1]+'</button>' }).join("")+'<button type="button" class="ab" id="ikReload" style="margin-inline-start:auto">'+AICO.refresh+'</button></div>'+
@@ -3532,8 +3532,8 @@ function wireAdminIntake(){
     box.querySelectorAll("[data-ikf]").forEach(function(i){ var k=i.dataset.ikf; if(i.dataset.ikbool) fields[k]=!!i.checked; else { var v=String(i.value).trim(); fields[k]= v===""?null:(i.type==="number"?+v:v) } });
     var x=((ADM.ik||{}).drafts||[]).filter(function(y){ return String(y.id)===String(id) })[0]||{}; var f0=x.fields||{};
     if(fields.governorate!==(f0.governorate==null?null:String(f0.governorate))){ fields.governorate_id=null; fields.area_id=null } else if(fields.area!==(f0.area==null?null:String(f0.area))) fields.area_id=null;
-    var ag=box.querySelector("[data-ikag]"); return {fields:fields, agency_id: ag ? (ag.value||"") : undefined} };
-  var saveDraft=async function(id){ var c=collect(id); if(!c) return; var patch={fields:c.fields}; if(c.agency_id!==undefined) patch.agency_id=c.agency_id||null; await rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:patch}) };
+    var ag=box.querySelector("[data-ikag]"); return {fields:fields, owner: ag ? ag.value : undefined} };
+  var saveDraft=async function(id){ var c=collect(id); if(!c) return; var patch={fields:c.fields}; if(c.owner!==undefined) Object.assign(patch, ikOwnerPatch(c.owner)); await rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:patch}) };
   $$("[data-iksave]").forEach(function(b){ b.onclick=async function(){ var id=this.dataset.iksave, m=$("#ikMsg"+id); busy(this,true); try{ await saveDraft(id); admToast(GX("ik_saved")); reload() }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } } });
   $$("[data-ikread]").forEach(function(b){ b.onclick=async function(){ var id=this.dataset.ikread, m=$("#ikMsg"+id); busy(this,true); if(m){ m.style.color="var(--grey)"; m.textContent=GX("qfBusy") } try{ await saveDraft(id); await intakeAdmin("read",{draft_id:+id,quiet:true}); reload() }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } } });
   $$("[data-ikpub]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.ikpub.split(":"), m=$("#ikMsg"+p[0]); busy(this,true); if(m){ m.style.color="var(--grey)"; m.textContent=GX("qfBusy") }
@@ -3547,13 +3547,13 @@ function wireAdminIntake(){
     for(var i=0;i<ids.length;i++){ if(m){ m.style.color="var(--grey)"; m.textContent=label+" "+(i+1)+"/"+ids.length } try{ await fn(ids[i]); ok++ }catch(e){ bad.push("#"+ids[i]+": "+(e.message||"error")) } }
     ADM.ikSel={}; admToast(GX("ik_bulkDone").replace("{n}",ok)+(bad.length?" · "+bad.length+" ✗":""), bad.length?"bad":undefined); if(bad.length) alert(bad.join("\n")); syncAdminTodo(); reload() };
   if($("#ikBulkGovGo")) $("#ikBulkGovGo").onclick=function(){ var g=$("#ikBulkGov").value; if(!g) return; runBulk(GX("ik_apply"), function(id){ return rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:{fields:{governorate:g,governorate_id:null,area_id:null}}}) }) };
-  if($("#ikBulkAgGo")) $("#ikBulkAgGo").onclick=function(){ var a=$("#ikBulkAg").value; if(!a) return; runBulk(GX("ik_apply"), function(id){ return rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:{agency_id:a}}) }) };
+  if($("#ikBulkAgGo")) $("#ikBulkAgGo").onclick=function(){ var a=$("#ikBulkAg").value; if(!a) return; runBulk(GX("ik_apply"), function(id){ return rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:ikOwnerPatch(a)}) }) };
   var ikErr=function(code){ code=String(code||"error"); var k=code.replace(/^.*?:\s*/,""); return GX("ik_e_"+k)!=="ik_e_"+k?GX("ik_e_"+k):code };
   // an agency / governorate picked in the bar but not yet applied is applied on the way to publishing (no separate "apply" click needed)
   var bulkPub=function(status){ return function(){ if(!confirm(GX("ik_bulkPubQ").replace("{n}",selected().length))) return;
     var ag=($("#ikBulkAg")||{}).value||"", gov=($("#ikBulkGov")||{}).value||"";
     runBulk(GX("ik_publishing"), async function(id){ var r;
-      if(ag||gov){ var patch={}; if(ag) patch.agency_id=ag; if(gov) patch.fields={governorate:gov,governorate_id:null,area_id:null}; await rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:patch}) }
+      if(ag||gov){ var patch={}; if(ag) Object.assign(patch, ikOwnerPatch(ag)); if(gov) patch.fields={governorate:gov,governorate_id:null,area_id:null}; await rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:patch}) }
       try{ r=await intakeAdmin("publish",{draft_id:+id,status:status}) }catch(e){ throw new Error(ikErr(e.message)) } if(r&&r.error) throw new Error(ikErr(r.error)) }) } };
   if($("#ikBulkPubP")) $("#ikBulkPubP").onclick=bulkPub("pending");
   if($("#ikBulkPubL")) $("#ikBulkPubL").onclick=bulkPub("live");
@@ -3744,6 +3744,24 @@ function wireAdmPromo(){
   if((p.tab||"text")==="image"&&!p.img&&!p.busy){ var l=admPromoListing(); if(l){ var fmt=p.fmt||"45", key=[p.src,fmt,!!p.hidePrice].join("|"); p.busy=GX("promoWorking");
     promoImage(l,fmt,{hidePrice:!!p.hidePrice}).then(function(u){ if(ADM.promo!==p||[p.src,p.fmt||"45",!!p.hidePrice].join("|")!==key) return; p.img=u; p.busy=""; render() },function(e){ if(ADM.promo!==p) return; p.busy=String(e&&e.message||e); render() }) } }
 }
+/* intake drafts: the "owner" select lists approved agencies AND plain members (a member who owns an approved agency
+   appears once, under the agencies). Values are "a:<agency id>" / "u:<user uuid>"; ikOwnerPatch() turns one into the
+   bk_admin_intake_set patch (agency_id → the agency's user; user_id → that member, plus their own agency if any). */
+function ikOwnerOptions(d,x){
+  var cur = x ? (x.agency_id ? "a:"+x.agency_id : (x.user_id ? "u:"+x.user_id : "")) : "";
+  var ags=d.agencies||[], agUsers={}; ags.forEach(function(g){ if(g.user_id) agUsers[g.user_id]=1 });
+  var rest=(d.members||[]).filter(function(u){ return !agUsers[u.id] });
+  var opt=function(v,label){ return '<option value="'+v+'"'+(v===cur?' selected':'')+'>'+label+'</option>' };
+  var uopt=function(u){ var nm=[u.name,u.family_name].filter(Boolean).join(" "); return opt("u:"+u.id, esc(nm||u.phone||u.id)+(nm&&u.phone?' · '+esc(u.phone):'')) };
+  var grp=function(label,items){ return items.length?'<optgroup label="'+label+'">'+items.join("")+'</optgroup>':'' };
+  // three groups, matching the site's account types: offices (approved agencies, plus agency-type accounts that
+  // have no approved agency row yet), brokers, and everyone else
+  return '<option value="">'+GX("ik_pickAgency")+'</option>'+
+    grp(GX("ik_grpAgencies"), ags.map(function(g){ return opt("a:"+g.id, esc(g.name)+(g.country_code&&g.country_code!=="SY"?' '+flagOf(g.country_code):'')) }).concat(rest.filter(function(u){ return u.account_type==="agency" }).map(uopt)))+
+    grp(GX("ik_grpBrokers"), rest.filter(function(u){ return u.account_type==="broker" }).map(uopt))+
+    grp(GX("ik_grpMembers"), rest.filter(function(u){ return u.account_type!=="agency"&&u.account_type!=="broker" }).map(uopt));
+}
+function ikOwnerPatch(v){ v=String(v||""); if(v.indexOf("a:")===0) return {agency_id:v.slice(2)}; if(v.indexOf("u:")===0) return {user_id:v.slice(2)}; return {user_id:null} }
 function admPromoListing(){ var id=ADM.promo&&ADM.promo.id; return ((ADM.data&&ADM.data.listings)||[]).find(function(l){ return String(l.id)===String(id) })||null }
 function promoPhotos(l){ var x=promoRow(l); var ph=(x&&x.photos||[]).slice(); if(!ph.length&&l.cover) ph=[l.cover]; return ph.slice(0,6) }
 function promoLoadImg(src){ return new Promise(function(res,rej){ var im=new Image(); im.crossOrigin="anonymous"; im.onload=function(){ res(im) }; im.onerror=function(){ rej(new Error("photo")) }; im.src=src }) }
