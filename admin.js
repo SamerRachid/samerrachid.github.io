@@ -1016,7 +1016,7 @@ function adminPromoBody(){
      rows.map(function(r){ return '<tr><td class="ltr">'+scopeFlag(r.country_code)+esc(String(r.ref||r.id))+(r.status!=="live"?' <span class="chip" style="color:var(--warn)">'+admStLabel(r.status)+'</span>':'')+'</td>'+
        '<td>'+esc(r.poster_name||"—")+(r.sponsor_name?'<br><small style="color:var(--grey)">'+esc(r.sponsor_name)+'</small>':'')+'</td>'+
        '<td>'+(r.has_top?pmState(r.top_from,r.top_until,r.top_active)+(r.top_source==="reward"?' <span class="chip gold">★ '+GX("rwSrcReward")+'</span>':''):'—')+'</td>'+
-       '<td>'+(r.slot_id?pmState(r.home_from,r.home_until,r.home_active):'—')+'</td>'+
+       '<td>'+(r.slot_id?pmState(r.home_from,r.home_until,r.home_active)+(r.home_source==="reward"?' <span class="chip gold">★ '+GX("rwSrcReward")+'</span>':''):'—')+'</td>'+
        '<td style="white-space:nowrap"><button type="button" class="ab" data-pmopen="'+r.id+'">⭐ '+t("edit")+'</button></td></tr>' }).join("")+'</tbody></table></div>'
     :'<div class="done2"><b>'+t("noFeatured")+'</b></div>')+
   '</div></div>'+admRewardsCard();
@@ -1032,7 +1032,7 @@ function admPmHtml(){
   var p=ADM.pm; if(!p) return ""; var i=p.info, lst=((ADM.data&&ADM.data.listings)||[]).filter(function(l){ return String(l.id)===String(p.id) })[0]||{};
   var ref=(i&&i.ref)||lst.ref||p.id, who=(i&&i.poster_name)||lst.poster_name||"";
   var sq=(i&&i.squares)||{}, full=sq.max!=null && sq.used>=sq.max && !(i&&i.home&&i.home.active);
-  var m=i&&i.member, canCredit=!!(m&&m.credits>0&&!m.active_listing_id);
+  var m=i&&i.member, canCredit=!!(m&&m.credits>0&&!m.active_listing_id&&!full);
   var line=function(lbl,o,kind){ var live=o&&(o.active||(o.until&&new Date(o.until)>new Date()));
     return '<div class="pm-st"><span>'+lbl+'</span>'+(o?pmState(o.from,o.until,o.active)+(o.source==="reward"?' <span class="chip gold">★ '+GX("rwSrcReward")+'</span>':'')+(o.code?' <b class="ltr" style="font-size:12px" data-ecopy="'+esc(o.code)+'">'+esc(o.code)+'</b>':'')+(live?' <button type="button" class="ab bad" data-pmend="'+kind+'"'+(p.busy?' disabled':'')+'>'+GX("pmEnd")+'</button>':''):'<span class="st st-expired">'+GX("pmNone")+'</span>')+'</div>' };
   var body;
@@ -1043,7 +1043,7 @@ function admPmHtml(){
     '<label class="xcheck"><input type="checkbox" id="pmHome"'+(p.home?' checked':'')+(full?' disabled':'')+'><span>'+GX("pmHome")+'</span></label></div>'+
     '<div class="hintx"'+(full?' style="color:var(--danger)"':'')+'>'+(full?GX("pmSquaresFull").replace("{m}",sq.max):GX("pmSquares").replace("{u}",sq.used).replace("{m}",sq.max))+'</div>'+
     (m?'<label class="xcheck"'+(canCredit?'':' style="opacity:.65"')+'><input type="checkbox" id="pmCredit"'+(p.credit?' checked':'')+(canCredit?'':' disabled')+'><span>'+(canCredit?GX("pmUseCredit").replace("{n}",m.credits).replace("{h}",m.hours):(m.active_listing_id?GX("pmCreditActive"):GX("pmCreditNone")))+'</span></label><div class="hintx">'+GX("pmCreditNote")+'</div>':'')+
-    ((p.credit&&!p.home)?'':'<div class="row"><div class="fl"><label>'+t("featureStartL")+'</label><input type="date" id="pmFrom" value="'+esc(p.from)+'"></div><div class="fl"><label>'+t("featureDaysL")+'</label><input type="number" id="pmDays" min="1" max="365" value="'+esc(String(p.days))+'" data-allow-autofill></div></div>')+
+    ((p.credit&&!p.top)?'':'<div class="row"><div class="fl"><label>'+t("featureStartL")+'</label><input type="date" id="pmFrom" value="'+esc(p.from)+'"></div><div class="fl"><label>'+t("featureDaysL")+'</label><input type="number" id="pmDays" min="1" max="365" value="'+esc(String(p.days))+'" data-allow-autofill></div></div>')+
     '<div class="fl"><label>'+GX("pmClient")+'</label><input type="text" id="pmClient" value="'+esc(p.client||"")+'" data-allow-autofill></div>'+
     '<div class="xactions"><button type="button" class="ab ok" id="pmApply"'+(p.busy?' disabled':'')+'>⭐ '+GX("pmApply")+'</button><span class="xmsg" id="pmMsg" style="color:var(--danger)">'+esc(p.msg||"")+'</span></div>'+
     (p.codes&&(p.codes.top||p.codes.home)?'<div class="ecodebox">'+GX("engCodeIs")+' '+[p.codes.top,p.codes.home].filter(Boolean).map(function(c){ return '<b class="ltr" data-ecopy="'+esc(c)+'">'+esc(c)+'</b>' }).join(" · ")+'</div>':'');
@@ -1064,18 +1064,19 @@ function wireAdmPm(){
   var close=function(){ ADM.pm=null; render() };
   $("#pmClose").onclick=close; $("#pmOv").onclick=function(e){ if(e.target.id==="pmOv") close() };
   var g=function(id){ return $("#"+id) };
-  if(g("pmTop")) g("pmTop").onchange=function(){ p.top=this.checked; if(!p.top) p.credit=false; render() };
-  if(g("pmHome")) g("pmHome").onchange=function(){ p.home=this.checked; render() };
-  if(g("pmCredit")) g("pmCredit").onchange=function(){ p.credit=this.checked; if(p.credit) p.top=true; render() };
+  if(g("pmTop")) g("pmTop").onchange=function(){ p.top=this.checked; render() };
+  if(g("pmHome")) g("pmHome").onchange=function(){ p.home=this.checked; if(!p.home) p.credit=false; render() };
+  // the member's credit IS a home square (reward hours, starts now): ticking it ticks "home" and drops the dates unless "top" needs them
+  if(g("pmCredit")) g("pmCredit").onchange=function(){ p.credit=this.checked; if(p.credit) p.home=true; render() };
   if(g("pmFrom")) g("pmFrom").onchange=function(){ p.from=this.value };
   if(g("pmDays")) g("pmDays").onchange=function(){ p.days=parseInt(this.value,10)||0 };
   if(g("pmClient")) g("pmClient").oninput=function(){ p.client=this.value };
   var after=function(r){ p.info=r||p.info; p.codes={top:r&&r.code_top,home:r&&r.code_home}; p.busy=false; p.msg=""; p.top=false; p.home=false; p.credit=false; admPmRefresh(r); render() };
   if(g("pmApply")) g("pmApply").onclick=async function(){
     if(!p.top&&!p.home){ p.msg=GX("pmErr_nothing"); render(); return }
-    if(!(p.credit&&!p.home) && !(p.days>0&&p.from)){ p.msg=t("featureInvalidDates"); render(); return }
+    if(!(p.credit&&!p.top) && !(p.days>0&&p.from)){ p.msg=t("featureInvalidDates"); render(); return }
     p.busy=true; p.msg=""; render();
-    try{ var r=await rpc("bk_admin_promote",{p_token:ADM.token,p_listing:p.id,p_top:!!p.top,p_home:!!p.home,p_from:p.from?new Date(p.from+"T00:00:00Z").toISOString():null,p_days:p.days||null,p_client:p.client||null,p_use_credit:!!p.credit});
+    try{ var r=await rpc("bk_admin_promote",{p_token:ADM.token,p_listing:p.id,p_top:!!p.top,p_home:!!p.home&&!p.credit,p_from:p.from?new Date(p.from+"T00:00:00Z").toISOString():null,p_days:p.days||null,p_client:p.client||null,p_use_credit:!!p.credit});
       admToast(t("savedOk")); after(r) }
     catch(e){ p.busy=false; p.msg=pmErr(e); render() } };
   $$("[data-pmend]").forEach(function(b){ b.onclick=async function(){ if(!confirm(GX("pmEndQ"))) return; var k=this.dataset.pmend; p.busy=true; render();
