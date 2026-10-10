@@ -3479,7 +3479,7 @@ function ikRow(x){
         (photos.length?'<div class="ikphotos">'+photos.map(function(p){ return '<a href="'+esc(p.url)+'" target="_blank" rel="noopener"><img src="'+esc(p.thumb_url||p.url)+'" alt="" loading="lazy"></a>' }).join("")+'</div>':'')+'</div>'+
       '<div><b>'+GX("ik_fieldsH")+'</b>'+ikFieldsForm(x)+'</div></div>'+
       '<div class="xactions">'+
-        '<select data-ikag="'+x.id+'">'+ikOwnerOptions(d,x)+'</select>'+
+        ikOwnerCombo(d,x,String(x.id))+
         '<button type="button" class="ab ok" data-iksave="'+x.id+'">'+t("save")+'</button>'+
         (x.status!=="published" ? '<button type="button" class="ab" data-ikread="'+x.id+'">'+GX("ik_readAgain")+'</button><button type="button" class="ab ok" data-ikpub="'+x.id+':pending">'+GX("ik_pubPending")+'</button><button type="button" class="ab ok" data-ikpub="'+x.id+':live">'+GX("ik_pubLive")+'</button>'+(x.status!=="cancelled"?'<button type="button" class="ab" data-ikcancel="'+x.id+'">'+t("cancel")+'</button>':'') : '')+
         '<button type="button" class="ab bad" data-ikdel="'+x.id+'">'+t("del")+'</button><span class="xmsg" id="ikMsg'+x.id+'"></span>'+
@@ -3569,7 +3569,7 @@ function adminIntakeBody(){
   var bulk='<div class="ikbulk'+(nSel?' on':'')+'">'+
     '<div class="ikb-row"><label class="xcheck"><input type="checkbox" id="ikSelAll"'+(nVis&&nSel===nVis?' checked':'')+'><span>'+GX("ik_selAll")+'</span></label><span><b class="ikb-n ltr">'+nSel+'</b> '+GX("ik_selected")+'</span>'+
       '<span class="ikb-set"><select id="ikBulkGov"><option value="">'+GX("ik_bulkGov")+'</option>'+Object.keys(D.GEO).map(function(g){ return '<option value="'+esc(g)+'">'+gN(g)+'</option>' }).join("")+'</select><button type="button" class="ab" id="ikBulkGovGo"'+(nSel?'':' disabled')+'>'+GX("ik_apply")+'</button></span>'+
-      '<span class="ikb-set"><select id="ikBulkAg">'+ikOwnerOptions(d,null)+'</select><button type="button" class="ab" id="ikBulkAgGo"'+(nSel?'':' disabled')+'>'+GX("ik_apply")+'</button></span></div>'+
+      '<span class="ikb-set">'+ikOwnerCombo(d,null,"bulk")+'<button type="button" class="ab" id="ikBulkAgGo"'+(nSel?'':' disabled')+'>'+GX("ik_apply")+'</button></span></div>'+
     '<div class="ikb-row"><button type="button" class="ab ok" id="ikBulkPubL"'+(nSel?'':' disabled')+'>'+GX("ik_pubLive")+'</button><button type="button" class="ab" id="ikBulkPubP"'+(nSel?'':' disabled')+'>'+GX("ik_pubPending")+'</button><button type="button" class="ab bad" id="ikBulkCancel"'+(nSel?'':' disabled')+'>'+t("cancel")+'</button><span class="xmsg" id="ikBulkMsg"></span></div></div>';
   var drafts='<div class="blk"><h3>'+GX("ik_draftsH")+' <span class="n">'+list.length+'</span></h3><div class="in eng-in">'+
     '<div class="ikfilters">'+filters.map(function(x){ return '<button type="button" class="ab'+(x[0]===f?' on':'')+'" data-ikf-filter="'+x[0]+'">'+x[1]+'</button>' }).join("")+'<button type="button" class="ab" id="ikReload" style="margin-inline-start:auto">'+AICO.refresh+'</button></div>'+
@@ -3598,6 +3598,7 @@ function wireAdminIntake(){
   if($("#ikCfgSave")) $("#ikCfgSave").onclick=async function(){ var m=$("#ikCfgMsg"), patch={}; busy(this,true);
     $$("#ikCfg [data-ikc]").forEach(function(i){ var k=i.dataset.ikc, ty=i.dataset.ikt; patch[k] = ty==="bool" ? !!i.checked : ty==="num" ? (i.value===""?null:+i.value) : (String(i.value).trim()===""?null:String(i.value).trim()) });
     try{ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:patch},p_country:"SY"}); admToast(GX("ik_saved")); reload() }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } };
+  wireIkOwnerCombos();
   var collect=function(id){ var box=$('.ikdetail[data-ikid="'+id+'"]'); if(!box) return null; var fields={};
     box.querySelectorAll("[data-ikf]").forEach(function(i){ var k=i.dataset.ikf; if(i.dataset.ikbool) fields[k]=!!i.checked; else { var v=String(i.value).trim(); fields[k]= v===""?null:(i.type==="number"?+v:v) } });
     var x=((ADM.ik||{}).drafts||[]).filter(function(y){ return String(y.id)===String(id) })[0]||{}; var f0=x.fields||{};
@@ -3815,22 +3816,46 @@ function wireAdmPromo(){
   if((p.tab||"text")==="image"&&!p.img&&!p.busy){ var l=admPromoListing(); if(l){ var fmt=p.fmt||"45", key=[p.src,fmt,!!p.hidePrice].join("|"); p.busy=GX("promoWorking");
     promoImage(l,fmt,{hidePrice:!!p.hidePrice}).then(function(u){ if(ADM.promo!==p||[p.src,p.fmt||"45",!!p.hidePrice].join("|")!==key) return; p.img=u; p.busy=""; render() },function(e){ if(ADM.promo!==p) return; p.busy=String(e&&e.message||e); render() }) } }
 }
-/* intake drafts: the "owner" select lists approved agencies AND plain members (a member who owns an approved agency
+/* intake drafts: the "owner" picker lists approved agencies AND plain members (a member who owns an approved agency
    appears once, under the agencies). Values are "a:<agency id>" / "u:<user uuid>"; ikOwnerPatch() turns one into the
-   bk_admin_intake_set patch (agency_id → the agency's user; user_id → that member, plus their own agency if any). */
-function ikOwnerOptions(d,x){
-  var cur = x ? (x.agency_id ? "a:"+x.agency_id : (x.user_id ? "u:"+x.user_id : "")) : "";
+   bk_admin_intake_set patch (agency_id → the agency's user; user_id → that member, plus their own agency if any).
+   2026-10-11: a type-to-search box instead of a <select> — with thousands of members a list cannot be scrolled; the
+   admin types part of a name, office or phone and picks from the matches. The chosen value sits in a hidden
+   [data-ikag] input so collect() / the bulk bar read it exactly as before. */
+function ikOwnerList(d){
   var ags=d.agencies||[], agUsers={}; ags.forEach(function(g){ if(g.user_id) agUsers[g.user_id]=1 });
   var rest=(d.members||[]).filter(function(u){ return !agUsers[u.id] });
-  var opt=function(v,label){ return '<option value="'+v+'"'+(v===cur?' selected':'')+'>'+label+'</option>' };
-  var uopt=function(u){ var nm=[u.name,u.family_name].filter(Boolean).join(" "); return opt("u:"+u.id, esc(nm||u.phone||u.id)+(nm&&u.phone?' · '+esc(u.phone):'')) };
-  var grp=function(label,items){ return items.length?'<optgroup label="'+label+'">'+items.join("")+'</optgroup>':'' };
+  var urow=function(grp){ return function(u){ var nm=[u.name,u.family_name].filter(Boolean).join(" "); return {v:"u:"+u.id, label:(nm||u.phone||u.id)+(nm&&u.phone?" · "+u.phone:""), grp:grp, q:(nm+" "+(u.phone||"")+" "+(u.member_no||"")).toLowerCase()} } };
   // three groups, matching the site's account types: offices (approved agencies, plus agency-type accounts that
   // have no approved agency row yet), brokers, and everyone else
-  return '<option value="">'+GX("ik_pickAgency")+'</option>'+
-    grp(GX("ik_grpAgencies"), ags.map(function(g){ return opt("a:"+g.id, esc(g.name)+(g.country_code&&g.country_code!=="SY"?' '+flagOf(g.country_code):'')) }).concat(rest.filter(function(u){ return u.account_type==="agency" }).map(uopt)))+
-    grp(GX("ik_grpBrokers"), rest.filter(function(u){ return u.account_type==="broker" }).map(uopt))+
-    grp(GX("ik_grpMembers"), rest.filter(function(u){ return u.account_type!=="agency"&&u.account_type!=="broker" }).map(uopt));
+  return ags.map(function(g){ return {v:"a:"+g.id, label:g.name+(g.country_code&&g.country_code!=="SY"?" "+flagOf(g.country_code):""), grp:GX("ik_grpAgencies"), q:(g.name+" "+(g.phone||"")+" "+(g.whatsapp||"")).toLowerCase()} })
+    .concat(rest.filter(function(u){ return u.account_type==="agency" }).map(urow(GX("ik_grpAgencies"))))
+    .concat(rest.filter(function(u){ return u.account_type==="broker" }).map(urow(GX("ik_grpBrokers"))))
+    .concat(rest.filter(function(u){ return u.account_type!=="agency"&&u.account_type!=="broker" }).map(urow(GX("ik_grpMembers"))));
+}
+function ikOwnerCombo(d,x,key){
+  var cur = x ? (x.agency_id ? "a:"+x.agency_id : (x.user_id ? "u:"+x.user_id : "")) : "";
+  var hit=cur?ikOwnerList(d).filter(function(r){ return r.v===cur })[0]:null;
+  return '<div class="chipsel ikown" data-ikown="'+key+'"><div class="chipsel-box"><input class="chipsel-input" data-ikownq="'+key+'" autocomplete="off" placeholder="'+esc(GX("ik_ownerPH"))+'" value="'+esc(hit?hit.label:"")+'">'+
+    (cur?'<button type="button" class="ikown-x" data-ikownclear="'+key+'" title="'+esc(GX("ik_ownerNone"))+'">✕</button>':'')+'</div><div class="chipsel-drop" data-ikowndrop="'+key+'"></div>'+
+    '<input type="hidden" data-ikag="'+key+'"'+(key==="bulk"?' id="ikBulkAg"':'')+' value="'+esc(cur)+'"></div>';
+}
+function wireIkOwnerCombos(){
+  var d=ADM.ik||{}, all=null;
+  $$("[data-ikownq]").forEach(function(input){
+    var key=input.dataset.ikownq, box=input.closest(".ikown"), drop=box.querySelector("[data-ikowndrop]"), hidden=box.querySelector("[data-ikag]");
+    var show=function(q){ all=all||ikOwnerList(d); var qq=(q||"").trim().toLowerCase().replace(/\s+/g," ");
+      var m=(qq?all.filter(function(r){ return r.q.indexOf(qq)>-1 }):all).slice(0,40), lastGrp=null, h="";
+      m.forEach(function(r){ if(r.grp!==lastGrp){ h+='<div class="chipsel-grp">'+esc(r.grp)+'</div>'; lastGrp=r.grp } h+='<div class="chipsel-opt" data-ikownv="'+esc(r.v)+'">'+esc(r.label)+'</div>' });
+      drop.innerHTML=h||'<div class="chipsel-empty">'+t("noResultsFor")+'</div>';
+      $$(".chipsel-drop.on").forEach(function(o){ if(o!==drop) o.classList.remove("on") }); drop.classList.add("on");
+      drop.querySelectorAll("[data-ikownv]").forEach(function(o){ o.onmousedown=function(e){ e.preventDefault(); hidden.value=this.dataset.ikownv; input.value=this.textContent; drop.classList.remove("on"); input.dispatchEvent(new Event("change",{bubbles:true})) } }) };
+    input.addEventListener("focus",function(){ show(hidden.value?"":this.value) });
+    input.addEventListener("input",function(){ hidden.value=""; show(this.value) });
+    input.addEventListener("keydown",function(e){ if(e.key==="Escape") drop.classList.remove("on"); if(e.key==="Enter"){ e.preventDefault(); var f=drop.querySelector("[data-ikownv]"); if(f&&drop.classList.contains("on")) f.onmousedown(e) } });
+    input.addEventListener("blur",function(){ setTimeout(function(){ drop.classList.remove("on"); if(!hidden.value) input.value="" },150) });
+    var x=box.querySelector("[data-ikownclear]"); if(x) x.onclick=function(){ hidden.value=""; input.value=""; this.remove() };
+  });
 }
 function ikOwnerPatch(v){ v=String(v||""); if(v.indexOf("a:")===0) return {agency_id:v.slice(2)}; if(v.indexOf("u:")===0) return {user_id:v.slice(2)}; return {user_id:null} }
 function admPromoListing(){ var id=ADM.promo&&ADM.promo.id; return ((ADM.data&&ADM.data.listings)||[]).find(function(l){ return String(l.id)===String(id) })||null }

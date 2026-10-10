@@ -2807,6 +2807,10 @@ html.maint-on{overflow:hidden}
 .adm .promo .pseg{display:inline-flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:999px;background:#fff;align-self:flex-start}
 .adm .promo .pseg button{border:0;background:transparent;border-radius:999px;padding:6px 14px;font:inherit;font-size:13px;color:var(--grey);cursor:pointer}
 .adm .promo .pseg button.on{background:var(--navy);color:#fff}
+/* intake owner picker (type to search a member / office) */
+.adm .ikown{min-width:280px;flex:1 1 280px}.adm .ikown .chipsel-box{padding:0 10px;gap:6px}.adm .ikown .chipsel-drop{max-height:320px;overflow:auto;z-index:30}
+.adm .ikown-x{border:0;background:transparent;color:var(--grey);cursor:pointer;font-size:13px;padding:0 4px}
+.chipsel-grp{padding:8px 13px 4px;font-size:11px;font-weight:700;color:var(--grey);letter-spacing:.3px;border-top:1px solid var(--line)}.chipsel-grp:first-child{border-top:0}
 /* «ترويج» dialog (admin): centred box over the page */
 .pm-ov{align-items:center;justify-content:center;padding:16px}
 .pm{width:min(560px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--page,#fff);border-radius:16px;box-shadow:0 24px 60px rgba(9,14,26,.3)}
@@ -11632,6 +11636,7 @@ var GX_T={
   ik_welcomeHint:{ar:"تُرسل مرة واحدة: واتساب والبريد فور توثيق الرقم، وتيليغرام فور ربط الحساب. اترك الحقل فارغاً لاستخدام النص الافتراضي. المتغيرات: {name} {wa} {tg} {contact} {email} {site}",en:"Sent once: WhatsApp and email when the phone is verified, Telegram when the account is linked. Leave a field empty to use the default text. Placeholders: {name} {wa} {tg} {contact} {email} {site}",de:"Einmalig: WhatsApp und E-Mail nach Nummernprüfung, Telegram nach Verknüpfung. Leer lassen für den Standardtext. Platzhalter: {name} {wa} {tg} {contact} {email} {site}"},
   ik_welcomeOn:{ar:"إرسال رسائل الترحيب",en:"Send welcome messages",de:"Willkommensnachrichten senden"},
   ik_welcomeWa:{ar:"ترحيب واتساب",en:"WhatsApp welcome",de:"WhatsApp-Willkommen"}, ik_welcomeSubj:{ar:"عنوان بريد الترحيب",en:"Welcome email subject",de:"Betreff der Willkommens-E-Mail"},
+  ik_ownerPH:{ar:"ابحث باسم المكتب أو العضو أو رقم الهاتف…",en:"Search an office, member or phone…",de:"Büro, Mitglied oder Telefon suchen…"}, ik_ownerNone:{ar:"إزالة الربط",en:"Clear",de:"Entfernen"},
   ik_welcomeEmail:{ar:"ترحيب البريد",en:"Email welcome",de:"E-Mail-Willkommen"}, ik_welcomeTg:{ar:"ترحيب تيليغرام",en:"Telegram welcome",de:"Telegram-Willkommen"},
   ik_welcomePH:{ar:"فارغ = النص الافتراضي",en:"Empty = default text",de:"Leer = Standardtext"},
   ik_draftsH:{ar:"المسوّدات",en:"Drafts",de:"Entwürfe"}, ik_fAll:{ar:"الكل",en:"All",de:"Alle"}, ik_fAttention:{ar:"بانتظارك",en:"Need you",de:"Warten auf Sie"}, ik_fOpen:{ar:"جارية",en:"In progress",de:"Laufend"}, ik_none:{ar:"لا مسوّدات بعد. أول رسالة من مكتب مربوط تظهر هنا.",en:"No drafts yet. The first message from a linked agency appears here.",de:"Noch keine Entwürfe. Die erste Nachricht eines verbundenen Büros erscheint hier."},
