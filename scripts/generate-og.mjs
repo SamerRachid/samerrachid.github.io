@@ -43,7 +43,11 @@ function ellipsize(ctx, text, maxW) {
   return s + "…";
 }
 
-const CARD_W = 1200, CARD_H = 630, SCALE = 2;
+// 1200×630 is Facebook's own recommended og:image size and is what the card is actually shown at. It used to be
+// rendered at 2× (2400×1260) for "retina" crispness — fine for the text and logo, but it doubled how far the
+// cover photo had to be stretched (listing photos are often ~500px wide), and that stretch was the blur the owner
+// kept seeing in share previews. SCALE stays as a knob; 1 is the deliberate choice, not a leftover.
+const CARD_W = 1200, CARD_H = 630, SCALE = 1;
 export const OG_WIDTH = CARD_W * SCALE, OG_HEIGHT = CARD_H * SCALE; // actual pixel size of the rendered file — callers use this for og:image:width/height
 
 // l: the v_listings row (same shape generate-listings.mjs works with). coverUrl: first photo URL or null.
@@ -55,7 +59,7 @@ export async function renderOgCard({ coverUrl, title, place, dealLabel, deed, ro
   const W = CARD_W, H = CARD_H, navy = "#14213D", sand = "#CFC4AE";
   const ph = Math.round(H * 0.72); // the photo now runs almost the full card height; the text panel below used to
   const c = createCanvas(W * SCALE, H * SCALE); const ctx = c.getContext("2d"); // be a solid block covering ~38% of it — with the price line gone there's less text to carry, so it shrank to
-  ctx.scale(SCALE, SCALE); // render at 2x and downsample on encode — sharp on retina feeds, crisper text/photo than 1x // a scrim (below) instead of a hard-edged solid panel
+  ctx.scale(SCALE, SCALE); // a scrim (below) instead of a hard-edged solid panel
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
   ctx.fillStyle = navy; ctx.fillRect(0, 0, W, H);
   let photo = null;
@@ -64,11 +68,10 @@ export async function renderOgCard({ coverUrl, title, place, dealLabel, deed, ro
       const r = await fetch(coverUrl);
       if (r.ok) {
         const raw = Buffer.from(await r.arrayBuffer());
-        // listing photos are often small/phone-compressed and get stretched well past their native size to
-        // cover the card; @napi-rs/canvas's own drawImage() resampling for that stretch looks soft. Resizing
-        // with sharp first (free, runs locally, no API) — Lanczos3 plus a mild sharpen — to the exact physical
-        // pixel size, then compositing it onto the canvas 1:1, is noticeably crisper for zero added cost.
-        const resized = await sharp(raw).resize(W * SCALE, H * SCALE, { fit: "cover", position: "centre", kernel: sharp.kernel.lanczos3 }).sharpen({ sigma: 1 }).png().toBuffer();
+        // the cover-fit crop/resize is done by sharp (Lanczos3) rather than by canvas's drawImage(), whose
+        // resampling is softer. No sharpen() or other "enhancement": the owner wants the photo as it is, at
+        // the card's real size — a clean resample, nothing invented.
+        const resized = await sharp(raw).resize(W * SCALE, H * SCALE, { fit: "cover", position: "centre", kernel: sharp.kernel.lanczos3 }).png().toBuffer();
         photo = await loadImage(resized);
       }
     } catch (e) { console.warn("OG cover fetch failed:", coverUrl, e.message); }

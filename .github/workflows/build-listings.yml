@@ -53,5 +53,9 @@ jobs:
           # other countries live under two-letter folders (/lb/, /jo/ …); -A also stages a tree removed when a country is switched off
           git add -A -- ':(glob)[a-z][a-z]/**' || true
           git diff --cached --quiet || git commit -m "Rebuild static pages [auto]"
-          git pull --rebase origin main || true
+          # npm install can leave package-lock.json modified (platform-specific optional deps resolved on the
+          # runner); anything still unstaged here was never meant to be committed by this job, and it makes
+          # "git pull --rebase" refuse to run ("You have unstaged changes") — which then left the push rejected.
+          git checkout -- .
+          git pull --rebase origin main || { git rebase --abort; exit 1; }
           git push
