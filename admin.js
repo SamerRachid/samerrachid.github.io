@@ -829,7 +829,7 @@ function adminWantedBody(){
   return '<div class="blk"><h3>'+GX("tWanted")+(pend?' <span class="n">'+pend+'</span>':'')+'</h3><div class="in eng-in"><div class="elist">'+list.map(function(w){
     return '<div class="erow wrow"><div class="pjtitle">'+avatar(w.user_avatar,w.user_name,40,"aglogo")+'<div><b>'+scopeFlag(w.country_code)+wTitle(w)+'</b><small>'+esc(w.user_name||"")+' · <span class="ltr">'+esc(w.user_phone||"")+'</span></small></div></div>'+
       '<div class="ewho">'+(w.deal==="rent"?GX("wRent"):GX("wBuy"))+' · '+(w.gov_name?gN(w.gov_name):GX("wAnywhere"))+'<small>'+(w.area_names||[]).map(aN).join("، ")+'</small></div>'+
-      '<div class="eclient">'+wBudgetText(w)+'<small>'+[wTypeName(w.property_type),w.rooms_min?GX("wRoomsN").replace("{n}",w.rooms_min):""].filter(Boolean).join(" · ")+'</small></div>'+
+      '<div class="eclient">'+wBudgetText(w)+'<small>'+[wTypesText(w),w.rooms_min?GX("wRoomsN").replace("{n}",w.rooms_min):""].filter(Boolean).join(" · ")+'</small></div>'+
       '<div class="eperiod"><span class="ltr">'+String(w.created_at||"").slice(0,10)+'</span><small>'+GX("wViews").replace("{n}",'<span class="ltr">'+(w.views||0)+'</span>')+'</small></div>'+
       '<div class="est">'+wStatusPill(w.status,w.expired)+(w.featured?' <span class="vbadge">★</span>':'')+'</div>'+
       '<div class="eacts">'+(w.status!=="open"?'<button type="button" class="ab ok" data-wadm="'+w.id+':open">'+(w.status==="pending"?GX("agApprove"):GX("wOpenBtn"))+'</button>':'')+(w.status==="open"?'<button type="button" class="ab" data-wadm="'+w.id+':hidden">'+GX("agHide")+'</button>':'')+

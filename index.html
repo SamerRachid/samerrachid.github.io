@@ -7262,18 +7262,20 @@ function curSelHtml(id, sel, extraStyle){ var list=wCurrencies(); sel=(sel||"").
 function toUsdFrom(v, cur){ v=+v||0; cur=(cur||"USD").toUpperCase(); if(cur==="USD"||!v) return v; var r=curRate(cur); return r>0 ? Math.round(v/r) : v }
 function wCurrencies(){ var c=countryOf(COUNTRY), list=(c&&c.currencies&&c.currencies.length)?c.currencies.slice():["USD","SYP"]; if(list.indexOf("USD")<0) list.unshift("USD"); return list }
 function wBudgetText(w){ var a=w.budget_min, b=w.budget_max; if(!a&&!b) return GX("wOpenBudget"); if(a&&b) return GX("wFromTo").replace("{a}",wMoney(a,w.currency)).replace("{b}",wMoney(b,w.currency)); if(b) return GX("wUpTo").replace("{n}",wMoney(b,w.currency)); return GX("wFromN").replace("{a}",wMoney(a,w.currency)) }
-function wTitle(w){ if(w.title) return esc(w.title); return GX("wAuto").replace("{t}",wTypeName(w.property_type)||GX("wProp")).replace("{d}",w.deal==="rent"?GX("wForRent"):GX("wForBuy")).replace("{g}",w.gov_name?gN(w.gov_name):GX("wAnywhere")) }
+function wTypeKeys(w){ return (w.property_types&&w.property_types.length) ? w.property_types : (w.property_type?[w.property_type]:[]) }
+function wTypesText(w){ return wTypeKeys(w).map(wTypeName).filter(Boolean).join(L==="ar"?" أو ":" / ") }
+function wTitle(w){ if(w.title) return esc(w.title); return GX("wAuto").replace("{t}",wTypesText(w)||GX("wProp")).replace("{d}",w.deal==="rent"?GX("wForRent"):GX("wForBuy")).replace("{g}",w.gov_name?gN(w.gov_name):GX("wAnywhere")) }
 function wDays(w){ var d=Math.max(0,Math.round((Date.now()-new Date(w.created_at))/86400000)); return d===0?GX("wToday"):GX("wDays").replace("{d}",'<span class="ltr">'+d+'</span>') }
 function wStatusPill(st,expired){ if(expired&&st==="open") st="expired"; var m={pending:["pending",GX("st_pending")],open:["live",GX("w_st_open")],fulfilled:["expired",GX("w_st_fulfilled")],hidden:["expired",GX("w_st_hidden")],rejected:["expired",GX("w_st_rejected")],expired:["expired",GX("w_st_expired")]}[st]||["pending",st]; return '<span class="st st-'+m[0]+'">'+m[1]+'</span>' }
 // listings that fit a request: same deal and governorate, the chosen areas and type if given, price within the budget (10% room), rooms and size at least, deed if asked
-function wantedMatches(w){ return D.LIST.filter(function(x){ if(x.status&&x.status!=="live") return false; if(x.d!==w.deal) return false; if(w.gov_name&&x.g!==w.gov_name) return false; if(w.property_type&&x.t!==w.property_type) return false;
+function wantedMatches(w){ var wtypes=wTypeKeys(w); return D.LIST.filter(function(x){ if(x.status&&x.status!=="live") return false; if(x.d!==w.deal) return false; if(w.gov_name&&x.g!==w.gov_name) return false; if(wtypes.length&&wtypes.indexOf(x.t)<0) return false;
   if(w.area_names&&w.area_names.length&&w.area_names.indexOf(x.a)<0) return false; if(w.budget_max&&w.currency==="USD"&&x.p&&x.p>w.budget_max*1.1) return false; if(w.rooms_min&&(x.r||0)<w.rooms_min) return false; if(w.area_min&&(x.m2||0)<w.area_min) return false; if(w.tabu&&x.tb!==w.tabu) return false; return !w.user_id||x.uid!==w.user_id }) }
 async function loadWanted(){ if(!DB){ WANTED=[]; return } try{ var r=await DB.rpc("bk_public_wanted",cArgs()); WANTED=(r&&r.data)||[] }catch(e){ WANTED=[] } }
 async function loadWantedOne(id){ if(!DB){ WANTEDONE={missing:true,id:id}; return } try{ var r=await DB.rpc("bk_wanted_get",{p_id:+id}); WANTEDONE=(r&&r.data)||{missing:true,id:id} }catch(e){ WANTEDONE={missing:true,id:id} } }
 async function loadMyWanted(){ if(!DB||!USER){ MYWANTED=[]; return } try{ var r=await DB.rpc("bk_wanted_mine",{p_token:USER.token||null}); if(r.error) throw r.error; MYWANTED=r.data||[] }catch(e){ MYWANTED=[] } }
 function wantedCard(w,mine){
   var ar=L==="ar", areas=(w.area_names||[]).slice(0,3).map(aN), more=(w.area_names||[]).length-3, n=wantedMatches(w).length, expired=w.expires_at&&new Date(w.expires_at)<Date.now();
-  var facts=[wTypeName(w.property_type), w.rooms_min?GX("wRoomsN").replace("{n}",w.rooms_min):"", w.area_min?GX("wAreaN").replace("{n}",w.area_min):"", w.tabu&&D.TABU[w.tabu]?D.TABU[w.tabu][li()]:""].filter(Boolean);
+  var facts=[wTypesText(w), w.rooms_min?GX("wRoomsN").replace("{n}",w.rooms_min):"", w.area_min?GX("wAreaN").replace("{n}",w.area_min):"", w.tabu&&D.TABU[w.tabu]?D.TABU[w.tabu][li()]:""].filter(Boolean);
   return '<a class="wcard'+(w.featured?' feat':'')+'" href="/wanted/'+w.id+'" data-wopen="'+w.id+'">'+
     '<div class="whead"><span class="wdeal '+esc(w.deal)+'">'+(w.deal==="rent"?GX("wRent"):GX("wBuy"))+'</span>'+(mine?wStatusPill(w.status,expired):'<span class="wtime">'+wDays(w)+'</span>')+'</div>'+
     '<b class="wtitle">'+wTitle(w)+'</b>'+
@@ -7288,8 +7290,8 @@ function wantedCard(w,mine){
 function wantedPage(){
   if(!wantedOn()) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:18px">'+GX("wDisabled")+'</b></div></div>';
   var list=WANTED, mineTab=WF.tab==="mine"&&USER, govs=[]; (list||[]).forEach(function(w){ if(w.gov_name&&govs.indexOf(w.gov_name)<0) govs.push(w.gov_name) });
-  var rows = mineTab ? (MYWANTED||[]) : (list||[]).filter(function(w){ return (!WF.deal||w.deal===WF.deal)&&(!WF.g||w.gov_name===WF.g)&&(!WF.t||w.property_type===WF.t) });
-  var types=[]; (list||[]).forEach(function(w){ if(w.property_type&&types.indexOf(w.property_type)<0) types.push(w.property_type) });
+  var rows = mineTab ? (MYWANTED||[]) : (list||[]).filter(function(w){ return (!WF.deal||w.deal===WF.deal)&&(!WF.g||w.gov_name===WF.g)&&(!WF.t||wTypeKeys(w).indexOf(WF.t)>-1) });
+  var types=[]; (list||[]).forEach(function(w){ wTypeKeys(w).forEach(function(k){ if(types.indexOf(k)<0) types.push(k) }) });
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("wDirShort")+'</div></div>'+
    '<div class="wrap wdir">'+
     '<div class="ag-hero"><div><div class="eyebrow">'+GX("wSecEyebrow")+'</div><h1>'+GX("wDir")+'</h1><p>'+GX("wDirP")+'</p></div><a class="gold" data-wnew="1">'+GX("wPost")+'</a></div>'+
@@ -7305,7 +7307,7 @@ function wantedOnePage(id){
   if(!w || String(w.id)!==String(id)) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>';
   if(w.missing) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:18px">'+t("notFound")+'</b><div style="margin-top:18px"><button class="btn-n" data-go="wanted">'+GX("wDirShort")+'</button></div></div></div>';
   var ar=L==="ar", mine=USER&&w.user_id===USER.id, matches=wantedMatches(w), wa=(w.whatsapp||"").replace(/\D/g,""), expired=w.expires_at&&new Date(w.expires_at)<Date.now();
-  var facts=[[t("ptype"),wTypeName(w.property_type)],[GX("f_wRooms"),w.rooms_min?'<span class="ltr">'+w.rooms_min+'</span>+':""],[GX("f_wArea"),w.area_min?'<span class="ltr">'+w.area_min+'</span>+ '+t("sqm"):""],[GX("f_wTabu"),w.tabu&&D.TABU[w.tabu]?D.TABU[w.tabu][li()]:""]].filter(function(f){ return f[1] });
+  var facts=[[t("ptype"),wTypesText(w)],[GX("f_wRooms"),w.rooms_min?'<span class="ltr">'+w.rooms_min+'</span>+':""],[GX("f_wArea"),w.area_min?'<span class="ltr">'+w.area_min+'</span>+ '+t("sqm"):""],[GX("f_wTabu"),w.tabu&&D.TABU[w.tabu]?D.TABU[w.tabu][li()]:""]].filter(function(f){ return f[1] });
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a data-go="wanted">'+GX("wDirShort")+'</a><i>›</i>'+wTitle(w)+'</div></div>'+
    '<div class="wrap wone">'+
     '<div class="wone-main"><div class="blk"><div class="in">'+
@@ -7329,15 +7331,15 @@ function wantedFormPage(){
   if(!wantedOn()) return wantedPage();
   if(!USER) return gate();
   if(needsVerify()) return unverifiedPage();
-  var w=WEDIT||{}, govs=Object.keys(D.GEO), areas=w.gov_name&&D.GEO[w.gov_name]?D.GEO[w.gov_name]:[], sel=w.area_names||[], isEdit=!!w.id;
+  var w=WEDIT||{}, govs=Object.keys(D.GEO), areas=w.gov_name&&D.GEO[w.gov_name]?D.GEO[w.gov_name]:[], sel=w.area_names||[], selT=wTypeKeys(w), isEdit=!!w.id;
   var f=function(label,key,type,attrs,ph){ return '<div class="fl"><label>'+label+'</label><input data-allow-autofill data-w="'+key+'" type="'+(type||"text")+'" value="'+esc(String(w[key]==null?"":w[key]))+'"'+(attrs||"")+(ph?' placeholder="'+esc(ph)+'"':'')+'></div>' };
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a data-go="wanted">'+GX("wDirShort")+'</a><i>›</i>'+(isEdit?GX("wFormEditT"):GX("wFormT"))+'</div></div>'+
    '<div class="wrap" style="max-width:760px;padding:22px 18px 60px">'+
     '<h1 style="font-size:22px;font-weight:700;margin-bottom:6px">'+(isEdit?GX("wFormEditT"):GX("wFormT"))+'</h1><p class="hintx" style="margin-bottom:16px">'+GX("wFormP")+'</p>'+
     '<div class="blk agform" id="wForm"><div class="in">'+
      '<div class="fl"><label class="req">'+GX("f_wDeal")+'</label><div class="ag-pills one" id="wDeal"><button type="button" class="'+((w.deal||"sale")==="sale"?"on":"")+'" data-wdeal="sale">'+GX("wBuyOpt")+'</button><button type="button" class="'+(w.deal==="rent"?"on":"")+'" data-wdeal="rent">'+GX("wRentOpt")+'</button></div></div>'+
-     '<div class="row"><div class="fl"><label>'+t("ptype")+'</label><select data-w="property_type"><option value="">—</option>'+Object.keys(D.TYPES).map(function(k){ return '<option value="'+k+'"'+(w.property_type===k?' selected':'')+'>'+wTypeName(k)+'</option>' }).join("")+'</select></div>'+
-      '<div class="fl"><label>'+t("gov")+'</label><select data-w="gov_name"><option value="">'+GX("wAnywhere")+'</option>'+govs.map(function(g){ return '<option value="'+esc(g)+'"'+(w.gov_name===g?' selected':'')+'>'+gN(g)+'</option>' }).join("")+'</select></div></div>'+
+     '<div class="fl"><label>'+t("ptype")+'</label><div class="hintx" style="margin:0 0 6px">'+GX("f_wTypesHint")+'</div><div class="ag-pills sel wrap" id="wTypes">'+Object.keys(D.TYPES).map(function(k){ return '<button type="button" class="'+(selT.indexOf(k)>-1?"on":"")+'" data-wtype="'+k+'">'+wTypeName(k)+'</button>' }).join("")+'</div></div>'+
+     '<div class="fl"><label>'+t("gov")+'</label><select data-w="gov_name"><option value="">'+GX("wAnywhere")+'</option>'+govs.map(function(g){ return '<option value="'+esc(g)+'"'+(w.gov_name===g?' selected':'')+'>'+gN(g)+'</option>' }).join("")+'</select></div>'+
      (areas.length?'<div class="fl"><label>'+GX("f_wAreas")+'</label><div class="ag-pills sel wrap" id="wAreas">'+areas.map(function(a){ return '<button type="button" class="'+(sel.indexOf(a)>-1?"on":"")+'" data-warea="'+esc(a)+'">'+aN(a)+'</button>' }).join("")+'</div></div>':'')+
      '<div class="row3x">'+f(GX("f_wBudgetMin"),"budget_min","number",' min="0" class="ltr" inputmode="numeric"')+f(GX("f_wBudgetMax"),"budget_max","number",' min="0" class="ltr" inputmode="numeric"')+'<div class="fl"><label>'+GX("f_wCur")+'</label><select data-w="currency">'+wCurrencies().map(function(c){ var cur=(w.currency||CUR||"USD").toUpperCase(); if(wCurrencies().indexOf(cur)<0) cur="USD"; return '<option value="'+c+'"'+(cur===c?' selected':'')+'>'+c+' '+esc(curLabel(c,L))+'</option>' }).join("")+'</select></div></div>'+
      '<div class="row3x">'+f(GX("f_wRooms"),"rooms_min","number",' min="0" max="20" class="ltr" inputmode="numeric"')+f(GX("f_wArea"),"area_min","number",' min="0" class="ltr" inputmode="numeric"')+'<div class="fl"><label>'+GX("f_wTabu")+'</label><select data-w="tabu"><option value="">'+GX("wAnyTabu")+'</option>'+Object.keys(D.TABU).map(function(k){ return '<option value="'+k+'"'+(w.tabu===k?' selected':'')+'>'+D.TABU[k][li()]+'</option>' }).join("")+'</select></div></div>'+
@@ -7356,7 +7358,7 @@ function homeWantedHtml(){
 function wireWanted(){
   if(!window._wDelegated){ window._wDelegated=true; document.addEventListener("click",function(e){
     var a=e.target.closest("[data-wopen]"); if(a){ if(e.target.closest("[data-wedit],[data-wset],[data-wdel]")) return; e.preventDefault(); WANTEDONE=null; VIEW="wanted:"+a.dataset.wopen; scrollTo(0,0); render(); return }
-    var nw=e.target.closest("[data-wnew]"); if(nw){ e.preventDefault(); WEDIT={deal:"sale",currency:CUR||"USD",area_names:[],contact:"both"}; VIEW="wantedform"; scrollTo(0,0); render(); return }
+    var nw=e.target.closest("[data-wnew]"); if(nw){ e.preventDefault(); WEDIT={deal:"sale",currency:CUR||"USD",area_names:[],property_types:[],contact:"both"}; VIEW="wantedform"; scrollTo(0,0); render(); return }
     var ed=e.target.closest("[data-wedit]"); if(ed){ e.preventDefault(); var src=(MYWANTED||[]).concat(WANTEDONE?[WANTEDONE]:[]).filter(function(w){ return String(w.id)===ed.dataset.wedit })[0]; if(src){ WEDIT=JSON.parse(JSON.stringify(src)); VIEW="wantedform"; scrollTo(0,0); render() } return }
     var st=e.target.closest("[data-wset]"); if(st){ e.preventDefault(); var q=st.dataset.wset.split(":"); DB.rpc("bk_wanted_set",{p_token:USER&&USER.token||null,p_id:+q[0],p_status:q[1]}).then(function(r){ if(r.error) throw r.error; MYWANTED=null; WANTED=null; if(WANTEDONE&&String(WANTEDONE.id)===q[0]) WANTEDONE=r.data||null; render() }).catch(function(err){ alert(err.message||"error") }); return }
     var dl=e.target.closest("[data-wdel]"); if(dl){ e.preventDefault(); if(!confirm(GX("wDelConfirm"))) return; DB.rpc("bk_wanted_delete",{p_token:USER&&USER.token||null,p_id:+dl.dataset.wdel}).then(function(r){ if(r.error) throw r.error; MYWANTED=null; WANTED=null; if(VIEW.indexOf("wanted:")===0) VIEW="wanted"; render() }).catch(function(err){ alert(err.message||"error") }); return }
@@ -7366,13 +7368,14 @@ function wireWanted(){
     $$("[data-wtab]").forEach(function(b){ b.onclick=function(){ WF.tab=this.dataset.wtab; render() } });
     $$("[data-wd]").forEach(function(b){ b.onclick=function(){ WF.deal=this.dataset.wd; render() } }); $$("[data-wg]").forEach(function(b){ b.onclick=function(){ WF.g=this.dataset.wg; render() } }); $$("[data-wt]").forEach(function(b){ b.onclick=function(){ WF.t=this.dataset.wt; render() } }) }
   if(VIEW.indexOf("wanted:")===0){ var id=VIEW.split(":")[1]; if(!WANTEDONE || String(WANTEDONE.id)!==String(id)){ loadWantedOne(id).then(render); return } }
-  if(VIEW==="wantedform" && USER){ var W=WEDIT||(WEDIT={deal:"sale",currency:CUR||"USD",area_names:[],contact:"both"}), fm=$("#wForm"); if(!fm) return;
-    var collect=function(){ $$("#wForm [data-w]").forEach(function(el){ W[el.dataset.w]=el.value }); W.area_names=$$("#wAreas .on").map(function(b){ return b.dataset.warea }); W.deal=($("#wDeal .on")||{}).dataset ? $("#wDeal .on").dataset.wdeal : "sale" };
+  if(VIEW==="wantedform" && USER){ var W=WEDIT||(WEDIT={deal:"sale",currency:CUR||"USD",area_names:[],property_types:[],contact:"both"}), fm=$("#wForm"); if(!fm) return;
+    var collect=function(){ $$("#wForm [data-w]").forEach(function(el){ W[el.dataset.w]=el.value }); W.area_names=$$("#wAreas .on").map(function(b){ return b.dataset.warea }); W.property_types=$$("#wTypes .on").map(function(b){ return b.dataset.wtype }); W.deal=($("#wDeal .on")||{}).dataset ? $("#wDeal .on").dataset.wdeal : "sale" };
     $$("[data-wdeal]").forEach(function(b){ b.onclick=function(){ $$("#wDeal button").forEach(function(x){ x.classList.remove("on") }); this.classList.add("on") } });
     $$("[data-warea]").forEach(function(b){ b.onclick=function(){ this.classList.toggle("on") } });
+    $$("[data-wtype]").forEach(function(b){ b.onclick=function(){ this.classList.toggle("on") } });
     fm.onchange=function(e){ if(e.target.dataset.w==="gov_name"){ collect(); W.area_names=[]; render() } };
     $("#wSave").onclick=async function(){ collect(); var m=$("#wMsg"); this.disabled=true;
-      try{ var r=await DB.rpc("bk_wanted_save",{p_token:USER.token||null,p_id:W.id||null,p_data:{deal:W.deal,property_type:W.property_type||null,gov_name:W.gov_name||null,area_names:W.area_names||[],budget_min:W.budget_min||null,budget_max:W.budget_max||null,currency:W.currency||"USD",rooms_min:W.rooms_min||null,area_min:W.area_min||null,tabu:W.tabu||null,title:W.title||null,description:W.description||null,contact:W.contact||"both",country_code:COUNTRY}});
+      try{ var r=await DB.rpc("bk_wanted_save",{p_token:USER.token||null,p_id:W.id||null,p_data:{deal:W.deal,property_types:W.property_types||[],gov_name:W.gov_name||null,area_names:W.area_names||[],budget_min:W.budget_min||null,budget_max:W.budget_max||null,currency:W.currency||"USD",rooms_min:W.rooms_min||null,area_min:W.area_min||null,tabu:W.tabu||null,title:W.title||null,description:W.description||null,contact:W.contact||"both",country_code:COUNTRY}});
         if(r.error) throw r.error; var saved=r.data; MYWANTED=null; WANTED=null; WEDIT=null; WANTEDONE=saved; WF.tab="mine"; VIEW="wanted:"+saved.id; scrollTo(0,0); render();
         setTimeout(function(){ var h=document.querySelector(".wone h1"); if(h){ var n=document.createElement("div"); n.className="wsaved"; n.textContent=saved.status==="open"?GX("wSavedOk"):GX("wSaved"); h.parentNode.insertBefore(n,h) } },50) }
       catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } this.disabled=false } };
@@ -11355,7 +11358,7 @@ var GX_T={
   wEmpty:{ar:"لا طلبات مطابقة بعد.",en:"No matching requests yet.",de:"Noch keine passenden Anfragen."}, wEmptyCta:{ar:"كن أول من يضيف طلباً، وسيراه المالكون والمكاتب.",en:"Be the first to post one. Owners and agencies will see it.",de:"Stellen Sie die erste Anfrage ein. Eigentümer und Büros sehen sie."},
   wMineEmpty:{ar:"لم تضف أي طلب بعد.",en:"You have not posted a request yet.",de:"Sie haben noch keine Anfrage."},
   wFormT:{ar:"طلبك",en:"Your request",de:"Ihre Anfrage"}, wFormEditT:{ar:"تعديل الطلب",en:"Edit request",de:"Anfrage bearbeiten"}, wFormP:{ar:"اكتب ما تبحث عنه بدقة. كلما كان الطلب أوضح، كانت العروض التي تصلك أفضل.",en:"Describe exactly what you want. The clearer the request, the better the offers you get.",de:"Beschreiben Sie genau, was Sie suchen. Je klarer die Anfrage, desto besser die Angebote."},
-  f_wDeal:{ar:"أبحث عن",en:"I am looking to",de:"Ich möchte"}, f_wAreas:{ar:"المناطق المفضلة (اختياري)",en:"Preferred areas (optional)",de:"Bevorzugte Gebiete (optional)"}, f_wBudgetMin:{ar:"الميزانية من",en:"Budget from",de:"Budget von"}, f_wBudgetMax:{ar:"إلى",en:"to",de:"bis"}, f_wCur:{ar:"العملة",en:"Currency",de:"Währung"},
+  f_wDeal:{ar:"أبحث عن",en:"I am looking to",de:"Ich möchte"}, f_wTypesHint:{ar:"اختر نوعاً واحداً أو أكثر (اختياري)",en:"Choose one or more types (optional)",de:"Einen oder mehrere Typen wählen (optional)"}, f_wAreas:{ar:"المناطق المفضلة (اختياري)",en:"Preferred areas (optional)",de:"Bevorzugte Gebiete (optional)"}, f_wBudgetMin:{ar:"الميزانية من",en:"Budget from",de:"Budget von"}, f_wBudgetMax:{ar:"إلى",en:"to",de:"bis"}, f_wCur:{ar:"العملة",en:"Currency",de:"Währung"},
   f_wRooms:{ar:"الغرف (على الأقل)",en:"Rooms (at least)",de:"Zimmer (mindestens)"}, f_wArea:{ar:"المساحة م² (على الأقل)",en:"Size m² (at least)",de:"Fläche m² (mindestens)"}, f_wTabu:{ar:"حالة الطابو المفضلة",en:"Preferred title deed",de:"Bevorzugter Grundbuchstatus"}, wAnyTabu:{ar:"أي حالة",en:"Any",de:"Beliebig"},
   f_wTitle:{ar:"عنوان الطلب",en:"Title",de:"Titel"}, f_wTitlePH:{ar:"مثال: شقة 3 غرف في {exA1} أو {exA2}",en:"e.g. 3-room apartment in {exA1} or {exA2}",de:"z. B. 3-Zimmer-Wohnung in {exA1} oder {exA2}",fr:"ex. appartement 3 pièces à {exA1} ou {exA2}"},
   f_wDesc:{ar:"التفاصيل",en:"Details",de:"Details"}, f_wDescPH:{ar:"الطابق، الإطلالة، التشطيب، موعد الاستلام، طريقة الدفع…",en:"Floor, view, finish, move-in date, payment…",de:"Etage, Aussicht, Ausbau, Einzugstermin, Zahlung…"},
