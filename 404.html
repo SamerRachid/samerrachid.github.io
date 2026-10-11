@@ -6204,7 +6204,8 @@ function wireNotifBell(){
   $$("[data-notiflink]").forEach(function(e){ e.onclick=function(){
     var link=this.dataset.notiflink;
     if(link&&link.indexOf("#/msgs")>-1){ LOADED.msgs=false; MYMSGS={reports:[],feedback:[]}; VIEW="msgs"; scrollTo(0,0); render() }
-    else if(link&&link.indexOf("#/listing/")>-1){ VIEW="listing:"+link.split("/listing/")[1]; scrollTo(0,0); render() }
+    else if(link&&link.indexOf("/listing/")>-1){ VIEW="listing:"+link.split("/listing/")[1]; scrollTo(0,0); render() }
+    else if(link&&link.indexOf("/wanted/")>-1){ WANTEDONE=null; VIEW="wanted:"+link.split("/wanted/")[1]; scrollTo(0,0); render() }
   }});
 }
 var _notifPollTimer=null;
