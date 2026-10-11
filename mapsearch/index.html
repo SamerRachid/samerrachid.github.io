@@ -3094,16 +3094,17 @@ html[lang=fr] .htools a.gold{white-space:nowrap}
 .wver{font-style:normal;color:var(--ok);font-weight:800}
 .wmatch{font-size:12.5px;color:var(--light)}.wmatch.has{color:var(--gold-dk,#8A6522);font-weight:700}
 .wacts{display:flex;gap:6px;flex-wrap:wrap}.wacts .ab{margin:0}.wacts.own{margin-top:16px;align-items:center}.wacts.own .hintx{margin:0 8px}
-.wone{padding:18px 18px 60px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:20px;align-items:start}
+.wone{padding:18px 18px 60px;display:grid;grid-template-columns:minmax(0,1fr) 340px;grid-template-areas:"det side" "match side";gap:20px;align-items:start}
+.wone .wdet{grid-area:det}.wone .wmatch{grid-area:match}
 .wone h1{font-size:24px;font-weight:800;color:var(--navy);margin:10px 0 0;line-height:1.4}
 .wone .wtiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:16px}
 .wone .wtiles>div{background:var(--page);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:3px}.wone .wtiles small{font-size:11.5px;color:var(--light)}.wone .wtiles b{font-size:14.5px;color:var(--navy)}
 .wone .wtiles>div.hi{background:var(--navy)}.wone .wtiles>div.hi small{color:rgba(255,255,255,.7)}.wone .wtiles>div.hi b{color:#E3B563;font-size:16px}
 .wmh{font-size:18px;font-weight:700;margin:22px 0 12px}
-.wside{position:sticky;top:76px}.wside .agcontact{margin-top:0}.wside .agcontact a{flex:1;justify-content:center}
+.wside{grid-area:side;position:sticky;top:76px}.wside .agcontact{margin-top:0}.wside .agcontact a{flex:1;justify-content:center}
 .wsaved{background:var(--ok-w);color:var(--ok);border-radius:12px;padding:12px 14px;font-weight:700;margin:12px 0 4px}
 .ag-pills.one button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
-@media(max-width:900px){.wone{grid-template-columns:1fr}.wside{position:static}.w-row{grid-auto-columns:minmax(250px,280px)}.wone h1{font-size:20px}}
+@media(max-width:900px){.wone{grid-template-columns:1fr;grid-template-areas:"det" "side" "match"}.wside{position:static}.w-row{grid-auto-columns:minmax(250px,280px)}.wone h1{font-size:20px}}
 .adm .erow.wrow{grid-template-columns:minmax(220px,1.4fr) minmax(150px,1.1fr) minmax(130px,.9fr) 120px 110px auto}.adm .wrow .eperiod small,.adm .wrow .eclient small{display:block;color:var(--grey);font-weight:500}
 /* new projects */
 .pjdir{padding:22px 18px 60px}
@@ -7303,7 +7304,7 @@ function wantedOnePage(id){
   var facts=[[t("ptype"),wTypesText(w)],[GX("f_wRooms"),w.rooms_min?'<span class="ltr">'+w.rooms_min+'</span>+':""],[GX("f_wArea"),w.area_min?'<span class="ltr">'+w.area_min+'</span>+ '+t("sqm"):""],[GX("f_wTabu"),w.tabu&&D.TABU[w.tabu]?D.TABU[w.tabu][li()]:""]].filter(function(f){ return f[1] });
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a data-go="wanted">'+GX("wDirShort")+'</a><i>›</i>'+wTitle(w)+'</div></div>'+
    '<div class="wrap wone">'+
-    '<div class="wone-main"><div class="blk"><div class="in">'+
+    '<div class="wdet blk"><div class="in">'+
       '<div class="whead"><span class="wdeal '+esc(w.deal)+'">'+(w.deal==="rent"?GX("wRent"):GX("wBuy"))+'</span>'+(mine||w.status!=="open"?wStatusPill(w.status,expired):'')+'<span class="wtime">'+wDays(w)+' · '+GX("wViews").replace("{n}",'<span class="ltr">'+(w.views||0)+'</span>')+'</span></div>'+
       '<h1>'+wTitle(w)+'</h1>'+
       '<div class="wloc big">'+MI.map+'<span>'+(w.gov_name?gN(w.gov_name):GX("wAnywhere"))+((w.area_names||[]).length?' · '+(w.area_names||[]).map(aN).join(ar?"، ":", "):'')+'</span></div>'+
@@ -7311,14 +7312,15 @@ function wantedOnePage(id){
       (w.description?'<p class="wdesc big">'+esc(w.description).replace(/\n/g,"<br>")+'</p>':'')+
       (mine?'<div class="wacts own"><button type="button" class="ab" data-wedit="'+w.id+'">'+t("edit")+'</button>'+(w.status==="open"&&!expired?'<button type="button" class="ab" data-wset="'+w.id+':fulfilled">'+GX("wMarkDone")+'</button>':'')+((w.status==="fulfilled"||(w.status==="open"&&expired))?'<button type="button" class="ab ok" data-wset="'+w.id+':open">'+GX("wReopen")+'</button>':'')+'<button type="button" class="ab bad" data-wdel="'+w.id+'">'+t("del")+'</button><span class="hintx">'+(w.expires_at?GX("wExpires").replace("{d}",'<span class="ltr">'+String(w.expires_at).slice(0,10)+'</span>'):'')+'</span></div>':'')+
      '</div></div>'+
-     '<h2 class="wmh">'+GX("wMatchesH")+' <span class="ltr" style="color:var(--grey);font-weight:500">('+matches.length+')</span></h2>'+
-     (matches.length?'<div class="res">'+matches.slice(0,12).map(function(x,i){ return card(x,i,false) }).join("")+'</div>':'<div class="resempty"><b>'+GX("wNoMatches")+'</b></div>')+
-    '</div>'+
     '<aside class="wside"><div class="blk"><h3>'+GX("wContact")+'</h3><div class="in">'+
       '<div class="wwho big">'+avatar(w.user_avatar,w.user_name,52,"av")+'<div><b>'+esc(w.user_name||"")+'</b>'+(w.phone_verified?'<span class="wverline">✓ '+GX("wVerified")+'</span>':'')+'</div></div>'+
       '<div class="agcontact">'+(w.phone?'<a class="btn-n" href="tel:'+esc(w.phone)+'">'+MI.phone+GX("agCall")+'</a>':'')+(wa?'<a class="btn-n wa" href="https://wa.me/'+wa+'?text='+encodeURIComponent(GX("wWaHi")+location.origin+"/wanted/"+w.id)+'" target="_blank" rel="noopener">'+MI.msgs+GX("agWa")+'</a>':'')+'</div>'+
       (!w.phone&&!wa?'<div class="hintx">'+GX("wNoPhone")+'</div>':'')+
     '</div></div></aside>'+
+    '<div class="wmatch">'+
+     '<h2 class="wmh">'+GX("wMatchesH")+' <span class="ltr" style="color:var(--grey);font-weight:500">('+matches.length+')</span></h2>'+
+     (matches.length?'<div class="res">'+matches.slice(0,12).map(function(x,i){ return card(x,i,false) }).join("")+'</div>':'<div class="resempty"><b>'+GX("wNoMatches")+'</b></div>')+
+    '</div>'+
    '</div>' }
 function wantedFormPage(){
   if(!wantedOn()) return wantedPage();
