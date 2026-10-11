@@ -26,16 +26,16 @@ async function storageRestore(paths){
        if(j && j.error) return {data:null, error:{message:j.error}};
        return {data:{restored:j.restored||[], failed:j.failed||[]}, error:null} }
   catch(e){ return {data:null, error:e} } }
-var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",house:"users",outreach:"users",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",types:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super",campaigns:"campaigns"};
+var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",house:"users",outreach:"users",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",types:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super",campaigns:"campaigns",social:"featured"};
 // sidebar groups: one entry in the sidebar, sub-tabs rendered as a segmented bar on the page (the tab bodies stay keyed by the real tab)
-var ADM_GROUPS={inbox:["reports","feedback","tickets","msgs"],promo:["ads","featured","banners","engage"],system:["settings","storage","admins","danger"]};
+var ADM_GROUPS={inbox:["reports","feedback","tickets","msgs"],promo:["ads","featured","banners","engage","social"],system:["settings","storage","admins","danger"]};
 function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab)>-1) return g } return null }
 function admResolveTab(k){ if(!ADM_GROUPS[k]) return k; var last=(ADM._sub||{})[k]; if(last&&canTab(last)) return last; return ADM_GROUPS[k].filter(canTab)[0]||k }
 function canTab(k){ if(ADM_GROUPS[k]) return ADM_GROUPS[k].some(canTab); var p=TAB_PERM[k]; if(p===undefined) return can(k); if(p==="super") return !!ADM.isSuper; if(Array.isArray(p)) return p.some(can); return can(p) }
 // ── panel search: tabs + the features inside them (buttons, cards, settings) with the words people use for them ──
 function admNorm(s){ return String(s||"").toLowerCase().replace(/[\u064B-\u0652\u0670\u0640]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/\s+/g," ").trim() }
 var ADM_FEATURES=[
- {tab:"listings", k:"روج ترويج promo promote share منشور فيسبوك نص جاهز صورة إعلان reel ريل", l:{ar:"زر «روّج» (نص ومنشور وصورة وريل جاهزة للإعلان)",en:"“Promote” button (ready post, image and reel for a listing)",de:"„Bewerben“ (Beitrag, Bild, Reel für ein Inserat)"}, w:{ar:"الإعلانات ← افتح إعلاناً حيّاً ← زر «روّج» في بطاقة التفاصيل",en:"Listings → open a live listing → “Promote” in the details card",de:"Inserate → Inserat öffnen → „Bewerben“"}},
+ {tab:"social", k:"روج ترويج promo promote share منشور فيسبوك نص جاهز صورة إعلان reel ريل جدولة مستحق مجموعة", l:{ar:"الترويج الاجتماعي (نص ومعاينة وصورة وريل وجدولة)",en:"Social promote (text, preview, image, reel and scheduling)",de:"Social-Media-Werbung (Text, Vorschau, Bild, Reel, Planung)"}, w:{ar:"التسويق ← الترويج الاجتماعي، أو من أي إعلان حيّ ← زر «روّج»",en:"Marketing → Social promote, or from any live listing → “Promote”",de:"Marketing → Social-Media-Werbung, oder bei einer Anzeige → „Bewerben“"}},
  {tab:"featured", k:"تمييز مميز featured feature star نجمة", l:{ar:"تمييز إعلان / الإعلانات المميزة",en:"Feature a listing / featured listings",de:"Inserat hervorheben"}, w:{ar:"التسويق ← الترويج ← المميزة",en:"Marketing → Promotions → Featured",de:"Marketing → Hervorgehoben"}},
  {tab:"outreach", k:"مكاتب مستهدفة outreach pipeline واتساب رسالة نموذجية متابعة", l:{ar:"دفتر المكاتب المستهدفة (متابعة المكاتب)",en:"Agency outreach tracker",de:"Büro-Akquise"}, w:{ar:"الأعضاء ← المكاتب المستهدفة",en:"People → Agency outreach",de:"Mitglieder → Büro-Akquise"}},
  {tab:"dashboard", k:"الزوار الآن زوار visitors now online متصلين رابط تتبع src", l:{ar:"الزوار الآن وروابط التتبّع",en:"Visitors now and campaign links",de:"Besucher jetzt und Kampagnenlinks"}, w:{ar:"نظرة عامة ← الرئيسية (البطاقات)",en:"Overview → Dashboard cards",de:"Übersicht → Dashboard"}},
@@ -650,6 +650,7 @@ function adminView(){
  else if(ADM.tab==="projects_adm"){ body = adminProjectsBody(); }
  else if(ADM.tab==="wanted_adm"){ body = adminWantedBody(); }
  else if(ADM.tab==="featured"){ body = adminPromoBody(); }
+ else if(ADM.tab==="social"){ body = adminSocialBody(); }
 
  else if(ADM.tab==="danger"){
   body = '<div class="done2" style="margin-bottom:14px;text-align:start"><b>'+GX("dzScopeNote").replace("{c}", ADM.scope==="ALL"?GX("cAll"):esc(countryName(countryOf(COUNTRY)||{})))+'</b></div>'+
@@ -783,7 +784,7 @@ function adminView(){
  // sub-tabs of the grouped sidebar entries: [label, badge]
  var openTk=(ADM.tickets||[]).filter(function(x){ return x.status!=="done" }).length;
  var SUB={reports:[t("reportsTab"),s.openReports],feedback:[t("feedbackTab"),s.openFeedback],tickets:[GX("ticketsTab"),openTk],msgs:[t("msgsNotifTab"),ADM.alertsUnread],
-          ads:[t("adsTab"),null],featured:[GX("tPromote"),null],banners:[GX("tBanners"),null],engage:[GX("tEngage"),null],
+          ads:[t("adsTab"),null],featured:[GX("tPromote"),null],banners:[GX("tBanners"),null],engage:[GX("tEngage"),null],social:[GX("tSocial"),(ADM._promoDue||[]).length||null],
           settings:[GX("tSystem"),null],storage:[GX("tStorage"),null],admins:[t("adminsTab"),null],danger:[t("dangerTab"),null]};
  var inboxN=(+s.openReports||0)+(+s.openFeedback||0)+openTk+(+ADM.alertsUnread||0);
  var NAV=[
@@ -1307,7 +1308,8 @@ function wireAdmin(){
   };
 
   // open the full listing editor
-  wireAdmPromo(); wireAdmPm();
+  $$("[data-apromo]").forEach(function(b){ b.onclick=function(){ ADM.social={id:this.dataset.apromo,src:"fb-damas",tab:"text",fmt:"45"}; admGo("social") } });
+  wireAdmPm();
   $$("[data-adopen]").forEach(function(e){ e.onclick=async function(){
     // full parity with a member's own "Edit listing" page — location,
     // every detail field, all of it — rather than the old handful-
@@ -1564,6 +1566,16 @@ function wireAdmin(){
         ADM.engAdd=false; ADM._engDays=null; ADM._featCode=null; ADM.engLastCode=r&&r.code||null; render() }catch(e){ if(m) m.textContent=e.message||"error" } };
   }
   $$("[data-ecopy]").forEach(function(b){ b.onclick=function(){ var c=this.dataset.ecopy, btn=this, old=btn.textContent; try{ navigator.clipboard.writeText(c).then(function(){ if(btn.tagName==="BUTTON"){ btn.textContent=GX("engCopied"); setTimeout(function(){ btn.textContent=old },1200) } }) }catch(e){ prompt(GX("engCode"),c) } } });
+  if((ADM.tab==="dashboard"||ADM.tab==="social") && !ADM._promoDueLoaded){
+    ADM._promoDueLoaded=true;
+    rpc("bk_admin_promo_due",{p_token:ADM.token}).then(function(r){ ADM._promoDue=r||[]; render() }).catch(function(){ ADM._promoDue=[] });
+  }
+  if(ADM.tab==="social" && !ADM._promoSettingsLoaded){
+    ADM._promoSettingsLoaded=true;
+    rpc("bk_admin_promo_settings_get",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM._promoSettings=r||{}; render() }).catch(function(){ ADM._promoSettings={} });
+  }
+  if(ADM.tab==="social") wireAdminSocial();
+  $$("[data-socialduegoto]").forEach(function(e){ e.onclick=function(){ ADM.social={id:this.dataset.socialduegoto,src:"fb-damas",tab:"text",fmt:"45"}; admGo("social") } });
   if(ADM.tab==="featured" && !ADM._promosLoaded){
     ADM._promosLoaded=true;
     admLoadPromos();
@@ -2671,7 +2683,10 @@ function adminDashboardBody(s){
   var alerts='<div class="blk"><h3>'+t("recentAlertsH")+'</h3><div class="in">'+((ADM.alerts&&ADM.alerts.length) ? '<div class="onlinelist">'+ADM.alerts.slice(0,5).map(function(n){
        var lbl = n.title==="new_feedback"?t("newFeedbackAlert"):n.title==="new_report"?t("newReportAlert"):n.title;
        return '<a class="onlinerow" data-goto="'+(n.link||"").replace("/#/admin:","")+'"><span class="onlinedot" style="background:'+(n.is_read?"var(--light)":"var(--danger)")+'"></span><span style="font-size:13px">'+lbl+'</span><span class="ltr" style="margin-inline-start:auto;color:var(--light);font-size:11px">'+when(n.created_at)+'</span></a>' }).join("")+'</div>' : '<div class="adashempty">'+t("noAlerts")+'</div>')+'</div></div>';
-  return head+kpiGrid(an,false)+scopeCountriesBlocks(an)+
+  var due=ADM._promoDue||[];
+  var dueBlock=due.length?'<div class="blk" style="margin-top:16px"><h3>📣 '+GX("socialDueH")+' <span class="n">'+due.length+'</span></h3><div class="in"><div class="onlinelist">'+
+    due.slice(0,8).map(function(p){ return '<a class="onlinerow" data-socialduegoto="'+p.listing_id+'">'+(p.cover?'<img src="'+esc(p.cover)+'" style="width:28px;height:28px;object-fit:cover;border-radius:6px;margin-inline-end:6px">':'')+'<span style="font-size:13px">'+esc(p.ref||p.listing_id)+(p.gov?' · '+esc(p.gov):'')+'</span><span class="ltr" style="margin-inline-start:auto;color:var(--light);font-size:11px">'+when(p.due_at)+'</span></a>' }).join("")+'</div></div></div>':'';
+  return head+kpiGrid(an,false)+scopeCountriesBlocks(an)+dueBlock+
     '<div class="blk" style="margin-top:16px"><h3>'+GX("chVisits")+'</h3><div class="in">'+svgLine(an.series,["views","visitors"],["#14213D","#2563EB"],[GX("kViews"),GX("kVisitors")])+'</div></div>'+
     '<div class="agrid2" style="margin-top:16px">'+
       '<div class="blk"><h3>'+GX("topListingsH")+'<button class="ab" data-atab="stats" style="margin-inline-start:auto">'+t("openFullAnalytics")+'</button></h3><div class="in" style="padding:0">'+topListingsTable(an,6)+'</div></div>'+
@@ -3090,6 +3105,7 @@ function admCountries(){ return (ADM.countries||[]).filter(function(c){ return a
 function admResetScope(){   // everything that was loaded for one country scope is loaded again for the new one
   ADM._gen=(ADM._gen||0)+1;
   ADM.data=null; ADM.ikOpen=null; ADM.pjEdit=null; ADM_PJL=null; ADM.viewingPhotoIdx=null; ADM.eopen=null; ADM.geoCountry=null; ADM._geoLoadedFor=null; ADM._mediaLoadedCats={}; ADM._mediaUsedLoaded=false; ADM.mediaUsed=null;
+  ADM.social=null; ADM._promoDue=null; ADM._promoDueLoaded=false; ADM._promoSettings=null; ADM._promoSettingsLoaded=false;
   ADM._ikLoaded=false; ADM.ik=null; ADM._ticketsLoaded=false; ADM.tickets=null; ADM._vfLoaded=false; ADM.vf=undefined; ADM._reviewsLoaded=false; ADM._uactLoaded=false; ADM.uact=null; ADM._lstatsRange=null;
   ADM._photosLoaded=false; ADM.photosList=null;
   ADM._statsLoaded=false; ADM.stats=null; ADM._anLoaded=false; ADM.an=null; ADM.anErr=null; ADM._lstatsLoaded=false; ADM.lstats=null;
@@ -3737,7 +3753,7 @@ function admListingDrawer(l,ls){
   var deed=D.TABU[l.tabu]?D.TABU[l.tabu][li()]:(l.tabu||"—"), cond=(D.COND&&D.COND[l.condition])?D.COND[l.condition][li()]:((D.LANDC&&D.LANDC[l.condition])?D.LANDC[l.condition][li()]:"");
   var acts='<button class="ab" data-adopen="'+l.id+'">✏️ '+t("edit")+'</button>'+
     (l.status==="live"?'<button class="ab" data-pmopen="'+l.id+'">⭐ '+GX("pmBtn")+'</button>':'')+
-    (l.status==="live"?'<button class="ab" data-apromo="'+l.id+'"'+(ADM.promo&&String(ADM.promo.id)===String(l.id)?' style="background:var(--navy);color:#fff"':'')+'>📣 '+GX("promoBtn")+'</button>':'')+
+    (l.status==="live"?'<button class="ab" data-apromo="'+l.id+'">📣 '+GX("promoBtn")+'</button>':'')+
     (l.status==="pending"?'<button class="ab ok" data-alive="'+l.id+'">'+t("approve")+'</button><button class="ab bad" data-areject="'+l.id+'">'+GX("rejectBtn")+'</button>':'')+
     (l.status==="rejected"?'<button class="ab ok" data-alive="'+l.id+'">'+t("approve")+'</button>':'')+
     (l.status==="hidden"?'<button class="ab ok" data-alive="'+l.id+'">'+GX("unhide")+'</button>':'')+
@@ -3748,7 +3764,6 @@ function admListingDrawer(l,ls){
     '<div class="ld-hd"><span class="st st-'+l.status+'">'+admStLabel(l.status)+'</span><h2 class="ltr">'+esc(l.ref||l.id)+'</h2>'+(l.is_featured?'<span class="lstar" title="'+t("featuredBadgeDefault")+'">★</span>':'')+'<button type="button" class="lx" id="ldClose" aria-label="'+GX("lfClose")+'">✕</button></div>'+
     (l.cover?'<img class="ld-cover" src="'+esc(l.cover)+'" alt="">':'<div class="ld-cover ph">'+GX("lfNoPhotos")+'</div>')+
     '<div class="ld-acts">'+acts+'</div>'+
-    (ADM.promo&&String(ADM.promo.id)===String(l.id)?admPromoHtml(l):'')+
     '<div class="ld-sec">'+GX("lfData")+'</div><dl class="ld-kv">'+
       '<dt>'+GX("lfType")+'</dt><dd>'+admTypeName(l)+' · '+admDealLabel(l)+'</dd>'+
       '<dt>'+GX("price")+'</dt><dd class="ltr">'+admPrice(l.price_usd)+'</dd>'+
@@ -3795,7 +3810,7 @@ function wireAdminListings(){
    built in the browser from the listing's own data; nothing is sent anywhere. ── */
 var PROMO_SRC=[["fb-damas","فيسبوك · عقارات دمشق"],["fb-aleppo","فيسبوك · عقارات حلب"],["fb-homs","فيسبوك · عقارات حمص"],["fb-diaspora","فيسبوك · سوريين بالخارج"],["wa","واتساب"],["tg","تيليغرام"],["ig","إنستغرام"],["tt","تيك توك"],["yt","يوتيوب شورتس"]];
 function promoRow(l){ var x=(typeof D!=="undefined"&&D.LIST||[]).find(function(r){ return String(r.id)===String(l.id) }); return x||null }
-function promoLink(l){ var cc=String(l.country_code||"SY").toLowerCase(); var src=(ADM.promo&&ADM.promo.src)||"fb-damas"; return "https://balkoun.com"+(cc==="sy"?"":"/"+cc)+"/listing/"+l.id+"?src="+src }
+function promoLink(l){ var cc=String(l.country_code||"SY").toLowerCase(); var src=(ADM.social&&ADM.social.src)||"fb-damas"; return "https://balkoun.com"+(cc==="sy"?"":"/"+cc)+"/listing/"+l.id+"?src="+src }
 function promoTitle(l,x){ var ty=admTypeName(l); var m2=l.area_m2?(+l.area_m2).toLocaleString("en")+" م²":""; var place=[l.area,l.gov].filter(Boolean); return [ty,m2].filter(Boolean).join(" ")+(place.length?" في "+place[0]:"") }
 function promoText(l,opt){
   opt=opt||{}; var x=promoRow(l)||{}; var deed=D.TABU[l.tabu]?D.TABU[l.tabu][0]:""; var cond=(D.COND&&D.COND[l.condition])?D.COND[l.condition][0]:((D.LANDC&&D.LANDC[l.condition])?D.LANDC[l.condition][0]:"");
@@ -3815,38 +3830,100 @@ function promoText(l,opt){
    link ready to copy, then the three outputs as tabs. The image tab renders itself as soon as it opens (and again
    whenever the source / format / hide-price changes) — nothing to click; the reel keeps a button since it takes a
    few seconds and needs Chrome/Edge. */
-function admPromoHtml(l){
-  var p=ADM.promo||{}, tab=p.tab||"text", fmt=p.fmt||"45", src=p.src||"fb-damas"; var text=promoText(l,{hidePrice:p.hidePrice});
+/* ── «الترويج الاجتماعي»: a full page (Marketing → Social) for one listing — pick it, edit the caption, pick or
+   upload a photo, see a live preview, then copy / open per destination. Replaces the old inline «روّج» popup
+   (admPromoHtml/wireAdmPromo) — same promoText/promoRow/promoPhotos/promoImage/promoReel helpers, new layout.
+   ADM.social: {id, q, src, hidePrice, tab, fmt, photoIdx, customPhoto, img, reel, busy} */
+function adminSocialPicked(){ var id=ADM.social&&ADM.social.id; return id ? ((ADM.data&&ADM.data.listings)||[]).find(function(l){ return String(l.id)===String(id) })||null : null }
+function socialPhotoUrl(l){ var s=ADM.social||{}; if(s.customPhoto) return s.customPhoto; var ph=promoPhotos(l); return ph[s.photoIdx||0]||ph[0]||l.cover||"" }
+function socialDueFor(id){ return (ADM._promoDue||[]).filter(function(p){ return String(p.listing_id)===String(id) })[0]||null }
+function adminSocialBody(){
+  var s=ADM.social=ADM.social||{src:"fb-damas",tab:"text",fmt:"45"};
+  var l=adminSocialPicked();
   var seg=function(items,attr,cur){ return '<div class="pseg">'+items.map(function(it){ return '<button type="button" class="'+(cur===it[0]?'on':'')+'" data-'+attr+'="'+it[0]+'">'+it[1]+'</button>' }).join("")+'</div>' };
-  var dl=function(href,name,label){ return '<div class="ld-acts"><a class="ab ok" download="'+name+'" href="'+href+'">⬇ '+label+'</a></div>' };
-  var body;
-  if(tab==="image") body=seg([["45",GX("promoFmt45")],["11",GX("promoFmt11")]],"promofmt",fmt)+(p.img?'<img src="'+p.img+'" class="pout">'+dl(p.img,"balkoun-"+esc(l.ref||l.id)+".png",GX("promoDownload")):'<div class="hintx" id="promoBusy">'+esc(p.busy||GX("promoWorking"))+'</div>');
-  else if(tab==="reel") body=(p.reel?'<video src="'+p.reel+'" controls playsinline class="pout"></video>'+dl(p.reel,"balkoun-"+esc(l.ref||l.id)+"-reel.mp4",GX("promoDownloadReel")):'<div class="ld-acts"><button class="ab ok" id="promoReel">🎬 '+GX("promoReel")+'</button></div>')+(p.busy?'<div class="hintx" id="promoBusy">'+esc(p.busy)+'</div>':'');
-  else body='<textarea id="promoText" readonly>'+esc(text)+'</textarea><div class="ld-acts"><button class="ab ok" id="promoCopy">📋 '+GX("promoCopy")+'</button></div>';
-  return '<div class="ld-sec">📣 '+GX("promoH")+'</div><div class="promo" id="promoBox">'+
-    '<div class="hintx">'+GX("promoHint")+'</div>'+
-    '<div class="prow"><label class="lfc on"><span>'+GX("promoSrc")+':</span><select id="promoSrc">'+PROMO_SRC.map(function(s){ return '<option value="'+s[0]+'"'+(src===s[0]?' selected':'')+'>'+s[1]+'</option>' }).join("")+'</select></label>'+
-      '<label class="lfc'+(p.hidePrice?' on':'')+'"><input type="checkbox" id="promoNoPrice"'+(p.hidePrice?' checked':'')+'> <span>'+GX("promoHidePrice")+'</span></label></div>'+
-    '<div class="prow"><input type="text" id="promoLinkOut" class="plink" readonly dir="ltr" value="'+esc(promoLink(l))+'"><button class="ab ok" id="promoLinkCopy">📋 '+GX("promoLinkCopy")+'</button></div>'+
-    seg([["text",GX("promoTabText")],["image",GX("promoTabImage")],["reel",GX("promoTabReel")]],"promotab",tab)+
-    '<div class="ptab">'+body+'</div>'+
+  if(!l){
+    var set=ADM._promoSettings||{};
+    var settingsPanel = ADM._promoSettingsLoaded ? '<div class="ld-sec">'+GX("socialSettingsH")+'</div><div class="promo" style="margin-bottom:18px">'+
+      '<div class="fl" style="max-width:280px"><label>'+GX("socialDueHoursL")+'</label><input type="number" min="1" id="socialDueHours" value="'+esc(String(set.due_hours!=null?set.due_hours:24))+'"></div>'+
+      PROMO_SRC.filter(function(o){ return o[0].indexOf("fb-")===0 }).map(function(o){ return '<div class="fl"><label>'+o[1]+'</label><input type="text" dir="ltr" data-socialgroupurl="'+o[0]+'" value="'+esc((set.group_urls||{})[o[0]]||"")+'" placeholder="https://facebook.com/groups/..."></div>' }).join("")+
+      '<div class="ld-acts"><button type="button" class="ab ok" id="socialSettingsSave">'+t("save")+'</button></div></div>' : '';
+    var all=((ADM.data&&ADM.data.listings)||[]).filter(function(x){ return x.status==="live" });
+    var q=(s.q||"").trim().toLowerCase();
+    var rows=(q?all.filter(function(x){ return ((x.ref||"")+" "+(x.gov||"")+" "+(x.area||"")).toLowerCase().indexOf(q)>-1 }):all).slice(0,40);
+    return '<div class="ld-sec">📣 '+GX("tSocial")+'</div><div class="hintx" style="margin-bottom:10px">'+GX("socialPickHint")+'</div>'+
+      settingsPanel+
+      '<input id="socialQ" class="asearch" placeholder="'+esc(t("searchPH"))+'" value="'+esc(s.q||"")+'" style="max-width:420px;margin-bottom:12px">'+
+      '<div class="sociallist">'+(rows.length?rows.map(function(x){ return '<button type="button" class="socialrow" data-socialpick="'+x.id+'">'+(x.cover?'<img src="'+esc(x.cover)+'">':'<span class="socialrow-ph"></span>')+'<span class="socialrow-mid"><b class="ltr">'+esc(x.ref||x.id)+'</b><small>'+esc(admTypeName(x))+(x.area?' · '+esc(x.area):'')+'</small></span><span class="ltr">'+(x.price_usd!=null?"$"+Number(x.price_usd).toLocaleString("en"):"—")+'</span></button>' }).join(""):'<div class="done2"><b>'+GX("lfNone")+'</b></div>')+'</div>';
+  }
+  var text=promoText(l,{hidePrice:s.hidePrice}), photoUrl=socialPhotoUrl(l), photos=promoPhotos(l), due=socialDueFor(l.id);
+  var settings=ADM._promoSettings||{}, groupUrl=(settings.group_urls||{})[s.src]||"";
+  var destBtn;
+  if(s.src==="wa") destBtn='<a class="ab ok" target="_blank" rel="noopener" href="https://wa.me/?text='+encodeURIComponent(text)+'">💬 '+GX("socialOpenWa")+'</a>';
+  else if(s.src==="tg") destBtn='<a class="ab ok" target="_blank" rel="noopener" href="https://t.me/share/url?url='+encodeURIComponent(promoLink(l))+'&text='+encodeURIComponent(text)+'">✈️ '+GX("socialOpenTg")+'</a>';
+  else destBtn='<button type="button" class="ab ok" id="socialCopyOpen">📋 '+(groupUrl?GX("socialCopyOpen"):GX("promoCopy"))+'</button>'+(groupUrl?'':'<div class="hintx">'+GX("socialNoGroupUrl")+'</div>');
+  var tabBody;
+  if(s.tab==="image") tabBody=seg([["45",GX("promoFmt45")],["11",GX("promoFmt11")]],"promofmt",s.fmt)+(s.img?'<img src="'+s.img+'" class="pout"><div class="ld-acts"><a class="ab ok" download="balkoun-'+esc(l.ref||l.id)+'.png" href="'+s.img+'">⬇ '+GX("promoDownload")+'</a></div>':'<div class="hintx" id="promoBusy">'+esc(s.busy||GX("promoWorking"))+'</div>');
+  else if(s.tab==="reel") tabBody=(s.reel?'<video src="'+s.reel+'" controls playsinline class="pout"></video><div class="ld-acts"><a class="ab ok" download="balkoun-'+esc(l.ref||l.id)+'-reel.mp4" href="'+s.reel+'">⬇ '+GX("promoDownloadReel")+'</a></div>':'<div class="ld-acts"><button class="ab ok" id="promoReel">🎬 '+GX("promoReel")+'</button></div>')+(s.busy?'<div class="hintx" id="promoBusy">'+esc(s.busy)+'</div>':'');
+  else tabBody='<textarea id="promoText" readonly>'+esc(text)+'</textarea>';
+  return '<div class="social-page">'+
+   '<button type="button" class="ab" id="socialBack">‹ '+GX("socialBack")+'</button>'+
+   '<div class="social-grid">'+
+    '<div class="social-main promo">'+
+     '<div class="ld-sec">'+esc(l.ref||l.id)+' · '+admTypeName(l)+(l.price_usd!=null?' · $'+Number(l.price_usd).toLocaleString("en"):'')+'</div>'+
+     '<div class="prow"><label class="lfc on"><span>'+GX("promoSrc")+':</span><select id="socialSrc">'+PROMO_SRC.map(function(o){ return '<option value="'+o[0]+'"'+(s.src===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select></label>'+
+       '<label class="lfc'+(s.hidePrice?' on':'')+'"><input type="checkbox" id="socialNoPrice"'+(s.hidePrice?' checked':'')+'> <span>'+GX("promoHidePrice")+'</span></label></div>'+
+     '<div class="prow"><input type="text" id="socialLinkOut" class="plink" readonly dir="ltr" value="'+esc(promoLink(l))+'"><button class="ab ok" id="socialLinkCopy">📋 '+GX("promoLinkCopy")+'</button></div>'+
+     '<div class="ld-sec">'+GX("socialPhotoH")+'</div>'+
+     '<div class="socialphotos">'+photos.map(function(u,i){ return '<button type="button" class="'+((!s.customPhoto&&(s.photoIdx||0)===i)?'on':'')+'" data-socialphoto="'+i+'"><img src="'+esc(u)+'"></button>' }).join("")+
+       '<label class="socialupload'+(s.customPhoto?' on':'')+'">'+(s.customPhoto?'<img src="'+s.customPhoto+'">':'<span>+ '+GX("socialUpload")+'</span>')+'<input type="file" id="socialUploadIn" accept="image/*" hidden></label>'+
+     '</div>'+
+     seg([["text",GX("promoTabText")],["image",GX("promoTabImage")],["reel",GX("promoTabReel")]],"promotab",s.tab)+
+     '<div class="ptab">'+tabBody+'</div>'+
+     '<div class="ld-acts">'+destBtn+(s.tab==="text"?'<button type="button" class="ab" id="promoCopy">📋 '+GX("promoCopy")+'</button>':'')+'</div>'+
+     '<div class="ld-sec">'+GX("socialScheduleH")+'</div>'+
+     '<div class="hintx">'+(due?GX("socialDueAt").replace("{d}",when(due.due_at)):GX("socialNoneDue"))+'</div>'+
+     '<div class="ld-acts"><button type="button" class="ab ok" id="socialMarkDone">✓ '+GX("socialMarkDone")+'</button></div>'+
+    '</div>'+
+    '<div class="social-preview">'+
+     '<div class="ld-sec">'+GX("socialPreviewH")+'</div>'+
+     '<div class="socialcard">'+
+      '<div class="socialcard-head"><span class="socialcard-logo">◈</span><b>Balkoun بلكون</b><small>'+GX("socialJustNow")+'</small></div>'+
+      (photoUrl?'<img src="'+esc(photoUrl)+'" class="socialcard-img">':'')+
+      '<div class="socialcard-cap">'+esc(text).replace(/\n/g,"<br>")+'</div>'+
+     '</div>'+
+    '</div>'+
+   '</div>'+
   '</div>';
 }
-function wireAdmPromo(){
-  $$("[data-apromo]").forEach(function(b){ b.onclick=function(){ var id=this.dataset.apromo; ADM.promo=(ADM.promo&&String(ADM.promo.id)===String(id))?null:{id:id,src:"fb-damas"}; render() } });
-  var p=ADM.promo; if(!p||!$("#promoBox")) return;
-  var reset=function(){ p.img=null; p.reel=null; p.busy="" };
-  var copy=function(btn,el,label){ var done=function(){ btn.textContent="✓ "+GX("promoCopied"); setTimeout(function(){ btn.textContent="📋 "+label },1600) }; try{ navigator.clipboard.writeText(el.value).then(done,function(){ el.select(); document.execCommand("copy"); done() }) }catch(e){ el.select(); document.execCommand("copy"); done() } };
-  var lc=$("#promoLinkCopy"); if(lc) lc.onclick=function(){ copy(this,$("#promoLinkOut"),GX("promoLinkCopy")) };
-  var cp=$("#promoCopy"); if(cp) cp.onclick=function(){ copy(this,$("#promoText"),GX("promoCopy")) };
-  var sel=$("#promoSrc"); if(sel) sel.onchange=function(){ p.src=this.value; reset(); render() };
-  var np=$("#promoNoPrice"); if(np) np.onchange=function(){ p.hidePrice=this.checked; reset(); render() };
-  $$("[data-promotab]").forEach(function(b){ b.onclick=function(){ p.tab=this.dataset.promotab; p.busy=""; render() } });
-  $$("[data-promofmt]").forEach(function(b){ b.onclick=function(){ p.fmt=this.dataset.promofmt; p.img=null; p.busy=""; render() } });
-  var rb=$("#promoReel"); if(rb) rb.onclick=async function(){ var l=admPromoListing(); if(!l) return; if(typeof VideoEncoder==="undefined"){ p.busy=GX("promoReelNoSupport"); render(); return } p.busy=GX("promoWorking"); p.reel=null; render(); try{ p.reel=await promoReel(l,{hidePrice:!!p.hidePrice},function(pct){ var el=$("#promoBusy"); if(el) el.textContent=GX("promoWorking")+" "+pct+"%" }) }catch(e){ p.busy=String(e&&e.message||e); render(); return } p.busy=""; render() };
-  // the image tab renders itself; a result is dropped if the source / format / price switch changed meanwhile
-  if((p.tab||"text")==="image"&&!p.img&&!p.busy){ var l=admPromoListing(); if(l){ var fmt=p.fmt||"45", key=[p.src,fmt,!!p.hidePrice].join("|"); p.busy=GX("promoWorking");
-    promoImage(l,fmt,{hidePrice:!!p.hidePrice}).then(function(u){ if(ADM.promo!==p||[p.src,p.fmt||"45",!!p.hidePrice].join("|")!==key) return; p.img=u; p.busy=""; render() },function(e){ if(ADM.promo!==p) return; p.busy=String(e&&e.message||e); render() }) } }
+function wireAdminSocial(){
+  var s=ADM.social; if(!s) return;
+  var q=$("#socialQ"); if(q) q.oninput=function(){ s.q=this.value; render() };
+  $$("[data-socialpick]").forEach(function(b){ b.onclick=function(){ ADM.social={id:this.dataset.socialpick,src:"fb-damas",tab:"text",fmt:"45"}; render() } });
+  var back=$("#socialBack"); if(back) back.onclick=function(){ ADM.social={q:s.q,src:"fb-damas",tab:"text",fmt:"45"}; render() };
+  var dh=$("#socialDueHours"), gs=$$("[data-socialgroupurl]"), ss=$("#socialSettingsSave");
+  if(ss) ss.onclick=function(){
+    var payload={due_hours: dh?(parseInt(dh.value,10)||24):24, group_urls:{}};
+    gs.forEach(function(inp){ var v=inp.value.trim(); if(v) payload.group_urls[inp.dataset.socialgroupurl]=v });
+    ss.disabled=true;
+    rpc("bk_admin_promo_settings_set",{p_token:ADM.token,p_settings:payload,p_country:admScope()}).then(function(){ ADM._promoSettings=payload; admToast(GX("socialSettingsSaved")); render() }).catch(function(e){ admToast(e.message||"error","bad"); ss.disabled=false });
+  };
+  if(!adminSocialPicked()) return;
+  var fallbackCopy=function(v){ var ta=document.createElement("textarea"); ta.value=v; ta.style.position="fixed"; ta.style.opacity="0"; document.body.appendChild(ta); ta.select(); try{ document.execCommand("copy") }catch(e){} document.body.removeChild(ta) };
+  var copy=function(btn,textVal,label){ var done=function(){ btn.textContent="✓ "+GX("promoCopied"); setTimeout(function(){ btn.textContent="📋 "+label },1600) }; try{ navigator.clipboard.writeText(textVal).then(done,function(){ fallbackCopy(textVal); done() }) }catch(e){ fallbackCopy(textVal); done() } };
+  var lc=$("#socialLinkCopy"); if(lc) lc.onclick=function(){ copy(this,$("#socialLinkOut").value,GX("promoLinkCopy")) };
+  var cp=$("#promoCopy"); if(cp) cp.onclick=function(){ var l=adminSocialPicked(); copy(this,promoText(l,{hidePrice:s.hidePrice}),GX("promoCopy")) };
+  var co=$("#socialCopyOpen"); if(co) co.onclick=function(){ var l=adminSocialPicked(), settings=ADM._promoSettings||{}, url=(settings.group_urls||{})[s.src], lbl=url?GX("socialCopyOpen"):GX("promoCopy"); copy(co,promoText(l,{hidePrice:s.hidePrice}),lbl); if(url) window.open(url,"_blank") };
+  var sel=$("#socialSrc"); if(sel) sel.onchange=function(){ s.src=this.value; s.img=null; s.reel=null; s.busy=""; render() };
+  var np=$("#socialNoPrice"); if(np) np.onchange=function(){ s.hidePrice=this.checked; s.img=null; s.reel=null; render() };
+  $$("[data-promotab]").forEach(function(b){ b.onclick=function(){ s.tab=this.dataset.promotab; s.busy=""; render() } });
+  $$("[data-promofmt]").forEach(function(b){ b.onclick=function(){ s.fmt=this.dataset.promofmt; s.img=null; render() } });
+  $$("[data-socialphoto]").forEach(function(b){ b.onclick=function(){ s.photoIdx=+this.dataset.socialphoto; s.customPhoto=null; s.img=null; s.reel=null; render() } });
+  var up=$("#socialUploadIn"); if(up) up.onchange=function(){ var f=this.files&&this.files[0]; if(!f) return; var fr=new FileReader(); fr.onload=function(){ s.customPhoto=String(fr.result); s.img=null; s.reel=null; render() }; fr.readAsDataURL(f) };
+  var md=$("#socialMarkDone"); if(md) md.onclick=function(){ var l=adminSocialPicked(); md.disabled=true; rpc("bk_admin_promo_mark_done",{p_token:ADM.token,p_listing_id:l.id}).then(function(){ ADM._promoDue=(ADM._promoDue||[]).filter(function(p){ return String(p.listing_id)!==String(l.id) }); admToast(GX("socialDoneToast")); render() }).catch(function(e){ admToast(e.message||"error","bad"); md.disabled=false }) };
+  var rb=$("#promoReel"); if(rb) rb.onclick=async function(){ var l=adminSocialPicked(); if(!l) return; if(typeof VideoEncoder==="undefined"){ s.busy=GX("promoReelNoSupport"); render(); return } s.busy=GX("promoWorking"); s.reel=null; render();
+    try{ s.reel=await promoReel(l,{hidePrice:!!s.hidePrice,photoUrl:s.customPhoto||promoPhotos(l)[s.photoIdx||0]},function(pct){ var el=$("#promoBusy"); if(el) el.textContent=GX("promoWorking")+" "+pct+"%" }) }catch(e){ s.busy=String(e&&e.message||e); render(); return } s.busy=""; render() };
+  if((s.tab||"text")==="image"&&!s.img&&!s.busy){ var l=adminSocialPicked(); if(l){ var fmt=s.fmt||"45", photoKey=s.customPhoto||s.photoIdx||0, key=[s.src,fmt,!!s.hidePrice,photoKey].join("|"); s.busy=GX("promoWorking");
+    promoImage(l,fmt,{hidePrice:!!s.hidePrice,photoUrl:s.customPhoto||promoPhotos(l)[s.photoIdx||0]}).then(function(u){ if(ADM.social!==s||[s.src,s.fmt||"45",!!s.hidePrice,s.customPhoto||s.photoIdx||0].join("|")!==key) return; s.img=u; s.busy=""; render() },function(e){ if(ADM.social!==s) return; s.busy=String(e&&e.message||e); render() }) } }
 }
 /* intake drafts: the "owner" picker lists approved agencies AND plain members (a member who owns an approved agency
    appears once, under the agencies). Values are "a:<agency id>" / "u:<user uuid>"; ikOwnerPatch() turns one into the
@@ -3894,7 +3971,6 @@ function wireIkOwnerCombos(){
   });
 }
 function ikOwnerPatch(v){ v=String(v||""); if(v.indexOf("a:")===0) return {agency_id:v.slice(2)}; if(v.indexOf("u:")===0) return {user_id:v.slice(2)}; return {user_id:null} }
-function admPromoListing(){ var id=ADM.promo&&ADM.promo.id; return ((ADM.data&&ADM.data.listings)||[]).find(function(l){ return String(l.id)===String(id) })||null }
 function promoPhotos(l){ var x=promoRow(l); var ph=(x&&x.photos||[]).slice(); if(!ph.length&&l.cover) ph=[l.cover]; return ph.slice(0,6) }
 function promoLoadImg(src){ return new Promise(function(res,rej){ var im=new Image(); im.crossOrigin="anonymous"; im.onload=function(){ res(im) }; im.onerror=function(){ rej(new Error("photo")) }; im.src=src }) }
 function promoCoverDraw(ctx,im,x,y,w,h,zoom,dx,dy){ var s=Math.max(w/im.width,h/im.height)*(zoom||1); var sw=im.width*s, sh=im.height*s; ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip(); ctx.drawImage(im, x+(w-sw)/2+(dx||0), y+(h-sh)/2+(dy||0), sw, sh); ctx.restore() }
@@ -3952,7 +4028,7 @@ function promoPaint(ctx,W,H,l,x,photo,opt){
   return {top:top, logoBottom:34+lh};
 }
 async function promoImage(l,fmt,opt){
-  opt=opt||{}; var x=promoRow(l)||{}; var W=1080, H=fmt==="11"?1080:1350; var photos=promoPhotos(l); var photo=null; if(photos.length){ try{ photo=await promoLoadImg(photos[0]) }catch(e){} }
+  opt=opt||{}; var x=promoRow(l)||{}; var W=1080, H=fmt==="11"?1080:1350; var photos=promoPhotos(l); var src0=opt.photoUrl||photos[0]; var photo=null; if(src0){ try{ photo=await promoLoadImg(src0) }catch(e){} }
   var A=await promoAssets(); var c=document.createElement("canvas"); c.width=W; c.height=H; var ctx=c.getContext("2d");
   promoPaint(ctx,W,H,l,x,photo,{logo:A.logo,hidePrice:opt.hidePrice});
   return c.toDataURL("image/png");
@@ -3960,6 +4036,7 @@ async function promoImage(l,fmt,opt){
 /* 12-second silent reel: each photo with a slow push-in, the card's text panel at the bottom, end card with the logo */
 async function promoReel(l,opt,onPct){
   opt=opt||{}; var x=promoRow(l)||{}; var W=1080, H=1920, FPS=24; var photos=promoPhotos(l); var imgs=[];
+  if(opt.photoUrl){ photos=[opt.photoUrl].concat(photos.filter(function(u){ return u!==opt.photoUrl })) }
   // one retry per photo: a single dropped connection to storage used to turn into "no photos" for the whole reel
   for(var i=0;i<photos.length;i++){ try{ imgs.push(await promoLoadImg(photos[i])) }catch(e){ try{ imgs.push(await promoLoadImg(photos[i]+(photos[i].indexOf("?")>-1?"&":"?")+"r=1")) }catch(e2){} } }
   if(!imgs.length) throw new Error(GX("lfNoPhotos"));
