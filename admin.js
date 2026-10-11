@@ -3805,7 +3805,7 @@ function promoText(l,opt){
   var facts=[]; if(x.r) facts.push(x.r+" غرف"); if(x.b) facts.push(x.b+" حمام"); if(x.fl!==""&&x.fl!=null&&x.fl!==undefined&&String(x.fl)!=="") facts.push("طابق "+x.fl); if(x.furn) facts.push("مفروش");
   if(facts.length) lines.push("🛏 "+facts.join(" · "));
   var legal=[]; if(l.deal!=="rent"&&deed) legal.push("طابو: "+deed); if(cond) legal.push(cond); if(legal.length) lines.push("📜 "+legal.join(" · "));
-  var ds=String(x.ds||l.description||"").replace(/\s+/g," ").trim(); if(ds){ if(ds.length>170) ds=ds.slice(0,170).replace(/\s\S*$/,"")+"…"; lines.push(""); lines.push(ds) }
+  var ds=String((x.ds?dsOf(x):"")||l.description||"").replace(/\s+/g," ").trim(); if(ds){ if(ds.length>170) ds=ds.slice(0,170).replace(/\s\S*$/,"")+"…"; lines.push(""); lines.push(ds) }
   lines.push(""); lines.push("📍 التفاصيل والصور والتواصل مع صاحب الإعلان على بلكون:"); lines.push(promoLink(l));
   lines.push(""); lines.push("ببلاش · بلا عمولة · من المالك مباشرة");
   var tags=["#بلكون","#عقارات_سوريا"]; if(l.gov) tags.push("#عقارات_"+String(l.gov).replace(/\s+/g,"_")); if(l.area) tags.push("#"+String(l.area).replace(/\s+/g,"_")); lines.push(tags.join(" "));
