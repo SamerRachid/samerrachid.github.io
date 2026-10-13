@@ -26,7 +26,7 @@ async function storageRestore(paths){
        if(j && j.error) return {data:null, error:{message:j.error}};
        return {data:{restored:j.restored||[], failed:j.failed||[]}, error:null} }
   catch(e){ return {data:null, error:e} } }
-var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",house:"users",outreach:"users",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",types:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super",campaigns:"campaigns",social:"featured"};
+var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",house:"users",outreach:"users",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",types:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super",campaigns:"campaigns",social:"featured",maps:"settings"};
 // sidebar groups: one entry in the sidebar, sub-tabs rendered as a segmented bar on the page (the tab bodies stay keyed by the real tab)
 var ADM_GROUPS={inbox:["reports","feedback","tickets","msgs"],promo:["ads","featured","banners","engage","social"],system:["settings","storage","admins","danger"]};
 function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab)>-1) return g } return null }
@@ -651,6 +651,7 @@ function adminView(){
  else if(ADM.tab==="wanted_adm"){ body = adminWantedBody(); }
  else if(ADM.tab==="featured"){ body = adminPromoBody(); }
  else if(ADM.tab==="social"){ body = adminSocialBody(); }
+ else if(ADM.tab==="maps"){ body = adminMapsBody(); }
 
  else if(ADM.tab==="danger"){
   body = '<div class="done2" style="margin-bottom:14px;text-align:start"><b>'+GX("dzScopeNote").replace("{c}", ADM.scope==="ALL"?GX("cAll"):esc(countryName(countryOf(COUNTRY)||{})))+'</b></div>'+
@@ -793,7 +794,7 @@ function adminView(){
    {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["photos",GX("tMedia"),null,AICO.image,can("listings")],["wanted_adm",GX("tWanted"),(ADM.todo||{}).pending_wanted||null,AICO.search,can("listings")],["intake",GX("tIntake"),(ADM.todo||{}).intake_review||null,AICO.contact||AICO.bell,can("listings")]]},
    {g:t("navPeople"), items:[["users",t("usersTab"),(ADM.todo||{}).verify_pending||s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")],["house",GX("tHouse"),null,AICO.users,can("users")],["outreach",GX("tOutreach"),(ADM.out||[]).filter(function(o){ return o.next_at&&new Date(o.next_at)<=new Date()&&o.stage!=="active"&&o.stage!=="declined" }).length||null,AICO.contact,can("users")]]},
    {g:GX("navMarketing"), items:[["promo",GX("tPromo"),null,AICO.ads,true],["projects_adm",GX("tProjects"),null,AICO.building,can("listings")||can("ads")],["campaigns",GX("tCampaigns"),null,AICO.megaphone,can("campaigns")]]},
-   {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["types",GX("ptTab"),null,AICO.building,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")],["system",GX("navSystem"),null,AICO.gear,true]]}
+   {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["maps",GX("tMaps"),null,AICO.map,can("settings")],["types",GX("ptTab"),null,AICO.building,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")],["system",GX("navSystem"),null,AICO.gear,true]]}
  ];
  NAV.forEach(function(g){ g.items.forEach(function(it){ it[4]=canTab(it[0]) }) });   // the sidebar follows the same permission map as every other way into a tab
  ADM._navIndex=admNavIndex(NAV,SUB);
@@ -1575,6 +1576,11 @@ function wireAdmin(){
     rpc("bk_admin_promo_settings_get",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM._promoSettings=r||{}; render() }).catch(function(){ ADM._promoSettings={} });
   }
   if(ADM.tab==="social") wireAdminSocial();
+  if(ADM.tab==="maps" && !ADM._areasMapLoaded){
+    ADM._areasMapLoaded=true;
+    rpc("bk_admin_areas_map",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM._areasMap=r||[]; render() }).catch(function(){ ADM._areasMap=[] });
+  }
+  if(ADM.tab==="maps") wireAdminMaps();
   $$("[data-socialduegoto]").forEach(function(e){ e.onclick=function(){ ADM.social={id:this.dataset.socialduegoto,src:"fb-damas",tab:"text",fmt:"45"}; admGo("social") } });
   if(ADM.tab==="featured" && !ADM._promosLoaded){
     ADM._promosLoaded=true;
@@ -3106,6 +3112,7 @@ function admResetScope(){   // everything that was loaded for one country scope 
   ADM._gen=(ADM._gen||0)+1;
   ADM.data=null; ADM.ikOpen=null; ADM.pjEdit=null; ADM_PJL=null; ADM.viewingPhotoIdx=null; ADM.eopen=null; ADM.geoCountry=null; ADM._geoLoadedFor=null; ADM._mediaLoadedCats={}; ADM._mediaUsedLoaded=false; ADM.mediaUsed=null;
   ADM.social=null; ADM._promoDue=null; ADM._promoDueLoaded=false; ADM._promoSettings=null; ADM._promoSettingsLoaded=false;
+  ADM.mapsPick=null; ADM._areasMap=null; ADM._areasMapLoaded=false;
   ADM._ikLoaded=false; ADM.ik=null; ADM._ticketsLoaded=false; ADM.tickets=null; ADM._vfLoaded=false; ADM.vf=undefined; ADM._reviewsLoaded=false; ADM._uactLoaded=false; ADM.uact=null; ADM._lstatsRange=null;
   ADM._photosLoaded=false; ADM.photosList=null;
   ADM._statsLoaded=false; ADM.stats=null; ADM._anLoaded=false; ADM.an=null; ADM.anErr=null; ADM._lstatsLoaded=false; ADM.lstats=null;
@@ -3834,6 +3841,65 @@ function promoText(l,opt){
    upload a photo, see a live preview, then copy / open per destination. Replaces the old inline «روّج» popup
    (admPromoHtml/wireAdmPromo) — same promoText/promoRow/promoPhotos/promoImage/promoReel helpers, new layout.
    ADM.social: {id, q, src, hidePrice, tab, fmt, photoIdx, customPhoto, img, reel, busy} */
+/* ── «الخرائط»: per-area breakdown of how live listings get their map pin — set by the poster
+   (listings.lat/lng), inherited from the area's own centroid (areas.lat/lng, the fallback shipped
+   earlier), or not connected at all (area has no centroid either). One pin set here fixes every
+   listing in that area at once. */
+function adminMapsBody(){
+  var areas = ADM._areasMap;
+  if(!areas) return '<div class="done2"><b>'+t("loading")+'</b></div>';
+  var totalLive=0, pinned=0, viaArea=0, none=0;
+  areas.forEach(function(a){
+    totalLive += a.live; pinned += a.pinned;
+    var rest = a.live - a.pinned;
+    if(a.lat!=null && a.lng!=null) viaArea += rest; else none += rest;
+  });
+  var stat=function(label,val,color){ return '<div class="mapstat"><b class="ltr" style="color:'+color+'">'+val+'</b><span>'+label+'</span></div>' };
+  var rows = areas.map(function(a){
+    var rest=a.live-a.pinned, connected = a.lat!=null && a.lng!=null;
+    return '<tr><td>'+esc(a.area)+'<br><small style="color:var(--grey)">'+esc(a.gov)+'</small></td>'+
+      '<td class="ltr">'+a.live+'</td><td class="ltr">'+a.pinned+'</td>'+
+      '<td class="ltr">'+(connected?rest:0)+'</td><td class="ltr">'+(connected?0:rest)+'</td>'+
+      '<td>'+(connected?'<span style="color:var(--ok)">✓ '+GX("mapsConnected")+'</span>':'<span style="color:var(--danger)">✕ '+GX("mapsNotConnected")+'</span>')+'</td>'+
+      '<td><button type="button" class="ab" data-mapspick="'+a.id+'">'+(connected?GX("mapsEdit"):GX("mapsSet"))+'</button></td></tr>';
+  }).join("");
+  return '<div class="ld-sec">🗺 '+GX("tMaps")+'</div>'+
+    '<div class="mapstats">'+stat(GX("mapsUserConn"),pinned,"var(--ok)")+stat(GX("mapsBalkounConn"),viaArea,"#2563EB")+stat(GX("mapsNoneConn"),none,"var(--danger)")+'</div>'+
+    '<div class="ltbl"><table><thead><tr><th>'+t("area")+'</th><th>'+t("liveAds")+'</th><th>'+GX("mapsUserConn")+'</th><th>'+GX("mapsBalkounConn")+'</th><th>'+GX("mapsNoneConn")+'</th><th>'+t("status")+'</th><th></th></tr></thead><tbody>'+
+    (rows||'<tr><td colspan="7" class="lnone">'+GX("lfNone")+'</td></tr>')+'</tbody></table></div>'+
+    (ADM.mapsPick ? adminMapPickerHtml() : '');
+}
+function adminMapPickerHtml(){
+  var a=(ADM._areasMap||[]).filter(function(x){ return x.id===ADM.mapsPick.areaId })[0];
+  if(!a) return '';
+  return '<div class="adm-acct-ov pm-ov" id="mapsPickOv"><div class="pm"><div class="meov-h"><b>🗺 '+esc(a.area)+' · '+esc(a.gov)+'</b><button type="button" class="ab" id="mapsPickClose">✕</button></div>'+
+    '<div class="pm-body"><div class="hintx">'+GX("mapsPickHint")+'</div>'+
+    '<div id="mapsPickBox" style="height:320px;border-radius:12px;overflow:hidden"></div>'+
+    '<div class="ld-acts"><button type="button" class="ab ok" id="mapsPickSave">'+t("save")+'</button></div>'+
+    '</div></div></div>';
+}
+function wireAdminMaps(){
+  $$("[data-mapspick]").forEach(function(b){ b.onclick=function(){ ADM.mapsPick={areaId:+this.dataset.mapspick}; render() } });
+  if(!ADM.mapsPick){ if(ADM._mapsPickMap){ try{ ADM._mapsPickMap.remove() }catch(e){} ADM._mapsPickMap=null } return }
+  var close=$("#mapsPickClose"); if(close) close.onclick=function(){ ADM.mapsPick=null; render() };
+  var box=$("#mapsPickBox"); if(!box) return;
+  if(typeof window.LeafletLib==="undefined"){ ensureLeaflet().then(function(){ render() }); return }
+  if(ADM._mapsPickMap){ try{ ADM._mapsPickMap.remove() }catch(e){} ADM._mapsPickMap=null }
+  var a=(ADM._areasMap||[]).filter(function(x){ return x.id===ADM.mapsPick.areaId })[0]; if(!a) return;
+  var LMap=window.LeafletLib;
+  var center=(a.lat!=null&&a.lng!=null)?[a.lat,a.lng]:(a.gov_lat!=null?[a.gov_lat,a.gov_lng]:countryCenter().slice(0,2));
+  var map=LMap.map(box).setView(center,(a.lat!=null)?14:10);
+  LMap.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(map);
+  var marker=LMap.marker(center,{draggable:true}).addTo(map);
+  ADM._mapsPickMap=map;
+  setTimeout(function(){ map.invalidateSize() },150);
+  var save=$("#mapsPickSave"); if(save) save.onclick=function(){
+    var ll=marker.getLatLng(); save.disabled=true;
+    rpc("bk_admin_area_set_coords",{p_token:ADM.token,p_area_id:a.id,p_lat:ll.lat,p_lng:ll.lng}).then(function(){
+      a.lat=ll.lat; a.lng=ll.lng; ADM.mapsPick=null; admToast(GX("mapsSaved")); render()
+    }).catch(function(e){ admToast(e.message||"error","bad"); save.disabled=false });
+  };
+}
 function adminSocialPicked(){ var id=ADM.social&&ADM.social.id; return id ? ((ADM.data&&ADM.data.listings)||[]).find(function(l){ return String(l.id)===String(id) })||null : null }
 function socialPhotoUrl(l){ var s=ADM.social||{}; if(s.customPhoto) return s.customPhoto; var ph=promoPhotos(l); return ph[s.photoIdx||0]||ph[0]||l.cover||"" }
 function socialDueFor(id){ return (ADM._promoDue||[]).filter(function(p){ return String(p.listing_id)===String(id) })[0]||null }
