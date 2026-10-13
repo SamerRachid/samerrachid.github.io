@@ -2787,7 +2787,7 @@ function adminVerifyHtml(){
   var gtxt=function(k,l,d){ return '<div class="fl"><label>'+l+'</label><input data-gk="'+k+'" data-gt="str" value="'+esc(String(GSX(k,"")))+'" placeholder="'+esc(String(d||""))+'"></div>' };
   var gnum=function(k,l,d,mn,mx){ return '<div class="fl"><label>'+l+'</label><input type="number" data-gk="'+k+'" data-gt="num" value="'+esc(String(GSX(k,"")))+'" placeholder="'+d+'" min="'+mn+'" max="'+mx+'"></div>' };
   // these are the DEFAULTS every country starts from; a country's own card on the "الدول" page can override on/off per channel
-  var settings='<div class="blk"><h3>'+GX("vfSetT")+'</h3><div class="in" id="vfSet"><div class="chkgrid">'+gchk("verify_telegram_on",GX("vfSetTg"),true)+gchk("verify_whatsapp_on",GX("vfSetWa"),true)+gchk("verify_wa_code_on",GX("vfSetWaCode"),true)+gchk("verify_email_on",GX("vfSetEmail"),true)+gchk("verify_required_post",GX("vfSetReq"),true)+'</div>'+
+  var settings='<div class="blk"><h3>'+GX("vfSetT")+'</h3><div class="in" id="vfSet"><div class="chkgrid">'+gchk("verify_telegram_on",GX("vfSetTg"),true)+gchk("verify_wa_code_on",GX("vfSetWaCode"),true)+gchk("verify_email_on",GX("vfSetEmail"),true)+gchk("verify_required_post",GX("vfSetReq"),true)+'</div>'+
     '<div class="hintx" style="margin:2px 0 8px;color:'+(ready?'var(--ok)':'var(--grey)')+'">'+(ready?'✓ ':'○ ')+GX(ready?"vfWaReady":"vfWaNotReady")+'</div>'+
     '<div class="hintx" style="margin:2px 0 8px;color:'+(emailReady?'var(--ok)':'var(--grey)')+'">'+(emailReady?'✓ ':'○ ')+GX(emailReady?"vfEmailReady":"vfEmailNotReady")+'</div>'+
     '<div class="row3">'+gtxt("verify_wa_template",GX("vfSetWaTpl"),"balkoun_code")+gtxt("verify_wa_lang",GX("vfSetWaLang"),"ar")+gnum("verify_ticket_hours",GX("vfSetHours"),48,1,168)+'</div>'+

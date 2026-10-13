@@ -4668,7 +4668,7 @@ async function verifyBegin(purpose, errFn){
     errFn(m==="exists"?"phoneTaken" : m==="nouser"?"noUser" : m==="badphone"?"badPhone" : m==="throttled"?GX("vThrottled") : m==="off"?GX("vOff") : m==="blocked"?GX("vBlocked") : m); return false }
   // the old "send a code to Balkoun's own WhatsApp, admin confirms" road is signup-only history now that
   // code-by-WhatsApp sends automatically for every country (WAHA for Syria, Meta's API for everyone else)
-  AU.purpose=purpose; AU.ticket=r.ticket; AU.secret=r.secret; AU.code=r.code; AU.vtg=!!r.telegram; AU.vwa=purpose==="signup"?false:!!r.whatsapp; AU.vwc=!!r.wa_code; AU.vem=!!r.email; AU.vbot=r.bot||SX("intake_bot",""); AU.vexp=r.expires_at?new Date(r.expires_at).getTime():Date.now()+3600e3;
+  AU.purpose=purpose; AU.ticket=r.ticket; AU.secret=r.secret; AU.vtg=!!r.telegram; AU.vwa=false; AU.vwc=!!r.wa_code;   // the "send a code to Balkoun's WhatsApp" flow is retired (2026-10-13): only delivered codes count AU.vem=!!r.email; AU.vbot=r.bot||SX("intake_bot",""); AU.vexp=r.expires_at?new Date(r.expires_at).getTime():Date.now()+3600e3;
   var only=[AU.vtg&&"telegram",AU.vwa&&"whatsapp",AU.vwc&&"wa_code",AU.vem&&"email"].filter(Boolean);
   AU.vch=only.length===1?only[0]:null; AU.vsent=false; AU.wsent=false;
   verifySaveResume(); return true }
@@ -4680,7 +4680,6 @@ function verifyStepHtml(){
       (AU.vwc?'<button type="button" class="vopt" data-vch="wa_code"><span class="vico wa">'+VICO.wa+'</span><span class="vtxt"><b>'+GX("vWaCode")+'</b><small>'+GX("vWaCodeP")+'</small></span></button>':'')+
       (AU.vtg?'<button type="button" class="vopt" data-vch="telegram"><span class="vico tg">'+VICO.tg+'</span><span class="vtxt"><b>'+GX("vTelegram")+'</b><small>'+GX("vTelegramP")+'</small></span></button>':'')+
       (AU.vem?'<button type="button" class="vopt" data-vch="email"><span class="vico email">'+VICO.email+'</span><span class="vtxt"><b>'+GX("vEmail")+'</b><small>'+GX("vEmailP")+'</small></span></button>':'')+
-      (AU.vwa?'<button type="button" class="vopt" data-vch="whatsapp"><span class="vico wa">'+VICO.wa+'</span><span class="vtxt"><b>'+GX("vWhatsapp")+'</b><small>'+GX(isReset?"vWhatsappResetP":"vWhatsappP")+'</small></span></button>':'')+
       '</div><div class="auerr" id="auErr"></div></div>';
   if(ch==="telegram"){
     var link="https://t.me/"+encodeURIComponent(AU.vbot)+"?start=v"+String(AU.ticket).replace(/-/g,"");
@@ -9101,7 +9100,7 @@ function wireAuth(){
    if(p.length<7) return err("badPhone");
    AU.cc=$("#auCC").value; AU.phone=p;
    var saved=verifyLoadResume("+"+AU.cc+p,"reset");
-   if(saved){ AU.purpose="reset"; AU.ticket=saved.ticket; AU.secret=saved.secret; AU.code=saved.code; AU.vch=saved.vch||null; AU.vsent=!!saved.vsent; AU.wsent=!!saved.vch&&(saved.vch==="wa_code"||saved.vch==="email"); AU.vbot=saved.bot||SX("intake_bot",""); AU.vtg=!!AU.vbot&&SX("verify_telegram_on",true)!==false; AU.vwa=SX("verify_whatsapp_on",true)!==false; AU.vem=SX("verify_email_on",true)!==false; AU.vexp=saved.exp; AU.step=6; render(); return }
+   if(saved){ AU.purpose="reset"; AU.ticket=saved.ticket; AU.secret=saved.secret; AU.code=saved.code; AU.vch=saved.vch||null; AU.vsent=!!saved.vsent; AU.wsent=!!saved.vch&&(saved.vch==="wa_code"||saved.vch==="email"); AU.vbot=saved.bot||SX("intake_bot",""); AU.vtg=!!AU.vbot&&SX("verify_telegram_on",true)!==false; AU.vwa=false; AU.vem=SX("verify_email_on",true)!==false; AU.vexp=saved.exp; AU.step=6; render(); return }
    var sb=this; sb.disabled=true; sb.textContent=t("saving");
    verifyBegin("reset", err).then(function(ok){ if(ok){ AU.step=6; render(); if(AU.vch==="wa_code"||AU.vch==="email") verifySendCodeNow() } else { sb.disabled=false; sb.textContent=GX("vContinue") } })};
  if($("#auDoReset"))$("#auDoReset").onclick=async function(){
