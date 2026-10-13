@@ -927,7 +927,7 @@ function adminAgenciesBody(){
       '<thead><tr><th>'+GX("agColAgency")+'</th><th>'+GX("agColCoverage")+'</th><th>'+t("liveAds")+'</th><th>'+t("status")+'</th><th>'+GX("tIntake")+'</th><th>'+GX("colDate")+'</th></tr></thead>'+
       '<tbody>'+(rows||'<tr><td colspan="6" class="lnone">'+GX("lfNone")+'</td></tr>')+'</tbody></table></div>'+drawer+'</div>' }
 async function adminLoad(){
-  ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._anLoaded=false; ADM._uactLoaded=false; ADM._delUsersLoaded=false; ADM.delUsers=null; ADM._lstatsLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._promosLoaded=false;
+  ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._anLoaded=false; ADM._uactLoaded=false; ADM._delUsersLoaded=false; ADM.delUsers=null; ADM._ldelLoaded=false; ADM.ldel=null; ADM._ldupLoaded=false; ADM.ldup=null; ADM.ldupN=null; ADM._lstatsLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._promosLoaded=false;
   ADM._storageUsageLoaded=false;
   ["_adminsLoaded","_agLoaded","_geoLoaded","_ikLoaded","_meLoaded","_mediaUsedLoaded","_photosLoaded","_pjLoaded","_ticketsLoaded","_vfLoaded","_wLoaded"].forEach(function(k){ ADM[k]=false }); ADM._mediaLoadedCats={};   // every page re-fetches on refresh, not only the shared data
   ADM.dangerUnlocked=false;
@@ -1220,9 +1220,10 @@ function wireAdmin(){
     act("bk_admin_set_status",{p_token:ADM.token,p_listing:+e.dataset.areject,p_status:"rejected",p_reason:reason.trim()||null}) }});
   $$("[data-adel]").forEach(function(e){ e.onclick=async function(){
     if(!confirm(t("confirmDel"))) return;
+    var why=prompt(GX("ldelReasonQ"),""); if(why===null) return;   // cancel keeps the listing; an empty note is fine
     var id=e.dataset.adel;
     await trashListingFiles(id);
-    act("bk_admin_delete_listing",{p_token:ADM.token,p_listing:+id});
+    act("bk_admin_delete_listing",{p_token:ADM.token,p_listing:+id,p_reason:why.trim()||null});
   }});
   $$("[data-ablock]").forEach(function(e){ e.onclick=function(){
     if(e.dataset.on==="1" && !confirm(GX("confirmBlock"))) return;
@@ -1245,6 +1246,8 @@ function wireAdmin(){
   if($("#uSortPick")) $("#uSortPick").onchange=function(){ ADM.userSort=this.value; render() };
   if($("#uLevelPick")) $("#uLevelPick").onchange=function(){ ADM.userLevelFilter=this.value; render() };
   if($("#uBlockPick")) $("#uBlockPick").onchange=function(){ ADM.userBlockedFilter=this.value; render() };
+  if($("#uAbDays")) $("#uAbDays").onchange=function(){ ADM.abDays=+this.value; render() };
+  if($("#uAbMode")) $("#uAbMode").onchange=function(){ ADM.abMode=this.value; render() };
 
   $$("[data-uopen]").forEach(function(e){ e.onclick=function(){ ADM.userOpen = ADM.userOpen===e.dataset.uopen ? null : e.dataset.uopen; ADM.rateTarget=null; ADM.pwTarget=null; render() }});
   $$("tr[data-urow]").forEach(function(tr){ tr.onclick=function(e){ if(e.target.closest("input,button,a,select,label")) return; var id=this.dataset.urow; ADM.userOpen=(ADM.userOpen===id?null:id); ADM.rateTarget=null; ADM.pwTarget=null; ADM.uEdit=null; render() } });
@@ -1384,6 +1387,14 @@ function wireAdmin(){
   if(ADM.tab==="users" && !ADM._uactLoaded){
     ADM._uactLoaded=true;
     rpcScoped("bk_admin_user_activity",{p_token:ADM.token,p_country:admScope()}).then(function(r){ var m={}; (r||[]).forEach(function(u){ m[u.id]=u }); ADM.uact=m; render() }).catch(function(){});
+  }
+  if(ADM.tab==="listings" && ADM.lf && ADM.lf.view==="deleted" && !ADM._ldelLoaded){
+    ADM._ldelLoaded=true; ADM.ldelErr=null;
+    rpcScoped("bk_admin_deleted_listings",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.ldel=r||[]; render() }).catch(function(e){ ADM.ldel=[]; ADM.ldelErr=e.message||String(e); render() });
+  }
+  if(ADM.tab==="listings" && ADM.lf && ADM.lf.view==="dupes" && !ADM._ldupLoaded){
+    ADM._ldupLoaded=true; ADM.ldupErr=null;
+    rpcScoped("bk_admin_duplicate_listings",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.ldup=r||[]; render() }).catch(function(e){ ADM.ldup=[]; ADM.ldupErr=e.message||String(e); render() });
   }
   if(ADM.tab==="listings" && (!ADM._lstatsLoaded || ADM._lstatsRange!==ADM.range)){
     ADM._lstatsLoaded=true; ADM._lstatsRange=ADM.range;
@@ -2794,6 +2805,14 @@ function adminUsersBody(d){
   if(ADM.userBlockedFilter==="active") list=list.filter(function(u){ return !u.blocked });
   var uact=ADM.uact||{}, lastSeen=function(u){ var a=uact[u.id]; return a&&a.last_seen_at?new Date(a.last_seen_at):null };
   if(ADM.userActFilter){ var lim=ADM.userActFilter==="old"?null:Date.now()-(+ADM.userActFilter)*86400000; list=list.filter(function(u){ var d=lastSeen(u); return lim===null ? (!d || d.getTime()<Date.now()-30*86400000) : (d && d.getTime()>=lim) }) }
+  // abandoned accounts: joined before the chosen period, and within it no sign-in and/or no listing posted (last_listing_at comes with the activity feed)
+  var abMode_on=ADM.userBlockedFilter==="abandoned", abDays=+ADM.abDays||90, abMode=ADM.abMode||"both";
+  if(abMode_on){ var abCut=Date.now()-abDays*86400000;
+    list=list.filter(function(u){ if(u.role==="admin") return false; if(u.created_at && new Date(u.created_at).getTime()>abCut) return false;
+      var a=uact[u.id]||{}, seen=a.last_seen_at?new Date(a.last_seen_at).getTime():0, post=a.last_listing_at?new Date(a.last_listing_at).getTime():0;
+      var noLogin=seen<abCut, noPost=post<abCut;
+      return abMode==="login"?noLogin:abMode==="post"?noPost:(noLogin&&noPost) });
+    list.sort(function(a,b){ var A=uact[a.id]||{}, B=uact[b.id]||{}; return (A.last_seen_at?new Date(A.last_seen_at).getTime():0)-(B.last_seen_at?new Date(B.last_seen_at).getTime():0) }) }
   var sw=function(cls,uid,on,title){ return '<label class="xswitch" title="'+esc(title||"")+'"><input type="checkbox" class="'+cls+'" data-uid="'+uid+'"'+(on?" checked":"")+'><i></i></label>' };
   // "deleted" is a view of its own: the deleted_users log (who was deleted, when, by whom) instead of the live members
   var delMode=ADM.userBlockedFilter==="deleted", delList=delMode?(ADM.delUsers||[]):[];
@@ -2801,7 +2820,9 @@ function adminUsersBody(d){
     '<input id="aqU" placeholder="'+t("searchPH")+'" class="asearch" style="flex:1;min-width:200px;width:auto">'+
     '<select id="uSortPick" class="lvlpick"><option value="newer"'+(ADM.userSort!=="older"?" selected":"")+'>'+t("sortNewerUsers")+'</option><option value="older"'+(ADM.userSort==="older"?" selected":"")+'>'+t("sortOlderUsers")+'</option></select>'+
     '<select id="uLevelPick" class="lvlpick"><option value="">'+t("allLevels")+'</option>'+LEVELS_ALL.map(function(lv){ return '<option value="'+lv+'"'+(ADM.userLevelFilter===lv?" selected":"")+'>'+t("lv_"+lv)+'</option>' }).join("")+'</select>'+
-    '<select id="uBlockPick" class="lvlpick"><option value="">'+t("allUsers")+'</option><option value="active"'+(ADM.userBlockedFilter==="active"?" selected":"")+'>'+t("activeOnly")+'</option><option value="blocked"'+(ADM.userBlockedFilter==="blocked"?" selected":"")+'>'+t("blockedOnly")+'</option><option value="test"'+(ADM.userBlockedFilter==="test"?" selected":"")+'>'+GX("tHouse")+' ('+(d.users||[]).filter(function(u){ return u.is_house }).length+')</option><option value="deleted"'+(delMode?" selected":"")+'>'+GX("uDeleted")+(ADM.delUsers?' ('+ADM.delUsers.length+')':'')+'</option></select>'+
+    '<select id="uBlockPick" class="lvlpick"><option value="">'+t("allUsers")+'</option><option value="active"'+(ADM.userBlockedFilter==="active"?" selected":"")+'>'+t("activeOnly")+'</option><option value="blocked"'+(ADM.userBlockedFilter==="blocked"?" selected":"")+'>'+t("blockedOnly")+'</option><option value="test"'+(ADM.userBlockedFilter==="test"?" selected":"")+'>'+GX("tHouse")+' ('+(d.users||[]).filter(function(u){ return u.is_house }).length+')</option><option value="deleted"'+(delMode?" selected":"")+'>'+GX("uDeleted")+(ADM.delUsers?' ('+ADM.delUsers.length+')':'')+'</option><option value="abandoned"'+(abMode_on?" selected":"")+'>'+GX("uAbandoned")+'</option></select>'+
+    (abMode_on?'<select id="uAbMode" class="lvlpick">'+[["both",GX("abBoth")],["login",GX("abLogin")],["post",GX("abPost")]].map(function(o){ return '<option value="'+o[0]+'"'+(abMode===o[0]?" selected":"")+'>'+o[1]+'</option>' }).join("")+'</select>'+
+      '<select id="uAbDays" class="lvlpick">'+[30,60,90,180,365].map(function(n){ return '<option value="'+n+'"'+(abDays===n?" selected":"")+'>'+GX("abDays").replace("{n}",n)+'</option>' }).join("")+'</select>':'')+
     '<select id="uActPick" class="lvlpick"><option value="">'+GX("colLastSeen")+'</option><option value="1"'+(ADM.userActFilter==="1"?" selected":"")+'>'+GX("act24")+'</option><option value="7"'+(ADM.userActFilter==="7"?" selected":"")+'>'+GX("act7")+'</option><option value="30"'+(ADM.userActFilter==="30"?" selected":"")+'>'+GX("act30")+'</option><option value="old"'+(ADM.userActFilter==="old"?" selected":"")+'>'+GX("actOld")+'</option></select>'+
     '<span class="n" style="font-size:13px;color:var(--grey)"><span class="ltr">'+(delMode?delList.length:list.length)+'</span> '+GX("uCount")+'</span>'+
     '<button type="button" class="ab ok" id="amOpen">+ '+GX("amBtn")+'</button></div>';
@@ -2834,7 +2855,7 @@ function adminUsersBody(d){
       '<td data-label="'+t("contactName")+'"><div class="ucell">'+avatar(u.avatar_url,u.name,36)+'<div>'+scopeFlag(u.country)+'<span class="uline"><a data-byuser="'+u.id+'" data-name="'+esc(nm)+'" class="uname">'+esc(nm)+'</a>'+levelBadge(u.level)+'</span>'+
         '<div class="usub">'+(u.is_house?'<span class="uunv" style="background:var(--navy);color:#fff" title="'+esc(GX("desc_house"))+'">'+GX("houseBadge")+'</span> · ':'')+(u.member_no?'<b class="ltr">'+esc(u.member_no)+'</b> · ':'')+'<span class="ltr">'+(u.phone||GX("uNoPhone"))+'</span>'+(u.phone_verified===false?' · <span class="uunv" title="'+esc(GX("uUnverified"))+'">'+GX("uUnverified")+'</span>':'')+(joined?' <span class="ujoin">· '+GX("uJoined")+' '+joined+'</span>':'')+'</div></div></div></td>'+
       '<td data-label="'+GX("colLastSeen")+'">'+(function(){ var d=lastSeen(u), a=uact[u.id]||{}; var fresh=d && (Date.now()-d.getTime())<86400000; return '<span class="'+(fresh?"useen-fresh":"useen")+'">'+(d?when(d.toISOString()):GX("never"))+'</span>'+(a.views_30d?'<div class="usub" title="'+esc(GX("kViews"))+' · 30d"><span class="ltr">'+a.views_30d+'</span> '+GX("uViewsShort")+'</div>':'') })()+'</td>'+
-      '<td data-label="'+t("myAds")+'" class="unum ucount"><b class="ltr">'+(u.listings||0)+'</b>'+(ADM.scope==="ALL"&&u.countries?' <span class="sflag">'+String(u.countries).split(",").map(function(cc){ return flagSvg(cc) }).join("")+'</span>':'')+(uact[u.id]&&uact[u.id].live_listings!=null&&uact[u.id].live_listings!==(u.listings||0)?'<small>'+t("st_live")+' <span class="ltr">'+uact[u.id].live_listings+'</span></small>':'')+'</td>'+
+      '<td data-label="'+t("myAds")+'" class="unum ucount"><b class="ltr">'+(u.listings||0)+'</b>'+(abMode_on?'<small>'+GX("abLastPost")+' '+(uact[u.id]&&uact[u.id].last_listing_at?'<span class="ltr">'+admWhen(uact[u.id].last_listing_at)+'</span>':GX("abNever"))+'</small>':'')+(ADM.scope==="ALL"&&u.countries?' <span class="sflag">'+String(u.countries).split(",").map(function(cc){ return flagSvg(cc) }).join("")+'</span>':'')+(uact[u.id]&&uact[u.id].live_listings!=null&&uact[u.id].live_listings!==(u.listings||0)?'<small>'+t("st_live")+' <span class="ltr">'+uact[u.id].live_listings+'</span></small>':'')+'</td>'+
       '<td data-label="'+t("ratingCol")+'" class="unum ucount">'+(u.rating?'<b class="ltr">'+u.rating+'</b> <span class="ustar">★</span>':'<span class="udash">—</span>')+'</td>'+
       '<td data-label="'+t("levelCol")+'">'+(isAdmin?'<span class="lvl lvl-vip">Admin</span>':'<div class="usel"><select class="lvlpick" data-utype="'+u.id+'" title="'+esc(GX("accTypeL"))+'">'+[["member",GX("acctMember")],["broker",GX("acctBroker")],["agency",GX("acctAgency")]].map(function(o){ return '<option value="'+o[0]+'"'+((u.account_type||"member")===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select>'+
         '<select class="lvlpick" data-uid="'+u.id+'" title="'+GX("uLevelHint")+'">'+LEVELS_ALL.map(function(lv){ return '<option value="'+lv+'"'+(u.level===lv?" selected":"")+'>'+t("lv_"+lv)+'</option>' }).join("")+'</select></div>')+'</td>'+
@@ -2970,7 +2991,7 @@ function adminUsersBody(d){
         '</div></td></tr>';
     }
     return html })(null,"",false,false) }
-  return toolbar+'<div class="lpage'+(drawer?' has-drawer':'')+'"><div class="atable atable-stack utable"><table><thead><tr>'+
+  return toolbar+(abMode_on?'<div class="hintx" style="margin:0 0 10px">'+GX("abHint")+'</div>':'')+'<div class="lpage'+(drawer?' has-drawer':'')+'"><div class="atable atable-stack utable"><table><thead><tr>'+
     [GX("uMemberCol"),GX("colLastSeen"),t("myAds"),t("ratingCol"),t("levelCol"),GX("uSettingsCol"),t("role")].map(function(h){ return '<th>'+h+'</th>' }).join("")+
     '</tr></thead><tbody id="aUserBody">'+rows+'</tbody></table></div>'+drawer+'</div>';
 }
@@ -3141,7 +3162,7 @@ function admResetScope(){   // everything that was loaded for one country scope 
   ADM.data=null; ADM.ikOpen=null; ADM.pjEdit=null; ADM_PJL=null; ADM.viewingPhotoIdx=null; ADM.eopen=null; ADM.geoCountry=null; ADM._geoLoadedFor=null; ADM._mediaLoadedCats={}; ADM._mediaUsedLoaded=false; ADM.mediaUsed=null;
   ADM.social=null; ADM._promoDue=null; ADM._promoDueLoaded=false; ADM._promoSettings=null; ADM._promoSettingsLoaded=false;
   ADM.mapsPick=null; ADM._areasMap=null; ADM._areasMapLoaded=false; ADM.mapsQ=""; ADM.mapsView="areas"; ADM.mapsPage=1; ADM._listingsMapStatus=null; ADM._listingsMapStatusLoading=false; ADM.mapsFallbackOn=null;
-  ADM._ikLoaded=false; ADM.ik=null; ADM._ticketsLoaded=false; ADM.tickets=null; ADM._vfLoaded=false; ADM.vf=undefined; ADM._reviewsLoaded=false; ADM._uactLoaded=false; ADM.uact=null; ADM._delUsersLoaded=false; ADM.delUsers=null; ADM._lstatsRange=null;
+  ADM._ikLoaded=false; ADM.ik=null; ADM._ticketsLoaded=false; ADM.tickets=null; ADM._vfLoaded=false; ADM.vf=undefined; ADM._reviewsLoaded=false; ADM._uactLoaded=false; ADM.uact=null; ADM._delUsersLoaded=false; ADM.delUsers=null; ADM._ldelLoaded=false; ADM.ldel=null; ADM._ldupLoaded=false; ADM.ldup=null; ADM.ldupN=null; ADM._lstatsRange=null;
   ADM._photosLoaded=false; ADM.photosList=null;
   ADM._statsLoaded=false; ADM.stats=null; ADM._anLoaded=false; ADM.an=null; ADM.anErr=null; ADM._lstatsLoaded=false; ADM.lstats=null;
   ADM._promosLoaded=false; ADM.promos=null; ADM._wLoaded=false; ADM_W=null; ADM._pjLoaded=false; ADM_PJ=null; ADM._agLoaded=false; ADM_AG=null; ADM._engDays=null; ADM.eng=null; ADM.todo=null;
@@ -3731,7 +3752,7 @@ function admTypeName(l){ return D.TYPES[l.property_type]?D.TYPES[l.property_type
 function admDealLabel(l){ return l.deal==="rent"?GX("lfForRent"):GX("lfForSale") }
 function admListTitle(l){ return admTypeName(l)+' '+admDealLabel(l)+(l.area?' · '+esc(l.area):(l.gov?' · '+esc(l.gov):''))+(l.area_m2?' · <span class="ltr">'+(+l.area_m2).toLocaleString("en")+'</span> '+t("sqm"):'') }
 function admListingsFiltered(d){
-  var all=(d.listings||[]); var f=ADM.lf=ADM.lf||{q:"",status:"",gov:"",type:"",who:"",src:"",sort:"new"};
+  var all=(d.listings||[]); var f=ADM.lf=ADM.lf||{q:"",status:"",gov:"",type:"",who:"",src:"",sort:"new",view:""};
   if(ADM.lstatus){ f.status=ADM.lstatus; ADM.lstatus=null }                       // a bell / dashboard jump pre-filters by status
   if(ADM.listUser&&ADM.listUser.id) all=all.filter(function(l){ return l.poster_id===ADM.listUser.id });
   var q=admNormQ(f.q);
@@ -3755,11 +3776,11 @@ function adminListingsBody(d){
   var tyItems=uniq(function(l){ return l.property_type }).map(function(it){ return [it[0], D.TYPES[it[0]]?D.TYPES[it[0]][li()]:it[0], it[2]] });
   var sortItems=[["new",GX("sortNewest")],["views",GX("sortViews")],["contacts",GX("sortContacts")],["price",GX("lfSortPrice")]];
   var pend=all.filter(function(l){ return l.status==="pending" }).length;
-  var anyF=f.q||f.status||f.gov||f.type||f.who||f.src;
+  var anyF=f.q||f.status||f.gov||f.type||f.who||f.src||f.view;
   ADM.lsel=ADM.lsel||{}; var vis={}; LL.forEach(function(l){ vis[l.id]=1 }); Object.keys(ADM.lsel).forEach(function(k){ if(!vis[k]) delete ADM.lsel[k] });
   var selIds=Object.keys(ADM.lsel).filter(function(k){ return ADM.lsel[k] }), nSel=selIds.length; ADM._lvis=LL.map(function(l){ return l.id });
   var open=ADM.lopen?(LL.filter(function(l){ return l.id===ADM.lopen })[0]||all.filter(function(l){ return l.id===ADM.lopen })[0]):null; if(!open) ADM.lopen=null;
-  var rows=LL.map(function(l){ var sel=!!ADM.lsel[l.id];
+  var rowHtml=function(l){ var sel=!!ADM.lsel[l.id];
     return '<tr class="lrow'+(sel?' sel':'')+(ADM.lopen===l.id?' open':'')+'" data-lrow="'+l.id+'">'+
       '<td class="lchk"><input type="checkbox" data-lsel="'+l.id+'"'+(sel?' checked':'')+' aria-label="select"></td>'+
       '<td><div class="lt">'+(l.cover?'<img src="'+esc(l.cover)+'" alt="" loading="lazy">':'<span class="lph">'+GX("lfNoPhotos")+'</span>')+'<div class="ltt"><b>'+scopeFlag(l.country_code)+admListTitle(l)+(l.is_featured?' <i class="lstar" title="'+t("featuredBadgeDefault")+'">★</i>':'')+'</b>'+
@@ -3767,20 +3788,63 @@ function adminListingsBody(d){
       '<td><span class="st st-'+l.status+'">'+admStLabel(l.status)+'</span></td>'+
       '<td class="lprice">'+(l.price_usd!=null&&l.price_usd!==""&&!isNaN(+l.price_usd)?'<span class="ltr">'+admPrice(l.price_usd)+'</span>':'<small>'+GX("lfPOR")+'</small>')+'</td>'+
       '<td class="lwho">'+esc(l.agency_name||l.poster_name||"—")+(l.agency_name&&l.poster_name&&l.agency_name!==l.poster_name?'<small>'+esc(l.poster_name)+'</small>':(l.poster_phone?'<small class="ltr">'+esc(l.poster_phone)+'</small>':''))+'</td>'+
-      '<td class="lwhen"><span class="ltr">'+admWhen(l.created_at)+'</span></td></tr>' }).join("");
+      '<td class="lwhen"><span class="ltr">'+admWhen(l.created_at)+'</span></td></tr>' };
+  var rows=LL.map(rowHtml).join("");
+  var thead='<tr><th><input type="checkbox" id="lselAll"'+(LL.length&&nSel===LL.length?' checked':'')+' aria-label="select all"></th><th>'+GX("colListing")+'</th><th>'+t("status")+'</th><th>'+GX("price")+'</th><th>'+GX("lfWho")+'</th><th>'+GX("colDate")+'</th></tr>';
+  var tbody=rows||'<tr><td colspan="6" class="lnone">'+GX("lfNone")+'</td></tr>', viewHint='', showBulk=true, cntN=LL.length;
+  var q=admNormQ(f.q);
+  if(f.view==="deleted"){
+    // the deleted-listings log: who deleted each listing (owner / admin / with the account) and the reason given
+    showBulk=false;
+    var dl=(ADM.ldel||[]).filter(function(x){ if(!q) return true; var hay=admNormQ([x.ref,x.listing_id,x.gov,x.area,x.poster_name,x.poster_phone,x.admin_name,x.reason,x.note,x.price_usd].join(" ")); return hay.indexOf(q)>-1 });
+    cntN=dl.length;
+    var byL=function(x){ return x.deleted_by==="owner"?'<span class="st st-live">'+GX("ldelOwner")+'</span>':x.deleted_by==="admin"?'<span class="st st-removed">'+GX("ldelAdmin")+'</span>'+(x.admin_name?' <small>'+esc(x.admin_name)+'</small>':''):x.deleted_by==="account"?'<span class="st st-hidden">'+GX("ldelAccount")+'</span>':'<span class="st">'+GX("ldelSystem")+'</span>' };
+    var rsn=function(x){ var r=x.reason?(GX_T["delR_"+x.reason]?GX("delR_"+x.reason):esc(x.reason)):""; var s=(r?'<b>'+r+'</b>':'')+(x.note?'<div class="usub">'+esc(x.note)+'</div>':''); return s||'<span class="udash">—</span>' };
+    thead='<tr><th></th><th>'+GX("colListing")+'</th><th>'+GX("ldelBy")+'</th><th>'+GX("price")+'</th><th>'+GX("lfWho")+'</th><th>'+GX("ldelCol")+'</th></tr>';
+    tbody= ADM.ldel==null ? '<tr><td colspan="6" class="lnone">'+t("loading")+'</td></tr>' : ADM.ldelErr ? '<tr><td colspan="6" class="lnone">'+esc(ADM.ldelErr)+'</td></tr>' : !dl.length ? '<tr><td colspan="6" class="lnone">'+GX("ldelNone")+'</td></tr>'
+      : dl.map(function(x){ var tn=D.TYPES[x.property_type]?D.TYPES[x.property_type][li()]:(x.property_type||"");
+        return '<tr class="lrow"><td class="lchk"></td><td><div class="lt"><div class="ltt"><b>'+scopeFlag(x.country_code)+esc(tn)+' '+(x.deal==="rent"?GX("lfForRent"):GX("lfForSale"))+(x.area?' · '+esc(x.area):(x.gov?' · '+esc(x.gov):''))+(x.area_m2?' · <span class="ltr">'+(+x.area_m2).toLocaleString("en")+'</span> '+t("sqm"):'')+'</b>'+
+          '<small><span class="ltr">'+esc(x.ref||x.listing_id)+'</span> · '+admStLabel(x.status||"")+(x.views?' · 👁 <span class="ltr">'+x.views+'</span>':'')+(x.posted_at?' · '+GX("colDate")+' <span class="ltr">'+admWhen(x.posted_at)+'</span>':'')+'</small></div></div></td>'+
+          '<td>'+byL(x)+'<div class="usub">'+rsn(x)+'</div></td>'+
+          '<td class="lprice">'+(x.price_usd!=null?'<span class="ltr">'+admPrice(x.price_usd)+'</span>':'<small>'+GX("lfPOR")+'</small>')+'</td>'+
+          '<td class="lwho">'+esc(x.poster_name||"—")+(x.poster_phone?'<small class="ltr">'+esc(x.poster_phone)+'</small>':'')+'</td>'+
+          '<td class="lwhen"><span class="ltr">'+admWhen(x.deleted_at)+'</span></td></tr>' }).join("");
+    viewHint='<div class="hintx" style="margin:0 0 10px">'+GX("ldelHint")+'</div>';
+  } else if(f.view==="dupes"){
+    // likely duplicates: the server returns (listing, shared key) pairs; cluster them (union-find) and show each group with the normal rows,
+    // so the drawer, selection and bulk delete all work on them
+    var byId={}; all.forEach(function(l){ byId[String(l.id)]=l });
+    var parent={}, kinds={}, keyFirst={};
+    var find=function(a){ while(parent[a]!==a){ parent[a]=parent[parent[a]]; a=parent[a] } return a }, uni=function(a,b){ a=find(a); b=find(b); if(a!==b) parent[a]=b };
+    (ADM.ldup||[]).forEach(function(p){ var id=String(p.listing_id); if(!(id in parent)) parent[id]=id; if(keyFirst[p.key]) uni(id,keyFirst[p.key]); else keyFirst[p.key]=id; (kinds[id]=kinds[id]||{})[p.kind]=1 });
+    var groups={}; Object.keys(parent).forEach(function(id){ var r=find(id); (groups[r]=groups[r]||[]).push(id) });
+    var clusters=Object.keys(groups).map(function(r){ return groups[r].filter(function(id){ return byId[id] }) }).filter(function(c){ return c.length>1 });
+    if(q) clusters=clusters.filter(function(c){ return c.some(function(id){ var l=byId[id]; return admNormQ([l.ref,l.id,l.gov,l.area,l.poster_name,l.agency_name,l.poster_phone,l.contact_phone,admTypeName(l),l.price_usd].join(" ")).indexOf(q)>-1 }) });
+    clusters.forEach(function(c){ c.sort(function(a,b){ return new Date(byId[a].created_at)-new Date(byId[b].created_at) }) });
+    clusters.sort(function(a,b){ return b.length-a.length });
+    ADM.ldupN=ADM.ldup?clusters.length:null; cntN=clusters.length;
+    ADM._lvis=[]; vis={}; clusters.forEach(function(c){ c.forEach(function(id){ ADM._lvis.push(+id); vis[id]=1 }) });
+    Object.keys(ADM.lsel).forEach(function(k){ if(!vis[k]) delete ADM.lsel[k] }); selIds=Object.keys(ADM.lsel).filter(function(k){ return ADM.lsel[k] }); nSel=selIds.length;
+    thead='<tr><th><input type="checkbox" id="lselAll"'+(ADM._lvis.length&&nSel===ADM._lvis.length?' checked':'')+' aria-label="select all"></th><th>'+GX("colListing")+'</th><th>'+t("status")+'</th><th>'+GX("price")+'</th><th>'+GX("lfWho")+'</th><th>'+GX("colDate")+'</th></tr>';
+    tbody= ADM.ldup==null ? '<tr><td colspan="6" class="lnone">'+t("loading")+'</td></tr>' : ADM.ldupErr ? '<tr><td colspan="6" class="lnone">'+esc(ADM.ldupErr)+'</td></tr>' : !clusters.length ? '<tr><td colspan="6" class="lnone">'+GX("dupNone")+'</td></tr>'
+      : clusters.map(function(c,i){ var kd={}; c.forEach(function(id){ Object.keys(kinds[id]||{}).forEach(function(k){ kd[k]=1 }) }); var lab=Object.keys(kd).map(function(k){ return k==="text"?GX("dupKindText"):GX("dupKindPoster") }).join(" · ");
+          return '<tr class="ldgrp"><td colspan="6" style="background:rgba(120,130,150,.12);font-size:13px;padding:8px 12px"><b>'+GX("dupGroup")+' <span class="ltr">'+(i+1)+'</span></b> · <span class="ltr">'+c.length+'</span> · <small>'+lab+'</small></td></tr>'+c.map(function(id){ return rowHtml(byId[id]) }).join("") }).join("");
+    viewHint='<div class="hintx" style="margin:0 0 10px">'+GX("dupHint")+'</div>';
+  }
   return (ADM.listUser?'<div class="ulchip"><span>'+GX("uListChip").replace("{n}",esc(ADM.listUser.name||""))+' · <b class="ltr">'+all.length+'</b></span><button type="button" class="ab" id="ulClear">✕ '+GX("uListAll")+'</button></div>':'')+
-   '<div class="lbar"><span class="lcnt"><b class="ltr">'+LL.length+'</b>'+(LL.length!==all.length?' / <span class="ltr">'+all.length+'</span>':'')+' '+t("listingsTab")+(pend?'<span class="lpend">· '+GX("lfPendingN").replace("{n}",pend)+'</span>':'')+'</span>'+
+   '<div class="lbar"><span class="lcnt"><b class="ltr">'+cntN+'</b>'+(!f.view&&LL.length!==all.length?' / <span class="ltr">'+all.length+'</span>':'')+' '+(f.view==="deleted"?GX("lfDeletedV"):f.view==="dupes"?GX("dupGroup"):t("listingsTab"))+(pend&&!f.view?'<span class="lpend">· '+GX("lfPendingN").replace("{n}",pend)+'</span>':'')+'</span>'+
      '<label class="lq">'+AICO.search+'<input id="aqL" value="'+esc(f.q||"")+'" placeholder="'+t("searchPH")+'" autocomplete="off"></label>'+rangeTabs()+'</div>'+
-   '<div class="lfilters">'+pill("status",GX("lfStatus"),stItems,f.status,"afStatus")+pill("gov",GX("lfGov"),uniq(function(l){ return l.gov }),f.gov)+pill("type",GX("lfType"),tyItems,f.type)+pill("who",GX("lfWho"),uniq(function(l){ return l.agency_name||l.poster_name }),f.who)+
-     pill("src",GX("lfSrc"),[["bot",GX("lfBot"),all.filter(function(l){ return l.via }).length],["site",GX("lfSite"),all.filter(function(l){ return !l.via }).length]],f.src)+pill("sort",GX("lfSort"),sortItems,f.sort!=="new"?f.sort:"")+
-     (anyF?'<button type="button" class="lfclear" id="lfClear">'+GX("lfClear")+'</button>':'')+'</div>'+
+   '<div class="lfilters">'+pill("view",GX("lfView"),[["deleted",GX("lfDeletedV"),ADM.ldel?ADM.ldel.length:null],["dupes",GX("lfDupesV"),ADM.ldupN!=null?ADM.ldupN:null]],f.view)+
+     (f.view?'':pill("status",GX("lfStatus"),stItems,f.status,"afStatus")+pill("gov",GX("lfGov"),uniq(function(l){ return l.gov }),f.gov)+pill("type",GX("lfType"),tyItems,f.type)+pill("who",GX("lfWho"),uniq(function(l){ return l.agency_name||l.poster_name }),f.who)+
+     pill("src",GX("lfSrc"),[["bot",GX("lfBot"),all.filter(function(l){ return l.via }).length],["site",GX("lfSite"),all.filter(function(l){ return !l.via }).length]],f.src)+pill("sort",GX("lfSort"),sortItems,f.sort!=="new"?f.sort:""))+
+     (anyF?'<button type="button" class="lfclear" id="lfClear">'+GX("lfClear")+'</button>':'')+'</div>'+viewHint+
    '<div class="lpage'+(open?' has-drawer':'')+'"><div class="ltbl">'+
-     (nSel?'<div class="lbulk"><span><b class="ltr">'+nSel+'</b> '+GX("lfSelected")+'</span><button type="button" class="lx" id="lselNone">✕ '+GX("lfUnsel")+'</button><span class="sp"></span>'+
+     (showBulk&&nSel?'<div class="lbulk"><span><b class="ltr">'+nSel+'</b> '+GX("lfSelected")+'</span><button type="button" class="lx" id="lselNone">✕ '+GX("lfUnsel")+'</button><span class="sp"></span>'+
        '<button type="button" class="ab" data-lbulk="live">'+GX("lfBulkLive")+'</button><button type="button" class="ab" data-lbulk="hidden">'+GX("lfBulkHide")+'</button><button type="button" class="ab bad" data-lbulk="del">'+GX("lfBulkDel")+'</button></div>':'')+
      '<table>'+
      '<colgroup><col style="width:36px"><col><col style="width:132px"><col style="width:112px"><col style="width:150px"><col style="width:104px"></colgroup>'+
-     '<thead><tr><th><input type="checkbox" id="lselAll"'+(LL.length&&nSel===LL.length?' checked':'')+' aria-label="select all"></th><th>'+GX("colListing")+'</th><th>'+t("status")+'</th><th>'+GX("price")+'</th><th>'+GX("lfWho")+'</th><th>'+GX("colDate")+'</th></tr></thead>'+
-     '<tbody id="aListBody">'+(rows||'<tr><td colspan="6" class="lnone">'+GX("lfNone")+'</td></tr>')+'</tbody></table>'+
+     '<thead>'+thead+'</thead>'+
+     '<tbody id="aListBody">'+tbody+'</tbody></table>'+
    '</div>'+(open?admListingDrawer(open,S[open.id]||{}):'')+'</div>';
 }
 function admListingDrawer(l,ls){
@@ -3819,7 +3883,7 @@ function admListingDrawer(l,ls){
 function wireAdminListings(){
   var q=$("#aqL"); if(q){ q.oninput=function(){ var v=this.value; clearTimeout(ADM._lqT); ADM._lqT=setTimeout(function(){ ADM.lf.q=v; render(); var el=$("#aqL"); if(el){ el.focus(); try{ el.setSelectionRange(el.value.length,el.value.length) }catch(e){} } },160) } }
   $$("[data-lf]").forEach(function(s){ s.onchange=function(){ ADM.lf[this.dataset.lf]=this.value; if(this.dataset.lf==="sort"){ ADM.lf.sort=this.value||"new"; ADM.listSort=ADM.lf.sort } render() } });
-  if($("#lfClear")) $("#lfClear").onclick=function(){ ADM.lf={q:"",status:"",gov:"",type:"",who:"",src:"",sort:"new"}; render() };
+  if($("#lfClear")) $("#lfClear").onclick=function(){ ADM.lf={q:"",status:"",gov:"",type:"",who:"",src:"",sort:"new",view:""}; render() };
   $$("[data-lsel]").forEach(function(c){ c.onchange=function(){ ADM.lsel[this.dataset.lsel]=this.checked; render() }; c.onclick=function(e){ e.stopPropagation() } });
   if($("#lselAll")) $("#lselAll").onchange=function(){ var on=this.checked; ADM.lsel={}; if(on) (ADM._lvis||[]).forEach(function(id){ ADM.lsel[id]=true }); render() };
   if($("#lselNone")) $("#lselNone").onclick=function(){ ADM.lsel={}; render() };
@@ -3830,9 +3894,10 @@ function wireAdminListings(){
     var label=what==="live"?GX("lfBulkLive"):what==="hidden"?GX("lfBulkHide"):GX("lfBulkDel");
     if(!confirm(GX("lfBulkQ").replace("{a}",label).replace("{n}",ids.length))) return;
     if(what==="del" && !confirm(t("confirmDel"))) return;
+    var why=null; if(what==="del"){ why=prompt(GX("ldelReasonQ"),""); if(why===null) return; why=why.trim()||null }
     this.disabled=true; var done=0, fail=0;
     for(var i=0;i<ids.length;i++){ var id=+ids[i]; try{
-        if(what==="del"){ await trashListingFiles(id); await rpc("bk_admin_delete_listing",{p_token:ADM.token,p_listing:id}) }
+        if(what==="del"){ await trashListingFiles(id); await rpc("bk_admin_delete_listing",{p_token:ADM.token,p_listing:id,p_reason:why}) }
         else await rpc("bk_admin_set_status",{p_token:ADM.token,p_listing:id,p_status:what});
         done++ }catch(e){ fail++ } }
     ADM.lsel={}; if(what==="del") ADM.lopen=null;

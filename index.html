@@ -7219,6 +7219,26 @@ function vlbClose(){
   if(document.fullscreenElement){ try{ document.exitFullscreen().catch(function(){}) }catch(e){} }   // fullscreenchange closes the lightbox
   else { VLB_OPEN=false; render() }
 }
+/* "why are you deleting?" — a small dialog before a member deletes their own listing; resolves {reason, note} or null */
+function askDeleteReason(){
+  return new Promise(function(res){
+    var keys=["sold_here","sold_else","changed","repost","wrong","noresp","other"];
+    var bs="padding:9px 14px;border-radius:10px;border:1px solid rgba(120,130,150,.4);font:inherit;cursor:pointer;background:transparent;color:inherit";
+    var ov=document.createElement("div"); ov.className="dlr-ov";
+    ov.style.cssText="position:fixed;inset:0;z-index:9500;background:rgba(5,8,16,.62);display:flex;align-items:center;justify-content:center;padding:16px";
+    ov.innerHTML='<div role="dialog" aria-modal="true" style="background:var(--card,#fff);color:var(--ink,#111);border-radius:14px;max-width:440px;width:100%;padding:18px;box-shadow:0 30px 80px rgba(0,0,0,.45);max-height:92vh;overflow:auto">'+
+      '<h3 style="margin:0 0 6px;font-size:17px">'+GX("delWhy")+'</h3><p style="margin:0 0 12px;font-size:13px;opacity:.75">'+esc(t("confirmDelOwn"))+'</p>'+
+      '<div style="display:grid;gap:6px">'+keys.map(function(k){ return '<label style="display:flex;gap:10px;align-items:center;padding:9px 12px;border:1px solid rgba(120,130,150,.35);border-radius:10px;cursor:pointer;font-size:14px"><input type="radio" name="dlr" value="'+k+'"><span>'+GX("delR_"+k)+'</span></label>' }).join("")+'</div>'+
+      '<textarea id="dlrNote" maxlength="300" rows="2" placeholder="'+esc(GX("delNotePH"))+'" style="width:100%;margin-top:10px;border:1px solid rgba(120,130,150,.35);border-radius:10px;padding:8px 10px;font:inherit;background:transparent;color:inherit;box-sizing:border-box"></textarea>'+
+      '<div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px"><button type="button" id="dlrCancel" style="'+bs+'">'+t("cancel")+'</button><button type="button" id="dlrGo" disabled style="'+bs+';background:#c62828;border-color:#c62828;color:#fff">'+GX("delGo")+'</button></div></div>';
+    document.body.appendChild(ov);
+    var go=ov.querySelector("#dlrGo"), done=function(v){ ov.remove(); res(v) };
+    Array.prototype.forEach.call(ov.querySelectorAll("input[name=dlr]"),function(r){ r.onchange=function(){ go.disabled=false } });
+    ov.querySelector("#dlrCancel").onclick=function(){ done(null) };
+    ov.addEventListener("click",function(e){ if(e.target===ov) done(null) });
+    go.onclick=function(){ var r=ov.querySelector("input[name=dlr]:checked"); if(!r) return; done({reason:r.value, note:ov.querySelector("#dlrNote").value.trim().slice(0,300)}) };
+  });
+}
 // leaving fullscreen by any route (our ×, the phone's back gesture, Esc) closes the lightbox too
 document.addEventListener("fullscreenchange", function(){ if(!document.fullscreenElement && VLB_OPEN){ VLB_OPEN=false; render() } });
 function initEditMap(){
@@ -8720,7 +8740,7 @@ function wire(){
    catch(e){ prompt(t("shareL"), url) }};
 
  var removeListing=async function(id,btn){
-   if(!confirm(t("confirmDelOwn"))) return;
+   var why=await askDeleteReason(); if(!why) return;   // the reason goes into the admin's deleted-listings log
    if(btn){ btn.disabled=true; btn.textContent=t("saving") }
    try{
      // cleans up this listing's actual photo FILES in storage — the
@@ -8731,7 +8751,7 @@ function wire(){
      // and fixed for admin-initiated deletes; it just hadn't been
      // carried over to a user deleting their own listing)
      await trashListingFiles(id);
-     await rpc("bk_own_delete",{p_user:USER.id, p_id:+id});
+     await rpc("bk_own_delete",{p_user:USER.id, p_id:+id, p_reason:why.reason, p_note:why.note||null});
      D.LIST=D.LIST.filter(function(l){return String(l.id)!==String(id)});
      if(MYLIST) MYLIST=MYLIST.filter(function(l){return String(l.id)!==String(id)});
      LOADED.mine=false;
@@ -11985,6 +12005,20 @@ var GX_T={
   uDeleted:{ar:"المحذوفون",en:"Deleted",de:"Gelöscht"}, uDeletedAt:{ar:"تاريخ الحذف",en:"Deleted on",de:"Gelöscht am"}, uDeletedBy:{ar:"مَن حذفه",en:"Deleted by",de:"Gelöscht von"},
   uDelBySelf:{ar:"حذف حسابه بنفسه",en:"Deleted their own account",de:"Selbst gelöscht"}, uDelByAdmin:{ar:"حذفه المشرف",en:"Deleted by admin",de:"Vom Admin gelöscht"}, uDelBySystem:{ar:"حذف تلقائي",en:"System",de:"System"},
   uNoDeleted:{ar:"لا حسابات محذوفة بعد.",en:"No deleted accounts yet.",de:"Noch keine gelöschten Konten."},
+  uAbandoned:{ar:"حسابات مهجورة",en:"Abandoned accounts",de:"Verwaiste Konten"}, abBoth:{ar:"لم يدخل ولم ينشر",en:"No sign-in and no posting",de:"Weder Login noch Anzeige"}, abLogin:{ar:"لم يدخل",en:"No sign-in",de:"Kein Login"}, abPost:{ar:"لم ينشر",en:"No posting",de:"Keine Anzeige"},
+  abDays:{ar:"منذ {n} يوماً",en:"for {n} days",de:"seit {n} Tagen"}, abLastPost:{ar:"آخر إعلان:",en:"Last listing:",de:"Letzte Anzeige:"}, abNever:{ar:"لم ينشر أبداً",en:"never posted",de:"nie inseriert"},
+  abHint:{ar:"الحسابات التي انضمّت قبل المدة المختارة ولم تدخل الموقع و/أو لم تنشر إعلاناً خلالها، مرتّبة من الأقدم نشاطاً.",en:"Accounts that joined before the chosen period and have not signed in and/or posted within it, oldest activity first.",de:"Konten, die vor dem gewählten Zeitraum beigetreten sind und sich darin nicht angemeldet und/oder nichts inseriert haben, älteste Aktivität zuerst."},
+  lfView:{ar:"عرض",en:"View",de:"Ansicht"}, lfDeletedV:{ar:"الإعلانات المحذوفة",en:"Deleted listings",de:"Gelöschte Anzeigen"}, lfDupesV:{ar:"الإعلانات المكررة",en:"Duplicate listings",de:"Doppelte Anzeigen"},
+  ldelBy:{ar:"مَن حذفه",en:"Deleted by",de:"Gelöscht von"}, ldelOwner:{ar:"صاحب الإعلان",en:"Owner",de:"Inserent"}, ldelAdmin:{ar:"المشرف",en:"Admin",de:"Admin"}, ldelAccount:{ar:"مع حذف الحساب",en:"With the account",de:"Mit dem Konto"}, ldelSystem:{ar:"تلقائي",en:"System",de:"System"}, ldelCol:{ar:"حُذف",en:"Deleted",de:"Gelöscht"},
+  ldelReasonQ:{ar:"سبب الحذف (اختياري، يُحفظ في سجل الإعلانات المحذوفة):",en:"Reason for deleting (optional, kept in the deleted-listings log):",de:"Grund der Löschung (optional, im Protokoll gespeichert):"},
+  ldelNone:{ar:"لا إعلانات محذوفة بعد.",en:"No deleted listings yet.",de:"Noch keine gelöschten Anzeigen."},
+  ldelHint:{ar:"سجل الإعلانات المحذوفة: كل حذف من اليوم فصاعداً مع من قام به وسببه. العضو يُسأل عن السبب عند حذف إعلانه.",en:"Deleted-listings log: every deletion from today on, with who did it and why. Members are asked for a reason when they delete.",de:"Protokoll gelöschter Anzeigen: jede Löschung ab heute mit Verursacher und Grund. Mitglieder werden beim Löschen nach dem Grund gefragt."},
+  dupHint:{ar:"إعلانات يُحتمل أنها مكررة: نفس الناشر (أو نفس رقم الهاتف) مع نفس النوع والمنطقة والسعر أو المساحة، أو نفس نص الوصف. حدّد النسخ الزائدة واحذفها من هنا.",en:"Likely duplicates: same poster (or phone) with the same type, area and price or size, or the same description text. Select the extra copies and delete them here.",de:"Wahrscheinliche Dubletten: gleicher Inserent (oder Telefon) mit gleichem Typ, Gebiet und Preis oder Fläche, oder gleicher Beschreibung. Überzählige auswählen und hier löschen."},
+  dupNone:{ar:"لا إعلانات مكررة.",en:"No duplicate listings.",de:"Keine doppelten Anzeigen."}, dupGroup:{ar:"مجموعة",en:"Group",de:"Gruppe"}, dupKindPoster:{ar:"نفس الناشر والنوع والمنطقة والسعر/المساحة",en:"same poster, type, area and price/size",de:"gleicher Inserent, Typ, Gebiet und Preis/Fläche"}, dupKindText:{ar:"نفس نص الوصف",en:"same description text",de:"gleicher Beschreibungstext"},
+  delWhy:{ar:"لماذا تحذف الإعلان؟",en:"Why are you deleting this listing?",de:"Warum löschst du diese Anzeige?"}, delNotePH:{ar:"تفاصيل إضافية (اختياري)",en:"Anything else? (optional)",de:"Weitere Angaben (optional)"}, delGo:{ar:"حذف الإعلان",en:"Delete listing",de:"Anzeige löschen"},
+  delR_sold_here:{ar:"بيع / أُجّر عبر بلكون",en:"Sold / rented through Balkoun",de:"Über Balkoun verkauft / vermietet"}, delR_sold_else:{ar:"بيع / أُجّر بطريقة أخرى",en:"Sold / rented another way",de:"Anderweitig verkauft / vermietet"}, delR_changed:{ar:"عدلتُ عن البيع أو الإيجار",en:"No longer selling or renting",de:"Verkaufe / vermiete nicht mehr"},
+  delR_repost:{ar:"سأنشره من جديد بتفاصيل أخرى",en:"Re-posting it with different details",de:"Ich inseriere es neu mit anderen Angaben"}, delR_wrong:{ar:"فيه خطأ في المعلومات",en:"The details were wrong",de:"Die Angaben waren falsch"}, delR_noresp:{ar:"لم أتلقَّ تواصلاً كافياً",en:"Not enough enquiries",de:"Zu wenige Anfragen"}, delR_other:{ar:"سبب آخر",en:"Other reason",de:"Anderer Grund"},
+  delR_account_self:{ar:"حذف العضو حسابه",en:"Member deleted their account",de:"Mitglied hat sein Konto gelöscht"}, delR_account_admin:{ar:"حذف المشرف الحساب",en:"Admin deleted the account",de:"Admin hat das Konto gelöscht"},
   uDelLogHint:{ar:"سجل الحسابات المحذوفة: يُسجَّل كل حذف من اليوم فصاعداً مع من قام به (العضو نفسه أو المشرف). الحسابات المحذوفة قبل ذلك ليست هنا.",en:"Deleted-accounts log: every deletion from today on is recorded with who did it (the member or an admin). Accounts deleted before that are not here.",de:"Protokoll gelöschter Konten: jede Löschung ab heute wird mit dem Verursacher (Mitglied oder Admin) festgehalten. Früher gelöschte Konten fehlen hier."},
   uEditInfo:{ar:"تعديل البيانات",en:"Edit details",de:"Daten bearbeiten"}, uPublicPage:{ar:"الصفحة العامة",en:"Public page",de:"Öffentliche Seite"}, uListingsH:{ar:"إعلاناته",en:"Listings",de:"Anzeigen"}, uNoListings:{ar:"لا إعلانات لهذا العضو.",en:"No listings for this member.",de:"Keine Anzeigen für dieses Mitglied."}, uListChip:{ar:"إعلانات {n}",en:"Listings of {n}",de:"Anzeigen von {n}"}, uListAll:{ar:"كل الإعلانات",en:"All listings",de:"Alle Anzeigen"}, uPhoneL:{ar:"رقم الهاتف",en:"Phone",de:"Telefon"}, uEmailL:{ar:"البريد الإلكتروني",en:"Email",de:"E-Mail"}, uPhoneTaken:{ar:"هذا الرقم مستخدم عند عضو آخر.",en:"This number belongs to another member.",de:"Diese Nummer gehört einem anderen Mitglied."}, uEditHint:{ar:"تغيير الرقم لا يرسل رمز تأكيد؛ العضو يدخل بالرقم الجديد مباشرة. اسم المكتب وشعاره يُعدَّلان من زر «المكتب».",en:"Changing the number sends no verification code; the member signs in with the new number right away. Agency name and logo are edited from the “Agency” button.",de:"Eine Nummernänderung sendet keinen Code; das Mitglied meldet sich sofort mit der neuen Nummer an. Büroname und Logo über die Schaltfläche „Büro“."}, uDeleteHint:{ar:"الحذف يزيل الحساب وكل إعلاناته وصوره ورسائله ولا يمكن التراجع عنه. الحظر يكفي في معظم الحالات.",en:"Deleting removes the account with all its listings, photos and messages and cannot be undone. Blocking is enough in most cases.",de:"Löschen entfernt das Konto mit allen Anzeigen, Fotos und Nachrichten und kann nicht rückgängig gemacht werden. Sperren reicht meistens."},
   confirmDelUser:{ar:"حذف العضو {n} نهائياً مع كل إعلاناته وصوره؟ لا يمكن التراجع.",en:"Permanently delete member {n} with all listings and photos? This cannot be undone.",de:"Mitglied {n} mit allen Anzeigen und Fotos endgültig löschen? Das kann nicht rückgängig gemacht werden."},
