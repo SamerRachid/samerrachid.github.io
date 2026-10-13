@@ -8502,6 +8502,16 @@ function wire(){
    if($("#lbClose")) $("#lbClose").onclick=function(){ LIGHTBOX_OPEN=false; render() };
    if($("#gAll")) $("#gAll").onclick=function(){ LIGHTBOX_OPEN=true; render() };
    if($("#gVid")) $("#gVid").onclick=function(e){ e.stopPropagation(); VLB_OPEN=true; render() };
+   // Safari/WebKit: when morphdom patches an existing <video> element's src attribute in place (switching
+   // listings, or the gallery/lightbox showing a different video) rather than inserting a brand-new element,
+   // it does not reliably start loading the new source on its own — Chrome does, which is why this only ever
+   // showed up on iPhone. .load() forces it, and only runs when the src actually changed since last time, so
+   // it never interrupts a video already loading/playing.
+   ["gvideo","vlbVideo"].forEach(function(id){
+     var v=document.getElementById(id); if(!v) return;
+     var src=v.getAttribute("src")||"";
+     if(src && v._loadedSrc!==src){ v._loadedSrc=src; try{ v.load() }catch(e){} }
+   });
    if($("#gVidClose")) $("#gVidClose").onclick=function(e){ e.stopPropagation(); var v=$("#gvideo"); if(v){ try{ v.pause() }catch(x){} } window._gvState=null; GVID_OFF=true; if(IM2.length) GI=1; render() };
    if($("#vlbClose")) $("#vlbClose").onclick=function(){ VLB_OPEN=false; render() };
    if($("#vlb")) $("#vlb").onclick=function(e){ if(e.target===this){ VLB_OPEN=false; render() } };
