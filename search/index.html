@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-Wt8tyVO7+bwXDcNHFmrYlEcFHKWRM5bVDoJ0p2CUxIg=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -6753,7 +6753,7 @@ function adSlotsRow(){
        (showTag?'<span class="adtag" style="font-size:var(--tgs);color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+tagText+'</span>':'')+'</div>';
    }
    return '<a class="adslot'+featCls+'" data-adid="'+a.id+'" aria-label="'+esc(unesc(String(a.label||a.sponsor_name||t("adPlaceholder"))))+'" '+
-     (isLinked ? 'data-open="'+a.linked_listing_id+'"' : 'href="'+(a.link_url||"#")+'"'+(external?' target="_blank" rel="noopener sponsored"':' onclick="return false"'))+'>'+
+     (isLinked ? 'data-open="'+a.linked_listing_id+'"' : 'href="'+(a.link_url||"#")+'"'+(external?' target="_blank" rel="noopener sponsored"':' data-noop="1"'))+'>'+
      media+chip+featText+(showTag&&!a.featured?'<span class="adtag" style="font-size:var(--tgs);color:'+textColor+';background:rgba('+shadeRgb+',.75)">'+tagText+'</span>':'')+'</a>'}).join("");
   // one, two or three squares: a still, centred row — the endless wheel only makes sense with more than fit at once
   // still when every square fits the screen width side by side (phone: 1–2 squares, desktop: up to ~8), glide otherwise
@@ -9289,7 +9289,11 @@ function wmOverlayHtml(){ var c=wmCfg(); return c.video ? '<span class="wm-ov wm
 // video to the browser's own fullscreen mode, whose "drag from the top to exit" toast sits over the control bar with no
 // usable way out. Chromium honours the token; Safari ignores controlsList entirely, so iPhone is untouched. Kept in one
 // place: a second controlsList attribute on the same tag would be silently dropped by the HTML parser.
-function wmVideoAttrs(){ return wmCfg().lock ? ' controlsList="nodownload noremoteplayback nofullscreen" disablePictureInPicture oncontextmenu="return false"' : ' controlsList="nofullscreen"' }
+function wmVideoAttrs(){ return wmCfg().lock ? ' controlsList="nodownload noremoteplayback nofullscreen" disablePictureInPicture data-wmlock="1"' : ' controlsList="nofullscreen"' }
+// a square with no link of its own stays put on click (was an inline onclick="return false"; inline handlers are blocked by the page's CSP)
+document.addEventListener("click", function(e){ var a=e.target&&e.target.closest ? e.target.closest("a.adslot[data-noop]") : null; if(a) e.preventDefault() });
+// locked videos: no context menu (was an inline oncontextmenu attribute; inline handlers are blocked by the page's CSP)
+document.addEventListener("contextmenu", function(e){ var v=e.target&&e.target.closest ? e.target.closest("video[data-wmlock]") : null; if(v) e.preventDefault() });
 function shrink(src, maxW, quality, wm){
   return new Promise(function(resolve, reject){
     var img=new Image();
@@ -9580,9 +9584,10 @@ function applyMaintenance(gex){
   var title = ar ? "نرتّب البيت قليلاً 🛠️" : L==="de" ? "Wir räumen kurz auf 🛠️" : "A little housekeeping 🛠️";
   var body = custom || (ar ? "بلكون في صيانة قصيرة لنجهّز لك تجربة أفضل. عُد بعد قليل وستجد كل شيء في مكانه." : L==="de" ? "Balkoun wird gerade kurz gewartet. Schau in ein paar Minuten wieder vorbei." : "Balkoun is down for a short maintenance to make things better. Please try again in a little while.");
   var btn = ar ? "حاول مرة أخرى" : L==="de" ? "Erneut versuchen" : "Try again";
-  var html = '<div class="maint-card"><div class="maint-logo"><img src="/brand/logo-light.png" alt="بلكون"></div><h1>'+esc(title)+'</h1><p>'+esc(body)+'</p><button type="button" onclick="location.reload()">'+btn+'</button><small>balkoun.com</small></div>';
+  var html = '<div class="maint-card"><div class="maint-logo"><img src="/brand/logo-light.png" alt="بلكون"></div><h1>'+esc(title)+'</h1><p>'+esc(body)+'</p><button type="button" id="maintReload">'+btn+'</button><small>balkoun.com</small></div>';
   if(!el){ el=document.createElement("div"); el.id="maint"; el.setAttribute("dir", ar?"rtl":"ltr"); document.body.appendChild(el) }
   el.innerHTML = html; document.documentElement.classList.add("maint-on");
+  var rb=el.querySelector("#maintReload"); if(rb) rb.onclick=function(){ location.reload() };
 }
 var _featuredPollTimer=null;
 async function syncFeaturedFromServer(){
