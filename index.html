@@ -9365,8 +9365,8 @@ async function uploadListingVideo(listingId, v, onProgress, viaRpc){
   await storageUploadXhr(pV, v.file, ctype, onProgress);
   var poster=null; if(v.poster){ var uP=await storageUpload(pP, v.poster, {contentType:"image/jpeg", upsert:false}); if(!uP.error) poster=DB.storage.from("photos").getPublicUrl(pP).data.publicUrl }
   var url=DB.storage.from("photos").getPublicUrl(pV).data.publicUrl, dur=Math.round(v.duration||0);
-  if(viaRpc){ var r=await photoAddRpc({p_user:USER&&USER.id,p_listing:+listingId,p_url:url,p_thumb:poster,p_sort:1000,p_token:(USER&&USER.token)||null,p_kind:"video",p_duration:dur,p_size:v.size}); if(r&&r.error) throw new Error(r.error==="video_limit"?GX("videoLimit"):r.error==="video_off"?GX("videoOff"):r.error) }
-  else { var pr=await DB.from("listing_photos").insert({listing_id:listingId, url:url, thumb_url:poster, sort_order:1000, kind:"video", duration_s:dur, size_bytes:v.size}).select(); if(pr.error) throw new Error(pr.error.message) }
+  // always through bk_photo_add (member token + listing ownership + limits): the table no longer accepts direct inserts (2026-10-13)
+  var r=await photoAddRpc({p_user:USER&&USER.id,p_listing:+listingId,p_url:url,p_thumb:poster,p_sort:1000,p_token:(USER&&USER.token)||null,p_kind:"video",p_duration:dur,p_size:v.size}); if(r&&r.error) throw new Error(r.error==="video_limit"?GX("videoLimit"):r.error==="video_off"?GX("videoOff"):r.error);
   return {url:url, poster:poster} }
 function videoPickHtml(){
   var cfg=videoCfg(); if(!cfg.on) return "";
