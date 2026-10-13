@@ -9247,7 +9247,11 @@ function wmStamp(ctx,W,H){
   ctx.restore();
 }
 function wmOverlayHtml(){ var c=wmCfg(); return c.video ? '<span class="wm-ov wm-'+c.pos+'" aria-hidden="true">'+brandMark()+'<b>BALKOUN</b></span>' : '' }
-function wmVideoAttrs(){ return wmCfg().lock ? ' controlsList="nodownload noremoteplayback" disablePictureInPicture oncontextmenu="return false"' : '' }
+// nofullscreen: the lightbox is already a full view with its own ×. Chrome's native fullscreen button (Android) hands the
+// video to the browser's own fullscreen mode, whose "drag from the top to exit" toast sits over the control bar with no
+// usable way out. Chromium honours the token; Safari ignores controlsList entirely, so iPhone is untouched. Kept in one
+// place: a second controlsList attribute on the same tag would be silently dropped by the HTML parser.
+function wmVideoAttrs(){ return wmCfg().lock ? ' controlsList="nodownload noremoteplayback nofullscreen" disablePictureInPicture oncontextmenu="return false"' : ' controlsList="nofullscreen"' }
 function shrink(src, maxW, quality, wm){
   return new Promise(function(resolve, reject){
     var img=new Image();
