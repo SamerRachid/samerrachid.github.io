@@ -5462,7 +5462,7 @@ function listing(id){
       : '')+
     '<img class="lb-img" id="lbImg" src="'+curImg+'" alt="">'+
    '</div>' : '';
- lb += (VLB_OPEN && VIDS.length) ? '<div class="vlb" id="vlb"><button type="button" class="lb-close" id="vlbClose" aria-label="close">×</button><div class="vlb-box"><video id="vlbVideo" controls controlsList="nofullscreen" autoplay playsinline'+wmVideoAttrs()+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'+wmOverlayHtml()+'</div></div>' : '';
+ lb += (VLB_OPEN && VIDS.length) ? '<div class="vlb" id="vlb"><button type="button" class="lb-close" id="vlbClose" aria-label="close">×</button><div class="vlb-box"><video id="vlbVideo" controls controlsList="nofullscreen" playsinline'+wmVideoAttrs()+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'+wmOverlayHtml()+'</div></div>' : '';
 
  /* ── title block ── */
  var tags='<div class="ltags"><span class="ltag deal">'+(isRent?t("forrent"):t("forsale"))+'</span>'+
