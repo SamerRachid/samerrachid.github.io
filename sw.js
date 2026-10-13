@@ -3,7 +3,7 @@
    app shell answers when the network is down. Static files (brand, photos, fonts): cache first with a
    background refresh. Database calls are never cached. The version below changes whenever this file
    changes, which retires old caches. */
-const VERSION = "bk-2026-10-09e";
+const VERSION = "bk-2026-10-13";
 const SHELL = VERSION + "-shell";
 const STATIC = VERSION + "-static";
 const PHOTOS = VERSION + "-photos";
@@ -20,6 +20,7 @@ self.addEventListener("activate", (e) => {
 const isNav = (req) => req.mode === "navigate" || (req.headers.get("accept") || "").includes("text/html");
 const sameOrigin = (url) => url.origin === self.location.origin;
 const isPhoto = (url) => /supabase\.co\/storage\//.test(url.href) || /\.(jpe?g|png|webp|gif)$/i.test(url.pathname);
+const isMedia = (req, url) => req.destination === "video" || req.destination === "audio" || req.headers.has("range") || /\.(mp4|webm|mov|m4v|mp3|m4a|ogg)(\?|$)/i.test(url.pathname);
 // admin.js is requested as /admin.js?v=<Date.now()> (ensureAdminJs in index.html) specifically so every
 // admin panel open always gets the live file, bypassing both the browser's HTTP cache and GitHub Pages' CDN
 // cache (10 min) — never cache-worthy, since the query string is different every single time. Caching it
@@ -71,6 +72,10 @@ self.addEventListener("fetch", (e) => {
   if (req.method === "POST" && sameOrigin(url) && /^\/post\/?$/.test(url.pathname)) { e.respondWith(handleShare(req)); return; }
   if (req.method !== "GET") return;
   if (isApi(url)) return;                                   // live data, always from the network
+  // video/audio are never intercepted: Safari needs real 206 range responses straight from the network, and a
+  // response rebuilt here (cache.match ignores the Range header outright) makes WebKit mark the media unplayable —
+  // listing videos played as a direct URL on iPhone but not embedded in the page, on every listing, until this
+  if (isMedia(req, url)) return;
   if (isNav(req) && sameOrigin(url)) { e.respondWith(networkFirstPage(req, url)); return; }
   if (isStatic(url) || isFont(url)) { e.respondWith(staleWhileRevalidate(req, STATIC, 200)); return; }
   if (isPhoto(url)) { e.respondWith(staleWhileRevalidate(req, PHOTOS, 300)); return; }
