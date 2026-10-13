@@ -5441,7 +5441,7 @@ function listing(id){
  var gal='<div class="'+galCls+'">'+
   (n
     ? '<figure class="lg-main'+(onVid?' onvid':'')+'" style="--bg:url(&quot;'+(onVid?(VIDS[0].poster||""):curImg)+'&quot;)">'+
-      (onVid ? '<video class="main" id="gvideo" controls controlsList="nofullscreen" playsinline preload="metadata"'+wmVideoAttrs()+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'+wmOverlayHtml()+'<button type="button" class="gvclose" id="gVidClose" aria-label="'+esc(GX("mdClose"))+'">×</button>'
+      (onVid ? '<video class="main" id="gvideo" controls playsinline preload="metadata"'+wmVideoAttrs()+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'+wmOverlayHtml()+'<button type="button" class="gvclose" id="gVidClose" aria-label="'+esc(GX("mdClose"))+'">×</button>'
              : (curImg ? '<img class="main" id="gmain" src="'+curImg+'" alt="'+esc(typeName)+'">' : '<div class="nophoto lg-none"><img src="/brand/logo-light.png" alt="بلكون"></div>'))+
       (n>1 ? '<button class="gnav" id="gPrev" aria-label="prev" style="'+(rtlNow()?"right":"left")+':12px">‹</button><button class="gnav" id="gNext" aria-label="next" style="'+(rtlNow()?"left":"right")+':12px">›</button>' : '')+
       '<div class="gcount"><span class="ltr">'+(GI+1)+' / '+n+'</span></div></figure>'+
@@ -5461,7 +5461,7 @@ function listing(id){
       : '')+
     '<img class="lb-img" id="lbImg" src="'+curImg+'" alt="">'+
    '</div>' : '';
- lb += (VLB_OPEN && VIDS.length) ? '<div class="vlb" id="vlb"><button type="button" class="lb-close" id="vlbClose" aria-label="close">×</button><div class="vlb-box"><video id="vlbVideo" controls controlsList="nofullscreen" playsinline'+wmVideoAttrs()+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'+wmOverlayHtml()+'</div></div>' : '';
+ lb += (VLB_OPEN && VIDS.length) ? '<div class="vlb" id="vlb"><button type="button" class="lb-close" id="vlbClose" aria-label="close">×</button><div class="vlb-box"><video id="vlbVideo" controls autoplay playsinline'+wmVideoAttrs()+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'+wmOverlayHtml()+'</div></div>' : '';
 
  /* ── title block ── */
  var tags='<div class="ltags"><span class="ltag deal">'+(isRent?t("forrent"):t("forsale"))+'</span>'+
