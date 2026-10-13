@@ -8502,15 +8502,6 @@ function wire(){
    if($("#lbClose")) $("#lbClose").onclick=function(){ LIGHTBOX_OPEN=false; render() };
    if($("#gAll")) $("#gAll").onclick=function(){ LIGHTBOX_OPEN=true; render() };
    if($("#gVid")) $("#gVid").onclick=function(e){ e.stopPropagation(); VLB_OPEN=true; render() };
-   // our own lightbox already covers the whole screen with a working × — the browser's own native
-   // fullscreen (from the video's own controls, or a long-press on iOS) traps some phones behind a
-   // broken "swipe down to exit" gesture with no way out, so it's refused the moment it starts
-   [$("#gvideo"),$("#vlbVideo")].forEach(function(v){ if(!v || v._fsBlocked) return; v._fsBlocked=true;
-     var kick=function(){ try{ if(document.fullscreenElement===v && document.exitFullscreen) document.exitFullscreen() }catch(e){}
-       try{ if(v.webkitDisplayingFullscreen && v.webkitExitFullscreen) v.webkitExitFullscreen() }catch(e){} };
-     v.addEventListener("webkitbeginfullscreen", kick);
-     v.addEventListener("fullscreenchange", kick);
-   });
    if($("#gVidClose")) $("#gVidClose").onclick=function(e){ e.stopPropagation(); var v=$("#gvideo"); if(v){ try{ v.pause() }catch(x){} } window._gvState=null; GVID_OFF=true; if(IM2.length) GI=1; render() };
    if($("#vlbClose")) $("#vlbClose").onclick=function(){ VLB_OPEN=false; render() };
    if($("#vlb")) $("#vlb").onclick=function(e){ if(e.target===this){ VLB_OPEN=false; render() } };
