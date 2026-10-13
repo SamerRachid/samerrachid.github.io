@@ -4296,7 +4296,7 @@ function notifBellHTML(){
      (notifItems().length ? notifItems().map(function(n){
        var tx=notifText(n);
        return '<a class="notifitem'+(n.is_read?"":" unread")+'" data-notiflink="'+(n.link||"")+'">'+
-         '<b>'+tx.title+'</b><span>'+tx.body+'</span>'+
+         '<b>'+esc(tx.title)+'</b><span>'+esc(tx.body)+'</span>'+
          '<i>'+when(n.created_at)+'</i><button type="button" class="notif-x" data-notifdel="'+n.id+'" aria-label="'+esc(GX("notifDel"))+'" title="'+esc(GX("notifDel"))+'">×</button></a>'}).join("")
       : '<div class="notifempty">'+t("noNotifs")+'</div>')+
     '</div></div>';
@@ -5932,7 +5932,7 @@ function byUserView(){
      :'<div class="ratingline" style="color:var(--light)">'+t("noReviews")+'</div>')+
     (place?'<div class="pl">'+place+'</div>':'')+
     (since?'<div class="pl">'+t("memberSince")+' <span class="ltr">'+since+'</span></div>':'')+
-    (p.bio?'<p class="bio">'+p.bio+'</p>':'')+
+    (p.bio?'<p class="bio">'+esc(p.bio)+'</p>':'')+
    '</div>'+
    '<div class="profstats">'+
     '<div><b class="ltr">'+(p.live!==undefined?p.live:rows.length)+'</b><span>'+t("liveAds")+'</span></div>'+
@@ -5962,9 +5962,9 @@ function reviewsBlock(rv,isSelf,title){
   '</div></div>' : '')+
  (rv.list&&rv.list.length ? '<div class="blk" style="margin-top:14px"><h3><span class="n">'+rv.count+'</span>'+t("allReviews")+'</h3><div class="in">'+
    rv.list.map(function(rr){return '<div class="revrow">'+avatar(rr.author_avatar,rr.author_name,34)+
-     '<div><div><b style="font-size:13.5px">'+(rr.author_name||t("userDefault"))+'</b>'+
+     '<div><div><b style="font-size:13.5px">'+esc(rr.author_name||t("userDefault"))+'</b>'+
      '<span class="ltr" style="color:var(--gold);margin-inline-start:8px">'+stars(rr.stars)+'</span></div>'+
-     (rr.body?'<p style="font-size:13.5px;color:var(--body);margin-top:3px">'+rr.body+'</p>':'')+'</div></div>'}).join("")+
+     (rr.body?'<p style="font-size:13.5px;color:var(--body);margin-top:3px">'+esc(rr.body)+'</p>':'')+'</div></div>'}).join("")+
   '</div></div>' : '') }
 /* ── who we are ── */
 function about(){

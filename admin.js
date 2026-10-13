@@ -264,9 +264,9 @@ function adminView(){
                   : '<button class="ab" data-toticket="'+kind+':'+id+'">'+GX("tkTransfer")+'</button>';
    return (thread&&thread.length ? '<div class="msgthread" style="margin-top:8px">'+thread.map(function(m){
       return '<div class="msgbubble '+(m.sender==="admin"?"mine":"theirs")+'"><div class="msgwho">'+
-        (m.sender==="admin"?t("you"):who)+'</div>'+
-        '<div class="msgbody">'+m.body+'</div><div class="msgts">'+when(m.created_at)+'</div></div>'}).join("")+'</div>'
-     : (adminReply ? '<div class="fbreply"><b>'+t("yourReply")+':</b> '+adminReply+'</div>' : ''))+
+        (m.sender==="admin"?t("you"):esc(who))+'</div>'+
+        '<div class="msgbody">'+esc(m.body)+'</div><div class="msgts">'+when(m.created_at)+'</div></div>'}).join("")+'</div>'
+     : (adminReply ? '<div class="fbreply"><b>'+t("yourReply")+':</b> '+esc(adminReply)+'</div>' : ''))+
    '<div class="fbreplybox" style="margin-top:8px">'+(canReply?'<textarea data-replybox="'+kind+':'+id+'" placeholder="'+t("replyPH")+'"></textarea>':'<div class="hintx">'+GX("msgVisitorNoReply")+'</div>')+
      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;align-items:center">'+
      (canReply?'<button class="ab ok" data-replysend="'+kind+':'+id+'">'+t("sendReply")+'</button>':'')+
@@ -332,11 +332,11 @@ function adminView(){
       '<span class="fbwhen">'+when(r.created_at)+'</span></div>'+
      '<div class="fbwho">'+t("rBy")+' '+
       (r.reporter_id
-        ? '<a data-byuser="'+r.reporter_id+'" data-name="'+(r.reporter_name||"")+'" style="text-decoration:underline;cursor:pointer">'+(r.reporter_name||t("anonGuest"))+'</a>'
-        : (r.reporter_name||t("anonGuest")))+
-      (r.reporter_phone?' · <span class="ltr">'+r.reporter_phone+'</span>':'')+'</div>'+
-     '<div class="fbreason">'+(t("r"+capitalize(r.reason))||r.reason)+'</div>'+
-     (r.note?'<div class="fbbody">'+r.note+'</div>':'')+
+        ? '<a data-byuser="'+r.reporter_id+'" data-name="'+esc(r.reporter_name||"")+'" style="text-decoration:underline;cursor:pointer">'+esc(r.reporter_name||t("anonGuest"))+'</a>'
+        : esc(r.reporter_name||t("anonGuest")))+
+      (r.reporter_phone?' · <span class="ltr">'+esc(r.reporter_phone)+'</span>':'')+'</div>'+
+     '<div class="fbreason">'+(t("r"+capitalize(r.reason))||esc(r.reason))+'</div>'+
+     (r.note?'<div class="fbbody">'+esc(r.note)+'</div>':'')+
      msgFooter("report",r.id,r.thread,r.reporter_name||t("anonGuest"),r.admin_reply,r.resolved,!!r.reporter_id);
    }, t("noReports"), "bk_admin_delete_report");
  }
@@ -382,10 +382,10 @@ function adminView(){
       '<span class="fbwhen">'+when(f.created_at)+'</span></div>'+
      '<div class="fbwho">'+t("rBy")+' '+
       (f.sender_id
-        ? '<a data-byuser="'+f.sender_id+'" data-name="'+(f.sender_name||"")+'" style="text-decoration:underline;cursor:pointer">'+(f.sender_name||t("anonGuest"))+'</a>'
-        : (f.sender_name||t("anonGuest")))+
-      (f.sender_contact?' · <span class="ltr">'+f.sender_contact+'</span>':'')+'</div>'+
-     '<div class="fbbody">'+f.body+'</div>'+
+        ? '<a data-byuser="'+f.sender_id+'" data-name="'+esc(f.sender_name||"")+'" style="text-decoration:underline;cursor:pointer">'+esc(f.sender_name||t("anonGuest"))+'</a>'
+        : esc(f.sender_name||t("anonGuest")))+
+      (f.sender_contact?' · <span class="ltr">'+esc(f.sender_contact)+'</span>':'')+'</div>'+
+     '<div class="fbbody">'+esc(f.body)+'</div>'+
      msgFooter("feedback",f.id,f.thread,f.sender_name||t("anonGuest"),f.admin_reply,f.handled,!!f.sender_id);
    }, t("noFeedback"), "bk_admin_delete_feedback");
  }
@@ -493,7 +493,7 @@ function adminView(){
      '<input type="checkbox" id="notifAll"><span>'+t("sendToAll")+'</span></label>'+
     '<div class="fl" id="notifTargetWrap"><label>'+t("sendToOne")+'</label><select id="notifTarget">'+
      '<option value="">'+t("chooseMember")+'</option>'+
-     (d.users||[]).map(function(u){return '<option value="'+u.id+'"'+(ADM.notifTargetUid===u.id?' selected':'')+'>'+((u.name||"")+" "+(u.family_name||"")).trim()+' — '+u.phone+'</option>'}).join("")+
+     (d.users||[]).map(function(u){return '<option value="'+u.id+'"'+(ADM.notifTargetUid===u.id?' selected':'')+'>'+esc(((u.name||"")+" "+(u.family_name||"")).trim())+' — '+esc(u.phone)+'</option>'}).join("")+
     '</select></div>'+
     '<div class="fl"><label>'+t("notifTitleL")+'</label><input id="notifTitle" autocomplete="off"></div>'+
     '<div class="fl"><label>'+t("notifBodyL")+'</label><textarea id="notifBody" maxlength="300"></textarea></div>'+
@@ -577,7 +577,7 @@ function adminView(){
              (it.isVideo ? '<video src="'+it.thumbUrl+'" muted style="width:100%;height:100%;object-fit:cover"></video>'
                          : '<img src="'+it.thumbUrl+'" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover">')+
             '</a>'+
-            (it.label?'<span style="position:absolute;bottom:2px;inset-inline-start:4px;inset-inline-end:4px;font-size:10px;color:#fff;background:rgba(9,14,26,.65);border-radius:4px;padding:1px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="ltr">'+it.label+(it.uploadedAt?' · '+dateFmt(it.uploadedAt):'')+'</span>':'')+
+            (it.label?'<span style="position:absolute;bottom:2px;inset-inline-start:4px;inset-inline-end:4px;font-size:10px;color:#fff;background:rgba(9,14,26,.65);border-radius:4px;padding:1px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="ltr">'+esc(it.label)+(it.uploadedAt?' · '+dateFmt(it.uploadedAt):'')+'</span>':'')+
             (it.isUsed
              ? '<span style="position:absolute;top:4px;inset-inline-start:4px;font-size:9px;font-weight:600;color:#fff;background:var(--ok);border-radius:4px;padding:1px 5px">'+t("adStorageInUse")+'</span>'
              : (it.deletePath?'<button type="button" class="ab bad" data-delfile="'+it.deletePath+'" style="position:absolute;top:4px;inset-inline-end:4px;padding:2px 7px;font-size:11px">'+t("del")+'</button>':''))+
