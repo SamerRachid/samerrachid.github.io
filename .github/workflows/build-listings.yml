@@ -39,6 +39,9 @@ jobs:
       - name: Generate governorate and area pages + sitemap
         run: node scripts/generate-pages.mjs
 
+      - name: CSP script hashes (the inline app changes with every release; the copies below inherit them)
+        run: node scripts/csp-hash.mjs index.html
+
       - name: App fallback for deep links (/post, /listing/123 …)
         run: cp index.html 404.html
 
