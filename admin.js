@@ -1579,6 +1579,7 @@ function wireAdmin(){
   if(ADM.tab==="maps" && !ADM._areasMapLoaded){
     ADM._areasMapLoaded=true;
     rpc("bk_admin_areas_map",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM._areasMap=r||[]; render() }).catch(function(){ ADM._areasMap=[] });
+    rpc("bk_admin_map_fallback_get",{p_country:admScope()}).then(function(r){ ADM.mapsFallbackOn=(r!==false); render() }).catch(function(){});
   }
   if(ADM.tab==="maps") wireAdminMaps();
   $$("[data-socialduegoto]").forEach(function(e){ e.onclick=function(){ ADM.social={id:this.dataset.socialduegoto,src:"fb-damas",tab:"text",fmt:"45"}; admGo("social") } });
@@ -3112,7 +3113,7 @@ function admResetScope(){   // everything that was loaded for one country scope 
   ADM._gen=(ADM._gen||0)+1;
   ADM.data=null; ADM.ikOpen=null; ADM.pjEdit=null; ADM_PJL=null; ADM.viewingPhotoIdx=null; ADM.eopen=null; ADM.geoCountry=null; ADM._geoLoadedFor=null; ADM._mediaLoadedCats={}; ADM._mediaUsedLoaded=false; ADM.mediaUsed=null;
   ADM.social=null; ADM._promoDue=null; ADM._promoDueLoaded=false; ADM._promoSettings=null; ADM._promoSettingsLoaded=false;
-  ADM.mapsPick=null; ADM._areasMap=null; ADM._areasMapLoaded=false; ADM.mapsQ="";
+  ADM.mapsPick=null; ADM._areasMap=null; ADM._areasMapLoaded=false; ADM.mapsQ=""; ADM.mapsView="areas"; ADM.mapsPage=1; ADM._listingsMapStatus=null; ADM._listingsMapStatusLoading=false; ADM.mapsFallbackOn=null;
   ADM._ikLoaded=false; ADM.ik=null; ADM._ticketsLoaded=false; ADM.tickets=null; ADM._vfLoaded=false; ADM.vf=undefined; ADM._reviewsLoaded=false; ADM._uactLoaded=false; ADM.uact=null; ADM._lstatsRange=null;
   ADM._photosLoaded=false; ADM.photosList=null;
   ADM._statsLoaded=false; ADM.stats=null; ADM._anLoaded=false; ADM.an=null; ADM.anErr=null; ADM._lstatsLoaded=false; ADM.lstats=null;
@@ -3845,6 +3846,7 @@ function promoText(l,opt){
    (listings.lat/lng), inherited from the area's own centroid (areas.lat/lng, the fallback shipped
    earlier), or not connected at all (area has no centroid either). One pin set here fixes every
    listing in that area at once. */
+var MAPS_PAGE_SIZE = 25;
 function adminMapsBody(){
   var areas = ADM._areasMap;
   if(!areas) return '<div class="done2"><b>'+t("loading")+'</b></div>';
@@ -3854,10 +3856,32 @@ function adminMapsBody(){
     var rest = a.live - a.pinned;
     if(a.lat!=null && a.lng!=null) viaArea += rest; else none += rest;
   });
-  var stat=function(label,val,color){ return '<div class="mapstat"><b class="ltr" style="color:'+color+'">'+val+'</b><span>'+label+'</span></div>' };
+  var stat=function(label,val,color,key){ return '<button type="button" class="mapstat" data-mapscard="'+key+'"><b class="ltr" style="color:'+color+'">'+val+'</b><span>'+label+'</span></button>' };
+  var toggleOn = ADM.mapsFallbackOn!==false;
+  var view = ADM.mapsView || "areas";
+  var searchPH = view==="areas" ? GX("mapsSearchPH") : GX("mapsSearchPH2");
+  return '<div class="ld-sec">🗺 '+GX("tMaps")+'</div>'+
+    '<div class="mapstats">'+stat(GX("mapsUserConn"),pinned,"var(--ok)","user")+stat(GX("mapsBalkounConn"),viaArea,"#2563EB","balkoun")+stat(GX("mapsNoneConn"),none,"var(--danger)","none")+'</div>'+
+    '<div class="prow" style="margin:0 16px 4px"><label class="lfc'+(toggleOn?' on':'')+'" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px"><input type="checkbox" id="mapsFallbackToggle"'+(toggleOn?' checked':'')+'> <span>'+GX("mapsFallbackToggleL")+'</span></label></div>'+
+    '<div class="hintx" style="margin:0 16px 14px">'+GX("mapsFallbackHint")+'</div>'+
+    (view!=="areas" ? '<button type="button" class="ab" id="mapsBackToAreas" style="margin:0 16px 10px">‹ '+GX("mapsBackToAreas")+'</button>' : '')+
+    '<label class="lq" style="margin:0 16px 12px;max-width:320px">'+AICO.search+'<input id="mapsQ" value="'+esc(ADM.mapsQ||"")+'" placeholder="'+esc(searchPH)+'" autocomplete="off"></label>'+
+    '<div id="mapsTableRegion">'+mapsTableRegionHtml()+'</div>'+
+    (ADM.mapsPick ? adminMapPickerHtml() : '');
+}
+function mapsTableRegionHtml(){
+  var view = ADM.mapsView || "areas";
+  if(view==="areas") return mapsAreasTableHtml();
+  return mapsListingsTableHtml(view);
+}
+function mapsAreasTableHtml(){
+  var areas = ADM._areasMap||[];
   var q=(ADM.mapsQ||"").trim().toLowerCase();
-  var shown = q ? areas.filter(function(a){ return (a.area+" "+a.gov).toLowerCase().indexOf(q)>-1 }) : areas;
-  var rows = shown.map(function(a){
+  var list = q ? areas.filter(function(a){ return (a.area+" "+a.gov).toLowerCase().indexOf(q)>-1 }) : areas;
+  var page=ADM.mapsPage||1, totalPages=Math.max(1,Math.ceil(list.length/MAPS_PAGE_SIZE));
+  if(page>totalPages) page=totalPages;
+  var pageItems=list.slice((page-1)*MAPS_PAGE_SIZE, page*MAPS_PAGE_SIZE);
+  var rows = pageItems.map(function(a){
     var rest=a.live-a.pinned, connected = a.lat!=null && a.lng!=null;
     return '<tr><td>'+esc(a.area)+'<br><small style="color:var(--grey)">'+esc(a.gov)+'</small></td>'+
       '<td class="ltr">'+a.live+'</td><td class="ltr">'+a.pinned+'</td>'+
@@ -3865,12 +3889,50 @@ function adminMapsBody(){
       '<td>'+(connected?'<span style="color:var(--ok)">✓ '+GX("mapsConnected")+'</span>':'<span style="color:var(--danger)">✕ '+GX("mapsNotConnected")+'</span>')+'</td>'+
       '<td><button type="button" class="ab" data-mapspick="'+a.id+'">'+(connected?GX("mapsEdit"):GX("mapsSet"))+'</button></td></tr>';
   }).join("");
-  return '<div class="ld-sec">🗺 '+GX("tMaps")+'</div>'+
-    '<div class="mapstats">'+stat(GX("mapsUserConn"),pinned,"var(--ok)")+stat(GX("mapsBalkounConn"),viaArea,"#2563EB")+stat(GX("mapsNoneConn"),none,"var(--danger)")+'</div>'+
-    '<label class="lq" style="margin:0 16px 12px;max-width:320px">'+AICO.search+'<input id="mapsQ" value="'+esc(ADM.mapsQ||"")+'" placeholder="'+esc(GX("mapsSearchPH"))+'" autocomplete="off"></label>'+
-    '<div class="ltbl"><table><thead><tr><th>'+t("area")+'</th><th>'+t("liveAds")+'</th><th>'+GX("mapsUserConn")+'</th><th>'+GX("mapsBalkounConn")+'</th><th>'+GX("mapsNoneConn")+'</th><th>'+t("status")+'</th><th></th></tr></thead><tbody>'+
+  return '<div class="ltbl"><table><thead><tr><th>'+t("area")+'</th><th>'+t("liveAds")+'</th><th>'+GX("mapsUserConn")+'</th><th>'+GX("mapsBalkounConn")+'</th><th>'+GX("mapsNoneConn")+'</th><th>'+t("status")+'</th><th></th></tr></thead><tbody>'+
     (rows||'<tr><td colspan="7" class="lnone">'+GX("lfNone")+'</td></tr>')+'</tbody></table></div>'+
-    (ADM.mapsPick ? adminMapPickerHtml() : '');
+    mapsPagerHtml(page,totalPages);
+}
+function mapsListingsTableHtml(statusKey){
+  var listings = ADM._listingsMapStatus;
+  if(!listings) return '<div class="done2" style="margin-top:12px"><b>'+t("loading")+'</b></div>';
+  var q=(ADM.mapsQ||"").trim().toLowerCase();
+  var base = listings.filter(function(l){ return l.mstatus===statusKey });
+  var list = q ? base.filter(function(l){ return ((l.ref||"")+" "+(l.area||"")+" "+(l.gov||"")).toLowerCase().indexOf(q)>-1 }) : base;
+  var page=ADM.mapsPage||1, totalPages=Math.max(1,Math.ceil(list.length/MAPS_PAGE_SIZE));
+  if(page>totalPages) page=totalPages;
+  var pageItems=list.slice((page-1)*MAPS_PAGE_SIZE, page*MAPS_PAGE_SIZE);
+  var rows = pageItems.map(function(l){
+    return '<tr><td class="ltr">'+esc(l.ref||l.id)+'</td><td>'+esc(D.TYPES[l.property_type]?D.TYPES[l.property_type][li()]:(l.property_type||""))+'</td>'+
+      '<td>'+esc(l.area)+'<br><small style="color:var(--grey)">'+esc(l.gov)+'</small></td>'+
+      '<td class="ltr">'+(l.price_usd!=null?"$"+Number(l.price_usd).toLocaleString("en"):"—")+'</td>'+
+      '<td><a class="ab" href="/listing/'+l.id+'" target="_blank" rel="noopener">↗ '+GX("lfPublic")+'</a></td></tr>';
+  }).join("");
+  return '<div class="ltbl"><table><thead><tr><th class="ltr">'+GX("mapsColRef")+'</th><th>'+t("ptype")+'</th><th>'+t("area")+'</th><th>'+GX("price")+'</th><th></th></tr></thead><tbody>'+
+    (rows||'<tr><td colspan="5" class="lnone">'+GX("lfNone")+'</td></tr>')+'</tbody></table></div>'+
+    mapsPagerHtml(page,totalPages);
+}
+function mapsPagerHtml(page,totalPages){
+  if(totalPages<=1) return '';
+  return '<div class="ld-acts" style="justify-content:center;gap:10px;margin:14px 16px">'+
+    '<button type="button" class="ab" id="mapsPagePrev"'+(page<=1?' disabled':'')+'>‹</button>'+
+    '<span class="ltr">'+page+' / '+totalPages+'</span>'+
+    '<button type="button" class="ab" id="mapsPageNext"'+(page>=totalPages?' disabled':'')+'>›</button></div>';
+}
+function mapsRerenderTable(){
+  var region=$("#mapsTableRegion"); if(!region) return;
+  region.innerHTML = mapsTableRegionHtml();
+  wireMapsTableRegion();
+}
+function wireMapsTableRegion(){
+  $$("[data-mapspick]").forEach(function(b){ b.onclick=function(){ ADM.mapsPick={areaId:+this.dataset.mapspick}; render() } });
+  var prev=$("#mapsPagePrev"); if(prev) prev.onclick=function(){ ADM.mapsPage=Math.max(1,(ADM.mapsPage||1)-1); mapsRerenderTable() };
+  var next=$("#mapsPageNext"); if(next) next.onclick=function(){ ADM.mapsPage=(ADM.mapsPage||1)+1; mapsRerenderTable() };
+}
+function mapsLoadListingsStatus(){
+  if(ADM._listingsMapStatus || ADM._listingsMapStatusLoading) return;
+  ADM._listingsMapStatusLoading=true;
+  rpc("bk_admin_listings_map_status",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM._listingsMapStatus=r||[]; ADM._listingsMapStatusLoading=false; render() }).catch(function(){ ADM._listingsMapStatus=[]; ADM._listingsMapStatusLoading=false; render() });
 }
 function adminMapPickerHtml(){
   var a=(ADM._areasMap||[]).filter(function(x){ return x.id===ADM.mapsPick.areaId })[0];
@@ -3882,8 +3944,14 @@ function adminMapPickerHtml(){
     '</div></div></div>';
 }
 function wireAdminMaps(){
-  var q=$("#mapsQ"); if(q) q.oninput=function(){ ADM.mapsQ=this.value; render() };
-  $$("[data-mapspick]").forEach(function(b){ b.onclick=function(){ ADM.mapsPick={areaId:+this.dataset.mapspick}; render() } });
+  var qEl=$("#mapsQ"); if(qEl) qEl.oninput=function(){ ADM.mapsQ=this.value; ADM.mapsPage=1; mapsRerenderTable() };
+  $$("[data-mapscard]").forEach(function(b){ b.onclick=function(){ ADM.mapsView=this.dataset.mapscard; ADM.mapsQ=""; ADM.mapsPage=1; if(!ADM._listingsMapStatus) mapsLoadListingsStatus(); render() } });
+  var back=$("#mapsBackToAreas"); if(back) back.onclick=function(){ ADM.mapsView="areas"; ADM.mapsQ=""; ADM.mapsPage=1; render() };
+  var tog=$("#mapsFallbackToggle"); if(tog) tog.onchange=function(){
+    var on=this.checked, prevOn=ADM.mapsFallbackOn; ADM.mapsFallbackOn=on; tog.disabled=true;
+    rpc("bk_admin_map_fallback_set",{p_token:ADM.token,p_on:on,p_country:admScope()}).then(function(){ admToast(on?GX("mapsFallbackOnToast"):GX("mapsFallbackOffToast")); render() }).catch(function(e){ admToast(e.message||"error","bad"); ADM.mapsFallbackOn=prevOn; render() });
+  };
+  wireMapsTableRegion();
   if(!ADM.mapsPick){ if(ADM._mapsPickMap){ try{ ADM._mapsPickMap.remove() }catch(e){} ADM._mapsPickMap=null } return }
   var close=$("#mapsPickClose"); if(close) close.onclick=function(){ ADM.mapsPick=null; render() };
   var box=$("#mapsPickBox"); if(!box) return;
