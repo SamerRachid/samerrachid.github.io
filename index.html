@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-Wt8tyVO7+bwXDcNHFmrYlEcFHKWRM5bVDoJ0p2CUxIg=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-iUoYcnm+JPmEDk+yvEw/XdpPPKXc7DuwzDUxAVSxnvo=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -4637,11 +4637,24 @@ async function trashListingFiles(id){
     }catch(e){}
   }
 }
-async function storageUpload(path, file, opts){
-  // Uploads still go straight to the bucket: its insert policy only allows the known folders.
-  // (Signed upload URLs from bk-storage are rejected by the storage server on this project —
-  // "InvalidSignature" — so that path is parked until Supabase resolves it.)
-  return DB.storage.from("photos").upload(path, file, opts||{}) }
+// every upload goes through a signed URL from bk-storage (2026-10-13): the function checks the session token (member or
+// admin) and that the path is the caller's own (their listing folders / their avatar; admins: any known folder), then
+// hands out a one-time upload URL. The bucket itself no longer accepts direct uploads, so nobody can fill it anonymously.
+async function storageSignedUploadUrl(path){
+  var adm = (typeof ADM!=="undefined" && ADM && ADM.token) ? ADM.token : null, tok = adm || (USER && USER.token) || null;
+  if(!tok) throw new Error("unauthorised");
+  var r = await fetch(CONFIG.supabaseUrl+"/functions/v1/bk-storage",{method:"POST",headers:{"Content-Type":"application/json","apikey":CONFIG.supabaseKey,"Authorization":"Bearer "+CONFIG.supabaseKey},
+    body:JSON.stringify({token:tok, role:adm?"admin":"member", action:"sign-upload", path:path})});
+  var j = null; try{ j = await r.json() }catch(e){}
+  if(!r.ok || !j || !j.token) throw new Error((j && j.error) || ("sign "+r.status));
+  return CONFIG.supabaseUrl+"/storage/v1/object/upload/sign/photos/"+path.split("/").map(encodeURIComponent).join("/")+"?token="+encodeURIComponent(j.token) }
+async function storageUpload(path, file, opts){   // same {data,error} shape supabase-js gave, so the call sites stay as they are
+  try{
+    var url = await storageSignedUploadUrl(path);
+    var r = await fetch(url,{method:"PUT",headers:{"apikey":CONFIG.supabaseKey,"Content-Type":(opts&&opts.contentType)||file.type||"application/octet-stream","x-upsert":(opts&&opts.upsert)?"true":"false"},body:file});
+    if(!r.ok){ var txt=""; try{ txt=(await r.text()).slice(0,140) }catch(e){} return {data:null, error:{message:"upload "+r.status+": "+txt}} }
+    return {data:{path:path}, error:null};
+  }catch(e){ return {data:null, error:{message:(e&&e.message)||String(e)}} } }
 
 var MEMBER_FNS={bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,bk_set_hide_phone:1,
   bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_my_listings:1,bk_own_delete:1,bk_delete_account:1,bk_my_rewards:1,bk_use_feature_credit:1,bk_set_account_type:1,
@@ -9344,16 +9357,16 @@ function videoProbe(file){   // duration + a poster frame (JPEG blob), read loca
         c.toBlob(function(b){ finish(null,{duration:v.duration||0, poster:b, width:W, height:H}) },"image/jpeg",0.82) }
       catch(e){ finish(null,{duration:v.duration||0, poster:null}) } };
   }) }
-function storageUploadXhr(path, file, contentType, onProgress){   // the storage API with upload progress (supabase-js has none)
-  return new Promise(function(res,rej){
+function storageUploadXhr(path, file, contentType, onProgress){   // the signed upload URL with upload progress (fetch has none)
+  return storageSignedUploadUrl(path).then(function(url){ return new Promise(function(res,rej){
     var xhr=new XMLHttpRequest();
-    xhr.open("POST", CONFIG.supabaseUrl+"/storage/v1/object/photos/"+path.split("/").map(encodeURIComponent).join("/"));
-    xhr.setRequestHeader("apikey",CONFIG.supabaseKey); xhr.setRequestHeader("Authorization","Bearer "+CONFIG.supabaseKey);
+    xhr.open("PUT", url);
+    xhr.setRequestHeader("apikey",CONFIG.supabaseKey);
     xhr.setRequestHeader("Content-Type",contentType||file.type||"application/octet-stream"); xhr.setRequestHeader("x-upsert","false");
     xhr.upload.onprogress=function(e){ if(e.lengthComputable&&onProgress) onProgress(Math.round(e.loaded/e.total*100)) };
     xhr.onload=function(){ if(xhr.status>=200&&xhr.status<300) res({path:path}); else rej(new Error("upload "+xhr.status+": "+String(xhr.responseText||"").slice(0,140))) };
     xhr.onerror=function(){ rej(new Error("network")) };
-    xhr.send(file) }) }
+    xhr.send(file) }) }) }
 async function pickVideo(file, msgEl){   // validates a chosen file; resolves {file,duration,size,poster,preview} or throws a translated message
   var cfg=videoCfg(); if(!cfg.on) throw new Error(GX("videoOff"));
   if(!isVideoFile(file)) throw new Error(GX("videoBad"));
