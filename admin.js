@@ -3112,7 +3112,7 @@ function admResetScope(){   // everything that was loaded for one country scope 
   ADM._gen=(ADM._gen||0)+1;
   ADM.data=null; ADM.ikOpen=null; ADM.pjEdit=null; ADM_PJL=null; ADM.viewingPhotoIdx=null; ADM.eopen=null; ADM.geoCountry=null; ADM._geoLoadedFor=null; ADM._mediaLoadedCats={}; ADM._mediaUsedLoaded=false; ADM.mediaUsed=null;
   ADM.social=null; ADM._promoDue=null; ADM._promoDueLoaded=false; ADM._promoSettings=null; ADM._promoSettingsLoaded=false;
-  ADM.mapsPick=null; ADM._areasMap=null; ADM._areasMapLoaded=false;
+  ADM.mapsPick=null; ADM._areasMap=null; ADM._areasMapLoaded=false; ADM.mapsQ="";
   ADM._ikLoaded=false; ADM.ik=null; ADM._ticketsLoaded=false; ADM.tickets=null; ADM._vfLoaded=false; ADM.vf=undefined; ADM._reviewsLoaded=false; ADM._uactLoaded=false; ADM.uact=null; ADM._lstatsRange=null;
   ADM._photosLoaded=false; ADM.photosList=null;
   ADM._statsLoaded=false; ADM.stats=null; ADM._anLoaded=false; ADM.an=null; ADM.anErr=null; ADM._lstatsLoaded=false; ADM.lstats=null;
@@ -3855,7 +3855,9 @@ function adminMapsBody(){
     if(a.lat!=null && a.lng!=null) viaArea += rest; else none += rest;
   });
   var stat=function(label,val,color){ return '<div class="mapstat"><b class="ltr" style="color:'+color+'">'+val+'</b><span>'+label+'</span></div>' };
-  var rows = areas.map(function(a){
+  var q=(ADM.mapsQ||"").trim().toLowerCase();
+  var shown = q ? areas.filter(function(a){ return (a.area+" "+a.gov).toLowerCase().indexOf(q)>-1 }) : areas;
+  var rows = shown.map(function(a){
     var rest=a.live-a.pinned, connected = a.lat!=null && a.lng!=null;
     return '<tr><td>'+esc(a.area)+'<br><small style="color:var(--grey)">'+esc(a.gov)+'</small></td>'+
       '<td class="ltr">'+a.live+'</td><td class="ltr">'+a.pinned+'</td>'+
@@ -3865,6 +3867,7 @@ function adminMapsBody(){
   }).join("");
   return '<div class="ld-sec">🗺 '+GX("tMaps")+'</div>'+
     '<div class="mapstats">'+stat(GX("mapsUserConn"),pinned,"var(--ok)")+stat(GX("mapsBalkounConn"),viaArea,"#2563EB")+stat(GX("mapsNoneConn"),none,"var(--danger)")+'</div>'+
+    '<label class="lq" style="margin:0 16px 12px;max-width:320px">'+AICO.search+'<input id="mapsQ" value="'+esc(ADM.mapsQ||"")+'" placeholder="'+esc(GX("mapsSearchPH"))+'" autocomplete="off"></label>'+
     '<div class="ltbl"><table><thead><tr><th>'+t("area")+'</th><th>'+t("liveAds")+'</th><th>'+GX("mapsUserConn")+'</th><th>'+GX("mapsBalkounConn")+'</th><th>'+GX("mapsNoneConn")+'</th><th>'+t("status")+'</th><th></th></tr></thead><tbody>'+
     (rows||'<tr><td colspan="7" class="lnone">'+GX("lfNone")+'</td></tr>')+'</tbody></table></div>'+
     (ADM.mapsPick ? adminMapPickerHtml() : '');
@@ -3879,6 +3882,7 @@ function adminMapPickerHtml(){
     '</div></div></div>';
 }
 function wireAdminMaps(){
+  var q=$("#mapsQ"); if(q) q.oninput=function(){ ADM.mapsQ=this.value; render() };
   $$("[data-mapspick]").forEach(function(b){ b.onclick=function(){ ADM.mapsPick={areaId:+this.dataset.mapspick}; render() } });
   if(!ADM.mapsPick){ if(ADM._mapsPickMap){ try{ ADM._mapsPickMap.remove() }catch(e){} ADM._mapsPickMap=null } return }
   var close=$("#mapsPickClose"); if(close) close.onclick=function(){ ADM.mapsPick=null; render() };
