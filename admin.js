@@ -927,7 +927,7 @@ function adminAgenciesBody(){
       '<thead><tr><th>'+GX("agColAgency")+'</th><th>'+GX("agColCoverage")+'</th><th>'+t("liveAds")+'</th><th>'+t("status")+'</th><th>'+GX("tIntake")+'</th><th>'+GX("colDate")+'</th></tr></thead>'+
       '<tbody>'+(rows||'<tr><td colspan="6" class="lnone">'+GX("lfNone")+'</td></tr>')+'</tbody></table></div>'+drawer+'</div>' }
 async function adminLoad(){
-  ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._anLoaded=false; ADM._uactLoaded=false; ADM._lstatsLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._promosLoaded=false;
+  ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._anLoaded=false; ADM._uactLoaded=false; ADM._delUsersLoaded=false; ADM.delUsers=null; ADM._lstatsLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._promosLoaded=false;
   ADM._storageUsageLoaded=false;
   ["_adminsLoaded","_agLoaded","_geoLoaded","_ikLoaded","_meLoaded","_mediaUsedLoaded","_photosLoaded","_pjLoaded","_ticketsLoaded","_vfLoaded","_wLoaded"].forEach(function(k){ ADM[k]=false }); ADM._mediaLoadedCats={};   // every page re-fetches on refresh, not only the shared data
   ADM.dangerUnlocked=false;
@@ -1376,6 +1376,10 @@ function wireAdmin(){
     ADM._anLoaded=true; ADM._anRange=ADM.range;
     syncVisitorsNow();
     rpcScoped("bk_admin_analytics",{p_token:ADM.token,p_days:ADM.range,p_country:admScope()}).then(function(r){ ADM.an=r; render() }).catch(function(e){ ADM.anErr=e.message||String(e); render() });
+  }
+  if(ADM.tab==="users" && ADM.userBlockedFilter==="deleted" && !ADM._delUsersLoaded){
+    ADM._delUsersLoaded=true; ADM.delUsersErr=null;
+    rpcScoped("bk_admin_deleted_users",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.delUsers=r||[]; render() }).catch(function(e){ ADM.delUsers=[]; ADM.delUsersErr=e.message||String(e); render() });
   }
   if(ADM.tab==="users" && !ADM._uactLoaded){
     ADM._uactLoaded=true;
@@ -2791,15 +2795,38 @@ function adminUsersBody(d){
   var uact=ADM.uact||{}, lastSeen=function(u){ var a=uact[u.id]; return a&&a.last_seen_at?new Date(a.last_seen_at):null };
   if(ADM.userActFilter){ var lim=ADM.userActFilter==="old"?null:Date.now()-(+ADM.userActFilter)*86400000; list=list.filter(function(u){ var d=lastSeen(u); return lim===null ? (!d || d.getTime()<Date.now()-30*86400000) : (d && d.getTime()>=lim) }) }
   var sw=function(cls,uid,on,title){ return '<label class="xswitch" title="'+esc(title||"")+'"><input type="checkbox" class="'+cls+'" data-uid="'+uid+'"'+(on?" checked":"")+'><i></i></label>' };
+  // "deleted" is a view of its own: the deleted_users log (who was deleted, when, by whom) instead of the live members
+  var delMode=ADM.userBlockedFilter==="deleted", delList=delMode?(ADM.delUsers||[]):[];
   var toolbar='<div class="rtop" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
     '<input id="aqU" placeholder="'+t("searchPH")+'" class="asearch" style="flex:1;min-width:200px;width:auto">'+
     '<select id="uSortPick" class="lvlpick"><option value="newer"'+(ADM.userSort!=="older"?" selected":"")+'>'+t("sortNewerUsers")+'</option><option value="older"'+(ADM.userSort==="older"?" selected":"")+'>'+t("sortOlderUsers")+'</option></select>'+
     '<select id="uLevelPick" class="lvlpick"><option value="">'+t("allLevels")+'</option>'+LEVELS_ALL.map(function(lv){ return '<option value="'+lv+'"'+(ADM.userLevelFilter===lv?" selected":"")+'>'+t("lv_"+lv)+'</option>' }).join("")+'</select>'+
-    '<select id="uBlockPick" class="lvlpick"><option value="">'+t("allUsers")+'</option><option value="active"'+(ADM.userBlockedFilter==="active"?" selected":"")+'>'+t("activeOnly")+'</option><option value="blocked"'+(ADM.userBlockedFilter==="blocked"?" selected":"")+'>'+t("blockedOnly")+'</option><option value="test"'+(ADM.userBlockedFilter==="test"?" selected":"")+'>'+GX("tHouse")+' ('+(d.users||[]).filter(function(u){ return u.is_house }).length+')</option></select>'+
+    '<select id="uBlockPick" class="lvlpick"><option value="">'+t("allUsers")+'</option><option value="active"'+(ADM.userBlockedFilter==="active"?" selected":"")+'>'+t("activeOnly")+'</option><option value="blocked"'+(ADM.userBlockedFilter==="blocked"?" selected":"")+'>'+t("blockedOnly")+'</option><option value="test"'+(ADM.userBlockedFilter==="test"?" selected":"")+'>'+GX("tHouse")+' ('+(d.users||[]).filter(function(u){ return u.is_house }).length+')</option><option value="deleted"'+(delMode?" selected":"")+'>'+GX("uDeleted")+(ADM.delUsers?' ('+ADM.delUsers.length+')':'')+'</option></select>'+
     '<select id="uActPick" class="lvlpick"><option value="">'+GX("colLastSeen")+'</option><option value="1"'+(ADM.userActFilter==="1"?" selected":"")+'>'+GX("act24")+'</option><option value="7"'+(ADM.userActFilter==="7"?" selected":"")+'>'+GX("act7")+'</option><option value="30"'+(ADM.userActFilter==="30"?" selected":"")+'>'+GX("act30")+'</option><option value="old"'+(ADM.userActFilter==="old"?" selected":"")+'>'+GX("actOld")+'</option></select>'+
-    '<span class="n" style="font-size:13px;color:var(--grey)"><span class="ltr">'+list.length+'</span> '+GX("uCount")+'</span>'+
+    '<span class="n" style="font-size:13px;color:var(--grey)"><span class="ltr">'+(delMode?delList.length:list.length)+'</span> '+GX("uCount")+'</span>'+
     '<button type="button" class="ab ok" id="amOpen">+ '+GX("amBtn")+'</button></div>';
   toolbar=adminVerifyHtml()+toolbar;
+  if(delMode){
+    var fmtD=function(s){ return s?new Date(s).toLocaleDateString(L==="ar"?"ar-u-nu-latn":L==="de"?"de-DE":L==="fr"?"fr-FR":"en-GB",{year:"numeric",month:"short",day:"numeric"}):"—" };
+    var byText=function(x){ return x.deleted_by==="self" ? '<span class="st st-live">'+GX("uDelBySelf")+'</span>'
+      : x.deleted_by==="admin" ? '<span class="st st-removed">'+GX("uDelByAdmin")+'</span>'+(x.admin_name?' <small>'+esc(x.admin_name)+'</small>':'')
+      : '<span class="st">'+GX("uDelBySystem")+'</span>' };
+    var drows=delList.map(function(x){
+      var nm=((x.name||"")+" "+(x.family_name||"")).trim()||"—";
+      return '<tr data-row-text="'+esc((nm+" "+(x.phone||"")+" "+(x.member_no||"")+" "+(x.admin_name||"")).toLowerCase())+'" class="lrow">'+
+        '<td data-label="'+t("contactName")+'"><div class="ucell"><div>'+scopeFlag(x.country)+'<span class="uline"><b>'+esc(nm)+'</b>'+levelBadge(x.level)+'</span>'+
+          '<div class="usub">'+(x.is_house?'<span class="uunv" style="background:var(--navy);color:#fff">'+GX("houseBadge")+'</span> · ':'')+(x.member_no?'<b class="ltr">'+esc(x.member_no)+'</b> · ':'')+'<span class="ltr">'+esc(x.phone||GX("uNoPhone"))+'</span>'+(x.email?' · <span class="ltr">'+esc(x.email)+'</span>':'')+'</div></div></div></td>'+
+        '<td data-label="'+GX("uJoined")+'">'+fmtD(x.joined_at)+'</td>'+
+        '<td data-label="'+t("myAds")+'" class="unum ucount"><b class="ltr">'+(x.listings_count||0)+'</b></td>'+
+        '<td data-label="'+GX("uDeletedAt")+'">'+(x.deleted_at?when(x.deleted_at):"—")+'<div class="usub">'+fmtD(x.deleted_at)+'</div></td>'+
+        '<td data-label="'+GX("uDeletedBy")+'">'+byText(x)+'</td></tr>' }).join("");
+    var dbody = ADM.delUsers==null ? '<tr><td colspan="5" class="hintx">'+t("loading")+'</td></tr>'
+      : ADM.delUsersErr ? '<tr><td colspan="5" class="hintx">'+esc(ADM.delUsersErr)+'</td></tr>'
+      : !delList.length ? '<tr><td colspan="5" class="hintx">'+GX("uNoDeleted")+'</td></tr>' : drows;
+    return toolbar+'<div class="hintx" style="margin:0 0 10px">'+GX("uDelLogHint")+'</div><div class="lpage"><div class="atable atable-stack utable"><table><thead><tr>'+
+      [GX("uMemberCol"),GX("uJoined"),t("myAds"),GX("uDeletedAt"),GX("uDeletedBy")].map(function(h){ return '<th>'+h+'</th>' }).join("")+
+      '</tr></thead><tbody id="aUserBody">'+dbody+'</tbody></table></div></div>';
+  }
   var rows=list.map(function(u){
     var nm=((u.name||"")+" "+(u.family_name||"")).trim()||"—", isAdmin=u.role==="admin", open=ADM.userOpen===u.id;
     var joined=u.created_at?new Date(u.created_at).toLocaleDateString(L==="ar"?"ar-SY":L==="de"?"de-DE":L==="fr"?"fr-FR":"en-GB",{year:"numeric",month:"short",day:"numeric"}):"";
@@ -3114,7 +3141,7 @@ function admResetScope(){   // everything that was loaded for one country scope 
   ADM.data=null; ADM.ikOpen=null; ADM.pjEdit=null; ADM_PJL=null; ADM.viewingPhotoIdx=null; ADM.eopen=null; ADM.geoCountry=null; ADM._geoLoadedFor=null; ADM._mediaLoadedCats={}; ADM._mediaUsedLoaded=false; ADM.mediaUsed=null;
   ADM.social=null; ADM._promoDue=null; ADM._promoDueLoaded=false; ADM._promoSettings=null; ADM._promoSettingsLoaded=false;
   ADM.mapsPick=null; ADM._areasMap=null; ADM._areasMapLoaded=false; ADM.mapsQ=""; ADM.mapsView="areas"; ADM.mapsPage=1; ADM._listingsMapStatus=null; ADM._listingsMapStatusLoading=false; ADM.mapsFallbackOn=null;
-  ADM._ikLoaded=false; ADM.ik=null; ADM._ticketsLoaded=false; ADM.tickets=null; ADM._vfLoaded=false; ADM.vf=undefined; ADM._reviewsLoaded=false; ADM._uactLoaded=false; ADM.uact=null; ADM._lstatsRange=null;
+  ADM._ikLoaded=false; ADM.ik=null; ADM._ticketsLoaded=false; ADM.tickets=null; ADM._vfLoaded=false; ADM.vf=undefined; ADM._reviewsLoaded=false; ADM._uactLoaded=false; ADM.uact=null; ADM._delUsersLoaded=false; ADM.delUsers=null; ADM._lstatsRange=null;
   ADM._photosLoaded=false; ADM.photosList=null;
   ADM._statsLoaded=false; ADM.stats=null; ADM._anLoaded=false; ADM.an=null; ADM.anErr=null; ADM._lstatsLoaded=false; ADM.lstats=null;
   ADM._promosLoaded=false; ADM.promos=null; ADM._wLoaded=false; ADM_W=null; ADM._pjLoaded=false; ADM_PJ=null; ADM._agLoaded=false; ADM_AG=null; ADM._engDays=null; ADM.eng=null; ADM.todo=null;
