@@ -3116,18 +3116,26 @@ function wireTypesAdmin(){
   if(ADM.tab!=="types") return;
   var rows=ptRows(), msg=function(s,bad){ var m=$("#ptMsg"); if(m){ m.textContent=s; m.style.color=bad?"var(--danger)":"var(--ok)" } };
   var read=function(){ $$("[data-pt]").forEach(function(el){ var p=el.dataset.pt.split(":"), k=p[0], i=+p[1]; if(!rows[i]) return; rows[i][k]= el.type==="checkbox" ? el.checked : (k==="order" ? (+el.value||0) : el.value) }) };
-  $$("[data-pt]").forEach(function(el){ el.onchange=read });
+  // edits to existing rows stay local until «حفظ»; say so, so a refresh never silently drops them
+  $$("[data-pt]").forEach(function(el){ el.onchange=function(){ read(); ADM.ptDirty=true; msg(GX("ptUnsaved"),true) } });
+  if(ADM.ptDirty) msg(GX("ptUnsaved"),true);
   var codeOk=function(c){ return /^[a-z][a-z0-9_]{1,23}$/.test(c) && !rows.some(function(r){ return r.code===c }) };
-  if($("#ptAdd")) $("#ptAdd").onclick=function(){ read(); var code=($("#ptNewCode").value||"").trim().toLowerCase(), ar=($("#ptNewAr").value||"").trim();
-    if(!codeOk(code)) return msg(GX("ptCodeBad"),true); if(!ar) return msg(GX("ptArBad"),true);
-    rows.push({code:code,ar:ar,en:$("#ptNewEn").value.trim(),de:$("#ptNewDe").value.trim(),fr:$("#ptNewFr").value.trim(),sec:$('[data-pt="sec:new"]').value,order:+$("#ptNewOrder").value||((rows.length+1)*10),on:true}); render() };
-  $$("[data-ptdel]").forEach(function(b){ b.onclick=function(){ read(); if(!confirm(GX("confirmDel"))) return; rows.splice(+this.dataset.ptdel,1); render() } });
-  if($("#ptSave")) $("#ptSave").onclick=async function(){ read();
-    var bad=rows.filter(function(r){ return r.on!==false && !String(r.ar||"").trim() }); if(bad.length) return msg(GX("ptArBad"),true);
+  // one save path for add, delete and the save button: adding or deleting a type is written to the database at once
+  // (2026-10-13: «إضافة» used to only add the row on screen, so a refresh before «حفظ» lost it)
+  var saveTypes=async function(btn){
+    var bad=rows.filter(function(r){ return r.on!==false && !String(r.ar||"").trim() }); if(bad.length){ msg(GX("ptArBad"),true); return false }
     var clean=rows.map(function(r){ return {code:r.code,ar:String(r.ar||"").trim(),en:String(r.en||"").trim(),de:String(r.de||"").trim(),fr:String(r.fr||"").trim(),sec:PT_SECS.some(function(s){ return s[0]===r.sec })?r.sec:"homes",order:+r.order||0,on:r.on!==false} })
       .sort(function(a,b){ return a.order-b.order });
-    this.disabled=true; try{ await saveGlobalExtras({property_types:clean}); try{ var cur=SITE.extras; if(typeof cur==="string"){ try{ cur=JSON.parse(cur) }catch(e){ cur={} } } SITE.extras=Object.assign({},cur||{},{property_types:clean}); localStorage.setItem(siteCacheKey(),JSON.stringify(SITE)) }catch(e){}
-      try{ applyPropertyTypes() }catch(e){} ADM.ptRows=null; admToast(t("savedOk")); render() }catch(e){ this.disabled=false; msg(e.message||"error",true) } };
+    if(btn) btn.disabled=true;
+    try{ await saveGlobalExtras({property_types:clean}); try{ var cur=SITE.extras; if(typeof cur==="string"){ try{ cur=JSON.parse(cur) }catch(e){ cur={} } } SITE.extras=Object.assign({},cur||{},{property_types:clean}); localStorage.setItem(siteCacheKey(),JSON.stringify(SITE)) }catch(e){}
+      try{ applyPropertyTypes() }catch(e){} ADM.ptRows=null; ADM.ptDirty=false; admToast(t("savedOk")); render(); return true }
+    catch(e){ if(btn) btn.disabled=false; msg(e.message||"error",true); return false } };
+  if($("#ptAdd")) $("#ptAdd").onclick=async function(){ read(); var code=($("#ptNewCode").value||"").trim().toLowerCase(), ar=($("#ptNewAr").value||"").trim();
+    if(!codeOk(code)) return msg(GX("ptCodeBad"),true); if(!ar) return msg(GX("ptArBad"),true);
+    var row={code:code,ar:ar,en:$("#ptNewEn").value.trim(),de:$("#ptNewDe").value.trim(),fr:$("#ptNewFr").value.trim(),sec:$('[data-pt="sec:new"]').value,order:+$("#ptNewOrder").value||((rows.length+1)*10),on:true};
+    rows.push(row); if(!(await saveTypes(this))) rows.splice(rows.indexOf(row),1) };
+  $$("[data-ptdel]").forEach(function(b){ b.onclick=async function(){ read(); if(!confirm(GX("confirmDel"))) return; var i=+this.dataset.ptdel, gone=rows.splice(i,1)[0]; if(!(await saveTypes(this))) rows.splice(i,0,gone) } });
+  if($("#ptSave")) $("#ptSave").onclick=function(){ read(); saveTypes(this) };
 }
 // "مناطق مقترحة": places found by the OpenStreetMap import or named by senders in the bot, waiting for the admin's yes.
 // Shown ABOVE the (long) areas table of the chosen governorate, so it is the first thing seen after picking one.
