@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-2H5bKwtlTrsVh/077Ih/teWLqiMzGJCEuZ8wLJx7o/s=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-ZPTQBmAAh4VbMKlZFV9Ydu1SOZPPowRxQM8Ncjfu4FA=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -5494,11 +5494,10 @@ function listing(id){
  lb += (VLB_OPEN && VIDS.length) ? '<div class="vlb" id="vlb"><button type="button" class="lb-close" id="vlbClose" aria-label="close">×</button><div class="vlb-box"><video id="vlbVideo" controls autoplay playsinline'+wmVideoAttrs()+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'+wmOverlayHtml()+'</div></div>' : '';
 
  /* ── title block ── */
- var tags='<div class="ltags"><span class="ltag deal">'+(isRent?t("forrent"):t("forsale"))+'</span>'+
+ var tags='<div class="ltags"><span class="ltag deal">'+(isRent?t("forrent"):isShare(x)?GX("shareBadge"):t("forsale"))+'</span>'+
    '<span class="ltag">'+typeName+'</span>'+
    (!isRent && deedName ? '<span class="ltag'+(strongDeed(x.tb)?' green':'')+'">'+(strongDeed(x.tb)?'<span class="tabu-green">'+deedName+'</span>':deedName)+'</span>' : '')+
    (x.ow ? '<span class="ltag gold">'+GX("byOwner")+'</span>' : '')+
-   (isShare(x) ? '<span class="ltag gold">'+GX("shareBadge")+'</span>' : '')+
    (x.furn ? '<span class="ltag">'+t("furnishedL")+'</span>' : '')+'</div>';
  var h1 = ar ? typeName+' '+m2()+' '+GX("lIn")+' '+aN(x.a)
             : typeName+', '+m2()+' '+GX("lIn")+' '+aN(x.a);
@@ -5729,7 +5728,8 @@ function post(){
  '<div class="blk"><h3><span class="n">1</span>'+t("p1")+'</h3><div class="in">'+
   '<div class="fl"><label class="req">'+t("deal")+'</label><div class="pick">'+
    '<label><input type="radio" name="dl" value="sale" checked><span>'+t("forsale")+'</span></label>'+
-   '<label><input type="radio" name="dl" value="rent"><span>'+t("forrent")+'</span></label></div></div>'+
+   '<label><input type="radio" name="dl" value="rent"><span>'+t("forrent")+'</span></label>'+
+   '<label><input type="radio" name="dl" value="share"><span>'+GX("shareBadge")+'</span></label></div></div>'+
   '<div class="fl" style="margin-bottom:0"><label class="req">'+t("ptype")+'</label><select id="ptype">'+
    Object.keys(D.TYPES).map(function(k){return '<option value="'+k+'">'+D.TYPES[k][li()]+'</option>'}).join("")+
    '</select></div></div></div>'+
@@ -5767,7 +5767,6 @@ function post(){
    '<div class="pick homes-c" id="pcond">'+pk(D.COND,"cd2")+'</div>'+
    '<div class="pick land-c" id="pcondL" style="display:none">'+pk(D.LANDC,"cd2")+'</div>'+
    '<div class="hintx">'+t("condH")+'</div></div>'+
-  '<div class="fl"><div class="chkgrid"><label><input type="checkbox" id="pShare"> <b>'+GX("shareL")+'</b></label></div><div class="hintx">'+GX("shareHint")+'</div></div>'+
   '<div class="fl"><label>'+t("amH")+'</label>'+
    '<div class="chkgrid homes-c">'+
     '<label id="furnWrap" style="display:none"><input type="checkbox" id="pFurn"> '+t("furnishedL")+'</label>'+
@@ -8865,7 +8864,7 @@ function wire(){
    var syncForm=function(){
      // a rent-only type (serviced apartment) locks the deal to rent
      var ptv=($("#ptype")||{}).value, rentOnly=RENT_ONLY_TYPES.indexOf(ptv)>-1, saleR=$('input[name=dl][value=sale]'), rentR=$('input[name=dl][value=rent]');
-     if(saleR){ saleR.disabled=rentOnly; if(rentOnly&&saleR.checked&&rentR) rentR.checked=true; var sl=saleR.closest("label"); if(sl) sl.style.opacity=rentOnly?".45":"" }
+     [saleR,$('input[name=dl][value=share]')].forEach(function(r){ if(!r) return; r.disabled=rentOnly; if(rentOnly&&r.checked&&rentR) rentR.checked=true; var sl=r.closest("label"); if(sl) sl.style.opacity=rentOnly?".45":"" });
      var rent=($('input[name=dl]:checked')||{}).value==="rent";
      var isLand=secOf(($("#ptype")||{}).value)==="land";
      $$(".rentonly").forEach(function(e){e.style.display=(rent&&!isLand)?"block":"none"});
@@ -9853,7 +9852,7 @@ async function savePost(){
 
     var row = {
       section: sec,
-      deal: ($('input[name=dl]:checked')||{value:"sale"}).value,
+      deal: ($('input[name=dl]:checked')||{}).value==="rent" ? "rent" : "sale",   // «للمشاركة» is stored as a sale carrying SHARE_TAG
       property_type: val("ptype"),
       governorate_id: g.data.id,
       area_id: (a.data&&a.data[0])?a.data[0].id:null,
@@ -9886,7 +9885,7 @@ async function savePost(){
       deposit_usd:    ($('input[name=dl]:checked')||{}).value==="rent" ? (parseInt(val("pDep"),10)||null)   : null,
       rental_period:  ($('input[name=dl]:checked')||{}).value==="rent" ? (($("#pRentalPeriod")||{}).value||"yearly") : null,
       amenities: $$(".amen:checked").filter(function(c){
-        return c.closest(".chkgrid").style.display!=="none" }).map(function(c){return c.value}).concat(($("#pShare")&&$("#pShare").checked)?[SHARE_TAG]:[]),
+        return c.closest(".chkgrid").style.display!=="none" }).map(function(c){return c.value}).concat((($('input[name=dl]:checked')||{}).value==="share")?[SHARE_TAG]:[]),
       bills_included: !!($("#pBills")&&$("#pBills").checked),
       furnished:      !!($("#pFurn")&&$("#pFurn").checked),
       direction: ($("#pdir")&&$("#pdir").value) || null,
