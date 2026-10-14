@@ -3841,7 +3841,8 @@ function adminListingsBody(d){
   }
   return (ADM.listUser?'<div class="ulchip"><span>'+GX("uListChip").replace("{n}",esc(ADM.listUser.name||""))+' · <b class="ltr">'+all.length+'</b></span><button type="button" class="ab" id="ulClear">✕ '+GX("uListAll")+'</button></div>':'')+
    '<div class="lbar"><span class="lcnt"><b class="ltr">'+cntN+'</b>'+(!f.view&&LL.length!==all.length?' / <span class="ltr">'+all.length+'</span>':'')+' '+(f.view==="deleted"?GX("lfDeletedV"):f.view==="dupes"?GX("dupGroup"):t("listingsTab"))+(pend&&!f.view?'<span class="lpend">· '+GX("lfPendingN").replace("{n}",pend)+'</span>':'')+'</span>'+
-     '<label class="lq">'+AICO.search+'<input id="aqL" value="'+esc(f.q||"")+'" placeholder="'+t("searchPH")+'" autocomplete="off"></label>'+rangeTabs()+'</div>'+
+     '<label class="lq">'+AICO.search+'<input id="aqL" value="'+esc(f.q||"")+'" placeholder="'+t("searchPH")+'" autocomplete="off"></label>'+rangeTabs()+
+     '<span title="'+esc(GX("countsOnHint"))+'" style="display:inline-flex;align-items:center;gap:8px;font-size:13px;white-space:nowrap">'+GX("countsOnL")+'<label class="xswitch"><input type="checkbox" id="lCountsOn"'+(SXb("listing_counts_on",true)?" checked":"")+'><i></i></label></span></div>'+
    '<div class="lfilters">'+pill("view",GX("lfView"),[["deleted",GX("lfDeletedV"),ADM.ldel?ADM.ldel.length:null],["dupes",GX("lfDupesV"),ADM.ldupN!=null?ADM.ldupN:null]],f.view)+
      (f.view?'':pill("status",GX("lfStatus"),stItems,f.status,"afStatus")+pill("gov",GX("lfGov"),uniq(function(l){ return l.gov }),f.gov)+pill("type",GX("lfType"),tyItems,f.type)+pill("who",GX("lfWho"),uniq(function(l){ return l.agency_name||l.poster_name }),f.who)+
      pill("src",GX("lfSrc"),[["bot",GX("lfBot"),all.filter(function(l){ return l.via }).length],["site",GX("lfSite"),all.filter(function(l){ return !l.via }).length]],f.src)+pill("sort",GX("lfSort"),sortItems,f.sort!=="new"?f.sort:""))+
@@ -3892,6 +3893,13 @@ function wireAdminListings(){
   var q=$("#aqL"); if(q){ q.oninput=function(){ var v=this.value; clearTimeout(ADM._lqT); ADM._lqT=setTimeout(function(){ ADM.lf.q=v; render(); var el=$("#aqL"); if(el){ el.focus(); try{ el.setSelectionRange(el.value.length,el.value.length) }catch(e){} } },160) } }
   $$("[data-lf]").forEach(function(s){ s.onchange=function(){ ADM.lf[this.dataset.lf]=this.value; if(this.dataset.lf==="sort"){ ADM.lf.sort=this.value||"new"; ADM.listSort=ADM.lf.sort } render() } });
   if($("#lfClear")) $("#lfClear").onclick=function(){ ADM.lf={q:"",status:"",gov:"",type:"",who:"",src:"",sort:"new",view:""}; render() };
+  // «إظهار عدد الإعلانات في الموقع»: saved for the country being edited, applied by countsOn() on every public page
+  if($("#lCountsOn")) $("#lCountsOn").onchange=async function(){ var el=this, on=el.checked; el.disabled=true;
+    try{ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:{listing_counts_on:on}},p_country:(admScope()==="ALL"?COUNTRY:admScope())});
+      try{ var cur=SITE.extras; if(typeof cur==="string"){ try{ cur=JSON.parse(cur) }catch(e){ cur={} } } SITE.extras=Object.assign({},cur||{},{listing_counts_on:on}); localStorage.setItem(siteCacheKey(),JSON.stringify(SITE)) }catch(e){}
+      admToast(on?GX("countsShown"):GX("countsHidden")) }
+    catch(e){ el.checked=!on; admToast(e.message||"error","bad") }
+    el.disabled=false };
   $$("[data-lsel]").forEach(function(c){ c.onchange=function(){ ADM.lsel[this.dataset.lsel]=this.checked; render() }; c.onclick=function(e){ e.stopPropagation() } });
   if($("#lselAll")) $("#lselAll").onchange=function(){ var on=this.checked; ADM.lsel={}; if(on) (ADM._lvis||[]).forEach(function(id){ ADM.lsel[id]=true }); render() };
   if($("#lselNone")) $("#lselNone").onclick=function(){ ADM.lsel={}; render() };
