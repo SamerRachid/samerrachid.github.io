@@ -3548,8 +3548,12 @@ function ikFieldsForm(x){
   var inp=function(k,lbl,type,wide){ return '<div class="fl'+(wide?' wide':'')+'"><label>'+lbl+'</label><input data-ikf="'+k+'" type="'+(type||"text")+'" value="'+v(k)+'" data-allow-autofill></div>' };
   var sel=function(k,lbl,opts){ return '<div class="fl"><label>'+lbl+'</label><select data-ikf="'+k+'"><option value=""></option>'+opts.map(function(o){ return '<option value="'+o[0]+'"'+(String(f[k])===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select></div>' };
   var chk=function(k,lbl){ return '<label class="xcheck" style="align-self:end"><input type="checkbox" data-ikf="'+k+'" data-ikbool="1"'+(f[k]===true||f[k]==="true"?' checked':'')+'><span>'+lbl+'</span></label>' };
+  // «للمشاركة» is not a third deal: it is a sale carrying the partnership tag in its amenities (see SHARE_TAG in index.html);
+  // the list shows it as its own choice, and collect() turns it back into deal=sale + the tag before saving
+  var dealCur=((f.deal||"sale")==="sale" && Array.isArray(f.amenities) && f.amenities.indexOf(SHARE_TAG)>-1) ? "share" : String(f.deal||"");
+  var dealSel='<div class="fl"><label>'+GX("ik_f_deal")+'</label><select data-ikf="deal"><option value=""></option>'+[["sale",t("forsale")],["rent",t("forrent")],["share",GX("shareBadge")]].map(function(o){ return '<option value="'+o[0]+'"'+(dealCur===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select></div>';
   return '<div class="ikfields">'+
-    sel("deal",GX("ik_f_deal"),[["sale",t("forsale")],["rent",t("forrent")]])+sel("property_type",GX("ik_f_type"),Object.keys(D.TYPES).map(function(k){ return [k,D.TYPES[k][li()]] }))+
+    dealSel+sel("property_type",GX("ik_f_type"),Object.keys(D.TYPES).map(function(k){ return [k,D.TYPES[k][li()]] }))+
     inp("governorate",GX("ik_f_gov"))+inp("area",GX("ik_f_area"))+inp("landmark",GX("ik_f_landmark"))+
     inp("price",GX("ik_f_price"),"number")+inp("currency",GX("ik_f_cur"))+inp("area_m2",GX("ik_f_m2"),"number")+
     inp("rooms",GX("ik_f_rooms"),"number")+inp("baths",GX("ik_f_baths"),"number")+inp("living_rooms",GX("ik_f_living"),"number")+inp("floor",GX("ik_f_floor"),"number")+inp("year_built",GX("ik_f_year"),"number")+
@@ -3714,6 +3718,10 @@ function wireAdminIntake(){
     box.querySelectorAll("[data-ikf]").forEach(function(i){ var k=i.dataset.ikf; if(i.dataset.ikbool) fields[k]=!!i.checked; else { var v=String(i.value).trim(); fields[k]= v===""?null:(i.type==="number"?+v:v) } });
     var x=((ADM.ik||{}).drafts||[]).filter(function(y){ return String(y.id)===String(id) })[0]||{}; var f0=x.fields||{};
     if(fields.governorate!==(f0.governorate==null?null:String(f0.governorate))){ fields.governorate_id=null; fields.area_id=null } else if(fields.area!==(f0.area==null?null:String(f0.area))) fields.area_id=null;
+    // «للمشاركة» → a sale + the partnership tag; sale or rent → the tag comes off. Other amenities are kept as they are.
+    var am0=Array.isArray(f0.amenities)?f0.amenities.slice():[], hasTag=am0.indexOf(SHARE_TAG)>-1;
+    if(fields.deal==="share"){ fields.deal="sale"; if(!hasTag) fields.amenities=am0.concat([SHARE_TAG]) }
+    else if(hasTag){ fields.amenities=am0.filter(function(a){ return a!==SHARE_TAG }) }
     var ag=box.querySelector("[data-ikag]"); return {fields:fields, owner: ag ? ag.value : undefined} };
   var saveDraft=async function(id){ var c=collect(id); if(!c) return; var patch={fields:c.fields}; if(c.owner!==undefined) Object.assign(patch, ikOwnerPatch(c.owner)); await rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:patch}) };
   $$("[data-iksave]").forEach(function(b){ b.onclick=async function(){ var id=this.dataset.iksave, m=$("#ikMsg"+id); busy(this,true); try{ await saveDraft(id); admToast(GX("ik_saved")); reload() }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } } });
