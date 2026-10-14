@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-7b1+UBRzRFIijOcekeETpjklfdd+WJlrzyHgYI1Yk30=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-VVXx8jeBFOsRXNSrtyByXZnNoriVBjuhlbgoNHjSndc=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -3045,6 +3045,7 @@ html[lang=fr] .htools a.gold{white-space:nowrap}
 /* listing videos */
 .vplay{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--gold);color:#1A1206;font-size:11px;padding-inline-start:2px;flex:none}
 .cbg.vid{background:rgba(9,14,26,.72);color:#fff}
+.cbg.share{background:var(--navy);color:#fff}
 .vpick,.evids{margin-top:14px;display:grid;gap:8px}.vpick-h{font-size:13.5px;color:var(--navy)}
 .vadd{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;align-items:center;text-align:start;border:1.5px dashed var(--line-2);border-radius:12px;padding:12px 14px;background:#fff;cursor:pointer;font:inherit;color:var(--ink)}
 .vadd:hover{border-color:var(--gold)}.vadd .vplay{grid-row:span 2;width:34px;height:34px;font-size:14px}.vadd b{font-size:14px}.vadd span:not(.vplay){font-size:12px;color:var(--grey)}
@@ -4059,7 +4060,7 @@ var L=detectLang(), CUR=detectCurrency(), VIEW="home", GI=0, LIGHTBOX_OPEN=false
 var PREVIEW=/[?&]preview=1/.test(location.search), _pvLast=null;
 var SHARED_IN=/[?&]shared=1/.test(location.search);   // the installed app received a share (see sw.js → /post?shared=1)
 if(PREVIEW){ var _pl=(location.search.match(/[?&]lang=(ar|en|de|fr)/)||[])[1]; if(_pl) L=_pl; }
-var F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:[],sec:"",deal:"sale",sort:"new",page:1,ownerOnly:false,kw:""};
+var F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:[],sec:"",deal:"sale",sort:"new",page:1,ownerOnly:false,shareOnly:false,kw:""};
 var AI_UNDERSTOOD=null;   // the AI search bar's "we understood: …" line, shown once on the next results render then cleared
 function roomsLabel(v){ v=String(v||""); if(!v) return GX("roomsField"); if(v==="1") return GX("rooms1"); if(v==="2") return GX("rooms2"); return GX("roomsN").replace("{n}", +v===ROOMS_MAX ? v+"+" : v) }
 var ROOMS_MAX=7;   // the last square: this many rooms or more
@@ -4080,6 +4081,7 @@ function activeFilterCount(){
   if(F.pmin) n++;
   if(F.pmax) n++;
   if(F.ownerOnly) n++;
+  if(F.shareOnly) n++;
   return n;
 }
 var VIEWMODE = (function(){
@@ -4160,6 +4162,10 @@ function exFill(v){ if(typeof v!=="string"||v.indexOf("{ex")<0) return v; var p=
 var t=function(k){ var v=(D.I18N[L]&&D.I18N[L][k]!==undefined)?D.I18N[L][k]:k; if(COUNTRY!=="SY"){ if(DEED_KEYS[k]) return DEED_KEYS[k](deedLabel()); v=cLocal(v) } return exFill(v) };
 var li=function(){return L==="ar"?0:L==="en"?1:L==="de"?2:3};
 function dsOf(x){ var d=x&&x.ds; if(!d) return ""; if(typeof d==="string") return d; return d[li()]||d[1]||d[0]||"" }   // a description in the current language, else English, else Arabic
+// «متاح للمشاركة» (2026-10-13): a listing open to partnership carries this one fixed Arabic tag in its amenities, in every
+// language, so it travels through post / edit / every read path unchanged (no new column, no change to sale/rent logic)
+var SHARE_TAG="متاح للمشاركة";
+function isShare(x){ return !!(x && Array.isArray(x.am) && x.am.indexOf(SHARE_TAG)>-1) }
 var AMEN_LANGS=["ar","en","de","fr"];   // fr reuses the English list (D.AMEN.fr is set with the French dictionary)
 function amenityLabel(saved){
   var pools=[D.AMEN,D.LANDAMEN];
@@ -5099,7 +5105,7 @@ function card(x,i,isListView){
  var saved = SAVED.indexOf(String(x.id))>-1;
 
  /* photo: badges at the start, save heart at the end, photo count at the bottom */
- var badges = (showFeatBadge?'<span class="cbg gold">'+featBadgeText+'</span>':'')+(isNew?'<span class="cbg ok">'+t("newBadge")+'</span>':'')+(x.videos&&x.videos.length?'<span class="cbg vid">▶ '+GX("videoBadge")+'</span>':'');
+ var badges = (showFeatBadge?'<span class="cbg gold">'+featBadgeText+'</span>':'')+(isNew?'<span class="cbg ok">'+t("newBadge")+'</span>':'')+(isShare(x)?'<span class="cbg share">'+GX("shareBadge")+'</span>':'')+(x.videos&&x.videos.length?'<span class="cbg vid">▶ '+GX("videoBadge")+'</span>':'');
  var photo = '<div class="ph">'+
    (closed?'<div class="stamp'+(x.status==="rented"?" stamp-r":"")+'">'+(x.status==="rented"?t("st_rented"):t("st_sold"))+'</div>':'')+
    (cover ? '<img src="'+cover+'" alt="'+esc(typeName)+'" loading="lazy">' : (x.videos&&x.videos[0]&&x.videos[0].url) ? '<video class="vcover" muted playsinline preload="metadata" src="'+x.videos[0].url+'#t=0.5" data-logo-fallback="1"></video>' : '<div class="nophoto"><img src="/brand/logo-light.png" alt="بلكون" loading="lazy"></div>')+
@@ -5191,6 +5197,7 @@ function passesFilter(x, skipField){
   }
   if(skipField!=="rooms" && !roomsPass(x)) return false;
   if(F.ownerOnly && !x.ow) return false;
+  if(F.shareOnly && !isShare(x)) return false;
   if(F.kw && !kwMatch(x)) return false;
   return true;
 }
@@ -5235,6 +5242,7 @@ function rsChipsHtml(){
  else (F.rooms||[]).forEach(function(v){ c.push(["rooms",v,roomsLabel(v)]) });
  if(F.pmin||F.pmax) c.push(["price","",heroPriceLabel().replace(/<[^>]+>/g,"")]);
  if(F.ownerOnly) c.push(["ownerOnly","",t("owneronly")]);
+ if(F.shareOnly) c.push(["shareOnly","",GX("shareOnly")]);
  if(F.kw) c.push(["kw",F.kw,"“"+F.kw+"”"]);
  if(!c.length) return "";
  return '<div class="wrap rs-chips">'+c.map(function(x){ return '<span class="rs-chip">'+String(x[2]).replace(/[<>]/g,"")+'<button type="button" data-rschip="'+x[0]+'" data-rsval="'+esc(String(x[1]))+'" aria-label="'+t("del")+'">×</button></span>' }).join("")+
@@ -5242,10 +5250,10 @@ function rsChipsHtml(){
 function rsFiltersHtml(count){
  var n=function(f,v){return D.LIST.filter(function(x){return passesFilter(x,f) && x[f]===v}).length};
  var grp=function(obj,f){return Object.keys(obj).map(function(k){ return '<label class="ck"><input type="radio" name="'+f+'" value="'+k+'"'+(F[f]===k?" checked":"")+'> '+obj[k][li()]+'<span class="c ltr">'+n(f,k)+'</span></label>'}).join("")};
- var moreN=(F.rooms&&F.rooms.length?1:0)+(F.cd?1:0)+(F.deal==="rent"&&F.rentalPeriod?1:0)+(F.deal!=="rent"&&F.ownerOnly?1:0);
+ var moreN=(F.rooms&&F.rooms.length?1:0)+(F.cd?1:0)+(F.deal==="rent"&&F.rentalPeriod?1:0)+(F.deal!=="rent"&&F.ownerOnly?1:0)+(F.deal!=="rent"&&F.shareOnly?1:0);
  var more=roomsSquaresHtml()+'<div class="fg"><h4>'+t("cond")+'</h4>'+(F.sec==="land"?grp(D.LANDC,"cd"):grp(D.COND,"cd"))+'</div>'+
    (F.deal==="rent" ? '<div class="fg"><h4>'+t("rentalPeriodL")+'</h4>'+["","yearly","monthly","weekly","daily"].map(function(v){ return '<label class="ck"><input type="radio" name="rentalPeriod" value="'+v+'"'+(F.rentalPeriod===v?" checked":"")+'> '+(v===""?t("anyPeriod"):t("period"+v.charAt(0).toUpperCase()+v.slice(1)))+'</label>' }).join("")+'</div>'
-                    : '<div class="fg"><h4>'+t("extras")+'</h4><label class="ck"><input type="checkbox" id="fOwnerOnly"'+(F.ownerOnly?" checked":"")+'> '+t("owneronly")+'</label></div>');
+                    : '<div class="fg"><h4>'+t("extras")+'</h4><label class="ck"><input type="checkbox" id="fOwnerOnly"'+(F.ownerOnly?" checked":"")+'> '+t("owneronly")+'</label><label class="ck"><input type="checkbox" id="fShareOnly"'+(F.shareOnly?" checked":"")+'> '+GX("shareOnly")+'</label></div>');
  var rate=curRate();
  return '<div class="rs-filters'+(MOBILE_FILTERS_OPEN?' on':'')+'" id="rsFilters">'+
   '<div class="rs-fh"><b>'+GX("rsFilters")+'</b><button type="button" class="rs-fx" id="rsFClose" aria-label="'+t("cancel")+'">×</button></div>'+
@@ -5381,10 +5389,11 @@ function rsWire(opts){
   $$('input[name=cd]').forEach(function(r){ r.onclick=function(){ F.cd=F.cd===r.value?"":r.value; F.page=1; render() } });
   $$('input[name=rentalPeriod]').forEach(function(r){ r.onclick=function(){ F.rentalPeriod=r.value; F.page=1; render() } });
   if($("#fOwnerOnly")) $("#fOwnerOnly").onchange=function(){ F.ownerOnly=this.checked; F.page=1; render() };
+  if($("#fShareOnly")) $("#fShareOnly").onchange=function(){ F.shareOnly=this.checked; F.page=1; render() };
   $$("[data-rschip]").forEach(function(b){ b.onclick=function(){ var k=this.dataset.rschip, v=this.dataset.rsval;
-    if(k==="price"){ F.pmin=0; F.pmax=0 } else if(k==="ownerOnly"){ F.ownerOnly=false } else if(k==="roomsAll"){ F.rooms=[] } else if(Array.isArray(F[k])){ F[k]=F[k].filter(function(x){ return x!==v }) } else { F[k]="" }
+    if(k==="price"){ F.pmin=0; F.pmax=0 } else if(k==="ownerOnly"){ F.ownerOnly=false } else if(k==="shareOnly"){ F.shareOnly=false } else if(k==="roomsAll"){ F.rooms=[] } else if(Array.isArray(F[k])){ F[k]=F[k].filter(function(x){ return x!==v }) } else { F[k]="" }
     F.page=1; render() } });
-  var clear=function(){ F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:[],pmin:0,pmax:0,ownerOnly:false,kw:"",sec:F.sec,deal:F.deal,sort:"new",page:1}; render() };
+  var clear=function(){ F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:[],pmin:0,pmax:0,ownerOnly:false,shareOnly:false,kw:"",sec:F.sec,deal:F.deal,sort:"new",page:1}; render() };
   if($("#clr")) $("#clr").onclick=clear; if($("#clrM")) $("#clrM").onclick=clear;
   $$("#sort,#sortM").forEach(function(sel){ sel.onchange=function(){ F.sort=this.value; F.page=1; render() } });
   if($("#vmGrid")) $("#vmGrid").onclick=function(){ VIEWMODE="grid"; try{localStorage.setItem("balkoun_viewmode","grid")}catch(e){} render() };
@@ -5413,7 +5422,7 @@ function searchAlternatives(){
     F=Object.assign({},saved,{govs:[],areas:[],g:"",a:""});
     alt=D.LIST.filter(function(x){ return passesFilter(x,null) });
     title=GX("altResH");
-    if(!alt.length){ F=Object.assign({},saved,{govs:[],areas:[],g:"",a:"",types:[],t:"",tbs:[],tb:"",cd:"",pmin:0,pmax:0,furn:"",rentalPeriod:"",ownerOnly:false}); alt=D.LIST.filter(function(x){ return passesFilter(x,null) }); title=GX("altResH2") }
+    if(!alt.length){ F=Object.assign({},saved,{govs:[],areas:[],g:"",a:"",types:[],t:"",tbs:[],tb:"",cd:"",pmin:0,pmax:0,furn:"",rentalPeriod:"",ownerOnly:false,shareOnly:false}); alt=D.LIST.filter(function(x){ return passesFilter(x,null) }); title=GX("altResH2") }
   }finally{ F=saved }
   if(!alt.length) return '';
   alt.sort(function(a,b){ return (b.featured?1:0)-(a.featured?1:0) || new Date(b.createdAt||0)-new Date(a.createdAt||0) });
@@ -5494,6 +5503,7 @@ function listing(id){
    '<span class="ltag">'+typeName+'</span>'+
    (!isRent && deedName ? '<span class="ltag'+(strongDeed(x.tb)?' green':'')+'">'+(strongDeed(x.tb)?'<span class="tabu-green">'+deedName+'</span>':deedName)+'</span>' : '')+
    (x.ow ? '<span class="ltag gold">'+GX("byOwner")+'</span>' : '')+
+   (isShare(x) ? '<span class="ltag gold">'+GX("shareBadge")+'</span>' : '')+
    (x.furn ? '<span class="ltag">'+t("furnishedL")+'</span>' : '')+'</div>';
  var h1 = ar ? typeName+' '+m2()+' '+GX("lIn")+' '+aN(x.a)
             : typeName+', '+m2()+' '+GX("lIn")+' '+aN(x.a);
@@ -5536,7 +5546,8 @@ function listing(id){
    grp(GX("lgProp"),prop)+grp(GX("lgLoc"),loc)+(isRent?grp(GX("lgRent"),rent):'')+'</div></section>';
 
  /* ── amenities ── */
- var amen = (x.am&&x.am.length) ? '<section class="lsec"><h2>'+t("amH")+'</h2><ul class="lamen">'+x.am.map(function(a){
+ var amList = (x.am||[]).filter(function(a){ return a!==SHARE_TAG });   // the partnership tag shows as a badge in the title block, not as an amenity
+ var amen = amList.length ? '<section class="lsec"><h2>'+t("amH")+'</h2><ul class="lamen">'+amList.map(function(a){
    var isSolar = ["طاقة بديلة","Alternative energy","Alternative Energie"].indexOf(a)>-1;
    return '<li><i>'+(isSolar?I.sun:I.check)+'</i>'+amenityLabel(a)+'</li>'}).join("")+'</ul></section>' : '';
 
@@ -5761,6 +5772,7 @@ function post(){
    '<div class="pick homes-c" id="pcond">'+pk(D.COND,"cd2")+'</div>'+
    '<div class="pick land-c" id="pcondL" style="display:none">'+pk(D.LANDC,"cd2")+'</div>'+
    '<div class="hintx">'+t("condH")+'</div></div>'+
+  '<div class="fl"><div class="chkgrid"><label><input type="checkbox" id="pShare"> <b>'+GX("shareL")+'</b></label></div><div class="hintx">'+GX("shareHint")+'</div></div>'+
   '<div class="fl"><label>'+t("amH")+'</label>'+
    '<div class="chkgrid homes-c">'+
     '<label id="furnWrap" style="display:none"><input type="checkbox" id="pFurn"> '+t("furnishedL")+'</label>'+
@@ -5884,6 +5896,7 @@ function editView(){
   (x.d==="rent" ? '<div class="fl"><div class="chkgrid">'+
     '<label><input type="checkbox" id="eBills"'+(x.bills?" checked":"")+'> '+t("billsL")+'</label></div></div>' : '') +
   '<div class="fl"><label>'+t("amH")+'</label><div class="chkgrid">'+
+   '<label><input type="checkbox" class="eamen" value="'+SHARE_TAG+'"'+(isShare(x)?" checked":"")+'> <b>'+GX("shareL")+'</b></label>'+
    (((x.d==="rent") || ["apartment","terrace","arab","villa","floor","chalet","farm","shop","office"].indexOf(x.t)>-1) ?
     '<label><input type="checkbox" id="eFurn"'+(x.furn?" checked":"")+'> '+t("furnishedL")+'</label>' : '')+
    (secOf(x.t)==="land" ? D.LANDAMEN[L] : D.AMEN[L]).map(function(a){
@@ -8339,7 +8352,7 @@ function wireAiSearchBar(){
 function aiApplyFilters(f){
   f=f||{};
   F.govs=[]; F.areas=[]; F.types=[]; F.tbs=[]; F.g=""; F.a=""; F.t=""; F.tb=""; F.rooms=[]; F.pmin=0; F.pmax=0;
-  F.cd=""; F.furn=""; F.rentalPeriod=""; F.ownerOnly=false; F.kw="";
+  F.cd=""; F.furn=""; F.rentalPeriod=""; F.ownerOnly=false; F.shareOnly=false; F.kw="";
   // no sale/rent word in the query → search both (the model is told never to guess it from the price)
   F.deal=(f.deal==="sale"||f.deal==="rent")?f.deal:"";
   if(F.deal==="rent"){ if(f.furnished===true) F.furn="yes"; else if(f.furnished===false) F.furn="no"; if(f.rental_period) F.rentalPeriod=f.rental_period }
@@ -9876,7 +9889,7 @@ async function savePost(){
       deposit_usd:    ($('input[name=dl]:checked')||{}).value==="rent" ? (parseInt(val("pDep"),10)||null)   : null,
       rental_period:  ($('input[name=dl]:checked')||{}).value==="rent" ? (($("#pRentalPeriod")||{}).value||"yearly") : null,
       amenities: $$(".amen:checked").filter(function(c){
-        return c.closest(".chkgrid").style.display!=="none" }).map(function(c){return c.value}),
+        return c.closest(".chkgrid").style.display!=="none" }).map(function(c){return c.value}).concat(($("#pShare")&&$("#pShare").checked)?[SHARE_TAG]:[]),
       bills_included: !!($("#pBills")&&$("#pBills").checked),
       furnished:      !!($("#pFurn")&&$("#pFurn").checked),
       direction: ($("#pdir")&&$("#pdir").value) || null,
@@ -9982,6 +9995,7 @@ function filterToQuery(){
   if(F.pmin) q.pmin=F.pmin;
   if(F.pmax) q.pmax=F.pmax;
   if(F.ownerOnly) q.owner=1;
+  if(F.shareOnly) q.share=1;
   if(F.sort && F.sort!=="new") q.sort=F.sort;
   if(F.page && F.page>1) q.page=F.page;
   var parts=Object.keys(q).map(function(k){ return k+"="+encodeURIComponent(q[k]) });
@@ -10012,6 +10026,7 @@ function applyFilterFromQuery(qs){
   if(params.pmin) F.pmin=parseInt(params.pmin,10)||0;
   if(params.pmax) F.pmax=parseInt(params.pmax,10)||0;
   if(params.owner) F.ownerOnly=true;
+  if(params.share) F.shareOnly=true;
   if(params.sort) F.sort=params.sort;
   if(params.page) F.page=parseInt(params.page,10)||1;
 }
@@ -11602,6 +11617,9 @@ var GX_T={
   cSince:{ar:"منذ {d} يوم",en:"{d} days ago",de:"vor {d} Tagen"}, cToday:{ar:"اليوم",en:"today",de:"heute"},
   lAllPhotos:{ar:"كل الصور",en:"All photos",de:"Alle Fotos"}, lIn:{ar:"في",en:"in",de:"in"},
   byOwner:{ar:"من المالك مباشرة",en:"Direct from owner",de:"Direkt vom Eigentümer"},
+  shareL:{ar:"متاح للمشاركة",en:"Open to partnership",de:"Offen für Partnerschaft"}, shareBadge:{ar:"للمشاركة",en:"Partnership",de:"Partnerschaft"},
+  shareOnly:{ar:"للمشاركة فقط",en:"Partnership only",de:"Nur Partnerschaft"},
+  shareHint:{ar:"مع متعهد للبناء، أو شريك في الملكية أو الاستثمار. اكتب التفاصيل في الوصف.",en:"With a contractor to build, or a partner in ownership or investment. Put the details in the description.",de:"Mit einem Bauunternehmer oder einem Partner für Eigentum oder Investition. Details in die Beschreibung."},
   lgProp:{ar:"العقار",en:"The property",de:"Das Objekt"}, lgLoc:{ar:"الموقع",en:"Location",de:"Lage"}, lgRent:{ar:"شروط الإيجار",en:"Rental terms",de:"Mietbedingungen"},
   adsH:{ar:"إعلانات مميزة",en:"Featured adverts",de:"Anzeigen"},
   // admin panel 2026-09: navigation, page descriptions, new settings
