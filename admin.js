@@ -3765,7 +3765,7 @@ function admWhen(iso){
 function admNormQ(s){ return String(s||"").toLowerCase().replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/[ً-ْـ]/g,"").replace(/\s+/g," ").trim() }
 function admStLabel(s){ return s==="hidden"?GX("st_hidden"):s==="rejected"?GX("st_rejected"):(t("st_"+s)||s) }
 function admTypeName(l){ return D.TYPES[l.property_type]?D.TYPES[l.property_type][li()]:(l.property_type||"") }
-function admDealLabel(l){ return l.deal==="rent"?GX("lfForRent"):GX("lfForSale") }
+function admDealLabel(l){ return l.deal==="rent"?GX("lfForRent"):(Array.isArray(l.amenities)&&l.amenities.indexOf(SHARE_TAG)>-1)?GX("shareBadge"):GX("lfForSale") }
 function admListTitle(l){ return admTypeName(l)+' '+admDealLabel(l)+(l.area?' · '+esc(l.area):(l.gov?' · '+esc(l.gov):''))+(l.area_m2?' · <span class="ltr">'+(+l.area_m2).toLocaleString("en")+'</span> '+t("sqm"):'') }
 function admListingsFiltered(d){
   var all=(d.listings||[]); var f=ADM.lf=ADM.lf||{q:"",status:"",gov:"",type:"",who:"",src:"",sort:"new",view:""};
