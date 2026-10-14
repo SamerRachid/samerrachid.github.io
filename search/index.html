@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-VVXx8jeBFOsRXNSrtyByXZnNoriVBjuhlbgoNHjSndc=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-2H5bKwtlTrsVh/077Ih/teWLqiMzGJCEuZ8wLJx7o/s=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -4319,6 +4319,9 @@ var NAVI=[
   {k:"agencies",g:"site",lab:function(){return GX("agDirShort")},ico:"agency",attrs:'data-go="agencies"',o:110}
 ];
 function navAttrs(i){ return typeof i.attrs==="function" ? i.attrs() : i.attrs }
+// panel switch (Listings tab, 2026-10-13): when off, no page shows how many listings the site has. The map keeps its own
+// "N on the map" count. Default on: nothing changes until the admin turns it off.
+function countsOn(){ return SXb("listing_counts_on", true) }
 function SXb(k,d){ var v=SX(k,d); if(v===false||v==="false"||v===0||v==="0") return false; if(v===true||v==="true"||v===1||v==="1") return true; return d }   // booleans saved by older panels arrived as strings
 var NAV_HEADER_DEF={coll:1,wanted:1,guide:1,agencies:1,projects:1,legal:1,postmsg:1};   // the links that sit in the desktop header unless the admin says otherwise
 function navOn(k){ var it=NAVI.filter(function(i){ return i.k===k })[0]; if(it&&it.hide&&it.hide()) return false; return SXb("nav_"+k,true) }   // in the menu (drawer)
@@ -4990,7 +4993,7 @@ function home(){
    return GROUPS.map(function(g){
      return '<div class="typegroup"><h3>'+(g[L]||g.en)+'</h3><div class="typegrid">'+g.types.map(function(k){
        if(!D.TYPES[k]) return '';
-       var c=n(k);
+       var c=countsOn()?n(k):0;
        // a tile that says "0" or "3" makes the site look empty — counts only appear once they mean something
        return '<a class="typecell" data-go="search" data-type="'+k+'" data-deal="'+hd+'">'+
          '<b>'+D.TYPES[k][li()]+'</b>'+(c>=10?'<span class="ltr">'+c+'</span>':'')+'</a>'}).join("")+'</div></div>'}).join("") };
@@ -5071,7 +5074,7 @@ function home(){
      // never show an invented listing count: use the real one when enabled, a number the admin
      // typed on purpose, or no number at all (the old default "9,102" was a placeholder)
      var typed = (SITE.stats_listings_num && SITE.stats_listings_num!=="9,102") ? SITE.stats_listings_num : null;
-     var lnum = SITE.stats_use_real_count ? CNT.total.toLocaleString("en") : typed;
+     var lnum = !countsOn() ? null : (SITE.stats_use_real_count ? CNT.total.toLocaleString("en") : typed);
      var s2 = (SITE["stats2_"+L]&&SITE["stats2_"+L].trim()) ? SITE["stats2_"+L] : (lnum ? t("note2") : (NOCOMM[L]||NOCOMM.en));
      return '<div class="hnote"><b>'+(SITE.stats_areas_num||"657")+'</b> '+siteText("stats1","note")+
        ' '+(lnum?'<b>'+lnum+'</b> ':'')+s2+'</div>' })())+
@@ -5241,7 +5244,7 @@ function rsChipsHtml(){
    '<button type="button" class="rs-chipclr" id="clr">'+GX("rsClearAll")+'</button></div>' }
 function rsFiltersHtml(count){
  var n=function(f,v){return D.LIST.filter(function(x){return passesFilter(x,f) && x[f]===v}).length};
- var grp=function(obj,f){return Object.keys(obj).map(function(k){ return '<label class="ck"><input type="radio" name="'+f+'" value="'+k+'"'+(F[f]===k?" checked":"")+'> '+obj[k][li()]+'<span class="c ltr">'+n(f,k)+'</span></label>'}).join("")};
+ var grp=function(obj,f){return Object.keys(obj).map(function(k){ return '<label class="ck"><input type="radio" name="'+f+'" value="'+k+'"'+(F[f]===k?" checked":"")+'> '+obj[k][li()]+(countsOn()?'<span class="c ltr">'+n(f,k)+'</span>':'')+'</label>'}).join("")};
  var moreN=(F.rooms&&F.rooms.length?1:0)+(F.cd?1:0)+(F.deal==="rent"&&F.rentalPeriod?1:0)+(F.deal!=="rent"&&F.ownerOnly?1:0)+(F.deal!=="rent"&&F.shareOnly?1:0);
  var more=roomsSquaresHtml()+'<div class="fg"><h4>'+t("cond")+'</h4>'+(F.sec==="land"?grp(D.LANDC,"cd"):grp(D.COND,"cd"))+'</div>'+
    (F.deal==="rent" ? '<div class="fg"><h4>'+t("rentalPeriodL")+'</h4>'+["","yearly","monthly","weekly","daily"].map(function(v){ return '<label class="ck"><input type="radio" name="rentalPeriod" value="'+v+'"'+(F.rentalPeriod===v?" checked":"")+'> '+(v===""?t("anyPeriod"):t("period"+v.charAt(0).toUpperCase()+v.slice(1)))+'</label>' }).join("")+'</div>'
@@ -5263,7 +5266,7 @@ function rsFiltersHtml(count){
      '<div class="pp-foot"><button type="button" class="pp-clear" id="hPriceClear">'+GX("anyPrice")+'</button><button type="button" class="pp-done" id="hPriceDone">'+GX("done")+'</button></div></div></div>'+
    '<div class="rs-f rs-fmore"><button type="button" class="rs-morebtn" id="rsMore">'+GX("rsMore")+(moreN?' <b class="ltr">'+moreN+'</b>':'')+CHEV+'</button><div class="rs-morepop" id="rsMorePop">'+more+'</div></div>'+
   '</div>'+
-  '<div class="rs-ff"><button type="button" class="gh" id="clrM">'+t("clearFilters")+'</button><button type="button" class="btn-n" id="rsFApply">'+GX("rsShow").replace("{n}",'<span class="ltr">'+count+'</span>')+'</button></div>'+
+  '<div class="rs-ff"><button type="button" class="gh" id="clrM">'+t("clearFilters")+'</button><button type="button" class="btn-n" id="rsFApply">'+(countsOn()?GX("rsShow").replace("{n}",'<span class="ltr">'+count+'</span>'):t("showResults"))+'</button></div>'+
  '</div>' }
 function rsSortHtml(id){ return '<select id="'+id+'"><option value="new"'+(F.sort==="new"||!F.sort?" selected":"")+'>'+t("sortNew")+'</option><option value="lo"'+(F.sort==="lo"?" selected":"")+'>'+t("sortLo")+'</option><option value="hi"'+(F.sort==="hi"?" selected":"")+'>'+t("sortHi")+'</option><option value="area"'+(F.sort==="area"?" selected":"")+'>'+t("sortA")+'</option></select>' }
 function search(){
@@ -5282,7 +5285,7 @@ function search(){
   '<div class="wrap rs-body'+(mapOn?' rs-hasmap':'')+'">'+
    '<div class="rs-main">'+
     '<div class="rs-head"><div class="rs-ttl"><div class="crumb-lite"><a data-go="home">'+t("home")+'</a> › '+t("results")+'</div><h1>'+rsTitle()+'</h1>'+
-     '<div class="rs-sub"><b class="ltr">'+r.length+'</b> '+t("listings")+rsMarket(r)+'</div></div>'+
+     '<div class="rs-sub">'+(countsOn() ? '<b class="ltr">'+r.length+'</b> '+t("listings")+rsMarket(r) : rsMarket(r).replace(/^ · /,""))+'</div></div>'+
      '<div class="rs-tools"><div class="viewtoggle"><button type="button" class="'+(VIEWMODE==="grid"?"on":"")+'" id="vmGrid" title="'+t("gridView")+'">'+ICON_GRID+'<span>'+t("gridView")+'</span></button>'+
       '<button type="button" class="'+(VIEWMODE==="list"?"on":"")+'" id="vmList" title="'+t("listView")+'">'+ICON_LIST+'<span>'+t("listView")+'</span></button></div>'+
       rsSortHtml("sort")+
@@ -7324,12 +7327,12 @@ function areasView(){
   var cards=govs.map(function(g){
     var areas=(D.GEO[g]||[]).slice(); var withL=areas.filter(function(a){ return byA[g+"|"+a] }).sort(function(a,b){ return byA[g+"|"+b]-byA[g+"|"+a] }); var rest=areas.filter(function(a){ return !byA[g+"|"+a] });
     var open=!!ARX.open[g], shownRest=open?rest:rest.slice(0, Math.max(0, 8-withL.length));
-    return '<section class="arx-gov"><div class="arx-head"><h2><a data-arxg="'+esc(g)+'">'+gN(g)+'</a></h2><span class="arx-n'+(byG[g]?' has':'')+'">'+(byG[g]?GX("arxCount").replace("{n}",'<b class="ltr">'+byG[g]+'</b>'):GX("arxNone"))+'</span></div>'+
+    return '<section class="arx-gov"><div class="arx-head"><h2><a data-arxg="'+esc(g)+'">'+gN(g)+'</a></h2><span class="arx-n'+(byG[g]?' has':'')+'">'+(!countsOn()?'':byG[g]?GX("arxCount").replace("{n}",'<b class="ltr">'+byG[g]+'</b>'):GX("arxNone"))+'</span></div>'+
       '<div class="arx-links"><a data-arxg="'+esc(g)+'" data-deal="sale">'+t("forsale")+'</a><a data-arxg="'+esc(g)+'" data-deal="rent">'+t("forrent")+'</a><a data-arxmap="'+esc(g)+'">'+MI.map+GX("arxMap")+'</a></div>'+
-      '<div class="arx-areas">'+withL.map(function(a){ return '<a class="has" data-arxa="'+esc(a)+'" data-g="'+esc(g)+'">'+aN(a)+' <b class="ltr">'+byA[g+"|"+a]+'</b></a>' }).join("")+shownRest.map(function(a){ return '<a data-arxa="'+esc(a)+'" data-g="'+esc(g)+'">'+aN(a)+'</a>' }).join("")+
+      '<div class="arx-areas">'+withL.map(function(a){ return '<a class="has" data-arxa="'+esc(a)+'" data-g="'+esc(g)+'">'+aN(a)+(countsOn()?' <b class="ltr">'+byA[g+"|"+a]+'</b>':'')+'</a>' }).join("")+shownRest.map(function(a){ return '<a data-arxa="'+esc(a)+'" data-g="'+esc(g)+'">'+aN(a)+'</a>' }).join("")+
         (rest.length>shownRest.length?'<button type="button" class="arx-more" data-arxmore="'+esc(g)+'">'+GX("arxMore").replace("{n}",'<span class="ltr">'+(rest.length-shownRest.length)+'</span>')+'</button>':(open&&rest.length>8?'<button type="button" class="arx-more" data-arxmore="'+esc(g)+'">'+GX("arxLess")+'</button>':''))+'</div></section>' }).join("");
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("allAreas")+'</div></div>'+
-   '<div class="wrap arx"><div class="ag-hero"><div><div class="eyebrow">'+GX("allAreas")+'</div><h1>'+GX("arxT")+'</h1><p>'+GX("arxP")+'</p><div class="arx-stats">'+GX("arxStats").replace("{g}",'<b class="ltr">'+govs.length+'</b>').replace("{a}",'<b class="ltr">'+totalAreas+'</b>').replace("{n}",'<b class="ltr">'+live.length+'</b>')+'</div></div><a class="gold" data-go="mapsearch">'+MI.map+t("searchOnMap")+'</a></div>'+
+   '<div class="wrap arx"><div class="ag-hero"><div><div class="eyebrow">'+GX("allAreas")+'</div><h1>'+GX("arxT")+'</h1><p>'+GX("arxP")+'</p><div class="arx-stats">'+GX(countsOn()?"arxStats":"arxStatsNoN").replace("{g}",'<b class="ltr">'+govs.length+'</b>').replace("{a}",'<b class="ltr">'+totalAreas+'</b>').replace("{n}",'<b class="ltr">'+live.length+'</b>')+'</div></div><a class="gold" data-go="mapsearch">'+MI.map+t("searchOnMap")+'</a></div>'+
    '<div class="arx-grid">'+cards+'</div></div>' }
 function wireAreasView(){
   if(VIEW!=="areas") return;
@@ -7808,7 +7811,8 @@ function mapSearchPage(){
     '<a class="rs-save rs-tolist" data-go="search">'+ICON_LIST+'<span>'+GX("rsList")+'</span></a></div>'+rsChipsHtml()+'</div>'+
    '<div class="wrap rs-mapwrap">'+
     '<div class="rs-head rs-maphead"><div class="rs-ttl"><div class="crumb-lite"><a data-go="home">'+t("home")+'</a> › '+t("searchOnMap")+'</div><h1>'+rsTitle()+'</h1>'+
-     '<div class="rs-sub"><b class="ltr">'+matches.length+'</b> '+t("listings")+(withLoc.length<matches.length ? ' · '+GX("rsOnMap").replace("{n}",'<span class="ltr">'+withLoc.length+'</span>') : '')+'</div></div>'+
+     // the map only ever says how many listings are on it, never the site's total
+     '<div class="rs-sub">'+GX("mapPinsN").replace("{n}",'<b class="ltr">'+withLoc.length+'</b>')+'</div></div>'+
      '<div class="rs-tools"><a class="rs-maptg on rs-tolist2" data-go="search">'+ICON_LIST+'<span>'+GX("rsList")+'</span></a></div></div>'+
     '<div style="position:relative">'+
      (matches.length===0 ? '<div class="rs-mapempty"><span>'+t("mapSearchNoMatches")+'</span></div>' : '')+
@@ -8006,6 +8010,7 @@ function stopMapSearch(){
 }
 
 function heroCount(deal){
+  if(!countsOn()) return "";
   var savedDeal=F.deal; F.deal=deal||F.deal;
   var n = D.LIST.filter(function(x){ return passesFilter(x, deal?null:"deal") }).length;
   F.deal=savedDeal;
@@ -8124,7 +8129,7 @@ function wireChipSelects(){
         return sel.indexOf(o.value)===-1 && (!ql || o.label.toLowerCase().indexOf(ql)>-1) });
       var optHtml=function(o,n){
         return '<div class="chipsel-opt" data-cspick="'+id+'" data-csval="'+o.value.replace(/"/g,"&quot;")+'">'+
-               '<span>'+o.label+'</span>'+(n?'<span class="cs-n ltr">'+n+'</span>':'')+'</div>' };
+               '<span>'+o.label+'</span>'+(n&&countsOn()?'<span class="cs-n ltr">'+n+'</span>':'')+'</div>' };
       var html="", shown=0;
       if(id==="csArea"){
         var govs=(F.govs&&F.govs.length) ? F.govs.filter(function(g){return D.GEO[g]}) : Object.keys(D.GEO);
@@ -11611,6 +11616,9 @@ var GX_T={
   byOwner:{ar:"من المالك مباشرة",en:"Direct from owner",de:"Direkt vom Eigentümer"},
   shareL:{ar:"متاح للمشاركة",en:"Open to partnership",de:"Offen für Partnerschaft"}, shareBadge:{ar:"للمشاركة",en:"Partnership",de:"Partnerschaft"},
   shareOnly:{ar:"للمشاركة فقط",en:"Partnership only",de:"Nur Partnerschaft"},
+  mapPinsN:{ar:"{n} إعلان على الخريطة",en:"{n} listings on the map",de:"{n} Anzeigen auf der Karte"}, arxStatsNoN:{ar:"{g} محافظة · {a} منطقة",en:"{g} governorates · {a} areas",de:"{g} Gouvernements · {a} Gebiete"},
+  countsOnL:{ar:"إظهار عدد الإعلانات في الموقع",en:"Show listing counts on the site",de:"Anzahl der Anzeigen zeigen"}, countsOnHint:{ar:"عند الإيقاف لا تظهر أعداد الإعلانات في أي صفحة. الخريطة تعرض فقط عدد الإعلانات الموجودة عليها.",en:"When off, no page shows listing counts. The map only shows how many listings are on it.",de:"Aus: keine Seite zeigt Anzeigenzahlen. Die Karte zeigt nur die Anzeigen darauf."},
+  countsShown:{ar:"أعداد الإعلانات ظاهرة للزوار",en:"Listing counts are shown",de:"Anzeigenzahlen sichtbar"}, countsHidden:{ar:"أعداد الإعلانات مخفية عن الزوار",en:"Listing counts are hidden",de:"Anzeigenzahlen ausgeblendet"},
   shareHint:{ar:"مع متعهد للبناء، أو شريك في الملكية أو الاستثمار. اكتب التفاصيل في الوصف.",en:"With a contractor to build, or a partner in ownership or investment. Put the details in the description.",de:"Mit einem Bauunternehmer oder einem Partner für Eigentum oder Investition. Details in die Beschreibung."},
   lgProp:{ar:"العقار",en:"The property",de:"Das Objekt"}, lgLoc:{ar:"الموقع",en:"Location",de:"Lage"}, lgRent:{ar:"شروط الإيجار",en:"Rental terms",de:"Mietbedingungen"},
   adsH:{ar:"إعلانات مميزة",en:"Featured adverts",de:"Anzeigen"},
