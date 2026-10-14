@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-ndYPpFKVDGss5BZ5wAfTQ+FXG4vqkEgEoVhJL1INY4o=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-hUXjMGwac3XoZX7CoFO21s0WQqB5Fz6tB/sfv+gjwcc=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -544,6 +544,13 @@ html.js .rv.in{opacity:1;transform:none}
 .fl{margin-bottom:10px}
 .fl>label{display:block;font-size:13.5px;font-weight:600;margin-bottom:4px}
 .fl input,.fl select,.fl textarea{width:100%;border:1px solid var(--line-2);border-radius:6px;padding:8px 11px;font-size:14px;font-family:inherit}
+/* post/edit forms: iPhone Safari paints native selects grey and the area search box differently — one white look for every picker */
+.blk .fl select{-webkit-appearance:none;appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat;background-size:16px;background-position:left 12px center;padding-inline-end:36px;color:var(--ink)}
+[dir=ltr] .blk .fl select{background-position:right 12px center}
+.fl .acombo .chipsel-box{height:auto;min-height:40px;border:1px solid var(--line-2);border-radius:6px;padding:0 11px;background:#fff}
+.fl .acombo .chipsel-input{border:0;border-radius:0;padding:8px 0;height:auto;font-size:14px;background:transparent;box-shadow:none}
+.fl .acombo .chev{color:#6B7280;width:16px;height:16px;flex:none}
+@media(max-width:640px){.fl .acombo .chipsel-box{min-height:46px}.fl .acombo .chipsel-input{font-size:16px}}
 .fl textarea{min-height:90px;line-height:1.6}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
@@ -6632,7 +6639,11 @@ function areaCombo(as){
  wrap.appendChild(box); wrap.appendChild(drop);
  as.parentNode.insertBefore(wrap,as);
  var sync=function(){ input.value = as.value ? labelOf(as.value) : "" };
- var pick=function(v){ as.value=v; sync(); drop.classList.remove("on"); input.setAttribute("aria-expanded","false"); as.dispatchEvent(new Event("change",{bubbles:true})) };
+ var pick=function(v){ as.value=v; sync(); drop.classList.remove("on"); input.setAttribute("aria-expanded","false"); try{ input.blur() }catch(e){} as.dispatchEvent(new Event("change",{bubbles:true})) };
+ // phones show the list as a bottom sheet; iPhone's keyboard does not shrink the page, so the sheet would sit behind it
+ var lift=function(){ try{ var vv=window.visualViewport; if(!vv || !drop.classList.contains("on") || !matchMedia("(max-width:640px)").matches){ drop.style.bottom=""; return }
+   var kb=Math.max(0, window.innerHeight-vv.height-vv.offsetTop); drop.style.bottom=kb?kb+"px":""; if(kb) drop.style.maxHeight=Math.max(160, Math.round(vv.height*0.6))+"px" }catch(e){} };
+ if(window.visualViewport){ visualViewport.addEventListener("resize",lift); visualViewport.addEventListener("scroll",lift) }
  var render=function(q){
    var n=kwNorm(q||""), cur=as.value;
    var keep=liveOpts().filter(function(o){ return o.v && (o.v==="__other__" || !n || kwNorm(o.t).indexOf(n)>-1) });
@@ -6641,7 +6652,7 @@ function areaCombo(as){
      : '<div class="chipsel-empty">'+t("noResultsFor")+'</div>';
    $$(".chipsel-opt",drop).forEach(function(el){ el.onclick=function(){ pick(el.dataset.acval) } });
    closeAllMenus(drop); drop.classList.add("on"); input.setAttribute("aria-expanded","true");
-   positionDropUpOrDown(input,drop);
+   positionDropUpOrDown(input,drop); lift();
  };
  drop.onclick=function(ev){ ev.stopPropagation() };
  input.addEventListener("focus",function(){ render("") });
