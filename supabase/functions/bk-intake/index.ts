@@ -951,6 +951,13 @@ function settle(f: Record<string, any>, tax: any, rawText?: string) {
   if (out.tabu && !(tax.deeds || []).some((d: any) => d.code === out.tabu)) delete out.tabu;
   const amenOk = new Set(isLand ? tax.land_amenities : tax.amenities);
   out.amenities = Array.isArray(out.amenities) ? out.amenities.filter((x: string) => amenOk.has(x)) : [];
+  // «للمشاركة» (owner's rule, 2026-10-13): a property offered for partnership (with a contractor to build, or a partner in
+  // ownership or investment) is a sale carrying the site's partnership tag (SHARE_TAG in index.html), so it shows the
+  // «للمشاركة» badge and filter; the sender is never asked "sale or rent?" for it
+  if (rawText && out.intent !== "wanted" && /(للمشارك|للتشارك|بالمشارك|على المشارك|مشاركة مع|للشراكة|بالشراكة|شراكة مع)/.test(rawText)) {
+    if (!out.amenities.includes(SHARE_TAG)) out.amenities.push(SHARE_TAG);
+    if (out.deal !== "rent") out.deal = "sale";
+  }
   if (out.direction && !(tax.directions || []).some((d: any) => d.code === out.direction)) delete out.direction;
   if (out.contact_phone) { out.contact_phone = String(out.contact_phone).replace(/\D/g, ""); if (out.contact_phone.length < 8) delete out.contact_phone; }
   if (typeof out.description === "string") out.description = out.description.replace(/\+?\d[\d\s-]{7,}\d/g, "").trim().slice(0, 1200);
@@ -966,6 +973,8 @@ function settle(f: Record<string, any>, tax: any, rawText?: string) {
   if (!out.area_m2 && !(out.deal === "rent" && ["farm", "chalet"].includes(out.property_type))) missing.push("area_m2");
   return { fields: out, missing };
 }
+const SHARE_TAG = "متاح للمشاركة";   // the partnership tag the site reads (index.html SHARE_TAG); same fixed Arabic text
+const isShareF = (f: any) => Array.isArray(f?.amenities) && f.amenities.includes(SHARE_TAG);
 const MISSING_AR: Record<string, string> = { deal: "هل هو للبيع أم للإيجار", property_type: "نوع العقار (شقة، بيت، أرض…)", governorate: "المحافظة", area: "الحي أو المنطقة", price: "السعر", area_m2: "المساحة بالمتر", tabu: "نوع الطابو", photos: "صورة واحدة على الأقل" };
 const MISSING_EN: Record<string, string> = { deal: "sale or rent", property_type: "property type (apartment, house, land…)", governorate: "governorate", area: "the neighbourhood / area", price: "price", area_m2: "size in m²", tabu: "deed type", photos: "at least one photo" };
 function summary(f: Record<string, any>, tax: any, photos: number, lang: string, videos = 0): string {
@@ -974,7 +983,7 @@ function summary(f: Record<string, any>, tax: any, photos: number, lang: string,
   const cond = t(f.condition, [...(tax.conditions || []), ...(tax.land_conditions || [])]);
   const ar = lang !== "en"; const tt = tx(lang);
   const L: string[] = [ar ? "📋 خلاصة الإعلان" : "📋 Listing summary"];
-  L.push("• " + (ty ? (ar ? ty.ar : ty.en) : (ar ? "عقار" : "Property")) + (Number(f.units) > 1 ? (ar ? ` عدد ${f.units}` : ` × ${f.units}`) : "") + (f.deal ? " " + (f.deal === "rent" ? (ar ? "للإيجار" : "for rent") : (ar ? "للبيع" : "for sale")) : ""));
+  L.push("• " + (ty ? (ar ? ty.ar : ty.en) : (ar ? "عقار" : "Property")) + (Number(f.units) > 1 ? (ar ? ` عدد ${f.units}` : ` × ${f.units}`) : "") + (f.deal ? " " + (f.deal === "rent" ? (ar ? "للإيجار" : "for rent") : isShareF(f) ? (ar ? "للمشاركة" : "for partnership") : (ar ? "للبيع" : "for sale")) : ""));
   const areaShown = f.area || (f.area_text ? f.area_text + (ar ? " (غير موجودة في القائمة بعد)" : " (not in our list yet)") : "");
   const lm = f.landmark && norm(f.landmark) !== norm(f.area_text || "") ? f.landmark : "";
   const place = [f.governorate, areaShown, lm].filter(Boolean).join(" – "); if (place) L.push("• " + place);
@@ -1000,7 +1009,7 @@ function brief(f: Record<string, any>, tax: any, lang: string): string {
   const a = g ? (g.areas || []).find((x: any) => x[0] === f.area_id || x[1] === f.area) : null;
   const gName = g ? (ar ? g.ar : (g.en || g.ar)) : f.governorate, aName = a ? (ar ? a[1] : (a[2] || a[1])) : f.area;
   const parts = [
-    ty ? (ar ? ty.ar : ty.en) + (Number(f.units) > 1 ? (ar ? ` عدد ${f.units}` : ` × ${f.units}`) : "") + (f.deal ? " " + (f.deal === "rent" ? (ar ? "للإيجار" : "for rent") : (ar ? "للبيع" : "for sale")) : "") : "",
+    ty ? (ar ? ty.ar : ty.en) + (Number(f.units) > 1 ? (ar ? ` عدد ${f.units}` : ` × ${f.units}`) : "") + (f.deal ? " " + (f.deal === "rent" ? (ar ? "للإيجار" : "for rent") : isShareF(f) ? (ar ? "للمشاركة" : "for partnership") : (ar ? "للبيع" : "for sale")) : "") : "",
     [gName, aName || (f.area_text ? f.area_text + (ar ? " (غير موجودة في القائمة بعد)" : " (not in our list yet)") : "")].filter(Boolean).join(" – "),
     f.area_m2 ? `${fmtNum(f.area_m2)} ${ar ? "م²" : "m²"}` : "",
     f.rooms ? `${f.rooms} ${ar ? "غرف" : "rooms"}` : "",
