@@ -3588,6 +3588,7 @@ function ikRow(x){
     '<div class="ikmain"><div class="ikhead"><span class="iknum">#'+x.id+'</span><span>'+scopeFlag(x.country_code)+esc(who)+'</span><span class="iksrc">'+src+'</span></div>'+
       '<div class="iksum'+(line.raw?' raw':'')+'" title="'+esc(line.text)+'">'+esc(line.text)+'</div>'+
       '<div class="ikmeta">'+photos.length+' '+GX("ik_photos")+(nVid?' · 🎬 '+nVid:'')+' · '+(x.messages||0)+' '+GX("ik_msgs")+(x.error&&!open?' · <span style="color:var(--danger)">'+esc(String(x.error)).slice(0,60)+'</span>':'')+'</div>'+
+      ikOwnerLine(x,d,selectable)+
       (miss.length&&selectable?'<span class="ikmiss">'+GX("ik_missing")+': '+esc(miss.join("، "))+'</span>':'')+'</div>'+
     '<div class="ikst">'+ikPill(x.status)+(x.listing_ref?' <a class="elink" data-open="'+x.listing_id+'">'+esc(x.listing_ref)+'</a>':'')+'</div>'+
     '<div class="ikwhen"><b class="ltr">'+when(x.created_at)+'</b><span class="ltr">$'+(+x.cost_usd||0).toFixed(3)+'</span></div>'+
@@ -3686,8 +3687,12 @@ function adminIntakeBody(){
   var selIds=Object.keys(ADM.ikSel).filter(function(k){ return ADM.ikSel[k] }), nSel=selIds.length, nVis=Object.keys(visIds).length;
   var bulk='<div class="ikbulk'+(nSel?' on':'')+'">'+
     '<div class="ikb-row"><label class="xcheck"><input type="checkbox" id="ikSelAll"'+(nVis&&nSel===nVis?' checked':'')+'><span>'+GX("ik_selAll")+'</span></label><span><b class="ikb-n ltr">'+nSel+'</b> '+GX("ik_selected")+'</span>'+
-      '<span class="ikb-set"><select id="ikBulkGov"><option value="">'+GX("ik_bulkGov")+'</option>'+Object.keys(D.GEO).map(function(g){ return '<option value="'+esc(g)+'">'+gN(g)+'</option>' }).join("")+'</select><button type="button" class="ab" id="ikBulkGovGo"'+(nSel?'':' disabled')+'>'+GX("ik_apply")+'</button></span>'+
-      '<span class="ikb-set">'+ikOwnerCombo(d,null,"bulk")+'</span></div>'+
+      '</div>'+
+    '<div class="ikb-row"><span class="ikb-lbl">'+GX("ik_bulkSetL")+'</span>'+
+      '<select id="ikBulkGov"><option value="">'+GX("ik_bulkGov")+'</option>'+Object.keys(D.GEO).map(function(g){ return '<option value="'+esc(g)+'">'+gN(g)+'</option>' }).join("")+'</select>'+
+      ikOwnerCombo(d,null,"bulk")+
+      '<button type="button" class="ab ok" id="ikBulkApply" disabled>'+GX("ik_bulkApply")+'</button></div>'+
+    '<div class="hintx" style="margin:0">'+GX("ik_bulkHint")+'</div>'+
     '<div class="ikb-row"><button type="button" class="ab ok" id="ikBulkPubL"'+(nSel?'':' disabled')+'>'+GX("ik_pubLive")+'</button><button type="button" class="ab" id="ikBulkPubP"'+(nSel?'':' disabled')+'>'+GX("ik_pubPending")+'</button><button type="button" class="ab bad" id="ikBulkCancel"'+(nSel?'':' disabled')+'>'+t("cancel")+'</button><span class="xmsg" id="ikBulkMsg"></span></div></div>';
   var drafts='<div class="blk"><h3>'+GX("ik_draftsH")+' <span class="n">'+list.length+'</span></h3><div class="in eng-in">'+
     '<div class="ikfilters">'+filters.map(function(x){ return '<button type="button" class="ab'+(x[0]===f?' on':'')+'" data-ikf-filter="'+x[0]+'">'+x[1]+'</button>' }).join("")+'<button type="button" class="ab" id="ikReload" style="margin-inline-start:auto">'+AICO.refresh+'</button></div>'+
@@ -3736,12 +3741,18 @@ function wireAdminIntake(){
   $$("[data-ikchk]").forEach(function(c){ c.onchange=function(){ ADM.ikSel[this.dataset.ikchk]=this.checked; render() } });
   if($("#ikSelAll")) $("#ikSelAll").onchange=function(){ var on=this.checked; $$("[data-ikchk]").forEach(function(c){ ADM.ikSel[c.dataset.ikchk]=on }); render() };
   var selected=function(){ return Object.keys(ADM.ikSel).filter(function(k){ return ADM.ikSel[k] }) };
-  var runBulk=async function(label, fn){ var ids=selected(), m=$("#ikBulkMsg"), ok=0, bad=[]; if(!ids.length) return;
+  var runBulk=async function(label, fn, keepSel){ var ids=selected(), m=$("#ikBulkMsg"), ok=0, bad=[]; if(!ids.length) return;
     for(var i=0;i<ids.length;i++){ if(m){ m.style.color="var(--grey)"; m.textContent=label+" "+(i+1)+"/"+ids.length } try{ await fn(ids[i]); ok++ }catch(e){ bad.push("#"+ids[i]+": "+(e.message||"error")) } }
-    ADM.ikSel={}; admToast(GX("ik_bulkDone").replace("{n}",ok)+(bad.length?" · "+bad.length+" ✗":""), bad.length?"bad":undefined); if(bad.length) alert(bad.join("\n")); syncAdminTodo(); reload() };
-  if($("#ikBulkGovGo")) $("#ikBulkGovGo").onclick=function(){ var g=$("#ikBulkGov").value; if(!g) return; runBulk(GX("ik_apply"), function(id){ return rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:{fields:{governorate:g,governorate_id:null,area_id:null}}}) }) };
-  // picking an owner in the bulk bar applies it to the selected drafts at once (no extra button)
-  if($("#ikBulkAg")) $("#ikBulkAg").addEventListener("change", function(){ var a=this.value; if(!a) return; if(!Object.keys(ADM.ikSel||{}).some(function(k){ return ADM.ikSel[k] })){ admToast(GX("ik_selectFirst"),"bad"); return } runBulk(GX("ik_apply"), function(id){ return rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:ikOwnerPatch(a)}) }) });
+    if(!keepSel) ADM.ikSel={}; admToast(GX("ik_bulkDone").replace("{n}",ok)+(bad.length?" · "+bad.length+" ✗":""), bad.length?"bad":undefined); if(bad.length) alert(bad.join("\n")); syncAdminTodo(); reload() };
+  // the bulk bar: governorate and/or owner are only picked here; «طبّق على المحدد» writes both to every ticked draft.
+  // The ticks stay, so the next step (publish) can follow at once.
+  var bulkPicks=function(){ return {gov:($("#ikBulkGov")||{}).value||"", ag:($("#ikBulkAg")||{}).value||""} };
+  var bulkSync=function(){ var b=$("#ikBulkApply"), p=bulkPicks(); if(b) b.disabled=!(selected().length && (p.gov||p.ag)) };
+  if($("#ikBulkGov")) $("#ikBulkGov").addEventListener("change", bulkSync);
+  if($("#ikBulkAg")) $("#ikBulkAg").addEventListener("change", bulkSync);
+  var bulkInput=$('[data-ikownq="bulk"]'); if(bulkInput) bulkInput.addEventListener("input", function(){ setTimeout(bulkSync,0) });
+  if($("#ikBulkApply")) $("#ikBulkApply").onclick=function(){ var p=bulkPicks(); if(!p.gov && !p.ag) return; if(!selected().length){ admToast(GX("ik_selectFirst"),"bad"); return }
+    runBulk(GX("ik_apply"), function(id){ var patch={}; if(p.ag) Object.assign(patch, ikOwnerPatch(p.ag)); if(p.gov) patch.fields={governorate:p.gov,governorate_id:null,area_id:null}; return rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:patch}) }, true) };
   var ikErr=function(code){ code=String(code||"error"); var k=code.replace(/^.*?:\s*/,""); return GX("ik_e_"+k)!=="ik_e_"+k?GX("ik_e_"+k):code };
   // an agency / governorate picked in the bar but not yet applied is applied on the way to publishing (no separate "apply" click needed)
   var bulkPub=function(status){ return function(){ if(!confirm(GX("ik_bulkPubQ").replace("{n}",selected().length))) return;
@@ -4200,6 +4211,14 @@ function ikOwnerList(d){
     .concat(rest.filter(function(u){ return u.account_type==="agency" }).map(urow(GX("ik_grpAgencies"))))
     .concat(rest.filter(function(u){ return u.account_type==="broker" }).map(urow(GX("ik_grpBrokers"))))
     .concat(rest.filter(function(u){ return u.account_type!=="agency"&&u.account_type!=="broker" }).map(urow(GX("ik_grpMembers"))));
+}
+// who the listing is (or was) published under — the sender is not always the owner, so it gets its own line
+function ikOwnerLine(x,d,open){
+  var v = x.agency_id ? "a:"+x.agency_id : (x.user_id ? "u:"+x.user_id : "");
+  var hit = v ? ikOwnerList(d).filter(function(r){ return r.v===v })[0] : null;
+  var label = hit ? hit.label : (x.agency_id && x.agency_name ? x.agency_name : "");
+  if(!v) return open ? '<span class="ikown-l none">'+GX("ik_ownerUnset")+'</span>' : '';
+  return '<span class="ikown-l">'+GX(open?"ik_ownerIs":"ik_ownerWas")+' <b>'+esc(label||GX("ik_ownerMember"))+'</b></span>';
 }
 function ikOwnerCombo(d,x,key){
   var cur = x ? (x.agency_id ? "a:"+x.agency_id : (x.user_id ? "u:"+x.user_id : "")) : "";
