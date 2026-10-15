@@ -319,6 +319,8 @@ const T = {
     undoNone: `لا يوجد إعلان ملغى حديثاً لاستعادته. أرسل تفاصيل العقار من جديد.`,
     expiredPrev: (title: string) => `ملاحظة: إعلانك السابق${title ? " («" + title + "»)" : ""} لم يُنشر وأُغلق بعد يوم من دون رد.\nاكتب «رجّع» إن أردت إكماله، وإلا أكمل هذا الإعلان الجديد.`,
     attached: (ref: string) => `أُضيفت الصورة إلى إعلانك المنشور (${ltr(ref)}) ✅`,
+    located: (ref: string) => `📍 تم تثبيت موقع إعلانك (${ltr(ref)}) على خريطة بلكون ✅`,
+    locGot: `📍 وصل الموقع، وسيظهر إعلانك في هذه النقطة على خريطة بلكون.`,
     attachedReview: `أُضيفت الصورة إلى الإعلان الذي ينتظر في اللوحة ✅`,
     photosStill: (n: number, list: string) => `وصلت الصور (${n}) ✅ بقي قبل النشر: ${list}.`,
     multi: (n: number) => `لاحظت أكثر من عقار في الرسالة (${n})؛ قرأت الأول فقط. بعد نشره أرسل كل عقار برسالة منفصلة مع صوره.\n\n`,
@@ -413,6 +415,8 @@ const T = {
     undoNone: `There is no recently cancelled listing to restore. Send the property details again.`,
     expiredPrev: (title: string) => `Note: your previous listing${title ? " (" + title + ")" : ""} was not published and was closed after a day without a reply.\nWrite "undo" to continue it, otherwise carry on with this new one.`,
     attached: (ref: string) => `Photo added to your published listing (${ltr(ref)}) ✅`,
+    located: (ref: string) => `📍 Your listing (${ltr(ref)}) is now pinned on the Balkoun map ✅`,
+    locGot: `📍 Location received — your listing will show at this spot on the Balkoun map.`,
     attachedReview: `Photo added to the listing waiting in the panel ✅`,
     photosStill: (n: number, list: string) => `Photos received (${n}) ✅ Still needed before publishing: ${list}.`,
     multi: (n: number) => `I noticed more than one property in the message (${n}); I read the first only. After it is published, send each property in a separate message with its photos.\n\n`,
@@ -1726,6 +1730,33 @@ async function verifyContact(chat: string, contact: any, from: any, lang: string
     else await say(t.linkNone);
   }
 }
+// ── map links (2026-10-15): a Google Maps link (long, or the short maps.app.goo.gl one) or a geo: link gives the pin ──
+const MAP_URL_RE = /(?:https?:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps|(?:www\.)?google\.[a-z.]{2,6}\/maps|maps\.google\.[a-z.]{2,6})[^\s]*|geo:-?\d[^\s]*)/gi;
+function safeDecode(u: string): string { try { return decodeURIComponent(u); } catch { return u; } }
+function coordsFromUrl(u: string): { lat: number; lng: number } | null {
+  const tries = [/!3d(-?\d{1,2}\.\d+)!4d(-?\d{1,3}\.\d+)/, /[?&](?:q|query|ll|destination|daddr|center)=(-?\d{1,2}\.\d+)\s*,\s*\+?(-?\d{1,3}\.\d+)/i,
+    /@(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/, /^geo:(-?\d{1,2}\.\d+),(-?\d{1,3}\.\d+)/i, /\/(?:search|place|dir)\/(-?\d{1,2}\.\d+)\s*,\s*\+?(-?\d{1,3}\.\d+)/i];
+  for (const re of tries) {
+    const m = u.match(re); if (!m) continue;
+    const lat = +m[1], lng = +m[2];
+    if (isFinite(lat) && isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 && !(lat === 0 && lng === 0)) return { lat, lng };
+  }
+  return null;
+}
+async function mapLinkCoords(text: string): Promise<{ lat: number; lng: number } | null> {
+  for (const raw of (text.match(MAP_URL_RE) || []).slice(0, 2)) {
+    let u = raw.replace(/[)\].,،؛!]+$/, "");
+    let c = coordsFromUrl(safeDecode(u)); if (c) return c;
+    if (!/maps\.app\.goo\.gl|goo\.gl\/maps/i.test(u)) continue;
+    for (let i = 0; i < 5; i++) {   // the short link only says where it goes: follow the redirects (no page is loaded)
+      let r: Response; try { r = await fetch(u, { redirect: "manual", signal: AbortSignal.timeout(5000) }); } catch { break; }
+      const loc = r.headers.get("location"); try { await r.body?.cancel(); } catch { /* nothing to read */ }
+      if (!loc) break;
+      u = new URL(loc, u).toString(); c = coordsFromUrl(safeDecode(safeDecode(u))); if (c) return c;
+    }
+  }
+  return null;
+}
 async function handleIncoming(m: Incoming) {
   const c = await cfg();
   const t = tx(c.intake_reply_lang === "en" ? "en" : "ar");
@@ -1752,6 +1783,16 @@ async function handleIncoming(m: Incoming) {
     if ((m.text || "").trim().length >= 10) { m.kind = "text"; m.media = null; m.fetchMedia = undefined; m.size = undefined; }
     else return;
   }
+  // a map link: a message that is only the link becomes a location pin; a link inside listing text keeps the text and
+  // the pin is added to the same draft right after it
+  let extraLoc: { lat: number; lng: number } | null = null;
+  if (m.kind === "text" && m.text && /(goo\.gl|google\.|geo:)/i.test(m.text)) {
+    const ll = await mapLinkCoords(m.text).catch(() => null);
+    if (ll) {
+      const rest = m.text.replace(MAP_URL_RE, " ").replace(/\s+/g, " ").trim();
+      if (rest.length < 3) { m.kind = "location"; m.media = ll; m.text = null; } else extraLoc = ll;
+    }
+  }
   // small talk: greetings, "how do I reach you", thanks — answered like a person, nothing stored
   if (m.kind === "text" && m.text && m.text.trim().length <= 60) {
     const a = latinDigits(m.text).trim().replace(/[.!؟?،,]+$/, "").toLowerCase();
@@ -1771,6 +1812,10 @@ async function handleIncoming(m: Incoming) {
 
   const r = await rpc<any>("bk_intake_message", { p_source: m.source, p_external_id: m.externalId, p_chat_id: m.chat, p_kind: m.kind, p_text: m.text, p_media: m.media, p_payload: m.payload, p_sender_name: m.senderName, p_country: null });
   if (!r || r.duplicate) return;
+  if (extraLoc && r.draft_id && !r.command && !r.attach_listing && !r.reason) {
+    try { await rpc("bk_intake_message", { p_source: m.source, p_external_id: m.externalId + ":loc", p_chat_id: m.chat, p_kind: "location", p_text: null, p_media: extraLoc, p_payload: m.payload, p_sender_name: m.senderName, p_country: null }); }
+    catch (e) { await log(r.draft_id, m.chat, "warn", "location_link_failed", { error: errStr(e) }); }
+  }
   const lang = r.sender?.lang === "en" ? "en" : (c.intake_reply_lang === "en" ? "en" : "ar"); const tt = tx(lang);
   if (r.reason === "unknown") {
     if (!r.replied_recently) {
@@ -1801,6 +1846,7 @@ async function handleIncoming(m: Incoming) {
   if (r.command === "listing_menu") { const cc = String(r.country_code || r.sender?.country_code || "SY").toLowerCase(); await reply(m.source, m.chat, tt.listingMenu(r.ref || "", SITE + (cc === "sy" ? "" : "/" + cc) + "/listing/" + r.listing_id)); return; }
   if (r.command === "listing_edit_ask") { await reply(m.source, m.chat, tt.listingEditAsk(r.ref || "")); return; }
   if (r.command === "listing_add_ask") { await reply(m.source, m.chat, tt.listingAddAsk(r.ref || "")); return; }
+  if (r.command === "listing_located") { await reply(m.source, m.chat, tt.located(r.ref || "")); return; }
   if (r.command === "listing_closed") { await reply(m.source, m.chat, tt.listingClosed); return; }
   if (r.command === "listing_notfound") { await reply(m.source, m.chat, tt.listingNotFound(r.ref || "")); return; }
   // a correction inside an opened listing's edit session
@@ -1894,6 +1940,7 @@ async function handleIncoming(m: Incoming) {
       }
     }
   }
+  if (m.kind === "location" && r.draft_id) { await reply(m.source, m.chat, tt.locGot); return; }
   // a photo for the listing that just went to the panel for review: stored above; one short acknowledgement
   if (r.attach_review) { if ((m.kind === "photo" || m.kind === "video") && !r.replied_recently) await reply(m.source, m.chat, tt.attachedReview); return; }
   if (r.command_after) { await runCommandAfterPhoto(m, r, tt); return; }
@@ -2045,7 +2092,16 @@ async function routeWahaIncoming(req: Request): Promise<Response> {
   if (p.hasMedia && p.media?.url && /^image\//.test(mime)) { kind = "photo"; media = { url: p.media.url, mime }; fetchMedia = () => wahaDownloadMedia(p.media.url); }
   else if (p.hasMedia && p.media?.url && /^video\//.test(mime)) { kind = "video"; const tb = typeof p._data?.body === "string" && p._data.body.length > 200 && /^[A-Za-z0-9+/=\s]+$/.test(p._data.body.slice(0, 400)) ? p._data.body : null; media = { url: p.media.url, mime, thumb_b64: tb }; fetchMedia = () => wahaDownloadMedia(p.media.url, 100 * 1024 * 1024); }
   else if (p.hasMedia) kind = "video";   // any other WAHA media (audio/document) — not read; without fetchMedia it only gets the "not supported" note
-  const text = p.body ?? null;
+  let text: string | null = p.body ?? null;
+  // a location pin: WAHA puts the map's thumbnail (base64 JPEG) in the body — the coordinates are what count
+  const wLat = Number(p.location?.latitude ?? p._data?.lat ?? p._data?.message?.locationMessage?.degreesLatitude);
+  const wLng = Number(p.location?.longitude ?? p._data?.lng ?? p._data?.message?.locationMessage?.degreesLongitude);
+  if (p._data?.type === "location" || p.location || (isFinite(wLat) && isFinite(wLng) && (wLat !== 0 || wLng !== 0))) {
+    if (isFinite(wLat) && isFinite(wLng) && Math.abs(wLat) <= 90 && Math.abs(wLng) <= 180) { kind = "location"; media = { lat: wLat, lng: wLng }; text = null; fetchMedia = undefined; }
+    else { await log(null, "waha:" + from, "warn", "waha_location_nocoords", { keys: Object.keys(p).slice(0, 20) }); return json({ ok: true }); }
+  }
+  // any other base64 image blob in a body is never listing text
+  if (kind === "text" && text && text.length > 200 && /^(\/9j\/|iVBORw0KGgo)[A-Za-z0-9+/=]+$/.test(text.slice(0, 400))) { await log(null, "waha:" + from, "warn", "waha_blob_dropped", { len: text.length }); return json({ ok: true }); }
   if (kind === "text" && !text) return json({ ok: true });
   const work = handleIncoming({ source: "whatsapp", chat, externalId: String(p.id || (chat + ":" + p.timestamp)), kind, text, media, payload: { waha: true, timestamp: p.timestamp }, senderName: p.notifyName || p._data?.notifyName || "", lang: "ar", fetchMedia });
   background(work); background(work.then(() => notifyFlush()));

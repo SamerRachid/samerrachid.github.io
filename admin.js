@@ -3587,7 +3587,9 @@ function ikRow(x){
     '<div class="ikpic">'+cover+'</div>'+
     '<div class="ikmain"><div class="ikhead"><span class="iknum">#'+x.id+'</span><span>'+scopeFlag(x.country_code)+esc(who)+'</span><span class="iksrc">'+src+'</span></div>'+
       '<div class="iksum'+(line.raw?' raw':'')+'" title="'+esc(line.text)+'">'+esc(line.text)+'</div>'+
-      '<div class="ikmeta">'+photos.length+' '+GX("ik_photos")+(nVid?' · 🎬 '+nVid:'')+' · '+(x.messages||0)+' '+GX("ik_msgs")+(x.error&&!open?' · <span style="color:var(--danger)">'+esc(String(x.error)).slice(0,60)+'</span>':'')+'</div>'+
+      '<div class="ikmeta">'+photos.length+' '+GX("ik_photos")+(nVid?' · 🎬 '+nVid:'')+' · '+(x.messages||0)+' '+GX("ik_msgs")+
+        // a location pin the sender shared (or a map link): the listing is placed there at publish — one click to check it
+        (x.fields&&x.fields.lat!=null&&x.fields.lng!=null&&isFinite(+x.fields.lat)&&isFinite(+x.fields.lng)?' · <a class="elink" href="https://www.google.com/maps?q='+(+x.fields.lat)+','+(+x.fields.lng)+'" target="_blank" rel="noopener">📍 '+GX("ik_hasPin")+'</a>':'')+(x.error&&!open?' · <span style="color:var(--danger)">'+esc(String(x.error)).slice(0,60)+'</span>':'')+'</div>'+
       ikOwnerLine(x,d,selectable)+
       (miss.length&&selectable?'<span class="ikmiss">'+GX("ik_missing")+': '+esc(miss.join("، "))+'</span>':'')+'</div>'+
     '<div class="ikst">'+ikPill(x.status)+(x.listing_ref?' <a class="elink" data-open="'+x.listing_id+'">'+esc(x.listing_ref)+'</a>':'')+'</div>'+

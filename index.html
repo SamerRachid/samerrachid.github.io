@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-BVav1oF7HKXmFxFzLn5aGuV53B76SA+NhUcsqwFYc7I=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-AjS0GBGp4WNYSDeqRqyWifKY1ha5uo+YH9CQYjAlvS4=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -5759,8 +5759,8 @@ function post(){
   '<div class="hintx">'+t("landmarkH")+'</div></div></div></div>'+
  '<div class="blk"><h3><span class="n">3</span>'+t("p3")+'</h3><div class="in"><div class="row3">'+
   '<div class="fl"><label class="req">'+t("areaM")+'</label><input type="number" id="pm2" autocomplete="off" placeholder=""></div>'+
-  '<div class="fl homes-f"><label class="req">'+t("kRooms")+'</label><input type="number" id="pr" autocomplete="off"></div>'+
-  '<div class="fl homes-f"><label class="req">'+t("kBaths")+'</label><input type="number" id="pb" autocomplete="off"></div>'+
+  '<div class="fl homes-f"><label>'+t("kRooms")+'</label><input type="number" id="pr" autocomplete="off"></div>'+
+  '<div class="fl homes-f"><label>'+t("kBaths")+'</label><input type="number" id="pb" autocomplete="off"></div>'+
   '<div class="fl livingroom-f" style="display:none"><label>'+t("kLiving")+'</label><input type="number" id="pLiving" autocomplete="off"></div></div>'+
   '<div class="row3"><div class="fl"><label>'+t("kFloor")+'</label><select id="pfl">'+
    '<option value="">—</option>'+[-1,0].concat(Array.apply(null,{length:20}).map(function(_,n){return n+1}))
@@ -5781,7 +5781,7 @@ function post(){
    '<div class="fl"><label>'+t("depositL")+' USD</label><input type="number" id="pDep" autocomplete="off"></div></div>'+
    '<div class="fl"><div class="chkgrid">'+
    '<label><input type="checkbox" id="pBills"> '+t("billsL")+'</label></div></div></div>'+
-  '<div class="fl"><label class="req">'+t("cond")+'</label>'+
+  '<div class="fl"><label>'+t("cond")+'</label>'+
    '<div class="pick homes-c" id="pcond">'+pk(D.COND,"cd2")+'</div>'+
    '<div class="pick land-c" id="pcondL" style="display:none">'+pk(D.LANDC,"cd2")+'</div>'+
    '<div class="hintx">'+t("condH")+'</div></div>'+
@@ -6688,9 +6688,8 @@ function checkPost(){
  if(!v("pm2"))need.push(t("areaM"));
  var isLand = secOf(v("ptype"))==="land", isHomes = secOf(v("ptype"))==="homes";
  var isRent = ($('input[name=dl]:checked')||{}).value==="rent";
- if(isHomes && !v("pr"))need.push(t("kRooms"));   // rooms and baths are a home's facts; a shop, office or warehouse publishes without them
- if(isHomes && !v("pb"))need.push(t("kBaths"));
- if(!$('input[name=cd2]:checked'))need.push(t("cond"));
+ // rooms, baths and condition are optional on the site (owner, 2026-10-15); a missing condition is published as the
+ // bot does it: «سليم» for a home or shop, «فارغة» for land
  // the deed and the price are optional (2026-10-02): a listing without them publishes with "السعر عند التواصل" and no deed pill
  if(v("pd").trim().length<30)need.push(t("descL"));
  var needPh = 0;   // photos and videos are optional (listings with photos get more views; the hint says so)
@@ -8902,7 +8901,7 @@ function wire(){
      $$(".homes-c").forEach(function(e){e.style.display=isLand?"none":""});
      $$(".land-c").forEach(function(e){e.style.display=isLand?"":"none"});
      $$(".homes-f").forEach(function(e){e.style.display=isLand?"none":""});
-     var isHomesT=secOf(ptypeVal)==="homes"; $$(".homes-f label").forEach(function(l){ l.classList.toggle("req",isHomesT) });   // the red star only where the count is required
+     // rooms and baths are optional since 2026-10-15 (owner): no red star on them for any type
      var LIVING_ROOM_TYPES=["apartment","terrace","arab","villa"];
      var showLiving = LIVING_ROOM_TYPES.indexOf(ptypeVal)>-1;
      $$(".livingroom-f").forEach(function(e){e.style.display=showLiving?"":"none"});
@@ -9892,7 +9891,8 @@ async function savePost(){
       tabu: ($('input[name=dl]:checked')||{}).value==="rent"
               ? null
               : (($('input[name=tb2]:checked')||{}).value||null),
-      condition: $('input[name=cd2]:checked').value,
+      condition: (function(){ var c=($('input[name=cd2]:checked')||{}).value||"", land=sec==="land";
+        return (land ? D.LANDC[c] : D.COND[c]) ? c : (land ? "empty" : "intact") })(),
       description: val("pd"),
       contact_phone: (function(){
         var d=val("ptel").replace(/\D/g,"");
@@ -11817,6 +11817,7 @@ var GX_T={
   ik_bulkSetL:{ar:"عيّن للمحدد:",en:"Set for selected:",de:"Für Auswahl setzen:"}, ik_bulkApply:{ar:"طبّق على المحدد",en:"Apply to selected",de:"Auf Auswahl anwenden"},
   ik_bulkHint:{ar:"حدّد المسوّدات، اختر المحافظة أو صاحب الإعلان أو الاثنين، ثم «طبّق على المحدد». يظهر صاحب الإعلان تحت كل مسودة، ويبقى التحديد لتنشر بعدها مباشرة.",en:"Tick drafts, pick a governorate and/or an owner, then «Apply to selected». The owner shows under each draft, and the ticks stay so you can publish next.",de:"Entwürfe ankreuzen, Gouvernement und/oder Inhaber wählen, dann «Auf Auswahl anwenden». Der Inhaber steht unter jedem Entwurf; die Auswahl bleibt für das Veröffentlichen."},
   ik_ownerIs:{ar:"سيُنشر باسم:",en:"Will be published as:",de:"Wird veröffentlicht als:"}, ik_ownerWas:{ar:"نُشر باسم:",en:"Published as:",de:"Veröffentlicht als:"},
+  ik_hasPin:{ar:"موقع على الخريطة",en:"map pin",de:"Kartenpunkt"},
   ik_ownerUnset:{ar:"لم يُحدَّد صاحب الإعلان بعد",en:"No owner set yet",de:"Noch kein Inhaber"}, ik_ownerMember:{ar:"عضو",en:"member",de:"Mitglied"}, ik_selected:{ar:"محدد",en:"selected",de:"ausgewählt"}, ik_bulkGov:{ar:"المحافظة للمحدد…",en:"Governorate for selected…",de:"Gouvernement für Auswahl…"}, ik_apply:{ar:"طبّق",en:"Apply",de:"Anwenden"},
   ik_bulkDone:{ar:"تم على {n} مسودة",en:"Done on {n} draft(s)",de:"Erledigt für {n} Entwürfe"}, ik_publishing:{ar:"جارٍ النشر",en:"Publishing",de:"Veröffentliche"}, ik_bulkPubQ:{ar:"نشر {n} مسودة؟ ما ينقصه بيان يُرفض ويظهر في القائمة.",en:"Publish {n} drafts? Any that lacks a required field is refused and listed.",de:"{n} Entwürfe veröffentlichen? Unvollständige werden abgelehnt und aufgelistet."}, ik_bulkCancelQ:{ar:"إلغاء {n} مسودة؟",en:"Cancel {n} drafts?",de:"{n} Entwürfe abbrechen?"},
   ik_missing:{ar:"ناقص",en:"Missing",de:"Fehlt"}, ik_m_deal:{ar:"بيع/إيجار",en:"sale/rent",de:"Kauf/Miete"}, ik_m_property_type:{ar:"النوع",en:"type",de:"Art"}, ik_m_governorate:{ar:"المحافظة",en:"governorate",de:"Gouvernement"}, ik_m_area:{ar:"المنطقة",en:"area",de:"Gebiet"}, ik_m_price:{ar:"السعر",en:"price",de:"Preis"}, ik_m_area_m2:{ar:"المساحة",en:"size",de:"Fläche"}, ik_m_tabu:{ar:"الطابو",en:"deed",de:"Grundbuch"}, ik_m_photos:{ar:"صورة",en:"photo",de:"Foto"},
