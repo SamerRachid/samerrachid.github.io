@@ -3208,7 +3208,10 @@ function admSectionize(){
   nav.innerHTML=blks.map(function(b,i){ var tt=titleOf(b.firstElementChild); return tt?'<button type="button" data-sec="'+i+'">'+esc(tt)+'</button>':'' }).join("")+'<button type="button" class="asec-top" data-top="1" title="'+esc(GX("secTop"))+'">↑</button>';
   // the bar sits right above the first card, below the page header, the country bar and any sub-tabs
   blks[0].insertAdjacentElement("beforebegin",nav);
-  nav.onclick=function(e){ if(e.target.closest("[data-top]")){ window.scrollTo({top:0,behavior:"smooth"}); return } var btn=e.target.closest("[data-sec]"); if(!btn) return; var b=blks[+btn.dataset.sec]; if(!b) return; b.classList.remove("folded"); var y=b.getBoundingClientRect().top+window.scrollY-118; window.scrollTo({top:y,behavior:"smooth"}) };
+  nav.onclick=function(e){ if(e.target.closest("[data-top]")){ window.scrollTo({top:0,behavior:"smooth"}); return } var btn=e.target.closest("[data-sec]"); if(!btn) return; var b=blks[+btn.dataset.sec]; if(!b) return; b.classList.remove("folded");
+    // remembered like a click on the card's own title — otherwise the next re-render (any click inside the card) folded it again
+    folds[+btn.dataset.sec]=0; try{ localStorage.setItem(key,JSON.stringify(folds)) }catch(x){}
+    var y=b.getBoundingClientRect().top+window.scrollY-118; window.scrollTo({top:y,behavior:"smooth"}) };
   // scroll-spy: the bar highlights the card currently on screen
   if("IntersectionObserver" in window){ var btns=nav.querySelectorAll("[data-sec]"), vis={};
     var io=new IntersectionObserver(function(es){ es.forEach(function(x){ vis[blks.indexOf(x.target)]=x.isIntersecting }); var first=blks.findIndex(function(b,i){ return vis[i] }); btns.forEach(function(bt){ bt.classList.toggle("on",+bt.dataset.sec===first) }) },{rootMargin:"-120px 0px -55% 0px",threshold:0});
