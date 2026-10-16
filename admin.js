@@ -829,7 +829,7 @@ function adminWantedBody(){
   if(!list.length) return '<div class="blk"><div class="in adashempty">'+GX("wNone")+'</div></div>';
   var pend=list.filter(function(w){ return w.status==="pending" }).length;
   return '<div class="blk"><h3>'+GX("tWanted")+(pend?' <span class="n">'+pend+'</span>':'')+'</h3><div class="in eng-in"><div class="elist">'+list.map(function(w){
-    return '<div class="erow wrow"><div class="pjtitle">'+avatar(w.user_avatar,w.user_name,40,"aglogo")+'<div><b>'+scopeFlag(w.country_code)+wTitle(w)+'</b><small>'+esc(w.user_name||"")+' · <span class="ltr">'+esc(w.user_phone||"")+'</span></small></div></div>'+
+    return '<div class="erow wrow"><div class="pjtitle">'+avatar(w.user_avatar,w.user_name,40,"aglogo")+'<div><b>'+scopeFlag(w.country_code)+wTitle(w)+'</b><small>'+(w.ref?'<span class="ltr" style="font-weight:700">'+esc(w.ref)+'</span> · ':'')+esc(w.user_name||"")+' · <span class="ltr">'+esc(w.user_phone||"")+'</span></small></div></div>'+
       '<div class="ewho">'+(w.deal==="rent"?GX("wRent"):GX("wBuy"))+' · '+(w.gov_name?gN(w.gov_name):GX("wAnywhere"))+'<small>'+(w.area_names||[]).map(aN).join("، ")+'</small></div>'+
       '<div class="eclient">'+wBudgetText(w)+'<small>'+[wTypesText(w),w.rooms_min?GX("wRoomsN").replace("{n}",w.rooms_min):""].filter(Boolean).join(" · ")+'</small></div>'+
       '<div class="eperiod"><span class="ltr">'+String(w.created_at||"").slice(0,10)+'</span><small>'+GX("wViews").replace("{n}",'<span class="ltr">'+(w.views||0)+'</span>')+'</small></div>'+
