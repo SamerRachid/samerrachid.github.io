@@ -882,7 +882,9 @@ function adminWantedBody(){
       '<div class="est">'+wStatusPill(w.status,w.expired)+(w.featured?' <span class="vbadge">★</span>':'')+'</div>'+
       '<div class="eacts">'+(w.status!=="open"?'<button type="button" class="ab ok" data-wadm="'+w.id+':open">'+(w.status==="pending"?GX("agApprove"):GX("wOpenBtn"))+'</button>':'')+(w.status==="open"?'<button type="button" class="ab" data-wadm="'+w.id+':hidden">'+GX("agHide")+'</button>':'')+
         (w.status==="pending"?'<button type="button" class="ab bad" data-wadm="'+w.id+':rejected">'+GX("agReject")+'</button>':'')+'<button type="button" class="ab" data-wfeat="'+w.id+':'+(w.featured?"0":"1")+'">'+(w.featured?GX("wUnfeature"):GX("wFeature"))+'</button>'+
-        (w.status==="open"?'<a class="ab" href="/wanted/'+w.id+'" target="_blank" rel="noopener">'+GX("agView")+'</a>':'')+'<button type="button" class="ab" data-wadedit="'+w.id+'">'+t("edit")+'</button><button type="button" class="ab bad" data-wadel="'+w.id+'">'+t("del")+'</button></div></div>' }).join("")+'</div></div></div>' }
+        (w.status==="open"?'<a class="ab" href="/wanted/'+w.id+'" target="_blank" rel="noopener">'+GX("agView")+'</a>':'')+'<button type="button" class="ab" data-wadedit="'+w.id+'">'+t("edit")+'</button>'+
+        (w.status==="open"?'<button type="button" class="ab" data-wasend="'+w.id+':seeker">'+GX("wSendSeeker")+'</button><button type="button" class="ab" data-wasend="'+w.id+':owners">'+GX("wSendOwners")+'</button>':'')+
+        '<button type="button" class="ab bad" data-wadel="'+w.id+'">'+t("del")+'</button></div></div>' }).join("")+'</div></div></div>' }
 function adminProjectsBody(){
   var list=ADM_PJ, ed=ADM.pjEdit;
   var editor = ed ? adminProjectEditor(ed) : '';
@@ -1568,6 +1570,17 @@ function wireAdmin(){
     if(!ADM._wLoaded){ ADM._wLoaded=true; rpcScoped("bk_admin_wanted",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM_W=r||[]; render() }).catch(function(e){ ADM_W=[]; render() }) }
     $$("[data-wadm]").forEach(function(b){ b.onclick=async function(){ var q=this.dataset.wadm.split(":"); if(q[1]==="rejected" && !confirm(GX("confirmReject"))) return; try{ await rpc("bk_admin_wanted_set",{p_token:ADM.token,p_id:+q[0],p_status:q[1]}); ADM._wLoaded=false; WANTED=null; syncAdminTodo(); render() }catch(e){ alert(e.message||"error") } } });
     $$("[data-wfeat]").forEach(function(b){ b.onclick=async function(){ var q=this.dataset.wfeat.split(":"); try{ await rpc("bk_admin_wanted_set",{p_token:ADM.token,p_id:+q[0],p_featured:q[1]==="1"}); ADM._wLoaded=false; WANTED=null; render() }catch(e){ alert(e.message||"error") } } });
+    // send by hand: the matches to the requester, or the request to the owners of the matching listings — a count first, then a confirm
+    $$("[data-wasend]").forEach(function(b){ b.onclick=async function(){ var q=this.dataset.wasend.split(":"), id=+q[0], who=q[1], btn=this;
+      btn.disabled=true;
+      try{ var p=await rpc("bk_admin_wanted_send",{p_token:ADM.token,p_id:id,p_who:"preview"});
+        if(!p||!p.matches){ admToast(GX("wSendNone"),"bad"); btn.disabled=false; return }
+        var q2 = who==="seeker" ? (p.seeker_reachable ? GX("wSendSeekerQ").replace("{n}",p.matches) : GX("wSendNoContact"))
+                                : GX("wSendOwnersQ").replace("{n}",p.matches).replace("{o}",p.owners).replace("{r}",p.owners_reachable);
+        if((who==="seeker"&&!p.seeker_reachable) || !confirm(q2)){ if(who==="seeker"&&!p.seeker_reachable) alert(q2); btn.disabled=false; return }
+        var r=await rpc("bk_admin_wanted_send",{p_token:ADM.token,p_id:id,p_who:who});
+        admToast(GX("wSendDone").replace("{n}",(r&&r.sent)||0)); btn.disabled=false }
+      catch(e){ btn.disabled=false; admToast(e.message||"error","bad") } } });
     $$("[data-wadedit]").forEach(function(b){ b.onclick=function(){ var w=(ADM_W||[]).filter(function(x){ return String(x.id)===b.dataset.wadedit })[0]; if(w) admWantedEdit(w) } });
     $$("[data-wadel]").forEach(function(b){ b.onclick=async function(){ if(!confirm(GX("wDelConfirm"))) return; try{ await rpc("bk_admin_wanted_delete",{p_token:ADM.token,p_id:+this.dataset.wadel}); ADM._wLoaded=false; WANTED=null; render() }catch(e){ alert(e.message||"error") } } });
   }
