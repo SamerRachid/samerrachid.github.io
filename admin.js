@@ -837,9 +837,10 @@ function admWantedEdit(w){
   ov.innerHTML='<div class="admdm admdm-wide"><div class="admdm-h"><b>'+GX("wFormEditT")+(w.ref?' · <span class="ltr">'+esc(w.ref)+'</span>':'')+'</b><button type="button" class="admdm-x" aria-label="×">×</button></div><div class="admdm-b">'+
     '<div class="row">'+fl(GX("f_wDeal"),'<select id="awDeal"><option value="sale"'+(w.deal!=="rent"?" selected":"")+'>'+GX("wBuyOpt")+'</option><option value="rent"'+(w.deal==="rent"?" selected":"")+'>'+GX("wRentOpt")+'</option></select>')+
       fl(t("gov")+' *','<select id="awGov"><option value="">'+GX("wPickGov")+'</option>'+Object.keys(D.GEO).map(function(g){ return '<option value="'+esc(g)+'"'+(w.gov_name===g?" selected":"")+'>'+gN(g)+'</option>' }).join("")+'</select>')+'</div>'+
-    fl(t("ptype"),'<div class="chkgrid">'+typeKeys.map(function(k){ return '<label><input type="checkbox" class="awType" value="'+esc(k)+'"'+(types0.indexOf(k)>-1?" checked":"")+'> '+esc(wTypeName(k)||k)+'</label>' }).join("")+'</div>')+
-    fl(GX("f_wAreas"),'<div class="hintx" style="margin:0 0 6px">'+GX("wAreasHint")+'</div><div id="awPicked" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px"></div>'+
-      '<input id="awAreaQ" placeholder="'+esc(GX("wAreaSearch"))+'" autocomplete="off"><div id="awAreas" class="chkgrid" style="max-height:220px;overflow:auto;margin-top:6px"></div>')+
+    // types and areas as chips (the same .ag-pills the member's request form uses): tap to pick, tap again to drop
+    fl(t("ptype"),'<div class="ag-pills sel" id="awTypes">'+typeKeys.map(function(k){ return '<button type="button" class="'+(types0.indexOf(k)>-1?"on":"")+'" data-awtype="'+esc(k)+'">'+esc(wTypeName(k)||k)+'</button>' }).join("")+'</div>')+
+    fl(GX("f_wAreas"),'<div class="hintx" style="margin:0 0 6px">'+GX("wAreasHint")+'</div><div class="ag-pills" id="awPicked" style="margin-bottom:8px"></div>'+
+      '<input id="awAreaQ" placeholder="'+esc(GX("wAreaSearch"))+'" autocomplete="off"><div class="ag-pills sel wrap" id="awAreas" style="margin-top:8px"></div>')+
     '<div class="row3">'+fl(GX("f_wBudgetMin"),num("awBmin",w.budget_min))+fl(GX("f_wBudgetMax"),num("awBmax",w.budget_max))+fl(GX("f_wCur"),curSelHtml("awCur",w.currency||"USD"))+'</div>'+
     '<div class="row3">'+fl(GX("f_wRooms"),num("awRooms",w.rooms_min))+fl(GX("f_wArea"),num("awM2",w.area_min))+
       '<div class="fl" id="awTabuF"'+(w.deal==="rent"?' style="display:none"':'')+'><label>'+GX("f_wTabu")+'</label><select id="awTabu"><option value="">'+GX("wAnyTabu")+'</option>'+Object.keys(D.TABU).map(function(k){ return '<option value="'+k+'"'+(w.tabu===k?" selected":"")+'>'+D.TABU[k][li()]+'</option>' }).join("")+'</select></div></div>'+
@@ -851,12 +852,14 @@ function admWantedEdit(w){
   document.body.appendChild(ov);
   var close=function(){ ov.remove() }; ov.querySelector(".admdm-x").onclick=close;
   var drawPicked=function(){ var box=$("#awPicked"); if(!box) return;
-    box.innerHTML=picked.length ? picked.map(function(a){ return '<button type="button" class="ab on" data-awun="'+esc(a)+'">'+esc(aN(a))+' ✕</button>' }).join("") : '<span class="hintx" style="margin:0">'+GX("wAllAreas")+'</span>';
+    box.innerHTML=picked.length ? picked.map(function(a){ return '<button type="button" class="on" data-awun="'+esc(a)+'">'+esc(aN(a))+' ✕</button>' }).join("") : '<span class="hintx" style="margin:0">'+GX("wAllAreas")+'</span>';
     box.querySelectorAll("[data-awun]").forEach(function(b){ b.onclick=function(){ var a=this.dataset.awun; picked=picked.filter(function(x){ return x!==a }); drawPicked(); drawAreas() } }) };
   var drawAreas=function(){ var box=$("#awAreas"), g=($("#awGov")||{}).value, q=(typeof admNormQ==="function"?admNormQ(($("#awAreaQ")||{}).value):"");
     var list=(g&&D.GEO[g])?D.GEO[g]:[];
-    box.innerHTML=list.filter(function(a){ return !q || admNormQ(a+" "+aN(a)).indexOf(q)>-1 }).map(function(a){ return '<label><input type="checkbox" class="awArea" value="'+esc(a)+'"'+(picked.indexOf(a)>-1?" checked":"")+'> '+esc(aN(a))+'</label>' }).join("")||'<span class="hintx">'+(g?t("noResultsFor"):GX("wPickGov"))+'</span>';
-    box.querySelectorAll(".awArea").forEach(function(c){ c.onchange=function(){ var a=this.value; if(this.checked){ if(picked.indexOf(a)<0) picked.push(a) } else picked=picked.filter(function(x){ return x!==a }); drawPicked() } }) };
+    box.innerHTML=list.filter(function(a){ return !q || admNormQ(a+" "+aN(a)).indexOf(q)>-1 }).map(function(a){ return '<button type="button" class="'+(picked.indexOf(a)>-1?"on":"")+'" data-awarea="'+esc(a)+'">'+esc(aN(a))+'</button>' }).join("")||'<span class="hintx">'+(g?t("noResultsFor"):GX("wPickGov"))+'</span>';
+    box.querySelectorAll("[data-awarea]").forEach(function(c){ c.onclick=function(){ var a=this.dataset.awarea, on=picked.indexOf(a)<0;
+      if(on) picked.push(a); else picked=picked.filter(function(x){ return x!==a }); this.classList.toggle("on",on); drawPicked() } }) };
+  $$("#awTypes [data-awtype]").forEach(function(b){ b.onclick=function(){ this.classList.toggle("on") } });
   // areas that belong to another governorate are dropped when the governorate changes (they could never match)
   $("#awGov").onchange=function(){ var list=D.GEO[this.value]||[]; picked=picked.filter(function(a){ return list.indexOf(a)>-1 }); drawPicked(); drawAreas() };
   $("#awAreaQ").oninput=drawAreas;
@@ -865,7 +868,7 @@ function admWantedEdit(w){
   $("#awSave").onclick=async function(){ var m=$("#awMsg"), b=this, v=function(id){ return (($("#"+id)||{}).value||"").trim() };
     if(!v("awGov")){ m.style.color="var(--danger)"; m.textContent=GX("wNeedGov"); return }
     b.disabled=true; m.style.color=""; m.textContent=t("saving");
-    var data={deal:v("awDeal"), gov_name:v("awGov"), area_names:picked.slice(), property_types:$$("#admWEd .awType:checked").map(function(c){ return c.value }),
+    var data={deal:v("awDeal"), gov_name:v("awGov"), area_names:picked.slice(), property_types:$$("#awTypes [data-awtype].on").map(function(c){ return c.dataset.awtype }),
       budget_min:v("awBmin"), budget_max:v("awBmax"), currency:v("awCur")||"USD", rooms_min:v("awRooms"), area_min:v("awM2"), tabu:v("awDeal")==="rent"?"":v("awTabu"), title:v("awTitle"), description:v("awDesc")};
     try{ await rpc("bk_admin_wanted_edit",{p_token:ADM.token,p_id:+w.id,p_data:data}); close(); admToast(GX("ik_saved")); ADM._wLoaded=false; if(typeof WANTED!=="undefined"){ WANTED=null; WANTEDONE=null } render() }
     catch(e){ b.disabled=false; m.style.color="var(--danger)"; m.textContent=e.message==="gov required"?GX("wNeedGov"):(e.message||"error") } };
