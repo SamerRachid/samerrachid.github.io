@@ -824,19 +824,65 @@ function adminView(){
    '<main class="acontent">'+(ADM.token&&!ADM.data?'<div class="aloading">'+t("loading")+'</div>':'')+'<div class="apage-h"><div>'+'<div class="apage-crumb">'+curGroup+(ADM.scope==="ALL"?(curGroup?' · ':'')+'🌍 '+GX("cAll")+'</div>':COUNTRY!=="SY"?(curGroup?' · ':'')+flagOf(COUNTRY)+' '+esc(countryName(countryOf(COUNTRY)))+'</div>':'</div>')+'<h1>'+curLabel+'</h1>'+
     (GX_T["desc_"+ADM.tab]?'<p>'+GX("desc_"+ADM.tab)+'</p>':'')+'</div>'+adminCountryBar()+'</div>'+subBar+(ADM.tab==="settings"&&typeof admLegalCard==="function"?admLegalCard():'')+body+'</main>'+
   '</div></div>'}
+// the admin edits a request (owner, 2026-10-16): every field, the areas as a searchable list — "no area" means the
+// whole governorate, which is what the matching does. Saving sends nothing (bk_admin_wanted_edit).
+function admWantedEdit(w){
+  var old=$("#admWEd"); if(old) old.remove();
+  var ov=document.createElement("div"); ov.className="admdm-ov"; ov.id="admWEd";
+  var types0=(w.property_types&&w.property_types.length)?w.property_types:(w.property_type?[w.property_type]:[]);
+  var typeKeys=Object.keys(D.TYPES).concat(types0.filter(function(k){ return !D.TYPES[k] }));   // a type the list no longer has stays visible
+  var picked=(w.area_names||[]).slice();
+  var fl=function(label,inner){ return '<div class="fl"><label>'+label+'</label>'+inner+'</div>' };
+  var num=function(id,v){ return '<input type="number" id="'+id+'" class="ltr" min="0" value="'+(v==null||v===0?"":esc(String(v)))+'">' };
+  ov.innerHTML='<div class="admdm admdm-wide"><div class="admdm-h"><b>'+GX("wFormEditT")+(w.ref?' · <span class="ltr">'+esc(w.ref)+'</span>':'')+'</b><button type="button" class="admdm-x" aria-label="×">×</button></div><div class="admdm-b">'+
+    '<div class="row">'+fl(GX("f_wDeal"),'<select id="awDeal"><option value="sale"'+(w.deal!=="rent"?" selected":"")+'>'+GX("wBuyOpt")+'</option><option value="rent"'+(w.deal==="rent"?" selected":"")+'>'+GX("wRentOpt")+'</option></select>')+
+      fl(t("gov")+' *','<select id="awGov"><option value="">'+GX("wPickGov")+'</option>'+Object.keys(D.GEO).map(function(g){ return '<option value="'+esc(g)+'"'+(w.gov_name===g?" selected":"")+'>'+gN(g)+'</option>' }).join("")+'</select>')+'</div>'+
+    fl(t("ptype"),'<div class="chkgrid">'+typeKeys.map(function(k){ return '<label><input type="checkbox" class="awType" value="'+esc(k)+'"'+(types0.indexOf(k)>-1?" checked":"")+'> '+esc(wTypeName(k)||k)+'</label>' }).join("")+'</div>')+
+    fl(GX("f_wAreas"),'<div class="hintx" style="margin:0 0 6px">'+GX("wAreasHint")+'</div><div id="awPicked" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px"></div>'+
+      '<input id="awAreaQ" placeholder="'+esc(GX("wAreaSearch"))+'" autocomplete="off"><div id="awAreas" class="chkgrid" style="max-height:220px;overflow:auto;margin-top:6px"></div>')+
+    '<div class="row3">'+fl(GX("f_wBudgetMin"),num("awBmin",w.budget_min))+fl(GX("f_wBudgetMax"),num("awBmax",w.budget_max))+fl(GX("f_wCur"),curSelHtml("awCur",w.currency||"USD"))+'</div>'+
+    '<div class="row3">'+fl(GX("f_wRooms"),num("awRooms",w.rooms_min))+fl(GX("f_wArea"),num("awM2",w.area_min))+
+      '<div class="fl" id="awTabuF"'+(w.deal==="rent"?' style="display:none"':'')+'><label>'+GX("f_wTabu")+'</label><select id="awTabu"><option value="">'+GX("wAnyTabu")+'</option>'+Object.keys(D.TABU).map(function(k){ return '<option value="'+k+'"'+(w.tabu===k?" selected":"")+'>'+D.TABU[k][li()]+'</option>' }).join("")+'</select></div></div>'+
+    fl(GX("f_wTitle"),'<input id="awTitle" maxlength="120" value="'+esc(w.title||"")+'">')+
+    fl(GX("f_wDesc"),'<textarea id="awDesc" rows="4" maxlength="1500">'+esc(w.description||"")+'</textarea>')+
+    '<div class="xactions"><button type="button" class="ab ok" id="awSave">'+t("save")+'</button><span class="xmsg" id="awMsg"></span></div>'+
+    '<div class="hintx">'+GX("wAdmEditHint")+'</div>'+
+  '</div></div>';
+  document.body.appendChild(ov);
+  var close=function(){ ov.remove() }; ov.querySelector(".admdm-x").onclick=close;
+  var drawPicked=function(){ var box=$("#awPicked"); if(!box) return;
+    box.innerHTML=picked.length ? picked.map(function(a){ return '<button type="button" class="ab on" data-awun="'+esc(a)+'">'+esc(aN(a))+' ✕</button>' }).join("") : '<span class="hintx" style="margin:0">'+GX("wAllAreas")+'</span>';
+    box.querySelectorAll("[data-awun]").forEach(function(b){ b.onclick=function(){ var a=this.dataset.awun; picked=picked.filter(function(x){ return x!==a }); drawPicked(); drawAreas() } }) };
+  var drawAreas=function(){ var box=$("#awAreas"), g=($("#awGov")||{}).value, q=(typeof admNormQ==="function"?admNormQ(($("#awAreaQ")||{}).value):"");
+    var list=(g&&D.GEO[g])?D.GEO[g]:[];
+    box.innerHTML=list.filter(function(a){ return !q || admNormQ(a+" "+aN(a)).indexOf(q)>-1 }).map(function(a){ return '<label><input type="checkbox" class="awArea" value="'+esc(a)+'"'+(picked.indexOf(a)>-1?" checked":"")+'> '+esc(aN(a))+'</label>' }).join("")||'<span class="hintx">'+(g?t("noResultsFor"):GX("wPickGov"))+'</span>';
+    box.querySelectorAll(".awArea").forEach(function(c){ c.onchange=function(){ var a=this.value; if(this.checked){ if(picked.indexOf(a)<0) picked.push(a) } else picked=picked.filter(function(x){ return x!==a }); drawPicked() } }) };
+  // areas that belong to another governorate are dropped when the governorate changes (they could never match)
+  $("#awGov").onchange=function(){ var list=D.GEO[this.value]||[]; picked=picked.filter(function(a){ return list.indexOf(a)>-1 }); drawPicked(); drawAreas() };
+  $("#awAreaQ").oninput=drawAreas;
+  $("#awDeal").onchange=function(){ var f=$("#awTabuF"); if(f) f.style.display=this.value==="rent"?"none":"" };
+  drawPicked(); drawAreas();
+  $("#awSave").onclick=async function(){ var m=$("#awMsg"), b=this, v=function(id){ return (($("#"+id)||{}).value||"").trim() };
+    if(!v("awGov")){ m.style.color="var(--danger)"; m.textContent=GX("wNeedGov"); return }
+    b.disabled=true; m.style.color=""; m.textContent=t("saving");
+    var data={deal:v("awDeal"), gov_name:v("awGov"), area_names:picked.slice(), property_types:$$("#admWEd .awType:checked").map(function(c){ return c.value }),
+      budget_min:v("awBmin"), budget_max:v("awBmax"), currency:v("awCur")||"USD", rooms_min:v("awRooms"), area_min:v("awM2"), tabu:v("awDeal")==="rent"?"":v("awTabu"), title:v("awTitle"), description:v("awDesc")};
+    try{ await rpc("bk_admin_wanted_edit",{p_token:ADM.token,p_id:+w.id,p_data:data}); close(); admToast(GX("ik_saved")); ADM._wLoaded=false; if(typeof WANTED!=="undefined"){ WANTED=null; WANTEDONE=null } render() }
+    catch(e){ b.disabled=false; m.style.color="var(--danger)"; m.textContent=e.message==="gov required"?GX("wNeedGov"):(e.message||"error") } };
+}
 function adminWantedBody(){
   var list=ADM_W; if(!list) return '<div class="blk"><div class="in adashempty">'+t("loading")+'</div></div>';
   if(!list.length) return '<div class="blk"><div class="in adashempty">'+GX("wNone")+'</div></div>';
   var pend=list.filter(function(w){ return w.status==="pending" }).length;
   return '<div class="blk"><h3>'+GX("tWanted")+(pend?' <span class="n">'+pend+'</span>':'')+'</h3><div class="in eng-in"><div class="elist">'+list.map(function(w){
     return '<div class="erow wrow"><div class="pjtitle">'+avatar(w.user_avatar,w.user_name,40,"aglogo")+'<div><b>'+scopeFlag(w.country_code)+wTitle(w)+'</b><small>'+(w.ref?'<span class="ltr" style="font-weight:700">'+esc(w.ref)+'</span> · ':'')+esc(w.user_name||"")+' · <span class="ltr">'+esc(w.user_phone||"")+'</span></small></div></div>'+
-      '<div class="ewho">'+(w.deal==="rent"?GX("wRent"):GX("wBuy"))+' · '+(w.gov_name?gN(w.gov_name):GX("wAnywhere"))+'<small>'+(w.area_names||[]).map(aN).join("، ")+'</small></div>'+
-      '<div class="eclient">'+wBudgetText(w)+'<small>'+[wTypesText(w),w.rooms_min?GX("wRoomsN").replace("{n}",w.rooms_min):""].filter(Boolean).join(" · ")+'</small></div>'+
+      '<div class="ewho">'+(w.deal==="rent"?GX("wRent"):GX("wBuy"))+' · '+(w.gov_name?gN(w.gov_name):GX("wAnywhere"))+'<small>'+((w.area_names||[]).length?(w.area_names||[]).map(aN).join("، "):GX("wAllAreas"))+'</small></div>'+
+      '<div class="eclient">'+wBudgetText(w)+'<small>'+[wTypesText(w),w.rooms_min?GX("wRoomsN").replace("{n}",w.rooms_min):"",w.area_min?GX("wAreaN").replace("{n}",w.area_min):""].filter(Boolean).join(" · ")+'</small></div>'+
       '<div class="eperiod"><span class="ltr">'+String(w.created_at||"").slice(0,10)+'</span><small>'+GX("wViews").replace("{n}",'<span class="ltr">'+(w.views||0)+'</span>')+'</small></div>'+
       '<div class="est">'+wStatusPill(w.status,w.expired)+(w.featured?' <span class="vbadge">★</span>':'')+'</div>'+
       '<div class="eacts">'+(w.status!=="open"?'<button type="button" class="ab ok" data-wadm="'+w.id+':open">'+(w.status==="pending"?GX("agApprove"):GX("wOpenBtn"))+'</button>':'')+(w.status==="open"?'<button type="button" class="ab" data-wadm="'+w.id+':hidden">'+GX("agHide")+'</button>':'')+
         (w.status==="pending"?'<button type="button" class="ab bad" data-wadm="'+w.id+':rejected">'+GX("agReject")+'</button>':'')+'<button type="button" class="ab" data-wfeat="'+w.id+':'+(w.featured?"0":"1")+'">'+(w.featured?GX("wUnfeature"):GX("wFeature"))+'</button>'+
-        (w.status==="open"?'<a class="ab" href="/wanted/'+w.id+'" target="_blank" rel="noopener">'+GX("agView")+'</a>':'')+'<button type="button" class="ab bad" data-wadel="'+w.id+'">'+t("del")+'</button></div></div>' }).join("")+'</div></div></div>' }
+        (w.status==="open"?'<a class="ab" href="/wanted/'+w.id+'" target="_blank" rel="noopener">'+GX("agView")+'</a>':'')+'<button type="button" class="ab" data-wadedit="'+w.id+'">'+t("edit")+'</button><button type="button" class="ab bad" data-wadel="'+w.id+'">'+t("del")+'</button></div></div>' }).join("")+'</div></div></div>' }
 function adminProjectsBody(){
   var list=ADM_PJ, ed=ADM.pjEdit;
   var editor = ed ? adminProjectEditor(ed) : '';
@@ -1522,6 +1568,7 @@ function wireAdmin(){
     if(!ADM._wLoaded){ ADM._wLoaded=true; rpcScoped("bk_admin_wanted",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM_W=r||[]; render() }).catch(function(e){ ADM_W=[]; render() }) }
     $$("[data-wadm]").forEach(function(b){ b.onclick=async function(){ var q=this.dataset.wadm.split(":"); if(q[1]==="rejected" && !confirm(GX("confirmReject"))) return; try{ await rpc("bk_admin_wanted_set",{p_token:ADM.token,p_id:+q[0],p_status:q[1]}); ADM._wLoaded=false; WANTED=null; syncAdminTodo(); render() }catch(e){ alert(e.message||"error") } } });
     $$("[data-wfeat]").forEach(function(b){ b.onclick=async function(){ var q=this.dataset.wfeat.split(":"); try{ await rpc("bk_admin_wanted_set",{p_token:ADM.token,p_id:+q[0],p_featured:q[1]==="1"}); ADM._wLoaded=false; WANTED=null; render() }catch(e){ alert(e.message||"error") } } });
+    $$("[data-wadedit]").forEach(function(b){ b.onclick=function(){ var w=(ADM_W||[]).filter(function(x){ return String(x.id)===b.dataset.wadedit })[0]; if(w) admWantedEdit(w) } });
     $$("[data-wadel]").forEach(function(b){ b.onclick=async function(){ if(!confirm(GX("wDelConfirm"))) return; try{ await rpc("bk_admin_wanted_delete",{p_token:ADM.token,p_id:+this.dataset.wadel}); ADM._wLoaded=false; WANTED=null; render() }catch(e){ alert(e.message||"error") } } });
   }
   if(ADM.tab!=="projects_adm"){ ADM._pjLoaded=false }
