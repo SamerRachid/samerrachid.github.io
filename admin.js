@@ -67,6 +67,24 @@ function admNavIndex(NAV,SUB){
   ADM_FEATURES.forEach(function(f){ if(!canTab(f.tab)) return; idx.push({tab:f.tab, label:f.l[li]||f.l.en, where:f.w[li]||f.w.en, hint:f.w[li]||f.w.en, text:admNorm(f.k+" "+(f.l.ar||"")+" "+(f.l.en||"")+" "+(f.w.ar||"")+" "+(f.w.en||""))}) });
   return idx;
 }
+// the data part of the header search (bk_admin_search): one line per listing / member / office / request / bot draft,
+// each opening where it is managed
+function admDataHits(r){
+  var out=[], tn=function(k){ return D.TYPES[k]?D.TYPES[k][li()]:(k||"") }, after=function(fn){ setTimeout(fn,60) };
+  (r.listings||[]).forEach(function(l){ out.push({grp:GX("aSrchListings"), label:(l.ref||"#"+l.id)+" · "+tn(l.property_type)+" "+(l.deal==="rent"?GX("lfForRent"):GX("lfForSale"))+((l.area||l.gov)?" · "+(l.area||l.gov):""),
+    where:[admStLabel(l.status), l.owner||"", l.price_usd?"$"+(+l.price_usd).toLocaleString("en"):""].filter(Boolean).join(" · "),
+    go:function(){ ADM.lf=Object.assign({q:"",status:"",gov:"",type:"",who:"",src:"",sort:"new",view:""},{q:l.ref||String(l.id)}); ADM.lstatus=""; ADM.lopen=l.id; admGo("listings") } }) });
+  (r.users||[]).forEach(function(u){ out.push({grp:GX("aSrchUsers"), label:(u.name||u.phone||"")+(u.member_no?" · "+u.member_no:""),
+    where:[u.phone||"", GX("aSrchListingsN").replace("{n}",u.listings||0), u.requests?GX("uReqN").replace("{n}",u.requests):"", u.blocked?GX("uBlocked"):""].filter(Boolean).join(" · "),
+    go:function(){ ADM.userOpen=u.id; admGo("users"); after(function(){ var el=$("#aqU"); if(el){ el.value=u.phone||u.name||""; if(el.oninput) el.oninput() } }) } }) });
+  (r.agencies||[]).forEach(function(a){ out.push({grp:GX("aSrchAgencies"), label:a.name||"", where:[a.phone||"", a.status&&a.status!=="approved"?admStLabel(a.status):""].filter(Boolean).join(" · "),
+    go:function(){ ADM.agQ=a.name||""; admGo("agencies_adm") } }) });
+  (r.requests||[]).forEach(function(w){ out.push({grp:GX("aSrchRequests"), label:(w.ref||"#"+w.id)+(w.title?" · "+w.title:""), where:[(w.deal==="rent"?GX("wRent"):GX("wBuy")), w.gov_name?gN(w.gov_name):"", (GX("w_st_"+w.status)!=="w_st_"+w.status?GX("w_st_"+w.status):w.status)].filter(Boolean).join(" · "),
+    go:function(){ admGo("wanted_adm"); var tries=0, find=function(){ var b=document.querySelector('[data-wadedit="'+w.id+'"]'); if(b){ var row=b.closest(".erow"); if(row){ row.scrollIntoView({block:"center"}); row.classList.add("aflash"); setTimeout(function(){ row.classList.remove("aflash") },2200) } } else if(++tries<30) setTimeout(find,100) }; after(find) } }) });
+  (r.drafts||[]).forEach(function(d){ out.push({grp:GX("aSrchDrafts"), label:"#"+d.id+(d.sender_name?" · "+d.sender_name:""), where:[d.source, d.status, d.text||""].filter(Boolean).join(" · "),
+    go:function(){ ADM.ikFilter="all"; ADM.ikOpen=String(d.id); admGo("intake") } }) });
+  return out;
+}
 function admNavHits(q){ q=admNorm(q); if(!q) return []; var words=q.split(" ").filter(Boolean); return (ADM._navIndex||[]).filter(function(h){ return words.every(function(w){ return h.text.indexOf(w)>-1 }) }).slice(0,8) }
 function admGo(tab){ if(!tab) return; if(!canTab(tab)){ admToast(GX("noPermTab"),"bad"); return } tab=admResolveTab(tab); if(tab!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return; ADM.tab=tab; window._admMobileDetail=false; render(); try{ window.scrollTo(0,0) }catch(e){} }
 // "راسل": one direct message to one person on WhatsApp / Telegram / email, from the users list or the contacts list
@@ -1240,14 +1258,23 @@ function wireAdmin(){
     document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ var sb=$("#aSidebar"); if(sb) sb.classList.remove("on") } }) }
   $$("#aSidebar .asidebar-label").forEach(function(b){ b.onclick=function(){ var g=this.closest(".asidebar-group"); if(!g) return; g.classList.toggle("folded"); var f=g.classList.contains("folded"); ADM_FOLDS[g.dataset.gkey]=f; this.setAttribute("aria-expanded",f?"false":"true"); try{ localStorage.setItem("bk_adm_folds",JSON.stringify(ADM_FOLDS)) }catch(e){} } });
   var nq=$("#aNavQ"); if(nq){ var hitsBox=$("#aNavHits"), hitSel=0;
-    var drawHits=function(){ var q=nq.value.trim(), hits=admNavHits(q); hitSel=0; if(!hitsBox) return; if(!q){ hitsBox.hidden=true; hitsBox.innerHTML=""; return }
-      hitsBox.hidden=false; hitsBox.innerHTML = hits.length ? hits.map(function(h,i){ return '<button type="button" data-hit="'+i+'" class="'+(i===hitSel?'on':'')+'"><b>'+esc(h.label)+'</b><small>'+esc(h.where||"")+'</small></button>' }).join("") : '<div class="anav-none">'+GX("aNavNone")+'</div>';
+    // panel pages first, then what the data search found (bk_admin_search: read only), each kind under its own heading
+    var allHits=function(q){ var pages=admNavHits(q).map(function(h){ h.grp=GX("aSrchPages"); return h }), r=(ADM._sres&&ADM._sres.q===q)?ADM._sres.r:null;
+      return pages.concat(r?admDataHits(r):[]) };
+    var drawHits=function(){ var q=nq.value.trim(), hits=allHits(q); hitSel=0; if(!hitsBox) return; if(!q){ hitsBox.hidden=true; hitsBox.innerHTML=""; return }
+      var busy=q.length>=2&&!(ADM._sres&&ADM._sres.q===q), lastG=null, html="";
+      hits.forEach(function(h,i){ if(h.grp!==lastG){ html+='<div class="anav-grp">'+esc(h.grp)+'</div>'; lastG=h.grp }
+        html+='<button type="button" data-hit="'+i+'" class="'+(i===hitSel?'on':'')+'"><b>'+esc(h.label)+'</b><small>'+esc(h.where||"")+'</small></button>' });
+      hitsBox.hidden=false; hitsBox.innerHTML = (html||(busy?'':'<div class="anav-none">'+GX("aNavNone")+'</div>'))+(busy?'<div class="anav-none">'+GX("aSrchBusy")+'</div>':'');
       $$("#aNavHits [data-hit]").forEach(function(b){ b.onmousedown=function(e){ e.preventDefault(); pick(+b.dataset.hit) } }) };
-    var pick=function(i){ var hits=admNavHits(nq.value.trim()), h=hits[i]; if(!h) return; nq.value=""; if(hitsBox){ hitsBox.hidden=true } admGo(h.tab); if(h.hint) setTimeout(function(){ admToast(h.hint) },350) };
+    var pick=function(i){ var hits=allHits(nq.value.trim()), h=hits[i]; if(!h) return; nq.value=""; if(hitsBox){ hitsBox.hidden=true }
+      if(h.go){ h.go(); return } admGo(h.tab); if(h.hint) setTimeout(function(){ admToast(h.hint) },350) };
+    var runSearch=function(){ var raw=nq.value.trim(); clearTimeout(ADM._sT); if(raw.length<2) return;
+      ADM._sT=setTimeout(function(){ rpc("bk_admin_search",{p_token:ADM.token,p_q:raw}).then(function(r){ ADM._sres={q:raw,r:r||{}}; if(nq.value.trim()===raw&&hitsBox&&!hitsBox.hidden) drawHits() }).catch(function(){ ADM._sres={q:raw,r:{}}; if(nq.value.trim()===raw) drawHits() }) },300) };
     nq.oninput=function(){ var q=admNorm(this.value);
     $$("#aSidebar .asidebar-group").forEach(function(g){ g.classList.toggle("folded", !q && !!ADM_FOLDS[g.dataset.gkey] && !g.querySelector("a.on")) });   // a search opens every group; clearing it restores the folds
     $$("#aSidebar a[data-atab]").forEach(function(a){ a.hidden = !!q && admNorm(a.textContent).indexOf(q)===-1 });
-    $$("#aSidebar .asidebar-group").forEach(function(g){ g.hidden = !!q && !g.querySelector("a[data-atab]:not([hidden])") }); drawHits() };
+    $$("#aSidebar .asidebar-group").forEach(function(g){ g.hidden = !!q && !g.querySelector("a[data-atab]:not([hidden])") }); drawHits(); runSearch() };
     nq.onfocus=function(){ if(nq.value.trim()) drawHits() }; nq.onblur=function(){ setTimeout(function(){ if(hitsBox) hitsBox.hidden=true },150) };
     nq.onkeydown=function(e){ var n=$$("#aNavHits [data-hit]").length; if(e.key==="ArrowDown"&&n){ e.preventDefault(); hitSel=(hitSel+1)%n } else if(e.key==="ArrowUp"&&n){ e.preventDefault(); hitSel=(hitSel-1+n)%n } else if(e.key==="Enter"){ e.preventDefault(); if(n) pick(hitSel); else { var a=$("#aSidebar a[data-atab]:not([hidden])"); if(a) a.click() } return } else if(e.key==="Escape"){ nq.value=""; nq.oninput(); return } else return;
       $$("#aNavHits [data-hit]").forEach(function(b,i){ b.classList.toggle("on",i===hitSel) }) } }
@@ -1569,6 +1596,10 @@ function wireAdmin(){
   wireAdminBell();
   if(ADM.tab!=="agencies_adm"){ ADM._agLoaded=false } if(ADM.tab!=="engage"){ ADM._engDays=null }
   if(ADM.tab!=="wanted_adm"){ ADM._wLoaded=false }
+  // users page: how many open/pending requests each member has, next to their listing count (read once per visit)
+  if(ADM.tab==="users" && !ADM._wcLoading && ADM_WC===null){ ADM._wcLoading=true;
+    rpcScoped("bk_admin_wanted",{p_token:ADM.token,p_country:admScope()}).then(function(r){ var m={}; (r||[]).forEach(function(w){ if(w.status==="open"||w.status==="pending") m[w.user_id]=(m[w.user_id]||0)+1 }); ADM_WC=m; ADM._wcLoading=false; render() }).catch(function(){ ADM_WC={}; ADM._wcLoading=false }) }
+  if(ADM.tab!=="users") ADM_WC=null;
   if(ADM.tab==="wanted_adm"){
     if(!ADM._wLoaded){ ADM._wLoaded=true; rpcScoped("bk_admin_wanted",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM_W=r||[]; render() }).catch(function(e){ ADM_W=[]; render() }) }
     $$("[data-wadm]").forEach(function(b){ b.onclick=async function(){ var q=this.dataset.wadm.split(":"); if(q[1]==="rejected" && !confirm(GX("confirmReject"))) return; try{ await rpc("bk_admin_wanted_set",{p_token:ADM.token,p_id:+q[0],p_status:q[1]}); ADM._wLoaded=false; WANTED=null; syncAdminTodo(); render() }catch(e){ alert(e.message||"error") } } });
@@ -2918,7 +2949,7 @@ function adminUsersBody(d){
       '<td data-label="'+t("contactName")+'"><div class="ucell">'+avatar(u.avatar_url,u.name,36)+'<div>'+scopeFlag(u.country)+'<span class="uline"><a data-byuser="'+u.id+'" data-name="'+esc(nm)+'" class="uname">'+esc(nm)+'</a>'+levelBadge(u.level)+'</span>'+
         '<div class="usub">'+(u.is_house?'<span class="uunv" style="background:var(--navy);color:#fff" title="'+esc(GX("desc_house"))+'">'+GX("houseBadge")+'</span> · ':'')+(u.member_no?'<b class="ltr">'+esc(u.member_no)+'</b> · ':'')+'<span class="ltr">'+(u.phone||GX("uNoPhone"))+'</span>'+(u.phone_verified===false?' · <span class="uunv" title="'+esc(GX("uUnverified"))+'">'+GX("uUnverified")+'</span>':'')+(joined?' <span class="ujoin">· '+GX("uJoined")+' '+joined+'</span>':'')+'</div></div></div></td>'+
       '<td data-label="'+GX("colLastSeen")+'">'+(function(){ var d=lastSeen(u), a=uact[u.id]||{}; var fresh=d && (Date.now()-d.getTime())<86400000; return '<span class="'+(fresh?"useen-fresh":"useen")+'">'+(d?when(d.toISOString()):GX("never"))+'</span>'+(a.views_30d?'<div class="usub" title="'+esc(GX("kViews"))+' · 30d"><span class="ltr">'+a.views_30d+'</span> '+GX("uViewsShort")+'</div>':'') })()+'</td>'+
-      '<td data-label="'+t("myAds")+'" class="unum ucount"><b class="ltr">'+(u.listings||0)+'</b>'+(abMode_on?'<small>'+GX("abLastPost")+' '+(uact[u.id]&&uact[u.id].last_listing_at?'<span class="ltr">'+admWhen(uact[u.id].last_listing_at)+'</span>':GX("abNever"))+'</small>':'')+(ADM.scope==="ALL"&&u.countries?' <span class="sflag">'+String(u.countries).split(",").map(function(cc){ return flagSvg(cc) }).join("")+'</span>':'')+(uact[u.id]&&uact[u.id].live_listings!=null&&uact[u.id].live_listings!==(u.listings||0)?'<small>'+t("st_live")+' <span class="ltr">'+uact[u.id].live_listings+'</span></small>':'')+'</td>'+
+      '<td data-label="'+t("myAds")+'" class="unum ucount"><b class="ltr">'+(u.listings||0)+'</b>'+(ADM_WC&&ADM_WC[u.id]?'<small style="display:block">'+GX("uReqN").replace("{n}",ADM_WC[u.id])+'</small>':'')+(abMode_on?'<small>'+GX("abLastPost")+' '+(uact[u.id]&&uact[u.id].last_listing_at?'<span class="ltr">'+admWhen(uact[u.id].last_listing_at)+'</span>':GX("abNever"))+'</small>':'')+(ADM.scope==="ALL"&&u.countries?' <span class="sflag">'+String(u.countries).split(",").map(function(cc){ return flagSvg(cc) }).join("")+'</span>':'')+(uact[u.id]&&uact[u.id].live_listings!=null&&uact[u.id].live_listings!==(u.listings||0)?'<small>'+t("st_live")+' <span class="ltr">'+uact[u.id].live_listings+'</span></small>':'')+'</td>'+
       '<td data-label="'+t("ratingCol")+'" class="unum ucount">'+(u.rating?'<b class="ltr">'+u.rating+'</b> <span class="ustar">★</span>':'<span class="udash">—</span>')+'</td>'+
       '<td data-label="'+t("levelCol")+'">'+(isAdmin?'<span class="lvl lvl-vip">Admin</span>':'<div class="usel"><select class="lvlpick" data-utype="'+u.id+'" title="'+esc(GX("accTypeL"))+'">'+[["member",GX("acctMember")],["broker",GX("acctBroker")],["agency",GX("acctAgency")]].map(function(o){ return '<option value="'+o[0]+'"'+((u.account_type||"member")===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select>'+
         '<select class="lvlpick" data-uid="'+u.id+'" title="'+GX("uLevelHint")+'">'+LEVELS_ALL.map(function(lv){ return '<option value="'+lv+'"'+(u.level===lv?" selected":"")+'>'+t("lv_"+lv)+'</option>' }).join("")+'</select></div>')+'</td>'+
