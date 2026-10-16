@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-T6JRb9x16yrJ548jK+CAuDcuIH7fEwfIKqeiWFUTMnQ=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-DjAqubrNxRI6xrs23+mY1Nw+/3xgdKT3vajhC9PUtAI=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -5759,7 +5759,9 @@ function post(){
      .map(function(v){return '<option value="'+v+'">'+floorLabel(v)+'</option>'}).join("")+
    '</select></div>'+
   '<div class="fl"><label>'+t("kYear")+'</label><input type="number" id="py" autocomplete="off" placeholder=""></div>'+
-  '<div class="fl"><label>'+t("uPower")+'</label><input type="number" id="pel" autocomplete="off" placeholder=""></div></div>'+
+  // the third cell of this row (owner, 2026-10-15: power hours are gone): lease length for a rental, living rooms for a
+  // sale — syncForm() moves the one field that applies into it, so each field keeps a single element and its value
+  '<div id="pSlot" style="display:contents"></div></div>'+
   '<div class="rentonly" style="display:none">'+
    '<div class="fl"><label>'+t("rentalPeriodL")+'</label><select id="pRentalPeriod">'+
     '<option value="yearly" selected>'+t("periodYearly")+'</option>'+
@@ -5796,8 +5798,8 @@ function post(){
     '<div class="hintx" style="margin-top:6px">'+t("mapClickHint")+'</div>'+
     (NEW.lat ? '<button type="button" class="ab bad" id="pMapClear" style="margin-top:8px">'+t("removeLocationBtn")+'</button>' : '')+
    '</div></div>'+
-  '<div class="fl" style="margin-bottom:0"><label class="req">'+t("descL")+'</label>'+
-   '<textarea id="pd" autocomplete="off" maxlength="1200" placeholder="'+t("descPH")+'"></textarea>'+
+  '<div class="fl" style="margin-bottom:0"><label>'+t("descL")+'</label>'+
+   '<textarea id="pd"autocomplete="off" maxlength="1200" placeholder="'+t("descPH")+'"></textarea>'+
    '<div class="hintx" style="text-align:end"><span id="dc">0</span> / 1200</div></div></div></div>'+
  '<div class="blk saleonly" id="deedBlk"><h3><span class="n">4</span>'+t("p4")+'</h3><div class="in">'+
   '<div class="fl" style="margin-bottom:0"><label>'+t("deed")+'</label>'+
@@ -5811,7 +5813,7 @@ function post(){
   '<input type="file" id="files" accept="image/*,video/*" multiple hidden><div class="shots" id="shots"></div>'+
   '<div class="tipbox">'+t("photoTips")+'</div>'+videoPickHtml()+'</div></div>'+
  '<div class="blk"><h3><span class="n">6</span>'+t("p5")+'</h3><div class="in"><div class="row">'+
-  '<div class="fl"><label class="req" id="priceLabel">'+t("price")+'</label>'+
+  '<div class="fl"><label id="priceLabel">'+t("price")+'</label>'+
    '<div style="display:flex;gap:8px"><input type="number" id="pp" autocomplete="off" placeholder="" style="flex:1">'+
    curSelHtml("pcur", NEW.pcur||CUR)+'</div>'+
    '<div class="hintx" id="ppm"></div></div>'+
@@ -6683,7 +6685,8 @@ function checkPost(){
  // rooms, baths and condition are optional on the site (owner, 2026-10-15); a missing condition is published as the
  // bot does it: «سليم» for a home or shop, «فارغة» for land
  // the deed and the price are optional (2026-10-02): a listing without them publishes with "السعر عند التواصل" and no deed pill
- if(v("pd").trim().length<30)need.push(t("descL"));
+ // the description is optional too (owner, 2026-10-15): an empty or short one is completed from the listing's own facts
+ // at publish (the database keeps its 30-character minimum)
  var needPh = 0;   // photos and videos are optional (listings with photos get more views; the hint says so)
  if(NEW.photos.length<needPh)need.push(t("photos"));
  if(v("ptel").replace(/\D/g,"").length<9)need.push(t("tel"));
@@ -8897,6 +8900,13 @@ function wire(){
      var LIVING_ROOM_TYPES=["apartment","terrace","arab","villa"];
      var showLiving = LIVING_ROOM_TYPES.indexOf(ptypeVal)>-1;
      $$(".livingroom-f").forEach(function(e){e.style.display=showLiving?"":"none"});
+     // the slot beside floor and year: lease length for a rental, living rooms for a sale (owner, 2026-10-15)
+     var slot=$("#pSlot"), leaseFl=$("#pLease")&&$("#pLease").closest(".fl"), livingFl=$("#pLiving")&&$("#pLiving").closest(".fl");
+     if(slot && leaseFl && livingFl){
+       var row1=$("#pr")&&$("#pr").closest(".row3"), rentRow=$("#pAdv")&&$("#pAdv").closest(".row3");
+       if(rent && !isLand){ slot.appendChild(leaseFl); leaseFl.style.display=""; if(row1) row1.appendChild(livingFl) }
+       else { slot.appendChild(livingFl); if(rentRow) rentRow.insertBefore(leaseFl, rentRow.firstChild) }
+     }
      var u=$("#pUnit"); if(u){ u.style.display=isLand?"":"none" }
      var m2=$("#pm2h"); if(m2){ var v=parseFloat(($("#pm2")||{}).value)||0,
        mult=parseInt(($("#pUnit")||{}).value,10)||1;
@@ -9879,13 +9889,21 @@ async function savePost(){
       living_rooms: ["apartment","terrace","arab","villa"].indexOf(val("ptype"))>-1 ? (parseInt(val("pLiving"),10)||null) : null,
       floor: val("pfl")===""?null:parseInt(val("pfl"),10),
       year_built: parseInt(val("py"),10)||null,
-      power_hours: parseInt(val("pel"),10)||null,
       tabu: ($('input[name=dl]:checked')||{}).value==="rent"
               ? null
               : (($('input[name=tb2]:checked')||{}).value||null),
       condition: (function(){ var c=($('input[name=cd2]:checked')||{}).value||"", land=sec==="land";
         return (land ? D.LANDC[c] : D.COND[c]) ? c : (land ? "empty" : "intact") })(),
-      description: val("pd"),
+      // optional since 2026-10-15: an empty or short description is completed from the listing's facts (DB minimum: 30 chars)
+      description: (function(){
+        var d=val("pd").trim(); if(d.length>=30) return d;
+        var dv=($('input[name=dl]:checked')||{}).value, tp=val("ptype");
+        var head=[(D.TYPES[tp]?D.TYPES[tp][li()]:""), (dv==="rent"?t("forrent"):dv==="share"?GX("shareBadge"):t("forsale"))].filter(Boolean).join(" ");
+        var place=[otherArea || (val("pa")&&val("pa")!=="__other__" ? aN(val("pa")) : ""), val("pg")?gN(val("pg")):""].filter(Boolean).join("، ");
+        var m2=Math.round((parseFloat(val("pm2"))||0)*(parseInt(val("pUnit"),10)||1));
+        var facts=[place, m2?m2+" "+t("sqm"):"", (parseInt(val("pr"),10)||0)?val("pr")+" "+t("kRooms"):"", (parseInt(val("pb"),10)||0)?val("pb")+" "+t("kBaths"):""].filter(Boolean).join(" · ");
+        var auto=(head+(facts?" — "+facts:"")+". "+GX("autoDescTail")).trim();
+        return d ? d+" — "+auto : auto })(),
       contact_phone: (function(){
         var d=val("ptel").replace(/\D/g,"");
         if(!d) return (USER&&USER.phone)||"";
@@ -11810,6 +11828,7 @@ var GX_T={
   ik_bulkHint:{ar:"حدّد المسوّدات، اختر المحافظة أو صاحب الإعلان أو الاثنين، ثم «طبّق على المحدد». يظهر صاحب الإعلان تحت كل مسودة، ويبقى التحديد لتنشر بعدها مباشرة.",en:"Tick drafts, pick a governorate and/or an owner, then «Apply to selected». The owner shows under each draft, and the ticks stay so you can publish next.",de:"Entwürfe ankreuzen, Gouvernement und/oder Inhaber wählen, dann «Auf Auswahl anwenden». Der Inhaber steht unter jedem Entwurf; die Auswahl bleibt für das Veröffentlichen."},
   ik_ownerIs:{ar:"سيُنشر باسم:",en:"Will be published as:",de:"Wird veröffentlicht als:"}, ik_ownerWas:{ar:"نُشر باسم:",en:"Published as:",de:"Veröffentlicht als:"},
   ik_hasPin:{ar:"موقع على الخريطة",en:"map pin",de:"Kartenpunkt"},
+  autoDescTail:{ar:"للتفاصيل والاستفسار تواصل مع المعلن مباشرة عبر بلكون.",en:"For details, contact the advertiser directly through Balkoun.",de:"Für Details den Anbieter direkt über Balkoun kontaktieren."},
   promoPhotoFail:{ar:"تعذّر تحميل صورة الإعلان. جرّب صورة أخرى من القائمة أو ارفع صورة.",en:"The listing photo could not be loaded. Try another photo or upload one.",de:"Das Foto konnte nicht geladen werden. Anderes Foto wählen oder hochladen."},
   ik_ownerUnset:{ar:"لم يُحدَّد صاحب الإعلان بعد",en:"No owner set yet",de:"Noch kein Inhaber"}, ik_ownerMember:{ar:"عضو",en:"member",de:"Mitglied"}, ik_selected:{ar:"محدد",en:"selected",de:"ausgewählt"}, ik_bulkGov:{ar:"المحافظة للمحدد…",en:"Governorate for selected…",de:"Gouvernement für Auswahl…"}, ik_apply:{ar:"طبّق",en:"Apply",de:"Anwenden"},
   ik_bulkDone:{ar:"تم على {n} مسودة",en:"Done on {n} draft(s)",de:"Erledigt für {n} Entwürfe"}, ik_publishing:{ar:"جارٍ النشر",en:"Publishing",de:"Veröffentliche"}, ik_bulkPubQ:{ar:"نشر {n} مسودة؟ ما ينقصه بيان يُرفض ويظهر في القائمة.",en:"Publish {n} drafts? Any that lacks a required field is refused and listed.",de:"{n} Entwürfe veröffentlichen? Unvollständige werden abgelehnt und aufgelistet."}, ik_bulkCancelQ:{ar:"إلغاء {n} مسودة؟",en:"Cancel {n} drafts?",de:"{n} Entwürfe abbrechen?"},
