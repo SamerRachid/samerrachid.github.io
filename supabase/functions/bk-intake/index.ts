@@ -57,6 +57,11 @@ const ENV = {
   tick: Deno.env.get("INTAKE_TICK_SECRET") || "",
   wahaUrl: Deno.env.get("WAHA_URL") || "",
   wahaKey: Deno.env.get("WAHA_API_KEY") || "",
+  // a second WhatsApp number for notifications (owner, 2026-10-16): when WAHA_NOTIFY_URL is set, every notification goes
+  // through it, so the main number (the bot, OTP codes, welcome) never carries the bulk. Unset = everything on the main one.
+  wahaNotifyUrl: Deno.env.get("WAHA_NOTIFY_URL") || "",
+  wahaNotifyKey: Deno.env.get("WAHA_NOTIFY_API_KEY") || Deno.env.get("WAHA_API_KEY") || "",
+  wahaNotifySession: Deno.env.get("WAHA_NOTIFY_SESSION") || "default",
   wahaWebhookSecret: Deno.env.get("WAHA_WEBHOOK_SECRET") || "",
   resendKey: Deno.env.get("RESEND_API_KEY") || "",
 };
@@ -208,14 +213,16 @@ async function waSendMarketingTemplate(to: string, template: string, lang: strin
 // Syrian numbers: Meta's official Cloud API refuses +963 entirely, so these go through a
 // self-hosted WAHA gateway instead — a real WhatsApp account linked by QR code, running in
 // Docker on a small VPS. Everything else keeps using waSendTemplate() above, unchanged.
-async function wahaSend(phone: string, text: string) {
-  if (!ENV.wahaUrl || !ENV.wahaKey) throw new Error("waha not configured");
+async function wahaSend(phone: string, text: string, line: "main" | "notify" = "main") {
+  const useNotify = line === "notify" && !!ENV.wahaNotifyUrl;
+  const url = useNotify ? ENV.wahaNotifyUrl : ENV.wahaUrl, key = useNotify ? ENV.wahaNotifyKey : ENV.wahaKey;
+  if (!url || !key) throw new Error("waha not configured");
   const chatId = phone.replace(/^\+/, "") + "@c.us";
   let r: Response;
   try {
-    r = await fetch(ENV.wahaUrl.replace(/\/$/, "") + "/api/sendText", {
-      method: "POST", headers: { "X-Api-Key": ENV.wahaKey, "Content-Type": "application/json" },
-      body: JSON.stringify({ session: "default", chatId, text }),
+    r = await fetch(url.replace(/\/$/, "") + "/api/sendText", {
+      method: "POST", headers: { "X-Api-Key": key, "Content-Type": "application/json" },
+      body: JSON.stringify({ session: useNotify ? ENV.wahaNotifySession : "default", chatId, text }),
     });
   } catch { throw new Error("waha send: network"); }
   if (!r.ok) throw new Error("waha send " + r.status + " " + (await r.text()).slice(0, 300));
@@ -1485,7 +1492,9 @@ async function campaignFlush(): Promise<number> {
         } else if (r.channel === "whatsapp") {
           if (!r.phone) throw new Error("no_phone");
           const text = campaignText(r) + (tgLink ? `\n\n${TG_INVITE_TEXT} ${tgLink}` : "");
-          if (r.phone.startsWith("+963") || !(ENV.waToken && ENV.waPhone)) await wahaSend(r.phone, text);   // no Meta yet → every WhatsApp send goes through WAHA
+          // no Meta yet → every WhatsApp send goes through WAHA; the welcome stays on the main (bot) number since it invites
+          // the member to send listings right there, every other notification uses the notifications number when one is set
+          if (r.phone.startsWith("+963") || !(ENV.waToken && ENV.waPhone)) await wahaSend(r.phone, text, r.trigger_type === "welcome" ? "main" : "notify");
           else {
             const c = await cfg();   // reuses the existing generic "intake_%" extras merge — no new plumbing needed for these two keys
             await waSendMarketingTemplate(r.phone, c.intake_marketing_wa_template || "balkoun_news", c.intake_marketing_wa_lang || "ar", [text.slice(0, 1000)]);
