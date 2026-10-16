@@ -4250,7 +4250,15 @@ function wireIkOwnerCombos(){
 }
 function ikOwnerPatch(v){ v=String(v||""); if(v.indexOf("a:")===0) return {agency_id:v.slice(2)}; if(v.indexOf("u:")===0) return {user_id:v.slice(2)}; return {user_id:null} }
 function promoPhotos(l){ var x=promoRow(l); var ph=(x&&x.photos||[]).slice(); if(!ph.length&&l.cover) ph=[l.cover]; return ph.slice(0,6) }
-function promoLoadImg(src){ return new Promise(function(res,rej){ var im=new Image(); im.crossOrigin="anonymous"; im.onload=function(){ res(im) }; im.onerror=function(){ rej(new Error("photo")) }; im.src=src }) }
+// The canvas needs a CORS copy of the photo. The page already showed it in a normal <img>, and that cached copy has no
+// CORS header (storage omits it when the request carries no Origin and sends no Vary: Origin), so the browser refuses
+// it and the card used to come out black. A miss is retried at a distinct address (?cors=1) that is only ever asked
+// for with CORS, so its cached copy is always usable. data:/blob: (an uploaded photo) are loaded as they are.
+function promoLoadImg(src){
+  var once=function(u){ return new Promise(function(res,rej){ var im=new Image(); im.crossOrigin="anonymous"; im.onload=function(){ res(im) }; im.onerror=function(){ rej(new Error("photo")) }; im.src=u }) };
+  if(!src || /^(data|blob):/.test(src)) return once(src);
+  return once(src).catch(function(){ return once(src+(src.indexOf("?")>-1?"&":"?")+"cors=1") }).catch(function(){ return once(src+(src.indexOf("?")>-1?"&":"?")+"cors="+Date.now()) });
+}
 function promoCoverDraw(ctx,im,x,y,w,h,zoom,dx,dy){ var s=Math.max(w/im.width,h/im.height)*(zoom||1); var sw=im.width*s, sh=im.height*s; ctx.save(); ctx.beginPath(); ctx.rect(x,y,w,h); ctx.clip(); ctx.drawImage(im, x+(w-sw)/2+(dx||0), y+(h-sh)/2+(dy||0), sw, sh); ctx.restore() }
 function promoRound(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath() }
 /* the site's brandMark() on a canvas (same 100-unit geometry): sand square, gold diamond rotated by `ang`, sand centre */
@@ -4307,6 +4315,7 @@ function promoPaint(ctx,W,H,l,x,photo,opt){
 }
 async function promoImage(l,fmt,opt){
   opt=opt||{}; var x=promoRow(l)||{}; var W=1080, H=fmt==="11"?1080:1350; var photos=promoPhotos(l); var src0=opt.photoUrl||photos[0]; var photo=null; if(src0){ try{ photo=await promoLoadImg(src0) }catch(e){} }
+  if(src0 && !photo) throw new Error(GX("promoPhotoFail"));   // say so, rather than hand back a black card with the text on it
   var A=await promoAssets(); var c=document.createElement("canvas"); c.width=W; c.height=H; var ctx=c.getContext("2d");
   promoPaint(ctx,W,H,l,x,photo,{logo:A.logo,hidePrice:opt.hidePrice});
   return c.toDataURL("image/png");
