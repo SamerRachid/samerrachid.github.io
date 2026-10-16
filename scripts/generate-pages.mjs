@@ -649,7 +649,12 @@ async function main() {
 
     // the app routes that have their own 200 page (see generate-routes.mjs)
     const routeUrls = ["search", "mapsearch", "wanted", "agencies", "projects"].filter((r) => fs.existsSync(path.join(base, r, "index.html"))).map((r) => ({ loc: `${SITE}${CTX.prefix}/${r}/`, priority: "0.6" }));
-    entries.push({ loc: SITE + CTX.prefix + "/", priority: CTX.isDefault ? "1.0" : "0.9" }, ...routeUrls, ...urls,
+    // open requests: each has its own page from generate-routes.mjs (same filter: open and not expired)
+    let wantedOpen = [];
+    try { wantedOpen = ((await sbRpc("bk_public_wanted", { p_country: c.code })) || []).filter((w) => w && w.id && w.status === "open" && (!w.expires_at || new Date(w.expires_at) > new Date())); }
+    catch (e) { console.warn("requests unreadable for the sitemap:", e.message); }
+    entries.push({ loc: SITE + CTX.prefix + "/", priority: CTX.isDefault ? "1.0" : "0.9" }, ...routeUrls,
+      ...wantedOpen.map((w) => ({ loc: `${SITE}${CTX.prefix}/wanted/${w.id}/`, priority: "0.5" })), ...urls,
       ...listingDirsOf(path.join(base, "listing")).map((d) => ({ loc: `${SITE}${CTX.prefix}/listing/${d}/`, priority: "0.9" })),
       ...listingDirsOf(path.join(base, "en", "listing")).map((d) => ({ loc: `${SITE}${CTX.prefix}/en/listing/${d}/`, priority: "0.8" })),
       ...listingDirsOf(path.join(base, "de", "listing")).map((d) => ({ loc: `${SITE}${CTX.prefix}/de/listing/${d}/`, priority: "0.8" })));

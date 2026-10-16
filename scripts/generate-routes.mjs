@@ -11,6 +11,7 @@
 // ════════════════════════════════════════════════════════════════════════
 import fs from "fs";
 import path from "path";
+import vm from "vm";
 
 const SITE = "https://balkoun.com";
 const ROOT = path.resolve(".");
@@ -57,6 +58,8 @@ export async function buildRoutes() {
   } catch (e) { console.warn("countries unreadable, Syria only:", e.message); }
   if (!countries.some((c) => c.is_default)) countries.forEach((c) => { if (c.code === "SY") c.is_default = true; });
   const urls = [];
+  // a switched-off country keeps no request pages; enabled ones are rebuilt (and pruned) in buildWantedPages()
+  for (const c of countries.filter((c) => !c.enabled && !c.is_default)) cleanWantedPages(path.join(ROOT, c.code.toLowerCase()), new Set());
   for (const c of countries.filter((c) => c.enabled)) {
     const prefix = c.is_default ? "" : "/" + c.code.toLowerCase();
     const base = path.join(ROOT, prefix.replace(/^\//, ""));
@@ -71,6 +74,60 @@ export async function buildRoutes() {
       writeCopy(app, path.join(base, r.path), url, localize(r.title, c), localize(r.desc, c));
       urls.push(url);
     }
+    urls.push(...(await buildWantedPages(app, c, base, prefix)));
+  }
+  return urls;
+}
+
+// ── one real page per open request (/wanted/<id>/, 2026-10-16) ─────────────────────────────────────────────────
+// Before this, /wanted/37 had no file: GitHub answered 404.html (the app), so the request still opened for a visitor,
+// but WhatsApp/Facebook previews showed the home page's title and Google never indexed it. Each open, unexpired
+// request now gets a copy of the app with its own title and description; nothing about the request itself changes
+// (same id, same address, same data). A request that closes, expires or is deleted loses its page on the next run and
+// its link keeps working through 404.html exactly as before. Phone numbers never go into the page text.
+// the app's own type names (the `var D = {…}` data line of index.html), so a type added in the panel is named too
+const W_AR = (() => {
+  try {
+    const line = fs.readFileSync(path.join(ROOT, "index.html"), "utf8").split("\n").find((l) => /^var D\s*=\s*\{/.test(l));
+    const box = {}; vm.runInNewContext(line.replace(/^var D\s*=/, "D=").replace(/;\s*$/, ""), box);
+    return Object.fromEntries(Object.entries(box.D.TYPES || {}).map(([k, v]) => [k, v[0]]));
+  } catch (e) { console.warn("type names unreadable:", e.message); return {}; }
+})();
+const noPhones = (s) => String(s || "").replace(/\+?\d[\d\s-]{6,}\d/g, "").replace(/\s+/g, " ").trim();
+function wantedTexts(w, c) {
+  const types = (w.property_types && w.property_types.length ? w.property_types : (w.property_type ? [w.property_type] : [])).map((k) => W_AR[k] || "").filter(Boolean);
+  const deal = w.deal === "rent" ? "للإيجار" : "للشراء";
+  const where = w.gov_name || c.name_ar;
+  const title = "مطلوب: " + (noPhones(w.title) || `${types.join(" أو ") || "عقار"} ${deal} في ${where}`);
+  const cur = w.currency || "USD", num = (n) => Number(n).toLocaleString("en");
+  const budget = w.budget_min && w.budget_max ? `الميزانية ${num(w.budget_min)}–${num(w.budget_max)} ${cur}` : w.budget_max ? `الميزانية حتى ${num(w.budget_max)} ${cur}` : w.budget_min ? `الميزانية من ${num(w.budget_min)} ${cur}` : "";
+  const areas = (w.area_names || []).slice(0, 3).join("، ");
+  const lead = [`${types.join(" أو ") || "عقار"} ${deal}`, where + (areas ? " – " + areas : ""), budget].filter(Boolean).join(" · ");
+  const more = noPhones(w.description).slice(0, 150);
+  return { title, desc: (lead + (more ? ". " + more : "") + ". لديك ما يناسب؟ تواصل مع صاحب الطلب على بلكون.").slice(0, 300) };
+}
+function cleanWantedPages(base, keep) {
+  const dir = path.join(base, "wanted");
+  if (!fs.existsSync(dir)) return;
+  for (const d of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (d.isDirectory() && /^\d+$/.test(d.name) && !keep.has(d.name)) fs.rmSync(path.join(dir, d.name), { recursive: true, force: true });
+  }
+}
+async function buildWantedPages(app, c, base, prefix) {
+  let rows;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/bk_public_wanted`, { method: "POST", headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify({ p_country: c.code }) });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    rows = await res.json();
+  } catch (e) { console.warn(`requests for ${c.code} unreadable, pages left as they are:`, e.message); return []; }
+  const open = (Array.isArray(rows) ? rows : []).filter((w) => w && w.id && w.status === "open" && (!w.expires_at || new Date(w.expires_at) > new Date()));
+  cleanWantedPages(base, new Set(open.map((w) => String(w.id))));   // only after a successful read: a failed read never deletes pages
+  const urls = [];
+  for (const w of open) {
+    const url = `${SITE}${prefix}/wanted/${w.id}/`;
+    const t = wantedTexts(w, c);
+    writeCopy(app, path.join(base, "wanted", String(w.id)), url, t.title, t.desc);
+    urls.push(url);
   }
   return urls;
 }
