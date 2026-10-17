@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-+Bx6nmCAA6d89LjlduC2OWF/AAtzcCgQ/Kfo7rlyJBE=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-4mvuTuJH2ql9jXp7nbQfylYKrb1xdyw5KcI+UBCxmgA=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -3801,6 +3801,14 @@ html.adm-dark .admdm .ab.ok{color:#1A1206}
 /* a channel name stays on the same line as its status pill; pairs wrap as whole pieces */
 .adm .agc-ch{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}.adm .agc-chp{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
 .adm .arange .rs{display:none}
+/* editor text fields: label row with «↺ الأصلي», a note when a text was emptied on purpose */
+.adm .hs-tf>label{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.adm .hs-deft{border:0;background:none;color:var(--a-ink2);font:inherit;font-size:11.5px;font-weight:600;padding:2px 6px;border-radius:6px;cursor:pointer;opacity:.55;white-space:nowrap}
+.adm .hs-deft.on{opacity:1;color:#1F6FEB}
+html.adm-dark .adm .hs-deft.on{color:#8CB4FF}
+.adm .hs-deft:hover{background:var(--a-hover);opacity:1}
+.adm .hs-emptynote{display:block;font-size:11.5px;color:#B3261E;margin-top:4px}
+html.adm-dark .adm .hs-emptynote{color:#FF9B8F}
 @media(max-width:700px){.adm .arange .rs{display:inline}}
 .aused{color:#fff;background:#2E7D5B}html.adm-dark .adm .aused{color:#08220F;background:#5FD39A}html.adm-dark .adm .kpi-v{filter:brightness(1.55) saturate(.9)}.adm .ikstats button.ikstat{background:var(--card);color:inherit}.adm .ikstats button.ikstat.on{background:#14213D;color:#fff}html.adm-dark .adm .ikstats button.ikstat.on{background:#C4881F;color:#1A1206}html.adm-dark .adm tr.aoverdue{background:#2E2513}
 html.adm-dark .adm .adm-q,html.adm-dark .adm .adm-top .ab,html.adm-dark .adm .adm-lang{background:#161D2E;border-color:#232C42;color:#E6E9F0}
@@ -4744,6 +4752,7 @@ html.adm-dark .adm .aseg button.on{background:var(--gold);color:#1A1206}
 html.adm-dark .adm .aloaderr{background:hsla(6,39%,17%,1);color:hsla(4,71%,72%,1);border:1px solid hsla(222,20%,25%,1)}
 html.adm-dark .adm .admdm .ab.ok,html.adm-dark .admdm-ov .admdm .ab.ok{background:var(--p-dark,var(--gold));border-color:var(--p-dark,var(--gold));color:#1A1206}
 html.adm-dark .adm label.lq{background:hsla(222,27%,13%,1)}
+html.adm-dark .adm .hs-emptynote{color:hsla(3,71%,72%,1)}
 html.adm-dark .adm .ikstats button.ikstat.on{background:var(--gold);color:#1A1206}
 html.adm-dark .adm .hs-pagepick select option,html.adm-dark .adm .hs-country select option{color:hsla(220,31%,78%,1);background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-top .hs-seg button.on{background:hsla(222,27%,13%,1);color:#C9D6F2}
@@ -13517,7 +13526,8 @@ var GX_T={
 /* the headline's last word flips every few seconds to the brand: الشرفة → منصة بلكون, balcony → Balkoun.com */
 function heroSubHtml(txt){
   // switches (2026-10-17): the flip itself, and each of its two Arabic words; with both words hidden there is nothing to flip to, so the sentence stays
-  var onX=function(k){ var v=SX(k,true); return v!==false && v!=="false" }, showPre=onX("brand_flip_prefix_on"), showWord=onX("brand_flip_word_on");
+  var onX=function(k){ var v=SX(k,true); return v!==false && v!=="false" }, showPre=onX("brand_flip_prefix_on") && SX("brand_flip_prefix_ar","")!=="\u200b", showWord=onX("brand_flip_word_on") && SX("brand_flip_word_ar","")!=="\u200b";
+  if(!String(txt||"").replace(/\u200b/g,"").trim()) return "";   // the admin emptied this part: nothing shows, nothing flips
   if(!onX("brand_flip_on") || (L==="ar" && !showPre && !showWord)) return txt;
   // the brand face: the letters of "balkoun" / "بلكون" light up one after the other like a wave.
   // Latin letters can also rise (inline-block); Arabic letters stay inline so they remain joined, and glow instead.
@@ -13602,8 +13612,15 @@ function hsDK(desk,phone){ return HS.device==="phone" ? phone : desk }
 var _hsPushT=null;
 /* field renderers — every control carries data-hsk (c:column | x:extra) and data-hst (str|num|bool|color); data-hsr="1" = the preview must re-render */
 function hsIn(key,type,attrs,val){ return '<input data-allow-autofill data-hsk="'+key+'" data-hst="'+type+'" type="'+(type==="num"?"number":type==="color"?"color":"text")+'" value="'+esc(String(val==null?"":val))+'"'+(attrs||"")+'>' }
-function fText(label,key,ph,noLang){ var k=noLang?key:hsLK(key); return '<div class="fl"><label>'+label+(noLang?'':' <i class="hs-lg">'+hsLang().toUpperCase()+'</i>')+'</label>'+hsIn(k,"str",' placeholder="'+esc(String(ph||""))+'" data-hsr="1"',hsVal(k))+'</div>' }
-function fArea(label,key,ph){ var k=hsLK(key); return '<div class="fl"><label>'+label+' <i class="hs-lg">'+hsLang().toUpperCase()+'</i></label><textarea data-hsk="'+k+'" data-hst="str" data-hsr="1" rows="3" placeholder="'+esc(String(ph||""))+'">'+esc(String(hsVal(k)))+'</textarea></div>' }
+var HS_EMPTY="\u200b";   // «the admin emptied this text on purpose»
+function hsTextState(k,ph){ var v=hsVal(k), def=String(ph==null?"":ph), empty=v===HS_EMPTY; return {def:def, empty:empty, shown:empty?"":(v===""?def:String(v)), own:v!==""&&!empty&&String(v)!==def} }
+function hsTextLabel(label,k,st,lang){ return '<label><span>'+label+(lang?' <i class="hs-lg">'+hsLang().toUpperCase()+'</i>':'')+'</span>'+
+  (st.def?'<button type="button" class="hs-deft'+(st.own||st.empty?' on':'')+'" data-hsdefault="'+k+'" title="'+esc(hsT("restoreDef"))+': '+esc(st.def)+'">↺ '+hsT("restoreDefShort")+'</button>':'')+'</label>' }
+function hsTextNote(st){ return st.empty?'<small class="hs-emptynote">'+hsT("emptyField")+'</small>':'' }
+function fText(label,key,ph,noLang){ var k=noLang?key:hsLK(key), st=hsTextState(k,ph);
+  return '<div class="fl hs-tf">'+hsTextLabel(label,k,st,!noLang)+hsIn(k,"str",(st.def?' data-hsdef="1"':' placeholder="'+esc(st.def)+'"')+' data-hsr="1"',st.shown)+hsTextNote(st)+'</div>' }
+function fArea(label,key,ph){ var k=hsLK(key), st=hsTextState(k,ph);
+  return '<div class="fl hs-tf">'+hsTextLabel(label,k,st,true)+'<textarea data-hsk="'+k+'" data-hst="str" data-hsr="1" rows="3"'+(st.def?' data-hsdef="1"':'')+'>'+esc(st.shown)+'</textarea>'+hsTextNote(st)+'</div>' }
 function fDual(label,deskKey,phoneKey,min,max,step,rer){ var k=hsDK(deskKey,phoneKey), v=hsVal(k), ph=HS.device==="phone", dv=hsVal(deskKey);
   return '<div class="fl"><label>'+label+' <i class="hs-dev">'+(ph?AICO.phone:AICO.desk)+'</i></label><div class="hs-dualrow">'+hsIn(k,"num",' min="'+min+'" max="'+max+'" step="'+(step||1)+'" placeholder="'+(ph?esc(String(dv===""?"":dv)):"")+'"'+(rer?' data-hsr="1"':''),v)+(ph?'<button type="button" class="ab hs-reset" data-hsclear="'+k+'" title="'+hsT("useDesk")+'">↺</button>':'')+'</div>'+(ph&&v===""?'<small class="hs-same">'+hsT("same")+'</small>':'')+'</div>' }
 function fSlider(label,deskKey,phoneKey,min,max,step,unit,def,rer){ var k=phoneKey?hsDK(deskKey,phoneKey):deskKey, v=hsVal(k), ph=!!phoneKey&&HS.device==="phone", dv=hsVal(deskKey); var shown=v===""?(ph?(dv===""?def:dv):def):v;
