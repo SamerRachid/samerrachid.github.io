@@ -2358,7 +2358,21 @@ var HS_T={
  dirty:{ar:"تغييرات غير محفوظة — تظهر في المعاينة فقط",en:"Unsaved changes — preview only",de:"Ungespeicherte Änderungen – nur Vorschau"}, clean:{ar:"كل شيء محفوظ",en:"Everything saved",de:"Alles gespeichert"},
  openSite:{ar:"فتح الموقع",en:"Open site",de:"Seite öffnen"}, reload:{ar:"تحديث المعاينة",en:"Reload preview",de:"Vorschau neu laden"},
  sections:{ar:"أقسام الصفحة",en:"Page sections",de:"Seitenabschnitte"},
- exit:{ar:"خروج",en:"Exit",de:"Schließen"}, back:{ar:"رجوع",en:"Back",de:"Zurück"}, close:{ar:"إغلاق",en:"Close",de:"Schließen"}, more:{ar:"المزيد",en:"More",de:"Mehr"},
+ exit:{ar:"خروج",en:"Exit",de:"Schließen"}, both:{ar:"الاثنان",en:"Both",de:"Beide"}, editFor:{ar:"تعدّل قيم",en:"Editing values for",de:"Werte für"},
+ m_show:{ar:"إظهار القسم",en:"Show section",de:"Abschnitt zeigen"}, m_hide:{ar:"إخفاء القسم",en:"Hide section",de:"Abschnitt ausblenden"}, m_up:{ar:"نقل للأعلى",en:"Move up",de:"Nach oben"}, m_down:{ar:"نقل للأسفل",en:"Move down",de:"Nach unten"},
+ m_top:{ar:"نقل لأول الصفحة",en:"Move to the top",de:"Ganz nach oben"}, m_bottom:{ar:"نقل لآخر الصفحة",en:"Move to the bottom",de:"Ganz nach unten"}, m_reset:{ar:"إعادة العناوين الافتراضية (بهذه اللغة)",en:"Restore the default titles (this language)",de:"Standardtitel wiederherstellen (diese Sprache)"},
+ m_resetQ:{ar:"تُمسح العناوين التي كتبتها لهذا القسم بهذه اللغة ويعود النص الافتراضي. متابعة؟",en:"The titles you wrote for this section in this language are cleared and the default text returns. Continue?",de:"Ihre Titel dieses Abschnitts in dieser Sprache werden gelöscht. Weiter?"},
+ addSec:{ar:"إضافة قسم",en:"Add section",de:"Abschnitt hinzufügen"}, addAfter:{ar:"يُضاف تحت",en:"Added below",de:"Einfügen unter"}, addTop:{ar:"الترحيب (أول الصفحة)",en:"The hero (top of the page)",de:"Hero (ganz oben)"},
+ addNone:{ar:"كل الأقسام ظاهرة الآن. لإخفاء قسم استخدم العين أو قائمة ⋯ بجانبه.",en:"Every section is already shown. Hide one with its eye or its ⋯ menu.",de:"Alle Abschnitte sind sichtbar. Ausblenden über das Auge oder ⋯."},
+ addHint:{ar:"أقسام صفحتك الجاهزة المخفية الآن. اختر واحداً فيظهر في المكان المحدد أعلاه.",en:"Your page's ready-made sections that are hidden now. Pick one and it appears where chosen above.",de:"Die fertigen, derzeit ausgeblendeten Abschnitte. Einen wählen, er erscheint an der gewählten Stelle."},
+ pvHintEdit:{ar:"اضغط أي جزء في المعاينة لتعديله؛ العناوين تُكتب عليها مباشرة.",en:"Click any part of the preview to edit it; titles can be typed over directly.",de:"Teil der Vorschau anklicken zum Bearbeiten; Titel direkt überschreiben."},
+ d_ads:{ar:"صف المربعات الإعلانية تحت شريط البحث",en:"The ad squares row under the search bar",de:"Werbekacheln unter der Suche"}, d_feat:{ar:"الإعلانات المميزة النشطة",en:"Active featured listings",de:"Aktive hervorgehobene Inserate"},
+ d_banners:{ar:"شريط البانرات الثلاثة",en:"The three-banner strip",de:"Die Bannerleiste"}, d_ticker:{ar:"متوسط الأسعار في المناطق",en:"Average prices by area",de:"Durchschnittspreise nach Gebiet"},
+ d_projects:{ar:"مشاريع البناء الجديدة",en:"New building projects",de:"Neubauprojekte"}, d_wanted:{ar:"طلبات الباحثين عن عقار",en:"Requests from people searching",de:"Suchanfragen"},
+ d_popular:{ar:"الإعلانات الأكثر مشاهدة هذا الأسبوع",en:"The week's most viewed listings",de:"Meistgesehene Inserate der Woche"}, d_about:{ar:"نص تعريفي بالسوق والموقع",en:"An introduction to the market and the site",de:"Einführungstext"},
+ d_colls:{ar:"أربع بطاقات لمجموعات مختارة",en:"Four curated collection cards",de:"Vier Sammlungskarten"}, d_types:{ar:"تصفّح حسب نوع العقار",en:"Browse by property type",de:"Nach Objektart"},
+ d_trust:{ar:"لماذا بلكون: ثلاث نقاط ثقة",en:"Why Balkoun: three trust points",de:"Warum Balkoun: drei Punkte"}, d_expl:{ar:"المحافظات مع الخريطة",en:"Governorates with the map",de:"Gouvernements mit Karte"},
+ d_band:{ar:"دعوة المالكين لنشر إعلاناتهم",en:"A call to owners to list",de:"Aufruf an Eigentümer"}, d_guides:{ar:"دليل المشتري ومقالاته",en:"The buyer's guide",de:"Käuferratgeber"}, back:{ar:"رجوع",en:"Back",de:"Zurück"}, close:{ar:"إغلاق",en:"Close",de:"Schließen"}, more:{ar:"المزيد",en:"More",de:"Mehr"},
  sheetBtn:{ar:"الأقسام",en:"Sections",de:"Abschnitte"}, pagePick:{ar:"الصفحة التي تعدّلها",en:"Page you are editing",de:"Bearbeitete Seite"}, country:{ar:"الدولة",en:"Country",de:"Land"},
  drag:{ar:"اسحب لتغيير الترتيب (أو الأسهم ↑↓ في لوحة المفاتيح)",en:"Drag to reorder (or the ↑↓ keys)",de:"Zum Umsortieren ziehen (oder ↑↓-Tasten)"},
  exitDirty:{ar:"لديك تغييرات غير محفوظة. الخروج يتجاهلها. هل تريد الخروج؟",en:"You have unsaved changes. Leaving discards them. Leave?",de:"Ungespeicherte Änderungen gehen verloren. Trotzdem schließen?"},
@@ -2441,9 +2455,22 @@ var HS_T={
  social:{ar:"حسابات التواصل",en:"Social accounts",de:"Soziale Konten"}, numbers:{ar:"أرقام التواصل",en:"Contact numbers",de:"Kontaktnummern"},
  contactHint:{ar:"تظهر في صفحة «تواصل معنا» (المعاينة) وفي أزرار الاتصال عبر الموقع. يظهر الحساب فقط عندما يُملأ الرابط والاسم معاً.",en:"Shown on the “Contact us” page (the preview) and in the contact buttons across the site. An account appears only when both its link and name are filled.",de:"Erscheint auf der Kontaktseite (Vorschau) und in den Kontakt-Buttons. Ein Konto erscheint nur mit Link und Name."}
 };
-var HS_SEL={hero_text:".hero h1",hero_bg:".hero-outer",hero_search:".sbar",hero_stats:".hnote",ads:".adsec",feat:"#featSec",banners:".topbanner-wrap",ticker:".mkt",projects:"#projectsSec",wanted:"#wantedSec",colls:"#collsSec",types:"#typesSec",trust:"#trustSec",expl:"#explSec",band:"#bandSec",guides:"#guidesSec",page:".hero-outer",
+var HS_SEL={popular:"#popularSec",about:"#aboutSec",hero_text:".hero h1",hero_bg:".hero-outer",hero_search:".sbar",hero_stats:".hnote",ads:".adsec",feat:"#featSec",banners:".topbanner-wrap",ticker:".mkt",projects:"#projectsSec",wanted:"#wantedSec",colls:"#collsSec",types:"#typesSec",trust:"#trustSec",expl:"#explSec",band:"#bandSec",guides:"#guidesSec",page:".hero-outer",
   row:".adsec",look:".adsec",perf:".adsec",strip:".topbanner-wrap",cards:".res",badges:".res",results:".rs-head",nav:"header",social:".changrid",numbers:".changrid"};
 var HS_EYE={ads:"x:ads_row_enabled"};
+// a section's texts that can be typed over in the preview: [selector inside the section, field] → x:<section>_<field>_<lang>
+var HS_TEXTS=(function(){ var e3=[[".eyebrow","eyebrow"],["h2","h"],[".sub","sub"]], e2=[[".eyebrow","eyebrow"],["h2","h"]];
+  return {feat:e3,popular:e3,colls:e3,expl:e3,guides:e3,wanted:e3,projects:e3,types:e2,about:e2,trust:e2.concat([["p.lead","p"]]),band:e2.concat([[".band-tx>p","p"]])} })();
+var HS_ICO_BOTH='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="13" height="10" rx="1.3"/><path d="M5.5 19h6"/><rect x="17" y="8" width="5" height="11" rx="1.2"/></svg>';
+var HS_ICO_DOTS='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><g fill="currentColor"><circle cx="5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="19" cy="12" r="1.7"/></g></svg>';
+function hsSecIcons(){ return {ads:AICO.ads,feat:AICO.star,banners:AICO.banner,ticker:AICO.chart,projects:AICO.building,wanted:AICO.search,popular:AICO.eye,about:AICO.globe,colls:ICON_GRID,types:AICO.listings,trust:AICO.shield,expl:AICO.map,band:AICO.users,guides:AICO.star} }
+function hsSecOn(k){ var m=hsMerged(), key=HS_EYE[k]||("x:home_"+k+"_on"), p=hsParts(key), v=p.col?m.site[p.name]:m.extras[p.name]; return v==null||v===""?true:(v!==false&&v!=="false") }
+function hsFrames(){ return ["#hsFrame","#hsFrame2"].map(function(id){ return $(id) }).filter(function(f){ return f && f.contentWindow && f.getAttribute("src") }) }
+function hsPostAll(msg){ hsFrames().forEach(function(f){ try{ f.contentWindow.postMessage(msg,location.origin) }catch(e){} }) }
+// tell the preview which parts it shows (selector → section, with the section's name) and which one is picked
+function hsSendMap(){ var keys=[]; $$("#hsOutline [data-hssel]").forEach(function(el){ if(keys.indexOf(el.dataset.hssel)<0) keys.push(el.dataset.hssel) });
+  var map=keys.map(function(k){ var sel=HS_SEL[k]||(k.indexOf("ad:")===0?".adsec":k.indexOf("b:")===0?".topbanner-wrap":null), it=$('#hsOutline [data-hssel="'+k+'"] .hs-name'); var own=/^(ad|b):/.test(k)&&it; return sel?{s:sel,k:k,l:own?((it.childNodes[0]&&it.childNodes[0].textContent.trim())||it.textContent.trim()):hsT(k)}:null }).filter(Boolean);
+  hsPostAll({type:"bk-preview-map",map:map,sel:HS.sel,texts:HS.page==="home"?HS_TEXTS:{}}) }
 var HS_VARKEYS=/^(sk_|h1_|sbar_|hero_gap|ad_carousel_gap|ad_square_size|hero_title_size_m|sec_pad|hero_max_height|card_min_width)/;
 var HS_ICO_UNDO='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>';
 var HS_ICO_GRIP='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><g fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></g></svg>', HS_ICO_BACK='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
@@ -2469,10 +2496,10 @@ function hsBDraft(){ if(!HS.bDraft){ HS.bDraft=JSON.parse(JSON.stringify(banners
 function hsBSet(i,field,val){ var cfg=hsBDraft()[i]; if(val===null||val===undefined) delete cfg[field]; else cfg[field]=val; HS.draft.site.banners_config=JSON.stringify(HS.bDraft); hsDirtyUI() }
 function hsMerged(){ var ex=SITE.extras; if(typeof ex==="string"){ try{ ex=JSON.parse(ex) }catch(e){ ex={} } } ex=Object.assign({},ex||{},HS.draft.extras); Object.keys(ex).forEach(function(k){ if(ex[k]===null||ex[k]===""||ex[k]===undefined) delete ex[k] }); var site={}; Object.keys(SITE).forEach(function(k){ if(k!=="extras") site[k]=SITE[k] }); Object.assign(site,HS.draft.site); return {site:site,extras:ex} }
 function hsOrder(ex){ var o=ex.home_order; if(typeof o==="string"){ try{ o=JSON.parse(o) }catch(e){ o=null } } var r=Array.isArray(o)?o.filter(function(k){ return HOME_SECS.indexOf(k)>-1 }):[]; HOME_SECS.forEach(function(k,i){ if(r.indexOf(k)<0){ if(!i){ r.unshift(k); return } var p=r.indexOf(HOME_SECS[i-1]); r.splice(p<0?r.length:p+1,0,k) } }); return r }
-function hsPush(rerender,delay){ clearTimeout(_hsPushT); _hsPushT=setTimeout(function(){ var f=$("#hsFrame"); if(!f||!f.contentWindow) return; var m=hsMerged(); var msg={type:"bk-preview",site:m.site,extras:m.extras,lang:hsLang(),rerender:!!rerender};
+function hsPush(rerender,delay){ clearTimeout(_hsPushT); _hsPushT=setTimeout(function(){ if(!hsFrames().length) return; var m=hsMerged(); var msg={type:"bk-preview",site:m.site,extras:m.extras,lang:hsLang(),rerender:!!rerender};
   if(HS.page==="ads" || Object.keys(HS.adDraft).length || HS.adNew) msg.adSlots=hsAdList();
-  try{ f.contentWindow.postMessage(msg,location.origin) }catch(e){} }, delay||0) }
-function hsScrollTo(){ var f=$("#hsFrame"), sel=HS_SEL[HS.sel]||(HS.sel.indexOf("ad:")===0?".adsec":HS.sel.indexOf("b:")===0?".topbanner-wrap":null); if(!f||!f.contentWindow||!sel) return; try{ f.contentWindow.postMessage({type:"bk-preview-scroll",sel:sel},location.origin) }catch(e){} }
+  hsPostAll(msg) }, delay||0) }
+function hsScrollTo(){ var sel=HS_SEL[HS.sel]||(HS.sel.indexOf("ad:")===0?".adsec":HS.sel.indexOf("b:")===0?".topbanner-wrap":null); hsSendMap(); if(!sel) return; hsPostAll({type:"bk-preview-scroll",sel:sel,top:hsMob()}) }
 function fNum(label,key,min,max,step,ph,rer){ return '<div class="fl"><label>'+label+'</label>'+hsIn(key,"num",' min="'+min+'" max="'+max+'" step="'+(step||1)+'" placeholder="'+esc(String(ph==null?"":ph))+'"'+(rer?' data-hsr="1"':''),hsVal(key))+'</div>' }
 function fSwitch(label,key,def,rer){ var v=hsVal(key); var on=v===""?def!==false:(v!==false&&v!=="false"); return '<label class="hs-sw"><input type="checkbox" data-hsk="'+key+'" data-hst="bool"'+(on?' checked':'')+(rer?' data-hsr="1"':'')+'><span>'+label+'</span></label>' }
 function fSel(label,key,opts,def,rer){ var v=hsVal(key); if(v==="") v=def; return '<div class="fl"><label>'+label+'</label><select data-hsk="'+key+'" data-hst="str"'+(rer?' data-hsr="1"':'')+'>'+opts.map(function(o){ return '<option value="'+esc(o[0])+'"'+(String(v)===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select></div>' }
@@ -2484,7 +2511,7 @@ function aIn(field,type,val,attrs){ return '<input data-allow-autofill data-hsa=
 function aText(label,field,val,ph){ return '<div class="fl"><label>'+label+'</label>'+aIn(field,"str",val,' placeholder="'+esc(String(ph||""))+'"')+'</div>' }
 function hsInspectorHtml(){
   var phone=HS.device==="phone", r = HS.page==="ads"?hsInspAds():HS.page==="banners"?hsInspBanners():HS.page==="design"?hsInspDesign():HS.page==="contact"?hsInspContact():hsInspHome();
-  return '<h3><button type="button" class="hs-back" data-hsback title="'+hsT("back")+'" aria-label="'+hsT("back")+'">'+HS_ICO_BACK+'</button><span class="hs-ttl">'+r.title+'</span>'+(r.badge||'')+'<span class="hs-badge">'+(phone?AICO.phone:AICO.desk)+' '+hsT(phone?"phone":"desk")+'</span></h3><div class="in">'+r.H.join("")+'</div>';
+  return '<h3><button type="button" class="hs-back" data-hsback title="'+hsT("back")+'" aria-label="'+hsT("back")+'">'+HS_ICO_BACK+'</button><span class="hs-ttl">'+r.title+'</span>'+(r.badge||'')+'<button type="button" class="hs-badge" data-hsdevtog title="'+hsT("editFor")+' '+hsT(phone?"phone":"desk")+' — '+hsT(phone?"desk":"phone")+'?">'+(phone?AICO.phone:AICO.desk)+' '+hsT(phone?"phone":"desk")+'</button></h3><div class="in">'+r.H.join("")+'</div>';
 }
 function hsInspAds(){
   var sd=HS.sel, H=[], title=hsT(sd);
@@ -2696,14 +2723,16 @@ function hsOutlineBanners(){
 function hsOutlineHome(){
   var m=hsMerged(), ex=m.extras, site=m.site;
   var isOn=function(key){ var p=hsParts(key), v=p.col?site[p.name]:ex[p.name]; return v==null||v===""?true:(v!==false&&v!=="false") };
-  var ICO={ads:AICO.ads,feat:AICO.star,banners:AICO.banner,ticker:AICO.chart,projects:AICO.building,wanted:AICO.search,popular:AICO.eye,about:AICO.globe,colls:ICON_GRID,types:AICO.listings,trust:AICO.shield,expl:AICO.map,band:AICO.users,guides:AICO.star};
+  var ICO=hsSecIcons();
   var item=function(k,o){ o=o||{}; var on=o.eye?isOn(o.eye):o.bgEye?(((HS.device==="phone"&&ex.hero_bg_type_m)?ex.hero_bg_type_m:(site.hero_bg_type||"sketch"))!=="none"):true; var selK=o.selAs||k; var isSel=HS.sel===selK || (k==="hero" && HS.sel.indexOf("hero_")===0);
     return '<div class="hs-item'+(isSel?' on':'')+(o.child?' child':'')+(on?'':' off')+(o.mv?' drag':'')+'" data-hssel="'+selK+'"'+(o.mv?' data-hsdk="'+k+'"':'')+'>'+
       (o.mv?'<button type="button" class="hs-grip" data-hsdrag="'+k+'" title="'+hsT("drag")+'" aria-label="'+hsT("drag")+'">'+HS_ICO_GRIP+'</button>':'')+
       (o.ico?'<span class="hs-ico">'+o.ico+'</span>':'')+'<span class="hs-name">'+hsT(k)+(o.sub?'<small class="hs-sub">'+o.sub+'</small>':'')+'</span>'+
-      ((o.eye||o.bgEye)?'<button type="button" class="hs-eye'+(on?'':' off')+'" data-hseye="'+k+'" title="'+hsT("show")+'">'+(on?AICO.eye:HS_ICO_EYEOFF)+'</button>':'')+'</div>' };
+      ((o.eye||o.bgEye)?'<button type="button" class="hs-eye'+(on?'':' off')+'" data-hseye="'+k+'" title="'+hsT("show")+'">'+(on?AICO.eye:HS_ICO_EYEOFF)+'</button>':'')+
+      (o.mv?'<button type="button" class="hs-eye hs-dots" data-hsmenu="'+k+'" title="'+hsT("more")+'" aria-label="'+hsT("more")+'" aria-haspopup="menu">'+HS_ICO_DOTS+'</button>':'')+'</div>' };
   return item("hero",{ico:AICO.home2,selAs:"hero_text"})+item("hero_text",{child:true,eye:"c:hero_enabled"})+item("hero_bg",{child:true,bgEye:true})+item("hero_search",{child:true})+item("hero_stats",{child:true,eye:"c:stats_enabled"})+
-    hsOrder(ex).map(function(k){ return item(k,{eye:HS_EYE[k]||("x:home_"+k+"_on"),mv:k!=="banners"||ex.banners_slot!=="top",ico:ICO[k],sub:k==="banners"&&ex.banners_slot==="top"?hsT("bSlotTop"):""}) }).join("")+item("page",{ico:AICO.gear});
+    hsOrder(ex).map(function(k){ return item(k,{eye:HS_EYE[k]||("x:home_"+k+"_on"),mv:k!=="banners"||ex.banners_slot!=="top",ico:ICO[k],sub:k==="banners"&&ex.banners_slot==="top"?hsT("bSlotTop"):""}) }).join("")+
+    '<button type="button" class="hs-addsec" id="hsAddSec">'+'<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>'+hsT("addSec")+'</button>'+item("page",{ico:AICO.gear});
 }
 function hsStudioHtml(page){
   HS.page=page||"home"; if(!HS.lang) HS.lang=L; HS.sel=HS.selBy[HS.page]||HS_PAGES[HS.page].sel;
@@ -2719,7 +2748,7 @@ function hsStudioHtml(page){
     '<label class="hs-tb hs-pagepick" title="'+hsT("pagePick")+'">'+AICO.palette+'<select id="hsPage" aria-label="'+hsT("pagePick")+'">'+pages.map(function(k){ return '<option value="'+k+'"'+(k===ADM.tab?' selected':'')+'>'+tabOf(k)+'</option>' }).join("")+'</select></label>'+
     '<div class="hs-tools">'+
      '<button type="button" class="hs-sheetbtn" id="hsSheetBtn">'+AICO.listings+'<span>'+hsT("sheetBtn")+'</span></button>'+
-     '<div class="hs-seg" id="hsDev">'+[["desk",AICO.desk],["phone",AICO.phone]].map(function(d){ return '<button type="button" data-dev="'+d[0]+'" class="'+(HS.device===d[0]?"on":"")+'" title="'+hsT(d[0])+'">'+d[1]+'<span>'+hsT(d[0])+'</span></button>' }).join("")+'</div>'+
+     '<div class="hs-seg" id="hsDev">'+[["desk",AICO.desk],["phone",AICO.phone],["both",HS_ICO_BOTH]].map(function(d){ var on=d[0]==="both"?HS.layout==="both":(HS.layout!=="both"&&HS.device===d[0]); return '<button type="button" data-dev="'+d[0]+'" class="'+(on?"on":"")+'" title="'+hsT(d[0])+'">'+d[1]+'<span>'+hsT(d[0])+'</span></button>' }).join("")+'</div>'+
      '<div class="hs-seg" id="hsLang">'+["ar","en","de"].map(function(l){ return '<button type="button" data-lang="'+l+'" class="'+(HS.lang===l?"on":"")+'">'+(LANG_SHORT[l]||l)+'</button>' }).join("")+'</div>'+
     '</div>'+
     '<span class="hs-grow"></span>'+
@@ -2740,14 +2769,24 @@ function hsStudioHtml(page){
      '<div class="hs-list"><div class="hs-side-h"><b>'+tabOf(ADM.tab)+'</b><small>'+hsT(HS.page==="home"?"sectionsHint":"sections")+'</small></div><div id="hsOutline">'+hsOutlineHtml()+'</div></div>'+
      '<div class="blk hs-insp" id="hsInsp">'+hsInspectorHtml()+'</div>'+
     '</aside>'+
-    '<main class="hs-pv '+HS.device+'" id="hsPv"><div class="hs-pvwrap" id="hsPvWrap"><iframe id="hsFrame" src="'+hsPvUrl()+'" title="preview"></iframe></div><div class="hs-pvnote">'+hsT("previewNote")+'</div></main>'+
-   '</div></div>';
+    '<main class="hs-pv '+hsPvClass()+'" id="hsPv"><div class="hs-pvwrap" id="hsPvWrap"><iframe id="hsFrame" src="'+hsPvUrl()+'" title="preview"></iframe></div>'+
+     '<div class="hs-pvwrap hs-pvwrap2" id="hsPvWrap2"><iframe id="hsFrame2"'+(HS.layout==="both"?' src="'+hsPvUrl()+'"':'')+' title="preview phone"></iframe></div>'+
+     '<div class="hs-pvnote">'+hsT("previewNote")+' '+hsT("pvHintEdit")+'</div></main>'+
+    '<section class="hs-gal" id="hsGal" hidden></section>'+
+   '</div><div class="hs-menu" id="hsMenu" role="menu" hidden></div></div>';
 }
 // list ⇄ settings in the side column (on a phone the column is a sheet over the page)
-function hsView(v){ HS.view=v; var r=$("#hsRoot"); if(!r) return; r.classList.toggle("hs-v-list",v==="list"); r.classList.toggle("hs-v-item",v==="item"); if(v==="item") r.classList.add("hs-sheet"); var sc=v==="item"?$("#hsInsp"):$("#hsOutline"); if(sc&&sc.parentElement) try{ (v==="item"?sc:$("#hsSide")).scrollTop=0 }catch(e){} }
+function hsMob(){ return !!(window.matchMedia&&matchMedia("(max-width:900px)").matches) }
+function hsView(v,noSheet){ HS.view=v; var r=$("#hsRoot"); if(!r) return; r.classList.toggle("hs-v-list",v==="list"); r.classList.toggle("hs-v-item",v==="item"); if(v==="item"&&!noSheet) r.classList.add("hs-sheet"); var sc=v==="item"?$("#hsInsp"):$("#hsOutline"); if(sc&&sc.parentElement) try{ (v==="item"?sc:$("#hsSide")).scrollTop=0 }catch(e){} }
 function hsSaveLbl(){ return '<span class="hs-l">'+hsT("saveAll")+'</span><span class="hs-s">'+t("save")+'</span>' }   // the phone shows the short word
+function hsBoth(){ return HS.layout==="both" && !(window.matchMedia&&matchMedia("(max-width:900px)").matches) }
+function hsPvClass(){ return hsBoth()?"both":HS.device }
 function hsSheet(open){ var r=$("#hsRoot"); if(r) r.classList.toggle("hs-sheet",!!open) }
 function hsFit(){ var pv=$("#hsPv"), w=$("#hsPvWrap"), f=$("#hsFrame"); if(!pv||!w||!f) return; var mob=window.matchMedia&&matchMedia("(max-width:900px)").matches, W=pv.clientWidth-(mob?0:40), H=pv.clientHeight-(mob?0:56);
+  pv.className="hs-pv "+hsPvClass();
+  if(hsBoth()){ var w2=$("#hsPvWrap2"), f2=$("#hsFrame2"), pw=Math.round(Math.min(390,W*0.3)), ps=pw/390, dw=W-pw-24, ds=Math.min(1,dw/1280);
+    w.style.width=Math.round(1280*ds)+"px"; w.style.height=H+"px"; f.style.width="1280px"; f.style.height=Math.round(H/ds)+"px"; f.style.transform="scale("+ds+")";
+    w2.style.width=pw+"px"; w2.style.height=H+"px"; f2.style.width="390px"; f2.style.height=Math.round(H/ps)+"px"; f2.style.transform="scale("+ps+")"; return }
   if(HS.device==="phone"){ var pw=mob?W:Math.min(390,W-20); w.style.width=pw+"px"; w.style.height=H+"px"; f.style.width=pw+"px"; f.style.height=H+"px"; f.style.transform="none" }
   else { var sc=Math.min(1,W/1280); w.style.width=Math.round(1280*sc)+"px"; w.style.height=H+"px"; f.style.width="1280px"; f.style.height=Math.round(H/sc)+"px"; f.style.transform="scale("+sc+")" } }
 function hsDirtyUI(){ var st=$("#hsState"), sv=$("#hsSave"), d=hsDirty(); if(st){ st.classList.toggle("dirty",d); st.querySelector("span").textContent=hsT(d?"dirty":"clean") } if(sv) sv.disabled=!d; window.onbeforeunload = d ? function(){ return true } : null }
@@ -2757,6 +2796,43 @@ async function hsUpload(file,folder){ if(!DB) throw new Error("no client"); var 
   if(isVideo && file.size>8*1048576) throw new Error(GX("videoTooBig").replace("{mb}",8)); if(!isVideo && file.size>12*1048576) throw new Error(GX("imageTooBig")); var path=(isVideo?"videos/":"photos/")+folder+"/"+Date.now()+"_"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_"); var body=file, ct=file.type;
   if(!isVideo){ var raw=await new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){res(r.result)}; r.onerror=function(){rej(new Error("read"))}; r.readAsDataURL(file) }); body=await shrink(raw,1600,0.85); ct="image/jpeg" }
   var up=await storageUpload(path,body,{contentType:ct,upsert:false}); if(up.error) throw up.error; return DB.storage.from("photos").getPublicUrl(path).data.publicUrl }
+// ⋯ menu of one home section: show/hide, move one step / to an end, restore its default titles
+function hsMovable(){ return [].map.call($$("#hsOutline [data-hsdk]"),function(r){ return r.dataset.hsdk }) }
+function hsMenuOpen(btn,kbd){ var k=btn.dataset.hsmenu, m=$("#hsMenu"); if(!m) return; if(!m.hidden && m.dataset.k===k){ hsMenuClose(); return } hsGalClose();
+  var keys=hsMovable(), i=keys.indexOf(k), on=hsSecOn(k), ic=function(p){ return '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+p+'"/></svg>' };
+  var row=function(act,label,icon,dis,cls){ return '<button type="button" role="menuitem" data-hsm="'+act+'"'+(dis?' disabled':'')+(cls?' class="'+cls+'"':'')+'>'+icon+'<span>'+label+'</span></button>' };
+  m.dataset.k=k; m.innerHTML=
+    row("eye",hsT(on?"m_hide":"m_show"),on?HS_ICO_EYEOFF:AICO.eye)+'<hr>'+
+    row("up",hsT("m_up"),ic("M12 19V5M6 11l6-6 6 6"),i<=0)+row("down",hsT("m_down"),ic("M12 5v14M6 13l6 6 6-6"),i<0||i>=keys.length-1)+
+    row("top",hsT("m_top"),ic("M6 4h12M12 20V8M7 13l5-5 5 5"),i<=0)+row("bottom",hsT("m_bottom"),ic("M6 20h12M12 4v12M7 11l5 5 5-5"),i<0||i>=keys.length-1)+
+    (HS_TEXTS[k]?'<hr>'+row("reset",hsT("m_reset"),ic("M4 4v6h6M20 12a8 8 0 0 1-14.9 4M4 10a8 8 0 0 1 14.9-4")):'');
+  m.hidden=false; btn.classList.add("on"); btn.setAttribute("aria-expanded","true");
+  var r=btn.getBoundingClientRect(), mw=m.offsetWidth, mh=m.offsetHeight, rtl=document.documentElement.dir!=="ltr";
+  var left=rtl?r.right-mw:r.left; left=Math.max(8,Math.min(innerWidth-mw-8,left)); var top=r.bottom+4; if(top+mh>innerHeight-8) top=Math.max(8,r.top-mh-4);
+  m.style.left=left+"px"; m.style.top=top+"px"; if(kbd){ var first=m.querySelector("button:not([disabled])"); if(first) try{ first.focus() }catch(x){} } }
+function hsMenuClose(){ var m=$("#hsMenu"); if(!m||m.hidden) return; m.hidden=true; $$("[data-hsmenu].on").forEach(function(b){ b.classList.remove("on"); b.setAttribute("aria-expanded","false") }) }
+function hsMenuAct(k,act){ var keys=hsMovable(), i=keys.indexOf(k); hsMenuClose();
+  if(act==="eye"){ var key=HS_EYE[k]||("x:home_"+k+"_on"); hsSet(key,!hsSecOn(k)); hsPush(true); hsRenderOutline(); hsRenderInsp(); return }
+  if(act==="up" && i>0) return hsMoveSection(k,keys[i-1]);
+  if(act==="down" && i>=0 && i<keys.length-1) return hsMoveSection(k,keys[i+2]||null);
+  if(act==="top" && i>0) return hsMoveSection(k,keys[0]);
+  if(act==="bottom" && i>=0 && i<keys.length-1) return hsMoveSection(k,null);
+  if(act==="reset" && HS_TEXTS[k]){ if(!confirm(hsT("m_resetQ"))) return; HS_TEXTS[k].forEach(function(f){ hsSet("x:"+k+"_"+f[1]+"_"+hsLang(),null) }); hsPush(true); hsRenderInsp() } }
+// «إضافة قسم»: the page's ready-made sections that are hidden now; picking one shows it at the chosen place
+function hsGalOpen(kbd){ var g=$("#hsGal"); if(!g) return; hsMenuClose();
+  var keys=hsMovable(), shown=keys.filter(hsSecOn), hidden=keys.filter(function(k){ return !hsSecOn(k) }), ICO=hsSecIcons();
+  var def=(shown.indexOf(HS.sel)>-1)?HS.sel:(shown[shown.length-1]||"");
+  var nm=function(k){ var it=$('#hsOutline [data-hssel="'+k+'"] .hs-name'); return it?(it.childNodes[0]?it.childNodes[0].textContent:it.textContent).trim():hsT(k) };
+  g.innerHTML='<div class="hs-gal-h"><b>'+hsT("addSec")+'</b><button type="button" class="hs-gal-x" data-hsgalx aria-label="'+hsT("close")+'">×</button></div>'+
+    '<label class="hs-gal-after">'+hsT("addAfter")+' <select id="hsGalAfter"><option value="">'+hsT("addTop")+'</option>'+shown.map(function(k){ return '<option value="'+k+'"'+(k===def?' selected':'')+'>'+esc(nm(k))+'</option>' }).join("")+'</select></label>'+
+    '<div class="hintx hs-gal-hint">'+hsT(hidden.length?"addHint":"addNone")+'</div>'+
+    '<div class="hs-gal-g">'+hidden.map(function(k){ return '<button type="button" class="hs-tile" data-hsgal="'+k+'"><span class="hs-tile-ic">'+(ICO[k]||AICO.listings)+'</span><b>'+esc(nm(k))+'</b><small>'+hsT("d_"+k)+'</small></button>' }).join("")+'</div>';
+  g.hidden=false; var r=$("#hsRoot"); if(r) r.classList.add("hs-galopen"); if(kbd){ var f=g.querySelector(".hs-tile,select"); if(f) try{ f.focus() }catch(x){} } }
+function hsGalClose(){ var g=$("#hsGal"); if(g) g.hidden=true; var r=$("#hsRoot"); if(r) r.classList.remove("hs-galopen") }
+function hsGalAdd(k){ var after=($("#hsGalAfter")||{}).value||"", keys=hsMovable().filter(function(x){ return x!==k }), before;
+  if(!after) before=keys[0]||null; else { var i=keys.indexOf(after); before=i<0?null:(keys[i+1]||null) }
+  hsSet(HS_EYE[k]||("x:home_"+k+"_on"),true); hsGalClose(); hsMoveSection(k,before);
+  HS.sel=k; HS.selBy[HS.page]=k; hsRenderOutline(); hsRenderInsp(); hsView("item"); setTimeout(hsScrollTo,450) }
 // put section k before section beforeKey (null = after the last movable one) in the home order, as a draft
 function hsMoveSection(k, beforeKey){
   var ord=hsOrder(hsMerged().extras), i=ord.indexOf(k); if(i<0) return; ord.splice(i,1);
@@ -2782,9 +2858,20 @@ function hsWire(){
   var root=$(".hs"); if(!root) return;
   var frame=$("#hsFrame");
   if(HS._onMsg) window.removeEventListener("message",HS._onMsg);
-  HS._onMsg=function(e){ if(e.origin!==location.origin||!e.data) return; if(e.data.type==="bk-preview-ready"){ hsPush(true); setTimeout(hsScrollTo,700) } };
+  HS._onMsg=function(e){ if(e.origin!==location.origin||!e.data) return; var d=e.data;
+    if(d.type==="bk-preview-ready"){ hsPush(true); setTimeout(hsScrollTo,700); return }
+    // a click on the page picks that part in the editor
+    if(d.type==="bk-preview-pick"){ var k=String(d.key||""); if(!/^[\w:-]{1,40}$/.test(k) || !$('#hsOutline [data-hssel="'+k+'"]')) return; HS.sel=k; HS.selBy[HS.page]=k; hsRenderOutline(); hsRenderInsp();
+      // a phone keeps the sheet down while a title is typed over in the page; any other part opens its settings and moves to the top
+      if(hsMob() && d.text) hsView("item",true); else { hsView("item"); if(hsMob()) hsScrollTo(); else hsSendMap() } return }
+    // a title typed over in the page: the same draft key its settings field writes
+    if(d.type==="bk-preview-text"){ var fld=String(d.field||""); if(!/^x:[a-z]+_(eyebrow|h|sub|p)$/.test(fld)) return; var key=fld+"_"+hsLang(), v=String(d.value==null?"":d.value);
+      hsSet(key, v.trim()===""?null:v); var inp=$('#hsInsp [data-hsk="'+key+'"]'); if(inp) inp.value=v; return }
+    if(d.type==="bk-preview-textdone"){ hsPush(true); return }
+    if(d.type==="bk-preview-esc" && HS._onKey){ HS._onKey({key:"Escape"}); return } };
   window.addEventListener("message",HS._onMsg);
   frame.addEventListener("load",function(){ hsPush(true,800) });
+  var frame2=$("#hsFrame2"); if(frame2) frame2.addEventListener("load",function(){ if(frame2.getAttribute("src")) hsPush(true,800) });
   hsFit(); if(HS._onResize) window.removeEventListener("resize",HS._onResize); HS._onResize=hsFit; window.addEventListener("resize",hsFit);
   var hsDropDrafts=function(){ HS.draft={site:{},extras:{}}; HS.adDraft={}; HS.adNew=null; HS.bDraft=null; HS.bBefore=null; HS.adPendingDel={}; HS.bPendingDel=[]; window.onbeforeunload=null };
   // «خروج»: back to the page the admin came from; unsaved edits are confirmed away first
@@ -2798,17 +2885,22 @@ function hsWire(){
   if(moreBtn) moreBtn.onclick=function(e){ e.stopPropagation(); setMore(!more.classList.contains("open")) };
   if(more) more.addEventListener("click",function(e){ if(e.target.closest("button,a")) setMore(false) });
   if(HS._onDocClick) document.removeEventListener("click",HS._onDocClick);
-  HS._onDocClick=function(e){ if(more && more.classList.contains("open") && !e.target.closest("#hsMore,#hsMoreBtn")) setMore(false) }; document.addEventListener("click",HS._onDocClick);
+  HS._onDocClick=function(e){ if(more && more.classList.contains("open") && !e.target.closest("#hsMore,#hsMoreBtn")) setMore(false); var mn=$("#hsMenu"); if(mn && !mn.hidden && !e.target.closest("#hsMenu,[data-hsmenu]")) hsMenuClose() }; document.addEventListener("click",HS._onDocClick);
   // phone: the side column is a sheet over the page
   $("#hsSheetBtn").onclick=function(){ hsView("list"); hsSheet(true) };
+  $("#hsMenu").onkeydown=function(e){ if(e.key!=="ArrowDown"&&e.key!=="ArrowUp") return; e.preventDefault(); var b=[].slice.call(this.querySelectorAll("button:not([disabled])")), i=b.indexOf(document.activeElement); var n=b[(i+(e.key==="ArrowDown"?1:-1)+b.length)%b.length]; if(n) n.focus() };
+  $("#hsMenu").onclick=function(e){ var a=e.target.closest("[data-hsm]"); if(!a||a.disabled) return; hsMenuAct(this.dataset.k, a.dataset.hsm) };
+  $("#hsGal").onclick=function(e){ if(e.target.closest("[data-hsgalx]")){ hsGalClose(); return } var tl=e.target.closest("[data-hsgal]"); if(tl) hsGalAdd(tl.dataset.hsgal) };
   $("#hsSheetX").onclick=function(){ hsSheet(false) };
   // keyboard: Esc steps back (menu → settings → list → closed sheet)
   if(HS._onKey) document.removeEventListener("keydown",HS._onKey);
-  HS._onKey=function(e){ if(e.key!=="Escape" || !$("#hsRoot")) return; if(more&&more.classList.contains("open")){ setMore(false); return } if(HS.view==="item"){ hsView("list"); return } hsSheet(false) };
+  HS._onKey=function(e){ if(e.key!=="Escape" || !$("#hsRoot")) return; if(more&&more.classList.contains("open")){ setMore(false); return } if(!$("#hsMenu").hidden){ hsMenuClose(); return } if(!$("#hsGal").hidden){ hsGalClose(); return } if(HS.view==="item"){ hsView("list"); return } hsSheet(false) };
   document.addEventListener("keydown",HS._onKey);
-  $("#hsDev").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; HS.device=b.dataset.dev; HS._devPicked=true; $$("#hsDev button").forEach(function(x){ x.classList.toggle("on",x===b) }); $("#hsPv").className="hs-pv "+HS.device; hsFit(); hsRenderInsp() };
+  $("#hsDev").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var dv=b.dataset.dev;
+    if(dv==="both"){ HS.layout="both"; var f2=$("#hsFrame2"); if(f2 && !f2.getAttribute("src")) f2.src=hsPvUrl() } else { HS.layout="one"; HS.device=dv; HS._devPicked=true }
+    $$("#hsDev button").forEach(function(x){ x.classList.toggle("on",x===b) }); hsFit(); hsRenderInsp() };
   $("#hsLang").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; HS.lang=b.dataset.lang; $$("#hsLang button").forEach(function(x){ x.classList.toggle("on",x===b) }); hsPush(true); hsRenderInsp() };
-  $("#hsReload").onclick=function(){ frame.src=hsPvUrl()+"&r="+Date.now() };
+  $("#hsReload").onclick=function(){ frame.src=hsPvUrl()+"&r="+Date.now(); var f2=$("#hsFrame2"); if(f2 && f2.getAttribute("src")) f2.src=hsPvUrl()+"&r="+Date.now() };
   $("#hsDiscard").onclick=function(){ if(!confirm(GX("hsDiscardConfirm"))) return; HS.draft={site:{},extras:{}}; HS.adDraft={}; HS.adNew=null; HS.bDraft=null; HS.adPendingDel={}; HS.bPendingDel=[]; if(HS.sel==="ad:new") HS.sel="row"; hsPush(true); hsRenderInsp(); hsRenderOutline(); hsDirtyUI() };
   $("#hsSave").onclick=async function(){ var btn=this, msg=$("#hsMsg"); var patch=Object.assign({},HS.draft.site); var ex={}; Object.keys(HS.draft.extras).forEach(function(k){ var v=HS.draft.extras[k]; ex[k]=(v===""||v===undefined)?null:v }); if(Object.keys(ex).length) patch.extras=ex;
     btn.disabled=true; btn.textContent=t("saving");
@@ -2824,7 +2916,7 @@ function hsWire(){
           for(var k1=0;k1<bU.length;k1++){ if(aU.indexOf(bU[k1])===-1){ try{ var er=await rpc("bk_admin_engage",{p_token:ADM.token,p_country:COUNTRY,p_kind:"banner",p_ref_id:bi+1,p_ref_text:bU[k1],p_title:GX("engBannerN").replace("{n}",bi+1)}); if(er&&er.code) codes.push(er.code) }catch(e){} } }
           for(var k2=0;k2<aU.length;k2++){ if(bU.indexOf(aU[k2])===-1){ try{ await rpc("bk_admin_engage_end",{p_token:ADM.token,p_kind:"banner",p_ref_id:bi+1,p_ref_text:aU[k2],p_status:"ended"}) }catch(e){} } } } }
       if(adsChanged){ try{ ADM.adSlots=(await rpc("bk_admin_list_ads",{p_token:ADM.token,p_country:COUNTRY}))||[] }catch(e){} HS.adDraft={}; HS.adNew=null; HS.adPendingDel={}; if(HS.sel==="ad:new") HS.sel="row"; try{ await loadAdSlots() }catch(e){}
-        var f=$("#hsFrame"); if(f&&f.contentWindow){ try{ f.contentWindow.postMessage({type:"bk-preview",reloadAds:true},location.origin) }catch(e){} } }
+        hsPostAll({type:"bk-preview",reloadAds:true}) }
       HS.bPendingDel.forEach(function(u){ replaceStorageFile(u) }); HS.bPendingDel=[]; HS.bDraft=null; HS.bBefore=null; ADM._engDays=null;
       HS.draft={site:{},extras:{}}; applySectionGapVars(); applySiteExtras(); applyBannerSizeVar(); if(msg) msg.textContent=t("savedOk")+(codes.length?' · '+GX("engCodeIs")+' '+codes.join(", "):''); hsRenderOutline(); hsRenderInsp(); if(!adsChanged) hsPush(true);
     }catch(e){ if(msg) msg.textContent=pmErr(e) }
@@ -2833,6 +2925,8 @@ function hsWire(){
   $("#hsOutline").onpointerdown=async function(e){
     if(e.button!==0 || e.target.closest("input,select,textarea")) return;
     var grip=e.target.closest("[data-hsdrag]"); if(grip){ hsDragStart(e,grip); return }
+    var mb=e.target.closest("[data-hsmenu]"); if(mb){ e.preventDefault(); hsMenuOpen(mb); return }
+    if(e.target.closest("#hsAddSec")){ e.preventDefault(); hsGalOpen(); return }
     var eye=e.target.closest("[data-hseye]"), mv=e.target.closest("[data-hsmv]"), it=e.target.closest("[data-hssel]");
     var aeye=e.target.closest("[data-hsaeye]"), amv=e.target.closest("[data-hsamv]"), beye=e.target.closest("[data-hsbeye]"), anew=e.target.closest("#hsAdNew");
     if(anew){ HS.adNew={id:"new",enabled:true,_mode:"upload"}; HS.sel="ad:new"; HS.selBy[HS.page]=HS.sel; hsDirtyUI(); hsRenderOutline(); hsRenderInsp(); hsView("item"); hsPush(true); return }
@@ -2847,7 +2941,8 @@ function hsWire(){
     if(it){ HS.sel=it.dataset.hssel; HS.selBy[HS.page]=HS.sel; hsRenderOutline(); hsRenderInsp(); hsView("item"); hsScrollTo() }
   };
   // a focused handle moves with the arrow keys (the same move the drag makes)
-  $("#hsOutline").onkeydown=function(e){ var g=e.target.closest("[data-hsdrag]"); if(!g || (e.key!=="ArrowUp"&&e.key!=="ArrowDown")) return; e.preventDefault();
+  $("#hsOutline").onkeydown=function(e){ if(e.key==="Enter"||e.key===" "){ var mk=e.target.closest("[data-hsmenu]"); if(mk){ e.preventDefault(); hsMenuOpen(mk,true); return } if(e.target.closest("#hsAddSec")){ e.preventDefault(); hsGalOpen(true); return } }
+    var g=e.target.closest("[data-hsdrag]"); if(!g || (e.key!=="ArrowUp"&&e.key!=="ArrowDown")) return; e.preventDefault();
     var k=g.dataset.hsdrag, keys=[].map.call($$("#hsOutline [data-hsdk]"),function(r){ return r.dataset.hsdk }), i=keys.indexOf(k), j=i+(e.key==="ArrowUp"?-1:1); if(i<0||j<0||j>=keys.length) return;
     hsMoveSection(k, e.key==="ArrowUp"?keys[j]:(keys[j+1]||null)); var ng=$('#hsOutline [data-hsdrag="'+k+'"]'); if(ng) ng.focus() };
   /* inspector: every control writes the draft and updates the preview */
@@ -2885,6 +2980,8 @@ function hsWire(){
           hsBSet(bi,"items",hsBDraft()[bi].items); hsPush(true); hsRenderInsp(); hsRenderOutline() }catch(err){ if(bmsg) bmsg.textContent=err.message||"error"; bup.disabled=false } })(); return } };
   insp.onclick=async function(e){
     if(e.target.closest("[data-hsback]")){ hsView("list"); return }
+    if(e.target.closest("[data-hsdevtog]")){ HS.device=HS.device==="phone"?"desk":"phone"; HS._devPicked=true;
+      if(!hsBoth()){ HS.layout="one"; $$("#hsDev button").forEach(function(x){ x.classList.toggle("on",x.dataset.dev===HS.device) }) } hsFit(); hsRenderInsp(); return }
     var c=e.target.closest("[data-hsclear]"); if(c){ hsSet(c.dataset.hsclear,null); hsPush(true); hsRenderInsp(); return }
     var bc=e.target.closest("[data-hsbclear]"); if(bc){ hsBSet(+HS.sel.slice(2),bc.dataset.hsbclear,null); hsPush(true); hsRenderInsp(); return }
     var brm=e.target.closest("[data-hsbrm]"); if(brm){ var bi=+HS.sel.slice(2), removed=hsBDraft()[bi].items.splice(+brm.dataset.hsbrm,1); if(removed[0]) HS.bPendingDel.push(removed[0].url); hsBSet(bi,"items",hsBDraft()[bi].items); hsPush(true); hsRenderInsp(); hsRenderOutline(); return }
