@@ -1,12 +1,15 @@
 // ════════════════════════════════════════════════════════════════════
-//  BALKOUN · static listing page generator (three languages)
+//  BALKOUN · static listing page generator (per-country languages)
 //
 //  Runs in GitHub Actions on a schedule. Reads every live listing from
 //  Supabase and writes a real, crawlable HTML page for each one at
 //    /listing/<id>-<arabic-slug>/index.html          (Arabic)
 //    /en/listing/<id>-<latin-slug>/index.html        (English)
 //    /de/listing/<id>-<latin-slug>/index.html        (German)
-//  each linking to the other two with hreflang. A listing in any enabled
+//    /fr/listing/<id>-<latin-slug>/index.html        (French)
+//  each in the languages of its country's `countries.languages` column only
+//  (Syria ar/en/de, Lebanon ar/fr/en; see lang.mjs), linking to its sister
+//  languages with hreflang. A listing in any enabled
 //  country (see the `countries` table) lives at these same addresses — item
 //  pages carry no country prefix (2026-10-17); the page's menus and links point
 //  at its country's own pages (/lb/…). generate-pages.mjs runs afterwards and
@@ -20,6 +23,7 @@ import fs from "fs";
 import path from "path";
 import vm from "vm";
 import { renderOgCard, OG_WIDTH, OG_HEIGHT } from "./generate-og.mjs";
+import { countryLangs, forceEnable, frIn, loadFrLabels, addFrLabels } from "./lang.mjs";
 
 const SUPABASE_URL = "https://coajrqynjrptujmzjjdh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"; // public anon key — safe, RLS restricts it to live listings
@@ -30,7 +34,7 @@ const SUPABASE_KEY = "sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"; // public
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 const SITE = "https://balkoun.com";
 const ROOT = path.resolve(".");
-let CUR_PRE = "", CUR_CN = { code: "SY", ar: "سوريا", en: "Syria", de: "Syrien" };   // the current listing's country: URL prefix and names
+let CUR_PRE = "", CUR_CN = { code: "SY", ar: "سوريا", en: "Syria", de: "Syrien", fr: "Syrie", frIn: "en Syrie" }, CUR_LANGS = ["ar", "en", "de"];   // the current listing's country: URL prefix, names, languages
 
 async function sb(endpoint) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${endpoint}`, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
@@ -42,11 +46,13 @@ async function sb(endpoint) {
 function loadAppData() {
   const src = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
   const line = src.split("\n").find((l) => /^var D\s*=\s*\{/.test(l));
-  const sandbox = {}; vm.runInNewContext(line.replace(/^var D\s*=/, "D=").replace(/;\s*$/, ""), sandbox); return sandbox.D;
+  const sandbox = {}; vm.runInNewContext(line.replace(/^var D\s*=/, "D=").replace(/;\s*$/, ""), sandbox);
+  return addFrLabels(sandbox.D, FR_LABELS);   // French labels: a 4th entry per row, as the app adds them at runtime
 }
+const FR_LABELS = loadFrLabels(fs.readFileSync(path.join(ROOT, "index.html"), "utf8"));
 const D = loadAppData();
-const LI = { ar: 0, en: 1, de: 2 };
-const LANGS = { ar: { dir: "rtl", prefix: "", og: "ar_SY" }, en: { dir: "ltr", prefix: "/en", og: "en_US" }, de: { dir: "ltr", prefix: "/de", og: "de_DE" } };
+const LI = { ar: 0, en: 1, de: 2, fr: 3 };
+const LANGS = { ar: { dir: "rtl", prefix: "", og: "ar_SY" }, en: { dir: "ltr", prefix: "/en", og: "en_US" }, de: { dir: "ltr", prefix: "/de", og: "de_DE" }, fr: { dir: "ltr", prefix: "/fr", og: "fr_FR" } };
 
 // TYPE_AR feeds the Arabic folder slug. Do NOT rename existing keys or values
 // here — that would move every already-indexed URL.
@@ -58,13 +64,13 @@ const typeName = (k, lang) => (D.TYPES[k] ? D.TYPES[k][LI[lang]] : (TYPE_AR[k] |
 function mergePropertyTypes(rows) {
   if (!Array.isArray(rows)) return;
   for (const r of rows) { const k = String(r.code || "").trim(); if (!k || r.on === false) continue; const b = D.TYPES[k] || [];
-    D.TYPES[k] = [r.ar || b[0] || k, r.en || b[1] || r.ar || k, r.de || b[2] || r.en || r.ar || k];
+    D.TYPES[k] = [r.ar || b[0] || k, r.en || b[1] || r.ar || k, r.de || b[2] || r.en || r.ar || k, r.fr || (FR_LABELS.TYPES || {})[k] || r.en || b[1] || r.ar || k];
     if (!TYPE_AR[k]) TYPE_AR[k] = r.ar || k; }
 }
-const tabuName = (k, lang) => (D.TABU[k] ? D.TABU[k][LI[lang]] : (k === "none" ? { ar: "بدون طابو", en: "No deed", de: "Kein Grundbuch" }[lang] : k));
+const tabuName = (k, lang) => (D.TABU[k] ? D.TABU[k][LI[lang]] : (k === "none" ? { ar: "بدون طابو", en: "No deed", de: "Kein Grundbuch", fr: "Sans titre" }[lang] : k));
 const condName = (k, lang) => (D.COND[k] ? D.COND[k][LI[lang]] : (D.LANDC && D.LANDC[k] ? D.LANDC[k][LI[lang]] : k));
-const DIR = { s:["قبلي (جنوبي)","South","Süd"], n:["شمالي","North","Nord"], e:["شرقي","East","Ost"], w:["غربي","West","West"], se:["قبلي شرقي","South-east","Südost"], sw:["قبلي غربي","South-west","Südwest"], ne:["شمالي شرقي","North-east","Nordost"], nw:["شمالي غربي","North-west","Nordwest"] };
-const PERIOD = { yearly:["سنوي","year","Jahr"], monthly:["شهري","month","Monat"], weekly:["أسبوعي","week","Woche"], daily:["يومي","day","Tag"] };
+const DIR = { s:["قبلي (جنوبي)","South","Süd","Sud"], n:["شمالي","North","Nord","Nord"], e:["شرقي","East","Ost","Est"], w:["غربي","West","West","Ouest"], se:["قبلي شرقي","South-east","Südost","Sud-est"], sw:["قبلي غربي","South-west","Südwest","Sud-ouest"], ne:["شمالي شرقي","North-east","Nordost","Nord-est"], nw:["شمالي غربي","North-west","Nordwest","Nord-ouest"] };
+const PERIOD = { yearly:["سنوي","year","Jahr","an"], monthly:["شهري","month","Monat","mois"], weekly:["أسبوعي","week","Woche","semaine"], daily:["يومي","day","Tag","jour"] };
 const S = {
   ar: { home:"الرئيسية", forSale:"للبيع", forRent:"للإيجار", inPlace:(p)=>`في ${p}`, allListings:"كل الإعلانات", details:"التفاصيل", desc:"الوصف", amen:"المرافق", location:"الموقع", onMap:"عرض على الخريطة (OpenStreetMap)", contact:"تواصل مع المالك", from:"الإعلان من", byOwner:"المالك مباشرة", wa:"واتساب", call:"اتصل", openApp:"افتح الإعلان الكامل في الموقع", negotiable:"قابل للتفاوض", ownerPill:"من المالك",
     area:"مساحة", rooms:"غرف", baths:"حمّامات", living:"صالونات", floor:"الطابق", ground:"أرضي", of:"من", year:"سنة البناء", power:"ساعات الكهرباء", hday:"ساعة/يوم", cond:"الحالة", dir:"الاتجاه", furnished:"مفروش", unfurnished:"غير مفروش", lease:"مدة العقد", months:"شهر", period:"فترة الإيجار", photoN:(n)=>`صورة ${n}`,
@@ -75,13 +81,17 @@ const S = {
   de: { home:"Start", forSale:"zum Kauf", forRent:"zur Miete", inPlace:(p)=>`in ${p}`, allListings:"Alle Anzeigen", details:"Details", desc:"Beschreibung", amen:"Ausstattung", location:"Lage", onMap:"Auf der Karte zeigen (OpenStreetMap)", contact:"Eigentümer kontaktieren", from:"Anbieter", byOwner:"direkt vom Eigentümer", wa:"WhatsApp", call:"Anrufen", openApp:"Vollständige Anzeige in der App öffnen", negotiable:"verhandelbar", ownerPill:"Direkt vom Eigentümer",
     area:"Fläche", rooms:"Zimmer", baths:"Bäder", living:"Wohnzimmer", floor:"Etage", ground:"EG", of:"von", year:"Baujahr", power:"Strom", hday:"Std./Tag", cond:"Zustand", dir:"Ausrichtung", furnished:"Möbliert", unfurnished:"Unmöbliert", lease:"Mietdauer", months:"Monate", period:"Mietzeitraum", photoN:(n)=>`Foto ${n}`,
     about:"Über uns", contactUs:"Kontakt", brandLine:"Balkoun — Immobilien in Syrien, direkt vom Eigentümer", note:(r)=>`Anzeigenseiten werden automatisch aus der Balkoun-Datenbank erzeugt. Referenz ${r}.`, waText:(t,u)=>`Hallo, ich interessiere mich für diese Immobilie: ${t}\n${u}`, roomsShort:"Zimmer", sqm:"m²", sep:", ", langs:"Sprachen", descNote:"Beschreibung des Eigentümers (Arabisch):" },
+  // French (formal "vous"); the brand line takes the country with its article ("au Liban") in renderPage
+  fr: { home:"Accueil", forSale:"à vendre", forRent:"à louer", inPlace:(p)=>`à ${p}`, allListings:"Toutes les annonces", details:"Caractéristiques", desc:"Description", amen:"Équipements", location:"Emplacement", onMap:"Voir sur la carte (OpenStreetMap)", contact:"Contacter le propriétaire", from:"Annonce publiée par", byOwner:"directement par le propriétaire", wa:"WhatsApp", call:"Appeler", openApp:"Ouvrir l'annonce complète dans l'application", negotiable:"prix négociable", ownerPill:"Directement du propriétaire",
+    area:"Surface", rooms:"Pièces", baths:"Salles de bain", living:"Salons", floor:"Étage", ground:"RDC", of:"sur", year:"Année de construction", power:"Électricité", hday:"h/jour", cond:"État", dir:"Orientation", furnished:"Meublé", unfurnished:"Non meublé", lease:"Durée du bail", months:"mois", period:"Période de location", photoN:(n)=>`photo ${n}`,
+    about:"À propos", contactUs:"Contact", brandLine:"Balkoun — l'immobilier en Syrie, directement auprès des propriétaires", note:(r)=>`Les pages d'annonces sont générées automatiquement à partir de la base de données Balkoun. Référence ${r}.`, waText:(t,u)=>`Bonjour, ce bien m'intéresse : ${t}\n${u}`, roomsShort:"pièces", sqm:"m²", sep:", ", langs:"Langues", descNote:"Description rédigée par le propriétaire (en arabe) :" },
 };
 
 const slugAr = (s) => String(s || "").replace(/[^\p{L}\p{N}\s-]/gu, "").trim().replace(/\s+/g, "-").slice(0, 60);
 const slugLatin = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-").slice(0, 60);
 const esc = (s) => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const money = (v) => v == null ? "" : "$" + Number(v).toLocaleString("en");
-const POR = { ar: "السعر عند التواصل", en: "Price on request", de: "Preis auf Anfrage" };
+const POR = { ar: "السعر عند التواصل", en: "Price on request", de: "Preis auf Anfrage", fr: "Prix sur demande" };
 const has = (v) => v !== null && v !== undefined && v !== "";
 const ltr = (s) => `<span class="ltr">${esc(s)}</span>`;
 const nl2br = (s) => esc(s).replace(/\r\n|\r|\n/g, "<br>");
@@ -176,7 +186,7 @@ function renderPage(l, photos, lang, ogPath) {
   const desc = (lead + (lang === "ar" && ownText ? " " + ownText : "")).slice(0, 155);
 
   const url = urlFor(l, lang);
-  const alts = { ar: urlFor(l, "ar"), en: urlFor(l, "en"), de: urlFor(l, "de") };
+  const alts = Object.fromEntries(CUR_LANGS.map((k) => [k, urlFor(l, k)]));   // only the languages built for the listing's country
   const appUrl = `${SITE}/listing/${l.id}${lang === "ar" ? "" : `?lang=${lang}`}`;
 
   const allPhotos = photos.length ? photos : (l.cover_url ? [l.cover_url] : []);
@@ -229,7 +239,7 @@ function renderPage(l, photos, lang, ogPath) {
     ...(has(l.rooms) ? { "numberOfRooms": l.rooms } : {}),
     ...((l.videos || []).length ? { "video": (l.videos || []).map((v) => ({ "@type": "VideoObject", "name": title, "description": lead, "contentUrl": v.url, ...(v.thumb_url ? { "thumbnailUrl": v.thumb_url } : {}), "uploadDate": l.created_at })) } : {}),
   };
-  const langBar = `<nav class="langs" aria-label="${W.langs}">${["ar", "en", "de"].map((k) => `<a href="${alts[k]}" hreflang="${k}" class="${k === lang ? "on" : ""}">${k === "ar" ? "عربي" : k.toUpperCase()}</a>`).join("")}</nav>`;
+  const langBar = `<nav class="langs" aria-label="${W.langs}">${CUR_LANGS.map((k) => `<a href="${alts[k]}" hreflang="${k}" class="${k === lang ? "on" : ""}">${k === "ar" ? "عربي" : k.toUpperCase()}</a>`).join("")}</nav>`;
 
   return `<!DOCTYPE html><html lang="${lang}" dir="${L.dir}"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -238,7 +248,7 @@ function renderPage(l, photos, lang, ogPath) {
 <meta name="robots" content="index, follow">
 <meta name="theme-color" content="#14213D">
 <link rel="canonical" href="${url}">
-${["ar", "en", "de"].map((k) => `<link rel="alternate" hreflang="${k}" href="${alts[k]}">`).join("\n")}
+${CUR_LANGS.map((k) => `<link rel="alternate" hreflang="${k}" href="${alts[k]}">`).join("\n")}
 <link rel="alternate" hreflang="x-default" href="${alts.ar}">
 <meta property="og:type" content="product">
 <meta property="og:site_name" content="Balkoun">
@@ -246,7 +256,7 @@ ${["ar", "en", "de"].map((k) => `<link rel="alternate" hreflang="${k}" href="${a
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:url" content="${url}">
 <meta property="og:image" content="${esc(shareImg)}">${shareDims}
-<meta property="og:locale" content="${L.og}">
+<meta property="og:locale" content="${lang === "ar" ? "ar_" + CUR_CN.code : L.og}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(desc)}">
@@ -260,7 +270,7 @@ ${["ar", "en", "de"].map((k) => `<link rel="alternate" hreflang="${k}" href="${a
 --ink:#22252A;--grey:#6B7280;--light:#9CA3AF;--line:#E4E4E7;--page:#F6F6F7;--card:#FFF;
 --ok:#2E7D5B;--ok-w:#EAF5EF;--f:'Noto Kufi Arabic','Lato',system-ui,sans-serif;
 --sh:0 1px 2px rgba(20,33,61,.06);--sh2:0 2px 8px rgba(20,33,61,.10)}
-html[lang=en],html[lang=de]{--f:'Lato','Noto Kufi Arabic',system-ui,sans-serif}
+html[lang=en],html[lang=de]{--f:'Lato','Noto Kufi Arabic',system-ui,sans-serif}${lang === "fr" ? "\nhtml[lang=fr]{--f:'Lato','Noto Kufi Arabic',system-ui,sans-serif}" : ""}
 *{box-sizing:border-box;margin:0;padding:0}
 html{-webkit-text-size-adjust:100%}
 body{background:var(--page);color:var(--ink);font-family:var(--f);font-size:15px;line-height:1.8;-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:132px}
@@ -349,14 +359,14 @@ footer .note{width:100%;color:rgba(255,255,255,.5);font-size:13px}
 </div>
 <aside class="col side">
   <section class="card contact"><h2>${W.contact}</h2>
-    ${contactName ? `<p class="who">${W.from}: <b>${esc(contactName)}</b>${l.by_owner ? ` · ${W.byOwner}` : ""}</p>` : ""}
+    ${contactName ? `<p class="who">${W.from}${lang === "fr" ? " " : ""}: <b>${esc(contactName)}</b>${l.by_owner ? ` · ${W.byOwner}` : ""}</p>` : ""}
     <div class="btns${wa && tel ? "" : " one"}">${wa ? `<a class="btn wa" href="${esc(wa)}" target="_blank" rel="noopener">${W.wa}</a>` : ""}${tel ? `<a class="btn" href="${esc(tel)}">${W.call}</a>` : ""}</div>
     <a class="open" href="${appUrl}">${W.openApp}</a>
   </section>
 </aside>
 </main>
 <footer><div class="wrap">
-  <span class="brand">${W.brandLine.replace(/سوريا|Syria|Syrien/, CUR_CN[lang] || CUR_CN.en)}</span>
+  <span class="brand">${lang === "fr" ? W.brandLine.replace("en Syrie", CUR_CN.frIn) : W.brandLine.replace(/سوريا|Syria|Syrien/, CUR_CN[lang] || CUR_CN.en)}</span>
   <nav><a href="${SITE}${CUR_PRE}${LANGS[lang].prefix}/about/">${W.about}</a><a href="${SITE}${CUR_PRE}${LANGS[lang].prefix}/contactus/">${W.contactUs}</a></nav>
   <span class="note">${W.note(ltr(refCode))}</span>
 </div></footer>
@@ -379,31 +389,34 @@ async function main() {
   try { const ex = (await sb("site_content?select=extras&id=eq.1&limit=1"))[0]; mergePropertyTypes((ex && ex.extras && ex.extras.property_types) || null); }
   catch (e) { console.warn("property types unreadable, built-ins only:", e.message); }
   let countries = [];
-  try { countries = await sb("countries?select=code,name_ar,name_en,name_de,enabled,is_default&order=sort_order.asc"); if (!Array.isArray(countries) || !countries.length) throw new Error("empty list"); }
-  catch (e) { console.warn("countries unreadable, Syria only:", e.message); countries = [{ code: "SY", name_ar: "سوريا", name_en: "Syria", name_de: "Syrien", enabled: true, is_default: true }]; }
+  try { countries = await sb("countries?select=code,name_ar,name_en,name_de,name_fr,enabled,is_default,languages&order=sort_order.asc"); if (!Array.isArray(countries) || !countries.length) throw new Error("empty list"); }
+  catch (e) { console.warn("countries unreadable, Syria only:", e.message); countries = [{ code: "SY", name_ar: "سوريا", name_en: "Syria", name_de: "Syrien", name_fr: "Syrie", enabled: true, is_default: true, languages: ["ar", "en", "de"] }]; }
   if (!countries.some((c) => c.is_default)) countries.forEach((c) => { if (c.code === "SY") c.is_default = true; });
-  const CTRY = new Map(countries.filter((c) => c.enabled).map((c) => [c.code, { prefix: c.is_default ? "" : "/" + c.code.toLowerCase(), cn: { code: c.code, ar: c.name_ar, en: c.name_en, de: c.name_de || c.name_en } }]));
+  forceEnable(countries);
+  const CTRY = new Map(countries.filter((c) => c.enabled).map((c) => [c.code, { prefix: c.is_default ? "" : "/" + c.code.toLowerCase(), langs: countryLangs(c),
+    cn: { code: c.code, ar: c.name_ar, en: c.name_en, de: c.name_de || c.name_en, fr: c.name_fr || c.name_en, frIn: frIn(c.code, c.name_fr || c.name_en) } }]));
 
   // one tree for all countries; the old per-country trees (/lb/listing/…) are cleared too
-  for (const lang of ["ar", "en", "de"]) { const dir = path.join(ROOT, LANGS[lang].prefix.replace(/^\//, ""), "listing"); fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true }); }
-  for (const c of countries.filter((c) => !c.is_default)) for (const lang of ["ar", "en", "de"]) fs.rmSync(path.join(ROOT, c.code.toLowerCase(), LANGS[lang].prefix.replace(/^\//, ""), "listing"), { recursive: true, force: true });
+  // every language's tree is cleared and rebuilt (the French one only exists while an enabled country lists French)
+  for (const lang of ["ar", "en", "de", "fr"]) { const dir = path.join(ROOT, LANGS[lang].prefix.replace(/^\//, ""), "listing"); fs.rmSync(dir, { recursive: true, force: true }); if (lang !== "fr" || [...CTRY.values()].some((c) => c.langs.includes("fr"))) fs.mkdirSync(dir, { recursive: true }); }
+  for (const c of countries.filter((c) => !c.is_default)) for (const lang of ["ar", "en", "de", "fr"]) fs.rmSync(path.join(ROOT, c.code.toLowerCase(), LANGS[lang].prefix.replace(/^\//, ""), "listing"), { recursive: true, force: true });
 
   let n = 0;
   for (const l of listings) {
     const ctx = CTRY.get(l.country_code || "SY"); if (!ctx) continue;   // a listing in a country that is switched off gets no page
-    CUR_PRE = ctx.prefix; CUR_CN = ctx.cn;
+    CUR_PRE = ctx.prefix; CUR_CN = ctx.cn; CUR_LANGS = ctx.langs;
     let photoRows = [];
     try { photoRows = await sb(`listing_photos?select=url,thumb_url,kind&listing_id=eq.${l.id}&order=sort_order`); } catch (e) { console.warn(`Photos fetch failed for listing ${l.id}:`, e.message); }
     const photos = photoRows.filter((p) => p.kind !== "video").map((p) => p.url);
     l.videos = photoRows.filter((p) => p.kind === "video");
     const ogPath = await ogImageFor(l, photos);
-    for (const lang of ["ar", "en", "de"]) {
+    for (const lang of CUR_LANGS) {
       const dir = path.join(ROOT, LANGS[lang].prefix.replace(/^\//, ""), "listing", slugFor(l, lang));
       fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(path.join(dir, "index.html"), renderPage(l, photos, lang, ogPath)); n++;
     }
     const sdir = path.join(ROOT, "listing", String(l.id)); fs.mkdirSync(sdir, { recursive: true }); fs.writeFileSync(path.join(sdir, "index.html"), stubPage(l, photos, ogPath));
   }
-  console.log(`Wrote ${n} listing page(s) in ar/en/de. (sitemap.xml is written by generate-pages.mjs)`);
+  console.log(`Wrote ${n} listing page(s), each in its country's languages. (sitemap.xml is written by generate-pages.mjs)`);
 }
 main();

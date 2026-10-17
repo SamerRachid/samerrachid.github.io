@@ -1,13 +1,15 @@
 // ════════════════════════════════════════════════════════════════════════
-//  BALKOUN · static area & governorate pages (multi-page, three languages)
+//  BALKOUN · static area & governorate pages (multi-page, per-country languages)
 //
 //  Writes real, crawlable HTML in the site's own style, in Arabic (root),
-//  English (/en/) and German (/de/):
+//  English (/en/), German (/de/) and French (/fr/) — each country only in the
+//  languages of its `countries.languages` column (Syria ar/en/de, Lebanon
+//  ar/fr/en; see lang.mjs):
 //    /for-sale/<gov>/            /for-rent/<gov>/            (+ /en/…, /de/…)
 //    /for-sale/<gov>/<area>/     /for-rent/<gov>/<area>/     (only where listings exist)
 //    /areas/  /about/  /contactus/                           (+ /en/…, /de/…)
 //    /en/  /de/                                              (English and German home pages)
-//  Every page carries hreflang links to its two sister languages, and the
+//  Every page carries hreflang links to its sister languages, and the
 //  sitemap lists all of them plus the /listing/ pages that generate-listings.mjs
 //  produced. Runs in GitHub Actions after that script.
 //  Countries: the default country (Syria) lives at the root; every other enabled
@@ -21,13 +23,14 @@ import fs from "fs";
 import path from "path";
 import vm from "vm";
 import { GUIDES, GUIDE_WORDS } from "./guides-content.mjs";
+import { countryLangs, forceEnable, frIn, frOf, loadFrLabels, addFrLabels } from "./lang.mjs";
 
 const SUPABASE_URL = "https://coajrqynjrptujmzjjdh.supabase.co";
 const SUPABASE_KEY = "sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"; // public anon key
 const SITE = "https://balkoun.com";
 const ROOT = path.resolve(".");
 // ── country context: set per country in main(); the default country has no prefix ──
-let CTX = { code: "SY", prefix: "", isDefault: true, cn: { code: "SY", ar: "سوريا", en: "Syria", de: "Syrien" } };
+let CTX = { code: "SY", prefix: "", isDefault: true, langs: ["ar", "en", "de"], cn: { code: "SY", ar: "سوريا", en: "Syria", de: "Syrien", fr: "Syrie", frIn: frIn("SY", "Syrie"), frOf: frOf("SY", "Syrie") } };
 const cpre = () => CTX.prefix;
 
 async function sb(endpoint) {
@@ -57,8 +60,10 @@ function loadAppData() {
   if (!line) throw new Error("index.html: data line not found");
   const sandbox = {};
   vm.runInNewContext(line.replace(/^var D\s*=/, "D=").replace(/;\s*$/, ""), sandbox);
-  return sandbox.D;
+  return addFrLabels(sandbox.D, FR_LABELS);   // French labels: a 4th entry per row, as the app adds them at runtime
 }
+const APP_SRC = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+const FR_LABELS = loadFrLabels(APP_SRC);
 const D = loadAppData();
 // ── the legal pages' default texts (index.html, between the __LEGAL_BEGIN__/__LEGAL_END__ markers) ──
 function loadLegal() {
@@ -67,6 +72,9 @@ function loadLegal() {
   if (!m) throw new Error("index.html: LEGAL block not found");
   const sandbox = {};
   vm.runInNewContext("LEGAL=" + m[1], sandbox);
+  // later languages are assigned right after the marker (LEGAL.privacy.fr={…}; LEGAL.terms.fr={…};): take those lines too
+  const after = src.slice(src.indexOf("/*__LEGAL_END__*/") + "/*__LEGAL_END__*/".length).replace(/^\r?\n/, "").split("\n");
+  for (const l of after) { if (!/^LEGAL\.\w+\.\w+\s*=/.test(l)) break; try { vm.runInNewContext(l, sandbox); } catch (e) { console.warn("LEGAL extra language unreadable:", e.message); } }
   return sandbox.LEGAL;
 }
 const LEGAL = loadLegal();
@@ -74,6 +82,7 @@ const LEGAL_T = {
   ar: { privacy: "سياسة الخصوصية", terms: "شروط الاستخدام", updated: "آخر تحديث:", notBroker: "بلكون منصة لعرض الإعلانات العقارية فقط: ليس وسيطاً عقارياً، لا يتفاوض، لا يتقاضى عمولة، وليس طرفاً في أي عقد. الصفقة والتحقق من الأوراق والملكية مسؤولية الطرفين، ويُنصح بالاستعانة بمحامٍ.", lawyer: "هذه الصفحة تشرح كيف تعمل المنصة ولا تُعد استشارة قانونية. للتحقق من ملكية عقار أو إتمام عقد استعن بمحامٍ أو كاتب عدل.", company: "فريق بلكون: فريق عربي مقيم في كندا", reg: "بلكون خدمة مجانية غير تجارية أُنشئت لمساعدة الناس في العالم العربي، ولا تقف خلفها شركة مسجّلة حالياً؛ عند تأسيس جهة قانونية ستُحدَّث هذه الصفحة ببياناتها", address: "كندا", brand: "بلكون" },
   en: { privacy: "Privacy policy", terms: "Terms of use", updated: "Last updated:", notBroker: "Balkoun only displays real-estate listings: it is not a broker, does not negotiate, takes no commission and is not a party to any contract. The transaction and the verification of paperwork and ownership are the parties' responsibility; a lawyer is recommended.", lawyer: "This page explains how the platform works and is not legal advice. To verify a property's ownership or complete a contract, consult a lawyer or notary.", company: "the Balkoun team, an Arab team based in Canada", reg: "Balkoun is a free, non-commercial service created to help people across the Arab world; no registered company stands behind it at present. This page will be updated once a legal entity is set up", address: "Canada", brand: "Balkoun" },
   de: { privacy: "Datenschutzerklärung", terms: "Nutzungsbedingungen", updated: "Zuletzt aktualisiert:", notBroker: "Balkoun zeigt nur Immobilienanzeigen: kein Makler, keine Verhandlung, keine Provision, keine Vertragspartei. Transaktion sowie Prüfung von Unterlagen und Eigentum liegen bei den Parteien; ein Anwalt wird empfohlen.", lawyer: "Diese Seite erklärt die Funktionsweise der Plattform und ist keine Rechtsberatung. Für Eigentumsprüfung oder Vertragsabschluss wenden Sie sich an einen Anwalt oder Notar.", company: "das Balkoun-Team, ein arabisches Team mit Sitz in Kanada", reg: "Balkoun ist ein kostenloser, nicht kommerzieller Dienst, geschaffen, um Menschen in der arabischen Welt zu helfen; derzeit steht keine eingetragene Gesellschaft dahinter. Sobald eine Rechtsperson gegründet wird, wird diese Seite aktualisiert", address: "Kanada", brand: "Balkoun" },
+  fr: { privacy: "Politique de confidentialité", terms: "Conditions d'utilisation", updated: "Dernière mise à jour :", notBroker: "Balkoun se contente d'afficher des annonces immobilières : ce n'est pas un intermédiaire, il ne négocie pas, ne perçoit aucune commission et n'est partie à aucun contrat. La transaction ainsi que la vérification des documents et de la propriété relèvent de la responsabilité des parties ; le recours à un avocat est recommandé.", lawyer: "Cette page explique le fonctionnement de la plateforme et ne constitue pas un avis juridique. Pour vérifier la propriété d'un bien ou conclure un contrat, consultez un avocat ou un notaire.", company: "l'équipe Balkoun, une équipe arabe basée au Canada", reg: "Balkoun est un service gratuit et non commercial créé pour aider les habitants du monde arabe ; aucune société enregistrée ne le porte à ce jour. Cette page sera mise à jour dès la création d'une entité juridique", address: "Canada", brand: "Balkoun" },
 };
 function legalPage({ lang, kind, footLinks, extras }) {
   const W = S[lang], T = LEGAL_T[lang], x = extras || {}, rel = kind + "/", url = pageUrl(lang, rel);
@@ -96,11 +105,12 @@ ${sections.map((s, i) => `<section class="ab"><h2>${i + 1}. ${fill(s[0])}</h2>${
   const ld = [c.ld, { "@context": "https://schema.org", "@type": "WebPage", name: T[kind], url, description: desc, inLanguage: lang }];
   return { url, html: shell({ lang, title: T[kind] + " | Balkoun", desc, canonical: url, alts: altsFor(rel), jsonld: ld, body, footLinks }) };
 }
-const LI = { ar: 0, en: 1, de: 2 };
+const LI = { ar: 0, en: 1, de: 2, fr: 3 };
 const LANGS = {
   ar: { code: "ar", dir: "rtl", prefix: "", og: "ar_SY", font: "Noto Kufi Arabic" },
   en: { code: "en", dir: "ltr", prefix: "/en", og: "en_US", font: "Lato" },
   de: { code: "de", dir: "ltr", prefix: "/de", og: "de_DE", font: "Lato" },
+  fr: { code: "fr", dir: "ltr", prefix: "/fr", og: "fr_FR", font: "Lato" },
 };
 const typeName = (k, lang) => (D.TYPES[k] ? D.TYPES[k][LI[lang]] : k);
 const tabuName = (k, lang) => (D.TABU[k] ? D.TABU[k][LI[lang]] : k);
@@ -108,8 +118,14 @@ const TYPE_PL_AR = { apartment:"شقق", arab:"بيوت عربية", villa:"فل
   shop:"محلات", office:"مكاتب", restaurant:"مطاعم", warehouse:"مستودعات", factory:"معامل", resid:"أراضٍ سكنية", agri:"أراضٍ زراعية", comm:"أراضٍ تجارية", land:"أراضٍ",
   hotelapt:"شقق مفروشة فندقية", clinic:"عيادات", hotel:"فنادق ومنشآت سياحية", indust:"أراضٍ صناعية", tourist:"أراضٍ سياحية",
   house:"منازل", terrace:"تراسات", plot:"أراضٍ", hall:"صالات أفراح ومناسبات", showroom:"صالات عرض", station:"محطات وقود", workshop:"ورش" };
-const typePlural = (k, lang) => lang === "ar" ? (TYPE_PL_AR[k] || typeName(k, "ar")) : lang === "en" ? typeName(k, "en") + (/[sxz]$|house$/i.test(typeName(k, "en")) ? "s" : "s") : typeName(k, "de");
-const govName = (g, lang) => lang === "ar" ? g.name_ar : lang === "en" ? (g.name_en || (D.GOVN[g.name_ar] || [])[0] || g.name_ar) : ((D.GOVN[g.name_ar] || [])[1] || g.name_en || g.name_ar);
+// French plurals, lower case (they follow a colon in the page description); a type without one keeps its label
+const TYPE_PL_FR = { apartment:"appartements", arab:"maisons traditionnelles", villa:"villas", duplex:"duplex", floor:"étages entiers", building:"immeubles entiers", chalet:"chalets", farm:"fermes",
+  shop:"locaux commerciaux", office:"bureaux", restaurant:"restaurants", warehouse:"entrepôts", factory:"usines", resid:"terrains résidentiels", agri:"terrains agricoles", comm:"terrains commerciaux", land:"terrains",
+  hotelapt:"appartements hôteliers meublés", clinic:"cabinets médicaux", hotel:"hôtels et établissements touristiques", indust:"terrains industriels", tourist:"terrains touristiques",
+  house:"maisons", terrace:"appartements avec terrasse", plot:"terrains", hall:"salles des fêtes", showroom:"salles d'exposition", station:"stations-service", workshop:"ateliers" };
+const typePlural = (k, lang) => lang === "ar" ? (TYPE_PL_AR[k] || typeName(k, "ar")) : lang === "en" ? typeName(k, "en") + (/[sxz]$|house$/i.test(typeName(k, "en")) ? "s" : "s") : lang === "fr" ? (TYPE_PL_FR[k] || typeName(k, "fr")) : typeName(k, "de");
+// French pages use the English names of governorates and areas (the database has no French names)
+const govName = (g, lang) => lang === "ar" ? g.name_ar : (lang === "en" || lang === "fr") ? (g.name_en || (D.GOVN[g.name_ar] || [])[0] || g.name_ar) : ((D.GOVN[g.name_ar] || [])[1] || g.name_en || g.name_ar);
 // areas have no English names in the database yet: fall back to the URL slug, title-cased (mezzeh → Mezzeh)
 const titleSlug = (s) => String(s || "").split("-").filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(" ");
 const areaName = (a, lang) => lang === "ar" ? a.name_ar : (a.name_en || titleSlug(a.slug) || a.name_ar);
@@ -173,6 +189,26 @@ const mkS = (cn) => ({
     footIn: (g) => `Immobilien in ${g}`, allAreas: "Alle Gegenden", aboutPlatform: "Über die Plattform", crumbAria: "Navigationspfad", inLangs: "Sprachen",
     homeT: `Immobilien in ${cn.de}: Wohnungen und Häuser kaufen und mieten, direkt vom Eigentümer | Balkoun`, homeH1: `Immobilien in ${cn.de}, direkt vom Eigentümer`, homeLede: `Wohnungen, Häuser, Villen und Grundstücke zum Kauf und zur Miete in ganz ${cn.de}, mit Grundbuchstatus in jeder Anzeige und ohne Provision.`, homeDesc: cn.code === "SY" ? `Immobilien in ${cn.de}: Wohnungen, Häuser, Villen und Grundstücke kaufen und mieten in Damaskus, Aleppo, Homs, Latakia. Direkt vom Eigentümer, ohne Provision.` : `Immobilien in ${cn.de}: Wohnungen, Häuser, Villen und Grundstücke kaufen und mieten im ganzen Land. Direkt vom Eigentümer, ohne Provision.`, browseByGov: "Nach Gouvernement", latest: "Neueste Anzeigen", openApp: "Alle Anzeigen durchsuchen", whyH: "Warum Balkoun?",
     why: [["Grundbuchstatus in jeder Anzeige", "Grünes Grundbuch, Gerichtsurteil oder Anteile: Sie kennen die Rechtslage, bevor Sie anrufen."], ["Direkt vom Eigentümer", "Keine Provision für Käufer oder Mieter. Kontakt per Telefon oder WhatsApp."], ["Alle Gouvernements", cn.code === "SY" ? `Damaskus und Umland, Aleppo, Homs, Latakia, Tartus und das übrige ${cn.de}, nach Gegend und Viertel.` : `Alle Gouvernements und Gegenden von ${cn.de}, nach Gegend und Viertel.`]],
+  },
+  // French (formal "vous"); cn.frIn = "au Liban", cn.frOf = "du Liban" (lang.mjs)
+  fr: {
+    brand: "Balkoun", forSale: "à vendre", forRent: "à louer", areas: "Quartiers", map: "Carte", about: "À propos", login: "Connexion", post: "Publier une annonce", home: "Accueil",
+    propIn: (d, g) => `Immobilier ${d} à ${g}, ${cn.fr}`, propInArea: (d, a, g) => `Immobilier ${d} à ${a}, ${g}`,
+    nListings: (n) => `${n} annonce${n > 1 ? "s" : ""}`, avgM2: "prix moyen au m²", avgM2From: (n) => `sur ${n} annonces`, advSearch: "Recherche avancée", advSearchIn: (a) => `Recherche avancée à ${a}`,
+    govDesc: (n, d, g, avg) => `${n} annonce${n > 1 ? "s" : ""} ${d} à ${g}, ${cn.fr} : appartements, maisons, villas, locaux commerciaux et terrains, directement auprès des propriétaires et sans commission${avg ? `. Prix moyen : ${avg} le m²` : ""}.`,
+    areaDesc: (n, d, a, g, types, avg) => `${n} bien${n > 1 ? "s" : ""} ${d} à ${a} (${g}, ${cn.fr}) : ${types}${avg ? `. Prix moyen : ${avg} le m²` : ""}. Directement auprès des propriétaires, sans commission.`,
+    noneH: (d, g) => `Aucune annonce ${d} à ${g} pour le moment`, noneP: "Soyez le premier à proposer un bien ici.", postFree: "Publiez votre annonce gratuitement",
+    areasOf: (g) => `Quartiers : ${g}`, areasSub: "Les quartiers qui ont des annonces disposent de leur propre page.", near: (g) => `Quartiers voisins : ${g}`, allOf: (g) => `Tout ${g}`,
+    faqH: (a) => `Questions fréquentes sur ${a}`, faqQ1: (d, a) => `Combien de biens sont ${d} à ${a} ?`, faqA1: (n, d, a) => `Il y a actuellement ${n} annonce${n > 1 ? "s" : ""} ${d} à ${a} sur Balkoun.`,
+    faqQ2: (d, a) => `Quel est le prix des biens ${d} à ${a} ?`, faqA2: (lo, hi, avg) => `Les prix affichés vont de ${lo} à ${hi}${avg ? `, avec une moyenne de ${avg} le m²` : ""}.`,
+    faqQ3: "L'acheteur paie-t-il une commission ?", faqA3: "Non. Balkoun ne prélève aucune commission auprès des acheteurs ni des locataires : vous traitez directement avec le propriétaire.",
+    govsH: "Gouvernorats et quartiers", govsT: `Tous les gouvernorats et quartiers ${cn.frOf}`, govsDesc: (ng, na) => `Parcourez l'immobilier ${cn.frIn} par gouvernorat et par quartier : ${ng} gouvernorats et ${na} quartiers sur Balkoun.`, govsSub: (ng, na) => `${ng} gouvernorats · ${na} quartiers`, govSmall: (n, a) => `${n} annonces · ${a} quartiers`, search: "Rechercher",
+    rooms: "pièces", sqm: "m²", floorAbbr: "Ét.", monthly: "mois", yearly: "an", noPhoto: "Pas de photo", featured: "En vedette", greenDeed: "Titre vert", belowAvg: (p) => `${p} sous la moyenne du quartier`, aboveAvg: (p) => `${p} au-dessus de la moyenne du quartier`,
+    aboutT: "À propos de Balkoun", contactT: "Nous contacter", contactDesc: "Contactez l'équipe Balkoun : questions, suggestions ou aide pour publier votre annonce. Nous répondons sous un jour ouvré.",
+    phone: "Téléphone", wa: "WhatsApp", mail: "E-mail", fb: "Facebook", ig: "Instagram", yt: "YouTube", tt: "TikTok", sendMsg: "Envoyer un message", name: "Nom", contactField: "Téléphone ou e-mail", yourMsg: "Votre message", send: "Envoyer", min10: "Veuillez écrire au moins 10 caractères.", sending: "Envoi en cours…", sentH: "Message reçu ✓", sentP: "Merci. Nous vous répondrons dans les meilleurs délais.", sendErr: "L'envoi a échoué. Réessayez ou utilisez WhatsApp.",
+    footIn: (g) => `Immobilier à ${g}`, allAreas: "Tous les quartiers", aboutPlatform: "À propos", crumbAria: "Fil d'Ariane", inLangs: "Langues",
+    homeT: `Immobilier ${cn.frIn} : biens à vendre et à louer, directement auprès des propriétaires | Balkoun`, homeH1: `Immobilier ${cn.frIn}, directement auprès des propriétaires`, homeLede: `Appartements, maisons, villas et terrains à vendre et à louer partout ${cn.frIn}, avec le statut du titre de propriété sur chaque annonce et sans commission.`, homeDesc: cn.code === "SY" ? `Immobilier ${cn.frIn} : appartements, maisons, villas et terrains à vendre et à louer à Damas, Alep, Homs, Lattaquié et ailleurs. Directement auprès des propriétaires, sans commission.` : `Immobilier ${cn.frIn} : appartements, maisons, villas et terrains à vendre et à louer dans tout le pays. Directement auprès des propriétaires, sans commission.`, browseByGov: "Parcourir par gouvernorat", latest: "Dernières annonces", openApp: "Rechercher parmi toutes les annonces", whyH: "Pourquoi Balkoun ?",
+    why: [["Le titre de propriété sur chaque annonce", cn.code === "SY" ? "Titre vert, jugement ou parts : vous connaissez la situation juridique avant d'appeler." : "Le type de titre est indiqué sur chaque annonce : vous connaissez la situation juridique avant d'appeler."], ["Directement auprès du propriétaire", "Aucune commission pour les acheteurs ni pour les locataires. Contact par téléphone ou WhatsApp."], ["Tous les gouvernorats", cn.code === "SY" ? "Damas et sa campagne, Alep, Homs, Lattaquié, Tartous et le reste de la Syrie, quartier par quartier." : `Tous les gouvernorats ${cn.frOf}, quartier par quartier.`]],
   },
 });
 let S = mkS(CTX.cn);
@@ -290,6 +326,8 @@ footer{background:var(--navy);color:rgba(255,255,255,.7);font-size:13.5px;paddin
 .fb{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-top:16px;border-top:1px solid rgba(255,255,255,.14);font-size:12.5px}
 @media(max-width:860px){.hbar{height:auto;min-height:58px;gap:8px;flex-wrap:wrap;padding:6px 0 0}.hnav{order:4;flex-basis:100%;display:flex;gap:16px;overflow-x:auto;padding:6px 2px 10px;scrollbar-width:none;font-size:13.5px;white-space:nowrap}.hnav::-webkit-scrollbar{display:none}.hnav a{flex:none}.logo{margin-left:0;order:0}.logo svg{width:32px;height:32px}.logo .w b{font-size:18px}.logo .w small{font-size:8px}.htools{margin-left:auto;gap:6px}.mini{display:none}.gold{padding:7px 11px;font-size:12.5px;white-space:nowrap}.langs a{padding:4px 7px;font-size:11.5px}.grid{grid-template-columns:repeat(2,1fr);gap:10px}.cb .p{font-size:17px}.hero{padding:30px 20px}}
 `;
+// the Latin font for French pages (kept out of CSS so the ar/en/de pages stay byte-for-byte as they were)
+const CSS_FR = `html[lang=fr]{--f:'Lato','Noto Kufi Arabic',system-ui,sans-serif;--fd:'Lato','Noto Kufi Arabic',sans-serif}html[lang=fr] h1,html[lang=fr] h2{font-weight:700}`;
 const MARK = `<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="19" y="19" width="62" height="62" fill="none" stroke="currentColor" stroke-width="7"/><path d="M50 5 95 50 50 95 5 50Z" fill="none" stroke="#C4881F" stroke-width="9"/><rect x="42.5" y="42.5" width="15" height="15" fill="currentColor"/></svg>`;
 
 // alternates: the same page in the other languages; x-default is the Arabic one
@@ -298,7 +336,7 @@ function hreflang(alts) {
 }
 function shell({ lang, title, desc, canonical, alts, robots = "index, follow", jsonld = [], body, image, footLinks }) {
   const L = LANGS[lang], W = S[lang];
-  const langBar = `<nav class="langs" aria-label="${W.inLangs}">${["ar", "en", "de"].map((l) => `<a href="${alts[l]}" hreflang="${l}" class="${l === lang ? "on" : ""}">${l === "ar" ? "عربي" : l.toUpperCase()}</a>`).join("")}</nav>`;
+  const langBar = `<nav class="langs" aria-label="${W.inLangs}">${CTX.langs.map((l) => `<a href="${alts[l]}" hreflang="${l}" class="${l === lang ? "on" : ""}">${l === "ar" ? "عربي" : l.toUpperCase()}</a>`).join("")}</nav>`;
   return `<!DOCTYPE html><html lang="${lang}" dir="${L.dir}"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>${esc(title)}</title>
@@ -307,7 +345,7 @@ function shell({ lang, title, desc, canonical, alts, robots = "index, follow", j
 <meta name="theme-color" content="#14213D">
 <link rel="canonical" href="${canonical}">
 ${hreflang(alts)}
-<meta property="og:type" content="website"><meta property="og:site_name" content="Balkoun"><meta property="og:locale" content="${L.og}">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Balkoun"><meta property="og:locale" content="${lang === "ar" ? "ar_" + CTX.code : L.og}">
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${canonical}">
 <meta property="og:image" content="${esc(image || SITE + "/brand/og-image.png")}">
 <meta name="twitter:card" content="summary_large_image">
@@ -315,13 +353,13 @@ ${hreflang(alts)}
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
 ${jsonld.map((o) => `<script type="application/ld+json">${jsonForScript(o)}</script>`).join("\n")}
-<style>${CSS}</style></head><body>
+<style>${CSS}${lang === "fr" ? CSS_FR : ""}</style></head><body>
 <header><div class="wrap hbar">
-<nav class="hnav"><a href="${appHome(lang)}">${W.home}</a><a href="${searchUrl(lang, { deal: "sale" })}">${esc(W.forSale[0].toUpperCase() + W.forSale.slice(1))}</a><a href="${searchUrl(lang, { deal: "rent" })}">${esc(W.forRent[0].toUpperCase() + W.forRent.slice(1))}</a><a href="${pageUrl(lang, "areas/")}">${W.areas}</a><a href="${appUrl(lang, "mapsearch")}">${W.map}</a>${CTX.isDefault ? `<a href="${pageUrl(lang, "guides/")}">${GUIDE_WORDS[lang].crumb}</a>` : ""}<a href="${pageUrl(lang, "about/")}">${W.about}</a></nav>
+<nav class="hnav"><a href="${appHome(lang)}">${W.home}</a><a href="${searchUrl(lang, { deal: "sale" })}">${esc(W.forSale[0].toUpperCase() + W.forSale.slice(1))}</a><a href="${searchUrl(lang, { deal: "rent" })}">${esc(W.forRent[0].toUpperCase() + W.forRent.slice(1))}</a><a href="${pageUrl(lang, "areas/")}">${W.areas}</a><a href="${appUrl(lang, "mapsearch")}">${W.map}</a>${CTX.isDefault && GUIDE_WORDS[lang] ? `<a href="${pageUrl(lang, "guides/")}">${GUIDE_WORDS[lang].crumb}</a>` : ""}<a href="${pageUrl(lang, "about/")}">${W.about}</a></nav>
 <div class="htools">${langBar}<a class="mini" href="${appUrl(lang, "account")}">${W.login}</a><a class="gold" href="${appUrl(lang, "post")}">${W.post}</a></div>
 <a class="logo" href="${appHome(lang)}" aria-label="Balkoun">${MARK}<span class="w"><b>بلكون</b><small>BALKOUN</small></span></a></div></header>
 <main class="wrap">${body}</main>
-<footer><div class="wrap"><div class="fl">${footLinks}</div><div class="fb"><span>© 2026 ${W.brand} · balkoun.com</span><span>${CTX.isDefault ? `<a href="${pageUrl(lang, "guides/")}">${GUIDE_WORDS[lang].crumb}</a> · ` : ""}<a href="${pageUrl(lang, "about/")}">${W.aboutPlatform}</a> · <a href="${pageUrl(lang, "contactus/")}">${W.contactT}</a> · <a href="${pageUrl(lang, "terms/")}">${LEGAL_T[lang].terms}</a> · <a href="${pageUrl(lang, "privacy/")}">${LEGAL_T[lang].privacy}</a></span></div></div></footer>
+<footer><div class="wrap"><div class="fl">${footLinks}</div><div class="fb"><span>© 2026 ${W.brand} · balkoun.com</span><span>${CTX.isDefault && GUIDE_WORDS[lang] ? `<a href="${pageUrl(lang, "guides/")}">${GUIDE_WORDS[lang].crumb}</a> · ` : ""}<a href="${pageUrl(lang, "about/")}">${W.aboutPlatform}</a> · <a href="${pageUrl(lang, "contactus/")}">${W.contactT}</a> · <a href="${pageUrl(lang, "terms/")}">${LEGAL_T[lang].terms}</a> · <a href="${pageUrl(lang, "privacy/")}">${LEGAL_T[lang].privacy}</a></span></div></div></footer>
 </body></html>`;
 }
 
@@ -340,9 +378,9 @@ function card(l, avg, lang) {
   const diff = avg && ppm && !isRent ? Math.round((ppm - avg) / avg * 100) : null;
   const sep = lang === "ar" ? "، " : ", ";
   return `<a class="card${l.is_featured ? " feat" : ""}" href="${listingUrl(l, lang)}">
-<div class="ph">${l.cover_url ? `<img src="${esc(l.cover_url)}" alt="${esc(typeName(l.property_type, lang))} ${lang === "ar" ? "في" : "in"} ${esc(aname || gname)}" loading="lazy" width="800" height="600">` : `<div class="nop">${W.noPhoto}</div>`}
+<div class="ph">${l.cover_url ? `<img src="${esc(l.cover_url)}" alt="${esc(typeName(l.property_type, lang))} ${lang === "ar" ? "في" : lang === "fr" ? "à" : "in"} ${esc(aname || gname)}" loading="lazy" width="800" height="600">` : `<div class="nop">${W.noPhoto}</div>`}
 <div class="badges">${l.is_featured ? `<span class="badge feat">${W.featured}</span>` : ""}${deedOk ? `<span class="badge ok">${W.greenDeed}</span>` : ""}</div></div>
-<div class="cb"><div class="p">${l.price_usd == null ? (lang === "ar" ? "السعر عند التواصل" : lang === "de" ? "Preis auf Anfrage" : "Price on request") : ltr(money(l.price_usd))}${isRent ? ` <small>/ ${l.rental_period === "yearly" ? W.yearly : W.monthly}</small>` : ""}</div>
+<div class="cb"><div class="p">${l.price_usd == null ? (lang === "ar" ? "السعر عند التواصل" : lang === "de" ? "Preis auf Anfrage" : lang === "fr" ? "Prix sur demande" : "Price on request") : ltr(money(l.price_usd))}${isRent ? ` <small>/ ${l.rental_period === "yearly" ? W.yearly : W.monthly}</small>` : ""}</div>
 <div class="cb-loc">${esc([aname, gname].filter(Boolean).join(sep))}${l.landmark && lang === "ar" ? ` · ${esc(l.landmark)}` : ""}</div>
 <div class="cb-details"><span class="cb-type">${esc(typeName(l.property_type, lang))}</span>${l.rooms != null ? `<span>${ltr(l.rooms)} ${W.rooms}</span>` : ""}${l.area_m2 ? `<span>${ltr(l.area_m2)} ${W.sqm}</span>` : ""}${l.floor != null ? `<span>${W.floorAbbr} ${ltr(l.floor)}</span>` : ""}${l.tabu ? `<span class="cb-deed">${esc(tabuName(l.tabu, lang))}</span>` : ""}${diff != null && Math.abs(diff) >= 5 ? `<span style="color:${diff < 0 ? "var(--ok)" : "var(--gold-dk)"};font-weight:600;margin-inline-start:auto">${diff < 0 ? W.belowAvg(Math.abs(diff) + "%") : W.aboveAvg(Math.abs(diff) + "%")}</span>` : ""}</div>
 </div></a>`;
@@ -354,8 +392,8 @@ let avgByArea = new Map();
 let ENABLED = [];
 const SHARED_PAGES = new Set(["", "about/", "contactus/", "privacy/", "terms/", "areas/"]);
 const altsFor = (p) => {
-  const a = { ar: SITE + cpre() + "/" + p, en: pageUrl("en", p), de: pageUrl("de", p) };
-  if (SHARED_PAGES.has(p)) for (const c of ENABLED) { const cp = c.is_default ? "" : "/" + c.code.toLowerCase(); for (const l of ["ar", "en", "de"]) a[`${l}-${c.code}`] = `${SITE}${cp}${l === "ar" ? "" : "/" + l}/${p}`; }
+  const a = {}; for (const l of CTX.langs) a[l] = l === "ar" ? SITE + cpre() + "/" + p : pageUrl(l, p);   // only the languages built for this country
+  if (SHARED_PAGES.has(p)) for (const c of ENABLED) { const cp = c.is_default ? "" : "/" + c.code.toLowerCase(); for (const l of countryLangs(c)) a[`${l}-${c.code}`] = `${SITE}${cp}${l === "ar" ? "" : "/" + l}/${p}`; }
   return a;
 };
 
@@ -412,12 +450,13 @@ function areasIndex({ lang, govs, areasByGov, counts, footLinks }) {
 }
 
 function aboutPage({ lang, footLinks }) {
-  const W = S[lang], A = D.ABOUT[lang] || D.ABOUT.ar, rel = "about/", url = pageUrl(lang, rel);
+  // D.ABOUT has no French on purpose (the owner keeps the About text as it is): a French page shows the English text, marked lang="en"
+  const W = S[lang], A = D.ABOUT[lang] || (lang === "fr" && D.ABOUT.en) || D.ABOUT.ar, rel = "about/", url = pageUrl(lang, rel), aLang = !D.ABOUT[lang] && lang === "fr" && D.ABOUT.en ? ' lang="en"' : "";
   const desc = String(A.lede || "").replace(/<[^>]+>/g, "").slice(0, 160);
   const c = crumbs(lang, [{ name: W.aboutT }]);
-  const body = `${c.html}<article class="prose"><h1>${A.h1}</h1><p class="lede">${A.lede}</p>
+  const body = `${c.html}<article class="prose"${aLang}><h1>${A.h1}</h1><p class="lede">${A.lede}</p>
 ${(A.blocks || []).map((b) => `<section class="ab"><h2>${b[0]}</h2>${b[1].map((p) => `<p>${p}</p>`).join("")}</section>`).join("")}
-<div class="cta"><div><h2>${A.ctaH}</h2><p>${A.ctaP}</p></div><a class="gold" href="${appUrl(lang, "post")}">${W.post}</a></div></article>`;
+<div class="cta"><div><h2>${A.ctaH}</h2><p>${A.ctaP}</p></div><a class="gold" href="${appUrl(lang, "post")}"${aLang ? ` lang="${lang}"` : ""}>${W.post}</a></div></article>`;
   const ld = [c.ld, { "@context":"https://schema.org", "@type":"AboutPage", name: W.aboutT, url, description: desc, inLanguage: lang },
     { "@context":"https://schema.org", "@type":"Organization", name: "Balkoun", alternateName: "بلكون", url: SITE, logo: SITE + "/brand/og-image.png", areaServed: ENABLED.map((c) => c.code) }];
   return { url, html: shell({ lang, title: W.aboutT + " | Balkoun", desc, canonical: url, alts: altsFor(rel), jsonld: ld, body, footLinks }) };
@@ -449,9 +488,10 @@ ${chan.length ? `<div class="chans">${chan.map((x) => `<a class="chan" href="${e
 // English and German home pages (the Arabic home is the app itself at /)
 function homePage({ lang, govs, counts, latest, footLinks, agencies = [] }) {
   const W = S[lang], url = pageUrl(lang, "");
-  const about = appText("aboutP", lang), aboutH = appText("aboutH", lang);
+  // the app's own home "about" text: Syria's, or the general one for every other country (the app's aboutP_x/aboutH_x)
+  const ax = CTX.isDefault ? "" : "_x", about = appText("aboutP" + ax, lang), aboutH = appText("aboutH" + ax, lang);
   const aboutHtml = about ? `<section class="sec"><h2>${esc(aboutH)}</h2>${about.split(/\n+/).filter(Boolean).map((x) => `<p style="line-height:1.9;max-width:900px">${esc(x)}</p>`).join("")}</section>` : "";
-  const agHtml = agencies.length ? `<section class="sec"><h2>${lang === "de" ? "Immobilienbüros auf Balkoun" : "Real estate agencies on Balkoun"}</h2><div class="chips">${agencies.slice(0, 8).map((a) => `<a class="chip" href="${SITE}/agency/${a.id}/">${esc(a.name)}</a>`).join("")}</div></section>` : "";
+  const agHtml = agencies.length ? `<section class="sec"><h2>${lang === "de" ? "Immobilienbüros auf Balkoun" : lang === "fr" ? "Agences immobilières sur Balkoun" : "Real estate agencies on Balkoun"}</h2><div class="chips">${agencies.slice(0, 8).map((a) => `<a class="chip" href="${SITE}/agency/${a.id}/">${esc(a.name)}</a>`).join("")}</div></section>` : "";
   const topGovs = govs.filter((g) => (counts.gov.get(g.id) || 0) > 0).sort((a, b) => (counts.gov.get(b.id) || 0) - (counts.gov.get(a.id) || 0));
   const body = `<section class="hero"><h1>${esc(W.homeH1)}</h1><p>${esc(W.homeLede)}</p>
 <div class="acts"><a class="g" href="${searchUrl(lang, { deal: "sale" })}">${esc(W.forSale[0].toUpperCase() + W.forSale.slice(1))}</a><a class="o" href="${searchUrl(lang, { deal: "rent" })}">${esc(W.forRent[0].toUpperCase() + W.forRent.slice(1))}</a><a class="o" href="${appUrl(lang, "mapsearch")}">${W.map}</a></div></section>
@@ -462,7 +502,7 @@ ${agHtml}
 <section class="sec"><h2>${W.whyH}</h2><div class="why">${W.why.map((w) => `<div><h3>${esc(w[0])}</h3><p>${esc(w[1])}</p></div>`).join("")}</div></section>`;
   const ld = [{ "@context":"https://schema.org", "@type":"WebSite", name: "Balkoun", url: SITE, inLanguage: lang, description: W.homeDesc },
     { "@context":"https://schema.org", "@type":"Organization", name: "Balkoun", alternateName: "بلكون", url: SITE, logo: SITE + "/brand/og-image.png", areaServed: ENABLED.map((c) => c.code) }];
-  return { url, html: shell({ lang, title: W.homeT, desc: W.homeDesc, canonical: url, alts: { ar: SITE + cpre() + "/", en: pageUrl("en", ""), de: pageUrl("de", "") }, jsonld: ld, body, image: latest[0]?.cover_url, footLinks }) };
+  return { url, html: shell({ lang, title: W.homeT, desc: W.homeDesc, canonical: url, alts: Object.fromEntries(CTX.langs.map((l) => [l, l === "ar" ? SITE + cpre() + "/" : pageUrl(l, "")])), jsonld: ld, body, image: latest[0]?.cover_url, footLinks }) };
 }
 
 function guidesIndex({ lang, footLinks }) {
@@ -513,6 +553,12 @@ ${(a.area_names || []).length ? `<section class="sec"><h2>مناطق العمل<
 //    block between <!--seo-home--> markers (headline, intro, governorates, latest listings, offices, guides); the app's first render replaces it. ──
 function appText(key, lang) {   // a default text from the app's HX_T table (index.html), e.g. appText("aboutP","en")
   const src = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  if (lang === "fr") {   // French home texts live in the app's FR_HX table (var FR_HX={…} plus Object.assign(FR_HX,{…}) lines); the last one wins, as in the app
+    const i = src.indexOf("var FR_HX="), j = src.indexOf("Object.keys(FR_HX)", i);
+    if (i < 0 || j < 0) return "";
+    const hits = [...src.slice(i, j).matchAll(new RegExp('[{,\\s"]' + key + '"?:"((?:[^"\\\\]|\\\\.)*)"', "g"))];
+    try { return hits.length ? JSON.parse('"' + hits[hits.length - 1][1] + '"') : ""; } catch (e) { return ""; }
+  }
   const m = src.match(new RegExp(key + ":\\{[\\s\\S]{0,4000}?" + lang + ":\"((?:[^\"\\\\]|\\\\.)*)\""));
   try { return m ? JSON.parse('"' + m[1] + '"') : ""; } catch (e) { return ""; }
 }
@@ -545,10 +591,11 @@ function write(url, html) {
 
 async function main() {
   let allCountries;
-  const SY_ONLY = [{ code: "SY", name_ar: "سوريا", name_en: "Syria", name_de: "Syrien", enabled: true, is_default: true }];
-  try { allCountries = await sb("countries?select=code,name_ar,name_en,name_de,enabled,is_default,sort_order&order=sort_order.asc"); if (!Array.isArray(allCountries) || !allCountries.length) throw new Error("empty list"); }
+  const SY_ONLY = [{ code: "SY", name_ar: "سوريا", name_en: "Syria", name_de: "Syrien", name_fr: "Syrie", enabled: true, is_default: true, languages: ["ar", "en", "de"] }];
+  try { allCountries = await sb("countries?select=code,name_ar,name_en,name_de,name_fr,enabled,is_default,sort_order,languages&order=sort_order.asc"); if (!Array.isArray(allCountries) || !allCountries.length) throw new Error("empty list"); }
   catch (e) { console.warn("countries unreadable, building Syria only:", e.message); allCountries = SY_ONLY; }
   if (!allCountries.some((c) => c.is_default)) allCountries.forEach((c) => { if (c.code === "SY") c.is_default = true; });
+  forceEnable(allCountries);
   const enabled = allCountries.filter((c) => c.enabled); ENABLED = enabled;
   // a country that was switched off loses its tree (a disabled default country keeps the root)
   for (const c of allCountries.filter((c) => !c.enabled && !c.is_default)) fs.rmSync(path.join(ROOT, c.code.toLowerCase()), { recursive: true, force: true });
@@ -571,7 +618,9 @@ async function main() {
   for (const c of allCountries.filter((c) => !c.is_default)) fs.rmSync(path.join(ROOT, c.code.toLowerCase(), "agency"), { recursive: true, force: true });
 
   for (const c of enabled) {
-    CTX = { code: c.code, prefix: c.is_default ? "" : "/" + c.code.toLowerCase(), isDefault: !!c.is_default, cn: { code: c.code, ar: c.name_ar, en: c.name_en, de: c.name_de || c.name_en } };
+    const nameFr = c.name_fr || c.name_en;
+    CTX = { code: c.code, prefix: c.is_default ? "" : "/" + c.code.toLowerCase(), isDefault: !!c.is_default, langs: countryLangs(c),
+      cn: { code: c.code, ar: c.name_ar, en: c.name_en, de: c.name_de || c.name_en, fr: nameFr, frIn: frIn(c.code, nameFr), frOf: frOf(c.code, nameFr) } };
     S = mkS(CTX.cn);
     const base = path.join(ROOT, CTX.prefix.replace(/^\//, ""));
     const govs = govsAll.filter((g) => (g.country_code || "SY") === c.code);
@@ -595,20 +644,22 @@ async function main() {
     const footLinksFor = (lang) => usableGovs.slice(0, 12).map((g) => `<a href="${pageUrl(lang, `for-sale/${g.slug}/`)}">${esc(S[lang].footIn(govName(g, lang)))}</a>`).join("") + `<a href="${pageUrl(lang, "areas/")}">${S[lang].allAreas}</a>`;
 
     // remove previously generated trees so deleted areas/govs don't leave stale pages
-    const trees = ["for-sale", "for-rent", "areas", "about", "contactus", "privacy", "terms", "en/for-sale", "en/for-rent", "en/areas", "en/about", "en/contactus", "en/privacy", "en/terms", "de/for-sale", "de/for-rent", "de/areas", "de/about", "de/contactus", "de/privacy", "de/terms"];
-    if (CTX.isDefault) trees.push("guides", "en/guides", "de/guides");
+    // every language's trees go, also a language the country no longer lists (only the listed ones are rebuilt below)
+    const trees = ["for-sale", "for-rent", "areas", "about", "contactus", "privacy", "terms", "en/for-sale", "en/for-rent", "en/areas", "en/about", "en/contactus", "en/privacy", "en/terms", "de/for-sale", "de/for-rent", "de/areas", "de/about", "de/contactus", "de/privacy", "de/terms",
+      "fr/for-sale", "fr/for-rent", "fr/areas", "fr/about", "fr/contactus", "fr/privacy", "fr/terms"];
+    if (CTX.isDefault) trees.push("guides", "en/guides", "de/guides", "fr/guides");
     for (const dir of trees) fs.rmSync(path.join(base, dir), { recursive: true, force: true });
-    for (const l of ["en", "de"]) { const f = path.join(base, l, "index.html"); if (fs.existsSync(f)) fs.rmSync(f); }
+    for (const l of ["en", "de", "fr"]) { const f = path.join(base, l, "index.html"); if (fs.existsSync(f)) fs.rmSync(f); }
 
     let site = null, legalExtras = {};
     try { site = (await sb(`site_content?select=phone_number,wa_number,email_address,fb_url,fb_name,ig_url,ig_name,yt_url,yt_name,tiktok_url,tiktok_name&country_code=eq.${c.code}&limit=1`))[0]; } catch (e) { console.warn("site_content unreadable:", e.message); }
     try { const ex = (await sb(`site_content?select=extras&id=eq.1&limit=1`))[0]; legalExtras = (ex && ex.extras) || {}; } catch (e) { console.warn("site_content extras unreadable:", e.message); }
     // the admin's live property-type list (renames + types added from the admin) on top of the page's built-in table
     if (Array.isArray(legalExtras.property_types)) for (const r of legalExtras.property_types) { const k = String(r.code || "").trim(); if (!k || r.on === false) continue; const b = D.TYPES[k] || [];
-      D.TYPES[k] = [r.ar || b[0] || k, r.en || b[1] || r.ar || k, r.de || b[2] || r.en || r.ar || k]; if (!TYPE_PL_AR[k]) TYPE_PL_AR[k] = r.ar || k; if (!TYPE_AR_SLUG[k]) TYPE_AR_SLUG[k] = r.ar || k; }
+      D.TYPES[k] = [r.ar || b[0] || k, r.en || b[1] || r.ar || k, r.de || b[2] || r.en || r.ar || k, r.fr || (FR_LABELS.TYPES || {})[k] || r.en || b[1] || r.ar || k]; if (!TYPE_PL_AR[k]) TYPE_PL_AR[k] = r.ar || k; if (!TYPE_AR_SLUG[k]) TYPE_AR_SLUG[k] = r.ar || k; }
 
     const urls = [];
-    for (const lang of ["ar", "en", "de"]) {
+    for (const lang of CTX.langs) {
       const footLinks = footLinksFor(lang);
       for (const deal of ["sale", "rent"]) {
         for (const g of usableGovs) {
@@ -633,7 +684,7 @@ async function main() {
       const ab = aboutPage({ lang, footLinks }); write(ab.url, ab.html); urls.push({ loc: ab.url, priority: "0.5" });
       const ct = contactPage({ lang, site, footLinks }); write(ct.url, ct.html); urls.push({ loc: ct.url, priority: "0.5" });
       for (const kind of ["privacy", "terms"]) { const lp = legalPage({ lang, kind, footLinks, extras: legalExtras }); write(lp.url, lp.html); urls.push({ loc: lp.url, priority: "0.3" }); }
-      if (CTX.isDefault) {
+      if (CTX.isDefault && GUIDE_WORDS[lang]) {   // the guides exist in ar/en/de only
         const gi = guidesIndex({ lang, footLinks }); write(gi.url, gi.html); urls.push({ loc: gi.url, priority: "0.7" });
         for (const g of GUIDES) { const gp = guidePage({ lang, g, footLinks }); write(gp.url, gp.html); urls.push({ loc: gp.url, priority: "0.7" }); }
       }
@@ -646,7 +697,7 @@ async function main() {
       const al = live.filter((l) => l.user_id === a.user_id);
       const ap = agencyPage({ a, listings: al, footLinks: footLinksFor("ar") }); write(ap.url, ap.html); urls.push({ loc: ap.url, priority: al.length ? "0.7" : "0.5" });
     }
-    for (const lang of ["en", "de"]) { const hp = homePage({ lang, govs: usableGovs, counts, latest: live.slice(0, 12), footLinks: footLinksFor(lang), agencies: agencies.filter((a) => live.some((l) => l.user_id === a.user_id)) }); write(hp.url, hp.html); urls.push({ loc: hp.url, priority: "0.9" }); }
+    for (const lang of CTX.langs.filter((l) => l !== "ar")) { const hp = homePage({ lang, govs: usableGovs, counts, latest: live.slice(0, 12), footLinks: footLinksFor(lang), agencies: agencies.filter((a) => live.some((l) => l.user_id === a.user_id)) }); write(hp.url, hp.html); urls.push({ loc: hp.url, priority: "0.9" }); }
     // the crawlable block inside the Arabic home (index.html) for the default country
     if (CTX.isDefault) { try { injectHomeSeo(homeSeoBlock({ govs: usableGovs, counts, latest: live.slice(0, 10), agencies: agencies.filter((a) => live.some((l) => l.user_id === a.user_id)), extras: legalExtras })); } catch (e) { console.warn("home block skipped:", e.message); } }
 
@@ -665,8 +716,9 @@ async function main() {
   // every country's listing pages live in the one /listing/ tree
   entries.push(...listingDirsOf(path.join(ROOT, "listing")).map((d) => ({ loc: `${SITE}/listing/${d}/`, priority: "0.9" })),
     ...listingDirsOf(path.join(ROOT, "en", "listing")).map((d) => ({ loc: `${SITE}/en/listing/${d}/`, priority: "0.8" })),
-    ...listingDirsOf(path.join(ROOT, "de", "listing")).map((d) => ({ loc: `${SITE}/de/listing/${d}/`, priority: "0.8" })));
+    ...listingDirsOf(path.join(ROOT, "de", "listing")).map((d) => ({ loc: `${SITE}/de/listing/${d}/`, priority: "0.8" })),
+    ...listingDirsOf(path.join(ROOT, "fr", "listing")).map((d) => ({ loc: `${SITE}/fr/listing/${d}/`, priority: "0.8" })));
   fs.writeFileSync(path.join(ROOT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.map((e) => `  <url><loc>${e.loc}</loc><lastmod>${today}</lastmod><priority>${e.priority}</priority></url>`).join("\n")}\n</urlset>\n`);
-  console.log(`Wrote ${total} pages in ar/en/de for ${enabled.length} countr${enabled.length === 1 ? "y" : "ies"} and sitemap.xml with ${entries.length} URLs.`);
+  console.log(`Wrote ${total} pages (each country in its own languages) for ${enabled.length} countr${enabled.length === 1 ? "y" : "ies"} and sitemap.xml with ${entries.length} URLs.`);
 }
 main().catch((e) => { console.error(e); process.exit(1); });

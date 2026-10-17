@@ -12,6 +12,7 @@
 import fs from "fs";
 import path from "path";
 import vm from "vm";
+import { forceEnable } from "./lang.mjs";
 
 const SITE = "https://balkoun.com";
 const ROOT = path.resolve(".");
@@ -64,6 +65,7 @@ export async function buildRoutes() {
     if (res.ok) { const rows = await res.json(); if (rows.length) countries = rows; }
   } catch (e) { console.warn("countries unreadable, Syria only:", e.message); }
   if (!countries.some((c) => c.is_default)) countries.forEach((c) => { if (c.code === "SY") c.is_default = true; });
+  forceEnable(countries);   // test runs only (BK_FORCE_ENABLE, unset in the workflow)
   const urls = [];
   // request pages have one address for every country (/wanted/<id>/, 2026-10-17): the old /lb/wanted/<id>/ ones go
   for (const c of countries.filter((c) => !c.is_default)) cleanWantedPages(path.join(ROOT, c.code.toLowerCase()), new Set());
