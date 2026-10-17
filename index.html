@@ -3767,6 +3767,32 @@ html.adm-dark .adm,html.adm-dark .admdm-ov{--a-page:#0E1320;--a-side:#121826;--a
 html.adm-dark .admdm .ab.ok{color:#1A1206}
 .adm .xcheck input,.admdm .xcheck input{width:17px!important;height:17px!important;min-height:0!important;flex:none}
 @media(max-width:900px){.admdm .xactions{display:flex;flex-direction:column;align-items:stretch;gap:8px}.admdm .xactions>.ab{justify-content:center;min-height:46px}}
+/* desktop pass in a real 1366px browser (2026-10-16) */
+/* stats cards: 8 of them make two even lines of four, never seven plus one orphan */
+@media(min-width:901px){.adm .kpis{grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* counter cards (outreach stages, drafts): number over its label, four to a line */
+.adm .ikstats>.astat{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:start}
+@media(min-width:901px){.adm .ikstats:has(>.astat:nth-child(6)){grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* the section strip scrolls; its far edge fades so a cut-off chip reads as "more this way" */
+.adm .asecnav{-webkit-mask-image:linear-gradient(to left,transparent 0,#000 32px);mask-image:linear-gradient(to left,transparent 0,#000 32px);padding-inline-end:36px}
+[dir=ltr] .adm .asecnav{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 32px);mask-image:linear-gradient(to right,transparent 0,#000 32px)}
+/* bookings rows on laptop widths: four columns — code+numbers · listing+period · client+status · buttons */
+@media(min-width:901px) and (max-width:1400px){
+  .adm .erow:not(.wrow){grid-template-columns:120px minmax(0,1.4fr) minmax(0,1fr) auto;align-items:start;gap:6px 18px}
+  .adm .erow:not(.wrow)>.ecode{grid-column:1;grid-row:1}.adm .erow:not(.wrow)>.estats{grid-column:1;grid-row:2}
+  .adm .erow:not(.wrow)>.ewho{grid-column:2;grid-row:1}.adm .erow:not(.wrow)>.eperiod{grid-column:2;grid-row:2}
+  .adm .erow:not(.wrow)>.eclient{grid-column:3;grid-row:1}.adm .erow:not(.wrow)>.est{grid-column:3;grid-row:2;justify-self:start}
+  .adm .erow:not(.wrow)>.eacts{grid-column:4;grid-row:1/3;align-self:center;flex-wrap:nowrap;justify-content:flex-end}
+}
+/* drop-downs have a fixed height; extra top/bottom padding (some carry it inline) squeezed their text in half */
+.adm select:not([multiple]):not([size]),.admdm select:not([multiple]):not([size]){padding-top:0!important;padding-bottom:0!important}
+/* property types on wide screens: the category picker gets room for its words */
+@media(min-width:801px){.adm .geotable:has([data-pt]){grid-template-columns:80px repeat(4,minmax(0,1fr)) 130px 64px 44px 52px auto!important}}
+/* the verified tick beside a name sits on the name's line without reaching into the line below */
+.adm .vbadge{display:inline-flex;align-items:center;line-height:1;vertical-align:middle}
+/* social promotion list: the whole width, two listings to a line on wide screens */
+.adm .sociallist{max-width:none}
+@media(min-width:1100px){.adm .sociallist{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}}
 /* a table stretched to its card's edges pulls the card's bottom padding in; when something follows it, it keeps a normal gap */
 .adm .blk .in>.atable:not(:last-child){margin-bottom:14px!important}
 /* a search frame outside the listings bar (maps page…) gets the same frame: icon and field on one line */
