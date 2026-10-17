@@ -3650,6 +3650,8 @@ body.mdw-open .mobfab{display:none}
 .adm .asidebar .asub a.on{background:#FBF3E4;color:#14213D;font-weight:700;box-shadow:none}
 .adm .asidebar .asub a.on .abadge2{background:#C4881F;color:#fff}
 .adm .asidebar-sp{flex:1;min-height:16px}
+/* desktop: the side menu stays in view with its own scroll, so «الإعدادات» at its foot is always on screen (owner, 2026-10-17) */
+@media(min-width:901px){.adm .asidebar{position:sticky;top:var(--adm-top-h,56px);align-self:flex-start;height:calc(100vh - var(--adm-top-h,56px));min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin}}
 .adm .acontent{background:var(--a-page);border-radius:0}
 .adm .apage-crumb{color:var(--a-ink2)}
 .adm .asubtabs{display:none}
