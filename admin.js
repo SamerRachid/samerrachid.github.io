@@ -276,6 +276,7 @@ function adminView(){
   '<div class="hintx">'+t("adminHint")+'</div>')+
   '</div></div></div>';
 
+  if(!HS_TABS[ADM.tab]) ADM._lastTab=ADM.tab;   // «خروج» from the site editor returns here
   var d=ADM.data||{stats:{},listings:[],users:[],reports:[],feedback:[],reviews:[]};
  var refFor=function(listingId){
    var match=(d.listings||[]).filter(function(l){return String(l.id)===String(listingId)})[0];
@@ -2347,6 +2348,8 @@ async function clearStorageFolder(folder){
 }
 function xNum(key,label,def,min,max,step){ return '<div class="fl"><label>'+label+'</label><input type="number" data-xkey="'+key+'" data-xtype="num" value="'+SX(key,"")+'" placeholder="'+def+'"'+(min!=null?' min="'+min+'"':'')+(max!=null?' max="'+max+'"':'')+(step?' step="'+step+'"':'')+'></div>' }
 function xSelect(key,label,def,opts){ return '<div class="fl"><label>'+label+'</label><select data-xkey="'+key+'" data-xtype="str">'+opts.map(function(o){ return '<option value="'+o[0]+'"'+(SX(key,def)===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select></div>' }
+// the site editor's pages: panel tab → studio page (the editor opens full screen on any of them)
+var HS_TABS={mainpage:"home",design:"design",contact:"contact",ads:"ads",banners:"banners"};
 var HS_PAGES={home:{url:"/",sel:"hero_text"},ads:{url:"/",sel:"row"},banners:{url:"/",sel:"b:0"},design:{url:"/search?deal=sale",sel:"cards"},contact:{url:"/?view=contactus",sel:"social"}};
 function hsPvUrl(){ var u=HS_PAGES[HS.page].url; return u+(u.indexOf("?")>-1?"&":"?")+"preview=1&country="+COUNTRY+"&lang="+hsLang() }
 var HS_T={
@@ -2355,7 +2358,11 @@ var HS_T={
  dirty:{ar:"تغييرات غير محفوظة — تظهر في المعاينة فقط",en:"Unsaved changes — preview only",de:"Ungespeicherte Änderungen – nur Vorschau"}, clean:{ar:"كل شيء محفوظ",en:"Everything saved",de:"Alles gespeichert"},
  openSite:{ar:"فتح الموقع",en:"Open site",de:"Seite öffnen"}, reload:{ar:"تحديث المعاينة",en:"Reload preview",de:"Vorschau neu laden"},
  sections:{ar:"أقسام الصفحة",en:"Page sections",de:"Seitenabschnitte"},
- sectionsHint:{ar:"اضغط قسماً لتعديله. العين تُظهر أو تُخفي القسم، والأسهم تغيّر ترتيبه في الصفحة. الأول (الترحيب) ثابت في الأعلى.",en:"Click a section to edit it. The eye shows or hides it, the arrows move it up or down the page. The hero stays first.",de:"Abschnitt anklicken zum Bearbeiten. Das Auge zeigt oder versteckt ihn, die Pfeile verschieben ihn. Der Hero bleibt oben."},
+ exit:{ar:"خروج",en:"Exit",de:"Schließen"}, back:{ar:"رجوع",en:"Back",de:"Zurück"}, close:{ar:"إغلاق",en:"Close",de:"Schließen"}, more:{ar:"المزيد",en:"More",de:"Mehr"},
+ sheetBtn:{ar:"الأقسام",en:"Sections",de:"Abschnitte"}, pagePick:{ar:"الصفحة التي تعدّلها",en:"Page you are editing",de:"Bearbeitete Seite"}, country:{ar:"الدولة",en:"Country",de:"Land"},
+ drag:{ar:"اسحب لتغيير الترتيب (أو الأسهم ↑↓ في لوحة المفاتيح)",en:"Drag to reorder (or the ↑↓ keys)",de:"Zum Umsortieren ziehen (oder ↑↓-Tasten)"},
+ exitDirty:{ar:"لديك تغييرات غير محفوظة. الخروج يتجاهلها. هل تريد الخروج؟",en:"You have unsaved changes. Leaving discards them. Leave?",de:"Ungespeicherte Änderungen gehen verloren. Trotzdem schließen?"},
+ sectionsHint:{ar:"اضغط قسماً لتعديله · اسحب ⋮⋮ لتغيير الترتيب · العين تُظهر أو تُخفي. الترحيب ثابت في الأعلى.",en:"Click a section to edit it · drag ⋮⋮ to reorder · the eye shows or hides it. The hero stays first.",de:"Abschnitt anklicken zum Bearbeiten · ⋮⋮ ziehen zum Umsortieren · das Auge zeigt/versteckt. Der Hero bleibt oben."},
  hero:{ar:"القسم الأول (الترحيب)",en:"Hero",de:"Hero"}, hero_text:{ar:"العنوان الرئيسي",en:"Headline",de:"Überschrift"},
  hero_bg:{ar:"الخلفية والرسم",en:"Background and drawing",de:"Hintergrund und Zeichnung"}, hero_search:{ar:"شريط البحث",en:"Search bar",de:"Suchleiste"},
  hero_stats:{ar:"سطر الإحصائيات",en:"Stats line",de:"Statistikzeile"},
@@ -2438,6 +2445,8 @@ var HS_SEL={hero_text:".hero h1",hero_bg:".hero-outer",hero_search:".sbar",hero_
   row:".adsec",look:".adsec",perf:".adsec",strip:".topbanner-wrap",cards:".res",badges:".res",results:".rs-head",nav:"header",social:".changrid",numbers:".changrid"};
 var HS_EYE={ads:"x:ads_row_enabled"};
 var HS_VARKEYS=/^(sk_|h1_|sbar_|hero_gap|ad_carousel_gap|ad_square_size|hero_title_size_m|sec_pad|hero_max_height|card_min_width)/;
+var HS_ICO_UNDO='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>';
+var HS_ICO_GRIP='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><g fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></g></svg>', HS_ICO_BACK='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>';
 var HS_ICO_EYEOFF='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.2 4.2M9.9 5.2A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6C3.8 8.6 2 12 2 12s3.5 6 10 6c1.4 0 2.6-.3 3.7-.7"/></svg>';
 function hsParts(key){ return {col:key.indexOf("c:")===0,name:key.slice(2)} }
 function hsBase(key){ var p=hsParts(key); if(p.col){ var v=SITE[p.name]; return v==null?"":v } return SX(p.name,"") }
@@ -2475,7 +2484,7 @@ function aIn(field,type,val,attrs){ return '<input data-allow-autofill data-hsa=
 function aText(label,field,val,ph){ return '<div class="fl"><label>'+label+'</label>'+aIn(field,"str",val,' placeholder="'+esc(String(ph||""))+'"')+'</div>' }
 function hsInspectorHtml(){
   var phone=HS.device==="phone", r = HS.page==="ads"?hsInspAds():HS.page==="banners"?hsInspBanners():HS.page==="design"?hsInspDesign():HS.page==="contact"?hsInspContact():hsInspHome();
-  return '<h3>'+r.title+(r.badge||'')+'<span class="hs-badge">'+(phone?AICO.phone:AICO.desk)+' '+hsT(phone?"phone":"desk")+'</span></h3><div class="in">'+r.H.join("")+'</div>';
+  return '<h3><button type="button" class="hs-back" data-hsback title="'+hsT("back")+'" aria-label="'+hsT("back")+'">'+HS_ICO_BACK+'</button><span class="hs-ttl">'+r.title+'</span>'+(r.badge||'')+'<span class="hs-badge">'+(phone?AICO.phone:AICO.desk)+' '+hsT(phone?"phone":"desk")+'</span></h3><div class="in">'+r.H.join("")+'</div>';
 }
 function hsInspAds(){
   var sd=HS.sel, H=[], title=hsT(sd);
@@ -2689,25 +2698,57 @@ function hsOutlineHome(){
   var isOn=function(key){ var p=hsParts(key), v=p.col?site[p.name]:ex[p.name]; return v==null||v===""?true:(v!==false&&v!=="false") };
   var ICO={ads:AICO.ads,feat:AICO.star,banners:AICO.banner,ticker:AICO.chart,projects:AICO.building,wanted:AICO.search,popular:AICO.eye,about:AICO.globe,colls:ICON_GRID,types:AICO.listings,trust:AICO.shield,expl:AICO.map,band:AICO.users,guides:AICO.star};
   var item=function(k,o){ o=o||{}; var on=o.eye?isOn(o.eye):o.bgEye?(((HS.device==="phone"&&ex.hero_bg_type_m)?ex.hero_bg_type_m:(site.hero_bg_type||"sketch"))!=="none"):true; var selK=o.selAs||k; var isSel=HS.sel===selK || (k==="hero" && HS.sel.indexOf("hero_")===0);
-    return '<div class="hs-item'+(isSel?' on':'')+(o.child?' child':'')+(on?'':' off')+'" data-hssel="'+selK+'">'+(o.ico?'<span class="hs-ico">'+o.ico+'</span>':'')+'<span class="hs-name">'+hsT(k)+(o.sub?'<small class="hs-sub">'+o.sub+'</small>':'')+'</span>'+
-      (o.mv?'<button type="button" class="hs-mv" data-hsmv="'+k+':-1" title="'+hsT("up")+'">▲</button><button type="button" class="hs-mv" data-hsmv="'+k+':1" title="'+hsT("down")+'">▼</button>':'')+
+    return '<div class="hs-item'+(isSel?' on':'')+(o.child?' child':'')+(on?'':' off')+(o.mv?' drag':'')+'" data-hssel="'+selK+'"'+(o.mv?' data-hsdk="'+k+'"':'')+'>'+
+      (o.mv?'<button type="button" class="hs-grip" data-hsdrag="'+k+'" title="'+hsT("drag")+'" aria-label="'+hsT("drag")+'">'+HS_ICO_GRIP+'</button>':'')+
+      (o.ico?'<span class="hs-ico">'+o.ico+'</span>':'')+'<span class="hs-name">'+hsT(k)+(o.sub?'<small class="hs-sub">'+o.sub+'</small>':'')+'</span>'+
       ((o.eye||o.bgEye)?'<button type="button" class="hs-eye'+(on?'':' off')+'" data-hseye="'+k+'" title="'+hsT("show")+'">'+(on?AICO.eye:HS_ICO_EYEOFF)+'</button>':'')+'</div>' };
   return item("hero",{ico:AICO.home2,selAs:"hero_text"})+item("hero_text",{child:true,eye:"c:hero_enabled"})+item("hero_bg",{child:true,bgEye:true})+item("hero_search",{child:true})+item("hero_stats",{child:true,eye:"c:stats_enabled"})+
     hsOrder(ex).map(function(k){ return item(k,{eye:HS_EYE[k]||("x:home_"+k+"_on"),mv:k!=="banners"||ex.banners_slot!=="top",ico:ICO[k],sub:k==="banners"&&ex.banners_slot==="top"?hsT("bSlotTop"):""}) }).join("")+item("page",{ico:AICO.gear});
 }
 function hsStudioHtml(page){
   HS.page=page||"home"; if(!HS.lang) HS.lang=L; HS.sel=HS.selBy[HS.page]||HS_PAGES[HS.page].sel;
-  return '<div class="hs">'+
-   '<div class="hs-bar"><div class="hs-seg" id="hsDev">'+[["desk",AICO.desk],["phone",AICO.phone]].map(function(d){ return '<button type="button" data-dev="'+d[0]+'" class="'+(HS.device===d[0]?"on":"")+'">'+d[1]+' '+hsT(d[0])+'</button>' }).join("")+'</div>'+
-   '<div class="hs-seg" id="hsLang">'+["ar","en","de"].map(function(l){ return '<button type="button" data-lang="'+l+'" class="'+(HS.lang===l?"on":"")+'">'+(LANG_SHORT[l]||l)+'</button>' }).join("")+'</div>'+
-   '<span class="hs-state" id="hsState"><i></i><span></span></span>'+
-   '<div class="hs-actions"><button type="button" class="ab" id="hsReload" title="'+hsT("reload")+'">'+AICO.refresh+'</button><a class="ab" href="/" target="_blank" rel="noopener">'+AICO.eye+' '+hsT("openSite")+'</a><button type="button" class="ab" id="hsDiscard">'+hsT("discard")+'</button><button type="button" class="ab ok" id="hsSave">'+hsT("saveAll")+'</button><span class="xmsg" id="hsMsg"></span></div></div>'+
-   '<div class="hs-grid"><aside class="hs-out"><div class="hs-out-h">'+hsT("sections")+'</div><div id="hsOutline">'+hsOutlineHtml()+'</div><div class="hintx" style="padding:8px 14px 12px">'+hsT("sectionsHint")+'</div></aside>'+
-   '<div class="hs-pv '+HS.device+'" id="hsPv"><div class="hs-pvwrap" id="hsPvWrap"><iframe id="hsFrame" src="'+hsPvUrl()+'" title="preview"></iframe></div><div class="hs-pvnote">'+hsT("previewNote")+'</div></div>'+
-   '<div class="blk hs-insp" id="hsInsp">'+hsInspectorHtml()+'</div></div></div>';
+  if(!HS.view) HS.view="list";
+  if(!HS._devPicked && window.matchMedia && matchMedia("(max-width:900px)").matches) HS.device="phone";   // a phone edits the phone page first
+  var pages=Object.keys(HS_TABS).filter(canTab), tabOf=function(k){ return {mainpage:t("mainPageTab"),design:GX("tDesign"),contact:GX("tContact"),ads:t("adsTab"),banners:GX("tBanners")}[k] };
+  var CS=(ADM.countries&&ADM.countries.length>1)?admCountries():[];
+  return '<div class="hs hs-v-'+HS.view+'" id="hsRoot">'+
+   // top bar: exit · page · country │ device · language │ state · reload · open · discard · save
+   '<header class="hs-top">'+
+    '<button type="button" class="hs-tb hs-exit" id="hsExit">'+HS_ICO_BACK+'<span>'+hsT("exit")+'</span></button>'+
+    '<span class="hs-brand">'+(L==="ar"?"بلكون":"Balkoun")+'</span>'+
+    '<label class="hs-tb hs-pagepick" title="'+hsT("pagePick")+'">'+AICO.palette+'<select id="hsPage" aria-label="'+hsT("pagePick")+'">'+pages.map(function(k){ return '<option value="'+k+'"'+(k===ADM.tab?' selected':'')+'>'+tabOf(k)+'</option>' }).join("")+'</select></label>'+
+    '<div class="hs-tools">'+
+     '<button type="button" class="hs-sheetbtn" id="hsSheetBtn">'+AICO.listings+'<span>'+hsT("sheetBtn")+'</span></button>'+
+     '<div class="hs-seg" id="hsDev">'+[["desk",AICO.desk],["phone",AICO.phone]].map(function(d){ return '<button type="button" data-dev="'+d[0]+'" class="'+(HS.device===d[0]?"on":"")+'" title="'+hsT(d[0])+'">'+d[1]+'<span>'+hsT(d[0])+'</span></button>' }).join("")+'</div>'+
+     '<div class="hs-seg" id="hsLang">'+["ar","en","de"].map(function(l){ return '<button type="button" data-lang="'+l+'" class="'+(HS.lang===l?"on":"")+'">'+(LANG_SHORT[l]||l)+'</button>' }).join("")+'</div>'+
+    '</div>'+
+    '<span class="hs-grow"></span>'+
+    '<span class="hs-state" id="hsState"><i></i><span></span></span>'+
+    '<button type="button" class="hs-tb hs-morebtn" id="hsMoreBtn" aria-label="'+hsT("more")+'" aria-expanded="false">'+(AICO.more||"⋯")+'</button>'+
+    '<div class="hs-more" id="hsMore">'+
+     (CS.length?'<label class="hs-tb hs-country" title="'+hsT("country")+'">'+flagSvg(COUNTRY)+'<select id="hsCountry" aria-label="'+hsT("country")+'">'+CS.map(function(c){ return '<option value="'+c.code+'"'+(c.code===COUNTRY?' selected':'')+'>'+esc(countryName(c))+(c.enabled?'':' · '+GX("cOffShort"))+'</option>' }).join("")+'</select></label>':'')+
+     '<button type="button" class="hs-tb" id="hsReload" title="'+hsT("reload")+'">'+AICO.refresh+'<span>'+hsT("reload")+'</span></button>'+
+     '<a class="hs-tb" href="/" target="_blank" rel="noopener" title="'+hsT("openSite")+'">'+AICO.eye+'<span>'+hsT("openSite")+'</span></a>'+
+     '<button type="button" class="hs-tb" id="hsDiscard" title="'+hsT("discard")+'">'+HS_ICO_UNDO+'<span>'+hsT("discard")+'</span></button>'+
+    '</div>'+
+    '<button type="button" class="hs-tb hs-save" id="hsSave">'+hsSaveLbl()+'</button>'+
+    '<span class="xmsg hs-msg" id="hsMsg" role="status"></span>'+
+   '</header>'+
+   '<div class="hs-body">'+
+    '<aside class="hs-side" id="hsSide">'+
+     '<div class="hs-grab" id="hsGrab"><i></i><button type="button" class="hs-x" id="hsSheetX" aria-label="'+hsT("close")+'">×</button></div>'+
+     '<div class="hs-list"><div class="hs-side-h"><b>'+tabOf(ADM.tab)+'</b><small>'+hsT(HS.page==="home"?"sectionsHint":"sections")+'</small></div><div id="hsOutline">'+hsOutlineHtml()+'</div></div>'+
+     '<div class="blk hs-insp" id="hsInsp">'+hsInspectorHtml()+'</div>'+
+    '</aside>'+
+    '<main class="hs-pv '+HS.device+'" id="hsPv"><div class="hs-pvwrap" id="hsPvWrap"><iframe id="hsFrame" src="'+hsPvUrl()+'" title="preview"></iframe></div><div class="hs-pvnote">'+hsT("previewNote")+'</div></main>'+
+   '</div></div>';
 }
-function hsFit(){ var pv=$("#hsPv"), w=$("#hsPvWrap"), f=$("#hsFrame"); if(!pv||!w||!f) return; var W=pv.clientWidth-24, H=pv.clientHeight-52;
-  if(HS.device==="phone"){ var pw=Math.min(390,W-20); w.style.width=pw+"px"; w.style.height=H+"px"; f.style.width=pw+"px"; f.style.height=H+"px"; f.style.transform="none" }
+// list ⇄ settings in the side column (on a phone the column is a sheet over the page)
+function hsView(v){ HS.view=v; var r=$("#hsRoot"); if(!r) return; r.classList.toggle("hs-v-list",v==="list"); r.classList.toggle("hs-v-item",v==="item"); if(v==="item") r.classList.add("hs-sheet"); var sc=v==="item"?$("#hsInsp"):$("#hsOutline"); if(sc&&sc.parentElement) try{ (v==="item"?sc:$("#hsSide")).scrollTop=0 }catch(e){} }
+function hsSaveLbl(){ return '<span class="hs-l">'+hsT("saveAll")+'</span><span class="hs-s">'+t("save")+'</span>' }   // the phone shows the short word
+function hsSheet(open){ var r=$("#hsRoot"); if(r) r.classList.toggle("hs-sheet",!!open) }
+function hsFit(){ var pv=$("#hsPv"), w=$("#hsPvWrap"), f=$("#hsFrame"); if(!pv||!w||!f) return; var mob=window.matchMedia&&matchMedia("(max-width:900px)").matches, W=pv.clientWidth-(mob?0:40), H=pv.clientHeight-(mob?0:56);
+  if(HS.device==="phone"){ var pw=mob?W:Math.min(390,W-20); w.style.width=pw+"px"; w.style.height=H+"px"; f.style.width=pw+"px"; f.style.height=H+"px"; f.style.transform="none" }
   else { var sc=Math.min(1,W/1280); w.style.width=Math.round(1280*sc)+"px"; w.style.height=H+"px"; f.style.width="1280px"; f.style.height=Math.round(H/sc)+"px"; f.style.transform="scale("+sc+")" } }
 function hsDirtyUI(){ var st=$("#hsState"), sv=$("#hsSave"), d=hsDirty(); if(st){ st.classList.toggle("dirty",d); st.querySelector("span").textContent=hsT(d?"dirty":"clean") } if(sv) sv.disabled=!d; window.onbeforeunload = d ? function(){ return true } : null }
 function hsRenderInsp(){ var el=$("#hsInsp"); if(el) el.innerHTML=hsInspectorHtml() }
@@ -2716,6 +2757,27 @@ async function hsUpload(file,folder){ if(!DB) throw new Error("no client"); var 
   if(isVideo && file.size>8*1048576) throw new Error(GX("videoTooBig").replace("{mb}",8)); if(!isVideo && file.size>12*1048576) throw new Error(GX("imageTooBig")); var path=(isVideo?"videos/":"photos/")+folder+"/"+Date.now()+"_"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_"); var body=file, ct=file.type;
   if(!isVideo){ var raw=await new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){res(r.result)}; r.onerror=function(){rej(new Error("read"))}; r.readAsDataURL(file) }); body=await shrink(raw,1600,0.85); ct="image/jpeg" }
   var up=await storageUpload(path,body,{contentType:ct,upsert:false}); if(up.error) throw up.error; return DB.storage.from("photos").getPublicUrl(path).data.publicUrl }
+// put section k before section beforeKey (null = after the last movable one) in the home order, as a draft
+function hsMoveSection(k, beforeKey){
+  var ord=hsOrder(hsMerged().extras), i=ord.indexOf(k); if(i<0) return; ord.splice(i,1);
+  if(beforeKey && beforeKey!==k){ var j=ord.indexOf(beforeKey); ord.splice(j<0?ord.length:j,0,k) }
+  else { var movable=[].map.call($$("#hsOutline [data-hsdk]"),function(r){ return r.dataset.hsdk }).filter(function(x){ return x!==k }), last=movable[movable.length-1], p=last?ord.indexOf(last):-1; ord.splice(p<0?ord.length:p+1,0,k) }
+  hsSet("x:home_order",ord); hsPush(true); hsRenderOutline() }
+function hsDragStart(e, grip){
+  var row=grip.closest("[data-hsdk]"), box=$("#hsOutline"), scroller=$("#hsSide"); if(!row||!box) return; e.preventDefault();
+  var k=row.dataset.hsdk, y0=e.clientY, sc0=scroller?scroller.scrollTop:0, target=undefined, moved=false;
+  var line=document.createElement("div"); line.className="hs-dropline";
+  try{ grip.setPointerCapture(e.pointerId) }catch(x){}
+  var rows=function(){ return [].slice.call(box.querySelectorAll("[data-hsdk]")).filter(function(r){ return r!==row }) };
+  var move=function(ev){ var dy=ev.clientY-y0+(scroller?scroller.scrollTop-sc0:0); if(!moved && Math.abs(dy)<4) return; moved=true; row.classList.add("dragging"); row.style.transform="translateY("+dy+"px)";
+    if(scroller){ var sr=scroller.getBoundingClientRect(); if(ev.clientY<sr.top+40) scroller.scrollTop-=8; else if(ev.clientY>sr.bottom-40) scroller.scrollTop+=8 }
+    var list=rows(), before=null; for(var i=0;i<list.length;i++){ var r=list[i].getBoundingClientRect(); if(ev.clientY<r.top+r.height/2){ before=list[i]; break } }
+    target=before?before.dataset.hsdk:null;
+    if(before) before.parentNode.insertBefore(line,before); else { var last=list[list.length-1]; if(last) last.parentNode.insertBefore(line,last.nextSibling) } };
+  var end=function(){ grip.removeEventListener("pointermove",move); grip.removeEventListener("pointerup",end); grip.removeEventListener("pointercancel",end);
+    line.remove(); row.classList.remove("dragging"); row.style.transform="";
+    if(moved && target!==undefined){ var keys=[].map.call(box.querySelectorAll("[data-hsdk]"),function(r){ return r.dataset.hsdk }), i=keys.indexOf(k), next=keys[i+1]||null; if(target!==next && target!==k) hsMoveSection(k,target) } };
+  grip.addEventListener("pointermove",move); grip.addEventListener("pointerup",end); grip.addEventListener("pointercancel",end) }
 function hsWire(){
   var root=$(".hs"); if(!root) return;
   var frame=$("#hsFrame");
@@ -2724,7 +2786,27 @@ function hsWire(){
   window.addEventListener("message",HS._onMsg);
   frame.addEventListener("load",function(){ hsPush(true,800) });
   hsFit(); if(HS._onResize) window.removeEventListener("resize",HS._onResize); HS._onResize=hsFit; window.addEventListener("resize",hsFit);
-  $("#hsDev").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; HS.device=b.dataset.dev; $$("#hsDev button").forEach(function(x){ x.classList.toggle("on",x===b) }); $("#hsPv").className="hs-pv "+HS.device; hsFit(); hsRenderInsp() };
+  var hsDropDrafts=function(){ HS.draft={site:{},extras:{}}; HS.adDraft={}; HS.adNew=null; HS.bDraft=null; HS.bBefore=null; HS.adPendingDel={}; HS.bPendingDel=[]; window.onbeforeunload=null };
+  // «خروج»: back to the page the admin came from; unsaved edits are confirmed away first
+  $("#hsExit").onclick=function(){ if(hsDirty() && !confirm(hsT("exitDirty"))) return; hsDropDrafts(); HS.view="list"; var back=ADM._lastTab&&!HS_TABS[ADM._lastTab]&&canTab(ADM._lastTab)?ADM._lastTab:"dashboard"; admGo(back) };
+  // the page picker moves between the editor's pages; drafts are shared by all of them, so nothing is lost
+  $("#hsPage").onchange=function(){ var k=this.value; if(!HS_TABS[k]||!canTab(k)) return; HS.view="list"; ADM.tab=k; render() };
+  if($("#hsCountry")) $("#hsCountry").onchange=function(){ var c=this.value; if(hsDirty() && !confirm(hsT("exitDirty"))){ this.value=COUNTRY; return } hsDropDrafts(); admPickCountry(c, ADM.tab) };
+  // «⋯» holds the less-used actions (country, reload, open site, discard); on wide screens they sit in the bar
+  var more=$("#hsMore"), moreBtn=$("#hsMoreBtn");
+  var setMore=function(open){ if(!more) return; more.classList.toggle("open",open); if(moreBtn) moreBtn.setAttribute("aria-expanded",open?"true":"false") };
+  if(moreBtn) moreBtn.onclick=function(e){ e.stopPropagation(); setMore(!more.classList.contains("open")) };
+  if(more) more.addEventListener("click",function(e){ if(e.target.closest("button,a")) setMore(false) });
+  if(HS._onDocClick) document.removeEventListener("click",HS._onDocClick);
+  HS._onDocClick=function(e){ if(more && more.classList.contains("open") && !e.target.closest("#hsMore,#hsMoreBtn")) setMore(false) }; document.addEventListener("click",HS._onDocClick);
+  // phone: the side column is a sheet over the page
+  $("#hsSheetBtn").onclick=function(){ hsView("list"); hsSheet(true) };
+  $("#hsSheetX").onclick=function(){ hsSheet(false) };
+  // keyboard: Esc steps back (menu → settings → list → closed sheet)
+  if(HS._onKey) document.removeEventListener("keydown",HS._onKey);
+  HS._onKey=function(e){ if(e.key!=="Escape" || !$("#hsRoot")) return; if(more&&more.classList.contains("open")){ setMore(false); return } if(HS.view==="item"){ hsView("list"); return } hsSheet(false) };
+  document.addEventListener("keydown",HS._onKey);
+  $("#hsDev").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; HS.device=b.dataset.dev; HS._devPicked=true; $$("#hsDev button").forEach(function(x){ x.classList.toggle("on",x===b) }); $("#hsPv").className="hs-pv "+HS.device; hsFit(); hsRenderInsp() };
   $("#hsLang").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; HS.lang=b.dataset.lang; $$("#hsLang button").forEach(function(x){ x.classList.toggle("on",x===b) }); hsPush(true); hsRenderInsp() };
   $("#hsReload").onclick=function(){ frame.src=hsPvUrl()+"&r="+Date.now() };
   $("#hsDiscard").onclick=function(){ if(!confirm(GX("hsDiscardConfirm"))) return; HS.draft={site:{},extras:{}}; HS.adDraft={}; HS.adNew=null; HS.bDraft=null; HS.adPendingDel={}; HS.bPendingDel=[]; if(HS.sel==="ad:new") HS.sel="row"; hsPush(true); hsRenderInsp(); hsRenderOutline(); hsDirtyUI() };
@@ -2746,13 +2828,14 @@ function hsWire(){
       HS.bPendingDel.forEach(function(u){ replaceStorageFile(u) }); HS.bPendingDel=[]; HS.bDraft=null; HS.bBefore=null; ADM._engDays=null;
       HS.draft={site:{},extras:{}}; applySectionGapVars(); applySiteExtras(); applyBannerSizeVar(); if(msg) msg.textContent=t("savedOk")+(codes.length?' · '+GX("engCodeIs")+' '+codes.join(", "):''); hsRenderOutline(); hsRenderInsp(); if(!adsChanged) hsPush(true);
     }catch(e){ if(msg) msg.textContent=pmErr(e) }
-    btn.textContent=hsT("saveAll"); hsDirtyUI() };
+    btn.innerHTML=hsSaveLbl(); hsDirtyUI() };
   /* outline: select, eye, move */
   $("#hsOutline").onpointerdown=async function(e){
     if(e.button!==0 || e.target.closest("input,select,textarea")) return;
+    var grip=e.target.closest("[data-hsdrag]"); if(grip){ hsDragStart(e,grip); return }
     var eye=e.target.closest("[data-hseye]"), mv=e.target.closest("[data-hsmv]"), it=e.target.closest("[data-hssel]");
     var aeye=e.target.closest("[data-hsaeye]"), amv=e.target.closest("[data-hsamv]"), beye=e.target.closest("[data-hsbeye]"), anew=e.target.closest("#hsAdNew");
-    if(anew){ HS.adNew={id:"new",enabled:true,_mode:"upload"}; HS.sel="ad:new"; HS.selBy[HS.page]=HS.sel; hsDirtyUI(); hsRenderOutline(); hsRenderInsp(); hsPush(true); return }
+    if(anew){ HS.adNew={id:"new",enabled:true,_mode:"upload"}; HS.sel="ad:new"; HS.selBy[HS.page]=HS.sel; hsDirtyUI(); hsRenderOutline(); hsRenderInsp(); hsView("item"); hsPush(true); return }
     if(aeye){ var id=aeye.dataset.hsaeye, a=hsAdRow(id); if(a){ hsAdSet(id,"enabled",a.enabled===false); hsPush(true); hsRenderOutline(); hsRenderInsp() } return }
     if(amv){ var p2=amv.dataset.hsamv.split(":"); amv.disabled=true; try{ await rpc("bk_admin_move_ad",{p_token:ADM.token,p_id:+p2[0],p_dir:p2[1]}); ADM.adSlots=(await rpc("bk_admin_list_ads",{p_token:ADM.token,p_country:COUNTRY}))||[]; try{ await loadAdSlots() }catch(e2){} }catch(err){} hsRenderOutline(); hsPush(true); return }
     if(beye){ var bi=+beye.dataset.hsbeye; hsBSet(bi,"enabled",!hsBDraft()[bi].enabled); hsPush(true); hsRenderOutline(); hsRenderInsp(); return }
@@ -2761,8 +2844,12 @@ function hsWire(){
       else { var key=k==="hero_text"?"c:hero_enabled":k==="hero_stats"?"c:stats_enabled":(HS_EYE[k]||("x:home_"+k+"_on")); var v=hsVal(key); var on=v===""?true:(v!==false&&v!=="false"); hsSet(key,!on) }
       hsPush(true); hsRenderOutline(); hsRenderInsp(); return }
     if(mv){ var p=mv.dataset.hsmv.split(":"), key2=p[0], dir=+p[1]; var ord=hsOrder(hsMerged().extras), i=ord.indexOf(key2), j=i+dir; if(i<0||j<0||j>=ord.length) return; ord.splice(i,1); ord.splice(j,0,key2); hsSet("x:home_order",ord); hsPush(true); hsRenderOutline(); return }
-    if(it){ HS.sel=it.dataset.hssel; HS.selBy[HS.page]=HS.sel; hsRenderOutline(); hsRenderInsp(); hsScrollTo() }
+    if(it){ HS.sel=it.dataset.hssel; HS.selBy[HS.page]=HS.sel; hsRenderOutline(); hsRenderInsp(); hsView("item"); hsScrollTo() }
   };
+  // a focused handle moves with the arrow keys (the same move the drag makes)
+  $("#hsOutline").onkeydown=function(e){ var g=e.target.closest("[data-hsdrag]"); if(!g || (e.key!=="ArrowUp"&&e.key!=="ArrowDown")) return; e.preventDefault();
+    var k=g.dataset.hsdrag, keys=[].map.call($$("#hsOutline [data-hsdk]"),function(r){ return r.dataset.hsdk }), i=keys.indexOf(k), j=i+(e.key==="ArrowUp"?-1:1); if(i<0||j<0||j>=keys.length) return;
+    hsMoveSection(k, e.key==="ArrowUp"?keys[j]:(keys[j+1]||null)); var ng=$('#hsOutline [data-hsdrag="'+k+'"]'); if(ng) ng.focus() };
   /* inspector: every control writes the draft and updates the preview */
   var insp=$("#hsInsp"), tmr=null;
   var readEl=function(el,col){ var ty=el.dataset.hst; if(ty==="bool") return el.checked; if(ty==="num") return el.value===""?null:+el.value;
@@ -2797,6 +2884,7 @@ function hsWire(){
             hsBDraft()[bi].items.push({type:isV?"video":"image",url:DB.storage.from("photos").getPublicUrl(path).data.publicUrl,link:""}) }
           hsBSet(bi,"items",hsBDraft()[bi].items); hsPush(true); hsRenderInsp(); hsRenderOutline() }catch(err){ if(bmsg) bmsg.textContent=err.message||"error"; bup.disabled=false } })(); return } };
   insp.onclick=async function(e){
+    if(e.target.closest("[data-hsback]")){ hsView("list"); return }
     var c=e.target.closest("[data-hsclear]"); if(c){ hsSet(c.dataset.hsclear,null); hsPush(true); hsRenderInsp(); return }
     var bc=e.target.closest("[data-hsbclear]"); if(bc){ hsBSet(+HS.sel.slice(2),bc.dataset.hsbclear,null); hsPush(true); hsRenderInsp(); return }
     var brm=e.target.closest("[data-hsbrm]"); if(brm){ var bi=+HS.sel.slice(2), removed=hsBDraft()[bi].items.splice(+brm.dataset.hsbrm,1); if(removed[0]) HS.bPendingDel.push(removed[0].url); hsBSet(bi,"items",hsBDraft()[bi].items); hsPush(true); hsRenderInsp(); hsRenderOutline(); return }
@@ -3339,7 +3427,7 @@ function admScopeNote(){
 // long pages (5+ cards): a sticky jump bar of the card titles, and every card title folds its card (remembered per browser)
 function admSectionize(){
   var main=$(".acontent"); if(!main || main.querySelector(".asecnav")) return;
-  var blks=[].slice.call(main.querySelectorAll(".blk")).filter(function(b){ var h=b.firstElementChild; return h && h.tagName==="H3" && b.querySelector(":scope > .in") });
+  var blks=[].slice.call(main.querySelectorAll(".blk")).filter(function(b){ var h=b.firstElementChild; return h && h.tagName==="H3" && b.querySelector(":scope > .in") && !b.closest(".hs") });   // the site editor's settings column never folds
   var titleOf=function(h){ var t=""; h.childNodes.forEach(function(n){ if(n.nodeType===3) t+=n.textContent; else if(n.nodeType===1 && !/^(BUTTON|A|INPUT|SELECT|LABEL|SVG|svg|SMALL)$/.test(n.tagName) && !n.matches(".n,.st,.pill,.abadge2,.chip,.ltr")) t+=" "+n.textContent+" " }); return t.replace(/\s+/g," ").replace(/^[·\s]+|[·\s]+$/g,"").trim().slice(0,40) };   // pieces are spaced, status pills and codes left out
   var key="bk_adm_fold_"+ADM.tab, folds={}; try{ folds=JSON.parse(localStorage.getItem(key)||"{}")||{} }catch(e){}
   // secondary cards start folded (users: the two phone-verification cards sit above the member table); the admin's own toggle wins
