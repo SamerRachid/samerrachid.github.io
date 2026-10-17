@@ -3753,7 +3753,7 @@ function adminCountriesBody(){
         '<input data-cdnew="code:'+c.code+'" placeholder="'+GX("cDeedCode")+'" class="ltr" style="border-color:var(--gold)"'+ro+'><input data-cdnew="ar:'+c.code+'" placeholder="'+GX("nameAr")+'"'+ro+'><input data-cdnew="en:'+c.code+'" placeholder="'+GX("nameEn")+'"'+ro+'><input data-cdnew="fr:'+c.code+'" placeholder="Français"'+ro+'><input data-cdnew="sort_order:'+c.code+'" type="number" value="100" style="width:60px"'+ro+'><input type="checkbox" data-cdnew="strong:'+c.code+'"'+ro+'><span></span><button class="ab ok" data-cdadd="'+c.code+'"'+ro+'>'+GX("cAddDeed")+'</button>'+
         '</div></div>'+
        '<div class="fl"><label>'+GX("cTypes")+'</label><div style="display:grid;grid-template-columns:auto 1fr 1fr 1fr;gap:6px 8px;align-items:center;font-size:13px"><b></b><b>'+GX("nameAr")+'</b><b>'+GX("nameEn")+'</b><b>Français</b>'+
-        Object.keys(D_TYPES_SY).map(function(k){ var cur=(c.types||[]).filter(function(x){ return x.code===k })[0], on=!c.types||!!cur, b=D_TYPES_SY[k];
+        cTypeKeys(c).map(function(k){ var cur=(c.types||[]).filter(function(x){ return x.code===k })[0], on=!c.types||!!cur, b=D_TYPES_SY[k]||(cur?[cur.ar,cur.en,cur.de||cur.en,cur.fr||""]:[k,k,k,""]);
           return '<label style="display:flex;gap:6px;align-items:center;white-space:nowrap"><input type="checkbox" data-cty="on:'+c.code+':'+k+'"'+(on?' checked':'')+ro+'><span class="ltr" style="color:var(--grey);font-size:12px">'+k+'</span></label><input data-cty="ar:'+c.code+':'+k+'" value="'+escOnce(cur?cur.ar:b[0])+'"'+ro+'><input data-cty="en:'+c.code+':'+k+'" value="'+escOnce(cur?cur.en:b[1])+'"'+ro+'><input data-cty="fr:'+c.code+':'+k+'" value="'+escOnce(cur?(cur.fr||""):(b[3]||""))+'"'+ro+'>' }).join("")+'</div></div>'+
        countrySetupPanel(c)+
        // per-country channel overrides, read from bk_admin_countries' own "verify" subset (site_content.extras
@@ -3765,6 +3765,8 @@ function adminCountriesBody(){
        '<div style="display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap"><button class="ab ok" data-csave="'+c.code+'"'+ro+'>'+GX("save")+'</button>'+(c.is_default?'':'<button class="ab" data-cdefault="'+c.code+'"'+ro+'>'+GX("cMakeDefault")+'</button>')+'</div>'
      :'')+'</div></div>' }).join("");
 }
+// a country's type codes in its own order, then Syria's other codes (so codes only that country has — penthouse, studio… — are kept)
+function cTypeKeys(c){ var own=(c&&c.types||[]).map(function(x){ return x.code }).filter(Boolean); return own.concat(Object.keys(D_TYPES_SY).filter(function(k){ return own.indexOf(k)<0 })) }
 function wireAdminCountries(){
   if(ADM.tab!=="countries") return;
   if(!ADM.countries){ DB.rpc("bk_admin_countries",{p_token:ADM.token}).then(function(r){ if(r&&r.data){ ADM.countries=r.data; if(!ADM.cOpen) ADM.cOpen=r.data[0]&&r.data[0].code; render() } }); return }
@@ -3786,7 +3788,8 @@ function wireAdminCountries(){
     $$('[data-cf$=":'+code+'"]').forEach(function(i){ var k=i.dataset.cf.split(":")[0]; p[k]= k==="currencies"?list(i.value).map(function(x){ return x.toUpperCase() }) : k==="tz"?list(i.value) : k==="sort_order"?parseInt(i.value,10)||100 : i.value });
     p.languages=$$('[data-clang$=":'+code+'"]').filter(function(i){ return i.checked }).map(function(i){ return i.dataset.clang.split(":")[0] });
     var rates={}; $$('[data-crate$=":'+code+'"]').forEach(function(i){ var v=parseFloat(i.value); if(v>0) rates[i.dataset.crate.split(":")[0]]=v }); p.rates=rates;
-    if(code!=="SY"){ p.types=Object.keys(D_TYPES_SY).filter(function(k){ var on=$('[data-cty="on:'+code+':'+k+'"]'); return on&&on.checked }).map(function(k){ var g=function(f){ var el=$('[data-cty="'+f+':'+code+':'+k+'"]'); return el?el.value.trim():"" }; return {code:k, ar:g("ar")||D_TYPES_SY[k][0], en:g("en")||D_TYPES_SY[k][1], fr:g("fr")||""} }) }
+    if(code!=="SY"){ var cc=byCode(code)||{}; p.types=cTypeKeys(cc).filter(function(k){ var on=$('[data-cty="on:'+code+':'+k+'"]'); return on&&on.checked }).map(function(k){ var g=function(f){ var el=$('[data-cty="'+f+':'+code+':'+k+'"]'); return el?el.value.trim():"" }, old=(cc.types||[]).filter(function(x){ return x.code===k })[0]||{}, b=D_TYPES_SY[k]||[old.ar||k,old.en||k];
+      var r={code:k, ar:g("ar")||b[0], en:g("en")||b[1], fr:g("fr")||""}; if(old.de) r.de=old.de; if(old.sec) r.sec=old.sec; return r }) }   // keeps each type's German name and section
     set(code,p);
     // verify-channel overrides live in site_content.extras (a different table than `countries` above), so
     // they go through bk_admin_set_content scoped to this one country, not bk_admin_country_set
