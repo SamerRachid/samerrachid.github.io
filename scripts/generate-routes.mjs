@@ -32,6 +32,13 @@ const localize = (text, c) => c.is_default ? text : text
   .replace(/في دمشق وحلب وحمص واللاذقية وباقي المحافظات/g, `في كل محافظات ${c.name_ar}`)
   .replace(/Syria/g, c.name_en);
 
+// another country: the Syrian-only head bits go (keywords), the locale and the JSON-LD name that country
+const countryHead = (c) => (html) => c.is_default ? html : html
+  .replace(/<meta name="keywords" content="[^"]*">\n?/, "")
+  .replace(/<meta property="og:locale" content="ar_SY">/, `<meta property="og:locale" content="ar_${c.code}">`)
+  .replace(/"inLanguage":\[[^\]]*\]/, `"inLanguage":${JSON.stringify(c.languages && c.languages.length ? c.languages : ["ar", "en"])}`)
+  .replace(/"description":"Syrian property listings[^"]*"/, `"description":"Property listings in ${c.name_en} with the ownership status on every ad, direct from owners."`)
+  .replace(/"url":"https:\/\/balkoun\.com\/"/, `"url":"https://balkoun.com/${c.code.toLowerCase()}/"`);
 function writeCopy(app, dir, url, title, desc, extra) {
   let html = app
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(title)} | بلكون</title>`)
@@ -53,7 +60,7 @@ export async function buildRoutes() {
   const app = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
   let countries = [{ code: "SY", name_ar: "سوريا", name_en: "Syria", enabled: true, is_default: true }];
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/countries?select=code,name_ar,name_en,enabled,is_default&order=sort_order.asc`, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/countries?select=code,name_ar,name_en,enabled,is_default,languages&order=sort_order.asc`, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
     if (res.ok) { const rows = await res.json(); if (rows.length) countries = rows; }
   } catch (e) { console.warn("countries unreadable, Syria only:", e.message); }
   if (!countries.some((c) => c.is_default)) countries.forEach((c) => { if (c.code === "SY") c.is_default = true; });
@@ -67,12 +74,12 @@ export async function buildRoutes() {
     if (!c.is_default) {
       // the country's home: the app itself, answering 200 at /lb/
       const url = `${SITE}${prefix}/`;
-      writeCopy(app, base, url, `بلكون | عقارات ${c.name_ar}`, localize("عقارات سوريا للبيع والإيجار من المالك مباشرة، مع حالة سند الملكية في كل إعلان. Real estate in Syria, direct from owners.", c));
+      writeCopy(app, base, url, `بلكون | عقارات ${c.name_ar}`, localize("عقارات سوريا للبيع والإيجار من المالك مباشرة، مع حالة سند الملكية في كل إعلان. Real estate in Syria, direct from owners.", c), countryHead(c));
       urls.push(url);
     }
     for (const r of ROUTES) {
       const url = `${SITE}${prefix}/${r.path}/`;
-      writeCopy(app, path.join(base, r.path), url, localize(r.title, c), localize(r.desc, c));
+      writeCopy(app, path.join(base, r.path), url, localize(r.title, c), localize(r.desc, c), countryHead(c));
       urls.push(url);
     }
     const rows = await readWanted(c); if (rows === null) { wantedRows.failed = true; continue } rows.forEach((w) => wantedRows.push({ w, c }));
@@ -130,7 +137,7 @@ function buildWantedPages(app, all) {
   for (const { w, c } of all) {
     const url = `${SITE}/wanted/${w.id}/`;
     const t = wantedTexts(w, c);
-    writeCopy(app, path.join(ROOT, "wanted", String(w.id)), url, t.title, t.desc);
+    writeCopy(app, path.join(ROOT, "wanted", String(w.id)), url, t.title, t.desc, countryHead(c));
     urls.push(url);
   }
   return urls;
