@@ -3827,6 +3827,135 @@ html.adm-dark .adm nav.asidebar a.atop.on{background:#C4881F;color:#1A1206}
 html.adm-dark .adm nav.asidebar a.atop.on .aicon{color:#1A1206}
 html.adm-dark .adm nav.asidebar .asub a.on{background:#2B2414;color:#F2D39A}
 
+/* ── Site editor, redesign 2026-10-16 (Shopify theme-editor layout): full screen, a top bar, one side column that
+   switches between the section list and one section's settings, and the real page at full size. On phones the
+   column becomes a sheet over the page and the device/language/sections controls sit in a bottom bar. ── */
+html:has(.hs){overflow:hidden}
+.adm .hs{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;background:var(--a-page);color:var(--a-ink)}
+.adm .hs-top{flex:none;height:56px;display:flex;align-items:center;gap:8px;padding:0 12px;background:var(--a-top);color:#fff;position:relative;z-index:6}
+.adm .hs-tb{height:34px;display:inline-flex;align-items:center;gap:7px;padding:0 11px;border-radius:9px;border:1px solid #2C3B66;background:#22305A;color:#fff;font:inherit;font-size:13px;font-weight:600;white-space:nowrap;text-decoration:none;cursor:pointer;flex:none}
+.adm .hs-tb:hover{background:#2C3B66}
+.adm .hs-tb svg{width:16px;height:16px;flex:none}
+.adm .hs-exit{background:transparent;border-color:transparent;color:#C9D6F2}
+.adm .hs-brand{font-weight:800;font-size:17px;color:var(--gold);padding:0 2px}
+.adm .hs-pagepick{gap:6px;padding:0 6px 0 10px;min-width:190px}
+.adm .hs-pagepick select,.adm .hs-country select{flex:1;min-width:0;height:100%!important;min-height:0!important;border:0!important;background:transparent!important;color:#fff;font:inherit;font-weight:700;padding:0 4px!important;box-shadow:none!important;cursor:pointer}
+.adm .hs-pagepick select option,.adm .hs-country select option{color:#1B2333;background:#fff}
+.adm .hs-country{gap:6px;padding:0 6px 0 10px;max-width:190px}
+.adm .hs-country svg{width:20px;height:14px}
+.adm .hs-tools{display:flex;align-items:center;gap:8px}
+.adm .hs-top .hs-seg{background:#22305A;border:1px solid #2C3B66;border-radius:9px;padding:3px;gap:2px}
+.adm .hs-top .hs-seg button{height:26px;padding:0 9px;border-radius:7px;color:#C9D6F2;font-size:12.5px;gap:5px}
+.adm .hs-top .hs-seg button svg{width:15px;height:15px}
+.adm .hs-top .hs-seg button.on{background:#fff;color:#14213D}
+.adm .hs-sheetbtn{display:none}
+.adm .hs-grow{flex:1;min-width:8px}
+.adm .hs-top .hs-state{color:#C9D6F2;font-size:12.5px;max-width:260px;overflow:hidden;white-space:nowrap}
+.adm .hs-top .hs-state span{overflow:hidden;text-overflow:ellipsis}
+.adm .hs-top .hs-state.dirty{color:#F2D39A;font-weight:600}
+.adm .hs-top .hs-state i{flex:none}
+.adm .hs-more{display:flex;align-items:center;gap:6px}
+.adm .hs-more .hs-tb span{display:none}
+.adm .hs-more .hs-tb:not(.hs-country){width:34px;padding:0;justify-content:center}
+.adm .hs-morebtn{display:none;width:34px;padding:0;justify-content:center}
+.adm .hs-save{background:var(--gold);border-color:var(--gold);color:#1A1206;font-weight:800;padding:0 16px}
+.adm .hs-save:hover{background:#D3962B}
+.adm .hs-save:disabled{opacity:.5;cursor:default}
+.adm .hs-save .hs-s{display:none}
+@media(max-width:900px){.adm .hs-save .hs-l{display:none}.adm .hs-save .hs-s{display:inline}}
+.adm .hs-msg{font-size:12px;color:#F2D39A;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adm .hs-msg:empty{display:none}
+/* body: the side column and the page */
+.adm .hs-body{flex:1;display:flex;min-height:0}
+.adm .hs-side{width:340px;flex:none;background:var(--a-side);border-inline-end:1px solid var(--a-line);overflow:auto;overscroll-behavior:contain}
+.adm .hs-grab{display:none}
+.adm .hs-v-list .hs-insp{display:none!important}
+.adm .hs-v-item .hs-list{display:none}
+.adm .hs-side-h{padding:14px 16px 8px}
+.adm .hs-side-h b{display:block;font-size:14.5px}
+.adm .hs-side-h small{display:block;color:var(--a-ink2);font-size:12px;line-height:1.7;margin-top:2px}
+.adm .hs-side #hsOutline{padding:2px 8px 18px}
+.adm .hs-side .hs-out-h{padding:12px 8px 6px}
+.adm .hs-side .hs-item{margin:1px 0;min-height:38px;padding:0 8px;border:0;border-radius:9px;gap:8px;font-size:13.5px;color:var(--a-ink)}
+.adm .hs-side .hs-item:hover{background:var(--a-hover)}
+.adm .hs-side .hs-item.on{background:#FBF3E4;box-shadow:inset 0 0 0 1px #EBCB8F;color:#14213D;font-weight:700}
+.adm .hs-side .hs-item.child{margin-inline-start:24px;min-height:34px;font-size:13px}
+.adm .hs-side .hs-item.off .hs-name{text-decoration:none;color:inherit;opacity:.45}
+.adm .hs-side .hs-item.off .hs-ico{opacity:.45}
+.adm .hs-grip{border:0;background:none;color:#A8AEB9;width:22px;height:30px;display:grid;place-items:center;padding:0;cursor:grab;touch-action:none;flex:none;border-radius:6px;opacity:.6}
+.adm .hs-item:hover .hs-grip,.adm .hs-grip:focus-visible{opacity:1}
+.adm .hs-grip:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.adm .hs-side .hs-item.dragging{background:#fff;box-shadow:0 10px 28px rgba(20,33,61,.18);position:relative;z-index:4;cursor:grabbing;opacity:.97}
+.adm .hs-dropline{height:3px;border-radius:2px;background:var(--gold);margin:1px 6px}
+/* a section's settings: the title row carries the way back */
+.adm .hs-side .hs-insp{position:static;max-height:none;overflow:visible;margin:0!important;border:0;border-radius:0;box-shadow:none;background:transparent}
+.adm .hs-side .hs-insp>h3{position:sticky;top:0;z-index:3;background:var(--a-side);border-bottom:1px solid var(--a-line);padding:10px 12px;gap:6px;cursor:default}
+.adm .hs-side .hs-insp>h3 .hs-ttl{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.adm .hs-back{flex:none;width:32px;height:32px;border:0;background:none;border-radius:8px;display:grid;place-items:center;color:var(--a-ink);cursor:pointer;padding:0}
+.adm .hs-back:hover{background:var(--a-hover)}
+[dir=ltr] .adm .hs-back svg{transform:scaleX(-1)}
+.adm .hs-side .hs-insp>.in{padding:14px 16px 28px}
+/* the page, at real size, on a dotted canvas */
+.adm .hs .hs-pv{flex:1;min-width:0;position:relative;top:auto;height:auto;min-height:0;border-radius:0;padding:20px 20px 10px;gap:8px;background:#E7E4DC;background-image:radial-gradient(#D7D2C7 1px,transparent 1px);background-size:16px 16px}
+.adm .hs .hs-pvwrap{box-shadow:0 1px 3px rgba(20,33,61,.12),0 14px 40px rgba(20,33,61,.14)}
+.adm .hs .hs-pvnote{color:var(--a-ink2)}
+html.adm-dark .adm .hs .hs-pv{background:#0B1020;background-image:radial-gradient(#1A2236 1px,transparent 1px);background-size:16px 16px}
+html.adm-dark .adm .hs-side .hs-item.on{background:#2B2414;box-shadow:inset 0 0 0 1px #6B5222;color:#F2D39A}
+html.adm-dark .adm .hs-side .hs-item.dragging{background:#1C2334}
+/* laptops: the less-used actions fold into «⋯» */
+@media(max-width:1250px){
+  .adm .hs-morebtn{display:inline-flex}
+  .adm .hs-more{display:none;position:absolute;top:52px;inset-inline-end:8px;flex-direction:column;align-items:stretch;gap:2px;min-width:230px;padding:6px;background:#fff;border-radius:12px;box-shadow:0 12px 40px rgba(20,33,61,.25),0 0 0 1px rgba(20,33,61,.06);z-index:10}
+  .adm .hs-more.open{display:flex}
+  .adm .hs-more .hs-tb{width:auto!important;justify-content:flex-start!important;padding:0 10px!important;height:40px;background:transparent;border-color:transparent;color:var(--a-ink)}
+  .adm .hs-more .hs-tb:hover{background:var(--a-hover)}
+  .adm .hs-more .hs-tb span{display:inline}
+  .adm .hs-more .hs-country{max-width:none}
+  .adm .hs-more .hs-country select{color:var(--a-ink)}
+  .adm .hs-top .hs-state{max-width:170px}
+  .adm .hs-side{width:310px}
+}
+/* phones and small tablets: the page fills the screen, the column is a sheet, the controls sit at the bottom */
+@media(max-width:900px){
+  .adm .hs-top{height:52px;padding:0 8px;gap:6px}
+  .adm .hs-brand,.adm .hs-exit span,.adm .hs-top .hs-state span,.adm .hs-grow{display:none}
+  .adm .hs-exit{width:34px;padding:0;justify-content:center}
+  .adm .hs-pagepick{flex:1;min-width:0}
+  .adm .hs-top .hs-state{padding:0 2px}
+  .adm .hs-save{padding:0 12px;font-size:12.5px}
+  .adm .hs-msg{position:absolute;top:56px;inset-inline:10px;max-width:none;white-space:normal;background:#1B2333;color:#F2D39A;border-radius:10px;padding:8px 12px;z-index:12;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+  .adm .hs-tools{position:fixed;inset-inline:0;bottom:0;z-index:4;padding:8px 10px calc(10px + env(safe-area-inset-bottom,0px));background:var(--a-side);border-top:1px solid var(--a-line);gap:8px}
+  .adm .hs-sheetbtn{display:inline-flex;flex:1.4;height:46px;align-items:center;justify-content:center;gap:7px;border:0;border-radius:12px;background:#14213D;color:#fff;font:inherit;font-weight:700;font-size:13.5px;cursor:pointer}
+  html.adm-dark .adm .hs-sheetbtn{background:var(--gold);color:#1A1206}
+  .adm .hs-sheetbtn svg{width:18px;height:18px}
+  .adm .hs-tools .hs-seg{flex:1;height:46px;display:flex;background:#F1EFE9;border:1px solid var(--a-line);border-radius:12px;padding:3px}
+  html.adm-dark .adm .hs-tools .hs-seg{background:#1C2334}
+  .adm .hs-tools .hs-seg button{flex:1;height:auto;justify-content:center;color:var(--a-ink2);font-size:12.5px;padding:0 4px}
+  .adm .hs-tools .hs-seg button span{display:none}
+  .adm .hs-tools .hs-seg button.on{background:#14213D;color:#fff}
+  html.adm-dark .adm .hs-tools .hs-seg button.on{background:var(--gold);color:#1A1206}
+  .adm .hs-body{padding-bottom:calc(66px + env(safe-area-inset-bottom,0px))}
+  .adm .hs .hs-pv{padding:0;background:var(--a-page)}
+  .adm .hs .hs-pvwrap{box-shadow:none;border-radius:0!important;border:0!important}
+  .adm .hs .hs-pvnote{display:none}
+  .adm .hs-side{position:fixed;inset-inline:0;bottom:0;width:auto;height:80vh;z-index:8;border:0;border-radius:18px 18px 0 0;box-shadow:0 -14px 40px rgba(9,14,26,.3);transform:translateY(105%);transition:transform .28s cubic-bezier(.32,.72,0,1),height .2s;visibility:hidden}
+  .adm .hs-v-item .hs-side{height:62vh}
+  .adm .hs-sheet .hs-side{transform:none;visibility:visible}
+  .adm .hs-grab{display:flex;justify-content:center;align-items:center;position:sticky;top:0;z-index:5;height:30px;background:var(--a-side);border-radius:18px 18px 0 0}
+  .adm .hs-grab i{width:38px;height:4px;border-radius:2px;background:#C9CDD5}
+  .adm .hs-x{position:absolute;inset-inline-end:8px;top:4px;width:32px;height:32px;border:0;border-radius:50%;background:var(--a-hover);color:var(--a-ink);font-size:20px;line-height:1;cursor:pointer}
+  .adm .hs-side .hs-insp>h3{top:30px}
+  .adm .hs-side-h{padding-top:2px}
+}
+@media(prefers-reduced-motion:reduce){.adm .hs-side{transition:none}}
+/* night: the editor keeps gold-on-dark for its main button and selections (beats the generated twins on purpose) */
+html.adm-dark body .adm .hs-save{color:#1A1206}
+html.adm-dark body .adm .hs-top .hs-seg button.on{background:var(--gold);color:#1A1206}
+html.adm-dark body .adm .hs-side .hs-item.on{background:#2B2414;box-shadow:inset 0 0 0 1px #6B5222;color:#F2D39A}
+html.adm-dark body .adm .hs-tb{background:#161D2E;border-color:#232C42}
+html.adm-dark body .adm .hs-exit{background:transparent;border-color:transparent}
+html.adm-dark body .adm .hs-save{background:var(--gold);border-color:var(--gold)}
+
 /* ADM-DARK:START (generated by scripts/gen-admin-dark.mjs — do not edit by hand) */
 html.adm-dark .adm .logo,html.adm-dark .admdm-ov .logo{border:1px dashed hsla(222,20%,25%,0.35)}
 html.adm-dark .adm .mini,html.adm-dark .admdm-ov .mini{border:1px solid hsla(222,20%,25%,0.3)}
@@ -4208,7 +4337,6 @@ html.adm-dark .adm .ld-cover,html.adm-dark .admdm-ov .ld-cover{background:hsla(2
 html.adm-dark .adm .adperf-h,html.adm-dark .admdm-ov .adperf-h{background:hsla(220,19%,17%,1)}
 html.adm-dark .adm .pchip,html.adm-dark .admdm-ov .pchip{background:hsla(222,27%,16%,1)}
 html.adm-dark .adm .home-hero .sf-sel select,html.adm-dark .admdm-ov .home-hero .sf-sel select{color:#C9D6F2}
-html.adm-dark .adm .hs-bar,html.adm-dark .admdm-ov .hs-bar{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-seg,html.adm-dark .admdm-ov .hs-seg{background:hsla(225,14%,17%,1)}
 html.adm-dark .adm .hs-seg button.on,html.adm-dark .admdm-ov .hs-seg button.on{background:var(--gold);color:#1A1206}
 html.adm-dark .adm .hs-state.dirty,html.adm-dark .admdm-ov .hs-state.dirty{color:hsla(39,60%,72%,1)}
@@ -4528,7 +4656,18 @@ html.adm-dark .adm .aloaderr{background:hsla(6,39%,17%,1);color:hsla(4,71%,72%,1
 html.adm-dark .adm .admdm .ab.ok,html.adm-dark .admdm-ov .admdm .ab.ok{background:var(--p-dark,var(--gold));border-color:var(--p-dark,var(--gold));color:#1A1206}
 html.adm-dark .adm label.lq{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .ikstats button.ikstat.on{background:var(--gold);color:#1A1206}
-/* ADM-DARK:END */
+html.adm-dark .adm .hs-pagepick select option,html.adm-dark .adm .hs-country select option{color:hsla(220,31%,78%,1);background:hsla(222,27%,13%,1)}
+html.adm-dark .adm .hs-top .hs-seg button.on{background:hsla(222,27%,13%,1);color:#C9D6F2}
+html.adm-dark .adm .hs-save{color:hsla(36,63%,78%,1)}
+html.adm-dark .adm .hs-side .hs-item.on{background:hsla(39,39%,17%,1);color:#C9D6F2}
+html.adm-dark .adm .hs-side .hs-item.dragging{background:hsla(222,27%,13%,1)}
+html.adm-dark .adm .hs .hs-pv{background:hsla(44,13%,17%,1)}
+@media(max-width:1250px){html.adm-dark .adm .hs-more{background:hsla(222,27%,13%,1)}
+}@media(max-width:900px){html.adm-dark .adm .hs-sheetbtn{background:var(--gold);color:#1A1206}
+html.adm-dark .adm .hs-tools .hs-seg{background:hsla(45,16%,17%,1)}
+html.adm-dark .adm .hs-tools .hs-seg button.on{background:var(--gold);color:#1A1206}
+html.adm-dark .adm .hs-grab i{background:hsla(220,8%,26%,1)}
+}/* ADM-DARK:END */
 </style><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
