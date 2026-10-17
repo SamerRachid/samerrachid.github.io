@@ -1341,7 +1341,7 @@ function wireAdmin(){
     var pick=function(i){ var hits=allHits(nq.value.trim()), h=hits[i]; if(!h) return; nq.value=""; if(hitsBox){ hitsBox.hidden=true }
       if(h.go){ h.go(); return } admGo(h.tab); if(h.hint) setTimeout(function(){ admToast(h.hint) },350) };
     var runSearch=function(){ var raw=nq.value.trim(); clearTimeout(ADM._sT); if(raw.length<2) return;
-      ADM._sT=setTimeout(function(){ rpc("bk_admin_search",{p_token:ADM.token,p_q:raw}).then(function(r){ ADM._sres={q:raw,r:r||{}}; if(nq.value.trim()===raw&&hitsBox&&!hitsBox.hidden) drawHits() }).catch(function(){ ADM._sres={q:raw,r:{}}; if(nq.value.trim()===raw) drawHits() }) },300) };
+      ADM._sT=setTimeout(function(){ rpc("bk_admin_search",{p_token:ADM.token,p_q:raw,p_country:admScope()}).then(function(r){ ADM._sres={q:raw,r:r||{}}; if(nq.value.trim()===raw&&hitsBox&&!hitsBox.hidden) drawHits() }).catch(function(){ ADM._sres={q:raw,r:{}}; if(nq.value.trim()===raw) drawHits() }) },300) };
     // the results list shows pages and data together, so the sidebar stays as it is while typing (redesign 2026-10-16)
     nq.oninput=function(){ drawHits(); runSearch() };
     nq.onfocus=function(){ if(nq.value.trim()) drawHits() }; nq.onblur=function(){ setTimeout(function(){ if(hitsBox) hitsBox.hidden=true },150) };
@@ -1747,7 +1747,7 @@ function wireAdmin(){
   $$("[data-ecopy]").forEach(function(b){ b.onclick=function(){ var c=this.dataset.ecopy, btn=this, old=btn.textContent; try{ navigator.clipboard.writeText(c).then(function(){ if(btn.tagName==="BUTTON"){ btn.textContent=GX("engCopied"); setTimeout(function(){ btn.textContent=old },1200) } }) }catch(e){ prompt(GX("engCode"),c) } } });
   if((ADM.tab==="dashboard"||ADM.tab==="social") && !ADM._promoDueLoaded){
     ADM._promoDueLoaded=true;
-    rpc("bk_admin_promo_due",{p_token:ADM.token}).then(function(r){ ADM._promoDue=r||[]; render() }).catch(function(){ ADM._promoDue=[] });
+    rpc("bk_admin_promo_due",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM._promoDue=r||[]; render() }).catch(function(){ ADM._promoDue=[] });
   }
   if(ADM.tab==="social" && !ADM._promoSettingsLoaded){
     ADM._promoSettingsLoaded=true;
@@ -3631,6 +3631,7 @@ function admCountries(){ return (ADM.countries||[]).filter(function(c){ return a
 function admResetScope(){   // everything that was loaded for one country scope is loaded again for the new one
   ADM._gen=(ADM._gen||0)+1;
   ADM.data=null; ADM.ikOpen=null; ADM.pjEdit=null; ADM_PJL=null; ADM.viewingPhotoIdx=null; ADM.eopen=null; ADM.geoCountry=null; ADM._geoLoadedFor=null; ADM._mediaLoadedCats={}; ADM._mediaUsedLoaded=false; ADM.mediaUsed=null;
+  ADM._houseLoaded=false; ADM.house=undefined;
   ADM.social=null; ADM._promoDue=null; ADM._promoDueLoaded=false; ADM._promoSettings=null; ADM._promoSettingsLoaded=false;
   ADM.mapsPick=null; ADM._areasMap=null; ADM._areasMapLoaded=false; ADM.mapsQ=""; ADM.mapsView="areas"; ADM.mapsPage=1; ADM._listingsMapStatus=null; ADM._listingsMapStatusLoading=false; ADM.mapsFallbackOn=null;
   ADM._ikLoaded=false; ADM.ik=null; ADM._ticketsLoaded=false; ADM.tickets=null; ADM._vfLoaded=false; ADM.vf=undefined; ADM._reviewsLoaded=false; ADM._uactLoaded=false; ADM.uact=null; ADM._delUsersLoaded=false; ADM.delUsers=null; ADM._ldelLoaded=false; ADM.ldel=null; ADM._ldupLoaded=false; ADM.ldup=null; ADM.ldupN=null; ADM._lstatsRange=null;
@@ -4093,7 +4094,7 @@ function adminHouseBody(){
   return head }
 function wireAdminHouse(){
   if(!ADM._houseLoaded){ ADM._houseLoaded=true; ADM.houseErr=null; ADM.house=undefined;
-    rpc("bk_admin_house_accounts",{p_token:ADM.token}).then(function(r){ ADM.house=r||[]; render() }).catch(function(e){ ADM.house=[]; ADM.houseErr=e.message||"error"; render() }) }
+    rpc("bk_admin_house_accounts",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.house=r||[]; render() }).catch(function(e){ ADM.house=[]; ADM.houseErr=e.message||"error"; render() }) }
 }
 // long lists show 25 at a time (redesign 2026-10-16): «عرض 25 أخرى» under the list, with how many are left
 // long lists show a page at a time (owner, 2026-10-17: the listings page was 30 screens long)
