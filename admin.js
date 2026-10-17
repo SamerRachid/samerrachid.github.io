@@ -1297,6 +1297,9 @@ function wireAdmin(){
   if($("#aTheme")) $("#aTheme").onclick=function(){ setTheme(admIsDark()?"light":"dark") };
   $$("#aThemeSeg [data-theme]").forEach(function(b){ b.onclick=function(){ setTheme(this.dataset.theme) } });
   if(!window._admThemeMq && window.matchMedia){ window._admThemeMq=true; try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change",function(){ if(!admTheme()&&VIEW==="admin"){ admApplyTheme(); render() } }) }catch(e){} }
+  if(!window._kgoWired){ window._kgoWired=true;
+    document.addEventListener("click",function(e){ var c=e.target.closest&&e.target.closest("[data-kgo]"); if(c && c.closest(".adm")) admKpiGo(c.dataset.kgo) });
+    document.addEventListener("keydown",function(e){ if(e.key!=="Enter"&&e.key!==" ") return; var c=e.target.closest&&e.target.closest("[data-kgo]"); if(c && c.closest(".adm")){ e.preventDefault(); admKpiGo(c.dataset.kgo) } }) }
   // phone: the section's page strip scrolls so the open page sits in full view, never cut at the edge
   $$(".asubtabs").forEach(function(st){ var on=st.querySelector(".on"); if(!on) return; var r=on.getBoundingClientRect(), sr=st.getBoundingClientRect(); if(r.left<sr.left+8||r.right>sr.right-8) st.scrollLeft+=(r.left+r.width/2)-(sr.left+sr.width/2) });
   // phone cards label each value with its column header; copy the header onto any cell that doesn't carry one
@@ -3082,23 +3085,32 @@ function hsWire(){
     var g=e.target.closest("[data-hsgo]"); if(g){ if(hsDirty() && !confirm(hsT("dirty"))) return; HS.draft={site:{},extras:{}}; HS.adDraft={}; HS.adNew=null; HS.bDraft=null; window.onbeforeunload=null; ADM.tab=g.dataset.hsgo; render() } };
   hsDirtyUI();
 }
-function kpiCard(label,cur,prev,color,sparkKey){
+// each stats card opens its details: "tab" or "tab|the heading of the card to scroll to" (owner, 2026-10-17)
+function kpiGoOf(k){ return {now:"stats|"+t("onlineUsersH"), views:"stats|"+GX("chVisits"), visitors:"stats|"+GX("chVisits"), lviews:"stats|"+GX("topListingsH"), users:"users", listings:"listings",
+  contacts:"stats|"+GX("contactKindsH"), adclicks:"stats|"+GX("topAdsH"), adviews:"stats|"+GX("topAdsH"), saves:"stats|"+GX("topListingsH"), active:"stats|"+GX("usersActH")}[k]||"" }
+function admKpiGo(v){ var p=String(v||"").split("|"), tab=p[0], title=p.slice(1).join("|"); if(!tab || !canTab(tab)) return;
+  if(tab!==ADM.tab) admGo(tab); if(ADM.tab!==tab || !title) return;
+  var tries=0; (function seek(){ var h=[].slice.call(document.querySelectorAll(".adm .acontent .blk > h3")).filter(function(x){ return x.textContent.trim().indexOf(title)===0 })[0];
+    if(!h){ if(++tries<40) setTimeout(seek,150); return }   // the analytics load after the page opens
+    var b=h.parentElement; b.classList.remove("folded"); var y=b.getBoundingClientRect().top+window.scrollY-130; try{ window.scrollTo({top:y,behavior:"smooth"}) }catch(e){ window.scrollTo(0,y) }
+    b.classList.add("kgo-hit"); setTimeout(function(){ b.classList.remove("kgo-hit") },1800) })() }
+function kpiCard(label,cur,prev,color,sparkKey,go){
   var c=+cur||0, p=+prev||0, pct = p ? Math.round((c-p)/p*100) : (c?100:0), up=c>=p;
   var spark = sparkKey && ADM.an && ADM.an.series ? svgSpark(ADM.an.series, sparkKey, color||"var(--navy)") : "";
-  return '<div class="kpi"><div class="kpi-l">'+label+'</div><div class="kpi-v ltr" '+(color?'style="color:'+color+'"':'')+'>'+fmtN(c)+'</div>'+
+  var g=go?kpiGoOf(go):""; return '<div class="kpi'+(g?' kgo':'')+'"'+(g?' data-kgo="'+esc(g)+'" role="link" tabindex="0" title="'+esc(label)+'"':'')+'><div class="kpi-l">'+label+(g?'<span class="kgo-ar" aria-hidden="true">‹</span>':'')+'</div><div class="kpi-v ltr" '+(color?'style="color:'+color+'"':'')+'>'+fmtN(c)+'</div>'+
     (prev!==undefined && prev!==null ? '<div class="kpi-d '+(up?"up":"down")+'"><span class="ltr">'+(up?"▲":"▼")+' '+Math.abs(pct)+'%</span> <small>'+GX("vsPrev")+'</small></div>' : '')+spark+'</div>' }
 function kpiGrid(an,full){
   var k=an.kpi||{};
   return '<div class="kpis">'+
-    '<div id="kpiVisNow">'+kpiCard(GX("kVisitorsNow"),(ADM.vis||{}).total,null,"#D97706")+'</div>'+
-    kpiCard(GX("kViews"),k.views,k.views_prev,"var(--navy)","views")+
-    kpiCard(GX("kVisitors"),k.visitors,k.visitors_prev,"#2563EB","visitors")+
-    kpiCard(GX("kListingViews"),k.listing_views,k.listing_views_prev,"#7C3AED")+
-    kpiCard(GX("kNewUsers"),k.new_users,k.new_users_prev,"var(--ok)","new_users")+
-    kpiCard(GX("kNewListings"),k.new_listings,k.new_listings_prev,"var(--gold)","new_listings")+
-    kpiCard(GX("kContacts"),k.contacts,k.contacts_prev,"#0EA5A0","contacts")+
-    kpiCard(GX("kAdClicks"),k.ad_clicks,k.ad_clicks_prev,"#D9463A","ad_clicks")+
-    (full ? kpiCard(GX("kAdViews"),k.ad_views,null,"#8A6522")+kpiCard(GX("kSaves"),k.saves,null,"#DB2777")+kpiCard(GX("kActiveUsers"),k.active_users,null,"var(--ok)") : '')+
+    '<div id="kpiVisNow">'+kpiCard(GX("kVisitorsNow"),(ADM.vis||{}).total,null,"#D97706",null,"now")+'</div>'+
+    kpiCard(GX("kViews"),k.views,k.views_prev,"var(--navy)","views","views")+
+    kpiCard(GX("kVisitors"),k.visitors,k.visitors_prev,"#2563EB","visitors","visitors")+
+    kpiCard(GX("kListingViews"),k.listing_views,k.listing_views_prev,"#7C3AED",null,"lviews")+
+    kpiCard(GX("kNewUsers"),k.new_users,k.new_users_prev,"var(--ok)","new_users","users")+
+    kpiCard(GX("kNewListings"),k.new_listings,k.new_listings_prev,"var(--gold)","new_listings","listings")+
+    kpiCard(GX("kContacts"),k.contacts,k.contacts_prev,"#0EA5A0","contacts","contacts")+
+    kpiCard(GX("kAdClicks"),k.ad_clicks,k.ad_clicks_prev,"#D9463A","ad_clicks","adclicks")+
+    (full ? kpiCard(GX("kAdViews"),k.ad_views,null,"#8A6522",null,"adviews")+kpiCard(GX("kSaves"),k.saves,null,"#DB2777",null,"saves")+kpiCard(GX("kActiveUsers"),k.active_users,null,"var(--ok)",null,"active") : '')+
   '</div>' }
 function adminEngageBody(){
   var all=ADM.eng, q=(ADM.eq||"").toLowerCase().trim();
@@ -3164,7 +3176,7 @@ function syncVisitorsNow(){
   rpcScoped("bk_admin_visitors_now",{p_token:ADM.token,p_country:admScope()}).then(function(r){
     ADM.vis=r||null;
     var b=document.getElementById("visNowBlk"); if(b) b.innerHTML=visitorsNowBlock();
-    var k=document.getElementById("kpiVisNow"); if(k) k.innerHTML=kpiCard(GX("kVisitorsNow"),(ADM.vis||{}).total,null,"#D97706");
+    var k=document.getElementById("kpiVisNow"); if(k) k.innerHTML=kpiCard(GX("kVisitorsNow"),(ADM.vis||{}).total,null,"#D97706",null,"now");
   }).catch(function(){});
 }
 function adminAnalyticsBody(){
