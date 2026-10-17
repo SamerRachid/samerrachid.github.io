@@ -58,8 +58,9 @@ export async function buildRoutes() {
   } catch (e) { console.warn("countries unreadable, Syria only:", e.message); }
   if (!countries.some((c) => c.is_default)) countries.forEach((c) => { if (c.code === "SY") c.is_default = true; });
   const urls = [];
-  // a switched-off country keeps no request pages; enabled ones are rebuilt (and pruned) in buildWantedPages()
-  for (const c of countries.filter((c) => !c.enabled && !c.is_default)) cleanWantedPages(path.join(ROOT, c.code.toLowerCase()), new Set());
+  // request pages have one address for every country (/wanted/<id>/, 2026-10-17): the old /lb/wanted/<id>/ ones go
+  for (const c of countries.filter((c) => !c.is_default)) cleanWantedPages(path.join(ROOT, c.code.toLowerCase()), new Set());
+  const wantedRows = [];   // every enabled country's open requests, written once below
   for (const c of countries.filter((c) => c.enabled)) {
     const prefix = c.is_default ? "" : "/" + c.code.toLowerCase();
     const base = path.join(ROOT, prefix.replace(/^\//, ""));
@@ -74,8 +75,9 @@ export async function buildRoutes() {
       writeCopy(app, path.join(base, r.path), url, localize(r.title, c), localize(r.desc, c));
       urls.push(url);
     }
-    urls.push(...(await buildWantedPages(app, c, base, prefix)));
+    const rows = await readWanted(c); if (rows === null) { wantedRows.failed = true; continue } rows.forEach((w) => wantedRows.push({ w, c }));
   }
+  urls.push(...buildWantedPages(app, wantedRows));
   return urls;
 }
 
@@ -113,20 +115,22 @@ function cleanWantedPages(base, keep) {
     if (d.isDirectory() && /^\d+$/.test(d.name) && !keep.has(d.name)) fs.rmSync(path.join(dir, d.name), { recursive: true, force: true });
   }
 }
-async function buildWantedPages(app, c, base, prefix) {
+async function readWanted(c) {
   let rows;
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/bk_public_wanted`, { method: "POST", headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" }, body: JSON.stringify({ p_country: c.code }) });
     if (!res.ok) throw new Error("HTTP " + res.status);
     rows = await res.json();
-  } catch (e) { console.warn(`requests for ${c.code} unreadable, pages left as they are:`, e.message); return []; }
-  const open = (Array.isArray(rows) ? rows : []).filter((w) => w && w.id && w.status === "open" && (!w.expires_at || new Date(w.expires_at) > new Date()));
-  cleanWantedPages(base, new Set(open.map((w) => String(w.id))));   // only after a successful read: a failed read never deletes pages
+  } catch (e) { console.warn(`requests for ${c.code} unreadable, pages left as they are:`, e.message); return null; }
+  return (Array.isArray(rows) ? rows : []).filter((w) => w && w.id && w.status === "open" && (!w.expires_at || new Date(w.expires_at) > new Date()));
+}
+function buildWantedPages(app, all) {
+  if (!all.failed) cleanWantedPages(ROOT, new Set(all.map((x) => String(x.w.id))));   // only after every read succeeded: a failed read never deletes pages
   const urls = [];
-  for (const w of open) {
-    const url = `${SITE}${prefix}/wanted/${w.id}/`;
+  for (const { w, c } of all) {
+    const url = `${SITE}/wanted/${w.id}/`;
     const t = wantedTexts(w, c);
-    writeCopy(app, path.join(base, "wanted", String(w.id)), url, t.title, t.desc);
+    writeCopy(app, path.join(ROOT, "wanted", String(w.id)), url, t.title, t.desc);
     urls.push(url);
   }
   return urls;

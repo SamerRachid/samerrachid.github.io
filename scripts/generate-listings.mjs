@@ -6,10 +6,11 @@
 //    /listing/<id>-<arabic-slug>/index.html          (Arabic)
 //    /en/listing/<id>-<latin-slug>/index.html        (English)
 //    /de/listing/<id>-<latin-slug>/index.html        (German)
-//  each linking to the other two with hreflang. A listing in another enabled
-//  country (see the `countries` table) gets the same three pages under /<code>/,
-//  e.g. /lb/listing/…, /lb/en/listing/…. generate-pages.mjs runs
-//  afterwards and writes the sitemap that lists all of them.
+//  each linking to the other two with hreflang. A listing in any enabled
+//  country (see the `countries` table) lives at these same addresses — item
+//  pages carry no country prefix (2026-10-17); the page's menus and links point
+//  at its country's own pages (/lb/…). generate-pages.mjs runs afterwards and
+//  writes the sitemap that lists all of them.
 //
 //  Nothing here needs a server — it's a build step. GitHub Pages just
 //  serves whatever files exist in the repo, and this script is what
@@ -130,7 +131,7 @@ function slugFor(l, lang) {
   if (lang === "ar") return `${l.id}-${slugAr((TYPE_AR[l.property_type] || l.property_type) + " " + (l.area_ar || "") + " " + l.governorate_ar)}`;
   return `${l.id}-${slugLatin(typeName(l.property_type, "en") + " " + areaNm(l, "en") + " " + govName(l, "en"))}`;
 }
-const urlFor = (l, lang) => `${SITE}${CUR_PRE}${LANGS[lang].prefix}/listing/${slugFor(l, lang)}/`;
+const urlFor = (l, lang) => `${SITE}${LANGS[lang].prefix}/listing/${slugFor(l, lang)}/`;   // no country prefix: one address per listing
 const appLink = (lang, p) => `${SITE}${CUR_PRE}/${p}${lang === "ar" ? "" : `?lang=${lang}`}`;
 const MARK = `<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="19" y="19" width="62" height="62" fill="none" stroke="currentColor" stroke-width="7"/><path d="M50 5 95 50 50 95 5 50Z" fill="none" stroke="#C4881F" stroke-width="9"/><rect x="42.5" y="42.5" width="15" height="15" fill="currentColor"/></svg>`;
 
@@ -142,7 +143,7 @@ function stubPage(l, photos, ogPath) {
   const sizeTxt = has(l.area_m2) ? `${l.area_m2} ${W.sqm}` : "", areaName = areaNm(l, "ar"), gov = govName(l, "ar");
   const title = `${typeLabel} ${dealLabel} ${sizeTxt} — ${areaName} ${gov} | بلكون`.replace(/\s+/g, " ");
   const desc = ([`${typeLabel} ${dealLabel} ${W.inPlace([areaName, gov].filter(Boolean).join(W.sep))}`, sizeTxt, has(l.rooms) ? `${l.rooms} ${W.roomsShort}` : "", l.tabu ? tabuName(l.tabu, "ar") : "", money(l.price_usd)].filter(Boolean).join(W.sep) + ".").slice(0, 155);
-  const url = urlFor(l, "ar"), cover = photos[0] || l.cover_url || SITE + "/brand/og-image.png", app = `${CUR_PRE}/`;
+  const url = urlFor(l, "ar"), cover = photos[0] || l.cover_url || SITE + "/brand/og-image.png", app = "/";   // the app takes the listing's country from the listing
   const shareImg = ogPath || cover, dims = ogPath ? `<meta property="og:image:width" content="${OG_WIDTH}"><meta property="og:image:height" content="${OG_HEIGHT}">` : "";
   return `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><meta name="robots" content="noindex, follow"><link rel="canonical" href="${url}">
@@ -176,7 +177,7 @@ function renderPage(l, photos, lang, ogPath) {
 
   const url = urlFor(l, lang);
   const alts = { ar: urlFor(l, "ar"), en: urlFor(l, "en"), de: urlFor(l, "de") };
-  const appUrl = appLink(lang, `listing/${l.id}`);
+  const appUrl = `${SITE}/listing/${l.id}${lang === "ar" ? "" : `?lang=${lang}`}`;
 
   const allPhotos = photos.length ? photos : (l.cover_url ? [l.cover_url] : []);
   const cover = allPhotos[0] || "";
@@ -383,7 +384,9 @@ async function main() {
   if (!countries.some((c) => c.is_default)) countries.forEach((c) => { if (c.code === "SY") c.is_default = true; });
   const CTRY = new Map(countries.filter((c) => c.enabled).map((c) => [c.code, { prefix: c.is_default ? "" : "/" + c.code.toLowerCase(), cn: { code: c.code, ar: c.name_ar, en: c.name_en, de: c.name_de || c.name_en } }]));
 
-  for (const ctx of CTRY.values()) for (const lang of ["ar", "en", "de"]) { const dir = path.join(ROOT, ctx.prefix.replace(/^\//, ""), LANGS[lang].prefix.replace(/^\//, ""), "listing"); fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true }); }
+  // one tree for all countries; the old per-country trees (/lb/listing/…) are cleared too
+  for (const lang of ["ar", "en", "de"]) { const dir = path.join(ROOT, LANGS[lang].prefix.replace(/^\//, ""), "listing"); fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true }); }
+  for (const c of countries.filter((c) => !c.is_default)) for (const lang of ["ar", "en", "de"]) fs.rmSync(path.join(ROOT, c.code.toLowerCase(), LANGS[lang].prefix.replace(/^\//, ""), "listing"), { recursive: true, force: true });
 
   let n = 0;
   for (const l of listings) {
@@ -395,11 +398,11 @@ async function main() {
     l.videos = photoRows.filter((p) => p.kind === "video");
     const ogPath = await ogImageFor(l, photos);
     for (const lang of ["ar", "en", "de"]) {
-      const dir = path.join(ROOT, CUR_PRE.replace(/^\//, ""), LANGS[lang].prefix.replace(/^\//, ""), "listing", slugFor(l, lang));
+      const dir = path.join(ROOT, LANGS[lang].prefix.replace(/^\//, ""), "listing", slugFor(l, lang));
       fs.mkdirSync(dir, { recursive: true });
       fs.writeFileSync(path.join(dir, "index.html"), renderPage(l, photos, lang, ogPath)); n++;
     }
-    const sdir = path.join(ROOT, CUR_PRE.replace(/^\//, ""), "listing", String(l.id)); fs.mkdirSync(sdir, { recursive: true }); fs.writeFileSync(path.join(sdir, "index.html"), stubPage(l, photos, ogPath));
+    const sdir = path.join(ROOT, "listing", String(l.id)); fs.mkdirSync(sdir, { recursive: true }); fs.writeFileSync(path.join(sdir, "index.html"), stubPage(l, photos, ogPath));
   }
   console.log(`Wrote ${n} listing page(s) in ar/en/de. (sitemap.xml is written by generate-pages.mjs)`);
 }

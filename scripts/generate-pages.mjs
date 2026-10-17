@@ -193,9 +193,9 @@ const slugAr = (s) => String(s || "").replace(/[^\p{L}\p{N}\s-]/gu, "").trim().r
 const TYPE_AR_SLUG = { apartment:"شقة", terrace:"تراس", arab:"بيت عربي", villa:"فيلا", duplex:"دوبلكس", floor:"طابق كامل", building:"بناء كامل", shop:"محل تجاري", office:"مكتب", resid:"أرض سكنية", agri:"أرض زراعية", comm:"أرض تجارية" };
 let govById = new Map(), areaById = new Map();
 function listingUrl(l, lang) {
-  if (lang === "ar") return `${SITE}${cpre()}/listing/${l.id}-${slugAr((TYPE_AR_SLUG[l.property_type] || l.property_type) + " " + (l.area_ar || "") + " " + l.governorate_ar)}/`;
+  if (lang === "ar") return `${SITE}/listing/${l.id}-${slugAr((TYPE_AR_SLUG[l.property_type] || l.property_type) + " " + (l.area_ar || "") + " " + l.governorate_ar)}/`;
   const g = govById.get(l.governorate_id), a = areaById.get(l.area_id);
-  return `${SITE}${cpre()}/${lang}/listing/${l.id}-${slugLatin(typeName(l.property_type, "en") + " " + (a ? areaName(a, "en") : "") + " " + (g ? govName(g, "en") : ""))}/`;
+  return `${SITE}/${lang}/listing/${l.id}-${slugLatin(typeName(l.property_type, "en") + " " + (a ? areaName(a, "en") : "") + " " + (g ? govName(g, "en") : ""))}/`;
 }
 const pageUrl = (lang, p) => `${SITE}${cpre()}${LANGS[lang].prefix}/${p}`;
 
@@ -451,7 +451,7 @@ function homePage({ lang, govs, counts, latest, footLinks, agencies = [] }) {
   const W = S[lang], url = pageUrl(lang, "");
   const about = appText("aboutP", lang), aboutH = appText("aboutH", lang);
   const aboutHtml = about ? `<section class="sec"><h2>${esc(aboutH)}</h2>${about.split(/\n+/).filter(Boolean).map((x) => `<p style="line-height:1.9;max-width:900px">${esc(x)}</p>`).join("")}</section>` : "";
-  const agHtml = agencies.length ? `<section class="sec"><h2>${lang === "de" ? "Immobilienbüros auf Balkoun" : "Real estate agencies on Balkoun"}</h2><div class="chips">${agencies.slice(0, 8).map((a) => `<a class="chip" href="${SITE}${cpre()}/agency/${a.id}/">${esc(a.name)}</a>`).join("")}</div></section>` : "";
+  const agHtml = agencies.length ? `<section class="sec"><h2>${lang === "de" ? "Immobilienbüros auf Balkoun" : "Real estate agencies on Balkoun"}</h2><div class="chips">${agencies.slice(0, 8).map((a) => `<a class="chip" href="${SITE}/agency/${a.id}/">${esc(a.name)}</a>`).join("")}</div></section>` : "";
   const topGovs = govs.filter((g) => (counts.gov.get(g.id) || 0) > 0).sort((a, b) => (counts.gov.get(b.id) || 0) - (counts.gov.get(a.id) || 0));
   const body = `<section class="hero"><h1>${esc(W.homeH1)}</h1><p>${esc(W.homeLede)}</p>
 <div class="acts"><a class="g" href="${searchUrl(lang, { deal: "sale" })}">${esc(W.forSale[0].toUpperCase() + W.forSale.slice(1))}</a><a class="o" href="${searchUrl(lang, { deal: "rent" })}">${esc(W.forRent[0].toUpperCase() + W.forRent.slice(1))}</a><a class="o" href="${appUrl(lang, "mapsearch")}">${W.map}</a></div></section>
@@ -494,7 +494,7 @@ ${g.sections.map((s) => `<section><h2>${esc(s.h[lang])}</h2>${s.p.map((p) => `<p
 // ── agencies: one crawlable Arabic page per office at the address the app links to (/agency/13/) ──
 const SPEC_AR = { sale: "بيع", rent: "إيجار", commercial: "تجاري", land: "أراضٍ" };
 function agencyPage({ a, listings, footLinks }) {
-  const lang = "ar", W = S.ar, rel = `agency/${a.id}/`, url = `${SITE}${cpre()}/${rel}`;
+  const lang = "ar", W = S.ar, rel = `agency/${a.id}/`, url = `${SITE}/${rel}`;   // offices: one address for every country
   const govs = (a.gov_names || []).join("، ");
   const c = crumbs(lang, [{ name: "المكاتب العقارية", href: `${SITE}${cpre()}/agencies/` }, { name: a.name }]);
   const paras = String(a.description || "").split(/\n+/).map((x) => x.trim()).filter(Boolean);
@@ -502,7 +502,7 @@ function agencyPage({ a, listings, footLinks }) {
   const phone = a.hide_phone ? "" : String(a.phone || "").replace(/\D/g, ""), wa = a.hide_phone ? "" : String(a.whatsapp || a.phone || "").replace(/\D/g, "");
   const body = `${c.html}<div class="pagehead"><div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">${a.logo_url ? `<img src="${esc(a.logo_url)}" alt="${esc(a.name)}" width="86" height="86" style="border-radius:18px;object-fit:cover;background:#fff">` : ""}<div><h1 style="margin:0">${esc(a.name)}${a.verified ? ' <span class="badge ok" style="vertical-align:middle">مكتب موثّق</span>' : ""}</h1>${a.contact_person ? `<p class="sub" style="margin:4px 0 0">المسؤول: ${esc(a.contact_person)}</p>` : ""}<p class="sub" style="margin:4px 0 0">${(a.specialties || []).map((k) => SPEC_AR[k] || esc(k)).join(" · ")}${govs ? ` · ${esc(govs)}` : ""}</p></div></div>
 ${paras.length ? `<div class="article" style="margin-top:16px">${paras.map((x) => `<p>${esc(x)}</p>`).join("")}</div>` : ""}
-<div class="acts" style="margin-top:14px">${phone ? `<a class="o" href="tel:+${phone}">اتصال</a>` : ""}${wa ? `<a class="g" href="https://wa.me/${wa}">واتساب</a>` : ""}<a class="o" href="${SITE}${cpre()}/#/agency/${a.id}">فتح في التطبيق</a></div></div>
+<div class="acts" style="margin-top:14px">${phone ? `<a class="o" href="tel:+${phone}">اتصال</a>` : ""}${wa ? `<a class="g" href="https://wa.me/${wa}">واتساب</a>` : ""}<a class="o" href="${SITE}/#/agency/${a.id}">فتح في التطبيق</a></div></div>
 ${(a.area_names || []).length ? `<section class="sec"><h2>مناطق العمل</h2><div class="chips">${a.area_names.map((x) => `<span class="chip">${esc(x)}</span>`).join("")}</div></section>` : ""}
 <section class="sec"><h2>إعلانات المكتب <span class="ltr" style="color:var(--grey);font-weight:500">(${listings.length})</span></h2>${listings.length ? `<div class="grid" style="margin-top:14px">${listings.slice(0, 60).map((l) => card(l, l.area_id ? avgByArea.get(l.area_id) : null, lang)).join("")}</div>` : `<p class="sub">لا إعلانات حيّة حالياً.</p>`}</section>`;
   const ld = [c.ld, { "@context":"https://schema.org", "@type":"RealEstateAgent", name: a.name, url, ...(a.logo_url ? { image: a.logo_url } : {}), ...(phone ? { telephone: "+" + phone } : {}), areaServed: (a.gov_names || []).map((n) => ({ "@type":"AdministrativeArea", name: n })), description: paras.join(" ").slice(0, 300) }];
@@ -524,7 +524,7 @@ function homeSeoBlock({ govs, counts, latest, agencies, extras }) {
   return `<!--seo-home--><div class="seo-home" id="seoHome"><h1>${esc(W.homeH1)}</h1><p>${esc(W.homeLede)}</p><h2>${esc(aboutH)}</h2>${about.split(/\n+/).filter(Boolean).map((x) => `<p>${esc(x)}</p>`).join("")}
 <h2>${W.browseByGov}</h2><ul>${topGovs.map((g) => `<li><a href="${pageUrl("ar", `for-sale/${g.slug}/`)}">عقارات ${esc(govName(g, "ar"))} <span class="ltr">(${counts.gov.get(g.id)})</span></a></li>`).join("")}<li><a href="${pageUrl("ar", "areas/")}">${W.allAreas}</a></li></ul>
 <h2>${W.latest}</h2><ul class="seo-list">${latest.map((l) => `<li><a href="${listingUrl(l, "ar")}">${esc(typeName(l.property_type, "ar"))} ${l.deal === "rent" ? W.forRent : W.forSale}${l.area_m2 ? ` <span class="ltr">${l.area_m2}</span> ${W.sqm}` : ""} — ${esc([l.area_ar, l.governorate_ar].filter(Boolean).join("، "))}${l.price_usd != null ? ` · ${ltr(money(l.price_usd))}` : ""}</a></li>`).join("")}</ul>
-${agencies.length ? `<h2>مكاتب عقارية على بلكون</h2><ul>${agencies.slice(0, 8).map((a) => `<li><a href="${SITE}${cpre()}/agency/${a.id}/">${esc(a.name)}</a></li>`).join("")}</ul>` : ""}
+${agencies.length ? `<h2>مكاتب عقارية على بلكون</h2><ul>${agencies.slice(0, 8).map((a) => `<li><a href="${SITE}/agency/${a.id}/">${esc(a.name)}</a></li>`).join("")}</ul>` : ""}
 ${CTX.isDefault ? `<h2>أدلة عملية للشراء والإيجار</h2><ul>${GUIDES.map((g) => `<li><a href="${pageUrl("ar", `guides/${g.slug}/`)}">${esc(g.title.ar)}</a></li>`).join("")}</ul>` : ""}</div><!--/seo-home-->`;
 }
 function injectHomeSeo(block) {
@@ -565,6 +565,10 @@ async function main() {
   const listingDirsOf = (base) => fs.existsSync(base) ? fs.readdirSync(base).filter((d) => !/^\d+$/.test(d) && fs.existsSync(path.join(base, d, "index.html"))) : [];   // the numeric id-only stubs are noindex pointers, not sitemap entries
   const today = new Date().toISOString().slice(0, 10);
   const entries = []; let total = 0;
+  // item pages (listings, offices, requests) have one address for every country (2026-10-17): one office tree, rebuilt below;
+  // the old per-country ones are cleared
+  fs.rmSync(path.join(ROOT, "agency"), { recursive: true, force: true });
+  for (const c of allCountries.filter((c) => !c.is_default)) fs.rmSync(path.join(ROOT, c.code.toLowerCase(), "agency"), { recursive: true, force: true });
 
   for (const c of enabled) {
     CTX = { code: c.code, prefix: c.is_default ? "" : "/" + c.code.toLowerCase(), isDefault: !!c.is_default, cn: { code: c.code, ar: c.name_ar, en: c.name_en, de: c.name_de || c.name_en } };
@@ -638,7 +642,6 @@ async function main() {
     // offices: one page each (the app links to /agency/<id>; these answer 200 with the office's listings)
     let agencies = [];
     try { agencies = (await sbRpc("bk_public_agencies", { p_country: c.code })) || []; } catch (e) { console.warn("agencies unreadable:", e.message); }
-    fs.rmSync(path.join(base, "agency"), { recursive: true, force: true });
     for (const a of agencies) {
       const al = live.filter((l) => l.user_id === a.user_id);
       const ap = agencyPage({ a, listings: al, footLinks: footLinksFor("ar") }); write(ap.url, ap.html); urls.push({ loc: ap.url, priority: al.length ? "0.7" : "0.5" });
@@ -654,14 +657,15 @@ async function main() {
     try { wantedOpen = ((await sbRpc("bk_public_wanted", { p_country: c.code })) || []).filter((w) => w && w.id && w.status === "open" && (!w.expires_at || new Date(w.expires_at) > new Date())); }
     catch (e) { console.warn("requests unreadable for the sitemap:", e.message); }
     entries.push({ loc: SITE + CTX.prefix + "/", priority: CTX.isDefault ? "1.0" : "0.9" }, ...routeUrls,
-      ...wantedOpen.map((w) => ({ loc: `${SITE}${CTX.prefix}/wanted/${w.id}/`, priority: "0.5" })), ...urls,
-      ...listingDirsOf(path.join(base, "listing")).map((d) => ({ loc: `${SITE}${CTX.prefix}/listing/${d}/`, priority: "0.9" })),
-      ...listingDirsOf(path.join(base, "en", "listing")).map((d) => ({ loc: `${SITE}${CTX.prefix}/en/listing/${d}/`, priority: "0.8" })),
-      ...listingDirsOf(path.join(base, "de", "listing")).map((d) => ({ loc: `${SITE}${CTX.prefix}/de/listing/${d}/`, priority: "0.8" })));
+      ...wantedOpen.map((w) => ({ loc: `${SITE}/wanted/${w.id}/`, priority: "0.5" })), ...urls);
     total += urls.length;
     console.log(`${c.code}${CTX.prefix ? " (" + CTX.prefix + "/)" : ""}: ${urls.length} pages, ${usableGovs.length} governorates, ${live.length} live listings`);
   }
 
+  // every country's listing pages live in the one /listing/ tree
+  entries.push(...listingDirsOf(path.join(ROOT, "listing")).map((d) => ({ loc: `${SITE}/listing/${d}/`, priority: "0.9" })),
+    ...listingDirsOf(path.join(ROOT, "en", "listing")).map((d) => ({ loc: `${SITE}/en/listing/${d}/`, priority: "0.8" })),
+    ...listingDirsOf(path.join(ROOT, "de", "listing")).map((d) => ({ loc: `${SITE}/de/listing/${d}/`, priority: "0.8" })));
   fs.writeFileSync(path.join(ROOT, "sitemap.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.map((e) => `  <url><loc>${e.loc}</loc><lastmod>${today}</lastmod><priority>${e.priority}</priority></url>`).join("\n")}\n</urlset>\n`);
   console.log(`Wrote ${total} pages in ar/en/de for ${enabled.length} countr${enabled.length === 1 ? "y" : "ies"} and sitemap.xml with ${entries.length} URLs.`);
 }

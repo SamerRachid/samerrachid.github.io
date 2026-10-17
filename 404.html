@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-i8brSM8AibEIi3BxOVZkbAqa9eTsZXZk0SkvV5JPnKE=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-QZWA7KxpDd9/ldeStxiz90avBv2HfuLrXt1te4y4Qcc=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -5221,13 +5221,14 @@ function refreshCountries(){
     var d=r&&r.data; if(!d) return; if(Array.isArray(d)) d={list:d,chooser:"auto"}; if(!d.list||!d.list.length) return;
     COUNTRIES=d; CHOOSER_MODE=d.chooser||"auto"; try{ localStorage.setItem("balkoun_countries",JSON.stringify(d)) }catch(e){}
     applyCountryDeeds();
-    if(!COUNTRY_CHOSEN){ var det=detectCountry(); if(det!==COUNTRY) switchCountry(det,{silent:true}) }   // not awaited: the boot loads wait on this refresh, and the switch waits on the boot loads
+    if(isItemView()){}   // an item page: its own country decides (itemCountryGate)
+    else if(!COUNTRY_CHOSEN){ var det=detectCountry(); if(det!==COUNTRY) switchCountry(det,{silent:true}) }   // not awaited: the boot loads wait on this refresh, and the switch waits on the boot loads
     else { var sv=null; try{ sv=localStorage.getItem("balkoun_country") }catch(e){} if(sv && sv!==COUNTRY && !countryFromPath() && countryOf(sv)) switchCountry(sv,{silent:true}) }   // the saved choice was unknown before the list arrived (fresh cache)
   }).catch(function(){});
 }
 function ipCountry(){ return fetch("https://get.geojs.io/v1/ip/country.json").then(function(r){ return r.json() }).then(function(j){ var t=String((j&&j.country)||"").trim().toUpperCase(); return /^[A-Z]{2}$/.test(t)?t:null }).catch(function(){ return null }) }
 async function maybeShowChooser(){
-  if(PREVIEW || VIEW==="admin" || COUNTRY_CHOSEN || countryFromPath()) return;
+  if(PREVIEW || VIEW==="admin" || COUNTRY_CHOSEN || countryFromPath() || isItemView()) return;
   var en=countryList().filter(function(c){ return c.enabled }); if(en.length<2) return;
   var mode=CHOOSER_MODE||"auto"; if(mode==="off") return;
   try{ if(sessionStorage.getItem("balkoun_cc_seen")) return }catch(e){}
@@ -6642,7 +6643,8 @@ function listing(id){
  // D.LIST only ever holds public live/pending (+recently-closed) rows; a hidden/rejected/long-closed listing of
  // the viewer's own still has to open (to view or edit it), so MYLIST (scoped server-side to the caller's own
  // uid — never another member's data) is the fallback once it has loaded
- var x=D.LIST.filter(function(l){return String(l.id)===String(id)})[0] || (MYLIST||[]).filter(function(l){return String(l.id)===String(id)})[0];
+ var x=D.LIST.filter(function(l){return String(l.id)===String(id)})[0] || (MYLIST||[]).filter(function(l){return String(l.id)===String(id)})[0] || (ITEM_HOLD&&String(ITEM_HOLD.id)===String(id)?ITEM_HOLD:null);
+ if(x && x.cc && x.cc!==COUNTRY){ var gate=itemCountryGate(x.cc,x); if(gate) return gate }
  if(!x && !LISTINGS_LOADED) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2">'+
    '<b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>';
  if(!x) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2">'+
@@ -8620,6 +8622,7 @@ function wantedPage(){
 function wantedOnePage(id){
   var w=WANTEDONE;
   if(!w || String(w.id)!==String(id)) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>';
+  if(w.country_code && w.country_code!==COUNTRY){ var gate=itemCountryGate(w.country_code); if(gate) return gate }
   if(w.missing) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:18px">'+t("notFound")+'</b><div style="margin-top:18px"><button class="btn-n" data-go="wanted">'+GX("wDirShort")+'</button></div></div></div>';
   var ar=L==="ar", mine=USER&&w.user_id===USER.id, matches=wantedMatches(w), wa=(w.whatsapp||"").replace(/\D/g,""), expired=w.expires_at&&new Date(w.expires_at)<Date.now();
   var facts=[[t("ptype"),wTypesText(w)],[GX("f_wRooms"),w.rooms_min?'<span class="ltr">'+w.rooms_min+'</span>+':""],[GX("f_wArea"),w.area_min?'<span class="ltr">'+w.area_min+'</span>+ '+t("sqm"):""],[GX("f_wTabu"),w.tabu&&D.TABU[w.tabu]?D.TABU[w.tabu][li()]:""]].filter(function(f){ return f[1] });
@@ -8676,7 +8679,7 @@ function wireWanted(){
   if(!window._wDelegated){ window._wDelegated=true; document.addEventListener("click",function(e){
     var a=e.target.closest("[data-wopen]"); if(a){ if(e.target.closest("[data-wedit],[data-wset],[data-wdel]")) return; e.preventDefault(); WANTEDONE=null; VIEW="wanted:"+a.dataset.wopen; scrollTo(0,0); render(); return }
     // share a request (2026-10-16): the phone's share sheet, or the link copied on a computer — same as a listing
-    var sh=e.target.closest("[data-wshare]"); if(sh){ e.preventDefault(); var wu=location.origin+(COUNTRY==="SY"?"":"/"+COUNTRY.toLowerCase())+"/wanted/"+sh.dataset.wshare+"/";
+    var sh=e.target.closest("[data-wshare]"); if(sh){ e.preventDefault(); var wu=location.origin+"/wanted/"+sh.dataset.wshare+"/";
       if(navigator.share){ navigator.share({title:CONFIG.brand,url:wu}).catch(function(){}); return }
       try{ navigator.clipboard.writeText(wu); var sp=sh.querySelector("span"); if(sp) sp.textContent=t("copied") }catch(x){ prompt(GX("wShare"), wu) }
       return }
@@ -8739,6 +8742,7 @@ function projectsPage(){
 function projectPage(id){
   var p=PROJECT;
   if(!p || String(p.id)!==String(id)) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>';
+  if(p.country_code && p.country_code!==COUNTRY){ var gate=itemCountryGate(p.country_code); if(gate) return gate }
   if(p.missing) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:18px">'+t("notFound")+'</b><div style="margin-top:18px"><button class="btn-n" data-go="projects">'+GX("pjDirShort")+'</button></div></div></div>';
   var ar=L==="ar", photos=p.photos||[], gi=Math.min(PROJECT._gi||0,Math.max(0,photos.length-1)), loc=[p.address,p.area_name?aN(p.area_name):"",p.gov_name?gN(p.gov_name):""].filter(Boolean).join(ar?"، ":", ");
   var units=Array.isArray(p.units)?p.units:[], plans=pjPlans(p), wa=(p.developer_phone||"").replace(/\D/g,"");
@@ -8833,6 +8837,7 @@ function agenciesPage(){
 function agencyPage(id){
   var a=AGENCY;
   if(!a || String(a.id)!==String(id)) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>';
+  if(a.country_code && a.country_code!==COUNTRY){ var gate=itemCountryGate(a.country_code); if(gate) return gate }
   if(a.missing) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:18px">'+t("notFound")+'</b><div style="margin-top:18px"><button class="btn-n" data-go="agencies">'+GX("agDirShort")+'</button></div></div></div>';
   var mine=D.LIST.filter(function(x){ return x.uid===a.user_id && (!x.status||x.status==="live") });
   var wa=(a.whatsapp||a.phone||"").replace(/\D/g,"");
@@ -10763,7 +10768,7 @@ function photoAddRpc(a){
 function m2Txt(x,pre){ return x.m2?(pre||"")+'<span class="ltr">'+x.m2+'</span> '+t("sqm"):"" }
 function fromRow(r){
   var txt = r.description || "";
-  return {id:r.id, ref:r.ref, g:r.governorate_ar, a:r.area_ar||"",
+  return {id:r.id, ref:r.ref, cc:r.country_code||"SY", g:r.governorate_ar, a:r.area_ar||"",
     t:r.property_type, d:r.deal, p:r.price_usd, m2:r.area_m2,
     r:r.rooms||0, b:r.baths||0, living:r.living_rooms||0, fl:(r.floor===null?"":r.floor), y:r.year_built||0,
     tb:r.tabu, cd:r.condition, v:0, ow:r.by_owner?1:0,
@@ -11325,7 +11330,20 @@ function syncHash(){
     }
   }catch(e){}
 }
-function routePath(){ var p=routePathBase(); return COUNTRY==="SY" ? p : "/"+COUNTRY.toLowerCase()+(p==="/"?"/":p) }
+// item pages (listing, seller, office, project, request) have one address for every country — /listing/500, never /lb/listing/500;
+// the page takes the item's own country (itemCountryGate). Browsing pages (home, search, areas…) keep /lb/… (owner, 2026-10-17)
+var ITEM_PATH_RE=/^\/(listing|seller|agency|project|wanted)\/[^\/?]/;
+function routePath(){ var p=routePathBase(); return (COUNTRY==="SY" || ITEM_PATH_RE.test(p)) ? p : "/"+COUNTRY.toLowerCase()+(p==="/"?"/":p) }
+var ITEM_HOLD=null;   // the listing being shown while the site switches over to its country
+function isItemView(){ return /^(listing|wanted|project|agency):/.test(VIEW||"") }
+function itemCountryGate(cc,hold){ cc=String(cc||"SY").toUpperCase(); if(cc===COUNTRY) return "";
+  if(countryOf(cc)){   // an open country: switch quietly (not saved as the visitor's own choice) and keep this page
+    if(hold) ITEM_HOLD=hold; var v=VIEW;
+    setTimeout(function(){ if(VIEW!==v || cc===COUNTRY) return;
+      Promise.resolve(switchCountry(cc,{silent:true,keepView:true})).then(function(){ if(hold && !D.LIST.some(function(l){ return String(l.id)===String(hold.id) })) D.LIST.unshift(hold); ITEM_HOLD=null; if(VIEW===v) render() }) },0);
+    return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>' }
+  return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:18px">'+GX("itemElsewhere")+'</b>'+
+    '<p style="color:var(--grey);font-size:14.5px;margin-top:6px">'+GX("itemElsewhereP")+'</p><div style="margin-top:18px"><button class="btn-n" data-go="home">'+t("home")+'</button></div></div></div>' }
 function routePathBase(){
   return VIEW==="home" ? "/" :
          VIEW.indexOf("listing:")===0 ? "/listing/"+VIEW.split(":")[1] :
@@ -11490,6 +11508,7 @@ function viewFromHash(){
   // Prefer the real path (/search?…); still understand old #/search links and convert them.
   var raw=(location.hash||"").replace(/^#\/?/,"");
   if(!raw) raw=location.pathname.replace(/^\/+/,"").replace(/\/+$/,"").replace(/^index\.html$/,"")+location.search;
+  raw=raw.replace(/^[a-z]{2}\/(?=(listing|seller|agency|project|wanted)\/[^\/?])/,"");   // an old /lb/listing/500 link: the item decides the country
   if(countryFromPath()) raw=raw.replace(/^[a-z]{2}(\/|(?=\?)|$)/,"");
   if(PREVIEW){ var pvv=(location.search.match(/[?&]view=([a-z]+)/)||[])[1]; if(pvv) raw=pvv }
   var qIdx=raw.indexOf("?");
@@ -11674,7 +11693,7 @@ function render(){
  setTimeout(fabCheck,50);
  (function(){ var P={home:"/",search:"/search",wanted:"/wanted",agencies:"/agencies",projects:"/projects",about:"/about",contact:"/contact",contactus:"/contactus",post:"/post",mapsearch:"/mapsearch",areas:"/regions",mine:"/mine",saved:"/saved",searches:"/searches",msgs:"/msgs",account:"/account"}, pre=(typeof cPre==="function")?cPre():"";
    $$("#app a[data-go]:not([href])").forEach(function(a){ var g=a.dataset.go, p=P[g]; if(!p){ a.setAttribute("role","button"); return } var q=a.dataset.deal?"?deal="+a.dataset.deal:""; a.setAttribute("href",(pre+p).replace(/\/+$/,"")||"/"); if(q) a.setAttribute("href",a.getAttribute("href")+q) });
-   $$("#app a[data-open]:not([href])").forEach(function(a){ a.setAttribute("href",pre+"/listing/"+a.dataset.open) });
+   $$("#app a[data-open]:not([href])").forEach(function(a){ a.setAttribute("href","/listing/"+a.dataset.open) });
    $$("#app a:not([href])").forEach(function(a){ a.setAttribute("role","button"); a.setAttribute("tabindex","0") }) })();
  // home page only: the header sits transparent over the hero photo/video
  // (Bayut-style) and turns solid once the page scrolls — see .home-hero CSS
@@ -12736,6 +12755,9 @@ document.documentElement.classList.add("js");
    cities vs. neighbourhoods; the built-in list is only the offline fallback. */
 var GEO_META={govId:{},govSlug:{},areaId:{},areaSlug:{},kind:{}};
 var GX_T={
+  // an item page whose country is not open (2026-10-17)
+  itemElsewhere:{ar:"هذه الصفحة غير متاحة حالياً",en:"This page is not available right now",de:"Diese Seite ist derzeit nicht verfügbar",fr:"Cette page n'est pas disponible pour le moment"},
+  itemElsewhereP:{ar:"بلكون لم يُفتح بعد في البلد الذي تتبع له هذه الصفحة.",en:"Balkoun is not open yet in the country this page belongs to.",de:"Balkoun ist in dem Land, zu dem diese Seite gehört, noch nicht geöffnet.",fr:"Balkoun n'est pas encore ouvert dans le pays de cette page."},
   // hide-my-number (2026-10-03): the account switch, the listing page without phone buttons, the request form
   hpSwitch:{ar:"إخفاء رقمي عن الزوار",en:"Hide my number from visitors",de:"Meine Nummer vor Besuchern verbergen"},
   hpSwitchHint:{ar:"لن يظهر رقمك في إعلاناتك ولا في صفحة مكتبك ولا فيما ينشره البوت. يتواصل معك المهتمون عبر «طلب معاينة» أو «مراسلة المعلن»، وتصلك طلباتهم في تنبيهات حسابك وعلى تيليغرام وواتساب من رقم بلكون. ينطبق فورًا على كل إعلاناتك.",en:"Your number will not appear on your listings, your agency page or what the bot publishes. Interested people reach you through “Visit request” or “Message the advertiser”; their requests arrive in your account alerts, on Telegram and on WhatsApp from Balkoun's number. Applies to all your listings at once.",de:"Ihre Nummer erscheint weder in Ihren Anzeigen noch auf Ihrer Büroseite. Interessenten erreichen Sie über „Besichtigung anfragen“ oder „Nachricht“; Anfragen kommen in Ihr Konto, auf Telegram und per WhatsApp von Balkouns Nummer."},
