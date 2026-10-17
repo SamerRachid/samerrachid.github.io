@@ -26,19 +26,19 @@ async function storageRestore(paths){
        if(j && j.error) return {data:null, error:{message:j.error}};
        return {data:{restored:j.restored||[], failed:j.failed||[]}, error:null} }
   catch(e){ return {data:null, error:e} } }
-var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",house:"users",outreach:"users",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",types:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super",campaigns:"campaigns",social:"featured",maps:"settings"};
+var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",house:"users",outreach:"users",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",types:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",intake_cfg:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super",campaigns:"campaigns",social:"featured",maps:"settings"};
 // sidebar groups: one entry in the sidebar, sub-tabs rendered as a segmented bar on the page (the tab bodies stay keyed by the real tab)
 // the panel's sections (redesign 2026-10-16, Shopify-style): a section opens its last-visited page; its pages show under it
 // in the sidebar (desktop) or as a row of tabs (phone). Page keys are unchanged, so every link into a page still works.
 var ADM_GROUPS={g_listings:["listings","intake","reports","photos"],g_people:["users","agencies_adm","reviews","house"],
   g_msgs:["feedback","tickets","msgs","campaigns","outreach"],g_mkt:["featured","ads","banners","engage","social","projects_adm"],
-  g_site:["mainpage","design","contact"],g_settings:["settings","countries","geo","maps","types","admins","storage","danger"]};
+  g_site:["mainpage","design","contact"],g_settings:["settings","countries","geo","maps","types","intake_cfg","admins","storage","danger"]};
 var ADM_GROUP_ALIAS={inbox:"g_msgs",promo:"g_mkt",system:"g_settings"};   // the old section keys (bell links, saved state)
 function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab)>-1) return g } return null }
 // night mode (owner, 2026-10-16): "dark" / "light" / "" = follow the phone or computer
 function admTheme(){ try{ return localStorage.getItem("bk_adm_theme")||"" }catch(e){ return "" } }
 function admIsDark(){ var t0=admTheme(); if(t0) return t0==="dark"; try{ return !!(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches) }catch(e){ return false } }
-function admApplyTheme(){ try{ document.documentElement.classList.toggle("adm-dark", typeof VIEW!=="undefined" && VIEW==="admin" && admIsDark()) }catch(e){} }
+function admApplyTheme(){ try{ document.documentElement.classList.toggle("adm-dark", typeof VIEW!=="undefined" && VIEW==="admin" && !!ADM.token && admIsDark()) }catch(e){} }   // the sign-in screen is the public site's, so it stays light
 function admResolveTab(k){ if(ADM_GROUP_ALIAS[k]) k=ADM_GROUP_ALIAS[k]; if(!ADM_GROUPS[k]) return k; var last=(ADM._sub||{})[k]; if(last&&canTab(last)) return last; return ADM_GROUPS[k].filter(canTab)[0]||k }
 function canTab(k){ if(ADM_GROUP_ALIAS[k]) k=ADM_GROUP_ALIAS[k]; if(ADM_GROUPS[k]) return ADM_GROUPS[k].some(canTab); var p=TAB_PERM[k]; if(p===undefined) return can(k); if(p==="super") return !!ADM.isSuper; if(Array.isArray(p)) return p.some(can); return can(p) }
 // ── panel search: tabs + the features inside them (buttons, cards, settings) with the words people use for them ──
@@ -672,7 +672,8 @@ function adminView(){
 
  else if(ADM.tab==="engage"){ body = adminEngageBody(); }
  else if(ADM.tab==="campaigns"){ body = adminCampaignsBody(); }
- else if(ADM.tab==="intake"){ body = adminIntakeBody(); }
+ else if(ADM.tab==="intake"){ body = adminIntakeBody("drafts"); }
+ else if(ADM.tab==="intake_cfg"){ body = adminIntakeBody("cfg"); }
  else if(ADM.tab==="agencies_adm"){ body = adminAgenciesBody(); }
  else if(ADM.tab==="projects_adm"){ body = adminProjectsBody(); }
  else if(ADM.tab==="wanted_adm"){ body = adminWantedBody(); }
@@ -819,7 +820,7 @@ function adminView(){
    feedback:t("feedbackTab"), tickets:GX("ticketsTab"), msgs:t("msgsNotifTab"), campaigns:GX("tCampaigns"), outreach:GX("tOutreach"),
    featured:GX("tPromote"), ads:t("adsTab"), banners:GX("tBanners"), engage:GX("tEngage"), social:GX("tSocial"), projects_adm:GX("tProjects"),
    stats:GX("navAnalytics"), mainpage:t("mainPageTab"), design:GX("tDesign"), contact:GX("tContact"),
-   settings:GX("navGeneral"), countries:GX("countriesTab"), geo:GX("geoTab"), maps:GX("tMaps"), types:GX("ptTab"), admins:t("adminsTab"), storage:GX("tStorage"), danger:t("dangerTab")};
+   settings:GX("navGeneral"), intake_cfg:GX("navBot"), countries:GX("countriesTab"), geo:GX("geoTab"), maps:GX("tMaps"), types:GX("ptTab"), admins:t("adminsTab"), storage:GX("tStorage"), danger:t("dangerTab")};
  // badges count only what waits for the admin (pending, unread, due) — never totals
  var BADGE={listings:td.pending_listings||s.pending||null, intake:td.intake_review||null, reports:s.openReports||null, wanted_adm:td.pending_wanted||null, users:td.verify_pending||null,
    feedback:s.openFeedback||null, tickets:openTk||null, msgs:ADM.alertsUnread||null, outreach:dueOut, social:(ADM._promoDue||[]).length||null};
@@ -870,7 +871,7 @@ function adminView(){
   (ADM.myAccountOpen ? adminMeCard() : '')+(ADM.pm ? admPmHtml() : '')+
   '<div class="ashell">'+
    '<nav class="asidebar" id="aSidebar">'+sideHtml+'</nav>'+
-   '<main class="acontent">'+(ADM.token&&!ADM.data?'<div class="aloading">'+t("loading")+'</div>':'')+'<div class="apage-h"><div>'+'<div class="apage-crumb">'+curGroup+(ADM.scope==="ALL"?(curGroup?' · ':'')+'🌍 '+GX("cAll")+'</div>':COUNTRY!=="SY"?(curGroup?' · ':'')+flagOf(COUNTRY)+' '+esc(countryName(countryOf(COUNTRY)))+'</div>':'</div>')+'<h1>'+curLabel+'</h1>'+
+   '<main class="acontent">'+(ADM.loadErr?'<div class="aloaderr" role="alert">'+GX("admLoadErr")+'</div>':ADM.token&&!ADM.data?'<div class="aloading">'+t("loading")+'</div>':'')+'<div class="apage-h"><div>'+'<div class="apage-crumb">'+curGroup+(ADM.scope==="ALL"?(curGroup?' · ':'')+'🌍 '+GX("cAll")+'</div>':COUNTRY!=="SY"?(curGroup?' · ':'')+flagOf(COUNTRY)+' '+esc(countryName(countryOf(COUNTRY)))+'</div>':'</div>')+'<h1>'+curLabel+'</h1>'+
     (GX_T["desc_"+ADM.tab]?'<p>'+GX("desc_"+ADM.tab)+'</p>':'')+'</div>'+adminCountryBar()+'</div>'+subBar+(ADM.tab==="settings"&&typeof admLegalCard==="function"?admLegalCard():'')+body+'</main>'+
   '</div>'+bottomBar+moreSheet+'</div>'}
 // the admin edits a request (owner, 2026-10-16): every field, the areas as a searchable list — "no area" means the
@@ -1035,7 +1036,7 @@ async function adminLoad(){
   try{
     var gen=ADM._gen||0, fresh=await rpc("bk_admin_data",{p_token:ADM.token,p_country:admScope()});
     if(gen!==(ADM._gen||0)) return;   // the admin switched country meanwhile; that load renders its own answer
-    ADM.data = fresh; ADM.msg="";
+    ADM.data = fresh; ADM.msg=""; ADM.loadErr="";
     var me = ADM.data && ADM.data.me;
     if(me){
       ADM.meId=me.id; ADM.meName=((me.name||"")+" "+(me.family_name||"")).trim();
@@ -1053,7 +1054,10 @@ async function adminLoad(){
     if(ADM.token){ syncAdminTodo();
     }
   }
-  catch(e){ ADM.token=null; ADM.msg=e.message||"error"; try{localStorage.removeItem("balkoun_adm")}catch(x){} }
+  catch(e){ var em=e.message||"error";
+    // only a session the server refuses signs the admin out; a slow database or a dropped connection keeps the session and tries again
+    if(/unauthori[sz]ed|not admin|forbidden/i.test(em)){ ADM.token=null; ADM.msg=em; ADM.loadErr=""; try{localStorage.removeItem("balkoun_adm")}catch(x){} }
+    else { ADM.loadErr=em; clearTimeout(ADM._loadRetry); ADM._loadRetry=setTimeout(function(){ if(ADM.token&&ADM.loadErr) adminLoad() },5000) } }
   render();
 }
 function GSX(k,d){ var g=(ADM.data&&ADM.data.gx)||{}; var v=g[k]; return (v===undefined||v===null||v==="") ? d : v }
@@ -1292,6 +1296,11 @@ function wireAdmin(){
   if($("#aTheme")) $("#aTheme").onclick=function(){ setTheme(admIsDark()?"light":"dark") };
   $$("#aThemeSeg [data-theme]").forEach(function(b){ b.onclick=function(){ setTheme(this.dataset.theme) } });
   if(!window._admThemeMq && window.matchMedia){ window._admThemeMq=true; try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change",function(){ if(!admTheme()&&VIEW==="admin"){ admApplyTheme(); render() } }) }catch(e){} }
+  // phone: the section's page strip scrolls so the open page sits in full view, never cut at the edge
+  $$(".asubtabs").forEach(function(st){ var on=st.querySelector(".on"); if(!on) return; var r=on.getBoundingClientRect(), sr=st.getBoundingClientRect(); if(r.left<sr.left+8||r.right>sr.right-8) st.scrollLeft+=(r.left+r.width/2)-(sr.left+sr.width/2) });
+  // phone cards label each value with its column header; copy the header onto any cell that doesn't carry one
+  $$(".adm .ltbl table,.adm .atable table").forEach(function(tb){ var hs=[].map.call(tb.querySelectorAll("thead th"),function(th){ return th.textContent.trim() }); if(!hs.length) return;
+    [].forEach.call(tb.querySelectorAll("tbody tr"),function(tr){ [].forEach.call(tr.children,function(td,i){ if(hs[i]&&!td.hasAttribute("data-th")) td.setAttribute("data-th",hs[i]) }) }) });
   // phone: «المزيد» sheet, search on demand
   var more=$("#aMore");
   if($("#aMoreBtn")&&more) $("#aMoreBtn").onclick=function(e){ e.stopPropagation(); more.hidden=!more.hidden };
@@ -1683,8 +1692,8 @@ function wireAdmin(){
           data.units=(P.units||[]).filter(function(u){ return u.type||u.price_usd }).map(function(u){ return {type:u.type||"",area_m2:N(u.area_m2),rooms:N(u.rooms),price_usd:N(u.price_usd),count:N(u.count)} }); data.plans=(P.plans||[]).filter(function(x){ return x.name||x.months }).map(function(x){ return {name:x.name||"",down_pct:N(x.down_pct),months:N(x.months),handover_pct:N(x.handover_pct)} });
           try{ await rpc("bk_admin_project_save",{p_token:ADM.token,p_id:P.id||null,p_data:data}); ADM.pjEdit=null; ADM._pjLoaded=false; PROJECTS=null; render() }catch(err){ if(m){ m.style.color="var(--danger)"; m.textContent=err.message||"error" } } } } }
   }
-  if(ADM.tab!=="intake"){ ADM._ikLoaded=false }
-  if(ADM.tab==="intake"){ wireAdminIntake() }
+  if(ADM.tab!=="intake"&&ADM.tab!=="intake_cfg"){ ADM._ikLoaded=false }
+  if(ADM.tab==="intake"||ADM.tab==="intake_cfg"){ wireAdminIntake() }
   if(ADM.tab!=="house"){ ADM._houseLoaded=false }
   if(ADM.tab==="house"){ wireAdminHouse() }
   if(ADM.tab!=="outreach"){ ADM._outLoaded=false }
@@ -3331,7 +3340,7 @@ function admScopeNote(){
 function admSectionize(){
   var main=$(".acontent"); if(!main || main.querySelector(".asecnav")) return;
   var blks=[].slice.call(main.querySelectorAll(".blk")).filter(function(b){ var h=b.firstElementChild; return h && h.tagName==="H3" && b.querySelector(":scope > .in") });
-  var titleOf=function(h){ var t=""; h.childNodes.forEach(function(n){ if(n.nodeType===3) t+=n.textContent; else if(n.nodeType===1 && !/^(BUTTON|A|INPUT|SELECT|LABEL)$/.test(n.tagName) && !n.classList.contains("n")) t+=n.textContent }); return t.replace(/\s+/g," ").trim().slice(0,40) };
+  var titleOf=function(h){ var t=""; h.childNodes.forEach(function(n){ if(n.nodeType===3) t+=n.textContent; else if(n.nodeType===1 && !/^(BUTTON|A|INPUT|SELECT|LABEL|SVG|svg|SMALL)$/.test(n.tagName) && !n.matches(".n,.st,.pill,.abadge2,.chip,.ltr")) t+=" "+n.textContent+" " }); return t.replace(/\s+/g," ").replace(/^[·\s]+|[·\s]+$/g,"").trim().slice(0,40) };   // pieces are spaced, status pills and codes left out
   var key="bk_adm_fold_"+ADM.tab, folds={}; try{ folds=JSON.parse(localStorage.getItem(key)||"{}")||{} }catch(e){}
   // secondary cards start folded (users: the two phone-verification cards sit above the member table); the admin's own toggle wins
   var defFold=function(i){ return ADM.tab==="users" && i<2 };
@@ -3524,7 +3533,7 @@ function cpgContactRow(c, editing){
   var chips=[c.phone?'<span class="chip ltr">'+esc(c.phone)+'</span>':'', c.email?'<span class="chip">'+esc(c.email)+'</span>':''].filter(Boolean).join("");
   var place=[c.governorate_id?(function(){ var n=null; Object.keys(GEO_META.govId||{}).forEach(function(k){ if(GEO_META.govId[k]===c.governorate_id) n=k }); return n })():null, c.city_text].filter(Boolean).join(" · ");
   var card='<div class="agcard2"><div class="agc-id"><b>'+esc(c.name||"—")+'</b><small>'+chips+(place?' · '+esc(place):'')+' · '+cpgT("src_"+c.source)+'</small></div>'+
-    '<div class="agc-meta">'+cpgT("wa")+' '+cpgConsentChip(c.wa_consent)+' '+cpgT("tg")+' '+cpgConsentChip(c.tg_consent)+' '+cpgT("chEmail")+' '+cpgConsentChip(c.email_consent)+'</div>'+
+    '<div class="agc-meta agc-ch">'+[["wa",c.wa_consent],["tg",c.tg_consent],["chEmail",c.email_consent]].map(function(p){ return '<span class="agc-chp">'+cpgT(p[0])+' '+cpgConsentChip(p[1])+'</span>' }).join("")+'</div>'+
     '<div class="agc-acts"><button type="button" class="ab ok" data-cdm="'+c.id+'" data-name="'+esc(c.name||c.phone||"")+'">'+GX("dmBtn")+'</button><button type="button" class="ab" data-cpgedit="'+c.id+'">'+(editing?cpgT("cancel"):cpgT("edit"))+'</button><button type="button" class="ab bad" data-cpgdel="'+c.id+'">'+cpgT("del")+'</button></div></div>';
   if(!editing) return card;
   var tgLink=SX("intake_bot","")?("https://t.me/"+encodeURIComponent(SX("intake_bot",""))+"?start=n"+String(c.id).replace(/-/g,"")):"";
@@ -3764,11 +3773,14 @@ function wireAdminHouse(){
   if(!ADM._houseLoaded){ ADM._houseLoaded=true; ADM.houseErr=null; ADM.house=undefined;
     rpc("bk_admin_house_accounts",{p_token:ADM.token}).then(function(r){ ADM.house=r||[]; render() }).catch(function(e){ ADM.house=[]; ADM.houseErr=e.message||"error"; render() }) }
 }
-function adminIntakeBody(){
+// long lists show 25 at a time (redesign 2026-10-16): «عرض 25 أخرى» under the list, with how many are left
+function admMoreBtn(total, shown, key){ if(total<=shown) return ''; var left=total-shown; return '<div class="amorebtn"><button type="button" class="ab" data-more="'+key+'">'+GX("showMoreN").replace("{n}",Math.min(25,left)).replace("{t}",left)+'</button></div>' }
+function admWireMore(key, fn){ $$('[data-more="'+key+'"]').forEach(function(b){ b.onclick=function(){ var y=window.scrollY; fn(); render(); try{ window.scrollTo(0,y) }catch(e){} } }) }
+function adminIntakeBody(mode){
   var d=ADM.ik; if(!d) return '<div class="blk"><div class="in adashempty">'+(ADM.ikErr?'<span style="color:var(--danger)">'+esc(ADM.ikErr)+'</span>':t("loading"))+'</div></div>';
   var cfg=d.cfg||{}, c=d.counts||{}, st=ADM.ikStatus, f=ADM.ikFilter||"all", fnUrl=CONFIG.supabaseUrl+"/functions/v1/bk-intake";
   var list=(d.drafts||[]).filter(function(x){ return f==="all" ? x.status!=="cancelled" : f==="attention" ? (x.status==="review"||x.status==="failed") : f==="open" ? ["collecting","reading","ready","needs_info"].indexOf(x.status)>-1 : x.status===f });
-  var stats='<div class="ikstats">'+[[GX("ik_st_open"),(+c.collecting||0)+(+c.ready||0)],[GX("ik_st_attention"),(+c.review||0)+(+c.failed||0)],[GX("ik_st_published"),+c.published||0],[GX("ik_st_today"),+c.today||0],[GX("ik_st_cost"),"$"+(+c.cost_month||0).toFixed(2)]].map(function(s){ return '<div class="astat"><b class="ltr">'+s[1]+'</b><span>'+s[0]+'</span></div>' }).join("")+'</div>';
+  var stats='<div class="astat ikstats">'+[[GX("ik_st_open"),(+c.collecting||0)+(+c.ready||0)],[GX("ik_st_attention"),(+c.review||0)+(+c.failed||0)],[GX("ik_st_published"),+c.published||0],[GX("ik_st_today"),+c.today||0],[GX("ik_st_cost"),"$"+(+c.cost_month||0).toFixed(2)]].map(function(s){ return '<div class="astat"><b class="ltr">'+s[1]+'</b><span>'+s[0]+'</span></div>' }).join("")+'</div>';
   var row=function(name,state,acts){ return '<div class="ikc"><b>'+name+'</b><div>'+state+'</div><div class="eacts">'+(acts||'')+'</div></div>' };
   var ok=function(s){ return '<span class="ikok">✓ '+s+'</span>' }, warn=function(s){ return '<span class="ikwarn">! '+s+'</span>' }, off=function(s){ return '<span class="ikoff">○ '+s+'</span>' };
   var chats=cfg.intake_admin_chats||{}; var nChats=(chats.telegram||[]).length+(chats.whatsapp||[]).length;
@@ -3819,7 +3831,7 @@ function adminIntakeBody(){
   var filters=[["all",GX("ik_fAll")],["attention",GX("ik_fAttention")],["open",GX("ik_fOpen")],["published",GX("ik_published")],["cancelled",GX("ik_cancelled")]];
   // bulk bar: tick several drafts, give them all a governorate / an agency, publish or cancel them in one go
   // only ticks on drafts that are visible AND still actionable count (a tick left over from another filter is dropped)
-  var visIds={}; list.forEach(function(x){ if(["published","cancelled"].indexOf(x.status)<0) visIds[x.id]=true });
+  var visIds={}; list.slice(0,ADM.ikShow||25).forEach(function(x){ if(["published","cancelled"].indexOf(x.status)<0) visIds[x.id]=true });   // only drafts on screen can be ticked
   ADM.ikSel=ADM.ikSel||{}; Object.keys(ADM.ikSel).forEach(function(k){ if(!visIds[k]) delete ADM.ikSel[k] });
   var selIds=Object.keys(ADM.ikSel).filter(function(k){ return ADM.ikSel[k] }), nSel=selIds.length, nVis=Object.keys(visIds).length;
   var bulk='<div class="ikbulk'+(nSel?' on':'')+'">'+
@@ -3833,9 +3845,12 @@ function adminIntakeBody(){
     '<div class="ikb-row"><button type="button" class="ab ok" id="ikBulkPubL"'+(nSel?'':' disabled')+'>'+GX("ik_pubLive")+'</button><button type="button" class="ab" id="ikBulkPubP"'+(nSel?'':' disabled')+'>'+GX("ik_pubPending")+'</button><button type="button" class="ab bad" id="ikBulkCancel"'+(nSel?'':' disabled')+'>'+t("cancel")+'</button><span class="xmsg" id="ikBulkMsg"></span></div></div>';
   var drafts='<div class="blk"><h3>'+GX("ik_draftsH")+' <span class="n">'+list.length+'</span></h3><div class="in eng-in">'+
     '<div class="ikfilters">'+filters.map(function(x){ return '<button type="button" class="ab'+(x[0]===f?' on':'')+'" data-ikf-filter="'+x[0]+'">'+x[1]+'</button>' }).join("")+'<button type="button" class="ab" id="ikReload" style="margin-inline-start:auto">'+AICO.refresh+'</button></div>'+
-    (list.length ? bulk+'<div class="elist">'+list.map(ikRow).join("")+'</div>' : '<div class="adashempty">'+GX("ik_none")+'</div>')+'</div></div>';
+    (list.length ? bulk+'<div class="elist">'+list.slice(0,ADM.ikShow||25).map(ikRow).join("")+'</div>'+admMoreBtn(list.length,ADM.ikShow||25,'ikmore') : '<div class="adashempty">'+GX("ik_none")+'</div>')+'</div></div>';
   var logs='<div class="blk"><h3>'+GX("ik_logH")+'</h3><div class="in eng-in"><div class="iklog">'+(d.log||[]).slice(0,40).map(function(l){ return '<div class="iklog-r lvl-'+esc(l.level||"info")+'"><span class="ltr">'+when(l.created_at)+'</span><b>'+esc(l.event)+'</b><i>'+(l.draft_id?'#'+l.draft_id:'')+'</i><span>'+esc(JSON.stringify(l.detail||{})).slice(0,160)+'</span></div>' }).join("")+'</div></div></div>';
-  return stats+conn+notify+settings+drafts+logs }
+  // redesign (2026-10-16): the daily work (numbers + drafts) is under Listings; the bot's setup (connection, admin
+  // alerts, settings, log) is its own page under Settings
+  if(mode==="cfg") return conn+notify+settings+logs;
+  return stats+drafts }
 function wireAdminIntake(){
   if(!ADM._ikLoaded){ ADM._ikLoaded=true; ADM.ikErr=null;
     rpcScoped("bk_admin_intake",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.ik=r||{}; render() }).catch(function(e){ ADM.ik=null; ADM.ikErr=e.message||"error"; render() });
@@ -3843,7 +3858,8 @@ function wireAdminIntake(){
   var reload=function(){ ADM._ikLoaded=false; render() };
   var busy=function(btn,on){ if(btn){ btn.disabled=on; btn.classList.toggle("busy",on) } };
   if($("#ikReload")) $("#ikReload").onclick=function(){ ADM.ikStatus=null; reload() };
-  $$("[data-ikf-filter]").forEach(function(b){ b.onclick=function(){ ADM.ikFilter=this.dataset.ikfFilter; ADM.ikSel={}; render() } });
+  $$("[data-ikf-filter]").forEach(function(b){ b.onclick=function(){ ADM.ikFilter=this.dataset.ikfFilter; ADM.ikSel={}; ADM.ikShow=25; render() } });
+  admWireMore("ikmore", function(){ ADM.ikShow=(ADM.ikShow||25)+25 });
   $$("[data-ikopen]").forEach(function(b){ b.onclick=function(){ ADM.ikOpen = String(ADM.ikOpen)===this.dataset.ikopen ? null : this.dataset.ikopen; render() } });
   if($("#ikSetupTg")) $("#ikSetupTg").onclick=async function(){ busy(this,true); try{ var r=await intakeAdmin("setup_telegram"); admToast("@"+(r.bot||"")+" ✓"); ADM.ikStatus=null; reload() }catch(e){ admToast(e.message||"error","bad"); busy(this,false) } };
   if($("#ikAdminCode")) $("#ikAdminCode").onclick=async function(){ busy(this,true); try{ await intakeAdmin("admin_code"); reload() }catch(e){ admToast(e.message||"error","bad"); busy(this,false) } };
@@ -4514,7 +4530,7 @@ function adminOutreachBody(){
     if(OUT_STAGES.indexOf(f)>-1 && o.stage!==f) return false;
     if(q){ var hay=[o.name,o.phone,o.city,o.area,o.source,o.notes].join(" ").toLowerCase(); if(hay.indexOf(q)===-1) return false }
     return true });
-  var pipe='<div class="ikstats">'+OUT_STAGES.map(function(s){ return '<button type="button" class="ikstat'+(f===s?' on':'')+'" data-outf="'+s+'" style="cursor:pointer;border:0"><b class="ltr">'+counts[s]+'</b><span>'+outStageLabel(s)+'</span></button>' }).join("")+'</div>';
+  var pipe='<div class="astat ikstats">'+OUT_STAGES.map(function(s){ return '<button type="button" class="astat ikstat'+(f===s?' on':'')+'" data-outf="'+s+'" style="cursor:pointer;border:0"><b class="ltr">'+counts[s]+'</b><span>'+outStageLabel(s)+'</span></button>' }).join("")+'</div>';
   var tools='<div class="rtop" style="margin:10px 0"><input id="outQ" class="aq" placeholder="'+esc(GX("outSearchPH"))+'" value="'+esc(ADM.outQ||"")+'" data-allow-autofill style="max-width:260px">'+
     '<button type="button" class="ab'+(f==="open"?' ok':'')+'" data-outf="open">'+GX("outOpen")+'</button>'+
     '<button type="button" class="ab'+(f==="due"?' ok':'')+'" data-outf="due">⏰ '+GX("outDue")+(due?' <b class="ltr">'+due+'</b>':'')+'</button>'+

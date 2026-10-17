@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-GX2zeVGh6uWok4PIOsXnXbvVPhuWrSs09f+8Pxb8m0Q=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-JXO8mCCif29muvBG/cInjQzu3tohG1zf9OGE6f0AASg=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -2377,7 +2377,7 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .pchip.muted{opacity:.6}
 .adm .blk .in>.fl{max-width:560px}
 .adm .blk .in>.fl:has(input[type=range]),.adm .blk .in>.fl:has(.dual),.adm .blk .in>.fl:has(textarea){max-width:none}
-@media(max-width:640px){.dual{grid-template-columns:1fr}.adperf-h{display:none}.adperf-r,.adperf.full .adperf-r{grid-template-columns:1fr 1fr;row-gap:6px}.adperf-id{grid-column:1/-1}}
+@media(max-width:640px){.dual{grid-template-columns:1fr}.adperf-h{display:none}.adperf-r,.adperf.full .adperf-r{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:8px}.adperf-id,.adperf-from{grid-column:1/-1}.adperf .num{display:flex;flex-direction:column;gap:1px;align-items:flex-start}[dir=rtl] .adperf .num{align-items:flex-end}.adperf .num::before{content:attr(data-l);font-size:11px;font-weight:500;color:var(--grey)}}
 .home-hero .sk-wrap{position:absolute;inset:0;transform:translate(var(--sk-x,0px),var(--sk-y,0px)) scale(var(--sk-scale,1));transform-origin:50% 50%}
 .home-hero .hero h1{position:relative;inset-inline-start:var(--h1-x,0px);top:var(--h1-y,0px)}
 .home-hero .sbar{position:relative;top:var(--sbar-y,0px);max-width:var(--sbar-w,1220px)!important}
@@ -3695,7 +3695,7 @@ html.adm-dark .adm,html.adm-dark .admdm-ov{--a-page:#0E1320;--a-side:#121826;--a
   --p-ink:#E6E9F0;--p-ink2:#A3ACBD;--p-line:#283146;--p-line2:#283146;--p-hover:#1C2334;--p-sel:#1D2740;--p-dark:#C4881F;--p-darker:#0A0F1A;
   --card:#171D2B;--navy-2:#0A0F1A;--ok:#5FD39A;--ok-w:#12301F;--warn:#F2C062;--danger:#FF8A80;
   --p-succ-bg:#12301F;--p-succ:#7EE2A8;--p-warn-bg:#3A2A0E;--p-warn:#F5C672;--p-crit-bg:#3A1714;--p-crit:#FF9B8F;--p-info-bg:#0F2A3D;--p-info:#8CC8F2;--p-neu-bg:#262E40;--p-neu:#C9D0DC}
-.aoverdue{background:#FFF7E6}
+.aoverdue{background:#FFF7E6}.adm .aloaderr{background:#FDECEA;color:#8A1F17;border:1px solid #F5C2BC;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:13.5px}.adm .amorebtn{display:flex;justify-content:center;padding:14px 0 4px}.adm .amorebtn .ab{min-width:220px;justify-content:center}
 /* toolbar fields: the frame (.lq search, .lfc filter) carries the border; the field inside is bare and fills it */
 .adm .lq input,.adm .lfc select{border:0!important;background:transparent!important;box-shadow:none!important;height:100%!important;min-height:0!important;padding:0 6px!important;color:inherit}
 .adm .lfc select{padding-inline-end:22px!important}
@@ -3704,15 +3704,87 @@ html.adm-dark .adm,html.adm-dark .admdm-ov{--a-page:#0E1320;--a-side:#121826;--a
 @media(max-width:900px){
   .adm .lfilters{flex-wrap:nowrap;overflow-x:auto;margin-inline:-14px;padding:0 14px 4px;scrollbar-width:none}.adm .lfilters::-webkit-scrollbar{display:none}.adm .lfilters>*{flex:none}
   .adm .ltbl{overflow:visible}.adm .ltbl table,.adm .ltbl tbody{display:block;width:100%}.adm .ltbl thead,.adm .ltbl colgroup{display:none}
-  .adm .ltbl tr.lrow{display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:6px 10px;padding:12px;border-bottom:1px solid var(--p-line2);align-items:center}
-  .adm .ltbl tr.lrow>td{display:block;padding:0!important;border:0!important;background:none!important;min-width:0}
-  .adm .ltbl tr.lrow>td.lchk{grid-row:1/4;align-self:start;padding-top:4px!important}
-  .adm .ltbl tr.lrow>td:nth-child(2){grid-column:2/4}
-  .adm .ltbl tr.lrow>td:nth-child(3){grid-column:2}.adm .ltbl tr.lrow>td:nth-child(4){grid-column:3;text-align:end;font-weight:700}
-  .adm .ltbl tr.lrow>td:nth-child(5){grid-column:2;font-size:12px;color:var(--p-ink2)}.adm .ltbl tr.lrow>td:nth-child(6){grid-column:3;text-align:end;font-size:12px;color:var(--p-ink2)}
-  .adm .ltbl tr.lrow.open,.adm .ltbl tr.lrow.sel{background:var(--p-sel)}
+  .adm .ltbl tr.lrow:has(>td.lchk){display:grid;grid-template-columns:30px minmax(0,1fr) auto;gap:6px 10px;padding:12px;border-bottom:1px solid var(--p-line2);align-items:center}
+  .adm .ltbl tr.lrow:has(>td.lchk)>td{display:block;padding:0!important;border:0!important;background:none!important;min-width:0}
+  .adm .ltbl tr.lrow:has(>td.lchk)>td.lchk{grid-row:1/4;align-self:start;padding-top:4px!important}
+  .adm .ltbl tr.lrow:has(>td.lchk)>td:nth-child(2){grid-column:2/4}
+  .adm .ltbl tr.lrow:has(>td.lchk)>td:nth-child(3){grid-column:2}.adm .ltbl tr.lrow:has(>td.lchk)>td:nth-child(4){grid-column:3;text-align:end;font-weight:700}
+  .adm .ltbl tr.lrow:has(>td.lchk)>td:nth-child(5){grid-column:2;font-size:12px;color:var(--p-ink2)}.adm .ltbl tr.lrow:has(>td.lchk)>td:nth-child(6){grid-column:3;text-align:end;font-size:12px;color:var(--p-ink2)}
+  .adm .ltbl tr.lrow:has(>td.lchk).open,.adm .ltbl tr.lrow:has(>td.lchk).sel{background:var(--p-sel)}
+  /* every other list table on a phone: one card per row, the first cell on top, the rest as labelled pairs */
+  .adm .ltbl tr.lrow:not(:has(>td.lchk)){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;padding:14px;border-bottom:1px solid var(--p-line2)}
+  .adm .ltbl tr.lrow:not(:has(>td.lchk))>td{display:block;padding:0!important;border:0!important;background:none!important;min-width:0;width:auto!important;max-width:none!important;overflow-wrap:anywhere}
+  .adm .ltbl tr.lrow:not(:has(>td.lchk))>td:first-child{grid-column:1/-1}
+  .adm .ltbl tr.lrow:not(:has(>td.lchk))>td:not(:first-child)[data-th]::before{content:attr(data-th);display:block;font-size:11px;font-weight:600;color:var(--p-ink2);margin-bottom:2px}
   .adm .ltbl .lt img{width:64px;height:52px;border-radius:9px;object-fit:cover}
-}.aused{color:#fff;background:#2E7D5B}html.adm-dark .adm .aused{color:#08220F;background:#5FD39A}html.adm-dark .adm .kpi-v{filter:brightness(1.55) saturate(.9)}.adm .ikstats button.ikstat{background:var(--card);color:inherit}.adm .ikstats button.ikstat.on{background:#14213D;color:#fff}html.adm-dark .adm .ikstats button.ikstat.on{background:#C4881F;color:#1A1206}html.adm-dark .adm tr.aoverdue{background:#2E2513}
+}
+/* phones, found by the layout audit (2026-10-16): nothing wider than the screen, nothing sitting on anything else */
+@media(max-width:700px){
+  .adm .atable:has(table.acards){max-height:none;overflow:visible}
+  .adm .atable table.acards tr{width:auto}
+  .adm .atable table.acards td{min-width:0!important;width:auto!important;max-width:none!important;overflow-wrap:anywhere}
+  .adm .atable table.acards td>*{min-width:0}
+  .adm .atable table.acards td:first-child{display:block;padding-top:12px}
+  .adm .atable table.acards td:first-child::before{content:none}
+  .adm .usub{line-height:1.7}.adm .usub .ujoin{display:block}.adm .usub .ltr,.adm .atable td small.ltr{white-space:nowrap}
+  .adm .iklog-r{grid-template-columns:auto minmax(0,1fr) auto;gap:2px 10px;padding:8px 14px}
+  .adm .iklog-r>*{min-width:0}
+  .adm .iklog-r>span:last-child{grid-column:1/-1;overflow-wrap:anywhere;word-break:break-all;font-size:11.5px}
+  .adm .arange{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px}
+  .adm .arange button{white-space:nowrap;padding:0 4px;font-size:13px;min-width:0}
+  .adm .arange .rl{display:none}
+  /* period rows without short labels (bookings) scroll sideways instead of squeezing their words on top of each other */
+  .adm .arange:not(:has(.rs)){display:flex;overflow-x:auto;scrollbar-width:none}.adm .arange:not(:has(.rs))::-webkit-scrollbar{display:none}
+  .adm .arange:not(:has(.rs)) button{flex:none;padding:0 12px}
+  /* counter cards: two to a line, number over its label */
+  .adm .ikstats,.adm .astats{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .adm .ikstats>.astat{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:start;padding:10px 12px}
+  /* list rows (requests, campaigns, rewards…): the title takes the whole width, details sit in two even columns,
+     and the buttons fill each line edge to edge so no row ends ragged */
+  .adm .erow,.adm .erow.wrow{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px 12px;padding:14px}
+  .adm .erow>:first-child,.adm .erow>.eacts{grid-column:1/-1!important}
+  .adm .erow .pjtitle b,.adm .erow .pjtitle small{white-space:normal;overflow:visible;text-overflow:clip}
+  .adm .erow .eacts{display:flex;flex-wrap:wrap;gap:6px;padding-top:4px}
+  .adm .erow .eacts>.ab{flex:1 1 auto;justify-content:center;margin:0}
+  .adm .ld-acts{flex-wrap:wrap;gap:6px}.adm .ld-acts>.ab{flex:1 1 auto;justify-content:center;margin:0}
+  /* search + filter bars: search on its own line, filters two to a line at equal widths, count and main button last */
+  .adm .rtop:has(>input:not([type=checkbox])){display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:center}
+  .adm .rtop:has(>input:not([type=checkbox]))>*{width:100%!important;min-width:0;margin:0!important}
+  .adm .rtop:has(>input:not([type=checkbox]))>input:not([type=checkbox]){grid-column:1/-1}
+  .adm .rtop:has(>input:not([type=checkbox]))>.n{text-align:start;width:auto!important}
+  .adm .rtop:has(>input:not([type=checkbox]))>.ab{justify-content:center}
+  /* scrolling strips fade at their far edge, so a half-shown tab reads as "more this way", not as a broken button */
+  .adm .asubtabs{-webkit-mask-image:linear-gradient(to left,transparent 0,#000 28px);mask-image:linear-gradient(to left,transparent 0,#000 28px)}
+  .adm .asubtabs{padding-inline-end:34px}
+  [dir=ltr] .adm .asubtabs{-webkit-mask-image:linear-gradient(to right,transparent 0,#000 28px);mask-image:linear-gradient(to right,transparent 0,#000 28px)}
+}
+/* link-buttons written with an inline "inline-block" lose the button's centring; a long label then spills out of its box */
+.adm a.ab[style*="inline-block"]{display:inline-flex!important;align-items:center;justify-content:center;white-space:normal;text-align:center;line-height:1.35;height:auto!important;min-height:34px;padding-block:7px}
+/* admin cards on narrow screens: the person (photo, name, number) takes the whole first line */
+@media(max-width:900px){.adm .tmcard>*{min-width:0}.adm .tmcard>.tmid{grid-column:1/-1}}
+/* pop-ups: the main button looks like the panel's main button; a checkbox sits right beside its words */
+.admdm .ab.ok{background:var(--p-dark,#14213D);border-color:var(--p-dark,#14213D);color:#fff}
+html.adm-dark .admdm .ab.ok{color:#1A1206}
+.adm .xcheck input,.admdm .xcheck input{width:17px!important;height:17px!important;min-height:0!important;flex:none}
+@media(max-width:900px){.admdm .xactions{display:flex;flex-direction:column;align-items:stretch;gap:8px}.admdm .xactions>.ab{justify-content:center;min-height:46px}}
+/* a table stretched to its card's edges pulls the card's bottom padding in; when something follows it, it keeps a normal gap */
+.adm .blk .in>.atable:not(:last-child){margin-bottom:14px!important}
+/* a search frame outside the listings bar (maps page…) gets the same frame: icon and field on one line */
+.adm label.lq{display:flex;align-items:center;gap:8px;border:1px solid var(--line-2);border-radius:10px;background:#fff;padding:0 12px;height:38px}
+.adm label.lq svg{width:16px;height:16px;color:var(--grey);flex:none}
+.adm label.lq input{border:0;background:none;font:inherit;width:100%;outline:none}
+/* Latin names are typed left to right, so a long word is clipped at its end, not its start */
+.adm .geotable input[data-pt^="en:"],.adm .geotable input[data-pt^="de:"],.adm .geotable input[data-pt^="fr:"]{direction:ltr;text-align:left}
+/* property types on a phone: each type starts on its own line under its code, like a card */
+@media(max-width:800px){.adm .geotable:has([data-pt])>:nth-child(10n+1):not(b){grid-column:1/-1;border-top:1px solid var(--line);padding-top:12px;margin-top:6px;font-weight:700}}
+/* campaign/reward rows: seven columns only when there is room for all of them; below that two columns, actions wrap */
+.adm .erow>*{min-width:0}
+@media(max-width:1400px){.adm .erow:not(.wrow){grid-template-columns:minmax(0,1fr) minmax(0,1fr);padding:12px 14px}.adm .erow:not(.wrow) .eacts{justify-content:flex-start;flex-wrap:wrap;white-space:normal}.adm .erow .estats{white-space:normal}}
+/* a channel name stays on the same line as its status pill; pairs wrap as whole pieces */
+.adm .agc-ch{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}.adm .agc-chp{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.adm .arange .rs{display:none}
+@media(max-width:700px){.adm .arange .rs{display:inline}}
+.aused{color:#fff;background:#2E7D5B}html.adm-dark .adm .aused{color:#08220F;background:#5FD39A}html.adm-dark .adm .kpi-v{filter:brightness(1.55) saturate(.9)}.adm .ikstats button.ikstat{background:var(--card);color:inherit}.adm .ikstats button.ikstat.on{background:#14213D;color:#fff}html.adm-dark .adm .ikstats button.ikstat.on{background:#C4881F;color:#1A1206}html.adm-dark .adm tr.aoverdue{background:#2E2513}
 html.adm-dark .adm .adm-q,html.adm-dark .adm .adm-top .ab,html.adm-dark .adm .adm-lang{background:#161D2E;border-color:#232C42;color:#E6E9F0}
 html.adm-dark .adm .asidebar a.atop.on{background:#C4881F;color:#1A1206}
 html.adm-dark .adm .asidebar a.atop.on .aicon{color:#1A1206}
@@ -3721,6 +3793,10 @@ html.adm-dark .adm .abot{background:#121826}
 html.adm-dark .adm .abot .on{color:#E2B55C}
 html.adm-dark .adm .aseg button.on,html.adm-dark .adm .asubtabs button.on{background:#C4881F;border-color:#C4881F;color:#1A1206}
 html.adm-dark .adm img,html.adm-dark .adm video{filter:brightness(.92)}
+/* pop-ups sit outside the panel frame: give them the night text colour, and plain fields a dark face with light text */
+html.adm-dark .admdm-ov{color:#E6E9F0}
+html.adm-dark .admdm-ov .fl select,html.adm-dark .admdm-ov .fl input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]),html.adm-dark .admdm-ov .fl textarea{background-color:#121826;color:#E6E9F0;border:1px solid #323C54}
+html.adm-dark .admdm-ov .fl select option{background:#121826;color:#E6E9F0}
 /* the frame keeps its own night colours whatever the generated rules map (higher specificity on purpose) */
 html.adm-dark div.adm,html.adm-dark .adm div.ashell,html.adm-dark .adm main.acontent{background:#0E1320}
 html.adm-dark .adm header.adm-top{background:#0A0F1A;border-bottom:1px solid #1C2334}
@@ -4430,6 +4506,9 @@ html.adm-dark .adm .amore-list{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .aseg{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .aseg button.on{background:var(--gold);color:#1A1206}
 }html.adm-dark .adm .aoverdue,html.adm-dark .admdm-ov .aoverdue{background:hsla(41,39%,17%,1)}
+html.adm-dark .adm .aloaderr{background:hsla(6,39%,17%,1);color:hsla(4,71%,72%,1);border:1px solid hsla(222,20%,25%,1)}
+html.adm-dark .adm .admdm .ab.ok,html.adm-dark .admdm-ov .admdm .ab.ok{background:var(--p-dark,var(--gold));border-color:var(--p-dark,var(--gold));color:#1A1206}
+html.adm-dark .adm label.lq{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .ikstats button.ikstat.on{background:var(--gold);color:#1A1206}
 /* ADM-DARK:END */
 </style><script>
@@ -12501,7 +12580,7 @@ var GX_T={
   adsH:{ar:"إعلانات مميزة",en:"Featured adverts",de:"Anzeigen"},
   // admin panel 2026-09: navigation, page descriptions, new settings
   aNavSearch:{ar:"ابحث: رقم إعلان أو طلب، اسم، هاتف، أو صفحة…",en:"Search the panel… (e.g. promote)",de:"Im Panel suchen…"}, aNavNone:{ar:"لا نتائج. جرّب كلمة أخرى.",en:"No results. Try another word.",de:"Keine Treffer."},
-  navListings:{ar:"الإعلانات",en:"Listings",de:"Anzeigen"}, navAllListings:{ar:"كل الإعلانات",en:"All listings",de:"Alle Anzeigen"}, navBotDrafts:{ar:"مسوّدات البوت",en:"Bot drafts",de:"Bot-Entwürfe"}, navMsgs:{ar:"الرسائل",en:"Messages",de:"Nachrichten"}, navAnalytics:{ar:"التحليلات",en:"Analytics",de:"Analysen"}, navSettings:{ar:"الإعدادات",en:"Settings",de:"Einstellungen"}, navGeneral:{ar:"عام",en:"General",de:"Allgemein"}, navMore:{ar:"المزيد",en:"More",de:"Mehr"}, navMenu:{ar:"القائمة",en:"Menu",de:"Menü"}, navRequestsShort:{ar:"الطلبات",en:"Requests",de:"Gesuche"}, themeL:{ar:"الوضع الليلي",en:"Night mode",de:"Nachtmodus"}, themeLight:{ar:"نهاري",en:"Day",de:"Tag"}, themeDark:{ar:"ليلي",en:"Night",de:"Nacht"}, themeAuto:{ar:"حسب الجهاز",en:"Match device",de:"Wie Gerät"}, navMarketing:{ar:"التسويق والإيرادات",en:"Marketing & revenue",de:"Marketing & Umsatz"},
+  navListings:{ar:"الإعلانات",en:"Listings",de:"Anzeigen"}, navAllListings:{ar:"كل الإعلانات",en:"All listings",de:"Alle Anzeigen"}, navBotDrafts:{ar:"مسوّدات البوت",en:"Bot drafts",de:"Bot-Entwürfe"}, navMsgs:{ar:"الرسائل",en:"Messages",de:"Nachrichten"}, navAnalytics:{ar:"التحليلات",en:"Analytics",de:"Analysen"}, navSettings:{ar:"الإعدادات",en:"Settings",de:"Einstellungen"}, navGeneral:{ar:"عام",en:"General",de:"Allgemein"}, admLoadErr:{ar:"تعذّر تحميل اللوحة الآن (بطء في قاعدة البيانات أو الاتصال). ستُعاد المحاولة تلقائياً خلال ثوانٍ.",en:"The panel could not load right now (slow database or connection). Retrying automatically in a few seconds.",de:"Das Panel konnte gerade nicht laden (Datenbank oder Verbindung langsam). Neuer Versuch in wenigen Sekunden."}, showMoreN:{ar:"عرض {n} أخرى (باقي {t})",en:"Show {n} more ({t} left)",de:"{n} weitere ({t} übrig)"}, navBot:{ar:"البوت (النشر بالرسائل)",en:"Bot (listing by message)",de:"Bot"}, desc_intake_cfg:{ar:"ربط البوت بواتساب وتيليغرام، تنبيهات الإدارة، الإعدادات ورسائل الترحيب، والسجل. المسوّدات نفسها في «الإعلانات ← مسوّدات البوت».",en:"Bot connection, admin alerts, settings and welcome messages, and the log. The drafts themselves are under Listings → Bot drafts.",de:"Bot-Verbindung, Hinweise, Einstellungen und Protokoll."}, navMore:{ar:"المزيد",en:"More",de:"Mehr"}, navMenu:{ar:"القائمة",en:"Menu",de:"Menü"}, navRequestsShort:{ar:"الطلبات",en:"Requests",de:"Gesuche"}, themeL:{ar:"الوضع الليلي",en:"Night mode",de:"Nachtmodus"}, themeLight:{ar:"نهاري",en:"Day",de:"Tag"}, themeDark:{ar:"ليلي",en:"Night",de:"Nacht"}, themeAuto:{ar:"حسب الجهاز",en:"Match device",de:"Wie Gerät"}, navMarketing:{ar:"التسويق والإيرادات",en:"Marketing & revenue",de:"Marketing & Umsatz"},
   navWebsite:{ar:"الموقع",en:"Website",de:"Website"}, navSystem:{ar:"النظام",en:"System",de:"System"},
   dlgDiscardQ:{ar:"إغلاق النافذة وفقدان ما كتبته؟",en:"Close and lose what you typed?",de:"Schließen und Eingaben verwerfen?"},
   agAreaSearch:{ar:"ابحث عن منطقة… (Enter يختار النتيجة الوحيدة)",en:"Search areas… (Enter picks a single match)",de:"Gebiet suchen… (Enter wählt den einzigen Treffer)"},
@@ -13071,7 +13150,7 @@ var GX_T={
   uAutoHint:{ar:"نشر تلقائي (مفعّل للجميع افتراضياً): إعلانات هذا العضو تُنشر بدون مراجعة. أطفئه للأعضاء أو المكاتب غير الموثوقين فتذهب إعلاناتهم إلى المراجعة.",en:"Auto-publish (on for everyone by default): this member's listings go live without review. Switch it off for untrusted members or agencies and their listings go to review.",de:"Auto-Veröffentlichung (standardmäßig für alle an): Anzeigen dieses Mitglieds gehen ohne Prüfung online. Für nicht vertrauenswürdige Mitglieder oder Büros ausschalten, dann gehen ihre Anzeigen in die Prüfung."},
   uCount:{ar:"عضو",en:"members",de:"Mitglieder"}, uNoPhone:{ar:"بدون رقم",en:"no number",de:"keine Nummer"},
   uSummary:{ar:"ملخص",en:"Summary",de:"Zusammenfassung"}, uModeration:{ar:"إشراف",en:"Moderation",de:"Moderation"}, uDanger:{ar:"حساب",en:"Account",de:"Konto"},
-  r1:{ar:"آخر 24 ساعة",en:"Last 24 hours",de:"Letzte 24 Stunden"}, r7:{ar:"آخر 7 أيام",en:"Last 7 days",de:"Letzte 7 Tage"}, r30:{ar:"آخر 30 يوماً",en:"Last 30 days",de:"Letzte 30 Tage"}, r90:{ar:"آخر 90 يوماً",en:"Last 90 days",de:"Letzte 90 Tage"}, r365:{ar:"آخر سنة",en:"Last year",de:"Letztes Jahr"},
+  r1:{ar:"آخر 24 ساعة",en:"Last 24 hours",de:"Letzte 24 Stunden"}, r7:{ar:"آخر 7 أيام",en:"Last 7 days",de:"Letzte 7 Tage"}, r30:{ar:"آخر 30 يوماً",en:"Last 30 days",de:"Letzte 30 Tage"}, r90:{ar:"آخر 90 يوماً",en:"Last 90 days",de:"Letzte 90 Tage"}, r365:{ar:"آخر سنة",en:"Last year",de:"Letztes Jahr"}, rs1:{ar:"24 ساعة",en:"24h",de:"24 Std."}, rs7:{ar:"7 أيام",en:"7d",de:"7 T."}, rs30:{ar:"30 يوماً",en:"30d",de:"30 T."}, rs90:{ar:"90 يوماً",en:"90d",de:"90 T."}, rs365:{ar:"سنة",en:"1y",de:"1 J."},
   vsPrev:{ar:"مقارنة بالفترة السابقة",en:"vs previous period",de:"ggü. Vorperiode"},
   kViews:{ar:"مشاهدات الصفحات",en:"Page views",de:"Seitenaufrufe"}, kVisitors:{ar:"الزوّار",en:"Visitors",de:"Besucher"}, kListingViews:{ar:"مشاهدات الإعلانات",en:"Listing views",de:"Anzeigenaufrufe"},
   kNewUsers:{ar:"أعضاء جدد",en:"New members",de:"Neue Mitglieder"}, kNewListings:{ar:"إعلانات جديدة",en:"New listings",de:"Neue Anzeigen"}, kContacts:{ar:"تواصل (اتصال/واتساب)",en:"Contacts (call/WhatsApp)",de:"Kontakte (Anruf/WhatsApp)"},
@@ -13247,7 +13326,7 @@ function fSecTexts(k,e,h,sub){ var a=[fText(hsT("f_eyebrow"),"x:"+k+"_eyebrow",e
 /* the contact fields must re-render the footer, the text fields in every studio are already marked; contact fields are columns without a language */
 /* ── Ad squares page: performance, the row, the square design with a live preview ── */
 /* ── analytics helpers: range tabs, KPI cards with deltas, SVG line chart, bar lists ── */
-function rangeTabs(){ var cur=ADM.range||7; return '<div class="arange">'+[1,7,30,90,365].map(function(d){ return '<button type="button" class="'+(cur===d?"on":"")+'" data-arange="'+d+'">'+GX("r"+d)+'</button>' }).join("")+'</div>' }
+function rangeTabs(){ var cur=ADM.range||7; return '<div class="arange">'+[1,7,30,90,365].map(function(d){ return '<button type="button" class="'+(cur===d?"on":"")+'" data-arange="'+d+'"><span class="rl">'+GX("r"+d)+'</span><span class="rs">'+GX("rs"+d)+'</span></button>' }).join("")+'</div>' }
 function fmtN(v){ v=+v||0; return v>=1000000?(Math.round(v/100000)/10)+"M":v>=10000?Math.round(v/1000)+"K":v.toLocaleString("en") }
 function bucketLabel(b){ var d=new Date(b); if(ADM.an && ADM.an.bucket==="hour") return d.getHours().toString().padStart(2,"0")+":00"; return d.getDate()+"/"+(d.getMonth()+1) }
 function svgSpark(series,key,color){
@@ -13294,7 +13373,7 @@ function adsPerfTable(an,full){
       var name=a.label||a.sponsor_name||a.listing_ref||GX("adSlotN").replace("{n}",a.position||a.id);
       var thumb=a.image_url?'<img src="'+esc(a.image_url)+'" alt="">':'<i>'+(a.media_type==="video"?GX("adVideoOnly"):(a.listing_ref?"BK":"—"))+'</i>';
       return '<div class="adperf-r"><span class="adperf-id"><span class="adperf-th">'+thumb+'</span><span class="adperf-n"><b>'+esc(name)+'</b>'+(a.sponsor_name&&a.label?'<small>'+esc(a.sponsor_name)+'</small>':'')+(a.enabled===false?'<small class="off">off</small>':'')+'</span></span>'+
-        '<span class="ltr num">'+a.views+'</span><span class="ltr num"><b>'+a.clicks+'</b></span><span class="ltr num">'+ctr+'%</span>'+
+        '<span class="ltr num" data-l="'+esc(GX("colImpr"))+'">'+a.views+'</span><span class="ltr num" data-l="'+esc(GX("colClicks"))+'"><b>'+a.clicks+'</b></span><span class="ltr num" data-l="'+esc(GX("colCtr"))+'">'+ctr+'%</span>'+
         (full?'<span class="adperf-from">'+chips(a.click_pages)+chips(a.click_countries)+'</span>':'')+'</div>' }).join("")+'</div>' }
 /* ═══ the engagement ledger ═══ */
 function engKindLabel(k){ return k==="featured"?GX("engKindF"):k==="ad"?GX("engKindA"):GX("engKindB") }
