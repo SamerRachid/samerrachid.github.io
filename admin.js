@@ -1,5 +1,16 @@
 /* the page and this script are published together; a tab that kept an older page in memory would show raw label keys — reload it once */
 if(typeof GX_T!=="undefined" && !GX_T.tmHowPair){ try{ if(!sessionStorage.getItem("bk_adm_reload")){ sessionStorage.setItem("bk_adm_reload","1"); location.reload() } }catch(e){} }
+// a refresh keeps the open page and where it was scrolled to, for this browser tab (owner, 2026-10-17: «refresh takes me to
+// the main page»). sessionStorage: survives a reload, not shared with other tabs. A page the admin may not open falls back
+// to the first allowed one in adminLoad.
+(function(){ try{ var st=sessionStorage.getItem("bk_adm_tab"); if(st && /^[a-z_]{2,30}$/.test(st)) ADM.tab=st }catch(e){} })();
+function admRestoreScroll(){ if(ADM._yDone) return; ADM._yDone=true; var v="", p; try{ v=sessionStorage.getItem("bk_adm_y")||"" }catch(e){} p=v.split("|");
+  if(p[0]!==ADM.tab || !(+p[1]>0)) return; var y=+p[1];
+  // pages fill in as their data arrives, so try a few times — but never after the admin has started moving the page
+  [250,900,2000].forEach(function(t){ setTimeout(function(){ if(ADM._userMoved || ADM.tab!==p[0]) return; if(document.documentElement.scrollHeight>=y+innerHeight*0.5 && Math.abs(window.scrollY-y)>40) window.scrollTo(0,y) },t) }) }
+(function(){ if(window._admYWired) return; window._admYWired=true; var tm=null;
+  ["wheel","touchstart","keydown","mousedown"].forEach(function(ev){ window.addEventListener(ev,function(){ ADM._userMoved=true },{passive:true,once:true}) });
+  window.addEventListener("scroll",function(){ if(typeof VIEW==="undefined"||VIEW!=="admin"||!ADM.data) return; clearTimeout(tm); tm=setTimeout(function(){ try{ sessionStorage.setItem("bk_adm_y",ADM.tab+"|"+Math.round(window.scrollY)) }catch(e){} },250) },{passive:true}) })();
 var ADM_FOLDS=(function(){ try{ return JSON.parse(localStorage.getItem("bk_adm_folds")||"{}")||{} }catch(e){ return {} } })();   // which sidebar groups the admin folded, per browser
 /* Balkoun admin panel + homepage studio. Loaded on demand by ensureAdminJs() in index.html. Same global scope as the shell. */
 async function storageCall(body){
@@ -277,6 +288,7 @@ function adminView(){
   '</div></div></div>';
 
   if(!HS_TABS[ADM.tab]) ADM._lastTab=ADM.tab;   // «خروج» from the site editor returns here
+  try{ sessionStorage.setItem("bk_adm_tab",ADM.tab) }catch(e){}
   var d=ADM.data||{stats:{},listings:[],users:[],reports:[],feedback:[],reviews:[]};
  var refFor=function(listingId){
    var match=(d.listings||[]).filter(function(l){return String(l.id)===String(listingId)})[0];
@@ -1061,6 +1073,7 @@ async function adminLoad(){
     if(/unauthori[sz]ed|not admin|forbidden/i.test(em)){ ADM.token=null; ADM.msg=em; ADM.loadErr=""; try{localStorage.removeItem("balkoun_adm")}catch(x){} }
     else { ADM.loadErr=em; clearTimeout(ADM._loadRetry); ADM._loadRetry=setTimeout(function(){ if(ADM.token&&ADM.loadErr) adminLoad() },5000) } }
   render();
+  if(ADM.data) admRestoreScroll();
 }
 function GSX(k,d){ var g=(ADM.data&&ADM.data.gx)||{}; var v=g[k]; return (v===undefined||v===null||v==="") ? d : v }
 // free-feature reward: settings (global), balances in the current country scope, recent activity, grant / revoke
