@@ -3559,6 +3559,8 @@ body.mdw-open .mobfab{display:none}
 .home-hero .sbar.aiglow.gl-pulse::before,.home-hero .sbar.aiglow.gl-pulse::after,.home-hero .aisearch.gl-pulse .aisearch-pill::before,.home-hero .aisearch.gl-pulse .aisearch-pill::after{background:linear-gradient(90deg,#E3B563,#FFF8E6 50%,#E3B563);animation:glPulse var(--gdur) ease-in-out infinite}
 .home-hero .sbar.aiglow.gl-still::before,.home-hero .sbar.aiglow.gl-still::after,.home-hero .aisearch.gl-still .aisearch-pill::before,.home-hero .aisearch.gl-still .aisearch-pill::after{background:linear-gradient(90deg,#E3B563,#FFF8E6 50%,#E3B563);animation:none}
 .home-hero .aisearch.thinking[class*="gl-"] .aisearch-pill::before,.home-hero .aisearch.thinking[class*="gl-"] .aisearch-pill::after{animation-duration:1.4s}
+/* the AI bar's glow switch really turns the shine off (it used to shine either way); while the AI is thinking the shine still runs as the busy sign */
+.home-hero .aisearch:not(.aiglow):not(.thinking) .aisearch-pill::before,.home-hero .aisearch:not(.aiglow):not(.thinking) .aisearch-pill::after{content:none}
 @keyframes glOrbit{0%{background-position:left -120px top -120px,right -120px bottom -120px}47%{background-position:right -120px top -120px,left -120px bottom -120px}50%{background-position:right -120px bottom -120px,left -120px top -120px}97%{background-position:left -120px bottom -120px,right -120px top -120px}100%{background-position:left -120px top -120px,right -120px bottom -120px}}
 @keyframes glFlash{0%,100%{opacity:0}40%{opacity:min(1,var(--gk))}}
 @keyframes glPulse{0%,100%{opacity:calc(.18*min(1,var(--gk)))}50%{opacity:min(1,var(--gk))}}
