@@ -4048,6 +4048,8 @@ html.adm-dark body .adm .hs-menu{background:#171D2B}
 
 /* tables: in Arabic a number or date sits under its own header (start edge), not at the far end of the column (2026-10-17) */
 [dir=rtl] .adm .atable td.ltr,[dir=rtl] .adm .ltbl td.ltr{text-align:right}
+[dir=rtl] .adm .adperf-r>.num{text-align:right}
+.adm .acontent.acols>.blk:has(.adperf){grid-column:1/-1}
 /* the section strip sticks right under the top bar (it sat 6px lower, so the page showed through the slit) and is solid */
 .adm .asecnav{top:56px!important;background:var(--a-page)!important}
 @media(max-width:900px){.adm .asecnav{top:52px!important}}
