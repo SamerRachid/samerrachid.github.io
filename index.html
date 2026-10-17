@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-MCbTKNDIMx6KQLHijVcCr/PNs39/nZGGIma0sl0t3yE=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-9MmVkcemrXwnN0jGMGkWDcBjyAM9zFqwBNMKV93sWGc=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -3871,7 +3871,8 @@ html:has(.hs){overflow:hidden}
 .adm .hs-save:disabled{opacity:.5;cursor:default}
 .adm .hs-save .hs-s{display:none}
 @media(max-width:900px){.adm .hs-save .hs-l{display:none}.adm .hs-save .hs-s{display:inline}}
-.adm .hs-msg{font-size:12px;color:#F2D39A;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* notices (published, draft restored…) show as a short-lived message under the bar, never squeezed into it */
+.adm .hs-msg{position:absolute;top:64px;inset-inline-end:16px;z-index:12;max-width:440px;font-size:13px;line-height:1.6;color:#F2D39A;background:#1B2333;border-radius:10px;padding:9px 14px;box-shadow:0 10px 30px rgba(0,0,0,.28);white-space:normal}
 .adm .hs-msg:empty{display:none}
 /* body: the side column and the page */
 .adm .hs-body{flex:1;display:flex;min-height:0}
@@ -3911,7 +3912,7 @@ html.adm-dark .adm .hs .hs-pv{background:#0B1020;background-image:radial-gradien
 html.adm-dark .adm .hs-side .hs-item.on{background:#2B2414;box-shadow:inset 0 0 0 1px #6B5222;color:#F2D39A}
 html.adm-dark .adm .hs-side .hs-item.dragging{background:#1C2334}
 /* laptops: the less-used actions fold into «⋯» */
-@media(max-width:1250px){
+@media(max-width:1440px){
   .adm .hs-morebtn{display:inline-flex}
   .adm .hs-more{display:none;position:absolute;top:52px;inset-inline-end:8px;flex-direction:column;align-items:stretch;gap:2px;min-width:230px;padding:6px;background:#fff;border-radius:12px;box-shadow:0 12px 40px rgba(20,33,61,.25),0 0 0 1px rgba(20,33,61,.06);z-index:10}
   .adm .hs-more.open{display:flex}
@@ -4007,7 +4008,7 @@ html.adm-dark .adm .hs-addsec:hover{background:#172036}
 .adm .hs-menu button:focus-visible{box-shadow:none!important}
 .adm .hs-pvwrap2 iframe{transform-origin:top left}
 [dir=rtl] .adm .hs-pvwrap2 iframe{transform-origin:top right}
-@media(max-width:1250px){.adm .hs-gal{inset-inline-start:310px;width:min(480px,calc(100% - 330px))}}
+@media(max-width:1440px){.adm .hs-gal{inset-inline-start:310px;width:min(480px,calc(100% - 330px))}}
 @media(max-width:900px){
   .adm .hs-tools .hs-seg button[data-dev="both"]{display:none}
   .adm .hs-gal{position:fixed;inset:auto 0 0 0;top:auto;width:auto;height:86vh;z-index:9;border:0;border-radius:18px 18px 0 0;box-shadow:0 -14px 40px rgba(9,14,26,.3)}
@@ -4018,6 +4019,20 @@ html.adm-dark .adm .hs-addsec:hover{background:#172036}
 html.adm-dark body .adm .hs-tile{background:#171D2B}
 html.adm-dark body .adm .hs-tile-ic{background:#2B2414;color:#F2D39A}
 html.adm-dark body .adm .hs-menu{background:#171D2B}
+
+
+/* site editor, phase 3: version history */
+.adm .hs-vlist{display:flex;flex-direction:column;padding:8px 10px 20px}
+.adm .hs-ver{display:flex;align-items:center;gap:12px;padding:10px 8px;border-radius:10px;position:relative}
+.adm .hs-ver:hover{background:var(--a-hover)}
+.adm .hs-ver>i{width:10px;height:10px;border-radius:50%;background:#C9CDD5;flex:none;align-self:flex-start;margin-top:6px;box-shadow:0 0 0 3px var(--a-side)}
+.adm .hs-ver.live>i{background:#2E7D5B}
+.adm .hs-ver.now>i{background:var(--gold)}
+.adm .hs-ver>div{flex:1;min-width:0}
+.adm .hs-ver b{display:block;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.adm .hs-ver small{display:block;font-size:11.5px;color:var(--a-ink2);margin-top:1px}
+.adm .hs-ver .ab{flex:none;height:32px;min-height:32px;padding:0 12px;font-size:12.5px}
+.adm .hs-top .hs-state.fail{color:#FFB4A9}
 
 /* ADM-DARK:START (generated by scripts/gen-admin-dark.mjs — do not edit by hand) */
 html.adm-dark .adm .logo,html.adm-dark .admdm-ov .logo{border:1px dashed hsla(222,20%,25%,0.35)}
@@ -4725,7 +4740,7 @@ html.adm-dark .adm .hs-save{color:hsla(36,63%,78%,1)}
 html.adm-dark .adm .hs-side .hs-item.on{background:hsla(39,39%,17%,1);color:#C9D6F2}
 html.adm-dark .adm .hs-side .hs-item.dragging{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs .hs-pv{background:hsla(44,13%,17%,1)}
-@media(max-width:1250px){html.adm-dark .adm .hs-more{background:hsla(222,27%,13%,1)}
+@media(max-width:1440px){html.adm-dark .adm .hs-more{background:hsla(222,27%,13%,1)}
 }@media(max-width:900px){html.adm-dark .adm .hs-sheetbtn{background:var(--gold);color:#1A1206}
 html.adm-dark .adm .hs-tools .hs-seg{background:hsla(45,16%,17%,1)}
 html.adm-dark .adm .hs-tools .hs-seg button.on{background:var(--gold);color:#1A1206}
@@ -4735,6 +4750,7 @@ html.adm-dark .adm .hs-addsec:hover{background:hsla(219,39%,17%,1);border-color:
 html.adm-dark .adm .hs-menu{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
+html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
 </style><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
@@ -7302,7 +7318,7 @@ var ADM={token:null, data:null, tab:"dashboard", msg:"", editId:null, editRow:nu
   storageUsage:null, _storageUsageLoaded:false,
   dangerUnlocked:false, restoreUnlocked:false, restoreFileInfo:"", restoreData:null};
 function can(p){ return p==="dashboard" || ADM.isSuper || ADM.perms.indexOf(p)>-1 }
-function admDirty(){ return typeof HS!=="undefined" && !!HS && !!HS.draft && (Object.keys(HS.draft.site||{}).length>0 || Object.keys(HS.draft.extras||{}).length>0) }   // unsaved studio edits
+function admDirty(){ if(typeof HS==="undefined" || !HS) return false; var ds=HS._draftState; return ds==="pending" || ds==="saving" || ds==="fail" || Object.keys(HS.adDraft||{}).length>0 || !!HS.adNew }   // editor edits that exist only in this tab (the draft itself is kept on the server)
 function storageUsageCardBody(){
   if(!ADM.storageUsage) return '<div class="adashempty">'+t("loading")+'</div>';
   var mb = ADM.storageUsage.bytes/1048576;

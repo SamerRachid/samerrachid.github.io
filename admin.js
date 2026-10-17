@@ -2354,8 +2354,23 @@ var HS_PAGES={home:{url:"/",sel:"hero_text"},ads:{url:"/",sel:"row"},banners:{ur
 function hsPvUrl(){ var u=HS_PAGES[HS.page].url; return u+(u.indexOf("?")>-1?"&":"?")+"preview=1&country="+COUNTRY+"&lang="+hsLang() }
 var HS_T={
  desk:{ar:"كمبيوتر",en:"Desktop",de:"Desktop"}, phone:{ar:"جوال",en:"Phone",de:"Handy"},
- saveAll:{ar:"حفظ التغييرات",en:"Save changes",de:"Änderungen speichern"}, discard:{ar:"تراجع",en:"Discard",de:"Verwerfen"},
- dirty:{ar:"تغييرات غير محفوظة — تظهر في المعاينة فقط",en:"Unsaved changes — preview only",de:"Ungespeicherte Änderungen – nur Vorschau"}, clean:{ar:"كل شيء محفوظ",en:"Everything saved",de:"Alles gespeichert"},
+ saveAll:{ar:"نشر",en:"Publish",de:"Veröffentlichen"}, discard:{ar:"تجاهل المسودة",en:"Discard the draft",de:"Entwurf verwerfen"},
+ dirty:{ar:"تغييرات غير منشورة",en:"Unpublished changes",de:"Unveröffentlichte Änderungen"}, clean:{ar:"كل شيء منشور",en:"Everything is live",de:"Alles veröffentlicht"},
+ dSaving:{ar:"جارٍ حفظ المسودة…",en:"Saving the draft…",de:"Entwurf wird gespeichert…"}, dSaved:{ar:"غير منشورة · محفوظة كمسودة",en:"Unpublished · saved as a draft",de:"Unveröffentlicht · als Entwurf gespeichert"},
+ dFail:{ar:"تعذّر حفظ المسودة — ستُعاد المحاولة",en:"Could not save the draft — retrying",de:"Entwurf nicht gespeichert — neuer Versuch"},
+ dAds:{ar:"تعديلات المربعات تُحفظ عند «نشر» فقط",en:"Ad-square edits are kept only when you publish",de:"Kachel-Änderungen erst beim Veröffentlichen"},
+ dRestored:{ar:"استعدنا مسودتك غير المنشورة · {t}",en:"Your unpublished draft is back · {t}",de:"Ihr Entwurf ist zurück · {t}"},
+ published:{ar:"نُشر على الموقع ✓",en:"Published ✓",de:"Veröffentlicht ✓"},
+ exitAds:{ar:"تعديلات المربعات الإعلانية غير المنشورة ستُفقد عند الخروج (باقي المسودة محفوظة). خروج؟",en:"Unpublished ad-square edits will be lost (the rest of the draft is kept). Leave?",de:"Unveröffentlichte Kachel-Änderungen gehen verloren (der Rest bleibt). Schließen?"},
+ hist:{ar:"سجل النسخ",en:"Version history",de:"Versionsverlauf"}, histNow:{ar:"المسودة الحالية",en:"The current draft",de:"Aktueller Entwurf"}, histNowSub:{ar:"لم تُنشر بعد",en:"not published yet",de:"noch nicht veröffentlicht"},
+ histLive:{ar:"على الموقع الآن",en:"Live now",de:"Jetzt live"}, histOrig:{ar:"الحالة قبل أول نشر من المحرر",en:"Before the first publish from the editor",de:"Vor der ersten Veröffentlichung"},
+ histPub:{ar:"نشر",en:"Publish",de:"Veröffentlichung"}, histLoad:{ar:"استرجاع",en:"Restore",de:"Wiederherstellen"},
+ histLoadQ:{ar:"تُحمَّل هذه النسخة كمسودة لتراجعها في المعاينة، ثم تنشرها بزر «نشر». تُستبدل تغييراتك غير المنشورة الحالية. متابعة؟",en:"This version is loaded as a draft to review in the preview, then publish. Your current unpublished changes are replaced. Continue?",de:"Diese Version wird als Entwurf geladen; aktuelle Änderungen werden ersetzt. Weiter?"},
+ histLoaded:{ar:"حُمّلت النسخة كمسودة — راجعها ثم اضغط «نشر».",en:"Loaded as a draft — review it, then press Publish.",de:"Als Entwurf geladen — prüfen, dann veröffentlichen."},
+ histSame:{ar:"هذه النسخة مطابقة لما على الموقع الآن.",en:"This version matches what is live now.",de:"Diese Version entspricht dem Live-Stand."},
+ histEmpty:{ar:"لا توجد نسخ بعد. أول «نشر» يحفظ الحالة السابقة والنسخة الجديدة.",en:"No versions yet. The first publish keeps the previous state and the new one.",de:"Noch keine Versionen."},
+ histHint:{ar:"كل «نشر» يحفظ نسخة. الاسترجاع يشمل إعدادات المحرر فقط (الصفحات والأقسام والنصوص)، ولا يغيّر سعر الصرف أو الإعدادات العامة أو المربعات الإعلانية.",en:"Every publish keeps a version. Restoring covers only the editor's settings (pages, sections, texts) — never the exchange rate, general settings or the ad squares.",de:"Jede Veröffentlichung wird gespeichert. Wiederherstellen betrifft nur die Editor-Einstellungen."},
+ lblOrder:{ar:"ترتيب الأقسام",en:"section order",de:"Reihenfolge"}, lblMore:{ar:"و{n} أخرى",en:"and {n} more",de:"und {n} weitere"}, lblRestore:{ar:"استرجاع نسخة {t}",en:"Restored the version of {t}",de:"Version von {t} wiederhergestellt"},
  openSite:{ar:"فتح الموقع",en:"Open site",de:"Seite öffnen"}, reload:{ar:"تحديث المعاينة",en:"Reload preview",de:"Vorschau neu laden"},
  sections:{ar:"أقسام الصفحة",en:"Page sections",de:"Seitenabschnitte"},
  exit:{ar:"خروج",en:"Exit",de:"Schließen"}, both:{ar:"الاثنان",en:"Both",de:"Beide"}, editFor:{ar:"تعدّل قيم",en:"Editing values for",de:"Werte für"},
@@ -2477,7 +2492,46 @@ var HS_ICO_GRIP='<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="tr
 var HS_ICO_EYEOFF='<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.2 4.2M9.9 5.2A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4M6.6 6.6C3.8 8.6 2 12 2 12s3.5 6 10 6c1.4 0 2.6-.3 3.7-.7"/></svg>';
 function hsParts(key){ return {col:key.indexOf("c:")===0,name:key.slice(2)} }
 function hsBase(key){ var p=hsParts(key); if(p.col){ var v=SITE[p.name]; return v==null?"":v } return SX(p.name,"") }
-function hsSet(key,val){ var p=hsParts(key); (p.col?HS.draft.site:HS.draft.extras)[p.name]=val; hsDirtyUI() }
+function hsSet(key,val){ var p=hsParts(key); (p.col?HS.draft.site:HS.draft.extras)[p.name]=val; hsDraftQueue(); hsDirtyUI() }
+// draft sync (2026-10-17): «pending» → «saving» → «saved»; «fail» retries. Ad-square drafts stay local until «نشر».
+function hsAdDirty(){ return Object.keys(HS.adDraft||{}).length>0 || !!HS.adNew }
+function hsDraftEmpty(){ return !Object.keys(HS.draft.site).length && !Object.keys(HS.draft.extras).length }
+function hsDraftQueue(){ if(!HS._draftCC) return; HS._draftState="pending"; clearTimeout(HS._draftT); HS._draftT=setTimeout(hsDraftFlush,1200) }
+function hsDraftFlush(){ clearTimeout(HS._draftT); if(HS._draftState!=="pending" && HS._draftState!=="fail") return HS._draftP||Promise.resolve();
+  var cc=HS._draftCC; if(!cc||!ADM.token) return Promise.resolve(); HS._draftState="saving"; hsDirtyUI();
+  var p=rpc("bk_admin_draft_put",{p_token:ADM.token,p_country:cc,p_draft:{site:HS.draft.site,extras:HS.draft.extras}}).then(function(){ if(HS._draftState==="saving") HS._draftState=hsDraftEmpty()?"clean":"saved" })
+    .catch(function(){ if(HS._draftState==="saving"){ HS._draftState="fail"; clearTimeout(HS._draftT); HS._draftT=setTimeout(hsDraftFlush,6000) } })
+    .then(function(){ if(HS._draftP===p) HS._draftP=null; hsDirtyUI() });
+  HS._draftP=p; return p }
+// a short name for a publish, from the sections its keys belong to
+function hsPublishLabel(patch){ var names=[], add=function(n){ if(n && names.indexOf(n)<0) names.push(n) }, keys=Object.keys(patch).filter(function(k){ return k!=="extras" }).concat(Object.keys(patch.extras||{}).map(function(k){ return "x:"+k }));
+  keys.forEach(function(k){ var n=k.replace(/^x:/,"");
+    if(n==="home_order") return add(hsT("lblOrder"));
+    var m=n.match(/^home_([a-z]+)_on$/); if(m) return add(hsT(m[1]));
+    if(/^(hero|h1_|brand_flip)/.test(n)) return add(hsT(/^hero_bg|^hero_max/.test(n)?"hero_bg":"hero_text"));
+    if(/^(sbar_|ai_bar)/.test(n)) return add(hsT("hero_search")); if(/^stats/.test(n)) return add(hsT("hero_stats")); if(/^sk_/.test(n)) return add(hsT("hero_bg"));
+    if(/^banner/.test(n)) return add(hsT("banners")); if(/^(ad_|ads_)/.test(n)) return add(hsT("ads"));
+    if(/^(fb|ig|yt|tiktok)_/.test(n)) return add(hsT("social")); if(/^(wa_number|phone_number|email_address)$/.test(n)) return add(hsT("numbers"));
+    var sec=n.match(/^([a-z]+)_/); if(sec && HS_T[sec[1]]) return add(hsT(sec[1])); add(hsT("page")) });
+  var lbl=names.slice(0,3).join("، ")+(names.length>3?" "+hsT("lblMore").replace("{n}",names.length-3):""); return HS._restoreLbl?HS._restoreLbl+(lbl?" · "+lbl:""):lbl }
+// the keys the editor itself writes (collected from its own fields), so restoring a version never touches settings
+// that live elsewhere (exchange rate, general settings, legal pages…)
+function hsEditorKeys(){ if(HS._edKeys) return HS._edKeys; var keys={}, save={page:HS.page,sel:HS.sel,device:HS.device,lang:HS.lang};
+  ["home","design","contact","banners"].forEach(function(pg){ HS.page=pg; var sels=[]; String(hsOutlineHtml()).replace(/data-hssel="([^"]+)"/g,function(_,k){ if(sels.indexOf(k)<0) sels.push(k) });
+    sels.forEach(function(sl){ HS.sel=sl; ["desk","phone"].forEach(function(dv){ HS.device=dv; ["ar","en","de"].forEach(function(lg){ HS.lang=lg; try{ String(hsInspectorHtml()).replace(/data-hsk="([^"]+)"/g,function(_,k){ keys[k]=1 }) }catch(e){} }) }) }) });
+  HS.page=save.page; HS.sel=save.sel; HS.device=save.device; HS.lang=save.lang;
+  ["x:home_order","c:banners_config","x:hero_bg_prev","x:hero_bg_prev_m","x:ads_row_enabled"].forEach(function(k){ keys[k]=1 });
+  HOME_SECS.forEach(function(k){ keys["x:home_"+k+"_on"]=1 });
+  ["ar","en","de"].forEach(function(lg){ Object.keys(HS_TEXTS).forEach(function(k){ HS_TEXTS[k].forEach(function(f){ keys["x:"+k+"_"+f[1]+"_"+lg]=1 }) }) });
+  return HS._edKeys=keys }
+// a stored version as a draft against what is live: only the editor's keys, only where they differ
+function hsDraftFromSnapshot(snap){ var keys=hsEditorKeys(), site={}, extras={}, liveEx=SITE.extras; if(typeof liveEx==="string"){ try{ liveEx=JSON.parse(liveEx) }catch(e){ liveEx={} } } liveEx=liveEx||{};
+  var snapEx=snap.extras||{}; if(typeof snapEx==="string"){ try{ snapEx=JSON.parse(snapEx) }catch(e){ snapEx={} } }
+  var same=function(a,b){ return JSON.stringify(a==null?null:a)===JSON.stringify(b==null?null:b) };
+  Object.keys(keys).forEach(function(k){ var p=hsParts(k);
+    if(p.col){ if(!(p.name in snap)) return; var a=snap[p.name], b=SITE[p.name]; if(same(a,b)) return; if(a==null){ if(typeof b==="string") site[p.name]=""; return } site[p.name]=a }
+    else { var x=snapEx[p.name], y=liveEx[p.name]; if(same(x,y)) return; extras[p.name]=(x==null?null:x) } });
+  return {site:site,extras:extras} }
 function hsDirty(){ return Object.keys(HS.draft.site).length+Object.keys(HS.draft.extras).length+Object.keys(HS.adDraft).length>0 || !!HS.adNew }
 function hsAdBase(id){ return (ADM.adSlots||[]).filter(function(a){ return String(a.id)===String(id) })[0] }
 function hsAdRow(id){ if(id==="new") return HS.adNew; var b=hsAdBase(id); return b ? Object.assign({},b,HS.adDraft[id]||{}) : null }
@@ -2492,8 +2546,8 @@ function hsAdPayload(a){
   else if(mode==="video_embed"){ if(!a.video_embed_url || !videoEmbedInfo(a.video_embed_url)) throw new Error(t("adInvalidVideoUrl")); p.p_video_embed_url=a.video_embed_url; p.p_link_url=a.link_url||null }
   else { p.p_image_url=a.image_url||null; p.p_image_urls=a.image_urls||[]; p.p_link_url=a.link_url||null; p.p_media_type=a.media_type||"image" }
   return p }
-function hsBDraft(){ if(!HS.bDraft){ HS.bDraft=JSON.parse(JSON.stringify(bannersConfig())); HS.bBefore=JSON.parse(JSON.stringify(HS.bDraft)) } return HS.bDraft }
-function hsBSet(i,field,val){ var cfg=hsBDraft()[i]; if(val===null||val===undefined) delete cfg[field]; else cfg[field]=val; HS.draft.site.banners_config=JSON.stringify(HS.bDraft); hsDirtyUI() }
+function hsBDraft(){ if(!HS.bDraft){ var live=JSON.parse(JSON.stringify(bannersConfig())), src=HS.draft.site.banners_config, d=null; if(src){ try{ d=typeof src==="string"?JSON.parse(src):src }catch(e){ d=null } } HS.bDraft=Array.isArray(d)?d:JSON.parse(JSON.stringify(live)); HS.bBefore=live } return HS.bDraft }
+function hsBSet(i,field,val){ var cfg=hsBDraft()[i]; if(val===null||val===undefined) delete cfg[field]; else cfg[field]=val; HS.draft.site.banners_config=JSON.stringify(HS.bDraft); hsDraftQueue(); hsDirtyUI() }
 function hsMerged(){ var ex=SITE.extras; if(typeof ex==="string"){ try{ ex=JSON.parse(ex) }catch(e){ ex={} } } ex=Object.assign({},ex||{},HS.draft.extras); Object.keys(ex).forEach(function(k){ if(ex[k]===null||ex[k]===""||ex[k]===undefined) delete ex[k] }); var site={}; Object.keys(SITE).forEach(function(k){ if(k!=="extras") site[k]=SITE[k] }); Object.assign(site,HS.draft.site); return {site:site,extras:ex} }
 function hsOrder(ex){ var o=ex.home_order; if(typeof o==="string"){ try{ o=JSON.parse(o) }catch(e){ o=null } } var r=Array.isArray(o)?o.filter(function(k){ return HOME_SECS.indexOf(k)>-1 }):[]; HOME_SECS.forEach(function(k,i){ if(r.indexOf(k)<0){ if(!i){ r.unshift(k); return } var p=r.indexOf(HOME_SECS[i-1]); r.splice(p<0?r.length:p+1,0,k) } }); return r }
 function hsPush(rerender,delay){ clearTimeout(_hsPushT); _hsPushT=setTimeout(function(){ if(!hsFrames().length) return; var m=hsMerged(); var msg={type:"bk-preview",site:m.site,extras:m.extras,lang:hsLang(),rerender:!!rerender};
@@ -2737,6 +2791,7 @@ function hsOutlineHome(){
 function hsStudioHtml(page){
   HS.page=page||"home"; if(!HS.lang) HS.lang=L; HS.sel=HS.selBy[HS.page]||HS_PAGES[HS.page].sel;
   if(!HS.view) HS.view="list";
+  if(HS._draftCC!==COUNTRY){ HS.draft={site:{},extras:{}}; HS.adDraft={}; HS.adNew=null; HS.bDraft=null; HS.bBefore=null; HS._draftCC=COUNTRY; HS._draftLoaded=false; HS._draftState=null; HS._restoreLbl=null }
   if(!HS._devPicked && window.matchMedia && matchMedia("(max-width:900px)").matches) HS.device="phone";   // a phone edits the phone page first
   var pages=Object.keys(HS_TABS).filter(canTab), tabOf=function(k){ return {mainpage:t("mainPageTab"),design:GX("tDesign"),contact:GX("tContact"),ads:t("adsTab"),banners:GX("tBanners")}[k] };
   var CS=(ADM.countries&&ADM.countries.length>1)?admCountries():[];
@@ -2756,6 +2811,7 @@ function hsStudioHtml(page){
     '<button type="button" class="hs-tb hs-morebtn" id="hsMoreBtn" aria-label="'+hsT("more")+'" aria-expanded="false">'+(AICO.more||"⋯")+'</button>'+
     '<div class="hs-more" id="hsMore">'+
      (CS.length?'<label class="hs-tb hs-country" title="'+hsT("country")+'">'+flagSvg(COUNTRY)+'<select id="hsCountry" aria-label="'+hsT("country")+'">'+CS.map(function(c){ return '<option value="'+c.code+'"'+(c.code===COUNTRY?' selected':'')+'>'+esc(countryName(c))+(c.enabled?'':' · '+GX("cOffShort"))+'</option>' }).join("")+'</select></label>':'')+
+     '<button type="button" class="hs-tb" id="hsHist" title="'+hsT("hist")+'"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>'+hsT("hist")+'</span></button>'+
      '<button type="button" class="hs-tb" id="hsReload" title="'+hsT("reload")+'">'+AICO.refresh+'<span>'+hsT("reload")+'</span></button>'+
      '<a class="hs-tb" href="/" target="_blank" rel="noopener" title="'+hsT("openSite")+'">'+AICO.eye+'<span>'+hsT("openSite")+'</span></a>'+
      '<button type="button" class="hs-tb" id="hsDiscard" title="'+hsT("discard")+'">'+HS_ICO_UNDO+'<span>'+hsT("discard")+'</span></button>'+
@@ -2772,13 +2828,13 @@ function hsStudioHtml(page){
     '<main class="hs-pv '+hsPvClass()+'" id="hsPv"><div class="hs-pvwrap" id="hsPvWrap"><iframe id="hsFrame" src="'+hsPvUrl()+'" title="preview"></iframe></div>'+
      '<div class="hs-pvwrap hs-pvwrap2" id="hsPvWrap2"><iframe id="hsFrame2"'+(HS.layout==="both"?' src="'+hsPvUrl()+'"':'')+' title="preview phone"></iframe></div>'+
      '<div class="hs-pvnote">'+hsT("previewNote")+' '+hsT("pvHintEdit")+'</div></main>'+
-    '<section class="hs-gal" id="hsGal" hidden></section>'+
+    '<section class="hs-gal" id="hsGal" hidden></section><section class="hs-gal hs-hist" id="hsHistP" hidden></section>'+
    '</div><div class="hs-menu" id="hsMenu" role="menu" hidden></div></div>';
 }
 // list ⇄ settings in the side column (on a phone the column is a sheet over the page)
 function hsMob(){ return !!(window.matchMedia&&matchMedia("(max-width:900px)").matches) }
 function hsView(v,noSheet){ HS.view=v; var r=$("#hsRoot"); if(!r) return; r.classList.toggle("hs-v-list",v==="list"); r.classList.toggle("hs-v-item",v==="item"); if(v==="item"&&!noSheet) r.classList.add("hs-sheet"); var sc=v==="item"?$("#hsInsp"):$("#hsOutline"); if(sc&&sc.parentElement) try{ (v==="item"?sc:$("#hsSide")).scrollTop=0 }catch(e){} }
-function hsSaveLbl(){ return '<span class="hs-l">'+hsT("saveAll")+'</span><span class="hs-s">'+t("save")+'</span>' }   // the phone shows the short word
+function hsSaveLbl(){ return '<span class="hs-l">'+hsT("saveAll")+'</span><span class="hs-s">'+hsT("saveAll")+'</span>' }   // the phone shows the short word
 function hsBoth(){ return HS.layout==="both" && !(window.matchMedia&&matchMedia("(max-width:900px)").matches) }
 function hsPvClass(){ return hsBoth()?"both":HS.device }
 function hsSheet(open){ var r=$("#hsRoot"); if(r) r.classList.toggle("hs-sheet",!!open) }
@@ -2789,7 +2845,11 @@ function hsFit(){ var pv=$("#hsPv"), w=$("#hsPvWrap"), f=$("#hsFrame"); if(!pv||
     w2.style.width=pw+"px"; w2.style.height=H+"px"; f2.style.width="390px"; f2.style.height=Math.round(H/ps)+"px"; f2.style.transform="scale("+ps+")"; return }
   if(HS.device==="phone"){ var pw=mob?W:Math.min(390,W-20); w.style.width=pw+"px"; w.style.height=H+"px"; f.style.width=pw+"px"; f.style.height=H+"px"; f.style.transform="none" }
   else { var sc=Math.min(1,W/1280); w.style.width=Math.round(1280*sc)+"px"; w.style.height=H+"px"; f.style.width="1280px"; f.style.height=Math.round(H/sc)+"px"; f.style.transform="scale("+sc+")" } }
-function hsDirtyUI(){ var st=$("#hsState"), sv=$("#hsSave"), d=hsDirty(); if(st){ st.classList.toggle("dirty",d); st.querySelector("span").textContent=hsT(d?"dirty":"clean") } if(sv) sv.disabled=!d; window.onbeforeunload = d ? function(){ return true } : null }
+function hsDirtyUI(){ var st=$("#hsState"), sv=$("#hsSave"), d=hsDirty(), ds=HS._draftState, ads=hsAdDirty();
+  var tx=!d?hsT("clean"):(ds==="pending"||ds==="saving")?hsT("dSaving"):ds==="fail"?hsT("dFail"):ads&&hsDraftEmpty()?hsT("dirty")+" · "+hsT("dAds"):hsT("dSaved");
+  if(st){ st.classList.toggle("dirty",d); st.classList.toggle("fail",ds==="fail"); st.querySelector("span").textContent=tx; st.title=tx } if(sv) sv.disabled=!d;
+  // leaving the page only needs a warning while something exists nowhere but in this tab
+  window.onbeforeunload = (ads || ds==="pending" || ds==="saving" || ds==="fail") ? function(){ return true } : null }
 function hsRenderInsp(){ var el=$("#hsInsp"); if(el) el.innerHTML=hsInspectorHtml() }
 function hsRenderOutline(){ var el=$("#hsOutline"); if(el) el.innerHTML=hsOutlineHtml() }
 async function hsUpload(file,folder){ if(!DB) throw new Error("no client"); var isVideo=/^video\//.test(file.type);
@@ -2819,7 +2879,7 @@ function hsMenuAct(k,act){ var keys=hsMovable(), i=keys.indexOf(k); hsMenuClose(
   if(act==="bottom" && i>=0 && i<keys.length-1) return hsMoveSection(k,null);
   if(act==="reset" && HS_TEXTS[k]){ if(!confirm(hsT("m_resetQ"))) return; HS_TEXTS[k].forEach(function(f){ hsSet("x:"+k+"_"+f[1]+"_"+hsLang(),null) }); hsPush(true); hsRenderInsp() } }
 // «إضافة قسم»: the page's ready-made sections that are hidden now; picking one shows it at the chosen place
-function hsGalOpen(kbd){ var g=$("#hsGal"); if(!g) return; hsMenuClose();
+function hsGalOpen(kbd){ var g=$("#hsGal"); if(!g) return; hsMenuClose(); hsHistClose();
   var keys=hsMovable(), shown=keys.filter(hsSecOn), hidden=keys.filter(function(k){ return !hsSecOn(k) }), ICO=hsSecIcons();
   var def=(shown.indexOf(HS.sel)>-1)?HS.sel:(shown[shown.length-1]||"");
   var nm=function(k){ var it=$('#hsOutline [data-hssel="'+k+'"] .hs-name'); return it?(it.childNodes[0]?it.childNodes[0].textContent:it.textContent).trim():hsT(k) };
@@ -2833,6 +2893,25 @@ function hsGalAdd(k){ var after=($("#hsGalAfter")||{}).value||"", keys=hsMovable
   if(!after) before=keys[0]||null; else { var i=keys.indexOf(after); before=i<0?null:(keys[i+1]||null) }
   hsSet(HS_EYE[k]||("x:home_"+k+"_on"),true); hsGalClose(); hsMoveSection(k,before);
   HS.sel=k; HS.selBy[HS.page]=k; hsRenderOutline(); hsRenderInsp(); hsView("item"); setTimeout(hsScrollTo,450) }
+// version history: the current draft, then every publish (newest first); «استرجاع» loads one back as a draft
+function hsHistClose(){ var p=$("#hsHistP"); if(p) p.hidden=true }
+function hsHistOpen(){ var p=$("#hsHistP"); if(!p) return; hsGalClose(); hsMenuClose(); if(!p.hidden){ hsHistClose(); return }
+  var head='<div class="hs-gal-h"><b>'+hsT("hist")+'</b><button type="button" class="hs-gal-x" data-hshx aria-label="'+hsT("close")+'">×</button></div><div class="hintx hs-gal-hint">'+hsT("histHint")+'</div>';
+  p.innerHTML=head+'<div class="hs-vlist"><div class="hintx" style="padding:16px">'+t("loading")+'</div></div>'; p.hidden=false;
+  rpc("bk_admin_versions",{p_token:ADM.token,p_country:COUNTRY}).then(function(list){ list=list||[]; if(p.hidden) return;
+    var full=function(iso){ try{ return new Date(iso).toLocaleString(L==="ar"?"ar":L,{dateStyle:"medium",timeStyle:"short"}) }catch(e){ return iso } };
+    var rows=(hsDirty()?'<div class="hs-ver now"><i></i><div><b>'+hsT("histNow")+'</b><small>'+hsT("histNowSub")+'</small></div></div>':'')+
+      list.map(function(v,i){ var live=i===0&&v.kind==="publish", title=v.kind==="original"?hsT("histOrig"):(v.label||hsT("histPub"));
+        return '<div class="hs-ver'+(live?' live':'')+'"><i></i><div><b>'+esc(title)+'</b><small title="'+esc(full(v.created_at))+'">'+esc(full(v.created_at))+(v.who?' · '+esc(v.who):'')+(live?' · '+hsT("histLive"):'')+'</small></div>'+
+          (live?'':'<button type="button" class="ab" data-hsver="'+v.id+'">'+hsT("histLoad")+'</button>')+'</div>' }).join("");
+    p.querySelector(".hs-vlist").innerHTML=rows||'<div class="hintx" style="padding:16px">'+hsT("histEmpty")+'</div>' }).catch(function(e){ var l=p.querySelector(".hs-vlist"); if(l) l.innerHTML='<div class="hintx" style="padding:16px;color:var(--danger)">'+esc(e.message||"error")+'</div>' }) }
+function hsHistLoad(id, btn){ if(hsDirty() && !confirm(hsT("histLoadQ"))) return; if(btn) btn.disabled=true;
+  rpc("bk_admin_version_get",{p_token:ADM.token,p_id:id}).then(function(v){ var d=hsDraftFromSnapshot((v&&v.snapshot)||{}), m=$("#hsMsg");
+    if(!Object.keys(d.site).length && !Object.keys(d.extras).length){ if(m) m.textContent=hsT("histSame"); if(btn) btn.disabled=false; return }
+    HS.draft=d; HS.adDraft={}; HS.adNew=null; HS.bDraft=null; HS.bBefore=null;
+    var t0=""; try{ t0=new Date(v.created_at).toLocaleDateString(L==="ar"?"ar":L,{dateStyle:"medium"}) }catch(e){} HS._restoreLbl=hsT("lblRestore").replace("{t}",t0);
+    hsDraftQueue(); hsRenderOutline(); hsRenderInsp(); hsPush(true); hsDirtyUI(); hsHistClose(); if(m) m.textContent=hsT("histLoaded") })
+  .catch(function(e){ alert(e.message||"error"); if(btn) btn.disabled=false }) }
 // put section k before section beforeKey (null = after the last movable one) in the home order, as a draft
 function hsMoveSection(k, beforeKey){
   var ord=hsOrder(hsMerged().extras), i=ord.indexOf(k); if(i<0) return; ord.splice(i,1);
@@ -2873,13 +2952,23 @@ function hsWire(){
   frame.addEventListener("load",function(){ hsPush(true,800) });
   var frame2=$("#hsFrame2"); if(frame2) frame2.addEventListener("load",function(){ if(frame2.getAttribute("src")) hsPush(true,800) });
   hsFit(); if(HS._onResize) window.removeEventListener("resize",HS._onResize); HS._onResize=hsFit; window.addEventListener("resize",hsFit);
-  var hsDropDrafts=function(){ HS.draft={site:{},extras:{}}; HS.adDraft={}; HS.adNew=null; HS.bDraft=null; HS.bBefore=null; HS.adPendingDel={}; HS.bPendingDel=[]; window.onbeforeunload=null };
+  var hsDropDrafts=function(){ HS.draft={site:{},extras:{}}; HS.adDraft={}; HS.adNew=null; HS.bDraft=null; HS.bBefore=null; HS.adPendingDel={}; HS.bPendingDel=[]; HS._restoreLbl=null; HS._draftState="pending"; hsDraftFlush() };
+  // the country's draft from the server, once per opening: it comes back after a reload or on another device
+  if(!HS._draftLoaded){ HS._draftLoaded=true; var ccL=COUNTRY;
+    rpc("bk_admin_draft_get",{p_token:ADM.token,p_country:ccL}).then(function(r){ if(ccL!==COUNTRY || !r || !r.draft) return; var sd=r.draft.site||{}, xd=r.draft.extras||{};
+      if(!Object.keys(sd).length && !Object.keys(xd).length) return; if(!hsDraftEmpty()) return;   // edits made meanwhile win
+      HS.draft={site:sd,extras:xd}; HS.bDraft=null; HS._draftState="saved"; hsRenderOutline(); hsRenderInsp(); hsPush(true); hsDirtyUI();
+      var m=$("#hsMsg"); if(m) m.textContent=hsT("dRestored").replace("{t}",(r.who?r.who+" · ":"")+when(r.updated_at)) }).catch(function(){}) }
   // «خروج»: back to the page the admin came from; unsaved edits are confirmed away first
-  $("#hsExit").onclick=function(){ if(hsDirty() && !confirm(hsT("exitDirty"))) return; hsDropDrafts(); HS.view="list"; var back=ADM._lastTab&&!HS_TABS[ADM._lastTab]&&canTab(ADM._lastTab)?ADM._lastTab:"dashboard"; admGo(back) };
+  // «خروج» keeps the draft (it is on the server); only ad-square edits, which are not drafted, are confirmed away
+  $("#hsExit").onclick=async function(){ if(hsAdDirty() && !confirm(hsT("exitAds"))) return; HS.adDraft={}; HS.adNew=null; HS.adPendingDel={};
+    try{ await hsDraftFlush() }catch(e){} HS.view="list"; window.onbeforeunload=null; var back=ADM._lastTab&&!HS_TABS[ADM._lastTab]&&canTab(ADM._lastTab)?ADM._lastTab:"dashboard"; ADM.tab=back; render(); try{ window.scrollTo(0,0) }catch(e){} };
   // the page picker moves between the editor's pages; drafts are shared by all of them, so nothing is lost
   $("#hsPage").onchange=function(){ var k=this.value; if(!HS_TABS[k]||!canTab(k)) return; HS.view="list"; ADM.tab=k; render() };
-  if($("#hsCountry")) $("#hsCountry").onchange=function(){ var c=this.value; if(hsDirty() && !confirm(hsT("exitDirty"))){ this.value=COUNTRY; return } hsDropDrafts(); admPickCountry(c, ADM.tab) };
+  if($("#hsCountry")) $("#hsCountry").onchange=async function(){ var c=this.value; if(hsAdDirty() && !confirm(hsT("exitAds"))){ this.value=COUNTRY; return } HS.adDraft={}; HS.adNew=null; try{ await hsDraftFlush() }catch(e){} admPickCountry(c, ADM.tab) };
   // «⋯» holds the less-used actions (country, reload, open site, discard); on wide screens they sit in the bar
+  // a notice clears itself after a few seconds
+  var msgEl=$("#hsMsg"); if(msgEl && window.MutationObserver){ new MutationObserver(function(){ clearTimeout(HS._msgT); if(msgEl.textContent) HS._msgT=setTimeout(function(){ msgEl.textContent="" },7000) }).observe(msgEl,{childList:true,characterData:true,subtree:true}) }
   var more=$("#hsMore"), moreBtn=$("#hsMoreBtn");
   var setMore=function(open){ if(!more) return; more.classList.toggle("open",open); if(moreBtn) moreBtn.setAttribute("aria-expanded",open?"true":"false") };
   if(moreBtn) moreBtn.onclick=function(e){ e.stopPropagation(); setMore(!more.classList.contains("open")) };
@@ -2888,24 +2977,26 @@ function hsWire(){
   HS._onDocClick=function(e){ if(more && more.classList.contains("open") && !e.target.closest("#hsMore,#hsMoreBtn")) setMore(false); var mn=$("#hsMenu"); if(mn && !mn.hidden && !e.target.closest("#hsMenu,[data-hsmenu]")) hsMenuClose() }; document.addEventListener("click",HS._onDocClick);
   // phone: the side column is a sheet over the page
   $("#hsSheetBtn").onclick=function(){ hsView("list"); hsSheet(true) };
+  $("#hsHist").onclick=function(){ hsHistOpen() };
+  $("#hsHistP").onclick=function(e){ if(e.target.closest("[data-hshx]")){ hsHistClose(); return } var b=e.target.closest("[data-hsver]"); if(b) hsHistLoad(+b.dataset.hsver, b) };
   $("#hsMenu").onkeydown=function(e){ if(e.key!=="ArrowDown"&&e.key!=="ArrowUp") return; e.preventDefault(); var b=[].slice.call(this.querySelectorAll("button:not([disabled])")), i=b.indexOf(document.activeElement); var n=b[(i+(e.key==="ArrowDown"?1:-1)+b.length)%b.length]; if(n) n.focus() };
   $("#hsMenu").onclick=function(e){ var a=e.target.closest("[data-hsm]"); if(!a||a.disabled) return; hsMenuAct(this.dataset.k, a.dataset.hsm) };
   $("#hsGal").onclick=function(e){ if(e.target.closest("[data-hsgalx]")){ hsGalClose(); return } var tl=e.target.closest("[data-hsgal]"); if(tl) hsGalAdd(tl.dataset.hsgal) };
   $("#hsSheetX").onclick=function(){ hsSheet(false) };
   // keyboard: Esc steps back (menu → settings → list → closed sheet)
   if(HS._onKey) document.removeEventListener("keydown",HS._onKey);
-  HS._onKey=function(e){ if(e.key!=="Escape" || !$("#hsRoot")) return; if(more&&more.classList.contains("open")){ setMore(false); return } if(!$("#hsMenu").hidden){ hsMenuClose(); return } if(!$("#hsGal").hidden){ hsGalClose(); return } if(HS.view==="item"){ hsView("list"); return } hsSheet(false) };
+  HS._onKey=function(e){ if(e.key!=="Escape" || !$("#hsRoot")) return; if(more&&more.classList.contains("open")){ setMore(false); return } if(!$("#hsMenu").hidden){ hsMenuClose(); return } if(!$("#hsGal").hidden){ hsGalClose(); return } if(!$("#hsHistP").hidden){ hsHistClose(); return } if(HS.view==="item"){ hsView("list"); return } hsSheet(false) };
   document.addEventListener("keydown",HS._onKey);
   $("#hsDev").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; var dv=b.dataset.dev;
     if(dv==="both"){ HS.layout="both"; var f2=$("#hsFrame2"); if(f2 && !f2.getAttribute("src")) f2.src=hsPvUrl() } else { HS.layout="one"; HS.device=dv; HS._devPicked=true }
     $$("#hsDev button").forEach(function(x){ x.classList.toggle("on",x===b) }); hsFit(); hsRenderInsp() };
   $("#hsLang").onclick=function(e){ var b=e.target.closest("button"); if(!b) return; HS.lang=b.dataset.lang; $$("#hsLang button").forEach(function(x){ x.classList.toggle("on",x===b) }); hsPush(true); hsRenderInsp() };
   $("#hsReload").onclick=function(){ frame.src=hsPvUrl()+"&r="+Date.now(); var f2=$("#hsFrame2"); if(f2 && f2.getAttribute("src")) f2.src=hsPvUrl()+"&r="+Date.now() };
-  $("#hsDiscard").onclick=function(){ if(!confirm(GX("hsDiscardConfirm"))) return; HS.draft={site:{},extras:{}}; HS.adDraft={}; HS.adNew=null; HS.bDraft=null; HS.adPendingDel={}; HS.bPendingDel=[]; if(HS.sel==="ad:new") HS.sel="row"; hsPush(true); hsRenderInsp(); hsRenderOutline(); hsDirtyUI() };
+  $("#hsDiscard").onclick=function(){ if(!hsDirty() || !confirm(GX("hsDiscardConfirm"))) return; hsDropDrafts(); if(HS.sel==="ad:new") HS.sel="row"; hsPush(true); hsRenderInsp(); hsRenderOutline(); hsDirtyUI() };
   $("#hsSave").onclick=async function(){ var btn=this, msg=$("#hsMsg"); var patch=Object.assign({},HS.draft.site); var ex={}; Object.keys(HS.draft.extras).forEach(function(k){ var v=HS.draft.extras[k]; ex[k]=(v===""||v===undefined)?null:v }); if(Object.keys(ex).length) patch.extras=ex;
-    btn.disabled=true; btn.textContent=t("saving");
+    btn.disabled=true; btn.textContent=t("saving"); clearTimeout(HS._draftT); if(HS._draftP){ try{ await HS._draftP }catch(e){} }
     try{
-      if(Object.keys(patch).length){ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:patch,p_country:COUNTRY});
+      if(Object.keys(patch).length){ await rpc("bk_admin_publish",{p_token:ADM.token,p_country:COUNTRY,p_patch:patch,p_label:hsPublishLabel(patch)||null}); HS._draftState="clean"; HS._restoreLbl=null; HS._histCache=null;
         Object.keys(patch).forEach(function(k){ if(k==="extras"){ var cur=SITE.extras; if(typeof cur==="string"){ try{ cur=JSON.parse(cur) }catch(e){ cur={} } } cur=Object.assign({},cur||{},patch.extras); Object.keys(cur).forEach(function(kk){ if(cur[kk]===null) delete cur[kk] }); SITE.extras=cur } else SITE[k]=patch[k] });
         try{ localStorage.setItem(siteCacheKey(),JSON.stringify(SITE)) }catch(e){} }
       var adsChanged=false, codes=[], ids=Object.keys(HS.adDraft);
@@ -2918,7 +3009,7 @@ function hsWire(){
       if(adsChanged){ try{ ADM.adSlots=(await rpc("bk_admin_list_ads",{p_token:ADM.token,p_country:COUNTRY}))||[] }catch(e){} HS.adDraft={}; HS.adNew=null; HS.adPendingDel={}; if(HS.sel==="ad:new") HS.sel="row"; try{ await loadAdSlots() }catch(e){}
         hsPostAll({type:"bk-preview",reloadAds:true}) }
       HS.bPendingDel.forEach(function(u){ replaceStorageFile(u) }); HS.bPendingDel=[]; HS.bDraft=null; HS.bBefore=null; ADM._engDays=null;
-      HS.draft={site:{},extras:{}}; applySectionGapVars(); applySiteExtras(); applyBannerSizeVar(); if(msg) msg.textContent=t("savedOk")+(codes.length?' · '+GX("engCodeIs")+' '+codes.join(", "):''); hsRenderOutline(); hsRenderInsp(); if(!adsChanged) hsPush(true);
+      HS.draft={site:{},extras:{}}; applySectionGapVars(); applySiteExtras(); applyBannerSizeVar(); HS._draftState="clean"; if(msg) msg.textContent=hsT("published")+(codes.length?' · '+GX("engCodeIs")+' '+codes.join(", "):''); hsRenderOutline(); hsRenderInsp(); if(!adsChanged) hsPush(true);
     }catch(e){ if(msg) msg.textContent=pmErr(e) }
     btn.innerHTML=hsSaveLbl(); hsDirtyUI() };
   /* outline: select, eye, move */
