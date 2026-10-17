@@ -28,10 +28,19 @@ async function storageRestore(paths){
   catch(e){ return {data:null, error:e} } }
 var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",house:"users",outreach:"users",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",types:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super",campaigns:"campaigns",social:"featured",maps:"settings"};
 // sidebar groups: one entry in the sidebar, sub-tabs rendered as a segmented bar on the page (the tab bodies stay keyed by the real tab)
-var ADM_GROUPS={inbox:["reports","feedback","tickets","msgs"],promo:["ads","featured","banners","engage","social"],system:["settings","storage","admins","danger"]};
+// the panel's sections (redesign 2026-10-16, Shopify-style): a section opens its last-visited page; its pages show under it
+// in the sidebar (desktop) or as a row of tabs (phone). Page keys are unchanged, so every link into a page still works.
+var ADM_GROUPS={g_listings:["listings","intake","reports","photos"],g_people:["users","agencies_adm","reviews","house"],
+  g_msgs:["feedback","tickets","msgs","campaigns","outreach"],g_mkt:["featured","ads","banners","engage","social","projects_adm"],
+  g_site:["mainpage","design","contact"],g_settings:["settings","countries","geo","maps","types","admins","storage","danger"]};
+var ADM_GROUP_ALIAS={inbox:"g_msgs",promo:"g_mkt",system:"g_settings"};   // the old section keys (bell links, saved state)
 function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab)>-1) return g } return null }
-function admResolveTab(k){ if(!ADM_GROUPS[k]) return k; var last=(ADM._sub||{})[k]; if(last&&canTab(last)) return last; return ADM_GROUPS[k].filter(canTab)[0]||k }
-function canTab(k){ if(ADM_GROUPS[k]) return ADM_GROUPS[k].some(canTab); var p=TAB_PERM[k]; if(p===undefined) return can(k); if(p==="super") return !!ADM.isSuper; if(Array.isArray(p)) return p.some(can); return can(p) }
+// night mode (owner, 2026-10-16): "dark" / "light" / "" = follow the phone or computer
+function admTheme(){ try{ return localStorage.getItem("bk_adm_theme")||"" }catch(e){ return "" } }
+function admIsDark(){ var t0=admTheme(); if(t0) return t0==="dark"; try{ return !!(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches) }catch(e){ return false } }
+function admApplyTheme(){ try{ document.documentElement.classList.toggle("adm-dark", typeof VIEW!=="undefined" && VIEW==="admin" && admIsDark()) }catch(e){} }
+function admResolveTab(k){ if(ADM_GROUP_ALIAS[k]) k=ADM_GROUP_ALIAS[k]; if(!ADM_GROUPS[k]) return k; var last=(ADM._sub||{})[k]; if(last&&canTab(last)) return last; return ADM_GROUPS[k].filter(canTab)[0]||k }
+function canTab(k){ if(ADM_GROUP_ALIAS[k]) k=ADM_GROUP_ALIAS[k]; if(ADM_GROUPS[k]) return ADM_GROUPS[k].some(canTab); var p=TAB_PERM[k]; if(p===undefined) return can(k); if(p==="super") return !!ADM.isSuper; if(Array.isArray(p)) return p.some(can); return can(p) }
 // ── panel search: tabs + the features inside them (buttons, cards, settings) with the words people use for them ──
 function admNorm(s){ return String(s||"").toLowerCase().replace(/[\u064B-\u0652\u0670\u0640]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/\s+/g," ").trim() }
 var ADM_FEATURES=[
@@ -597,7 +606,7 @@ function adminView(){
             '</a>'+
             (it.label?'<span style="position:absolute;bottom:2px;inset-inline-start:4px;inset-inline-end:4px;font-size:10px;color:#fff;background:rgba(9,14,26,.65);border-radius:4px;padding:1px 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" class="ltr">'+esc(it.label)+(it.uploadedAt?' · '+dateFmt(it.uploadedAt):'')+'</span>':'')+
             (it.isUsed
-             ? '<span style="position:absolute;top:4px;inset-inline-start:4px;font-size:9px;font-weight:600;color:#fff;background:var(--ok);border-radius:4px;padding:1px 5px">'+t("adStorageInUse")+'</span>'
+             ? '<span class="aused" style="position:absolute;top:4px;inset-inline-start:4px;font-size:9px;font-weight:600;border-radius:4px;padding:1px 5px">'+t("adStorageInUse")+'</span>'
              : (it.deletePath?'<button type="button" class="ab bad" data-delfile="'+it.deletePath+'" style="position:absolute;top:4px;inset-inline-end:4px;padding:2px 7px;font-size:11px">'+t("del")+'</button>':''))+
           '</div>';
         }).join("")+
@@ -800,37 +809,59 @@ function adminView(){
    return '<div class="asidebar-group'+(folded?' folded':'')+'" data-gkey="'+key+'"><button type="button" class="asidebar-label" aria-expanded="'+(folded?'false':'true')+'">'+label+'<span class="asidebar-chev" aria-hidden="true">›</span></button>'+
    '<div class="asidebar-items">'+items.join("")+'</div></div>' };
 
- // sub-tabs of the grouped sidebar entries: [label, badge]
- var openTk=(ADM.tickets||[]).filter(function(x){ return x.status!=="done" }).length;
- var SUB={reports:[t("reportsTab"),s.openReports],feedback:[t("feedbackTab"),s.openFeedback],tickets:[GX("ticketsTab"),openTk],msgs:[t("msgsNotifTab"),ADM.alertsUnread],
-          ads:[t("adsTab"),null],featured:[GX("tPromote"),null],banners:[GX("tBanners"),null],engage:[GX("tEngage"),null],social:[GX("tSocial"),(ADM._promoDue||[]).length||null],
-          settings:[GX("tSystem"),null],storage:[GX("tStorage"),null],admins:[t("adminsTab"),null],danger:[t("dangerTab"),null]};
- var inboxN=(+s.openReports||0)+(+s.openFeedback||0)+openTk+(+ADM.alertsUnread||0);
- var NAV=[
-   {g:t("navOverview"), items:[["dashboard",t("dashboardTab"),null,AICO.dash,true],["stats",t("visitorStats"),null,AICO.chart,can("stats")],["inbox",t("navInboxH"),inboxN||null,AICO.bell,true]]},
-   {g:GX("navCountries"), items:[["countries",GX("countriesTab"),null,AICO.globe,ADM.isSuper]]},
-   {g:GX("navListings"), items:[["listings",t("listingsTab"),s.listings,AICO.listings,can("listings")],["photos",GX("tMedia"),null,AICO.image,can("listings")],["wanted_adm",GX("tWanted"),(ADM.todo||{}).pending_wanted||null,AICO.search,can("listings")],["intake",GX("tIntake"),(ADM.todo||{}).intake_review||null,AICO.contact||AICO.bell,can("listings")]]},
-   {g:t("navPeople"), items:[["users",t("usersTab"),(ADM.todo||{}).verify_pending||s.users,AICO.users,can("users")],["agencies_adm",GX("tAgencies"),null,AICO.building,can("users")||can("listings")],["reviews",t("reviewsTab"),s.reviews,AICO.shield,can("reviews")],["house",GX("tHouse"),null,AICO.users,can("users")],["outreach",GX("tOutreach"),(ADM.out||[]).filter(function(o){ return o.next_at&&new Date(o.next_at)<=new Date()&&o.stage!=="active"&&o.stage!=="declined" }).length||null,AICO.contact,can("users")]]},
-   {g:GX("navMarketing"), items:[["promo",GX("tPromo"),null,AICO.ads,true],["projects_adm",GX("tProjects"),null,AICO.building,can("listings")||can("ads")],["campaigns",GX("tCampaigns"),null,AICO.megaphone,can("campaigns")]]},
-   {g:GX("navWebsite"), items:[["mainpage",t("mainPageTab"),null,AICO.home2,can("homepage")],["design",GX("tDesign"),null,AICO.palette,can("settings")],["geo",GX("geoTab"),null,AICO.map,can("settings")],["maps",GX("tMaps"),null,AICO.map,can("settings")],["types",GX("ptTab"),null,AICO.building,can("settings")],["contact",GX("tContact"),null,AICO.contact,can("settings")],["system",GX("navSystem"),null,AICO.gear,true]]}
- ];
- NAV.forEach(function(g){ g.items.forEach(function(it){ it[4]=canTab(it[0]) }) });   // the sidebar follows the same permission map as every other way into a tab
- ADM._navIndex=admNavIndex(NAV,SUB);
+ // ── navigation (redesign 2026-10-16, Shopify-style) ─────────────────────────────────────────────────────────────
+ // eight sections + settings at the bottom; a section's pages show under it in the sidebar (desktop) and as a row of
+ // tabs over the page (phone). Every page key is unchanged.
+ var openTk=(ADM.tickets||[]).filter(function(x){ return x.status!=="done" }).length, td=ADM.todo||{};
+ var dueOut=(ADM.out||[]).filter(function(o){ return o.next_at&&new Date(o.next_at)<=new Date()&&o.stage!=="active"&&o.stage!=="declined" }).length||null;
+ var LBL={dashboard:t("dashboardTab"), listings:GX("navAllListings"), intake:GX("navBotDrafts"), reports:t("reportsTab"), photos:GX("tMedia"),
+   wanted_adm:GX("tWanted"), users:t("usersTab"), agencies_adm:GX("tAgencies"), reviews:t("reviewsTab"), house:GX("tHouse"),
+   feedback:t("feedbackTab"), tickets:GX("ticketsTab"), msgs:t("msgsNotifTab"), campaigns:GX("tCampaigns"), outreach:GX("tOutreach"),
+   featured:GX("tPromote"), ads:t("adsTab"), banners:GX("tBanners"), engage:GX("tEngage"), social:GX("tSocial"), projects_adm:GX("tProjects"),
+   stats:GX("navAnalytics"), mainpage:t("mainPageTab"), design:GX("tDesign"), contact:GX("tContact"),
+   settings:GX("navGeneral"), countries:GX("countriesTab"), geo:GX("geoTab"), maps:GX("tMaps"), types:GX("ptTab"), admins:t("adminsTab"), storage:GX("tStorage"), danger:t("dangerTab")};
+ // badges count only what waits for the admin (pending, unread, due) — never totals
+ var BADGE={listings:td.pending_listings||s.pending||null, intake:td.intake_review||null, reports:s.openReports||null, wanted_adm:td.pending_wanted||null, users:td.verify_pending||null,
+   feedback:s.openFeedback||null, tickets:openTk||null, msgs:ADM.alertsUnread||null, outreach:dueOut, social:(ADM._promoDue||[]).length||null};
+ var TOP=[["dashboard",LBL.dashboard,AICO.dash],["g_listings",GX("navListings"),AICO.listings],["wanted_adm",LBL.wanted_adm,AICO.search],["g_people",t("navPeople"),AICO.users],
+   ["g_msgs",GX("navMsgs"),AICO.bell],["g_mkt",GX("navMarketing"),AICO.megaphone],["stats",LBL.stats,AICO.chart],["g_site",GX("navWebsite"),AICO.home2],["g_settings",GX("navSettings"),AICO.gear]];
+ var secBadge=function(k){ if(!ADM_GROUPS[k]) return BADGE[k]||null; var n=0; ADM_GROUPS[k].forEach(function(p){ if(canTab(p)&&BADGE[p]) n+=+BADGE[p]||0 }); return n||null };
+ // the panel search's page index: every page, with its section as "where"
+ var NAV=TOP.map(function(x){ return {g:x[1], items:(ADM_GROUPS[x[0]]||[x[0]]).map(function(k){ return [k, LBL[k]||x[1], BADGE[k]||null, x[2], canTab(k)] })} });
+ ADM._navIndex=admNavIndex(NAV,{});
  var curGroupKey=admGroupOf(ADM.tab); if(curGroupKey){ ADM._sub=ADM._sub||{}; ADM._sub[curGroupKey]=ADM.tab }
- var curLabel=t("adminPanel"), curGroup="";
- NAV.forEach(function(g){ g.items.forEach(function(it){ if(it[0]===ADM.tab || it[0]===curGroupKey){ curLabel=it[1]; curGroup=g.g } }) });
- if(curGroupKey && SUB[ADM.tab]){ curGroup=curGroup+' · '+curLabel; curLabel=SUB[ADM.tab][0] }
- var subBar = curGroupKey ? '<div class="asubtabs">'+ADM_GROUPS[curGroupKey].filter(canTab).map(function(k){ var sb=SUB[k]||[k,null]; return '<button type="button" class="'+(k===ADM.tab?'on':'')+'" data-atab="'+k+'">'+sb[0]+(sb[1]?'<span class="abadge2">'+sb[1]+'</span>':'')+'</button>' }).join("")+'</div>' : '';
+ var curLabel=LBL[ADM.tab]||t("adminPanel"), curGroup="";
+ TOP.forEach(function(x){ if(x[0]===curGroupKey) curGroup=x[1] });
+ var subBar = curGroupKey ? '<div class="asubtabs">'+ADM_GROUPS[curGroupKey].filter(canTab).map(function(k){ return '<button type="button" class="'+(k===ADM.tab?'on':'')+'" data-atab="'+k+'">'+LBL[k]+(BADGE[k]?'<span class="abadge2">'+BADGE[k]+'</span>':'')+'</button>' }).join("")+'</div>' : '';
+ var sideHtml=TOP.filter(function(x){ return canTab(x[0]) }).map(function(x){ var grp=ADM_GROUPS[x[0]], open=x[0]===ADM.tab||x[0]===curGroupKey, b=secBadge(x[0]);
+   return (x[0]==="g_settings"?'<div class="asidebar-sp"></div>':'')+
+     '<a class="atop'+(open?' on':'')+'" data-atab="'+x[0]+'"><span class="aicon">'+x[2]+'</span><span>'+x[1]+'</span>'+(b&&!open?'<span class="abadge2">'+b+'</span>':'')+'</a>'+
+     (grp?'<div class="asub'+(open?' open':'')+'">'+grp.filter(canTab).map(function(k){ return '<a class="'+(k===ADM.tab?'on':'')+'" data-atab="'+k+'"><span>'+LBL[k]+'</span>'+(BADGE[k]?'<span class="abadge2">'+BADGE[k]+'</span>':'')+'</a>' }).join("")+'</div>':'') }).join("");
+ // phone: a bottom bar with the four daily places + «المزيد» (the rest, the language, night mode, the site, sign out)
+ var botTab=function(k,label,icon){ var on=k===ADM.tab||k===curGroupKey, b=secBadge(k); return '<a class="'+(on?'on':'')+'" data-atab="'+k+'">'+icon+'<span>'+label+'</span>'+(b?'<i>'+b+'</i>':'')+'</a>' };
+ var moreOn=["g_people","g_mkt","stats","g_site","g_settings"].indexOf(curGroupKey||ADM.tab)>-1;
+ var themeNow=admTheme();
+ var bottomBar='<nav class="abot" aria-label="'+esc(GX("navMenu"))+'">'+botTab("dashboard",LBL.dashboard,AICO.dash)+botTab("g_listings",GX("navListings"),AICO.listings)+botTab("wanted_adm",GX("navRequestsShort"),AICO.search)+botTab("g_msgs",GX("navMsgs"),AICO.bell)+
+   '<button type="button" id="aMoreBtn" class="'+(moreOn?'on':'')+'">'+AICO.more+'<span>'+GX("navMore")+'</span></button></nav>';
+ var moreSheet='<div class="amore" id="aMore" hidden><div class="amore-in"><div class="amore-h"><b>'+GX("navMore")+'</b><button type="button" class="ab" id="aMoreX" aria-label="×">×</button></div>'+
+   '<div class="amore-list">'+TOP.filter(function(x){ return ["g_people","g_mkt","stats","g_site","g_settings"].indexOf(x[0])>-1 && canTab(x[0]) }).map(function(x){ var b=secBadge(x[0]); return '<a data-atab="'+x[0]+'"><span class="aicon">'+x[2]+'</span><span>'+x[1]+'</span>'+(b?'<span class="abadge2">'+b+'</span>':'')+'<span class="amore-chev">‹</span></a>' }).join("")+'</div>'+
+   '<div class="amore-h2">'+GX("themeL")+'</div><div class="aseg" id="aThemeSeg">'+[["light",GX("themeLight")],["dark",GX("themeDark")],["",GX("themeAuto")]].map(function(o){ return '<button type="button" data-theme="'+o[0]+'" class="'+(themeNow===o[0]?'on':'')+'">'+o[1]+'</button>' }).join("")+'</div>'+
+   '<div class="amore-h2">'+GX("aLang")+'</div><div class="aseg">'+["ar","en","de"].map(function(k){ return '<button type="button" data-alang="'+k+'" class="'+(k===L?'on':'')+'">'+D.I18N[k].name+'</button>' }).join("")+'</div>'+
+   '<div class="amore-acts"><button type="button" class="ab" data-moreclick="adViewSite">'+AICO.eye+'<span>'+t("viewSiteAsUser")+'</span></button><button type="button" class="ab" data-moreclick="adOut">'+AICO.out+'<span>'+t("logout")+'</span></button></div>'+
+ '</div></div>';
  var initial=((ADM.meName||"?").trim().charAt(0)||"?");
+ admApplyTheme();
  return '<div class="adm">'+
   '<header class="adm-top">'+
    '<button class="adm-burger" id="aSidebarToggle" aria-label="'+t("menu")+'">≡</button>'+
    '<div class="adm-brand"><span class="adm-logo">'+CONFIG.brand+'</span><span class="adm-sub">'+t("adminPanel")+'</span></div>'+
    ((GSX("maintenance_on",false)===true||GSX("maintenance_on",false)==="true")?'<button type="button" class="adm-maint" data-atab="settings" title="'+esc(GX("maintBadgeHint"))+'">🛠 '+GX("maintBadge")+'</button>':'')+
+   '<button type="button" class="ab adm-qbtn" id="aSearchBtn" aria-label="'+esc(GX("aNavSearch"))+'">'+AICO.search+'</button>'+
    '<label class="adm-q">'+AICO.search+'<input id="aNavQ" placeholder="'+GX("aNavSearch")+'" autocomplete="off"><div class="anav-hits" id="aNavHits" hidden></div></label>'+
    '<div class="adm-actions">'+
     adminCountrySelHtml()+'<select class="adm-lang" id="aLang" aria-label="'+GX("aLang")+'">'+["ar","en","de"].map(function(k){ return '<option value="'+k+'"'+(k===L?' selected':'')+'>'+D.I18N[k].name+'</option>' }).join("")+'</select>'+
     adminBellHtml()+
+    '<button type="button" class="ab adm-theme" id="aTheme" title="'+esc(GX("themeL"))+'" aria-label="'+esc(GX("themeL"))+'">'+(admIsDark()?AICO.sun:AICO.moon)+'</button>'+
     '<button class="ab" id="adViewSite" title="'+t("viewSiteAsUser")+'">'+AICO.eye+'<span>'+t("viewSiteAsUser")+'</span></button>'+
     '<button class="ab" id="adRefresh" title="'+t("refresh")+'">'+AICO.refresh+'</button>'+
     '<button class="adm-me" id="aMyAccount" title="'+t("myAdminAccount")+'"><span class="ava2">'+initial+'</span><span class="adm-me-n">'+(ADM.meName||"")+'</span>'+(ADM.isSuper?'<i class="adm-super">'+t("superAdmin")+'</i>':'')+'</button>'+
@@ -838,10 +869,10 @@ function adminView(){
    '</div></header>'+
   (ADM.myAccountOpen ? adminMeCard() : '')+(ADM.pm ? admPmHtml() : '')+
   '<div class="ashell">'+
-   '<nav class="asidebar" id="aSidebar">'+NAV.map(function(g){ return sec(g.g, g.items.map(function(it){ return it[4] ? tab(it[0],it[1],it[2],it[3]) : "" }), g.items[0][0], g.items.some(function(it){ return it[0]===ADM.tab })) }).join("")+'</nav>'+
+   '<nav class="asidebar" id="aSidebar">'+sideHtml+'</nav>'+
    '<main class="acontent">'+(ADM.token&&!ADM.data?'<div class="aloading">'+t("loading")+'</div>':'')+'<div class="apage-h"><div>'+'<div class="apage-crumb">'+curGroup+(ADM.scope==="ALL"?(curGroup?' · ':'')+'🌍 '+GX("cAll")+'</div>':COUNTRY!=="SY"?(curGroup?' · ':'')+flagOf(COUNTRY)+' '+esc(countryName(countryOf(COUNTRY)))+'</div>':'</div>')+'<h1>'+curLabel+'</h1>'+
     (GX_T["desc_"+ADM.tab]?'<p>'+GX("desc_"+ADM.tab)+'</p>':'')+'</div>'+adminCountryBar()+'</div>'+subBar+(ADM.tab==="settings"&&typeof admLegalCard==="function"?admLegalCard():'')+body+'</main>'+
-  '</div></div>'}
+  '</div>'+bottomBar+moreSheet+'</div>'}
 // the admin edits a request (owner, 2026-10-16): every field, the areas as a searchable list — "no area" means the
 // whole governorate, which is what the matching does. Saving sends nothing (bk_admin_wanted_edit).
 function admWantedEdit(w){
@@ -1256,7 +1287,19 @@ function wireAdmin(){
   if(!window._admSbClose){ window._admSbClose=true;   // tap outside or Escape closes the phone sidebar (once per page, not per render)
     document.addEventListener("click",function(e){ var sb=$("#aSidebar"); if(sb && sb.classList.contains("on") && !e.target.closest("#aSidebar,#aSidebarToggle")) sb.classList.remove("on") });
     document.addEventListener("keydown",function(e){ if(e.key==="Escape"){ var sb=$("#aSidebar"); if(sb) sb.classList.remove("on") } }) }
-  $$("#aSidebar .asidebar-label").forEach(function(b){ b.onclick=function(){ var g=this.closest(".asidebar-group"); if(!g) return; g.classList.toggle("folded"); var f=g.classList.contains("folded"); ADM_FOLDS[g.dataset.gkey]=f; this.setAttribute("aria-expanded",f?"false":"true"); try{ localStorage.setItem("bk_adm_folds",JSON.stringify(ADM_FOLDS)) }catch(e){} } });
+  // night mode: the header switch flips day/night; «المزيد» also offers "follow the device"
+  var setTheme=function(v){ try{ if(v) localStorage.setItem("bk_adm_theme",v); else localStorage.removeItem("bk_adm_theme") }catch(e){} admApplyTheme(); render() };
+  if($("#aTheme")) $("#aTheme").onclick=function(){ setTheme(admIsDark()?"light":"dark") };
+  $$("#aThemeSeg [data-theme]").forEach(function(b){ b.onclick=function(){ setTheme(this.dataset.theme) } });
+  if(!window._admThemeMq && window.matchMedia){ window._admThemeMq=true; try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change",function(){ if(!admTheme()&&VIEW==="admin"){ admApplyTheme(); render() } }) }catch(e){} }
+  // phone: «المزيد» sheet, search on demand
+  var more=$("#aMore");
+  if($("#aMoreBtn")&&more) $("#aMoreBtn").onclick=function(e){ e.stopPropagation(); more.hidden=!more.hidden };
+  if($("#aMoreX")&&more) $("#aMoreX").onclick=function(){ more.hidden=true };
+  if(more) more.onclick=function(e){ if(e.target===more) more.hidden=true };
+  $$("#aMore [data-alang]").forEach(function(b){ b.onclick=function(){ L=this.dataset.alang; try{ localStorage.setItem("balkoun_lang",L) }catch(err){} render() } });
+  $$("#aMore [data-moreclick]").forEach(function(b){ b.onclick=function(){ var tgt=$("#"+this.dataset.moreclick); if(more) more.hidden=true; if(tgt) tgt.click() } });
+  if($("#aSearchBtn")) $("#aSearchBtn").onclick=function(e){ e.stopPropagation(); var hd=this.closest(".adm-top"); if(!hd) return; hd.classList.toggle("qopen"); var qi=$("#aNavQ"); if(qi&&hd.classList.contains("qopen")) qi.focus() };
   var nq=$("#aNavQ"); if(nq){ var hitsBox=$("#aNavHits"), hitSel=0;
     // panel pages first, then what the data search found (bk_admin_search: read only), each kind under its own heading
     var allHits=function(q){ var pages=admNavHits(q).map(function(h){ h.grp=GX("aSrchPages"); return h }), r=(ADM._sres&&ADM._sres.q===q)?ADM._sres.r:null;
@@ -1271,10 +1314,8 @@ function wireAdmin(){
       if(h.go){ h.go(); return } admGo(h.tab); if(h.hint) setTimeout(function(){ admToast(h.hint) },350) };
     var runSearch=function(){ var raw=nq.value.trim(); clearTimeout(ADM._sT); if(raw.length<2) return;
       ADM._sT=setTimeout(function(){ rpc("bk_admin_search",{p_token:ADM.token,p_q:raw}).then(function(r){ ADM._sres={q:raw,r:r||{}}; if(nq.value.trim()===raw&&hitsBox&&!hitsBox.hidden) drawHits() }).catch(function(){ ADM._sres={q:raw,r:{}}; if(nq.value.trim()===raw) drawHits() }) },300) };
-    nq.oninput=function(){ var q=admNorm(this.value);
-    $$("#aSidebar .asidebar-group").forEach(function(g){ g.classList.toggle("folded", !q && !!ADM_FOLDS[g.dataset.gkey] && !g.querySelector("a.on")) });   // a search opens every group; clearing it restores the folds
-    $$("#aSidebar a[data-atab]").forEach(function(a){ a.hidden = !!q && admNorm(a.textContent).indexOf(q)===-1 });
-    $$("#aSidebar .asidebar-group").forEach(function(g){ g.hidden = !!q && !g.querySelector("a[data-atab]:not([hidden])") }); drawHits(); runSearch() };
+    // the results list shows pages and data together, so the sidebar stays as it is while typing (redesign 2026-10-16)
+    nq.oninput=function(){ drawHits(); runSearch() };
     nq.onfocus=function(){ if(nq.value.trim()) drawHits() }; nq.onblur=function(){ setTimeout(function(){ if(hitsBox) hitsBox.hidden=true },150) };
     nq.onkeydown=function(e){ var n=$$("#aNavHits [data-hit]").length; if(e.key==="ArrowDown"&&n){ e.preventDefault(); hitSel=(hitSel+1)%n } else if(e.key==="ArrowUp"&&n){ e.preventDefault(); hitSel=(hitSel-1+n)%n } else if(e.key==="Enter"){ e.preventDefault(); if(n) pick(hitSel); else { var a=$("#aSidebar a[data-atab]:not([hidden])"); if(a) a.click() } return } else if(e.key==="Escape"){ nq.value=""; nq.oninput(); return } else return;
       $$("#aNavHits [data-hit]").forEach(function(b,i){ b.classList.toggle("on",i===hitSel) }) } }
@@ -3144,7 +3185,7 @@ function adminStorageBody(limitBlock){
   var trashTable = trashItems.length ? '<div class="stlist" style="margin-bottom:12px">'+
       trashItems.map(function(f){ return stFileRow(f, (ADM.isSuper?'<button type="button" class="ab ok" data-strestore="'+esc(f.name)+'">'+GX("stRestore")+'</button><button type="button" class="ab bad" data-stdel="'+esc(f.name)+'">'+t("del")+'</button>':'')) }).join("")+
       (trashN>trashItems.length?'<div class="hintx">+'+(trashN-trashItems.length)+'</div>':'')+'</div>' : '';
-  var trash='<div class="blk" style="margin-top:16px"><h3><span class="hd2"><span>'+GX("stTrashH")+'</span>'+(trashN?'<small class="ltr" style="color:#8A6522">'+trashN+' '+' · '+stSize(trashB)+'</small>':'')+'</span></h3><div class="in">'+
+  var trash='<div class="blk" style="margin-top:16px"><h3><span class="hd2"><span>'+GX("stTrashH")+'</span>'+(trashN?'<small class="ltr" style="color:var(--gold-dk,#8A6522)">'+trashN+' '+' · '+stSize(trashB)+'</small>':'')+'</span></h3><div class="in">'+
     '<div class="hintx" style="margin-bottom:10px">'+GX("stTrashHint")+'</div>'+trashTable+
     (trashN ? (ADM.isSuper?'<div class="xactions"><button class="ab bad" id="stEmptyTrash" data-n="'+trashN+'">'+GX("stEmptyTrash")+'</button><span class="xmsg" id="stTrashMsg"></span></div>':'')
             : '<div class="adashempty" style="text-align:start;padding:6px 0;color:var(--ok)">✓ '+GX("stTrashEmptyState")+'</div>')+
@@ -4473,7 +4514,7 @@ function adminOutreachBody(){
     if(OUT_STAGES.indexOf(f)>-1 && o.stage!==f) return false;
     if(q){ var hay=[o.name,o.phone,o.city,o.area,o.source,o.notes].join(" ").toLowerCase(); if(hay.indexOf(q)===-1) return false }
     return true });
-  var pipe='<div class="ikstats">'+OUT_STAGES.map(function(s){ return '<button type="button" class="ikstat'+(f===s?' on':'')+'" data-outf="'+s+'" style="cursor:pointer;border:0;background:'+(f===s?'var(--navy)':'#fff')+';color:'+(f===s?'#fff':'inherit')+'"><b class="ltr">'+counts[s]+'</b><span>'+outStageLabel(s)+'</span></button>' }).join("")+'</div>';
+  var pipe='<div class="ikstats">'+OUT_STAGES.map(function(s){ return '<button type="button" class="ikstat'+(f===s?' on':'')+'" data-outf="'+s+'" style="cursor:pointer;border:0"><b class="ltr">'+counts[s]+'</b><span>'+outStageLabel(s)+'</span></button>' }).join("")+'</div>';
   var tools='<div class="rtop" style="margin:10px 0"><input id="outQ" class="aq" placeholder="'+esc(GX("outSearchPH"))+'" value="'+esc(ADM.outQ||"")+'" data-allow-autofill style="max-width:260px">'+
     '<button type="button" class="ab'+(f==="open"?' ok':'')+'" data-outf="open">'+GX("outOpen")+'</button>'+
     '<button type="button" class="ab'+(f==="due"?' ok':'')+'" data-outf="due">⏰ '+GX("outDue")+(due?' <b class="ltr">'+due+'</b>':'')+'</button>'+
@@ -4492,7 +4533,7 @@ function adminOutreachBody(){
     var linked=o.user_id?'<a data-byuser="'+o.user_id+'" data-name="'+esc((o.user_name||"")+" "+(o.user_family||""))+'" class="uname">'+esc(((o.user_name||"")+" "+(o.user_family||"")).trim()||o.member_no||GX("agView"))+'</a>'+(o.listings!=null?' · <span class="ltr">'+o.listings+'</span> '+GX("houseListings"):''):
       (o.match_user?'<button type="button" class="ab" data-outlink="'+o.id+':'+o.match_user+'" title="'+esc(GX("outLinkHint"))+'">🔗 '+esc(o.match_name||GX("outLink"))+'</button>':'<span class="hintx">—</span>');
     var overdue=o.next_at && new Date(o.next_at)<=new Date() && o.stage!=="active" && o.stage!=="declined";
-    return '<tr'+(overdue?' style="background:#FFF7E6"':'')+'>'+
+    return '<tr'+(overdue?' class="aoverdue"':'')+'>'+
       '<td><b>'+esc(o.name)+'</b>'+(o.area||o.city?'<br><small>'+esc([o.area,o.city].filter(Boolean).join(" · "))+'</small>':'')+(o.source?'<br><small style="color:var(--light)">'+esc(o.source)+'</small>':'')+'</td>'+
       '<td class="ltr">'+(o.phone?esc(o.phone):'—')+'</td>'+
       '<td><select class="lvlpick" data-outstage="'+o.id+'">'+OUT_STAGES.map(function(s){ return '<option value="'+s+'"'+(o.stage===s?' selected':'')+'>'+outStageLabel(s)+'</option>' }).join("")+'</select></td>'+
@@ -4505,7 +4546,7 @@ function adminOutreachBody(){
         '<button type="button" class="ab bad" data-outdel="'+o.id+'">'+t("del")+'</button></div></td></tr>' }).join("");
   var table=list.length?'<div class="atable"><table><colgroup><col style="width:22%"><col style="width:120px"><col style="width:140px"><col style="width:170px"><col style="width:96px"><col style="width:150px"><col style="width:190px"><col></colgroup><thead><tr>'+[GX("outName"),GX("lfPhone"),GX("outStage"),GX("outAccount"),GX("outLast"),GX("outNext"),GX("outNotes"),""].map(function(h){ return '<th>'+h+'</th>' }).join("")+'</tr></thead><tbody>'+trs+'</tbody></table></div>':'<div class="adashempty">'+GX("outNone")+'</div>';
   return '<div class="blk"><h3>'+GX("tOutreach")+' <span class="n">'+rows.length+'</span></h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+GX("outHint")+'</div>'+pipe+tools+'</div></div>'+addForm+'<div class="blk"><div class="in" style="padding:0">'+table+'</div></div>'+
-    '<div class="blk" style="margin-top:12px"><h3>'+GX("outTemplateH")+'</h3><div class="in"><div class="hintx" style="margin-bottom:6px">'+GX("outTemplateHint")+'</div><pre style="white-space:pre-wrap;font-family:inherit;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;direction:rtl">'+esc(GX("outTemplate"))+'</pre></div></div>';
+    '<div class="blk" style="margin-top:12px"><h3>'+GX("outTemplateH")+'</h3><div class="in"><div class="hintx" style="margin-bottom:6px">'+GX("outTemplateHint")+'</div><pre style="white-space:pre-wrap;font-family:inherit;font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;direction:rtl">'+esc(GX("outTemplate"))+'</pre></div></div>';
 }
 function wireAdminOutreach(){
   if(!ADM._outLoaded){ ADM._outLoaded=true; ADM.outErr=null; ADM.out=undefined;
