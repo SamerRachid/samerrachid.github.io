@@ -2396,7 +2396,8 @@ var HS_T={
  lblOrder:{ar:"ترتيب الأقسام",en:"section order",de:"Reihenfolge"}, lblMore:{ar:"و{n} أخرى",en:"and {n} more",de:"und {n} weitere"}, lblRestore:{ar:"استرجاع نسخة {t}",en:"Restored the version of {t}",de:"Version von {t} wiederhergestellt"},
  openSite:{ar:"فتح الموقع",en:"Open site",de:"Seite öffnen"}, reload:{ar:"تحديث المعاينة",en:"Reload preview",de:"Vorschau neu laden"},
  sections:{ar:"أقسام الصفحة",en:"Page sections",de:"Seitenabschnitte"},
- exit:{ar:"خروج",en:"Exit",de:"Schließen"}, both:{ar:"الاثنان",en:"Both",de:"Beide"}, editFor:{ar:"تعدّل قيم",en:"Editing values for",de:"Werte für"},
+ exit:{ar:"خروج",en:"Exit",de:"Schließen"}, restoreDef:{ar:"إعادة النص الأصلي",en:"Restore the built-in text",de:"Standardtext wiederherstellen"}, restoreDefShort:{ar:"الأصلي",en:"Default",de:"Standard"},
+ emptyField:{ar:"فارغ — لن يظهر أي نص هنا على الموقع. ↺ يعيد النص الأصلي.",en:"Empty — no text shows here on the site. ↺ restores the built-in text.",de:"Leer — hier erscheint kein Text. ↺ stellt den Standard wieder her."}, both:{ar:"الاثنان",en:"Both",de:"Beide"}, editFor:{ar:"تعدّل قيم",en:"Editing values for",de:"Werte für"},
  m_show:{ar:"إظهار القسم",en:"Show section",de:"Abschnitt zeigen"}, m_hide:{ar:"إخفاء القسم",en:"Hide section",de:"Abschnitt ausblenden"}, m_up:{ar:"نقل للأعلى",en:"Move up",de:"Nach oben"}, m_down:{ar:"نقل للأسفل",en:"Move down",de:"Nach unten"},
  m_top:{ar:"نقل لأول الصفحة",en:"Move to the top",de:"Ganz nach oben"}, m_bottom:{ar:"نقل لآخر الصفحة",en:"Move to the bottom",de:"Ganz nach unten"}, m_reset:{ar:"إعادة العناوين الافتراضية (بهذه اللغة)",en:"Restore the default titles (this language)",de:"Standardtitel wiederherstellen (diese Sprache)"},
  m_resetQ:{ar:"تُمسح العناوين التي كتبتها لهذا القسم بهذه اللغة ويعود النص الافتراضي. متابعة؟",en:"The titles you wrote for this section in this language are cleared and the default text returns. Continue?",de:"Ihre Titel dieses Abschnitts in dieser Sprache werden gelöscht. Weiter?"},
@@ -2433,12 +2434,12 @@ var HS_T={
  useDesk:{ar:"استخدم قيمة الكمبيوتر",en:"Use the desktop value",de:"Desktop-Wert verwenden"},
  show:{ar:"إظهار / إخفاء",en:"Show / hide",de:"Zeigen / verstecken"}, up:{ar:"أعلى",en:"Up",de:"Nach oben"}, down:{ar:"أسفل",en:"Down",de:"Nach unten"},
  showSec:{ar:"إظهار هذا القسم في الصفحة",en:"Show this section on the page",de:"Diesen Abschnitt anzeigen"},
- textsHint:{ar:"النصوص تُعدَّل بلغة المعاينة المختارة في الأعلى. اترك الحقل فارغاً للنص الافتراضي.",en:"Texts are edited in the preview language chosen above. Leave a field empty for the default text.",de:"Texte werden in der oben gewählten Vorschausprache bearbeitet. Leer = Standardtext."},
+ textsHint:{ar:"النصوص تُعدَّل بلغة المعاينة المختارة في الأعلى. امسح الحقل ليصبح فارغاً، و«↺ الأصلي» يعيد النص الأصلي.",en:"Texts are edited in the preview language chosen above. Leave a field empty for the default text.",de:"Texte werden in der oben gewählten Vorschausprache bearbeitet. Leer = Standardtext."},
  dualHint:{ar:"قيم الموضع والحجم تُحفظ مرتين: للكمبيوتر وللجوال. بدّل الجهاز في الأعلى لتعديل كل منهما؛ الجوال يرث قيمة الكمبيوتر إن تركته فارغاً.",en:"Position and size values are stored twice, for desktop and phone. Switch the device above to edit each; an empty phone value inherits the desktop one.",de:"Positions- und Größenwerte werden doppelt gespeichert (Desktop/Handy). Oben umschalten; leerer Handy-Wert erbt vom Desktop."},
  f_heroOn:{ar:"إظهار العنوان الرئيسي",en:"Show the headline",de:"Überschrift anzeigen"}, g_text:{ar:"النص",en:"Text",de:"Text"},
  f_h1:{ar:"العنوان",en:"Headline",de:"Überschrift"}, f_h1b:{ar:"الجزء المميّز (يتقلّب إلى اسم المنصة)",en:"Highlighted part (flips to the brand)",de:"Hervorgehobener Teil (wechselt zur Marke)"},
  g_flip:{ar:"التقلّب إلى اسم المنصة",en:"Flip to the brand",de:"Wechsel zur Marke"}, f_flipOn:{ar:"تقلّب آخر كلمة من العنوان إلى اسم المنصة",en:"Flip the headline's last word to the brand",de:"Letztes Wort zur Marke wechseln"}, f_flipPreOn:{ar:"إظهار الكلمة قبل اسم المنصة",en:"Show the word before the brand",de:"Wort vor der Marke zeigen"}, f_flipWordOn:{ar:"إظهار اسم المنصة",en:"Show the brand word",de:"Markenwort zeigen"},
- f_flipHint:{ar:"النص الرمادي في الحقل هو الكلمة الافتراضية: الحقل الفارغ يعرضها. لإخفاء كلمة أطفئ مفتاحها. إن أخفيت الكلمتين يتوقف التقلّب ويبقى العنوان كما هو.",en:"Grey text is the default word, shown when the field is empty. To hide a word turn its switch off. With both hidden the flip stops and the headline stays as written.",de:"Grauer Text = Standardwort (bei leerem Feld). Zum Ausblenden den Schalter ausschalten. Beide aus = kein Wechsel."}, f_flipWord:{ar:"اسم المنصة بعد التقلّب (عربي)",en:"Brand word after the flip (Arabic)",de:"Markenwort nach dem Wechsel (Arabisch)"}, f_flipAr:{ar:"الكلمة قبل «بلكون» بعد التقلّب (عربي)",en:"Word before “Balkoun” after the flip (Arabic)",de:"Wort vor „Balkoun“ nach dem Wechsel (Arabisch)"}, f_flipLatin:{ar:"النص اللاتيني بعد التقلّب",en:"Latin text after the flip",de:"Lateinischer Text nach dem Wechsel"},
+ f_flipHint:{ar:"أطفئ مفتاح كلمة أو امسحها لإخفائها. إن أخفيت الكلمتين يتوقف التقلّب ويبقى العنوان كما كتبته.",en:"Turn a word's switch off or empty it to hide it. With both hidden the flip stops and the headline stays as written.",de:"Wort ausschalten oder leeren zum Ausblenden. Beide aus = kein Wechsel."}, f_flipWord:{ar:"اسم المنصة بعد التقلّب (عربي)",en:"Brand word after the flip (Arabic)",de:"Markenwort nach dem Wechsel (Arabisch)"}, f_flipAr:{ar:"الكلمة قبل «بلكون» بعد التقلّب (عربي)",en:"Word before “Balkoun” after the flip (Arabic)",de:"Wort vor „Balkoun“ nach dem Wechsel (Arabisch)"}, f_flipLatin:{ar:"النص اللاتيني بعد التقلّب",en:"Latin text after the flip",de:"Lateinischer Text nach dem Wechsel"},
  g_look:{ar:"الشكل والموضع",en:"Look and position",de:"Aussehen und Position"}, f_h1Color:{ar:"لون العنوان",en:"Headline color",de:"Farbe der Überschrift"}, f_h1bColor:{ar:"لون الجزء المميّز",en:"Highlight color",de:"Farbe der Hervorhebung"},
  f_size:{ar:"حجم الخط (px)",en:"Font size (px)",de:"Schriftgröße (px)"}, f_x:{ar:"إزاحة أفقية (px)",en:"Horizontal offset (px)",de:"Horizontaler Versatz (px)"}, f_y:{ar:"إزاحة رأسية (px)",en:"Vertical offset (px)",de:"Vertikaler Versatz (px)"},
  f_heroGap:{ar:"المسافة تحت القسم الأول",en:"Space below the hero",de:"Abstand unter dem Hero"},
@@ -2971,7 +2972,7 @@ function hsWire(){
       if(hsMob() && d.text) hsView("item",true); else { hsView("item"); if(hsMob()) hsScrollTo(); else hsSendMap() } return }
     // a title typed over in the page: the same draft key its settings field writes
     if(d.type==="bk-preview-text"){ var fld=String(d.field||""); if(!/^x:[a-z]+_(eyebrow|h|sub|p)$/.test(fld)) return; var key=fld+"_"+hsLang(), v=String(d.value==null?"":d.value);
-      hsSet(key, v.trim()===""?null:v); var inp=$('#hsInsp [data-hsk="'+key+'"]'); if(inp) inp.value=v; return }
+      hsSet(key, v.trim()===""?HS_EMPTY:v); var inp=$('#hsInsp [data-hsk="'+key+'"]'); if(inp) inp.value=v.trim()===""?"":v; return }
     if(d.type==="bk-preview-textdone"){ hsPush(true); return }
     if(d.type==="bk-preview-esc" && HS._onKey){ HS._onKey({key:"Escape"}); return } };
   window.addEventListener("message",HS._onMsg);
@@ -3066,7 +3067,7 @@ function hsWire(){
   var insp=$("#hsInsp"), tmr=null;
   var readEl=function(el,col){ var ty=el.dataset.hst; if(ty==="bool") return el.checked; if(ty==="num") return el.value===""?null:+el.value;
     if(ty==="date") return el.value ? new Date(el.value+(el.dataset.hsend==="1"?"T23:59:59":"T00:00:00")).toISOString() : null;
-    var v=String(el.value); return v.trim()==="" ? (col?"":null) : v };
+    var v=String(el.value); if(v.trim()==="") return el.dataset.hsdef!==undefined ? HS_EMPTY : (col?"":null); return v };
   var onEdit=function(el,now){ var rer=el.dataset.hsr==="1", k;
     if(el.dataset.hsk!==undefined){ k=el.dataset.hsk; hsSet(k,readEl(el,k.indexOf("c:")===0)) }
     else if(el.dataset.hsa!==undefined){ k="a:"+el.dataset.hsa; hsAdSet(HS.sel.slice(3),el.dataset.hsa,readEl(el,true)); rer=true }
@@ -3097,6 +3098,7 @@ function hsWire(){
           hsBSet(bi,"items",hsBDraft()[bi].items); hsPush(true); hsRenderInsp(); hsRenderOutline() }catch(err){ if(bmsg) bmsg.textContent=err.message||"error"; bup.disabled=false } })(); return } };
   insp.onclick=async function(e){
     if(e.target.closest("[data-hsback]")){ hsView("list"); return }
+    var dfb=e.target.closest("[data-hsdefault]"); if(dfb){ var dk=dfb.dataset.hsdefault; hsSet(dk, dk.indexOf("c:")===0?"":null); hsPush(true); hsRenderInsp(); return }
     if(e.target.closest("[data-hsdevtog]")){ HS.device=HS.device==="phone"?"desk":"phone"; HS._devPicked=true;
       if(!hsBoth()){ HS.layout="one"; $$("#hsDev button").forEach(function(x){ x.classList.toggle("on",x.dataset.dev===HS.device) }) } hsFit(); hsRenderInsp(); return }
     var c=e.target.closest("[data-hsclear]"); if(c){ hsSet(c.dataset.hsclear,null); hsPush(true); hsRenderInsp(); return }
