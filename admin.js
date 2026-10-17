@@ -95,7 +95,7 @@ function admDataHits(r){
   return out;
 }
 function admNavHits(q){ q=admNorm(q); if(!q) return []; var words=q.split(" ").filter(Boolean); return (ADM._navIndex||[]).filter(function(h){ return words.every(function(w){ return h.text.indexOf(w)>-1 }) }).slice(0,8) }
-function admGo(tab){ if(!tab) return; if(!canTab(tab)){ admToast(GX("noPermTab"),"bad"); return } tab=admResolveTab(tab); if(tab!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return; ADM.tab=tab; window._admMobileDetail=false; render(); try{ window.scrollTo(0,0) }catch(e){} }
+function admGo(tab){ if(!tab) return; if(!canTab(tab)){ admToast(GX("noPermTab"),"bad"); return } tab=admResolveTab(tab); if(tab!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return; if(tab!==ADM.tab) ADM._show={}; ADM.tab=tab; window._admMobileDetail=false; render(); try{ window.scrollTo(0,0) }catch(e){} }
 // "راسل": one direct message to one person on WhatsApp / Telegram / email, from the users list or the contacts list
 // "المكتب": create or edit a member's agency page from the panel (name, contacts, coverage, specialties, logo)
 async function admAgencyEdit(o){
@@ -568,6 +568,7 @@ function adminView(){
       var da=new Date(a.uploadedAt||0), db=new Date(b.uploadedAt||0);
       return ms.sort==="oldest" ? da-db : db-da;
     });
+    var mKey="media_"+(ADM.mediaCategory||"listings"), mAll=filtered.length; filtered=filtered.slice(0,admShown(mKey,50));
     var dateFmt = function(d){ if(!d) return ""; var dt=new Date(d); return isNaN(dt) ? "" : dt.toISOString().slice(0,10) };
     // only a genuinely deletable (not-in-use) item is ever selectable
     // in the first place — an "in use" item never gets a checkbox at
@@ -611,7 +612,7 @@ function adminView(){
              : (it.deletePath?'<button type="button" class="ab bad" data-delfile="'+it.deletePath+'" style="position:absolute;top:4px;inset-inline-end:4px;padding:2px 7px;font-size:11px">'+t("del")+'</button>':''))+
           '</div>';
         }).join("")+
-       '</div>'));
+       '</div>'+admMoreBtn(mAll,admShown(mKey,50),mKey,50)));
   };
   if(mediaCat==="listings"){
     var photos = ADM.photosList||[];
@@ -1079,10 +1080,10 @@ function admRewardsCard(){
     '<div class="xactions"><button type="button" class="ab ok" id="rwCfgSave">'+t("save")+'</button><span class="xmsg" id="rwCfgMsg"></span></div>'+
     '<h4 style="margin:18px 0 6px">'+GX("rwBalances")+'</h4>'+
     (bal.length?'<div class="atable"><table><thead><tr><th>'+t("contactName")+'</th><th>'+GX("rwPoints")+'</th><th>'+GX("rwCredits")+'</th><th>'+GX("rwWindow")+'</th><th>'+GX("rwActive")+'</th><th></th></tr></thead><tbody>'+
-      bal.map(function(b){ var we=b.window_end?new Date(b.window_end):null; return '<tr><td>'+scopeFlag(b.country)+esc(b.name||b.phone||"")+(b.agency?' <small style="color:var(--grey)">· '+esc(b.agency)+'</small>':'')+' <small class="ltr" style="color:var(--grey)">'+esc(b.member_no||"")+'</small></td>'+
+      bal.slice(0,admShown("rwbal")).map(function(b){ var we=b.window_end?new Date(b.window_end):null; return '<tr><td>'+scopeFlag(b.country)+esc(b.name||b.phone||"")+(b.agency?' <small style="color:var(--grey)">· '+esc(b.agency)+'</small>':'')+' <small class="ltr" style="color:var(--grey)">'+esc(b.member_no||"")+'</small></td>'+
         '<td class="ltr">'+b.points+'</td><td class="ltr"><b>'+b.credits+'</b></td><td class="ltr">'+(we?(we>new Date()?we.toLocaleDateString():'<span class="st st-expired">'+GX("rwWindowOver")+'</span>'):"∞")+'</td><td class="ltr">'+(b.active_until&&new Date(b.active_until)>new Date()?when(b.active_until):"—")+'</td>'+
         '<td style="white-space:nowrap"><button type="button" class="ab ok" data-rwgrant="'+b.user_id+'" data-name="'+esc(b.name||b.phone||"")+'">+ '+GX("rwGrant")+'</button> <button type="button" class="ab" data-rwrevoke="'+b.user_id+'" data-name="'+esc(b.name||b.phone||"")+'"'+(b.credits>0?'':' disabled')+'>− '+GX("rwRevoke")+'</button></td></tr>' }).join("")+
-      '</tbody></table></div>':'<div class="hintx">'+GX("rwNone")+'</div>')+
+      '</tbody></table></div>'+admMoreBtn(bal.length,admShown("rwbal"),"rwbal"):'<div class="hintx">'+GX("rwNone")+'</div>')+
     (ev.length?'<h4 style="margin:18px 0 6px">'+GX("rwLog")+'</h4><div class="iklog">'+ev.slice(0,30).map(function(e){ return '<div class="iklog-r"><span class="ltr">'+when(e.created_at)+'</span><b>'+esc(e.name||"")+'</b><i>'+(e.listing_id?'#'+e.listing_id:'')+'</i><span>'+GX("rwK_"+e.kind)+(e.delta?' ('+(e.delta>0?'+':'')+e.delta+')':'')+(e.note?' · '+esc(e.note):'')+'</span></div>' }).join("")+'</div>':'')+
   '</div></div>' }
 function wireRewardsCard(){
@@ -1297,6 +1298,7 @@ function wireAdmin(){
   if($("#aTheme")) $("#aTheme").onclick=function(){ setTheme(admIsDark()?"light":"dark") };
   $$("#aThemeSeg [data-theme]").forEach(function(b){ b.onclick=function(){ setTheme(this.dataset.theme) } });
   if(!window._admThemeMq && window.matchMedia){ window._admThemeMq=true; try{ matchMedia("(prefers-color-scheme: dark)").addEventListener("change",function(){ if(!admTheme()&&VIEW==="admin"){ admApplyTheme(); render() } }) }catch(e){} }
+  admWireMore();   // «عرض 25 أخرى» on every long list (one listener for the whole panel)
   if(!window._kgoWired){ window._kgoWired=true;
     document.addEventListener("click",function(e){ var c=e.target.closest&&e.target.closest("[data-kgo]"); if(c && c.closest(".adm")) admKpiGo(c.dataset.kgo) });
     document.addEventListener("keydown",function(e){ if(e.key!=="Enter"&&e.key!==" ") return; var c=e.target.closest&&e.target.closest("[data-kgo]"); if(c && c.closest(".adm")){ e.preventDefault(); admKpiGo(c.dataset.kgo) } }) }
@@ -2154,7 +2156,12 @@ function wireAdmin(){
     if(countEl) countEl.innerHTML = '<span class="ltr">'+visible+'</span> '+t("listingsTab");
   };
   if(ADM.tab==="listings") wireAdminListings();   // the listings page wires its own search / filters / drawer / bulk bar
-  if($("#aqU")) $("#aqU").oninput=function(){ filterRows("aUserBody", this.value, "") };
+  if($("#aqU")){ var aqU=$("#aqU");
+    aqU.oninput=function(){ var v=this.value, had=!!ADM.uQ; ADM.uQ=v.trim()?v:"";
+      // the first letters typed open the whole list (only 25 rows are on screen), then the instant filter runs as before
+      if(!had && ADM.uQ && $('[data-more="users"]')){ render(); var n=$("#aqU"); if(n){ n.focus(); try{ n.setSelectionRange(v.length,v.length) }catch(e){} } }
+      filterRows("aUserBody", v, "") };
+    if(ADM.uQ) filterRows("aUserBody", ADM.uQ, "") }
   if($("#amOpen")) $("#amOpen").onclick=function(){ admAddMember() };
   ["report","feedback","ticket"].forEach(function(k){ var q=$("#aq"+k); if(!q) return; q.oninput=function(){ var v=this.value.trim().toLowerCase();
     $$("#inboxRows"+k+" [data-emailrow]").forEach(function(r){ r.style.display = (!v || ((r.dataset.rowText||"")+" "+r.textContent).toLowerCase().indexOf(v)>-1) ? "" : "none" }) } });
@@ -2417,7 +2424,7 @@ var HS_T={
  dualHint:{ar:"قيم الموضع والحجم تُحفظ مرتين: للكمبيوتر وللجوال. بدّل الجهاز في الأعلى لتعديل كل منهما؛ الجوال يرث قيمة الكمبيوتر إن تركته فارغاً.",en:"Position and size values are stored twice, for desktop and phone. Switch the device above to edit each; an empty phone value inherits the desktop one.",de:"Positions- und Größenwerte werden doppelt gespeichert (Desktop/Handy). Oben umschalten; leerer Handy-Wert erbt vom Desktop."},
  f_heroOn:{ar:"إظهار العنوان الرئيسي",en:"Show the headline",de:"Überschrift anzeigen"}, g_text:{ar:"النص",en:"Text",de:"Text"},
  f_h1:{ar:"العنوان",en:"Headline",de:"Überschrift"}, f_h1b:{ar:"الجزء المميّز (يتقلّب إلى اسم المنصة)",en:"Highlighted part (flips to the brand)",de:"Hervorgehobener Teil (wechselt zur Marke)"},
- f_flipAr:{ar:"الكلمة قبل «بلكون» بعد التقلّب (عربي)",en:"Word before “Balkoun” after the flip (Arabic)",de:"Wort vor „Balkoun“ nach dem Wechsel (Arabisch)"}, f_flipLatin:{ar:"النص اللاتيني بعد التقلّب",en:"Latin text after the flip",de:"Lateinischer Text nach dem Wechsel"},
+ f_flipWord:{ar:"اسم المنصة بعد التقلّب (عربي)",en:"Brand word after the flip (Arabic)",de:"Markenwort nach dem Wechsel (Arabisch)"}, f_flipAr:{ar:"الكلمة قبل «بلكون» بعد التقلّب (عربي)",en:"Word before “Balkoun” after the flip (Arabic)",de:"Wort vor „Balkoun“ nach dem Wechsel (Arabisch)"}, f_flipLatin:{ar:"النص اللاتيني بعد التقلّب",en:"Latin text after the flip",de:"Lateinischer Text nach dem Wechsel"},
  g_look:{ar:"الشكل والموضع",en:"Look and position",de:"Aussehen und Position"}, f_h1Color:{ar:"لون العنوان",en:"Headline color",de:"Farbe der Überschrift"}, f_h1bColor:{ar:"لون الجزء المميّز",en:"Highlight color",de:"Farbe der Hervorhebung"},
  f_size:{ar:"حجم الخط (px)",en:"Font size (px)",de:"Schriftgröße (px)"}, f_x:{ar:"إزاحة أفقية (px)",en:"Horizontal offset (px)",de:"Horizontaler Versatz (px)"}, f_y:{ar:"إزاحة رأسية (px)",en:"Vertical offset (px)",de:"Vertikaler Versatz (px)"},
  f_heroGap:{ar:"المسافة تحت القسم الأول",en:"Space below the hero",de:"Abstand unter dem Hero"},
@@ -2676,7 +2683,7 @@ function hsInspHome(){
   if(sd==="hero_text"){
     H.push(fSwitch(hsT("f_heroOn"),"c:hero_enabled",true,true), fGrp(hsT("g_text")), fHint(hsT("textsHint")),
       fText(hsT("f_h1"),"c:hero",t("h1a")), fText(hsT("f_h1b"),"c:hero_sub",t("h1b")),
-      fText(hsT("f_flipAr"),"x:brand_flip_prefix_ar","منصة",true), fText(hsT("f_flipLatin"),"x:brand_flip_latin","balkoun.com",true),
+      fText(hsT("f_flipAr"),"x:brand_flip_prefix_ar","منصة",true), fText(hsT("f_flipWord"),"x:brand_flip_word_ar","بلكون",true), fText(hsT("f_flipLatin"),"x:brand_flip_latin","balkoun.com",true),
       fGrp(hsT("g_look")), fHint(hsT("dualHint")),
       '<div class="row">'+fColor(hsT("f_h1Color"),"c:hero_title_color","#ffffff")+fColor(hsT("f_h1bColor"),"c:hero_sub_color","#C4881F")+'</div>',
       fDual(hsT("f_size"),"c:hero_title_size","x:hero_title_size_m",16,64,1,true),
@@ -3127,7 +3134,7 @@ function adminEngageBody(){
   var kpis='<div class="kpis" style="margin-bottom:16px">'+["featured","ad","banner"].map(function(k){ return '<div class="kpi"><div class="kpi-l">'+engKindLabel(k)+' · '+GX("engLive")+'</div><div class="kpi-v ltr">'+live(k).length+'</div><div class="kpi-d"><small>'+GX("engHistory")+': <span class="ltr">'+hist(k).length+'</span></small></div></div>' }).join("")+'</div>';
   var sec=function(k,ico){ var lv=live(k), hs=hist(k); return '<div class="blk" style="margin-top:16px"><h3>'+ico+' '+engKindLabel(k)+' <span class="n">'+lv.length+'</span></h3><div class="in eng-in">'+
     '<div class="esub">'+GX("engLive")+'</div>'+(lv.length?'<div class="elist">'+lv.map(engRow).join("")+'</div>':'<div class="adashempty">'+GX("engNoneLive")+'</div>')+
-    '<div class="esub">'+GX("engHistory")+' · '+(cur===0?GX("r0"):R.filter(function(r){ return r[0]===cur })[0][1])+'</div>'+(hs.length?'<div class="elist">'+hs.map(engRow).join("")+'</div>':'<div class="adashempty">'+GX("engEmpty")+'</div>')+'</div></div>' };
+    '<div class="esub">'+GX("engHistory")+' · '+(cur===0?GX("r0"):R.filter(function(r){ return r[0]===cur })[0][1])+'</div>'+(hs.length?'<div class="elist">'+hs.slice(0,admShown("eng_"+k)).map(engRow).join("")+'</div>'+admMoreBtn(hs.length,admShown("eng_"+k),"eng_"+k):'<div class="adashempty">'+GX("engEmpty")+'</div>')+'</div></div>' };
   return head+kpis+sec("featured",AICO.star)+sec("ad",AICO.ads)+sec("banner",AICO.banner);
 }
 function adminDashboardBody(s){
@@ -3249,7 +3256,7 @@ function adminUsersBody(d){
   // "deleted" is a view of its own: the deleted_users log (who was deleted, when, by whom) instead of the live members
   var delMode=ADM.userBlockedFilter==="deleted", delList=delMode?(ADM.delUsers||[]):[];
   var toolbar='<div class="rtop" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
-    '<input id="aqU" placeholder="'+t("searchPH")+'" class="asearch" style="flex:1;min-width:200px;width:auto">'+
+    '<input id="aqU" placeholder="'+t("searchPH")+'" class="asearch" style="flex:1;min-width:200px;width:auto" value="'+esc(ADM.uQ||"")+'">'+
     '<select id="uSortPick" class="lvlpick"><option value="newer"'+(ADM.userSort!=="older"?" selected":"")+'>'+t("sortNewerUsers")+'</option><option value="older"'+(ADM.userSort==="older"?" selected":"")+'>'+t("sortOlderUsers")+'</option></select>'+
     '<select id="uLevelPick" class="lvlpick"><option value="">'+t("allLevels")+'</option>'+LEVELS_ALL.map(function(lv){ return '<option value="'+lv+'"'+(ADM.userLevelFilter===lv?" selected":"")+'>'+t("lv_"+lv)+'</option>' }).join("")+'</select>'+
     '<select id="uBlockPick" class="lvlpick"><option value="">'+t("allUsers")+'</option><option value="active"'+(ADM.userBlockedFilter==="active"?" selected":"")+'>'+t("activeOnly")+'</option><option value="blocked"'+(ADM.userBlockedFilter==="blocked"?" selected":"")+'>'+t("blockedOnly")+'</option><option value="test"'+(ADM.userBlockedFilter==="test"?" selected":"")+'>'+GX("tHouse")+' ('+(d.users||[]).filter(function(u){ return u.is_house }).length+')</option><option value="deleted"'+(delMode?" selected":"")+'>'+GX("uDeleted")+(ADM.delUsers?' ('+ADM.delUsers.length+')':'')+'</option><option value="abandoned"'+(abMode_on?" selected":"")+'>'+GX("uAbandoned")+'</option></select>'+
@@ -3280,7 +3287,8 @@ function adminUsersBody(d){
       [GX("uMemberCol"),GX("uJoined"),t("myAds"),GX("uDeletedAt"),GX("uDeletedBy")].map(function(h){ return '<th>'+h+'</th>' }).join("")+
       '</tr></thead><tbody id="aUserBody">'+dbody+'</tbody></table></div></div>';
   }
-  var rows=list.map(function(u){
+  var uShown=ADM.uQ?list.length:admShown("users");
+  var rows=list.slice(0,uShown).map(function(u){
     var nm=((u.name||"")+" "+(u.family_name||"")).trim()||"—", isAdmin=u.role==="admin", open=ADM.userOpen===u.id;
     var joined=u.created_at?new Date(u.created_at).toLocaleDateString(L==="ar"?"ar-SY":L==="de"?"de-DE":L==="fr"?"fr-FR":"en-GB",{year:"numeric",month:"short",day:"numeric"}):"";
     var html='<tr data-row-text="'+esc((nm+" "+(u.phone||"")+" "+(u.member_no||"")).toLowerCase())+'" class="lrow'+(open?" open":"")+'"'+(isAdmin?'':' data-urow="'+u.id+'"')+'>'+
@@ -3425,7 +3433,7 @@ function adminUsersBody(d){
     return html })(null,"",false,false) }
   return toolbar+(abMode_on?'<div class="hintx" style="margin:0 0 10px">'+GX("abHint")+'</div>':'')+'<div class="lpage'+(drawer?' has-drawer':'')+'"><div class="atable atable-stack utable"><table><thead><tr>'+
     [GX("uMemberCol"),GX("colLastSeen"),t("myAds"),t("ratingCol"),t("levelCol"),GX("uSettingsCol"),t("role")].map(function(h){ return '<th>'+h+'</th>' }).join("")+
-    '</tr></thead><tbody id="aUserBody">'+rows+'</tbody></table></div>'+drawer+'</div>';
+    '</tr></thead><tbody id="aUserBody">'+rows+'</tbody></table>'+admMoreBtn(list.length,uShown,"users")+'</div>'+drawer+'</div>';
 }
 function stFileRow(f, actions, kindLabel){
   var full=String(f.name), inTrash=full.indexOf("trash/")===0, p=inTrash?full.slice(6):full, parts=p.split("/"), base=parts.pop(), folder=parts.join("/");
@@ -3519,11 +3527,11 @@ function geoAdminBody(){
    geoSuggestCard(g,true)+
    '<div class="geotable" style="display:grid;grid-template-columns:1.4fr 1fr 1fr .8fr .5fr .5fr auto auto;gap:6px 8px;align-items:center;font-size:13.5px">'+
      '<b>'+GX("nameAr")+'</b><b>'+GX("nameEn")+'</b><b>'+GX("slug")+'</b><b>'+GX("kind")+'</b><b>'+GX("order")+'</b><b>'+GX("shown")+'</b><b>'+GX("listings")+'</b><b></b>'+
-     rows.map(function(a){ return '<input data-ga="name_ar:'+a.id+'" value="'+escOnce(a.name_ar)+'"><input data-ga="name_en:'+a.id+'" value="'+escOnce(a.name_en||"")+'"><input data-ga="slug:'+a.id+'" value="'+escOnce(a.slug||"")+'" class="ltr">'+kindSel(a.kind,a.id)+
+     rows.slice(0,admShown("geo_"+(g?g.id:0))).map(function(a){ return '<input data-ga="name_ar:'+a.id+'" value="'+escOnce(a.name_ar)+'"><input data-ga="name_en:'+a.id+'" value="'+escOnce(a.name_en||"")+'"><input data-ga="slug:'+a.id+'" value="'+escOnce(a.slug||"")+'" class="ltr">'+kindSel(a.kind,a.id)+
        '<input data-ga="sort_order:'+a.id+'" value="'+(a.sort_order||100)+'" type="number" style="width:64px"><input type="checkbox" data-ga="enabled:'+a.id+'"'+(a.enabled?" checked":"")+'><span class="ltr">'+a.listings+'</span>'+
        '<span style="display:flex;gap:4px"><button class="ab ok" data-geosave="'+a.id+'">'+GX("save")+'</button>'+(a.listings>0?'':'<button class="ab" data-geodel="'+a.id+'" style="color:var(--danger)">'+GX("del")+'</button>')+'</span>' }).join("")+
      '<input id="geoNewName" placeholder="'+GX("nameAr")+'" style="border-color:var(--gold)"><input id="geoNewEn" placeholder="'+GX("nameEn")+'"><input id="geoNewSlug" placeholder="'+GX("slug")+'" class="ltr">'+kindSel("area","new")+'<input id="geoNewOrder" type="number" value="100" style="width:64px"><span></span><span></span><button class="ab ok" id="geoAdd">'+GX("add")+'</button>'+
-   '</div></div></div>';
+   '</div>'+admMoreBtn(rows.length,admShown("geo_"+(g?g.id:0)),"geo_"+(g?g.id:0))+'</div></div>';
 }
 /* «أنواع العقارات» (2026-10-11): the live property-type list, edited like the areas table and saved as one JSON array in
    site_content.extras.property_types (global). The page's applyPropertyTypes() merges it into D.TYPES everywhere;
@@ -3851,7 +3859,7 @@ function cpgContactsBody(){
     '<div class="hintx" style="margin-bottom:8px">'+cpgT("importHint")+'</div><textarea id="cpgImportText" rows="6" style="width:100%;font-family:monospace" placeholder="phone,email,name,city_text"></textarea>'+
     '<label class="xcheck" style="margin-top:8px"><input type="checkbox" id="cpgImportAssume"><span>'+cpgT("importAssume")+'</span></label>'+
     '<div class="xactions"><button class="ab ok" id="cpgImportGo">'+cpgT("importGo")+'</button><button class="ab" id="cpgImportCancel">'+cpgT("cancel")+'</button><span class="xmsg" id="cpgImportMsg"></span></div></div></div>' : "";
-  var rows = !list.length ? '<div class="adashempty">'+cpgT("noContacts")+'</div>' : '<div class="elist">'+list.map(function(c){ return cpgContactRow(c, ADM.cpgEditContact===c.id) }).join("")+'</div>';
+  var rows = !list.length ? '<div class="adashempty">'+cpgT("noContacts")+'</div>' : '<div class="elist">'+list.slice(0,admShown("cpgc")).map(function(c){ return cpgContactRow(c, ADM.cpgEditContact===c.id) }).join("")+'</div>'+admMoreBtn(list.length,admShown("cpgc"),"cpgc");
   return toolbar+addForm+importModal+rows;
 }
 function cpgCampaignRow(c, editing){
@@ -4062,8 +4070,12 @@ function wireAdminHouse(){
     rpc("bk_admin_house_accounts",{p_token:ADM.token}).then(function(r){ ADM.house=r||[]; render() }).catch(function(e){ ADM.house=[]; ADM.houseErr=e.message||"error"; render() }) }
 }
 // long lists show 25 at a time (redesign 2026-10-16): «عرض 25 أخرى» under the list, with how many are left
-function admMoreBtn(total, shown, key){ if(total<=shown) return ''; var left=total-shown; return '<div class="amorebtn"><button type="button" class="ab" data-more="'+key+'">'+GX("showMoreN").replace("{n}",Math.min(25,left)).replace("{t}",left)+'</button></div>' }
-function admWireMore(key, fn){ $$('[data-more="'+key+'"]').forEach(function(b){ b.onclick=function(){ var y=window.scrollY; fn(); render(); try{ window.scrollTo(0,y) }catch(e){} } }) }
+// long lists show a page at a time (owner, 2026-10-17: the listings page was 30 screens long)
+function admShown(key, step){ ADM._show=ADM._show||{}; return ADM._show[key]||step||25 }
+function admMoreBtn(total, shown, key, step){ step=step||25; if(total<=shown) return ''; var left=total-shown; return '<div class="amorebtn"><button type="button" class="ab" data-more="'+key+'" data-step="'+step+'">'+GX("showMoreN").replace("{n}",Math.min(step,left)).replace("{t}",left)+'</button></div>' }
+function admWireMore(){ if(window._moreWired) return; window._moreWired=true;
+  document.addEventListener("click",function(e){ var b=e.target.closest&&e.target.closest("[data-more]"); if(!b||!b.closest(".adm")) return; var k=b.dataset.more, st=+b.dataset.step||25, y=window.scrollY;
+    ADM._show=ADM._show||{}; ADM._show[k]=admShown(k,st)+st; render(); try{ window.scrollTo(0,y) }catch(x){} }) }
 function adminIntakeBody(mode){
   var d=ADM.ik; if(!d) return '<div class="blk"><div class="in adashempty">'+(ADM.ikErr?'<span style="color:var(--danger)">'+esc(ADM.ikErr)+'</span>':t("loading"))+'</div></div>';
   var cfg=d.cfg||{}, c=d.counts||{}, st=ADM.ikStatus, f=ADM.ikFilter||"all", fnUrl=CONFIG.supabaseUrl+"/functions/v1/bk-intake";
@@ -4119,7 +4131,7 @@ function adminIntakeBody(mode){
   var filters=[["all",GX("ik_fAll")],["attention",GX("ik_fAttention")],["open",GX("ik_fOpen")],["published",GX("ik_published")],["cancelled",GX("ik_cancelled")]];
   // bulk bar: tick several drafts, give them all a governorate / an agency, publish or cancel them in one go
   // only ticks on drafts that are visible AND still actionable count (a tick left over from another filter is dropped)
-  var visIds={}; list.slice(0,ADM.ikShow||25).forEach(function(x){ if(["published","cancelled"].indexOf(x.status)<0) visIds[x.id]=true });   // only drafts on screen can be ticked
+  var visIds={}; list.slice(0,admShown("ikmore")).forEach(function(x){ if(["published","cancelled"].indexOf(x.status)<0) visIds[x.id]=true });   // only drafts on screen can be ticked
   ADM.ikSel=ADM.ikSel||{}; Object.keys(ADM.ikSel).forEach(function(k){ if(!visIds[k]) delete ADM.ikSel[k] });
   var selIds=Object.keys(ADM.ikSel).filter(function(k){ return ADM.ikSel[k] }), nSel=selIds.length, nVis=Object.keys(visIds).length;
   var bulk='<div class="ikbulk'+(nSel?' on':'')+'">'+
@@ -4133,7 +4145,7 @@ function adminIntakeBody(mode){
     '<div class="ikb-row"><button type="button" class="ab ok" id="ikBulkPubL"'+(nSel?'':' disabled')+'>'+GX("ik_pubLive")+'</button><button type="button" class="ab" id="ikBulkPubP"'+(nSel?'':' disabled')+'>'+GX("ik_pubPending")+'</button><button type="button" class="ab bad" id="ikBulkCancel"'+(nSel?'':' disabled')+'>'+t("cancel")+'</button><span class="xmsg" id="ikBulkMsg"></span></div></div>';
   var drafts='<div class="blk"><h3>'+GX("ik_draftsH")+' <span class="n">'+list.length+'</span></h3><div class="in eng-in">'+
     '<div class="ikfilters">'+filters.map(function(x){ return '<button type="button" class="ab'+(x[0]===f?' on':'')+'" data-ikf-filter="'+x[0]+'">'+x[1]+'</button>' }).join("")+'<button type="button" class="ab" id="ikReload" style="margin-inline-start:auto">'+AICO.refresh+'</button></div>'+
-    (list.length ? bulk+'<div class="elist">'+list.slice(0,ADM.ikShow||25).map(ikRow).join("")+'</div>'+admMoreBtn(list.length,ADM.ikShow||25,'ikmore') : '<div class="adashempty">'+GX("ik_none")+'</div>')+'</div></div>';
+    (list.length ? bulk+'<div class="elist">'+list.slice(0,admShown("ikmore")).map(ikRow).join("")+'</div>'+admMoreBtn(list.length,admShown("ikmore"),'ikmore') : '<div class="adashempty">'+GX("ik_none")+'</div>')+'</div></div>';
   var logs='<div class="blk"><h3>'+GX("ik_logH")+'</h3><div class="in eng-in"><div class="iklog">'+(d.log||[]).slice(0,40).map(function(l){ return '<div class="iklog-r lvl-'+esc(l.level||"info")+'"><span class="ltr">'+when(l.created_at)+'</span><b>'+esc(l.event)+'</b><i>'+(l.draft_id?'#'+l.draft_id:'')+'</i><span>'+esc(JSON.stringify(l.detail||{})).slice(0,160)+'</span></div>' }).join("")+'</div></div></div>';
   // redesign (2026-10-16): the daily work (numbers + drafts) is under Listings; the bot's setup (connection, admin
   // alerts, settings, log) is its own page under Settings
@@ -4146,8 +4158,8 @@ function wireAdminIntake(){
   var reload=function(){ ADM._ikLoaded=false; render() };
   var busy=function(btn,on){ if(btn){ btn.disabled=on; btn.classList.toggle("busy",on) } };
   if($("#ikReload")) $("#ikReload").onclick=function(){ ADM.ikStatus=null; reload() };
-  $$("[data-ikf-filter]").forEach(function(b){ b.onclick=function(){ ADM.ikFilter=this.dataset.ikfFilter; ADM.ikSel={}; ADM.ikShow=25; render() } });
-  admWireMore("ikmore", function(){ ADM.ikShow=(ADM.ikShow||25)+25 });
+  $$("[data-ikf-filter]").forEach(function(b){ b.onclick=function(){ ADM.ikFilter=this.dataset.ikfFilter; ADM.ikSel={}; if(ADM._show) delete ADM._show.ikmore; render() } });
+  admWireMore();
   $$("[data-ikopen]").forEach(function(b){ b.onclick=function(){ ADM.ikOpen = String(ADM.ikOpen)===this.dataset.ikopen ? null : this.dataset.ikopen; render() } });
   if($("#ikSetupTg")) $("#ikSetupTg").onclick=async function(){ busy(this,true); try{ var r=await intakeAdmin("setup_telegram"); admToast("@"+(r.bot||"")+" ✓"); ADM.ikStatus=null; reload() }catch(e){ admToast(e.message||"error","bad"); busy(this,false) } };
   if($("#ikAdminCode")) $("#ikAdminCode").onclick=async function(){ busy(this,true); try{ await intakeAdmin("admin_code"); reload() }catch(e){ admToast(e.message||"error","bad"); busy(this,false) } };
@@ -4249,7 +4261,7 @@ function adminListingsBody(d){
   var pend=all.filter(function(l){ return l.status==="pending" }).length;
   var anyF=f.q||f.status||f.gov||f.type||f.who||f.src||f.view;
   ADM.lsel=ADM.lsel||{}; var vis={}; LL.forEach(function(l){ vis[l.id]=1 }); Object.keys(ADM.lsel).forEach(function(k){ if(!vis[k]) delete ADM.lsel[k] });
-  var selIds=Object.keys(ADM.lsel).filter(function(k){ return ADM.lsel[k] }), nSel=selIds.length; ADM._lvis=LL.map(function(l){ return l.id });
+  var selIds=Object.keys(ADM.lsel).filter(function(k){ return ADM.lsel[k] }), nSel=selIds.length; ADM._lvis=LL.slice(0,admShown("lst")).map(function(l){ return l.id });
   var open=ADM.lopen?(LL.filter(function(l){ return l.id===ADM.lopen })[0]||all.filter(function(l){ return l.id===ADM.lopen })[0]):null; if(!open) ADM.lopen=null;
   var rowHtml=function(l){ var sel=!!ADM.lsel[l.id];
     return '<tr class="lrow'+(sel?' sel':'')+(ADM.lopen===l.id?' open':'')+'" data-lrow="'+l.id+'">'+
@@ -4260,8 +4272,8 @@ function adminListingsBody(d){
       '<td class="lprice">'+(l.price_usd!=null&&l.price_usd!==""&&!isNaN(+l.price_usd)?'<span class="ltr">'+admPrice(l.price_usd)+'</span>':'<small>'+GX("lfPOR")+'</small>')+'</td>'+
       '<td class="lwho">'+esc(l.agency_name||l.poster_name||"—")+(l.agency_name&&l.poster_name&&l.agency_name!==l.poster_name?'<small>'+esc(l.poster_name)+'</small>':(l.poster_phone?'<small class="ltr">'+esc(l.poster_phone)+'</small>':''))+'</td>'+
       '<td class="lwhen"><span class="ltr">'+admWhen(l.created_at)+'</span></td></tr>' };
-  var rows=LL.map(rowHtml).join("");
-  var thead='<tr><th><input type="checkbox" id="lselAll"'+(LL.length&&nSel===LL.length?' checked':'')+' aria-label="select all"></th><th>'+GX("colListing")+'</th><th>'+t("status")+'</th><th>'+GX("price")+'</th><th>'+GX("lfWho")+'</th><th>'+GX("colDate")+'</th></tr>';
+  var rows=LL.slice(0,admShown("lst")).map(rowHtml).join(""), moreHtml=admMoreBtn(LL.length,admShown("lst"),"lst");
+  var thead='<tr><th><input type="checkbox" id="lselAll"'+(ADM._lvis.length&&nSel===ADM._lvis.length?' checked':'')+' aria-label="select all"></th><th>'+GX("colListing")+'</th><th>'+t("status")+'</th><th>'+GX("price")+'</th><th>'+GX("lfWho")+'</th><th>'+GX("colDate")+'</th></tr>';
   var tbody=rows||'<tr><td colspan="6" class="lnone">'+GX("lfNone")+'</td></tr>', viewHint='', showBulk=true, cntN=LL.length;
   var q=admNormQ(f.q);
   if(f.view==="deleted"){
@@ -4273,14 +4285,14 @@ function adminListingsBody(d){
     var rsn=function(x){ var r=x.reason?(GX_T["delR_"+x.reason]?GX("delR_"+x.reason):esc(x.reason)):""; var s=(r?'<b>'+r+'</b>':'')+(x.note?'<div class="usub">'+esc(x.note)+'</div>':''); return s||'<span class="udash">—</span>' };
     thead='<tr><th></th><th>'+GX("colListing")+'</th><th>'+GX("ldelBy")+'</th><th>'+GX("price")+'</th><th>'+GX("lfWho")+'</th><th>'+GX("ldelCol")+'</th></tr>';
     tbody= ADM.ldel==null ? '<tr><td colspan="6" class="lnone">'+t("loading")+'</td></tr>' : ADM.ldelErr ? '<tr><td colspan="6" class="lnone">'+esc(ADM.ldelErr)+'</td></tr>' : !dl.length ? '<tr><td colspan="6" class="lnone">'+GX("ldelNone")+'</td></tr>'
-      : dl.map(function(x){ var tn=D.TYPES[x.property_type]?D.TYPES[x.property_type][li()]:(x.property_type||"");
+      : dl.slice(0,admShown("ldel")).map(function(x){ var tn=D.TYPES[x.property_type]?D.TYPES[x.property_type][li()]:(x.property_type||"");
         return '<tr class="lrow"><td class="lchk"></td><td><div class="lt"><div class="ltt"><b>'+scopeFlag(x.country_code)+esc(tn)+' '+(x.deal==="rent"?GX("lfForRent"):GX("lfForSale"))+(x.area?' · '+esc(x.area):(x.gov?' · '+esc(x.gov):''))+(x.area_m2?' · <span class="ltr">'+(+x.area_m2).toLocaleString("en")+'</span> '+t("sqm"):'')+'</b>'+
           '<small><span class="ltr">'+esc(x.ref||x.listing_id)+'</span> · '+admStLabel(x.status||"")+(x.views?' · 👁 <span class="ltr">'+x.views+'</span>':'')+(x.posted_at?' · '+GX("colDate")+' <span class="ltr">'+admWhen(x.posted_at)+'</span>':'')+'</small></div></div></td>'+
           '<td>'+byL(x)+'<div class="usub">'+rsn(x)+'</div></td>'+
           '<td class="lprice">'+(x.price_usd!=null?'<span class="ltr">'+admPrice(x.price_usd)+'</span>':'<small>'+GX("lfPOR")+'</small>')+'</td>'+
           '<td class="lwho">'+esc(x.poster_name||"—")+(x.poster_phone?'<small class="ltr">'+esc(x.poster_phone)+'</small>':'')+'</td>'+
           '<td class="lwhen"><span class="ltr">'+admWhen(x.deleted_at)+'</span></td></tr>' }).join("");
-    viewHint='<div class="hintx" style="margin:0 0 10px">'+GX("ldelHint")+'</div>';
+    viewHint='<div class="hintx" style="margin:0 0 10px">'+GX("ldelHint")+'</div>'; moreHtml=admMoreBtn(dl.length,admShown("ldel"),"ldel");
   } else if(f.view==="dupes"){
     // likely duplicates: the server returns (listing, shared key) pairs; cluster them (union-find) and show each group with the normal rows,
     // so the drawer, selection and bulk delete all work on them
@@ -4298,9 +4310,9 @@ function adminListingsBody(d){
     Object.keys(ADM.lsel).forEach(function(k){ if(!vis[k]) delete ADM.lsel[k] }); selIds=Object.keys(ADM.lsel).filter(function(k){ return ADM.lsel[k] }); nSel=selIds.length;
     thead='<tr><th><input type="checkbox" id="lselAll"'+(ADM._lvis.length&&nSel===ADM._lvis.length?' checked':'')+' aria-label="select all"></th><th>'+GX("colListing")+'</th><th>'+t("status")+'</th><th>'+GX("price")+'</th><th>'+GX("lfWho")+'</th><th>'+GX("colDate")+'</th></tr>';
     tbody= ADM.ldup==null ? '<tr><td colspan="6" class="lnone">'+t("loading")+'</td></tr>' : ADM.ldupErr ? '<tr><td colspan="6" class="lnone">'+esc(ADM.ldupErr)+'</td></tr>' : !clusters.length ? '<tr><td colspan="6" class="lnone">'+GX("dupNone")+'</td></tr>'
-      : clusters.map(function(c,i){ var kd={}; c.forEach(function(id){ Object.keys(kinds[id]||{}).forEach(function(k){ kd[k]=1 }) }); var lab=Object.keys(kd).map(function(k){ return k==="text"?GX("dupKindText"):GX("dupKindPoster") }).join(" · ");
+      : clusters.slice(0,admShown("ldup")).map(function(c,i){ var kd={}; c.forEach(function(id){ Object.keys(kinds[id]||{}).forEach(function(k){ kd[k]=1 }) }); var lab=Object.keys(kd).map(function(k){ return k==="text"?GX("dupKindText"):GX("dupKindPoster") }).join(" · ");
           return '<tr class="ldgrp"><td colspan="6" style="background:rgba(120,130,150,.12);font-size:13px;padding:8px 12px"><b>'+GX("dupGroup")+' <span class="ltr">'+(i+1)+'</span></b> · <span class="ltr">'+c.length+'</span> · <small>'+lab+'</small></td></tr>'+c.map(function(id){ return rowHtml(byId[id]) }).join("") }).join("");
-    viewHint='<div class="hintx" style="margin:0 0 10px">'+GX("dupHint")+'</div>';
+    viewHint='<div class="hintx" style="margin:0 0 10px">'+GX("dupHint")+'</div>'; moreHtml=admMoreBtn(clusters.length,admShown("ldup"),"ldup");
   }
   return (ADM.listUser?'<div class="ulchip"><span>'+GX("uListChip").replace("{n}",esc(ADM.listUser.name||""))+' · <b class="ltr">'+all.length+'</b></span><button type="button" class="ab" id="ulClear">✕ '+GX("uListAll")+'</button></div>':'')+
    '<div class="lbar"><span class="lcnt"><b class="ltr">'+cntN+'</b>'+(!f.view&&LL.length!==all.length?' / <span class="ltr">'+all.length+'</span>':'')+' '+(f.view==="deleted"?GX("lfDeletedV"):f.view==="dupes"?GX("dupGroup"):t("listingsTab"))+(pend&&!f.view?'<span class="lpend">· '+GX("lfPendingN").replace("{n}",pend)+'</span>':'')+'</span>'+
@@ -4316,7 +4328,7 @@ function adminListingsBody(d){
      '<table>'+
      '<colgroup><col style="width:36px"><col><col style="width:132px"><col style="width:112px"><col style="width:150px"><col style="width:104px"></colgroup>'+
      '<thead>'+thead+'</thead>'+
-     '<tbody id="aListBody">'+tbody+'</tbody></table>'+
+     '<tbody id="aListBody">'+tbody+'</tbody></table>'+moreHtml+
    '</div>'+(open?admListingDrawer(open,S[open.id]||{}):'')+'</div>';
 }
 function admListingDrawer(l,ls){
@@ -4558,11 +4570,11 @@ function adminSocialBody(){
       '<div class="ld-acts"><button type="button" class="ab ok" id="socialSettingsSave">'+t("save")+'</button></div></div>' : '';
     var all=((ADM.data&&ADM.data.listings)||[]).filter(function(x){ return x.status==="live" });
     var q=(s.q||"").trim().toLowerCase();
-    var rows=(q?all.filter(function(x){ return ((x.ref||"")+" "+(x.gov||"")+" "+(x.area||"")).toLowerCase().indexOf(q)>-1 }):all).slice(0,40);
+    var allRows=(q?all.filter(function(x){ return ((x.ref||"")+" "+(x.gov||"")+" "+(x.area||"")).toLowerCase().indexOf(q)>-1 }):all), rows=allRows.slice(0,admShown("social",24));
     return '<div class="ld-sec">📣 '+GX("tSocial")+'</div><div class="hintx" style="margin-bottom:10px">'+GX("socialPickHint")+'</div>'+
       settingsPanel+
       '<input id="socialQ" class="asearch" placeholder="'+esc(t("searchPH"))+'" value="'+esc(s.q||"")+'" style="max-width:420px;margin-bottom:12px">'+
-      '<div class="sociallist">'+(rows.length?rows.map(function(x){ return '<button type="button" class="socialrow" data-socialpick="'+x.id+'">'+(x.cover?'<img src="'+esc(x.cover)+'">':'<span class="socialrow-ph"></span>')+'<span class="socialrow-mid"><b class="ltr">'+esc(x.ref||x.id)+'</b><small>'+esc(admTypeName(x))+(x.area?' · '+esc(x.area):'')+'</small></span><span class="ltr">'+(x.price_usd!=null?"$"+Number(x.price_usd).toLocaleString("en"):"—")+'</span></button>' }).join(""):'<div class="done2"><b>'+GX("lfNone")+'</b></div>')+'</div>';
+      '<div class="sociallist">'+(rows.length?rows.map(function(x){ return '<button type="button" class="socialrow" data-socialpick="'+x.id+'">'+(x.cover?'<img src="'+esc(x.cover)+'">':'<span class="socialrow-ph"></span>')+'<span class="socialrow-mid"><b class="ltr">'+esc(x.ref||x.id)+'</b><small>'+esc(admTypeName(x))+(x.area?' · '+esc(x.area):'')+'</small></span><span class="ltr">'+(x.price_usd!=null?"$"+Number(x.price_usd).toLocaleString("en"):"—")+'</span></button>' }).join(""):'<div class="done2"><b>'+GX("lfNone")+'</b></div>')+'</div>'+admMoreBtn(allRows.length,admShown("social",24),"social",24);
   }
   var text=promoText(l,{hidePrice:s.hidePrice}), photoUrl=socialPhotoUrl(l), photos=promoPhotos(l), due=socialDueFor(l.id);
   var settings=ADM._promoSettings||{}, groupUrl=(settings.group_urls||{})[s.src]||"";
