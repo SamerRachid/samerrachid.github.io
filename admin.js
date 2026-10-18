@@ -753,7 +753,7 @@ function adminView(){
   var permKeys=["listings","featured","homepage","ads","campaigns","users","passwords","reports","feedback","reviews","msgs","stats","settings"];
   body = '<button class="btn-n" id="aNewAdminBtn" style="margin-bottom:14px">'+t("createAdmin")+'</button>'+
    (ADM.newAdminOpen ? '<div class="blk" style="margin-bottom:16px"><h3>'+t("createAdmin")+'</h3><div class="in">'+
-     '<div class="row"><div class="fl"><label class="req">'+t("contactName")+'</label><input id="naName" autocomplete="off"></div>'+
+     '<div class="row"><div class="fl"><label class="req">'+GX("naNameL")+'</label><input id="naName" autocomplete="off"></div>'+
      '<div class="fl"><label class="req">'+t("mobile")+'</label><div class="pw">'+ccSelect("naCC",phoneCC())+
       '<input id="naPhone" inputmode="numeric" autocomplete="off"></div></div></div>'+
      '<div class="fl"><label class="req">'+t("password")+'</label><input id="naPass" type="text" autocomplete="off" placeholder="'+t("min6")+'"></div>'+
