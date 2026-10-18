@@ -3523,7 +3523,15 @@ function adminStorageBody(limitBlock){
     (r.top||[]).map(function(f){ var base=String(f.name).split("/").pop(); return '<tr><td class="ltr" style="max-width:340px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(f.name)+'">'+esc(base)+'</td><td>'+(GX_T["k_"+f.kind]?GX("k_"+f.kind):f.kind)+'</td><td class="ltr"><b>'+stSize(f.bytes)+'</b></td><td class="ltr">'+(f.created||"")+'</td>'+
       '<td style="white-space:nowrap"><a class="ab" href="'+pub+encodeURI(f.name)+'" target="_blank" rel="noopener" style="text-decoration:none">'+GX("stOpen")+'</a>'+(ADM.isSuper?' <button type="button" class="ab bad" data-stdel="'+esc(f.name)+'">'+t("del")+'</button>':'')+'</td></tr>' }).join("")+'</tbody></table></div></div>';
   var tips='<div class="blk" style="margin-top:16px"><h3>'+GX("stTipsH")+'</h3><div class="in"><ul class="sttips"><li>'+GX("stTip1")+'</li><li>'+GX("stTip2")+'</li><li>'+GX("stTip3")+'</li></ul></div></div>';
-  return planCard+usage+limitBlock+kinds+topListings+stale+trash+orphans+top+tips;
+  // each country's share of the one storage (owner, 2026-10-17): listing media by the listing's country, ad/banner/background files by the
+  // country whose settings use them; avatars, trash, orphans and files several countries use are «shared»
+  var bc={}; (r.by_country||[]).forEach(function(x){ bc[x.cc]=x });
+  var ccs=countryList().filter(function(c){ return c.enabled }).map(function(c){ return c.code }); Object.keys(bc).forEach(function(k){ if(k!=="_shared"&&ccs.indexOf(k)<0) ccs.push(k) });
+  var ccRow=function(name,x,col){ x=x||{bytes:0,files:0}; var pct=Math.round((+x.bytes||0)/total*100); return '<tr><td>'+name+'</td><td class="ltr">'+(+x.files||0)+'</td><td class="ltr"><b>'+stSize(+x.bytes||0)+'</b></td><td><div class="stbar"><i style="width:'+pct+'%;background:'+col+'"></i></div><span class="ltr stpct">'+pct+'%</span></td></tr>' };
+  var byCountry='<div class="blk" style="margin-top:16px"><h3>'+GX("stByCountryH")+'</h3><div class="in" style="padding-bottom:0"><div class="hintx">'+GX("stByCountryHint")+'</div></div><div class="atable"><table><thead><tr><th>'+GX("cCountry")+'</th><th>'+GX("stFiles")+'</th><th>'+GX("stSize")+'</th><th style="width:40%">'+GX("stShare")+'</th></tr></thead><tbody>'+
+    ccs.sort(function(a,b){ return ((bc[b]||{}).bytes||0)-((bc[a]||{}).bytes||0) }).map(function(cc){ var c=countryOf(cc); return ccRow((c?flagSvg(cc)+" "+esc(countryName(c)):esc(cc)),bc[cc],"var(--navy)") }).join("")+
+    ccRow(GX("stShared"),bc._shared,"var(--gold)")+'</tbody></table></div></div>';
+  return planCard+usage+limitBlock+byCountry+kinds+topListings+stale+trash+orphans+top+tips;
 }
 function geoAdminBody(){
   var G=ADM.geo; if(!G) return '<div class="done2"><b>'+t("loading")+'</b></div>';
