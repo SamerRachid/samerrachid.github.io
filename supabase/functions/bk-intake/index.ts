@@ -2299,6 +2299,9 @@ async function routeAdmin(req: Request): Promise<Response> {
   const b = await req.json().catch(() => null);
   const uid = await adminUid(b?.token); if (!uid) return json({ error: "unauthorised" }, 401);
   const a = String(b.action || "");
+  // each action needs the admin permission that owns it (2026-10-18); read/publish check the draft through bk_admin_intake_can
+  const NEED: Record<string, string[]> = { status: ["intake", "bot_cfg"], tick: ["intake", "bot_cfg"], setup_telegram: ["bot_cfg"], waha_setup_webhook: ["bot_cfg"], test_claude: ["bot_cfg", "intake"], test_photo: ["bot_cfg", "intake"], admin_code: ["bot_cfg"], video_poster: ["listings_edit", "ads", "homepage", "projects", "storage"] };
+  if (NEED[a]) { let ok = false; try { ok = !!(await rpc<boolean>("bk_admin_can", { p_token: b.token, p_perms: NEED[a] })); } catch { ok = false; } if (!ok) return json({ error: "forbidden: missing permission " + NEED[a].join("|") }, 403); }
   if (a === "status") {
     const out: any = { urls: { telegram: FN_URL + "/telegram", whatsapp: FN_URL + "/whatsapp" }, telegram: { configured: !!ENV.tg }, whatsapp: { configured: !!(ENV.waToken && ENV.waPhone && ENV.waSecret), verify_set: !!ENV.waVerify }, anthropic: { configured: !!ENV.anthropic }, tick_secret: !!ENV.tick };
     if (ENV.tg) { try { out.telegram.me = await tg("getMe", {}); out.telegram.webhook = await tg("getWebhookInfo", {}); out.telegram.ok = out.telegram.webhook?.url === out.urls.telegram; } catch (e) { out.telegram.error = errStr(e); } }
@@ -2307,7 +2310,7 @@ async function routeAdmin(req: Request): Promise<Response> {
     out.email = await emailStatus();
     // the site shows "code by WhatsApp"/"code by email" only while the relevant backend really answers; remembered in extras so the SQL side can decide without secrets
     const ready = !!out.whatsapp.ok; const wahaReady = !!out.waha.ok; const emailReady = !!out.email.configured; const c = await cfg();
-    if (String(c.verify_wa_ready) !== String(ready)) { await sb.rpc("bk_admin_set_content", { p_token: b.token, p_patch: { extras: { verify_wa_ready: ready } }, p_country: "SY" }); _cfg = null; }
+    if (String(c.verify_wa_ready) !== String(ready)) { try { await sb.rpc("bk_admin_set_content", { p_token: b.token, p_patch: { extras: { verify_wa_ready: ready } }, p_country: "SY" }); } catch { /* an admin without the settings permission just does not refresh the flag */ } _cfg = null; }
     if (String(c.verify_waha_ready) !== String(wahaReady)) { await sb.rpc("bk_admin_set_content", { p_token: b.token, p_patch: { extras: { verify_waha_ready: wahaReady } }, p_country: "SY" }); _cfg = null; }
     if (String(c.verify_email_ready) !== String(emailReady)) { await sb.rpc("bk_admin_set_content", { p_token: b.token, p_patch: { extras: { verify_email_ready: emailReady } }, p_country: "SY" }); _cfg = null; }
     out.verify_wa_ready = ready;
