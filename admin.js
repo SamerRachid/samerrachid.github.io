@@ -2420,7 +2420,7 @@ var HS_T={
  lblOrder:{ar:"ترتيب الأقسام",en:"section order",de:"Reihenfolge"}, lblMore:{ar:"و{n} أخرى",en:"and {n} more",de:"und {n} weitere"}, lblRestore:{ar:"استرجاع نسخة {t}",en:"Restored the version of {t}",de:"Version von {t} wiederhergestellt"},
  openSite:{ar:"فتح الموقع",en:"Open site",de:"Seite öffnen"}, reload:{ar:"تحديث المعاينة",en:"Reload preview",de:"Vorschau neu laden"},
  sections:{ar:"أقسام الصفحة",en:"Page sections",de:"Seitenabschnitte"},
- exit:{ar:"خروج",en:"Exit",de:"Schließen"}, restoreDef:{ar:"إعادة النص الأصلي",en:"Restore the built-in text",de:"Standardtext wiederherstellen"}, restoreDefShort:{ar:"الأصلي",en:"Default",de:"Standard"},
+ exit:{ar:"خروج",en:"Exit",de:"Schließen"}, f_h1Lines:{ar:"اضغط Enter داخل الحقل لتبدأ سطراً جديداً في العنوان.",en:"Press Enter in the box to start a new line in the headline.",de:"Enter im Feld beginnt eine neue Zeile in der Überschrift."}, restoreDef:{ar:"إعادة النص الأصلي",en:"Restore the built-in text",de:"Standardtext wiederherstellen"}, restoreDefShort:{ar:"الأصلي",en:"Default",de:"Standard"},
  emptyField:{ar:"فارغ — لن يظهر أي نص هنا على الموقع. ↺ يعيد النص الأصلي.",en:"Empty — no text shows here on the site. ↺ restores the built-in text.",de:"Leer — hier erscheint kein Text. ↺ stellt den Standard wieder her."}, both:{ar:"الاثنان",en:"Both",de:"Beide"}, editFor:{ar:"تعدّل قيم",en:"Editing values for",de:"Werte für"},
  m_show:{ar:"إظهار القسم",en:"Show section",de:"Abschnitt zeigen"}, m_hide:{ar:"إخفاء القسم",en:"Hide section",de:"Abschnitt ausblenden"}, m_up:{ar:"نقل للأعلى",en:"Move up",de:"Nach oben"}, m_down:{ar:"نقل للأسفل",en:"Move down",de:"Nach unten"},
  m_top:{ar:"نقل لأول الصفحة",en:"Move to the top",de:"Ganz nach oben"}, m_bottom:{ar:"نقل لآخر الصفحة",en:"Move to the bottom",de:"Ganz nach unten"}, m_reset:{ar:"إعادة العناوين الافتراضية (بهذه اللغة)",en:"Restore the default titles (this language)",de:"Standardtitel wiederherstellen (diese Sprache)"},
@@ -2726,7 +2726,7 @@ function hsInspHome(){
   var govOpts=Object.keys(D.GEO).map(function(g){ return [g,gN(g)] });
   if(sd==="hero_text"){
     H.push(fSwitch(hsT("f_heroOn"),"c:hero_enabled",true,true), fGrp(hsT("g_text")), fHint(hsT("textsHint")),
-      fText(hsT("f_h1"),"c:hero",t("h1a")), fText(hsT("f_h1b"),"c:hero_sub",t("h1b")),
+      fArea(hsT("f_h1"),"c:hero",t("h1a")), fArea(hsT("f_h1b"),"c:hero_sub",t("h1b")), fHint(hsT("f_h1Lines")),
       fGrp(hsT("g_flip")), fSwitch(hsT("f_flipOn"),"x:brand_flip_on",true,true), fHint(hsT("f_flipHint")),
       fSwitch(hsT("f_flipPreOn"),"x:brand_flip_prefix_on",true,true), fText(hsT("f_flipAr"),"x:brand_flip_prefix_ar","منصة",true),
       fSwitch(hsT("f_flipWordOn"),"x:brand_flip_word_on",true,true), fText(hsT("f_flipWord"),"x:brand_flip_word_ar","بلكون",true), fText(hsT("f_flipLatin"),"x:brand_flip_latin","balkoun.com",true),

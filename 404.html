@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-/BiOADGRdus9J5Gdn3IqQ4+prlR/ugbt8wb+cz/QRjI=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-yL/FWmUlvOChnOZjcWr0RsS7FVtGCNGzIPzvS8xp4o4=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -2717,7 +2717,7 @@ html.maint-on{overflow:hidden}
 .adm .acontent .ab.ok{box-shadow:0 1px 2px rgba(20,33,61,.15)}
 .adm .acontent .ab.bad{background:#fff;color:var(--danger);border-color:#EBC9C6}.adm .acontent .ab.bad:hover{background:#FFF3F2}
 .adm .xactions{margin-top:4px;padding-top:16px;border-top:1px solid var(--line);gap:10px}.adm .xactions .xmsg{margin-inline-start:auto}
-.adm .atable{border-radius:12px;border-color:#E3E6EC;max-height:70vh}.adm .atable table{font-size:13px}.adm .atable th{position:sticky;top:0;z-index:2;padding:10px 14px}.adm .atable td{padding:10px 14px}.adm .atable tr:hover td{background:#FBFBFD}
+.adm .atable{border-radius:12px;border-color:#E3E6EC;max-height:none}.adm .atable table{font-size:13px}.adm .atable th{position:sticky;top:0;z-index:2;padding:10px 14px}.adm .atable td{padding:10px 14px}.adm .atable tr:hover td{background:#FBFBFD}
 .adm .ikfilters,.adm .ikbulk{padding-left:20px;padding-right:20px}
 .adm .asecnav{top:62px;margin:-4px 0 16px;padding:10px 0;gap:6px;background:linear-gradient(#F3F4F7 85%,rgba(243,244,247,0))}
 .adm .asecnav button{padding:7px 13px;font-size:12.5px;border-radius:999px}.adm .asecnav button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
@@ -6312,7 +6312,7 @@ function home(){
   '<section class="hero"><div class="wrap">'+
   (bannersTop && !heroOff ? (function(){ var row=topBannerCoreRowHtml(); return row ? '<div class="topbanner-wrap tb-inhero">'+row+'</div>' : '' })() : '')+
   (heroOff ? bannerInHeroHtml : '<h1'+(SITE.hero_title_size||SITE.hero_title_color?' style="'+(SITE.hero_title_size?'font-size:'+SITE.hero_title_size+'px;':'')+(SITE.hero_title_color?'color:'+SITE.hero_title_color+';':'')+'"':'')+'>'+
-    siteText("hero","h1a")+' <span'+(SITE.hero_sub_color?' style="color:'+SITE.hero_sub_color+'"':'')+'>'+heroSubHtml(siteText("hero_sub","h1b"))+'</span></h1>')+
+    nl2br(siteText("hero","h1a"))+' <span'+(SITE.hero_sub_color?' style="color:'+SITE.hero_sub_color+'"':'')+'>'+heroSubHtml(siteText("hero_sub","h1b"))+'</span></h1>')+
   heroSearchBarHtml()+
   aiSearchBarHtml()+
 
@@ -13798,11 +13798,13 @@ var GX_T={
   adVideoHint:{ar:"الفيديو: حتى {max} MB، يُفضّل 720p ومدة 10–20 ثانية",en:"Video: up to {max} MB, ideally 720p and 10–20 seconds",de:"Video: bis {max} MB, ideal 720p und 10–20 Sekunden"}
 };
 /* the headline's last word flips every few seconds to the brand: الشرفة → منصة بلكون, balcony → Balkoun.com */
+// the headline may hold line breaks the admin typed (Enter in the editor's text box)
+function nl2br(s){ return String(s==null?"":s).replace(/\r?\n/g,"<br>") }
 function heroSubHtml(txt){
   // switches (2026-10-17): the flip itself, and each of its two Arabic words; with both words hidden there is nothing to flip to, so the sentence stays
   var onX=function(k){ var v=SX(k,true); return v!==false && v!=="false" }, showPre=onX("brand_flip_prefix_on") && SX("brand_flip_prefix_ar","")!=="\u200b", showWord=onX("brand_flip_word_on") && SX("brand_flip_word_ar","")!=="\u200b";
   if(!String(txt||"").replace(/\u200b/g,"").trim()) return "";   // the admin emptied this part: nothing shows, nothing flips
-  if(!onX("brand_flip_on") || (L==="ar" && !showPre && !showWord)) return txt;
+  if(!onX("brand_flip_on") || (L==="ar" && !showPre && !showWord)) return nl2br(txt);
   // the brand face: the letters of "balkoun" / "بلكون" light up one after the other like a wave.
   // Latin letters can also rise (inline-block); Arabic letters stay inline so they remain joined, and glow instead.
   var AR=["ﺑ","ﻠ","ﻜ","ﻮ","ﻥ"]; // ب ل ك و ن in their contextual shapes (initial, medial, medial, final, isolated)
@@ -13813,8 +13815,8 @@ function heroSubHtml(txt){
   var alt = L==="ar" ? (showPre?esc(String(SX("brand_flip_prefix_ar","منصة")))+(showWord?' ':''):'')+(!showWord?'':'<span class="plword" aria-label="'+esc(custom?bw:"بلكون")+'">'+(custom?'<span class="pla" style="--i:0">'+esc(bw)+'</span>':AR.map(function(ch,i){ return '<span class="pla" style="--i:'+i+'">'+ch+'</span>' }).join(""))+'</span>')
           : wave(latin);   // the whole brand, ".com" included, carries the wave
   var m=String(txt||"").match(/^(.*?)(\S+?)([.!؟?]*)\s*$/);
-  if(!m||!m[2]) return txt;
-  var before=m[1], face1=m[2]+m[3];
+  if(!m||!m[2]) return nl2br(txt);
+  var before=nl2br(m[1]), face1=m[2]+m[3];
   // "from the balcony" → "from Balkoun.com": the article flips away together with the noun
   var art=L!=="ar" ? before.match(/(^|\s)(the|a|an|dem|der|die|das|den|vom|am|im|zum|zur)\s*$/i) : null;
   if(art){ before=before.slice(0,art.index+art[1].length); face1=art[2]+" "+face1 }
