@@ -702,7 +702,7 @@ async function main() {
     if (CTX.isDefault) { try { injectHomeSeo(homeSeoBlock({ govs: usableGovs, counts, latest: live.slice(0, 10), agencies: agencies.filter((a) => live.some((l) => l.user_id === a.user_id)), extras: legalExtras })); } catch (e) { console.warn("home block skipped:", e.message); } }
 
     // the app routes that have their own 200 page (see generate-routes.mjs)
-    const routeUrls = ["search", "mapsearch", "wanted", "agencies", "projects"].filter((r) => fs.existsSync(path.join(base, r, "index.html"))).map((r) => ({ loc: `${SITE}${CTX.prefix}/${r}/`, priority: "0.6" }));
+    const routeUrls = ["search", "mapsearch", "wanted", "agencies", "projects", "app"].filter((r) => fs.existsSync(path.join(base, r, "index.html"))).map((r) => ({ loc: `${SITE}${CTX.prefix}/${r}/`, priority: "0.6" }));
     // open requests: each has its own page from generate-routes.mjs (same filter: open and not expired)
     let wantedOpen = [];
     try { wantedOpen = ((await sbRpc("bk_public_wanted", { p_country: c.code })) || []).filter((w) => w && w.id && w.status === "open" && (!w.expires_at || new Date(w.expires_at) > new Date())); }
