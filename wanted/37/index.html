@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-tm4PitfViRPhPlAvbKeifm/DuWRD/P7WWu6RdJViAmE=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-zMZr+7XOaiiZYhLN8SqspkUfPVdxHa7+KR4c7QArcAc=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -3826,6 +3826,8 @@ html.adm-dark .admdm .ab.ok{color:#1A1206}
 .adm .arange .rs{display:none}
 /* editor text fields: label row with «↺ الأصلي», a note when a text was emptied on purpose */
 .adm .hs-tf>label{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.adm .permroles{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:10px}.adm .permroles>span{font-size:12.5px;color:var(--a-ink2,var(--grey));margin-inline-end:4px}
+.adm .permpick .tmgroup{margin-bottom:10px}
 .adm .hs-deft{border:0;background:none;color:var(--a-ink2);font:inherit;font-size:11.5px;font-weight:600;padding:2px 6px;border-radius:6px;cursor:pointer;opacity:.55;white-space:nowrap}
 .adm .hs-deft.on{opacity:1;color:#1F6FEB}
 html.adm-dark .adm .hs-deft.on{color:#8CB4FF}
@@ -4999,6 +5001,11 @@ if(DB){ (function(){
     args = args || {};
     if(MEMBER_FNS[fn] && args.p_token===undefined) args.p_token = (USER&&USER.token)||null;
     return rawRpc(fn, args, opts).then(function(r){
+      // the database refused an admin action (permission or country): say so plainly and log the attempt
+      if(r && r.error && /^forbidden/.test(String(r.error.message||"")) && /^bk_admin_/.test(fn) && fn!=="bk_admin_audit_denied"){
+        var raw=String(r.error.message), k=/other country/.test(raw)?"denyCountry":/super admin/.test(raw)?"denySuper":"denyPerm";
+        try{ rawRpc("bk_admin_audit_denied",{p_token:args.p_token||null,p_action:fn,p_reason:raw,p_country:args.p_country||null}).then(null,function(){}) }catch(e){}
+        r.error.message=(typeof GX==="function"&&GX_T[k])?GX(k):raw; r.error.details=raw }
       if(r && r.data && !ESC_EXEMPT_FNS[fn]) r.data = escDeep(r.data);
       // profile functions (avatar, bio, profile…) answer with the member's own row but no token; a caller that does
       // USER=r.data would silently drop the session (the next save then fails "not signed in") — keep it here, once
@@ -13502,6 +13509,105 @@ var GX_T={
   stUsageH:{ar:"الاستخدام الحالي",en:"Current usage",de:"Aktuelle Nutzung"},
   stRefresh:{ar:"تحديث الأرقام",en:"Refresh numbers",de:"Zahlen aktualisieren"},
   stByKindH:{ar:"التفاصيل حسب النوع",en:"Breakdown by kind",de:"Aufteilung nach Art"},
+  // admin permissions (2026-10-17)
+  p_listings_view:{ar:"عرض الإعلانات",en:"View listings",de:"Anzeigen ansehen",fr:"Voir les annonces"}, ph_listings_view:{ar:"يرى الإعلانات وتفاصيلها دون تعديل.",en:"View listings",de:"Anzeigen ansehen",fr:"Voir les annonces"},
+  p_listings_edit:{ar:"تعديل الإعلانات وقبولها",en:"Edit & approve listings",de:"Anzeigen bearbeiten & freigeben",fr:"Modifier et valider les annonces"}, ph_listings_edit:{ar:"يقبل ويرفض ويعدّل ويخفي الإعلانات وصورها.",en:"Edit & approve listings",de:"Anzeigen bearbeiten & freigeben",fr:"Modifier et valider les annonces"},
+  p_listings_delete:{ar:"حذف الإعلانات",en:"Delete listings",de:"Anzeigen löschen",fr:"Supprimer des annonces"}, ph_listings_delete:{ar:"يحذف الإعلان نهائياً.",en:"Delete listings",de:"Anzeigen löschen",fr:"Supprimer des annonces"},
+  p_wanted:{ar:"الطلبات (مطلوب)",en:"Wanted requests",de:"Gesuche",fr:"Demandes"}, ph_wanted:{ar:"يقبل ويعدّل ويحذف طلبات «مطلوب» ويرسلها.",en:"Wanted requests",de:"Gesuche",fr:"Demandes"},
+  p_intake:{ar:"صندوق البوت",en:"Bot inbox",de:"Bot-Posteingang",fr:"Boîte du bot"}, ph_intake:{ar:"الإعلانات الواردة بالرسائل (واتساب/تيليغرام).",en:"Bot inbox",de:"Bot-Posteingang",fr:"Boîte du bot"},
+  p_reports:{ar:"البلاغات",en:"Reports",de:"Meldungen",fr:"Signalements"}, ph_reports:{ar:"يرد على البلاغات ويغلقها.",en:"Reports",de:"Meldungen",fr:"Signalements"},
+  p_reviews:{ar:"التقييمات",en:"Reviews",de:"Bewertungen",fr:"Avis"}, ph_reviews:{ar:"يرى التقييمات ويضيفها ويحذفها.",en:"Reviews",de:"Bewertungen",fr:"Avis"},
+  p_users_view:{ar:"عرض الأعضاء",en:"View members",de:"Mitglieder ansehen",fr:"Voir les membres"}, ph_users_view:{ar:"يرى الأعضاء وبياناتهم وأرقامهم.",en:"View members",de:"Mitglieder ansehen",fr:"Voir les membres"},
+  p_users_edit:{ar:"تعديل الأعضاء وحظرهم",en:"Edit & block members",de:"Mitglieder bearbeiten & sperren",fr:"Modifier et bloquer des membres"}, ph_users_edit:{ar:"يعدّل الحسابات ومستوياتها ويحظرها وينشئ حسابات.",en:"Edit & block members",de:"Mitglieder bearbeiten & sperren",fr:"Modifier et bloquer des membres"},
+  p_users_delete:{ar:"حذف الأعضاء",en:"Delete members",de:"Mitglieder löschen",fr:"Supprimer des membres"}, ph_users_delete:{ar:"يحذف حساب العضو.",en:"Delete members",de:"Mitglieder löschen",fr:"Supprimer des membres"},
+  p_passwords:{ar:"إعادة تعيين كلمات المرور",en:"Reset passwords",de:"Passwörter zurücksetzen",fr:"Réinitialiser les mots de passe"}, ph_passwords:{ar:"يضع كلمة مرور جديدة لعضو.",en:"Reset passwords",de:"Passwörter zurücksetzen",fr:"Réinitialiser les mots de passe"},
+  p_verify:{ar:"تذاكر التحقق",en:"Verification tickets",de:"Verifizierungen",fr:"Vérifications"}, ph_verify:{ar:"يوافق على طلبات التحقق واسترجاع الحسابات.",en:"Verification tickets",de:"Verifizierungen",fr:"Vérifications"},
+  p_login_as:{ar:"الدخول باسم عضو",en:"Sign in as a member",de:"Als Mitglied anmelden",fr:"Se connecter en tant que membre"}, ph_login_as:{ar:"يدخل الموقع باسم عضو أو بحسابات الموقع — صلاحية حساسة.",en:"Sign in as a member",de:"Als Mitglied anmelden",fr:"Se connecter en tant que membre"},
+  p_agencies:{ar:"المكاتب العقارية",en:"Agencies",de:"Immobilienbüros",fr:"Agences"}, ph_agencies:{ar:"يقبل المكاتب ويعدّلها ويوثّقها.",en:"Agencies",de:"Immobilienbüros",fr:"Agences"},
+  p_feedback:{ar:"رسائل الزوار والشكاوى",en:"Feedback & complaints",de:"Feedback & Beschwerden",fr:"Messages et réclamations"}, ph_feedback:{ar:"يقرأ رسائل «تواصل معنا» ويرد عليها.",en:"Feedback & complaints",de:"Feedback & Beschwerden",fr:"Messages et réclamations"},
+  p_tickets:{ar:"التذاكر",en:"Tickets",de:"Tickets",fr:"Tickets"}, ph_tickets:{ar:"متابعة المهام والتذاكر الداخلية.",en:"Tickets",de:"Tickets",fr:"Tickets"},
+  p_notify:{ar:"إرسال تنبيهات للأعضاء",en:"Send member notifications",de:"Mitglieder benachrichtigen",fr:"Notifier les membres"}, ph_notify:{ar:"يرسل تنبيهاً لعضو أو لكل الأعضاء.",en:"Send member notifications",de:"Mitglieder benachrichtigen",fr:"Notifier les membres"},
+  p_campaigns:{ar:"جهات الاتصال والحملات",en:"Contacts & campaigns",de:"Kontakte & Kampagnen",fr:"Contacts et campagnes"}, ph_campaigns:{ar:"جهات الاتصال، الرسائل الجماعية، والتواصل مع المكاتب.",en:"Contacts & campaigns",de:"Kontakte & Kampagnen",fr:"Contacts et campagnes"},
+  p_featured:{ar:"الإعلانات المميزة والترويج",en:"Featured & promotion",de:"Hervorhebung & Werbung",fr:"Mise en avant"}, ph_featured:{ar:"يميّز الإعلانات ويروّجها.",en:"Featured & promotion",de:"Hervorhebung & Werbung",fr:"Mise en avant"},
+  p_social:{ar:"النشر على السوشيال",en:"Social posting",de:"Social-Media-Posts",fr:"Publication sur les réseaux"}, ph_social:{ar:"إعلانات مستحقة الترويج وإعداداته.",en:"Social posting",de:"Social-Media-Posts",fr:"Publication sur les réseaux"},
+  p_ads:{ar:"المربعات الإعلانية",en:"Ad squares",de:"Werbekacheln",fr:"Encarts publicitaires"}, ph_ads:{ar:"يضيف ويعدّل ويرتّب المربعات الإعلانية.",en:"Ad squares",de:"Werbekacheln",fr:"Encarts publicitaires"},
+  p_engage:{ar:"سجل الحجوزات",en:"Bookings ledger",de:"Buchungsbuch",fr:"Registre des réservations"}, ph_engage:{ar:"سجل الإعلانات المدفوعة وحجوزاتها.",en:"Bookings ledger",de:"Buchungsbuch",fr:"Registre des réservations"},
+  p_projects:{ar:"المشاريع الجديدة",en:"New projects",de:"Neubauprojekte",fr:"Projets neufs"}, ph_projects:{ar:"المشاريع وطلبات المهتمين.",en:"New projects",de:"Neubauprojekte",fr:"Projets neufs"},
+  p_rewards:{ar:"المكافآت والأرصدة",en:"Rewards & balances",de:"Prämien & Guthaben",fr:"Récompenses et soldes"}, ph_rewards:{ar:"يمنح ويسحب رصيد المكافآت — صلاحية مالية.",en:"Rewards & balances",de:"Prämien & Guthaben",fr:"Récompenses et soldes"},
+  p_homepage:{ar:"الصفحة الرئيسية والبانرات",en:"Homepage & banners",de:"Startseite & Banner",fr:"Accueil et bannières"}, ph_homepage:{ar:"محرر الصفحة الرئيسية والبانرات والنشر.",en:"Homepage & banners",de:"Startseite & Banner",fr:"Accueil et bannières"},
+  p_design:{ar:"التصميم",en:"Design",de:"Design",fr:"Design"}, ph_design:{ar:"ألوان الموقع وبطاقاته ورأسه.",en:"Design",de:"Design",fr:"Design"},
+  p_contact:{ar:"بيانات التواصل",en:"Contact details",de:"Kontaktdaten",fr:"Coordonnées"}, ph_contact:{ar:"أرقام الموقع وروابط التواصل.",en:"Contact details",de:"Kontaktdaten",fr:"Coordonnées"},
+  p_geo:{ar:"المناطق والخرائط",en:"Areas & maps",de:"Gebiete & Karten",fr:"Zones et cartes"}, ph_geo:{ar:"يضيف ويعدّل المحافظات والمناطق ومواقعها.",en:"Areas & maps",de:"Gebiete & Karten",fr:"Zones et cartes"},
+  p_types:{ar:"أنواع العقارات والسندات",en:"Property & deed types",de:"Objekt- & Titelarten",fr:"Types de biens et de titres"}, ph_types:{ar:"أنواع العقارات وأوضاع الملكية.",en:"Property & deed types",de:"Objekt- & Titelarten",fr:"Types de biens et de titres"},
+  p_stats:{ar:"الإحصائيات والتحليلات",en:"Statistics",de:"Statistiken",fr:"Statistiques"}, ph_stats:{ar:"صفحة التحليلات.",en:"Statistics",de:"Statistiken",fr:"Statistiques"},
+  p_settings:{ar:"الإعدادات العامة",en:"General settings",de:"Allgemeine Einstellungen",fr:"Paramètres généraux"}, ph_settings:{ar:"الصيانة والنصوص القانونية وقنوات التحقق.",en:"General settings",de:"Allgemeine Einstellungen",fr:"Paramètres généraux"},
+  p_bot_cfg:{ar:"إعدادات البوت",en:"Bot settings",de:"Bot-Einstellungen",fr:"Paramètres du bot"}, ph_bot_cfg:{ar:"إعدادات البوت (النشر بالرسائل).",en:"Bot settings",de:"Bot-Einstellungen",fr:"Paramètres du bot"},
+  p_storage:{ar:"التخزين",en:"Storage",de:"Speicher",fr:"Stockage"}, ph_storage:{ar:"صفحة مساحة التخزين وتنظيفها.",en:"Storage",de:"Speicher",fr:"Stockage"},
+  p_audit:{ar:"سجل النشاط",en:"Activity log",de:"Aktivitätsprotokoll",fr:"Journal d'activité"}, ph_audit:{ar:"يرى من فعل ماذا ومتى.",en:"Activity log",de:"Aktivitätsprotokoll",fr:"Journal d'activité"},
+  pg_content:{ar:"المحتوى",en:"Content",de:"Inhalt",fr:"Contenu"},
+  pg_people:{ar:"الأشخاص",en:"People",de:"Personen",fr:"Personnes"},
+  pg_inbox:{ar:"الرسائل",en:"Inbox",de:"Eingang",fr:"Messages"},
+  pg_marketing:{ar:"التسويق",en:"Marketing",de:"Marketing",fr:"Marketing"},
+  pg_money:{ar:"المال",en:"Money",de:"Finanzen",fr:"Argent"},
+  pg_site:{ar:"الموقع",en:"Website",de:"Website",fr:"Site"},
+  pg_system:{ar:"النظام",en:"System",de:"System",fr:"Système"},
+  pRoleL:{ar:"قالب جاهز:",en:"Ready role:",de:"Vorlage:",fr:"Rôle prêt :"},
+  pRole_content:{ar:"مشرف محتوى",en:"Content moderator",de:"Inhaltsmoderator",fr:"Modérateur de contenu"},
+  pRole_support:{ar:"دعم عملاء",en:"Customer support",de:"Kundensupport",fr:"Support client"},
+  pRole_marketing:{ar:"تسويق",en:"Marketing",de:"Marketing",fr:"Marketing"},
+  pRole_analyst:{ar:"محلّل (عرض فقط)",en:"Analyst (view only)",de:"Analyst (nur ansehen)",fr:"Analyste (lecture seule)"},
+  pRole_manager:{ar:"مدير دولة",en:"Country manager",de:"Länderleiter",fr:"Responsable pays"},
+  pRoleNone:{ar:"مسح الكل",en:"Clear all",de:"Alle leeren",fr:"Tout effacer"},
+  pDbNote:{ar:"الصلاحيات تُفرض في قاعدة البيانات نفسها، والمشرف لا يرى ولا يغيّر إلا بلدان «الدول المسموحة». كل تغيير يُسجَّل في «سجل النشاط».",en:"Permissions are enforced by the database itself; an admin only sees and changes the allowed countries. Every change goes to the activity log.",de:"Rechte werden in der Datenbank selbst durchgesetzt; ein Admin sieht und ändert nur erlaubte Länder. Jede Änderung landet im Aktivitätsprotokoll.",fr:"Les droits sont appliqués par la base elle-même ; un admin ne voit et ne modifie que les pays autorisés. Chaque modification est journalisée."},
+  tAudit:{ar:"سجل النشاط",en:"Activity log",de:"Aktivitätsprotokoll",fr:"Journal d'activité"},
+  auditHint:{ar:"كل تعديل يقوم به مشرف من اللوحة، ومحاولات الرفض (صلاحية أو دولة غير مسموحة). يتبع الدولة المختارة أعلى الصفحة.",en:"Every change an admin makes from the panel, and refused attempts (permission or country). Follows the country chosen at the top.",de:"Jede Änderung eines Admins und abgelehnte Versuche. Folgt dem oben gewählten Land.",fr:"Chaque modification faite par un admin, et les tentatives refusées. Suit le pays choisi en haut."},
+  auditAllAdmins:{ar:"كل المشرفين",en:"All admins",de:"Alle Admins",fr:"Tous les admins"},
+  auditAll:{ar:"الكل",en:"All",de:"Alle",fr:"Tout"},
+  auditDone:{ar:"تم",en:"Done",de:"Erledigt",fr:"Fait"},
+  auditDenied:{ar:"مرفوض",en:"Refused",de:"Abgelehnt",fr:"Refusé"},
+  auditWhen:{ar:"الوقت",en:"When",de:"Wann",fr:"Quand"},
+  auditWho:{ar:"المشرف",en:"Admin",de:"Admin",fr:"Admin"},
+  auditWhat:{ar:"الإجراء",en:"Action",de:"Aktion",fr:"Action"},
+  auditTarget:{ar:"على",en:"Target",de:"Ziel",fr:"Cible"},
+  auditResult:{ar:"النتيجة",en:"Result",de:"Ergebnis",fr:"Résultat"},
+  auditEmpty:{ar:"لا يوجد نشاط مسجّل بعد.",en:"No activity yet.",de:"Noch keine Aktivität.",fr:"Aucune activité pour l'instant."},
+  denyPerm:{ar:"ليس لديك صلاحية لهذا الإجراء.",en:"You don't have permission for this.",de:"Dafür fehlt Ihnen die Berechtigung.",fr:"Vous n'avez pas l'autorisation pour cela."},
+  denyCountry:{ar:"هذا العنصر من دولة غير مسموحة لك.",en:"This item belongs to a country you can't manage.",de:"Dieses Element gehört zu einem Land, das Sie nicht verwalten.",fr:"Cet élément appartient à un pays que vous ne gérez pas."},
+  denySuper:{ar:"هذا الإجراء للمشرف الرئيسي فقط.",en:"Only the main admin can do this.",de:"Nur der Hauptadmin darf das.",fr:"Seul l'administrateur principal peut faire cela."},
+  aa_edit_listing:{ar:"تعديل إعلان",en:"edit listing"},
+  aa_set_status:{ar:"تغيير حالة إعلان",en:"set status"},
+  aa_delete_listing:{ar:"حذف إعلان",en:"delete listing"},
+  aa_photo_add:{ar:"إضافة صورة لإعلان",en:"photo add"},
+  aa_photo_del:{ar:"حذف صورة من إعلان",en:"photo del"},
+  aa_feature:{ar:"تمييز إعلان",en:"feature"},
+  aa_unfeature:{ar:"إلغاء تمييز إعلان",en:"unfeature"},
+  aa_promote:{ar:"ترويج إعلان",en:"promote"},
+  aa_promote_end:{ar:"إنهاء ترويج",en:"promote end"},
+  aa_block_user:{ar:"حظر/فك حظر عضو",en:"block user"},
+  aa_edit_user:{ar:"تعديل عضو",en:"edit user"},
+  aa_delete_user:{ar:"حذف عضو",en:"delete user"},
+  aa_reset_password:{ar:"إعادة تعيين كلمة مرور",en:"reset password"},
+  aa_login_as:{ar:"دخول باسم عضو",en:"login as"},
+  aa_set_level:{ar:"تغيير مستوى عضو",en:"set level"},
+  aa_reward_adjust:{ar:"تعديل رصيد مكافآت",en:"reward adjust"},
+  aa_save_ad:{ar:"حفظ مربع إعلاني",en:"save ad"},
+  aa_delete_ad:{ar:"حذف مربع إعلاني",en:"delete ad"},
+  aa_publish:{ar:"نشر تعديلات الموقع",en:"publish"},
+  aa_set_content:{ar:"تعديل إعدادات الموقع",en:"set content"},
+  aa_create_admin:{ar:"إنشاء مشرف",en:"create admin"},
+  aa_set_permissions:{ar:"تعديل صلاحيات مشرف",en:"set permissions"},
+  aa_remove_admin:{ar:"إزالة مشرف",en:"remove admin"},
+  aa_country_set:{ar:"تعديل دولة",en:"country set"},
+  aa_wanted_set:{ar:"تغيير حالة طلب",en:"wanted set"},
+  aa_wanted_delete:{ar:"حذف طلب",en:"wanted delete"},
+  aa_send_notification:{ar:"إرسال تنبيه للأعضاء",en:"send notification"},
+  aa_campaign_send:{ar:"إرسال حملة",en:"campaign send"},
+  aa_area_save:{ar:"حفظ منطقة",en:"area save"},
+  aa_area_delete:{ar:"حذف منطقة",en:"area delete"},
+  aa_backup:{ar:"نسخة احتياطية",en:"backup"},
+  aa_restore_backup:{ar:"استرجاع نسخة احتياطية",en:"restore backup"},
+  aa_verify_set:{ar:"قرار تذكرة تحقق",en:"verify set"},
+  aa_agency_set:{ar:"تعديل مكتب عقاري",en:"agency set"},
   naNameL:{ar:"اسم المشرف",en:"Admin's name",de:"Name des Administrators",fr:"Nom de l'administrateur"},   // the create-admin form reused the listing form's «owner name» label
   stByCountryH:{ar:"حسب الدولة",en:"By country",de:"Nach Land",fr:"Par pays"},
   stByCountryHint:{ar:"المساحة واحدة لكل الموقع؛ هذا نصيب كل دولة منها: صور وفيديو إعلاناتها، ومربعاتها الإعلانية، وبانراتها وخلفيتها.",en:"One storage for the whole site; this is each country's share: its listings' photos and videos, ad squares, banners and background.",de:"Ein Speicher für die ganze Seite; das ist der Anteil jedes Landes: Fotos und Videos seiner Anzeigen, Werbekacheln, Banner und Hintergrund.",fr:"Un seul stockage pour tout le site ; voici la part de chaque pays : photos et vidéos de ses annonces, encarts publicitaires, bannières et arrière-plan."},
