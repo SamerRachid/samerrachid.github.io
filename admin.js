@@ -37,13 +37,34 @@ async function storageRestore(paths){
        if(j && j.error) return {data:null, error:{message:j.error}};
        return {data:{restored:j.restored||[], failed:j.failed||[]}, error:null} }
   catch(e){ return {data:null, error:e} } }
-var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:"listings",photos:"listings",wanted_adm:"listings",users:"users",agencies_adm:["users","listings"],reviews:"reviews",house:"users",outreach:"users",engage:["ads","featured"],projects_adm:["listings","ads"],ads:"ads",featured:"featured",banners:"homepage",mainpage:"homepage",design:"settings",geo:"settings",types:"settings",contact:"settings",reports:"reports",feedback:"feedback",tickets:"feedback",intake:"listings",intake_cfg:"listings",msgs:"msgs",settings:"settings",storage:"settings",admins:"super",danger:"super",campaigns:"campaigns",social:"featured",maps:"settings"};
+var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:["listings_view","listings_edit","listings_delete"],photos:["listings_view","listings_edit"],wanted_adm:"wanted",users:["users_view","users_edit","users_delete","verify","passwords"],agencies_adm:"agencies",reviews:"reviews",house:"login_as",outreach:"campaigns",engage:["engage","featured","ads"],projects_adm:"projects",ads:"ads",featured:["featured","rewards"],banners:"homepage",mainpage:"homepage",design:"design",geo:"geo",types:"types",contact:"contact",reports:"reports",feedback:"feedback",tickets:"tickets",intake:"intake",intake_cfg:"bot_cfg",msgs:"notify",settings:"settings",storage:"storage",admins:"super",danger:"super",campaigns:"campaigns",social:["social","featured"],maps:"geo",audit:"audit"};
+// the permission list (2026-10-17): groups for the admins page, and ready-made roles. Super admins hold every permission.
+var ADM_PERMS=[["pg_content",["listings_view","listings_edit","listings_delete","wanted","intake","reports","reviews"]],
+  ["pg_people",["users_view","users_edit","users_delete","passwords","verify","login_as","agencies"]],
+  ["pg_inbox",["feedback","tickets","notify","campaigns"]],
+  ["pg_marketing",["featured","social","ads","engage","projects"]],
+  ["pg_money",["rewards"]],
+  ["pg_site",["homepage","design","contact","geo","types"]],
+  ["pg_system",["stats","settings","bot_cfg","storage","audit"]]];
+var ADM_PERM_ALL=[].concat.apply([],ADM_PERMS.map(function(g){ return g[1] }));
+var ADM_ROLES={content:["listings_view","listings_edit","wanted","intake","reports","reviews"],
+  support:["listings_view","users_view","users_edit","passwords","verify","feedback","tickets","notify"],
+  marketing:["listings_view","featured","social","ads","engage","projects","campaigns","homepage","stats"],
+  analyst:["listings_view","users_view","stats"],
+  manager:ADM_PERM_ALL.filter(function(p){ return p!=="audit" })};
+function permLabel(p){ return GX_T["p_"+p]?GX("p_"+p):t("perm_"+p) }
+// the grouped checkboxes + a «role» picker that fills them; cls = the checkbox class the save handler reads
+function permPicker(sel,cls){ sel=sel||[];
+  return '<div class="permpick"><div class="permroles"><span>'+GX("pRoleL")+'</span>'+Object.keys(ADM_ROLES).map(function(r){ return '<button type="button" class="ab" data-permrole="'+r+'" data-permcls="'+cls+'">'+GX("pRole_"+r)+'</button>' }).join("")+
+    '<button type="button" class="ab" data-permrole="" data-permcls="'+cls+'">'+GX("pRoleNone")+'</button></div>'+
+    ADM_PERMS.map(function(g){ return '<div class="tmgroup"><small>'+GX(g[0])+'</small><div class="chkgrid">'+g[1].map(function(p){ return '<label class="xcheck" title="'+esc(GX("ph_"+p))+'"><input type="checkbox" class="'+cls+'" value="'+p+'"'+(sel.indexOf(p)>-1?" checked":"")+'><span>'+permLabel(p)+'</span></label>' }).join("")+'</div></div>' }).join("")+
+    '<div class="hintx" style="margin-top:6px">'+GX("pDbNote")+'</div></div>' }
 // sidebar groups: one entry in the sidebar, sub-tabs rendered as a segmented bar on the page (the tab bodies stay keyed by the real tab)
 // the panel's sections (redesign 2026-10-16, Shopify-style): a section opens its last-visited page; its pages show under it
 // in the sidebar (desktop) or as a row of tabs (phone). Page keys are unchanged, so every link into a page still works.
 var ADM_GROUPS={g_listings:["listings","intake","reports","photos"],g_people:["users","agencies_adm","reviews","house"],
   g_msgs:["feedback","tickets","msgs","campaigns","outreach"],g_mkt:["featured","ads","banners","engage","social","projects_adm"],
-  g_site:["mainpage","design","contact"],g_settings:["settings","countries","geo","maps","types","intake_cfg","admins","storage","danger"]};
+  g_site:["mainpage","design","contact"],g_settings:["settings","countries","geo","maps","types","intake_cfg","admins","audit","storage","danger"]};
 var ADM_GROUP_ALIAS={inbox:"g_msgs",promo:"g_mkt",system:"g_settings"};   // the old section keys (bell links, saved state)
 function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab)>-1) return g } return null }
 // night mode (owner, 2026-10-16): "dark" / "light" / "" = follow the phone or computer
@@ -454,6 +475,7 @@ function adminView(){
  else if(ADM.tab==="banners"){ body = hsStudioHtml("banners"); }
  else if(ADM.tab==="contact"){ body = hsStudioHtml("contact"); }
  else if(ADM.tab==="design"){ body = hsStudioHtml("design"); }
+ else if(ADM.tab==="audit"){ body=adminAuditBody() }
  else if(ADM.tab==="storage"){
   body = adminStorageBody('<div class="blk" style="margin-top:16px"><h3>'+t("storageLimitH")+'</h3><div class="in">'+
     '<div class="hintx" style="margin-bottom:10px">'+t("storageLimitHint")+'</div>'+
@@ -750,16 +772,13 @@ function adminView(){
 
  else if(ADM.tab==="admins"){
   var admins = ADM.admins||[];
-  var permKeys=["listings","featured","homepage","ads","campaigns","users","passwords","reports","feedback","reviews","msgs","stats","settings"];
   body = '<button class="btn-n" id="aNewAdminBtn" style="margin-bottom:14px">'+t("createAdmin")+'</button>'+
    (ADM.newAdminOpen ? '<div class="blk" style="margin-bottom:16px"><h3>'+t("createAdmin")+'</h3><div class="in">'+
      '<div class="row"><div class="fl"><label class="req">'+GX("naNameL")+'</label><input id="naName" autocomplete="off"></div>'+
      '<div class="fl"><label class="req">'+t("mobile")+'</label><div class="pw">'+ccSelect("naCC",phoneCC())+
       '<input id="naPhone" inputmode="numeric" autocomplete="off"></div></div></div>'+
      '<div class="fl"><label class="req">'+t("password")+'</label><input id="naPass" type="text" autocomplete="off" placeholder="'+t("min6")+'"></div>'+
-     '<div class="fl"><label>'+t("permissionsL")+'</label><div class="chkgrid">'+
-      permKeys.map(function(p){return '<label><input type="checkbox" class="naPerm" value="'+p+'"> '+t("perm_"+p)+'</label>'}).join("")+
-     '</div></div>'+
+     '<div class="fl"><label>'+t("permissionsL")+'</label>'+permPicker([],"naPerm")+'</div>'+
      '<div class="fl"><label>'+GX("admCountriesL")+'</label><div class="hintx" style="margin-bottom:6px">'+GX("admCountriesHint")+'</div><div class="chkgrid">'+
       (ADM.countries||[]).map(function(c){return '<label><input type="checkbox" class="naCountry" value="'+esc(c.code)+'"> '+flagOf(c.code)+' '+esc(countryName(c))+'</label>'}).join("")+
      '</div></div>'+
@@ -771,8 +790,8 @@ function adminView(){
    '<div class="blk" style="margin-bottom:16px"><div class="in hintx" style="font-size:13px;line-height:1.8">'+GX("tmHowPair")+'</div></div>'+
    (!admins.length ? '<div class="done2"><b>'+(ADM._adminsErr?esc(ADM._adminsErr):ADM._adminsDone?GX("noAdminsYet"):t("loading"))+'</b></div>' :
    '<div class="tmlist">'+admins.map(function(a){
-      var nm=((a.name||"")+" "+(a.family_name||"")).trim(), editing=ADM.editPermsFor===a.id, groups=[["tmGroupContent",["listings","featured","homepage","ads","campaigns"]],["tmGroupPeople",["users","passwords","reviews"]],["tmGroupInbox",["reports","feedback","msgs"]],["tmGroupSystem",["stats","settings"]]];
-      var perms=a.is_super_admin?'<span class="chip gold">'+t("allPermissions")+'</span>':((a.permissions||[]).length?a.permissions.map(function(p){ return '<span class="chip">'+t("perm_"+p)+'</span>' }).join(""):'<span class="chip muted">—</span>');
+      var nm=((a.name||"")+" "+(a.family_name||"")).trim(), editing=ADM.editPermsFor===a.id;
+      var perms=a.is_super_admin?'<span class="chip gold">'+t("allPermissions")+'</span>':((a.permissions||[]).length?a.permissions.map(function(p){ return '<span class="chip">'+permLabel(p)+'</span>' }).join(""):'<span class="chip muted">—</span>');
       var countries=(a.admin_countries&&a.admin_countries.length)?a.admin_countries.map(function(cc){ return '<span class="chip">'+flagOf(cc)+' '+esc(countryName(countryOf(cc)||{code:cc})||cc)+'</span>' }).join(""):'<span class="chip gold">'+GX("tmAllCountries")+'</span>';
       var card='<div class="tmcard'+(editing?' open':'')+'">'+
         '<div class="tmid"><span class="ava2 big">'+esc((a.name||"?").charAt(0))+'</span><div><b>'+esc(nm)+'</b>'+(a.is_super_admin?' <span class="lvl lvl-vip">'+t("superAdmin")+'</span>':'')+
@@ -783,7 +802,7 @@ function adminView(){
           '<label class="xswitch" title="'+esc(GX("tmAlerts"))+'" style="margin-top:6px"><input type="checkbox" data-tmnotify="'+a.id+'"'+(a.notify_tg!==false?' checked':'')+(a.is_super_admin&&a.id!==ADM.meId?' disabled':'')+'><i></i></label><small style="display:block">'+GX("tmAlerts")+(a.recovery_left?' · '+GX("admMeRecLeft").replace("{n}",a.recovery_left):'')+'</small></div>'+
         '<div class="tmacts">'+(a.is_super_admin?'':'<button class="ab" data-editperms="'+a.id+'">'+t("edit")+'</button>'+(can("passwords")?'<button class="ab" data-tmpw="'+a.id+'">'+t("resetPass")+'</button>':''))+
           (a.tg_paired?'<button class="ab" data-tmunpair="'+a.id+'">'+GX("tmUnpair")+'</button>':'')+(a.is_super_admin?'':'<button class="ab bad" data-removeadmin="'+a.id+'">'+t("removeAdmin")+'</button>')+'</div>'+
-        (editing?'<div class="tmedit"><b>'+t("permissionsL")+'</b>'+groups.map(function(g){ return '<div class="tmgroup"><small>'+GX(g[0])+'</small><div class="chkgrid">'+g[1].map(function(p){ return '<label class="xcheck"><input type="checkbox" class="editPerm" value="'+p+'"'+((a.permissions||[]).indexOf(p)>-1?" checked":"")+'><span>'+t("perm_"+p)+'</span></label>' }).join("")+'</div></div>' }).join("")+
+        (editing?'<div class="tmedit"><b>'+t("permissionsL")+'</b>'+permPicker(a.permissions||[],"editPerm")+
           '<b style="display:block;margin-top:12px">'+GX("admCountriesL")+'</b><div class="hintx">'+GX("admCountriesHint")+'</div><div class="chkgrid" style="margin-top:6px">'+(ADM.countries||[]).map(function(c){ return '<label class="xcheck"><input type="checkbox" class="editCountry" value="'+esc(c.code)+'"'+((a.admin_countries||[]).indexOf(c.code)>-1?" checked":"")+'><span>'+flagOf(c.code)+' '+esc(countryName(c))+'</span></label>' }).join("")+'</div>'+
           '<div class="xactions"><button class="ab ok" data-saveperms="'+a.id+'">'+t("save")+'</button><button class="ab" id="aEditPermsCancel">'+t("cancel")+'</button></div></div>':'')+
         '</div>';
@@ -834,7 +853,7 @@ function adminView(){
    feedback:t("feedbackTab"), tickets:GX("ticketsTab"), msgs:t("msgsNotifTab"), campaigns:GX("tCampaigns"), outreach:GX("tOutreach"),
    featured:GX("tPromote"), ads:t("adsTab"), banners:GX("tBanners"), engage:GX("tEngage"), social:GX("tSocial"), projects_adm:GX("tProjects"),
    stats:GX("navAnalytics"), mainpage:t("mainPageTab"), design:GX("tDesign"), contact:GX("tContact"),
-   settings:GX("navGeneral"), intake_cfg:GX("navBot"), countries:GX("countriesTab"), geo:GX("geoTab"), maps:GX("tMaps"), types:GX("ptTab"), admins:t("adminsTab"), storage:GX("tStorage"), danger:t("dangerTab")};
+   settings:GX("navGeneral"), intake_cfg:GX("navBot"), countries:GX("countriesTab"), geo:GX("geoTab"), maps:GX("tMaps"), types:GX("ptTab"), admins:t("adminsTab"), audit:GX("tAudit"), storage:GX("tStorage"), danger:t("dangerTab")};
  // badges count only what waits for the admin (pending, unread, due) — never totals
  var BADGE={listings:td.pending_listings||s.pending||null, intake:td.intake_review||null, reports:s.openReports||null, wanted_adm:td.pending_wanted||null, users:td.verify_pending||null,
    feedback:s.openFeedback||null, tickets:openTk||null, msgs:ADM.alertsUnread||null, outreach:dueOut, social:(ADM._promoDue||[]).length||null};
@@ -1078,6 +1097,7 @@ async function adminLoad(){
 function GSX(k,d){ var g=(ADM.data&&ADM.data.gx)||{}; var v=g[k]; return (v===undefined||v===null||v==="") ? d : v }
 // free-feature reward: settings (global), balances in the current country scope, recent activity, grant / revoke
 function admRewardsCard(){
+  if(!can("rewards")) return "";
   var R=ADM.rewards; if(!R) return '<div class="blk" style="margin-top:16px"><h3>'+GX("rwH")+'</h3><div class="in"><div class="hintx">'+t("loading")+'</div></div></div>';
   if(R.error) return '<div class="blk" style="margin-top:16px"><h3>'+GX("rwH")+'</h3><div class="in"><div class="hintx" style="color:var(--danger)">'+esc(R.error)+'</div></div></div>';
   var c=R.cfg||{}, on=function(k){ return c[k]!==false&&c[k]!=="false" };
@@ -1174,7 +1194,7 @@ function admPmRefresh(r){
   // after a change: the tab's table, the member balances, the drawer's star, the public squares and ad list
   var p=ADM.pm, i=r||(p&&p.info); if(i&&ADM.data&&ADM.data.listings){ ADM.data.listings.forEach(function(l){ if(String(l.id)===String(i.id)) l.is_featured=!!(i.top&&i.top.active) }) }
   ADM._engDays=null;
-  if(ADM.tab==="featured"){ admLoadPromos(); rpcScoped("bk_admin_rewards",{p_token:ADM.token,p_country:admScope()}).then(function(x){ ADM.rewards=x||{}; render() }).catch(function(){}) }
+  if(ADM.tab==="featured"){ if(can("featured")||can("social")) admLoadPromos(); if(can("rewards")) rpcScoped("bk_admin_rewards",{p_token:ADM.token,p_country:admScope()}).then(function(x){ ADM.rewards=x||{}; render() }).catch(function(){}) }
   try{ if(typeof syncFeaturedFromServer==="function") syncFeaturedFromServer() }catch(e){}
   try{ loadAdSlots() }catch(e){}
   if(ADM._adSlotsLoaded) rpc("bk_admin_list_ads",{p_token:ADM.token,p_country:COUNTRY}).then(function(x){ ADM.adSlots=x||[] }).catch(function(){});
@@ -1232,6 +1252,8 @@ function adminMeCard(){
    '</div></div>'+
   '</div></div>' }
 function wireAdmin(){
+  if(!window._permRoleWired){ window._permRoleWired=true; document.addEventListener("click",function(e){ var b=e.target.closest&&e.target.closest("[data-permrole]"); if(!b) return; e.preventDefault();
+    var set=ADM_ROLES[b.dataset.permrole]||[]; $$("input."+b.dataset.permcls).forEach(function(c){ c.checked=set.indexOf(c.value)>-1 }) }) }
   var doAdminLogin=async function(){
     var btn=$("#adGo"); if(!btn) return;
     var ph="+"+$("#adCC").value+($("#adPhone").value||"").replace(/\D/g,"");
@@ -1549,6 +1571,8 @@ function wireAdmin(){
   }
   $$("[data-arange]").forEach(function(b){ b.onclick=function(){ ADM.range=+this.dataset.arange; render() } });
   if($("#uActPick")) $("#uActPick").onchange=function(){ ADM.userActFilter=this.value; render() };
+  if(ADM.tab==="audit" && !ADM._auditLoaded){ ADM._auditLoaded=true; ADM.audit=undefined;
+    rpcScoped("bk_admin_audit",{p_token:ADM.token,p_country:admScope(),p_limit:1000}).then(function(r){ ADM.audit=Array.isArray(r)?r:[]; render() }).catch(function(e){ ADM.audit={error:e.message||"error"}; render() }) }
   if(ADM.tab==="storage" && !ADM._storageReportLoaded){
     ADM._storageReportLoaded=true;
     rpc("bk_admin_storage_report",{p_token:ADM.token}).then(function(r){ ADM.storageReport=r; render() }).catch(function(e){ ADM.storageReport={error:e.message||"error"}; render() });
@@ -1745,7 +1769,7 @@ function wireAdmin(){
         ADM.engAdd=false; ADM._engDays=null; ADM._featCode=null; ADM.engLastCode=r&&r.code||null; render() }catch(e){ if(m) m.textContent=e.message||"error" } };
   }
   $$("[data-ecopy]").forEach(function(b){ b.onclick=function(){ var c=this.dataset.ecopy, btn=this, old=btn.textContent; try{ navigator.clipboard.writeText(c).then(function(){ if(btn.tagName==="BUTTON"){ btn.textContent=GX("engCopied"); setTimeout(function(){ btn.textContent=old },1200) } }) }catch(e){ prompt(GX("engCode"),c) } } });
-  if((ADM.tab==="dashboard"||ADM.tab==="social") && !ADM._promoDueLoaded){
+  if((ADM.tab==="dashboard"||ADM.tab==="social") && !ADM._promoDueLoaded && (can("social")||can("featured"))){
     ADM._promoDueLoaded=true;
     rpc("bk_admin_promo_due",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM._promoDue=r||[]; render() }).catch(function(){ ADM._promoDue=[] });
   }
@@ -1763,10 +1787,10 @@ function wireAdmin(){
   $$("[data-socialduegoto]").forEach(function(e){ e.onclick=function(){ ADM.social={id:this.dataset.socialduegoto,src:"fb-damas",tab:"text",fmt:"45"}; admGo("social") } });
   if(ADM.tab==="featured" && !ADM._promosLoaded){
     ADM._promosLoaded=true;
-    admLoadPromos();
-    rpcScoped("bk_admin_rewards",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.rewards=r||{}; render() }).catch(function(e){ ADM.rewards={error:e.message||"error"}; render() });
+    if(can("featured")||can("social")) admLoadPromos();
+    if(can("rewards")) rpcScoped("bk_admin_rewards",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.rewards=r||{}; render() }).catch(function(e){ ADM.rewards={error:e.message||"error"}; render() });
   }
-  wireRewardsCard();
+  wireRewardsCard(); wireAuditPage();
   if($("#pmMaxSave")) $("#pmMaxSave").onclick=async function(){ var n=parseInt(($("#pmMax")||{}).value,10); if(!(n>0)) return; this.disabled=true;
     try{ await saveGlobalExtras({ad_max_squares:n}); admToast(t("savedOk")); ADM._promosLoaded=false; render() }catch(e){ admToast(e.message||"error","bad"); this.disabled=false } };
   wireGeoAdmin(); wireTypesAdmin(); wireAdminCountries(); wireAdminCampaigns();
@@ -1811,7 +1835,7 @@ function wireAdmin(){
     var id=this.dataset.uid, on=this.checked, box=this;
     ADM.cardLogos=(ADM.cardLogos||[]).filter(function(x){return x!==id}); if(on) ADM.cardLogos.push(id);
     rpc("bk_admin_set_card_logo",{p_token:ADM.token,p_user:id,p_on:on}).catch(function(){ box.checked=!on }) }});
-  if(ADM.tab==="users" && !ADM._vfLoaded){ ADM._vfLoaded=true;
+  if(ADM.tab==="users" && !ADM._vfLoaded && can("verify")){ ADM._vfLoaded=true;
     rpcScoped("bk_admin_verify_list",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.vf=Array.isArray(r)?r:[]; render() }).catch(function(){ ADM.vf=[]; render() }) }
   if($("#vfSetSave")) $("#vfSetSave").onclick=async function(){ var m=$("#vfSetMsg"), patch={}; this.disabled=true;
     $$("#vfSet [data-gk]").forEach(function(i){ var k=i.dataset.gk, ty=i.dataset.gt; patch[k] = ty==="bool" ? !!i.checked : ty==="num" ? (i.value===""?null:+i.value) : (String(i.value).trim()===""?null:String(i.value).trim()) });
@@ -3237,6 +3261,7 @@ function adminAnalyticsBody(){
     '</div>'+healthStrip(an);
 }
 function adminVerifyHtml(){
+  if(!can("verify")) return "";
   var list=ADM.vf, purpose=function(p){ return GX(p==="reset"?"vfReset":"vfSignup") };
   var rows=list===undefined ? '<div class="hintx">'+t("loading")+'</div>' : !list.length ? '<div class="adashempty">'+GX("vfNone")+'</div>' :
     '<div class="elist">'+list.map(function(v){ return '<div class="agcard2 vfrow"><div class="agc-id"><b class="ltr">'+esc(v.phone)+'</b><small>'+purpose(v.purpose)+(v.name?' · '+esc(v.name):'')+' · '+when(v.wa_sent_at||v.created_at)+'</small></div>'+
@@ -3463,6 +3488,29 @@ function stFileRow(f, actions, kindLabel){
   var pub=CONFIG.supabaseUrl+"/storage/v1/object/public/photos/"+encodeURI(full);
   return '<div class="strow"><div class="strow-main"><b class="ltr" title="'+esc(base)+'">'+esc(base)+'</b><small class="ltr">'+esc(folder||"—")+' · '+stSize(f.bytes)+(f.created?' · '+esc(f.created):'')+(kindLabel?' · '+kindLabel:'')+'</small></div>'+
     '<div class="strow-acts"><a class="ab" href="'+pub+'" target="_blank" rel="noopener" style="text-decoration:none">'+GX("stOpen")+'</a>'+actions+'</div></div>' }
+// who did what, when (admin_audit): every change through the panel, and refused attempts
+var AUDIT_ACT={bk_admin_edit_listing:"aa_edit_listing",bk_admin_set_status:"aa_set_status",bk_admin_delete_listing:"aa_delete_listing",bk_admin_photo_add:"aa_photo_add",bk_admin_photo_del:"aa_photo_del",
+  bk_admin_feature_listing:"aa_feature",bk_admin_unfeature_listing:"aa_unfeature",bk_admin_promote:"aa_promote",bk_admin_promote_end:"aa_promote_end",bk_admin_block_user:"aa_block_user",bk_admin_edit_user:"aa_edit_user",
+  bk_admin_delete_user:"aa_delete_user",bk_admin_reset_password:"aa_reset_password",bk_admin_login_as:"aa_login_as",bk_admin_set_level:"aa_set_level",bk_admin_reward_adjust:"aa_reward_adjust",bk_admin_save_ad:"aa_save_ad",
+  bk_admin_delete_ad:"aa_delete_ad",bk_admin_publish:"aa_publish",bk_admin_set_content:"aa_set_content",bk_admin_create_admin:"aa_create_admin",bk_admin_set_permissions:"aa_set_permissions",bk_admin_remove_admin:"aa_remove_admin",
+  bk_admin_country_set:"aa_country_set",bk_admin_wanted_set:"aa_wanted_set",bk_admin_wanted_delete:"aa_wanted_delete",bk_admin_send_notification:"aa_send_notification",bk_admin_campaign_send:"aa_campaign_send",
+  bk_admin_area_save:"aa_area_save",bk_admin_area_delete:"aa_area_delete",bk_admin_backup:"aa_backup",bk_admin_restore_backup:"aa_restore_backup",bk_admin_verify_set:"aa_verify_set",bk_admin_agency_set:"aa_agency_set"};
+function auditActLabel(a){ var k=AUDIT_ACT[a]; return k?GX(k):String(a||"").replace(/^bk_admin_/,"").replace(/_/g," ") }
+function adminAuditBody(){
+  var A=ADM.audit; if(A===undefined) return '<div class="blk"><div class="in adashempty">'+t("loading")+'</div></div>';
+  if(A&&A.error) return '<div class="done2"><b>'+GX("loadFailed")+'</b><div class="hintx">'+esc(A.error)+'</div></div>';
+  var who={}; A.forEach(function(x){ if(x.admin_id) who[x.admin_id]=x.admin_name||"—" });
+  var f=ADM.auditF||{}, rows=A.filter(function(x){ return (!f.admin||x.admin_id===f.admin)&&(!f.res||(f.res==="ok"?x.ok:!x.ok)) });
+  return '<div class="blk"><h3>'+GX("tAudit")+'</h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+GX("auditHint")+'</div>'+
+    '<div class="rtop" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><select id="auAdmin"><option value="">'+GX("auditAllAdmins")+'</option>'+Object.keys(who).map(function(id){ return '<option value="'+esc(id)+'"'+(f.admin===id?' selected':'')+'>'+esc(who[id])+'</option>' }).join("")+'</select>'+
+    '<select id="auRes"><option value="">'+GX("auditAll")+'</option><option value="ok"'+(f.res==="ok"?' selected':'')+'>'+GX("auditDone")+'</option><option value="no"'+(f.res==="no"?' selected':'')+'>'+GX("auditDenied")+'</option></select></div>'+
+    (rows.length?'<div class="atable"><table><thead><tr><th>'+GX("auditWhen")+'</th><th>'+GX("auditWho")+'</th><th>'+GX("auditWhat")+'</th><th>'+GX("auditTarget")+'</th><th>'+GX("cCountry")+'</th><th>'+GX("auditResult")+'</th></tr></thead><tbody>'+
+      rows.slice(0,admShown("audit",100)).map(function(x){ return '<tr><td class="ltr" style="white-space:nowrap">'+esc(new Date(x.at).toLocaleString(L==="ar"?"ar-SY-u-nu-latn":L==="de"?"de-DE":L==="fr"?"fr-FR":"en-GB",{dateStyle:"short",timeStyle:"short"}))+'</td><td>'+esc(x.admin_name||"—")+'</td><td>'+esc(auditActLabel(x.action))+'</td><td class="ltr" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(x.target||"")+'">'+esc(x.target||"")+'</td><td>'+(x.country?flagOf(x.country)+' '+esc(x.country):'—')+'</td><td>'+(x.ok?'<span class="st st-live">'+GX("auditDone")+'</span>':'<span class="st st-removed" title="'+esc(x.reason||"")+'">'+GX("auditDenied")+'</span>')+'</td></tr>' }).join("")+
+      '</tbody></table></div>'+admMoreBtn(rows.length,admShown("audit",100),"audit",100):'<div class="adashempty">'+GX("auditEmpty")+'</div>')+
+    '</div></div>' }
+function wireAuditPage(){ if(ADM.tab!=="audit") return; var a=$("#auAdmin"), r=$("#auRes");
+  if(a) a.onchange=function(){ ADM.auditF=Object.assign({},ADM.auditF,{admin:this.value}); render() };
+  if(r) r.onchange=function(){ ADM.auditF=Object.assign({},ADM.auditF,{res:this.value}); render() } }
 function adminStorageBody(limitBlock){
   if(ADM.storageReport && ADM.storageReport.error) return '<div class="done2"><b>'+GX("loadFailed")+'</b><div class="hintx">'+esc(ADM.storageReport.error)+'</div><button class="ab" id="stRefresh" style="margin-top:8px">'+GX("retryBtn")+'</button></div>';
   var r=ADM.storageReport, plan=String(SX("plan_name","pro")), pl=ST_PLANS[plan]||ST_PLANS.pro, usageUrl="https://supabase.com/dashboard/project/coajrqynjrptujmzjjdh/settings/billing/usage";
@@ -3639,7 +3687,7 @@ function admCountries(){ return (ADM.countries||[]).filter(function(c){ return a
 function admResetScope(){   // everything that was loaded for one country scope is loaded again for the new one
   ADM._gen=(ADM._gen||0)+1;
   ADM.data=null; ADM.ikOpen=null; ADM.pjEdit=null; ADM_PJL=null; ADM.viewingPhotoIdx=null; ADM.eopen=null; ADM.geoCountry=null; ADM._geoLoadedFor=null; ADM._mediaLoadedCats={}; ADM._mediaUsedLoaded=false; ADM.mediaUsed=null;
-  ADM._houseLoaded=false; ADM.house=undefined;
+  ADM._houseLoaded=false; ADM.house=undefined; ADM._auditLoaded=false; ADM.audit=undefined;
   ADM.social=null; ADM._promoDue=null; ADM._promoDueLoaded=false; ADM._promoSettings=null; ADM._promoSettingsLoaded=false;
   ADM.mapsPick=null; ADM._areasMap=null; ADM._areasMapLoaded=false; ADM.mapsQ=""; ADM.mapsView="areas"; ADM.mapsPage=1; ADM._listingsMapStatus=null; ADM._listingsMapStatusLoading=false; ADM.mapsFallbackOn=null;
   ADM._ikLoaded=false; ADM.ik=null; ADM._ticketsLoaded=false; ADM.tickets=null; ADM._vfLoaded=false; ADM.vf=undefined; ADM._reviewsLoaded=false; ADM._uactLoaded=false; ADM.uact=null; ADM._delUsersLoaded=false; ADM.delUsers=null; ADM._ldelLoaded=false; ADM.ldel=null; ADM._ldupLoaded=false; ADM.ldup=null; ADM.ldupN=null; ADM._lstatsRange=null;

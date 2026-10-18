@@ -4,7 +4,7 @@
 // Deployed with the Supabase MCP deploy_edge_function tool; this copy is the source of record.
 //
 // actions:
-//   remove      { paths[] }            delete for good (admins: anything; members: own listing files / own avatar)
+//   remove      { paths[] }            delete for good (admins: files their permissions cover — bk_admin_can_path; members: own listing files / own avatar)
 //   move        { paths[], to }        move into a folder, used for the trash: "<to>/<original path>"
 //   sign-upload { path }               parked (storage server rejects the tokens on this project)
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -52,7 +52,11 @@ Deno.serve(async (req: Request) => {
   if (!list.length || list.length > 200) return json({ error: "no paths" }, 400);
   for (const p of list) {
     if (!safePath(p)) return json({ error: "bad path" }, 400);
-    if (isAdmin) continue;
+    if (isAdmin) {   // the admin must hold the permission that owns this file (and, for listing files, the listing's country)
+      const { data: ok } = await sb.rpc("bk_admin_can_path", { p_token: token, p_path: p });
+      if (ok !== true) return deny("forbidden");
+      continue;
+    }
     // members: only their own listing folders and their own avatar files
     // new layout photos/listings/<id>/file and the legacy root layout <id>/file
     const m = p.match(/^(?:(?:photos|videos)\/listings\/)?(\d+)\/[^/]+$/);
