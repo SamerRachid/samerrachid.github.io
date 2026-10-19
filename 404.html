@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-+aBQf6KyAZqoDhsFk559AJpn+hhhOucMj1GO7v83zpE=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-dJGP976cSjDBlujhz6+Obza2UpWKnbs0WxsDkOy6JVo=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -912,6 +912,16 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
 .shot2 img{width:100%;height:100%;object-fit:cover}
 .shot2 .rm{position:absolute;top:4px;inset-inline-end:4px;background:rgba(13,23,41,.8);color:#fff;border:none;width:21px;height:21px;border-radius:50%;cursor:pointer;font-size:12px;line-height:1}
 .shot2 .cv{position:absolute;bottom:0;left:0;right:0;background:rgba(20,33,61,.85);color:#fff;font-size:10.5px;text-align:center;padding:2px}
+/* photo order (owner, 2026-10-19): the first photo is the cover; the owner moves photos or picks the cover — never picked for them */
+.shots.ordered{grid-template-columns:repeat(auto-fill,minmax(132px,1fr))}
+.shot2 .ord{position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;gap:3px;padding:16px 4px 4px;background:linear-gradient(rgba(13,23,41,0),rgba(13,23,41,.78))}
+.shot2 .ord button{flex:none;width:26px;height:26px;border-radius:50%;border:none;background:rgba(13,23,41,.82);color:#fff;cursor:pointer;font-size:14px;line-height:1;display:grid;place-items:center;padding:0;font-family:inherit}
+.shot2 .ord button:focus-visible{outline:2px solid var(--gold,#C4881F);outline-offset:1px}
+.shot2 .ord button[disabled]{visibility:hidden}
+.shot2 .ord .mkcv{flex:0 1 auto;width:auto;min-width:0;overflow:hidden;text-overflow:ellipsis;border-radius:13px;padding:0 9px;font-size:11px;white-space:nowrap}
+.shot2 .ord .mkcv:hover{background:var(--gold,#C4881F)}
+.shot2 .ord .iscv{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;height:22px;line-height:22px;border-radius:11px;padding:0 9px;background:var(--gold,#C4881F);color:#fff;font-size:11px;font-weight:700;white-space:nowrap}
+.shot2.first{outline:2px solid var(--gold,#C4881F);outline-offset:-2px}
 .tipbox{background:var(--navy-w);border:1px solid #D7DEEC;border-radius:6px;padding:12px 15px;font-size:13px;color:#2E3E5E;line-height:1.85;margin-top:13px}
 .deedbox{border-radius:6px;padding:12px 15px;margin-top:11px;font-size:13px;line-height:1.8;display:none}
 .deedbox.on{display:block}
@@ -5104,6 +5114,7 @@ var FR_T={
   lv_member:"Membre", lv_trusted:"De confiance", lv_vip:"VIP", lv_partner:"Partenaire", lv_silver:"Argent", lv_gold:"Or", lv_trusted_agency:"Agence de confiance", silverTag:"Membre Argent", goldTag:"Membre Or", trustedAgencyTag:"Agence de confiance", back:"Retour", refresh:"Actualiser"
 };
 var FR_GX={
+  phMakeCover:"À la une", phIsCover:"Couverture", phMakeCoverL:"En faire la photo de couverture", phEarlier:"Avancer la photo", phLater:"Reculer la photo", phOrderHint:"La première photo est la couverture. Réordonnez avec les flèches ou touchez «★ À la une» sur celle que vous voulez.",
   mdMenu:"Menu", mdClose:"Fermer", mdAccount:"Mon compte", mdSearch:"Recherche", mdDiscover:"Découvrir", mdSite:"Balkoun", mdPrefs:"Langue et devise", csDone:"OK", csClear:"Effacer",
   rsAll:"Biens", rsMore:"Plus", rsShow:"Afficher {n} annonces", rsAvg:"Prix moyen demandé", rsInArea:"dans le quartier", rsHideMap:"Masquer la carte", rsShowMap:"Carte", rsClearAll:"Tout effacer", rsFilters:"Filtres", rsSort:"Trier", rsOnMap:"{n} sur la carte", rsList:"Liste", newTag:"Nouveau",
   arxT:"Tous les gouvernorats et quartiers", arxP:"Choisissez un gouvernorat ou un quartier pour voir ses annonces. Les quartiers avec des annonces sont en doré.", arxStats:"{g} gouvernorats · {a} quartiers · {n} annonces", arxCount:"{n} annonces", arxNone:"Pas encore d'annonces", arxMore:"+{n} autres quartiers", arxLess:"Voir moins", arxMap:"Carte",
@@ -5904,7 +5915,7 @@ async function storageUpload(path, file, opts){   // same {data,error} shape sup
 
 var MEMBER_FNS={bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,bk_set_hide_phone:1,
   bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_my_listings:1,bk_own_delete:1,bk_delete_account:1,bk_my_rewards:1,bk_use_feature_credit:1,bk_set_account_type:1,
-  bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
+  bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_photo_order:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
   bk_search_del:1,bk_search_list:1,bk_search_save:1,bk_set_avatar:1,bk_set_bio:1,bk_set_currency:1,
   bk_update_profile:1,bk_feedback:1,bk_report:1,bk_contact:1,bk_log_view:1};
 
@@ -7151,11 +7162,12 @@ function editView(){
  '</div></div>'+
  (false ? '' :   /* the admin manages photos and videos here too (bk_admin_photo_add / bk_admin_photo_del) */
   '<div class="blk"><h3><span class="n">3</span>'+t("managePhotos")+'</h3><div class="in">'+
-   '<div class="shots" id="ePhotos">'+
-    (EDIT.photos||[]).filter(function(p){ return p.kind!=="video" }).map(function(p){
-      return '<div class="shot2"><img src="'+(p.thumb_url||p.url)+'">'+
-      '<button type="button" class="rm" data-delphoto="'+p.id+'" aria-label="'+esc(t("del"))+'">✕</button></div>'}).join("")+
-   '</div>'+
+   (function(){ var ph=(EDIT.photos||[]).filter(function(p){ return p.kind!=="video" }), n=ph.length;
+    return '<div class="shots'+(n>1?' ordered':'')+'" id="ePhotos">'+
+    ph.map(function(p,i){
+      return '<div class="shot2'+(i===0&&n>1?' first':'')+'"><img src="'+(p.thumb_url||p.url)+'">'+
+      '<button type="button" class="rm" data-delphoto="'+p.id+'" aria-label="'+esc(t("del"))+'">✕</button>'+shotOrd(i,n)+'</div>'}).join("")+
+   '</div>'+(n>1?'<p class="hint" id="eOrdHint" style="margin:8px 0 0;font-size:12px;color:var(--grey)">'+esc(GX("phOrderHint"))+'</p>':'') })()+
    '<div class="drop" id="eDrop" style="margin-top:12px"><b>'+t("addPhotos")+'</b>'+
     '<span>'+t("dropS")+' · '+GX("photoMaxHint").replace("{n}",PHOTO_MAX)+'</span></div>'+
    '<input type="file" id="eFiles" accept="image/*,video/*" multiple hidden>'+
@@ -7937,12 +7949,32 @@ function checkPost(){
    b.disabled=true;b.style.opacity=".45"}
  else{m.className="msg";m.textContent=t("ready");b.disabled=false;b.style.opacity="1"}}
 
+// the order bar under photo i of n: move earlier / later and «make it the cover»; the first photo shows «cover»
+function shotOrd(i, n){
+ if(n<2) return '';
+ var rtl=document.documentElement.dir==="rtl", ea=rtl?"→":"←", la=rtl?"←":"→";
+ return '<div class="ord">'+
+  '<button type="button" data-mv="-1" data-i="'+i+'"'+(i===0?' disabled':'')+' aria-label="'+esc(GX("phEarlier"))+'" title="'+esc(GX("phEarlier"))+'">'+ea+'</button>'+
+  (i===0 ? '<span class="iscv" title="'+esc(t("cover"))+'">'+esc(GX("phIsCover"))+'</span>'
+         : '<button type="button" class="mkcv" data-mkcv="'+i+'" aria-label="'+esc(GX("phMakeCoverL"))+'" title="'+esc(GX("phMakeCoverL"))+'">★ '+esc(GX("phMakeCover"))+'</button>')+
+  '<button type="button" data-mv="1" data-i="'+i+'"'+(i===n-1?' disabled':'')+' aria-label="'+esc(GX("phLater"))+'" title="'+esc(GX("phLater"))+'">'+la+'</button>'+
+ '</div>';
+}
+// move item i of a list: d=-1 earlier, 1 later, "cover" to the front
+function shotMove(list, i, d){
+ var a=list.slice(), x=a.splice(i,1)[0];
+ if(d==="cover") a.unshift(x); else a.splice(Math.max(0,Math.min(a.length,i+d)),0,x);
+ return a;
+}
 function paintShots(){
  var s=$("#shots"); if(!s)return;
- s.innerHTML=NEW.photos.map(function(p,i){return '<div class="shot2"><img src="'+p.preview+'">'+
+ var n=NEW.photos.length; s.classList.toggle("ordered", n>1);
+ s.innerHTML=NEW.photos.map(function(p,i){return '<div class="shot2'+(i===0&&n>1?' first':'')+'"><img src="'+p.preview+'">'+
   '<div class="kb">'+p.kb+' KB</div>'+
-  '<button class="rm" data-i="'+i+'" aria-label="'+esc(t("del"))+'">✕</button>'+(i===0?'<div class="cv">'+t("cover")+'</div>':'')+'</div>'}).join("");
+  '<button class="rm" data-i="'+i+'" aria-label="'+esc(t("del"))+'">✕</button>'+(n>1?shotOrd(i,n):(i===0?'<div class="cv">'+t("cover")+'</div>':''))+'</div>'}).join("");
  $$("#shots .rm").forEach(function(b){b.onclick=function(){NEW.photos.splice(+b.dataset.i,1);paintShots()}});
+ $$("#shots [data-mv],#shots [data-mkcv]").forEach(function(b){b.onclick=function(){
+   NEW.photos=b.dataset.mkcv!=null ? shotMove(NEW.photos,+b.dataset.mkcv,"cover") : shotMove(NEW.photos,+b.dataset.i,+b.dataset.mv); paintShots() }});
  checkPost()}
 
 function videoEmbedInfo(url){
@@ -9935,6 +9967,15 @@ function wire(){
    as.insertAdjacentHTML("afterbegin",'<option value="">'+(EDIT.isAdmin?t("allareas"):GX("pickArea"))+'</option>'); if(!as.dataset.cur) as.value="";   // a member picks a place; "all areas" is the admin's wildcard
    if(as._combo) as._combo.sync();   // the value above was set directly (no "change" event) after the combobox last synced its display
  }
+ // photo order / cover: shown at once, then saved; on a failure the saved order comes back
+ $$("#ePhotos [data-mv],#ePhotos [data-mkcv]").forEach(function(b){ b.onclick=async function(){
+   var ph=(EDIT.photos||[]).filter(function(p){ return p.kind!=="video" }), vids=(EDIT.photos||[]).filter(function(p){ return p.kind==="video" });
+   var nw=b.dataset.mkcv!=null ? shotMove(ph,+b.dataset.mkcv,"cover") : shotMove(ph,+b.dataset.i,+b.dataset.mv);
+   var ids=nw.map(function(p){ return +p.id });
+   EDIT.photos=nw.map(function(p,i){ p.sort_order=i; return p }).concat(vids); render();
+   try{ if(EDIT.isAdmin) await rpc("bk_admin_photo_order",{p_token:ADM.token,p_listing:+EDIT.id,p_ids:ids}); else await rpc("bk_photo_order",{p_user:USER.id,p_listing:+EDIT.id,p_ids:ids});
+        LOADED.mine=false;
+   }catch(x){ alert(x.message||"error"); try{ EDIT.photos=(await rpc("bk_photos",{p_listing:+EDIT.id}))||[]; render() }catch(e){} } }});
  $$("[data-delphoto]").forEach(function(e){ e.onclick=async function(){
    try{ if(EDIT.isAdmin) await rpc("bk_admin_photo_del",{p_token:ADM.token,p_photo:+e.dataset.delphoto}); else await rpc("bk_photo_del",{p_user:USER.id,p_photo:+e.dataset.delphoto});
         EDIT.photos=EDIT.photos.filter(function(p){return String(p.id)!==e.dataset.delphoto});
@@ -12837,7 +12878,10 @@ var GX_T={
   inqFrom:{ar:"من",en:"From",de:"Von"}, inqTo:{ar:"إلى",en:"To",de:"An"}, inqNoPhone:{ar:"بلا رقم، الرد من هنا",en:"no number, reply from here",de:"keine Nummer, hier antworten"},
   inqAwaitYou:{ar:"بانتظار ردك",en:"Awaiting your reply",de:"Wartet auf Ihre Antwort"}, inqGuestReply:{ar:"زائر بلا حساب: تواصل معه على رقمه",en:"Guest without an account: contact them on their number",de:"Gast ohne Konto: über die Nummer kontaktieren"},
   bioLimitHint:{ar:"حتى {n} حرف، ويمكنك استخدام فقرات.",en:"Up to {n} characters; paragraphs are kept.",de:"Bis zu {n} Zeichen; Absätze bleiben erhalten."},
-  photoMaxHint:{ar:"حتى {n} صورة",en:"up to {n} photos",de:"bis zu {n} Fotos"}, photoMaxHit:{ar:"الحد {n} صورة لكل إعلان؛ أُخذت الصور الأولى فقط.",en:"The limit is {n} photos per listing; only the first ones were taken.",de:"Höchstens {n} Fotos pro Anzeige; nur die ersten wurden übernommen."},
+  photoMaxHint:{ar:"حتى {n} صورة",en:"up to {n} photos",de:"bis zu {n} Fotos"},
+  phMakeCover:{ar:"غلاف",en:"Cover",de:"Titel"}, phIsCover:{ar:"الغلاف",en:"Cover",de:"Titel"}, phMakeCoverL:{ar:"اجعلها صورة الغلاف",en:"Make this the cover photo",de:"Als Titelbild festlegen"},
+  phEarlier:{ar:"تقديم الصورة",en:"Move earlier",de:"Nach vorne"}, phLater:{ar:"تأخير الصورة",en:"Move later",de:"Nach hinten"},
+  phOrderHint:{ar:"الصورة الأولى هي الغلاف. رتّب الصور بالأسهم أو اضغط «★ غلاف» على الصورة التي تريدها.",en:"The first photo is the cover. Reorder with the arrows or tap «★ Cover» on the one you want.",de:"Das erste Foto ist das Titelbild. Mit den Pfeilen sortieren oder bei einem Foto «★ Titel» tippen."}, photoMaxHit:{ar:"الحد {n} صورة لكل إعلان؛ أُخذت الصور الأولى فقط.",en:"The limit is {n} photos per listing; only the first ones were taken.",de:"Höchstens {n} Fotos pro Anzeige; nur die ersten wurden übernommen."},
   hpNeedName:{ar:"اكتب اسمك",en:"Enter your name",de:"Name eingeben"}, hpNeedPhone:{ar:"اكتب رقمًا صحيحًا",en:"Enter a valid number",de:"Gültige Nummer eingeben"}, hpLimit:{ar:"أرسلت طلبات كافية لهذا الإعلان اليوم. انتظر رد المعلن.",en:"You have sent enough requests for this listing today. Wait for the advertiser's reply.",de:"Sie haben heute genug Anfragen gesendet."},
   mdMenu:{ar:"القائمة",en:"Menu",de:"Menü"}, mdClose:{ar:"إغلاق",en:"Close",de:"Schließen"}, origPriceL:{ar:"السعر كما كتبه المعلن:",en:"Price as posted:",de:"Preis laut Inserent:"},
   mdAccount:{ar:"حسابي",en:"My account",de:"Mein Konto"}, mdSearch:{ar:"البحث",en:"Search",de:"Suche"},

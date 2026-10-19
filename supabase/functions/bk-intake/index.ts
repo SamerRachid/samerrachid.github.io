@@ -406,6 +406,9 @@ const T = {
     hello: GUIDE.ar(null),
     contact: (n: string) => `للتواصل مع إدارة بلكون: ${ltr(n)}\nوإذا أردت نشر إعلان، أرسل تفاصيله وصوره هنا مباشرة وسأساعدك.`,
     thanks: `العفو 🌷 بالخدمة دائماً.`,
+    coverSet: (n: number, pub: boolean) => `تم ✅ الصورة رقم ${n} هي الغلاف الآن${pub ? " في إعلانك المنشور" : ""}.`,
+    coverRange: (t: number) => `لديك ${t} ${t === 1 ? "صورة" : "صور"} فقط. اكتب «غلاف» ثم رقم الصورة من 1 إلى ${t}.`,
+    coverNone: `لا توجد صور بعد لنختار منها الغلاف. أرسل الصور أولاً ثم اكتب «غلاف 2» مثلاً.`,
     onlyProperty: (n: string) => `أنا مساعد آلي أستقبل فقط تفاصيل العقار وصوره للنشر.${n ? `\nلأي استفسار آخر تواصل مع الإدارة: ${ltr(n)}` : ""}\nاكتب «مساعدة» لعرض الأوامر.`,
     askNew: `هل هذه تفاصيل إعلان جديد؟\nاكتب «نعم» لأبدأ إعلاناً جديداً بهذا النص، أو «لا».`,
     askNewNo: `تمام 👍 أرسل تفاصيل العقار وصوره متى شئت.`,
@@ -515,6 +518,9 @@ const T = {
     hello: GUIDE.en(null),
     contact: (n: string) => `To reach the Balkoun team: ${ltr(n)}\nIf you want to post a listing, just send its details and photos here and I will help.`,
     thanks: `You are welcome 🌷 Always happy to help.`,
+    coverSet: (n: number, pub: boolean) => `Done ✅ Photo ${n} is now the cover${pub ? " of your published listing" : ""}.`,
+    coverRange: (t: number) => `You have ${t} photo${t === 1 ? "" : "s"}. Write «cover» and a photo number from 1 to ${t}.`,
+    coverNone: `No photos yet to pick a cover from. Send the photos first, then write «cover 2» for example.`,
     onlyProperty: (n: string) => `I am an automated assistant: I only take property details and photos to publish.${n ? `\nFor anything else, contact the team: ${ltr(n)}` : ""}\nWrite "help" for the commands.`,
     askNew: `Are these the details of a new listing?\nWrite "yes" and I start a new listing with this text, or "no".`,
     askNewNo: `OK 👍 Send the property details and photos whenever you like.`,
@@ -581,7 +587,14 @@ const decodable = (mime: string, bytes: Uint8Array) => {
   return false;
 };
 // processes and stores one photo. Throws "bad" (unreadable / too big) so the caller can tell the sender; returns the add_photo result.
-async function storePhoto(draftId: number, bytes: Uint8Array, mime: string, n: number) {
+// the order the sender sent the photos in: message time (seconds), then the message number (Telegram) — photos that arrive
+// out of order (several at once) still line up as sent
+function sendOrder(m: Incoming): { ts: number | null; seq: number | null } {
+  const p: any = m.payload || {};
+  const ts = Number(p.date ?? p.timestamp), seq = Number(p.message_id);
+  return { ts: Number.isFinite(ts) && ts > 0 ? ts : null, seq: Number.isFinite(seq) && seq > 0 ? seq : null };
+}
+async function storePhoto(draftId: number, bytes: Uint8Array, mime: string, n: number, order: { ts?: number | null; seq?: number | null } = {}) {
   if (bytes.length > MAX_DECODE_BYTES || !decodable(mime, bytes)) throw new Error("bad");
   const wm = await wmCfg();
   let out: { full: Uint8Array; thumb: Uint8Array; w: number; h: number };
@@ -590,7 +603,7 @@ async function storePhoto(draftId: number, bytes: Uint8Array, mime: string, n: n
   const stem = `intake/${draftId}/${Date.now()}-${n}-${randomCode(5).toLowerCase()}`;
   const pF = stem + ".jpg", pT = stem + "-t.jpg";
   await upload(pF, out.full); await upload(pT, out.thumb);
-  const res = await rpc<any>("bk_intake_add_photo", { p_draft: draftId, p_photo: { path: pF, url: publicUrl(pF), thumb_path: pT, thumb_url: publicUrl(pT), bytes: out.full.length, w: out.w, h: out.h, processed: true } });
+  const res = await rpc<any>("bk_intake_add_photo", { p_draft: draftId, p_photo: { path: pF, url: publicUrl(pF), thumb_path: pT, thumb_url: publicUrl(pT), bytes: out.full.length, w: out.w, h: out.h, processed: true, ts: order.ts ?? null, seq: order.seq ?? null } });
   if (res && res.ok === false) { await sb.storage.from(BUCKET).remove([pF, pT]); }   // over the cap after a race: nothing stays behind
   return res;
 }
@@ -1044,6 +1057,7 @@ function summary(f: Record<string, any>, tax: any, photos: number, lang: string,
   if (f.deal === "rent" && !f.rental_period) L.push(tt.periodDefault);
   if (f.amenities?.length) L.push("• " + f.amenities.join("، "));
   L.push("• " + (ar ? "الصور: " : "Photos: ") + photos + (videos ? (ar ? ` · فيديو: ${videos}` : ` · video: ${videos}`) : "") + (photos ? "" : (ar ? " (اختياري، لكن الصور تزيد المشاهدات كثيراً)" : " (optional, but photos get far more views)")));
+  if (photos >= 2) L.push("   " + (ar ? "الغلاف: الصورة الأولى — لتغييره اكتب «غلاف» ورقم الصورة، مثل «غلاف 3»" : "Cover: the first photo — to change it write «cover» and the photo number, e.g. «cover 3»"));
   return L.join("\n");
 }
 // one line of "what I understood so far" for the follow-up questions — the full summary is kept for the end
@@ -1863,6 +1877,18 @@ async function handleIncoming(m: Incoming) {
     return;
   }
   if (/^\/start\b/i.test(m.text || "")) { await sendGuide(m, c); return; }
+  // «غلاف 3» / «cover 3»: the sender picks the cover (photo 3 in the order they sent them) — never picked for them
+  const cov = m.kind === "text" ? latinDigits(m.text || "").trim().replace(/[.!؟?]+$/, "").match(/^(?:اجعل\s+)?(?:ال)?(?:غلاف|صورة\s+الغلاف|الصورة\s+الرئيسية|cover)\s*(?:هي\s*)?(?:رقم|الصورة|صورة|photo|#)?\s*(\d{1,2})$/i) : null;
+  if (cov) {
+    const s = await rpc<any>("bk_intake_sender", { p_source: m.source, p_chat_id: m.chat }).catch(() => null);
+    if (!s?.enabled || s?.blocked) return;
+    const r = await rpc<any>("bk_intake_set_cover", { p_source: m.source, p_chat_id: m.chat, p_n: Number(cov[1]) });
+    await log(null, m.chat, "info", "cover_set", { n: Number(cov[1]), res: r });
+    if (r?.ok) await reply(m.source, m.chat, t.coverSet(Number(cov[1]), r.where === "listing"));
+    else if (r?.reason === "range") await reply(m.source, m.chat, t.coverRange(r.total || 0));
+    else await reply(m.source, m.chat, t.coverNone);
+    return;
+  }
   // a media caption counts as listing text only when it reads like one ("Video from Samer", "IMG_2031" and the like are dropped)
   if ((m.kind === "photo" || m.kind === "video" || m.kind === "audio") && m.text && !captionIsText(m.text)) m.text = null;
   // voice notes, documents and media the channel cannot hand over: told once; a caption with the listing text is still read
@@ -2030,7 +2056,7 @@ async function handleIncoming(m: Incoming) {
     else {
       try {
         const f = await m.fetchMedia();
-        const res = await storePhoto(r.draft_id, f.bytes, f.mime || (m.media && m.media.mime) || "", (r.photo_count || 0) + 1);
+        const res = await storePhoto(r.draft_id, f.bytes, f.mime || (m.media && m.media.mime) || "", (r.photo_count || 0) + 1, sendOrder(m));
         if (res && res.ok === false && res.reason === "max") await reply(m.source, m.chat, tt.photoMax(res.max || mx));
       } catch (e) {
         const msg = errStr(e);
