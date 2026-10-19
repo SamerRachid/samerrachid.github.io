@@ -264,6 +264,7 @@ header{background:var(--navy);color:#fff}
 .crumbs{display:flex;gap:8px;font-size:13px;color:var(--light);flex-wrap:wrap;padding-top:18px}
 .crumbs a{color:var(--grey)}
 .pagehead{padding:10px 0 6px}
+.pagehead .acts{display:flex;gap:10px;flex-wrap:wrap}.pagehead .acts a{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:10px 18px;border-radius:999px;font-weight:700;font-size:14.5px;text-decoration:none}.pagehead .acts .g{background:var(--gold);color:#1A1206}.pagehead .acts .o{border:1px solid var(--line);background:var(--card);color:var(--navy)}
 .pagehead h1{font-size:clamp(26px,3.2vw,36px)}
 .sub{color:var(--grey);font-size:14.5px;margin-top:4px}
 .sub b{color:var(--navy)}
@@ -542,7 +543,8 @@ function agencyPage({ a, listings, footLinks }) {
   const phone = a.hide_phone ? "" : String(a.phone || "").replace(/\D/g, ""), wa = a.hide_phone ? "" : String(a.whatsapp || a.phone || "").replace(/\D/g, "");
   const body = `${c.html}<div class="pagehead"><div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">${a.logo_url ? `<img src="${esc(a.logo_url)}" alt="${esc(a.name)}" width="86" height="86" style="border-radius:18px;object-fit:cover;background:#fff">` : ""}<div><h1 style="margin:0">${esc(a.name)}${a.verified ? ' <span class="badge ok" style="vertical-align:middle">مكتب موثّق</span>' : ""}</h1>${a.contact_person ? `<p class="sub" style="margin:4px 0 0">المسؤول: ${esc(a.contact_person)}</p>` : ""}<p class="sub" style="margin:4px 0 0">${(a.specialties || []).map((k) => SPEC_AR[k] || esc(k)).join(" · ")}${govs ? ` · ${esc(govs)}` : ""}</p></div></div>
 ${paras.length ? `<div class="article" style="margin-top:16px">${paras.map((x) => `<p>${esc(x)}</p>`).join("")}</div>` : ""}
-<div class="acts" style="margin-top:14px">${phone ? `<a class="o" href="tel:+${phone}">اتصال</a>` : ""}${wa ? `<a class="g" href="https://wa.me/${wa}">واتساب</a>` : ""}<a class="o" href="${SITE}/#/agency/${a.id}">فتح في التطبيق</a></div></div>
+<div class="acts" style="margin-top:14px">${phone ? `<a class="o" href="tel:+${phone}">اتصال</a>` : ""}${wa ? `<a class="g" href="https://wa.me/${wa}">واتساب</a>` : ""}<a class="o" href="${SITE}/#/agency/${a.id}">فتح في التطبيق</a><a class="o" id="agShare" href="https://wa.me/?text=${encodeURIComponent((a.name || "") + " — " + url)}" target="_blank" rel="noopener">مشاركة المكتب</a></div></div>
+<script>(function(){var b=document.getElementById("agShare");if(b&&navigator.share)b.addEventListener("click",function(e){e.preventDefault();navigator.share({title:document.title,url:${JSON.stringify(url)}}).catch(function(){})})})();</script>
 ${(a.area_names || []).length ? `<section class="sec"><h2>مناطق العمل</h2><div class="chips">${a.area_names.map((x) => `<span class="chip">${esc(x)}</span>`).join("")}</div></section>` : ""}
 <section class="sec"><h2>إعلانات المكتب <span class="ltr" style="color:var(--grey);font-weight:500">(${listings.length})</span></h2>${listings.length ? `<div class="grid" style="margin-top:14px">${listings.slice(0, 60).map((l) => card(l, l.area_id ? avgByArea.get(l.area_id) : null, lang)).join("")}</div>` : `<p class="sub">لا إعلانات حيّة حالياً.</p>`}</section>`;
   const ld = [c.ld, { "@context":"https://schema.org", "@type":"RealEstateAgent", name: a.name, url, ...(a.logo_url ? { image: a.logo_url } : {}), ...(phone ? { telephone: "+" + phone } : {}), areaServed: (a.gov_names || []).map((n) => ({ "@type":"AdministrativeArea", name: n })), description: paras.join(" ").slice(0, 300) }];
