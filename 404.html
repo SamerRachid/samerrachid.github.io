@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-dJGP976cSjDBlujhz6+Obza2UpWKnbs0WxsDkOy6JVo=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-xgU1FrBgfjLH6fTWIzjVhKAL9LoHQJ6tVmoYvKuXpok=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -3081,7 +3081,7 @@ html[lang=fr] .htools a.gold{white-space:nowrap}
 .vprev .vdur{position:absolute;bottom:6px;inset-inline-start:8px;background:rgba(0,0,0,.6);color:#fff;font-size:11.5px;padding:2px 7px;border-radius:999px}
 .vprev .rm{position:absolute;top:6px;inset-inline-end:6px}
 .shot2.vshot{background:#0D1729}.shot2.vshot .vplay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:30px;height:30px}.shot2.vshot .vph{position:absolute;inset:0;display:grid;place-items:center;color:#fff}
-.lgal .lg-vid{position:absolute;bottom:calc(96px + 10px + 14px);inset-inline-start:14px;z-index:3;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:6px 14px 6px 6px;background:rgba(9,14,26,.78);color:#fff;font:700 13px var(--fd);cursor:pointer;backdrop-filter:blur(4px)}
+.lgal .lg-vid{position:absolute;bottom:14px;inset-inline-start:14px;z-index:3;display:inline-flex;align-items:center;gap:8px;border:0;border-radius:999px;padding:6px 14px 6px 6px;background:rgba(9,14,26,.78);color:#fff;font:700 13px var(--fd);cursor:pointer;backdrop-filter:blur(4px)}
 .lgal .lg-vid:hover{background:rgba(9,14,26,.92)}.lgal{position:relative}
 .lg-main video.main{position:relative;z-index:1;width:100%;height:100%;object-fit:contain;display:block;background:#0D1729}
 .lgal .lg-main.onvid~.lg-all{inset-inline-end:58px}
@@ -3106,7 +3106,7 @@ html[lang=fr] .htools a.gold{white-space:nowrap}
 .wm-ov .bmark{width:18px;height:18px;color:#fff}.wm-br{bottom:56px;right:12px}.wm-bl{bottom:56px;left:12px}.wm-tr{top:12px;right:12px}.wm-tl{top:12px;left:12px}
 .medialock img,.medialock video,.medialock canvas,.medialock picture,.medialock svg{-webkit-user-drag:none;user-drag:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 .medialock.adm img,.medialock .adm img{-webkit-user-drag:auto;user-select:auto}
-@media(max-width:700px){.lgal .lg-vid{bottom:10px;inset-inline-start:10px;font-size:12px}}
+@media(max-width:700px){.lgal .lg-vid{bottom:10px;inset-inline-start:auto;inset-inline-end:10px;font-size:12px}}   /* inside the main photo, across from the counter */
 /* countries: header chip, drawer segment, opening chooser */
 .flg{width:22px;height:15px;border-radius:3px;box-shadow:0 0 0 1px rgba(0,0,0,.08);flex:none;display:inline-block;vertical-align:middle}.flg-t{font:700 9px/15px var(--fd);text-align:center;background:var(--navy);color:#fff;letter-spacing:.5px}
 .cpickw{position:relative}.cchip{display:inline-flex;align-items:center;gap:6px}.cchip .flg{width:20px;height:14px}
@@ -6710,14 +6710,14 @@ function listing(id){
  var VIDS = (x.videos&&x.videos.length) ? x.videos : [];
  if(_vlbFor!==x.id){ VLB_OPEN=false; _vlbFor=x.id }
  var IMGS = (x.photos&&x.photos.length) ? x.photos : [];
- var VOFF = VIDS.length?1:0;   // the video, when there is one, is the first slide of the gallery
- // a newly opened listing always starts at its first slide — the first PHOTO when there is one (owner's rule,
- // 2026-10-11: a video used to auto-show before any photo); only a video-only listing (no photos at all) opens on
- // the video, since there is nothing else to show. The video stays one tap away: its own thumbnail in the strip,
- // and the floating "watch video" pill over the photo (both already coded, just unreachable while onVid was forced).
- if(window._lastLid!==String(x.id)){ window._lastLid=String(x.id); GI=IMGS.length?VOFF:0; GVID_OFF=false }
+ var VOFF = VIDS.length?1:0;
+ // owner's rule (2026-10-19): the cover photo (the first photo) is always slide 1 and what the listing opens on; the video
+ // comes after the photos (its own thumbnail at the end of the strip, plus the "watch video" pill over the photos). Only a
+ // listing with no photo at all opens on the video. Photos that load after the page opened (GI=0 again) land on the cover.
+ var VIDX = VOFF ? IMGS.length : -1;   // the video's slide
+ if(window._lastLid!==String(x.id)){ window._lastLid=String(x.id); GI=0; GVID_OFF=false }
  var nAll = IMGS.length+VOFF; if(GI>=nAll) GI=0;
- var onVid = !!(VOFF && GI===0 && !GVID_OFF), pi = Math.max(0, GI-VOFF), curImg = IMGS[pi]||(GVID_OFF&&VIDS.length?(VIDS[0].poster||""):"");
+ var onVid = !!(VOFF && GI===VIDX && !GVID_OFF), pi = GI<IMGS.length ? GI : 0, curImg = GI<IMGS.length ? IMGS[GI] : (VIDS.length?(VIDS[0].poster||""):"");
  var I=LICON, ar=L==="ar", isRent=x.d==="rent", hasFl=(x.fl!==null&&x.fl!==undefined&&x.fl!=="");
  var typeName=D.TYPES[x.t]?D.TYPES[x.t][li()]:"", condName=(D.COND[x.cd]||D.LANDC[x.cd]||["",""," ",""])[li()];
  var deedName=D.TABU[x.tb]?D.TABU[x.tb][li()]:"";
@@ -6725,19 +6725,19 @@ function listing(id){
 
  /* ── gallery: one large photo and a mosaic of the next ones; every photo opens the lightbox ── */
  var n=nAll, galCls="lgal n"+Math.min(n,5);
- var thumbs=(VOFF?['<div class="gthv'+(GI===0?' sel':'')+'" data-i="0" title="'+esc(GX("videoBadge"))+'">'+(VIDS[0].poster?'<img src="'+VIDS[0].poster+'" alt="" loading="lazy">':'')+'<span class="vplay">▶</span></div>']:[])
-   .concat(IMGS.map(function(src,i){ var j=i+VOFF; return '<div class="gt'+(j===GI?' sel':'')+'" data-i="'+j+'"><img src="'+src+'" alt="" loading="lazy"></div>' }));
+ var thumbs=IMGS.map(function(src,i){ return '<div class="gt'+(i===GI?' sel':'')+'" data-i="'+i+'"><img src="'+src+'" alt="" loading="lazy"></div>' })
+   .concat(VOFF?['<div class="gthv'+(GI===VIDX?' sel':'')+'" data-i="'+VIDX+'" title="'+esc(GX("videoBadge"))+'">'+(VIDS[0].poster?'<img src="'+VIDS[0].poster+'" alt="" loading="lazy">':'')+'<span class="vplay">▶</span></div>']:[]);
  var gal='<div class="'+galCls+'">'+
   (n
     ? '<figure class="lg-main'+(onVid?' onvid':'')+'" style="--bg:url(&quot;'+(onVid?(VIDS[0].poster||""):curImg)+'&quot;)">'+
       (onVid ? '<video class="main" id="gvideo" controls playsinline preload="metadata"'+wmVideoAttrs()+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'+wmOverlayHtml()+'<button type="button" class="lg-enlarge" id="gVidFull" title="'+esc(GX("videoFull"))+'" aria-label="'+esc(GX("videoFull"))+'"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>'
              : (curImg ? '<img class="main" id="gmain" src="'+curImg+'" alt="'+esc(typeName)+'">' : '<div class="nophoto lg-none"><img src="/brand/logo-light.png" alt="بلكون"></div>'))+
       (n>1 ? '<button class="gnav" id="gPrev" aria-label="prev" style="'+(rtlNow()?"right":"left")+':12px">‹</button><button class="gnav" id="gNext" aria-label="next" style="'+(rtlNow()?"left":"right")+':12px">›</button>' : '')+
-      '<div class="gcount"><span class="ltr">'+(GI+1)+' / '+n+'</span></div></figure>'+
+      '<div class="gcount"><span class="ltr">'+(GI+1)+' / '+n+'</span></div>'+
+      (VIDS.length && !onVid && !GVID_OFF ? '<button type="button" class="lg-vid" id="gVid"><span class="vplay">▶</span>'+GX("videoWatch")+'</button>' : '')+'</figure>'+
       (n>1 ? '<div class="lg-side" id="gth">'+thumbs.join("")+'</div>' : '')+
       (IMGS.length>1 ? '<button class="lg-all" id="gAll">'+I.grid+GX("lAllPhotos")+' <span class="ltr">('+IMGS.length+')</span></button>' : '')
     : '<div class="nophoto lg-none"><img src="/brand/logo-light.png" alt="بلكون"></div>')+
-  (VIDS.length && !onVid && !GVID_OFF ? '<button type="button" class="lg-vid" id="gVid"><span class="vplay">▶</span>'+GX("videoWatch")+'</button>' : '')+
  '</div>';
 
  /* ── lightbox (unchanged behaviour) ── */
@@ -8573,7 +8573,7 @@ function navigateLightbox(delta){
   var lb=document.getElementById("lbImg"); if(lb) lb.src=imgs[GI];
   var lc=document.querySelector(".lb-count span"); if(lc) lc.textContent=(GI+1)+" / "+imgs.length;
   var g=document.getElementById("gmain"); if(g) g.src=imgs[GI];
-  var c=document.querySelector(".gcount span"); if(c) c.textContent=(GI+1)+" / "+imgs.length;
+  var c=document.querySelector(".gcount span"); if(c) c.textContent=(GI+1)+" / "+(imgs.length+((cur.videos&&cur.videos.length)?1:0));
   var thumbs=document.querySelectorAll ? document.querySelectorAll("#gth img") : [];
   for(var i=0;i<thumbs.length;i++) thumbs[i].classList.toggle("sel", i===GI);
 }
@@ -9858,12 +9858,12 @@ function wire(){
        wrap.scrollBy({left: atEnd ? -wrap.scrollLeft : dir*234, behavior:"smooth"});
      }, 3500);
    }
-   var IM2=(LI2.photos&&LI2.photos.length)?LI2.photos:[], V2=(LI2.videos&&LI2.videos.length)?1:0, N2=IM2.length+V2;
+   var IM2=(LI2.photos&&LI2.photos.length)?LI2.photos:[], V2=(LI2.videos&&LI2.videos.length)?1:0, N2=IM2.length+V2, VI2=V2?IM2.length:-1;   // the video is the slide after the photos
    var set=function(n){
      if(!N2) return;
      var g0=GI; GI=(n+N2)%N2;
-     if(V2 && (GI===0 || g0===0)){ if(GI===0) GVID_OFF=false; render(); return }   // to or from the video slide: the main element changes, so redraw (coming back to slide 1 brings a closed video back)
-     var p2=GI-V2, g=$("#gmain"); if(g) g.src=IM2[p2];
+     if(V2 && (GI===VI2 || g0===VI2)){ if(GI===VI2) GVID_OFF=false; render(); return }   // to or from the video slide: the main element changes, so redraw
+     var p2=GI, g=$("#gmain"); if(g) g.src=IM2[p2];
      var fg=$(".lg-main"); if(fg) fg.style.setProperty("--bg",'url("'+IM2[p2]+'")');
      var c=$(".gcount span"); if(c) c.textContent=(GI+1)+" / "+N2;
      $$("#gth [data-i]").forEach(function(im){ im.classList.toggle("sel", +im.dataset.i===GI) });
@@ -9871,7 +9871,7 @@ function wire(){
      var lb=$("#lbImg"); if(lb) lb.src=IM2[p2];
      var lc=$(".lb-count span"); if(lc) lc.textContent=(p2+1)+" / "+IM2.length;
    };
-   var lbSet=function(p2){ if(!IM2.length) return; set(V2+((p2+IM2.length)%IM2.length)) };   // the lightbox shows photos only
+   var lbSet=function(p2){ if(!IM2.length) return; set((p2+IM2.length)%IM2.length) };   // the lightbox shows photos only
    if($("#gPrev")) $("#gPrev").onclick=function(){ set(GI-1) };
    if($("#gNext")) $("#gNext").onclick=function(){ set(GI+1) };
    $$("#gth [data-i]").forEach(function(im){ im.onclick=function(){ set(+im.dataset.i) } });
@@ -9901,8 +9901,8 @@ function wire(){
    if($("#vlbClose")) $("#vlbClose").onclick=function(e){ e.stopPropagation(); vlbClose() };
    if($("#vlb")) $("#vlb").onclick=function(e){ if(e.target===this) vlbClose() };
    if($("#lightbox")) $("#lightbox").onclick=function(e){ if(e.target===this){ LIGHTBOX_OPEN=false; render() } };
-   if($("#lbPrev")) $("#lbPrev").onclick=function(e){ e.stopPropagation(); lbSet(GI-V2-1) };
-   if($("#lbNext")) $("#lbNext").onclick=function(e){ e.stopPropagation(); lbSet(GI-V2+1) };
+   if($("#lbPrev")) $("#lbPrev").onclick=function(e){ e.stopPropagation(); lbSet(GI-1) };
+   if($("#lbNext")) $("#lbNext").onclick=function(e){ e.stopPropagation(); lbSet(GI+1) };
 
    var LX=LI2, tel=LX.tel||"", dig=tel.replace(/\D/g,"");
    var waLink=function(msg){ return "https://wa.me/"+dig+"?text="+encodeURIComponent(msg) };
