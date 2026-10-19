@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-xgU1FrBgfjLH6fTWIzjVhKAL9LoHQJ6tVmoYvKuXpok=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-2bs+4X6XCYPX7DYuDNaTUbu8f+WbMcYtdXRK2iD/2vc=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -1298,6 +1298,7 @@ footer{font-size:14px}
 .lg-side .gt img{width:100%;height:100%;object-fit:cover;opacity:.78;transition:opacity .2s;display:block}
 .lg-side .gt:hover img,.lg-side .gt.sel img{opacity:1}
 .lg-side .gt.sel,.lg-side .gthv.sel{outline:3px solid var(--gold);outline-offset:-3px}
+.lgal .lg-side .gthv{flex:0 0 132px;width:132px;height:96px;opacity:1}   /* the video thumbnail: same size as the photo thumbnails, ▶ on top */
 .lgal .lg-all{bottom:auto;top:14px}   /* corners of the main photo: count at the start, "all photos" at the end */
 .lgal .gcount{position:absolute;top:12px;inset-inline-start:12px;background:rgba(9,14,26,.6);color:#fff;font-size:12px;padding:4px 10px;border-radius:999px;backdrop-filter:blur(4px)}
 .lgal .gnav{display:grid;place-items:center;position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.9);color:var(--navy);font-size:22px;line-height:1;cursor:pointer;z-index:2;box-shadow:0 6px 16px -8px rgba(0,0,0,.6);transition:background .15s,transform .15s}
@@ -7157,7 +7158,7 @@ function editView(){
    (function(){ var ph=(EDIT.photos||[]).filter(function(p){ return p.kind!=="video" }), n=ph.length;
     return '<div class="shots'+(n>1?' ordered':'')+'" id="ePhotos">'+
     ph.map(function(p,i){
-      return '<div class="shot2'+(i===0&&n>1?' first':'')+'"><img src="'+(p.thumb_url||p.url)+'">'+
+      return '<div class="shot2'+(i===0&&n>1?' first':'')+'" data-k="p'+p.id+'"><img src="'+(p.thumb_url||p.url)+'">'+
       '<button type="button" class="rm" data-delphoto="'+p.id+'" aria-label="'+esc(t("del"))+'">✕</button>'+shotOrd(i,n)+'</div>'}).join("")+
    '</div>'+(n>1?'<p class="hint" id="eOrdHint" style="margin:8px 0 0;font-size:12px;color:var(--grey)">'+esc(GX("phOrderHint"))+'</p>':'') })()+
    '<div class="drop" id="eDrop" style="margin-top:12px"><b>'+t("addPhotos")+'</b>'+
@@ -7952,6 +7953,23 @@ function shotOrd(i, n){
   '<button type="button" data-mv="1" data-i="'+i+'"'+(i===n-1?' disabled':'')+' aria-label="'+esc(GX("phLater"))+'" title="'+esc(GX("phLater"))+'">'+la+'</button>'+
  '</div>';
 }
+// redraw a photo strip and let every photo glide from where it was to where it is now (keys: data-k)
+function shotsGlide(sel, redraw){
+ var before={}; $$(sel+" .shot2[data-k]").forEach(function(e){ before[e.dataset.k]=e.getBoundingClientRect() });
+ redraw();
+ var still=false; try{ still=matchMedia("(prefers-reduced-motion: reduce)").matches }catch(e){}
+ if(still) return;
+ $$(sel+" .shot2[data-k]").forEach(function(e){
+   var b=before[e.dataset.k]; if(!b || !e.animate) return;
+   var a=e.getBoundingClientRect(), dx=b.left-a.left, dy=b.top-a.top; if(Math.abs(dx)<1 && Math.abs(dy)<1) return;
+   var far=Math.hypot(dx,dy)>a.width*1.2;   // the photo that travels furthest rides above the others
+   e.style.zIndex=far?"3":"2";
+   var an=e.animate([{transform:"translate("+dx+"px,"+dy+"px)"+(far?" scale(1.04)":""),boxShadow:"0 14px 30px -12px rgba(13,23,41,.45)"},
+                     {transform:"translate(0,0) scale(1)",boxShadow:"0 0 0 0 rgba(13,23,41,0)"}],
+                    {duration:far?720:600, easing:"cubic-bezier(.22,.8,.24,1)"});
+   an.onfinish=an.oncancel=function(){ e.style.zIndex="" };
+ });
+}
 // move item i of a list: d=-1 earlier, 1 later, "cover" to the front
 function shotMove(list, i, d){
  var a=list.slice(), x=a.splice(i,1)[0];
@@ -7961,12 +7979,12 @@ function shotMove(list, i, d){
 function paintShots(){
  var s=$("#shots"); if(!s)return;
  var n=NEW.photos.length; s.classList.toggle("ordered", n>1);
- s.innerHTML=NEW.photos.map(function(p,i){return '<div class="shot2'+(i===0&&n>1?' first':'')+'"><img src="'+p.preview+'">'+
+ s.innerHTML=NEW.photos.map(function(p,i){ if(!p._k) p._k="n"+(shotsGlide.n=(shotsGlide.n||0)+1); return '<div class="shot2'+(i===0&&n>1?' first':'')+'" data-k="'+p._k+'"><img src="'+p.preview+'">'+
   '<div class="kb">'+p.kb+' KB</div>'+
   '<button class="rm" data-i="'+i+'" aria-label="'+esc(t("del"))+'">✕</button>'+(n>1?shotOrd(i,n):(i===0?'<div class="cv">'+t("cover")+'</div>':''))+'</div>'}).join("");
  $$("#shots .rm").forEach(function(b){b.onclick=function(){NEW.photos.splice(+b.dataset.i,1);paintShots()}});
  $$("#shots [data-mv],#shots [data-mkcv]").forEach(function(b){b.onclick=function(){
-   NEW.photos=b.dataset.mkcv!=null ? shotMove(NEW.photos,+b.dataset.mkcv,"cover") : shotMove(NEW.photos,+b.dataset.i,+b.dataset.mv); paintShots() }});
+   NEW.photos=b.dataset.mkcv!=null ? shotMove(NEW.photos,+b.dataset.mkcv,"cover") : shotMove(NEW.photos,+b.dataset.i,+b.dataset.mv); shotsGlide("#shots",paintShots) }});
  checkPost()}
 
 function videoEmbedInfo(url){
@@ -9964,7 +9982,7 @@ function wire(){
    var ph=(EDIT.photos||[]).filter(function(p){ return p.kind!=="video" }), vids=(EDIT.photos||[]).filter(function(p){ return p.kind==="video" });
    var nw=b.dataset.mkcv!=null ? shotMove(ph,+b.dataset.mkcv,"cover") : shotMove(ph,+b.dataset.i,+b.dataset.mv);
    var ids=nw.map(function(p){ return +p.id });
-   EDIT.photos=nw.map(function(p,i){ p.sort_order=i; return p }).concat(vids); render();
+   EDIT.photos=nw.map(function(p,i){ p.sort_order=i; return p }).concat(vids); shotsGlide("#ePhotos",render);
    try{ if(EDIT.isAdmin) await rpc("bk_admin_photo_order",{p_token:ADM.token,p_listing:+EDIT.id,p_ids:ids}); else await rpc("bk_photo_order",{p_user:USER.id,p_listing:+EDIT.id,p_ids:ids});
         LOADED.mine=false;
    }catch(x){ alert(x.message||"error"); try{ EDIT.photos=(await rpc("bk_photos",{p_listing:+EDIT.id}))||[]; render() }catch(e){} } }});
