@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-YXI/sTCHdrlr1byN6Ebx30l34EB9U+BeDE4LG4Fc58Q=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-1zrB5+bRX+0WUjZajoGeZRofQHTrOcnGSeo809xXXsM=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -440,8 +440,16 @@ html.js .rv.in{opacity:1;transform:none}
   font-size:11px;text-align:center;padding:6px}
 .adslot-foot{position:absolute;bottom:0;inset-inline-start:0;inset-inline-end:0;
   display:flex;gap:6px;padding:6px 6px 5px;justify-content:center;flex-wrap:wrap}
-.adslot.adslot-feat .adslot-place{max-width:calc(100% - 38px)}   /* room for the ★ at the other top corner */
-.adslot-foot .adslot-price{flex:0 0 100%;text-align:center;font-weight:800;font-size:calc(var(--ris,9px) + 3px);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* the listing's price (panel switch x:ad_price_enabled) */
+/* a listing's square (design A, owner 2026-10-20): «للبيع / للإيجار» at the top, then price · type and place · size and rooms,
+   each one line (a long name ends in …); colours, shade and text sizes still come from the panel */
+.adslot-deal{position:absolute;top:7px;inset-inline-start:7px;z-index:2;font-size:calc(var(--los,9px) + .5px);font-weight:700;line-height:1.5;padding:1px 8px;border-radius:999px;background:rgba(13,23,41,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);pointer-events:none;max-width:calc(100% - 40px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.adslot-deal.rent{background:rgba(31,157,85,.9)}
+.adslot-info{position:absolute;inset-inline:0;bottom:0;z-index:1;display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:48px 9px 7px;pointer-events:none}
+.adslot-info>span{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:var(--ad-ts,0 1px 3px rgba(0,0,0,.75))}
+.adslot-info .adslot-price{font-family:'Lato',var(--fd);font-weight:900;font-size:calc(var(--ris,9px) + 6px);line-height:1.2;letter-spacing:.2px}
+.adslot-info .adslot-l2{font-size:calc(var(--los,9px) + 1px);font-weight:600;opacity:.9;line-height:1.45}
+.adslot-info .adslot-l3{font-size:var(--ris,9px);opacity:.72;line-height:1.45}
+.adslot-info .adslot-l3 svg{width:1.15em;height:1.15em;vertical-align:-.2em}
 .adslot-foot span{font-weight:600;position:relative;z-index:1;text-shadow:var(--ad-ts,0 1px 3px rgba(0,0,0,.75))}.adslot-place{z-index:1;text-shadow:var(--ad-ts,0 1px 3px rgba(0,0,0,.75))}
 .adslot-place{position:absolute;top:3px;inset-inline-start:5px;font-weight:600;
   padding:1px 6px;border-radius:4px}
@@ -8057,16 +8065,21 @@ function adSlotsRow(){
    var overlayBottom = a.overlay_bottom ? '<div class="adslot-overtext adslot-overbottom" style="font-size:var(--ris);color:'+textColor+';background:linear-gradient(to top,rgba('+shadeRgb+','+(.85*shadeOp)+') 0%,transparent 100%)">'+a.overlay_bottom+'</div>' : '';
    if(isLinked){
      var place=[a.l_area_name?aN(a.l_area_name):"", a.l_gov?gN(a.l_gov):""].filter(Boolean).join(", ");
+     var tyName=(a.l_type&&D.TYPES[a.l_type])?D.TYPES[a.l_type][li()]:"", spot=a.l_area_name?aN(a.l_area_name):(a.l_gov?gN(a.l_gov):"");
+     var specs=[];
+     if(a.l_area) specs.push('<bdi>'+(showIcons?ICON_AREA:"")+a.l_area+' '+t("sqm")+'</bdi>');
+     if(a.l_rooms) specs.push('<bdi>'+(showIcons?ICON_BED+a.l_rooms:a.l_rooms+' '+t("rooms"))+'</bdi>');
+     if(a.l_baths) specs.push('<bdi>'+(showIcons?ICON_BATH+a.l_baths:a.l_baths+' '+t("baths"))+'</bdi>');
+     var l2=[tyName, showLoc?spot:""].filter(Boolean).join(" · ");
      media = '<img class="adslot-rotimg" src="'+a.l_photos[0]+'" data-photos="'+
-       encodeURIComponent(JSON.stringify(a.l_photos))+'" data-idx="0" alt="'+esc([(a.l_type&&D.TYPES[a.l_type])?D.TYPES[a.l_type][li()]:"", place].filter(Boolean).join(" · "))+'" loading="lazy">'+
-       '<div class="adslot-foot" style="'+tShadow+'font-size:var(--ris);color:'+textColor+';'+
-         'background:linear-gradient(to top,rgba('+shadeRgb+','+(.85*shadeOp)+') 0%,rgba('+shadeRgb+','+(.55*shadeOp)+') 55%,transparent 100%)">'+
+       encodeURIComponent(JSON.stringify(a.l_photos))+'" data-idx="0" alt="'+esc([tyName, place].filter(Boolean).join(" · "))+'" loading="lazy">'+
+       (a.l_deal ? '<span class="adslot-deal'+(a.l_deal==="rent"?' rent':'')+'" style="color:'+textColor+'">'+esc(a.l_deal==="rent"?t("forrent"):t("forsale"))+'</span>' : '')+
+       '<div class="adslot-info" style="'+tShadow+'color:'+textColor+';'+
+         'background:linear-gradient(to top,rgba('+shadeRgb+','+(.95*shadeOp)+') 0%,rgba('+shadeRgb+','+(.78*shadeOp)+') 45%,rgba('+shadeRgb+','+(.35*shadeOp)+') 75%,rgba('+shadeRgb+',0) 100%)">'+
         (showPrice && a.l_price!=null && +a.l_price>0 ? '<span class="adslot-price ltr">'+esc(money(+a.l_price,{pl:a.l_price_local!=null?+a.l_price_local:null,pcur:a.l_price_cur||null}))+'</span>' : '')+
-        (a.l_rooms?'<span>'+(showIcons?ICON_BED:"")+a.l_rooms+(showIcons?"":" "+t("rooms"))+'</span>':'')+
-        (a.l_baths?'<span>'+(showIcons?ICON_BATH:"")+a.l_baths+(showIcons?"":" "+t("baths"))+'</span>':'')+
-        (a.l_area?'<span class="ltr">'+(showIcons?ICON_AREA:"")+a.l_area+(showIcons?"":" "+t("sqm"))+'</span>':'')+
-       '</div>'+
-       (place&&showLoc?'<div class="adslot-place" style="'+tShadow+'font-size:var(--los);color:'+textColor+';background:rgba('+shadeRgb+','+(.6*shadeOp)+')">'+place+'</div>':'');
+        (l2 ? '<span class="adslot-l2">'+esc(l2)+'</span>' : '')+
+        (specs.length ? '<span class="adslot-l3">'+specs.join(" · ")+'</span>' : '')+
+       '</div>';
    } else if(isVideoEmbed){
      var vInfo = videoEmbedInfo(a.video_embed_url);
      media = vInfo ? '<iframe class="adslot-embed" src="'+vInfo.embedUrl+'" '+
