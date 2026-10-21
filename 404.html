@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-u8iXSnkh3uzwSNzXhix2irNN8oNs9Vi2T+SKIHp7sCU=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-xUpAYWPJ2egjo6wpLegNd8sYziI8GP3ac7TFN+xf/VQ=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -3065,6 +3065,7 @@ html.maint-on{overflow:hidden}
 /* installable app: drawer row, phone banner, iOS steps, offline/update toasts */
 .pwa-row>span:not(.mi){display:flex;flex-direction:column;gap:2px}.pwa-row b{font-size:14px;color:var(--navy)}.pwa-row small{font-size:12px;color:var(--grey);line-height:1.5}.pwa-row>.mi{color:var(--gold)}
 .pwa-bar{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:9000;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 40px -18px rgba(9,14,26,.45);padding:10px 12px;display:flex;align-items:center;gap:10px;animation:heroRise .4s cubic-bezier(.2,.7,.2,1)}
+body.pwa-on .mobfab{bottom:var(--pwa-lift,calc(118px + env(safe-area-inset-bottom)))}   /* set from the banner real height */
 .pwa-bar img{width:42px;height:42px;border-radius:11px;flex:none}.pwa-bar .t{flex:1;min-width:0}.pwa-bar b{display:block;font-size:14px;color:var(--navy)}.pwa-bar small{display:block;font-size:12px;color:var(--grey);line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pwa-bar .go{background:var(--gold);color:#1A1206;border:0;border-radius:999px;padding:9px 14px;font:700 13px var(--fd);cursor:pointer;flex:none}.pwa-bar .later{background:none;border:0;color:var(--grey);font:600 12.5px var(--fd);cursor:pointer;padding:6px;flex:none}
 @media(min-width:861px){.pwa-bar{display:none}}
@@ -5623,10 +5624,9 @@ function mdrawer(){
   return '<div class="mdw" id="mdw"><div class="mdw-bg" id="mdwBg"></div><aside class="mdw-p mdw2" role="dialog" aria-label="'+GX("mdMenu")+'">'+
     '<div class="mdw-top"><a class="logo blogo" data-go="home" aria-label="'+esc(t("home"))+'">'+brandLogo()+'</a><button class="mdw-x" id="mdwX" aria-label="'+GX("mdClose")+'">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>'+
-    acct+((byK("home")&&VIEW!=="home")?'<div class="mdw2-sec mdw2-homesec">'+row(byK("home"))+'</div>':'')+'<div class="mdw2-quick">'+tiles+'</div>'+
+    acct+(window.PWA&&PWA.installable()?'<div class="mdw2-sec" id="mdwInstallSec"><a class="mdw2-row pwa-row" id="mdwInstall"><span class="mi">'+(MI.download||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span><b>'+GX("pwaInstall")+'</b><small>'+GX("pwaInstallSub")+'</small></span></a></div>':'')+((byK("home")&&VIEW!=="home")?'<div class="mdw2-sec mdw2-homesec">'+row(byK("home"))+'</div>':'')+'<div class="mdw2-quick">'+tiles+'</div>'+
     '<div class="mdw2-sec"><a class="mdw2-row pwa-row" data-go="post">'+MI.qftext+'<span><b>'+GX("qfMenuT")+' <i class="qf-badge">'+GX("newTag")+'</i></b><small>'+GX("qfMenuP")+'</small></span></a></div>'+
     sec(GX("mdDiscover"),discover)+sec(GX("mdServices"),services)+mine+sec(GX("mdSite"),site)+countryPickHtml("drawer")+
-    '<div class="mdw2-sec" id="mdwInstallSec" hidden><a class="mdw2-row pwa-row" id="mdwInstall"><span class="mi">'+(MI.download||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span><b>'+GX("pwaInstall")+'</b><small>'+GX("pwaInstallSub")+'</small></span></a></div>'+
     ((langs||curs)?'<div class="mdw2-foot">'+langs+curs+'</div>':'')+
     (USER?'<div class="mdw2-sec"><a class="mdw2-row out" data-md="out"><span class="mi">'+(MI.out||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span>'+t("logout")+'</span></a></div>':'')+
   '</aside></div>' }
@@ -11809,6 +11809,7 @@ function wireAdminBell(){ if(!window.__admLoaded) return; wireAdminBell() }
 
 function render(){
  syncHash();
+ if(window.PWA && PWA.syncBar) try{ PWA.syncBar() }catch(e){}
  logView();
  if(typeof admApplyTheme==="function") admApplyTheme();   // the panel's night mode never leaks onto the site
  // catches EVERY way VIEW can change — not just the specific click
@@ -14318,21 +14319,27 @@ window.PWA=(function(){
     d.innerHTML='<div class="soon-bg"></div><div class="soon-c" role="dialog" aria-modal="true" aria-label="Balkoun"><button type="button" class="soon-x" aria-label="'+GX("mdClose")+'">×</button><div class="soon-ico">'+MI.download+'</div>'+stepsHtml()+'</div>';
     document.body.appendChild(d); var close=function(){ d.remove() }; d.querySelector(".soon-x").onclick=close; d.querySelector(".soon-bg").onclick=close }
   function install(){ if(deferred){ var p=deferred; deferred=null; p.prompt(); p.userChoice.then(function(r){ if(r&&r.outcome==="accepted"){ toast(GX("pwaInstalled")) } else { deferred=p } refreshDrawer(); hideBar() }).catch(function(){}) } else guide() }
-  function hideBar(){ var b=document.getElementById("pwaBar"); if(b) b.remove() }
+  function hideBar(){ var b=document.getElementById("pwaBar"); if(b) b.remove(); try{ document.body.classList.remove("pwa-on") }catch(e){} }
+  // owner, 2026-10-21: the banner is for every phone visitor from the first visit (it used to need the 2nd visit and a
+  // browser that can install by itself, so people from Facebook / Instagram / WhatsApp links never saw it). Only on pages
+  // with nothing fixed at the bottom: the listing page has call / WhatsApp there, search its filter bar, forms their buttons.
+  var BAR_VIEWS=/^(home|areas|agencies|projects|wanted|about|contact|contactus)$/, barReady=false;
+  function barView(){ return typeof VIEW!=="undefined" && BAR_VIEWS.test(VIEW||"") }
+  function syncBar(){ if(!barView()) hideBar(); else if(barReady) bar() }
   function bar(){
-    if(!installable() || !(deferred||iosSafari) || window.innerWidth>860 || SX("pwa_banner",true)===false || VIEW==="admin" || VIEW==="app") return;
-    try{ if((+localStorage.getItem("bk_visits")||0)<2) return }catch(e){}   // first visit: let people see the site first
+    if(!installable() || window.innerWidth>860 || SX("pwa_banner",true)===false || !barView()) return;
     try{ var until=+localStorage.getItem("bk_pwa_snooze")||0; if(Date.now()<until) return }catch(e){}
     if(document.getElementById("pwaBar")) return;
-    var d=document.createElement("div"); d.className="pwa-bar"; d.id="pwaBar";
+    var d=document.createElement("div"); d.className="pwa-bar"; d.id="pwaBar"; try{ document.body.classList.add("pwa-on") }catch(e){}
     d.innerHTML='<img src="/brand/icon-192.png" alt=""><div class="t"><b>'+GX("pwaBannerT")+'</b><small>'+GX("pwaInstallSub")+'</small></div><button type="button" class="go">'+GX("pwaBannerBtn")+'</button><button type="button" class="later" aria-label="'+GX("pwaLater")+'">✕</button>';
     document.body.appendChild(d);
+    try{ document.body.style.setProperty("--pwa-lift", Math.ceil(d.offsetHeight+(parseFloat(getComputedStyle(d).bottom)||14)+10)+"px") }catch(e){}   // «أضف إعلانك» sits 10px above the banner (its height, not its animated position)
     var snooze=function(){ try{ localStorage.setItem("bk_pwa_snooze", String(Date.now()+ (+SX("pwa_banner_days",14)||14)*86400000)) }catch(e){} hideBar() };
     d.querySelector(".go").onclick=function(){ snooze(); install() }; d.querySelector(".later").onclick=snooze;
   }
   window.addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); deferred=e; refreshDrawer(); setTimeout(bar, 6000); if(typeof VIEW!=="undefined"&&VIEW==="app") try{ render() }catch(x){} });
   window.addEventListener("appinstalled", function(){ deferred=null; hideBar(); refreshDrawer(); toast(GX("pwaInstalled")) });
-  if(iosSafari && !standalone) setTimeout(bar, 9000);
+  if(!standalone) setTimeout(function(){ barReady=true; bar() }, 8000);   // a few seconds of browsing first, on any phone
   if("serviceWorker" in navigator && !PREVIEW && (location.protocol==="https:" || location.hostname==="localhost")){
     window.addEventListener("load", function(){
       navigator.serviceWorker.register("/sw.js").then(function(reg){
@@ -14354,7 +14361,7 @@ window.PWA=(function(){
   document.addEventListener("visibilitychange", function(){ if(document.hidden){ _hiddenAt=Date.now(); return } if(_hiddenAt && Date.now()-_hiddenAt>60*1000){ _hiddenAt=0; try{ refreshListingsOnNavigate(); loadSiteContent(); loadGeo(); if(typeof syncFeaturedFromServer==="function") syncFeaturedFromServer() }catch(e){} } });
   window.addEventListener("pageshow", function(e){ if(e.persisted){ try{ refreshListingsOnNavigate(); loadSiteContent(); loadGeo() }catch(x){} } });
   window.addEventListener("offline", function(){ toast(GX("pwaOffline")) });
-  return { installable:installable, install:install, standalone:standalone, ios:iosSafari, platform:platform, stepsHtml:stepsHtml, canPrompt:function(){ return !!deferred } };
+  return { installable:installable, install:install, standalone:standalone, ios:iosSafari, platform:platform, stepsHtml:stepsHtml, canPrompt:function(){ return !!deferred }, syncBar:syncBar };
 })();
 if(COUNTRY!=="SY"){ D.GEO={}; D.GOVN={} }   // the data line carries Syria's governorates; another country waits for its own (cache or bk_geo)
 applyGeoCache();
