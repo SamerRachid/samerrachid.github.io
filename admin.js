@@ -2635,7 +2635,7 @@ function hsInspAds(){
       '<div class="row">'+fNum(hsT("f_adMax"),"x:ad_max_squares",1,40,1,15)+'</div>', fHint(GX("pmHint").replace("{m}",+hsVal("x:ad_max_squares")||15)));
   } else if(sd==="look"){
     H.push(fGrp(GX("adColorsSub")), '<div class="row">'+fColor(t("adTextColorL"),"c:ad_text_color","#ffffff")+fColor(t("adShadeColorL"),"c:ad_shade_color","#090e1a")+'</div>', fSlider(GX("adShadeOpL"),"x:ad_shade_opacity",null,0,100,5,"%",100,true), fHint(GX("adShadeOpHint")),
-      fGrp(GX("adInfoSub")), fHint(hsT("dualHint")), fSwitch(t("adStyleIcons"),"c:ad_use_icons",true,true), fDual(t("adTextSizeL"),"c:ad_roominfo_size","x:ad_roominfo_size_m",7,20,1,true),
+      fGrp(GX("adInfoSub")), fHint(hsT("dualHint")), fSwitch(GX("adShowPrice"),"x:ad_price_enabled",true,true), fSwitch(GX("adFeatRotate"),"x:ad_feat_rotate",true,true), fHint(GX("adFeatRotateHint")), fSwitch(t("adStyleIcons"),"c:ad_use_icons",true,true), fDual(t("adTextSizeL"),"c:ad_roominfo_size","x:ad_roominfo_size_m",7,20,1,true),
       fSwitch(t("showAdLocation"),"c:ad_location_enabled",true,true), fDual(t("adTextSizeL")+" — "+t("adLocationH"),"c:ad_location_size","x:ad_location_size_m",7,20,1,true),
       fGrp(GX("adTagSub")), fSwitch(t("showAdTag"),"c:ad_tag_enabled",true,true), fHint(hsT("textsHint")), fText(t("adTagTextL"),"c:ad_tag",t("adTag")), fDual(t("adTextSizeL")+" — "+GX("adTagSub"),"c:ad_tag_size","x:ad_tag_size_m",7,20,1,true));
   } else if(sd==="perf"){

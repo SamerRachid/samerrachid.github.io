@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-2bs+4X6XCYPX7DYuDNaTUbu8f+WbMcYtdXRK2iD/2vc=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-YXI/sTCHdrlr1byN6Ebx30l34EB9U+BeDE4LG4Fc58Q=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -440,6 +440,8 @@ html.js .rv.in{opacity:1;transform:none}
   font-size:11px;text-align:center;padding:6px}
 .adslot-foot{position:absolute;bottom:0;inset-inline-start:0;inset-inline-end:0;
   display:flex;gap:6px;padding:6px 6px 5px;justify-content:center;flex-wrap:wrap}
+.adslot.adslot-feat .adslot-place{max-width:calc(100% - 38px)}   /* room for the ★ at the other top corner */
+.adslot-foot .adslot-price{flex:0 0 100%;text-align:center;font-weight:800;font-size:calc(var(--ris,9px) + 3px);line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}   /* the listing's price (panel switch x:ad_price_enabled) */
 .adslot-foot span{font-weight:600;position:relative;z-index:1;text-shadow:var(--ad-ts,0 1px 3px rgba(0,0,0,.75))}.adslot-place{z-index:1;text-shadow:var(--ad-ts,0 1px 3px rgba(0,0,0,.75))}
 .adslot-place{position:absolute;top:3px;inset-inline-start:5px;font-weight:600;
   padding:1px 6px;border-radius:4px}
@@ -5115,6 +5117,7 @@ var FR_T={
   lv_member:"Membre", lv_trusted:"De confiance", lv_vip:"VIP", lv_partner:"Partenaire", lv_silver:"Argent", lv_gold:"Or", lv_trusted_agency:"Agence de confiance", silverTag:"Membre Argent", goldTag:"Membre Or", trustedAgencyTag:"Agence de confiance", back:"Retour", refresh:"Actualiser"
 };
 var FR_GX={
+  adShowPrice:"Afficher le prix dans les carrés", adFeatRotate:"Faire défiler les photos des annonces en vedette dans les carrés", adFeatRotateHint:"Désactivé, un carré en vedette garde sa photo de couverture.",
   phMakeCover:"À la une", phIsCover:"Couverture", phMakeCoverL:"En faire la photo de couverture", phEarlier:"Avancer la photo", phLater:"Reculer la photo", phOrderHint:"La première photo est la couverture. Réordonnez avec les flèches ou touchez «★ À la une» sur celle que vous voulez.",
   mdMenu:"Menu", mdClose:"Fermer", mdAccount:"Mon compte", mdSearch:"Recherche", mdDiscover:"Découvrir", mdSite:"Balkoun", mdPrefs:"Langue et devise", csDone:"OK", csClear:"Effacer",
   rsAll:"Biens", rsMore:"Plus", rsShow:"Afficher {n} annonces", rsAvg:"Prix moyen demandé", rsInArea:"dans le quartier", rsHideMap:"Masquer la carte", rsShowMap:"Carte", rsClearAll:"Tout effacer", rsFilters:"Filtres", rsSort:"Trier", rsOnMap:"{n} sur la carte", rsList:"Liste", newTag:"Nouveau",
@@ -8028,6 +8031,7 @@ function adSlotsRow(){
   var sqSize = SITE.ad_square_size||130;
   var roomInfoSize = SITE.ad_roominfo_size||9;
   var showLoc = SITE.ad_location_enabled!==false;
+  var showPrice = SXb("ad_price_enabled",true);   // the listing's price in its square (owner, 2026-10-20)
   var locSize = SITE.ad_location_size||9;
   var textColor = SITE.ad_text_color||"#ffffff";
   var shadeRgb = hexToRgb(SITE.ad_shade_color||"#090e1a");
@@ -8057,6 +8061,7 @@ function adSlotsRow(){
        encodeURIComponent(JSON.stringify(a.l_photos))+'" data-idx="0" alt="'+esc([(a.l_type&&D.TYPES[a.l_type])?D.TYPES[a.l_type][li()]:"", place].filter(Boolean).join(" · "))+'" loading="lazy">'+
        '<div class="adslot-foot" style="'+tShadow+'font-size:var(--ris);color:'+textColor+';'+
          'background:linear-gradient(to top,rgba('+shadeRgb+','+(.85*shadeOp)+') 0%,rgba('+shadeRgb+','+(.55*shadeOp)+') 55%,transparent 100%)">'+
+        (showPrice && a.l_price!=null && +a.l_price>0 ? '<span class="adslot-price ltr">'+esc(money(+a.l_price,{pl:a.l_price_local!=null?+a.l_price_local:null,pcur:a.l_price_cur||null}))+'</span>' : '')+
         (a.l_rooms?'<span>'+(showIcons?ICON_BED:"")+a.l_rooms+(showIcons?"":" "+t("rooms"))+'</span>':'')+
         (a.l_baths?'<span>'+(showIcons?ICON_BATH:"")+a.l_baths+(showIcons?"":" "+t("baths"))+'</span>':'')+
         (a.l_area?'<span class="ltr">'+(showIcons?ICON_AREA:"")+a.l_area+(showIcons?"":" "+t("sqm"))+'</span>':'')+
@@ -8304,10 +8309,12 @@ function startAdRotation(){
   // "clock" tick, so they drift naturally out of sync with each other
   _adRotateTimer=setInterval(function(){
     var now=Date.now();
+    var featStill = !SXb("ad_feat_rotate",true);   // panel switch (owner, 2026-10-20): featured squares show only their cover
     $$(".adslot-rotimg").forEach(function(img){
       try{
         var photos=JSON.parse(decodeURIComponent(img.dataset.photos||"[]"));
         if(photos.length<2) return;
+        if(featStill && img.closest(".adslot-feat")){ if(img.dataset.idx!=="0"){ img.dataset.idx="0"; img.src=photos[0]; img.style.opacity="1" } return }
         if(!img.dataset.nextRotateAt){
           // first time we've seen this element (fresh render) — give it
           // a random starting offset instead of rotating immediately
@@ -12897,6 +12904,9 @@ var GX_T={
   inqAwaitYou:{ar:"بانتظار ردك",en:"Awaiting your reply",de:"Wartet auf Ihre Antwort"}, inqGuestReply:{ar:"زائر بلا حساب: تواصل معه على رقمه",en:"Guest without an account: contact them on their number",de:"Gast ohne Konto: über die Nummer kontaktieren"},
   bioLimitHint:{ar:"حتى {n} حرف، ويمكنك استخدام فقرات.",en:"Up to {n} characters; paragraphs are kept.",de:"Bis zu {n} Zeichen; Absätze bleiben erhalten."},
   photoMaxHint:{ar:"حتى {n} صورة",en:"up to {n} photos",de:"bis zu {n} Fotos"},
+  adShowPrice:{ar:"إظهار السعر في المربعات",en:"Show the price in the squares",de:"Preis in den Kacheln zeigen"},
+  adFeatRotate:{ar:"تبديل صور الإعلانات المميزة في المربعات",en:"Cycle the photos of featured listings in the squares",de:"Fotos hervorgehobener Anzeigen in den Kacheln wechseln"},
+  adFeatRotateHint:{ar:"عند الإيقاف يبقى في مربع الإعلان المميز صورة الغلاف فقط.",en:"When off, a featured square keeps to its cover photo.",de:"Wenn aus, zeigt eine hervorgehobene Kachel nur ihr Titelbild."},
   phMakeCover:{ar:"غلاف",en:"Cover",de:"Titel"}, phIsCover:{ar:"الغلاف",en:"Cover",de:"Titel"}, phMakeCoverL:{ar:"اجعلها صورة الغلاف",en:"Make this the cover photo",de:"Als Titelbild festlegen"},
   phEarlier:{ar:"تقديم الصورة",en:"Move earlier",de:"Nach vorne"}, phLater:{ar:"تأخير الصورة",en:"Move later",de:"Nach hinten"},
   phOrderHint:{ar:"الصورة الأولى هي الغلاف. رتّب الصور بالأسهم أو اضغط «★ غلاف» على الصورة التي تريدها.",en:"The first photo is the cover. Reorder with the arrows or tap «★ Cover» on the one you want.",de:"Das erste Foto ist das Titelbild. Mit den Pfeilen sortieren oder bei einem Foto «★ Titel» tippen."}, photoMaxHit:{ar:"الحد {n} صورة لكل إعلان؛ أُخذت الصور الأولى فقط.",en:"The limit is {n} photos per listing; only the first ones were taken.",de:"Höchstens {n} Fotos pro Anzeige; nur die ersten wurden übernommen."},
