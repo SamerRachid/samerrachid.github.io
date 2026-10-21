@@ -3,6 +3,7 @@
   "short_name": "بلكون",
   "description": "عقارات للبيع والإيجار",
   "id": "/",
+  "related_applications": [{ "platform": "webapp", "url": "https://balkoun.com/manifest.webmanifest" }],
   "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",

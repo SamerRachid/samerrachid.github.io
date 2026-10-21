@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-xUpAYWPJ2egjo6wpLegNd8sYziI8GP3ac7TFN+xf/VQ=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-1mf5P77atgp6c8H3i2S7yeCu6JeC1EArU+IuZ/KPvR4=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -5126,6 +5126,7 @@ var FR_T={
   lv_member:"Membre", lv_trusted:"De confiance", lv_vip:"VIP", lv_partner:"Partenaire", lv_silver:"Argent", lv_gold:"Or", lv_trusted_agency:"Agence de confiance", silverTag:"Membre Argent", goldTag:"Membre Or", trustedAgencyTag:"Agence de confiance", back:"Retour", refresh:"Actualiser"
 };
 var FR_GX={
+  pwaHasT:"L'application Balkoun est sur votre téléphone ✓", pwaHasS:"Partager le lien de l'application", pwaLinkCopied:"Lien de l'application copié",
   rentP_yearly:"Loyer annuel", rentP_monthly:"Loyer mensuel", rentP_weekly:"Loyer hebdomadaire", rentP_daily:"Loyer journalier",
   adShowPrice:"Afficher le prix dans les carrés", adFeatRotate:"Faire défiler les photos des annonces en vedette dans les carrés", adFeatRotateHint:"Désactivé, un carré en vedette garde sa photo de couverture.",
   phMakeCover:"À la une", phIsCover:"Couverture", phMakeCoverL:"En faire la photo de couverture", phEarlier:"Avancer la photo", phLater:"Reculer la photo", phOrderHint:"La première photo est la couverture. Réordonnez avec les flèches ou touchez «★ À la une» sur celle que vous voulez.",
@@ -5624,7 +5625,7 @@ function mdrawer(){
   return '<div class="mdw" id="mdw"><div class="mdw-bg" id="mdwBg"></div><aside class="mdw-p mdw2" role="dialog" aria-label="'+GX("mdMenu")+'">'+
     '<div class="mdw-top"><a class="logo blogo" data-go="home" aria-label="'+esc(t("home"))+'">'+brandLogo()+'</a><button class="mdw-x" id="mdwX" aria-label="'+GX("mdClose")+'">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>'+
-    acct+(window.PWA&&PWA.installable()?'<div class="mdw2-sec" id="mdwInstallSec"><a class="mdw2-row pwa-row" id="mdwInstall"><span class="mi">'+(MI.download||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span><b>'+GX("pwaInstall")+'</b><small>'+GX("pwaInstallSub")+'</small></span></a></div>':'')+((byK("home")&&VIEW!=="home")?'<div class="mdw2-sec mdw2-homesec">'+row(byK("home"))+'</div>':'')+'<div class="mdw2-quick">'+tiles+'</div>'+
+    acct+(window.PWA&&!PREVIEW?'<div class="mdw2-sec" id="mdwInstallSec"><a class="mdw2-row pwa-row" id="mdwInstall"><span class="mi">'+(MI.download||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span><b>'+GX(PWA.hasApp()?"pwaHasT":"pwaInstall")+'</b><small>'+GX(PWA.hasApp()?"pwaHasS":"pwaInstallSub")+'</small></span></a></div>':'')+((byK("home")&&VIEW!=="home")?'<div class="mdw2-sec mdw2-homesec">'+row(byK("home"))+'</div>':'')+'<div class="mdw2-quick">'+tiles+'</div>'+
     '<div class="mdw2-sec"><a class="mdw2-row pwa-row" data-go="post">'+MI.qftext+'<span><b>'+GX("qfMenuT")+' <i class="qf-badge">'+GX("newTag")+'</i></b><small>'+GX("qfMenuP")+'</small></span></a></div>'+
     sec(GX("mdDiscover"),discover)+sec(GX("mdServices"),services)+mine+sec(GX("mdSite"),site)+countryPickHtml("drawer")+
     ((langs||curs)?'<div class="mdw2-foot">'+langs+curs+'</div>':'')+
@@ -5657,7 +5658,7 @@ function wireDrawer(){
   if($("#hpill")) $("#hpill").onclick=function(e){ e.stopPropagation(); mdwOpen() };
   $("#mdwX").onclick=mdwClose; $("#mdwBg").onclick=mdwClose;
   if($("#appInstallGo")) $("#appInstallGo").onclick=function(){ if(window.PWA) PWA.install() };
-  if(window.PWA){ var isec=$("#mdwInstallSec"); if(isec){ isec.hidden=!PWA.installable(); var ib=$("#mdwInstall"); if(ib) ib.onclick=function(){ mdwClose(); PWA.install() } } }
+  if(window.PWA){ var isec=$("#mdwInstallSec"); if(isec){ var ib=$("#mdwInstall"); if(ib) ib.onclick=function(){ mdwClose(); if(PWA.hasApp()) PWA.shareApp(); else PWA.install() } } }
   if(!window._mdwEsc){ window._mdwEsc=true; document.addEventListener("keydown",function(e){ if(e.key==="Escape") mdwClose() }) }
   if($("#mdIn")) $("#mdIn").onclick=function(){ mdwClose(); var b=$("#bIn"); if(b) b.click() };
   $$("[data-md]").forEach(function(a){ a.onclick=function(){ var el=$("#"+this.dataset.md); mdwClose(); if(el) el.click() } });
@@ -12927,6 +12928,9 @@ var GX_T={
   inqAwaitYou:{ar:"بانتظار ردك",en:"Awaiting your reply",de:"Wartet auf Ihre Antwort"}, inqGuestReply:{ar:"زائر بلا حساب: تواصل معه على رقمه",en:"Guest without an account: contact them on their number",de:"Gast ohne Konto: über die Nummer kontaktieren"},
   bioLimitHint:{ar:"حتى {n} حرف، ويمكنك استخدام فقرات.",en:"Up to {n} characters; paragraphs are kept.",de:"Bis zu {n} Zeichen; Absätze bleiben erhalten."},
   photoMaxHint:{ar:"حتى {n} صورة",en:"up to {n} photos",de:"bis zu {n} Fotos"},
+  pwaHasT:{ar:"تطبيق بلكون مثبّت على هاتفك ✓",en:"The Balkoun app is on your phone ✓",de:"Die Balkoun-App ist auf Ihrem Handy ✓"},
+  pwaHasS:{ar:"شارك رابط التطبيق مع غيرك",en:"Share the app link with others",de:"App-Link mit anderen teilen"},
+  pwaLinkCopied:{ar:"تم نسخ رابط التطبيق",en:"App link copied",de:"App-Link kopiert"},
   rentP_yearly:{ar:"الإيجار السنوي",en:"Yearly rent",de:"Jahresmiete"}, rentP_monthly:{ar:"الإيجار الشهري",en:"Monthly rent",de:"Monatsmiete"},
   rentP_weekly:{ar:"الإيجار الأسبوعي",en:"Weekly rent",de:"Wochenmiete"}, rentP_daily:{ar:"الإيجار اليومي",en:"Daily rent",de:"Tagesmiete"},
   adShowPrice:{ar:"إظهار السعر في المربعات",en:"Show the price in the squares",de:"Preis in den Kacheln zeigen"},
@@ -14306,8 +14310,14 @@ window.PWA=(function(){
   var ua=navigator.userAgent||"", inApp=/FBAN|FBAV|FB_IAB|Instagram|Messenger|Line\/|Snapchat|TikTok|WhatsApp/i.test(ua), android=/android/i.test(ua),
       samsung=/SamsungBrowser/i.test(ua), firefox=/firefox|fxios/i.test(ua), iosOther=ios && !iosSafari;
   function platform(){ return standalone?"installed": inApp?(ios?"inapp_ios":"inapp_android"): ios?(iosSafari?"ios_safari":"ios_other"): android?(samsung?"samsung":firefox?"android_firefox":"android_chrome"): "desktop" }
+  var flagged=false; try{ flagged=localStorage.getItem("bk_app_installed")==="1" }catch(e){}
+  function markInstalled(on){ flagged=!!on; try{ if(on) localStorage.setItem("bk_app_installed","1"); else localStorage.removeItem("bk_app_installed") }catch(e){} }
+  if(standalone) markInstalled(true);
+  // Chrome on Android can tell whether this site's own app is installed (manifest «related_applications»)
+  try{ if(!standalone && navigator.getInstalledRelatedApps) navigator.getInstalledRelatedApps().then(function(apps){ if(apps && apps.length){ markInstalled(true); hideBar() } }).catch(function(){}) }catch(e){}
+  function hasApp(){ return standalone || flagged }
   function installable(){ return !standalone && !PREVIEW }
-  function refreshDrawer(){ var sec=document.getElementById("mdwInstallSec"); if(sec) sec.hidden=!installable() }
+  function refreshDrawer(){}
   function toast(msg,btn,fn){ var old=document.getElementById("pwaToast"); if(old) old.remove(); var d=document.createElement("div"); d.className="pwa-toast"; d.id="pwaToast"; d.innerHTML='<span>'+msg+'</span>'+(btn?'<button type="button">'+btn+'</button>':''); document.body.appendChild(d); if(btn) d.querySelector("button").onclick=fn; if(!btn) setTimeout(function(){ d.remove() },4500) }
   function iosSteps(){ var old=$("#soonM"); if(old) old.remove(); var d=document.createElement("div"); d.className="soon-m"; d.id="soonM";
     d.innerHTML='<div class="soon-bg"></div><div class="soon-c" role="dialog" aria-modal="true" aria-label="Balkoun"><button type="button" class="soon-x" aria-label="'+GX("mdClose")+'">×</button><div class="soon-ico">'+MI.download+'</div><h3>'+GX("pwaIosT")+'</h3><ol class="pwa-steps"><li><i>1</i><span>'+GX("pwaIos1")+'</span></li><li><i>2</i><span>'+GX("pwaIos2")+'</span></li><li><i>3</i><span>'+GX("pwaIos3")+'</span></li></ol></div>';
@@ -14327,18 +14337,19 @@ window.PWA=(function(){
   function barView(){ return typeof VIEW!=="undefined" && BAR_VIEWS.test(VIEW||"") }
   function syncBar(){ if(!barView()) hideBar(); else if(barReady) bar() }
   function bar(){
-    if(!installable() || window.innerWidth>860 || SX("pwa_banner",true)===false || !barView()) return;
+    if(!installable() || hasApp() || window.innerWidth>860 || SX("pwa_banner",true)===false || !barView()) return;
     try{ var until=+localStorage.getItem("bk_pwa_snooze")||0; if(Date.now()<until) return }catch(e){}
     if(document.getElementById("pwaBar")) return;
+    try{ localStorage.setItem("bk_pwa_snooze", String(Date.now()+ (+SX("pwa_banner_days",7)||7)*86400000)) }catch(e){}   // at most once every N days (7 unless the panel says otherwise)
     var d=document.createElement("div"); d.className="pwa-bar"; d.id="pwaBar"; try{ document.body.classList.add("pwa-on") }catch(e){}
     d.innerHTML='<img src="/brand/icon-192.png" alt=""><div class="t"><b>'+GX("pwaBannerT")+'</b><small>'+GX("pwaInstallSub")+'</small></div><button type="button" class="go">'+GX("pwaBannerBtn")+'</button><button type="button" class="later" aria-label="'+GX("pwaLater")+'">✕</button>';
     document.body.appendChild(d);
     try{ document.body.style.setProperty("--pwa-lift", Math.ceil(d.offsetHeight+(parseFloat(getComputedStyle(d).bottom)||14)+10)+"px") }catch(e){}   // «أضف إعلانك» sits 10px above the banner (its height, not its animated position)
-    var snooze=function(){ try{ localStorage.setItem("bk_pwa_snooze", String(Date.now()+ (+SX("pwa_banner_days",14)||14)*86400000)) }catch(e){} hideBar() };
+    var snooze=function(){ hideBar() };   // the week already started when it showed
     d.querySelector(".go").onclick=function(){ snooze(); install() }; d.querySelector(".later").onclick=snooze;
   }
   window.addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); deferred=e; refreshDrawer(); setTimeout(bar, 6000); if(typeof VIEW!=="undefined"&&VIEW==="app") try{ render() }catch(x){} });
-  window.addEventListener("appinstalled", function(){ deferred=null; hideBar(); refreshDrawer(); toast(GX("pwaInstalled")) });
+  window.addEventListener("appinstalled", function(){ deferred=null; markInstalled(true); hideBar(); refreshDrawer(); toast(GX("pwaInstalled")) });
   if(!standalone) setTimeout(function(){ barReady=true; bar() }, 8000);   // a few seconds of browsing first, on any phone
   if("serviceWorker" in navigator && !PREVIEW && (location.protocol==="https:" || location.hostname==="localhost")){
     window.addEventListener("load", function(){
@@ -14361,7 +14372,10 @@ window.PWA=(function(){
   document.addEventListener("visibilitychange", function(){ if(document.hidden){ _hiddenAt=Date.now(); return } if(_hiddenAt && Date.now()-_hiddenAt>60*1000){ _hiddenAt=0; try{ refreshListingsOnNavigate(); loadSiteContent(); loadGeo(); if(typeof syncFeaturedFromServer==="function") syncFeaturedFromServer() }catch(e){} } });
   window.addEventListener("pageshow", function(e){ if(e.persisted){ try{ refreshListingsOnNavigate(); loadSiteContent(); loadGeo() }catch(x){} } });
   window.addEventListener("offline", function(){ toast(GX("pwaOffline")) });
-  return { installable:installable, install:install, standalone:standalone, ios:iosSafari, platform:platform, stepsHtml:stepsHtml, canPrompt:function(){ return !!deferred }, syncBar:syncBar };
+  function shareApp(){ var u=location.origin+"/app";
+    if(navigator.share){ navigator.share({title:GX("pwaBannerT"), url:u}).catch(function(){}); return }
+    try{ navigator.clipboard.writeText(u).then(function(){ toast(GX("pwaLinkCopied")) }) }catch(e){ prompt("", u) } }
+  return { hasApp:hasApp, shareApp:shareApp, installable:installable, install:install, standalone:standalone, ios:iosSafari, platform:platform, stepsHtml:stepsHtml, canPrompt:function(){ return !!deferred }, syncBar:syncBar };
 })();
 if(COUNTRY!=="SY"){ D.GEO={}; D.GOVN={} }   // the data line carries Syria's governorates; another country waits for its own (cache or bk_geo)
 applyGeoCache();

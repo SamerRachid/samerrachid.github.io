@@ -2794,7 +2794,7 @@ function hsInspHome(){
   } else if(sd==="projects"){
     H.push(fSwitch(hsT("showSec"),"x:home_projects_on",true,true), fNum(hsT("f_pjN"),"x:home_projects_n",1,12,1,6,true), fHint(hsT("textsHint")), fSecTexts("projects",GX("pjSecEyebrow"),GX("pjSecH"),GX("pjSecSub")));
   } else if(sd==="page"){
-    H.push(fGrp(hsT("g_pwa")), fSwitch(hsT("f_pwaBanner"),"x:pwa_banner",true,false), fNum(hsT("f_pwaDays"),"x:pwa_banner_days",1,90,1,14,false));
+    H.push(fGrp(hsT("g_pwa")), fSwitch(hsT("f_pwaBanner"),"x:pwa_banner",true,false), fNum(hsT("f_pwaDays"),"x:pwa_banner_days",1,90,1,7,false));
     H.push(fGrp(hsT("g_logo")), fSel(hsT("f_logoVar"),"x:logo_variant",[["full",hsT("lv_full")],["markword",hsT("lv_mw")],["word",hsT("lv_word")]],"full",true), fSlider(hsT("f_logoH"),"x:logo_h","x:logo_h_m",22,48,1,"px",phone?30:34));
     H.push(fGrp(hsT("g_motion")), fHint(hsT("devOnlyHint")));
     if(!phone) H.push(fSwitch(hsT("f_opening"),"x:opening_enabled",true));
