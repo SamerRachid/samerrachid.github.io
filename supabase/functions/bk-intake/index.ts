@@ -819,6 +819,22 @@ async function askClaude(model: string, system: string, taxText: string, user: s
   throw lastErr || new Error("claude: failed");
 }
 const costOf = (u: Usage, c: Cfg) => ((u.in - u.cache_write - u.cache_read) + u.cache_write * 1.25 + u.cache_read * 0.1) * (+c.intake_price_in || 1) / 1e6 + u.out * (+c.intake_price_out || 5) / 1e6;
+// an area written as «جديدة الوادي/جديدة الشيباني» has two names for one place (owner, 2026-10-21): each name after the
+// split is added as its own entry with the same id, so finding, scanning and the «is it written in the message» checks
+// accept either name, and the listing still lands on the one area
+function withAreaAliases(t: any) {
+  for (const g of (t && t.governorates) || []) {
+    const extra: any[] = [];
+    for (const a of g.areas || []) {
+      const full = String(a[1] || "");
+      if (!full.includes("/")) continue;
+      for (const part of full.split("/").map((x: string) => x.trim()).filter((x: string) => x && x !== full)) { const e = a.slice(); e[1] = part; extra.push(e); }
+    }
+    if (extra.length) g.areas = (g.areas || []).concat(extra);
+  }
+  return t;
+}
+async function taxonomy(args: { p_country: string }) { return withAreaAliases(await rpc<any>("bk_intake_taxonomy", args)); }
 const norm = (s: string) => (s || "").replace(/[ً-ْـ]/g, "").replace(/^ال/, "").replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي").replace(/\s+/g, " ").trim().toLowerCase();
 function findGov(tax: any, name: string) {
   if (!name) return null; const n = norm(name);
@@ -1185,7 +1201,7 @@ async function routeSearch(req: Request): Promise<Response> {
   const { count: globalCount } = await sb.from("intake_log").select("id", { count: "exact", head: true }).eq("event", "search_read").gt("created_at", since);
   if ((globalCount || 0) >= 3000) return json({ error: "limit" }, 429);
   await log(null, chatId, "info", "search_read", { country, text, ip });   // counted before the paid call, failures included
-  const tax = await rpc<any>("bk_intake_taxonomy", { p_country: country });
+  const tax = await taxonomy({ p_country: country });
   try {
     const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SEARCH_SYSTEM, taxonomyText(tax), "QUERY:\n" + latinDigits(text), { tool: SEARCH_TOOL, toolName: "search_filters" });
     const fields = settleSearch(r.fields, tax); const cost = costOf(r.usage, c);
@@ -1202,7 +1218,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   const d = await rpc<any>("bk_intake_get", { p_draft: draftId });
   if (!d) return null;
   const c = await cfg(); const lang = c.intake_reply_lang === "en" ? "en" : (d.user_lang === "en" ? "en" : "ar"); const t = tx(lang);
-  const tax = await rpc<any>("bk_intake_taxonomy", { p_country: d.country_code });
+  const tax = await taxonomy({ p_country: d.country_code });
   const photos = Array.isArray(d.photos) ? d.photos.filter((p: any) => p?.kind !== "video").length : 0;
   const videos = Array.isArray(d.photos) ? d.photos.filter((p: any) => p?.kind === "video").length : 0;
   // a membership number (SYM1007) written into a forwarded message names the member the listing is for —
@@ -1647,7 +1663,7 @@ async function applyAreaText(m: Incoming, draftId: number, text: string, tt: any
   const name = text.replace(/^(الحي|الحيّ|المنطقة|القرية|اسم الحي|اسم المنطقة)\s*[:：]?\s*/, "").replace(/[.。!]+$/, "").trim().slice(0, 60);
   if (name.length < 2) { await reply(m.source, m.chat, tt.areaAskName); return; }
   const f: Record<string, any> = { ...(d.fields || {}) };
-  const tax = await rpc<any>("bk_intake_taxonomy", { p_country: d.country_code });
+  const tax = await taxonomy({ p_country: d.country_code });
   const g = (tax.governorates || []).find((x: any) => x.id === f.governorate_id);
   const a = g ? findArea(g, name) : null;
   if (a) { f.area = a[1]; f.area_id = a[0]; if (f.landmark && norm(f.landmark) === norm(f.area_text || "")) delete f.landmark; delete f.area_text; delete f.area_pending; delete f.area_confirmed; }
@@ -1670,7 +1686,7 @@ async function skipMissing(m: Incoming, r: any, tt: any) {
     const hard = (Array.isArray(d.missing) ? d.missing : []).filter((k: string) => HARD_MISSING.includes(k));
     if (hard.length) { await reply(m.source, m.chat, t.skipNeed(hard.map((k: string) => (lang === "en" ? MISSING_EN : MISSING_AR)[k]).join(lang === "en" ? ", " : "، "))); return; }
     // the summary comes back without the skipped details; the sender still answers «نعم» to publish (owner's rule)
-    const tax = await rpc<any>("bk_intake_taxonomy", { p_country: d.country_code });
+    const tax = await taxonomy({ p_country: d.country_code });
     const sum = summary(f, tax, (d.photos || []).filter((p: any) => p?.kind !== "video").length, lang, (d.photos || []).filter((p: any) => p?.kind === "video").length) + t.confirmLine;
     await rpc("bk_intake_set", { p_draft: d.id, p_patch: { fields: f, missing: [], status: "ready", summary: sum } });
     await log(d.id, m.chat, "info", "skipped_by_sender", { missing: d.missing });
@@ -1689,7 +1705,7 @@ async function fixPublished(m: Incoming, r: any, tt: any) {
   const c = await cfg(); const lang = c.intake_reply_lang === "en" ? "en" : (d.user_lang === "en" ? "en" : "ar"); const t = tx(lang); const ar = lang !== "en";
   const fix = String(r.text || "").trim();
   try {
-    const tax = await rpc<any>("bk_intake_taxonomy", { p_country: d.country_code });
+    const tax = await taxonomy({ p_country: d.country_code });
     const rawText = latinDigits(d.raw_text || "");
     const user = `Sender: ${d.sender_name || "?"}\n\nMESSAGE:\n${rawText.slice(0, 6000)}\n\nCORRECTION FROM THE SENDER (overrides the message above where they differ):\n${latinDigits(fix)}`;
     await refreshPlaces(tax.country.code);
@@ -2128,7 +2144,7 @@ async function completeAfterPhoto(m: Incoming, draftId: number): Promise<boolean
   if (!(Array.isArray(d.photos) && d.photos.length) || !["needs_info", "collecting"].includes(d.status)) return false;
   const claimed = await rpc<any>("bk_intake_claim", { p_draft: draftId }); if (!claimed) return false;
   const c = await cfg(); const lang = c.intake_reply_lang === "en" ? "en" : (d.user_lang === "en" ? "en" : "ar"); const t = tx(lang);
-  const tax = await rpc<any>("bk_intake_taxonomy", { p_country: d.country_code });
+  const tax = await taxonomy({ p_country: d.country_code });
   const status = d.by_admin && !d.agency_id ? "review" : "ready";
   const sum = summary(d.fields || {}, tax, d.photos.filter((p: any) => p?.kind !== "video").length, lang, d.photos.filter((p: any) => p?.kind === "video").length) + (status === "review" ? "" : t.confirmLine);
   const saved = await rpc<any>("bk_intake_save_read", { p_draft: draftId, p_fields: d.fields || {}, p_missing: [], p_summary: sum, p_status: status, p_model: null, p_in: 0, p_out: 0, p_cost: 0, p_error: null });
@@ -2262,7 +2278,7 @@ async function routeWeb(req: Request): Promise<Response> {
   const { count } = await sb.from("intake_log").select("id", { count: "exact", head: true }).eq("chat_id", "web:" + uid).eq("event", "web_read").gt("created_at", new Date(Date.now() - 86400_000).toISOString());
   if ((count || 0) >= 40) return json({ error: "limit" }, 429);
   await log(null, "web:" + uid, "info", "web_read", { country: b.country || "SY" });   // counted before the paid call, failures included
-  const tax = await rpc<any>("bk_intake_taxonomy", { p_country: b.country || "SY" });
+  const tax = await taxonomy({ p_country: b.country || "SY" });
   try {
     const t = latinDigits(text);
     await refreshPlaces(tax.country.code);
@@ -2424,7 +2440,7 @@ async function routeAdmin(req: Request): Promise<Response> {
     return json({ ok: true, results: out, guide: GUIDE.ar(null) });
   }
   if (a === "test_claude") {
-    const c = await cfg(); const tax = await rpc<any>("bk_intake_taxonomy", { p_country: b.country || "SY" });
+    const c = await cfg(); const tax = await taxonomy({ p_country: b.country || "SY" });
     try {
       const text = latinDigits(String(b.text || "").slice(0, 6000));
       await refreshPlaces(tax.country.code);
