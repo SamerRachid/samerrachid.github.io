@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-vVUdZWlAR4bY2wil7c6SF6X2PjERb8tBaAh6+AByoaQ=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-0TYkEbcDrtTihF5YCqqDEASwaVoAl+IwXRsEH/TnE9k=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -5095,6 +5095,20 @@ function wireAllCCPickers(){
 }
 
 /* longest-prefix match, so +1514… is Canada and not Syria */
+// how many digits follow each country code (mobile and landline, a leading 0 not counted); a country not listed keeps
+// the old loose rule (7 or more). A range where a country has both lengths (Lebanon 7–8, Iraq 8–10, Egypt 8–10…).
+var PHONE_LEN={"963":[9,9],"961":[7,8],"962":[8,9],"964":[8,10],"966":[8,9],"971":[8,9],"965":[8,8],"974":[8,8],"973":[8,8],"968":[8,8],
+  "20":[8,10],"90":[10,10],"49":[7,11],"43":[7,13],"41":[9,9],"31":[9,9],"32":[8,9],"33":[9,9],"34":[9,9],"39":[6,11],"44":[9,10],"45":[8,8],"46":[7,9],"47":[8,8],"1":[10,10],"7":[10,10]};
+function phoneRange(cc){ return PHONE_LEN[String(cc||"")]||[7,15] }
+// the national part of a number typed after a country picker (00 / the code typed again / a habitual 0 removed)
+function phoneNat(cc,raw){ var d=String(raw||"").replace(/\D/g,""); cc=String(cc||""); if(d.indexOf("00"+cc)===0) d=d.slice(2+cc.length); else if(cc && d.indexOf(cc)===0 && d.length>cc.length+5) d=d.slice(cc.length); return d.replace(/^0+/,"") }
+// a number typed in one box: «+961 70 123456» / «0096170…» carry their code; a bare national number is the site's country
+function phoneSplit(raw){ var v=ccNorm(String(raw||"")).replace(/[^\d+]/g,"");
+  if(/^(\+|00)/.test(v)){ var d=v.replace(/^(\+|00)/,""), cc=ccOf(d); return {cc:cc, nat:d.slice(cc.length).replace(/^0+/,"")} }
+  return {cc:phoneCC(), nat:v.replace(/\D/g,"").replace(/^0+/,"")} }
+// "" when the length fits the country, else a message that says what is expected
+function phoneLenMsg(cc,nat){ var r=phoneRange(cc); if(nat.length>=r[0] && nat.length<=r[1]) return ""; var n=r[0]===r[1]?String(r[0]):r[0]+"–"+r[1];
+  return GX("badPhoneLen").replace("{cc}","+"+cc).replace("{n}",n) }
 function ccOf(phone){
   var p=String(phone||"").replace(/^\+/,"");
   var best=phoneCC(), len=0;
@@ -5199,8 +5213,9 @@ var FR_T={
   lv_member:"Membre", lv_trusted:"De confiance", lv_vip:"VIP", lv_partner:"Partenaire", lv_silver:"Argent", lv_gold:"Or", lv_trusted_agency:"Agence de confiance", silverTag:"Membre Argent", goldTag:"Membre Or", trustedAgencyTag:"Agence de confiance", back:"Retour", refresh:"Actualiser"
 };
 var FR_GX={
+  badPhoneLen:"Vérifiez le numéro : après {cc}, il faut {n} chiffres",
   helpNav:"Tutoriels Balkoun", helpH:"Tutoriels Balkoun", helpSub:"De courtes vidéos, pas à pas : s'inscrire, publier une annonce, et plus.", helpEmpty:"Pas encore de tutoriels.", helpAuthLine:"Comment s'inscrire ? Voir le tutoriel", helpPostLine:"Pas sûr ? Voir le tutoriel",
-  vpOpen:"Changer l'image d'aperçu", vpTitle:"Image d'aperçu", vpSub:"Ce que l'on voit avant la lecture, sur les cartes et la page de l'annonce", vpTabV:"🎞️ De la vidéo", vpTabP:"🖼️ Une photo", vpHint:"Faites glisser le cadre doré ou touchez une image", vpBefore:"Actuelle", vpAfter:"Nouvelle", vpSave:"Enregistrer", vpUndo:"Annuler", vpSaving:"Enregistrement…", vpSaved:"Image d'aperçu enregistrée ✓", vpNoPhotos:"Cette annonce n'a pas encore de photos.", vpNote:"La vidéo ne change pas. L'image reçoit la marque Balkoun comme chaque photo.",
+  vpOpen:"Changer l'image d'aperçu", vpUse:"Utiliser", vpTitle:"Image d'aperçu", vpSub:"Ce que l'on voit avant la lecture, sur les cartes et la page de l'annonce", vpTabV:"🎞️ De la vidéo", vpTabP:"🖼️ Une photo", vpHint:"Faites glisser le cadre doré ou touchez une image", vpBefore:"Actuelle", vpAfter:"Nouvelle", vpSave:"Enregistrer", vpUndo:"Annuler", vpSaving:"Enregistrement…", vpSaved:"Image d'aperçu enregistrée ✓", vpNoPhotos:"Cette annonce n'a pas encore de photos.", vpNote:"La vidéo ne change pas. L'image reçoit la marque Balkoun comme chaque photo.",
   pwaHasT:"L'application Balkoun est sur votre téléphone ✓", pwaHasS:"Partager le lien de l'application", pwaLinkCopied:"Lien de l'application copié",
   rentP_yearly:"Loyer annuel", rentP_monthly:"Loyer mensuel", rentP_weekly:"Loyer hebdomadaire", rentP_daily:"Loyer journalier",
   adShowPrice:"Afficher le prix dans les carrés", adFeatRotate:"Faire défiler les photos des annonces en vedette dans les carrés", adFeatRotateHint:"Désactivé, un carré en vedette garde sa photo de couverture.",
@@ -7494,7 +7509,8 @@ function wireInquiry(){
    var nm=($("#inqName").value||"").trim(), ph=($("#inqPhone").value||"").trim(), tx=($("#inqText").value||"").trim();
    if(nm.length<2){ INQ.msg=GX("hpNeedName"); render(); return }
    // a signed-in member may leave the number empty (the owner answers in رسائلي); a guest has to give one
-   if(ph.replace(/\D/g,"").length<8 && (ph.replace(/\D/g,"").length>0 || !USER)){ INQ.msg=GX("hpNeedPhone"); render(); return }
+   if(!ph.replace(/\D/g,"") && !USER){ INQ.msg=GX("hpNeedPhone"); render(); return }
+   if(ph.replace(/\D/g,"")){ var phS=phoneSplit(ph), phBad=phoneLenMsg(phS.cc,phS.nat); if(phBad){ INQ.msg=phBad; render(); return } }
    this.disabled=true; this.textContent=t("saving");
    try{ await rpc("bk_inquiry_send",{p_listing:INQ.listing?+INQ.listing:null, p_to_user:INQ.toUser||null, p_name:nm, p_phone:ph, p_message:tx, p_kind:INQ.kind, p_user:(USER&&USER.id)||null, p_token:(USER&&USER.token)||null});
         INQ.sent=true; INQ.msg=""; render() }
@@ -8064,9 +8080,9 @@ function checkPost(){
  if(NEW.photos.length<needPh)need.push(t("photos"));
  // the number after the country code: 9 digits for Syria (+963 9xx…), 7–8 elsewhere (Lebanon +961 70 123456 / 3 123456);
  // a leading 0 typed out of habit does not count (owner, 2026-10-22: a Lebanese number was refused as «missing»)
- var telD=v("ptel").replace(/\D/g,"").replace(/^0+/,""), telCC=v("pcc")||(USER&&USER.phone?ccOf(USER.phone):phoneCC());
- if(telD.indexOf(telCC)===0 && telD.length>telCC.length+6) telD=telD.slice(telCC.length);
- if(telD.length<(telCC==="963"?9:7))need.push(t("tel"));
+ var telCC=v("pcc")||(USER&&USER.phone?ccOf(USER.phone):phoneCC()), telD=phoneNat(telCC,v("ptel")), telBad=phoneLenMsg(telCC,telD);
+ if(telBad) need.push(t("tel"));
+ if(telPrev && v("ptel").replace(/\D/g,"")){ telPrev.style.color=telBad?"var(--danger)":""; if(telBad) telPrev.textContent=telBad }
  [["k1",true],["k2",!!v("pg")||true],["k3",!!v("pm2")],
   ["k4",isRent||!!$('input[name=tb2]:checked')],["k5",NEW.photos.length>=needPh],["k6",!!v("pp")]]
   .forEach(function(p){var e=$("#"+p[0]); if(e)e.classList.toggle("done",p[1])});
@@ -9015,7 +9031,7 @@ function wireProjects(){
     var us=$("#pjUnitSel"); if(us) us.onchange=function(){ if(this.value==="custom"){ PROJECT._custom=true } else { PROJECT._custom=false; PROJECT._price=+this.value } render(); var pi=$("#pjPrice"); if(pi&&PROJECT._custom) pi.focus() };
     var pi=$("#pjPrice"); if(pi) pi.oninput=function(){ PROJECT._price=+this.value||0; PROJECT._custom=true; var pl=pjPlans(p)[PROJECT._plan||0]||{}; var pr=PROJECT._price; var r=$(".pjres"); if(r){ var b=r.querySelectorAll("b"); if(b[0]) b[0].textContent=pjFmt(Math.round(pr*(+pl.down_pct||0)/100)); if(b[1]) b[1].textContent=pjFmt(pjMonthly(pr,pl)); if(b[2]) b[2].textContent=pjFmt(Math.round(pr*(+pl.handover_pct||0)/100)) } };
     var ps=$("#pjPlanSel"); if(ps) ps.onchange=function(){ PROJECT._plan=+this.value; render() };
-    if($("#pjLSend")) $("#pjLSend").onclick=async function(){ var err=$("#pjLErr"), phone=($("#pjLPhone")||{}).value||""; if(phone.replace(/\D/g,"").length<8){ if(err) err.textContent=t("mobile"); return } this.disabled=true;
+    if($("#pjLSend")) $("#pjLSend").onclick=async function(){ var err=$("#pjLErr"), phone=($("#pjLPhone")||{}).value||""; var pjS=phoneSplit(phone), pjBad=phone.replace(/\D/g,"")?phoneLenMsg(pjS.cc,pjS.nat):t("mobile"); if(pjBad){ if(err) err.textContent=pjBad; return } this.disabled=true;
       try{ var r=await DB.rpc("bk_project_lead",{p_project:+p.id,p_name:($("#pjLName")||{}).value||null,p_phone:phone,p_unit:($("#pjLUnit")||{}).value||null,p_plan:(pjPlans(p)[PROJECT._plan||0]||{}).name||null,p_note:($("#pjLNote")||{}).value||null}); if(r&&r.error) throw r.error; PROJECT._sent=true; render() }
       catch(e){ if(err) err.textContent=e.message||"error"; this.disabled=false } };
     if($("#viewMap") && p.lat && p.lng){ setTimeout(function(){ initViewMap(+p.lat,+p.lng) },60) }
@@ -10466,7 +10482,7 @@ function wireAuth(){
    render();
  };
  var err=function(k){var e=$("#auErr"); if(e)e.textContent=(D.I18N[L][k]||k)};
- var phoneOf=function(){ return "+"+$("#auCC").value+($("#auPhone").value||"").replace(/\D/g,"") };
+ var phoneOf=function(){ var cc=$("#auCC").value; return "+"+cc+phoneNat(cc,$("#auPhone").value) };   // a habitual 0 / 00 / the code typed again are dropped
 
  // defaults to login mode, per the site owner's request — the modal
  // itself already has its own "don't have an account? Sign up" switch
@@ -10561,11 +10577,12 @@ function wireAuth(){
  /* ── sign up ── */
  $$("input[name=auType]").forEach(function(i){ i.onchange=function(){ AU.type=this.value; $$(".au-type").forEach(function(l){ l.classList.toggle("on", l.querySelector("input").checked) }); var r=$("#auAgencyRow"); if(r){ r.hidden=AU.type!=="agency"; if(AU.type==="agency") $("#auAgencyName").focus() } } });
  if($("#auStart"))$("#auStart").onclick=function(){
-   var p=($("#auPhone").value||"").replace(/\D/g,"");
+   var p=phoneNat($("#auCC").value, $("#auPhone").value);
    if(!$("#auName").value.trim()) return err("badName");
    if(!$("#auFam").value.trim())  return err("badFamily");
    if($("#auAgree") && !$("#auAgree").checked) return err("mustAgree");
    if(p.length<7) return err("badPhone");
+   var upBad=phoneLenMsg($("#auCC").value, phoneNat($("#auCC").value, p)); if(upBad) return err(upBad);
    if(($("#auPass").value||"").length<6) return err("shortPass");
    if($("#auPass").value!==$("#auPass2").value) return err("noMatch");
    AU.cc=$("#auCC").value; AU.phone=p;
@@ -10634,7 +10651,7 @@ function wireAuth(){
 
  /* ── forgot password ── */
  if($("#auReset"))$("#auReset").onclick=function(){
-   var p=($("#auPhone").value||"").replace(/\D/g,"");
+   var p=phoneNat($("#auCC").value, $("#auPhone").value);
    if(p.length<7) return err("badPhone");
    AU.cc=$("#auCC").value; AU.phone=p;
    var saved=verifyLoadResume("+"+AU.cc+p,"reset");
@@ -10730,8 +10747,9 @@ function wireAuth(){
 
  if($("#npSave"))$("#npSave").onclick=async function(){
    var m=$("#npMsg"), b=this;
-   var np="+"+$("#npCC").value+($("#npNum").value||"").replace(/\D/g,"");
+   var np="+"+$("#npCC").value+phoneNat($("#npCC").value, $("#npNum").value);
    if(np.length<9){ m.style.color="var(--danger)"; m.textContent=t("badPhone"); return }
+   var npBad=phoneLenMsg($("#npCC").value, phoneNat($("#npCC").value, $("#npNum").value)); if(npBad){ m.style.color="var(--danger)"; m.textContent=npBad; return }
    b.disabled=true; b.textContent=t("saving");
    try{ var u=await rpc("bk_change_phone",{p_id:USER.id,
           p_pass:await sha($("#npPass").value||""), p_new_phone:np});
@@ -10986,14 +11004,73 @@ function videoPickHtml(){
   return '<div class="vpick" id="vpick"><b class="vpick-h">'+GX("videoH")+'</b>'+
     (v ? '<div class="vprev">'+(v.preview?'<img src="'+v.preview+'" alt="">':'<span class="vph">▶</span>')+'<span class="vplay">▶</span><span class="vdur ltr">'+fmtDur(v.duration)+' · '+(Math.round(v.size/104857.6)/10)+' MB</span><button type="button" class="rm" id="vRm" aria-label="'+esc(t("del"))+'">✕</button></div>'
        : '<button type="button" class="vadd" id="vAdd"><span class="vplay">▶</span><b>'+GX("videoAdd")+'</b><span>'+GX("videoHint").replace("{s}",cfg.s).replace("{mb}",cfg.mb)+'</span></button>')+
-    '<input type="file" id="vfile" accept="video/*,.mp4,.mov,.m4v,.webm,.3gp,.mkv" hidden><div class="hintx" id="vMsg"></div></div>' }
+    postVppHtml()+'<input type="file" id="vfile" accept="video/*,.mp4,.mov,.m4v,.webm,.3gp,.mkv" hidden><div class="hintx" id="vMsg"></div></div>' }
+function postVppHtml(){
+  var v=NEW.video; if(!v) return '';
+  if(!NEW.vppOpen) return '<button type="button" class="vpp-open" id="pvpOpen">🖼️ '+GX("vpOpen")+'</button>';
+  var st=NEW.vpp||(NEW.vpp={mode:"video",frac:0.1,photo:-1,frames:null}), mode=st.mode, ph=NEW.photos||[];
+  if(!v.objUrl) v.objUrl=URL.createObjectURL(v.file);
+  return '<div class="vpp" id="pvp">'+
+    '<div class="vpp-ttl"><b>'+GX("vpTitle")+'</b><span>'+GX("vpSub")+'</span></div>'+
+    '<div class="vpp-seg" role="tablist"><button type="button" role="tab" data-pvpm="video" class="'+(mode==="video"?'on':'')+'">'+GX("vpTabV")+'</button><button type="button" role="tab" data-pvpm="photo" class="'+(mode==="photo"?'on':'')+'">'+GX("vpTabP")+'</button></div>'+
+    '<div class="vpp-stage"><div class="bg" id="pvpBg"></div><video id="pvpV" preload="auto" muted playsinline src="'+v.objUrl+'"'+(mode==="photo"?' hidden':'')+'></video><img id="pvpImg" alt=""'+(mode==="photo"&&ph[st.photo]?' src="'+ph[st.photo].preview+'"':' hidden')+'><span class="vpp-badge">'+GX("vpTitle")+'</span><span class="vpp-tm" id="pvpTm"'+(mode==="photo"?' hidden':'')+'>0:00</span></div>'+
+    '<div id="pvpPV"'+(mode==="photo"?' hidden':'')+'><div class="vpp-strip" id="pvpStrip" role="slider" tabindex="0" aria-label="'+esc(GX("vpHint"))+'"><div class="vpp-frames" id="pvpFrames">'+((st.frames&&st.frames.length)?st.frames.map(function(u){ return '<img src="'+u+'" alt="">' }).join(""):Array.apply(null,{length:8}).map(function(){ return '<i></i>' }).join(""))+'</div><div class="vpp-sel" id="pvpSel"></div></div><div class="vpp-hint">'+GX("vpHint")+'</div></div>'+
+    '<div id="pvpPP"'+(mode==="photo"?'':' hidden')+'>'+(ph.length?'<div class="vpp-photos">'+ph.map(function(x,i){ return '<button type="button" class="vpp-pk'+(st.photo===i?' on':'')+'" data-pvpph="'+i+'"><img src="'+x.preview+'" alt=""></button>' }).join("")+'</div>':'<div class="hintx">'+GX("vpNoPhotos")+'</div>')+'</div>'+
+    '<div class="vpp-foot"><div class="vpp-ba"><figure><div class="th">'+(v.preview?'<img src="'+v.preview+'" alt="">':'')+'</div><figcaption>'+GX("vpBefore")+'</figcaption></figure><span class="arr">←</span><figure><div class="th new"><img id="pvpAfter" alt=""></div><figcaption>'+GX("vpAfter")+'</figcaption></figure></div>'+
+      '<div class="vpp-acts"><button type="button" class="no" id="pvpUndo">'+GX("vpUndo")+'</button><button type="button" class="ok" id="pvpUse">'+GX("vpUse")+'</button></div></div>'+
+    '<div class="hintx">'+GX("vpNote")+'</div></div>';
+}
+function wirePostVpp(repaint){
+  var ob=$("#pvpOpen"); if(ob) ob.onclick=function(){ NEW.vppOpen=true; if(!NEW.vpp) NEW.vpp={mode:"video",frac:0.1,photo:-1,frames:null}; repaint(); var el=$("#pvp"); if(el&&el.scrollIntoView) el.scrollIntoView({behavior:"smooth",block:"center"}) };
+  if(!$("#pvp")) return;
+  var st=NEW.vpp, v=$("#pvpV"), strip=$("#pvpStrip"), sel=$("#pvpSel");
+  var fmt=function(x){ x=Math.max(0,Math.round(x||0)); return Math.floor(x/60)+":"+String(x%60).padStart(2,"0") };
+  var grab=function(){ var W=v.videoWidth||1280, H=v.videoHeight||720, k=Math.min(1,960/W), c=document.createElement("canvas"); c.width=Math.round(W*k); c.height=Math.round(H*k);
+    var x=c.getContext("2d"); x.drawImage(v,0,0,c.width,c.height); try{ wmStamp(x,c.width,c.height) }catch(e){} return c };
+  var showAfter=function(u){ var a=$("#pvpAfter"); if(a) a.src=u; var bg=$("#pvpBg"); if(bg) bg.style.backgroundImage='url("'+u+'")' };
+  var snap=function(){ if(st.mode!=="video") return; try{ showAfter(grab().toDataURL("image/jpeg",.7)) }catch(e){} };
+  var rtl=function(){ return document.documentElement.dir==="rtl" };
+  var place=function(){ var w=strip.clientWidth, sw=sel.offsetWidth, off=st.frac*(w-sw); sel.style.right=rtl()?off+"px":"auto"; sel.style.left=rtl()?"auto":off+"px" };
+  var seeking=false, want=null;
+  var seek=function(t){ want=t; if(seeking) return; seeking=true; try{ v.currentTime=t }catch(e){ seeking=false } };
+  v.addEventListener("seeked",function(){ seeking=false; var tm=$("#pvpTm"); if(tm) tm.textContent=fmt(v.currentTime); if(want!==null&&Math.abs(want-v.currentTime)>0.05){ var t=want; want=null; seek(t) } else { want=null; snap() } });
+  var setFrac=function(f){ st.frac=Math.max(0,Math.min(1,f)); place(); if(v.duration) seek(st.frac*Math.max(0,v.duration-0.1)) };
+  var fracAt=function(x){ var r=strip.getBoundingClientRect(), sw=sel.offsetWidth; return ((rtl()?r.right-x:x-r.left)-sw/2)/(r.width-sw) };
+  var drag=false;
+  strip.addEventListener("pointerdown",function(e){ drag=true; try{ strip.setPointerCapture(e.pointerId) }catch(x){} setFrac(fracAt(e.clientX)) });
+  strip.addEventListener("pointermove",function(e){ if(drag) setFrac(fracAt(e.clientX)) });
+  strip.addEventListener("pointerup",function(){ drag=false });
+  strip.addEventListener("keydown",function(e){ var d=e.key==="ArrowLeft"?1:e.key==="ArrowRight"?-1:0; if(!d) return; if(!rtl()) d=-d; setFrac(st.frac+d*0.02); e.preventDefault() });
+  place();
+  var started=function(){ place(); seek(st.frac*Math.max(0,v.duration-0.1));
+    if(st.frames&&st.frames.length) return;
+    var w=document.createElement("video"), i=0, out=[]; w.muted=true; w.preload="auto"; w.src=NEW.video.objUrl;
+    var next=function(){ if(i>=8){ st.frames=out; return } try{ w.currentTime=(i+0.5)/8*w.duration }catch(e){} };
+    w.addEventListener("loadedmetadata",next);
+    w.addEventListener("seeked",function(){ var c=document.createElement("canvas"); c.width=150; c.height=Math.round(150*((w.videoHeight/w.videoWidth)||0.56));
+      try{ c.getContext("2d").drawImage(w,0,0,c.width,c.height); out[i]=c.toDataURL("image/jpeg",.6) }catch(e){ out[i]="" }
+      var fr=$("#pvpFrames"); if(fr&&fr.children[i]){ var im=document.createElement("img"); im.alt=""; im.src=out[i]; fr.replaceChild(im,fr.children[i]) } i++; next() }); };
+  if(v.readyState>=1) started(); else v.addEventListener("loadedmetadata",started);
+  $$("[data-pvpm]").forEach(function(b){ b.onclick=function(){ st.mode=b.dataset.pvpm; var isV=st.mode==="video";
+    $$("[data-pvpm]").forEach(function(o){ o.classList.toggle("on",o===b) }); $("#pvpPV").hidden=!isV; $("#pvpPP").hidden=isV; v.hidden=!isV; $("#pvpTm").hidden=!isV;
+    var im=$("#pvpImg"); if(isV){ im.hidden=true; snap() } else { if(st.photo<0 && (NEW.photos||[]).length) st.photo=0; var x=(NEW.photos||[])[st.photo]; if(x){ im.src=x.preview; im.hidden=false; showAfter(x.preview); $$("[data-pvpph]").forEach(function(o){ o.classList.toggle("on",+o.dataset.pvpph===st.photo) }) } } } });
+  $$("[data-pvpph]").forEach(function(b){ b.onclick=function(){ st.photo=+b.dataset.pvpph; var x=NEW.photos[st.photo]; $$("[data-pvpph]").forEach(function(o){ o.classList.toggle("on",o===b) }); var im=$("#pvpImg"); im.src=x.preview; im.hidden=false; showAfter(x.preview) } });
+  $("#pvpUndo").onclick=function(){ NEW.vppOpen=false; repaint() };
+  $("#pvpUse").onclick=async function(){ var btn=this; btn.disabled=true;
+    try{
+      if(st.mode==="photo"){ var x=(NEW.photos||[])[st.photo]; if(!x) throw new Error(GX("vpNoPhotos")); NEW.video.poster=x.full||x.thumb; NEW.video.preview=x.preview }
+      else{ var blob=await new Promise(function(res,rej){ try{ grab().toBlob(function(b){ b?res(b):rej(new Error("encode")) },"image/jpeg",.85) }catch(e){ rej(e) } }); NEW.video.poster=blob; NEW.video.preview=blobUrl(blob) }
+      NEW.vppOpen=false; repaint();
+    }catch(e){ btn.disabled=false; alert((e&&e.message)||"error") } };
+}
 function wireVideoPick(){
   var wrap=$("#vpick"); if(!wrap) return;
   var repaint=function(){ var w=$("#vpick"); if(!w) return; var tmp=document.createElement("div"); tmp.innerHTML=videoPickHtml(); w.replaceWith(tmp.firstChild); wireVideoPick() };
+  wirePostVpp(repaint);
   if($("#vAdd")) $("#vAdd").onclick=function(){ $("#vfile").click() };
-  if($("#vRm")) $("#vRm").onclick=function(){ NEW.video=null; repaint() };
+  if($("#vRm")) $("#vRm").onclick=function(){ NEW.video=null; NEW.vpp=null; NEW.vppOpen=false; repaint() };
   if($("#vfile")) $("#vfile").onchange=async function(){ var f=this.files&&this.files[0]; this.value=""; if(!f) return;
-    try{ NEW.video=await pickVideo(f, $("#vMsg")); repaint() }catch(e){ var m=$("#vMsg"); if(m){ m.textContent=e.message||"error"; m.style.color="var(--danger)" } } };
+    try{ NEW.video=await pickVideo(f, $("#vMsg")); NEW.vpp=null; NEW.vppOpen=false; repaint() }catch(e){ var m=$("#vMsg"); if(m){ m.textContent=e.message||"error"; m.style.color="var(--danger)" } } };
 }
 
 var PHOTO_MAX=20;   // photos per listing on the site form and the edit page (the bot has its own setting: intake_max_photos)
@@ -13110,6 +13187,7 @@ var GX_T={
   inqAwaitYou:{ar:"بانتظار ردك",en:"Awaiting your reply",de:"Wartet auf Ihre Antwort"}, inqGuestReply:{ar:"زائر بلا حساب: تواصل معه على رقمه",en:"Guest without an account: contact them on their number",de:"Gast ohne Konto: über die Nummer kontaktieren"},
   bioLimitHint:{ar:"حتى {n} حرف، ويمكنك استخدام فقرات.",en:"Up to {n} characters; paragraphs are kept.",de:"Bis zu {n} Zeichen; Absätze bleiben erhalten."},
   photoMaxHint:{ar:"حتى {n} صورة",en:"up to {n} photos",de:"bis zu {n} Fotos"},
+  badPhoneLen:{ar:"تحقّق من الرقم: بعد {cc} يجب أن يكون {n} أرقام",en:"Check the number: after {cc} it should have {n} digits",de:"Nummer prüfen: nach {cc} sollten {n} Ziffern folgen"},
   helpNav:{ar:"شروحات بلكون",en:"Balkoun guides",de:"Anleitungen"}, helpH:{ar:"شروحات بلكون",en:"Balkoun guides",de:"Balkoun-Anleitungen"},
   helpSub:{ar:"فيديوهات قصيرة تشرح لك خطوة بخطوة: كيف تسجّل، وكيف تنشر إعلانك، وأكثر.",en:"Short videos, step by step: how to sign up, how to post your listing, and more.",de:"Kurze Videos Schritt für Schritt: Registrieren, Anzeige aufgeben und mehr."},
   helpEmpty:{ar:"لا توجد شروحات بعد.",en:"No guides yet.",de:"Noch keine Anleitungen."},
@@ -13138,7 +13216,7 @@ var GX_T={
   vpTabV:{ar:"🎞️ من الفيديو",en:"🎞️ From the video",de:"🎞️ Aus dem Video"}, vpTabP:{ar:"🖼️ صور الإعلان",en:"🖼️ A listing photo",de:"🖼️ Ein Anzeigenfoto"},
   vpHint:{ar:"اسحب الإطار الذهبي أو اضغط على أي لقطة",en:"Drag the gold frame or tap any frame",de:"Goldenen Rahmen ziehen oder ein Bild antippen"},
   vpBefore:{ar:"الحالية",en:"Now",de:"Jetzt"}, vpAfter:{ar:"الجديدة",en:"New",de:"Neu"}, vpSave:{ar:"حفظ",en:"Save",de:"Speichern"}, vpUndo:{ar:"تراجع",en:"Cancel",de:"Abbrechen"},
-  vpSaving:{ar:"جارٍ الحفظ…",en:"Saving…",de:"Speichern…"}, vpSaved:{ar:"تم حفظ صورة المعاينة ✓",en:"Preview picture saved ✓",de:"Vorschaubild gespeichert ✓"},
+  vpSaving:{ar:"جارٍ الحفظ…",en:"Saving…",de:"Speichern…"}, vpUse:{ar:"اعتماد",en:"Use it",de:"Übernehmen"}, vpSaved:{ar:"تم حفظ صورة المعاينة ✓",en:"Preview picture saved ✓",de:"Vorschaubild gespeichert ✓"},
   vpNoPhotos:{ar:"لا توجد صور في هذا الإعلان بعد.",en:"This listing has no photos yet.",de:"Diese Anzeige hat noch keine Fotos."},
   vpNote:{ar:"الفيديو نفسه لا يتغير. تُضاف علامة بلكون على اللقطة كما في باقي الصور.",en:"The video itself does not change. The frame gets the Balkoun mark like every photo.",de:"Das Video bleibt unverändert. Das Bild erhält das Balkoun-Zeichen wie jedes Foto."},
   pwaHasT:{ar:"تطبيق بلكون مثبّت على هاتفك ✓",en:"The Balkoun app is on your phone ✓",de:"Die Balkoun-App ist auf Ihrem Handy ✓"},
