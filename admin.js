@@ -1257,7 +1257,7 @@ function wireAdmin(){
     var set=ADM_ROLES[b.dataset.permrole]||[]; $$("input."+b.dataset.permcls).forEach(function(c){ c.checked=set.indexOf(c.value)>-1 }) }) }
   var doAdminLogin=async function(){
     var btn=$("#adGo"); if(!btn) return;
-    var ph="+"+$("#adCC").value+($("#adPhone").value||"").replace(/\D/g,"");
+    var ph="+"+$("#adCC").value+phoneNat($("#adCC").value, $("#adPhone").value);
     var pw=$("#adPass").value||"";
     btn.disabled=true; btn.textContent=t("saving");
     try{
@@ -1270,7 +1270,7 @@ function wireAdmin(){
   };
   if($("#adGo")) $("#adGo").onclick=doAdminLogin;
   /* ── recovery ── */
-  var recPhone=function(){ var cc=($("#adCC")||{}).value||REC.cc||"963", p=(($("#adPhone")||{}).value||REC.phone||"").replace(/\D/g,""); REC.cc=cc; REC.phone=p; return "+"+cc+p };
+  var recPhone=function(){ var cc=($("#adCC")||{}).value||REC.cc||"963", p=phoneNat(cc, ($("#adPhone")||{}).value||REC.phone||""); REC.cc=cc; REC.phone=p; return "+"+cc+p };
   var recErr=function(m){ ADM.msg=m; var e=$("#adErr"); if(e) e.textContent=m };
   if($("#adForgot")) $("#adForgot").onclick=function(){ REC.mode="pick"; ADM.msg=""; render() };
   if($("#adRecBack")) $("#adRecBack").onclick=function(){ verifyPollStop(); AU.pollKeep=false; REC.mode=null; ADM.msg=""; render() };
