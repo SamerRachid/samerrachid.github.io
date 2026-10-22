@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-cVB4GowLduvJagpCGCeMd3AshstfrnQb76Df9hQgpCo=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-vVUdZWlAR4bY2wil7c6SF6X2PjERb8tBaAh6+AByoaQ=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -8062,7 +8062,11 @@ function checkPost(){
  // at publish (the database keeps its 30-character minimum)
  var needPh = 0;   // photos and videos are optional (listings with photos get more views; the hint says so)
  if(NEW.photos.length<needPh)need.push(t("photos"));
- if(v("ptel").replace(/\D/g,"").length<9)need.push(t("tel"));
+ // the number after the country code: 9 digits for Syria (+963 9xx…), 7–8 elsewhere (Lebanon +961 70 123456 / 3 123456);
+ // a leading 0 typed out of habit does not count (owner, 2026-10-22: a Lebanese number was refused as «missing»)
+ var telD=v("ptel").replace(/\D/g,"").replace(/^0+/,""), telCC=v("pcc")||(USER&&USER.phone?ccOf(USER.phone):phoneCC());
+ if(telD.indexOf(telCC)===0 && telD.length>telCC.length+6) telD=telD.slice(telCC.length);
+ if(telD.length<(telCC==="963"?9:7))need.push(t("tel"));
  [["k1",true],["k2",!!v("pg")||true],["k3",!!v("pm2")],
   ["k4",isRent||!!$('input[name=tb2]:checked')],["k5",NEW.photos.length>=needPh],["k6",!!v("pp")]]
   .forEach(function(p){var e=$("#"+p[0]); if(e)e.classList.toggle("done",p[1])});
@@ -11467,6 +11471,7 @@ async function savePost(){
         if(!d) return (USER&&USER.phone)||"";
         var cc=val("pcc")||(USER&&USER.phone?ccOf(USER.phone):phoneCC());
         if(d.indexOf(cc)===0 && d.length>cc.length+6) d=d.slice(cc.length);
+        d=d.replace(/^0+/,"");   // 0933… / 03… typed out of habit: +963933…, not +9630933…
         return "+"+cc+d;
       })(),
       contact_name: fullName(USER)||null,
