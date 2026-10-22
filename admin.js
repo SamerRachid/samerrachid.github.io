@@ -37,7 +37,7 @@ async function storageRestore(paths){
        if(j && j.error) return {data:null, error:{message:j.error}};
        return {data:{restored:j.restored||[], failed:j.failed||[]}, error:null} }
   catch(e){ return {data:null, error:e} } }
-var TAB_PERM={dashboard:"dashboard",stats:"stats",countries:"super",listings:["listings_view","listings_edit","listings_delete"],photos:["listings_view","listings_edit"],wanted_adm:"wanted",users:["users_view","users_edit","users_delete","verify","passwords"],agencies_adm:"agencies",reviews:"reviews",house:"login_as",outreach:"campaigns",engage:["engage","featured","ads"],projects_adm:"projects",ads:"ads",featured:["featured","rewards"],banners:"homepage",mainpage:"homepage",design:"design",geo:"geo",types:"types",contact:"contact",reports:"reports",feedback:"feedback",tickets:"tickets",intake:"intake",intake_cfg:"bot_cfg",msgs:"notify",settings:"settings",storage:"storage",admins:"super",danger:"super",campaigns:"campaigns",social:["social","featured"],maps:"geo",audit:"audit"};
+var TAB_PERM={guides:"homepage",dashboard:"dashboard",stats:"stats",countries:"super",listings:["listings_view","listings_edit","listings_delete"],photos:["listings_view","listings_edit"],wanted_adm:"wanted",users:["users_view","users_edit","users_delete","verify","passwords"],agencies_adm:"agencies",reviews:"reviews",house:"login_as",outreach:"campaigns",engage:["engage","featured","ads"],projects_adm:"projects",ads:"ads",featured:["featured","rewards"],banners:"homepage",mainpage:"homepage",design:"design",geo:"geo",types:"types",contact:"contact",reports:"reports",feedback:"feedback",tickets:"tickets",intake:"intake",intake_cfg:"bot_cfg",msgs:"notify",settings:"settings",storage:"storage",admins:"super",danger:"super",campaigns:"campaigns",social:["social","featured"],maps:"geo",audit:"audit"};
 // the permission list (2026-10-17): groups for the admins page, and ready-made roles. Super admins hold every permission.
 var ADM_PERMS=[["pg_content",["listings_view","listings_edit","listings_delete","wanted","intake","reports","reviews"]],
   ["pg_people",["users_view","users_edit","users_delete","passwords","verify","login_as","agencies"]],
@@ -64,7 +64,7 @@ function permPicker(sel,cls){ sel=sel||[];
 // in the sidebar (desktop) or as a row of tabs (phone). Page keys are unchanged, so every link into a page still works.
 var ADM_GROUPS={g_listings:["listings","intake","reports","photos"],g_people:["users","agencies_adm","reviews","house"],
   g_msgs:["feedback","tickets","msgs","campaigns","outreach"],g_mkt:["featured","ads","banners","engage","social","projects_adm"],
-  g_site:["mainpage","design","contact"],g_settings:["settings","countries","geo","maps","types","intake_cfg","admins","audit","storage","danger"]};
+  g_site:["mainpage","design","contact","guides"],g_settings:["settings","countries","geo","maps","types","intake_cfg","admins","audit","storage","danger"]};
 var ADM_GROUP_ALIAS={inbox:"g_msgs",promo:"g_mkt",system:"g_settings"};   // the old section keys (bell links, saved state)
 function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab)>-1) return g } return null }
 // night mode (owner, 2026-10-16): "dark" / "light" / "" = follow the phone or computer
@@ -471,6 +471,7 @@ function adminView(){
 
  else if(ADM.tab==="geo"){ body = geoAdminBody(); }
  else if(ADM.tab==="types"){ body = typesAdminBody(); }
+ else if(ADM.tab==="guides"){ body = guidesAdminBody(); }
  else if(ADM.tab==="countries"){ body = adminCountriesBody(); }
  else if(ADM.tab==="banners"){ body = hsStudioHtml("banners"); }
  else if(ADM.tab==="contact"){ body = hsStudioHtml("contact"); }
@@ -852,7 +853,7 @@ function adminView(){
    wanted_adm:GX("tWanted"), users:t("usersTab"), agencies_adm:GX("tAgencies"), reviews:t("reviewsTab"), house:GX("tHouse"),
    feedback:t("feedbackTab"), tickets:GX("ticketsTab"), msgs:t("msgsNotifTab"), campaigns:GX("tCampaigns"), outreach:GX("tOutreach"),
    featured:GX("tPromote"), ads:t("adsTab"), banners:GX("tBanners"), engage:GX("tEngage"), social:GX("tSocial"), projects_adm:GX("tProjects"),
-   stats:GX("navAnalytics"), mainpage:t("mainPageTab"), design:GX("tDesign"), contact:GX("tContact"),
+   stats:GX("navAnalytics"), guides:GX("tGuides"), mainpage:t("mainPageTab"), design:GX("tDesign"), contact:GX("tContact"),
    settings:GX("navGeneral"), intake_cfg:GX("navBot"), countries:GX("countriesTab"), geo:GX("geoTab"), maps:GX("tMaps"), types:GX("ptTab"), admins:t("adminsTab"), audit:GX("tAudit"), storage:GX("tStorage"), danger:t("dangerTab")};
  // badges count only what waits for the admin (pending, unread, due) — never totals
  var BADGE={listings:td.pending_listings||s.pending||null, intake:td.intake_review||null, reports:s.openReports||null, wanted_adm:td.pending_wanted||null, users:td.verify_pending||null,
@@ -1793,7 +1794,7 @@ function wireAdmin(){
   wireRewardsCard(); wireAuditPage();
   if($("#pmMaxSave")) $("#pmMaxSave").onclick=async function(){ var n=parseInt(($("#pmMax")||{}).value,10); if(!(n>0)) return; this.disabled=true;
     try{ await saveGlobalExtras({ad_max_squares:n}); admToast(t("savedOk")); ADM._promosLoaded=false; render() }catch(e){ admToast(e.message||"error","bad"); this.disabled=false } };
-  wireGeoAdmin(); wireTypesAdmin(); wireAdminCountries(); wireAdminCampaigns();
+  wireGeoAdmin(); wireTypesAdmin(); wireGuidesAdmin(); wireAdminCountries(); wireAdminCampaigns();
   if(ADM.tab==="settings" && !ADM._settingsLoaded){
     ADM._settingsLoaded=true;
     rpc("bk_admin_get_settings",{p_token:ADM.token}).then(function(r){
@@ -3630,6 +3631,82 @@ function typesAdminBody(){
         '<span>'+(builtin?'<small style="color:var(--grey)">'+GX("ptBuiltin")+'</small>':(n?'<small style="color:var(--grey)" title="'+GX("ptHasListings")+'">'+GX("ptHasListings")+'</small>':'<button class="ab" data-ptdel="'+i+'" style="color:var(--danger)">'+GX("del")+'</button>'))+'</span>' }).join("")+
     '<input id="ptNewCode" placeholder="'+GX("ptCode")+'" class="ltr" style="border-color:var(--gold)"><input id="ptNewAr" placeholder="'+GX("nameAr")+'"><input id="ptNewEn" placeholder="'+GX("nameEn")+'"><input id="ptNewDe" placeholder="'+GX("nameDe")+'"><input id="ptNewFr" placeholder="'+GX("nameFr")+'">'+secSel("homes","new")+'<input id="ptNewOrder" type="number" value="'+((rows.length+1)*10)+'" style="width:64px"><span></span><span></span><button class="ab ok" id="ptAdd">'+GX("add")+'</button>'+
     '</div><div class="xactions" style="margin-top:14px"><button type="button" class="ab ok" id="ptSave">'+GX("ptSave")+'</button><span class="xmsg" id="ptMsg"></span></div></div></div>';
+}
+/* «الشروحات» (owner, 2026-10-22): the teaching videos of this country — site_content.extras.guides, one array, saved
+   with «حفظ الشروحات». A video goes to videos/guides/, its preview picture (a frame read on this computer, or an
+   uploaded picture) to photos/guides/; a YouTube link needs no upload. */
+function gdRows(){ if(!ADM.gd){ ADM.gd=JSON.parse(JSON.stringify(guidesRaw())); ADM.gdFooter=SXb("help_footer",true) } return ADM.gd }
+function guidesAdminBody(){
+  var rows=gdRows().slice().sort(function(x,y){ return (+x.o||0)-(+y.o||0) }), v=function(x,f,l){ var o=x[f]||{}; return escOnce(typeof o==="string"?(l==="ar"?o:""):(o[l]||"")) };
+  var card=function(x){ var id=esc(x.id), src=x.src||(x.yt?"yt":"file"), pl=x.places||{page:true};
+    return '<div class="blk gd-card" data-gdid="'+id+'"><h3>'+(x.on===false?'<span class="pill" style="background:#eee;color:var(--grey)">'+GX("gdOn")+' ✕</span> ':'')+esc((x.t&&x.t.ar)||GX("gdAdd"))+'</h3><div class="in">'+
+      '<div class="row"><div class="fl"><label class="req">'+GX("gdTitle")+' — '+GX("gdAr")+'</label><input data-gd="t.ar" value="'+v(x,"t","ar")+'"></div><div class="fl"><label>'+GX("gdTitle")+' — '+GX("gdEn")+'</label><input data-gd="t.en" value="'+v(x,"t","en")+'" class="ltr"></div><div class="fl"><label>'+GX("gdTitle")+' — '+GX("gdFr")+'</label><input data-gd="t.fr" value="'+v(x,"t","fr")+'" class="ltr"></div></div>'+
+      '<div class="row"><div class="fl"><label>'+GX("gdDesc")+' — '+GX("gdAr")+'</label><input data-gd="d.ar" value="'+v(x,"d","ar")+'"></div><div class="fl"><label>'+GX("gdDesc")+' — '+GX("gdEn")+'</label><input data-gd="d.en" value="'+v(x,"d","en")+'" class="ltr"></div><div class="fl"><label>'+GX("gdDesc")+' — '+GX("gdFr")+'</label><input data-gd="d.fr" value="'+v(x,"d","fr")+'" class="ltr"></div></div>'+
+      '<div class="fl"><div class="pick"><label><input type="radio" name="gdsrc_'+id+'" data-gdsrc="file" value="file"'+(src==="file"?' checked':'')+'> '+GX("gdSrcFile")+'</label><label><input type="radio" name="gdsrc_'+id+'" data-gdsrc="yt" value="yt"'+(src==="yt"?' checked':'')+'> '+GX("gdSrcYt")+'</label></div></div>'+
+      (src==="yt" ? '<div class="fl"><label>'+GX("gdSrcYt")+'</label><input data-gd="yt" class="ltr" placeholder="https://youtu.be/…" value="'+escOnce(x.yt||"")+'"></div>'
+                  : '<div class="fl gd-file"><button type="button" class="ab" data-gdpick="'+id+'">▶ '+(x.url?GX("gdReplace"):GX("gdPick"))+'</button><input type="file" accept="video/*,.mp4,.mov,.m4v,.webm" hidden data-gdfile="'+id+'">'+
+                    (x.url?'<span class="hintx ltr" style="display:inline;margin-inline-start:8px">'+esc(x.url.split("/").pop())+(x.dur?' · '+fmtDur(x.dur):'')+'</span>':'')+'<div class="hintx" data-gdmsg="'+id+'"></div></div>')+
+      '<div class="fl"><label>'+GX("gdPoster")+'</label><div class="gd-pv">'+(guidePoster(x)?'<img src="'+esc(guidePoster(x))+'" alt="">':'<span class="hintx">—</span>')+'</div>'+
+        '<button type="button" class="ab" data-gdposter="'+id+'" style="margin-top:6px">'+GX("gdPosterUp")+'</button><input type="file" accept="image/*" hidden data-gdposterfile="'+id+'"></div>'+
+      '<div class="fl"><label>'+GX("gdWhere")+'</label><div class="chkgrid">'+[["page","gdWPage"],["post","gdWPost"],["auth","gdWAuth"]].map(function(p){ var on=p[0]==="page"?pl.page!==false:!!pl[p[0]]; return '<label class="xcheck"><input type="checkbox" data-gdplace="'+p[0]+'"'+(on?' checked':'')+'><span>'+GX(p[1])+'</span></label>' }).join("")+'</div></div>'+
+      '<div class="row" style="align-items:end"><div class="fl"><label>'+GX("gdOrder")+'</label><input type="number" data-gd="o" value="'+(+x.o||0)+'" style="max-width:110px"></div><div class="fl"><label class="xcheck"><input type="checkbox" data-gdon'+(x.on!==false?' checked':'')+'><span>'+GX("gdOn")+'</span></label></div>'+
+        '<div class="fl" style="text-align:end"><button type="button" class="ab" data-gddel="'+id+'" style="color:var(--danger)">'+GX("gdDel")+'</button></div></div>'+
+    '</div></div>' };
+  return '<div class="blk"><div class="in"><div class="hintx">'+GX("gdMenuHint")+'</div>'+
+      '<label class="xcheck" style="margin-top:8px"><input type="checkbox" id="gdFooter"'+(ADM.gdFooter?' checked':'')+'><span>'+GX("gdFooter")+'</span></label>'+
+      '<div class="xactions" style="margin-top:12px"><button type="button" class="ab" id="gdAdd">'+GX("gdAdd")+'</button><button type="button" class="ab ok" id="gdSave">'+GX("gdSave")+'</button><span class="xmsg" id="gdMsg">'+(ADM.gdDirty?GX("gdUnsaved"):'')+'</span></div></div></div>'+
+    (rows.length ? rows.map(card).join("") : '<div class="adashempty">'+GX("gdNone")+'</div>');
+}
+function wireGuidesAdmin(){
+  if(ADM.tab!=="guides") return;
+  var rows=gdRows(), byId=function(id){ return rows.filter(function(x){ return x.id===id })[0] };
+  var msg=function(s,bad){ var m=$("#gdMsg"); if(m){ m.textContent=s; m.style.color=bad?"var(--danger)":"var(--ok)" } };
+  var dirty=function(){ ADM.gdDirty=true; msg(GX("gdUnsaved"),true) };
+  $$("[data-gdid]").forEach(function(card){ var x=byId(card.dataset.gdid); if(!x) return;
+    card.querySelectorAll("[data-gd]").forEach(function(el){ el.oninput=el.onchange=function(){ var k=el.dataset.gd.split("."); if(k.length===2){ x[k[0]]=(typeof x[k[0]]==="object"&&x[k[0]])||{}; x[k[0]][k[1]]=el.value } else x[k[0]]= k[0]==="o" ? (+el.value||0) : el.value; dirty() } });
+    card.querySelectorAll("[data-gdsrc]").forEach(function(r){ r.onchange=function(){ x.src=r.value; dirty(); render() } });
+    card.querySelectorAll("[data-gdplace]").forEach(function(c){ c.onchange=function(){ x.places=x.places||{page:true}; x.places[c.dataset.gdplace]=c.checked; dirty() } });
+    var onc=card.querySelector("[data-gdon]"); if(onc) onc.onchange=function(){ x.on=onc.checked; dirty() };
+    var del=card.querySelector("[data-gddel]"); if(del) del.onclick=function(){ if(!confirm(GX("confirmDel"))) return; rows.splice(rows.indexOf(x),1); dirty(); render() };
+    // the video file: uploaded at once (with progress); its length and a frame for the preview are read on this computer
+    var pick=card.querySelector("[data-gdpick]"), fin=card.querySelector("[data-gdfile]"), fm=card.querySelector("[data-gdmsg]");
+    if(pick&&fin){ pick.onclick=function(){ fin.click() }; fin.onchange=async function(){ var f=fin.files&&fin.files[0]; if(!f) return;
+      if(f.size>100*1048576){ fm.textContent=GX("gdTooBig"); fm.style.color="var(--danger)"; return }
+      pick.disabled=true; fm.style.color=""; ADM.gdBusy=(ADM.gdBusy||0)+1;
+      try{
+        var probe=null; try{ probe=await videoProbe(f) }catch(e){}
+        var stamp=Date.now()+"-"+Math.random().toString(36).slice(2,8), ext=/webm/.test(f.type)?"webm":/quicktime|\.mov$/i.test(f.type+" "+f.name)?"mov":"mp4";
+        var pV="videos/guides/"+COUNTRY.toLowerCase()+"-"+stamp+"."+ext;
+        await storageUploadXhr(pV, f, f.type||"video/mp4", function(p){ fm.textContent=GX("gdUploading").replace("{p}",p) });
+        var vUrl=DB.storage.from("photos").getPublicUrl(pV).data.publicUrl, pUrl=null;
+        if(probe&&probe.poster){ var pP="photos/guides/"+COUNTRY.toLowerCase()+"-"+stamp+"-poster.jpg"; var up=await storageUpload(pP, probe.poster, {contentType:"image/jpeg", upsert:false}); if(!up.error) pUrl=DB.storage.from("photos").getPublicUrl(pP).data.publicUrl }
+        // the video and its preview are recorded together, once both are uploaded
+        x.url=vUrl; x.dur=probe?Math.round(probe.duration||0):x.dur; x.src="file"; if(pUrl) x.poster=pUrl;
+        ADM.gdBusy--; dirty(); render();
+      }catch(e){ ADM.gdBusy--; pick.disabled=false; fm.textContent=(e&&e.message)||"error"; fm.style.color="var(--danger)" } } }
+    // another preview picture
+    var pb=card.querySelector("[data-gdposter]"), pf=card.querySelector("[data-gdposterfile]");
+    if(pb&&pf){ pb.onclick=function(){ pf.click() }; pf.onchange=async function(){ var f=pf.files&&pf.files[0]; if(!f) return; pb.disabled=true;
+      try{ var raw=await new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){ res(r.result) }; r.onerror=rej; r.readAsDataURL(f) });
+        var blob=await shrink(raw,1280,0.85,false); var pP="photos/guides/"+COUNTRY.toLowerCase()+"-"+Date.now()+"-"+Math.random().toString(36).slice(2,6)+".jpg";
+        var up=await storageUpload(pP, blob, {contentType:"image/jpeg", upsert:false}); if(up.error) throw new Error(up.error.message);
+        x.poster=DB.storage.from("photos").getPublicUrl(pP).data.publicUrl; dirty(); render() }
+      catch(e){ pb.disabled=false; alert((e&&e.message)||"error") } } }
+  });
+  if($("#gdFooter")) $("#gdFooter").onchange=function(){ ADM.gdFooter=this.checked; dirty() };
+  if($("#gdAdd")) $("#gdAdd").onclick=function(){ rows.push({id:"g"+Date.now().toString(36), t:{ar:""}, d:{}, src:"file", places:{page:true,post:false,auth:false}, o:(rows.length+1)*10, on:true}); dirty(); render();
+    var last=$$("[data-gdid]").pop(); if(last&&last.scrollIntoView) last.scrollIntoView({behavior:"smooth",block:"start"}) };
+  if($("#gdSave")) $("#gdSave").onclick=async function(){ var btn=this;
+    if(ADM.gdBusy>0) return msg(GX("gdWait"),true);   // a video is still uploading
+    for(var i=0;i<rows.length;i++){ var x=rows[i];
+      if(!String((x.t&&x.t.ar)||"").trim()) return msg(GX("gdNeedTitle"),true);
+      if((x.src||"file")==="yt"){ if(!ytId(x.yt)) return msg(GX("gdBadYt"),true) } else if(!x.url) return msg(GX("gdNeedVideo"),true) }
+    var clean=rows.map(function(x){ var yt=(x.src==="yt"); return {id:x.id, t:x.t||{}, d:x.d||{}, src:yt?"yt":"file", url:yt?"":(x.url||""), yt:yt?String(x.yt||"").trim():"", poster:x.poster||"", dur:+x.dur||0, places:x.places||{page:true}, o:+x.o||0, on:x.on!==false} });
+    btn.disabled=true;
+    try{ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:{guides:clean, help_footer:!!ADM.gdFooter}},p_country:COUNTRY});
+      try{ var cur=SITE.extras; if(typeof cur==="string"){ try{ cur=JSON.parse(cur) }catch(e){ cur={} } } SITE.extras=Object.assign({},cur||{},{guides:clean, help_footer:!!ADM.gdFooter}); localStorage.setItem(siteCacheKey(),JSON.stringify(SITE)) }catch(e){}
+      ADM.gd=null; ADM.gdDirty=false; admToast(t("savedOk")); render() }
+    catch(e){ btn.disabled=false; msg((e&&e.message)||"error",true) } };
 }
 function wireTypesAdmin(){
   if(ADM.tab!=="types") return;

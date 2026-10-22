@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-zlx3sgS8MHDrjWvSTNVBlzdjoJlW+29leOfwQS3MLEA=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-cVB4GowLduvJagpCGCeMd3AshstfrnQb76Df9hQgpCo=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -3107,6 +3107,30 @@ html.maint-on{overflow:hidden}
 .vpp-acts button:disabled{opacity:.45;cursor:default}
 .vpp-seg button:focus-visible,.vpp-pk:focus-visible,.vpp-strip:focus-visible,.vpp-acts button:focus-visible,.vpp-open:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 @media (prefers-reduced-motion: reduce){.vpp-frames i{animation:none}}
+/* «شروحات بلكون»: the page, its cards, the small «▶ watch» lines and the player window */
+.helppg{padding-block:26px 50px}
+.helppg-h{margin-bottom:18px}.helppg-h h1{font-size:26px;color:var(--navy)}.helppg-h p{color:var(--grey);font-size:14.5px;margin-top:4px;max-width:62ch}
+.helppg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px}
+.gcard{display:flex;flex-direction:column;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.gcard:hover{transform:translateY(-2px);box-shadow:0 16px 30px -20px rgba(20,33,61,.45)}
+.gcard:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.gcard-pv{position:relative;aspect-ratio:16/9;background:#0D1729}
+.gcard-pv img{width:100%;height:100%;object-fit:cover;display:block}
+.gcard-play{position:absolute;inset:0;margin:auto;width:58px;height:58px;border-radius:50%;background:rgba(196,136,31,.95);color:#fff;display:grid;place-items:center;box-shadow:0 8px 20px -6px rgba(0,0,0,.5)}
+.gcard-play .mi svg{width:30px;height:30px}
+.gcard-dur{position:absolute;bottom:8px;inset-inline-end:8px;background:rgba(9,14,26,.75);color:#fff;font:700 12px 'Lato',var(--fd);padding:2px 8px;border-radius:999px}
+.gcard-bd{padding:12px 14px 14px;display:flex;flex-direction:column;gap:4px}.gcard-bd b{font-size:15.5px;color:var(--navy)}.gcard-bd span{font-size:13px;color:var(--grey);line-height:1.7}
+.guide-line{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:13px;font-weight:700;color:var(--gold-dk,#8A6522);cursor:pointer;text-decoration:none}
+.guide-line .mi svg{width:18px;height:18px}
+.guide-line:hover{text-decoration:underline}
+.au .guide-line{display:flex;justify-content:center;margin:10px 0 0}
+.gdm{position:fixed;inset:0;z-index:9600;display:grid;place-items:center;padding:16px}
+.gdm-bg{position:absolute;inset:0;background:rgba(9,14,26,.82)}
+.gdm-box{position:relative;width:min(900px,100%);background:#0D1729;border-radius:16px;overflow:hidden;box-shadow:0 30px 60px -20px rgba(0,0,0,.7)}
+.gdm-v{aspect-ratio:16/9;background:#000;max-height:76vh}
+.gdm-v video,.gdm-v iframe{width:100%;height:100%;display:block;border:0;background:#000}
+.gdm-t{padding:10px 14px 12px;color:#fff;display:flex;flex-direction:column;gap:2px}.gdm-t span{font-size:13px;color:rgba(255,255,255,.7)}
+.gdm-x{position:absolute;top:8px;inset-inline-end:8px;z-index:2;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.22);color:#fff;font-size:24px;line-height:1;cursor:pointer}
 body.pwa-on .mobfab{bottom:var(--pwa-lift,calc(118px + env(safe-area-inset-bottom)))}   /* set from the banner real height */
 .pwa-bar img{width:42px;height:42px;border-radius:11px;flex:none}.pwa-bar .t{flex:1;min-width:0}.pwa-bar b{display:block;font-size:14px;color:var(--navy)}.pwa-bar small{display:block;font-size:12px;color:var(--grey);line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pwa-bar .go{background:var(--gold);color:#1A1206;border:0;border-radius:999px;padding:9px 14px;font:700 13px var(--fd);cursor:pointer;flex:none}.pwa-bar .later{background:none;border:0;color:var(--grey);font:600 12.5px var(--fd);cursor:pointer;padding:6px;flex:none}
@@ -4707,6 +4731,12 @@ html.adm-dark .adm .vpp-badge,html.adm-dark .admdm-ov .vpp-badge{color:hsla(36,6
 html.adm-dark .adm .vpp-sel::after,html.adm-dark .admdm-ov .vpp-sel::after{border:1px solid hsla(222,20%,25%,0.65)}
 html.adm-dark .adm .vpp-acts .ok,html.adm-dark .admdm-ov .vpp-acts .ok{color:hsla(36,63%,78%,1)}
 html.adm-dark .adm .vpp-acts .no,html.adm-dark .admdm-ov .vpp-acts .no{background:hsla(222,27%,13%,1);color:#C9D6F2}
+html.adm-dark .adm .helppg-h h1,html.adm-dark .admdm-ov .helppg-h h1{color:#C9D6F2}
+html.adm-dark .adm .gcard,html.adm-dark .admdm-ov .gcard{background:hsla(222,27%,13%,1)}
+html.adm-dark .adm .gcard-bd b,html.adm-dark .admdm-ov .gcard-bd b{color:#C9D6F2}
+html.adm-dark .adm .gdm-v,html.adm-dark .admdm-ov .gdm-v{background:hsla(222,22%,22%,1)}
+html.adm-dark .adm .gdm-v video,html.adm-dark .admdm-ov .gdm-v video,html.adm-dark .adm .gdm-v iframe,html.adm-dark .admdm-ov .gdm-v iframe{background:hsla(222,22%,22%,1)}
+html.adm-dark .adm .gdm-x,html.adm-dark .admdm-ov .gdm-x{background:hsla(222,27%,13%,0.22)}
 html.adm-dark .adm .pwa-bar b,html.adm-dark .admdm-ov .pwa-bar b{color:#C9D6F2}
 html.adm-dark .adm .pwa-bar .go,html.adm-dark .admdm-ov .pwa-bar .go{color:hsla(36,63%,78%,1)}
 html.adm-dark .adm .apppg-card,html.adm-dark .admdm-ov .apppg-card{background:hsla(222,27%,13%,1)}
@@ -5177,6 +5207,7 @@ var FR_T={
   lv_member:"Membre", lv_trusted:"De confiance", lv_vip:"VIP", lv_partner:"Partenaire", lv_silver:"Argent", lv_gold:"Or", lv_trusted_agency:"Agence de confiance", silverTag:"Membre Argent", goldTag:"Membre Or", trustedAgencyTag:"Agence de confiance", back:"Retour", refresh:"Actualiser"
 };
 var FR_GX={
+  helpNav:"Tutoriels Balkoun", helpH:"Tutoriels Balkoun", helpSub:"De courtes vidéos, pas à pas : s'inscrire, publier une annonce, et plus.", helpEmpty:"Pas encore de tutoriels.", helpAuthLine:"Comment s'inscrire ? Voir le tutoriel", helpPostLine:"Pas sûr ? Voir le tutoriel",
   vpOpen:"Changer l'image d'aperçu", vpTitle:"Image d'aperçu", vpSub:"Ce que l'on voit avant la lecture, sur les cartes et la page de l'annonce", vpTabV:"🎞️ De la vidéo", vpTabP:"🖼️ Une photo", vpHint:"Faites glisser le cadre doré ou touchez une image", vpBefore:"Actuelle", vpAfter:"Nouvelle", vpSave:"Enregistrer", vpUndo:"Annuler", vpSaving:"Enregistrement…", vpSaved:"Image d'aperçu enregistrée ✓", vpNoPhotos:"Cette annonce n'a pas encore de photos.", vpNote:"La vidéo ne change pas. L'image reçoit la marque Balkoun comme chaque photo.",
   pwaHasT:"L'application Balkoun est sur votre téléphone ✓", pwaHasS:"Partager le lien de l'application", pwaLinkCopied:"Lien de l'application copié",
   rentP_yearly:"Loyer annuel", rentP_monthly:"Loyer mensuel", rentP_weekly:"Loyer hebdomadaire", rentP_daily:"Loyer journalier",
@@ -5624,6 +5655,33 @@ function notifBellHTML(){
     '</div></div>';
 }
 // every navigation link in one place: key, group, label, icon, target, default order
+function guidesRaw(){ var g=SX("guides",[]); if(typeof g==="string"){ try{ g=JSON.parse(g) }catch(e){ g=[] } } return Array.isArray(g)?g:[] }
+function guidesAll(){ return guidesRaw().filter(function(x){ return x && x.on!==false && (x.url||x.yt) }).sort(function(a,b){ return (+a.o||0)-(+b.o||0) }) }
+function guidesFor(place){ return guidesAll().filter(function(x){ var p=x.places||{}; return place==="page" ? p.page!==false : !!p[place] }) }
+function gTxt(x,f){ var o=(x&&x[f])||{}; if(typeof o==="string") return o; return o[L]||(L!=="ar"&&o.en)||o.ar||"" }
+function ytId(u){ var m=String(u||"").match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([\w-]{6,})/); return m?m[1]:"" }
+function guidePoster(x){ return x.poster || (x.yt&&ytId(x.yt) ? "https://i.ytimg.com/vi/"+ytId(x.yt)+"/hqdefault.jpg" : "") }
+// the player: a dark window over the page, the video (or YouTube) inside, closes with ×, the backdrop or Escape
+function guidePlay(id){ var x=guidesAll().filter(function(g){ return g.id===id })[0]; if(!x) return; var old=$("#gdm"); if(old) old.remove();
+  var yt=x.yt?ytId(x.yt):"", d=document.createElement("div"); d.className="gdm"; d.id="gdm";
+  d.innerHTML='<div class="gdm-bg"></div><div class="gdm-box" role="dialog" aria-modal="true" aria-label="'+esc(gTxt(x,"t"))+'"><button type="button" class="gdm-x" aria-label="'+esc(GX("mdClose"))+'">×</button>'+
+    '<div class="gdm-v">'+(yt?'<iframe src="https://www.youtube-nocookie.com/embed/'+yt+'?autoplay=1&rel=0&modestbranding=1&playsinline=1" allow="autoplay; encrypted-media; fullscreen" allowfullscreen title="'+esc(gTxt(x,"t"))+'"></iframe>'
+      :'<video src="'+esc(x.url)+'"'+(x.poster?' poster="'+esc(x.poster)+'"':'')+' controls autoplay playsinline></video>')+'</div>'+
+    '<div class="gdm-t"><b>'+esc(gTxt(x,"t"))+'</b>'+(gTxt(x,"d")?'<span>'+esc(gTxt(x,"d"))+'</span>':'')+'</div></div>';
+  document.body.appendChild(d); var close=function(){ var v=d.querySelector("video"); if(v) try{ v.pause() }catch(e){} d.remove(); document.removeEventListener("keydown",esc1) };
+  var esc1=function(e){ if(e.key==="Escape") close() }; document.addEventListener("keydown",esc1);
+  d.querySelector(".gdm-x").onclick=close; d.querySelector(".gdm-bg").onclick=close }
+if(!window._guideWired){ window._guideWired=true; document.addEventListener("click",function(e){ var a=e.target.closest&&e.target.closest("[data-guide]"); if(!a) return; e.preventDefault(); guidePlay(a.getAttribute("data-guide")) }) }
+// a small «▶ watch how» line (add form, login / signup window)
+function guideLine(place,lbl){ var g=guidesFor(place)[0]; if(!g) return ''; return '<a class="guide-line" data-guide="'+esc(g.id)+'">'+MI.play+'<span>'+GX(lbl)+(g.dur?' <span class="ltr">('+fmtDur(g.dur)+')</span>':'')+'</span></a>' }
+function helpPage(){
+  var list=guidesFor("page");
+  return '<div class="wrap helppg"><div class="helppg-h"><h1>'+GX("helpH")+'</h1><p>'+GX("helpSub")+'</p></div>'+
+    (list.length ? '<div class="helppg-grid">'+list.map(function(x){ var pv=guidePoster(x);
+      return '<a class="gcard" data-guide="'+esc(x.id)+'" href="#" aria-label="'+esc(gTxt(x,"t"))+'"><div class="gcard-pv">'+(pv?'<img src="'+esc(pv)+'" alt="" loading="lazy">':'')+'<span class="gcard-play">'+MI.play+'</span>'+(x.dur?'<span class="gcard-dur ltr">'+fmtDur(x.dur)+'</span>':'')+'</div>'+
+        '<div class="gcard-bd"><b>'+esc(gTxt(x,"t"))+'</b>'+(gTxt(x,"d")?'<span>'+esc(gTxt(x,"d"))+'</span>':'')+'</div></a>' }).join("")+'</div>'
+     : '<div class="resempty"><b>'+GX("helpEmpty")+'</b></div>')+
+  '</div>' }
 var NAVI=[
   {k:"buy",g:"search",lab:function(){return t("buy")},ico:"buy",attrs:'data-go="search" data-deal="sale"',o:10},
   {k:"rent",g:"search",lab:function(){return t("rent")},ico:"rent",attrs:'data-go="search" data-deal="rent" data-sec=""',o:20},
@@ -5637,6 +5695,7 @@ var NAVI=[
   {k:"expl",g:"discover",lab:function(){return HX("navAreas")},ico:"expl",attrs:'data-mdscroll="explSec"',o:60},
   {k:"guide",g:"discover",lab:function(){return HX("navGuide")},ico:"guide",attrs:'data-mdscroll="guidesSec"',o:70},
   {k:"legal",g:"services",lab:function(){return GX("navLegalBoth")},ico:"legal",attrs:'data-soon="legal"',o:72,soon:true},
+  {k:"help",g:"site",lab:function(){return GX("helpNav")},ico:"play",attrs:'data-go="help"',o:78,hide:function(){ return !guidesFor("page").length }},
   {k:"about",g:"site",lab:function(){return t("about")},ico:"about",attrs:'data-go="about"',o:80},
   {k:"contactus",g:"site",lab:function(){return t("contactUsPageT")},ico:"phone",attrs:'data-go="contactus"',o:90},
   {k:"contact",g:"site",lab:function(){return t("contactUs")},ico:"mail",attrs:'data-go="contact"',o:100},
@@ -5727,6 +5786,7 @@ var CHEV='<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor
 var MI=(function(){
   var w=function(p){return '<span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg></span>'};
   return {
+    play:w('<circle cx="12" cy="12" r="9"/><path d="m10 8.6 5.6 3.4-5.6 3.4z" fill="currentColor"/>'),
     buy:w('<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/>'),
     rent:w('<circle cx="8" cy="15" r="4"/><path d="m10.9 12.1 9.1-9.1M15 5l3 3M18 2l3 3"/>'),
     map:w('<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>'),
@@ -5825,6 +5885,7 @@ function footer(){
   '<a href="'+cPre()+'/about/" data-go="about" style="font-weight:600">'+t("about")+'</a>'+
   '<a data-go="contact" style="font-weight:600">'+t("contactUs")+'</a>'+
   '<a href="'+cPre()+'/contactus/" data-go="contactus" style="font-weight:600">'+t("contactUsPageT")+'</a>'+
+  (SXb("help_footer",true) && guidesFor("page").length ? '<a data-go="help" style="font-weight:600">'+GX("helpNav")+'</a>' : '')+
   '<a href="'+cPre()+'/terms/" data-go="terms">'+(PAGE_T.terms[L]||PAGE_T.terms.en)+'</a>'+
   '<a href="'+cPre()+'/privacy/" data-go="privacy">'+(PAGE_T.privacy[L]||PAGE_T.privacy.en)+'</a>'+
   '</div><div class="fbot"><span>© 2026 '+(L==="ar"?CONFIG.brand:"Balkoun")+' · '+CONFIG.domain+
@@ -6179,6 +6240,7 @@ function authModal(){
   '</button><button type="button" data-m="up" class="'+(AU.mode==="up"?"on":"")+'">'+t("signup")+'</button></div>':'')+
   body+
   (AU.step===1?'<div class="au-switch">'+(AU.mode==="in"?GX("auNoAcct")+' <a data-m="up">'+t("signup")+'</a>':GX("auHaveAcct")+' <a data-m="in">'+t("login")+'</a>')+'</div>':'')+
+  (AU.step===1?guideLine("auth","helpAuthLine"):'')+
   '</div></div></div>'}
 
 /* ── home ── */
@@ -9031,7 +9093,7 @@ function agencyFormPage(){ if(!USER) return gate(); ACC.agForm=true; return acco
 /* ── message intake on the site: paste a WhatsApp text into the post form; the agency's "post by message" block ── */
 function intakeUrl(route){ return CONFIG.supabaseUrl+"/functions/v1/bk-intake/"+route }
 function quickFillHtml(){
-  return '<div class="qfill" id="qfill"><h3>'+MI.msgs+GX("qfTitle")+'</h3><div class="hintx">'+GX("qfHint")+'</div>'+
+  return '<div class="qfill" id="qfill"><h3>'+MI.msgs+GX("qfTitle")+'</h3><div class="hintx">'+GX("qfHint")+'</div>'+guideLine("post","helpPostLine")+
     '<textarea id="qfText" data-allow-autofill placeholder="'+esc(GX("qfPH"))+'">'+esc(NEW.qfText||"")+'</textarea>'+
     '<div class="qfrow"><button type="button" class="gh" id="qfGo" style="margin:0;padding:9px 18px;width:auto">'+GX("qfBtn")+'</button><span class="qfmsg" id="qfMsg">'+esc(NEW.qfMsg||"")+'</span></div></div>' }
 function wireQuickFill(){
@@ -11744,7 +11806,7 @@ var PAGE_T={
   admin:{ar:"لوحة الإدارة",en:"Admin",de:"Verwaltung"}, listing:{ar:"تفاصيل العقار",en:"Property details",de:"Immobiliendetails"}, by:{ar:"إعلانات المعلن",en:"Seller listings",de:"Anzeigen des Anbieters"},
   agencies:{ar:"دليل المكاتب العقارية",en:"Real estate agencies",de:"Immobilienbüros"}, agency:{ar:"مكتب عقاري",en:"Agency",de:"Immobilienbüro"}, agencyform:{ar:"بيانات المكتب",en:"Agency profile",de:"Büroprofil"},
   projects:{ar:"مشاريع جديدة وقيد الإنشاء",en:"New projects",de:"Neubauprojekte"}, project:{ar:"مشروع",en:"Project",de:"Projekt"},
-  app:{ar:"تطبيق بلكون",en:"Balkoun app",de:"Balkoun-App",fr:"Application Balkoun"},
+  app:{ar:"تطبيق بلكون",en:"Balkoun app",de:"Balkoun-App",fr:"Application Balkoun"}, help:{ar:"شروحات بلكون",en:"Balkoun guides",de:"Balkoun-Anleitungen",fr:"Tutoriels Balkoun"},
   wanted:{ar:"مطلوب: طلبات المشترين والمستأجرين",en:"Wanted",de:"Gesucht"}, wantedform:{ar:"أضف طلبك",en:"Post a request",de:"Anfrage aufgeben"}
 };
 (function(fr){ Object.keys(fr).forEach(function(k){ if(PAGE_T[k]) PAGE_T[k].fr=fr[k] }) })({"privacy":"Politique de confidentialité","terms":"Conditions d'utilisation","search":"Recherche immobilière","mapsearch":"Recherche sur la carte","post":"Publier une annonce","postmsg":"Publier par message","mine":"Mes annonces","saved":"Biens enregistrés","searches":"Recherches enregistrées","msgs":"Messages","account":"Mon compte","about":"À propos de Balkoun","contact":"Nous contacter","contactus":"Nous contacter","areas":"Tous les gouvernorats et quartiers","admin":"Administration","listing":"Détails du bien","by":"Annonces du vendeur","agencies":"Agences immobilières","agency":"Agence","agencyform":"Profil de l'agence","projects":"Projets neufs","project":"Projet","wanted":"Recherché","wantedform":"Publier une demande"});   // page titles in French
@@ -11792,7 +11854,7 @@ function viewFromHash(){
   if(p[0]==="post-by-message") return "postmsg";
   // balkoun.com/#/signup (posters, QR codes): the home page with the sign-up form already open
   if(p[0]==="signup"||p[0]==="join"){ if(typeof AU!=="undefined"&&!(typeof USER!=="undefined"&&USER&&USER.id)){ AU.open=true; AU.mode="up"; AU.step=1; setTimeout(function(){ try{ render() }catch(e){} },0) } return "home" }
-  if(["app","search","post","postmsg","mine","saved","searches","msgs","account","about","contact","contactus","privacy","terms","admin","mapsearch","agencies","agencyform","projects","wanted","wantedform"].indexOf(p[0])>-1){
+  if(["help","app","search","post","postmsg","mine","saved","searches","msgs","account","about","contact","contactus","privacy","terms","admin","mapsearch","agencies","agencyform","projects","wanted","wantedform"].indexOf(p[0])>-1){
     if(p[0]==="search" && qs) applyFilterFromQuery(qs);
     return p[0];
   }
@@ -11947,7 +12009,7 @@ function render(){
  if(VIEW!==_lastRenderedView){ _lastRenderedView=VIEW; refreshListingsOnNavigate(); }
  document.documentElement.lang=L; document.documentElement.dir=D.I18N[L].dir; document.documentElement.setAttribute("data-cc",COUNTRY||"SY");
  var body= VIEW==="home"?home(): VIEW==="search"?search(): VIEW==="post"?post():
-          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="privacy"?legalPage("privacy"): VIEW==="terms"?legalPage("terms"): VIEW==="areas"?areasView(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="postmsg"?postMsgPage(): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW.indexOf("unsub:")===0?unsubPage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): VIEW==="app"?appPage(): listing(VIEW.split(":")[1]);
+          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="privacy"?legalPage("privacy"): VIEW==="terms"?legalPage("terms"): VIEW==="areas"?areasView(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="postmsg"?postMsgPage(): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW.indexOf("unsub:")===0?unsubPage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): VIEW==="help"?helpPage(): VIEW==="app"?appPage(): listing(VIEW.split(":")[1]);
  document.body.classList.remove("mdw-open");
  (function(){ var html=header()+body+footer()+authModal()+reportModal()+inquiryModal(), app=$("#app");
    // the home page is re-rendered several times while data arrives (cache → listings → settings): patch the DOM in place so
@@ -13051,6 +13113,29 @@ var GX_T={
   inqAwaitYou:{ar:"بانتظار ردك",en:"Awaiting your reply",de:"Wartet auf Ihre Antwort"}, inqGuestReply:{ar:"زائر بلا حساب: تواصل معه على رقمه",en:"Guest without an account: contact them on their number",de:"Gast ohne Konto: über die Nummer kontaktieren"},
   bioLimitHint:{ar:"حتى {n} حرف، ويمكنك استخدام فقرات.",en:"Up to {n} characters; paragraphs are kept.",de:"Bis zu {n} Zeichen; Absätze bleiben erhalten."},
   photoMaxHint:{ar:"حتى {n} صورة",en:"up to {n} photos",de:"bis zu {n} Fotos"},
+  helpNav:{ar:"شروحات بلكون",en:"Balkoun guides",de:"Anleitungen"}, helpH:{ar:"شروحات بلكون",en:"Balkoun guides",de:"Balkoun-Anleitungen"},
+  helpSub:{ar:"فيديوهات قصيرة تشرح لك خطوة بخطوة: كيف تسجّل، وكيف تنشر إعلانك، وأكثر.",en:"Short videos, step by step: how to sign up, how to post your listing, and more.",de:"Kurze Videos Schritt für Schritt: Registrieren, Anzeige aufgeben und mehr."},
+  helpEmpty:{ar:"لا توجد شروحات بعد.",en:"No guides yet.",de:"Noch keine Anleitungen."},
+  helpAuthLine:{ar:"كيف أسجّل؟ شاهد الشرح",en:"How to sign up? Watch the guide",de:"Wie registriere ich mich? Anleitung ansehen"},
+  helpPostLine:{ar:"لا تعرف كيف؟ شاهد الشرح",en:"Not sure how? Watch the guide",de:"Unsicher? Anleitung ansehen"},
+  tGuides:{ar:"الشروحات",en:"Guides",de:"Anleitungen"},
+  desc_guides:{ar:"فيديوهات تعليمية لزوارك: أضف فيديو أو رابط يوتيوب، اختر أين يظهر (صفحة الشروحات، نموذج الإضافة، نافذة التسجيل)، عدّله أو احذفه أو رتّبه.",en:"Teaching videos for visitors: add a file or a YouTube link, choose where it shows, edit, delete or reorder.",de:"Lernvideos: Datei oder YouTube-Link, Anzeigeort wählen, bearbeiten, löschen, sortieren."},
+  gdAdd:{ar:"+ إضافة شرح",en:"+ Add a guide",de:"+ Anleitung hinzufügen"}, gdSave:{ar:"حفظ الشروحات",en:"Save guides",de:"Speichern"},
+  gdTitle:{ar:"العنوان",en:"Title",de:"Titel"}, gdDesc:{ar:"وصف قصير",en:"Short text",de:"Kurztext"}, gdAr:{ar:"عربي",en:"Arabic",de:"Arabisch"}, gdEn:{ar:"إنجليزي",en:"English",de:"Englisch"}, gdFr:{ar:"فرنسي",en:"French",de:"Französisch"},
+  gdSrcFile:{ar:"رفع فيديو",en:"Upload a video",de:"Video hochladen"}, gdSrcYt:{ar:"رابط يوتيوب",en:"YouTube link",de:"YouTube-Link"},
+  gdPick:{ar:"اختر ملف الفيديو",en:"Choose the video file",de:"Videodatei wählen"}, gdReplace:{ar:"استبدال الفيديو",en:"Replace the video",de:"Video ersetzen"},
+  gdPoster:{ar:"صورة المعاينة",en:"Preview picture",de:"Vorschaubild"}, gdPosterUp:{ar:"رفع صورة أخرى",en:"Upload another picture",de:"Anderes Bild hochladen"},
+  gdWhere:{ar:"أين يظهر",en:"Where it shows",de:"Wo es erscheint"}, gdWPage:{ar:"صفحة الشروحات",en:"Guides page",de:"Anleitungsseite"}, gdWPost:{ar:"نموذج «أضف إعلانك»",en:"The add-listing form",de:"Anzeigenformular"}, gdWAuth:{ar:"نافذة التسجيل والدخول",en:"Login / sign-up window",de:"Anmeldefenster"},
+  gdOn:{ar:"ظاهر",en:"Shown",de:"Sichtbar"}, gdOrder:{ar:"الترتيب",en:"Order",de:"Reihenfolge"}, gdDel:{ar:"حذف",en:"Delete",de:"Löschen"},
+  gdFooter:{ar:"رابط «شروحات بلكون» في أسفل الموقع",en:"«Balkoun guides» link in the footer",de:"Link im Fußbereich"},
+  gdMenuHint:{ar:"الرابط في القائمة ☰ والهيدر يُضبط من «البحث والبطاقات» ← «الرأس والقائمة» (سطر «شروحات بلكون»).",en:"The ☰ menu and header link is set in Design → Header & menu.",de:"Menü- und Kopfzeilen-Link: Design → Kopf & Menü."},
+  gdNeedTitle:{ar:"اكتب عنواناً بالعربي لكل شرح",en:"Give every guide an Arabic title",de:"Jede Anleitung braucht einen arabischen Titel"},
+  gdNeedVideo:{ar:"كل شرح يحتاج فيديو أو رابط يوتيوب",en:"Every guide needs a video or a YouTube link",de:"Jede Anleitung braucht ein Video oder einen YouTube-Link"},
+  gdBadYt:{ar:"رابط يوتيوب غير صحيح",en:"Not a YouTube link",de:"Kein YouTube-Link"},
+  gdUploading:{ar:"جارٍ رفع الفيديو… {p}%",en:"Uploading… {p}%",de:"Hochladen… {p}%"}, gdTooBig:{ar:"الفيديو أكبر من 100 ميغابايت",en:"The video is over 100 MB",de:"Das Video ist größer als 100 MB"},
+  gdNone:{ar:"لا توجد شروحات بعد. اضغط «+ إضافة شرح».",en:"No guides yet. Press «+ Add a guide».",de:"Noch keine Anleitungen."},
+  gdUnsaved:{ar:"تغييرات غير محفوظة",en:"Unsaved changes",de:"Nicht gespeichert"},
+  gdWait:{ar:"انتظر حتى ينتهي رفع الفيديو",en:"Wait until the video finishes uploading",de:"Warten, bis das Video hochgeladen ist"},
   vpOpen:{ar:"تغيير صورة المعاينة",en:"Change the preview picture",de:"Vorschaubild ändern"},
   vpTitle:{ar:"صورة المعاينة",en:"Preview picture",de:"Vorschaubild"}, vpSub:{ar:"هي ما يراه الناس قبل تشغيل الفيديو، في البطاقات وصفحة الإعلان",en:"What people see before the video plays, on cards and the listing page",de:"Was man vor dem Abspielen sieht, auf Karten und der Anzeigenseite"},
   vpTabV:{ar:"🎞️ من الفيديو",en:"🎞️ From the video",de:"🎞️ Aus dem Video"}, vpTabP:{ar:"🖼️ صور الإعلان",en:"🖼️ A listing photo",de:"🖼️ Ein Anzeigenfoto"},
