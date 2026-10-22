@@ -3123,6 +3123,16 @@ html.maint-on{overflow:hidden}
 .gdm-v video,.gdm-v iframe{width:100%;height:100%;display:block;border:0;background:#000}
 .gdm-t{padding:10px 14px 12px;color:#fff;display:flex;flex-direction:column;gap:2px}.gdm-t span{font-size:13px;color:rgba(255,255,255,.7)}
 .gdm-x{position:absolute;top:8px;inset-inline-end:8px;z-index:2;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.22);color:#fff;font-size:24px;line-height:1;cursor:pointer}
+/* iPhone app (owner, 2026-10-22): the logo sat under the camera, the language under the clock, ☰ under the battery */
+header{padding-top:env(safe-area-inset-top,0px)}
+.home-hero .hero-outer{padding-top:calc(62px + env(safe-area-inset-top,0px))}
+@media(max-width:700px){.home-hero .hero-outer{padding-top:calc(60px + env(safe-area-inset-top,0px))}}
+@media(max-width:640px){.home-hero .hero-outer{padding-top:calc(58px + env(safe-area-inset-top,0px))}}
+.rs-bar{top:env(safe-area-inset-top,0px)}
+.mdw-p{padding-top:env(safe-area-inset-top,0px)}
+.lightbox .lb-close{top:max(16px,calc(env(safe-area-inset-top,0px) + 8px))}
+.adm .adm-top{padding-top:env(safe-area-inset-top,0px);height:calc(56px + env(safe-area-inset-top,0px))}
+@media(max-width:760px){.au .aubox.au2{max-height:calc(94dvh - env(safe-area-inset-top,0px))}}
 body.pwa-on .mobfab{bottom:var(--pwa-lift,calc(118px + env(safe-area-inset-bottom)))}   /* set from the banner real height */
 .pwa-bar img{width:42px;height:42px;border-radius:11px;flex:none}.pwa-bar .t{flex:1;min-width:0}.pwa-bar b{display:block;font-size:14px;color:var(--navy)}.pwa-bar small{display:block;font-size:12px;color:var(--grey);line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pwa-bar .go{background:var(--gold);color:#1A1206;border:0;border-radius:999px;padding:9px 14px;font:700 13px var(--fd);cursor:pointer;flex:none}.pwa-bar .later{background:none;border:0;color:var(--grey);font:600 12.5px var(--fd);cursor:pointer;padding:6px;flex:none}
