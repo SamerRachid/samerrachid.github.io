@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-0TYkEbcDrtTihF5YCqqDEASwaVoAl+IwXRsEH/TnE9k=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-+K0GUpeSZelR8Dl418BNYaS6GdrX5PGJ5EvyHLX3RbM=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -3133,6 +3133,8 @@ header{padding-top:env(safe-area-inset-top,0px)}
 .lightbox .lb-close{top:max(16px,calc(env(safe-area-inset-top,0px) + 8px))}
 .adm .adm-top{padding-top:env(safe-area-inset-top,0px);height:calc(56px + env(safe-area-inset-top,0px))}
 @media(max-width:760px){.au .aubox.au2{max-height:calc(94dvh - env(safe-area-inset-top,0px))}}
+.psync{margin-top:12px;border:1px solid #EDDCB6;background:var(--gold-w);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px;font-size:13.5px;color:#5A4410;line-height:1.8}
+.psync-a{display:flex;gap:8px;flex-wrap:wrap}
 body.pwa-on .mobfab{bottom:var(--pwa-lift,calc(118px + env(safe-area-inset-bottom)))}   /* set from the banner real height */
 .pwa-bar img{width:42px;height:42px;border-radius:11px;flex:none}.pwa-bar .t{flex:1;min-width:0}.pwa-bar b{display:block;font-size:14px;color:var(--navy)}.pwa-bar small{display:block;font-size:12px;color:var(--grey);line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pwa-bar .go{background:var(--gold);color:#1A1206;border:0;border-radius:999px;padding:9px 14px;font:700 13px var(--fd);cursor:pointer;flex:none}.pwa-bar .later{background:none;border:0;color:var(--grey);font:600 12.5px var(--fd);cursor:pointer;padding:6px;flex:none}
@@ -4739,6 +4741,7 @@ html.adm-dark .adm .gcard-bd b,html.adm-dark .admdm-ov .gcard-bd b{color:#C9D6F2
 html.adm-dark .adm .gdm-v,html.adm-dark .admdm-ov .gdm-v{background:hsla(222,22%,22%,1)}
 html.adm-dark .adm .gdm-v video,html.adm-dark .admdm-ov .gdm-v video,html.adm-dark .adm .gdm-v iframe,html.adm-dark .admdm-ov .gdm-v iframe{background:hsla(222,22%,22%,1)}
 html.adm-dark .adm .gdm-x,html.adm-dark .admdm-ov .gdm-x{background:hsla(222,27%,13%,0.22)}
+html.adm-dark .adm .psync,html.adm-dark .admdm-ov .psync{border:1px solid hsla(222,20%,25%,1);color:hsla(42,70%,78%,1)}
 html.adm-dark .adm .pwa-bar b,html.adm-dark .admdm-ov .pwa-bar b{color:#C9D6F2}
 html.adm-dark .adm .pwa-bar .go,html.adm-dark .admdm-ov .pwa-bar .go{color:hsla(36,63%,78%,1)}
 html.adm-dark .adm .apppg-card,html.adm-dark .admdm-ov .apppg-card{background:hsla(222,27%,13%,1)}
@@ -5223,6 +5226,7 @@ var FR_T={
   lv_member:"Membre", lv_trusted:"De confiance", lv_vip:"VIP", lv_partner:"Partenaire", lv_silver:"Argent", lv_gold:"Or", lv_trusted_agency:"Agence de confiance", silverTag:"Membre Argent", goldTag:"Membre Or", trustedAgencyTag:"Agence de confiance", back:"Retour", refresh:"Actualiser"
 };
 var FR_GX={
+  eTelL:"Numéro de contact de cette annonce", eTelHint:"Le numéro que les visiteurs appellent ou contactent sur WhatsApp pour cette annonce.", eTelHidden:"Votre numéro est masqué aux visiteurs ; ce numéro est gardé pour l'annonce.", psyncQ:"{n} de vos annonces affichent un autre numéro que celui de votre compte. Y mettre votre numéro actuel {p} ?", psyncGo:"Oui, mettre à jour mes annonces", psyncNo:"Non, les garder", psyncDone:"Numéro mis à jour sur {n} annonces ✓",
   badPhoneLen:"Vérifiez le numéro : après {cc}, il faut {n} chiffres",
   helpNav:"Tutoriels Balkoun", helpH:"Tutoriels Balkoun", helpSub:"De courtes vidéos, pas à pas : s'inscrire, publier une annonce, et plus.", helpEmpty:"Pas encore de tutoriels.", helpAuthLine:"Comment s'inscrire ? Voir le tutoriel", helpPostLine:"Pas sûr ? Voir le tutoriel",
   vpOpen:"Changer l'image d'aperçu", vpUse:"Utiliser", vpTitle:"Image d'aperçu", vpSub:"Ce que l'on voit avant la lecture, sur les cartes et la page de l'annonce", vpTabV:"🎞️ De la vidéo", vpTabP:"🖼️ Une photo", vpHint:"Faites glisser le cadre doré ou touchez une image", vpBefore:"Actuelle", vpAfter:"Nouvelle", vpSave:"Enregistrer", vpUndo:"Annuler", vpSaving:"Enregistrement…", vpSaved:"Image d'aperçu enregistrée ✓", vpNoPhotos:"Cette annonce n'a pas encore de photos.", vpNote:"La vidéo ne change pas. L'image reçoit la marque Balkoun comme chaque photo.",
@@ -6061,7 +6065,7 @@ async function storageUpload(path, file, opts){   // same {data,error} shape sup
 
 var MEMBER_FNS={bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,bk_set_hide_phone:1,
   bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_my_listings:1,bk_own_delete:1,bk_delete_account:1,bk_my_rewards:1,bk_use_feature_credit:1,bk_set_account_type:1,
-  bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_photo_order:1,bk_photo_set_poster:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
+  bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_photo_order:1,bk_photo_set_poster:1,bk_own_phone_sync:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
   bk_search_del:1,bk_search_list:1,bk_search_save:1,bk_set_avatar:1,bk_set_bio:1,bk_set_currency:1,
   bk_update_profile:1,bk_feedback:1,bk_report:1,bk_contact:1,bk_log_view:1};
 
@@ -7245,6 +7249,9 @@ function editView(){
  '<h1 style="font-size:22px;font-weight:700">'+t("editListing")+' <span class="ltr" style="font-size:14px;color:var(--grey)">'+(x.ref||x.id)+'</span></h1>'+
  '<p style="color:var(--grey);font-size:14px;margin-bottom:16px">'+t("editP")+'</p>'+
  '<div class="blk"><h3><span class="n">1</span>'+t("price")+'</h3><div class="in">'+
+  (EDIT.isAdmin ? '' : (function(){ var cur=x.tel||(x.hidePhone&&USER?USER.phone:"")||(USER&&USER.phone)||"";   // a hidden number is not sent to the page: the account's stands in
+    return '<div class="fl"><label>'+GX("eTelL")+'</label><div class="pw">'+ccSelect("eCC", cur?ccOf(cur):phoneCC())+'<input id="eTelM" class="ltr" inputmode="tel" autocomplete="off" value="'+esc(cur?ccStrip(cur):"")+'"></div>'+
+      '<div class="hintx">'+GX(x.hidePhone?"eTelHidden":"eTelHint")+'</div></div>' })())+
   '<div class="row"><div class="fl"><label>'+t("price")+'</label>'+
    '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+(x.pl>0&&x.pcur?x.pl:(x.p==null?"":x.p))+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur",(x.pl>0&&x.pcur)?x.pcur:"USD")+'</div>'+
    (x.orig&&x.orig>x.p?'<div class="hintx">'+t("wasPrice")+' <span class="ltr">'+money(x.orig)+'</span></div>':'')+
@@ -7972,8 +7979,10 @@ function account(){
       '<div class="row"><div class="fl"><label>'+t("currentPhone")+'</label><input value="'+esc(USER.phone)+'" readonly class="ltr" style="background:var(--page);color:var(--grey)"></div>'+
       '<div class="fl"><label>'+t("newPhone")+'</label><div class="pw">'+ccSelect("npCC",ccOf(USER.phone))+'<input id="npNum" autocomplete="off" inputmode="numeric" placeholder=""></div></div></div>'+
       '<div class="fl"><label>'+t("password")+'</label>'+pwField("npPass","off")+'</div>'+
-      '<div class="xactions"><button class="btn-n" id="npSave" style="width:auto">'+t("changePhone")+'</button><span class="xmsg" id="npMsg"></span></div>'+
+      '<div class="xactions"><button class="btn-n" id="npSave" style="width:auto">'+t("changePhone")+'</button><span class="xmsg" id="npMsg" style="color:var(--ok)">'+(ACC.npMsg||"")+'</span></div>'+
       '<div class="hintx">'+t("phoneWarn")+'</div>'+
+      (ACC.phSync && ACC.phSync.n>0 && ACC.phSyncHide!==USER.phone ? '<div class="psync" id="psync"><span>'+GX("psyncQ").replace("{n}",'<b class="ltr">'+ACC.phSync.n+'</b>').replace("{p}",'<b class="ltr">'+esc(USER.phone)+'</b>')+'</span>'+
+        '<div class="psync-a"><button type="button" class="btn-n" id="psyncGo" style="width:auto">'+GX("psyncGo")+'</button><button type="button" class="gh" id="psyncNo" style="margin:0;width:auto">'+GX("psyncNo")+'</button></div><span class="xmsg" id="psyncMsg"></span></div>' : '')+
       (USER.role==="admin"?'':'<div class="acs-sub acdel-h">'+GX("accDelT")+'</div><p class="hintx">'+GX("accDelP")+'</p>'+
       '<div class="fl"><label>'+t("password")+'</label>'+pwField("delPass","off")+'</div>'+
       '<div class="xactions"><button type="button" class="gh acdel-btn" id="acDelete" style="width:auto;margin:0">'+GX("accDelBtn")+'</button><span class="xmsg" id="acDelMsg"></span></div>'), "")+
@@ -10252,6 +10261,8 @@ function wire(){
        await rpc("bk_admin_edit_listing",{p_token:ADM.token, p_id:+EDIT.id, p_patch:patch});
        VIEW="admin"; scrollTo(0,0); render();
      } else {
+       if($("#eTelM")){ var eCC=v("eCC")||phoneCC(), eNat=phoneNat(eCC, v("eTelM"));   // the listing's own number, checked like everywhere else
+         if(eNat){ var eBad=phoneLenMsg(eCC,eNat); if(eBad) throw new Error(eBad); var eNum="+"+eCC+eNat; if((EDIT.row&&EDIT.row.tel||"").replace(/\D/g,"")!==eNum.replace(/\D/g,"")) patch.contact_phone=eNum } }
        if($("#eGov")){ var gname2=v("eGov"), aname2=v("eAreaSel"), gid2=(GEO_META.govId||{})[gname2];
          if(gid2){ patch.governorate_id=gid2; patch.area_id=aname2?((GEO_META.areaId||{})[gname2+"/"+aname2]||null):null }
          if($("#eLandmark")) patch.landmark=v("eLandmark").trim()||null; }
@@ -10763,11 +10774,18 @@ function wireAuth(){
    b.disabled=true; b.textContent=t("saving");
    try{ var u=await rpc("bk_change_phone",{p_id:USER.id,
           p_pass:await sha($("#npPass").value||""), p_new_phone:np});
-        USER=u; saveSession(u); m.style.color="var(--ok)"; m.textContent=t("savedOk"); render();
+        USER=Object.assign({},USER,u); saveSession(USER); ACC.phSyncFor=null; ACC.phSyncHide=null; ACC.npMsg=t("savedOk"); render(); setTimeout(function(){ ACC.npMsg="" },8000);
    }catch(e){ m.style.color="var(--danger)";
         m.textContent = e.message==="badpass"?t("wrongPass"):e.message==="locked"?GX("loginLocked"):e.message==="exists"?t("phoneTaken"):e.message;
         b.disabled=false; b.textContent=t("changePhone") }};
 
+ // how many of the member's listings carry another number than the account's (asked once per number)
+ if($("#npSave") && USER && USER.id && ACC.phSyncFor!==USER.phone){ ACC.phSyncFor=USER.phone;
+   rpc("bk_own_phone_sync",{p_user:USER.id,p_apply:false}).then(function(r){ ACC.phSync={n:(r&&+r.count)||0}; if(ACC.phSync.n) render() }).catch(function(){}) }
+ if($("#psyncNo")) $("#psyncNo").onclick=function(){ ACC.phSyncHide=USER.phone; render() };
+ if($("#psyncGo")) $("#psyncGo").onclick=async function(){ var b=this, m=$("#psyncMsg"); b.disabled=true;
+   try{ var r=await rpc("bk_own_phone_sync",{p_user:USER.id,p_apply:true}); ACC.phSync={n:0}; LOADED.mine=false; ACC.npMsg=GX("psyncDone").replace("{n}",(r&&r.updated)||0); render(); setTimeout(function(){ ACC.npMsg="" },8000) }
+   catch(e){ b.disabled=false; if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } } };
  if($("#goSignup2")) $("#goSignup2").onclick=function(){ AU.open=true;AU.mode="up";AU.step=1;render() };
  if($("#goLogin2")) $("#goLogin2").onclick=function(){ AU.open=true;AU.mode="in";AU.step=1;render() };
  $$("#starpick span").forEach(function(sp){ sp.onclick=function(){
@@ -13197,6 +13215,12 @@ var GX_T={
   inqAwaitYou:{ar:"بانتظار ردك",en:"Awaiting your reply",de:"Wartet auf Ihre Antwort"}, inqGuestReply:{ar:"زائر بلا حساب: تواصل معه على رقمه",en:"Guest without an account: contact them on their number",de:"Gast ohne Konto: über die Nummer kontaktieren"},
   bioLimitHint:{ar:"حتى {n} حرف، ويمكنك استخدام فقرات.",en:"Up to {n} characters; paragraphs are kept.",de:"Bis zu {n} Zeichen; Absätze bleiben erhalten."},
   photoMaxHint:{ar:"حتى {n} صورة",en:"up to {n} photos",de:"bis zu {n} Fotos"},
+  eTelL:{ar:"رقم التواصل لهذا الإعلان",en:"Contact number for this listing",de:"Kontaktnummer dieser Anzeige"},
+  eTelHint:{ar:"الرقم الذي يتصل عليه الزوار ويراسلونه على واتساب لهذا الإعلان.",en:"The number visitors call or message on WhatsApp for this listing.",de:"Die Nummer, die Besucher für diese Anzeige anrufen."},
+  eTelHidden:{ar:"رقمك مخفي عن الزوار حسب إعداداتك؛ يصلك التواصل عبر الرسائل، ويُحفظ هذا الرقم للإعلان.",en:"Your number is hidden from visitors (your settings); this number is kept for the listing.",de:"Ihre Nummer ist verborgen; diese Nummer wird für die Anzeige gespeichert."},
+  psyncQ:{ar:"لديك {n} إعلان برقم تواصل مختلف عن رقم حسابك. هل تريد وضع رقمك الحالي {p} عليها؟",en:"{n} of your listings show another number than your account's. Put your current number {p} on them?",de:"{n} Ihrer Anzeigen zeigen eine andere Nummer. Ihre aktuelle Nummer {p} übernehmen?"},
+  psyncGo:{ar:"نعم، حدّث الرقم في إعلاناتي",en:"Yes, update my listings",de:"Ja, Anzeigen aktualisieren"}, psyncNo:{ar:"لا، أبقها كما هي",en:"No, keep them",de:"Nein, so lassen"},
+  psyncDone:{ar:"تم تحديث الرقم في {n} إعلان ✓",en:"Number updated on {n} listings ✓",de:"Nummer in {n} Anzeigen aktualisiert ✓"},
   badPhoneLen:{ar:"تحقّق من الرقم: بعد {cc} يجب أن يكون {n} أرقام",en:"Check the number: after {cc} it should have {n} digits",de:"Nummer prüfen: nach {cc} sollten {n} Ziffern folgen"},
   helpNav:{ar:"شروحات بلكون",en:"Balkoun guides",de:"Anleitungen"}, helpH:{ar:"شروحات بلكون",en:"Balkoun guides",de:"Balkoun-Anleitungen"},
   helpSub:{ar:"فيديوهات قصيرة تشرح لك خطوة بخطوة: كيف تسجّل، وكيف تنشر إعلانك، وأكثر.",en:"Short videos, step by step: how to sign up, how to post your listing, and more.",de:"Kurze Videos Schritt für Schritt: Registrieren, Anzeige aufgeben und mehr."},
