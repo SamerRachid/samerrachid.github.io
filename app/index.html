@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-uFT5Zn2nYGHj2SvrY3KGwWWMBZis3Ndm/K7FUIdtuws=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-kTBPTDojWX8xq8koNrr4XT1xNuxRO/fktB9FEGvTFfs=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -3146,6 +3146,9 @@ header{padding-top:env(safe-area-inset-top,0px)}
 @media(max-width:640px){.pw.pw-fit input,.pw.pw-fit .ccpick-btn{height:47px}}   /* phone fields are 16px text there (no iOS zoom), 47px high */
 .crumb-l .wrap{display:flex;align-items:center;flex-wrap:wrap;row-gap:6px}
 .res.srv-wait{opacity:.55;transition:opacity .15s}
+.cprice{flex-wrap:wrap;row-gap:2px}   /* a long local price: the price per m² goes to the next line instead of being cut */
+.pconv{display:block;font-size:12px;font-weight:500;color:var(--grey);margin-top:2px;letter-spacing:0}
+.origp .pconv{display:inline;font-size:13.5px}
 .usrcbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:0 0 12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card,#fff);font-size:13px}.usrcbar>b{margin-inline-end:4px}.usrcbar .hintx{flex-basis:100%}
 .usrcchip{display:inline-flex;gap:5px;align-items:center;padding:3px 10px;border-radius:999px;background:var(--gold-w,#F8EED9);color:var(--navy)}.usrcchip.dim{opacity:.6}
 .usrc{color:var(--gold-dk,#9A6B17);font-weight:600}
@@ -5588,15 +5591,24 @@ function rentLbl(p){ return GX("rentP_"+(["yearly","monthly","weekly","daily"].i
 function priceBlock(x,big){
   var cut = x.orig && x.orig > x.p;
   var pct = cut ? Math.round((1 - x.p/x.orig)*100) : 0;
-  return '<span class="ltr">'+money(x.p,x)+'</span>'+
-   (cut ? ' <span class="wasprice ltr">'+money(x.orig)+'</span>'+
+  return '<span class="ltr">'+money(x.p,x)+'</span>'+(big?'':priceConv(x))+
+   (cut ? ' <span class="wasprice ltr">'+moneyIn(x.orig,lcur(x))+'</span>'+
           (SX("price_cut_pct_on",true)!==false ? '<span class="cutbadge">↓ '+pct+'%</span>' : '') : '');
 }
 var money=function(v,x){ if(v==null||v===""||isNaN(+v)) return GX("priceOnRequest");   // no price on the listing → "السعر عند التواصل"
-  if(x&&x.pl>0&&x.pcur&&x.pcur===CUR) return Number(x.pl).toLocaleString("en")+" "+curLabel(CUR,L);   // the amount the poster typed, not USD converted back (2,500,000 stays 2,500,000)
+  // a listing shows in the currency its seller chose for it (owner, 2026-10-23: 200,000,000 ل.س was shown as $14,815):
+  // the amount typed, never converted; a listing priced in dollars stays in dollars
+  if(x){ if(x.pl>0&&x.pcur) return Number(x.pl).toLocaleString("en")+" "+curLabel(x.pcur,L); return "$"+Number(v).toLocaleString("en") }
   return CUR==="USD"?"$"+Number(v).toLocaleString("en")
   :(v*(curRate())).toLocaleString("en")+" "+curLabel(CUR,L)};
-var origPriceLine=function(x){ return (x&&x.pl>0&&x.pcur&&x.pcur!==CUR) ? '<div class="origp">'+GX("origPriceL")+' <span class="ltr">'+Number(x.pl).toLocaleString("en")+' '+curLabel(x.pcur,L)+'</span></div>' : '' };   // listing page: what the owner actually asked, when shown in another currency
+// the listing's currency (what its seller chose) and an amount in it; a USD figure (old price, deposit) is converted
+function lcur(x){ return (x&&x.pl>0&&x.pcur) ? x.pcur : "USD" }
+// the card's price per m²: a long local figure in short form (2,666,700 ل.س → 2.7M ل.س), dollars as they are
+function moneyShortIn(v,cur){ if(!cur||cur==="USD") return moneyIn(v,cur); var n=Math.round(+v*curRate(cur)); var sh=n>=1e6?(Math.round(n/1e5)/10).toString().replace(/\.0$/,"")+"M":n>=1e4?Math.round(n/1000)+"K":n.toLocaleString("en"); return sh+" "+curLabel(cur,L) }
+function moneyIn(v,cur){ if(v==null||v===""||isNaN(+v)) return ""; if(!cur||cur==="USD") return "$"+Math.round(+v).toLocaleString("en"); return Math.round(+v*curRate(cur)).toLocaleString("en")+" "+curLabel(cur,L) }
+// small print under a price: the same price in the visitor's chosen currency, when the listing is in another one
+function priceConv(x){ if(!x||x.p==null||!(+x.p>0)||lcur(x)===CUR) return ""; return '<span class="pconv ltr">≈ '+money(x.p)+'</span>' }
+var origPriceLine=function(x){ var c=priceConv(x); return c ? '<div class="origp">'+c+'</div>' : '' };   // listing page: the price in the visitor's currency
 var AR_ORD=["","أول","ثاني","ثالث","رابع","خامس","سادس","سابع","ثامن","تاسع","عاشر",
  "حادي عشر","ثاني عشر","ثالث عشر","رابع عشر","خامس عشر",
  "سادس عشر","سابع عشر","ثامن عشر","تاسع عشر","العشرون"];
@@ -6561,7 +6573,7 @@ function card(x,i,isListView){
 
  var title = ar ? typeName+' '+m2Txt(x)+' '+GX("lIn")+' '+aN(x.a)
                : typeName+m2Txt(x,", ")+' '+GX("lIn")+' '+aN(x.a);
- var perm2 = (x.d!=="rent" && x.m2 && +x.p>0) ? '<span class="cpm"><span class="ltr">$'+Math.round(x.p/x.m2)+'</span>/'+t("sqm")+'</span>' : (x.d==="rent"?'<span class="cpm">'+rentLbl(x.rentalPeriod)+'</span>':'');
+ var perm2 = (x.d!=="rent" && x.m2 && +x.p>0) ? '<span class="cpm"><span class="ltr">'+moneyShortIn(x.p/x.m2,lcur(x))+'</span>/'+t("sqm")+'</span>' : (x.d==="rent"?'<span class="cpm">'+rentLbl(x.rentalPeriod)+'</span>':'');
  var deedPill = (x.d!=="rent" && D.TABU[x.tb]) ? '<span class="cpill'+(strongDeed(x.tb)?' green':'')+'">'+(strongDeed(x.tb)?'<span class="tabu-green">'+D.TABU[x.tb][li()]+'</span>':D.TABU[x.tb][li()])+'</span>' : '';
  // who posted: an agency shows its name (and logo when allowed) + ✓, a broker shows "broker", everyone else "owner"
  var poster = x.oag ? '<span class="cpill agency">'+(x.clogo&&x.oav?'<img src="'+x.oav+'" alt="">':'')+esc(x.oagName||x.who||GX("acctAgency"))+(x.oagVer?' ✓':'')+'</span>'
@@ -6754,7 +6766,8 @@ function rsAvgBox(r){
  var rows=Object.keys(by).map(function(k){ return by[k] }).sort(function(a,b){ return b.n-a.n }).slice(0,5);
  if(!rows.length) return "";
  return '<div class="rs-avgbox"><b>'+GX("rsAvgH")+'</b>'+rows.map(function(o){ return '<div class="rs-avgrow"><span>'+aN(o.a)+'</span><span class="ltr">$'+Math.round(o.v).toLocaleString("en")+'/'+t("sqm")+'</span></div>' }).join("")+'</div>' }
-function rsShort(x){ var v=+x.p||0, rate=curRate(); if(CUR!=="USD") v=Math.round(v*rate); var sh = v>=1e6 ? (Math.round(v/1e5)/10).toString().replace(/\.0$/,"")+"M" : v>=1000 ? Math.round(v/1000)+"K" : String(v); return (CUR==="USD"?"$":"")+sh+(CUR==="USD"?"":" "+curLabel(CUR,"ar")) }
+// a map pin in the listing's own currency (owner, 2026-10-23)
+function rsShort(x){ var cur=lcur(x), v=cur==="USD"?(+x.p||0):(+x.pl||0); var sh = v>=1e6 ? (Math.round(v/1e5)/10).toString().replace(/\.0$/,"")+"M" : v>=1000 ? Math.round(v/1000)+"K" : String(v); return cur==="USD" ? "$"+sh : sh+" "+curLabel(cur,"ar") }
 function rsMapStop(){ rsFloatHide(); if(RS.map){ try{ RS.map.remove() }catch(e){} RS.map=null; RS.pins={} } }
 // open a listing from a map card (the hover card and the clicked pin's card)
 function rsGoListing(id){ rsFloatHide(); rsMapStop(); GI=0; LIGHTBOX_OPEN=false; VIEW="listing:"+id; scrollTo(0,0); render(); refreshListingsOnNavigate();
@@ -6795,7 +6808,7 @@ function rsMapInit(){
     m.on("mouseover",function(){ clearTimeout(RS.closeT); rsPinShow(x,m,{pan:false,scroll:"nearest"}) });
     m.on("mouseout",function(){ if(RS.pinnedId===x.id) return; RS.closeT=setTimeout(function(){ if(RS.pinnedId!==x.id) rsPinHide(x,m) },350) });
     b.push([x.lat,x.lng]) });
-  if(b.length>1){ try{ map.fitBounds(b,{padding:[40,40],maxZoom:14}) }catch(e){} }
+  if(b.length>1){ try{ map.fitBounds(b,{padding:[40,40],maxZoom:14,animate:false}) }catch(e){} }   // no opening zoom animation: leaving the page mid-animation made Leaflet throw
   // the mini card's "view listing" button (popup DOM is created by Leaflet, so it is wired here, not by the page's data-open pass)
   map.on("popupopen",function(e){ var el=e.popup.getElement(); var btn=el&&el.querySelector("[data-rsgo]"); if(!btn) return;
     var pid=+btn.dataset.rsgo;
@@ -6813,7 +6826,7 @@ function rsMapInit(){
 function rsMiniCard(x){
   var photos=(x.photos&&x.photos.length)?x.photos:(x.cover?[x.cover]:[]), cover=(x.thumbs&&x.thumbs[0])||photos[0]||null, typeName=D.TYPES[x.t]?D.TYPES[x.t][li()]:"";
   return '<div class="rs-mini">'+(cover?'<img src="'+cover+'" alt="">':'<div class="rs-mini-np">'+t("photos")+'</div>')+
-    '<div class="rs-mini-b"><b class="ltr">'+money(x.p)+'</b><div class="rs-mini-t">'+typeName+m2Txt(x," ")+'</div><div class="rs-mini-l">'+aN(x.a)+(L==="ar"?"، ":", ")+gN(x.g)+(x._approx?' · '+GX("mapApprox"):'')+'</div>'+
+    '<div class="rs-mini-b"><b class="ltr">'+money(x.p,x)+'</b><div class="rs-mini-t">'+typeName+m2Txt(x," ")+'</div><div class="rs-mini-l">'+aN(x.a)+(L==="ar"?"، ":", ")+gN(x.g)+(x._approx?' · '+GX("mapApprox"):'')+'</div>'+
     '<button type="button" class="rs-mini-go" data-rsgo="'+x.id+'">'+GX("rsOpenListing")+'</button></div></div>' }
 function rsPinShow(x,m,o){
   o=o||{}; if(!RS.map) return;
@@ -7006,7 +7019,7 @@ function listing(id){
  if(isRent){
    if(x.lease) rent.push(row(t("leaseM"),'<span class="ltr">'+x.lease+'</span> '+t("months")));
    if(x.adv)   rent.push(row(t("advanceM"),'<span class="ltr">'+x.adv+'</span> '+t("months")));
-   if(x.dep)   rent.push(row(t("depositL"),money(x.dep)));
+   if(x.dep)   rent.push(row(t("depositL"),moneyIn(x.dep,lcur(x))));
    rent.push(row(t("billsL"), x.bills?t("yes"):t("no")), row(t("furnishedL"), x.furn?t("yes"):t("no")));
  }
  var details='<section class="lsec"><h2>'+t("detH")+'</h2><div class="ldl">'+
@@ -7039,7 +7052,7 @@ function listing(id){
  var side='<aside class="lside">'+
   '<div class="lprice">'+
    '<div class="big">'+priceBlock(x,1)+(x.negot?' <span class="negot">'+t("negot")+'</span>':'')+'</div>'+
-   '<div class="sub">'+(isRent?rentLbl(x.rentalPeriod):(x.p>0&&x.m2>0?'<span class="ltr">$'+Math.round(x.p/x.m2)+'</span> '+t("perm"):''))+'</div>'+
+   '<div class="sub">'+(isRent?rentLbl(x.rentalPeriod):(x.p>0&&x.m2>0?'<span class="ltr">'+moneyIn(x.p/x.m2,lcur(x))+'</span> '+t("perm"):''))+'</div>'+
    origPriceLine(x)+
    priceContextHtml(x)+
    '<div class="lowner">'+avatar(x.oav,ownerName,48)+'<div>'+
@@ -9555,7 +9568,7 @@ function initMapSearch(){
   map.on("movestart zoomstart", function(){ previewEl.style.display="none"; activePinId=null });
   withLoc.forEach(function(x){
     var cover = (x.thumbs&&x.thumbs[0]) || (x.photos&&x.photos[0]) || x.cover || (x.videos&&x.videos[0]&&x.videos[0].poster) || null;
-    var priceText = x.d==="rent" ? (money(x.p)+" "+rentLbl(x.rentalPeriod)) : money(x.p);
+    var priceText = x.d==="rent" ? (money(x.p,x)+" "+rentLbl(x.rentalPeriod)) : money(x.p,x);
     var popupHtml = '<div class="mappin-preview" data-pin-listing="'+x.id+'" style="cursor:pointer">'+
       (cover ? '<img src="'+cover+'" alt="">' : '<div class="mappin-nophoto"><img src="/brand/logo-light.png" alt="بلكون"></div>')+
       '<div class="mappin-body"><b class="mappin-price">'+priceText+'</b>'+
@@ -11550,7 +11563,7 @@ function srvKey(){ return COUNTRY+"|"+JSON.stringify(srvF(F))+"|"+(F.sort||"new"
 function srvPageSize(){ return +SX("search_page_size",24)||24 }
 // a map pin: just what the map, its mini card and the price boxes read
 function srvPin(a){ return {id:a[0], lat:a[1], lng:a[2], p:a[3], m2:a[4], t:a[5], d:a[6], g:a[7], a:a[8]||"", aid:a[9], featured:!!a[10], cover:a[11]||null,
-  r:a[12]||0, b:a[13]||0, living:a[14]||0, tb:a[15]||null, rentalPeriod:a[16]||null, status:"live", photos:null, _pin:true} }
+  r:a[12]||0, b:a[13]||0, living:a[14]||0, tb:a[15]||null, rentalPeriod:a[16]||null, pl:(a[17]!=null?+a[17]:null), pcur:a[18]||null, status:"live", photos:null, _pin:true} }
 async function srvPhotos(list){
   var need=list.filter(function(x){ return !x.photos }); if(!need.length) return;
   try{ var ph=await DB.from("listing_photos").select("listing_id,url,thumb_url,sort_order,kind").in("listing_id",need.map(function(x){ return x.id })).order("sort_order",{ascending:true});
