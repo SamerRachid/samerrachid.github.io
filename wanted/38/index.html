@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-tKRo8MpwiXWVrgA3iMyv+Lb/qd1VuppCEUZ4xZTU5aE=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-UuSYjMSq9cJEBt3mLEMRgEBvQiXFT2jjdDDIRcZrvN4=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -3146,6 +3146,9 @@ header{padding-top:env(safe-area-inset-top,0px)}
 @media(max-width:640px){.pw.pw-fit input,.pw.pw-fit .ccpick-btn{height:47px}}   /* phone fields are 16px text there (no iOS zoom), 47px high */
 .crumb-l .wrap{display:flex;align-items:center;flex-wrap:wrap;row-gap:6px}
 .res.srv-wait{opacity:.55;transition:opacity .15s}
+.usrcbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:0 0 12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card,#fff);font-size:13px}.usrcbar>b{margin-inline-end:4px}.usrcbar .hintx{flex-basis:100%}
+.usrcchip{display:inline-flex;gap:5px;align-items:center;padding:3px 10px;border-radius:999px;background:var(--gold-w,#F8EED9);color:var(--navy)}.usrcchip.dim{opacity:.6}
+.usrc{color:var(--gold-dk,#9A6B17);font-weight:600}
 .crumb-back{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 14px;margin-inline-end:12px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--navy)!important;font-weight:700;font-size:13.5px;text-decoration:none;cursor:pointer}
 .crumb-back:hover{border-color:var(--gold)}
 .crumb-back:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
@@ -4761,6 +4764,8 @@ html.adm-dark .adm .gdm-v,html.adm-dark .admdm-ov .gdm-v{background:hsla(222,22%
 html.adm-dark .adm .gdm-v video,html.adm-dark .admdm-ov .gdm-v video,html.adm-dark .adm .gdm-v iframe,html.adm-dark .admdm-ov .gdm-v iframe{background:hsla(222,22%,22%,1)}
 html.adm-dark .adm .gdm-x,html.adm-dark .admdm-ov .gdm-x{background:hsla(222,27%,13%,0.22)}
 html.adm-dark .adm .psync,html.adm-dark .admdm-ov .psync{border:1px solid hsla(222,20%,25%,1);color:hsla(42,70%,78%,1)}
+html.adm-dark .adm .usrcbar,html.adm-dark .admdm-ov .usrcbar{background:var(--card,hsla(222,27%,13%,1))}
+html.adm-dark .adm .usrcchip,html.adm-dark .admdm-ov .usrcchip{background:var(--gold-w,hsla(41,39%,17%,1));color:#C9D6F2}
 html.adm-dark .adm .crumb-back,html.adm-dark .admdm-ov .crumb-back{background:hsla(222,27%,13%,1);color:#C9D6F2 !important}
 html.adm-dark .adm .pwa-bar b,html.adm-dark .admdm-ov .pwa-bar b{color:#C9D6F2}
 html.adm-dark .adm .pwa-bar .go,html.adm-dark .admdm-ov .pwa-bar .go{color:hsla(36,63%,78%,1)}
@@ -6088,7 +6093,7 @@ async function storageUpload(path, file, opts){   // same {data,error} shape sup
     return {data:{path:path}, error:null};
   }catch(e){ return {data:null, error:{message:(e&&e.message)||String(e)}} } }
 
-var MEMBER_FNS={bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,bk_set_hide_phone:1,
+var MEMBER_FNS={bk_member_set_source:1,bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,bk_set_hide_phone:1,
   bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_my_listings:1,bk_own_delete:1,bk_delete_account:1,bk_my_rewards:1,bk_use_feature_credit:1,bk_set_account_type:1,
   bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_photo_order:1,bk_photo_set_poster:1,bk_own_phone_sync:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
   bk_search_del:1,bk_search_list:1,bk_search_save:1,bk_set_avatar:1,bk_set_bio:1,bk_set_currency:1,
@@ -10706,6 +10711,7 @@ function wireAuth(){
  var doRegister=async function(){
    var u=await rpc("bk_register",{p_ticket:AU.ticket, p_secret:AU.secret, p_name:AU.name, p_family:AU.fam, p_hash:await sha(AU.pass), p_currency:AU.currency||"USD", p_lang:L, p_type:AU.type||"member"});
    afterAuth(u);
+   try{ var tch=touchForSignup(); rpc("bk_member_set_source",{p_token:u.token,p_source:tch.s,p_detail:tch.d}).catch(function(){}) }catch(e){}
    if(AU.type==="agency"){ ACC.agForm=true; ACC.sec="agency";   // an agency signs up → its page is created at once (pending your approval) and its form is the first thing it sees
      if(AU.agencyName){ ACC.agPrefill=AU.agencyName; try{ var ag=await DB.rpc("bk_agency_save",{p_token:u.token,p_name:AU.agencyName,p_phone:u.phone||null,p_whatsapp:u.phone||null,p_country:COUNTRY||"SY"}); if(ag&&ag.data&&!ag.error){ MYAGENCY=ag.data; ACC.agJustCreated=true } }catch(e){} } }
    if(AU.consent!=null){ var cv=AU.consent?"subscribed":"unsubscribed"; rpc("bk_member_consent",{p_wa:cv,p_email:cv}).catch(function(){}) }
@@ -12273,8 +12279,36 @@ if(PREVIEW){ (function(){
     if(x) startEdit(x); else stopEdit() },true);
   document.addEventListener("keydown",function(e){ if(e.key==="Escape" && MAP.length && !editing) post({type:"bk-preview-esc"}) });
 })() }
+// crawlers and automated browsers (search engines, link previews, test tools) are not visitors (owner, 2026-10-23)
+var IS_BOT=(function(){ try{ return navigator.webdriver===true || /bot|crawl|spider|slurp|headless|lighthouse|facebookexternalhit|embedly|preview|scrap|python|curl|wget|phantom|puppeteer|playwright|bytespider|gptbot|claudebot/i.test(navigator.userAgent||"") }catch(e){ return false } })();
+// where this visitor came from (owner, 2026-10-23: «how many members did each ad bring»): the first visit and the last one
+// that came from somewhere (an ad link, Facebook, Google…) are kept on the device and sent once with the sign-up
+var TOUCH=(function(){
+  var q=location.search, ua=navigator.userAgent||"", ref=(document.referrer||"").replace(/^https?:\/\//,"").split("/")[0].toLowerCase(), s="direct", d="";
+  var fam=function(v){ v=String(v||"").toLowerCase(); return /^(fb|facebook|meta)/.test(v)?"facebook":/^(ig|insta)/.test(v)?"instagram":/^(wa|whatsapp)/.test(v)?"whatsapp":/^(tg|telegram)/.test(v)?"telegram":/^(tt|tiktok)/.test(v)?"tiktok":/^(g|google|gads)/.test(v)?"google":/^(yt|youtube)/.test(v)?"youtube":"campaign" };
+  var src=(q.match(/[?&]src=([\w-]{1,40})/)||[])[1], utm=(q.match(/[?&]utm_source=([\w.-]{1,40})/)||[])[1];
+  if(src){ s=fam(src); d="src:"+src }
+  else if(utm){ s=fam(utm); d="utm:"+utm }
+  else if(/[?&]fbclid=/.test(q)){ s="facebook"; d="fbclid" }
+  else if(/[?&]gclid=/.test(q)){ s="google"; d="gclid" }
+  else if(/FBAN|FBAV|FB_IAB/.test(ua)){ s="facebook"; d="fb-app" }
+  else if(/Instagram/.test(ua)){ s="instagram"; d="ig-app" }
+  else if(ref && ref!==location.host && !/balkoun/.test(ref)){ d=ref;
+    s=/facebook|fb\.(com|me)/.test(ref)?"facebook":/instagram/.test(ref)?"instagram":/google\./.test(ref)?"google":/bing\.|yahoo\.|duckduckgo|yandex/.test(ref)?"search":/t\.me|telegram/.test(ref)?"telegram":/whatsapp|wa\.me/.test(ref)?"whatsapp":/tiktok/.test(ref)?"tiktok":/youtube|youtu\.be/.test(ref)?"youtube":"other" }
+  var now={s:s,d:d,t:Date.now()}, st=null;
+  try{ st=JSON.parse(localStorage.getItem("bk_touch")||"null") }catch(e){}
+  if(!st||!st.first) st={first:now};
+  if(s!=="direct") st.last=now;
+  try{ localStorage.setItem("bk_touch",JSON.stringify(st)) }catch(e){}
+  return st })();
+function touchForSignup(){ var st=TOUCH||{}, l=st.last, f=st.first||{s:"direct",d:""};
+  var pick=(l && Date.now()-l.t<30*86400000) ? l : f;   // an ad clicked in the last 30 days wins over an older first visit
+  return {s:pick.s, d:("first="+f.s+(f.d?"("+f.d+")":"")+(l?" last="+l.s+(l.d?"("+l.d+")":""):"")).slice(0,160)} }
+var _logReady=false, _logArmed=false;
 function logView(){
-  if(PREVIEW) return;
+  if(PREVIEW || IS_BOT) return;
+  // a visit counts once the page has been open 3 seconds: crawlers that open a page and leave at once are not visitors
+  if(!_logReady){ if(!_logArmed){ _logArmed=true; setTimeout(function(){ _logReady=true; logView() }, Math.max(0, 3000-((window.performance&&performance.now())||0))) } return }
   if(VIEW===_lastLoggedView) return;
   _lastLoggedView = VIEW;
   if(!DB || (ADM&&ADM.token&&VIEW==="admin")) return;
@@ -12290,7 +12324,7 @@ function logView(){
 // presence: every open tab (member or guest) says "still here" once a minute while visible → admin "visitors now"
 var _vpLast=0;
 function visitorPing(force){
-  if(PREVIEW || !DB || !VID || document.hidden || (ADM&&ADM.token&&VIEW==="admin")) return;
+  if(PREVIEW || IS_BOT || !_logReady || !DB || !VID || document.hidden || (ADM&&ADM.token&&VIEW==="admin")) return;
   if(!force && Date.now()-_vpLast<20000) return;
   _vpLast=Date.now();
   resolveCountry().then(function(c){
@@ -12301,7 +12335,7 @@ setInterval(function(){ visitorPing(true) }, 60000);
 document.addEventListener("visibilitychange", function(){ if(!document.hidden) visitorPing(false) });
 // ad squares: impressions once per page load, clicks when a square is opened
 function logAds(events){
-  if(PREVIEW || !DB || !events || !events.length) return;
+  if(PREVIEW || IS_BOT || !DB || !events || !events.length) return;
   resolveCountry().then(function(c){
     try{ DB.rpc("bk_log_ads",{p_events:events,p_country:c||null,p_visitor:VID,p_user:(USER&&USER.id)||null,p_token:(USER&&USER.token)||null}).then(null,function(){}) }catch(e){}
   });
@@ -13449,6 +13483,12 @@ var GX_T={
   inqAwaitYou:{ar:"بانتظار ردك",en:"Awaiting your reply",de:"Wartet auf Ihre Antwort"}, inqGuestReply:{ar:"زائر بلا حساب: تواصل معه على رقمه",en:"Guest without an account: contact them on their number",de:"Gast ohne Konto: über die Nummer kontaktieren"},
   bioLimitHint:{ar:"حتى {n} حرف، ويمكنك استخدام فقرات.",en:"Up to {n} characters; paragraphs are kept.",de:"Bis zu {n} Zeichen; Absätze bleiben erhalten."},
   photoMaxHint:{ar:"حتى {n} صورة",en:"up to {n} photos",de:"bis zu {n} Fotos"},
+  msrcH:{ar:"من أين جاء الأعضاء الجدد (آخر 30 يوماً)",en:"Where new members came from (last 30 days)",de:"Herkunft neuer Mitglieder (30 Tage)"},
+  msrc_facebook:{ar:"فيسبوك",en:"Facebook",de:"Facebook"}, msrc_instagram:{ar:"إنستغرام",en:"Instagram",de:"Instagram"}, msrc_google:{ar:"جوجل",en:"Google",de:"Google"},
+  msrc_search:{ar:"محركات بحث",en:"Search engines",de:"Suchmaschinen"}, msrc_whatsapp:{ar:"واتساب",en:"WhatsApp",de:"WhatsApp"}, msrc_telegram:{ar:"تيليغرام",en:"Telegram",de:"Telegram"},
+  msrc_tiktok:{ar:"تيك توك",en:"TikTok",de:"TikTok"}, msrc_youtube:{ar:"يوتيوب",en:"YouTube",de:"YouTube"}, msrc_campaign:{ar:"رابط حملة",en:"Campaign link",de:"Kampagnenlink"},
+  msrc_other:{ar:"موقع آخر",en:"Other site",de:"Andere Seite"}, msrc_direct:{ar:"مباشر",en:"Direct",de:"Direkt"}, msrc_unknown:{ar:"غير معروف",en:"Unknown",de:"Unbekannt"},
+  msrcHint:{ar:"«مباشر» = كتب العنوان أو فتح الموقع من رابط بلا مصدر (كثير من زوار تطبيق فيسبوك يظهرون هكذا). «غير معروف» = سجّل قبل تفعيل هذه الميزة.",en:"«Direct» = typed the address or a link without a source. «Unknown» = signed up before this feature.",de:"«Direkt» = Adresse getippt oder Link ohne Quelle. «Unbekannt» = vor dieser Funktion registriert."},
   priceReqH:{ar:"قواعد إضافة الإعلان",en:"Listing rules",de:"Regeln für Anzeigen"},
   priceReqL:{ar:"السعر إلزامي",en:"Price is required",de:"Preis ist Pflicht"},
   priceReqHint:{ar:"عند التشغيل: لا يُنشر إعلان بلا سعر، من صفحة «أضف إعلانك» ومن صفحة التعديل ومن البوت (يطلب البوت السعر ولا يمكن تخطيه). عند الإيقاف: الإعلان بلا سعر يُنشر بعبارة «السعر عند التواصل».",en:"On: no listing is published without a price — from «Add listing», the edit page and the bot (the bot asks for it and it cannot be skipped). Off: a listing without a price shows «Price on request».",de:"An: keine Anzeige ohne Preis — Formular, Bearbeiten und Bot (der Bot fragt danach, Überspringen geht nicht). Aus: ohne Preis erscheint «Preis auf Anfrage»."},
