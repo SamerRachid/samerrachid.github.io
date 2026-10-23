@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-GEUWum3+ZBbKvV9NhC9TwYJBxUHLGESVmv9rV/vW/yU=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-TncjiB2txLXm1coTRBNDKE/cwJ+VWIAaGZKirhd4HHo=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -6861,7 +6861,7 @@ function listing(id){
  // uid — never another member's data) is the fallback once it has loaded
  var x=D.LIST.filter(function(l){return String(l.id)===String(id)})[0] || (MYLIST||[]).filter(function(l){return String(l.id)===String(id)})[0] || (ITEM_HOLD&&String(ITEM_HOLD.id)===String(id)?ITEM_HOLD:null);
  if(x && x.cc && x.cc!==COUNTRY){ var gate=itemCountryGate(x.cc,x); if(gate) return gate }
- if(!x && !LISTINGS_LOADED) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2">'+
+ if(!x && (!LISTINGS_LOADED || window._mineLoading || (USER && !LOADED.mine))) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2">'+
    '<b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>';
  if(!x) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2">'+
    '<div class="tk" style="background:var(--navy-w);color:var(--navy)">?</div>'+
@@ -9944,6 +9944,10 @@ async function aiSearchRun(){
 }
 function wire(){
  markGreenTabu();
+ // the public list holds live listings only (2026-10-22): a member's own pending / hidden listing opened by link is
+ // found in their own list, so that list is loaded when the listing is not in the public one
+ if(VIEW.indexOf("listing:")===0&&USER&&!LOADED.mine&&LISTINGS_LOADED&&!D.LIST.some(function(l){ return String(l.id)===VIEW.split(":")[1] })){
+   LOADED.mine=true; window._mineLoading=true; loadMyListings().then(function(){ window._mineLoading=false; render() },function(){ window._mineLoading=false; render() }) }
  document.body.classList.toggle("medialock", wmCfg().lock);
  if(!window._mediaLockBound){ window._mediaLockBound=true;
    // every picture and video on the public site (the admin panel is left alone so admins can still use the menu)
@@ -10057,7 +10061,7 @@ function wire(){
  if(VIEW==="search"){ rsWire() }
 
  if(VIEW.indexOf("listing")===0){
-   var LI2=D.LIST.filter(function(l){return String(l.id)===String(VIEW.split(":")[1])})[0];
+   var LI2=D.LIST.filter(function(l){return String(l.id)===String(VIEW.split(":")[1])})[0] || (MYLIST||[]).filter(function(l){return String(l.id)===String(VIEW.split(":")[1])})[0];   // own pending / hidden listing
    if(!LI2) return;
    if($("#viewMap") && LI2.lat && LI2.lng){ setTimeout(function(){ initViewMap(LI2.lat,LI2.lng) },50) }
    if(_simCarouselTimer){ clearInterval(_simCarouselTimer); _simCarouselTimer=null; }
@@ -11478,7 +11482,7 @@ async function _loadListingsImpl(){
   // try the view first
   try{
     var res = await DB.from("v_listings").select("*")
-                .eq("country_code",COUNTRY).in("status",["live","pending"]).order("created_at",{ascending:false}).limit(1000);
+                .eq("country_code",COUNTRY).in("status",["live","pending"]).order("created_at",{ascending:false}).limit(1000);   // the view itself now returns live only
     if(res.error) throw res.error;
     rows = escDeep(res.data);
   }catch(e){
