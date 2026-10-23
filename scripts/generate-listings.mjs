@@ -91,6 +91,9 @@ const slugAr = (s) => String(s || "").replace(/[^\p{L}\p{N}\s-]/gu, "").trim().r
 const slugLatin = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9\s-]/g, "").trim().replace(/\s+/g, "-").slice(0, 60);
 const esc = (s) => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 const money = (v) => v == null ? "" : "$" + Number(v).toLocaleString("en");
+// the listing's own currency, as its seller chose it (owner, 2026-10-23)
+const CUR_LBL = { SYP: { ar: "ل.س", en: "SYP" }, LBP: { ar: "ل.ل", en: "LBP" }, JOD: { ar: "د.أ", en: "JOD" }, TRY: { ar: "ل.ت", en: "TRY" }, EUR: { ar: "€", en: "€" } };
+const moneyL = (l, lang) => (l && l.price_local > 0 && l.price_cur) ? Number(l.price_local).toLocaleString("en") + " " + ((CUR_LBL[l.price_cur] || {})[lang === "ar" ? "ar" : "en"] || l.price_cur) : money(l && l.price_usd);
 const POR = { ar: "السعر عند التواصل", en: "Price on request", de: "Preis auf Anfrage", fr: "Prix sur demande" };
 const has = (v) => v !== null && v !== undefined && v !== "";
 const ltr = (s) => `<span class="ltr">${esc(s)}</span>`;
@@ -180,7 +183,7 @@ function renderPage(l, photos, lang, ogPath) {
   // combinations (772 of 1,164 pages shared a title before this)
   const title = lang === "ar" ? `${typeLabel} ${dealLabel} ${sizeTxt} — ${areaName} ${gov} (${l.ref}) | بلكون`
     : `${typeLabel} ${dealLabel}${sizeTxt ? `, ${sizeTxt}` : ""} ${W.inPlace(place)} (${l.ref}), ${CUR_CN[lang] || CUR_CN.en} | Balkoun`;
-  const leadBits = [`${typeLabel} ${dealLabel} ${W.inPlace(place)}`, sizeTxt, has(l.rooms) ? `${l.rooms} ${W.roomsShort}` : "", tabuLabel, money(l.price_usd)].filter(Boolean);
+  const leadBits = [`${typeLabel} ${dealLabel} ${W.inPlace(place)}`, sizeTxt, has(l.rooms) ? `${l.rooms} ${W.roomsShort}` : "", tabuLabel, moneyL(l, lang)].filter(Boolean);
   const lead = leadBits.join(W.sep) + ".";
   const ownText = (l.description || "").replace(/\s+/g, " ").trim();
   const desc = (lead + (lang === "ar" && ownText ? " " + ownText : "")).slice(0, 155);
@@ -349,7 +352,7 @@ footer .note{width:100%;color:rgba(255,255,255,.5);font-size:13px}
   <section class="card">
     <h1>${esc(typeLabel)} ${esc(dealLabel)}${sizeTxt ? ` — ${ltr(l.area_m2)} ${W.sqm}` : ""}${place ? ` ${esc(W.inPlace(place))}` : ""}</h1>
     ${place ? `<div class="place">${esc(place)}</div>` : ""}
-    <div class="pricerow"><span class="price">${l.price_usd == null ? esc(POR[lang] || POR.en) : ltr(money(l.price_usd))}${periodLabel ? `<small> / ${esc(periodLabel)}</small>` : ""}</span><span class="deal">${esc(dealLabel)}</span>${l.price_negotiable ? `<span class="neg">${W.negotiable}</span>` : ""}</div>
+    <div class="pricerow"><span class="price">${l.price_usd == null ? esc(POR[lang] || POR.en) : ltr(moneyL(l, lang))}${periodLabel ? `<small> / ${esc(periodLabel)}</small>` : ""}</span><span class="deal">${esc(dealLabel)}</span>${l.price_negotiable ? `<span class="neg">${W.negotiable}</span>` : ""}</div>
     <div class="pills">${pills}</div>
   </section>
   ${facts ? `<section class="card"><h2>${W.details}</h2><div class="facts">${facts}</div></section>` : ""}
