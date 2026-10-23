@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-z2A5tSBjhGa2bvz3rxHRJ8PVWBF1G5wTt3kbEX1KiFc=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-zbLQelyxI3toILt6LOyCNm+N6IuhG1PM40SEVpb8Ll0=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -5254,6 +5254,7 @@ var FR_T={
   lv_member:"Membre", lv_trusted:"De confiance", lv_vip:"VIP", lv_partner:"Partenaire", lv_silver:"Argent", lv_gold:"Or", lv_trusted_agency:"Agence de confiance", silverTag:"Membre Argent", goldTag:"Membre Or", trustedAgencyTag:"Agence de confiance", back:"Retour", refresh:"Actualiser"
 };
 var FR_GX={
+  priceReqH:"Règles des annonces", priceReqL:"Prix obligatoire", priceReqMsg:"Le prix est obligatoire : saisissez-le avant d'enregistrer",
   navBack:"Retour",
   eTelL:"Numéro de contact de cette annonce", eTelHint:"Le numéro que les visiteurs appellent ou contactent sur WhatsApp pour cette annonce.", eTelHidden:"Votre numéro est masqué aux visiteurs ; ce numéro est gardé pour l'annonce.", psyncQ:"{n} de vos annonces affichent un autre numéro que celui de votre compte. Y mettre votre numéro actuel {p} ?", psyncGo:"Oui, mettre à jour mes annonces", psyncNo:"Non, les garder", psyncDone:"Numéro mis à jour sur {n} annonces ✓",
   badPhoneLen:"Vérifiez le numéro : après {cc}, il faut {n} chiffres",
@@ -8158,6 +8159,7 @@ function checkPost(){
  // the deed and the price are optional (2026-10-02): a listing without them publishes with "السعر عند التواصل" and no deed pill
  // the description is optional too (owner, 2026-10-15): an empty or short one is completed from the listing's own facts
  // at publish (the database keeps its 30-character minimum)
+ if(priceReq() && !(+v("pp")>0)) need.push(t("price"));
  var needPh = 0;   // photos and videos are optional (listings with photos get more views; the hint says so)
  if(NEW.photos.length<needPh)need.push(t("photos"));
  // the number after the country code: 9 digits for Syria (+963 9xx…), 7–8 elsewhere (Lebanon +961 70 123456 / 3 123456);
@@ -10302,6 +10304,7 @@ function wire(){
  if($("#eMap") && EDIT.lat){ setTimeout(initEditMap,50) }
  if($("#eSave")) $("#eSave").onclick=async function(){
    var v=function(i){var e=$("#"+i);return e?e.value:""};
+   if(priceReq() && !(+v("ePrice")>0)){ alert(GX("priceReqMsg")); var ep=$("#ePrice"); if(ep){ ep.focus(); ep.style.borderColor="var(--danger)" } return }
    this.disabled=true; this.textContent=t("saving");
    try{
      var patch={};
@@ -11063,6 +11066,8 @@ async function editVideoPick(f){ var m=$("#eVMsg"); if(m) m.style.color="";
   try{ var v=await pickVideo(f, m); await uploadListingVideo(EDIT.id, v, function(p){ if(m) m.textContent=GX("videoUploading").replace("{p}",p) }, true); if(m) m.textContent=GX("videoDone");
     try{ var r3=await rpc("bk_photos",{p_listing:+EDIT.id}); EDIT.photos=r3||[] }catch(e){} LOADED.mine=false; await loadListings(); render() }
   catch(err){ if(m){ m.textContent=err.message||"error"; m.style.color="var(--danger)" } } }
+// owner, 2026-10-23: a panel switch makes the price required (site form, edit page and bot); off = «السعر عند التواصل»
+function priceReq(){ return SXb("intake_price_required",false)===true }
 function videoCfg(){ return { on: SX("video_enabled",true)!==false, mb: Math.min(100, +SX("video_max_mb",100)||100), s: +SX("video_max_s",90)||90, n: +SX("video_max",1)||1 } }
 function fmtDur(sec){ sec=Math.round(sec||0); return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0") }
 function videoProbe(file){   // duration + a poster frame (JPEG blob), read locally before anything is uploaded
@@ -13444,7 +13449,12 @@ var GX_T={
   inqFrom:{ar:"من",en:"From",de:"Von"}, inqTo:{ar:"إلى",en:"To",de:"An"}, inqNoPhone:{ar:"بلا رقم، الرد من هنا",en:"no number, reply from here",de:"keine Nummer, hier antworten"},
   inqAwaitYou:{ar:"بانتظار ردك",en:"Awaiting your reply",de:"Wartet auf Ihre Antwort"}, inqGuestReply:{ar:"زائر بلا حساب: تواصل معه على رقمه",en:"Guest without an account: contact them on their number",de:"Gast ohne Konto: über die Nummer kontaktieren"},
   bioLimitHint:{ar:"حتى {n} حرف، ويمكنك استخدام فقرات.",en:"Up to {n} characters; paragraphs are kept.",de:"Bis zu {n} Zeichen; Absätze bleiben erhalten."},
-  photoMaxHint:{ar:"حتى {n} صورة",en:"up to {n} photos",de:"bis zu {n} Fotos"}, navBack:{ar:"رجوع",en:"Back",de:"Zurück"},
+  photoMaxHint:{ar:"حتى {n} صورة",en:"up to {n} photos",de:"bis zu {n} Fotos"},
+  priceReqH:{ar:"قواعد إضافة الإعلان",en:"Listing rules",de:"Regeln für Anzeigen"},
+  priceReqL:{ar:"السعر إلزامي",en:"Price is required",de:"Preis ist Pflicht"},
+  priceReqHint:{ar:"عند التشغيل: لا يُنشر إعلان بلا سعر، من صفحة «أضف إعلانك» ومن صفحة التعديل ومن البوت (يطلب البوت السعر ولا يمكن تخطيه). عند الإيقاف: الإعلان بلا سعر يُنشر بعبارة «السعر عند التواصل».",en:"On: no listing is published without a price — from «Add listing», the edit page and the bot (the bot asks for it and it cannot be skipped). Off: a listing without a price shows «Price on request».",de:"An: keine Anzeige ohne Preis — Formular, Bearbeiten und Bot (der Bot fragt danach, Überspringen geht nicht). Aus: ohne Preis erscheint «Preis auf Anfrage»."},
+  priceReqMsg:{ar:"السعر إلزامي: اكتب السعر قبل الحفظ",en:"A price is required: enter it before saving",de:"Preis ist Pflicht: bitte vor dem Speichern eintragen"},
+  navBack:{ar:"رجوع",en:"Back",de:"Zurück"},
   eTelL:{ar:"رقم التواصل لهذا الإعلان",en:"Contact number for this listing",de:"Kontaktnummer dieser Anzeige"},
   eTelHint:{ar:"الرقم الذي يتصل عليه الزوار ويراسلونه على واتساب لهذا الإعلان.",en:"The number visitors call or message on WhatsApp for this listing.",de:"Die Nummer, die Besucher für diese Anzeige anrufen."},
   eTelHidden:{ar:"رقمك مخفي عن الزوار حسب إعداداتك؛ يصلك التواصل عبر الرسائل، ويُحفظ هذا الرقم للإعلان.",en:"Your number is hidden from visitors (your settings); this number is kept for the listing.",de:"Ihre Nummer ist verborgen; diese Nummer wird für die Anzeige gespeichert."},

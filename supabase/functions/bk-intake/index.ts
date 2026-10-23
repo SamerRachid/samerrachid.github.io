@@ -1044,6 +1044,8 @@ function settle(f: Record<string, any>, tax: any, rawText?: string) {
   // price and deed are optional (owner's rule, 2026-10-02): no price → "السعر عند التواصل", no deed word → nothing shown
   // a farm or chalet let by the day/season is advertised by its features, not its m² (owner's rule): size optional there
   if (!out.area_m2 && !(out.deal === "rent" && ["farm", "chalet"].includes(out.property_type))) missing.push("area_m2");
+  // the panel switch «السعر إلزامي» (extras.intake_price_required, owner 2026-10-23) makes the price a required fact again
+  if (PRICE_REQ && !(Number(out.price) > 0)) missing.push("price");
   return { fields: out, missing };
 }
 const SHARE_TAG = "متاح للمشاركة";   // the partnership tag the site reads (index.html SHARE_TAG); same fixed Arabic text
@@ -1268,7 +1270,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
     const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax, govSet), user);
     usage = r.usage; raw = r.fields; const s = settle(r.fields, tax, rawText); fields = s.fields; missing = s.missing; cost = costOf(usage, c);
     // the sender already said «تخطي»: only what cannot be skipped is still asked for
-    if ((d.fields || {}).skip_ok === "1") { fields.skip_ok = "1"; missing = missing.filter((k) => HARD_MISSING.includes(k)); }
+    if ((d.fields || {}).skip_ok === "1") { fields.skip_ok = "1"; missing = missing.filter((k) => hardMissing().includes(k)); }
     // the model must not swap an unknown neighbourhood for a look-alike from the list (العدوي → العسالي): the chosen
     // area has to actually be written in the message; otherwise it becomes a landmark and the area is asked for
     for (const w of areaGuards(fields, missing, raw, rawText, tax)) await log(draftId, d.chat_id, "warn", w.event, w.detail);
@@ -1677,13 +1679,16 @@ async function applyAreaText(m: Incoming, draftId: number, text: string, tt: any
 }
 // what «تخطي» can never skip: without these the listing cannot be placed or filed at all
 const HARD_MISSING = ["governorate", "property_type", "deal"];
+// read once per request from the panel (cfg is cached 30 s); a required price cannot be skipped either
+let PRICE_REQ = false;
+const hardMissing = () => PRICE_REQ ? HARD_MISSING.concat(["price"]) : HARD_MISSING;
 async function skipMissing(m: Incoming, r: any, tt: any) {
   if (!r.draft_id) { await reply(m.source, m.chat, tt.skipNone); return; }
   const d = await rpc<any>("bk_intake_get", { p_draft: r.draft_id }); if (!d) { await reply(m.source, m.chat, tt.skipNone); return; }
   const c = await cfg(); const lang = c.intake_reply_lang === "en" ? "en" : (d.user_lang === "en" ? "en" : "ar"); const t = tx(lang);
   const f = { ...(d.fields || {}), skip_ok: "1" };
   if (d.status === "needs_info" || d.status === "ready") {
-    const hard = (Array.isArray(d.missing) ? d.missing : []).filter((k: string) => HARD_MISSING.includes(k));
+    const hard = (Array.isArray(d.missing) ? d.missing : []).filter((k: string) => hardMissing().includes(k));
     if (hard.length) { await reply(m.source, m.chat, t.skipNeed(hard.map((k: string) => (lang === "en" ? MISSING_EN : MISSING_AR)[k]).join(lang === "en" ? ", " : "، "))); return; }
     // the summary comes back without the skipped details; the sender still answers «نعم» to publish (owner's rule)
     const tax = await taxonomy({ p_country: d.country_code });
@@ -2480,6 +2485,7 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   const path = new URL(req.url).pathname.replace(/\/+$/, ""); const route = path.split("/").pop() || "";
   try {
+    try { const c0: any = await cfg(); PRICE_REQ = String(c0?.intake_price_required) === "true"; } catch (_e) { /* keep the last value */ }
     if (route === "health") return json({ ok: true, telegram: !!ENV.tg, whatsapp: !!(ENV.waToken && ENV.waPhone), claude: !!ENV.anthropic });
     if (route === "telegram" && req.method === "POST") return await routeTelegram(req);
     if (route === "whatsapp") return await routeWhatsApp(req);

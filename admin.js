@@ -494,6 +494,12 @@ function adminView(){
     '<button class="ab ok" id="scVideoSave">'+t("save")+'</button>'+
     '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="scVideoMsg"></span>'+
    '</div></div>'+
+   '<div class="blk"><h3>'+GX("priceReqH")+'</h3><div class="in">'+
+    '<label style="display:flex;gap:8px;align-items:center;font-size:14px;margin-bottom:8px"><input type="checkbox" id="scPriceReq"'+(priceReq()?' checked':'')+'>'+GX("priceReqL")+'</label>'+
+    '<div class="hintx" style="margin-bottom:10px">'+GX("priceReqHint")+'</div>'+
+    '<button class="ab ok" id="scPriceReqSave">'+t("save")+'</button>'+
+    '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="scPriceReqMsg"></span>'+
+   '</div></div>'+
    '');
  }
  else if(ADM.tab==="settings"){
@@ -2094,6 +2100,9 @@ function wireAdmin(){
                 if($("#scVideoSave")) $("#scVideoSave").onclick=function(){
     var mb=Math.min(100, Math.max(5, parseInt(($("#scVideoMb")||{}).value,10)||100)), sec=Math.max(10, parseInt(($("#scVideoS")||{}).value,10)||90), n=Math.max(1, parseInt(($("#scVideoN")||{}).value,10)||1);
     saveSiteContent({extras:{video_enabled:!!($("#scVideoOn")||{}).checked, video_max_mb:mb, video_max_s:sec, video_max:n}},"scVideoMsg",this);
+  };
+  if($("#scPriceReqSave")) $("#scPriceReqSave").onclick=function(){
+    saveSiteContent({extras:{intake_price_required:!!($("#scPriceReq")||{}).checked}},"scPriceReqMsg",this);
   };
   if($("#scStorageLimitSave")) $("#scStorageLimitSave").onclick=function(){
     var mb=parseInt(($("#scStorageLimit")||{}).value,10);
