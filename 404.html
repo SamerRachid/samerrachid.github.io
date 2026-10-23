@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-brJ8WiKx+KRQzbJ4fqI6m5bKQliKkqJlqsMGevez6rs=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-gWB9Bf+9FhVHU7CCxrqCwei3ND91fsHjw8NRUG3XdHs=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -3147,6 +3147,10 @@ header{padding-top:env(safe-area-inset-top,0px)}
 .pw.pw-fit input{height:43px;min-height:0;padding:8px 11px;font-size:14px;box-sizing:border-box}
 .pw.pw-fit .ccpick-btn{height:43px;min-height:0;padding:0 10px;font-size:14px;min-width:76px;box-sizing:border-box}
 @media(max-width:640px){.pw.pw-fit input,.pw.pw-fit .ccpick-btn{height:47px}}   /* phone fields are 16px text there (no iOS zoom), 47px high */
+.crumb-l .wrap{display:flex;align-items:center;flex-wrap:wrap;row-gap:6px}
+.crumb-back{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 14px;margin-inline-end:12px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--navy)!important;font-weight:700;font-size:13.5px;text-decoration:none;cursor:pointer}
+.crumb-back:hover{border-color:var(--gold)}
+.crumb-back:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 body.pwa-on .mobfab{bottom:var(--pwa-lift,calc(118px + env(safe-area-inset-bottom)))}   /* set from the banner real height */
 .pwa-bar img{width:42px;height:42px;border-radius:11px;flex:none}.pwa-bar .t{flex:1;min-width:0}.pwa-bar b{display:block;font-size:14px;color:var(--navy)}.pwa-bar small{display:block;font-size:12px;color:var(--grey);line-height:1.45;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pwa-bar .go{background:var(--gold);color:#1A1206;border:0;border-radius:999px;padding:9px 14px;font:700 13px var(--fd);cursor:pointer;flex:none}.pwa-bar .later{background:none;border:0;color:var(--grey);font:600 12.5px var(--fd);cursor:pointer;padding:6px;flex:none}
@@ -4754,6 +4758,7 @@ html.adm-dark .adm .gdm-v,html.adm-dark .admdm-ov .gdm-v{background:hsla(222,22%
 html.adm-dark .adm .gdm-v video,html.adm-dark .admdm-ov .gdm-v video,html.adm-dark .adm .gdm-v iframe,html.adm-dark .admdm-ov .gdm-v iframe{background:hsla(222,22%,22%,1)}
 html.adm-dark .adm .gdm-x,html.adm-dark .admdm-ov .gdm-x{background:hsla(222,27%,13%,0.22)}
 html.adm-dark .adm .psync,html.adm-dark .admdm-ov .psync{border:1px solid hsla(222,20%,25%,1);color:hsla(42,70%,78%,1)}
+html.adm-dark .adm .crumb-back,html.adm-dark .admdm-ov .crumb-back{background:hsla(222,27%,13%,1);color:#C9D6F2 !important}
 html.adm-dark .adm .pwa-bar b,html.adm-dark .admdm-ov .pwa-bar b{color:#C9D6F2}
 html.adm-dark .adm .pwa-bar .go,html.adm-dark .admdm-ov .pwa-bar .go{color:hsla(36,63%,78%,1)}
 html.adm-dark .adm .apppg-card,html.adm-dark .admdm-ov .apppg-card{background:hsla(222,27%,13%,1)}
@@ -5238,6 +5243,7 @@ var FR_T={
   lv_member:"Membre", lv_trusted:"De confiance", lv_vip:"VIP", lv_partner:"Partenaire", lv_silver:"Argent", lv_gold:"Or", lv_trusted_agency:"Agence de confiance", silverTag:"Membre Argent", goldTag:"Membre Or", trustedAgencyTag:"Agence de confiance", back:"Retour", refresh:"Actualiser"
 };
 var FR_GX={
+  navBack:"Retour",
   eTelL:"Numéro de contact de cette annonce", eTelHint:"Le numéro que les visiteurs appellent ou contactent sur WhatsApp pour cette annonce.", eTelHidden:"Votre numéro est masqué aux visiteurs ; ce numéro est gardé pour l'annonce.", psyncQ:"{n} de vos annonces affichent un autre numéro que celui de votre compte. Y mettre votre numéro actuel {p} ?", psyncGo:"Oui, mettre à jour mes annonces", psyncNo:"Non, les garder", psyncDone:"Numéro mis à jour sur {n} annonces ✓",
   badPhoneLen:"Vérifiez le numéro : après {cc}, il faut {n} chiffres",
   helpNav:"Tutoriels Balkoun", helpH:"Tutoriels Balkoun", helpSub:"De courtes vidéos, pas à pas : s'inscrire, publier une annonce, et plus.", helpEmpty:"Pas encore de tutoriels.", helpAuthLine:"Comment s'inscrire ? Voir le tutoriel", helpPostLine:"Pas sûr ? Voir le tutoriel",
@@ -5704,6 +5710,8 @@ function guidePlay(id){ var x=guidesAll().filter(function(g){ return g.id===id }
   document.body.appendChild(d); var close=function(){ var v=d.querySelector("video"); if(v) try{ v.pause() }catch(e){} d.remove(); document.removeEventListener("keydown",esc1) };
   var esc1=function(e){ if(e.key==="Escape") close() }; document.addEventListener("keydown",esc1);
   d.querySelector(".gdm-x").onclick=close; d.querySelector(".gdm-bg").onclick=close }
+if(!window._backWired){ window._backWired=true; document.addEventListener("click",function(e){ var b=e.target.closest&&e.target.closest("[data-back]"); if(!b) return; e.preventDefault();
+  if(history.state && history.state.n>0) history.back(); else { VIEW="search"; window.scrollTo(0,0); render() } }) }
 if(!window._guideWired){ window._guideWired=true; document.addEventListener("click",function(e){ var a=e.target.closest&&e.target.closest("[data-guide]"); if(!a) return; e.preventDefault(); guidePlay(a.getAttribute("data-guide")) }) }
 // a small «▶ watch how» line (add form, login / signup window)
 function guideLine(place,lbl){ var g=guidesFor(place)[0]; if(!g) return ''; return '<a class="guide-line" data-guide="'+esc(g.id)+'">'+MI.play+'<span>'+GX(lbl)+(g.dur?' <span class="ltr">('+fmtDur(g.dur)+')</span>':'')+'</span></a>' }
@@ -7021,7 +7029,7 @@ function listing(id){
   '<div class="lsafe"><b>'+t("safeT")+'</b>'+t("safeB")+'</div>'+
  '</aside>';
 
- return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+
+ return '<div class="crumb crumb-l"><div class="wrap"><a class="crumb-back" data-back="1" href="#" role="button">'+(rtlNow()?'→':'←')+' '+GX("navBack")+'</a><a data-go="home">'+t("home")+'</a><i>›</i>'+
   '<a data-go="search" data-gov="'+x.g+'">'+gN(x.g)+'</a><i>›</i>'+aN(x.a)+'</div></div>'+
  '<div class="wrap lpage">'+lb+
   '<div class="lgrid"><div class="lmain">'+gal+head+facts+
@@ -11762,12 +11770,12 @@ function syncHash(){
     if(isFirst){
       // The very first render (page load, a shared link, or an old #/ link) just
       // normalizes the URL — it shouldn't count as a "page" to go back to.
-      history.replaceState(null,"",h);
+      history.replaceState({bk:1,n:0},"",h);
     } else {
       // Every real navigation after that gets its own history entry, so
       // the browser's Back button steps back through the app instead of
       // leaving the site entirely.
-      history.pushState(null,"",h);
+      history.pushState({bk:1,n:((history.state&&history.state.n)||0)+1},"",h);
     }
   }catch(e){}
 }
@@ -13228,7 +13236,7 @@ var GX_T={
   inqFrom:{ar:"من",en:"From",de:"Von"}, inqTo:{ar:"إلى",en:"To",de:"An"}, inqNoPhone:{ar:"بلا رقم، الرد من هنا",en:"no number, reply from here",de:"keine Nummer, hier antworten"},
   inqAwaitYou:{ar:"بانتظار ردك",en:"Awaiting your reply",de:"Wartet auf Ihre Antwort"}, inqGuestReply:{ar:"زائر بلا حساب: تواصل معه على رقمه",en:"Guest without an account: contact them on their number",de:"Gast ohne Konto: über die Nummer kontaktieren"},
   bioLimitHint:{ar:"حتى {n} حرف، ويمكنك استخدام فقرات.",en:"Up to {n} characters; paragraphs are kept.",de:"Bis zu {n} Zeichen; Absätze bleiben erhalten."},
-  photoMaxHint:{ar:"حتى {n} صورة",en:"up to {n} photos",de:"bis zu {n} Fotos"},
+  photoMaxHint:{ar:"حتى {n} صورة",en:"up to {n} photos",de:"bis zu {n} Fotos"}, navBack:{ar:"رجوع",en:"Back",de:"Zurück"},
   eTelL:{ar:"رقم التواصل لهذا الإعلان",en:"Contact number for this listing",de:"Kontaktnummer dieser Anzeige"},
   eTelHint:{ar:"الرقم الذي يتصل عليه الزوار ويراسلونه على واتساب لهذا الإعلان.",en:"The number visitors call or message on WhatsApp for this listing.",de:"Die Nummer, die Besucher für diese Anzeige anrufen."},
   eTelHidden:{ar:"رقمك مخفي عن الزوار حسب إعداداتك؛ يصلك التواصل عبر الرسائل، ويُحفظ هذا الرقم للإعلان.",en:"Your number is hidden from visitors (your settings); this number is kept for the listing.",de:"Ihre Nummer ist verborgen; diese Nummer wird für die Anzeige gespeichert."},
@@ -14569,7 +14577,15 @@ if(VIEW.indexOf("by:")===0 && DB){
   BYUSER={id:byUid,name:"",rows:[]};
   loadByUser(byUid).then(function(){ render() });
 }
-window.onpopstate=window.onhashchange=function(){var v=viewFromHash(); if(v&&v!==VIEW){VIEW=v;render();refreshListingsOnNavigate()} else if(location.hash){ _FIRST_HISTORY_SYNC=true; syncHash() }};
+try{ if("scrollRestoration" in history) history.scrollRestoration="manual" }catch(e){}   // the site restores its own pages
+window._scrollMem={}; window._scrollKey=function(){ return location.pathname+location.search };
+(function(){ var tick=false; window.addEventListener("scroll",function(){ if(tick) return; tick=true; requestAnimationFrame(function(){ tick=false; window._scrollMem[_scrollKey()]=window.scrollY||0 }) },{passive:true}) })();
+// after Back / Forward: the page is drawn again, then put back where it was; tried again while late content (photos, a
+// reloaded list) settles, and never against the visitor's own scrolling
+function scrollRestore(){ var y=window._scrollMem[_scrollKey()]||0, moved=false;
+  var stop=function(){ moved=true }; ["wheel","touchstart","keydown"].forEach(function(ev){ window.addEventListener(ev,stop,{once:true,passive:true}) });
+  [0,80,250,600,1200].forEach(function(ms){ setTimeout(function(){ if(!moved && Math.abs((window.scrollY||0)-y)>4) window.scrollTo(0,y) },ms) }) }
+window.onpopstate=window.onhashchange=function(){var v=viewFromHash(); if(v&&v!==VIEW){VIEW=v;render();refreshListingsOnNavigate();scrollRestore()} else if(location.hash){ _FIRST_HISTORY_SYNC=true; syncHash() }};
 document.addEventListener("keydown",function(e){
   if(!LIGHTBOX_OPEN) return;
   if(e.key==="Escape"){ LIGHTBOX_OPEN=false; render() }
