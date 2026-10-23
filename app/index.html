@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-uJluB/eT/vkVtlRlylaZecMagD6OafrxAUbjgmebcC4=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-z2A5tSBjhGa2bvz3rxHRJ8PVWBF1G5wTt3kbEX1KiFc=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -425,6 +425,7 @@ html.js .rv.in{opacity:1;transform:none}
 @keyframes adFadeIn{from{opacity:0}to{opacity:1}}
 .adslot:hover{transform:scale(1.10);box-shadow:0 12px 28px -6px rgba(9,14,26,.4);z-index:5}
 .adslot img,.adslot video{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .35s ease}
+.adslot .adslot-noph{min-height:0;place-items:start center;padding-top:20%;background:#14213D}.adslot .adslot-noph img{width:62%!important}
 .adslot-embed{width:100%;height:100%;display:block;pointer-events:auto}
 .adslot-visit{position:absolute;bottom:3px;inset-inline-start:3px;font-size:9px;font-weight:600;
   padding:2px 6px;border-radius:4px;text-decoration:none;z-index:2}
@@ -4245,6 +4246,7 @@ html.adm-dark .adm .chipsel-drop,html.adm-dark .admdm-ov .chipsel-drop{backgroun
 html.adm-dark .adm .chancard,html.adm-dark .admdm-ov .chancard{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .adcarousel-arrow,html.adm-dark .admdm-ov .adcarousel-arrow{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .adcarousel-arrow:disabled:hover,html.adm-dark .admdm-ov .adcarousel-arrow:disabled:hover{background:hsla(222,27%,13%,1)}
+html.adm-dark .adm .adslot .adslot-noph,html.adm-dark .admdm-ov .adslot .adslot-noph{background:var(--gold)}
 html.adm-dark .adm .topbar select,html.adm-dark .admdm-ov .topbar select{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .viewtoggle button,html.adm-dark .admdm-ov .viewtoggle button{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .viewtoggle button.on,html.adm-dark .admdm-ov .viewtoggle button.on{background:var(--gold);border-color:var(--gold);color:#1A1206}
@@ -8257,7 +8259,10 @@ function adSlotsRow(){
    var chip = chipName ? '<span class="adchip">'+esc(chipName)+'</span>' : '';
    // a featured listing (admin or free-feature reward) rides in the squares as a virtual slot with a gold frame + star
    var featCls = a.featured ? ' adslot-feat' : '', featText = a.featured ? '<span class="adslot-star" title="'+esc(String(SITE["featured_badge_"+L]||"")).replace(/<[^>]+>/g,"")+'">★</span>' : '';
-   var isLinked = a.linked_listing_id && a.l_photos && a.l_photos.length;
+   // a square tied to a listing shows it even when the listing has no photo yet: Balkoun's logo + price, type, place
+   // (owner, 2026-10-23: a square for a photo-less listing showed empty)
+   var lHasPh = !!(a.l_photos && a.l_photos.length);
+   var isLinked = a.linked_listing_id && (lHasPh || a.l_type || a.l_deal || a.l_price!=null);
    var isVideoEmbed = !isLinked && a.video_embed_url;
    var isUploadedVideo = a.media_type==="video" && a.image_url;
    var manualImgs = (!isLinked && !isVideoEmbed && !isUploadedVideo && a.image_urls && a.image_urls.length) ? a.image_urls : null;
@@ -8273,8 +8278,9 @@ function adSlotsRow(){
      if(a.l_rooms) specs.push('<bdi>'+(showIcons?ICON_BED+a.l_rooms:a.l_rooms+' '+t("rooms"))+'</bdi>');
      if(a.l_baths) specs.push('<bdi>'+(showIcons?ICON_BATH+a.l_baths:a.l_baths+' '+t("baths"))+'</bdi>');
      var l2=[tyName, showLoc?spot:""].filter(Boolean).join(" · ");
-     media = '<img class="adslot-rotimg" src="'+a.l_photos[0]+'" data-photos="'+
-       encodeURIComponent(JSON.stringify(a.l_photos))+'" data-idx="0" alt="'+esc([tyName, place].filter(Boolean).join(" · "))+'" loading="lazy">'+
+     media = (lHasPh ? '<img class="adslot-rotimg" src="'+a.l_photos[0]+'" data-photos="'+
+       encodeURIComponent(JSON.stringify(a.l_photos))+'" data-idx="0" alt="'+esc([tyName, place].filter(Boolean).join(" · "))+'" loading="lazy">'
+       : '<div class="nophoto adslot-noph"><img src="/brand/logo-light.png" alt="بلكون" loading="lazy"></div>')+
        (a.l_deal ? '<span class="adslot-deal'+(a.l_deal==="rent"?' rent':'')+'" style="color:'+textColor+'">'+esc(a.l_deal==="rent"?t("forrent"):t("forsale"))+'</span>' : '')+
        '<div class="adslot-info" style="'+tShadow+'color:'+textColor+';'+
          'background:linear-gradient(to top,rgba('+shadeRgb+','+(.95*shadeOp)+') 0%,rgba('+shadeRgb+','+(.78*shadeOp)+') 45%,rgba('+shadeRgb+','+(.35*shadeOp)+') 75%,rgba('+shadeRgb+',0) 100%)">'+
