@@ -604,7 +604,7 @@ async function main() {
 
   const [govsAll, areasAll, listingsAll, prices] = await Promise.all([
     all("governorates", "id,name_ar,name_en,slug,sort_order,country_code,enabled,merged_into", "sort_order.asc,id.asc"),
-    all("areas", "id,governorate_id,name_ar,name_en,slug,enabled", "id.asc"),
+    all("areas", "id,governorate_id,name_ar,name_en,slug,enabled,old_slugs", "id.asc"),
     all("v_listings", "id,user_id,deal,property_type,governorate_id,governorate_ar,area_id,area_ar,landmark,price_usd,area_m2,rooms,floor,tabu,rental_period,is_featured,cover_url,created_at,status,country_code", "created_at.desc"),
     all("v_area_prices", "area_id,listings,avg_price_per_m2", "area_id.asc"),
   ]);
@@ -673,6 +673,12 @@ async function main() {
           write(page.url, page.html); if (gl.length) urls.push({ loc: page.url, priority: "0.7" });
           for (const a of gAreas) {
             const al = gl.filter((l) => l.area_id === a.id);
+            // an area whose address was corrected (2026-10-22: udaydat-al--adi → judaydat-al-wadi) keeps its old address
+            // as a tiny page that sends visitors and Google on; only areas with listings ever had a page there
+            if ((a.old_slugs || []).length && a.count.sale + a.count.rent > 0) {
+              const to = al.length ? pageUrl(lang, `${DEAL[deal].slug}/${g.slug}/${a.slug}/`) : pageUrl(lang, `${DEAL[deal].slug}/${g.slug}/`);
+              for (const o of a.old_slugs) if (o && o !== a.slug && !gAreas.some((x) => x.slug === o)) write(pageUrl(lang, `${DEAL[deal].slug}/${g.slug}/${o}/`), redirectHtml(to, lang));
+            }
             if (!al.length) continue;
             const siblings = gAreas.filter((x) => x.id !== a.id && x.count[deal] > 0).slice(0, 12);
             const ap = areaPage({ lang, deal, g, a, listings: al, siblings, market: marketByArea.get(a.id), footLinks });
