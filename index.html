@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-TncjiB2txLXm1coTRBNDKE/cwJ+VWIAaGZKirhd4HHo=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-FGrhDNShJUwlsg1wEgclVNokp9alBaXi7C3MjWz4qv8=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -2574,6 +2574,10 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 /* mini card over a clicked pin */
 .rs-pop .leaflet-popup-content-wrapper{border-radius:14px;box-shadow:0 14px 34px rgba(9,14,26,.3);padding:0;overflow:hidden}.rs-pop .leaflet-popup-content{margin:0;width:auto!important;line-height:1.5}
 .rs-pop .leaflet-popup-close-button{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.92);top:6px;right:6px;font-size:18px;line-height:26px;color:var(--navy)}
+.rs-float{position:fixed;z-index:900;background:#fff;border-radius:14px;box-shadow:0 14px 34px rgba(9,14,26,.3)}
+.rs-float .rs-mini{border-radius:14px;overflow:hidden}
+.rs-float::after{content:"";position:absolute;left:calc(var(--ax,50%) - 9px);bottom:-9px;border-left:9px solid transparent;border-right:9px solid transparent;border-top:9px solid #fff}
+.rs-float.below::after{bottom:auto;top:-9px;border-top:0;border-bottom:9px solid #fff}
 .rs-mini{width:240px;font-family:var(--f);direction:inherit}.rs-mini img{width:100%;height:130px;object-fit:cover;display:block}.rs-mini-np{height:90px;display:grid;place-items:center;background:#EEF0F4;color:var(--grey);font-size:12px}
 .rs-mini-b{padding:10px 12px 12px;text-align:start}.rs-mini-b>b{font-size:16px;color:var(--navy);display:block}.rs-mini-t{font-size:13px;font-weight:600;margin-top:2px;color:var(--ink)}.rs-mini-l{font-size:12px;color:var(--grey);margin-top:2px}
 .rs-mini-go{margin-top:9px;width:100%;height:34px;border:0;border-radius:9px;background:var(--navy);color:#fff;font:700 13px var(--f);cursor:pointer}.rs-mini-go:hover{background:var(--gold);color:#1A1206}
@@ -4631,6 +4635,9 @@ html.adm-dark .adm .rs-mapnote,html.adm-dark .admdm-ov .rs-mapnote{background:hs
 html.adm-dark .adm .rs-pin,html.adm-dark .admdm-ov .rs-pin{background:hsla(222,27%,13%,1);color:#C9D6F2;border:1.5px solid var(--gold)}
 html.adm-dark .adm .rs-pin.on,html.adm-dark .admdm-ov .rs-pin.on,html.adm-dark .adm .rs-pin:hover,html.adm-dark .admdm-ov .rs-pin:hover,html.adm-dark .adm .rs-pinw.on .rs-pin,html.adm-dark .admdm-ov .rs-pinw.on .rs-pin{background:var(--gold);color:#1A1206}
 html.adm-dark .adm .rs-pop .leaflet-popup-close-button,html.adm-dark .admdm-ov .rs-pop .leaflet-popup-close-button{background:hsla(222,27%,13%,0.92);color:#C9D6F2}
+html.adm-dark .adm .rs-float,html.adm-dark .admdm-ov .rs-float{background:hsla(222,27%,13%,1)}
+html.adm-dark .adm .rs-float::after,html.adm-dark .admdm-ov .rs-float::after{border-top:9px solid hsla(222,20%,25%,1)}
+html.adm-dark .adm .rs-float.below::after,html.adm-dark .admdm-ov .rs-float.below::after{border-bottom:9px solid hsla(222,20%,25%,1)}
 html.adm-dark .adm .rs-mini-np,html.adm-dark .admdm-ov .rs-mini-np{background:hsla(220,15%,17%,1)}
 html.adm-dark .adm .rs-mini-b>b,html.adm-dark .admdm-ov .rs-mini-b>b{color:#C9D6F2}
 html.adm-dark .adm .rs-mini-go,html.adm-dark .admdm-ov .rs-mini-go{background:var(--gold);color:#1A1206}
@@ -6739,13 +6746,34 @@ function rsAvgBox(r){
  if(!rows.length) return "";
  return '<div class="rs-avgbox"><b>'+GX("rsAvgH")+'</b>'+rows.map(function(o){ return '<div class="rs-avgrow"><span>'+aN(o.a)+'</span><span class="ltr">$'+Math.round(o.v).toLocaleString("en")+'/'+t("sqm")+'</span></div>' }).join("")+'</div>' }
 function rsShort(x){ var v=+x.p||0, rate=curRate(); if(CUR!=="USD") v=Math.round(v*rate); var sh = v>=1e6 ? (Math.round(v/1e5)/10).toString().replace(/\.0$/,"")+"M" : v>=1000 ? Math.round(v/1000)+"K" : String(v); return (CUR==="USD"?"$":"")+sh+(CUR==="USD"?"":" "+curLabel(CUR,"ar")) }
-function rsMapStop(){ if(RS.map){ try{ RS.map.remove() }catch(e){} RS.map=null; RS.pins={} } }
+function rsMapStop(){ rsFloatHide(); if(RS.map){ try{ RS.map.remove() }catch(e){} RS.map=null; RS.pins={} } }
+// open a listing from a map card (the hover card and the clicked pin's card)
+function rsGoListing(id){ rsFloatHide(); rsMapStop(); GI=0; LIGHTBOX_OPEN=false; VIEW="listing:"+id; scrollTo(0,0); render(); refreshListingsOnNavigate();
+  fetchPhotos(id).then(function(ph){ var it=D.LIST.filter(function(l){ return String(l.id)===String(id) })[0]; if(it){ it.photos=ph||[]; GI=0; render() } }) }
+// hover: the mini card floats over the page, above the pin (below it when there is no room above), so the map frame never
+// cuts it (owner, 2026-10-23: the card opened under the top edge of the map)
+function rsFloatHide(){ var f=document.getElementById("rsFloat"); if(f) f.remove() }
+function rsFloatShow(x,m){
+  var pin=m.getElement&&m.getElement(), pe=pin&&(pin.querySelector(".rs-pin")||pin); if(!pe) return;
+  var f=document.getElementById("rsFloat");
+  if(!f){ f=document.createElement("div"); f.id="rsFloat"; f.className="rs-float"; document.body.appendChild(f) }
+  if(f.dataset.id!==String(x.id)){ f.dataset.id=String(x.id); f.innerHTML=rsMiniCard(x) }
+  var r=pe.getBoundingClientRect(), w=f.offsetWidth, h=f.offsetHeight, top0=8; ["header",".rs-bar"].forEach(function(sel){ var el=document.querySelector(sel); if(el){ var rr=el.getBoundingClientRect(); if(rr.top<140) top0=Math.max(top0, rr.bottom+8) } });   // under the header and the sticky filter bar
+  var below=r.top-12-h<top0, left=Math.max(8, Math.min(window.innerWidth-w-8, r.left+r.width/2-w/2));
+  f.classList.toggle("below",below); f.style.left=Math.round(left)+"px"; f.style.top=Math.round(below?r.bottom+12:r.top-12-h)+"px";
+  f.style.setProperty("--ax", Math.round(Math.max(18, Math.min(w-18, r.left+r.width/2-left)))+"px");
+  f.onmouseenter=function(){ clearTimeout(RS.closeT) };
+  f.onmouseleave=function(){ if(RS.pinnedId===x.id) return; RS.closeT=setTimeout(function(){ if(RS.pinnedId!==x.id) rsPinHide(x,m) },350) };
+  var btn=f.querySelector("[data-rsgo]"); if(btn) btn.onclick=function(){ rsGoListing(btn.dataset.rsgo) };
+}
 function rsMapInit(){
   var c=document.getElementById("rsMap"); if(!c) return;
   var LMap=window.LeafletLib;
   if(!LMap || !AREA_LL){ Promise.all([ensureLeaflet(), ensureAreaLL()]).then(function(){ if(document.getElementById("rsMap")) rsMapInit() }).catch(function(){}); return }
   rsMapStop();
   var pts=mapWithApproxLoc(rsResults());
+  // the count under the map was worked out before the area locations arrived (14 instead of 347): it follows the pins drawn
+  var note=document.querySelector(".rs-mapnote"); if(note) note.innerHTML=GX("rsOnMap").replace("{n}",'<span class="ltr">'+pts.length+'</span>');
   var map=LMap.map(c,{zoomControl:true}).setView(pts.length?[pts[0].lat,pts[0].lng]:countryCenter().slice(0,2), pts.length?11:countryCenter()[2]);
   LMap.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(map);
   var b=[];
@@ -6764,9 +6792,9 @@ function rsMapInit(){
     var pid=+btn.dataset.rsgo;
     el.onmouseenter=function(){ clearTimeout(RS.closeT) };
     el.onmouseleave=function(){ if(RS.pinnedId===pid) return; RS.closeT=setTimeout(function(){ if(RS.pinnedId!==pid){ try{ e.popup.close() }catch(x){} var cd=document.querySelector('.res .card[data-open="'+pid+'"]'); if(cd) cd.classList.remove("hl") } },350) };
-    btn.onclick=function(){ var id=btn.dataset.rsgo; rsMapStop(); GI=0; LIGHTBOX_OPEN=false; VIEW="listing:"+id; scrollTo(0,0); render(); refreshListingsOnNavigate();
-      fetchPhotos(id).then(function(ph){ var it=D.LIST.filter(function(l){ return String(l.id)===String(id) })[0]; if(it){ it.photos=ph||[]; GI=0; render() } }) } });
+    btn.onclick=function(){ rsGoListing(btn.dataset.rsgo) } });
   map.on("popupclose",function(e){ if(RS._reopen) return; var el=e.popup.getElement(); var btn=el&&el.querySelector("[data-rsgo]"); if(btn && RS.pinnedId===+btn.dataset.rsgo){ RS.pinnedId=null; var cd=document.querySelector('.res .card[data-open="'+btn.dataset.rsgo+'"]'); if(cd) cd.classList.remove("hl") } });
+  map.on("movestart zoomstart",function(){ if(!RS.pinnedId) rsFloatHide() });
   RS.map=map; setTimeout(function(){ if(RS.map===map) map.invalidateSize() },150);
   // a pin was clicked on another results page: the page changed, the map was rebuilt, now open that pin here
   if(RS.focusId){ var fid=RS.focusId; RS.focusId=null; var fx=pts.filter(function(p){ return p.id===fid })[0], fm=RS.pins[fid]; if(fx&&fm) setTimeout(function(){ if(RS.map===map){ RS.pinnedId=fid; rsPinOpen(fx,fm) } },250) }
@@ -6780,12 +6808,16 @@ function rsMiniCard(x){
     '<button type="button" class="rs-mini-go" data-rsgo="'+x.id+'">'+GX("rsOpenListing")+'</button></div></div>' }
 function rsPinShow(x,m,o){
   o=o||{}; if(!RS.map) return;
+  if(!o.pan){ $$(".res .card.hl").forEach(function(c){ if(+c.dataset.open!==x.id) c.classList.remove("hl") });
+    var cd0=document.querySelector('.res .card[data-open="'+x.id+'"]'); if(cd0){ cd0.classList.add("hl"); if(o.scroll && cd0.scrollIntoView) cd0.scrollIntoView({block:o.scroll,behavior:"smooth"}) }
+    rsFloatShow(x,m); return }
+  rsFloatHide();
   $$(".res .card.hl").forEach(function(c){ if(+c.dataset.open!==x.id) c.classList.remove("hl") });
   var cd=document.querySelector('.res .card[data-open="'+x.id+'"]'); if(cd){ cd.classList.add("hl"); if(o.scroll && cd.scrollIntoView) cd.scrollIntoView({block:o.scroll,behavior:"smooth"}) }
   try{ if(!m.getPopup()){ m.bindPopup(rsMiniCard(x),{className:"rs-pop",closeButton:true,maxWidth:280,minWidth:220,offset:[0,-36],autoPan:!!o.pan}); try{ m.off("click",m._openPopup,m) }catch(e2){} }   // Leaflet's own click-toggle would close the card that hover already opened
     m.getPopup().options.autoPan=!!o.pan; if(o.pan && m.isPopupOpen()){ RS._reopen=true; try{ m.closePopup() }finally{ RS._reopen=false } } if(!m.isPopupOpen()) m.openPopup() }catch(e){}   // a click re-opens with auto-pan so the whole card is inside the map
 }
-function rsPinHide(x,m){ try{ if(m.isPopupOpen()) m.closePopup() }catch(e){} var cd=document.querySelector('.res .card[data-open="'+x.id+'"]'); if(cd) cd.classList.remove("hl") }
+function rsPinHide(x,m){ var fl=document.getElementById("rsFloat"); if(fl && fl.dataset.id===String(x.id)) rsFloatHide(); try{ if(m.isPopupOpen()) m.closePopup() }catch(e){} var cd=document.querySelector('.res .card[data-open="'+x.id+'"]'); if(cd) cd.classList.remove("hl") }
 function rsPinOpen(x,m){
   if(!RS.map) return;
   var all=rsResults(), idx=-1; all.forEach(function(l,i){ if(idx<0&&l.id===x.id) idx=i });
