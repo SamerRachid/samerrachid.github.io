@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-BSKYFYmdpzDPfwN8nkjcQaSUnUKCVVYkBl0ChfpqiY0=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-uJluB/eT/vkVtlRlylaZecMagD6OafrxAUbjgmebcC4=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -3152,6 +3152,7 @@ header{padding-top:env(safe-area-inset-top,0px)}
 .pw.pw-fit .ccpick-btn{height:43px;min-height:0;padding:0 10px;font-size:14px;min-width:76px;box-sizing:border-box}
 @media(max-width:640px){.pw.pw-fit input,.pw.pw-fit .ccpick-btn{height:47px}}   /* phone fields are 16px text there (no iOS zoom), 47px high */
 .crumb-l .wrap{display:flex;align-items:center;flex-wrap:wrap;row-gap:6px}
+.res.srv-wait{opacity:.55;transition:opacity .15s}
 .crumb-back{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 14px;margin-inline-end:12px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--navy)!important;font-weight:700;font-size:13.5px;text-decoration:none;cursor:pointer}
 .crumb-back:hover{border-color:var(--gold)}
 .crumb-back:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
@@ -5393,7 +5394,8 @@ async function switchCountry(code, o){
   try{ history.replaceState(null,"",routePath()) }catch(e){}
   render();
   if(_bootLoads){ try{ await _bootLoads }catch(e){} }
-  await Promise.all([loadListings(),loadCounts(),loadSiteContent(),loadAdSlots(),loadGeo()]);
+  var _sp=window._sitePromise=loadSiteContent();
+  await Promise.all([loadListings(),loadCounts(),_sp,loadAdSlots(),loadGeo()]);
   if(gen!==_cgen) return;   // a newer switch already owns the screen
   render();
 }
@@ -6637,6 +6639,7 @@ function passesFilter(x, skipField){
 var RS={map:null,mapOn:null,pins:{}};
 function rsMapOn(){ if(RS.mapOn===null){ var st=null; try{ st=localStorage.getItem("balkoun_rsmap") }catch(e){} RS.mapOn = st===null ? SX("results_map_default",true)!==false : st==="1" } return RS.mapOn }
 function rsResults(){
+ if(srvOn()) return (SRV.q&&SRV.q.pins)||[];   // server mode: every hit of the open search, as map pins, in result order
  var r=D.LIST.filter(function(x){ return passesFilter(x,null) });
  var pv=function(x,big){ return x.p==null ? (big?Infinity:Infinity) : x.p };   // no price → always last, whichever way the sort goes
  if(F.sort==="lo")r.sort(function(a,b){return pv(a)-pv(b)});
@@ -6680,7 +6683,7 @@ function rsChipsHtml(){
  return '<div class="wrap rs-chips">'+c.map(function(x){ return '<span class="rs-chip">'+String(x[2]).replace(/[<>]/g,"")+'<button type="button" data-rschip="'+x[0]+'" data-rsval="'+esc(String(x[1]))+'" aria-label="'+t("del")+'">×</button></span>' }).join("")+
    '<button type="button" class="rs-chipclr" id="clr">'+GX("rsClearAll")+'</button></div>' }
 function rsFiltersHtml(count){
- var n=function(f,v){return D.LIST.filter(function(x){return passesFilter(x,f) && x[f]===v}).length};
+ var n=function(f,v){ if(srvOn()) return f==="cd" ? (+((SRV.q&&SRV.q.cd)||{})[v]||0) : 0; return D.LIST.filter(function(x){return passesFilter(x,f) && x[f]===v}).length};
  var grp=function(obj,f){return Object.keys(obj).map(function(k){ return '<label class="ck"><input type="radio" name="'+f+'" value="'+k+'"'+(F[f]===k?" checked":"")+'> '+obj[k][li()]+(countsOn()?'<span class="c ltr">'+n(f,k)+'</span>':'')+'</label>'}).join("")};
  var moreN=(F.rooms&&F.rooms.length?1:0)+(F.cd?1:0)+(F.deal==="rent"&&F.rentalPeriod?1:0)+(F.deal!=="rent"&&F.ownerOnly?1:0)+(F.deal!=="rent"&&F.shareOnly?1:0);
  var more=roomsSquaresHtml()+'<div class="fg"><h4>'+t("cond")+'</h4>'+(F.sec==="land"?grp(D.LANDC,"cd"):grp(D.COND,"cd"))+'</div>'+
@@ -6707,12 +6710,13 @@ function rsFiltersHtml(count){
  '</div>' }
 function rsSortHtml(id){ return '<select id="'+id+'"><option value="new"'+(F.sort==="new"||!F.sort?" selected":"")+'>'+t("sortNew")+'</option><option value="lo"'+(F.sort==="lo"?" selected":"")+'>'+t("sortLo")+'</option><option value="hi"'+(F.sort==="hi"?" selected":"")+'>'+t("sortHi")+'</option><option value="area"'+(F.sort==="area"?" selected":"")+'>'+t("sortA")+'</option></select>' }
 function search(){
- var r=rsResults();
+ var srv=srvOn(), st=srv?srvSearchState():null;
+ var r=srv?((st.q&&st.q.pins)||[]):rsResults();
  var PAGE_SIZE=+SX("search_page_size",24)||24;
  var totalPages=Math.max(1,Math.ceil(r.length/PAGE_SIZE));
  if(!F.page || F.page<1) F.page=1;
- if(F.page>totalPages) F.page=totalPages;
- var pageItems=r.slice((F.page-1)*PAGE_SIZE, F.page*PAGE_SIZE);
+ if(F.page>totalPages){ F.page=totalPages; if(srv && st.q) st=srvSearchState() }
+ var pageItems=srv?((st.q&&st.q.pages[F.page])||[]):r.slice((F.page-1)*PAGE_SIZE, F.page*PAGE_SIZE), srvWait=!!(srv&&st.wait);
  var mapOn=rsMapOn(), withLoc=mapWithApproxLoc(r).length, fc=activeFilterCount();
  var aiStrip = AI_UNDERSTOOD ? '<div class="wrap"><div class="ai-understood">'+MI.ai+'<span><b>'+GX("aiUnderstoodLabel")+'</b> '+esc(AI_UNDERSTOOD)+'</span><button type="button" class="ai-understood-x" data-aiu-x aria-label="'+esc(GX("mdClose"))+'">×</button></div></div>' : '';
  AI_UNDERSTOOD=null;   // shown once, right after an AI search
@@ -6727,10 +6731,10 @@ function search(){
       '<button type="button" class="'+(VIEWMODE==="list"?"on":"")+'" id="vmList" title="'+t("listView")+'">'+ICON_LIST+'<span>'+t("listView")+'</span></button></div>'+
       rsSortHtml("sort")+
       '<button type="button" class="rs-maptg'+(mapOn?' on':'')+'" id="rsMapToggle">'+MI.map+'<span>'+(mapOn?GX("rsHideMap"):GX("rsShowMap"))+'</span>'+newTag()+'</button></div></div>'+
-    '<div class="res'+(VIEWMODE==="list"?" list-view":"")+'">'+(pageItems.length?pageItems.map(function(x,i){return card(x,i,VIEWMODE==="list")}).join(""):
-     !LISTINGS_LOADED ? '<div class="resempty"><b>'+t("loading")+'</b></div>' :
+    '<div class="res'+(VIEWMODE==="list"?" list-view":"")+(srvWait&&pageItems.length?" srv-wait":"")+'">'+(pageItems.length?pageItems.map(function(x,i){return card(x,i,VIEWMODE==="list")}).join(""):
+     (!LISTINGS_LOADED||srvWait) ? '<div class="resempty"><b>'+t("loading")+'</b></div>' :
      '<div class="resempty">'+LICON.search+'<b>'+t("none")+'</b><span>'+t("none2")+'</span></div>')+'</div>'+
-    (pageItems.length||!LISTINGS_LOADED ? '' : searchAlternatives())+
+    (pageItems.length||!LISTINGS_LOADED||srvWait ? '' : searchAlternatives())+
     (totalPages>1?'<div class="pg">'+(F.page>1?'<a data-pg="'+(F.page-1)+'">‹</a>':'')+
       Array.from({length:totalPages},function(_,idx){return idx+1}).map(function(p){ return '<a class="'+(p===F.page?"on":"")+'" data-pg="'+p+'">'+p+'</a>'}).join("")+
       (F.page<totalPages?'<a data-pg="'+(F.page+1)+'">›</a>':'')+'</div>':'')+
@@ -6875,6 +6879,7 @@ function rsWire(opts){
 // when a search finds nothing: the same search anywhere in the country, or failing that the newest listings
 function searchAlternatives(){
   var saved=F, alt=[], title="";
+  if(srvOn()){ var sa=SRV.q&&SRV.q.alt; if(!sa) return ''; alt=sa.rows.slice(); title=sa.title } else
   try{
     F=Object.assign({},saved,{govs:[],areas:[],g:"",a:""});
     alt=D.LIST.filter(function(x){ return passesFilter(x,null) });
@@ -6893,7 +6898,7 @@ function listing(id){
  // uid — never another member's data) is the fallback once it has loaded
  var x=D.LIST.filter(function(l){return String(l.id)===String(id)})[0] || (MYLIST||[]).filter(function(l){return String(l.id)===String(id)})[0] || (ITEM_HOLD&&String(ITEM_HOLD.id)===String(id)?ITEM_HOLD:null);
  if(x && x.cc && x.cc!==COUNTRY){ var gate=itemCountryGate(x.cc,x); if(gate) return gate }
- if(!x && (!LISTINGS_LOADED || window._mineLoading || (USER && !LOADED.mine))) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2">'+
+ if(!x && (!LISTINGS_LOADED || window._mineLoading || (USER && !LOADED.mine) || (srvOn() && SRV.one[String(id)]!==2))) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2">'+
    '<b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>';
  if(!x) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2">'+
    '<div class="tk" style="background:var(--navy-w);color:var(--navy)">?</div>'+
@@ -7120,9 +7125,10 @@ function priceContextHtml(x){
 }
 
 function similarListingsSection(x){
-  var sameCity = D.LIST.filter(function(l){
+  var simN=(SX("similar_count",12)===0?0:(+SX("similar_count",12)||12));
+  var sameCity = srvOn() ? (simN ? srvList(SRV.sim, String(x.id), {g:x.g, exclude:String(x.id)}, "recent", simN, /^listing:/) : []) : D.LIST.filter(function(l){
     return String(l.id)!==String(x.id) && l.status==="live" && l.g===x.g;
-  }).slice(0,(SX("similar_count",12)===0?0:(+SX("similar_count",12)||12)));
+  }).slice(0,simN);
   if(!sameCity.length) return '';
   return '<div class="wrap" style="padding:8px 18px 40px">'+
    '<h2 style="font-size:18px;font-weight:700;margin-bottom:14px">'+t("similarInH").replace("{city}",gN(x.g))+'</h2>'+
@@ -8851,8 +8857,9 @@ var MAPSEARCH = {deal:"sale", gov:"", area:"", type:"", tabu:"", filtersOpen:fal
 /* ═══ all governorates and areas, inside the app ═══ */
 var ARX={open:{}};
 function areasView(){
-  var live=D.LIST.filter(function(x){ return !x.status||x.status==="live" }), byG={}, byA={};
-  live.forEach(function(x){ byG[x.g]=(byG[x.g]||0)+1; if(x.a) byA[x.g+"|"+x.a]=(byA[x.g+"|"+x.a]||0)+1 });
+  var byG={}, byA={}, liveN=0;
+  if(srvOn()){ var ss=srvStatsNow(); byG=Object.assign({},ss.g||{}); byA=Object.assign({},ss.a||{}); liveN=+ss.total||0 }
+  else D.LIST.filter(function(x){ return !x.status||x.status==="live" }).forEach(function(x){ byG[x.g]=(byG[x.g]||0)+1; if(x.a) byA[x.g+"|"+x.a]=(byA[x.g+"|"+x.a]||0)+1; liveN++ });
   var govs=Object.keys(D.GEO), totalAreas=govs.reduce(function(n,g){ return n+(D.GEO[g]||[]).length },0);
   govs.sort(function(a,b){ return (byG[b]||0)-(byG[a]||0) });
   var cards=govs.map(function(g){
@@ -8863,7 +8870,7 @@ function areasView(){
       '<div class="arx-areas">'+withL.map(function(a){ return '<a class="has" data-arxa="'+esc(a)+'" data-g="'+esc(g)+'">'+aN(a)+(countsOn()?' <b class="ltr">'+byA[g+"|"+a]+'</b>':'')+'</a>' }).join("")+shownRest.map(function(a){ return '<a data-arxa="'+esc(a)+'" data-g="'+esc(g)+'">'+aN(a)+'</a>' }).join("")+
         (rest.length>shownRest.length?'<button type="button" class="arx-more" data-arxmore="'+esc(g)+'">'+GX("arxMore").replace("{n}",'<span class="ltr">'+(rest.length-shownRest.length)+'</span>')+'</button>':(open&&rest.length>8?'<button type="button" class="arx-more" data-arxmore="'+esc(g)+'">'+GX("arxLess")+'</button>':''))+'</div></section>' }).join("");
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("allAreas")+'</div></div>'+
-   '<div class="wrap arx"><div class="ag-hero"><div><div class="eyebrow">'+GX("allAreas")+'</div><h1>'+GX("arxT")+'</h1><p>'+GX("arxP")+'</p><div class="arx-stats">'+GX(countsOn()?"arxStats":"arxStatsNoN").replace("{g}",'<b class="ltr">'+govs.length+'</b>').replace("{a}",'<b class="ltr">'+totalAreas+'</b>').replace("{n}",'<b class="ltr">'+live.length+'</b>')+'</div></div><a class="gold" data-go="mapsearch">'+MI.map+t("searchOnMap")+'</a></div>'+
+   '<div class="wrap arx"><div class="ag-hero"><div><div class="eyebrow">'+GX("allAreas")+'</div><h1>'+GX("arxT")+'</h1><p>'+GX("arxP")+'</p><div class="arx-stats">'+GX(countsOn()?"arxStats":"arxStatsNoN").replace("{g}",'<b class="ltr">'+govs.length+'</b>').replace("{a}",'<b class="ltr">'+totalAreas+'</b>').replace("{n}",'<b class="ltr">'+liveN+'</b>')+'</div></div><a class="gold" data-go="mapsearch">'+MI.map+t("searchOnMap")+'</a></div>'+
    '<div class="arx-grid">'+cards+'</div></div>' }
 function wireAreasView(){
   if(VIEW!=="areas") return;
@@ -8889,7 +8896,7 @@ function wTitle(w){ if(w.title) return esc(w.title); return GX("wAuto").replace(
 function wDays(w){ var d=Math.max(0,Math.round((Date.now()-new Date(w.created_at))/86400000)); return d===0?GX("wToday"):GX("wDays").replace("{d}",'<span class="ltr">'+d+'</span>') }
 function wStatusPill(st,expired){ if(expired&&st==="open") st="expired"; var m={pending:["pending",GX("st_pending")],open:["live",GX("w_st_open")],fulfilled:["expired",GX("w_st_fulfilled")],hidden:["expired",GX("w_st_hidden")],rejected:["expired",GX("w_st_rejected")],expired:["expired",GX("w_st_expired")]}[st]||["pending",st]; return '<span class="st st-'+m[0]+'">'+m[1]+'</span>' }
 // listings that fit a request: same deal and governorate, the chosen areas and type if given, price within the budget (10% room), rooms and size at least, deed if asked
-function wantedMatches(w){ var wtypes=wTypeKeys(w); return D.LIST.filter(function(x){ if(x.status&&x.status!=="live") return false; if(x.d!==w.deal) return false; if(w.gov_name&&x.g!==w.gov_name) return false; if(wtypes.length&&wtypes.indexOf(x.t)<0) return false;
+function wantedMatches(w){ if(srvOn()) return srvWanted(w); var wtypes=wTypeKeys(w); return D.LIST.filter(function(x){ if(x.status&&x.status!=="live") return false; if(x.d!==w.deal) return false; if(w.gov_name&&x.g!==w.gov_name) return false; if(wtypes.length&&wtypes.indexOf(x.t)<0) return false;
   // the same rule as bk_wanted_fits in the database (2026-10-16): areas, rooms, size and deed when the request gives them;
   // the budget in any currency, converted with the country's rate; a listing that does not state rooms or size does not count
   if(w.area_names&&w.area_names.length&&w.area_names.indexOf(x.a)<0) return false;
@@ -8899,7 +8906,7 @@ async function loadWanted(){ if(!DB){ WANTED=[]; return } try{ var r=await DB.rp
 async function loadWantedOne(id){ if(!DB){ WANTEDONE={missing:true,id:id}; return } try{ var r=await DB.rpc("bk_wanted_get",{p_id:+id}); WANTEDONE=(r&&r.data)||{missing:true,id:id} }catch(e){ WANTEDONE={missing:true,id:id} } }
 async function loadMyWanted(){ if(!DB||!USER){ MYWANTED=[]; return } try{ var r=await DB.rpc("bk_wanted_mine",{p_token:USER.token||null}); if(r.error) throw r.error; MYWANTED=r.data||[] }catch(e){ MYWANTED=[] } }
 function wantedCard(w,mine){
-  var ar=L==="ar", areas=(w.area_names||[]).slice(0,3).map(aN), more=(w.area_names||[]).length-3, n=wantedMatches(w).length, expired=w.expires_at&&new Date(w.expires_at)<Date.now();
+  var ar=L==="ar", areas=(w.area_names||[]).slice(0,3).map(aN), more=(w.area_names||[]).length-3, n=wmCount(w), expired=w.expires_at&&new Date(w.expires_at)<Date.now();
   var facts=[wTypesText(w), w.rooms_min?GX("wRoomsN").replace("{n}",w.rooms_min):"", w.area_min?GX("wAreaN").replace("{n}",w.area_min):"", w.tabu&&D.TABU[w.tabu]?D.TABU[w.tabu][li()]:""].filter(Boolean);
   return '<a class="wcard'+(w.featured?' feat':'')+'" href="/wanted/'+w.id+'" data-wopen="'+w.id+'">'+
     '<div class="whead"><span class="wdeal '+esc(w.deal)+'">'+(w.deal==="rent"?GX("wRent"):GX("wBuy"))+'</span>'+(w.ref?'<span class="wref ltr">'+esc(w.ref)+'</span>':'')+(mine?wStatusPill(w.status,expired):'<span class="wtime">'+wDays(w)+'</span>')+'</div>'+
@@ -8951,7 +8958,7 @@ function wantedOnePage(id){
       (!w.phone&&!wa?'<div class="hintx">'+GX("wNoPhone")+'</div>':'')+
     '</div></div></aside>'+
     '<div class="wmatch">'+
-     '<h2 class="wmh">'+GX("wMatchesH")+' <span class="ltr" style="color:var(--grey);font-weight:500">('+matches.length+')</span></h2>'+
+     '<h2 class="wmh">'+GX("wMatchesH")+' <span class="ltr" style="color:var(--grey);font-weight:500">('+(matches.n!=null?matches.n:matches.length)+')</span></h2>'+
      (matches.length?'<div class="res">'+matches.slice(0,12).map(function(x,i){ return card(x,i,false) }).join("")+'</div>':'<div class="resempty"><b>'+GX("wNoMatches")+'</b></div>')+
     '</div>'+
    '</div>' }
@@ -9152,7 +9159,7 @@ function agencyPage(id){
   if(!a || String(a.id)!==String(id)) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>';
   if(a.country_code && a.country_code!==COUNTRY){ var gate=itemCountryGate(a.country_code); if(gate) return gate }
   if(a.missing) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:18px">'+t("notFound")+'</b><div style="margin-top:18px"><button class="btn-n" data-go="agencies">'+GX("agDirShort")+'</button></div></div></div>';
-  var mine=D.LIST.filter(function(x){ return x.uid===a.user_id && (!x.status||x.status==="live") });
+  var mine=srvOn() ? srvList(SRV.ag, String(a.user_id), {uid:a.user_id}, "recent", 200, /^agency:/) : D.LIST.filter(function(x){ return x.uid===a.user_id && (!x.status||x.status==="live") });
   var wa=(a.whatsapp||a.phone||"").replace(/\D/g,"");
   var rv=a.reviews||{avg:null,count:0,list:[]}, isSelf=!!(USER&&USER.id===a.user_id);
   BYUSER=BYUSER||{}; BYUSER.id=a.user_id;   // the rate box targets the account behind the agency
@@ -9359,6 +9366,7 @@ function mapWithApproxLoc(list){
 }
 function mapSearchMatches(){
   // the map shows exactly what the search filters allow (governorates, areas, types, deed, furnished, price); its panel edits the same filters
+  if(srvOn()){ var st=srvSearchState(); return (st.q&&st.q.pins)||[] }
   return D.LIST.filter(function(x){ return (!x.status || x.status==="live") && passesFilter(x,null) });
 }
 function mapSearchActiveFilterCount(){ return activeFilterCount() }
@@ -9570,6 +9578,7 @@ function stopMapSearch(){
 
 function heroCount(deal){
   if(!countsOn()) return "";
+  if(srvOn()) return srvHeroCount(deal);
   var savedDeal=F.deal; F.deal=deal||F.deal;
   var n = D.LIST.filter(function(x){ return passesFilter(x, deal?null:"deal") }).length;
   F.deal=savedDeal;
@@ -9633,6 +9642,7 @@ function csVvh(){ var vv=window.visualViewport; var h=vv?vv.height:Math.round(wi
 if(window.visualViewport && !window._vvBound){ window._vvBound=true; window.visualViewport.addEventListener("resize",function(){ if(document.querySelector(".chipsel-drop.on.kb")) csVvh() }) }
 // live listing counts per governorate and per area, shown inside the field menus
 function csCounts(){
+  if(srvOn()){ var ss=srvStatsNow(), sa={}; Object.keys(ss.a||{}).forEach(function(k){ var nm=k.slice(k.indexOf("|")+1); sa[nm]=(sa[nm]||0)+ss.a[k] }); return {g:Object.assign({},ss.g||{}), a:sa} }
   var g={},a={};
   (D.LIST||[]).forEach(function(x){
     if(x.status && x.status!=="live") return;
@@ -9976,6 +9986,9 @@ async function aiSearchRun(){
 }
 function wire(){
  markGreenTabu();
+ // server mode: a listing that is not in memory (a map pin, a shared link) is fetched; panel switched off → full list again
+ if(srvOn() && VIEW.indexOf("listing:")===0){ var _sid=VIEW.split(":")[1]; if(!SRV.one[_sid] && !D.LIST.some(function(l){ return String(l.id)===_sid })){ SRV.one[_sid]=1; fetchOne(_sid).then(function(){ SRV.one[_sid]=2; render() },function(){ SRV.one[_sid]=2; render() }) } }
+ if(SRV.loadedMode==="srv" && !srvOn() && !SRV.reloading){ SRV.reloading=true; loadListings().then(function(){ SRV.reloading=false; render() }) }
  // the public list holds live listings only (2026-10-22): a member's own pending / hidden listing opened by link is
  // found in their own list, so that list is loaded when the listing is not in the public one
  if(VIEW.indexOf("listing:")===0&&USER&&!LOADED.mine&&LISTINGS_LOADED&&!D.LIST.some(function(l){ return String(l.id)===VIEW.split(":")[1] })){
@@ -11425,6 +11438,7 @@ async function syncListingsFromServer(){
   // catches up with an immediate refresh once a tab hidden for over a minute becomes visible again, so
   // nothing goes stale here.
   if(!DB || document.hidden) return;
+  if(srvOn() && SRV.loadedMode==="srv"){ await srvRefresh(); return }
   try{
     var before = listingsSignature(D.LIST);
     await _loadListingsImpl();
@@ -11500,6 +11514,146 @@ async function loadCounts(){
   if(!DB) return;
   try{ var r=await DB.rpc("bk_counts",cArgs()); if(r&&r.data) CNT=r.data }catch(e){}
 }
+/* ═══ server-side search (owner, 2026-10-23) ═══
+   With the panel switch «server_search» on, the browser no longer downloads the whole catalogue: the search page asks
+   the server for one page of results (plus every hit as a slim map pin), the home page for its short lists, and the
+   counts come from bk_listing_stats. D.LIST then only caches rows already fetched, so a card click, the listing page and
+   the lightbox still find them. Any server error sends the session back to the full download (srvFail); switching the
+   panel off goes back to the full download on the next page (wire). */
+var SRV={ok:true, gen:0, q:null, pend:{}, stats:null, statsCC:null, home:{}, hero:{}, sim:{}, ag:{}, wm:{}, one:{}, loadedMode:null};
+function srvOn(){ return SRV.ok && !!DB && SXb("server_search",false)===true }
+// the country's land / commercial type codes, so «أراضٍ» and the sections mean on the server what they mean here (secOf)
+function srvLC(){ var land=[],comm=[]; Object.keys(D.TYPES||{}).forEach(function(k){ var sc=secOf(k); if(sc==="land") land.push(k); else if(sc==="commercial") comm.push(k) }); return {land:land,comm:comm} }
+// the filter object F as bk_search2 reads it (only what is set)
+function srvF(f){ f=f||F; var o={};
+  ["govs","areas","tbs","types","rooms"].forEach(function(k){ if(f[k]&&f[k].length) o[k]=f[k].map(String) });
+  ["g","a","tb","t","cd","furn","rentalPeriod","sec","deal","kw"].forEach(function(k){ if(f[k]) o[k]=String(f[k]) });
+  if(+f.pmin) o.pmin=+f.pmin; if(+f.pmax) o.pmax=+f.pmax; if(f.ownerOnly) o.ownerOnly=true; if(f.shareOnly) o.shareOnly=true;
+  return o }
+function srvKey(){ return COUNTRY+"|"+JSON.stringify(srvF(F))+"|"+(F.sort||"new")+"|"+SRV.gen }
+function srvPageSize(){ return +SX("search_page_size",24)||24 }
+// a map pin: just what the map, its mini card and the price boxes read
+function srvPin(a){ return {id:a[0], lat:a[1], lng:a[2], p:a[3], m2:a[4], t:a[5], d:a[6], g:a[7], a:a[8]||"", aid:a[9], featured:!!a[10], cover:a[11]||null,
+  r:a[12]||0, b:a[13]||0, living:a[14]||0, tb:a[15]||null, rentalPeriod:a[16]||null, status:"live", photos:null, _pin:true} }
+async function srvPhotos(list){
+  var need=list.filter(function(x){ return !x.photos }); if(!need.length) return;
+  try{ var ph=await DB.from("listing_photos").select("listing_id,url,thumb_url,sort_order,kind").in("listing_id",need.map(function(x){ return x.id })).order("sort_order",{ascending:true});
+    if(ph.error||!ph.data) return;
+    var by={}, byT={}, byV={}; ph.data.forEach(function(p){ if(p.kind==="video"){ (byV[p.listing_id]=byV[p.listing_id]||[]).push({url:esc(safeUrl(p.url)),poster:p.thumb_url?esc(safeUrl(p.thumb_url)):""}) } else { (by[p.listing_id]=by[p.listing_id]||[]).push(esc(safeUrl(p.url))); (byT[p.listing_id]=byT[p.listing_id]||[]).push(esc(safeUrl(p.thumb_url||p.url))) } });
+    need.forEach(function(x){ if(by[x.id]&&by[x.id].length){ x.photos=by[x.id]; x.thumbs=byT[x.id] } if(byV[x.id]) x.videos=byV[x.id] });
+  }catch(e){} }
+// rows fetched from the server join the cache (a newer copy replaces the older one, keeping its photos)
+function srvCache(rows){ rows.forEach(function(x){ for(var k=0;k<D.LIST.length;k++){ var o=D.LIST[k]; if(String(o.id)===String(x.id)){ if(!x.photos&&o.photos){ x.photos=o.photos; x.thumbs=o.thumbs; x.videos=o.videos } D.LIST[k]=x; return } } D.LIST.push(x) }) }
+async function srvQ(f, sort, off, lim, want){
+  var lc=srvLC();
+  var r=await DB.rpc("bk_search2",{p_country:COUNTRY, p_f:f, p_land:lc.land, p_comm:lc.comm, p_sort:sort||"new", p_offset:off||0, p_limit:(lim==null?24:lim), p_rooms_max:ROOMS_MAX, p_want:want||[]});
+  if(r.error) throw r.error;
+  var d=r.data||{}, rows=escDeep(d.rows||[]).map(fromRow);
+  await srvPhotos(rows); srvCache(rows);
+  return {total:+d.total||0, rows:rows, pins:d.pins?escDeep(d.pins).map(srvPin):null, cd:d.cd||null} }
+function srvFail(e){ if(!SRV.ok) return; SRV.ok=false; console.warn("server search failed — back to the full list:", (e&&e.message)||e);
+  loadListings().then(function(){ render() }) }
+// the search page's data: the current results (fetching what is missing); while a new search runs the previous results stay
+function srvSearchState(){
+  var key=srvKey(), q=SRV.q, pg=Math.max(1,+F.page||1);
+  if(!q || q.key!==key){ srvRunSearch(key,pg); return {q:(q&&q.cc===COUNTRY)?q:null, wait:true} }
+  if(!q.pages[pg]){ srvRunPage(key,pg); return {q:q, wait:true} }
+  return {q:q, wait:false} }
+async function srvRunSearch(key,pg){
+  if(SRV.pend[key]) return; SRV.pend[key]=1;
+  var size=srvPageSize(), f=srvF(F), sort=F.sort||"new";
+  try{
+    var r=await srvQ(f, sort, (pg-1)*size, size, countsOn()?["pins","cd"]:["pins"]);
+    var q={key:key, cc:COUNTRY, total:r.total, pins:r.pins||[], cd:r.cd||{}, pages:{}, alt:null}; q.pages[pg]=r.rows;
+    if(!r.total) q.alt=await srvAlternatives(f);
+    if(key===srvKey()){ SRV.q=q; if(VIEW==="search"||VIEW==="mapsearch") render() }
+  }catch(e){ srvFail(e) }finally{ delete SRV.pend[key] } }
+async function srvRunPage(key,pg){
+  var pk=key+"#"+pg; if(SRV.pend[pk]) return; SRV.pend[pk]=1;
+  var size=srvPageSize();
+  try{ var r=await srvQ(srvF(F), F.sort||"new", (pg-1)*size, size, []);
+    if(SRV.q&&SRV.q.key===key){ SRV.q.pages[pg]=r.rows; if(VIEW==="search"||VIEW==="mapsearch") render() }
+  }catch(e){ srvFail(e) }finally{ delete SRV.pend[pk] } }
+// nothing found: the same two wider searches as searchAlternatives() (without the place, then without the details)
+async function srvAlternatives(base){
+  var f1=Object.assign({},base); ["govs","areas","g","a"].forEach(function(k){ delete f1[k] });
+  var r=await srvQ(f1,"new",0,6,[]); if(r.rows.length) return {title:GX("altResH"), rows:r.rows};
+  var f2=Object.assign({},f1); ["types","t","tbs","tb","cd","pmin","pmax","furn","rentalPeriod","ownerOnly","shareOnly"].forEach(function(k){ delete f2[k] });
+  r=await srvQ(f2,"new",0,6,[]); return r.rows.length?{title:GX("altResH2"), rows:r.rows}:null }
+// the home search button's count: fetched once per filter state, written into the button when it arrives
+function srvHeroCount(deal){
+  var f=srvF(F); if(deal) f.deal=deal; else delete f.deal;
+  var k=COUNTRY+"|"+JSON.stringify(f)+"|"+SRV.gen, v=SRV.hero[k];
+  if(v===undefined){ SRV.hero[k]=null;
+    srvQ(f,"new",0,0,[]).then(function(r){ SRV.hero[k]=r.total; var el=document.getElementById("hgoCount"); if(el) el.textContent=r.total?(r.total+" "+t("props")):"" }).catch(function(e){ delete SRV.hero[k]; srvFail(e) });
+    return "" }
+  return v ? (v+" "+t("props")) : "" }
+// a short list (similar listings, an office's listings, the home lists): shown from memory, re-read when older than 2 minutes,
+// the page redrawn only when the list really changed
+function srvList(store, k, f, sort, lim, viewRe){
+  var e=store[k];
+  if(!e) e=store[k]={t:0, rows:[], busy:false};
+  if(!e.busy && Date.now()-e.t>120000){ e.busy=true;
+    srvQ(f,sort,0,lim,[]).then(function(r){ var changed=listingsSignature(r.rows)!==listingsSignature(e.rows); e.rows=r.rows; e.t=Date.now(); e.busy=false;
+      if(changed && viewRe.test(VIEW||"") && safeToBackgroundRender()) render() }).catch(function(err){ e.busy=false; srvFail(err) }) }
+  return e.rows }
+async function srvPreload(store,k,f,sort,lim){ var r=await srvQ(f,sort,0,lim,[]); store[k]={t:Date.now(), rows:r.rows, busy:false} }
+// listings fetched by id (a wanted request's matches, a listing opened by link): SRV.one[id] 1 = on the way, 2 = answered
+function srvRowsByIds(ids){
+  var need=ids.filter(function(id){ return !SRV.one[id] && !D.LIST.some(function(l){ return String(l.id)===String(id) }) }); if(!need.length) return;
+  need.forEach(function(id){ SRV.one[id]=1 });
+  DB.from("v_listings").select("*").in("id",need).then(async function(r){ if(r.error) throw r.error; var rows=escDeep(r.data||[]).map(fromRow); await srvPhotos(rows); srvCache(rows);
+    need.forEach(function(id){ SRV.one[id]=2 }); if(safeToBackgroundRender()) render() }).catch(function(){ need.forEach(function(id){ SRV.one[id]=2 }) }) }
+// «wanted» requests: how many listings fit each one, and its newest matches (the page's rule, run by bk_wanted_matches)
+function srvWanted(w){
+  var m=SRV.wm[w.id];
+  if(!m){ srvWantedLoad(); var e=[]; e.n=0; return e }
+  var rows=m.ids.map(function(id){ return D.LIST.filter(function(l){ return String(l.id)===String(id) })[0] }).filter(Boolean);
+  if(rows.length<m.ids.length) srvRowsByIds(m.ids);
+  rows.n=m.n; return rows }
+function srvWantedLoad(){
+  if(SRV.wmBusy) return; var ids=[];
+  (WANTED||[]).concat(WANTEDONE&&WANTEDONE.id&&!WANTEDONE.missing?[WANTEDONE]:[]).forEach(function(w){ if(w&&w.id&&!SRV.wm[w.id]&&ids.indexOf(+w.id)<0) ids.push(+w.id) });
+  if(!ids.length) return; SRV.wmBusy=true;
+  DB.rpc("bk_wanted_matches",{p_country:COUNTRY, p_ids:ids}).then(function(r){ SRV.wmBusy=false; if(r.error) throw r.error; var d=r.data||{};
+    ids.forEach(function(id){ var m=d[id]||d[String(id)]; SRV.wm[id]=m?{n:+m.n||0, ids:m.ids||[]}:{n:0, ids:[]} });
+    if(/^wanted/.test(VIEW||"") && safeToBackgroundRender()) render() }).catch(function(e){ SRV.wmBusy=false; srvFail(e) }) }
+function wmCount(w){ var m=wantedMatches(w); return m.n!=null ? m.n : m.length }
+// live counts per governorate / area
+async function srvStats(){ var r=await DB.rpc("bk_listing_stats",{p_country:COUNTRY}); if(r.error) throw r.error; SRV.stats=r.data||{g:{},a:{},total:0}; SRV.statsCC=COUNTRY }
+function srvStatsNow(){ return (SRV.stats && SRV.statsCC===COUNTRY) ? SRV.stats : {g:{},a:{},total:0} }
+function srvGovCounts(cnt){
+  if(srvOn()){ var g=srvStatsNow().g||{}; Object.keys(g).forEach(function(k){ cnt[k]=g[k] }); return }
+  (D.LIST||[]).forEach(function(x){ if(x.g&&(!x.status||x.status==="live")) cnt[x.g]=(cnt[x.g]||0)+1 }) }
+// area id → its place, from the geography already on the page (the market ticker)
+function srvAreaById(){ var out={}, m=(GEO_META&&GEO_META.areaId)||{}; Object.keys(m).forEach(function(k){ var i=k.indexOf("/"); if(i>0) out[m[k]]={g:k.slice(0,i), a:k.slice(i+1), aid:m[k]} }); return out }
+// first load and after the visitor's own changes: counts, area prices and the home lists (the search runs when it is opened)
+async function srvBoot(){
+  SRV.gen++; SRV.hero={}; SRV.sim={}; SRV.ag={}; SRV.wm={};
+  var jobs=[srvStats(),
+    DB.from("v_area_prices").select("*").then(function(ap){ if(!ap.error && ap.data){ AREA_PRICES={}; ap.data.forEach(function(r){ AREA_PRICES[r.area_id]=r }) } },function(){})];
+  if(SX("home_feat_on",false)===true) jobs.push(srvPreload(SRV.home,"feat|"+COUNTRY,{featured:true},"recent",8));
+  if(HSON("popular")) jobs.push(srvPreload(SRV.home,"pop|"+COUNTRY,{minViews:1},"views",12));
+  await Promise.all(jobs);
+  ONLINE=true; DBERR=""; DBCOUNT=+srvStatsNow().total||0; SRV.loadedMode="srv" }
+// the 30-second check and every navigation: re-read the counts and the open search; redraw only what changed
+async function srvRefresh(){
+  try{
+    await srvStats();
+    ["feat|"+COUNTRY,"pop|"+COUNTRY].forEach(function(k){ if(SRV.home[k]) SRV.home[k].t=0 });
+    if(VIEW==="home"){ if(SX("home_feat_on",false)===true) srvList(SRV.home,"feat|"+COUNTRY,{featured:true},"recent",8,/^home$/); if(HSON("popular")) srvList(SRV.home,"pop|"+COUNTRY,{minViews:1},"views",12,/^home$/) }
+    var q=SRV.q;
+    if(q && q.key===srvKey() && VIEW==="search"){
+      var pg=Math.max(1,+F.page||1), size=srvPageSize();
+      var r=await srvQ(srvF(F), F.sort||"new", (pg-1)*size, size, countsOn()?["pins","cd"]:["pins"]);
+      if(SRV.q!==q) return;
+      var sig=function(p){ return (p||[]).map(function(x){ return x.id+":"+x.p+":"+(x.featured?1:0) }).join("|") };
+      if(r.total!==q.total || sig(r.pins)!==sig(q.pins) || listingsSignature(r.rows)!==listingsSignature(q.pages[pg]||[])){
+        var nq={key:q.key, cc:q.cc, total:r.total, pins:r.pins||[], cd:r.cd||{}, pages:{}, alt:q.alt}; nq.pages[pg]=r.rows; SRV.q=nq;
+        if(safeToBackgroundRender()) render() }
+    }
+  }catch(e){}   // a failed background check is no reason to leave server mode
+}
 var LISTINGS_LOADED = false;
 async function loadListings(){
  try{
@@ -11510,6 +11664,9 @@ async function loadListings(){
 }
 async function _loadListingsImpl(){
   if(!DB){ DBERR="no client"; return }
+  // first visit (no saved settings yet): wait for them, so the panel's «server_search» decides how the listings load
+  if(SITE && SITE.extras===undefined && window._sitePromise){ try{ await window._sitePromise }catch(e){} }
+  if(srvOn()){ try{ await srvBoot(); return }catch(e){ SRV.ok=false; console.warn("server search unavailable — loading the full list:", (e&&e.message)||e) } }
   var rows=null;
   // try the view first
   try{
@@ -11560,6 +11717,7 @@ async function _loadListingsImpl(){
     }catch(e){ console.warn("photos not loaded:", e.message||e) }
   }
   if(DBCOUNT) D.LIST = mapped.concat(DEMO);
+  SRV.loadedMode="full";
 }
 
 // "My ads": every listing the member owns, any status — D.LIST only ever holds public live/pending rows
@@ -12259,7 +12417,7 @@ var HOME_SECS=["ads","about","feat","banners","ticker","projects","wanted","popu
 function homeOrder(){ var o=SX("home_order",null); if(typeof o==="string"){ try{ o=JSON.parse(o) }catch(e){ o=null } } var r=Array.isArray(o)?o.filter(function(k){ return HOME_SECS.indexOf(k)>-1 }):[]; HOME_SECS.forEach(function(k,i){ if(r.indexOf(k)<0){ if(!i){ r.unshift(k); return } var p=r.indexOf(HOME_SECS[i-1]); r.splice(p<0?r.length:p+1,0,k) } }); return r }
 // featured listings (admin-featured or earned with the free-feature reward): live ones, newest window first
 function homeFeaturedHtml(){
-  var list=D.LIST.filter(function(x){ return x.featured && (x.status||"live")==="live" }).slice(0,8);
+  var list=srvOn() ? srvList(SRV.home,"feat|"+COUNTRY,{featured:true},"recent",8,/^home$/) : D.LIST.filter(function(x){ return x.featured && (x.status||"live")==="live" }).slice(0,8);
   if(!list.length) return "";
   return '<div class="wrap"><section class="sec" id="featSec"><div class="eyebrow">'+HT("feat_eyebrow",HX("featE"))+'</div><h2>'+HT("feat_h",HX("featH"))+'</h2><div class="sub">'+HT("feat_sub",HX("featS"))+'</div>'+
     '<div class="res">'+list.map(function(x,i){ return card(x,i,false) }).join("")+'</div></section></div>' }
@@ -12294,7 +12452,7 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
 // the most viewed live listings (views come with the public listing rows); hides itself until a few listings have been seen
 function homePopularHtml(){
   var n=Math.max(4, Math.min(12, +SX("popular_n",8)||8));
-  var list=D.LIST.filter(function(x){ return (x.status||"live")==="live" && (+x.vw||0)>0 }).sort(function(a,b){ return (+b.vw||0)-(+a.vw||0) }).slice(0,n);
+  var list=srvOn() ? srvList(SRV.home,"pop|"+COUNTRY,{minViews:1},"views",12,/^home$/).slice(0,n) : D.LIST.filter(function(x){ return (x.status||"live")==="live" && (+x.vw||0)>0 }).sort(function(a,b){ return (+b.vw||0)-(+a.vw||0) }).slice(0,n);
   if(list.length<3) return "";
   return '<div class="wrap"><section class="sec" id="popularSec"><div class="eyebrow">'+HT("popular_eyebrow",HX("popE"))+'</div><h2>'+HT("popular_h",HX("popH"))+'</h2><div class="sub">'+HT("popular_sub",HX("popS"))+'</div>'+
     '<div class="res">'+list.map(function(x,i){ return card(x,i,false) }).join("")+'</div></section></div>' }
@@ -12343,7 +12501,7 @@ function govSubAuto(){ var g=Object.keys(D.GEO).length, a=Object.keys(D.GEO).red
 // the same sketch map for any other country: outline and projection come from the countries table, dots from the governorates' coordinates
 function countryMapHtml(){
   var c=countryOf(COUNTRY); if(!c||!c.map_outline||!c.map_box) return "";
-  var b=c.map_box, cnt={}; (D.LIST||[]).forEach(function(x){ if(x.g&&(!x.status||x.status==="live")) cnt[x.g]=(cnt[x.g]||0)+1 });
+  var b=c.map_box, cnt={}; srvGovCounts(cnt);
   var P=function(ll){ return [b.ox+(ll[1]-b.minLng)*b.k*b.s, b.oy+(b.maxLat-ll[0])*b.s] };
   var pts=Object.keys(D.GEO).map(function(g){ var ll=govLL(g); return ll?[g,P(ll)]:null }).filter(Boolean);
   return '<div class="frame smap" id="smap"><svg viewBox="0 0 600 520" aria-hidden="true"><defs><pattern id="sdots" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1" fill="#14213D" fill-opacity=".12"/></pattern></defs>'+
@@ -12364,7 +12522,7 @@ function countryMapHtml(){
 }
 function syriaMapHtml(){
   var pts=[["دمشق",186,392,200,397],["حلب",216,120,230,125],["حمص",196,268,210,273],["حماة",180,222,194,227],["اللاذقية",118,188,60,193],["طرطوس",110,252,56,257],["إدلب",150,150,106,145],["دير الزور",420,230,434,235],["الرقة",360,128,374,133],["الحسكة",500,112,514,117],["درعا",196,446,210,451],["السويداء",246,440,260,445]];
-  var cnt={}; (D.LIST||[]).forEach(function(x){ if(x.g&&(!x.status||x.status==="live")) cnt[x.g]=(cnt[x.g]||0)+1 });
+  var cnt={}; srvGovCounts(cnt);
   var outline="M92 118 L150 86 L210 70 L280 62 L360 58 L440 66 L520 96 L560 150 L548 210 L500 262 L440 318 L392 382 L330 440 L280 468 L232 462 L180 430 L150 372 L120 300 L100 240 L84 180 Z";
   return '<div class="frame smap" id="smap"><svg viewBox="0 0 600 520" aria-hidden="true"><defs><pattern id="sdots" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1" fill="#14213D" fill-opacity=".12"/></pattern></defs>'+
    '<path d="'+outline+'" fill="url(#sdots)" stroke="#14213D" stroke-width="1.5" stroke-linejoin="round"/>'+
@@ -13144,7 +13302,7 @@ function dawnBuild(){
    has loaded or if fewer than four areas qualify. */
 function marketTickerHtml(){
   var ids=Object.keys(AREA_PRICES||{}); if(!ids.length) return '';
-  var byAid={}; (D.LIST||[]).forEach(function(x){ if(x.aid && x.a && !byAid[x.aid]) byAid[x.aid]=x });
+  var byAid=srvOn()?srvAreaById():{}; if(!srvOn()) (D.LIST||[]).forEach(function(x){ if(x.aid && x.a && !byAid[x.aid]) byAid[x.aid]=x });
   var items=ids.map(function(id){
       var ap=AREA_PRICES[id], x=byAid[id];
       if(!x || +ap.listings<3 || !+ap.avg_price_per_m2) return null;
@@ -14789,7 +14947,7 @@ window.PWA=(function(){
 })();
 if(COUNTRY!=="SY"){ D.GEO={}; D.GOVN={} }   // the data line carries Syria's governorates; another country waits for its own (cache or bk_geo)
 applyGeoCache();
-function startLoads(){ return Promise.all([loadListings(),loadCounts(),loadSiteContent(),loadAdSlots(),loadGeo()]) }
+function startLoads(){ var sp=window._sitePromise=loadSiteContent(); return Promise.all([loadListings(),loadCounts(),sp,loadAdSlots(),loadGeo()]) }
 _bootLoads = COUNTRIES ? startLoads() : refreshCountries().then(startLoads);   // first visit ever: learn the served countries first, so a visitor in Lebanon or Jordan opens on their own country
 if(COUNTRIES) refreshCountries();
 _bootLoads.then(function(){ render(); startAdRotation(); startAdCarouselRotation(); startBannerRotation(); startFeaturedPolling(); startListingsPolling(); setTimeout(maybeShowChooser, _openingActive?1500:400) });
