@@ -3296,6 +3296,15 @@ function adminVerifyHtml(){
     '<div class="row3">'+gtxt("signup_consent_ar",GX("vfConsentTxt")+" (ar)",GX_T.auConsentL.ar)+gtxt("signup_consent_en",GX("vfConsentTxt")+" (en)",GX_T.auConsentL.en)+gtxt("signup_consent_de",GX("vfConsentTxt")+" (de)",GX_T.auConsentL.de)+'</div>'+
     '<div class="xactions"><button class="ab ok" id="vfSetSave">'+t("save")+'</button><span class="xmsg" id="vfSetMsg"></span></div></div></div>';
   return pending+settings }
+// where new members came from (owner, 2026-10-23): one line of counts above the members list
+function srcLabel(k){ var v=GX("msrc_"+k); return (v && v!=="msrc_"+k) ? v : k }
+function memberSourcesHtml(users){
+  var cut=Date.now()-30*86400000, by={}, n=0;
+  users.forEach(function(u){ if(u.is_house || u.role==="admin" || !u.created_at || new Date(u.created_at).getTime()<cut) return; var k=u.signup_source||"unknown"; by[k]=(by[k]||0)+1; n++ });
+  if(!n) return "";
+  var keys=Object.keys(by).sort(function(a,b){ return a==="unknown"?1:b==="unknown"?-1:by[b]-by[a] });
+  return '<div class="usrcbar"><b>'+GX("msrcH")+'</b>'+keys.map(function(k){ return '<span class="usrcchip'+(k==="unknown"?" dim":"")+'">'+esc(srcLabel(k))+' <b class="ltr">'+by[k]+'</b></span>' }).join("")+
+    '<div class="hintx" style="margin-top:6px">'+GX("msrcHint")+'</div></div>' }
 function adminUsersBody(d){
   var list=(d.users||[]).slice();
   list.sort(function(a,b){ return ADM.userSort==="older" ? new Date(a.created_at)-new Date(b.created_at) : new Date(b.created_at)-new Date(a.created_at) });
@@ -3327,7 +3336,7 @@ function adminUsersBody(d){
     '<select id="uActPick" class="lvlpick"><option value="">'+GX("colLastSeen")+'</option><option value="1"'+(ADM.userActFilter==="1"?" selected":"")+'>'+GX("act24")+'</option><option value="7"'+(ADM.userActFilter==="7"?" selected":"")+'>'+GX("act7")+'</option><option value="30"'+(ADM.userActFilter==="30"?" selected":"")+'>'+GX("act30")+'</option><option value="old"'+(ADM.userActFilter==="old"?" selected":"")+'>'+GX("actOld")+'</option></select>'+
     '<span class="n" style="font-size:13px;color:var(--grey)"><span class="ltr">'+(delMode?delList.length:list.length)+'</span> '+GX("uCount")+'</span>'+
     '<button type="button" class="ab ok" id="amOpen">+ '+GX("amBtn")+'</button></div>';
-  toolbar=adminVerifyHtml()+toolbar;
+  toolbar=adminVerifyHtml()+toolbar+memberSourcesHtml(d.users||[]);
   if(delMode){
     var fmtD=function(s){ return s?new Date(s).toLocaleDateString(L==="ar"?"ar-u-nu-latn":L==="de"?"de-DE":L==="fr"?"fr-FR":"en-GB",{year:"numeric",month:"short",day:"numeric"}):"—" };
     var byText=function(x){ return x.deleted_by==="self" ? '<span class="st st-live">'+GX("uDelBySelf")+'</span>'
@@ -3355,7 +3364,7 @@ function adminUsersBody(d){
     var joined=u.created_at?new Date(u.created_at).toLocaleDateString(L==="ar"?"ar-SY":L==="de"?"de-DE":L==="fr"?"fr-FR":"en-GB",{year:"numeric",month:"short",day:"numeric"}):"";
     var html='<tr data-row-text="'+esc((nm+" "+(u.phone||"")+" "+(u.member_no||"")).toLowerCase())+'" class="lrow'+(open?" open":"")+'"'+(isAdmin?'':' data-urow="'+u.id+'"')+'>'+
       '<td data-label="'+t("contactName")+'"><div class="ucell">'+avatar(u.avatar_url,u.name,36)+'<div>'+scopeFlag(u.country)+'<span class="uline"><a data-byuser="'+u.id+'" data-name="'+esc(nm)+'" class="uname">'+esc(nm)+'</a>'+levelBadge(u.level)+'</span>'+
-        '<div class="usub">'+(u.is_house?'<span class="uunv" style="background:var(--navy);color:#fff" title="'+esc(GX("desc_house"))+'">'+GX("houseBadge")+'</span> · ':'')+(u.member_no?'<b class="ltr">'+esc(u.member_no)+'</b> · ':'')+'<span class="ltr">'+(u.phone||GX("uNoPhone"))+'</span>'+(u.phone_verified===false?' · <span class="uunv" title="'+esc(GX("uUnverified"))+'">'+GX("uUnverified")+'</span>':'')+(joined?' <span class="ujoin">· '+GX("uJoined")+' '+joined+'</span>':'')+'</div></div></div></td>'+
+        '<div class="usub">'+(u.is_house?'<span class="uunv" style="background:var(--navy);color:#fff" title="'+esc(GX("desc_house"))+'">'+GX("houseBadge")+'</span> · ':'')+(u.member_no?'<b class="ltr">'+esc(u.member_no)+'</b> · ':'')+'<span class="ltr">'+(u.phone||GX("uNoPhone"))+'</span>'+(u.signup_source?' · <span class="usrc" title="'+esc(u.signup_source_detail||"")+'">'+esc(srcLabel(u.signup_source))+'</span>':'')+(u.phone_verified===false?' · <span class="uunv" title="'+esc(GX("uUnverified"))+'">'+GX("uUnverified")+'</span>':'')+(joined?' <span class="ujoin">· '+GX("uJoined")+' '+joined+'</span>':'')+'</div></div></div></td>'+
       '<td data-label="'+GX("colLastSeen")+'">'+(function(){ var d=lastSeen(u), a=uact[u.id]||{}; var fresh=d && (Date.now()-d.getTime())<86400000; return '<span class="'+(fresh?"useen-fresh":"useen")+'">'+(d?when(d.toISOString()):GX("never"))+'</span>'+(a.views_30d?'<div class="usub" title="'+esc(GX("kViews"))+' · 30d"><span class="ltr">'+a.views_30d+'</span> '+GX("uViewsShort")+'</div>':'') })()+'</td>'+
       '<td data-label="'+t("myAds")+'" class="unum ucount"><b class="ltr">'+(u.listings||0)+'</b>'+(ADM_WC&&ADM_WC[u.id]?'<small style="display:block">'+GX("uReqN").replace("{n}",ADM_WC[u.id])+'</small>':'')+(abMode_on?'<small>'+GX("abLastPost")+' '+(uact[u.id]&&uact[u.id].last_listing_at?'<span class="ltr">'+admWhen(uact[u.id].last_listing_at)+'</span>':GX("abNever"))+'</small>':'')+(ADM.scope==="ALL"&&u.countries?' <span class="sflag">'+String(u.countries).split(",").map(function(cc){ return flagSvg(cc) }).join("")+'</span>':'')+(uact[u.id]&&uact[u.id].live_listings!=null&&uact[u.id].live_listings!==(u.listings||0)?'<small>'+t("st_live")+' <span class="ltr">'+uact[u.id].live_listings+'</span></small>':'')+'</td>'+
       '<td data-label="'+t("ratingCol")+'" class="unum ucount">'+(u.rating?'<b class="ltr">'+u.rating+'</b> <span class="ustar">★</span>':'<span class="udash">—</span>')+'</td>'+
