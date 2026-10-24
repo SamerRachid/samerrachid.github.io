@@ -3668,8 +3668,8 @@ function guidesAdminBody(){
   var rows=gdRows().slice().sort(function(x,y){ return (+x.o||0)-(+y.o||0) }), v=function(x,f,l){ var o=x[f]||{}; return escOnce(typeof o==="string"?(l==="ar"?o:""):(o[l]||"")) };
   var card=function(x){ var id=esc(x.id), src=x.src||(x.yt?"yt":"file"), pl=x.places||{page:true};
     return '<div class="blk gd-card" data-gdid="'+id+'"><h3>'+(x.on===false?'<span class="pill" style="background:#eee;color:var(--grey)">'+GX("gdOn")+' ✕</span> ':'')+esc((x.t&&x.t.ar)||GX("gdAdd"))+'</h3><div class="in">'+
-      '<div class="row"><div class="fl"><label class="req">'+GX("gdTitle")+' — '+GX("gdAr")+'</label><input data-gd="t.ar" value="'+v(x,"t","ar")+'"></div><div class="fl"><label>'+GX("gdTitle")+' — '+GX("gdEn")+'</label><input data-gd="t.en" value="'+v(x,"t","en")+'" class="ltr"></div><div class="fl"><label>'+GX("gdTitle")+' — '+GX("gdFr")+'</label><input data-gd="t.fr" value="'+v(x,"t","fr")+'" class="ltr"></div></div>'+
-      '<div class="row"><div class="fl"><label>'+GX("gdDesc")+' — '+GX("gdAr")+'</label><input data-gd="d.ar" value="'+v(x,"d","ar")+'"></div><div class="fl"><label>'+GX("gdDesc")+' — '+GX("gdEn")+'</label><input data-gd="d.en" value="'+v(x,"d","en")+'" class="ltr"></div><div class="fl"><label>'+GX("gdDesc")+' — '+GX("gdFr")+'</label><input data-gd="d.fr" value="'+v(x,"d","fr")+'" class="ltr"></div></div>'+
+      '<div class="gd-3"><div class="fl"><label class="req">'+GX("gdTitle")+' — '+GX("gdAr")+'</label><input data-gd="t.ar" value="'+v(x,"t","ar")+'"></div><div class="fl"><label>'+GX("gdTitle")+' — '+GX("gdEn")+'</label><input data-gd="t.en" value="'+v(x,"t","en")+'" class="ltr"></div><div class="fl"><label>'+GX("gdTitle")+' — '+GX("gdFr")+'</label><input data-gd="t.fr" value="'+v(x,"t","fr")+'" class="ltr"></div></div>'+
+      '<div class="gd-3"><div class="fl"><label>'+GX("gdDesc")+' — '+GX("gdAr")+'</label><input data-gd="d.ar" value="'+v(x,"d","ar")+'"></div><div class="fl"><label>'+GX("gdDesc")+' — '+GX("gdEn")+'</label><input data-gd="d.en" value="'+v(x,"d","en")+'" class="ltr"></div><div class="fl"><label>'+GX("gdDesc")+' — '+GX("gdFr")+'</label><input data-gd="d.fr" value="'+v(x,"d","fr")+'" class="ltr"></div></div>'+
       '<div class="fl"><div class="pick"><label><input type="radio" name="gdsrc_'+id+'" data-gdsrc="file" value="file"'+(src==="file"?' checked':'')+'> '+GX("gdSrcFile")+'</label><label><input type="radio" name="gdsrc_'+id+'" data-gdsrc="yt" value="yt"'+(src==="yt"?' checked':'')+'> '+GX("gdSrcYt")+'</label></div></div>'+
       (src==="yt" ? '<div class="fl"><label>'+GX("gdSrcYt")+'</label><input data-gd="yt" class="ltr" placeholder="https://youtu.be/…" value="'+escOnce(x.yt||"")+'"></div>'
                   : '<div class="fl gd-file"><button type="button" class="ab" data-gdpick="'+id+'">▶ '+(x.url?GX("gdReplace"):GX("gdPick"))+'</button><input type="file" accept="video/*,.mp4,.mov,.m4v,.webm" hidden data-gdfile="'+id+'">'+
@@ -3677,8 +3677,8 @@ function guidesAdminBody(){
       '<div class="fl"><label>'+GX("gdPoster")+'</label><div class="gd-pv">'+(guidePoster(x)?'<img src="'+esc(guidePoster(x))+'" alt="">':'<span class="hintx">—</span>')+'</div>'+
         '<button type="button" class="ab" data-gdposter="'+id+'" style="margin-top:6px">'+GX("gdPosterUp")+'</button><input type="file" accept="image/*" hidden data-gdposterfile="'+id+'"></div>'+
       '<div class="fl"><label>'+GX("gdWhere")+'</label><div class="chkgrid">'+[["page","gdWPage"],["post","gdWPost"],["auth","gdWAuth"]].map(function(p){ var on=p[0]==="page"?pl.page!==false:!!pl[p[0]]; return '<label class="xcheck"><input type="checkbox" data-gdplace="'+p[0]+'"'+(on?' checked':'')+'><span>'+GX(p[1])+'</span></label>' }).join("")+'</div></div>'+
-      '<div class="row" style="align-items:end"><div class="fl"><label>'+GX("gdOrder")+'</label><input type="number" data-gd="o" value="'+(+x.o||0)+'" style="max-width:110px"></div><div class="fl"><label class="xcheck"><input type="checkbox" data-gdon'+(x.on!==false?' checked':'')+'><span>'+GX("gdOn")+'</span></label></div>'+
-        '<div class="fl" style="text-align:end"><button type="button" class="ab" data-gddel="'+id+'" style="color:var(--danger)">'+GX("gdDel")+'</button></div></div>'+
+      '<div class="gd-foot"><label class="gd-ord">'+GX("gdOrder")+' <input type="number" data-gd="o" value="'+(+x.o||0)+'"></label><label class="gd-on"><input type="checkbox" data-gdon'+(x.on!==false?' checked':'')+'><span>'+GX("gdOn")+'</span></label>'+
+        '<span class="gd-sp"></span><button type="button" class="ab ok" data-gdsave2>'+GX("gdSave")+'</button><button type="button" class="ab" data-gddel="'+id+'" style="color:var(--danger)">'+GX("gdDel")+'</button></div>'+
     '</div></div>' };
   return '<div class="blk"><div class="in"><div class="hintx">'+GX("gdMenuHint")+'</div>'+
       '<label class="xcheck" style="margin-top:8px"><input type="checkbox" id="gdFooter"'+(ADM.gdFooter?' checked':'')+'><span>'+GX("gdFooter")+'</span></label>'+
@@ -3724,6 +3724,8 @@ function wireGuidesAdmin(){
   if($("#gdFooter")) $("#gdFooter").onchange=function(){ ADM.gdFooter=this.checked; dirty() };
   if($("#gdAdd")) $("#gdAdd").onclick=function(){ rows.push({id:"g"+Date.now().toString(36), t:{ar:""}, d:{}, src:"file", places:{page:true,post:false,auth:false}, o:(rows.length+1)*10, on:true}); dirty(); render();
     var last=$$("[data-gdid]").pop(); if(last&&last.scrollIntoView) last.scrollIntoView({behavior:"smooth",block:"start"}) };
+  // every guide carries its own «حفظ الشروحات» at its end: it saves the whole list, like the one at the top
+  $$("[data-gdsave2]").forEach(function(b){ b.onclick=function(){ var top=$("#gdSave"); if(top) top.click() } });
   if($("#gdSave")) $("#gdSave").onclick=async function(){ var btn=this;
     if(ADM.gdBusy>0) return msg(GX("gdWait"),true);   // a video is still uploading
     for(var i=0;i<rows.length;i++){ var x=rows[i];
