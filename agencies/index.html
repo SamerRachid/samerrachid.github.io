@@ -3146,6 +3146,12 @@ header{padding-top:env(safe-area-inset-top,0px)}
 @media(max-width:640px){.pw.pw-fit input,.pw.pw-fit .ccpick-btn{height:47px}}   /* phone fields are 16px text there (no iOS zoom), 47px high */
 .crumb-l .wrap{display:flex;align-items:center;flex-wrap:wrap;row-gap:6px}
 .res.srv-wait{opacity:.55;transition:opacity .15s}
+.gd-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media(max-width:760px){.gd-3{grid-template-columns:1fr}}
+.gd-foot{display:flex;align-items:center;flex-wrap:wrap;gap:10px 14px;margin-top:6px;padding-top:12px;border-top:1px solid var(--line)}
+.gd-foot .gd-ord{display:inline-flex;align-items:center;gap:8px;font-size:13.5px;margin:0}.gd-foot .gd-ord input{width:76px;margin:0}
+.gd-foot .gd-on{display:inline-flex;align-items:center;gap:8px;font-size:14px;margin:0;cursor:pointer}
+.gd-foot .gd-sp{flex:1}
 .cprice{flex-wrap:wrap;row-gap:2px}   /* a long local price: the price per m² goes to the next line instead of being cut */
 .pconv{display:block;font-size:12px;font-weight:500;color:var(--grey);margin-top:2px;letter-spacing:0}
 .origp .pconv{display:inline;font-size:13.5px}
