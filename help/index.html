@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-XTeOQUU2lN/2NhpvuILA8YiwMxCI00SI1zfVPJlvGP4=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-7iPuKxOJj5sdPiaCUf/fWIn7lpv7E7KT1rmABExHGqk=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -5826,6 +5826,16 @@ function soonOpen(k){
 }
 function mdwOpen(){ var d=$("#mdw"); if(!d) return; closeAllMenus(); d.classList.add("on"); document.body.classList.add("mdw-open") }
 function mdwClose(){ var d=$("#mdw"); if(d) d.classList.remove("on"); document.body.classList.remove("mdw-open") }
+// the Android app's Back button asks this first (owner, 2026-10-23): an open window closes before the page goes back
+window.bkBack=function(){ try{
+  var m=document.getElementById("soonM"); if(m){ m.remove(); return true }
+  if(typeof AU!=="undefined" && AU.open){ AU.open=false; render(); return true }
+  if(LIGHTBOX_OPEN){ LIGHTBOX_OPEN=false; render(); return true }
+  var d=document.getElementById("mdw"); if(d && d.classList.contains("on")){ mdwClose(); return true }
+  var dr=document.querySelectorAll(".menu.on,.chipsel-drop.on"); if(dr.length){ dr.forEach(function(x){ x.classList.remove("on") }); CS_OPEN=null; return true }
+  var pp=document.querySelector(".pricepop:not([hidden])"); if(pp){ pp.hidden=true; return true }
+  if(MOBILE_FILTERS_OPEN){ MOBILE_FILTERS_OPEN=false; render(); return true }
+  }catch(e){} return false };
 function wireDrawer(){
   var d=$("#mdw"); if(!d) return;
   if($("#hmb")) $("#hmb").onclick=function(e){ e.stopPropagation(); mdwOpen() };
@@ -14831,7 +14841,7 @@ function wireGeoAdmin(){
     var btn=this, name=($("#geoNewName").value||"").trim(); if(!name || btn.disabled) return;
     var row={governorate_id:ADM.geoGov, name_ar:name, name_en:$("#geoNewEn").value, slug:$("#geoNewSlug").value, kind:$('[data-gk="new"]').value, sort_order:$("#geoNewOrder").value, enabled:true};
     // an area of the same name already in this governorate: say so and show it, nothing is added twice
-    var norm=function(s){ return String(s||"").replace(/^ال/,"").replace(/[أإآ]/g,"ا").replace(/ة$/,"ه").replace(/\s+/g," ").trim() };
+    var norm=function(s){ return String(s||"").trim().replace(/^ال/,"").replace(/[أإآ]/g,"ا").replace(/ة$/,"ه").replace(/\s+/g," ").trim() };
     var same=(ADM.geo&&ADM.geo.areas||[]).filter(function(a){ return a.governorate_id===ADM.geoGov && norm(a.name_ar)===norm(name) })[0];
     if(same){ ADM.geoHi=same.id; render(); msg(GX("geoExists").replace("{n}",same.name_ar),true); return }
     btn.disabled=true;   // one click, one area (a double click made «ادلب الجديدة» twice)
