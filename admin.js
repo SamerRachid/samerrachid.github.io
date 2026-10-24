@@ -71,7 +71,11 @@ function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab
 function admTheme(){ try{ return localStorage.getItem("bk_adm_theme")||"" }catch(e){ return "" } }
 function admIsDark(){ var t0=admTheme(); if(t0) return t0==="dark"; try{ return !!(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches) }catch(e){ return false } }
 function admApplyTheme(){ try{ document.documentElement.classList.toggle("adm-dark", typeof VIEW!=="undefined" && VIEW==="admin" && !!ADM.token && admIsDark()) }catch(e){} }   // the sign-in screen is the public site's, so it stays light
-function admResolveTab(k){ if(ADM_GROUP_ALIAS[k]) k=ADM_GROUP_ALIAS[k]; if(!ADM_GROUPS[k]) return k; var last=(ADM._sub||{})[k]; if(last&&canTab(last)) return last; return ADM_GROUPS[k].filter(canTab)[0]||k }
+// a section opens on a page that keeps the side menu visible: the Studio pages fill the screen and hid the section's other
+// pages (owner, 2026-10-23: «الموقع» opened the Studio straight away, so «الشروحات» could not be found) — they open from the menu
+function admResolveTab(k){ if(ADM_GROUP_ALIAS[k]) k=ADM_GROUP_ALIAS[k]; if(!ADM_GROUPS[k]) return k; var all=ADM_GROUPS[k].filter(canTab), studio=(typeof HS_TABS!=="undefined")?HS_TABS:{};
+  var plain=all.filter(function(t){ return !studio[t] })[0];
+  var last=(ADM._sub||{})[k]; if(last&&canTab(last)&&(!studio[last]||!plain)) return last; return plain||all[0]||k }
 function canTab(k){ if(ADM_GROUP_ALIAS[k]) k=ADM_GROUP_ALIAS[k]; if(ADM_GROUPS[k]) return ADM_GROUPS[k].some(canTab); var p=TAB_PERM[k]; if(p===undefined) return can(k); if(p==="super") return !!ADM.isSuper; if(Array.isArray(p)) return p.some(can); return can(p) }
 // ── panel search: tabs + the features inside them (buttons, cards, settings) with the words people use for them ──
 function admNorm(s){ return String(s||"").toLowerCase().replace(/[\u064B-\u0652\u0670\u0640]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي").replace(/\s+/g," ").trim() }
