@@ -2465,6 +2465,15 @@ async function routeAdmin(req: Request): Promise<Response> {
     const r = await publishDraft(id, b.status === "live" || b.status === "pending" ? b.status : null, { quiet: !!b.quiet });
     return json(r?.ok ? r : { error: r?.error || "failed", detail: r }, r?.ok ? 200 : 400);
   }
+  // the panel writes to a sender in its own words (an apology, a note): only to the chat of a draft the admin may see
+  if (a === "say") {
+    const id = +b.draft_id, text = String(b.text || "").trim(); if (!id || !text) return json({ error: "draft_id, text" }, 400);
+    if (!(await adminCan(b.token, id))) return json({ error: "unauthorised" }, 403);
+    const d = await rpc<any>("bk_intake_get", { p_draft: id }); if (!d?.chat_id) return json({ error: "no chat" }, 404);
+    await reply(d.source, d.chat_id, text.slice(0, 2000));
+    await log(id, d.chat_id, "info", "admin_said", { text: text.slice(0, 300) });
+    return json({ ok: true });
+  }
   if (a === "tick") return json({ ok: true, read: await tick() });
   // how the bot would sort a message (no draft, no reply, nothing stored); state = an optional chat-state stand-in
   if (a === "test_triage") {
