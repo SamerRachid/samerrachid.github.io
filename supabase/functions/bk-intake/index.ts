@@ -860,17 +860,24 @@ function findArea(g: any, name: string) {
 // governorate must be named; the longest names are matched first, so «ريف دمشق» is never read as «دمشق».
 function govFromText(fields: Record<string, any>, missing: string[], rawText: string, tax: any): { event: string; detail: any } | null {
   if (fields.governorate_id) return null;
-  let said = " " + norm(rawText).replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ") + " ";
   const esc = (x: string) => x.replace(/[.*+?^$(){}|[\]\\]/g, "\\$&");
   const govs = (tax.governorates || []).slice().sort((a: any, b: any) => norm(b.ar).length - norm(a.ar).length);
-  const found: any[] = [];
-  for (const g of govs) {
-    const n = norm(g.ar); if (!n || n.length < 3) continue;
-    const pat = "\\s(?:و|ف)?(?:ب|ل)?(?:ال)?" + esc(n) + "\\s";
-    if (new RegExp(pat, "u").test(said)) { found.push(g); said = said.replace(new RegExp(pat, "gu"), " "); }
-  }
-  if (found.length !== 1) return null;
-  const g = found[0];
+  const named = (text: string) => {
+    let said = " " + norm(text).replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ") + " ";
+    const found: any[] = [];
+    for (const g of govs) {
+      const n = norm(g.ar); if (!n || n.length < 3) continue;
+      const pat = "\\s(?:و|ف)?(?:ب|ل)?(?:ال)?" + esc(n) + "\\s";
+      if (new RegExp(pat, "u").test(said)) { found.push(g); said = said.replace(new RegExp(pat, "gu"), " "); }
+    }
+    return found;
+  };
+  // the LAST line that names a governorate decides: a sender who first wrote «دمشق» and then «محافظة ريف دمشق» corrected
+  // himself (owner, 2026-10-24, conversation 833); a line naming two governorates («في حلب طريق حمص») decides nothing
+  const lines = String(rawText || "").split(/\n+/).map((x) => x.trim()).filter(Boolean);
+  let g: any = null;
+  for (let k = lines.length - 1; k >= 0 && !g; k--) { const f = named(lines[k]); if (f.length === 1) g = f[0]; else if (f.length > 1) break; }
+  if (!g) return null;
   fields.governorate = g.ar; fields.governorate_id = g.id;
   const i = missing.indexOf("governorate"); if (i >= 0) missing.splice(i, 1);
   return { event: "gov_from_text", detail: { governorate: g.ar } };
