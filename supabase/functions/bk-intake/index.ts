@@ -854,6 +854,27 @@ function findArea(g: any, name: string) {
 // the model left the neighbourhood empty (or guessed one that was dropped) although a listed area name is written in
 // the message ("شقة سيدي مقداد على الشارع العام"): a deterministic pass over the governorate's own list — whole words only,
 // longest name first — fills it in. With no governorate known, the area must be unique across the country's governorates.
+// the sender NAMED the governorate (often as the answer to «المحافظة؟»: «دمشق», «محافظة دمشق»): when the model left it
+// empty, the governorate written in the text is taken as the sender wrote it (owner, 2026-10-24: «دمشق» answered five
+// times and the bot kept asking — the landmarks were Rif Dimashq places, so the model would not choose). Exactly one
+// governorate must be named; the longest names are matched first, so «ريف دمشق» is never read as «دمشق».
+function govFromText(fields: Record<string, any>, missing: string[], rawText: string, tax: any): { event: string; detail: any } | null {
+  if (fields.governorate_id) return null;
+  let said = " " + norm(rawText).replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ") + " ";
+  const esc = (x: string) => x.replace(/[.*+?^$(){}|[\]\\]/g, "\\$&");
+  const govs = (tax.governorates || []).slice().sort((a: any, b: any) => norm(b.ar).length - norm(a.ar).length);
+  const found: any[] = [];
+  for (const g of govs) {
+    const n = norm(g.ar); if (!n || n.length < 3) continue;
+    const pat = "\\s(?:و|ف)?(?:ب|ل)?(?:ال)?" + esc(n) + "\\s";
+    if (new RegExp(pat, "u").test(said)) { found.push(g); said = said.replace(new RegExp(pat, "gu"), " "); }
+  }
+  if (found.length !== 1) return null;
+  const g = found[0];
+  fields.governorate = g.ar; fields.governorate_id = g.id;
+  const i = missing.indexOf("governorate"); if (i >= 0) missing.splice(i, 1);
+  return { event: "gov_from_text", detail: { governorate: g.ar } };
+}
 function areaFromText(fields: Record<string, any>, missing: string[], rawText: string, tax: any): { event: string; detail: any } | null {
   if (fields.area_id) return null;
   const said = " " + norm(rawText).replace(/[^\p{L}\p{N}\s]/gu, " ").replace(/\s+/g, " ") + " ";
@@ -1327,6 +1348,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
         await log(draftId, d.chat_id, "info", "gov_defaulted", { governorate: g.ar, from: govs.length === 1 ? "agency_single_gov" : "area_match", area: fields.area || null });
       }
     }
+    { const gh = govFromText(fields, missing, rawText, tax); if (gh) await log(draftId, d.chat_id, "info", gh.event, gh.detail); }
     { const hit = areaFromText(fields, missing, rawText, tax); if (hit) { await log(draftId, d.chat_id, "info", hit.event, hit.detail); if (hit.detail?.ambiguous) ambig = hit.detail; } }
     // photos are optional everywhere (2026-09-30): a listing without photos publishes with the Balkoun logo as its cover
   } catch (e) { err = errStr(e); }
@@ -2293,6 +2315,7 @@ async function routeWeb(req: Request): Promise<Response> {
     // area actually written in the text ("المليحة" → ريف دمشق, not the model's default دمشق)
     const warnings = areaGuards(s.fields, s.missing, r.fields, t, tax);
     { const w = govGuard(s.fields, s.missing, t, tax); if (w) warnings.push(w); }
+    { const gh = govFromText(s.fields, s.missing, t, tax); if (gh) warnings.push(gh); }
     { const hit = areaFromText(s.fields, s.missing, t, tax); if (hit) warnings.push(hit); }
     await log(null, "web:" + uid, "info", "web_read_done", { cost: costOf(r.usage, c), in: r.usage.in, out: r.usage.out, missing: s.missing, warnings: warnings.map((w: any) => w.event) });
     return json({ ok: true, fields: s.fields, missing: s.missing, summary: summary(s.fields, tax, 0, "ar"), notes: r.fields.notes || null, confidence: r.fields.confidence ?? null });
@@ -2452,6 +2475,7 @@ async function routeAdmin(req: Request): Promise<Response> {
       const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax, govsForRead(tax, text, {})), "MESSAGE:\n" + text); const s = settle(r.fields, tax, text);
       const warnings = areaGuards(s.fields, s.missing, r.fields, text, tax);   // the same rules the real read enforces
       { const w = govGuard(s.fields, s.missing, text, tax); if (w) warnings.push(w); }
+      { const gh = govFromText(s.fields, s.missing, text, tax); if (gh) warnings.push(gh); }
       { const hit = areaFromText(s.fields, s.missing, text, tax); if (hit) warnings.push(hit); }
       return json({ ok: true, fields: s.fields, missing: s.missing, summary: summary(s.fields, tax, 0, "ar"), usage: r.usage, cost: costOf(r.usage, c), raw: r.fields, warnings });
     }
