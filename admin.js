@@ -3616,6 +3616,8 @@ function geoAdminBody(){
      :'');
   var g=govs.filter(function(x){return x.id===ADM.geoGov})[0]||govs[0];
   var rows=areas.filter(function(a){return g&&a.governorate_id===g.id});
+  // the area just added (or the one a duplicate pointed to) is shown first and lit
+  if(ADM.geoHi){ var hi=rows.filter(function(a){ return a.id===ADM.geoHi })[0]; if(hi) rows=[hi].concat(rows.filter(function(a){ return a!==hi })) }
   var kindSel=function(v,id){ return '<select data-gk="'+id+'">'+["city","area","village"].map(function(k){return '<option value="'+k+'"'+(v===k?" selected":"")+'>'+GX(k)+'</option>'}).join("")+'</select>' };
   return '<div class="blk"><h3>'+GX("geoH")+'</h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+GX("geoHint")+'</div>'+countryBar+
    '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px"><select id="geoGov" style="padding:8px 12px;border:1px solid var(--line-2);border-radius:8px;font-size:14px">'+
@@ -3629,7 +3631,7 @@ function geoAdminBody(){
    geoSuggestCard(g,true)+
    '<div class="geotable" style="display:grid;grid-template-columns:1.4fr 1fr 1fr .8fr .5fr .5fr auto auto;gap:6px 8px;align-items:center;font-size:13.5px">'+
      '<b>'+GX("nameAr")+'</b><b>'+GX("nameEn")+'</b><b>'+GX("slug")+'</b><b>'+GX("kind")+'</b><b>'+GX("order")+'</b><b>'+GX("shown")+'</b><b>'+GX("listings")+'</b><b></b>'+
-     rows.slice(0,admShown("geo_"+(g?g.id:0))).map(function(a){ return '<input data-ga="name_ar:'+a.id+'" value="'+escOnce(a.name_ar)+'"><input data-ga="name_en:'+a.id+'" value="'+escOnce(a.name_en||"")+'"><input data-ga="slug:'+a.id+'" value="'+escOnce(a.slug||"")+'" class="ltr">'+kindSel(a.kind,a.id)+
+     rows.slice(0,admShown("geo_"+(g?g.id:0))).map(function(a){ var lit=a.id===ADM.geoHi?' style="outline:2px solid var(--gold);background:var(--gold-w)"':''; return '<input data-ga="name_ar:'+a.id+'" value="'+escOnce(a.name_ar)+'"'+lit+'><input data-ga="name_en:'+a.id+'" value="'+escOnce(a.name_en||"")+'"><input data-ga="slug:'+a.id+'" value="'+escOnce(a.slug||"")+'" class="ltr">'+kindSel(a.kind,a.id)+
        '<input data-ga="sort_order:'+a.id+'" value="'+(a.sort_order||100)+'" type="number" style="width:64px"><input type="checkbox" data-ga="enabled:'+a.id+'"'+(a.enabled?" checked":"")+'><span class="ltr">'+a.listings+'</span>'+
        '<span style="display:flex;gap:4px"><button class="ab ok" data-geosave="'+a.id+'">'+GX("save")+'</button>'+(a.listings>0?'':'<button class="ab" data-geodel="'+a.id+'" style="color:var(--danger)">'+GX("del")+'</button>')+'</span>' }).join("")+
      '<input id="geoNewName" placeholder="'+GX("nameAr")+'" style="border-color:var(--gold)"><input id="geoNewEn" placeholder="'+GX("nameEn")+'"><input id="geoNewSlug" placeholder="'+GX("slug")+'" class="ltr">'+kindSel("area","new")+'<input id="geoNewOrder" type="number" value="100" style="width:64px"><span></span><span></span><button class="ab ok" id="geoAdd">'+GX("add")+'</button>'+
