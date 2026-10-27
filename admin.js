@@ -160,7 +160,7 @@ async function admAgencyEdit(o){
       '<div class="fl"><label>'+GX("agContactPersonL")+'</label><input id="agContact" data-allow-autofill value="'+esc(a.contact_person||"")+'" placeholder="'+esc(GX("agContactPersonPH"))+'"></div>'+
       '<div class="fl"><label>'+GX("f_agSpecs")+'</label><div class="ag-pills sel" id="agSpecs">'+AG_SPECS.map(function(k){ return '<button type="button" class="'+(specs.indexOf(k)>-1?"on":"")+'" data-agspec="'+k+'">'+agSpecLabel(k)+'</button>' }).join("")+'</div></div>'+
       '<div class="fl"><label>'+GX("f_agGovs")+'</label><div class="ag-pills sel" id="agGovs">'+govs.map(function(g){ return '<button type="button" class="'+(selG.indexOf(g)>-1?"on":"")+'" data-aggov="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
-      (areaOpts.length?'<div class="fl"><label>'+GX("f_agAreas")+' <small style="color:var(--grey)">(<span id="agmAreaN">'+selA.length+'</span>)</small></label><input id="agmAreaQ" class="agq" placeholder="'+esc(GX("agAreaSearch"))+'" data-allow-autofill autocomplete="off"><div class="ag-pills sel wrap" id="agAreas">'+areaOpts.map(function(p){ return '<button type="button" class="'+(selA.indexOf(p[1])>-1?"on":"")+'" data-agarea2="'+esc(p[1])+'" data-gov="'+esc(p[0])+'">'+aN(p[1])+'</button>' }).join("")+'</div></div>':'')+
+      (areaOpts.length?'<div class="fl"><label>'+GX("f_agAreas")+' <small style="color:var(--grey)">(<span id="agmAreaN">'+selA.length+'</span>)</small></label><input id="agmAreaQ" dir="auto" class="agq" placeholder="'+esc(GX("agAreaSearch"))+'" data-allow-autofill autocomplete="off"><div class="ag-pills sel wrap" id="agAreas">'+areaOpts.map(function(p){ return '<button type="button" class="'+(selA.indexOf(p[1])>-1?"on":"")+'" data-agarea2="'+esc(p[1])+'" data-gov="'+esc(p[0])+'">'+aN(p[1])+'</button>' }).join("")+'</div></div>':'')+
       '<div class="row"><div class="fl"><label>'+t("status")+'</label><select id="agmStatus">'+["approved","pending","hidden"].map(function(s){ return '<option value="'+s+'"'+((a.status||"approved")===s?' selected':'')+'>'+GX("st_"+s)+'</option>' }).join("")+'</select></div></div>'+
       '<div class="xactions"><button type="button" class="ab ok" id="agmSave">'+t("saveChanges")+'</button><span class="xmsg" id="agmMsg"></span></div>':'');
     if($("#agmUser")) $("#agmUser").onchange=async function(){ uid=this.value; o.name=(this.options[this.selectedIndex]||{}).text||""; try{ await load(); draw() }catch(e){ admToast(e.message||"error","bad") } };
@@ -357,7 +357,7 @@ function adminView(){
      '<div class="msgfilters">'+
       ["all","open","solved"].map(function(fk){return '<button class="mfbtn'+(filter===fk?" on":"")+'" data-emailfilter="'+kind+':'+fk+'">'+t("mf_"+fk)+'</button>'}).join("")+
      '</div>'+
-     '<input id="aq'+kind+'" placeholder="'+t("searchPH")+'" class="asearch" style="margin:10px 0">'+
+     '<input id="aq'+kind+'" dir="auto" placeholder="'+t("searchPH")+'" class="asearch" style="margin:10px 0">'+
      '<div class="inbox-rows" id="inboxRows'+kind+'">'+
       (shown.length ? shown.map(function(x){ return buildRow(x, selItem&&String(selItem.id)===String(x.id)) }).join("")
        : '<div class="done2"><b>'+emptyText+'</b></div>')+
@@ -622,7 +622,7 @@ function adminView(){
     var selectable = filtered.filter(function(it){ return it.deletePath && !it.isUsed });
     var selectedCount = selectable.filter(function(it){ return selSet[it.deletePath] }).length;
     return '<div class="afilters" style="margin-bottom:10px">'+
-      '<input id="msQ" value="'+(ms.q||"").replace(/"/g,"&quot;")+'" placeholder="'+opts.searchPh+'" class="asearch">'+
+      '<input id="msQ" dir="auto" value="'+(ms.q||"").replace(/"/g,"&quot;")+'" placeholder="'+opts.searchPh+'" class="asearch">'+
       '<select id="msUsed"><option value="">'+t("allFiles")+'</option>'+
        '<option value="used"'+(ms.used==="used"?" selected":"")+'>'+t("adStorageInUse")+'</option>'+
        '<option value="unused"'+(ms.used==="unused"?" selected":"")+'>'+t("notUsed")+'</option></select>'+
@@ -902,7 +902,7 @@ function adminView(){
    '<div class="adm-brand"><span class="adm-logo">'+CONFIG.brand+'</span><span class="adm-sub">'+t("adminPanel")+'</span></div>'+
    ((GSX("maintenance_on",false)===true||GSX("maintenance_on",false)==="true")?'<button type="button" class="adm-maint" data-atab="settings" title="'+esc(GX("maintBadgeHint"))+'">🛠 '+GX("maintBadge")+'</button>':'')+
    '<button type="button" class="ab adm-qbtn" id="aSearchBtn" aria-label="'+esc(GX("aNavSearch"))+'">'+AICO.search+'</button>'+
-   '<label class="adm-q">'+AICO.search+'<input id="aNavQ" placeholder="'+GX("aNavSearch")+'" autocomplete="off"><div class="anav-hits" id="aNavHits" hidden></div></label>'+
+   '<label class="adm-q">'+AICO.search+'<input id="aNavQ" dir="auto" placeholder="'+GX("aNavSearch")+'" autocomplete="off"><div class="anav-hits" id="aNavHits" hidden></div></label>'+
    '<div class="adm-actions">'+
     adminCountrySelHtml()+'<select class="adm-lang" id="aLang" aria-label="'+GX("aLang")+'">'+["ar","en","de"].map(function(k){ return '<option value="'+k+'"'+(k===L?' selected':'')+'>'+D.I18N[k].name+'</option>' }).join("")+'</select>'+
     adminBellHtml()+
@@ -934,7 +934,7 @@ function admWantedEdit(w){
     // types and areas as chips (the same .ag-pills the member's request form uses): tap to pick, tap again to drop
     fl(t("ptype"),'<div class="ag-pills sel" id="awTypes">'+typeKeys.map(function(k){ return '<button type="button" class="'+(types0.indexOf(k)>-1?"on":"")+'" data-awtype="'+esc(k)+'">'+esc(wTypeName(k)||k)+'</button>' }).join("")+'</div>')+
     fl(GX("f_wAreas"),'<div class="hintx" style="margin:0 0 6px">'+GX("wAreasHint")+'</div><div class="ag-pills" id="awPicked" style="margin-bottom:8px"></div>'+
-      '<input id="awAreaQ" placeholder="'+esc(GX("wAreaSearch"))+'" autocomplete="off"><div class="ag-pills sel wrap" id="awAreas" style="margin-top:8px"></div>')+
+      '<input id="awAreaQ" dir="auto" placeholder="'+esc(GX("wAreaSearch"))+'" autocomplete="off"><div class="ag-pills sel wrap" id="awAreas" style="margin-top:8px"></div>')+
     '<div class="row3">'+fl(GX("f_wBudgetMin"),num("awBmin",w.budget_min))+fl(GX("f_wBudgetMax"),num("awBmax",w.budget_max))+fl(GX("f_wCur"),curSelHtml("awCur",w.currency||"USD"))+'</div>'+
     '<div class="row3">'+fl(GX("f_wRooms"),num("awRooms",w.rooms_min))+fl(GX("f_wArea"),num("awM2",w.area_min))+
       '<div class="fl" id="awTabuF"'+(w.deal==="rent"?' style="display:none"':'')+'><label>'+GX("f_wTabu")+'</label><select id="awTabu"><option value="">'+GX("wAnyTabu")+'</option>'+Object.keys(D.TABU).map(function(k){ return '<option value="'+k+'"'+(w.tabu===k?" selected":"")+'>'+D.TABU[k][li()]+'</option>' }).join("")+'</select></div></div>'+
@@ -1066,7 +1066,7 @@ function adminAgenciesBody(){
       '<div class="ld-sp"></div></aside>';
   }
   return '<div class="lbar"><span class="lcnt"><b class="ltr">'+LL.length+'</b> '+GX("tAgencies")+(pend?'<span class="lpend">· '+pend+' '+GX("st_pending")+'</span>':'')+'</span>'+
-      '<label class="lq">'+AICO.search+'<input id="agQ" value="'+esc(ADM.agQ||"")+'" placeholder="'+t("searchPH")+'" autocomplete="off"></label>'+newBtn+'</div>'+
+      '<label class="lq">'+AICO.search+'<input id="agQ" dir="auto" value="'+esc(ADM.agQ||"")+'" placeholder="'+t("searchPH")+'" autocomplete="off"></label>'+newBtn+'</div>'+
     '<div class="lpage'+(drawer?' has-drawer':'')+'"><div class="ltbl agtable"><table>'+
       '<colgroup><col><col style="width:26%"><col style="width:84px"><col style="width:120px"><col style="width:140px"><col style="width:96px"></colgroup>'+
       '<thead><tr><th>'+GX("agColAgency")+'</th><th>'+GX("agColCoverage")+'</th><th>'+t("liveAds")+'</th><th>'+t("status")+'</th><th>'+GX("tIntake")+'</th><th>'+GX("colDate")+'</th></tr></thead>'+
@@ -1158,7 +1158,7 @@ function adminPromoBody(){
   var P=ADM.promos, rows=(P&&P.rows)||[], sq=(P&&P.squares)||{used:0,max:+GSX("ad_max_squares",15)||15};
   return '<div class="blk"><h3>⭐ '+GX("pmH")+'</h3><div class="in">'+
     '<div class="hintx" style="margin-bottom:10px">'+GX("pmHint").replace("{m}",sq.max)+'</div>'+
-    '<div class="fl"><label>'+t("adPickListingL")+'</label><div class="chipsel"><div class="chipsel-box"><input class="chipsel-input" id="ftListingSearch" autocomplete="off" placeholder="'+GX("pmPick")+'"></div><div class="chipsel-drop" id="ftListingDrop"></div></div><input type="hidden" id="ftListing" value=""></div>'+
+    '<div class="fl"><label>'+t("adPickListingL")+'</label><div class="chipsel"><div class="chipsel-box"><input class="chipsel-input" id="ftListingSearch" dir="auto" autocomplete="off" placeholder="'+GX("pmPick")+'"></div><div class="chipsel-drop" id="ftListingDrop"></div></div><input type="hidden" id="ftListing" value=""></div>'+
     '<div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap"><div class="fl" style="margin:0"><label>'+GX("pmSquaresMax")+'</label><input type="number" id="pmMax" min="1" max="40" value="'+esc(String(GSX("ad_max_squares",15)))+'" style="width:90px" data-allow-autofill></div><button type="button" class="ab" id="pmMaxSave">'+t("save")+'</button>'+
       '<span style="font-size:13px;padding-bottom:8px">'+GX("pmSquares").replace("{u}",'<b class="ltr">'+(sq.used||0)+'</b>').replace("{m}",'<b class="ltr">'+sq.max+'</b>')+(sq.custom?' · '+GX("pmCustomN").replace("{n}",sq.custom):'')+'</span></div>'+
     (P&&P.error?'<div class="hintx" style="color:var(--danger)">'+esc(P.error)+'</div>':'')+
@@ -3191,7 +3191,7 @@ function adminEngageBody(){
   var all=ADM.eng, q=(ADM.eq||"").toLowerCase().trim();
   var R=[[7,GX("r7")],[30,GX("r30")],[90,GX("r90")],[365,GX("r365")],[0,GX("r0")]], cur=ADM.erange==null?30:ADM.erange;
   var head='<div class="dash-top"><div class="arange">'+R.map(function(r){ return '<button type="button" class="'+(cur===r[0]?"on":"")+'" data-erange="'+r[0]+'">'+r[1]+'</button>' }).join("")+'</div>'+
-    '<input class="asearch" id="engQ" data-allow-autofill placeholder="'+esc(GX("engSearchPH"))+'" value="'+esc(ADM.eq||"")+'" style="max-width:340px">'+
+    '<input class="asearch" id="engQ" dir="auto" data-allow-autofill placeholder="'+esc(GX("engSearchPH"))+'" value="'+esc(ADM.eq||"")+'" style="max-width:340px">'+
     '<button type="button" class="ab" id="engAddBtn" style="margin-inline-start:auto">'+GX("engManual")+'</button></div>'+
     '<div class="hintx" style="margin-bottom:14px">'+GX("engHint")+'</div>'+
     (ADM.engLastCode?'<div class="ecodebox" style="margin-bottom:14px">'+GX("engCodeIs")+' <b class="ltr">'+esc(ADM.engLastCode)+'</b> <button type="button" class="ab" data-ecopy="'+esc(ADM.engLastCode)+'">'+GX("engCopy")+'</button></div>':'')+
@@ -3334,7 +3334,7 @@ function adminUsersBody(d){
   // "deleted" is a view of its own: the deleted_users log (who was deleted, when, by whom) instead of the live members
   var delMode=ADM.userBlockedFilter==="deleted", delList=delMode?(ADM.delUsers||[]):[];
   var toolbar='<div class="rtop" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
-    '<input id="aqU" placeholder="'+t("searchPH")+'" class="asearch" style="flex:1;min-width:200px;width:auto" value="'+esc(ADM.uQ||"")+'">'+
+    '<input id="aqU" dir="auto" placeholder="'+t("searchPH")+'" class="asearch" style="flex:1;min-width:200px;width:auto" value="'+esc(ADM.uQ||"")+'">'+
     '<select id="uSortPick" class="lvlpick"><option value="newer"'+(ADM.userSort!=="older"?" selected":"")+'>'+t("sortNewerUsers")+'</option><option value="older"'+(ADM.userSort==="older"?" selected":"")+'>'+t("sortOlderUsers")+'</option></select>'+
     '<select id="uLevelPick" class="lvlpick"><option value="">'+t("allLevels")+'</option>'+LEVELS_ALL.map(function(lv){ return '<option value="'+lv+'"'+(ADM.userLevelFilter===lv?" selected":"")+'>'+t("lv_"+lv)+'</option>' }).join("")+'</select>'+
     '<select id="uBlockPick" class="lvlpick"><option value="">'+t("allUsers")+'</option><option value="active"'+(ADM.userBlockedFilter==="active"?" selected":"")+'>'+t("activeOnly")+'</option><option value="blocked"'+(ADM.userBlockedFilter==="blocked"?" selected":"")+'>'+t("blockedOnly")+'</option><option value="test"'+(ADM.userBlockedFilter==="test"?" selected":"")+'>'+GX("tHouse")+' ('+(d.users||[]).filter(function(u){ return u.is_house }).length+')</option><option value="deleted"'+(delMode?" selected":"")+'>'+GX("uDeleted")+(ADM.delUsers?' ('+ADM.delUsers.length+')':'')+'</option><option value="abandoned"'+(abMode_on?" selected":"")+'>'+GX("uAbandoned")+'</option></select>'+
@@ -4042,7 +4042,7 @@ function cpgContactsBody(){
   if(list==null) return '<div class="done2"><b>'+t("loading")+'</b></div>';
   var f=ADM.cpgFilters||{};
   var toolbar='<div class="rtop" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'+
-    '<input id="cpgQ" placeholder="'+cpgT("searchPH")+'" class="asearch" value="'+escOnce(f.q||"")+'" style="flex:1;min-width:200px;width:auto">'+
+    '<input id="cpgQ" dir="auto" placeholder="'+cpgT("searchPH")+'" class="asearch" value="'+escOnce(f.q||"")+'" style="flex:1;min-width:200px;width:auto">'+
     '<select id="cpgConsentPick" class="lvlpick"><option value="">'+cpgT("allConsent")+'</option>'+["subscribed","pending","unsubscribed"].map(function(v){ return '<option value="'+v+'"'+(f.consent===v?' selected':'')+'>'+cpgT(v)+'</option>' }).join("")+'</select>'+
     '<select id="cpgSourcePick" class="lvlpick"><option value="">'+cpgT("allSource")+'</option>'+["member","manual","import"].map(function(v){ return '<option value="'+v+'"'+(f.source===v?' selected':'')+'>'+cpgT("src_"+v)+'</option>' }).join("")+'</select>'+
     '<span class="n" style="font-size:13px;color:var(--grey)"><span class="ltr">'+list.length+'</span></span>'+
@@ -4509,7 +4509,7 @@ function adminListingsBody(d){
   }
   return (ADM.listUser?'<div class="ulchip"><span>'+GX("uListChip").replace("{n}",esc(ADM.listUser.name||""))+' · <b class="ltr">'+all.length+'</b></span><button type="button" class="ab" id="ulClear">✕ '+GX("uListAll")+'</button></div>':'')+
    '<div class="lbar"><span class="lcnt"><b class="ltr">'+cntN+'</b>'+(!f.view&&LL.length!==all.length?' / <span class="ltr">'+all.length+'</span>':'')+' '+(f.view==="deleted"?GX("lfDeletedV"):f.view==="dupes"?GX("dupGroup"):t("listingsTab"))+(pend&&!f.view?'<span class="lpend">· '+GX("lfPendingN").replace("{n}",pend)+'</span>':'')+'</span>'+
-     '<label class="lq">'+AICO.search+'<input id="aqL" value="'+esc(f.q||"")+'" placeholder="'+t("searchPH")+'" autocomplete="off"></label>'+rangeTabs()+
+     '<label class="lq">'+AICO.search+'<input id="aqL" dir="auto" value="'+esc(f.q||"")+'" placeholder="'+t("searchPH")+'" autocomplete="off"></label>'+rangeTabs()+
      '<span title="'+esc(GX("countsOnHint"))+'" style="display:inline-flex;align-items:center;gap:8px;font-size:13px;white-space:nowrap">'+GX("countsOnL")+'<label class="xswitch"><input type="checkbox" id="lCountsOn"'+(SXb("listing_counts_on",true)?" checked":"")+'><i></i></label></span></div>'+
    '<div class="lfilters">'+pill("view",GX("lfView"),[["deleted",GX("lfDeletedV"),ADM.ldel?ADM.ldel.length:null],["dupes",GX("lfDupesV"),ADM.ldupN!=null?ADM.ldupN:null]],f.view)+
      (f.view?'':pill("status",GX("lfStatus"),stItems,f.status,"afStatus")+pill("gov",GX("lfGov"),uniq(function(l){ return l.gov }),f.gov)+pill("type",GX("lfType"),tyItems,f.type)+pill("who",GX("lfWho"),uniq(function(l){ return l.agency_name||l.poster_name }),f.who)+
@@ -4641,7 +4641,7 @@ function adminMapsBody(){
     '<div class="prow" style="margin:0 16px 4px"><label class="lfc'+(toggleOn?' on':'')+'" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px"><input type="checkbox" id="mapsFallbackToggle"'+(toggleOn?' checked':'')+'> <span>'+GX("mapsFallbackToggleL")+'</span></label></div>'+
     '<div class="hintx" style="margin:0 16px 14px">'+GX("mapsFallbackHint")+'</div>'+
     (view!=="areas" ? '<button type="button" class="ab" id="mapsBackToAreas" style="margin:0 16px 10px">‹ '+GX("mapsBackToAreas")+'</button>' : '')+
-    '<label class="lq" style="margin:0 16px 12px;max-width:320px">'+AICO.search+'<input id="mapsQ" value="'+esc(ADM.mapsQ||"")+'" placeholder="'+esc(searchPH)+'" autocomplete="off"></label>'+
+    '<label class="lq" style="margin:0 16px 12px;max-width:320px">'+AICO.search+'<input id="mapsQ" dir="auto" value="'+esc(ADM.mapsQ||"")+'" placeholder="'+esc(searchPH)+'" autocomplete="off"></label>'+
     '<div id="mapsTableRegion">'+mapsTableRegionHtml()+'</div>'+
     (ADM.mapsPick ? adminMapPickerHtml() : '');
 }
@@ -4766,7 +4766,7 @@ function adminSocialBody(){
     var allRows=(q?all.filter(function(x){ return ((x.ref||"")+" "+(x.gov||"")+" "+(x.area||"")).toLowerCase().indexOf(q)>-1 }):all), rows=allRows.slice(0,admShown("social",24));
     return '<div class="ld-sec">📣 '+GX("tSocial")+'</div><div class="hintx" style="margin-bottom:10px">'+GX("socialPickHint")+'</div>'+
       settingsPanel+
-      '<input id="socialQ" class="asearch" placeholder="'+esc(t("searchPH"))+'" value="'+esc(s.q||"")+'" style="max-width:420px;margin-bottom:12px">'+
+      '<input id="socialQ" dir="auto" class="asearch" placeholder="'+esc(t("searchPH"))+'" value="'+esc(s.q||"")+'" style="max-width:420px;margin-bottom:12px">'+
       '<div class="sociallist">'+(rows.length?rows.map(function(x){ return '<button type="button" class="socialrow" data-socialpick="'+x.id+'">'+(x.cover?'<img src="'+esc(x.cover)+'">':'<span class="socialrow-ph"></span>')+'<span class="socialrow-mid"><b class="ltr">'+esc(x.ref||x.id)+'</b><small>'+esc(admTypeName(x))+(x.area?' · '+esc(x.area):'')+'</small></span><span class="ltr">'+(x.price_usd!=null?"$"+Number(x.price_usd).toLocaleString("en"):"—")+'</span></button>' }).join(""):'<div class="done2"><b>'+GX("lfNone")+'</b></div>')+'</div>'+admMoreBtn(allRows.length,admShown("social",24),"social",24);
   }
   var text=promoText(l,{hidePrice:s.hidePrice}), photoUrl=socialPhotoUrl(l), photos=promoPhotos(l), due=socialDueFor(l.id);
@@ -5024,7 +5024,7 @@ function adminOutreachBody(){
     if(q){ var hay=[o.name,o.phone,o.city,o.area,o.source,o.notes].join(" ").toLowerCase(); if(hay.indexOf(q)===-1) return false }
     return true });
   var pipe='<div class="astat ikstats">'+OUT_STAGES.map(function(s){ return '<button type="button" class="astat ikstat'+(f===s?' on':'')+'" data-outf="'+s+'" style="cursor:pointer;border:0"><b class="ltr">'+counts[s]+'</b><span>'+outStageLabel(s)+'</span></button>' }).join("")+'</div>';
-  var tools='<div class="rtop" style="margin:10px 0"><input id="outQ" class="aq" placeholder="'+esc(GX("outSearchPH"))+'" value="'+esc(ADM.outQ||"")+'" data-allow-autofill style="max-width:260px">'+
+  var tools='<div class="rtop" style="margin:10px 0"><input id="outQ" dir="auto" class="aq" placeholder="'+esc(GX("outSearchPH"))+'" value="'+esc(ADM.outQ||"")+'" data-allow-autofill style="max-width:260px">'+
     '<button type="button" class="ab'+(f==="open"?' ok':'')+'" data-outf="open">'+GX("outOpen")+'</button>'+
     '<button type="button" class="ab'+(f==="due"?' ok':'')+'" data-outf="due">⏰ '+GX("outDue")+(due?' <b class="ltr">'+due+'</b>':'')+'</button>'+
     '<button type="button" class="ab'+(f==="all"?' ok':'')+'" data-outf="all">'+GX("lfAll")+'</button>'+
