@@ -2193,9 +2193,12 @@ function wireAdmin(){
   var filterRows=function(bodyId, q, statusSel, tabuSel, dealSel){
     var body=$("#"+bodyId); if(!body) return;
     var qq=(q||"").toLowerCase();
+    // a phone number matches however it is written: «+963 988 943 571», «0988943571», Arabic digits (owner, 2026-10-27)
+    var qn=typeof latinDigits==="function"?latinDigits(qq):qq, qd=/^[\d\s+()\-.]+$/.test(qn)?qn.replace(/\D/g,"").replace(/^0+/,""):"";
     var visible=0;
     $$("tr",body).forEach(function(tr){
-      var okText = !qq || (tr.dataset.rowText||"").indexOf(qq)>-1;
+      var rt=tr.dataset.rowText||"";
+      var okText = !qq || rt.indexOf(qq)>-1 || (qd.length>=4 && rt.split(/\s+/).some(function(w){ return w.replace(/\D/g,"").indexOf(qd)>-1 }));
       var okStatus = !statusSel || !tr.dataset.rowStatus || tr.dataset.rowStatus===statusSel;
       var okTabu = !tabuSel || !tr.dataset.rowTabu || tr.dataset.rowTabu===tabuSel;
       var okDeal = !dealSel || !tr.dataset.rowDeal || tr.dataset.rowDeal===dealSel;
