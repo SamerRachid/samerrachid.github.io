@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-qz92iYwneARIci708X/0TovWWeoanhTUxBSc2lNLI+I=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-o1YMIJ/Ba3zvfO3xr72AzV/X3N3RafptBcnNWcsT8lA=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -10392,6 +10392,7 @@ function wire(){
          if($("#eOwner")&&v("eOwner")&&v("eOwner")!==$("#eOwner").dataset.cur) patch.user_id=v("eOwner");   // moved to another agency / member
        }
        await rpc("bk_admin_edit_listing",{p_token:ADM.token, p_id:+EDIT.id, p_patch:patch});
+       listingChanged(EDIT.id);
        VIEW="admin"; scrollTo(0,0); render();
      } else {
        if($("#eTelM")){ var eCC=v("eCC")||phoneCC(), eNat=phoneNat(eCC, v("eTelM"));   // the listing's own number, checked like everywhere else
@@ -10400,7 +10401,7 @@ function wire(){
          if(gid2){ patch.governorate_id=gid2; patch.area_id=aname2?((GEO_META.areaId||{})[gname2+"/"+aname2]||null):null }
          if($("#eLandmark")) patch.landmark=v("eLandmark").trim()||null; }
        await rpc("bk_edit",{p_user:USER.id, p_id:+EDIT.id, p_patch:patch});
-       LOADED.mine=false; await Promise.all([loadListings(),loadMyListings()]);
+       listingChanged(EDIT.id); LOADED.mine=false; await Promise.all([loadListings(),loadMyListings()]); await fetchOne(EDIT.id);
        VIEW="listing:"+EDIT.id; scrollTo(0,0); render();
      }
    }catch(e){ EDIT.msg=(e.message||"error"); this.disabled=false;
@@ -11114,7 +11115,7 @@ function wireVideoPoster(){
       var oldRow=(EDIT.photos||[]).find(function(p){ return p.id===st.id }), oldTh=oldRow&&oldRow.thumb_url;
       if(oldTh && oldTh!==url && /-poster\.jpg$/.test(oldTh)){ try{ var op=storagePathFromUrl(oldTh); if(op) storageTrash([op]) }catch(e){} }
       try{ EDIT.photos=(await rpc("bk_photos",{p_listing:+EDIT.id}))||EDIT.photos }catch(e){}
-      EDIT.vpOpen=null; EDIT.vp=null; LOADED.mine=false; render(); var m2=$("#eVMsg"); if(m2){ m2.style.color="var(--ok)"; m2.textContent=GX("vpSaved") }
+      EDIT.vpOpen=null; EDIT.vp=null; LOADED.mine=false; listingChanged(EDIT.id); render(); var m2=$("#eVMsg"); if(m2){ m2.style.color="var(--ok)"; m2.textContent=GX("vpSaved") }
     }catch(e){ btn.disabled=false; if(msg){ msg.style.color="var(--danger)"; msg.textContent=(e&&e.message)||"error" } } };
 }
 async function editVideoPick(f){ var m=$("#eVMsg"); if(m) m.style.color="";
@@ -11935,6 +11936,13 @@ async function savePost(){
   NEW.done = true; scrollTo(0,0); render();
 }
 
+// a listing just changed: drop every kept copy (the list, the open search, the home rows) so the next look reads it fresh
+// (owner, 2026-10-27: the new price showed only after Ctrl+F5 — the listing page kept the copy it had before the edit)
+function listingChanged(id){ id=String(id);
+  D.LIST=D.LIST.filter(function(l){ return String(l.id)!==id });
+  if(ITEM_HOLD&&String(ITEM_HOLD.id)===id) ITEM_HOLD=null;
+  delete SRV.one[id]; SRV.q=null;
+  [SRV.home,SRV.hero,SRV.sim,SRV.ag,SRV.wm].forEach(function(st){ Object.keys(st).forEach(function(k){ if(st[k]&&typeof st[k]==="object") st[k].t=0 }) }) }
 async function fetchOne(id){
   if(!DB) return null;
   try{
@@ -12410,6 +12418,7 @@ function adminBellHtml(){ if(!window.__admLoaded){ if(ADM.token) ensureAdminJs()
 function wireAdminBell(){ if(!window.__admLoaded) return; wireAdminBell() }
 
 function render(){
+ var _ek=(VIEW==="edit")?editKeep():null;   // the edit page's typed, unsaved values, put back after the redraw
  syncHash();
  if(window.PWA && PWA.syncBar) try{ PWA.syncBar() }catch(e){}
  logView();
@@ -12452,7 +12461,21 @@ function render(){
  heroChoreo(); phoneHeadline();
  homeExtras();
  asAdminBar();
- wire()}
+ wire();
+ if(_ek) editRestore(_ek) }
+// the edit page redraws itself when a photo, the video or its cover changes (and after a failed save): whatever was typed
+// and not yet saved is carried over (owner, 2026-10-27: changing the video's cover wiped a new price typed just before)
+function editKeyOf(e){ if(e.type==="file"||e.closest("header,.hdr,.vpp,#vpp")) return ""; if(e.type==="radio"||e.type==="checkbox") return e.id?"#"+e.id:(e.name||e.className)+"="+e.value; return e.id?"#"+e.id:"" }
+function editKeep(){ var app=$("#app"); if(!app||!$("#eSave")||!EDIT||!EDIT.id) return null; var k={id:String(EDIT.id),v:{}};
+  $$("input,select,textarea",app).forEach(function(e){ var key=editKeyOf(e); if(key) k.v[key]=(e.type==="radio"||e.type==="checkbox")?e.checked:e.value });
+  return k }
+function editRestore(k){ var app=$("#app"); if(!k||!app||!$("#eSave")||String(EDIT.id)!==k.id) return;
+  var g=$("#eGov"), a=$("#eAreaSel");
+  $$("input,select,textarea",app).forEach(function(e){ var key=editKeyOf(e); if(!key||!(key in k.v)||e===g||e===a) return;
+    if(e.type==="radio"||e.type==="checkbox") e.checked=k.v[key]; else if(e.value!==k.v[key]){ e.value=k.v[key]; if(e._combo) e._combo.sync() } });
+  // the governorate first (it fills the areas), then the area
+  if(g&&("#eGov" in k.v)&&g.value!==k.v["#eGov"]){ g.value=k.v["#eGov"]; g.dispatchEvent(new Event("change")) }
+  if(a&&("#eAreaSel" in k.v)){ a.value=k.v["#eAreaSel"]; if(a._combo) a._combo.sync() } }
 
 /* ── 2026-09-04 home page sections (Horizon restyle) ── */
 var HX_T={
