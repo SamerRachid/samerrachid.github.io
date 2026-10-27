@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-o1YMIJ/Ba3zvfO3xr72AzV/X3N3RafptBcnNWcsT8lA=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-Gez+jkZleSNd6PA/b+afauT+VybFFCl4KuU0hEmMhz0=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -7341,6 +7341,28 @@ function post(){
 
 /* ── edit an existing listing ── */
 var EDIT={id:null,row:null,msg:"",lat:null,lng:null,locTouched:false};
+// the photos and videos block of the edit page: saved at once, so it redraws on its own and leaves the typed form alone
+// (owner, 2026-10-27: two sections with two save buttons should not redraw each other)
+// the admin manages photos and videos here too (bk_admin_photo_add / bk_admin_photo_del)
+function editMediaHtml(){
+ return '<div class="blk" id="eMedia"><h3><span class="n">3</span>'+t("managePhotos")+'</h3><div class="in">'+
+   '<div class="hintx" style="margin:-4px 0 12px">'+GX("edMediaNow")+'</div>'+
+   (function(){ var ph=(EDIT.photos||[]).filter(function(p){ return p.kind!=="video" }), n=ph.length;
+    return '<div class="shots'+(n>1?' ordered':'')+'" id="ePhotos">'+
+    ph.map(function(p,i){
+      return '<div class="shot2'+(i===0&&n>1?' first':'')+'" data-k="p'+p.id+'"><img src="'+(p.thumb_url||p.url)+'">'+
+      '<button type="button" class="rm" data-delphoto="'+p.id+'" aria-label="'+esc(t("del"))+'">✕</button>'+shotOrd(i,n)+'</div>'}).join("")+
+   '</div>'+(n>1?'<p class="hint" id="eOrdHint" style="margin:8px 0 0;font-size:12px;color:var(--grey)">'+esc(GX("phOrderHint"))+'</p>':'') })()+
+   '<div class="drop" id="eDrop" style="margin-top:12px"><b>'+t("addPhotos")+'</b>'+
+    '<span>'+t("dropS")+' · '+GX("photoMaxHint").replace("{n}",PHOTO_MAX)+'</span></div>'+
+   '<input type="file" id="eFiles" accept="image/*,video/*" multiple hidden><div class="hintx" id="ePhMsg"></div>'+
+   (function(){ var vids=(EDIT.photos||[]).filter(function(p){ return p.kind==="video" }), cfg=videoCfg(); if(!cfg.on && !vids.length) return '';
+     return '<div class="evids"><b class="vpick-h">'+GX("videoH")+'</b><div class="shots">'+vids.map(function(p){ return '<div class="shot2 vshot">'+(p.thumb_url?'<img src="'+p.thumb_url+'" alt="">':'<span class="vph">▶</span>')+'<span class="vplay">▶</span>'+(p.duration_s?'<div class="kb ltr">'+fmtDur(p.duration_s)+'</div>':'')+'<button type="button" class="rm" data-delphoto="'+p.id+'">✕</button></div>' }).join("")+'</div>'+vids.map(vppHtml).join("")+
+       (cfg.on && vids.length<cfg.n ? '<button type="button" class="vadd" id="eVAdd"><span class="vplay">▶</span><b>'+GX("videoAdd")+'</b><span>'+GX("videoHint").replace("{s}",cfg.s).replace("{mb}",cfg.mb)+'</span></button><input type="file" id="eVid" accept="video/*,.mp4,.mov,.m4v,.webm,.3gp,.mkv" hidden>' : '')+
+       '<div class="hintx" id="eVMsg"></div></div>' })()+
+  '</div></div>' }
+function editMediaRedraw(){ if(VIEW!=="edit") return; var b=$("#eMedia"); if(!b){ render(); return }
+  b.outerHTML=editMediaHtml(); wireEditMedia() }
 function editView(){
  if(!USER && !EDIT.isAdmin) return gate();
  var x=EDIT.row;
@@ -7421,22 +7443,7 @@ function editView(){
   '<div class="fl" style="margin-bottom:0"><label class="req">'+t("descL")+'</label>'+
    '<textarea id="eDesc" maxlength="1200">'+(x.ds?dsOf(x):"")+'</textarea></div>'+
  '</div></div>'+
- (false ? '' :   /* the admin manages photos and videos here too (bk_admin_photo_add / bk_admin_photo_del) */
-  '<div class="blk"><h3><span class="n">3</span>'+t("managePhotos")+'</h3><div class="in">'+
-   (function(){ var ph=(EDIT.photos||[]).filter(function(p){ return p.kind!=="video" }), n=ph.length;
-    return '<div class="shots'+(n>1?' ordered':'')+'" id="ePhotos">'+
-    ph.map(function(p,i){
-      return '<div class="shot2'+(i===0&&n>1?' first':'')+'" data-k="p'+p.id+'"><img src="'+(p.thumb_url||p.url)+'">'+
-      '<button type="button" class="rm" data-delphoto="'+p.id+'" aria-label="'+esc(t("del"))+'">✕</button>'+shotOrd(i,n)+'</div>'}).join("")+
-   '</div>'+(n>1?'<p class="hint" id="eOrdHint" style="margin:8px 0 0;font-size:12px;color:var(--grey)">'+esc(GX("phOrderHint"))+'</p>':'') })()+
-   '<div class="drop" id="eDrop" style="margin-top:12px"><b>'+t("addPhotos")+'</b>'+
-    '<span>'+t("dropS")+' · '+GX("photoMaxHint").replace("{n}",PHOTO_MAX)+'</span></div>'+
-   '<input type="file" id="eFiles" accept="image/*,video/*" multiple hidden>'+
-   (function(){ var vids=(EDIT.photos||[]).filter(function(p){ return p.kind==="video" }), cfg=videoCfg(); if(!cfg.on && !vids.length) return '';
-     return '<div class="evids"><b class="vpick-h">'+GX("videoH")+'</b><div class="shots">'+vids.map(function(p){ return '<div class="shot2 vshot">'+(p.thumb_url?'<img src="'+p.thumb_url+'" alt="">':'<span class="vph">▶</span>')+'<span class="vplay">▶</span>'+(p.duration_s?'<div class="kb ltr">'+fmtDur(p.duration_s)+'</div>':'')+'<button type="button" class="rm" data-delphoto="'+p.id+'">✕</button></div>' }).join("")+'</div>'+vids.map(vppHtml).join("")+
-       (cfg.on && vids.length<cfg.n ? '<button type="button" class="vadd" id="eVAdd"><span class="vplay">▶</span><b>'+GX("videoAdd")+'</b><span>'+GX("videoHint").replace("{s}",cfg.s).replace("{mb}",cfg.mb)+'</span></button><input type="file" id="eVid" accept="video/*,.mp4,.mov,.m4v,.webm,.3gp,.mkv" hidden>' : '')+
-       '<div class="hintx" id="eVMsg"></div></div>' })()+
-  '</div></div>')+
+ editMediaHtml()+
  '<div class="bar2"><span class="msg" id="eMsg">'+(EDIT.msg||"")+'</span>'+
   (EDIT.isAdmin ? '<button class="gh" data-go="admin" style="margin:0">'+t("cancel")+'</button>'
                 : '<button class="gh" data-go="mine" style="margin:0">'+t("cancel")+'</button>')+
@@ -10116,6 +10123,7 @@ function wire(){
    try{ localStorage.setItem("balkoun_qf_dismissed","1") }catch(e){}
    var w=b.closest(".qfteaser-wrap"); if(w&&w.parentElement) w.parentElement.remove() } });
  $$("[data-go]").forEach(function(e){e.onclick=function(ev){ev.preventDefault();
+   if(!editLeaveOk()) return;
    if(e.dataset.go==="post"){NEW={photos:[],lat:null,lng:null}}
    if(e.dataset.go==="agencies"){ AGF={g:"",spec:"",q:""} }   // the directory opens clean from the menu; a filter left by the AI bar or a search must not stick
    if(e.dataset.go==="mapsearch"){ MAPSEARCH.deal = F.deal==="rent" ? "rent" : "sale" }   // the map starts on the deal chosen in the search bar
@@ -10275,7 +10283,7 @@ function wire(){
    var _er=D.LIST.filter(function(l){return String(l.id)===String(id)})[0];
    EDIT={id:id,row:_er,msg:"",photos:[],lat:(_er&&_er.lat)||null,lng:(_er&&_er.lng)||null,locTouched:false};
    VIEW="edit"; scrollTo(0,0); render();
-   try{ var r=await rpc("bk_photos",{p_listing:+id}); EDIT.photos=r||[]; render() }catch(e){} };
+   try{ var r=await rpc("bk_photos",{p_listing:+id}); EDIT.photos=r||[]; editMediaRedraw() }catch(e){} };
 
   if(VIEW==="edit"&&$("#eGov")&&!$("#eGov").options.length){
    var gs=$("#eGov"), as=$("#eAreaSel"); fillGeo(gs,as,false,false);
@@ -10283,59 +10291,7 @@ function wire(){
    as.insertAdjacentHTML("afterbegin",'<option value="">'+(EDIT.isAdmin?t("allareas"):GX("pickArea"))+'</option>'); if(!as.dataset.cur) as.value="";   // a member picks a place; "all areas" is the admin's wildcard
    if(as._combo) as._combo.sync();   // the value above was set directly (no "change" event) after the combobox last synced its display
  }
- if(VIEW==="edit") wireVideoPoster();
- // photo order / cover: shown at once, then saved; on a failure the saved order comes back
- $$("#ePhotos [data-mv],#ePhotos [data-mkcv]").forEach(function(b){ b.onclick=async function(){
-   var ph=(EDIT.photos||[]).filter(function(p){ return p.kind!=="video" }), vids=(EDIT.photos||[]).filter(function(p){ return p.kind==="video" });
-   var nw=b.dataset.mkcv!=null ? shotMove(ph,+b.dataset.mkcv,"cover") : shotMove(ph,+b.dataset.i,+b.dataset.mv);
-   var ids=nw.map(function(p){ return +p.id });
-   EDIT.photos=nw.map(function(p,i){ p.sort_order=i; return p }).concat(vids); shotsGlide("#ePhotos",render);
-   try{ if(EDIT.isAdmin) await rpc("bk_admin_photo_order",{p_token:ADM.token,p_listing:+EDIT.id,p_ids:ids}); else await rpc("bk_photo_order",{p_user:USER.id,p_listing:+EDIT.id,p_ids:ids});
-        LOADED.mine=false;
-   }catch(x){ alert(x.message||"error"); try{ EDIT.photos=(await rpc("bk_photos",{p_listing:+EDIT.id}))||[]; render() }catch(e){} } }});
- $$("[data-delphoto]").forEach(function(e){ e.onclick=async function(){
-   try{ if(EDIT.isAdmin) await rpc("bk_admin_photo_del",{p_token:ADM.token,p_photo:+e.dataset.delphoto}); else await rpc("bk_photo_del",{p_user:USER.id,p_photo:+e.dataset.delphoto});
-        EDIT.photos=EDIT.photos.filter(function(p){return String(p.id)!==e.dataset.delphoto});
-        LOADED.mine=false; render();
-   }catch(x){ alert(x.message||"error") } }});
-
- if($("#eDrop")){
-   $("#eDrop").onclick=function(){ $("#eFiles").click() };
-   $("#eFiles").onchange=async function(){
-     var el=this, files=[].slice.call(el.files);
-     var msg=$("#eMsg");
-     var vid=files.filter(isVideoFile)[0]; if(vid && $("#eVAdd")) editVideoPick(vid);   // a video chosen through the photo button goes to the video flow
-     var have=(EDIT.photos||[]).filter(function(p){ return p.kind!=="video" }).length, room=Math.max(0, PHOTO_MAX-have);
-     var imgs=files.filter(function(f){ return /^image\//.test(f.type) });
-     if(imgs.length>room){ if(msg) msg.textContent=GX("photoMaxHit").replace("{n}",PHOTO_MAX); files=files.filter(function(f){ return !/^image\//.test(f.type) }).concat(imgs.slice(0,room)); if(!room){ el.value=""; return } }
-     for(var i=0;i<files.length;i++){
-       if(!/^image\//.test(files[i].type)) continue;
-       if(msg) msg.textContent=t("uploading")+" "+(i+1)+"/"+files.length;
-       try{
-         var raw=await new Promise(function(res,rej){var r=new FileReader();
-           r.onload=function(){res(r.result)};r.onerror=rej;r.readAsDataURL(files[i])});
-         var full=await shrink(raw,1200,0.80,true), thumb=await shrink(raw,400,0.72,true);
-         var stamp=Date.now()+"-"+i+"-"+Math.random().toString(36).slice(2,8);
-         var pF="photos/listings/"+EDIT.id+"/"+stamp+".jpg", pT="photos/listings/"+EDIT.id+"/"+stamp+"-t.jpg";
-         var uF=await storageUpload(pF,full,{contentType:"image/jpeg"});
-         if(uF.error) throw new Error(uF.error.message);
-         var tU=null; var uT=await storageUpload(pT,thumb,{contentType:"image/jpeg"});
-         if(!uT.error) tU=DB.storage.from("photos").getPublicUrl(pT).data.publicUrl;
-         await photoAddRpc({p_user:USER&&USER.id,p_listing:+EDIT.id,
-           p_url:DB.storage.from("photos").getPublicUrl(pF).data.publicUrl,
-           p_thumb:tU,p_sort:(EDIT.photos.length+i)});
-       }catch(err){ if(msg) msg.textContent=err.message||"error" }
-     }
-     el.value="";
-     try{ var r2=await rpc("bk_photos",{p_listing:+EDIT.id}); EDIT.photos=r2||[] }catch(e){}
-     LOADED.mine=false; await loadListings(); render();
-   };
- }
- if($("#eVAdd")){
-   $("#eVAdd").onclick=function(){ $("#eVid").click() };
-   $("#eVid").onchange=function(){ var f=this.files&&this.files[0]; this.value=""; if(f) editVideoPick(f) };
- }
-
+ if(VIEW==="edit") wireEditMedia();
  if($("#eMapToggle")){
    $("#eMapToggle").onclick=function(){
      var wrap=$("#eMapWrap"); if(wrap) wrap.style.display="";
@@ -10460,7 +10416,7 @@ function wire(){
    var _er=(MYLIST||[]).filter(function(l){return String(l.id)===String(id)})[0] || D.LIST.filter(function(l){return String(l.id)===String(id)})[0];
    EDIT={id:id,row:_er,msg:"",photos:[],lat:(_er&&_er.lat)||null,lng:(_er&&_er.lng)||null,locTouched:false};
    VIEW="edit"; scrollTo(0,0); render();
-   try{ var r=await rpc("bk_photos",{p_listing:+id}); EDIT.photos=r||[]; render() }catch(x){} }});
+   try{ var r=await rpc("bk_photos",{p_listing:+id}); EDIT.photos=r||[]; editMediaRedraw() }catch(x){} }});
  if($("#delOwn")) $("#delOwn").onclick=function(){
    removeListing(VIEW.split(":")[1], this) };
 
@@ -11052,8 +11008,64 @@ function vppHtml(p){
     '<div class="hintx" id="vppMsg">'+GX("vpNote")+'</div>'+
   '</div>';
 }
+function wireEditMedia(){
+  wireVideoPoster();
+  // photo order / cover: shown at once, then saved; on a failure the saved order comes back
+  $$("#ePhotos [data-mv],#ePhotos [data-mkcv]").forEach(function(b){ b.onclick=async function(){
+    var ph=(EDIT.photos||[]).filter(function(p){ return p.kind!=="video" }), vids=(EDIT.photos||[]).filter(function(p){ return p.kind==="video" });
+    var nw=b.dataset.mkcv!=null ? shotMove(ph,+b.dataset.mkcv,"cover") : shotMove(ph,+b.dataset.i,+b.dataset.mv);
+    var ids=nw.map(function(p){ return +p.id });
+    EDIT.photos=nw.map(function(p,i){ p.sort_order=i; return p }).concat(vids); shotsGlide("#ePhotos",editMediaRedraw);
+    try{ if(EDIT.isAdmin) await rpc("bk_admin_photo_order",{p_token:ADM.token,p_listing:+EDIT.id,p_ids:ids}); else await rpc("bk_photo_order",{p_user:USER.id,p_listing:+EDIT.id,p_ids:ids});
+         LOADED.mine=false; listingChanged(EDIT.id);
+    }catch(x){ alert(x.message||"error"); try{ EDIT.photos=(await rpc("bk_photos",{p_listing:+EDIT.id}))||[]; editMediaRedraw() }catch(e){} } }});
+  $$("#eMedia [data-delphoto]").forEach(function(e){ e.onclick=async function(){
+    try{ if(EDIT.isAdmin) await rpc("bk_admin_photo_del",{p_token:ADM.token,p_photo:+e.dataset.delphoto}); else await rpc("bk_photo_del",{p_user:USER.id,p_photo:+e.dataset.delphoto});
+         EDIT.photos=EDIT.photos.filter(function(p){return String(p.id)!==e.dataset.delphoto});
+         LOADED.mine=false; listingChanged(EDIT.id); editMediaRedraw();
+    }catch(x){ alert(x.message||"error") } }});
+
+  if($("#eDrop")){
+    $("#eDrop").onclick=function(){ $("#eFiles").click() };
+    $("#eFiles").onchange=async function(){
+      var el=this, files=[].slice.call(el.files);
+      var msg=$("#ePhMsg"), bad=false;
+      var vid=files.filter(isVideoFile)[0]; if(vid && $("#eVAdd")) editVideoPick(vid);   // a video chosen through the photo button goes to the video flow
+      var have=(EDIT.photos||[]).filter(function(p){ return p.kind!=="video" }).length, room=Math.max(0, PHOTO_MAX-have);
+      var imgs=files.filter(function(f){ return /^image\//.test(f.type) });
+      if(imgs.length>room){ if(msg) msg.textContent=GX("photoMaxHit").replace("{n}",PHOTO_MAX); files=files.filter(function(f){ return !/^image\//.test(f.type) }).concat(imgs.slice(0,room)); if(!room){ el.value=""; return } }
+      for(var i=0;i<files.length;i++){
+        if(!/^image\//.test(files[i].type)) continue;
+        if(msg) msg.textContent=t("uploading")+" "+(i+1)+"/"+files.length;
+        try{
+          var raw=await new Promise(function(res,rej){var r=new FileReader();
+            r.onload=function(){res(r.result)};r.onerror=rej;r.readAsDataURL(files[i])});
+          var full=await shrink(raw,1200,0.80,true), thumb=await shrink(raw,400,0.72,true);
+          var stamp=Date.now()+"-"+i+"-"+Math.random().toString(36).slice(2,8);
+          var pF="photos/listings/"+EDIT.id+"/"+stamp+".jpg", pT="photos/listings/"+EDIT.id+"/"+stamp+"-t.jpg";
+          var uF=await storageUpload(pF,full,{contentType:"image/jpeg"});
+          if(uF.error) throw new Error(uF.error.message);
+          var tU=null; var uT=await storageUpload(pT,thumb,{contentType:"image/jpeg"});
+          if(!uT.error) tU=DB.storage.from("photos").getPublicUrl(pT).data.publicUrl;
+          await photoAddRpc({p_user:USER&&USER.id,p_listing:+EDIT.id,
+            p_url:DB.storage.from("photos").getPublicUrl(pF).data.publicUrl,
+            p_thumb:tU,p_sort:(EDIT.photos.length+i)});
+        }catch(err){ bad=true; if(msg){ msg.style.color="var(--danger)"; msg.textContent=err.message||"error" } }
+      }
+      el.value="";
+      try{ var r2=await rpc("bk_photos",{p_listing:+EDIT.id}); EDIT.photos=r2||[] }catch(e){}
+      LOADED.mine=false; listingChanged(EDIT.id); if(!bad && msg) msg.textContent="";
+      var errTxt=bad&&msg?msg.textContent:""; editMediaRedraw(); if(errTxt){ var m3=$("#ePhMsg"); if(m3){ m3.style.color="var(--danger)"; m3.textContent=errTxt } }
+    };
+  }
+  if($("#eVAdd")){
+    $("#eVAdd").onclick=function(){ $("#eVid").click() };
+    $("#eVid").onchange=function(){ var f=this.files&&this.files[0]; this.value=""; if(f) editVideoPick(f) };
+  }
+
+}
 function wireVideoPoster(){
-  $$("[data-vppopen]").forEach(function(b){ b.onclick=function(){ var id=+b.dataset.vppopen; EDIT.vpOpen=id; if(!EDIT.vp||EDIT.vp.id!==id) EDIT.vp={id:id,mode:"video",frac:0.1,photo:null,frames:null}; render(); var el=$("#vpp"); if(el&&el.scrollIntoView) el.scrollIntoView({behavior:"smooth",block:"center"}) } });
+  $$("[data-vppopen]").forEach(function(b){ b.onclick=function(){ var id=+b.dataset.vppopen; EDIT.vpOpen=id; if(!EDIT.vp||EDIT.vp.id!==id) EDIT.vp={id:id,mode:"video",frac:0.1,photo:null,frames:null}; editMediaRedraw(); var el=$("#vpp"); if(el&&el.scrollIntoView) el.scrollIntoView({behavior:"smooth",block:"center"}) } });
   var box=$("#vpp"); if(!box) return;
   var st=EDIT.vp, v=$("#vppV"), strip=$("#vppStrip"), sel=$("#vppSel"), frames=$("#vppFrames"), vid=(EDIT.photos||[]).filter(function(x){ return x.id===st.id })[0];
   if(!vid) return;
@@ -11090,7 +11102,7 @@ function wireVideoPoster(){
     $$("[data-vppm]").forEach(function(o){ o.classList.toggle("on",o===b) }); $("#vppPV").hidden=!isV; $("#vppPP").hidden=isV; v.hidden=!isV; $("#vppTm").hidden=!isV;
     var im=$("#vppImg"); if(isV){ im.hidden=true; snap() } else { var first=$("[data-vppph]"); if(!st.photo&&first) st.photo=first.dataset.vppph; if(st.photo){ im.src=st.photo; im.hidden=false; showAfter(st.photo); $$("[data-vppph]").forEach(function(o){ o.classList.toggle("on",o.dataset.vppph===st.photo) }) } } } });
   $$("[data-vppph]").forEach(function(b){ b.onclick=function(){ st.photo=b.dataset.vppph; $$("[data-vppph]").forEach(function(o){ o.classList.toggle("on",o===b) }); var im=$("#vppImg"); im.src=st.photo; im.hidden=false; showAfter(st.photo) } });
-  $("#vppUndo").onclick=function(){ EDIT.vpOpen=null; render() };
+  $("#vppUndo").onclick=function(){ EDIT.vpOpen=null; editMediaRedraw() };
   $("#vppSave").onclick=async function(){ var btn=this, msg=$("#vppMsg"); btn.disabled=true; if(msg){ msg.style.color=""; msg.textContent=GX("vpSaving") }
     try{
       var url;
@@ -11107,12 +11119,12 @@ function wireVideoPoster(){
       var oldRow=(EDIT.photos||[]).find(function(p){ return p.id===st.id }), oldTh=oldRow&&oldRow.thumb_url;
       if(oldTh && oldTh!==url && /-poster\.jpg$/.test(oldTh)){ try{ var op=storagePathFromUrl(oldTh); if(op) storageTrash([op]) }catch(e){} }
       try{ EDIT.photos=(await rpc("bk_photos",{p_listing:+EDIT.id}))||EDIT.photos }catch(e){}
-      EDIT.vpOpen=null; EDIT.vp=null; LOADED.mine=false; listingChanged(EDIT.id); render(); var m2=$("#eVMsg"); if(m2){ m2.style.color="var(--ok)"; m2.textContent=GX("vpSaved") }
+      EDIT.vpOpen=null; EDIT.vp=null; LOADED.mine=false; listingChanged(EDIT.id); editMediaRedraw(); var m2=$("#eVMsg"); if(m2){ m2.style.color="var(--ok)"; m2.textContent=GX("vpSaved") }
     }catch(e){ btn.disabled=false; if(msg){ msg.style.color="var(--danger)"; msg.textContent=(e&&e.message)||"error" } } };
 }
 async function editVideoPick(f){ var m=$("#eVMsg"); if(m) m.style.color="";
   try{ var v=await pickVideo(f, m); await uploadListingVideo(EDIT.id, v, function(p){ if(m) m.textContent=GX("videoUploading").replace("{p}",p) }, true); if(m) m.textContent=GX("videoDone");
-    try{ var r3=await rpc("bk_photos",{p_listing:+EDIT.id}); EDIT.photos=r3||[] }catch(e){} LOADED.mine=false; await loadListings(); render() }
+    try{ var r3=await rpc("bk_photos",{p_listing:+EDIT.id}); EDIT.photos=r3||[] }catch(e){} LOADED.mine=false; listingChanged(EDIT.id); editMediaRedraw(); var m4=$("#eVMsg"); if(m4){ m4.style.color="var(--ok)"; m4.textContent=GX("videoDone") } }
   catch(err){ if(m){ m.textContent=err.message||"error"; m.style.color="var(--danger)" } } }
 // owner, 2026-10-23: a panel switch makes the price required (site form, edit page and bot); off = «السعر عند التواصل»
 function priceReq(){ return SXb("intake_price_required",false)===true }
@@ -12454,9 +12466,21 @@ function render(){
  homeExtras();
  asAdminBar();
  wire();
- if(_ek) editRestore(_ek) }
+ if(_ek) editRestore(_ek);
+ if(VIEW==="edit" && EDIT && !EDIT.touched && $("#eSave")) EDIT.base=editKeep() }
 // the edit page redraws itself when a photo, the video or its cover changes (and after a failed save): whatever was typed
 // and not yet saved is carried over (owner, 2026-10-27: changing the video's cover wiped a new price typed just before)
+// leaving the edit page with typed, unsaved changes asks first (owner, 2026-10-27). EDIT.base is the form as it opened (taken
+// on every redraw until the visitor first touches the form, so late-filled lists like the areas do not count as a change)
+function editDirty(){ if(VIEW!=="edit"||!EDIT||!EDIT.base||!$("#eSave")) return false;
+  if(EDIT.locTouched && EDIT.row && (EDIT.lat!==(EDIT.row.lat||null) || EDIT.lng!==(EDIT.row.lng||null))) return true;
+  if(!EDIT.touched) return false;
+  var now=editKeep(), b=EDIT.base.v; if(!now) return false;
+  return Object.keys(now.v).some(function(k){ return (k in b) && now.v[k]!==b[k] }) }
+function editLeaveOk(){ if(!editDirty()) return true; if(!confirm(GX("edLeaveQ"))) return false; EDIT.base=null; return true }
+["input","change","pointerdown","keydown"].forEach(function(ev){ document.addEventListener(ev,function(e){
+  if(VIEW!=="edit"||!EDIT||!e.isTrusted) return; var el=e.target; if(!el||!el.closest||!el.closest("#app")||el.closest("#eMedia,header,.hdr")) return; EDIT.touched=true },true) });
+window.addEventListener("beforeunload",function(e){ if(editDirty()){ e.preventDefault(); e.returnValue="" } });
 function editKeyOf(e){ if(e.type==="file"||e.closest("header,.hdr,.vpp,#vpp")) return ""; if(e.type==="radio"||e.type==="checkbox") return e.id?"#"+e.id:(e.name||e.className)+"="+e.value; return e.id?"#"+e.id:"" }
 function editKeep(){ var app=$("#app"); if(!app||!$("#eSave")||!EDIT||!EDIT.id) return null; var k={id:String(EDIT.id),v:{}};
   $$("input,select,textarea",app).forEach(function(e){ var key=editKeyOf(e); if(key) k.v[key]=(e.type==="radio"||e.type==="checkbox")?e.checked:e.value });
@@ -13596,6 +13620,8 @@ var GX_T={
   vpHint:{ar:"اسحب الإطار الذهبي أو اضغط على أي لقطة",en:"Drag the gold frame or tap any frame",de:"Goldenen Rahmen ziehen oder ein Bild antippen"},
   vpBefore:{ar:"الحالية",en:"Now",de:"Jetzt"}, vpAfter:{ar:"الجديدة",en:"New",de:"Neu"}, vpSave:{ar:"حفظ",en:"Save",de:"Speichern"}, vpUndo:{ar:"تراجع",en:"Cancel",de:"Abbrechen"},
   vpSaving:{ar:"جارٍ الحفظ…",en:"Saving…",de:"Speichern…"}, vpUse:{ar:"اعتماد",en:"Use it",de:"Übernehmen"}, vpSaved:{ar:"تم حفظ صورة المعاينة ✓",en:"Preview picture saved ✓",de:"Vorschaubild gespeichert ✓"},
+  edMediaNow:{ar:"التغييرات في هذا القسم تُحفظ مباشرة، ولا تحتاج زر «حفظ التعديلات».",en:"Changes in this section are saved right away; they do not need «Save changes».",de:"Änderungen in diesem Bereich werden sofort gespeichert; dafür ist «Änderungen speichern» nicht nötig.",fr:"Les changements de cette section sont enregistrés tout de suite, sans « Enregistrer »."},
+  edLeaveQ:{ar:"عندك تعديلات لم تُحفظ. هل تريد الخروج بدون حفظها؟",en:"You have changes that are not saved. Leave without saving them?",de:"Sie haben ungespeicherte Änderungen. Ohne Speichern verlassen?",fr:"Vous avez des modifications non enregistrées. Quitter sans les enregistrer ?"},
   vpNoPhotos:{ar:"لا توجد صور في هذا الإعلان بعد.",en:"This listing has no photos yet.",de:"Diese Anzeige hat noch keine Fotos."},
   vpNote:{ar:"الفيديو نفسه لا يتغير. تُضاف علامة بلكون على اللقطة كما في باقي الصور.",en:"The video itself does not change. The frame gets the Balkoun mark like every photo.",de:"Das Video bleibt unverändert. Das Bild erhält das Balkoun-Zeichen wie jedes Foto."},
   pwaHasT:{ar:"تطبيق بلكون مثبّت على هاتفك ✓",en:"The Balkoun app is on your phone ✓",de:"Die Balkoun-App ist auf Ihrem Handy ✓"},
@@ -14930,7 +14956,7 @@ window._scrollMem={}; window._scrollKey=function(){ return location.pathname+loc
 function scrollRestore(){ var y=window._scrollMem[_scrollKey()]||0, moved=false;
   var stop=function(){ moved=true }; ["wheel","touchstart","keydown"].forEach(function(ev){ window.addEventListener(ev,stop,{once:true,passive:true}) });
   [0,80,250,600,1200].forEach(function(ms){ setTimeout(function(){ if(!moved && Math.abs((window.scrollY||0)-y)>4) window.scrollTo(0,y) },ms) }) }
-window.onpopstate=window.onhashchange=function(){var v=viewFromHash(); if(v&&v!==VIEW){VIEW=v;render();refreshListingsOnNavigate();scrollRestore()} else if(location.hash){ _FIRST_HISTORY_SYNC=true; syncHash() }};
+window.onpopstate=window.onhashchange=function(){var v=viewFromHash(); if(v&&v!==VIEW&&!editLeaveOk()){ try{ history.pushState({bk:1,n:((history.state&&history.state.n)||0)+1},"",routePath()) }catch(e){} return } if(v&&v!==VIEW){VIEW=v;render();refreshListingsOnNavigate();scrollRestore()} else if(location.hash){ _FIRST_HISTORY_SYNC=true; syncHash() }};
 document.addEventListener("keydown",function(e){
   if(!LIGHTBOX_OPEN) return;
   if(e.key==="Escape"){ LIGHTBOX_OPEN=false; render() }
