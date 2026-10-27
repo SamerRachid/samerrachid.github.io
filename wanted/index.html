@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-Gez+jkZleSNd6PA/b+afauT+VybFFCl4KuU0hEmMhz0=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-PQaWsoGBWRao67h1aRwVGQlvcd88+Y3XC9tbMF48tf8=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -5336,6 +5336,9 @@ function geoCacheKey(){ return COUNTRY==="SY" ? "balkoun_geo" : "balkoun_geo_"+C
 function curPrefGet(code){ try{ var m=JSON.parse(localStorage.getItem("balkoun_cur_by")||"{}"); return m[code]||null }catch(e){ return null } }          // the currency a visitor chose, remembered per country
 function curPrefSet(code,cur){ try{ var m=JSON.parse(localStorage.getItem("balkoun_cur_by")||"{}"); m[code]=cur; localStorage.setItem("balkoun_cur_by",JSON.stringify(m)); localStorage.setItem("balkoun_cur",cur) }catch(e){} }
 function localCur(){ var c=countryOf(COUNTRY); var l=((c&&c.currencies)||["USD","SYP"]).filter(function(x){ return x!=="USD" })[0]; return l||"SYP" }
+// a price typed in the local currency, as the USD the filter keeps: not rounded to whole dollars, which turned 1,500 ل.س into
+// $0 (no filter) and 15,000 into $1 (shown as 13,500) — owner, 2026-10-27
+function usdFromLocal(v,rate){ return rate>0 ? Math.round(v/rate*1e4)/1e4 : v }
 function curRate(cur){ cur=cur||CUR; if(cur==="USD") return 1; if(COUNTRY==="SY") return SITE.syp_rate || CONFIG.rate; var c=countryOf(COUNTRY); var r=c&&c.rates&&+c.rates[cur]; return r>0 ? r : (SITE.syp_rate || CONFIG.rate) }
 var CUR_LABEL={SYP:["ل.س","SYP"],LBP:["ل.ل","LBP"],JOD:["د.أ","JOD"],TRY:["₺","TRY"],EUR:["€","€"],EGP:["ج.م","EGP"],IQD:["د.ع","IQD"],SAR:["ر.س","SAR"],AED:["د.إ","AED"],QAR:["ر.ق","QAR"],BHD:["د.ب","BHD"],OMR:["ر.ع","OMR"],KWD:["د.ك","KWD"],DZD:["د.ج","DZD"],MAD:["د.م.","MAD"],TND:["د.ت","TND"],LYD:["د.ل","LYD"],ILS:["₪","ILS"],YER:["ر.ي","YER"],SDG:["ج.س","SDG"],MRU:["أوقية","MRU"],SOS:["ش.ص","SOS"],DJF:["ف.ج","DJF"],KMF:["ف.ق","KMF"]};
 function curLabel(cur,lang){ cur=cur||CUR; if(cur==="USD") return "$"; var o=CUR_LABEL[cur]; return o ? (lang==="ar"?o[0]:o[1]) : cur }
@@ -6880,7 +6883,7 @@ function rsWire(opts){
   $$("[data-aiu-x]").forEach(function(b){ b.onclick=function(){ var w=b.closest(".ai-understood"); if(w&&w.parentElement) w.parentElement.remove() } });
   $$("[data-rsdeal]").forEach(function(b){ b.onclick=function(){ F.deal=this.dataset.rsdeal||""; if(F.deal!=="rent"){ F.furn=""; F.rentalPeriod="" } F.page=1; render() } });
   if($("#hFurn")) $("#hFurn").onchange=function(){ F.furn=this.value; F.page=1; render() };
-  var pop=$("#hPricePop"), rate=curRate(), toUsd=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/rate) };
+  var pop=$("#hPricePop"), rate=curRate(), toUsd=function(v){ v=parseInt(latinDigits(String(v||"")),10)||0; return CUR==="USD"?v:usdFromLocal(v,rate) };
   var applyPrice=function(){ F.pmin=toUsd(($("#hPmin")||{}).value); F.pmax=toUsd(($("#hPmax")||{}).value); if(F.pmax&&F.pmin>F.pmax){ var sw=F.pmin; F.pmin=F.pmax; F.pmax=sw } F.page=1; render() };
   if($("#hPrice")){ $("#hPrice").onclick=function(e){ e.stopPropagation(); closeAllMenus(pop); var mp=$("#rsMorePop"); if(mp) mp.classList.remove("on"); pop.hidden=!pop.hidden; if(!pop.hidden) setTimeout(function(){ var i=$("#hPmin"); if(i) i.focus() },30) };
     pop.onclick=function(e){ e.stopPropagation() };
@@ -9519,7 +9522,7 @@ function wireMapFilterZone(){
   if($("#mapFType")) $("#mapFType").onchange=function(){ setF("types",this.value); F.t=""; updateMapFilterZone() };
   if($("#mapFTabu")) $("#mapFTabu").onchange=function(){ setF("tbs",this.value); F.tb=""; updateMapFilterZone() };
   if($("#mapFRooms")) $("#mapFRooms").onchange=function(){ F.rooms=this.value?[this.value]:[]; updateMapFilterZone() };
-  var toUsdM=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/(curRate())) };
+  var toUsdM=function(v){ v=parseInt(latinDigits(String(v||"")),10)||0; return CUR==="USD"?v:usdFromLocal(v,curRate()) };
   if($("#mapFPmin")) $("#mapFPmin").onchange=function(){ F.pmin=toUsdM(this.value) };
   if($("#mapFPmax")) $("#mapFPmax").onchange=function(){ F.pmax=toUsdM(this.value) };
   if($("#mapFiltersClear")) $("#mapFiltersClear").onclick=function(){
@@ -9900,7 +9903,7 @@ function wireHeroBar(){
    wireAiSearchBar();
    if($("#hFurn")) $("#hFurn").addEventListener("change",function(){F.furn=this.value;softRenderHero()});
    if($("#hPrice")){ // hero price range: popover with min / max and quick presets (values kept in USD like the rest of the filter)
-     var pop=$("#hPricePop"), rate=curRate(), toUsd=function(v){ v=parseInt(v,10)||0; return CUR==="USD"?v:Math.round(v/rate) };
+     var pop=$("#hPricePop"), rate=curRate(), toUsd=function(v){ v=parseInt(latinDigits(String(v||"")),10)||0; return CUR==="USD"?v:usdFromLocal(v,rate) };
      var applyPrice=function(){ F.pmin=toUsd($("#hPmin").value); F.pmax=toUsd($("#hPmax").value); if(F.pmax&&F.pmin>F.pmax){ var sw=F.pmin; F.pmin=F.pmax; F.pmax=sw } softRenderHero() };
      $("#hPrice").onclick=function(e){ e.stopPropagation(); closeAllMenus(pop); pop.hidden=!pop.hidden; if(!pop.hidden) setTimeout(function(){ var i=$("#hPmin"); if(i) i.focus() },30) };
      pop.onclick=function(e){ e.stopPropagation() };
@@ -12018,8 +12021,8 @@ function applyFilterFromQuery(qs){
   if(params.cd) F.cd=params.cd;
   if(params.furn) F.furn=params.furn;
   if(params.rp) F.rentalPeriod=params.rp;
-  if(params.pmin) F.pmin=parseInt(params.pmin,10)||0;
-  if(params.pmax) F.pmax=parseInt(params.pmax,10)||0;
+  if(params.pmin) F.pmin=parseFloat(params.pmin)||0;
+  if(params.pmax) F.pmax=parseFloat(params.pmax)||0;
   if(params.owner) F.ownerOnly=true;
   if(params.share) F.shareOnly=true;
   if(params.sort) F.sort=params.sort;
@@ -14644,7 +14647,7 @@ function heroSubHtml(txt){
 function heroPriceLabel(){
   // short numbers so a range fits in the box: $50k – $120k, 1.2M ل.س
   var rate=curRate(), cur=curLabel(CUR,"ar"), k=function(n){ return n>=1e6 ? (Math.round(n/1e5)/10).toString().replace(/\.0$/,"")+"M" : n>=1000 ? (Math.round(n/100)/10).toString().replace(/\.0$/,"")+"k" : String(n) };
-  var f=function(v){ var n=CUR==="USD"?v:Math.round(v*rate); return CUR==="USD" ? cur+k(n) : k(n)+" "+cur };
+  var f=function(v){ var n=Math.round(CUR==="USD"?v:v*rate); return CUR==="USD" ? cur+k(n) : k(n)+" "+cur };
   if(!F.pmin&&!F.pmax) return '<span class="ph">'+GX("price")+'</span>';
   if(F.pmin&&F.pmax) return '<span class="ltr">'+f(F.pmin)+' – '+f(F.pmax)+'</span>';
   if(F.pmin) return '<span class="ltr">'+f(F.pmin)+'</span> '+GX("andUp");
