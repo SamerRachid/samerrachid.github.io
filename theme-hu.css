@@ -359,3 +359,7 @@ input,select,textarea{color-scheme:dark}
 .hero-outer.hu .hero{padding-bottom:120px}
 .hero-outer.hu .sgo-map,.hero-outer.hu .newtag,.hero-outer.hu .qf-badge{display:none!important}
 @media (max-width:860px){ .hero-outer.hu .hero{padding-bottom:30px} }
+/* the hero block sits at the bottom of the 100vh photo (the live .hero stretches to fill; undo that) */
+.hero-outer.hu .hero{flex:0 0 auto!important;margin-top:auto;align-self:stretch}
+body.home-hero.hero-in-view .mobfab{display:none}
+.mobfab{bottom:20px}
