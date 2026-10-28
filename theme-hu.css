@@ -411,3 +411,13 @@ body.home-hero.hero-in-view .mobfab{display:none}
 #app .crumb-back,#app .crumb a{color:#fff!important}
 .govs a,.govs a.rv.in{background:var(--navy-2)!important}
 .govs a .ltr{background:none!important;color:var(--gold-dk)!important}
+/* phone strip, owner 2026-10-28: two columns throughout (province+area, type+deed, rooms+price), smaller fields, search full width */
+@media (max-width:860px){
+  .hero-outer.hu .srow .sf:nth-child(1),.hero-outer.hu .srow .sf:nth-child(2),.hero-outer.hu .srow .sf:nth-child(5){grid-column:auto}
+  .hero-outer.hu .sf{height:44px;padding:6px 10px;font-size:13px;line-height:14px}
+  .hero-outer.hu .sf .cs-sum{gap:2px}
+  .hero-outer.hu .sf .cs-sum::before{font-size:10px;line-height:10px}
+  .hero-outer.hu .sgo{grid-column:span 2;height:44px}
+  .hero-outer.hu .stabs button{height:30px;line-height:30px;font-size:13px}
+  .hero-outer.hu .aisearch-pill{height:44px}
+}
