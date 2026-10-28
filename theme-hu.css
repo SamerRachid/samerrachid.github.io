@@ -363,3 +363,49 @@ input,select,textarea{color-scheme:dark}
 .hero-outer.hu .hero{flex:0 0 auto!important;margin-top:auto;align-self:stretch}
 body.home-hero.hero-in-view .mobfab{display:none}
 .mobfab{bottom:20px}
+
+/* ===== QA pass 2026-10-28: dropdowns were clipped by the strip's overflow; the two bars now share one shape ===== */
+.hero-outer.hu .srow{overflow:visible;border-radius:8px}
+.hero-outer.hu .srow .sf:first-child{border-start-start-radius:8px;border-end-start-radius:8px}
+.hero-outer.hu .srow .sgo{border-start-end-radius:8px;border-end-end-radius:8px}
+.hero-outer.hu .sf{position:relative}
+.hero-outer.hu .sf .chipsel,.hero-outer.hu .sf .chipsel-box{overflow:visible}
+.hero-outer.hu .chipsel-drop{z-index:60;background:#fff;color:var(--navy);border-radius:8px;box-shadow:0 18px 44px -10px rgba(0,0,0,.45);text-align:start}
+.hero-outer.hu .chipsel-drop label,.hero-outer.hu .chipsel-drop a,.hero-outer.hu .chipsel-drop .chipsel-opt,.hero-outer.hu .chipsel-drop .cs-h{color:var(--navy)}
+.hero-outer.hu .pricepop{background:#fff;color:var(--navy);border-radius:8px;z-index:60}
+.hero-outer.hu .pricepop label,.hero-outer.hu .pricepop input{color:var(--navy)}
+.hero-outer.hu .aisearch{margin-top:12px}
+.hero-outer.hu .aisearch-pill{border-radius:8px;height:48px;max-width:none;box-shadow:none}
+.hero-outer.hu .aisearch-badge{border-radius:6px}
+.hero-outer.hu .aisearch-go{border-radius:6px}
+
+/* ===== audit fixes (contrast < 3, clipped sheet, overflow, one radius system) ===== */
+.govs a,.govs a .ltr,.govs a b{color:#fff}
+.guide .k,.guides .k{color:var(--gold-dk)}
+.pg a,.pg span{color:#fff;background:rgba(255,255,255,.06);border-color:var(--line)}
+.pg a.on,.pg a[aria-current]{background:var(--gold);color:var(--navy)}
+.rs-avgbox b,.rs-avgbox{color:#fff}
+.rs-save,.rs-save span{color:#fff;border-color:rgba(255,255,255,.3)}
+.rs-f .pricetrig,.rs-f .pricetrig .ph{color:#fff}
+.crumb-back,.crumb a,.crumb span{color:#fff}
+.lfacts .lf b,.lfacts .lf b .ltr,.lfacts .lf span{color:#fff}
+.lprice .big,.lprice .big .ltr{color:var(--gold)}
+.lowner .nm,.lowner{color:#fff}
+.lacts button,.lacts button span{background:rgba(255,255,255,.08);color:#fff;border:1px solid var(--line)}
+.lsafe,.lsafe b{background:rgba(202,144,81,.12);color:#fff;border-color:rgba(202,144,81,.4)}
+.lsafe b{color:var(--gold-dk)}
+.card.c2 .cpill{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.card.c2 .cf1{min-width:0;overflow:hidden}
+.simtrack{overflow-x:auto;scrollbar-width:none;padding:4px 0 10px}
+.simtrack::-webkit-scrollbar{display:none}
+.cta-add{border-radius:8px}
+.mm-tiles a{border-radius:8px}
+.mm-acct,.mm-app{border-radius:12px}
+@media (max-width:860px){
+  .hero-outer.hu{overflow:visible}
+  .hero-outer.hu .hv,.hslides{overflow:hidden}
+}
+.govs a .ltr{color:var(--gold-dk)}
+.govs a{color:#fff!important}
+.rs-save,.rs-f .pricetrig,.rs-f.rs-fprice .pricetrig{background:var(--navy-2)!important;color:#fff!important;border:1px solid var(--line)!important}
+#app .crumb-back,#app .crumb a{color:#fff!important}
