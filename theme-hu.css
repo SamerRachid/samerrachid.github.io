@@ -722,3 +722,52 @@ html body .leaflet-tile-pane{filter:none;mix-blend-mode:screen;opacity:.92}
 #humap .hupin-lab{opacity:0;transition:opacity .2s}
 #humap .hupin:hover .hupin-lab,#humap .hupin.hot .hupin-lab{opacity:1}
 #humap .leaflet-marker-icon:hover{z-index:1000!important}
+
+/* ===== phase 3 (2026-10-28): every public page on the dark theme. The 360px sweep listed these white boxes with
+   white text inside (contact, legal, app, help, agencies, agency, projects, wanted, areas, about, post-by-message, login) ===== */
+html body .crumb,html body .done2,html body .chancard,html body .blk,html body .legal-sec,html body .legal-notice,html body .gcard,html body .gcard-bd,html body .apppg-card,html body .apppg-steps,html body .pm-step,html body .agcard,html body .profcard,html body .profcard .blk,html body .wcard,html body .arx-gov,html body .arx-areas a,html body .au .aubox,html body .audone,html body .panel,html body .pcard{background:var(--navy-2)!important;color:#fff!important;border-color:var(--line)!important}
+html body .crumb{border-bottom:1px solid var(--line)!important}
+html body .crumb a,html body .crumb span,html body .crumb i{color:var(--muted)!important}
+html body .crumb a:hover{color:#fff!important}
+html body .done2 .tk,html body .audone .tk{background:rgba(202,144,81,.18)!important;color:var(--gold)!important}
+html body .done2 b,html body .done2 p,html body .legal-sec h2,html body .legal-sec h3,html body .legal-sec p,html body .legal-sec li,html body .legal-intro,html body .legal-notice,html body .legal-meta,html body .legal-meta a,html body .chancard b,html body .chancard span,html body .chancard .ltr,html body .apppg-card h1,html body .apppg-card p,html body .apppg-card h3,html body .apppg-card li,html body .apppg-card span,html body .apppg-sub,html body .pm-step b,html body .pm-step p,html body .pm-id,html body .pm-id .ltr,html body .pm-ch b,html body .pm-ch small,html body .gcard b,html body .gcard p,html body .gcard-bd b,html body .profcard b,html body .profcard p,html body .profcard span,html body .profcard .bio,html body .ratingline,html body .ratingline b,html body .ratingline span,html body .wcard b,html body .wcard span,html body .wcard p,html body .arx-gov h2,html body .arx-gov h3,html body .arx-areas a,html body .arx-links a,html body .arx-more,html body .arx-more span,html body .agcard b,html body .agcard span,html body .agcard p,html body .agcard h3,html body .blk h3,html body .blk p,html body .blk label,html body .blk li,html body .blk .in,html body .changrid h3,html body .fl label,html body .auf label,html body .agree,html body .agree span,html body .agreelist{color:#fff!important}
+html body .legal-meta,html body .legal-meta a,html body .profmeta .sub,html body .agcard .sub,html body .fl label,html body .auf label,html body .agreelist,html body .pm-ch small,html body .apppg-sub{color:var(--muted)!important}
+html body .legal-meta a:hover,html body .arx-links a:hover{color:var(--gold)!important}
+html body .legal-sec h2{color:var(--gold)!important}
+html body .blk h3{border-bottom:1px solid var(--line)!important}
+html body .blk h3 .n{background:var(--gold)!important;color:var(--navy)!important}
+/* pills, chips and secondary buttons */
+html body .ag-pills button,html body .chip.soft,html body .pm-btn,html body .btn-o,html body .arx-more,html body .arx-links a,html body .ag-filters button{background:rgba(255,255,255,.06)!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important}
+html body .ag-pills button.on,html body .chip.soft.on,html body .ag-pills button[aria-pressed=true]{background:var(--gold)!important;color:var(--navy)!important;border-color:var(--gold)!important}
+html body .pm-btn.wa{background:#1FA855!important;color:#fff!important;border-color:transparent!important}
+/* form controls on every page (not the white hero strip) */
+html body .fl input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]),html body .fl select,html body .fl textarea,html body .auf input,html body .pw input,html body .ag-filters input,html body .blk .in>input,html body .blk .in>textarea,html body .fl .acombo .chipsel-box,html body .cf input,html body .cf textarea{background-color:var(--navy)!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important}
+html body .fl select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important}
+html body .fl select option{background:var(--navy-2);color:#fff}
+html body .fl input::placeholder,html body .fl textarea::placeholder,html body .auf input::placeholder,html body .ag-filters input::placeholder{color:rgba(255,255,255,.45)}
+html body .fl input:focus,html body .fl textarea:focus,html body .auf input:focus,html body .pw input:focus{border-color:var(--gold)!important;outline:none;box-shadow:0 0 0 3px rgba(202,144,81,.2)}
+html body .pwtoggle{color:var(--muted)!important}
+html body .fl .acombo .chev{color:var(--muted)!important}
+/* the login window */
+html body .au .aubox{border:1px solid var(--line)!important;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+html body .autabs{border-bottom:1px solid var(--line)!important}
+html body .autabs button{color:var(--muted)!important;background:none!important;border-radius:0!important;border:0!important;border-bottom:2px solid transparent!important}
+html body .autabs button.on{color:var(--gold)!important;border-bottom-color:var(--gold)!important}
+html body .au-brand,html body .au-brand h3,html body .au-brand p{color:#fff!important}
+html body .au .gold,html body .au button.gold{background:var(--gold)!important;color:var(--navy)!important}
+html body .au .auf .sub,html body .au small,html body .au .ltr{color:var(--muted)}
+html body .au .mdw-in{background:var(--gold)!important;color:var(--navy)!important}
+/* the account-required card and the contact channels */
+html body .done2 .gold,html body .done2 button:not(.line){background:var(--gold)!important;color:var(--navy)!important;border-radius:8px!important}
+html body .done2 a{color:var(--gold)!important}
+html body .chancardicon{box-shadow:0 0 0 4px rgba(255,255,255,.06)}
+html body .cf button,html body .blk button.gold,html body .fl button.gold,html body .pm-alt .gold{background:var(--gold)!important;color:var(--navy)!important;border-radius:8px!important}
+html body .arx-gov{border-radius:12px!important}
+html body .arx-areas a{background:rgba(255,255,255,.06)!important;border-radius:8px!important}
+html body .arx-areas a:hover{border-color:var(--gold)!important;color:var(--gold)!important}
+html body .agspecs i,html body .agspecs.big i{background:rgba(255,255,255,.08)!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:6px}
+html body .agchips .chip,html body .chip{background:rgba(255,255,255,.06)!important;color:#fff!important;border:1px solid var(--line)!important}
+html body .wver{color:#7FD9A8!important}
+html body .arx-gov h2 a,html body .arx-gov h2{color:#fff!important}
+html body .autop b,html body .autop,html body .aun a,html body .au-switch a,html body .au-switch{color:#fff!important}
+html body .aun a,html body .au-switch a{color:var(--gold)!important}
