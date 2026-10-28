@@ -562,3 +562,63 @@ body.home-hero.hero-in-view .mobfab{display:none}
   .simtrack .card.c2{flex:0 0 320px}
 }
 .ltag.gold{border-color:var(--gold);color:var(--gold-dk)}
+
+/* ===== motion on every page: scroll reveal (HomeUAE: 1s ease-out, 40px), hover lifts on boxes ===== */
+.hu-rv{opacity:0;transform:translateY(40px);transition:opacity 1s ease-out,transform 1s ease-out}
+.hu-rv.in{opacity:1;transform:none}
+.card.c2.hu-rv.in:hover{transform:translateY(-8px)}
+.crumb.hu-rv{transform:none}
+.lf,.lsec{transition:transform .3s,box-shadow .3s}
+.lf:hover{transform:translateY(-4px)}
+@media (prefers-reduced-motion:reduce){.hu-rv{opacity:1;transform:none;transition:none}}
+
+/* listing page order like HomeUAE: gallery, pills+title, price+agent, facts, boxes, safety note */
+.lpage>.lgrid{display:flex;flex-direction:column}
+.lmain,.lside{display:contents}
+.lgal{order:1}.lhead{order:2}.lside .lprice{order:3}.lfacts{order:4}.lsec{order:5}.lside .lsafe{order:6;margin-top:20px;flex:none}
+.lside .lprice{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:30px}
+.lside .lprice .big,.lside .lprice>.sub,.lside .lprice>small,.lside .lprice>div:not(.lowner):not(.lacts){width:100%}
+.lowner{width:100%;margin-top:8px}
+.lside .lbtn{width:auto;flex:0 0 auto;margin:0;padding:12px 22px}
+.lacts{width:100%;grid-template-columns:repeat(3,170px);justify-content:start;margin-top:4px}
+.lgal.n0{height:380px;grid-template-columns:1fr}
+.lgal.n0 .nophoto{background:var(--navy);border-radius:12px;display:grid;place-items:center;height:100%}
+.lgal.n0 .nophoto img{width:140px;opacity:.4}
+@media (max-width:860px){ .lside .lbtn{flex:1 1 45%} .lacts{grid-template-columns:repeat(3,1fr)} .lside .lprice{margin-top:20px} }
+
+/* size-check fixes: the live sheet has higher-specificity rules for these; pin the measured values */
+html body .home-hero .hero-outer.hu .srow .sf{height:61px}
+html body .home-hero .hero-outer.hu .srow .sgo{height:61px}
+html body .sec h2{font-size:40px}
+@media (min-width:861px) and (max-width:1400px){ html body .sec h2{font-size:35px} }
+@media (min-width:1441px){ html body .sec h2{font-size:32px} }
+@media (min-width:1800px){ html body .sec h2{font-size:48px} }
+@media (max-width:860px){
+  html body .home-hero .hero-outer.hu .srow .sf{height:44px}
+  html body .home-hero .hero-outer.hu .srow .sgo{height:44px}
+  html body .home-hero .hero-outer.hu .hero h1{font-size:40px;line-height:50px}
+  html body .card.c2 .ph{height:211px}
+  html body .card.c2 .ctitle{font-size:20px;line-height:22px}
+  html body .res{gap:20px;grid-template-columns:1fr}
+  html body .sec h2{font-size:28px}
+}
+/* the live sheet sets these with !important / stronger selectors: match them head-on */
+.hero-outer.hu{--sbar-h:61px;--sbar-h-m:44px}
+html body .hero-outer.hu .hero h1{font-size:68px!important}
+@media (min-width:861px) and (max-width:1400px){ html body .hero-outer.hu .hero h1{font-size:60px!important} }
+@media (min-width:1441px){ html body .hero-outer.hu .hero h1{font-size:78px!important} }
+@media (min-width:1800px){ html body .hero-outer.hu .hero h1{font-size:88px!important} }
+html body .sec h2,html body .sec>h2{font-size:40px!important}
+@media (min-width:861px) and (max-width:1400px){ html body .sec h2{font-size:35px!important} }
+@media (min-width:1441px){ html body .sec h2{font-size:32px!important} }
+@media (min-width:1800px){ html body .sec h2{font-size:48px!important} }
+html body .res:not(.list-view){gap:25px}
+@media (min-width:1441px){ html body .res:not(.list-view){gap:30px} }
+@media (max-width:860px){
+  html body .hero-outer.hu .hero h1{font-size:40px!important;line-height:50px!important}
+  html body .sec h2{font-size:28px!important}
+  html body .res:not(.list-view){gap:20px}
+  html body .res:not(.list-view) .card.c2{display:flex;flex-direction:column}
+  html body .res:not(.list-view) .card.c2 .ph{height:211px!important;flex:none}
+  html body .card.c2 .ctitle{font-size:20px!important}
+}
