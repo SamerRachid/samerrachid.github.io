@@ -409,3 +409,5 @@ body.home-hero.hero-in-view .mobfab{display:none}
 .govs a{color:#fff!important}
 .rs-save,.rs-f .pricetrig,.rs-f.rs-fprice .pricetrig{background:var(--navy-2)!important;color:#fff!important;border:1px solid var(--line)!important}
 #app .crumb-back,#app .crumb a{color:#fff!important}
+.govs a,.govs a.rv.in{background:var(--navy-2)!important}
+.govs a .ltr{background:none!important;color:var(--gold-dk)!important}
