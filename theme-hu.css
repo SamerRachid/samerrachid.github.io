@@ -351,3 +351,11 @@ input,select,textarea{color-scheme:dark}
 .hero-outer.hu .sf .cs-sum,.hero-outer.hu .sf .cs-sum::after{color:var(--navy)!important}
 .hero-outer.hu .sf .cs-sum::before{color:#6B7484!important}
 @media (max-width:860px){ .hero-outer.hu .sf{background:#fff!important} .mobfab{bottom:90px} }
+
+/* owner, 2026-10-28: no map tab in the hero (the map lives in the menu), no ad squares in the hero, the search strip sits at the bottom like HomeUAE */
+.home-hero .hero-outer.hu .stabs{grid-template-columns:repeat(3,1fr)!important}
+.home-hero .hero-outer.hu .stabs .stabs-map{display:none!important}
+.hero-outer.hu .adsec,.hero-outer.hu .adslot,.hero-outer.hu .topbanner-wrap{display:none!important}
+.hero-outer.hu .hero{padding-bottom:120px}
+.hero-outer.hu .sgo-map,.hero-outer.hu .newtag,.hero-outer.hu .qf-badge{display:none!important}
+@media (max-width:860px){ .hero-outer.hu .hero{padding-bottom:30px} }
