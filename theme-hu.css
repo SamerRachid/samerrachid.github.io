@@ -322,3 +322,32 @@ input,select,textarea{color-scheme:dark}
 .home-hero .hero-outer.hu .stabs button{background:#fff!important;color:#6B7484!important;border:0!important;border-radius:8px!important;height:32px!important;line-height:32px!important;padding:0!important;font-size:12px!important;font-weight:400!important;flex:none!important;width:auto!important;margin:0!important}
 .home-hero .hero-outer.hu .stabs button.on{background:var(--gold)!important;color:var(--navy)!important}
 .home-hero .hero-outer.hu .srow{margin:0!important;border-radius:8px!important}
+
+/* ===== hero polish: no glass box, stacked label/value in the fields, map tab visible, ads row at the bottom ===== */
+.hero-outer.hu{flex-direction:column;justify-content:flex-end;align-items:stretch}
+.hero-outer.hu .hero{padding-bottom:40px}
+.hero-outer.hu .adsec{position:relative;z-index:3;padding-bottom:40px}
+.hero-outer.hu .sbar::before,.hero-outer.hu .sbar::after,.hero-outer.hu .sbar .sbar-glass{display:none!important}
+.hero-outer.hu .sbar,.hero-outer.hu .sbar.glass,.hero-outer.hu .sbar.aiglow{background:none!important;backdrop-filter:none!important;border:0!important;box-shadow:none!important;padding:0!important}
+.home-hero .hero-outer.hu .stabs .stabs-map{display:block!important}
+.home-hero .hero-outer.hu .stabs .stabs-map svg{display:none}
+.hero-outer.hu .sf .cs-sum{display:flex;flex-direction:column;gap:4px}
+.hero-outer.hu .sf .cs-sum::before{margin:0}
+.hero-outer.hu .sf .cs-sum[data-names="[]"]::after{content:"الكل"}
+.hero-outer.hu .sf .pricetrig{flex-direction:column;align-items:flex-start;gap:4px;font-size:12px;line-height:14px;font-weight:600}
+.hero-outer.hu .sf .pricetrig .chev{position:absolute;inset-inline-end:12px;top:50%;margin-top:-7px}
+.hero-outer.hu .sf.sf-price{position:relative}
+.hero-outer.hu .sf select{font-size:12px;font-weight:600}
+.rs-bar .chipsel-box,.rs-bar .cs-compact .chipsel-box,.chipsel-box{background:var(--navy-2)!important;color:#fff!important;border-color:var(--line)!important}
+.rs-bar .cs-sum,.rs-bar .cs-sum .ph{color:#fff}
+@media (max-width:860px){
+  .hero-outer.hu{display:flex;flex-direction:column;height:auto;min-height:100vh;justify-content:flex-start}
+  .hero-outer.hu .hero{position:relative;top:auto;left:auto;right:auto;margin-top:400px;padding:0 20px 20px;z-index:3}
+  .hero-outer.hu .adsec{padding-bottom:20px}
+  .hero-outer.hu .hero h1{font-size:40px;line-height:50px}
+}
+/* the hero fields stay white (the dark chip rule above is for the results bar) */
+.hero-outer.hu .sf .chipsel-box,.hero-outer.hu .sf .cs-compact .chipsel-box{background:transparent!important;color:var(--navy)!important;border:0!important}
+.hero-outer.hu .sf .cs-sum,.hero-outer.hu .sf .cs-sum::after{color:var(--navy)!important}
+.hero-outer.hu .sf .cs-sum::before{color:#6B7484!important}
+@media (max-width:860px){ .hero-outer.hu .sf{background:#fff!important} .mobfab{bottom:90px} }
