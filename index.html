@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-kMO8pwZeYN76131E1uGVu7yILe8+V2mz+J2frHOeX3Y=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-40SQ2NJYHCScmCJm4011epMesXdPu8QKGHAeak/ZYaI=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -6042,6 +6042,8 @@ var ESC_EXEMPT_FNS={bk_admin_backup:1,bk_login:1,bk_register:1,bk_set_password:1
    be initialised. Leaflet claims the global "L", which this app already
    uses for the current language, so noConflict() hands the library
    back under LeafletLib and restores our L. ── */
+// theme hu: every map uses the dark CARTO tiles (screen-blended over the navy in theme-hu.css), like HomeUAE's Jawg dark map
+function huTiles(LMap,noLabels){ var g=LMap.layerGroup(); LMap.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,maxNativeZoom:16,attribution:'Tiles &copy; <a href="https://www.esri.com/">Esri</a>'}).addTo(g); if(!noLabels) LMap.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,maxNativeZoom:16,pane:"overlayPane",opacity:.9}).addTo(g); return g }
 var _leafletPromise = null;
 function ensureLeaflet(){
   if(window.LeafletLib) return Promise.resolve(window.LeafletLib);
@@ -6804,7 +6806,7 @@ function rsMapInit(){
   // the count under the map was worked out before the area locations arrived (14 instead of 347): it follows the pins drawn
   var note=document.querySelector(".rs-mapnote"); if(note) note.innerHTML=GX("rsOnMap").replace("{n}",'<span class="ltr">'+pts.length+'</span>');
   var map=LMap.map(c,{zoomControl:true}).setView(pts.length?[pts[0].lat,pts[0].lng]:countryCenter().slice(0,2), pts.length?11:countryCenter()[2]);
-  LMap.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(map);
+  huTiles(LMap).addTo(map);
   var b=[];
   pts.forEach(function(x){
     var ic=LMap.divIcon({className:"rs-pinw",html:'<span class="rs-pin'+(x.featured?' feat':'')+'" data-pin="'+x.id+'">'+rsShort(x)+'</span>',iconSize:[0,0],iconAnchor:[0,0]});
@@ -8765,8 +8767,7 @@ function initPickerMap(containerId, state, govSelectIdOrCoords, wrapId, clearBtn
   var startLng = state.lng || (govCenter ? govCenter[1] : cc[1]);
   var zoom = state.lat ? 15 : (govCenter ? 11 : cc[2]);
   var map = LMap.map(container).setView([startLat,startLng], zoom);
-  LMap.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {maxZoom:19, attribution:"© OpenStreetMap"}).addTo(map);
+  huTiles(LMap).addTo(map);
   var marker = state.lat ? LMap.marker([state.lat,state.lng]).addTo(map) : null;
   // once a specific area is chosen, zoom in further than the generic
   // governorate center — but only if the lister hasn't already placed
@@ -8873,8 +8874,7 @@ function initViewMap(lat,lng){
   }
   if(_viewMapInstance){ try{ _viewMapInstance.remove() }catch(e){} _viewMapInstance=null; }
   var map = LMap.map(container,{scrollWheelZoom:false}).setView([lat,lng], 15);
-  LMap.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {maxZoom:19, attribution:"© OpenStreetMap"}).addTo(map);
+  huTiles(LMap).addTo(map);
   LMap.marker([lat,lng]).addTo(map);
   _viewMapInstance = map;
   setTimeout(function(){ if(container.isConnected){ try{ map.invalidateSize() }catch(e){} } }, 120);
@@ -9526,8 +9526,7 @@ function initMapSearch(){
   var cc=countryCenter();
   var center = withLoc.length ? [withLoc[0].lat, withLoc[0].lng] : [cc[0], cc[1]];
   var map = LMap.map(container).setView(center, withLoc.length ? 11 : cc[2]);
-  LMap.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {maxZoom:19, attribution:"© OpenStreetMap"}).addTo(map);
+  huTiles(LMap).addTo(map);
   var bounds = [];
   // hovering a pin used to open a native Leaflet popup, which by
   // default auto-pans the MAP itself whenever the popup would
@@ -9851,7 +9850,7 @@ function huReveal(){
   var sel=".lpage .lgal,.lpage .lhead,.lpage .lfacts,.lpage .lsec,.lside>*,.crumb,.rs-bar,.rs-main>h1,.rs-main .card.c2,.simtrack .card.c2,.res .card.c2,.sec:not(.rv),.sec .card.c2,.hu-sec,footer .flinks,.lpage~.wrap>h2,.agencies-grid>*,.pj-row>*,.w-row>*,.ag>*";
   var els=$$(sel).filter(function(e){ return !e.classList.contains("hu-rv") && !e.closest(".hero-outer,.mdw,.adm") });
   if(!els.length) return;
-  if(!window._huIO) window._huIO=new IntersectionObserver(function(es){ es.forEach(function(x){ if(x.isIntersecting){ x.target.classList.add("in"); window._huIO.unobserve(x.target) } }) },{threshold:.12,rootMargin:"0px 0px -40px 0px"});
+  if(!window._huIO) window._huIO=new IntersectionObserver(function(es){ es.forEach(function(x){ if(x.isIntersecting){ x.target.classList.add("in"); window._huIO.unobserve(x.target) } }) },{threshold:0,rootMargin:"0px 0px 12% 0px"});
   els.forEach(function(e,i){ e.classList.add("hu-rv"); var k=0, p=e.previousElementSibling; while(p && p.classList.contains("hu-rv") && k<5){ k++; p=p.previousElementSibling } e.style.transitionDelay=(k*90)+"ms"; window._huIO.observe(e) });
 }
 function heroSlidesHtml(type,studio){
@@ -12652,16 +12651,35 @@ function countryMapHtml(){
    '<text x="20" y="500" style="font-size:11.5px;font-weight:400;fill:#9CA3AF">'+HX("mapNote")+'</text></svg></div>';
 }
 function syriaMapHtml(){
-  var pts=[["دمشق",186,392,200,397],["حلب",216,120,230,125],["حمص",196,268,210,273],["حماة",180,222,194,227],["اللاذقية",118,188,60,193],["طرطوس",110,252,56,257],["إدلب",150,150,106,145],["دير الزور",420,230,434,235],["الرقة",360,128,374,133],["الحسكة",500,112,514,117],["درعا",196,446,210,451],["السويداء",246,440,260,445]];
+  // theme hu: a real dark map (Leaflet, drawn by homeMapInit once the section exists) with a gold pin per governorate carrying its live count
+  return '<div class="frame smap" id="smap"><div class="humap" id="humap" dir="ltr"></div><div class="smap-note">'+(L==="ar"?"الرقم على الدبوس هو عدد الإعلانات الحيّة · انقر محافظة للبحث فيها":L==="de"?"Zahl im Pin = aktive Anzeigen · Gouvernement antippen, um dort zu suchen":"Number on the pin = live listings · tap a governorate to search it")+'</div></div>';
+}
+var _homeMap=null;
+function homeMapInit(){
+  var el=$("#humap"); if(!el || el.dataset.ready) return; el.dataset.ready="1";
   var cnt={}; srvGovCounts(cnt);
-  var outline="M92 118 L150 86 L210 70 L280 62 L360 58 L440 66 L520 96 L560 150 L548 210 L500 262 L440 318 L392 382 L330 440 L280 468 L232 462 L180 430 L150 372 L120 300 L100 240 L84 180 Z";
-  return '<div class="frame smap" id="smap"><svg viewBox="0 0 600 520" aria-hidden="true"><defs><pattern id="sdots" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1" fill="#14213D" fill-opacity=".12"/></pattern></defs>'+
-   '<path d="'+outline+'" fill="url(#sdots)" stroke="#14213D" stroke-width="1.5" stroke-linejoin="round"/>'+
-   '<path d="'+outline+'" fill="none" stroke="#C4881F" stroke-width="1" stroke-dasharray="2 5" transform="translate(6 6)"/>'+
-   pts.map(function(p){ var c=cnt[p[0]]||0, r=3+Math.min(4,Math.sqrt(c));
-     return '<g class="dot" data-g="'+p[0]+'"><circle cx="'+p[1]+'" cy="'+p[2]+'" r="'+(r*2)+'" fill="#C4881F" fill-opacity=".18"/><circle cx="'+p[1]+'" cy="'+p[2]+'" r="'+r+'" fill="#C4881F"/></g>'+
-            '<text x="'+p[3]+'" y="'+p[4]+'">'+gN(p[0])+'</text>' }).join("")+
-   '<text x="20" y="500" style="font-size:11.5px;font-weight:400;fill:#9CA3AF">'+HX("mapNote")+'</text></svg></div>';
+  ensureLeaflet().then(function(LMap){
+    if(!document.body.contains(el)) return;
+    if(_homeMap){ try{ _homeMap.remove() }catch(e){} }
+    var coarse=window.matchMedia && matchMedia("(pointer:coarse)").matches;
+    var map=_homeMap=LMap.map(el,{zoomControl:false,scrollWheelZoom:false,dragging:!coarse,tap:false,attributionControl:true});
+    huTiles(LMap,true).addTo(map);
+    LMap.control.zoom({position:"bottomleft",zoomInText:"+",zoomOutText:"−"}).addTo(map);
+    var govs=Object.keys(D.GEO).filter(function(g){ return GOV_COORDS[g] }), b=[];
+    govs.forEach(function(g){ var c=cnt[g]||0, ll=(g==="ريف دمشق")?[33.68,36.95]:(g==="القنيطرة")?[33.05,35.78]:GOV_COORDS[g]; b.push(ll);   // the pins around Damascus sit apart
+      var ic=LMap.divIcon({className:"hupin-wrap",html:'<div class="hupin'+(c?'':' sm')+'" data-g="'+g+'"><i></i><b>'+(c||'')+'</b><span class="hupin-lab">'+gN(g)+'</span></div>',iconSize:[36,36],iconAnchor:[18,36]});
+      var m=LMap.marker(ll,{icon:ic,title:gN(g)}).addTo(map);
+      m.on("click",function(){ var a=$('.govs a[data-gov="'+g+'"]'); if(a) a.click() });
+      m.on("mouseover",function(){ $$(".govs a[data-gov]").forEach(function(a){ a.classList.toggle("hot",a.dataset.gov===g) }) });
+      m.on("mouseout",function(){ $$(".govs a[data-gov]").forEach(function(a){ a.classList.remove("hot") }) });
+    });
+    if(b.length) map.fitBounds(b,{padding:innerWidth<=860?[44,30]:[70,60]});
+    $$(".govs a[data-gov]").forEach(function(a){
+      a.addEventListener("mouseenter",function(){ $$("#humap .hupin").forEach(function(d){ d.classList.toggle("hot",d.dataset.g===a.dataset.gov) }) });
+      a.addEventListener("mouseleave",function(){ $$("#humap .hupin").forEach(function(d){ d.classList.remove("hot") }) });
+    });
+    setTimeout(function(){ map.invalidateSize() },400);
+  }).catch(function(){});
 }
 
 // map dots and governorate tiles highlight each other; clicking a dot opens that governorate's search
@@ -12674,6 +12692,7 @@ function homeExtras(){
       // the section lives on the homepage: go there first, then scroll to it
       VIEW="home"; render(); refreshListingsOnNavigate(); setTimeout(function(){ var el2=$("#"+id); if(el2) el2.scrollIntoView({behavior:"smooth",block:"start"}); else scrollTo(0,0) },120) }) }
   var map=$("#smap"); if(!map) return;
+  homeMapInit(); if($("#humap")) return;   // theme hu: the real map wires its own pins
   var hot=function(g){
     $$("#smap .dot").forEach(function(d){ d.classList.toggle("hot", !!g && d.dataset.g===g) });
     $$(".govs a[data-gov]").forEach(function(a){ a.classList.toggle("hot", !!g && a.dataset.gov===g) });
