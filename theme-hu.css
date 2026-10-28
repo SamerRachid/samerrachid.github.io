@@ -421,3 +421,21 @@ body.home-hero.hero-in-view .mobfab{display:none}
   .hero-outer.hu .stabs button{height:30px;line-height:30px;font-size:13px}
   .hero-outer.hu .aisearch-pill{height:44px}
 }
+
+/* owner 2026-10-28: logo at the right edge, burger at the left edge; the account card is the first row of the menu */
+.hbar,.home-hero .hbar{display:flex!important;justify-content:space-between!important;align-items:center;grid-template-columns:none!important}
+.hbar .logo{margin-inline-end:auto!important}
+.htools{margin-inline-start:auto}
+.mm-in{grid-template-rows:auto 1fr}
+.mm-acct{grid-column:1/-1;display:grid;grid-template-columns:1fr auto;gap:14px 24px;align-items:center}
+.mm-acct .g,.mm-acct .m{grid-template-columns:48px 1fr}
+.mm-acct .g .mdw-in{grid-column:auto;width:auto;padding:0 22px;white-space:nowrap}
+.mm-acct .g{grid-template-columns:48px 1fr auto}
+.mm-acct .m{grid-template-columns:48px 1fr}
+.mm-shortcuts{grid-template-columns:repeat(5,1fr)}
+@media (max-width:860px){
+  .mm-acct{display:block}
+  .mm-acct .g{grid-template-columns:48px 1fr}
+  .mm-acct .g .mdw-in{grid-column:1/-1;width:100%}
+  .mm-shortcuts{grid-template-columns:1fr 1fr}
+}
