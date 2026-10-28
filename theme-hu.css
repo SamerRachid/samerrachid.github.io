@@ -622,3 +622,9 @@ html body .res:not(.list-view){gap:25px}
   html body .res:not(.list-view) .card.c2 .ph{height:211px!important;flex:none}
   html body .card.c2 .ctitle{font-size:20px!important}
 }
+/* the listing column must stretch (the live .lgrid has align-items:start, which shrank every block to its content) */
+.lpage>.lgrid{align-items:stretch}
+.lpage>.lgrid>*,.lmain>*,.lside>*{width:100%;max-width:none}
+.lfacts{display:grid}
+.lgal:not(.n0){grid-template-columns:1fr 310px}
+.lgal:not(.n0):not(:has(.lg-side)){grid-template-columns:1fr}
