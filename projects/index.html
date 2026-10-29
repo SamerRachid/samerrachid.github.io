@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-Jma14Vjdnix3cLgRZ2NH1zRg9a5w8lK0GSBa1cJYZpw=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-tCvmVaGG0FxkaU3b1l+30TVbcWezSVHfZ/EVZesUxxk=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -673,6 +673,7 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
 
 .mineWrap{position:relative}
 .mineBar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.done-acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}.done-acts>button{flex:0 1 220px;min-width:0;height:46px;margin:0!important;padding:0 16px;white-space:nowrap}
 .mineBar .mstat{font-size:13px;color:var(--grey);padding:0 4px}
 .mineBar .st{margin-inline-end:auto}
 
@@ -4968,7 +4969,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202610291452"><script>
+</style><link rel="stylesheet" href="/theme-hu.css?v=202610291911"><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
   brand:      "بلكون",
@@ -6935,11 +6936,17 @@ function rsWire(opts){
   var closeAndCatchUp=function(){ closeSheet(function(){ if(window._csDirty){ window._csDirty=false; render() } }) };
   if($("#rsFClose")) $("#rsFClose").onclick=closeAndCatchUp; if($("#rsFApply")) $("#rsFApply").onclick=function(){ closeAndCatchUp(); setTimeout(function(){ var top=$(".rs-head"); if(top) top.scrollIntoView({behavior:"smooth",block:"start"}) },280) };
   if($("#rsMMap")) $("#rsMMap").onclick=function(){ MAPSEARCH.deal=F.deal==="rent"?"rent":"sale"; VIEW="mapsearch"; scrollTo(0,0); render(); refreshListingsOnNavigate() };
-  if($("#saveSearch")) $("#saveSearch").onclick=async function(){
+  if($("#saveSearch")){
+    ssMark();
+    if(USER&&!LOADED.searches){ LOADED.searches=true; loadSearches().then(ssMark) }
+    $("#saveSearch").onclick=async function(){
     if(!USER){ AU.open=true; AU.mode="up"; AU.step=1; render(); return }
-    var b=this, sp=b.querySelector("span")||b; sp.textContent=t("saving");
-    try{ await rpc("bk_search_save",{p_user:USER.id, p_label:searchLabel(F), p_filters:JSON.parse(JSON.stringify(F))}); await loadSearches(); sp.textContent=t("savedOk"); b.style.color="var(--ok)" }
-    catch(e){ sp.textContent=(e.message||"error"); b.style.color="var(--danger)" } };
+    var b=this, sp=b.querySelector("span")||b, had=ssFind(); if(b.disabled) return; b.disabled=true; sp.textContent=t("saving");
+    try{
+      if(had){ await rpc("bk_search_del",{p_user:USER.id,p_id:+had.id}); SEARCHES=SEARCHES.filter(function(s){return String(s.id)!==String(had.id)}); ssToast(GX("ssRemoved")) }
+      else { await rpc("bk_search_save",{p_user:USER.id, p_label:searchLabel(F), p_filters:JSON.parse(JSON.stringify(F))}); await loadSearches(); ssToast(GX("ssSaved").replace("{l}",esc(searchLabel(F))),t("mySearch"),function(){ VIEW="searches"; scrollTo(0,0); render() }) }
+      b.disabled=false; ssMark() }
+    catch(e){ b.disabled=false; sp.textContent=(e.message||"error"); b.style.color="var(--danger)" } } }
   // cards ↔ pins
   $$(".res .card[data-open]").forEach(function(cd){ cd.addEventListener("mouseenter",function(){ var m=RS.pins[cd.dataset.open]; if(m&&m._icon){ m._icon.classList.add("on"); m.setZIndexOffset(1000) } }); cd.addEventListener("mouseleave",function(){ var m=RS.pins[cd.dataset.open]; if(m&&m._icon){ m._icon.classList.remove("on"); m.setZIndexOffset(0) } }) });
   if(!(opts&&opts.map) && rsMapOn() && window.innerWidth>=1100) setTimeout(rsMapInit,60); else rsMapStop();
@@ -7248,12 +7255,12 @@ function post(){
    '<p style="color:var(--grey);font-size:14.5px;margin-top:6px">'+
     (NEW.saved
       ? t("ref")+' <b class="ltr">'+NEW.ref+'</b><br>'+t("okP")+
-        '<br><span style="font-size:13px;'+(NEW.okPhotos<NEW.tryPhotos?'color:var(--danger)':'color:var(--ok)')+'">'+
-        t("photoCount").replace("{a}",NEW.okPhotos).replace("{b}",NEW.tryPhotos)+'</span>'+
+        (NEW.tryPhotos?'<br><span style="font-size:13px;'+(NEW.okPhotos<NEW.tryPhotos?'color:var(--danger)':'color:var(--ok)')+'">'+
+        t("photoCount").replace("{a}",NEW.okPhotos).replace("{b}",NEW.tryPhotos)+'</span>':'')+
         (NEW.photoErr?'<br><span style="color:var(--danger);font-size:12.5px">'+NEW.photoErr+'</span>':'')
       : '<span style="color:var(--danger)">'+(NEW.err||"")+'</span>')+'</p>'+
-   '<div style="margin-top:18px">'+(NEW.saved?'<button class="btn-n" data-open="'+NEW.id+'">'+t("okBtn")+'</button>':'')+
-   '<button class="gh" data-go="post" style="max-width:230px;margin:9px auto 0">'+t("again")+'</button></div></div></div>';
+   '<div class="done-acts">'+(NEW.saved?'<button class="btn-n" data-open="'+NEW.id+'">'+t("okBtn")+'</button>':'')+
+   '<button class="gh line" data-go="post">'+t("again")+'</button></div></div></div>';
  var pk=function(obj,name){return Object.keys(obj).map(function(k){
    return '<label><input type="radio" name="'+name+'" value="'+k+'"><span>'+obj[k][li()]+'</span></label>'}).join("")};
  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+t("postH")+'</div></div>'+postMsgCardHtml()+
@@ -7768,6 +7775,15 @@ async function loadSearches(){
   try{ var r=await DB.rpc("bk_search_list",{p_user:USER.id});
        if(r&&r.data) SEARCHES=r.data }catch(e){}
 }
+// the results page's «save this search» is a toggle: same filters already saved → it shows saved and a click removes it
+function ssKey(f){ f=(typeof f==="string")?JSON.parse(f||"{}"):(f||{}); var o={};
+  Object.keys(f).sort().forEach(function(k){ var v=f[k]; if(v===""||v===0||v===false||v==null||(Array.isArray(v)&&!v.length)) return; o[k]=Array.isArray(v)?v.slice().map(String).sort():v }); return JSON.stringify(o) }
+function ssFind(){ var k=ssKey(F); return SEARCHES.filter(function(s){ try{ return ssKey(s.filters)===k }catch(e){ return false } })[0]||null }
+function ssMark(){ var b=$("#saveSearch"); if(!b) return; var on=!!(USER&&ssFind()), sp=b.querySelector("span")||b;
+  b.classList.toggle("on",on); b.style.color=""; sp.textContent=on?t("savedL"):t("saveSearch"); b.title=on?GX("ssUnsaveTip"):GX("ssSaveTip"); b.setAttribute("aria-pressed",on?"true":"false") }
+function ssToast(msg,btn,fn){ var old=document.getElementById("pwaToast"); if(old) old.remove(); var d=document.createElement("div"); d.className="pwa-toast"; d.id="pwaToast";
+  d.innerHTML='<span>'+msg+'</span>'+(btn?'<button type="button">'+esc(btn)+'</button>':''); document.body.appendChild(d);
+  if(btn) d.querySelector("button").onclick=function(){ d.remove(); fn() }; setTimeout(function(){ if(d.parentNode) d.remove() },btn?7000:4000) }
 var MYMSGS={reports:[],feedback:[]};
 var NOTIFS={items:[],unread:0};
 var NOTIF_OPEN=false;
@@ -14425,7 +14441,7 @@ var GX_T={
   rwH:{ar:"مكافأة التمييز المجاني",en:"Free-feature reward",de:"Gratis-Hervorhebung als Belohnung"},
   rwHint:{ar:"كل عدد معيّن من الإعلانات التي تُنشر فعلياً يمنح صاحبها تمييزاً مجانياً: إعلان واحد على الصفحة الرئيسية لمدة محددة. يختار الإعلان بنفسه من صفحة «إعلاناتي». النقطة تُحسب مرة واحدة لكل إعلان، والإعلان المحذوف خلال 7 أيام يفقدها، وتمييز واحد نشط لكل حساب.",en:"Every N listings that actually go live earn the poster one free feature: one listing on the homepage for a set time. They pick the listing themselves from “My listings”. One point per listing for life, a listing deleted within 7 days loses it, one active feature per account.",de:"Je N tatsächlich veröffentlichte Anzeigen erhält der Inserent eine Gratis-Hervorhebung: eine Anzeige für eine festgelegte Zeit auf der Startseite. Er wählt sie selbst unter „Meine Anzeigen”. Ein Punkt pro Anzeige, eine binnen 7 Tagen gelöschte Anzeige verliert ihn, eine aktive Hervorhebung pro Konto."},
   rwOn:{ar:"تشغيل المكافأة",en:"Reward on",de:"Belohnung aktiv"}, rwEvery:{ar:"إعلان منشور لكل تمييز",en:"Live listings per feature",de:"Veröffentlichte Anzeigen pro Hervorhebung"}, rwHours:{ar:"مدة التمييز (ساعات)",en:"Feature length (hours)",de:"Dauer (Stunden)"},
-  rwWelcome:{ar:"مكافأة الترحيب: تمييز مع أول إعلان",en:"Welcome bonus: a feature with the first listing",de:"Willkommensbonus: Hervorhebung bei der ersten Anzeige"}, rwUsers:{ar:"تشمل الأفراد (وليس المكاتب فقط)",en:"Individuals too (not only agencies)",de:"Auch Privatpersonen (nicht nur Büros)"}, rwBarHide:{ar:"إخفاء رسالة التمييز عن الأعضاء في «إعلاناتي» (تبقى المكافأة شغّالة وتُحتسب)",en:"Hide the feature message from members on “my listings” (the reward keeps running)",de:"Hinweis auf der Seite „Meine Anzeigen“ ausblenden (die Belohnung läuft weiter)"},
+  rwWelcome:{ar:"مكافأة الترحيب: تمييز مع أول إعلان",en:"Welcome bonus: a feature with the first listing",de:"Willkommensbonus: Hervorhebung bei der ersten Anzeige"}, rwUsers:{ar:"تشمل الأفراد (وليس المكاتب فقط)",en:"Individuals too (not only agencies)",de:"Auch Privatpersonen (nicht nur Büros)"}, ssSaved:{ar:"حُفظ البحث «{l}» — اضغط «محفوظ» مرة ثانية لإلغاء الحفظ",en:"Search saved “{l}” — tap “Saved” again to remove it",de:"Suche „{l}“ gespeichert — erneut tippen zum Entfernen"},ssRemoved:{ar:"أُلغي حفظ هذا البحث",en:"Search removed from saved",de:"Suche aus den gespeicherten entfernt"},ssSaveTip:{ar:"احفظ هذه الفلاتر لترجع لها بضغطة من القائمة",en:"Save these filters to come back in one tap from the menu",de:"Filter speichern und mit einem Tipp aus dem Menü zurückkehren"},ssUnsaveTip:{ar:"هذا البحث محفوظ — اضغط لإلغاء الحفظ",en:"This search is saved — tap to remove it",de:"Diese Suche ist gespeichert — tippen zum Entfernen"},rwBarHide:{ar:"إخفاء رسالة التمييز عن الأعضاء في «إعلاناتي» (تبقى المكافأة شغّالة وتُحتسب)",en:"Hide the feature message from members on “my listings” (the reward keeps running)",de:"Hinweis auf der Seite „Meine Anzeigen“ ausblenden (die Belohnung läuft weiter)"},
   rwBalances:{ar:"الأرصدة",en:"Balances",de:"Guthaben"}, rwPoints:{ar:"النقاط",en:"Points",de:"Punkte"}, rwCredits:{ar:"الرصيد",en:"Credits",de:"Guthaben"}, rwActive:{ar:"مميز حتى",en:"Featured until",de:"Hervorgehoben bis"}, rwNone:{ar:"لا أرصدة بعد؛ تبدأ مع أول إعلان منشور.",en:"No balances yet; they start with the first live listing.",de:"Noch kein Guthaben; es beginnt mit der ersten veröffentlichten Anzeige."},
   rwGrant:{ar:"منح",en:"Grant",de:"Gewähren"}, rwRevoke:{ar:"سحب",en:"Revoke",de:"Entziehen"}, rwGrantQ:{ar:"كم تمييزاً تريد منحه لـ {n}؟",en:"How many features to grant {n}?",de:"Wie viele Hervorhebungen für {n} gewähren?"}, rwRevokeQ:{ar:"كم تمييزاً تريد سحبه من {n}؟",en:"How many features to revoke from {n}?",de:"Wie viele Hervorhebungen von {n} entziehen?"}, rwNoteQ:{ar:"ملاحظة (اختياري)",en:"Note (optional)",de:"Notiz (optional)"},
   rwLog:{ar:"آخر الحركات",en:"Recent activity",de:"Letzte Vorgänge"}, rwK_point:{ar:"نقطة إعلان",en:"listing point",de:"Anzeigenpunkt"}, rwK_point_revoked:{ar:"نقطة مسحوبة",en:"point revoked",de:"Punkt entzogen"}, rwK_earned:{ar:"تمييز مكتسب",en:"feature earned",de:"Hervorhebung verdient"}, rwK_welcome:{ar:"مكافأة ترحيب",en:"welcome bonus",de:"Willkommensbonus"}, rwK_used:{ar:"تمييز مستخدم",en:"feature used",de:"Hervorhebung genutzt"}, rwK_granted:{ar:"منح من الإدارة",en:"granted by admin",de:"vom Admin gewährt"}, rwK_revoked:{ar:"سحب من الإدارة",en:"revoked by admin",de:"vom Admin entzogen"},

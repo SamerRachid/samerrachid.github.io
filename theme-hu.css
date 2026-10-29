@@ -1174,3 +1174,35 @@ html body .lside .lown{display:flex!important;flex-wrap:wrap;gap:10px;flex:1 1 1
 html body .lside .lown .lbtn{flex:1 1 0!important;width:auto;min-width:140px;padding:12px 14px!important;white-space:nowrap;text-align:center}
 html body .lside .lown #delOwn{border-color:rgba(226,92,92,.55)!important;color:#F08A8A!important}
 @media (max-width:860px){ html body .lside .lown .lbtn{flex:1 1 100%!important} }
+/* post saved screen: one gold action + one outlined, same height, side by side */
+html body .done2 .tk{border:2px solid rgba(202,144,81,.55)!important}
+html body .done2 .done-acts>button{height:48px;border-radius:8px!important;font-weight:700;word-spacing:2px}
+html body .done2 .done-acts>button.line{background:transparent!important;color:#fff!important;border:1px solid rgba(202,144,81,.6)!important}
+html body .done2 .done-acts>button.line:hover{background:rgba(202,144,81,.12)!important;color:var(--gold)!important}
+@media (max-width:520px){ html body .done2 .done-acts>button{flex:1 1 100%} }
+/* my listings: the action bar under each card was white with white text */
+html body .mineBar{gap:8px;margin-top:10px}
+html body .mineBar .ab{background:transparent!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important;padding:7px 14px!important;font-weight:600}
+html body .mineBar .ab:hover{border-color:var(--gold)!important;color:var(--gold)!important}
+html body .mineBar .ab.bad{color:#F08A8A!important;border-color:rgba(226,92,92,.5)!important}
+html body .mineBar .ab.bad:hover{background:rgba(226,92,92,.1)!important;color:#F5A3A3!important}
+html body .mineBar .ab.rwuse{background:var(--gold)!important;color:var(--navy)!important;border-color:var(--gold)!important}
+html body .mineBar .st{background:rgba(255,255,255,.06)!important;border:1px solid var(--line)!important;color:#fff!important;border-radius:999px!important;padding:3px 10px!important}
+html body .mineBar .st-live{background:rgba(46,163,107,.16)!important;border-color:rgba(46,163,107,.45)!important;color:#7FD9A8!important}
+html body .mineBar .st-pending{background:rgba(202,144,81,.14)!important;border-color:rgba(202,144,81,.45)!important;color:var(--gold)!important}
+/* card pills: line-height 16px + overflow hidden cut the tail of the last letter («أخضر») — room inside, same outer size */
+html body .card.c2 .cpill{padding-block:3px 5px!important;margin-block:-3px -5px!important;padding-inline-end:3px!important}
+/* dropdown keyboard/hover row: was a white bar with gold text on the dark list */
+html body .chipsel-drop .chipsel-opt.act,html body .chipsel-drop .chipsel-opt:hover{background:rgba(202,144,81,.16)!important;color:#fff!important}
+html body .chipsel-drop .chipsel-opt.act span,html body .chipsel-drop .chipsel-opt:hover span{color:#fff!important}
+html body .chipsel-drop .chipsel-opt.act .cs-n,html body .chipsel-drop .chipsel-opt:hover .cs-n{background:rgba(202,144,81,.22)!important;color:var(--gold)!important}
+html body .hero-outer.hu .chipsel-drop .chipsel-opt.act,html body .hero-outer.hu .chipsel-drop .chipsel-opt:hover{background:rgba(202,144,81,.14)!important;color:var(--navy)!important}
+html body .hero-outer.hu .chipsel-drop .chipsel-opt.act span,html body .hero-outer.hu .chipsel-drop .chipsel-opt:hover span{color:var(--navy)!important}
+/* saved-search button: saved state is gold and clickable again to remove */
+html body .rs-save.on,html body .rs-save.on span{color:var(--gold)!important;border-color:rgba(202,144,81,.6)!important}
+html body .rs-save.on svg{fill:var(--gold)}
+html body .pwa-toast{border:1px solid rgba(202,144,81,.5);background:var(--navy-2)!important;border-radius:14px!important;max-width:min(560px,calc(100vw - 24px));text-align:start;line-height:1.5}
+html body .pwa-toast button{white-space:nowrap}
+/* results-page lists: the sticky governorate heading kept the light theme's white bar */
+html body .rs-f .chipsel-drop .cs-h{background:var(--navy-2)!important;color:var(--gold)!important;border-bottom:1px solid var(--line);font-size:12px}
+html body .rs-f .chipsel-drop .cs-h.cs-kind{background:transparent!important;color:var(--muted)!important;border:0}
