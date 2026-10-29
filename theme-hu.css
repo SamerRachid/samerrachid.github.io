@@ -629,30 +629,30 @@ html body .res:not(.list-view){gap:25px}
 .lgal:not(.n0){grid-template-columns:1fr 310px}
 .lgal:not(.n0):not(:has(.lg-side)){grid-template-columns:1fr}
 
-/* ===== 2026-10-28 real-phone rebuild (Samsung Z Flip 360px and every phone 320-430): the live sheet had a 150px horizontal
+/* ===== 2026-10-28 real-phone rebuild (2026-10-29: list view too; the owner's phone had list view saved and its cards were 220px with the body clipped) (Samsung Z Flip 360px and every phone 320-430): the live sheet had a 150px horizontal
    card, stacked facts, wrapped buttons and a video figure that pushed the listing page to 533px ===== */
 @media (max-width:860px){
-  html body .res:not(.list-view){grid-template-columns:1fr!important;gap:20px!important}
-  html body .res:not(.list-view) .card.c2,html body .simtrack .card.c2{display:flex!important;flex-direction:column!important;height:auto!important;min-height:0;overflow:hidden;border-radius:8px}
-  html body .res:not(.list-view) .card.c2 .ph,html body .simtrack .card.c2 .ph{width:100%!important;height:211px!important;flex:none;position:relative;aspect-ratio:auto}
-  html body .res:not(.list-view) .card.c2 .ph img,html body .res:not(.list-view) .card.c2 .ph video,html body .res:not(.list-view) .card.c2 .ph .nophoto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-  html body .res:not(.list-view) .card.c2 .ph::after{height:45%}
-  html body .res:not(.list-view) .card.c2 .bd{top:12px;inset-inline-start:12px;gap:6px}
-  html body .res:not(.list-view) .card.c2 .bd span{font-size:10px;padding:4px 8px;line-height:16px}
-  html body .res:not(.list-view) .card.c2 .cfav{width:40px;height:40px;top:12px;inset-inline-end:12px;background:rgba(17,33,63,.55);color:#fff}
-  html body .res:not(.list-view) .card.c2 .cpc{bottom:12px;inset-inline-end:12px;font-size:12px}
-  html body .res:not(.list-view) .card.c2 .cb{padding:16px 16px 20px!important;gap:6px;flex:1;min-width:0}
-  html body .res:not(.list-view) .card.c2 .ctitle{font-size:20px!important;line-height:26px;white-space:normal;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:0}
-  html body .res:not(.list-view) .card.c2 .cloc{font-size:14px;line-height:22px;white-space:normal}
-  html body .res:not(.list-view) .card.c2 .cfacts{font-size:14px;gap:14px;margin-top:2px;min-height:22px}
-  html body .res:not(.list-view) .card.c2 .cfacts .cfc{display:inline-flex}
-  html body .res:not(.list-view) .card.c2 .cfacts svg{width:16px;height:16px}
-  html body .res:not(.list-view) .card.c2 .cfoot{margin-top:0;padding-top:0;font-size:13px;gap:4px}
-  html body .res:not(.list-view) .card.c2 .cfoot .cf2{display:flex}
-  html body .res:not(.list-view) .card.c2 .cfoot .cf1{min-height:0}
-  html body .res:not(.list-view) .card.c2 .cpill{font-size:13px;padding:0}
-  html body .res:not(.list-view) .card.c2 .cprice .p{font-size:18px;line-height:24px}
-  html body .res:not(.list-view) .card.c2 .cpm{font-size:12px}
+  html body .res{grid-template-columns:1fr!important;gap:20px!important}
+  html body .res .card.c2,html body .simtrack .card.c2{display:flex!important;flex-direction:column!important;height:auto!important;min-height:0;overflow:hidden;border-radius:8px}
+  html body .res .card.c2 .ph,html body .simtrack .card.c2 .ph{width:100%!important;height:211px!important;flex:none;position:relative;aspect-ratio:auto}
+  html body .res .card.c2 .ph img,html body .res .card.c2 .ph video,html body .res .card.c2 .ph .nophoto{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  html body .res .card.c2 .ph::after{height:45%}
+  html body .res .card.c2 .bd{top:12px;inset-inline-start:12px;gap:6px}
+  html body .res .card.c2 .bd span{font-size:10px;padding:4px 8px;line-height:16px}
+  html body .res .card.c2 .cfav{width:40px;height:40px;top:12px;inset-inline-end:12px;background:rgba(17,33,63,.55);color:#fff}
+  html body .res .card.c2 .cpc{bottom:12px;inset-inline-end:12px;font-size:12px}
+  html body .res .card.c2 .cb{padding:16px 16px 20px!important;gap:6px;flex:1;min-width:0}
+  html body .res .card.c2 .ctitle{font-size:20px!important;line-height:26px;white-space:normal;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;min-height:0}
+  html body .res .card.c2 .cloc{font-size:14px;line-height:22px;white-space:normal}
+  html body .res .card.c2 .cfacts{font-size:14px;gap:14px;margin-top:2px;min-height:22px}
+  html body .res .card.c2 .cfacts .cfc{display:inline-flex}
+  html body .res .card.c2 .cfacts svg{width:16px;height:16px}
+  html body .res .card.c2 .cfoot{margin-top:0;padding-top:0;font-size:13px;gap:4px}
+  html body .res .card.c2 .cfoot .cf2{display:flex}
+  html body .res .card.c2 .cfoot .cf1{min-height:0}
+  html body .res .card.c2 .cpill{font-size:13px;padding:0}
+  html body .res .card.c2 .cprice .p{font-size:18px;line-height:24px}
+  html body .res .card.c2 .cpm{font-size:12px}
   html body .simtrack .card.c2{flex:0 0 calc(100vw - 40px)!important}
   /* governorate tiles: two clean columns, the count in gold on the far side */
   html body .govs{display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;margin-top:18px}
