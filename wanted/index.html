@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-KEwvoveQ4HHZqY+Q2wo9F8yvmBA61ErhiyZyRdgP3lI=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-HH3Bzq9h9cdgUkxBjDm0H0/1tVdIeJxvyPZexf2Vzpk=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -5885,7 +5885,9 @@ function wireDrawer(){
   if(window.PWA){ var isec=$("#mdwInstallSec"); if(isec){ var ib=$("#mdwInstall"); if(ib) ib.onclick=function(){ mdwClose(); if(PWA.hasApp()) PWA.shareApp(); else PWA.install() } } }
   if(!window._mdwEsc){ window._mdwEsc=true; document.addEventListener("keydown",function(e){ if(e.key==="Escape") mdwClose() }) }
   if($("#mdIn")) $("#mdIn").onclick=function(){ mdwClose(); var b=$("#bIn"); if(b) b.click() };
-  $$("[data-md]").forEach(function(a){ a.onclick=function(){ var el=$("#"+this.dataset.md); mdwClose(); if(el) el.click() } });
+  // the account shortcuts go straight to their pages (the hidden header menu they used to click is not wired on the theme)
+  var MD_GO={mMine:function(){LOADED.mine=false;VIEW="mine"},mSaved:function(){LOADED.saved=false;SAVEDFULL=[];VIEW="saved"},mSearch:function(){LOADED.searches=false;SEARCHES=[];VIEW="searches"},mMsgs:function(){LOADED.msgs=false;MYMSGS={reports:[],feedback:[]};VIEW="msgs"},mSet:function(){VIEW="account"}};
+  $$("[data-md]").forEach(function(a){ a.onclick=function(){ var md=this.dataset.md, el=$("#"+md); mdwClose(); if(MD_GO[md]){ MD_GO[md](); scrollTo(0,0); render(); return } if(el) el.click() } });
   $$("[data-mdcur]").forEach(function(a){ a.onclick=function(){ if(this.dataset.mdcur!==CUR){ var c=$("#cur"); if(c) c.click() } else mdwClose() } });
   $$("[data-cpick]").forEach(function(a){ a.onclick=function(e){ e.preventDefault(); var code=this.dataset.cpick; var m=$("#cMenu"); if(m) m.classList.remove("on"); mdwClose(); switchCountry(code) } });
   if($("#mdwCountry")) $("#mdwCountry").onclick=function(e){ e.preventDefault(); mdwClose(); showChooser() };
@@ -6831,7 +6833,7 @@ function rsMapInit(){
     btn.onclick=function(){ rsGoListing(btn.dataset.rsgo) } });
   map.on("popupclose",function(e){ if(RS._reopen) return; var el=e.popup.getElement(); var btn=el&&el.querySelector("[data-rsgo]"); if(btn && RS.pinnedId===+btn.dataset.rsgo){ RS.pinnedId=null; var cd=document.querySelector('.res .card[data-open="'+btn.dataset.rsgo+'"]'); if(cd) cd.classList.remove("hl") } });
   map.on("movestart zoomstart",function(){ if(!RS.pinnedId) rsFloatHide() });
-  RS.map=map; setTimeout(function(){ if(RS.map===map) map.invalidateSize() },150);
+  RS.map=map; setTimeout(function(){ if(RS.map===map){ map.invalidateSize(); if(b.length>1){ try{ map.fitBounds(b,{padding:[40,40],maxZoom:14,animate:false}) }catch(e){} } } },150);   // the column gets its final width after the first paint: size, then fit the pins again
   // a pin was clicked on another results page: the page changed, the map was rebuilt, now open that pin here
   if(RS.focusId){ var fid=RS.focusId; RS.focusId=null; var fx=pts.filter(function(p){ return p.id===fid })[0], fm=RS.pins[fid]; if(fx&&fm) setTimeout(function(){ if(RS.map===map){ RS.pinnedId=fid; rsPinOpen(fx,fm) } },250) }
 }
@@ -10644,7 +10646,7 @@ function wireAuth(){
    }
  }
  if($("#chip")){
-   $("#chip").onclick=function(e){e.stopPropagation(); if(matchMedia("(max-width:860px)").matches && $("#mdw")){ mdwOpen(); return } closeAllMenus($("#menu")); $("#menu").classList.toggle("on")};
+   if($("#chip")) $("#chip").onclick=function(e){e.stopPropagation(); if(matchMedia("(max-width:860px)").matches && $("#mdw")){ mdwOpen(); return } closeAllMenus($("#menu")); $("#menu").classList.toggle("on")};
    if(!window._menuDocClose){ window._menuDocClose=true; document.addEventListener("click",function(){var m=$("#menu");if(m)m.classList.remove("on");
      var nm=$("#notifMenu");if(nm)nm.classList.remove("on");NOTIF_OPEN=false;
      var nmr=$("#navMoreMenu"); if(nmr) nmr.classList.remove("on")}) }

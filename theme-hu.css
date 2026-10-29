@@ -940,3 +940,12 @@ html body .ccpick-iso{color:var(--muted)!important}
 html body .ccpick-code{color:var(--gold)!important;font-weight:700}
 html body .ccpick-empty{color:var(--muted)!important}
 html body .ccpick-list::-webkit-scrollbar{width:8px} html body .ccpick-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:4px}
+/* ===== 2026-10-29 owner: the side map on the search page ===== */
+@media (min-width:901px){
+  html body .rs-body.rs-hasmap{grid-template-columns:minmax(0,1fr) 40%!important;gap:24px!important;align-items:start}
+  html body .rs-hasmap .res{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:20px!important}
+  html body .rs-hasmap .rs-map{position:sticky!important;top:16px!important;height:calc(100vh - 32px)!important;max-height:none!important;display:flex;flex-direction:column;border-radius:12px!important;overflow:hidden}
+  html body .rs-hasmap .rs-mapwrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+  html body .rs-hasmap .rs-map .leaflet-container{flex:1 1 auto;min-height:320px;height:auto!important;border-radius:0}
+  html body .rs-hasmap .rs-avgbox{flex:0 0 auto;max-height:38%;overflow:auto}
+}
