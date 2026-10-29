@@ -771,3 +771,60 @@ html body .wver{color:#7FD9A8!important}
 html body .arx-gov h2 a,html body .arx-gov h2{color:#fff!important}
 html body .autop b,html body .autop,html body .aun a,html body .au-switch a,html body .au-switch{color:#fff!important}
 html body .aun a,html body .au-switch a{color:var(--gold)!important}
+
+/* ===== 2026-10-29 phone filter sheet and its lists (owner: "the menus of search filters don't open"). The live sheet
+   (.rs-filters), the price/more blocks shown inline on phones and the governorate/area/type/deed bottom sheets
+   (.chipsel-drop.on) kept the live WHITE background while the theme turned every text white, so the lists looked empty ===== */
+@media (max-width:900px){
+  html body .rs-filters{background:var(--navy)!important;color:#fff!important}
+  html body .rs-filters .rs-fh,html body .rs-filters .rs-ff{background:var(--navy)!important;border-color:var(--line)!important}
+  html body .rs-filters .rs-fh{border-bottom:1px solid var(--line)!important}
+  html body .rs-filters .rs-ff{border-top:1px solid var(--line)!important}
+  html body .rs-filters .rs-fh b{color:#fff!important;font-size:18px}
+  html body .rs-filters .rs-fx,html body .chipsel-drop.on .cs-close{background:rgba(255,255,255,.08)!important;color:#fff!important;border:1px solid var(--line)!important}
+  html body .rs-filters .rs-deal{background:rgba(255,255,255,.06)!important;border:1px solid var(--line)!important;border-radius:8px!important;padding:4px}
+  html body .rs-filters .rs-deal button{background:transparent!important;color:var(--muted)!important;border-radius:6px!important}
+  html body .rs-filters .rs-deal button.on{background:var(--gold)!important;color:var(--navy)!important}
+  html body .rs-filters .pricepop,html body .rs-filters .rs-morepop{background:transparent!important;color:#fff!important;border:0!important;box-shadow:none!important;padding:0}
+  html body .rs-filters .pricepop::before,html body .rs-filters .fg h4{color:var(--gold)!important;font-size:13px;font-weight:600}
+  html body .rs-filters .pricepop label{color:var(--muted)!important}
+  html body .rs-filters .pricepop input,html body .rs-filters .fg input[type=number],html body .rs-filters .fg input[type=search],html body .rs-filters .fg select{background:var(--navy-2)!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important}
+  html body .rs-filters .rsq-b{background:var(--navy-2)!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important}
+  html body .rs-filters .rsq-b.on{background:var(--gold)!important;color:var(--navy)!important;border-color:var(--gold)!important}
+  html body .rs-filters .ck{color:#fff!important}
+  html body .rs-filters .ck .c{color:var(--muted)!important}
+  html body .rs-filters .ck input{accent-color:var(--gold)}
+  html body .rs-filters #clrM{background:transparent!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important}
+  html body .rs-filters #rsFApply{background:var(--gold)!important;color:var(--navy)!important;border-radius:8px!important;font-weight:700}
+  /* the option sheets: governorate, area, type, deed */
+  html body .chipsel-drop.on{background:var(--navy-2)!important;color:#fff!important;border:1px solid var(--line)!important;border-bottom:0!important;box-shadow:0 -18px 44px rgba(0,0,0,.5)!important}
+  html body .chipsel-drop.on::before{background:rgba(255,255,255,.25)!important}
+  html body .chipsel-drop.on .cs-sheet-h{background:var(--navy-2)!important;color:#fff!important;border-color:var(--line)!important}
+  html body .chipsel-drop.on .cs-sheet-h span{color:#fff!important;font-weight:700;font-size:16px}
+  html body .chipsel-drop.on .cs-sheet-q{background:var(--navy)!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important}
+  html body .chipsel-drop.on .cs-sheet-q::placeholder{color:rgba(255,255,255,.45)}
+  html body .chipsel-drop.on .chipsel-opt,html body .chipsel-drop.on .chipsel-opt span{color:#fff!important}
+  html body .chipsel-drop.on .chipsel-opt{border-bottom:1px solid rgba(255,255,255,.06);border-radius:0!important;padding:12px 10px;min-height:46px}
+  html body .chipsel-drop.on .chipsel-opt:active,html body .chipsel-drop.on .chipsel-opt:hover{background:rgba(255,255,255,.06)!important}
+  html body .chipsel-drop.on .chipsel-opt .cs-n{color:var(--gold)!important;background:rgba(202,144,81,.14)!important;border-radius:6px;padding:1px 7px}
+  html body .chipsel-drop.on .cs-h{color:var(--gold)!important;background:var(--navy-2)!important}
+  html body .chipsel-drop.on .cs-selected .chip{background:rgba(202,144,81,.18)!important;color:#fff!important;border:1px solid rgba(202,144,81,.4)!important}
+  html body .chipsel-drop.on .chipsel-empty{color:var(--muted)!important}
+  html body .chipsel-drop.on .cs-done{background:var(--gold)!important;color:var(--navy)!important;border-radius:8px!important;font-weight:700}
+  html body .rs-mbar{background:rgba(23,43,79,.97)!important;border:1px solid var(--line)!important;border-radius:12px!important}
+  html body .rs-mbar #rsMFilters{background:var(--gold)!important;color:var(--navy)!important;font-weight:700}
+  html body .rs-mbar button,html body .rs-mbar select{border-radius:8px!important}
+}
+/* the filter bar never takes the reveal transform: the phone sheet and the option sheets are position:fixed inside it,
+   and a transformed ancestor turns "fixed" into "relative to the bar" (taps landed 40px off while it slid in) */
+html body .rs-bar.hu-rv,html body .rs-bar.hu-rv.in{opacity:1!important;transform:none!important;transition:none!important}
+@media (max-width:900px){
+  html body .chipsel-drop.on .cs-sheet-f{background:var(--navy-2)!important;border-top:1px solid var(--line)!important}
+  html body .chipsel-drop.on .cs-clear{background:transparent!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important}
+  html body .chipsel-drop.on .cs-done b{color:var(--navy)!important}
+}
+/* phones: the option list is a bottom sheet, so the "flip upward" branch (chosen when the hero bar sits low on the screen)
+   must not push it above the viewport (it was at top:-334px on the themed home page) */
+@media (max-width:640px){
+  html body .chipsel-drop.on,html body .chipsel-drop.on.flip-up,html body .home-hero .chipsel-drop.on.flip-up{top:auto!important;bottom:0!important;max-height:72vh!important;height:auto!important}
+}
