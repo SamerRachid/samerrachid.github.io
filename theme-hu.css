@@ -832,3 +832,9 @@ html body .rs-bar.hu-rv,html body .rs-bar.hu-rv.in{opacity:1!important;transform
    bottom sheet fixed inside it does not shrink to the bar's box and slide for a second before snapping to full width */
 html body .hero-outer.hu .sbar.hu-still,html body .hero-outer.hu .sbar.hu-still .srow{animation:none!important;opacity:1!important;transform:none!important}
 html body .sbar.hu-still .chipsel-drop.on{animation:none!important}   /* the list re-opened after a pick stays put instead of sliding up again */
+/* phones: the field lists every chosen name (two lines in the filter sheet, one clipped line in the hero bar) */
+@media (max-width:640px){
+  html body .rs-f .cs-compact .chipsel-box{height:auto!important;min-height:48px;padding-top:10px!important;padding-bottom:10px!important;align-items:center}
+  html body .rs-f .cs-compact .cs-sum{white-space:normal!important;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.35!important;text-overflow:clip}
+  html body .hero-outer.hu .sf .cs-sum{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+}
