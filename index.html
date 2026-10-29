@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-meqNU9HkSYa10uBpWc03blSB0b+rNhEnB5b1ouExsVw=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-5UhPJYM57AhO+oLjl3SgzetTZxyxwbmgM4hCkGLtN3U=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -6824,12 +6824,16 @@ function rsMapInit(){
   var c=document.getElementById("rsMap"); if(!c) return;
   var LMap=window.LeafletLib;
   if(!LMap || !AREA_LL){ Promise.all([ensureLeaflet(), ensureAreaLL()]).then(function(){ if(document.getElementById("rsMap")) rsMapInit() }).catch(function(){}); return }
-  rsMapStop();
+  // results on their way (previous cards shown dimmed): keep the map exactly as it is — one visible change when they arrive
+  var stw=srvOn()?srvSearchState():null; var keep=RS.map && RS.map.getContainer && RS.map.getContainer()===c && c.isConnected;
+  if(keep && stw && stw.wait) return;
+  if(!keep) rsMapStop();
   var pts=mapWithApproxLoc(rsResults());
   // the count under the map was worked out before the area locations arrived (14 instead of 347): it follows the pins drawn
   var note=document.querySelector(".rs-mapnote"); if(note) note.innerHTML=GX("rsOnMap").replace("{n}",'<span class="ltr">'+pts.length+'</span>');
-  var map=LMap.map(c,{zoomControl:true}).setView(pts.length?[pts[0].lat,pts[0].lng]:countryCenter().slice(0,2), pts.length?11:countryCenter()[2]);
-  huTiles(LMap).addTo(map);
+  var map, fresh=!keep;
+  if(keep){ map=RS.map; Object.keys(RS.pins).forEach(function(k){ try{ map.removeLayer(RS.pins[k]) }catch(e){} }); RS.pins={}; try{ map.closePopup() }catch(e){} }
+  else { map=LMap.map(c,{zoomControl:true}).setView(pts.length?[pts[0].lat,pts[0].lng]:countryCenter().slice(0,2), pts.length?11:countryCenter()[2]); huTiles(LMap).addTo(map) }
   var b=[];
   pts.forEach(function(x){
     var ic=LMap.divIcon({className:"rs-pinw",html:'<span class="rs-pin'+(x.featured?' feat':'')+'" data-pin="'+x.id+'">'+rsShort(x)+'</span>',iconSize:[0,0],iconAnchor:[0,0]});
@@ -6840,7 +6844,8 @@ function rsMapInit(){
     m.on("mouseover",function(){ clearTimeout(RS.closeT); rsPinShow(x,m,{pan:false,scroll:"nearest"}) });
     m.on("mouseout",function(){ if(RS.pinnedId===x.id) return; RS.closeT=setTimeout(function(){ if(RS.pinnedId!==x.id) rsPinHide(x,m) },350) });
     b.push([x.lat,x.lng]) });
-  if(b.length>1){ try{ map.fitBounds(b,{padding:[40,40],maxZoom:14,animate:false}) }catch(e){} }   // no opening zoom animation: leaving the page mid-animation made Leaflet throw
+  if(b.length>1){ try{ map.fitBounds(b,{padding:[40,40],maxZoom:14,animate:keep}) }catch(e){} }   // a kept map glides to the new pins; a fresh one opens in place (leaving mid-animation made Leaflet throw)
+  if(fresh){
   // the mini card's "view listing" button (popup DOM is created by Leaflet, so it is wired here, not by the page's data-open pass)
   map.on("popupopen",function(e){ var el=e.popup.getElement(); var btn=el&&el.querySelector("[data-rsgo]"); if(!btn) return;
     var pid=+btn.dataset.rsgo;
@@ -6849,7 +6854,8 @@ function rsMapInit(){
     btn.onclick=function(){ rsGoListing(btn.dataset.rsgo) } });
   map.on("popupclose",function(e){ if(RS._reopen) return; var el=e.popup.getElement(); var btn=el&&el.querySelector("[data-rsgo]"); if(btn && RS.pinnedId===+btn.dataset.rsgo){ RS.pinnedId=null; var cd=document.querySelector('.res .card[data-open="'+btn.dataset.rsgo+'"]'); if(cd) cd.classList.remove("hl") } });
   map.on("movestart zoomstart",function(){ if(!RS.pinnedId) rsFloatHide() });
-  RS.map=map; setTimeout(function(){ if(RS.map===map){ map.invalidateSize(); if(b.length>1){ try{ map.fitBounds(b,{padding:[40,40],maxZoom:14,animate:false}) }catch(e){} } } },150);   // the column gets its final width after the first paint: size, then fit the pins again
+  }
+  RS.map=map; if(keep) return; setTimeout(function(){ if(RS.map===map){ map.invalidateSize(); if(b.length>1){ try{ map.fitBounds(b,{padding:[40,40],maxZoom:14,animate:false}) }catch(e){} } } },150);   // the column gets its final width after the first paint: size, then fit the pins again
   // a pin was clicked on another results page: the page changed, the map was rebuilt, now open that pin here
   if(RS.focusId){ var fid=RS.focusId; RS.focusId=null; var fx=pts.filter(function(p){ return p.id===fid })[0], fm=RS.pins[fid]; if(fx&&fm) setTimeout(function(){ if(RS.map===map){ RS.pinnedId=fid; rsPinOpen(fx,fm) } },250) }
 }
@@ -9927,6 +9933,13 @@ function huImgFade(){ $$("#app .ph img,#app .lg-main img,#app .lgal img,#app .lg
 function rsMapAlign(){ var mp=$(".rs-hasmap .rs-map"), res=$(".rs-hasmap .res"), main=$(".rs-hasmap .rs-main"); if(!mp||!res||!main) return;
   if(window.innerWidth<=900){ mp.style.marginTop=""; return } mp.style.marginTop=""; var d=res.getBoundingClientRect().top-main.getBoundingClientRect().top; if(d>0&&d<400) mp.style.marginTop=d+"px" }
 if(!window._rsMapAlignWired){ window._rsMapAlignWired=true; addEventListener("resize",function(){ clearTimeout(window._rsMapAlignT); window._rsMapAlignT=setTimeout(rsMapAlign,120) }) }
+// a changed result set (filter, deal, page) rises in with the reveal motion even though the nodes were patched in place
+function huRevealResults(){ var res=$(".res"); if(!res) return; if(res.classList.contains("srv-wait")) return;
+  var cards=$$(".card.c2",res), sig=cards.map(function(c){ return c.dataset.open||c.dataset.id||"" }).join(",");
+  if(sig===window._huResSig){ return } var first=window._huResSig===undefined; window._huResSig=sig; if(first) return;
+  cards.forEach(function(c,i){ c.classList.remove("in","hu-done"); c.style.transitionDelay=(Math.min(i,8)*70)+"ms" });
+  void res.offsetWidth;
+  cards.forEach(function(c,i){ c.classList.add("in"); setTimeout(function(){ c.style.transitionDelay=""; c.classList.add("hu-done") },1150+Math.min(i,8)*70) }) }
 function huPageIn(){ if(window._huLastView===VIEW) return; window._huLastView=VIEW; $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.hero-outer,[id$=Modal],.modal")) return; e.classList.remove("hu-page"); void e.offsetWidth; e.style.animationDelay=Math.min(i,6)*40+"ms"; e.classList.add("hu-page") }) }
 function heroSlidesHtml(type,studio){
   if((type==="photo"||type==="video") && studio) return studio;   // a background set in the studio stays as it is
@@ -12522,7 +12535,7 @@ function render(){
    // so the page never flashes or jumps — HomeUAE swaps only what changed; a new view is still drawn fresh
    if(window.morphdom && app.firstElementChild && !$("#seoHome") && !PREVIEW && (VIEW==="home" || (VIEW===window._huLastView && VIEW!=="admin"))){
      var tmp=document.createElement("div"); tmp.innerHTML=html;
-     try{ morphdom(app,tmp,{childrenOnly:true,onBeforeElUpdated:function(a,b){ if(a.id==="sketchBox"||a.id==="dawnBox") return false; return !a.isEqualNode(b) }}) }catch(e){ app.innerHTML=html }
+     try{ morphdom(app,tmp,{childrenOnly:true,onBeforeElUpdated:function(a,b){ if(a.id==="sketchBox"||a.id==="dawnBox"||a.id==="rsMap") return false; return !a.isEqualNode(b) }}) }catch(e){ app.innerHTML=html }
    } else app.innerHTML=html;
    var bs=document.getElementById("bootSplash"); if(bs&&bs.parentNode) bs.parentNode.removeChild(bs); })();
  setTimeout(fabCheck,50);
@@ -12534,7 +12547,7 @@ function render(){
  // (Bayut-style) and turns solid once the page scrolls — see .home-hero CSS
  document.body.classList.toggle("home-hero", VIEW==="home");
  huReveal();   // theme hu: every page reveals its blocks on scroll, as homeuae.ae does (titles 50px, content 30px, 1s ease-out)
- huPageIn(); rsMapAlign();
+ huPageIn(); rsMapAlign(); huRevealResults();
  document.body.classList.toggle("adm-mode", VIEW==="admin" && !!ADM.token);
  applySiteExtras();
  updateHdr();
