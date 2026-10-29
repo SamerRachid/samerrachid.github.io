@@ -1119,6 +1119,7 @@ function admRewardsCard(){
   return '<div class="blk" style="margin-top:16px"><h3>'+GX("rwH")+'</h3><div class="in" id="rwCfg">'+
     '<div class="hintx" style="margin-bottom:10px">'+GX("rwHint")+'</div>'+
     '<div class="chkgrid">'+chk("reward_on",GX("rwOn"))+chk("reward_welcome_on",GX("rwWelcome"))+chk("reward_users_on",GX("rwUsers"))+'</div>'+
+    '<div class="chkgrid" style="margin-top:6px"><label class="xcheck"><input type="checkbox" data-rwc="reward_bar_hidden" data-rwt="bool"'+(GSX("reward_bar_hidden",false)===true||GSX("reward_bar_hidden",false)==="true"?' checked':'')+'><span>'+GX("rwBarHide")+'</span></label></div>'+
     '<div class="row" style="margin-top:8px">'+num("reward_every",GX("rwEvery"),10,1,100)+num("reward_hours",GX("rwHours"),24,1,720)+'</div>'+
     '<div class="row">'+num("reward_days",GX("rwDays"),60,0,3650)+'</div><div class="hintx">'+GX("rwDaysHint")+'</div>'+
     '<div class="xactions"><button type="button" class="ab ok" id="rwCfgSave">'+t("save")+'</button><span class="xmsg" id="rwCfgMsg"></span></div>'+
