@@ -1036,3 +1036,12 @@ html body .rs-sub{display:block;min-height:22px}
 /* owner 2026-10-29: the side map's zoom squares sit bottom-left with the home map's 16px breathing room, not glued to the top edge */
 html body .rs-map .leaflet-top.leaflet-left,html body .lmap .leaflet-top.leaflet-left{top:auto!important;bottom:0!important}
 html body .rs-map .leaflet-control-zoom,html body .lmap .leaflet-control-zoom{margin:0 0 16px 16px!important}
+/* owner 2026-10-29: the tools (view, sort, map) and the filter fields keep fixed places whatever the title or labels say */
+@media (min-width:901px){
+  html body .rs-head{justify-content:space-between!important;flex-wrap:nowrap!important}
+  html body .rs-head .rs-ttl{flex:1 1 auto!important;min-width:0}
+  html body .rs-head .rs-tools{flex:0 0 auto}
+  html body .rs-fin .rs-f{flex:1 1 0!important;max-width:none!important;min-width:0}
+  html body .rs-fin .rs-f .chipsel-box,html body .rs-fin .rs-f select,html body .rs-fin .rs-f .pricetrig,html body .rs-fin .rs-morebtn{width:100%!important;box-sizing:border-box}
+  html body .rs-fin .rs-deal{flex:0 0 auto}
+}
