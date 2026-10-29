@@ -1101,3 +1101,11 @@ html body .blk textarea,html body .blk input:not([type=checkbox]):not([type=radi
 html body .blk textarea::placeholder,html body .blk input::placeholder{color:rgba(255,255,255,.45)}
 html body .blk .btn-n,html body .blk button.gold{background:var(--gold)!important;color:var(--navy)!important;border-radius:8px!important}
 html body .vadd .vplay{color:var(--gold)!important}
+html body .qfill{background:var(--navy-2)!important;background-image:none!important;border:1px solid var(--line)!important;border-radius:12px!important;color:#fff!important;box-shadow:none!important}
+html body .qfill b,html body .qfill p,html body .qfill label,html body .qfill span{color:#fff!important}
+html body .qfill small,html body .qfill .hintx{color:var(--muted)!important}
+html body .qfill textarea{background:var(--navy)!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important}
+html body .qfill textarea::placeholder{color:rgba(255,255,255,.45)}
+html body .qfill button,html body .qfill .btn-n{background:var(--gold)!important;color:var(--navy)!important;border-radius:8px!important;font-weight:700}
+html body .qfill svg{color:var(--gold)!important}
+html body .vpick .vadd .vplay,html body .vplay{color:var(--gold)!important;background:rgba(202,144,81,.18)!important;border-radius:50%!important}
