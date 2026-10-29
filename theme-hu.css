@@ -1028,3 +1028,5 @@ html body .sec,html body .sec.rv,html body .sec.rv.in,html body section.rv.in{ba
   html body .rs-hasmap .rs-mapwrap{position:relative}
 }
 @media (min-width:901px){ html body .rs-hasmap .rs-mapnote{bottom:34px!important;opacity:1!important} }   /* the count pill clears the Esri attribution */
+/* owner 2026-10-29: the home map's note was a full-width gradient band fading the top of the map; now a small pill */
+html body .frame.smap .smap-note{inset-inline:auto!important;inset-inline-end:12px!important;top:12px!important;width:auto;max-width:calc(100% - 24px);padding:6px 12px!important;border-radius:999px!important;background:rgba(17,33,63,.88)!important;border:1px solid var(--line);font-size:11px!important;line-height:1.4}
