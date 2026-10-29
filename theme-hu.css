@@ -1072,3 +1072,32 @@ html body .acdel-btn{color:#E86A6A!important;border:1px solid rgba(226,75,75,.55
 html body .acct2 .psync,html body .acct2 .xcheck{background:rgba(255,255,255,.04)!important;border:1px solid var(--line)!important;border-radius:10px!important;color:#fff!important}
 html body .acct2 .memno{color:var(--muted)!important}
 html body .acct-h .vbadge{background:rgba(202,144,81,.18)!important;color:var(--gold)!important}
+
+/* ===== 2026-10-29 post form on the dark theme ===== */
+html body .qfteaser.pm-card{background:var(--navy-2)!important;border:1px solid var(--line)!important;color:#fff!important;border-radius:12px!important;box-shadow:none!important}
+html body .qfteaser-tx b{color:#fff!important}
+html body .qfteaser-tx small{color:var(--muted)!important}
+html body .qfteaser-cta{color:var(--gold)!important}
+html body .steps{background:var(--navy-2)!important;border:1px solid var(--line)!important;border-radius:12px!important;box-shadow:none!important}
+html body .steps>div{color:var(--muted)!important;background:transparent!important;border-radius:8px!important;border-color:var(--line)!important}
+html body .steps>div b{color:inherit!important}
+html body .steps>div.done{background:rgba(31,168,85,.16)!important;color:#5BD68A!important}
+html body .steps>div.on,html body .steps>div.cur,html body .steps>div.active,html body .steps>div.now{background:var(--gold)!important;color:var(--navy)!important}
+html body .bar2{background:var(--navy-2)!important;border-top:1px solid var(--line)!important;box-shadow:0 -10px 30px rgba(0,0,0,.35)!important}
+html body .bar2 .btn-n{background:var(--gold)!important;color:var(--navy)!important;border-radius:8px!important;font-weight:700}
+html body .bar2 .btn-n:disabled,html body .bar2 .btn-n[disabled]{background:rgba(255,255,255,.12)!important;color:var(--muted)!important}
+html body .bar2 .msg.bad{color:#FF8A80!important}
+html body .bar2 .msg{color:#fff!important}
+html body .tipbox{background:rgba(202,144,81,.12)!important;color:#fff!important;border:1px solid rgba(202,144,81,.35)!important;border-radius:10px!important}
+html body .vpick{background:rgba(255,255,255,.04)!important;border:1px dashed var(--line)!important;border-radius:12px!important;color:#fff!important}
+html body .vpick-h,html body .vpick b{color:#fff!important}
+html body .vadd{background:rgba(255,255,255,.08)!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important}
+html body .vadd b{color:#fff!important}
+html body .vadd span{color:var(--muted)!important}
+html body .hintx,html body .hintx.ltr{color:var(--muted)!important}
+html body .tabu-green{color:#5BD68A!important}
+html body .qf,html body .qfbox,html body .aifill,html body .blk .qfwrap{background:transparent!important;color:#fff!important}
+html body .blk textarea,html body .blk input:not([type=checkbox]):not([type=radio]):not([type=file]),html body .blk select{background-color:var(--navy)!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important}
+html body .blk textarea::placeholder,html body .blk input::placeholder{color:rgba(255,255,255,.45)}
+html body .blk .btn-n,html body .blk button.gold{background:var(--gold)!important;color:var(--navy)!important;border-radius:8px!important}
+html body .vadd .vplay{color:var(--gold)!important}
