@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-5U7x3FtCkc42Vk8Cf/K9PomiwPCPR50DyOR52WIiwdM=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-rY1/OF5NeXd0o9XoU+an7NT4+RvSFbhgP9yz5KcbBjA=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -5867,7 +5867,7 @@ window.bkBack=function(){ try{
   if(typeof AU!=="undefined" && AU.open){ AU.open=false; render(); return true }
   if(LIGHTBOX_OPEN){ LIGHTBOX_OPEN=false; render(); return true }
   var d=document.getElementById("mdw"); if(d && d.classList.contains("on")){ mdwClose(); return true }
-  var dr=document.querySelectorAll(".menu.on,.chipsel-drop.on"); if(dr.length){ dr.forEach(function(x){ x.classList.remove("on") }); CS_OPEN=null; return true }
+  var dr=document.querySelectorAll(".menu.on,.chipsel-drop.on"); if(dr.length){ dr.forEach(function(x){ huHide(x) }); CS_OPEN=null; return true }
   var pp=document.querySelector(".pricepop:not([hidden])"); if(pp){ pp.hidden=true; return true }
   if(MOBILE_FILTERS_OPEN){ MOBILE_FILTERS_OPEN=false; render(); return true }
   }catch(e){} return false };
@@ -6889,11 +6889,11 @@ function rsWire(opts){
   $$("[data-pg]").forEach(function(e){ e.onclick=function(){ F.page=+this.dataset.pg; render(); var top=$(".rs-head"); if(top && top.scrollIntoView) top.scrollIntoView({behavior:"smooth",block:"start"}) } });
   if($("#rsMapToggle")) $("#rsMapToggle").onclick=function(){ RS.mapOn=!rsMapOn(); try{ localStorage.setItem("balkoun_rsmap",RS.mapOn?"1":"0") }catch(e){} render() };
   var openSheet=function(){ MOBILE_FILTERS_OPEN=true; var f=$("#rsFilters"); if(f) f.classList.add("on"); document.body.classList.add("rs-lock") };
-  var closeSheet=function(){ MOBILE_FILTERS_OPEN=false; var f=$("#rsFilters"); if(f) f.classList.remove("on"); document.body.classList.remove("rs-lock") };
+  var closeSheet=function(cb){ MOBILE_FILTERS_OPEN=false; var f=$("#rsFilters"); huHide(f,function(){ document.body.classList.remove("rs-lock"); if(cb) cb() }) };
   document.body.classList.toggle("rs-lock", MOBILE_FILTERS_OPEN && window.innerWidth<=900);
   if($("#rsMFilters")) $("#rsMFilters").onclick=openSheet;
-  var closeAndCatchUp=function(){ closeSheet(); if(window._csDirty){ window._csDirty=false; render() } };
-  if($("#rsFClose")) $("#rsFClose").onclick=closeAndCatchUp; if($("#rsFApply")) $("#rsFApply").onclick=function(){ closeAndCatchUp(); var top=$(".rs-head"); if(top) top.scrollIntoView({behavior:"smooth",block:"start"}) };
+  var closeAndCatchUp=function(){ closeSheet(function(){ if(window._csDirty){ window._csDirty=false; render() } }) };
+  if($("#rsFClose")) $("#rsFClose").onclick=closeAndCatchUp; if($("#rsFApply")) $("#rsFApply").onclick=function(){ closeAndCatchUp(); setTimeout(function(){ var top=$(".rs-head"); if(top) top.scrollIntoView({behavior:"smooth",block:"start"}) },280) };
   if($("#rsMMap")) $("#rsMMap").onclick=function(){ MAPSEARCH.deal=F.deal==="rent"?"rent":"sale"; VIEW="mapsearch"; scrollTo(0,0); render(); refreshListingsOnNavigate() };
   if($("#saveSearch")) $("#saveSearch").onclick=async function(){
     if(!USER){ AU.open=true; AU.mode="up"; AU.step=1; render(); return }
@@ -9719,12 +9719,23 @@ function closeAllMenus(except){
 if(!window._menusEscAdded){ window._menusEscAdded=true;
   document.addEventListener("keydown",function(e){ if(e.key==="Escape") closeAllMenus() });
   document.addEventListener("pointerdown",function(e){
-    $$(".chipsel-drop.on").forEach(function(d){ var w=d.closest(".chipsel"); if(!w || !w.contains(e.target)) d.classList.remove("on") });
+    $$(".chipsel-drop.on").forEach(function(d){ var w=d.closest(".chipsel"); if(!w || !w.contains(e.target)) huHide(d) });
     var pp=$("#hPricePop"); if(pp && !pp.hidden){ var sf=pp.closest(".sf,.rs-fprice"); if(!sf || !sf.contains(e.target)) pp.hidden=true }
   },true);
 }
 // phones (2026-10-29): a pick used to re-render the whole bar/page and re-open the sheet, which read as a flash and a
 // refresh on every tap; now the open sheet is edited in place and the page catches up when the sheet is closed
+// phones (owner 2026-10-29): sheets leave the way they came — .out plays the exit animation, then the element is hidden
+function huHide(el,cb){ if(!el||!el.classList.contains("on")){ if(cb) cb(); return }
+  if(window.innerWidth>640){ el.classList.remove("on","out"); huDim(el,false); if(cb) cb(); return }
+  if(el.classList.contains("out")) return;   // already on its way out (two listeners fire on an outside tap)
+  el.classList.add("out"); huDim(el,false); setTimeout(function(){ el.classList.remove("on","out"); if(cb) cb() },260) }
+// the dimmed backdrop behind an open option sheet is a real element (a pseudo-element is not a touch target: Chrome snaps the
+// tap to the nearest button under it); it lives inside the filter panel on the search page, on the body for the hero bar
+function huDim(drop,on){ if(window.innerWidth>640 || !drop || !drop.classList.contains("chipsel-drop")) return;
+  var host=drop.closest(".rs-filters")||document.body, dim=host.querySelector(":scope > .hu-dim");
+  if(on){ if(dim){ dim.classList.remove("out"); return } dim=document.createElement("div"); dim.className="hu-dim"; dim.onclick=function(ev){ ev.stopPropagation(); $$(".chipsel-drop.on").forEach(function(d){ huHide(d) }) }; host.appendChild(dim) }
+  else if(dim){ dim.classList.add("out"); setTimeout(function(){ if(dim.parentNode) dim.parentNode.removeChild(dim) },260) } }
 function csSumUpdate(id,cfg){
   var wrap=$("#"+id+"Wrap"), sum=wrap&&wrap.querySelector(".cs-sum");
   var names=(F[cfg.arrKey]||[]).map(function(v){ var o=cfg.getOptions().filter(function(x){return x.value===v})[0]; return o?o.label:v });
@@ -9782,10 +9793,10 @@ function wireChipSelects(){
         '<input class="cs-sheet-q" type="search" placeholder="'+input.placeholder+'" autocomplete="off" enterkeyhint="search"></div>'+selHtml+
         (html || '<div class="chipsel-empty">'+t("noResultsFor")+'</div>')+
         '<div class="cs-sheet-f">'+(sel.length?'<button type="button" class="cs-clear" data-csclearall="'+id+'">'+GX("csClear")+'</button>':'')+'<button type="button" class="cs-done">'+GX("csDone")+(sel.length?' <b class="ltr">'+sel.length+'</b>':'')+'</button></div>';
-      drop.onclick=function(ev){ ev.stopPropagation() };
+      drop.onclick=function(ev){ ev.stopPropagation(); if(window.innerWidth<=640 && ev.target===drop && ev.clientY<drop.getBoundingClientRect().top) closeSheet(ev) };
       markGreenTabu(drop);
       $$("#"+id+"Drop [data-csremove]").forEach(function(e){ e.onclick=function(ev){ ev.stopPropagation(); ev.preventDefault(); var val=this.dataset.csval; F[cfg.arrKey]=(F[cfg.arrKey]||[]).filter(function(v){return v!==val}); if(window.innerWidth<=640 && compact){ renderDrop(""); csSumUpdate(id,cfg); return } window._csReopen=id; softRenderHero() } });
-      var closeSheet=function(ev){ if(ev){ ev.stopPropagation(); ev.preventDefault() } drop.classList.remove("on"); input.blur() };
+      var closeSheet=function(ev){ if(ev){ ev.stopPropagation(); ev.preventDefault() } huHide(drop); input.blur() };
       var cl=drop.querySelector(".cs-close"); if(cl) cl.onclick=closeSheet;
       var dn=drop.querySelector(".cs-done"); if(dn) dn.onclick=closeSheet;
       var ca=drop.querySelector("[data-csclearall]"); if(ca) ca.onclick=function(ev){ ev.stopPropagation(); ev.preventDefault(); F[cfg.arrKey]=[]; if(window.innerWidth<=640 && compact){ renderDrop(""); csSumUpdate(id,cfg); return } window._csReopen=id; softRenderHero() };
@@ -9811,8 +9822,9 @@ function wireChipSelects(){
         sq.addEventListener("keydown",function(e){ if(e.key==="Enter"){ e.preventDefault(); var a=drop.querySelector(".chipsel-opt:not([hidden])"); if(a) a.click() } if(e.key==="Escape"){ drop.classList.remove("on"); sq.blur() } });
       }
       closeAllMenus(drop);
-      drop.classList.add("on");
+      drop.classList.add("on"); drop.classList.remove("out");
       positionDropUpOrDown(input,drop);
+      if(compact) huDim(drop,true);
       $$('[data-cspick="'+id+'"]').forEach(function(e){ e.onclick=function(ev){
         if(ev){ev.stopPropagation();if(ev.preventDefault)ev.preventDefault()}
         var v=this.dataset.csval;
@@ -9859,7 +9871,7 @@ function wireChipSelects(){
   if(!_csDocListenerAdded){
     _csDocListenerAdded=true;
     document.addEventListener("click",function(){
-      $$(".chipsel-drop.on").forEach(function(d){d.classList.remove("on")});
+      $$(".chipsel-drop.on").forEach(function(d){huHide(d)});
     });
   }
   // after a pick or a removal the page re-renders; re-open the same list so the user can continue
