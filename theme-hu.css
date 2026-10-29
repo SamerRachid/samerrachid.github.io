@@ -1111,9 +1111,9 @@ html body .vpick .vadd .vplay,html body .vplay{color:var(--gold)!important;backg
    owner's phone reports that setting and he wants the motion, as HomeUAE shows it regardless */
 @media (prefers-reduced-motion:reduce){
   html body .curtain{display:grid!important}
-  html body .choreo{animation:heroRise .9s cubic-bezier(.2,.7,.2,1) both!important}
-  html body .choreo-hdr{animation:hdrIn .9s cubic-bezier(.2,.7,.2,1) both!important}
-  html body .choreo-slide{animation:heroSlide 1.7s cubic-bezier(.65,0,.25,1) both!important}
+  html body .choreo{animation-name:heroRise!important;animation-duration:.9s!important;animation-timing-function:cubic-bezier(.2,.7,.2,1)!important;animation-fill-mode:both!important}
+  html body .choreo-hdr{animation-name:hdrIn!important;animation-duration:.9s!important;animation-timing-function:cubic-bezier(.2,.7,.2,1)!important;animation-fill-mode:both!important}
+  html body .choreo-slide{animation-name:heroSlide!important;animation-duration:1.7s!important;animation-timing-function:cubic-bezier(.65,0,.25,1)!important;animation-fill-mode:both!important}
   html body .hbar .logo .bmark .bdia{animation:hdrDiaSpin 10s cubic-bezier(.65,0,.35,1) 2s infinite!important}
   html body .curtain .bmark .bdia{animation:diaSpin 1.25s cubic-bezier(.25,.6,.2,1) .05s both!important}
   html body .curtain.done .bmark .bdia{animation:diaSpinOut .85s cubic-bezier(.6,0,.2,1) forwards!important}
@@ -1143,3 +1143,12 @@ html body .au .aubox,html body .au .au-main,html body .au .aubody{scrollbar-widt
 html body .au .aubox::-webkit-scrollbar,html body .au .au-main::-webkit-scrollbar,html body .au .aubody::-webkit-scrollbar{width:8px}
 html body .au .aubox::-webkit-scrollbar-thumb,html body .au .au-main::-webkit-scrollbar-thumb,html body .au .aubody::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border-radius:4px}
 html body .au .aubox::-webkit-scrollbar-track,html body .au .au-main::-webkit-scrollbar-track,html body .au .aubody::-webkit-scrollbar-track{background:transparent}
+/* ===== 2026-10-29 opening: while the curtain plays, the theme's own entrance animations stand down and the live
+   choreography (header from the top, search bar from below, headline sliding in, all after the curtain lifts) runs ===== */
+body.hu-opening .hero-outer.hu .sbar,body.hu-opening .hero-outer.hu .srow,body.hu-opening .hero-outer.hu .hero h1,body.hu-opening header{animation:none}
+/* longhands, so the inline animation-delay the choreography computes (after the curtain) is kept */
+body.hu-opening header.choreo-hdr{animation-name:hdrIn!important;animation-duration:.9s!important;animation-timing-function:cubic-bezier(.2,.7,.2,1)!important;animation-fill-mode:both!important}
+body.hu-opening .hero-outer.hu .sbar.choreo{animation-name:heroRise!important;animation-duration:.9s!important;animation-timing-function:cubic-bezier(.2,.7,.2,1)!important;animation-fill-mode:both!important}
+body.hu-opening .hero-outer.hu .hero h1.choreo-slide{animation-name:heroSlide!important;animation-duration:1.7s!important;animation-timing-function:cubic-bezier(.65,0,.25,1)!important;animation-fill-mode:both!important}
+body.hu-opening .hero-outer.hu .aisearch{animation:heroRise .9s cubic-bezier(.2,.7,.2,1) both!important;animation-delay:calc(var(--hu-base,1150ms) + 450ms)!important}
+body.hu-opening .hero-outer.hu .stabs{animation:heroRise .9s cubic-bezier(.2,.7,.2,1) both!important;animation-delay:calc(var(--hu-base,1150ms) + 150ms)!important}
