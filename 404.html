@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-HEPvst7FHh6/r23aBteG26U+TPwZJp3QIaOBP53yMMM=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-Jma14Vjdnix3cLgRZ2NH1zRg9a5w8lK0GSBa1cJYZpw=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -5176,6 +5176,22 @@ function ccStrip(phone){
 
 var DB = null;
 try{ if(window.supabase) DB = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey); }catch(e){}
+// admin session tokens (owner, 2026-10-29): a panel page opened before a fresh sign-in on another page kept its old token in
+// memory and every call came back "unauthorised". Admin calls that the server refuses retry once with the token the newest
+// sign-in stored; if there is none, the panel signs out properly and shows the sign-in page instead of raw errors.
+(function(){ if(!DB || DB._bkAdmWrap) return; DB._bkAdmWrap=true; var orig=DB.rpc.bind(DB);
+  DB.rpc=function(fn,args){
+    var adm=args && typeof args==="object" && args.p_token && window.ADM && ADM.token && args.p_token===ADM.token && /^bk_admin_/.test(String(fn));
+    if(!adm) return orig(fn,args);
+    return orig(fn,args).then(function(r){
+      var em=String((r&&r.error&&r.error.message)||(r&&r.data&&r.data.error)||""); if(!/unauthori[sz]ed/i.test(em)) return r;
+      var fresh=null; try{ fresh=localStorage.getItem("balkoun_adm") }catch(e){}
+      if(fresh && fresh!==args.p_token){ ADM.token=fresh; return orig(fn,Object.assign({},args,{p_token:fresh})) }
+      admSessionEnded(args.p_token); return r }) } })();
+var _admEndedTok=null;
+function admSessionEnded(tok){ if(_admEndedTok===tok) return; _admEndedTok=tok; ADM.token=null; ADM.data=null; ADM.msg=""; try{ localStorage.removeItem("balkoun_adm") }catch(e){}
+  var m=(typeof GX==="function"?GX("sessionExpired"):"")||"Session ended, please sign in again"; try{ if(typeof admToast==="function") admToast(m,"bad"); else alert(m) }catch(e){}
+  if(VIEW==="admin" || /\/admin\/?$/.test(location.pathname||"")){ VIEW="admin"; setTimeout(function(){ if(typeof render==="function") render() },30) } }
 /* Two things every RPC needs, done once here so no call site can forget:
    1. member functions get the session token (p_token) the server verifies;
    2. results are HTML-escaped at the boundary (escDeep), except profile/export functions. */
