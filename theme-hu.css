@@ -904,3 +904,39 @@ html body .bmark .bdia{transform-box:view-box!important;transform-origin:50px 50
 html body .hbar .blogo-w b{padding:.25em .12em;margin:-.25em -.12em;line-height:1.1}
 /* the Umayyad hero file carries a white line 6px from its top edge: that slide starts 2% higher, nothing else moves */
 html body .hslides img[src*="umayyad"]{top:-2%!important;height:102%!important}
+
+/* ===== 2026-10-29 owner: desktop search bar and its popups, and the country-code picker ===== */
+/* the bar: one text colour for every field (the placeholders were grey, the prices white); the active deal pill is gold */
+html body .rs-f .cs-sum .ph,html body .rs-f .pricetrig .ph,html body .rs-morebtn{color:#fff!important;font-weight:600!important}
+html body .rs-deal{background:rgba(255,255,255,.06)!important;border:1px solid var(--line)!important;border-radius:8px!important;padding:3px!important}
+html body .rs-deal button{background:transparent!important;color:var(--muted)!important;border-radius:6px!important}
+html body .rs-deal button.on{background:var(--gold)!important;color:var(--navy)!important}
+/* the More and Price popups on desktop were the live white panels with white text */
+@media (min-width:901px){
+  html body .rs-morepop,html body .pricepop{background:var(--navy-2)!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:12px!important;box-shadow:0 18px 44px rgba(0,0,0,.5)!important}
+  html body .rs-morepop .fg h4,html body .pricepop::before{color:var(--gold)!important}
+  html body .rs-morepop .ck{color:#fff!important}
+  html body .rs-morepop .ck .c{color:var(--muted)!important}
+  html body .rs-morepop .ck input,html body .pricepop input{accent-color:var(--gold)}
+  html body .rsq-b{background:var(--navy)!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important}
+  html body .rsq-b.on{background:var(--gold)!important;color:var(--navy)!important;border-color:var(--gold)!important}
+  html body .pricepop label{color:var(--muted)!important}
+  html body .pricepop input{background:var(--navy)!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important}
+  html body .pp-clear{color:#fff!important;background:transparent!important;border:1px solid var(--line)!important;border-radius:8px!important}
+  html body .pp-done{background:var(--gold)!important;color:var(--navy)!important;border-radius:8px!important}
+  html body .rs-morepop .fg{border-color:var(--line)!important}
+}
+/* the country-code picker (login, sign-up, post form): a dark list you can read, flag + name + code */
+html body .ccpick-btn{background:var(--navy)!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important}
+html body .ccpick-arrow{color:var(--muted)!important}
+html body .ccpick-drop{background:var(--navy-2)!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:12px!important;box-shadow:0 18px 44px rgba(0,0,0,.5)!important;overflow:hidden}
+html body .ccpick-search{background:var(--navy)!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important}
+html body .ccpick-search::placeholder{color:rgba(255,255,255,.45)}
+html body .ccpick-item{color:#fff!important;border-bottom:1px solid rgba(255,255,255,.06)}
+html body .ccpick-item:hover,html body .ccpick-item.act{background:rgba(255,255,255,.06)!important}
+html body .ccpick-item.on,html body .ccpick-item.sel,html body .ccpick-item[aria-selected=true]{background:rgba(202,144,81,.18)!important;color:#fff!important}
+html body .ccpick-name{color:#fff!important}
+html body .ccpick-iso{color:var(--muted)!important}
+html body .ccpick-code{color:var(--gold)!important;font-weight:700}
+html body .ccpick-empty{color:var(--muted)!important}
+html body .ccpick-list::-webkit-scrollbar{width:8px} html body .ccpick-list::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:4px}
