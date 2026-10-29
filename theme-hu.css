@@ -898,3 +898,9 @@ html body .hero-outer.hu .sbar{top:0!important}   /* the live bar was nudged 10p
 /* owner 2026-10-29 ("check this too"): the live header turns fixed on scroll (header.hdr-solid) and covered the top of
    every section; HomeUAE's header scrolls away with the hero, so does ours */
 html body.home-hero header.hdr-solid,html body.home-hero header{position:absolute!important;background:transparent!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:none!important}
+/* the spinning group turns about the mark's centre whatever its edges add to the box */
+html body .bmark .bdia{transform-box:view-box!important;transform-origin:50px 50px!important}
+/* the wordmark: the gradient is painted on the box, so the box gets room for the dot of ن and the tail of و (zero net size) */
+html body .hbar .blogo-w b{padding:.25em .12em;margin:-.25em -.12em;line-height:1.1}
+/* the Umayyad hero file carries a white line 6px from its top edge: that slide starts 2% higher, nothing else moves */
+html body .hslides img[src*="umayyad"]{top:-2%!important;height:102%!important}
