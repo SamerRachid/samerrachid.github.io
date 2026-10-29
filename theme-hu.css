@@ -983,3 +983,4 @@ html body .au.on .aubox{animation:huModal .32s cubic-bezier(.22,.8,.3,1) both!im
 html body img.hu-fade{opacity:0;transition:opacity .5s ease-out}
 html body img.hu-fade.hu-ld{opacity:1}
 @media (prefers-reduced-motion:reduce){ html body .hu-page,html body .au.on,html body .au.on .aubox,html body .chipsel-drop.on,html body .menu.on{animation:none!important} html body img.hu-fade{opacity:1;transition:none} }
+@media (min-width:861px){ html body .hero-outer.hu .srow .sf{border-inline-end:1px solid #E6E8EC!important} html body .hero-outer.hu .srow .sf:last-of-type{border-inline-end:0!important} }   /* HomeUAE's light divider between fields */
