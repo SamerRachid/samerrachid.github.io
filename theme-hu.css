@@ -994,3 +994,17 @@ html body img.hu-fade.hu-ld{opacity:1}
   html body .hero-outer.hu .aisearch-badge{top:4px;bottom:4px;font-size:12px}
 }
 @media (min-width:861px){ html body .hero-outer.hu .hero{padding-bottom:60px!important} }   /* the block sits 60px lower: the headline keeps its place, the bars go down */
+
+/* ===== 2026-10-29 footer: titled columns (owner: the governorate names were not organised) ===== */
+footer .fgrid{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:32px 56px;margin-bottom:28px}
+footer .fcol h4{margin:0 0 12px;font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.02em}
+footer .fcol a{display:block;color:#cfd6e2;text-decoration:none;font-size:13.5px;line-height:2.1;transition:color .3s}
+footer .fcol a:hover{color:var(--gold)}
+footer .fcol-g .fl2{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}
+footer .fcol .fall{margin-top:8px;font-weight:700;color:#fff}
+@media (max-width:860px){
+  footer .fgrid{grid-template-columns:1fr 1fr;gap:28px 24px}
+  footer .fcol-g{grid-column:1/-1}
+  footer .fcol-g .fl2{gap:0 16px}
+  footer .fcol a{font-size:14px;line-height:2.2}
+}
