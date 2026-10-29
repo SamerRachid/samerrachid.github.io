@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-zcE4hhxioRtV3XM5qsFBy6mRSQUj1xZ17u/Z89JYFi0=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-meqNU9HkSYa10uBpWc03blSB0b+rNhEnB5b1ouExsVw=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -6756,6 +6756,8 @@ function search(){
  if(!F.page || F.page<1) F.page=1;
  if(F.page>totalPages){ F.page=totalPages; if(srv && st.q) st=srvSearchState() }
  var pageItems=srv?((st.q&&st.q.pages[F.page])||[]):r.slice((F.page-1)*PAGE_SIZE, F.page*PAGE_SIZE), srvWait=!!(srv&&st.wait);
+ // while the server answers, the previous cards stay on screen (dimmed) instead of a "loading" line: one change, not two
+ if(srvWait && !pageItems.length && RS.prevItems && RS.prevItems.length) pageItems=RS.prevItems; else if(pageItems.length && !srvWait) RS.prevItems=pageItems;
  var mapOn=rsMapOn(), withLoc=mapWithApproxLoc(r).length, fc=activeFilterCount();
  var aiStrip = AI_UNDERSTOOD ? '<div class="wrap"><div class="ai-understood">'+MI.ai+'<span><b>'+GX("aiUnderstoodLabel")+'</b> '+esc(AI_UNDERSTOOD)+'</span><button type="button" class="ai-understood-x" data-aiu-x aria-label="'+esc(GX("mdClose"))+'">×</button></div></div>' : '';
  AI_UNDERSTOOD=null;   // shown once, right after an AI search
@@ -6872,7 +6874,7 @@ function rsPinOpen(x,m){
 function rsWire(opts){
   wireChipSelects();
   $$("[data-aiu-x]").forEach(function(b){ b.onclick=function(){ var w=b.closest(".ai-understood"); if(w&&w.parentElement) w.parentElement.remove() } });
-  $$("[data-rsdeal]").forEach(function(b){ b.onclick=function(){ F.deal=this.dataset.rsdeal||""; if(F.deal!=="rent"){ F.furn=""; F.rentalPeriod="" } F.page=1; render() } });
+  $$("[data-rsdeal]").forEach(function(b){ b.onclick=function(){ F.deal=this.dataset.rsdeal||""; if(F.deal!=="rent"){ F.furn=""; F.rentalPeriod="" } F.page=1; $$("[data-rsdeal]").forEach(function(x){ x.classList.toggle("on",(x.dataset.rsdeal||"")===F.deal) }); render() } });
   if($("#hFurn")) $("#hFurn").onchange=function(){ F.furn=this.value; F.page=1; render() };
   var pop=$("#hPricePop"), rate=curRate(), toUsd=function(v){ v=parseInt(latinDigits(String(v||"")),10)||0; return CUR==="USD"?v:usdFromLocal(v,rate) };
   var applyPrice=function(){ F.pmin=toUsd(($("#hPmin")||{}).value); F.pmax=toUsd(($("#hPmax")||{}).value); if(F.pmax&&F.pmin>F.pmax){ var sw=F.pmin; F.pmin=F.pmax; F.pmax=sw } F.page=1; render() };
@@ -12508,7 +12510,9 @@ function render(){
    // photos, the ad row and the hero do not get thrown away and rebuilt each time (the visible flash); other views redraw
    // the drawn hero scene (sketch / dawn) lives inside its box between renders: morphdom must not touch it — it removes every
    // element with an id it no longer sees, which stripped the Sword's clip-path and left the flag a bare rectangle (2026-10-18)
-   if(VIEW==="home" && window.morphdom && app.firstElementChild && !$("#seoHome") && !PREVIEW){
+   // theme hu (2026-10-29): every re-render of the SAME view is patched in place too (a filter change, results arriving),
+   // so the page never flashes or jumps — HomeUAE swaps only what changed; a new view is still drawn fresh
+   if(window.morphdom && app.firstElementChild && !$("#seoHome") && !PREVIEW && (VIEW==="home" || (VIEW===window._huLastView && VIEW!=="admin"))){
      var tmp=document.createElement("div"); tmp.innerHTML=html;
      try{ morphdom(app,tmp,{childrenOnly:true,onBeforeElUpdated:function(a,b){ if(a.id==="sketchBox"||a.id==="dawnBox") return false; return !a.isEqualNode(b) }}) }catch(e){ app.innerHTML=html }
    } else app.innerHTML=html;
