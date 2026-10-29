@@ -836,5 +836,4 @@ html body .sbar.hu-still .chipsel-drop.on{animation:none!important}   /* the lis
 @media (max-width:640px){
   html body .rs-f .cs-compact .chipsel-box{height:auto!important;min-height:48px;padding-top:10px!important;padding-bottom:10px!important;align-items:center}
   html body .rs-f .cs-compact .cs-sum{white-space:normal!important;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;line-height:1.35!important;text-overflow:clip}
-  html body .hero-outer.hu .sf .cs-sum{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 }
