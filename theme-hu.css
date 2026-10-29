@@ -1166,3 +1166,11 @@ html body .curtain{display:none!important}
    theme). Same round dark button as the photo thumbnails' remove */
 html body .vprev .rm{position:absolute;top:6px;inset-inline-end:6px;width:26px;height:26px;padding:0;border-radius:50%!important;background:rgba(13,23,41,.85)!important;color:#fff!important;border:1px solid rgba(255,255,255,.28)!important;font-size:12px;line-height:1;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.35)}
 html body .vprev .rm:hover{background:rgba(202,144,81,.95)!important;color:#1A1206!important}
+
+/* 2026-10-29 owner (listing page as the poster): the labels under the save/share/report icons carried the button's
+   translucent background as boxes of their own, and the owner's three tools stacked loosely on the right */
+html body .lacts button span{background:none!important;border:0!important;padding:0!important}
+html body .lside .lown{display:flex!important;flex-wrap:wrap;gap:10px;flex:1 1 100%;width:100%;margin-top:4px;padding-top:16px;border-top:1px solid var(--line)!important}
+html body .lside .lown .lbtn{flex:1 1 0!important;width:auto;min-width:140px;padding:12px 14px!important;white-space:nowrap;text-align:center}
+html body .lside .lown #delOwn{border-color:rgba(226,92,92,.55)!important;color:#F08A8A!important}
+@media (max-width:860px){ html body .lside .lown .lbtn{flex:1 1 100%!important} }
