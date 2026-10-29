@@ -984,3 +984,6 @@ html body img.hu-fade{opacity:0;transition:opacity .5s ease-out}
 html body img.hu-fade.hu-ld{opacity:1}
 @media (prefers-reduced-motion:reduce){ html body .hu-page,html body .au.on,html body .au.on .aubox,html body .chipsel-drop.on,html body .menu.on{animation:none!important} html body img.hu-fade{opacity:1;transition:none} }
 @media (min-width:861px){ html body .hero-outer.hu .srow .sf{border-inline-end:1px solid #E6E8EC!important} html body .hero-outer.hu .srow .sf:last-of-type{border-inline-end:0!important} }   /* HomeUAE's light divider between fields */
+/* 2026-10-29: between 861 and 1400px the row is 50px but the fields kept 61px and stuck out 11px under it (the owner's
+   dark squares at every divider, at 150% zoom); the fields and the search button always fill the row's height */
+@media (min-width:861px){ html body .hero-outer.hu .srow .sf,html body .hero-outer.hu .srow .sgo{height:100%!important;min-height:0!important;align-self:stretch} }
