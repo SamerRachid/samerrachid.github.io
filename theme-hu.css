@@ -565,12 +565,11 @@ body.home-hero.hero-in-view .mobfab{display:none}
 
 /* ===== motion on every page: scroll reveal (HomeUAE: 1s ease-out, 40px), hover lifts on boxes ===== */
 .hu-rv{opacity:0;transform:translateY(40px);transition:opacity 1s ease-out,transform 1s ease-out}
-.hu-rv.in{opacity:1;transform:none}
-.card.c2.hu-rv.in:hover{transform:translateY(-8px)}
+.hu-rv.hu-in{opacity:1;transform:none}
+.card.c2.hu-rv.hu-in:hover{transform:translateY(-8px)}
 .crumb.hu-rv{transform:none}
 .lf,.lsec{transition:transform .3s,box-shadow .3s}
 .lf:hover{transform:translateY(-4px)}
-@media (prefers-reduced-motion:reduce){.hu-rv{opacity:1;transform:none;transition:none}}
 
 /* listing page order like HomeUAE: gallery, pills+title, price+agent, facts, boxes, safety note */
 .lpage>.lgrid{display:flex;flex-direction:column}
@@ -695,7 +694,7 @@ html body .res:not(.list-view){gap:25px}
 /* no "new" tags anywhere on the theme (owner 2026-10-28) */
 html body .newtag,html body i.newtag,html body .qf-badge{display:none!important}
 /* touch screens: no sticky hover lift on the cards */
-@media (hover:none){ .card.c2.hu-rv.in:hover,.lf:hover,.govs a:hover{transform:none} }
+@media (hover:none){ .card.c2.hu-rv.hu-in:hover,.lf:hover,.govs a:hover{transform:none} }
 
 /* ===== maps like HomeUAE: dark CARTO tiles over the navy, gold pins with the live count, gold zoom squares ===== */
 .leaflet-container{background:var(--navy)!important;font-family:var(--f)}
@@ -817,7 +816,7 @@ html body .aun a,html body .au-switch a{color:var(--gold)!important}
 }
 /* the filter bar never takes the reveal transform: the phone sheet and the option sheets are position:fixed inside it,
    and a transformed ancestor turns "fixed" into "relative to the bar" (taps landed 40px off while it slid in) */
-html body .rs-bar.hu-rv,html body .rs-bar.hu-rv.in{opacity:1!important;transform:none!important;transition:none!important}
+html body .rs-bar.hu-rv,html body .rs-bar.hu-rv.hu-in{opacity:1!important;transform:none!important;transition:none!important}
 @media (max-width:900px){
   html body .chipsel-drop.on .cs-sheet-f{background:var(--navy-2)!important;border-top:1px solid var(--line)!important}
   html body .chipsel-drop.on .cs-clear{background:transparent!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important}
@@ -859,7 +858,6 @@ html body .sbar.hu-still .chipsel-drop.on{animation:none!important}   /* the lis
   html body .rs-filters.on{animation:huPanelIn .3s cubic-bezier(.22,.8,.3,1) both}
   html body .rs-filters.on.out{animation:huPanelOut .24s ease-in both;pointer-events:none}
 }
-@media (max-width:640px) and (prefers-reduced-motion:reduce){ html body .chipsel-drop.on,html body .chipsel-drop.on.out,html body .rs-filters.on,html body .rs-filters.on.out,html body .chipsel-drop.on::before{animation:none!important} }
 
 /* ===== 2026-10-29 owner round (desktop screenshot): header sides, headline -30%, the two bars, the notches ===== */
 /* header: the logo at the right edge, the menu (and the post button) at the left edge, on every width */
@@ -954,7 +952,7 @@ html body .ccpick-list::-webkit-scrollbar{width:8px} html body .ccpick-list::-we
 /* ===== 2026-10-29 motion like HomeUAE (owner: "site still not moving the same way") ===== */
 html body .hu-rv{opacity:0;transform:translateY(30px);transition:opacity 1s ease-out,transform 1s ease-out}
 html body .hu-rv.hu-rv-t{transform:translateY(50px)}
-html body .hu-rv.in{opacity:1;transform:none}
+html body .hu-rv.hu-in{opacity:1;transform:none}
 html body .crumb.hu-rv{transform:none}
 /* phones: nothing heavy runs behind the scroll — no Ken Burns on the hero slides, no blur behind chips and bars, no text filter */
 @media (max-width:860px){
@@ -964,7 +962,6 @@ html body .crumb.hu-rv{transform:none}
   html body .aisearch-pill{background:rgba(17,33,63,.82)!important}
   html body .adslot-deal{background:rgba(13,23,41,.85)!important}
 }
-@media (prefers-reduced-motion:reduce){ html body .hu-rv{opacity:1;transform:none;transition:none} }
 /* the reveal transition wins over the live card transitions; once revealed (.hu-done) hover and press use HomeUAE's .3s */
 html body .hu-rv{transition:opacity 1s ease-out,transform 1s ease-out!important}
 html body .hu-rv.hu-done{transition:transform .3s,box-shadow .3s,opacity .3s,background-color .3s,border-color .3s,color .3s!important}
@@ -982,7 +979,6 @@ html body .au.on .aubox{animation:huModal .32s cubic-bezier(.22,.8,.3,1) both!im
 /* photos arrive with a fade */
 html body img.hu-fade{opacity:0;transition:opacity .5s ease-out}
 html body img.hu-fade.hu-ld{opacity:1}
-@media (prefers-reduced-motion:reduce){ html body .hu-page,html body .au.on,html body .au.on .aubox,html body .chipsel-drop.on,html body .menu.on{animation:none!important} html body img.hu-fade{opacity:1;transition:none} }
 @media (min-width:861px){ html body .hero-outer.hu .srow .sf{border-inline-end:1px solid #E6E8EC!important} html body .hero-outer.hu .srow .sf:last-of-type{border-inline-end:0!important} }   /* HomeUAE's light divider between fields */
 /* 2026-10-29: between 861 and 1400px the row is 50px but the fields kept 61px and stuck out 11px under it (the owner's
    dark squares at every divider, at 150% zoom); the fields and the search button always fill the row's height */
@@ -1047,9 +1043,8 @@ html body .rs-map .leaflet-control-zoom,html body .lmap .leaflet-control-zoom{ma
 }
 /* the live reveal class (html.js .rv.in{transform:none}) outranked the theme's hidden state on cards, so a re-revealed
    card faded without rising; the hidden state now wins until .in is set */
-html body .hu-rv:not(.in){opacity:0!important;transform:translateY(30px)!important}
-html body .hu-rv.hu-rv-t:not(.in){transform:translateY(50px)!important}
-@media (prefers-reduced-motion:reduce){ html body .hu-rv:not(.in){opacity:1!important;transform:none!important} }
+html body .hu-rv:not(.hu-in){opacity:0!important;transform:translateY(30px)!important}
+html body .hu-rv.hu-rv-t:not(.hu-in){transform:translateY(50px)!important}
 html body .hu-rv.hu-reset{transition:none!important}
 
 /* ===== 2026-10-29 account page (owner: "check this page") ===== */
@@ -1109,3 +1104,42 @@ html body .qfill textarea::placeholder{color:rgba(255,255,255,.45)}
 html body .qfill button,html body .qfill .btn-n{background:var(--gold)!important;color:var(--navy)!important;border-radius:8px!important;font-weight:700}
 html body .qfill svg{color:var(--gold)!important}
 html body .vpick .vadd .vplay,html body .vplay{color:var(--gold)!important;background:rgba(202,144,81,.18)!important;border-radius:50%!important}
+
+/* 2026-10-29: the owner's phone (One UI 'reduce animations') reports prefers-reduced-motion, which switched every reveal and
+   entrance off; HomeUAE animates regardless, so the theme no longer gates motion on that setting */
+/* the live sheet switches the intro, the header choreography and the logo spin off under prefers-reduced-motion; the
+   owner's phone reports that setting and he wants the motion, as HomeUAE shows it regardless */
+@media (prefers-reduced-motion:reduce){
+  html body .curtain{display:grid!important}
+  html body .choreo{animation:heroRise .9s cubic-bezier(.2,.7,.2,1) both!important}
+  html body .choreo-hdr{animation:hdrIn .9s cubic-bezier(.2,.7,.2,1) both!important}
+  html body .choreo-slide{animation:heroSlide 1.7s cubic-bezier(.65,0,.25,1) both!important}
+  html body .hbar .logo .bmark .bdia{animation:hdrDiaSpin 10s cubic-bezier(.65,0,.35,1) 2s infinite!important}
+  html body .curtain .bmark .bdia{animation:diaSpin 1.25s cubic-bezier(.25,.6,.2,1) .05s both!important}
+  html body .curtain.done .bmark .bdia{animation:diaSpinOut .85s cubic-bezier(.6,0,.2,1) forwards!important}
+}
+
+/* 2026-10-29: the theme's revealed state is .hu-in (the live reveal also uses .in on the same cards and set it early) */
+
+/* ===== 2026-10-29 sign-up form (owner: "check this page") ===== */
+html body .au .au-type{background:rgba(255,255,255,.04)!important;border:1px solid var(--line)!important;border-radius:10px!important;color:#fff!important}
+html body .au .au-type b{color:#fff!important}
+html body .au .au-type span,html body .au .au-type small{color:var(--muted)!important}
+html body .au .au-type.on{border-color:var(--gold)!important;background:rgba(202,144,81,.14)!important}
+html body .au .au-type.on b{color:var(--gold)!important}
+html body .au .auf select{background-color:var(--navy)!important;color:#fff!important;border:1px solid var(--line)!important;border-radius:8px!important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-position:left 12px center!important;appearance:none;-webkit-appearance:none}
+html body .au .auf select option{background:var(--navy-2);color:#fff}
+html body .au .au-legal a,html body .au .agree a{color:var(--gold)!important;text-decoration:underline;text-underline-offset:3px}
+html body .au .au-terms summary{color:var(--gold)!important;cursor:pointer}
+html body .au .au-terms,html body .au .agreelist{color:#fff!important}
+html body .au .agreelist li{color:var(--muted)!important}
+html body .au .aub,html body .au button.aub{background:var(--gold)!important;color:var(--navy)!important;border-radius:8px!important;font-weight:700}
+html body .au .aub:disabled{background:rgba(255,255,255,.12)!important;color:var(--muted)!important}
+html body .au .auerr{color:#FF8A80!important}
+html body .au .aun,html body .au .hintx{color:var(--muted)!important}
+html body .au .agree input[type=checkbox]{accent-color:var(--gold)}
+/* the window's own scrollbar in the dark */
+html body .au .aubox,html body .au .au-main,html body .au .aubody{scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.25) transparent}
+html body .au .aubox::-webkit-scrollbar,html body .au .au-main::-webkit-scrollbar,html body .au .aubody::-webkit-scrollbar{width:8px}
+html body .au .aubox::-webkit-scrollbar-thumb,html body .au .au-main::-webkit-scrollbar-thumb,html body .au .aubody::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border-radius:4px}
+html body .au .aubox::-webkit-scrollbar-track,html body .au .au-main::-webkit-scrollbar-track,html body .au .aubody::-webkit-scrollbar-track{background:transparent}
