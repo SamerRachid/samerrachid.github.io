@@ -1051,3 +1051,24 @@ html body .hu-rv:not(.in){opacity:0!important;transform:translateY(30px)!importa
 html body .hu-rv.hu-rv-t:not(.in){transform:translateY(50px)!important}
 @media (prefers-reduced-motion:reduce){ html body .hu-rv:not(.in){opacity:1!important;transform:none!important} }
 html body .hu-rv.hu-reset{transition:none!important}
+
+/* ===== 2026-10-29 account page (owner: "check this page") ===== */
+html body .acct-nav{background:var(--navy-2)!important;border:1px solid var(--line)!important;border-radius:12px!important;box-shadow:none!important}
+html body .acct-nav a{color:#fff!important;border-radius:8px!important;background:transparent!important}
+html body .acct-nav a span,html body .acct-nav a b{color:#fff!important}
+html body .acct-nav a svg{color:var(--gold)!important}
+html body .acct-nav a:hover{background:rgba(255,255,255,.06)!important}
+html body .acct-nav a.on{background:rgba(202,144,81,.18)!important;color:var(--gold)!important}
+html body .acct-nav a.on span{color:var(--gold)!important}
+html body .acct-nav .st.st-live{background:rgba(31,168,85,.18)!important;color:#5BD68A!important}
+html body .acsec{background:var(--navy-2)!important;border:1px solid var(--line)!important;border-radius:12px!important}
+html body .acsec h2,html body .acsec h3{color:#fff!important}
+html body .acsec h2 svg,html body .acsec h3 svg{color:var(--gold)!important}
+html body .acs-sub{color:var(--gold)!important;font-weight:700!important;border-color:var(--line)!important}
+html body .acct2 .btn-n,html body .acsec .btn-n{background:var(--gold)!important;color:var(--navy)!important;border-radius:8px!important;font-weight:700}
+html body .acct2 .hintx,html body .acsec .hintx{color:var(--muted)!important}
+html body .acs-sub.acdel-h{color:#E86A6A!important;border-color:rgba(226,75,75,.4)!important}
+html body .acdel-btn{color:#E86A6A!important;border:1px solid rgba(226,75,75,.55)!important;background:transparent!important;border-radius:8px!important}
+html body .acct2 .psync,html body .acct2 .xcheck{background:rgba(255,255,255,.04)!important;border:1px solid var(--line)!important;border-radius:10px!important;color:#fff!important}
+html body .acct2 .memno{color:var(--muted)!important}
+html body .acct-h .vbadge{background:rgba(202,144,81,.18)!important;color:var(--gold)!important}
