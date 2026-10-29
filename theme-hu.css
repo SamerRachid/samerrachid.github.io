@@ -949,3 +949,4 @@ html body .ccpick-list::-webkit-scrollbar{width:8px} html body .ccpick-list::-we
   html body .rs-hasmap .rs-map .leaflet-container{flex:1 1 auto;min-height:320px;height:auto!important;border-radius:0}
   html body .rs-hasmap .rs-avgbox{flex:0 0 auto;max-height:38%;overflow:auto}
 }
+@media (min-width:901px){ html body .rs-hasmap .rs-map{top:58px!important;height:calc(100vh - 74px)!important} }   /* clears the sticky filter bar (42px) when the page scrolls */
