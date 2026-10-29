@@ -860,3 +860,38 @@ html body .sbar.hu-still .chipsel-drop.on{animation:none!important}   /* the lis
   html body .rs-filters.on.out{animation:huPanelOut .24s ease-in both;pointer-events:none}
 }
 @media (max-width:640px) and (prefers-reduced-motion:reduce){ html body .chipsel-drop.on,html body .chipsel-drop.on.out,html body .rs-filters.on,html body .rs-filters.on.out,html body .chipsel-drop.on::before{animation:none!important} }
+
+/* ===== 2026-10-29 owner round (desktop screenshot): header sides, headline -30%, the two bars, the notches ===== */
+/* header: the logo at the right edge, the menu (and the post button) at the left edge, on every width */
+html body .hbar,html body .home-hero .hbar{direction:rtl!important;justify-content:space-between!important}
+html body .hbar .logo{order:0!important;margin:0!important}
+html body .hbar .htools{order:1!important;margin:0!important}
+/* the wordmark with the same depth as the mark */
+html body .hbar .blogo-w b{background:linear-gradient(180deg,#FFFFFF 0%,#E6DECB 45%,#A99E85 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
+html body .hbar .blogo-w small{color:#D8CBA6;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+html body .hbar .logo .bmark{filter:drop-shadow(0 1px 0 rgba(255,255,255,.12))}
+/* headline 30% smaller (owner) */
+html body .hero-outer.hu .hero h1{font-size:48px!important}
+@media (min-width:861px) and (max-width:1400px){ html body .hero-outer.hu .hero h1{font-size:42px!important} }
+@media (min-width:1441px){ html body .hero-outer.hu .hero h1{font-size:55px!important} }
+@media (min-width:1800px){ html body .hero-outer.hu .hero h1{font-size:62px!important} }
+@media (max-width:860px){ html body .home-hero .hero-outer.hu .hero h1,html body .hero-outer.hu .hero h1{font-size:28px!important;line-height:36px!important} }
+/* the two bars: one width, one height, one radius; 8px apart like the tabs above the bar */
+html body .hero-outer.hu .stabs{margin:20px 0 8px!important}
+html body .hero-outer.hu .aisearch{margin-top:8px!important}
+html body .hero-outer.hu .aisearch-pill{height:61px!important;border-radius:8px!important}
+@media (max-width:860px){ html body .hero-outer.hu .aisearch-pill{height:48px!important} html body .hero-outer.hu .stabs{margin:0 0 8px!important} }
+/* desktop: no notches under the bar; the fields are flat cells of one white row with one shadow */
+@media (min-width:861px){
+  html body .hero-outer.hu .srow .sf{border-radius:0!important;box-shadow:none!important;background:#fff!important;border-bottom:0!important}
+  html body .hero-outer.hu .srow .sf:first-child{border-start-start-radius:8px!important;border-end-start-radius:8px!important}
+  html body .hero-outer.hu .srow{background:#fff!important;box-shadow:0 12px 30px -14px rgba(0,0,0,.5)!important}
+}
+@media (min-width:861px){ html body .hbar,html body .home-hero .hbar{padding-left:60px!important;padding-right:60px!important} }   /* HomeUAE: logo 60px from the edge */
+html body .home-hero .hero-outer.hu .stabs,html body .hero-outer.hu .stabs{margin:20px 0 8px!important}
+@media (max-width:860px){ html body .home-hero .hero-outer.hu .stabs,html body .hero-outer.hu .stabs{margin:0 0 8px!important} html body .hero-outer.hu .aisearch-pill{height:44px!important} }
+html body.home-hero .hero-outer.hu .sbar .stabs,html body .hero-outer.hu .sbar .stabs{margin-bottom:8px!important}
+html body .hero-outer.hu .aisearch{top:0!important}   /* the live bar sat 5px lower; now exactly 8px under the search row */
+html body .hero-outer.hu .sbar{top:0!important}   /* the live bar was nudged 10px down; the AI bar then overlapped it */
+@media (max-width:860px){ html body.home-hero .hero-outer.hu .aisearch .aisearch-pill,html body .hero-outer.hu .aisearch .aisearch-pill{height:44px!important;border-radius:8px!important} }
+@media (max-width:860px){ html body.home-hero .hero-outer.hu .aisearch .aisearch-pill{min-height:44px!important} }
