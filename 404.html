@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-OopQM5k5nN6mDNtVm/c6rgdfrzJQ9SBx5d8IXg9Mc/Y=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-sOTT+yT44gp2J6n9wKA7NA7VxWRLlhLj8ya3xxu4PbI=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -4973,7 +4973,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202610290746"><script>
+</style><link rel="stylesheet" href="/theme-hu.css?v=202610290819"><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
   brand:      "بلكون",
@@ -12838,7 +12838,8 @@ function initOpening(){
   document.body.classList.add("hu-opening");
   var c=document.createElement("div"); c.className="curtain";
   c.innerHTML='<div class="cw cwl"><span><span class="blogo">'+brandMark()+'<span class="blogo-w"><b>'+esc(CONFIG.brand)+'</b><small>BALKOUN</small></span></span></span></div>';
-  document.body.appendChild(c);
+  /* theme hu 2026-10-29 (owner: "take the example from homeuae.ae"): no curtain. HomeUAE opens with the headline fading up at
+     once, the tabs after .3s, the search row after .5s and the header after .5s, each 1s ease-out (measured on its stylesheet) */
   _openingActive=true; _openingT0=Date.now();
   try{ sessionStorage.setItem("balkoun_opened","1") }catch(e){}
   setTimeout(function(){ c.classList.add("done") },950);
@@ -12880,21 +12881,21 @@ function phoneHeadline(){
 }
 function heroChoreo(){
   if(!_openingActive || VIEW!=="home") return;
-  var base=Math.max(0, 1150-(Date.now()-_openingT0));   // the word has lifted before the header and the search bar start moving
+  var base=0;   // theme hu 2026-10-29: no curtain, HomeUAE timing (header .5s, tabs .3s, search row .5s, headline 0)
   document.body.classList.add("hu-opening"); document.body.style.setProperty("--hu-base", base+"ms");   // theme hu: the entrance waits for the curtain
   var done=window._huChoreoDone=window._huChoreoDone||new WeakSet();   // each element plays its entrance once, whatever later renders do
-  var hd=document.querySelector("header"); if(hd && !done.has(hd)){ done.add(hd); hd.classList.add("choreo-hdr"); hd.style.animationDelay=base+"ms" }
+  var hd=document.querySelector("header"); if(hd && !done.has(hd)){ done.add(hd); hd.classList.add("choreo-hdr"); hd.style.animationDelay=(base+500)+"ms" }
   // header from the top and search bar from the bottom first; the headline only once the drawing has shrunk into its place
   // once an entrance animation has finished, drop it: an animated transform on the search bar would otherwise
   // trap the phone's bottom-sheet menus (position:fixed) inside the bar
   // only the element's own animation settles it: animationend bubbles up from children (the tabs and the AI bar rise inside the bar)
   var settle=function(el,cls){ var h=function(ev){ if(ev.target!==el) return; el.removeEventListener("animationend",h); el.classList.remove(cls); el.style.animationDelay="" }; el.addEventListener("animationend",h) };
-  [[".sbar",250],[".mkt",500],[".hnote",2800]].forEach(function(p){
+  [[".sbar",500],[".mkt",500],[".hnote",2800]].forEach(function(p){
     var el=$(p[0]); if(!el || done.has(el)) return; done.add(el);
     el.classList.add("choreo"); el.style.animationDelay=(base+p[1])+"ms"; el._huChoreoAt=performance.now()+base+p[1]; settle(el,"choreo");
   });
   // the headline slides in from its own side while the drawing shrinks away from it (they run together)
-  var h1=$(".hero h1"); if(h1 && !(window.innerWidth<=700) && !done.has(h1)){ done.add(h1); var hd1=parseFloat(SX("h1_delay","")); if(isNaN(hd1)) hd1=0.45; h1.classList.add("choreo-slide"); h1.style.animationDelay=(base+Math.round(hd1*1000))+"ms"; settle(h1,"choreo-slide") }   // extras.h1_delay = seconds after the opening word lifts
+  var h1=$(".hero h1"); if(h1 && !(window.innerWidth<=700) && !done.has(h1)){ done.add(h1); var hd1=parseFloat(SX("h1_delay","")); if(isNaN(hd1)) hd1=0; h1.classList.add("choreo-slide"); h1.style.animationDelay=(base+Math.round(hd1*1000))+"ms"; settle(h1,"choreo-slide") }   // extras.h1_delay = seconds after the opening word lifts
 }
 
 /* ── "Damascus in gold lines": hero_bg_type = sketch ──

@@ -1150,8 +1150,14 @@ html body .au .aubox::-webkit-scrollbar-track,html body .au .au-main::-webkit-sc
    choreography (header from the top, search bar from below, headline sliding in, all after the curtain lifts) runs ===== */
 body.hu-opening .hero-outer.hu .sbar,body.hu-opening .hero-outer.hu .srow,body.hu-opening .hero-outer.hu .hero h1,body.hu-opening header{animation:none}
 /* longhands, so the inline animation-delay the choreography computes (after the curtain) is kept */
-body.hu-opening header.choreo-hdr{animation-name:hdrIn!important;animation-duration:.9s!important;animation-timing-function:cubic-bezier(.2,.7,.2,1)!important;animation-fill-mode:both!important}
-body.hu-opening .hero-outer.hu .sbar.choreo{animation-name:heroRise!important;animation-duration:.9s!important;animation-timing-function:cubic-bezier(.2,.7,.2,1)!important;animation-fill-mode:both!important}
-body.hu-opening .hero-outer.hu .hero h1.choreo-slide{animation-name:heroSlide!important;animation-duration:1.7s!important;animation-timing-function:cubic-bezier(.65,0,.25,1)!important;animation-fill-mode:both!important}
-body.hu-opening .hero-outer.hu .aisearch{animation:heroRise .9s cubic-bezier(.2,.7,.2,1) both!important;animation-delay:calc(var(--hu-base,1150ms) + 450ms)!important}
-body.hu-opening .hero-outer.hu .stabs{animation:heroRise .9s cubic-bezier(.2,.7,.2,1) both!important;animation-delay:calc(var(--hu-base,1150ms) + 150ms)!important}
+@keyframes huHdrIn{0%{opacity:0;transform:translateY(-20px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes huFadeUp{0%{opacity:0;transform:translateY(30px)}100%{opacity:1;transform:translateY(0)}}
+body.hu-opening header.choreo-hdr{animation-name:huHdrIn!important;animation-duration:1s!important;animation-timing-function:ease-out!important;animation-fill-mode:both!important}
+body.hu-opening .hero-outer.hu .sbar.choreo{animation-name:huFadeUp!important;animation-duration:1s!important;animation-timing-function:ease-out!important;animation-fill-mode:both!important}
+body.hu-opening .hero-outer.hu .hero h1.choreo-slide{animation-name:huFadeUp!important;animation-duration:1s!important;animation-timing-function:ease-out!important;animation-fill-mode:both!important}
+body.hu-opening .hero-outer.hu .aisearch{animation:huFadeUp 1s ease-out both!important;animation-delay:calc(var(--hu-base,0ms) + 500ms)!important}
+body.hu-opening .hero-outer.hu .stabs{animation:huFadeUp 1s ease-out both!important;animation-delay:calc(var(--hu-base,0ms) + 300ms)!important}
+
+/* 2026-10-29 owner (desktop): "only the headline moves on opening". The header and bar entrances ran while the curtain was still
+   covering them (it faded 1.45-2.05s). The curtain now fades right after the word lifts and the entrances start once it is gone. */
+html body .curtain{display:none!important}
