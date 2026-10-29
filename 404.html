@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-PQaWsoGBWRao67h1aRwVGQlvcd88+Y3XC9tbMF48tf8=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-TPV4WVAxx0Ejif5fPtrRuBKaUlvr7Dq4mlqWPp3mBW4=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -79,7 +79,7 @@
      preload href downloads a file nothing uses AND the real one the CSS below points to — confirmed live: none
      of the 3 previously hardcoded URLs appear in Google's current CSS response at all. preconnect above already
      warms the connection; the stylesheet itself is the only accurate source of which files are actually needed. -->
-<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700&family=Zain:wght@300;400;700;800&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
 <script src="/vendor/supabase-2.114.0.es2017.min.js" integrity="sha384-H9XQgeFDejz7cF0dTyKEueeMcuAM2KvDuI9fGCYNLMagHsKcvzSim+StmCzQiFUY"></script>
 <script src="/vendor/morphdom-2.7.4.min.js" integrity="sha384-1Kpyy6fJtxPI22Yq5Lt3SzKVMJDfDDChb4HFf0stEn8pNSz3e9Mvgfjv5hrqsT1U"></script>
 <!-- Leaflet (maps) is loaded on demand by ensureLeaflet() the first time a map is shown,
@@ -4973,7 +4973,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><script>
+</style><link rel="stylesheet" href="/theme-hu.css"><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
   brand:      "بلكون",
@@ -5809,30 +5809,36 @@ function navHeaderLink(i){ var tag=i.soon?GX("soon"):i.tag?GX(i.tag):""; var att
 // the phone drawer: account, then the link groups, then language and currency
 function mdrawer(){
   var items=navItems(); var grp=function(g){ return items.filter(function(i){ return i.g===g }) };
-  var row=function(i,extra){ return '<a class="mdw2-row'+(i.soon?' soon':'')+'" '+navAttrs(i)+'>'+'<span class="mi">'+(MI[i.ico]||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span>'+i.lab()+'</span>'+(i.soon||i.tag?'<i class="mdw-soon">'+GX(i.tag||"soon")+'</i>':'')+(extra||'')+'</a>' };
-  var sec=function(title,html){ return html ? '<div class="mdw2-sec"><div class="mdw2-h">'+title+'</div>'+html+'</div>' : '' };
-  var tile=function(i,cls,extra,lab){ return '<a class="mdw2-q '+cls+'" '+navAttrs(i)+'>'+(MI[i.ico]||'')+'<span>'+(lab||i.lab())+'</span>'+(extra||'')+'</a>' };
   var byK=function(k){ return items.filter(function(i){ return i.k===k })[0] };
-  var tiles=[byK("buy")?tile(byK("buy"),"buy"):"", byK("rent")?tile(byK("rent"),"rent"):"", byK("map")?tile(byK("map"),"map",SX("nav_map_new",true)!==false?'<i class="mdw2-new">'+GX("newTag")+'</i>':'',GX("map")):"",
-    '<a class="mdw2-q post" data-go="post">'+MI.post+'<span>'+t("post")+'</span></a>'].join("");
-  var discover=grp("discover").map(function(i){ return row(i) }).join("")+(byK("areas")?row(byK("areas")):"")+(byK("agencies")?row(byK("agencies")):"");
-  var services=grp("services").map(function(i){ return row(i) }).join("");
-  var site=grp("site").filter(function(i){ return i.k!=="agencies" }).map(function(i){ return row(i) }).join("");
+  var mi=function(k){ return '<span class="mi">'+(MI[k]||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span>' };
+  var tag=function(i){ return i.soon?'<i class="mm-tag soon">'+GX("soon")+'</i>':(i.tag&&i.k!=="postmsg")?'<i class="mm-tag">'+GX(i.tag)+'</i>':'' };   // no "new" on post-by-message (owner, 2026-10-28)
+  var row=function(i){ return '<a class="mm-link'+(i.soon?' soon':'')+'" '+navAttrs(i)+'>'+mi(i.ico)+'<span>'+i.lab()+'</span>'+tag(i)+'</a>' };
+  var sec=function(title,arr,k){ var h=arr.map(row).join(""); return h?'<div class="mm-group mm-box" style="--i:'+k+'"><h4>'+title+'</h4>'+h+'</div>':'' };
+  var tile=function(i,cls,lab,extra){ return i?'<a class="t-'+cls+'" '+navAttrs(i)+'>'+(MI[i.ico]||'')+'<span>'+(lab||i.lab())+'</span>'+(extra||'')+'</a>':'' };
+  var tiles='<div class="mm-tiles mm-box" style="--i:0">'+tile(byK("buy"),"sale")+tile(byK("rent"),"rent")+tile(byK("map"),"map",GX("map"))+
+    '<a class="t-post" data-go="post">'+MI.post+'<span>'+t("post")+'</span></a></div>';
+  var search=grp("search").filter(function(i){ return ["buy","rent","map","home"].indexOf(i.k)<0 });
+  var discover=grp("discover").concat(byK("agencies")?[byK("agencies")]:[]);
+  var site=grp("site").filter(function(i){ return i.k!=="agencies" });
   var acct = USER
-    ? '<div class="mdw2-acct">'+avatar(USER.avatar_url,USER.name,48,"av")+'<div><b>'+esc(fullName(USER))+'</b><span dir="ltr">'+esc(USER.phone||USER.email||"")+'</span></div><a class="mdw2-acctlink" data-md="mSet">'+GX("mdMyAccount")+' ›</a></div>'
-    : '<div class="mdw2-acct guest"><div><b>'+GX("mdWelcome")+'</b><span>'+GX("mdWelcomeP")+'</span></div><button class="gold mdw-in" id="mdIn">'+t("loginSignupCombo")+'</button></div>';
-  var mine = USER ? sec(GX("mdAccount"),[["mMine","mine","myAds"],["mSaved","saved","mySaved"],["mSearch","search","mySearch"],["mMsgs","msgs","myMessages"],["mSet","settings","settings"]].map(function(x){
-      return '<a class="mdw2-row" data-md="'+x[0]+'"><span class="mi">'+(MI[x[1]]||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span>'+t(x[2])+'</span>'+(x[0]==="mMsgs"&&NOTIFS.unread?'<i class="mdw-badge">'+(NOTIFS.unread>9?"9+":NOTIFS.unread)+'</i>':'')+'</a>' }).join("")) : '';
-  var langs = SX("nav_lang_drawer",true)!==false ? '<div class="mdw2-seg">'+langKeys().map(function(k){ return '<a class="'+(k===L?'on':'')+'" data-langpick="'+k+'"><span class="langflag">'+(LANG_FLAGS[k]||"")+'</span>'+D.I18N[k].name+'</a>' }).join("")+'</div>' : '';
-  var curs = SX("nav_cur_drawer",true)!==false ? '<div class="mdw2-seg">'+["USD",localCur()].map(function(c){ return '<a class="'+(c===CUR?'on':'')+'" data-mdcur="'+c+'">'+(c==="USD"?"$ USD":curLabel(c,"ar")+" "+c)+'</a>' }).join("")+'</div>' : '';
-  return '<div class="mdw" id="mdw"><div class="mdw-bg" id="mdwBg"></div><aside class="mdw-p mdw2" role="dialog" aria-label="'+GX("mdMenu")+'">'+
+    ? '<div class="mm-acct mm-box" style="--i:0"><div class="m">'+avatar(USER.avatar_url,USER.name,48,"av")+'<div><b>'+esc(fullName(USER))+'</b><small dir="ltr">'+esc(USER.phone||USER.email||"")+'</small></div>'+
+      '<div class="mm-shortcuts">'+[["mMine","mine","myAds"],["mSaved","saved","mySaved"],["mSearch","search","mySearch"],["mMsgs","msgs","myMessages"],["mSet","settings","settings"]].map(function(x){
+        return '<a data-md="'+x[0]+'">'+mi(x[1])+t(x[2])+(x[0]==="mMsgs"&&NOTIFS.unread?'<em class="badge">'+(NOTIFS.unread>9?"9+":NOTIFS.unread)+'</em>':'')+'</a>' }).join("")+'</div></div></div>'
+    : '<div class="mm-acct mm-box guest" style="--i:0"><div class="g"><span class="av">'+ICON_USER+'</span><div><b>'+GX("mdWelcome")+'</b><small>'+GX("mdWelcomeP")+'</small></div><button class="mdw-in" id="mdIn">'+t("loginSignupCombo")+'</button></div></div>';
+  var govs='<div class="mm-box" style="--i:1"><h4>'+GX("allAreas")+'</h4><div class="mm-govs">'+Object.keys(D.GEO).slice(0,8).map(function(g){ var gp=govPageUrl(g,"sale"); return '<a '+(gp?'href="'+gp+'"':'data-go="search" data-gov="'+g+'"')+'>'+gN(g)+'</a>' }).join("")+'<a href="'+cPre()+'/areas/" data-go="areas">'+GX("allAreas")+' ›</a></div></div>';
+  var install = (window.PWA&&!PREVIEW) ? '<div class="mm-box" id="mdwInstallSec" style="--i:2"><a class="mm-app" id="mdwInstall">'+mi("download")+'<span><b>'+GX(PWA.hasApp()?"pwaHasT":"pwaInstall")+'</b><small>'+GX(PWA.hasApp()?"pwaHasS":"pwaInstallSub")+'</small></span></a></div>' : '';
+  var en=countryList().filter(function(c){ return c.enabled });
+  var countries = en.length>1 ? '<div class="mm-seg">'+en.map(function(x){ return '<a class="'+(x.code===COUNTRY?'on':'')+'" data-cpick="'+x.code+'">'+flagSvg(x.code)+esc(countryName(x))+'</a>' }).join("")+'</div>' : '';
+  var langs = '<div class="mm-seg">'+langKeys().map(function(k){ return '<a class="'+(k===L?'on':'')+'" data-langpick="'+k+'"><span class="langflag">'+(LANG_FLAGS[k]||"")+'</span>'+D.I18N[k].name+'</a>' }).join("")+'</div>';
+  var curs = '<div class="mm-seg">'+["USD",localCur()].map(function(c){ return '<a class="'+(c===CUR?'on':'')+'" data-mdcur="'+c+'">'+(c==="USD"?"$ USD":curLabel(c,"ar")+" "+c)+'</a>' }).join("")+'</div>';
+  var wa = CONFIG.whatsapp ? '<a class="mm-wa" href="https://wa.me/'+String(CONFIG.whatsapp).replace(/\D/g,"")+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M4 20l1.3-3.8A8.5 8.5 0 1 1 8.2 19L4 20z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1.2-1.6-1.8-.8-.8.8a4 4 0 0 1-2.3-2.3l.8-.8-.8-1.8L9 9.5z"/></svg>'+t("contactUs")+'</a>' : '';
+  var foot='<div class="mm-foot mm-box" style="--i:3">'+countries+langs+curs+wa+(USER?'<a class="mm-out" data-md="out">'+mi("out")+t("logout")+'</a>':'')+'</div>';
+  return '<div class="mdw" id="mdw"><div class="mdw-bg" id="mdwBg"></div><aside class="mdw-p mdw2 mm" role="dialog" aria-label="'+GX("mdMenu")+'">'+
+    '<div class="mm-bg"><img src="/next/images/hero/umayyad-1080.webp" alt="" loading="lazy"></div>'+
     '<div class="mdw-top"><a class="logo blogo" data-go="home" aria-label="'+esc(t("home"))+'">'+brandLogo()+'</a><button class="mdw-x" id="mdwX" aria-label="'+GX("mdClose")+'">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>'+
-    acct+(window.PWA&&!PREVIEW?'<div class="mdw2-sec" id="mdwInstallSec"><a class="mdw2-row pwa-row" id="mdwInstall"><span class="mi">'+(MI.download||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span><b>'+GX(PWA.hasApp()?"pwaHasT":"pwaInstall")+'</b><small>'+GX(PWA.hasApp()?"pwaHasS":"pwaInstallSub")+'</small></span></a></div>':'')+((byK("home")&&VIEW!=="home")?'<div class="mdw2-sec mdw2-homesec">'+row(byK("home"))+'</div>':'')+'<div class="mdw2-quick">'+tiles+'</div>'+
-    '<div class="mdw2-sec"><a class="mdw2-row pwa-row" data-go="post">'+MI.qftext+'<span><b>'+GX("qfMenuT")+' <i class="qf-badge">'+GX("newTag")+'</i></b><small>'+GX("qfMenuP")+'</small></span></a></div>'+
-    sec(GX("mdDiscover"),discover)+sec(GX("mdServices"),services)+mine+sec(GX("mdSite"),site)+countryPickHtml("drawer")+
-    ((langs||curs)?'<div class="mdw2-foot">'+langs+curs+'</div>':'')+
-    (USER?'<div class="mdw2-sec"><a class="mdw2-row out" data-md="out"><span class="mi">'+(MI.out||'').replace(/<span class="mi">|<\/span>$/g,'')+'</span><span>'+t("logout")+'</span></a></div>':'')+
+    '<div class="mm-in">'+acct+'<div class="mm-main">'+tiles+sec(GX("mdDiscover"),search.concat(discover),1)+sec(GX("mdServices"),grp("services"),2)+sec(GX("mdSite"),site,3)+'</div>'+
+    '<div class="mm-side">'+govs+install+foot+'</div></div>'+
   '</aside></div>' }
 // a "coming soon" service: a small card with what the service is and a WhatsApp line to ask now
 function soonOpen(k){
@@ -5924,58 +5930,20 @@ var LANG_SHORT={ar:"عربي",en:"EN",de:"DE",fr:"FR"};
 var ICON_USER='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>';
 var ICON_HMB='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>';
 function header(){
- // a custom dropdown, not a native <select> — <option> elements can't
- // hold an icon or image at all, and the language names alone don't
- // help a visitor who can't read this page's current language spot
- // the switcher, which is exactly the problem a flag was meant to fix
- var currentFlag = LANG_FLAGS[L]||"";
- var langMenu = langKeys().map(function(k){
-   return '<a data-langpick="'+k+'"'+(k===L?' class="on"':'')+'><span class="langflag">'+(LANG_FLAGS[k]||"")+'</span>'+D.I18N[k].name+'</a>'
- }).join("");
- var langs='<div class="navmore" id="langWrap"><a id="langChip" class="mini" style="display:inline-flex;align-items:center;gap:6px">'+
-   '<span class="lg-globe">'+ICON_GLOBE+'</span><span class="langflag">'+currentFlag+'</span><span class="lg-name">'+D.I18N[L].name+'</span><span class="lg-code">'+(LANG_SHORT[L]||L.toUpperCase())+'</span>'+CHEV+'</a>'+
-   '<div class="menu" id="langMenu">'+langMenu+'</div></div>';
- // logged-out visitors get ONE combined, always-visible "Log in / Sign
- // up" action (this is how the region's own major property portals do
- // it — Bayut, for example, never splits or hides this behind a
- // dropdown, since it's the single most conversion-critical action on
- // the page) rather than two separate buttons competing for the same
- // small amount of header space
+ // member: the bell stays in the header; the account links live in the full-screen menu (the hidden #menu keeps the data-md targets alive)
  var right = USER
-  ? notifBellHTML()+
-    '<div class="acct"><div class="chip2" id="chip">'+
-    avatar(USER.avatar_url,USER.name,25,"av")+'<span class="chipname">'+esc(fullName(USER))+'</span>'+CHEV+'</div>'+
-    '<div class="menu" id="menu"><a data-go="post" class="menupost">'+MI.post+t("post")+'</a><div class="sep"></div>'+
-    '<a id="mMine">'+MI.mine+t("myAds")+'</a><a id="mSaved">'+MI.saved+t("mySaved")+'</a>'+
-    '<a id="mSearch">'+MI.search+t("mySearch")+'</a><a id="mMsgs">'+MI.msgs+t("myMessages")+'</a><div class="sep"></div><a id="mSet">'+MI.settings+t("settings")+'</a>'+
-    '<a class="out" id="out">'+MI.out+t("logout")+'</a></div></div>'
-  : '<button class="mini" id="bIn"><span class="lbl-full">'+t("loginSignupCombo")+'</span><span class="lbl-short">'+t("login")+'</span></button>';
- // Buy/Rent no longer live in the top nav — they're already the first
- // thing visible in the homepage's own search tabs, so keeping them
- // here too was showing the same choice twice. Grouped into the "More"
- // menu instead, first — since they're still the most-used items in
- // it — followed by the rest in the order a visitor is likeliest to
- // want them.
- return '<header><div class="wrap hbar"><button class="hmb" id="hmb" aria-label="'+GX("mdMenu")+'">'+ICON_HMB+(USER&&NOTIFS.unread?'<i class="hmb-dot"></i>':'')+'</button>'+
-  '<button class="hpill" id="hpill" aria-label="'+GX("mdMenu")+'">'+ICON_HMB+(USER?avatar(USER.avatar_url,USER.name,28,"av"):'<span class="huser">'+ICON_USER+'</span>')+(USER&&NOTIFS.unread?'<i class="hmb-dot"></i>':'')+'</button>'+
+  ? notifBellHTML()+'<div class="menu" id="menu" hidden><a data-go="post" class="menupost">'+t("post")+'</a><a id="mMine">'+t("myAds")+'</a><a id="mSaved">'+t("mySaved")+'</a><a id="mSearch">'+t("mySearch")+'</a><a id="mMsgs">'+t("myMessages")+'</a><a id="mSet">'+t("settings")+'</a><a class="out" id="out">'+t("logout")+'</a></div>'
+  : '<button class="mini" id="bIn" hidden>'+t("login")+'</button>';
+ var wa = CONFIG.whatsapp && VIEW.indexOf("listing:")!==0 ? '<a class="wa-fab" href="https://wa.me/'+String(CONFIG.whatsapp).replace(/\D/g,"")+'" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M4 20l1.3-3.8A8.5 8.5 0 1 1 8.2 19L4 20z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1.2-1.6-1.8-.8-.8.8a4 4 0 0 1-2.3-2.3l.8-.8-.8-1.8L9 9.5z"/></svg></a>' : '';
+ return '<header><div class="wrap hbar">'+
   '<a class="logo blogo" data-go="home" aria-label="'+esc(CONFIG.brand)+' Balkoun">'+brandLogo()+'</a>'+
-  '<nav class="hnav">'+
-  // home page: editorial links first (they scroll to the page's own sections), "More" keeps the rest
-  navHeaderItems().map(navHeaderLink).join("")+
-  '<div class="navmore" id="navMoreWrap"><a id="navMoreChip">'+t("moreNavT")+CHEV+'</a>'+
-   '<div class="menu" id="navMoreMenu">'+
-   navItems().filter(function(i){ return i.g==="search" }).map(function(i){ return '<a '+navAttrs(i)+'>'+MI[i.ico]+i.lab()+'</a>' }).join("")+
-   '<div class="sep"></div>'+
-   navItems().filter(function(i){ return i.g==="site" && i.k!=="agencies" }).map(function(i){ return '<a '+navAttrs(i)+'>'+MI[i.ico]+i.lab()+'</a>' }).join("")+
-   '</div></div></nav>'+
-  '<div class="htools">'+countryPickHtml("header")+'<button class="mini" id="cur">'+CUR+'</button>'+
-  langs + right +
-  '<a class="gold" data-go="post" style="text-decoration:none">'+t("post")+'</a>'+
-  '</div></div></header>'+mdrawer()+
+  '<div class="htools">'+right+'<button class="mini" id="cur" hidden>'+CUR+'</button>'+
+  '<a class="cta-add" data-go="post"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>'+t("post")+'</a>'+
+  '<button class="hmb" id="hmb" aria-label="'+GX("mdMenu")+'" aria-expanded="false"><i class="bars"><b></b><b></b><b></b></i>'+(USER&&NOTIFS.unread?'<i class="hmb-dot"></i>':'')+'</button>'+
+  '</div></div></header>'+mdrawer()+wa+
   // no floating post button on the post form itself, nor on a listing page where the
   // fixed call / WhatsApp bar owns the bottom edge on phones
   ((VIEW==="post" || VIEW==="edit" || VIEW==="search" || VIEW==="mapsearch" || VIEW.indexOf("listing:")===0) ? '' : '<a class="mobfab" data-go="post" aria-label="'+t("post")+'">+ '+t("post")+'</a>')}
-
 function footer(){
  return '<footer><div class="wrap"><div class="flinks">'+
   Object.keys(D.GEO).slice(0,12).map(function(g){
@@ -6074,6 +6042,8 @@ var ESC_EXEMPT_FNS={bk_admin_backup:1,bk_login:1,bk_register:1,bk_set_password:1
    be initialised. Leaflet claims the global "L", which this app already
    uses for the current language, so noConflict() hands the library
    back under LeafletLib and restores our L. ── */
+// theme hu: every map uses the dark CARTO tiles (screen-blended over the navy in theme-hu.css), like HomeUAE's Jawg dark map
+function huTiles(LMap,noLabels){ var g=LMap.layerGroup(); LMap.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,maxNativeZoom:16,attribution:'Tiles &copy; <a href="https://www.esri.com/">Esri</a>'}).addTo(g); if(!noLabels) LMap.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,maxNativeZoom:16,pane:"overlayPane",opacity:.9}).addTo(g); return g }
 var _leafletPromise = null;
 function ensureLeaflet(){
   if(window.LeafletLib) return Promise.resolve(window.LeafletLib);
@@ -6552,7 +6522,7 @@ function home(){
      '<span class="qfteaser-tx"><b>'+GX("qfTeaserT")+'</b><small>'+GX("qfTeaserP")+'</small></span>'+
      '<span class="qfteaser-cta">'+GX("qfTeaserBtn")+'</span></a>'+
      '<button type="button" class="qfteaser-x" data-qfx aria-label="'+esc(GX("mdClose"))+'">×</button></div></div>' })();
- return '<div class="hero-outer"><div class="hv" id="hv">'+heroBgHtml+'</div>'+
+ return '<div class="hero-outer hu"><div class="hv on" id="hv">'+heroSlidesHtml(heroBgType,heroBgHtml)+'</div>'+
   '<div class="hscrim"></div>'+
   '<section class="hero"><div class="wrap">'+
   (bannersTop && !heroOff ? (function(){ var row=topBannerCoreRowHtml(); return row ? '<div class="topbanner-wrap tb-inhero">'+row+'</div>' : '' })() : '')+
@@ -6836,7 +6806,7 @@ function rsMapInit(){
   // the count under the map was worked out before the area locations arrived (14 instead of 347): it follows the pins drawn
   var note=document.querySelector(".rs-mapnote"); if(note) note.innerHTML=GX("rsOnMap").replace("{n}",'<span class="ltr">'+pts.length+'</span>');
   var map=LMap.map(c,{zoomControl:true}).setView(pts.length?[pts[0].lat,pts[0].lng]:countryCenter().slice(0,2), pts.length?11:countryCenter()[2]);
-  LMap.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"© OpenStreetMap"}).addTo(map);
+  huTiles(LMap).addTo(map);
   var b=[];
   pts.forEach(function(x){
     var ic=LMap.divIcon({className:"rs-pinw",html:'<span class="rs-pin'+(x.featured?' feat':'')+'" data-pin="'+x.id+'">'+rsShort(x)+'</span>',iconSize:[0,0],iconAnchor:[0,0]});
@@ -8797,8 +8767,7 @@ function initPickerMap(containerId, state, govSelectIdOrCoords, wrapId, clearBtn
   var startLng = state.lng || (govCenter ? govCenter[1] : cc[1]);
   var zoom = state.lat ? 15 : (govCenter ? 11 : cc[2]);
   var map = LMap.map(container).setView([startLat,startLng], zoom);
-  LMap.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {maxZoom:19, attribution:"© OpenStreetMap"}).addTo(map);
+  huTiles(LMap).addTo(map);
   var marker = state.lat ? LMap.marker([state.lat,state.lng]).addTo(map) : null;
   // once a specific area is chosen, zoom in further than the generic
   // governorate center — but only if the lister hasn't already placed
@@ -8905,8 +8874,7 @@ function initViewMap(lat,lng){
   }
   if(_viewMapInstance){ try{ _viewMapInstance.remove() }catch(e){} _viewMapInstance=null; }
   var map = LMap.map(container,{scrollWheelZoom:false}).setView([lat,lng], 15);
-  LMap.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {maxZoom:19, attribution:"© OpenStreetMap"}).addTo(map);
+  huTiles(LMap).addTo(map);
   LMap.marker([lat,lng]).addTo(map);
   _viewMapInstance = map;
   setTimeout(function(){ if(container.isConnected){ try{ map.invalidateSize() }catch(e){} } }, 120);
@@ -9558,8 +9526,7 @@ function initMapSearch(){
   var cc=countryCenter();
   var center = withLoc.length ? [withLoc[0].lat, withLoc[0].lng] : [cc[0], cc[1]];
   var map = LMap.map(container).setView(center, withLoc.length ? 11 : cc[2]);
-  LMap.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {maxZoom:19, attribution:"© OpenStreetMap"}).addTo(map);
+  huTiles(LMap).addTo(map);
   var bounds = [];
   // hovering a pin used to open a native Leaflet popup, which by
   // default auto-pans the MAP itself whenever the popup would
@@ -9879,6 +9846,23 @@ function wireChipSelects(){
 /* the hero search bar renders and re-renders on its own: choosing a filter must not rebuild the whole page
    (which restarted the ad carousel, the header and the drawing, and made the menu blink) */
 function newTag(){ return SX("nav_map_new",true)!==false ? '<i class="newtag">'+GX("newTag")+'</i>' : '' }
+function huReveal(){
+  var sel=".lpage .lgal,.lpage .lhead,.lpage .lfacts,.lpage .lsec,.lside>*,.crumb,.rs-bar,.rs-main>h1,.rs-main .card.c2,.simtrack .card.c2,.res .card.c2,.sec:not(.rv),.sec .card.c2,.hu-sec,footer .flinks,.lpage~.wrap>h2,.agencies-grid>*,.pj-row>*,.w-row>*,.ag>*,.ag-grid>*,.w-grid>*,.arx-grid>*,.changrid>*,.legal-sec,.apppg-card,.pm-step,.wrap>.blk,.done2,.gcard,.profcard,.guides>*,.pj-grid>*,.cf";
+  var els=$$(sel).filter(function(e){ return !e.classList.contains("hu-rv") && !e.closest(".hero-outer,.mdw,.adm") });
+  if(!els.length) return;
+  if(!window._huIO) window._huIO=new IntersectionObserver(function(es){ es.forEach(function(x){ if(x.isIntersecting){ x.target.classList.add("in"); window._huIO.unobserve(x.target) } }) },{threshold:0,rootMargin:"0px 0px 12% 0px"});
+  els.forEach(function(e,i){ e.classList.add("hu-rv"); var k=0, p=e.previousElementSibling; while(p && p.classList.contains("hu-rv") && k<5){ k++; p=p.previousElementSibling } e.style.transitionDelay=(k*90)+"ms"; window._huIO.observe(e) });
+}
+function heroSlidesHtml(type,studio){
+  if((type==="photo"||type==="video") && studio) return studio;   // a background set in the studio stays as it is
+  var S=["umayyad","aleppo","arwad"], P="/next/images/hero/";
+  return '<div class="hslides">'+S.map(function(n,i){ return '<div class="hslide'+(i?'':' on')+'"><picture><source media="(max-width:860px)" type="image/avif" srcset="'+P+n+'-phone.avif"><source media="(max-width:860px)" type="image/webp" srcset="'+P+n+'-phone.webp"><source type="image/avif" srcset="'+P+n+'-1080.avif 1080w, '+P+n+'-1920.avif 1920w" sizes="100vw"><img src="'+P+n+'-1920.webp" srcset="'+P+n+'-1080.webp 1080w, '+P+n+'-1920.webp 1920w" sizes="100vw" alt=""'+(i?' loading="lazy"':' fetchpriority="high"')+'></picture></div>' }).join("")+'</div><div class="hdots">'+S.map(function(_,i){ return '<i class="'+(i?'':'on')+'"></i>' }).join("")+'</div>' }
+function wireHeroSlides(){ var s=$$(".hslide"), d=$$(".hdots i"); if(window._hsTimer){ clearInterval(window._hsTimer); window._hsTimer=null }
+  // the floating "post" button waits until the hero has scrolled away (it covered the search strip on phones)
+  if(!window._heroScroll){ window._heroScroll=true; var hv=function(){ document.body.classList.toggle("hero-in-view", VIEW==="home" && scrollY < innerHeight*0.8) }; addEventListener("scroll",hv,{passive:true}); window._heroScrollCheck=hv } window._heroScrollCheck();
+  if(s.length<2) return; var k=0;
+  function go(n){ s[k].classList.remove("on"); if(d[k]) d[k].classList.remove("on"); k=(n+s.length)%s.length; s[k].classList.add("on"); if(d[k]) d[k].classList.add("on") }
+  window._hsTimer=setInterval(function(){ go(k+1) },5000); d.forEach(function(x,i){ x.onclick=function(){ go(i) } }) }
 function heroSearchBarHtml(){
   var sgOn=function(k){ var v=SX(k,true); return !(v===false||v==="false") };
   return '<div class="sbar'+(SX("sbar_glow",true)!==false?" aiglow"+glowCls(SX("sbar_glow_style","")):"")+(sgOn("sbar_glass")?" glass":"")+(sgOn("sbar_glass_m")?" glass-m":"")+'">'+((sgOn("sbar_glass")||sgOn("sbar_glass_m"))?'<i class="sbar-glass"></i>':'')+'<div class="stabs"><button class="'+(F.deal==="sale"?"on":"")+'" data-d="sale">'+t("forsale")+
@@ -9907,6 +9891,7 @@ function heroSearchBarHtml(){
    '</div></div>';
 }
 function wireHeroBar(){
+   wireHeroSlides();
    wireChipSelects();
    wireAiSearchBar();
    if($("#hFurn")) $("#hFurn").addEventListener("change",function(){F.furn=this.value;softRenderHero()});
@@ -12469,6 +12454,7 @@ function render(){
  // home page only: the header sits transparent over the hero photo/video
  // (Bayut-style) and turns solid once the page scrolls — see .home-hero CSS
  document.body.classList.toggle("home-hero", VIEW==="home");
+ huReveal();   // theme hu: every page reveals its blocks on scroll, as homeuae.ae does (1s ease-out from 40px below)
  document.body.classList.toggle("adm-mode", VIEW==="admin" && !!ADM.token);
  applySiteExtras();
  updateHdr();
@@ -12665,16 +12651,35 @@ function countryMapHtml(){
    '<text x="20" y="500" style="font-size:11.5px;font-weight:400;fill:#9CA3AF">'+HX("mapNote")+'</text></svg></div>';
 }
 function syriaMapHtml(){
-  var pts=[["دمشق",186,392,200,397],["حلب",216,120,230,125],["حمص",196,268,210,273],["حماة",180,222,194,227],["اللاذقية",118,188,60,193],["طرطوس",110,252,56,257],["إدلب",150,150,106,145],["دير الزور",420,230,434,235],["الرقة",360,128,374,133],["الحسكة",500,112,514,117],["درعا",196,446,210,451],["السويداء",246,440,260,445]];
+  // theme hu: a real dark map (Leaflet, drawn by homeMapInit once the section exists) with a gold pin per governorate carrying its live count
+  return '<div class="frame smap" id="smap"><div class="humap" id="humap" dir="ltr"></div><div class="smap-note">'+(L==="ar"?"الرقم على الدبوس هو عدد الإعلانات الحيّة · انقر محافظة للبحث فيها":L==="de"?"Zahl im Pin = aktive Anzeigen · Gouvernement antippen, um dort zu suchen":"Number on the pin = live listings · tap a governorate to search it")+'</div></div>';
+}
+var _homeMap=null;
+function homeMapInit(){
+  var el=$("#humap"); if(!el || el.dataset.ready) return; el.dataset.ready="1";
   var cnt={}; srvGovCounts(cnt);
-  var outline="M92 118 L150 86 L210 70 L280 62 L360 58 L440 66 L520 96 L560 150 L548 210 L500 262 L440 318 L392 382 L330 440 L280 468 L232 462 L180 430 L150 372 L120 300 L100 240 L84 180 Z";
-  return '<div class="frame smap" id="smap"><svg viewBox="0 0 600 520" aria-hidden="true"><defs><pattern id="sdots" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="1.5" cy="1.5" r="1" fill="#14213D" fill-opacity=".12"/></pattern></defs>'+
-   '<path d="'+outline+'" fill="url(#sdots)" stroke="#14213D" stroke-width="1.5" stroke-linejoin="round"/>'+
-   '<path d="'+outline+'" fill="none" stroke="#C4881F" stroke-width="1" stroke-dasharray="2 5" transform="translate(6 6)"/>'+
-   pts.map(function(p){ var c=cnt[p[0]]||0, r=3+Math.min(4,Math.sqrt(c));
-     return '<g class="dot" data-g="'+p[0]+'"><circle cx="'+p[1]+'" cy="'+p[2]+'" r="'+(r*2)+'" fill="#C4881F" fill-opacity=".18"/><circle cx="'+p[1]+'" cy="'+p[2]+'" r="'+r+'" fill="#C4881F"/></g>'+
-            '<text x="'+p[3]+'" y="'+p[4]+'">'+gN(p[0])+'</text>' }).join("")+
-   '<text x="20" y="500" style="font-size:11.5px;font-weight:400;fill:#9CA3AF">'+HX("mapNote")+'</text></svg></div>';
+  ensureLeaflet().then(function(LMap){
+    if(!document.body.contains(el)) return;
+    if(_homeMap){ try{ _homeMap.remove() }catch(e){} }
+    var coarse=window.matchMedia && matchMedia("(pointer:coarse)").matches;
+    var map=_homeMap=LMap.map(el,{zoomControl:false,scrollWheelZoom:false,dragging:!coarse,tap:false,attributionControl:true});
+    huTiles(LMap,true).addTo(map);
+    LMap.control.zoom({position:"bottomleft",zoomInText:"+",zoomOutText:"−"}).addTo(map);
+    var govs=Object.keys(D.GEO).filter(function(g){ return GOV_COORDS[g] }), b=[];
+    govs.forEach(function(g){ var c=cnt[g]||0, ll=(g==="ريف دمشق")?[33.68,36.95]:(g==="القنيطرة")?[33.05,35.78]:GOV_COORDS[g]; b.push(ll);   // the pins around Damascus sit apart
+      var ic=LMap.divIcon({className:"hupin-wrap",html:'<div class="hupin'+(c?'':' sm')+'" data-g="'+g+'"><i></i><b>'+(c||'')+'</b><span class="hupin-lab">'+gN(g)+'</span></div>',iconSize:[36,36],iconAnchor:[18,36]});
+      var m=LMap.marker(ll,{icon:ic,title:gN(g)}).addTo(map);
+      m.on("click",function(){ var a=$('.govs a[data-gov="'+g+'"]'); if(a) a.click() });
+      m.on("mouseover",function(){ $$(".govs a[data-gov]").forEach(function(a){ a.classList.toggle("hot",a.dataset.gov===g) }) });
+      m.on("mouseout",function(){ $$(".govs a[data-gov]").forEach(function(a){ a.classList.remove("hot") }) });
+    });
+    if(b.length) map.fitBounds(b,{padding:innerWidth<=860?[44,30]:[70,60]});
+    $$(".govs a[data-gov]").forEach(function(a){
+      a.addEventListener("mouseenter",function(){ $$("#humap .hupin").forEach(function(d){ d.classList.toggle("hot",d.dataset.g===a.dataset.gov) }) });
+      a.addEventListener("mouseleave",function(){ $$("#humap .hupin").forEach(function(d){ d.classList.remove("hot") }) });
+    });
+    setTimeout(function(){ map.invalidateSize() },400);
+  }).catch(function(){});
 }
 
 // map dots and governorate tiles highlight each other; clicking a dot opens that governorate's search
@@ -12687,6 +12692,7 @@ function homeExtras(){
       // the section lives on the homepage: go there first, then scroll to it
       VIEW="home"; render(); refreshListingsOnNavigate(); setTimeout(function(){ var el2=$("#"+id); if(el2) el2.scrollIntoView({behavior:"smooth",block:"start"}); else scrollTo(0,0) },120) }) }
   var map=$("#smap"); if(!map) return;
+  homeMapInit(); if($("#humap")) return;   // theme hu: the real map wires its own pins
   var hot=function(g){
     $$("#smap .dot").forEach(function(d){ d.classList.toggle("hot", !!g && d.dataset.g===g) });
     $$(".govs a[data-gov]").forEach(function(a){ a.classList.toggle("hot", !!g && a.dataset.gov===g) });
