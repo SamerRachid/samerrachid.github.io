@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-5UhPJYM57AhO+oLjl3SgzetTZxyxwbmgM4hCkGLtN3U=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-34pTos2xemQcixOGGkaozZJxN6qfOLsbBLMVesVm8wE=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -4965,7 +4965,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202610290511"><script>
+</style><link rel="stylesheet" href="/theme-hu.css?v=202610290515"><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
   brand:      "بلكون",
@@ -9929,7 +9929,10 @@ if(!window._rsMapAlignWired){ window._rsMapAlignWired=true; addEventListener("re
 function huRevealResults(){ var res=$(".res"); if(!res) return; if(res.classList.contains("srv-wait")) return;
   var cards=$$(".card.c2",res), sig=cards.map(function(c){ return c.dataset.open||c.dataset.id||"" }).join(",");
   if(sig===window._huResSig){ return } var first=window._huResSig===undefined; window._huResSig=sig; if(first) return;
-  cards.forEach(function(c,i){ c.classList.remove("in","hu-done"); c.style.transitionDelay=(Math.min(i,8)*70)+"ms" });
+  // jump to the hidden state without a transition (removing .in alone would animate towards it), then rise
+  cards.forEach(function(c){ c.classList.add("hu-reset"); c.classList.remove("in","hu-done") });
+  void res.offsetWidth;
+  cards.forEach(function(c,i){ c.classList.remove("hu-reset"); c.style.transitionDelay=(Math.min(i,8)*70)+"ms" });
   void res.offsetWidth;
   cards.forEach(function(c,i){ c.classList.add("in"); setTimeout(function(){ c.style.transitionDelay=""; c.classList.add("hu-done") },1150+Math.min(i,8)*70) }) }
 function huPageIn(){ if(window._huLastView===VIEW) return; window._huLastView=VIEW; $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.hero-outer,[id$=Modal],.modal")) return; e.classList.remove("hu-page"); void e.offsetWidth; e.style.animationDelay=Math.min(i,6)*40+"ms"; e.classList.add("hu-page") }) }
@@ -12527,7 +12530,10 @@ function render(){
    // so the page never flashes or jumps — HomeUAE swaps only what changed; a new view is still drawn fresh
    if(window.morphdom && app.firstElementChild && !$("#seoHome") && !PREVIEW && (VIEW==="home" || (VIEW===window._huLastView && VIEW!=="admin"))){
      var tmp=document.createElement("div"); tmp.innerHTML=html;
-     try{ morphdom(app,tmp,{childrenOnly:true,onBeforeElUpdated:function(a,b){ if(a.id==="sketchBox"||a.id==="dawnBox"||a.id==="rsMap") return false; return !a.isEqualNode(b) }}) }catch(e){ app.innerHTML=html }
+     try{ morphdom(app,tmp,{childrenOnly:true,onBeforeElUpdated:function(a,b){ if(a.id==="sketchBox"||a.id==="dawnBox"||a.id==="rsMap") return false;
+       // a block that has already revealed keeps its reveal state through the patch (no 50ms flicker), the results hook re-runs the motion when the set changes
+       if(a.classList&&a.classList.contains("hu-rv")&&b.classList){ b.classList.add("hu-rv"); if(a.classList.contains("hu-rv-t")) b.classList.add("hu-rv-t"); if(a.classList.contains("in")) b.classList.add("in"); if(a.classList.contains("hu-done")) b.classList.add("hu-done") }
+       return !a.isEqualNode(b) }}) }catch(e){ app.innerHTML=html }
    } else app.innerHTML=html;
    var bs=document.getElementById("bootSplash"); if(bs&&bs.parentNode) bs.parentNode.removeChild(bs); })();
  setTimeout(fabCheck,50);

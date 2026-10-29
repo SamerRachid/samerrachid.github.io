@@ -1045,3 +1045,9 @@ html body .rs-map .leaflet-control-zoom,html body .lmap .leaflet-control-zoom{ma
   html body .rs-fin .rs-f .chipsel-box,html body .rs-fin .rs-f select,html body .rs-fin .rs-f .pricetrig,html body .rs-fin .rs-morebtn{width:100%!important;box-sizing:border-box}
   html body .rs-fin .rs-deal{flex:0 0 auto}
 }
+/* the live reveal class (html.js .rv.in{transform:none}) outranked the theme's hidden state on cards, so a re-revealed
+   card faded without rising; the hidden state now wins until .in is set */
+html body .hu-rv:not(.in){opacity:0!important;transform:translateY(30px)!important}
+html body .hu-rv.hu-rv-t:not(.in){transform:translateY(50px)!important}
+@media (prefers-reduced-motion:reduce){ html body .hu-rv:not(.in){opacity:1!important;transform:none!important} }
+html body .hu-rv.hu-reset{transition:none!important}
