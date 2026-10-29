@@ -1161,3 +1161,8 @@ body.hu-opening .hero-outer.hu .stabs{animation:huFadeUp 1s ease-out both!import
 /* 2026-10-29 owner (desktop): "only the headline moves on opening". The header and bar entrances ran while the curtain was still
    covering them (it faded 1.45-2.05s). The curtain now fades right after the word lifts and the entrances start once it is gone. */
 html body .curtain{display:none!important}
+
+/* 2026-10-29 owner: the video's remove "x" in the post form was a bare browser button (white block, invisible x on the dark
+   theme). Same round dark button as the photo thumbnails' remove */
+html body .vprev .rm{position:absolute;top:6px;inset-inline-end:6px;width:26px;height:26px;padding:0;border-radius:50%!important;background:rgba(13,23,41,.85)!important;color:#fff!important;border:1px solid rgba(255,255,255,.28)!important;font-size:12px;line-height:1;display:grid;place-items:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.35)}
+html body .vprev .rm:hover{background:rgba(202,144,81,.95)!important;color:#1A1206!important}
