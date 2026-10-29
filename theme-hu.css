@@ -828,3 +828,7 @@ html body .rs-bar.hu-rv,html body .rs-bar.hu-rv.in{opacity:1!important;transform
 @media (max-width:640px){
   html body .chipsel-drop.on,html body .chipsel-drop.on.flip-up,html body .home-hero .chipsel-drop.on.flip-up{top:auto!important;bottom:0!important;max-height:72vh!important;height:auto!important}
 }
+/* the hero bar replays its entrance after every pick (softRenderHero swaps it); the re-rendered bar gets .hu-still so the
+   bottom sheet fixed inside it does not shrink to the bar's box and slide for a second before snapping to full width */
+html body .hero-outer.hu .sbar.hu-still,html body .hero-outer.hu .sbar.hu-still .srow{animation:none!important;opacity:1!important;transform:none!important}
+html body .sbar.hu-still .chipsel-drop.on{animation:none!important}   /* the list re-opened after a pick stays put instead of sliding up again */
