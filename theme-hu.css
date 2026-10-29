@@ -950,7 +950,7 @@ html body .ccpick-list::-webkit-scrollbar{width:8px} html body .ccpick-list::-we
 @media (min-width:901px){ html body .rs-hasmap .rs-map{top:58px!important;height:calc(100vh - 74px)!important} }   /* clears the sticky filter bar (42px) when the page scrolls */
 
 /* ===== 2026-10-29 motion like HomeUAE (owner: "site still not moving the same way") ===== */
-html body .hu-rv{opacity:0;transform:translateY(30px);transition:opacity 1s ease-out,transform 1s ease-out}
+html body .hu-rv{opacity:0;transform:translateY(50px);transition:opacity 1s ease-out,transform 1s ease-out}
 html body .hu-rv.hu-rv-t{transform:translateY(50px)}
 html body .hu-rv.hu-in{opacity:1;transform:none}
 html body .crumb.hu-rv{transform:none}
@@ -1043,8 +1043,11 @@ html body .rs-map .leaflet-control-zoom,html body .lmap .leaflet-control-zoom{ma
 }
 /* the live reveal class (html.js .rv.in{transform:none}) outranked the theme's hidden state on cards, so a re-revealed
    card faded without rising; the hidden state now wins until .in is set */
-html body .hu-rv:not(.hu-in){opacity:0!important;transform:translateY(30px)!important}
+/* 2026-10-29 owner: desktop must move like the phone / HomeUAE. HomeUAE desktop measured: every block rises 50px over 1s
+   ease-out (30px was too little to see on a wide screen) and its cards also grow from scale(.95) */
+html body .hu-rv:not(.hu-in){opacity:0!important;transform:translateY(50px)!important}
 html body .hu-rv.hu-rv-t:not(.hu-in){transform:translateY(50px)!important}
+html body .card.c2.hu-rv:not(.hu-in),html body .gcard.hu-rv:not(.hu-in),html body .profcard.hu-rv:not(.hu-in),html body .apppg-card.hu-rv:not(.hu-in),html body .frame.hu-rv:not(.hu-in),html body .agencies-grid>.hu-rv:not(.hu-in),html body .pj-grid>.hu-rv:not(.hu-in){transform:translateY(50px) scale(.95)!important}
 html body .hu-rv.hu-reset{transition:none!important}
 
 /* ===== 2026-10-29 account page (owner: "check this page") ===== */
