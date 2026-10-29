@@ -2852,7 +2852,10 @@ html.maint-on{overflow:hidden}
 /* «ترويج» dialog (admin): centred box over the page */
 .pm-ov{align-items:center;justify-content:center;padding:16px}
 .pm{width:min(560px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--page,#fff);border-radius:16px;box-shadow:0 24px 60px rgba(9,14,26,.3)}
-.pm .meov-h{border-radius:16px 16px 0 0}.pm .meov-h b{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pm .meov-h{border-radius:16px 16px 0 0}
+/* 2026-10-29 owner: the "post by message" PAGE is <div class="wrap pm"> and borrowed the admin pop-up's .pm rules (max-height + overflow:auto + light background):
+   an inner scroll box with a white scrollbar and the logo cut under the header. The page scrolls with the page. */
+.wrap.pm{max-height:none;overflow:visible;background:transparent;box-shadow:none;border-radius:0}.pm .meov-h b{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .pm-body{padding:14px 18px 18px;display:flex;flex-direction:column;gap:10px}.pm-body .fl{margin:0}.pm-body .hintx{margin:0}
 .pm-sec{font-size:12px;font-weight:700;color:var(--grey);letter-spacing:.3px;margin-top:4px}
 .pm-st{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13.5px}.pm-st>span:first-child{min-width:150px;font-weight:600}
