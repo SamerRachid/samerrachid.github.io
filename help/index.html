@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-HH3Bzq9h9cdgUkxBjDm0H0/1tVdIeJxvyPZexf2Vzpk=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-jgOa2roGlX6JCrQ3yX0wRP+NVop7f4kaUNf882RYxQQ=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -9894,12 +9894,20 @@ function wireChipSelects(){
    (which restarted the ad carousel, the header and the drawing, and made the menu blink) */
 function newTag(){ return SX("nav_map_new",true)!==false ? '<i class="newtag">'+GX("newTag")+'</i>' : '' }
 function huReveal(){
-  var sel=".lpage .lgal,.lpage .lhead,.lpage .lfacts,.lpage .lsec,.lside>*,.crumb,.rs-main>h1,.rs-main .card.c2,.simtrack .card.c2,.res .card.c2,.sec:not(.rv),.sec .card.c2,.hu-sec,footer .flinks,.lpage~.wrap>h2,.agencies-grid>*,.pj-row>*,.w-row>*,.ag>*,.ag-grid>*,.w-grid>*,.arx-grid>*,.changrid>*,.legal-sec,.apppg-card,.pm-step,.wrap>.blk,.done2,.gcard,.profcard,.guides>*,.pj-grid>*,.cf";
-  var els=$$(sel).filter(function(e){ return !e.classList.contains("hu-rv") && !e.closest(".hero-outer,.mdw,.adm") });
+  // HomeUAE's recipe (read from its stylesheet, 2026-10-29): titles rise 50px and content 30px over 1s ease-out, and a whole
+  // section reveals at once when it enters, not card by card; the section wrappers themselves do not move
+  var sel=".lpage .lgal,.lpage .lhead,.lpage .lfacts,.lpage .lsec,.lside>*,.crumb,.rs-main>h1,.rs-main .card.c2,.simtrack .card.c2,.res .card.c2,.sec h2,.sec .sub,.sec .secsub,.sec .card.c2,.sec .govs a,.sec .expl>*,.sec .guides>*,.sec .frame,.hu-sec h2,.hu-sec .card.c2,.hu-sec .frame,footer .flinks,.lpage~.wrap>h2,.agencies-grid>*,.pj-row>*,.w-row>*,.ag>*,.ag-grid>*,.w-grid>*,.arx-grid>*,.changrid>*,.legal-sec,.apppg-card,.pm-step,.wrap>.blk,.done2,.gcard,.profcard,.guides>*,.pj-grid>*,.cf";
+  var els=$$(sel).filter(function(e){ return !e.classList.contains("hu-rv") && !e.closest(".hero-outer,.mdw,.adm,.hu-rv") });
   if(!els.length) return;
-  if(!window._huIO) window._huIO=new IntersectionObserver(function(es){ es.forEach(function(x){ if(x.isIntersecting){ x.target.classList.add("in"); window._huIO.unobserve(x.target) } }) },{threshold:0,rootMargin:"0px 0px 12% 0px"});
-  els.forEach(function(e,i){ e.classList.add("hu-rv"); var k=0, p=e.previousElementSibling; while(p && p.classList.contains("hu-rv") && k<5){ k++; p=p.previousElementSibling } e.style.transitionDelay=(k*90)+"ms"; window._huIO.observe(e) });
+  var reveal=function(e){ var sec=e.closest(".sec,.hu-sec,.rs-main,.lpage,.wrap,section"); var group=sec?$$(".hu-rv:not(.in)",sec):[e]; if(!group.length) group=[e]; group.forEach(function(g,i){ var d=Math.min(i,8)*70; g.style.transitionDelay=d+"ms"; g.classList.add("in"); if(window._huIO) window._huIO.unobserve(g); setTimeout(function(){ g.style.transitionDelay=""; g.classList.add("hu-done") },1150+d) }) };   // hu-done: after the reveal, hover and press use the quick .3s transitions
+  if(!window._huIO) window._huIO=new IntersectionObserver(function(es){ es.forEach(function(x){ if(x.isIntersecting) reveal(x.target) }) },{threshold:0,rootMargin:"0px 0px 10% 0px"});
+  els.forEach(function(e){ e.classList.add("hu-rv"); if(/^H[1-3]$/.test(e.tagName)) e.classList.add("hu-rv-t"); window._huIO.observe(e) });
+  huImgFade();
 }
+// photos fade in as they arrive (HomeUAE's images do the same) — cached ones show at once
+function huImgFade(){ $$("#app .ph img,#app .lg-main img,#app .lgal img,#app .lg-side img,#app .agcard img,#app .pj-grid img,#app .w-grid img").forEach(function(im){ if(im.classList.contains("hu-fade")||im.classList.contains("hu-ld")) return; if(im.complete&&im.naturalWidth){ im.classList.add("hu-ld"); return } im.classList.add("hu-fade"); var done=function(){ im.classList.add("hu-ld") }; im.addEventListener("load",done,{once:true}); im.addEventListener("error",done,{once:true}) }) }
+// a page change fades the new page in (same view re-rendering, e.g. a filter change, does not)
+function huPageIn(){ if(window._huLastView===VIEW) return; window._huLastView=VIEW; $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.hero-outer,[id$=Modal],.modal")) return; e.classList.remove("hu-page"); void e.offsetWidth; e.style.animationDelay=Math.min(i,6)*40+"ms"; e.classList.add("hu-page") }) }
 function heroSlidesHtml(type,studio){
   if((type==="photo"||type==="video") && studio) return studio;   // a background set in the studio stays as it is
   var S=["umayyad","aleppo","arwad"], P="/next/images/hero/";
@@ -12503,7 +12511,8 @@ function render(){
  // home page only: the header sits transparent over the hero photo/video
  // (Bayut-style) and turns solid once the page scrolls — see .home-hero CSS
  document.body.classList.toggle("home-hero", VIEW==="home");
- huReveal();   // theme hu: every page reveals its blocks on scroll, as homeuae.ae does (1s ease-out from 40px below)
+ huReveal();   // theme hu: every page reveals its blocks on scroll, as homeuae.ae does (titles 50px, content 30px, 1s ease-out)
+ huPageIn();
  document.body.classList.toggle("adm-mode", VIEW==="admin" && !!ADM.token);
  applySiteExtras();
  updateHdr();

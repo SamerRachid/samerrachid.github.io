@@ -950,3 +950,36 @@ html body .ccpick-list::-webkit-scrollbar{width:8px} html body .ccpick-list::-we
   html body .rs-hasmap .rs-avgbox{flex:0 0 auto;max-height:38%;overflow:auto}
 }
 @media (min-width:901px){ html body .rs-hasmap .rs-map{top:58px!important;height:calc(100vh - 74px)!important} }   /* clears the sticky filter bar (42px) when the page scrolls */
+
+/* ===== 2026-10-29 motion like HomeUAE (owner: "site still not moving the same way") ===== */
+html body .hu-rv{opacity:0;transform:translateY(30px);transition:opacity 1s ease-out,transform 1s ease-out}
+html body .hu-rv.hu-rv-t{transform:translateY(50px)}
+html body .hu-rv.in{opacity:1;transform:none}
+html body .crumb.hu-rv{transform:none}
+/* phones: nothing heavy runs behind the scroll — no Ken Burns on the hero slides, no blur behind chips and bars, no text filter */
+@media (max-width:860px){
+  html body .hv img,html body .hv video,html body .hslides img{animation:none!important;transform:none!important}
+  html body .hero-outer.hu .hero h1{filter:none!important;text-shadow:0 2px 6px rgba(0,0,0,.45)}
+  html body .adslot-deal,html body .home-hero .aisearch.glass .aisearch-pill,html body .aisearch-pill{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+  html body .aisearch-pill{background:rgba(17,33,63,.82)!important}
+  html body .adslot-deal{background:rgba(13,23,41,.85)!important}
+}
+@media (prefers-reduced-motion:reduce){ html body .hu-rv{opacity:1;transform:none;transition:none} }
+/* the reveal transition wins over the live card transitions; once revealed (.hu-done) hover and press use HomeUAE's .3s */
+html body .hu-rv{transition:opacity 1s ease-out,transform 1s ease-out!important}
+html body .hu-rv.hu-done{transition:transform .3s,box-shadow .3s,opacity .3s,background-color .3s,border-color .3s,color .3s!important}
+/* HomeUAE's interaction timing everywhere: .3s on colour, background, border, shadow, transform; a light press */
+html body a,html body button,html body .chip,html body .tile,html body .pill,html body .govs a,html body .lbtn,html body .cta-add,html body .card.c2,html body .mm-tiles a,html body .ag-pills button,html body .rs-deal button,html body .stabs button,html body .lacts button,html body .rsq-b,html body .chipsel-opt,html body .ccpick-item{transition:color .3s,background-color .3s,border-color .3s,box-shadow .3s,opacity .3s,transform .3s}
+html body button:active:not(:disabled),html body .lbtn:active,html body .cta-add:active,html body .rs-deal button:active,html body .stabs button:active,html body .pp-done:active,html body .cs-done:active,html body #rsFApply:active{transform:scale(.97)}
+/* a new page fades in; a modal rises in; desktop menus and lists drop in with Quasar's curve */
+@keyframes huPage{from{opacity:0}to{opacity:1}}
+html body .hu-page{animation:huPage .4s ease-out both}
+@keyframes huModal{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+html body .au.on{animation:huDimIn .3s ease-out both!important}
+html body .au.on .aubox{animation:huModal .32s cubic-bezier(.22,.8,.3,1) both!important}
+@keyframes huDrop{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+@media (min-width:641px){ html body .chipsel-drop.on,html body .menu.on,html body .notifmenu.on,html body .rs-morepop,html body .pricepop:not([hidden]),html body .ccpick-drop{animation:huDrop .22s cubic-bezier(0,0,.2,1) both} }
+/* photos arrive with a fade */
+html body img.hu-fade{opacity:0;transition:opacity .5s ease-out}
+html body img.hu-fade.hu-ld{opacity:1}
+@media (prefers-reduced-motion:reduce){ html body .hu-page,html body .au.on,html body .au.on .aubox,html body .chipsel-drop.on,html body .menu.on{animation:none!important} html body img.hu-fade{opacity:1;transition:none} }
