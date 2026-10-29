@@ -895,3 +895,6 @@ html body .hero-outer.hu .aisearch{top:0!important}   /* the live bar sat 5px lo
 html body .hero-outer.hu .sbar{top:0!important}   /* the live bar was nudged 10px down; the AI bar then overlapped it */
 @media (max-width:860px){ html body.home-hero .hero-outer.hu .aisearch .aisearch-pill,html body .hero-outer.hu .aisearch .aisearch-pill{height:44px!important;border-radius:8px!important} }
 @media (max-width:860px){ html body.home-hero .hero-outer.hu .aisearch .aisearch-pill{min-height:44px!important} }
+/* owner 2026-10-29 ("check this too"): the live header turns fixed on scroll (header.hdr-solid) and covered the top of
+   every section; HomeUAE's header scrolls away with the hero, so does ours */
+html body.home-hero header.hdr-solid,html body.home-hero header{position:absolute!important;background:transparent!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:none!important}
