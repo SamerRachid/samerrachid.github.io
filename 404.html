@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-tCvmVaGG0FxkaU3b1l+30TVbcWezSVHfZ/EVZesUxxk=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-SehL9XCE4XLsitoIyU8b/Qho6epIGN84EyTw3TT8imM=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -681,6 +681,13 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
 
 .mineWrap{position:relative}
 .mineBar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px}
+.leaflet-layer.hu-osm{filter:invert(1) hue-rotate(200deg) saturate(.7) brightness(1.35) contrast(.78)}
+.hu-msw{display:flex;background:rgba(17,33,63,.92);border:1px solid rgba(255,255,255,.22);border-radius:8px;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.3)}
+.hu-msw button{border:0;background:none;color:#fff;font:600 13px var(--f);padding:7px 12px;cursor:pointer}.hu-msw button.on{background:var(--gold);color:var(--navy)}
+.lmaprow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px}.lmaprow .lmapnote{margin:0;flex:1 1 220px}
+.gmapbtn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:8px;border:1px solid rgba(202,144,81,.6);color:var(--gold);font-weight:700;font-size:14px;text-decoration:none;white-space:nowrap}
+.gmapbtn:hover{background:rgba(202,144,81,.12)}
+@media (max-width:640px){ .gmapbtn{flex:1 1 100%;justify-content:center} }
 .done-acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}.done-acts>button{flex:0 1 220px;min-width:0;height:46px;margin:0!important;padding:0 16px;white-space:nowrap}
 .mineBar .mstat{font-size:13px;color:var(--grey);padding:0 4px}
 .mineBar .st{margin-inline-end:auto}
@@ -6084,7 +6091,16 @@ var ESC_EXEMPT_FNS={bk_admin_backup:1,bk_login:1,bk_register:1,bk_set_password:1
    uses for the current language, so noConflict() hands the library
    back under LeafletLib and restores our L. ── */
 // theme hu: every map uses the dark CARTO tiles (screen-blended over the navy in theme-hu.css), like HomeUAE's Jawg dark map
-function huTiles(LMap,noLabels){ var g=LMap.layerGroup(); LMap.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,maxNativeZoom:16,attribution:'Tiles &copy; <a href="https://www.esri.com/">Esri</a>'}).addTo(g); if(!noLabels) LMap.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,maxNativeZoom:16,pane:"overlayPane",opacity:.9}).addTo(g); return g }
+// home overview map keeps the plain Esri dark canvas (no labels); every other map is OpenStreetMap — the only free source with Syrian village/area names in Arabic — darkened by a CSS filter (.hu-osm)
+function huTiles(LMap,noLabels){ var g=LMap.layerGroup();
+  if(noLabels){ LMap.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,maxNativeZoom:16,attribution:'Tiles &copy; <a href="https://www.esri.com/">Esri</a>'}).addTo(g); return g }
+  LMap.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,className:"hu-osm",attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(g); return g }
+// map / satellite switch (top corner) — satellite helps land and farm listings
+function huSatSwitch(LMap,map,base){ var sat=LMap.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,attribution:'Imagery &copy; <a href="https://www.esri.com/">Esri</a>'});
+  var C=LMap.Control.extend({options:{position:"topright"},onAdd:function(){ var d=LMap.DomUtil.create("div","hu-msw"); d.innerHTML='<button type="button" class="on" data-m="map">'+GX("mapMap")+'</button><button type="button" data-m="sat">'+GX("mapSat")+'</button>';
+    LMap.DomEvent.disableClickPropagation(d); d.onclick=function(e){ var b=e.target.closest("button"); if(!b||b.classList.contains("on")) return; var toSat=b.dataset.m==="sat";
+      if(toSat){ map.removeLayer(base); sat.addTo(map) } else { map.removeLayer(sat); base.addTo(map) } [].forEach.call(d.children,function(x){ x.classList.toggle("on",x===b) }) }; return d }});
+  new C().addTo(map) }
 var _leafletPromise = null;
 function ensureLeaflet(){
   if(window.LeafletLib) return Promise.resolve(window.LeafletLib);
@@ -7108,7 +7124,9 @@ function listing(id){
 
  var map = (x.lat && x.lng) ? '<section class="lsec"><h2>'+t("mapH")+'</h2>'+
    '<div id="viewMap" data-lat="'+x.lat+'" data-lng="'+x.lng+'"></div>'+
-   '<div class="lmapnote">'+I.pin+' '+aN(x.a)+(ar?'، ':', ')+gN(x.g)+(x.lm?' · '+x.lm:'')+'</div></section>' : '';
+   '<div class="lmaprow"><div class="lmapnote">'+I.pin+' '+aN(x.a)+(ar?'، ':', ')+gN(x.g)+(x.lm?' · '+x.lm:'')+'</div>'+
+   '<a class="gmapbtn" href="https://www.google.com/maps/search/?api=1&amp;query='+(+x.lat)+','+(+x.lng)+'" target="_blank" rel="noopener">'+
+   '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg><span>'+GX("gmapOpen")+'</span></a></div></section>' : '';
 
  /* ── sticky side: price and contact ── */
  var ownerName = x.oag ? (x.oagName||x.who) : (x.who||(x.ow?t("owner"):t("agent")));
@@ -8833,7 +8851,7 @@ function initPickerMap(containerId, state, govSelectIdOrCoords, wrapId, clearBtn
   var startLng = state.lng || (govCenter ? govCenter[1] : cc[1]);
   var zoom = state.lat ? 15 : (govCenter ? 11 : cc[2]);
   var map = LMap.map(container).setView([startLat,startLng], zoom);
-  huTiles(LMap).addTo(map);
+  var base=huTiles(LMap).addTo(map); huSatSwitch(LMap,map,base);
   var marker = state.lat ? LMap.marker([state.lat,state.lng]).addTo(map) : null;
   // once a specific area is chosen, zoom in further than the generic
   // governorate center — but only if the lister hasn't already placed
@@ -8940,7 +8958,7 @@ function initViewMap(lat,lng){
   }
   if(_viewMapInstance){ try{ _viewMapInstance.remove() }catch(e){} _viewMapInstance=null; }
   var map = LMap.map(container,{scrollWheelZoom:false}).setView([lat,lng], 15);
-  huTiles(LMap).addTo(map);
+  var base=huTiles(LMap).addTo(map); huSatSwitch(LMap,map,base);
   LMap.marker([lat,lng]).addTo(map);
   _viewMapInstance = map;
   setTimeout(function(){ if(container.isConnected){ try{ map.invalidateSize() }catch(e){} } }, 120);
@@ -14449,7 +14467,7 @@ var GX_T={
   rwH:{ar:"مكافأة التمييز المجاني",en:"Free-feature reward",de:"Gratis-Hervorhebung als Belohnung"},
   rwHint:{ar:"كل عدد معيّن من الإعلانات التي تُنشر فعلياً يمنح صاحبها تمييزاً مجانياً: إعلان واحد على الصفحة الرئيسية لمدة محددة. يختار الإعلان بنفسه من صفحة «إعلاناتي». النقطة تُحسب مرة واحدة لكل إعلان، والإعلان المحذوف خلال 7 أيام يفقدها، وتمييز واحد نشط لكل حساب.",en:"Every N listings that actually go live earn the poster one free feature: one listing on the homepage for a set time. They pick the listing themselves from “My listings”. One point per listing for life, a listing deleted within 7 days loses it, one active feature per account.",de:"Je N tatsächlich veröffentlichte Anzeigen erhält der Inserent eine Gratis-Hervorhebung: eine Anzeige für eine festgelegte Zeit auf der Startseite. Er wählt sie selbst unter „Meine Anzeigen”. Ein Punkt pro Anzeige, eine binnen 7 Tagen gelöschte Anzeige verliert ihn, eine aktive Hervorhebung pro Konto."},
   rwOn:{ar:"تشغيل المكافأة",en:"Reward on",de:"Belohnung aktiv"}, rwEvery:{ar:"إعلان منشور لكل تمييز",en:"Live listings per feature",de:"Veröffentlichte Anzeigen pro Hervorhebung"}, rwHours:{ar:"مدة التمييز (ساعات)",en:"Feature length (hours)",de:"Dauer (Stunden)"},
-  rwWelcome:{ar:"مكافأة الترحيب: تمييز مع أول إعلان",en:"Welcome bonus: a feature with the first listing",de:"Willkommensbonus: Hervorhebung bei der ersten Anzeige"}, rwUsers:{ar:"تشمل الأفراد (وليس المكاتب فقط)",en:"Individuals too (not only agencies)",de:"Auch Privatpersonen (nicht nur Büros)"}, ssSaved:{ar:"حُفظ البحث «{l}» — اضغط «محفوظ» مرة ثانية لإلغاء الحفظ",en:"Search saved “{l}” — tap “Saved” again to remove it",de:"Suche „{l}“ gespeichert — erneut tippen zum Entfernen"},ssRemoved:{ar:"أُلغي حفظ هذا البحث",en:"Search removed from saved",de:"Suche aus den gespeicherten entfernt"},ssSaveTip:{ar:"احفظ هذه الفلاتر لترجع لها بضغطة من القائمة",en:"Save these filters to come back in one tap from the menu",de:"Filter speichern und mit einem Tipp aus dem Menü zurückkehren"},ssUnsaveTip:{ar:"هذا البحث محفوظ — اضغط لإلغاء الحفظ",en:"This search is saved — tap to remove it",de:"Diese Suche ist gespeichert — tippen zum Entfernen"},rwBarHide:{ar:"إخفاء رسالة التمييز عن الأعضاء في «إعلاناتي» (تبقى المكافأة شغّالة وتُحتسب)",en:"Hide the feature message from members on “my listings” (the reward keeps running)",de:"Hinweis auf der Seite „Meine Anzeigen“ ausblenden (die Belohnung läuft weiter)"},
+  rwWelcome:{ar:"مكافأة الترحيب: تمييز مع أول إعلان",en:"Welcome bonus: a feature with the first listing",de:"Willkommensbonus: Hervorhebung bei der ersten Anzeige"}, rwUsers:{ar:"تشمل الأفراد (وليس المكاتب فقط)",en:"Individuals too (not only agencies)",de:"Auch Privatpersonen (nicht nur Büros)"}, mapMap:{ar:"خريطة",en:"Map",de:"Karte"},mapSat:{ar:"قمر صناعي",en:"Satellite",de:"Satellit"},gmapOpen:{ar:"افتح في خرائط Google",en:"Open in Google Maps",de:"In Google Maps öffnen"},ssSaved:{ar:"حُفظ البحث «{l}» — اضغط «محفوظ» مرة ثانية لإلغاء الحفظ",en:"Search saved “{l}” — tap “Saved” again to remove it",de:"Suche „{l}“ gespeichert — erneut tippen zum Entfernen"},ssRemoved:{ar:"أُلغي حفظ هذا البحث",en:"Search removed from saved",de:"Suche aus den gespeicherten entfernt"},ssSaveTip:{ar:"احفظ هذه الفلاتر لترجع لها بضغطة من القائمة",en:"Save these filters to come back in one tap from the menu",de:"Filter speichern und mit einem Tipp aus dem Menü zurückkehren"},ssUnsaveTip:{ar:"هذا البحث محفوظ — اضغط لإلغاء الحفظ",en:"This search is saved — tap to remove it",de:"Diese Suche ist gespeichert — tippen zum Entfernen"},rwBarHide:{ar:"إخفاء رسالة التمييز عن الأعضاء في «إعلاناتي» (تبقى المكافأة شغّالة وتُحتسب)",en:"Hide the feature message from members on “my listings” (the reward keeps running)",de:"Hinweis auf der Seite „Meine Anzeigen“ ausblenden (die Belohnung läuft weiter)"},
   rwBalances:{ar:"الأرصدة",en:"Balances",de:"Guthaben"}, rwPoints:{ar:"النقاط",en:"Points",de:"Punkte"}, rwCredits:{ar:"الرصيد",en:"Credits",de:"Guthaben"}, rwActive:{ar:"مميز حتى",en:"Featured until",de:"Hervorgehoben bis"}, rwNone:{ar:"لا أرصدة بعد؛ تبدأ مع أول إعلان منشور.",en:"No balances yet; they start with the first live listing.",de:"Noch kein Guthaben; es beginnt mit der ersten veröffentlichten Anzeige."},
   rwGrant:{ar:"منح",en:"Grant",de:"Gewähren"}, rwRevoke:{ar:"سحب",en:"Revoke",de:"Entziehen"}, rwGrantQ:{ar:"كم تمييزاً تريد منحه لـ {n}؟",en:"How many features to grant {n}?",de:"Wie viele Hervorhebungen für {n} gewähren?"}, rwRevokeQ:{ar:"كم تمييزاً تريد سحبه من {n}؟",en:"How many features to revoke from {n}?",de:"Wie viele Hervorhebungen von {n} entziehen?"}, rwNoteQ:{ar:"ملاحظة (اختياري)",en:"Note (optional)",de:"Notiz (optional)"},
   rwLog:{ar:"آخر الحركات",en:"Recent activity",de:"Letzte Vorgänge"}, rwK_point:{ar:"نقطة إعلان",en:"listing point",de:"Anzeigenpunkt"}, rwK_point_revoked:{ar:"نقطة مسحوبة",en:"point revoked",de:"Punkt entzogen"}, rwK_earned:{ar:"تمييز مكتسب",en:"feature earned",de:"Hervorhebung verdient"}, rwK_welcome:{ar:"مكافأة ترحيب",en:"welcome bonus",de:"Willkommensbonus"}, rwK_used:{ar:"تمييز مستخدم",en:"feature used",de:"Hervorhebung genutzt"}, rwK_granted:{ar:"منح من الإدارة",en:"granted by admin",de:"vom Admin gewährt"}, rwK_revoked:{ar:"سحب من الإدارة",en:"revoked by admin",de:"vom Admin entzogen"},
