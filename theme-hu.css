@@ -1020,3 +1020,10 @@ html body .sec,html body .sec.rv,html body .sec.rv.in,html body section.rv.in{ba
 @media (min-width:861px){ html body.home-hero .aboutsec .aboutlinks .govs,html body .aboutsec .aboutlinks .govs{grid-template-columns:repeat(4,minmax(0,1fr))!important} }
 @media (max-width:860px){ html body.home-hero .hero-outer.hu .sbar .stabs,html body .hero-outer.hu .sbar .stabs{margin-top:0!important} html body.home-hero .hero-outer.hu .hero h1,html body .hero-outer.hu .hero h1{top:0!important;margin-bottom:20px!important} }   /* phone: the headline 20px above the bar */
 @media (min-width:861px){ html body .aboutsec .aboutlinks .govs{display:grid!important} }
+/* owner 2026-10-29: the side map starts level with the cards (JS sets its top margin) and has no empty band above the tiles */
+@media (min-width:901px){
+  html body .rs-hasmap .rs-mapwrap{padding:0!important}
+  html body .rs-hasmap .rs-map{border-radius:8px!important}
+  html body .rs-hasmap .rs-mapnote{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:2;background:rgba(17,33,63,.9)!important;color:#fff!important;border-radius:999px!important}
+  html body .rs-hasmap .rs-mapwrap{position:relative}
+}
