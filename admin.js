@@ -5121,7 +5121,15 @@ Object.assign(GX_T,{
   plcNoListing:{ar:"لم أجد إعلاناً منشوراً بهذا الرقم.",en:"No live listing with this ref.",de:"Keine aktive Anzeige mit dieser Nummer."},
   plcBook:{ar:"احجز",en:"Book",de:"Buchen"}, plcBooked:{ar:"تم الحجز ✓",en:"Booked ✓",de:"Gebucht ✓"},
   plcSquareHow:{ar:"المربعات تُضاف من صفحة «المربعات الإعلانية» بالصورة والرابط، ثم تظهر هنا تلقائياً بتواريخها.",en:"Squares are added in «Ad squares» with their image and link, then show here with their dates.",de:"Quadrate werden unter «Werbequadrate» angelegt und erscheinen dann hier."},
-  plcSoon:{ar:"يصير متاحاً للحجز بعد المرحلة الثانية (عرضه على الموقع).",en:"Bookable after phase 2 (showing it on the site).",de:"Buchbar nach Phase 2."},
+  plcBannerNo:{ar:"أي بانر",en:"Which banner",de:"Welches Banner"}, plcBannerN:{ar:"البانر {n}",en:"Banner {n}",de:"Banner {n}"},
+  plcGovAll:{ar:"كل المحافظات",en:"All governorates",de:"Alle Gouvernements"}, plcDeal:{ar:"البيع أو الإيجار",en:"Sale or rent",de:"Kauf oder Miete"},
+  plcDealBoth:{ar:"الاثنان",en:"Both",de:"Beides"}, plcDealSale:{ar:"بيع",en:"Sale",de:"Kauf"}, plcDealRent:{ar:"إيجار",en:"Rent",de:"Miete"},
+  plcMedia:{ar:"الصورة أو الفيديو",en:"Image or video",de:"Bild oder Video"}, plcLink:{ar:"الرابط عند الضغط (اختياري)",en:"Link when tapped (optional)",de:"Link beim Antippen (optional)"},
+  plcSponsor:{ar:"اسم المعلن (يظهر على البانر)",en:"Advertiser name (shown on the banner)",de:"Werbetreibender (auf dem Banner)"},
+  plcUploading:{ar:"جارٍ الرفع…",en:"Uploading…",de:"Wird hochgeladen…"}, plcNoMedia:{ar:"أضف صورة أو فيديو أولاً.",en:"Add an image or video first.",de:"Zuerst Bild oder Video hinzufügen."},
+  plcBannerHint:{ar:"يحلّ محل محتوى هذا البانر في الصفحة الرئيسية طوال مدة الحجز، ثم يعود البانر كما كان. اجعل الصورة بنسبة البانر: {w}×{h} (أو ضعفها لصورة أوضح).",en:"Replaces this banner's content on the home page for the booking, then the banner returns as it was. Make the image the banner's shape: {w}×{h} (or double for sharpness).",de:"Ersetzt den Inhalt dieses Banners für die Buchungsdauer. Bildformat wie das Banner: {w}×{h}."},
+  plcResultsHint:{ar:"يظهر بعد كل 8 إعلانات في نتائج البحث، فقط حين تكون النتائج 8 أو أكثر. «كل المحافظات» يحتاج مكاناً فارغاً في كل محافظة. المقاس الأنسب 1600×400.",en:"Shows after every 8 cards in search results, only when there are 8 or more. «All governorates» needs a free place in every governorate. Best size 1600×400.",de:"Erscheint nach je 8 Karten, nur bei 8+ Ergebnissen. Ideal 1600×400."},
+  plcAdSql:{ar:"حجز البانرات يحتاج تحديث قاعدة البيانات (ملف 2026-10-30_ad_placements_phase2.sql).",en:"Booking banners needs the database update (2026-10-30_ad_placements_phase2.sql).",de:"Banner-Buchung braucht das Datenbank-Update."},
   plcGoSquares:{ar:"افتح المربعات الإعلانية",en:"Open ad squares",de:"Werbequadrate öffnen"},
   plcWaitH:{ar:"قائمة الانتظار",en:"Waiting list",de:"Warteliste"}, plcWaitNone:{ar:"لا أحد ينتظر.",en:"Nobody waiting.",de:"Niemand wartet."},
   plcWaitAdd:{ar:"+ أضف إلى الانتظار",en:"+ Add to waiting list",de:"+ Auf Warteliste"}, plcWaitDays:{ar:"يريد {n} يوماً",en:"wants {n} days",de:"möchte {n} Tage"},
@@ -5220,7 +5228,20 @@ function plcNewForm(){ var S=plcState(), f=S.form||{}, D=S.data||{}, p=f.p||"fea
   } else if(p==="square"){
     H+='<div class="hintx">'+GX("plcSquareHow")+'</div><div style="display:flex;gap:6px"><button type="button" class="btn-n" data-atab="ads">'+GX("plcGoSquares")+'</button><button type="button" class="ab" data-plcformclose="1">'+GX("plcCancel")+'</button></div>';
   } else {
-    H+='<div class="hintx">'+GX("plcSoon")+'</div><div><button type="button" class="ab" data-plcformclose="1">'+GX("plcCancel")+'</button></div>';
+    var opt=function(v,lbl,cur){ return '<option value="'+v+'"'+(String(v)===String(cur)?" selected":"")+'>'+lbl+'</option>' };
+    var bd=null; try{ if(p==="banner"&&typeof bannersConfig==="function") bd=bannerDims(bannersConfig()[(f.bn||1)-1],false) }catch(e){}
+    H+='<div class="hintx" style="font-size:12px">'+(p==="banner"?GX("plcBannerHint").replace("{w}",bd?bd.w:728).replace("{h}",bd?bd.h:90):GX("plcResultsHint"))+'</div>'+
+      (p==="banner"?'<label>'+GX("plcBannerNo")+'<select id="plcFBn">'+[1,2,3].map(function(n){ return opt(n,GX("plcBannerN").replace("{n}",n),f.bn||1) }).join("")+'</select></label>'
+        :'<div class="row2"><label>'+GX("plcGov")+'<select id="plcFGov">'+opt("",GX("plcGovAll"),f.gov==null?"":f.gov)+(D.govs||[]).map(function(g){ return opt(g.id,esc(g.name),f.gov==null?"":f.gov) }).join("")+'</select></label>'+
+          '<label>'+GX("plcDeal")+'<select id="plcFDeal">'+opt("",GX("plcDealBoth"),f.deal||"")+opt("sale",GX("plcDealSale"),f.deal||"")+opt("rent",GX("plcDealRent"),f.deal||"")+'</select></label></div>')+
+      '<label>'+GX("plcMedia")+'<input type="file" id="plcFFile" accept="image/*,video/mp4,video/webm"></label>'+
+      (f.url?'<div style="border:1px solid var(--pc-line);border-radius:8px;overflow:hidden">'+(f.mt==="video"?'<video src="'+esc(f.url)+'" muted autoplay loop playsinline style="display:block;width:100%"></video>':'<img src="'+esc(f.url)+'" alt="" style="display:block;width:100%">')+'</div>':'')+
+      '<label>'+GX("plcSponsor")+'<input type="text" id="plcFSponsor" value="'+esc(f.sponsor||"")+'"></label>'+
+      '<label>'+GX("plcLink")+'<input type="text" id="plcFLink" dir="ltr" placeholder="https://" value="'+esc(f.link||"")+'"></label>'+
+      '<div class="row2"><label>'+GX("plcStart")+'<input type="date" id="plcFStart" value="'+(f.start||S.sel)+'"></label><label>'+GX("plcLen")+'<select id="plcFDays">'+opt(7,GX("plcW1"),f.days||7)+opt(14,GX("plcW2"),f.days||7)+opt(30,GX("plcM1"),f.days||7)+'</select></label></div>'+
+      '<div class="row2"><label>'+GX("plcClient")+'<input type="text" id="plcFClient" value="'+esc(f.client||"")+'"></label><label>'+GX("plcPhone")+'<input type="text" id="plcFPhone" dir="ltr" value="'+esc(f.phone||"")+'"></label></div>'+
+      '<div class="row2"><label>'+GX("plcPrice")+'<input type="number" min="0" id="plcFPrice" value="'+esc(f.price||"")+'"></label><label style="align-self:end"><span><input type="checkbox" id="plcFPaid"'+(f.paid?" checked":"")+'> '+GX("plcPaid")+'</span></label></div>'+
+      '<div style="display:flex;gap:6px"><button type="button" class="btn-n" id="plcFAdBook">'+GX("plcBook")+'</button><button type="button" class="ab" data-plcformclose="1">'+GX("plcCancel")+'</button></div>';
   }
   return H+'<div class="msg" id="plcFMsg"></div></div>' }
 function adminPlacementsBody(){ var S=plcState(), D=S.data;
@@ -5305,11 +5326,12 @@ function wirePlacements(){ var S=plcState();
     try{ await rpc("bk_admin_booking_stop",{p_token:ADM.token,p_id:+this.dataset.plcstop}); re() }catch(e){ alert(e.message||"error") } } });
   $$("[data-plcrep]").forEach(function(btn){ btn.onclick=async function(){
     try{ var r=await rpc("bk_admin_booking_report",{p_token:ADM.token,p_id:+this.dataset.plcrep}); if(!r||!r.token) return;
-      var url=location.origin+"/ad-report?t="+r.token; try{ await navigator.clipboard.writeText(url); admToast(GX("plcLinkCopied")) }catch(e){ prompt(GX("plcReport"),url) } }catch(e){ alert(e.message||"error") } } });
+      var url=location.origin+"/ad-report/"+r.token; try{ await navigator.clipboard.writeText(url); admToast(GX("plcLinkCopied")) }catch(e){ prompt(GX("plcReport"),url) } }catch(e){ alert(e.message||"error") } } });
   var openForm=function(){ S.form={p:(S.view!=="all"?S.view:"featured"),start:S.sel}; render() };
   if($("#plcNew")) $("#plcNew").onclick=openForm; if($("#plcNewDay")) $("#plcNewDay").onclick=openForm;
   $$("[data-plcformclose]").forEach(function(b){ b.onclick=function(){ S.form=null; render() } });
-  if($("#plcFP")) $("#plcFP").onchange=function(){ S.form=Object.assign({},S.form,{p:this.value}); render() };
+  if($("#plcFBn")) $("#plcFBn").onchange=function(){ keepForm(); render() };
+  if($("#plcFP")) $("#plcFP").onchange=function(){ keepForm(); S.form=Object.assign({},S.form,{p:this.value}); render() };
   if($("#plcFBook")) $("#plcFBook").onclick=async function(){ var m=$("#plcFMsg"), ref=(($("#plcFRef")||{}).value||"").trim(), btn=this;
     var L=((ADM.data&&ADM.data.listings)||[]).filter(function(x){ return String(x.ref||"").toLowerCase()===ref.toLowerCase() && (x.status||"live")==="live" })[0];
     if(!L){ if(m) m.textContent=GX("plcNoListing"); return }
@@ -5324,6 +5346,27 @@ function wirePlacements(){ var S=plcState();
         var nb=((D2&&D2.bookings)||[]).filter(function(x){ return x.kind==="featured"&&x.ref_id===+L.id&&x.status!=="waiting" }).sort(function(a,b){ return b.id-a.id })[0];
         if(nb) await rpc("bk_admin_booking_save",{p_token:ADM.token,p_id:nb.id,p_client:null,p_phone:null,p_notes:null,p_price:price===""?null:+price,p_paid:paid}) }
       S.form=null; admToast(GX("plcBooked")); re() }catch(e){ if(m) m.textContent=e.message||"error"; btn.disabled=false } };
+  // banner / results booking: what is typed is kept in S.form so a re-render (after an upload) loses nothing
+  var keepForm=function(){ if(!S.form) return; var v=function(id){ var e=$(id); return e?e.value:undefined };
+    Object.assign(S.form,{bn:v("#plcFBn")!=null?+v("#plcFBn"):S.form.bn, gov:v("#plcFGov")!=null?(v("#plcFGov")===""?null:+v("#plcFGov")):S.form.gov, deal:v("#plcFDeal")!=null?v("#plcFDeal"):S.form.deal,
+      sponsor:v("#plcFSponsor"), link:v("#plcFLink"), start:v("#plcFStart")||S.form.start, days:+(v("#plcFDays")||7), client:v("#plcFClient"), phone:v("#plcFPhone"), price:v("#plcFPrice"), paid:!!($("#plcFPaid")||{}).checked}) };
+  if($("#plcFFile")) $("#plcFFile").onchange=async function(){ var file=this.files&&this.files[0], m=$("#plcFMsg"); if(!file) return; keepForm();
+    if(m){ m.style.color="var(--pc-mut)"; m.textContent=GX("plcUploading") }
+    try{ var url=await hsUpload(file,S.form.p==="banner"?"banners":"ads"); S.form.url=url; S.form.mt=/^video\//.test(file.type)?"video":"image"; render() }catch(e){ if(m){ m.style.color=""; m.textContent=e.message||"error" } } };
+  if($("#plcFAdBook")) $("#plcFAdBook").onclick=async function(){ var m=$("#plcFMsg"), btn=this; keepForm(); var f=S.form;
+    if(!f.url){ if(m) m.textContent=GX("plcNoMedia"); return }
+    var st=f.start||S.sel, en=plcAdd(st,(f.days||7)-1), gov=f.p==="results"?f.gov:null;
+    var full=null; for(var i=0;i<(f.days||7);i++){ var dk=plcAdd(st,i);
+      var over=f.p==="results"&&gov==null?(S.data.govs||[]).some(function(g){ return plcUsed("results",g.id,dk)>=plcCap("results") }):plcUsed(f.p,gov,dk)>=plcCap(f.p);
+      if(over){ full=dk; break } }
+    if(full){ if(m) m.textContent=GX("plcFullOn").replace("{d}",plcHuman(full)); return }
+    btn.disabled=true;
+    try{ var r=await rpc("bk_admin_placement_ad_save",{p_token:ADM.token,p_country:COUNTRY,p_id:null,p_placement:f.p,p_banner_no:f.p==="banner"?(f.bn||1):null,p_gov:gov,p_deal:f.p==="results"&&f.deal?f.deal:null,
+        p_label:null,p_sponsor:f.sponsor||null,p_url:f.url,p_media_type:f.mt||"image",p_link:f.link||null,p_starts:new Date(st+"T00:00:00").toISOString(),p_ends:new Date(en+"T23:59:59").toISOString(),
+        p_client:f.client||null,p_phone:f.phone||null,p_price:f.price===""||f.price==null?null:+f.price,p_paid:!!f.paid});
+      if(r&&r.error){ if(m) m.textContent=r.error==="full"?GX("plcFullOn").replace("{d}",plcHuman(r.day)):r.error; btn.disabled=false; return }
+      S.form=null; admToast(GX("plcBooked")); re() }
+    catch(e){ if(m) m.textContent=/bk_admin_placement_ad_save|schema cache|function/i.test(String(e&&e.message))?GX("plcAdSql"):(e.message||"error"); btn.disabled=false } };
   if($("#plcWOpen")) $("#plcWOpen").onclick=function(){ S.waitForm=true; render() };
   if($("#plcWClose")) $("#plcWClose").onclick=function(){ S.waitForm=false; render() };
   if($("#plcWSave")) $("#plcWSave").onclick=async function(){ var p=($("#plcWP")||{}).value;

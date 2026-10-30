@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-SehL9XCE4XLsitoIyU8b/Qho6epIGN84EyTw3TT8imM=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-fSA8sA3J71vYfahouIBYm9CE6jVelMPrNpH39VjYN7M=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -680,6 +680,15 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
 .gmapbtn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:8px;border:1px solid rgba(202,144,81,.6);color:var(--gold);font-weight:700;font-size:14px;text-decoration:none;white-space:nowrap}
 .gmapbtn:hover{background:rgba(202,144,81,.12)}
 @media (max-width:640px){ .gmapbtn{flex:1 1 100%;justify-content:center} }
+.res-ad{grid-column:1/-1;position:relative;display:block;border-radius:10px;overflow:hidden;border:1px solid rgba(202,144,81,.45);background:#0d1a33;width:100%;text-decoration:none}
+.res-ad img,.res-ad video{display:block;width:100%;height:auto;max-height:240px;object-fit:cover}
+.res-ad-tag{position:absolute;top:10px;inset-inline-start:10px;z-index:2;font-size:11px;font-weight:700;color:#fff;background:rgba(17,33,63,.78);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:2px 9px}
+.res-ad-cap{position:absolute;inset:auto 0 0 0;z-index:2;padding:26px 16px 12px;background:linear-gradient(180deg,transparent,rgba(9,14,26,.85));color:#fff;display:grid;gap:2px}
+.res-ad-cap b{font-size:17px}.res-ad-cap span{font-size:13px;opacity:.9}
+.adrep-h .adrep-k{color:var(--gold);font-weight:700;font-size:13px}.adrep-h h1{font-size:28px;margin:4px 0}.adrep-h p{color:var(--grey)}.adrep-h p b.on{color:var(--ok)}
+.adrep-kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0}.adrep-kpis div{border:1px solid var(--line);border-radius:12px;padding:16px}.adrep-kpis b{display:block;font-size:30px}.adrep-kpis span{color:var(--grey)}
+.adrep h2{font-size:18px;margin:8px 0 10px}.adrep-days{display:grid;gap:6px}.adrep-d{display:grid;grid-template-columns:56px 1fr 56px 44px;gap:10px;align-items:center;font-size:13px}
+.adrep-d i{display:block;height:10px;border-radius:5px;background:linear-gradient(90deg,var(--gold),#E3B57E);width:var(--w)}.adrep-d em{font-style:normal;color:var(--grey)}.adrep-note{color:var(--grey);font-size:12.5px;margin-top:16px}
 .done-acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:20px}.done-acts>button{flex:0 1 220px;min-width:0;height:46px;margin:0!important;padding:0 16px;white-space:nowrap}
 .mineBar .mstat{font-size:13px;color:var(--grey);padding:0 4px}
 .mineBar .st{margin-inline-end:auto}
@@ -6398,6 +6407,16 @@ function bannersConfig(){
     text_ar:"", text_en:"", text_de:"", link:""});
   return arr;
 }
+// the banners as visitors see them: the Studio's settings, with any banner that has bookings running showing those bookings
+// (kept apart from bannersConfig(), which the Studio edits and saves — booked items must never be written into it)
+function bannersLive(){ var arr=bannersConfig().map(function(c){ return Object.assign({},c) }), paid={};
+  (PLACEMENTS.banner||[]).forEach(function(b){ var i=(+b.banner_no||0)-1; if(i<0||i>2||!arr[i]||!b.url) return; (paid[i]=paid[i]||[]).push({type:b.type==="video"?"video":"image",url:b.url,link:b.link||"",slot:b.id}) });
+  var keys=Object.keys(paid); keys.forEach(function(i){ arr[i].items=paid[i]; arr[i].enabled=true });
+  // with bookings running, the banners showing are laid out side by side on a computer and stacked on a phone, so two never cover each other
+  var on=arr.map(function(c,i){ return c.enabled&&c.items.length?i:-1 }).filter(function(i){ return i>=0 });
+  if(keys.length && on.length>1){ var y=0; on.forEach(function(i,k){ var c=arr[i], gap=c.gap!=null?c.gap:14, dm=bannerDims(c,true), wm=Math.min(dm.w,362);
+    c.hPosition=Math.round(100*k/(on.length-1)); c.vOffset=0; c.hPositionM=50; c.vOffsetM=y; y+=Math.round(wm*dm.h/dm.w)+gap }) }
+  return arr }
 function bannerItemsLegacy(){
   try{
     var arr = JSON.parse(SITE.banner_items||"[]");
@@ -6444,8 +6463,9 @@ function bannerCoreHtml(cfg, bIdx){
     // any item that doesn't have its own set yet, so a banner
     // configured before this existed keeps working exactly as before
     var itLink = esc(safeUrl(String(it.link || cfg.link || "")));
-    return (itLink ? '<a href="'+itLink+'" target="_blank" rel="noopener" class="topbanner-item'+(i===0?" on":"")+'" data-idx="'+i+'">'+mediaHtml+'</a>'
-                    : '<div class="topbanner-item'+(i===0?" on":"")+'" data-idx="'+i+'">'+mediaHtml+'</div>');
+    var adid=it.slot?' data-adid="'+(+it.slot)+'"':'';
+    return (itLink ? '<a href="'+itLink+'" target="_blank" rel="noopener" class="topbanner-item'+(i===0?" on":"")+'" data-idx="'+i+'"'+adid+'>'+mediaHtml+'</a>'
+                    : '<div class="topbanner-item'+(i===0?" on":"")+'" data-idx="'+i+'"'+adid+'>'+mediaHtml+'</div>');
   }).join("");
   var size = bannerDims(cfg,false), sizeM = bannerDims(cfg,true);
   var hPos = cfg.hPosition!=null ? cfg.hPosition : 50, hPosM = cfg.hPositionM!=null ? cfg.hPositionM : hPos;
@@ -6463,7 +6483,7 @@ function topBannerCoreRowHtml(){
   // top of each other if that's genuinely what's wanted, rather than
   // being squeezed into equal columns that leave barely any room to
   // actually move within.
-  var banners = bannersConfig();
+  var banners = bannersLive();
   var html = banners.map(function(cfg,i){ return bannerCoreHtml(cfg,i) }).join("");
   if(!html) return "";
   // since every banner is now absolutely positioned, none of them
@@ -6808,7 +6828,7 @@ function search(){
       '<button type="button" class="'+(VIEWMODE==="list"?"on":"")+'" id="vmList" title="'+t("listView")+'">'+ICON_LIST+'<span>'+t("listView")+'</span></button></div>'+
       rsSortHtml("sort")+
       '<button type="button" class="rs-maptg'+(mapOn?' on':'')+'" id="rsMapToggle">'+MI.map+'<span>'+(mapOn?GX("rsHideMap"):GX("rsShowMap"))+'</span>'+newTag()+'</button></div></div>'+
-    '<div class="res'+(VIEWMODE==="list"?" list-view":"")+(srvWait&&pageItems.length?" srv-wait":"")+'">'+(pageItems.length?pageItems.map(function(x,i){return card(x,i,VIEWMODE==="list")}).join(""):
+    '<div class="res'+(VIEWMODE==="list"?" list-view":"")+(srvWait&&pageItems.length?" srv-wait":"")+'">'+(pageItems.length?resCardsWithAds(pageItems):
      (!LISTINGS_LOADED||srvWait) ? '<div class="resempty"><b>'+t("loading")+'</b></div>' :
      '<div class="resempty">'+LICON.search+'<b>'+t("none")+'</b><span>'+t("none2")+'</span></div>')+'</div>'+
     (pageItems.length||!LISTINGS_LOADED||srvWait ? '' : searchAlternatives())+
@@ -6967,6 +6987,23 @@ function rsWire(opts){
   $$(".res .card[data-open]").forEach(function(cd){ cd.addEventListener("mouseenter",function(){ var m=RS.pins[cd.dataset.open]; if(m&&m._icon){ m._icon.classList.add("on"); m.setZIndexOffset(1000) } }); cd.addEventListener("mouseleave",function(){ var m=RS.pins[cd.dataset.open]; if(m&&m._icon){ m._icon.classList.remove("on"); m.setZIndexOffset(0) } }) });
   if(!(opts&&opts.map) && rsMapOn() && window.innerWidth>=1100) setTimeout(rsMapInit,60); else rsMapStop();
 }
+// a booked results banner after every 8th card: one that targets the searched governorate (or every governorate) and the
+// searched deal (or both deals); several bookings take turns down the page; nothing is shown in a short result list
+function resAdsFor(){ var govNames=(F.govs&&F.govs.length)?F.govs:(F.g?[F.g]:[]), ids=govNames.map(function(n){ return GEO_META&&GEO_META.govId?GEO_META.govId[n]:null }).filter(function(x){ return x!=null });
+  return (PLACEMENTS.results||[]).filter(function(a){ if(a.deal&&a.deal!==F.deal) return false; if(a.gov==null) return true; return ids.length===1&&+ids[0]===+a.gov }) }
+function resAdHtml(a){ var u=esc(safeUrl(String(a.url||""))), link=esc(safeUrl(String(a.link||"")));
+  var media=a.type==="video"?'<video src="'+u+'" autoplay muted loop playsinline></video>':'<img src="'+u+'" alt="'+esc(a.sponsor||a.label||"")+'" loading="lazy">';
+  var cap=(a.top||a.bottom||a.sponsor)?'<span class="res-ad-cap">'+(a.top?'<b>'+esc(a.top)+'</b>':'')+(a.bottom?'<span>'+esc(a.bottom)+'</span>':'')+(!a.top&&!a.bottom&&a.sponsor?'<span>'+esc(a.sponsor)+'</span>':'')+'</span>':'';
+  var inner='<span class="res-ad-tag">'+esc(GX("sponsored"))+'</span>'+media+cap;
+  return link?'<a class="res-ad" href="'+link+'" target="_blank" rel="noopener sponsored" data-adid="'+(+a.id)+'">'+inner+'</a>':'<div class="res-ad" data-adid="'+(+a.id)+'">'+inner+'</div>' }
+function resCardsWithAds(items){ var ads=items.length>=8?resAdsFor():[], k=0, out="";
+  items.forEach(function(x,i){ out+=card(x,i,VIEWMODE==="list"); if(ads.length && (i+1)%8===0 && (i+1<items.length||!k)){ out+=resAdHtml(ads[k%ads.length]); k++ } });
+  return out }
+// a booked banner counts a view once per page it is seen on (squares log their own views)
+(function(){ if(!("IntersectionObserver" in window)) return; var seen={}, lastView=null;
+  var io=new IntersectionObserver(function(es){ var ev=[]; es.forEach(function(en){ if(!en.isIntersecting) return; var id=en.target.dataset.adid, k=VIEW+"|"+id; io.unobserve(en.target); if(seen[k]) return; seen[k]=1; ev.push({slot:id,kind:"view",page:VIEW.split(":")[0]}) }); if(ev.length) logAds(ev) },{threshold:.5});
+  var scan=function(){ if(VIEW!==lastView){ lastView=VIEW } document.querySelectorAll(".topbanner-item[data-adid], .res-ad[data-adid]").forEach(function(el){ if(!el._adObs){ el._adObs=1; io.observe(el) } }) };
+  var app=document.getElementById("app")||document.body, t=null; new MutationObserver(function(){ clearTimeout(t); t=setTimeout(scan,300) }).observe(app,{childList:true,subtree:true}); setTimeout(scan,1500) })();
 // when a search finds nothing: the same search anywhere in the country, or failing that the newest listings
 function searchAlternatives(){
   var saved=F, alt=[], title="";
@@ -7610,6 +7647,27 @@ var CU={sent:false,msg:""};
 // one-click, no-login email unsubscribe for the contacts/campaigns marketing feature — a plain consent
 // flip via bk_contact_unsub, same "fires once per token, re-render on result" shape as loadAgency() etc.
 var UNSUB={tok:null, result:null};
+var ADREP={t:null,data:null,err:null};
+var ADREP_T={h:{ar:"تقرير إعلانك",en:"Your ad report",de:"Ihr Anzeigenbericht"}, views:{ar:"مشاهدة",en:"views",de:"Aufrufe"}, clicks:{ar:"ضغطة",en:"clicks",de:"Klicks"},
+  contacts:{ar:"تواصل",en:"contacts",de:"Kontakte"}, from:{ar:"من",en:"from",de:"vom"}, to:{ar:"إلى",en:"to",de:"bis"}, running:{ar:"يعمل الآن",en:"running now",de:"läuft"},
+  ended:{ar:"انتهى",en:"ended",de:"beendet"}, none:{ar:"لم نجد هذا التقرير. تأكد من الرابط.",en:"This report was not found. Check the link.",de:"Bericht nicht gefunden. Link prüfen."},
+  daily:{ar:"يوماً بيوم",en:"Day by day",de:"Tag für Tag"}, note:{ar:"الأرقام من عدّادات بلكون، وتتحدث تلقائياً.",en:"Numbers come from Balkoun's counters and update automatically.",de:"Zahlen aus Balkouns Zählern, automatisch aktualisiert."},
+  featured:{ar:"تمييز في أول النتائج",en:"Featured at the top of results",de:"Oben in den Ergebnissen"}, square:{ar:"مربع في الصفحة الرئيسية",en:"Home-page square",de:"Quadrat auf der Startseite"},
+  banner:{ar:"بانر الصفحة الرئيسية",en:"Home-page banner",de:"Startseiten-Banner"}, results:{ar:"بانر بين نتائج البحث",en:"Banner between search results",de:"Banner zwischen Suchergebnissen"}};
+function adRepT(k){ var o=ADREP_T[k]||{}; return o[L]||o.en||o.ar||k }
+function adReportPage(token){
+  if(ADREP.t!==token){ ADREP={t:token,data:null,err:null}; if(DB) DB.rpc("bk_public_booking_report",{p_t:token}).then(function(r){ if(r&&r.data&&!r.data.error) ADREP.data=r.data; else ADREP.err="none"; render() },function(){ ADREP.err="none"; render() }) }
+  var wrap=function(x){ return '<div class="wrap adrep" style="max-width:820px;padding:30px 18px 70px">'+x+'</div>' };
+  if(ADREP.err) return wrap('<div class="done2"><b>'+adRepT("none")+'</b></div>');
+  var d=ADREP.data; if(!d) return wrap('<div class="done2"><b>'+t("loading")+'</b></div>');
+  var days=d.days||[], tv=0, tc=0, mx=1; days.forEach(function(x){ tv+=+x.views||0; tc+=+x.clicks||0; mx=Math.max(mx,+x.views||0) });
+  var isF=d.placement==="featured", until=d.until&&!/infinity/i.test(String(d.until))?new Date(d.until):null, live=!until||until>new Date();
+  var fmt=function(v){ try{ return new Date(v).toLocaleDateString(L==="ar"?"ar-SY":L,{day:"numeric",month:"long",year:"numeric"}) }catch(e){ return String(v).slice(0,10) } };
+  return wrap('<div class="adrep-h"><span class="adrep-k">'+adRepT(d.placement||"square")+(d.gov?' · '+esc(d.gov):'')+'</span><h1>'+esc(d.title||d.client||adRepT("h"))+'</h1>'+
+    '<p>'+adRepT("from")+' '+fmt(d.starts_at)+(until?' '+adRepT("to")+' '+fmt(until):'')+' · <b class="'+(live?"on":"off")+'">'+adRepT(live?"running":"ended")+'</b></p></div>'+
+    '<div class="adrep-kpis"><div><b class="ltr">'+tv.toLocaleString("en")+'</b><span>'+adRepT("views")+'</span></div><div><b class="ltr">'+tc.toLocaleString("en")+'</b><span>'+adRepT(isF?"contacts":"clicks")+'</span></div></div>'+
+    '<h2>'+adRepT("daily")+'</h2><div class="adrep-days">'+days.map(function(x){ return '<div class="adrep-d"><span class="ltr">'+String(x.day).slice(5)+'</span><i style="--w:'+Math.round(100*(+x.views||0)/mx)+'%"></i><b class="ltr">'+(+x.views||0)+'</b><em class="ltr">'+(+x.clicks||0)+'</em></div>' }).join("")+'</div>'+
+    '<p class="adrep-note">'+adRepT("note")+'</p>') }
 function unsubPage(token){
   if(UNSUB.tok!==token){ UNSUB.tok=token; UNSUB.result=null;
     DB.rpc("bk_contact_unsub",{p_token:token}).then(function(raw){ UNSUB.result=(raw&&raw.data)||{error:"failed"}; render() }); }
@@ -11718,7 +11776,11 @@ function startAdminAlertsPolling(){
 function stopAdminAlertsPolling(){
   if(_adminAlertsPollTimer){ clearInterval(_adminAlertsPollTimer); _adminAlertsPollTimer=null; }
 }
+// «الأماكن الإعلانية» (2026-10-30): home banners and banners between search results booked from the panel's calendar
+var PLACEMENTS={banner:[],results:[]};
+async function loadPlacements(){ if(!DB) return; try{ var r=await DB.rpc("bk_public_placements",{p_country:COUNTRY}); if(r&&r.data) PLACEMENTS={banner:r.data.banner||[],results:r.data.results||[]} }catch(e){} }
 async function loadAdSlots(){
+  loadPlacements();
   if(!DB) return;
   try{
     var r = await DB.rpc("bk_public_ad_slots",cArgs());
@@ -12395,6 +12457,7 @@ function viewFromHash(){
   if(p[0]==="project"&&p[1]) return "project:"+(p[1].match(/^\d+/)||[p[1]])[0];
   if(p[0]==="wanted"&&p[1]) return "wanted:"+(p[1].match(/^\d+/)||[p[1]])[0];
   if(p[0]==="unsub"&&p[1]) return "unsub:"+p[1];
+  if(p[0]==="ad-report"&&p[1]) return "adreport:"+p[1];
   if(p[0]==="regions") return "areas";
   if(p[0]==="post-by-message") return "postmsg";
   // balkoun.com/#/signup (posters, QR codes): the home page with the sign-up form already open
@@ -12548,7 +12611,7 @@ function logAds(events){
   });
 }
 if(!window._adClickLog){ window._adClickLog=true;
-  document.addEventListener("click",function(e){ var a=e.target.closest&&e.target.closest(".adsec .adslot[data-adid]"); if(a) logAds([{slot:a.dataset.adid,kind:"click",page:VIEW.split(":")[0]}]) },true);
+  document.addEventListener("click",function(e){ var a=e.target.closest&&e.target.closest(".adsec .adslot[data-adid], .topbanner-item[data-adid], .res-ad[data-adid]"); if(a) logAds([{slot:a.dataset.adid,kind:"click",page:VIEW.split(":")[0]}]) },true);
 }
 var _lastRenderedView = null;
 function fabCheck(){ var f=document.querySelector(".mobfab"); if(!f) return; var foot=document.querySelector("footer"), hide=false; if(foot){ var r=foot.getBoundingClientRect(); if(r.top < window.innerHeight-60) hide=true } document.body.classList.toggle("fab-hide",hide) }
@@ -12583,7 +12646,7 @@ function render(){
  if(VIEW!==_lastRenderedView){ _lastRenderedView=VIEW; refreshListingsOnNavigate(); }
  document.documentElement.lang=L; document.documentElement.dir=D.I18N[L].dir; document.documentElement.setAttribute("data-cc",COUNTRY||"SY");
  var body= VIEW==="home"?home(): VIEW==="search"?search(): VIEW==="post"?post():
-          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="privacy"?legalPage("privacy"): VIEW==="terms"?legalPage("terms"): VIEW==="areas"?areasView(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="postmsg"?postMsgPage(): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW.indexOf("unsub:")===0?unsubPage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): VIEW==="help"?helpPage(): VIEW==="app"?appPage(): listing(VIEW.split(":")[1]);
+          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="privacy"?legalPage("privacy"): VIEW==="terms"?legalPage("terms"): VIEW==="areas"?areasView(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="postmsg"?postMsgPage(): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW.indexOf("unsub:")===0?unsubPage(VIEW.split(":")[1]): VIEW.indexOf("adreport:")===0?adReportPage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): VIEW==="help"?helpPage(): VIEW==="app"?appPage(): listing(VIEW.split(":")[1]);
  document.body.classList.remove("mdw-open");
  (function(){ var html=header()+body+footer()+authModal()+reportModal()+inquiryModal(), app=$("#app");
    // the home page is re-rendered several times while data arrives (cache → listings → settings): patch the DOM in place so
@@ -12716,7 +12779,7 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
   var S={
     ads:function(){ return adsInHero ? "" : adSlotsRow() },
     feat:function(){ return SX("home_feat_on",false)===true ? homeFeaturedHtml() : "" },   // off by default: featured listings ride in the ad squares; this full-card section is an option in the studio
-    banners:function(){ return HSON("banners") && SX("banners_slot","flow")!=="top" ? bannerAboveHtml : "" },
+    banners:function(){ return (HSON("banners")||(PLACEMENTS.banner||[]).length) && SX("banners_slot","flow")!=="top" ? bannerAboveHtml : "" },   // a booked banner shows even while the Studio keeps the strip hidden
     ticker:function(){ return HSON("ticker") ? marketTickerHtml() : "" },
     projects:function(){ return homeProjectsHtml() },
     wanted:function(){ return homeWantedHtml() },
