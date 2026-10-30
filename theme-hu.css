@@ -1564,3 +1564,15 @@ html body .hero-outer.hu .hero h1:not([style*="color"]){color:#fff}
    placed arrow to the button for that moment: the arrow jumped ~13px and back (owner 2026-10-30). The bar's other fields are not
    buttons and never shrink, so the price field doesn't either */
 html body .hero-outer.hu .sf .pricetrig,html body .hero-outer.hu .sf .pricetrig:active,html body .hero-outer.hu .sf .pricetrig:hover,html body .hero-outer.hu .sf .pricetrig:focus{transform:none!important}
+
+/* the home bar's Furnished field (rent) in the same size and place as the other fields (owner 2026-10-30): name 10px grey on top,
+   the choice 12px/600 navy under it, centred in the space between the arrow and the edge; the native select covers the box unseen */
+html body .hero-outer.hu .sf.sf-furn{position:relative;display:flex;align-items:center}
+html body .hero-outer.hu .sf.sf-furn .ph[data-all]{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;gap:4px;margin-inline-end:27px;margin-inline-start:1px;color:#6B7484;font-size:10px;font-weight:400;line-height:10px;letter-spacing:-.12px;pointer-events:none;white-space:nowrap}
+html body .hero-outer.hu .sf.sf-furn .ph[data-all]::after{content:attr(data-all);color:var(--navy);font-size:12px;font-weight:600;line-height:14px}
+html body .hero-outer.hu .sf.sf-furn select{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;opacity:0!important;cursor:pointer;margin:0!important;padding:0!important;border:0!important;font-size:16px}
+html body .hero-outer.hu .sf.sf-furn:focus-within{outline:2px solid var(--gold);outline-offset:-2px}
+html body .hero-outer.hu .sf.sf-furn{flex-direction:row!important;justify-content:center!important}
+html body .hero-outer.hu .sf.sf-furn .chev{position:absolute!important;inset-inline-end:10px!important;inset-inline-start:auto!important;top:50%!important;margin:-7px 0 0!important;transform:none;pointer-events:none}
+/* the neighbours' arrows sit right after the box's inline padding (12px from 1401px up, 10px below) */
+@media (min-width:1401px){ html body .hero-outer.hu .sf.sf-furn .chev{inset-inline-end:12px!important} }
