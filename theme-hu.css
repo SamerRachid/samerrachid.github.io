@@ -1377,3 +1377,5 @@ html body .res-ad.full{position:relative;padding:0;min-height:320px}   /* beside
 html body .res .card.c2.res-ad.full .ph{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;aspect-ratio:auto!important}
 html body .res .card.c2.res-ad.full .ph img,html body .res .card.c2.res-ad.full .ph video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;aspect-ratio:auto!important;object-fit:cover}
 html body .res.list-view .res-ad.full{aspect-ratio:auto;min-height:260px}
+/* phones: on the search page the WhatsApp bubble sits above the filters / map / sort bar instead of over its last button (2026-10-30) */
+@media (max-width:900px){ html body .wa-fab.wa-up{bottom:calc(86px + env(safe-area-inset-bottom))} }
