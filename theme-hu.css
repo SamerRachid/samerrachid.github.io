@@ -1161,8 +1161,8 @@ body.hu-opening .hero-outer.hu .sbar,body.hu-opening .hero-outer.hu .srow,body.h
 body.hu-opening header.choreo-hdr{animation-name:huHdrIn!important;animation-duration:1s!important;animation-timing-function:ease-out!important;animation-fill-mode:both!important}
 body.hu-opening .hero-outer.hu .sbar.choreo{animation-name:huFadeUp!important;animation-duration:1s!important;animation-timing-function:ease-out!important;animation-fill-mode:both!important}
 body.hu-opening .hero-outer.hu .hero h1.choreo-slide{animation-name:huFadeUp!important;animation-duration:1s!important;animation-timing-function:ease-out!important;animation-fill-mode:both!important}
-body.hu-opening .hero-outer.hu .aisearch{animation:huFadeUp 1s ease-out both!important;animation-delay:calc(var(--hu-base,0ms) + 500ms)!important}
-body.hu-opening .hero-outer.hu .stabs{animation:huFadeUp 1s ease-out both!important;animation-delay:calc(var(--hu-base,0ms) + 300ms)!important}
+body.hu-opening .hero-outer.hu .aisearch{animation:huFadeUp 1s ease-out both!important;animation-delay:calc(var(--hu-base,0ms) + 700ms)!important}
+body.hu-opening .hero-outer.hu .stabs{animation:huFadeUp 1s ease-out both!important;animation-delay:calc(var(--hu-base,0ms) + 100ms)!important}
 
 /* 2026-10-29 owner (desktop): "only the headline moves on opening". The header and bar entrances ran while the curtain was still
    covering them (it faded 1.45-2.05s). The curtain now fades right after the word lifts and the entrances start once it is gone. */
@@ -1224,3 +1224,5 @@ html body .rs-chipclr:hover{color:var(--gold)!important}
 /* 2026-10-30 (owner): the hero's «ابحث» rose 2px on hover and showed the white search row under it; it stays in place and only
    lightens a little, in the theme's own gold (the old #D6952A orange belonged to the previous look) */
 html body .hero-outer.hu .srow .sgo:hover,html body .hero-outer.hu .srow .sgo:active{transform:none!important;background:#D49C5E!important}
+/* the opening: the whole search bar rises as one (tabs and search row together), the AI bar under it follows (2026-10-30) */
+body.hu-opening .hero-outer.hu .sbar.choreo .stabs{animation:none!important}
