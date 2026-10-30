@@ -165,6 +165,135 @@ function stubPage(l, photos, ogPath) {
 <body><div><p>${esc(title)}</p><a href="${url}">فتح الإعلان</a></div>
 <script>location.replace(${JSON.stringify(app)}+location.search+"#/listing/${l.id}")</script></body></html>`;
 }
+// ── what makes each listing page its own (2026-10-29): Search Console showed 1,188 pages "discovered, not indexed" and
+// 174 "crawled, not indexed" — the pages were ~63 words, nearly alike, and linked to nothing but the home page.
+// Each page now carries a plain-language summary, a section about its area built from the live data (how many
+// listings, the asking price per m² or the rent for the same type there, and where this one sits against it),
+// a breadcrumb up to its governorate and area pages, and links to similar listings — all computed, nothing invented.
+const LAND = new Set(["resid", "agri", "comm", "land", "plot", "farm", "tourist", "indust"]);
+let GROUPS = { area: new Map(), gov: new Map() };
+const median = (a) => { if (!a.length) return null; const b = a.slice().sort((x, y) => x - y), m = b.length >> 1; return b.length % 2 ? b[m] : (b[m - 1] + b[m]) / 2; };
+const ppm = (l) => (has(l.price_usd) && Number(l.area_m2) > 0) ? Number(l.price_usd) / Number(l.area_m2) : null;
+function indexListings(listings) {
+  GROUPS = { area: new Map(), gov: new Map() };
+  const put = (m, k, l) => (m.get(k) || m.set(k, []).get(k)).push(l);
+  for (const l of listings) { const c = l.country_code || "SY"; if (l.area_id) put(GROUPS.area, `${c}|${l.deal}|${l.area_id}`, l); if (l.governorate_id) put(GROUPS.gov, `${c}|${l.deal}|${l.governorate_id}`, l); }
+}
+// same type, same deal: the area if it has 3+ priced comparables, else the governorate; rent compares only the same period
+function marketFor(l) {
+  const c = l.country_code || "SY", same = (o) => o.id !== l.id && o.property_type === l.property_type && (l.deal !== "rent" || (o.rental_period || "") === (l.rental_period || ""));
+  const val = l.deal === "rent" ? (o) => (has(o.price_usd) ? Number(o.price_usd) : null) : ppm;
+  for (const [scope, key] of [["area", `${c}|${l.deal}|${l.area_id}`], ["gov", `${c}|${l.deal}|${l.governorate_id}`]]) {
+    const vals = (GROUPS[scope].get(key) || []).filter(same).map(val).filter((v) => v != null && v > 0);
+    if (vals.length >= 3) return { scope, n: vals.length, med: median(vals), mine: val(l) };
+  }
+  return null;
+}
+function similarFor(l, max) {
+  const c = l.country_code || "SY", seen = new Set([l.id]), out = [];
+  const take = (arr) => { for (const o of arr) { if (out.length >= max) return; if (seen.has(o.id)) continue; seen.add(o.id); out.push(o); } };
+  const area = GROUPS.area.get(`${c}|${l.deal}|${l.area_id}`) || [], gov = GROUPS.gov.get(`${c}|${l.deal}|${l.governorate_id}`) || [];
+  take(area.filter((o) => o.property_type === l.property_type)); take(area);
+  take(gov.filter((o) => o.property_type === l.property_type)); take(gov.filter((o) => LAND.has(o.property_type) === LAND.has(l.property_type)));
+  return out;
+}
+const fmtUsd = (v) => "$" + Math.round(v).toLocaleString("en");
+const X = {
+  ar: { aboutArea: "عن المنطقة", similar: "إعلانات مشابهة", seeArea: (d, a) => `كل العقارات ${d} في ${a}`, seeGov: (d, g) => `كل العقارات ${d} في محافظة ${g}`,
+    count: (d, a, n, g, gn) => `عدد العقارات المعروضة ${d} على بلكون في ${a} الآن: ${n}، وفي محافظة ${g} كلها: ${gn}.`,
+    countGov: (d, g, gn) => `عدد العقارات المعروضة ${d} على بلكون في محافظة ${g} الآن: ${gn}.`,
+    mixLead: "أكثر الأنواع المعروضة هناك:",
+    ppmLine: (t, d, sc, v, n) => `متوسط السعر المطلوب للمتر في إعلانات «${t}» ${d} في ${sc}: ${v} للمتر المربع، حسب الإعلانات التي فيها سعر ومساحة (عددها ${n}).`,
+    rentLine: (t, sc, v, per, n) => `متوسط الإيجار المطلوب لإعلانات «${t}» في ${sc}: ${v}${per ? " " + per : ""}، حسب الإعلانات المشابهة (عددها ${n}).`,
+    mineAbove: (v, pct) => `سعر هذا العقار ${v}، أي أعلى من المتوسط بنحو ${pct}٪.`, mineBelow: (v, pct) => `سعر هذا العقار ${v}، أي أقل من المتوسط بنحو ${pct}٪.`, mineNear: (v) => `سعر هذا العقار ${v}، قريب من المتوسط.`,
+    perM2: "للمتر", perP: { yearly: "في السنة", monthly: "في الشهر", weekly: "في الأسبوع", daily: "في اليوم" }, inGov: (g) => `محافظة ${g}`,
+    sum: { size: (v) => `بمساحة ${v} م²`, rooms: (v) => `عدد الغرف ${v}`, baths: (v) => `عدد الحمّامات ${v}`, floor: (v) => `في الطابق ${v}`, ground: "في الطابق الأرضي", built: (v) => `بُني سنة ${v}`, deed: (v) => `نوع الملكية: ${v}`, price: (v) => `السعر المطلوب ${v}`, ppm: (v) => `أي نحو ${v} للمتر المربع`, owner: "معروض من المالك مباشرة بلا عمولة", neg: "والسعر قابل للتفاوض" },
+    note: "الأرقام محسوبة تلقائياً من الإعلانات المعروضة على بلكون اليوم، وهي أسعار مطلوبة لا أسعار بيع نهائية." },
+  en: { aboutArea: "About the area", similar: "Similar listings", seeArea: (d, a) => `All properties ${d} in ${a}`, seeGov: (d, g) => `All properties ${d} in ${g} governorate`,
+    count: (d, a, n, g, gn) => `Properties ${d} on Balkoun in ${a} right now: ${n}; across ${g} governorate: ${gn}.`,
+    countGov: (d, g, gn) => `Properties ${d} on Balkoun across ${g} governorate right now: ${gn}.`,
+    mixLead: "Most listed types there:",
+    ppmLine: (t, d, sc, v, n) => `Average asking price for ${t} ${d} in ${sc}: ${v} per m², from ${n} listings with a price and a size.`,
+    rentLine: (t, sc, v, per, n) => `Average asking rent for ${t} in ${sc}: ${v}${per ? " " + per : ""}, from ${n} listings.`,
+    mineAbove: (v, pct) => `This property asks ${v}, about ${pct}% above that average.`, mineBelow: (v, pct) => `This property asks ${v}, about ${pct}% below that average.`, mineNear: (v) => `This property asks ${v}, close to that average.`,
+    perM2: "per m²", perP: { yearly: "per year", monthly: "per month", weekly: "per week", daily: "per day" }, inGov: (g) => `${g} governorate`,
+    sum: { size: (v) => `${v} m²`, rooms: (v) => `${v} rooms`, baths: (v) => `${v} bathrooms`, floor: (v) => `on floor ${v}`, ground: "on the ground floor", built: (v) => `built in ${v}`, deed: (v) => `title: ${v}`, price: (v) => `asking ${v}`, ppm: (v) => `about ${v} per m²`, owner: "offered directly by the owner, no commission", neg: "price negotiable" },
+    note: "Figures are computed automatically from the listings live on Balkoun today; they are asking prices, not final sale prices." },
+  de: { aboutArea: "Über die Lage", similar: "Ähnliche Anzeigen", seeArea: (d, a) => `Alle Immobilien ${d} in ${a}`, seeGov: (d, g) => `Alle Immobilien ${d} im Gouvernement ${g}`,
+    count: (d, a, n, g, gn) => `Immobilien ${d} auf Balkoun in ${a} derzeit: ${n}; im ganzen Gouvernement ${g}: ${gn}.`,
+    countGov: (d, g, gn) => `Immobilien ${d} auf Balkoun im Gouvernement ${g} derzeit: ${gn}.`,
+    mixLead: "Am häufigsten angeboten:",
+    ppmLine: (t, d, sc, v, n) => `Durchschnittlicher Angebotspreis für ${t} ${d} in ${sc}: ${v} pro m², aus ${n} Anzeigen mit Preis und Fläche.`,
+    rentLine: (t, sc, v, per, n) => `Durchschnittliche Angebotsmiete für ${t} in ${sc}: ${v}${per ? " " + per : ""}, aus ${n} Anzeigen.`,
+    mineAbove: (v, pct) => `Diese Immobilie: ${v}, etwa ${pct} % über dem Durchschnitt.`, mineBelow: (v, pct) => `Diese Immobilie: ${v}, etwa ${pct} % unter dem Durchschnitt.`, mineNear: (v) => `Diese Immobilie: ${v}, nahe am Durchschnitt.`,
+    perM2: "pro m²", perP: { yearly: "pro Jahr", monthly: "pro Monat", weekly: "pro Woche", daily: "pro Tag" }, inGov: (g) => `Gouvernement ${g}`,
+    sum: { size: (v) => `${v} m²`, rooms: (v) => `${v} Zimmer`, baths: (v) => `${v} Bäder`, floor: (v) => `${v}. Etage`, ground: "Erdgeschoss", built: (v) => `Baujahr ${v}`, deed: (v) => `Eigentum: ${v}`, price: (v) => `Preis ${v}`, ppm: (v) => `etwa ${v} pro m²`, owner: "direkt vom Eigentümer, ohne Provision", neg: "Preis verhandelbar" },
+    note: "Die Zahlen werden automatisch aus den heute auf Balkoun aktiven Anzeigen berechnet; es sind Angebotspreise, keine Verkaufspreise." },
+  fr: { aboutArea: "À propos du quartier", similar: "Annonces similaires", seeArea: (d, a) => `Tous les biens ${d} à ${a}`, seeGov: (d, g) => `Tous les biens ${d} dans le gouvernorat de ${g}`,
+    count: (d, a, n, g, gn) => `Biens ${d} sur Balkoun à ${a} actuellement : ${n} ; dans tout le gouvernorat de ${g} : ${gn}.`,
+    countGov: (d, g, gn) => `Biens ${d} sur Balkoun dans le gouvernorat de ${g} actuellement : ${gn}.`,
+    mixLead: "Types les plus proposés :",
+    ppmLine: (t, d, sc, v, n) => `Prix moyen demandé pour ${t} ${d} à ${sc} : ${v} le m², sur ${n} annonces avec prix et surface.`,
+    rentLine: (t, sc, v, per, n) => `Loyer moyen demandé pour ${t} à ${sc} : ${v}${per ? " " + per : ""}, sur ${n} annonces.`,
+    mineAbove: (v, pct) => `Ce bien : ${v}, environ ${pct} % au-dessus de la moyenne.`, mineBelow: (v, pct) => `Ce bien : ${v}, environ ${pct} % en dessous de la moyenne.`, mineNear: (v) => `Ce bien : ${v}, proche de la moyenne.`,
+    perM2: "le m²", perP: { yearly: "par an", monthly: "par mois", weekly: "par semaine", daily: "par jour" }, inGov: (g) => `gouvernorat de ${g}`,
+    sum: { size: (v) => `${v} m²`, rooms: (v) => `${v} pièces`, baths: (v) => `${v} salles de bain`, floor: (v) => `au ${v}e étage`, ground: "au rez-de-chaussée", built: (v) => `construit en ${v}`, deed: (v) => `titre : ${v}`, price: (v) => `prix demandé ${v}`, ppm: (v) => `environ ${v} le m²`, owner: "proposé directement par le propriétaire, sans commission", neg: "prix négociable" },
+    note: "Chiffres calculés automatiquement à partir des annonces en ligne sur Balkoun aujourd'hui ; ce sont des prix demandés, pas des prix de vente." },
+};
+const govSlug = (l) => { const g = govById.get(l.governorate_id); return g && g.slug && g.enabled !== false && !g.merged_into ? g.slug : null; };
+const areaSlug = (l) => { const a = areaById.get(l.area_id); return a && a.slug && a.enabled !== false ? a.slug : null; };   // a merged-away area (disabled) has no page
+const dealSlug = (l) => (l.deal === "rent" ? "for-rent" : "for-sale");
+const govPageUrl = (l, lang) => govSlug(l) ? `${SITE}${CUR_PRE}${LANGS[lang].prefix}/${dealSlug(l)}/${govSlug(l)}/` : null;
+const areaPageUrl = (l, lang) => govSlug(l) && areaSlug(l) ? `${SITE}${CUR_PRE}${LANGS[lang].prefix}/${dealSlug(l)}/${govSlug(l)}/${areaSlug(l)}/` : null;
+function summaryLine(l, lang, typeLabel, dealLabel, place, tabuLabel) {
+  const Z = X[lang].sum, W = S[lang], bits = [];
+  if (has(l.area_m2)) bits.push(Z.size(ltr(l.area_m2)));
+  if (has(l.rooms) && Number(l.rooms) > 0) bits.push(Z.rooms(ltr(l.rooms)));
+  if (has(l.baths) && Number(l.baths) > 0) bits.push(Z.baths(ltr(l.baths)));
+  if (has(l.floor)) bits.push(Number(l.floor) === 0 ? Z.ground : Z.floor(ltr(l.floor)));
+  if (has(l.year_built)) bits.push(Z.built(ltr(l.year_built)));
+  if (tabuLabel && l.deal !== "rent") bits.push(Z.deed(esc(tabuLabel)));
+  if (has(l.price_usd)) { bits.push(Z.price(ltr(moneyL(l, lang)))); const v = ppm(l); if (v && l.deal !== "rent") bits.push(Z.ppm(ltr(fmtUsd(v)))); }
+  if (l.by_owner) bits.push(Z.owner);
+  if (l.price_negotiable) bits.push(Z.neg);
+  const sep = lang === "ar" ? "، " : ", ", head = `${esc(typeLabel)} ${esc(dealLabel)}${place ? " " + esc(W.inPlace(place)) : ""}`;
+  return `<p class="sum">${head}${bits.length ? sep + bits.join(sep) : ""}.</p>`;
+}
+function areaSection(l, lang, typeLabel, dealLabel, areaName, gov) {
+  const Z = X[lang], c = l.country_code || "SY", sep = lang === "ar" ? "، " : ", ";
+  const inArea = l.area_id ? (GROUPS.area.get(`${c}|${l.deal}|${l.area_id}`) || []) : [], inGov = GROUPS.gov.get(`${c}|${l.deal}|${l.governorate_id}`) || [];
+  const ps = [];
+  ps.push(areaName && inArea.length ? Z.count(esc(dealLabel), esc(areaName), ltr(inArea.length), esc(gov), ltr(inGov.length)) : Z.countGov(esc(dealLabel), esc(gov), ltr(inGov.length)));
+  const pool = inArea.length >= 4 ? inArea : inGov, mix = new Map();
+  for (const o of pool) mix.set(o.property_type, (mix.get(o.property_type) || 0) + 1);
+  const top = [...mix.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4);
+  if (top.length > 1) ps.push(`${Z.mixLead} ${top.map(([k, n]) => `${esc(typeName(k, lang))} (${ltr(n)})`).join(sep)}.`);
+  const m = marketFor(l);
+  if (m) {
+    const sc = m.scope === "area" && areaName ? esc(areaName) : esc(Z.inGov(gov));
+    if (l.deal === "rent") ps.push(Z.rentLine(esc(typeLabel), sc, ltr(fmtUsd(m.med)), Z.perP[l.rental_period] || "", ltr(m.n)));
+    else ps.push(Z.ppmLine(esc(typeLabel), esc(dealLabel), sc, ltr(fmtUsd(m.med)), ltr(m.n)));
+    if (m.mine) {
+      const pct = Math.round((m.mine / m.med - 1) * 100), mv = ltr(fmtUsd(m.mine) + (l.deal === "rent" ? "" : " " + Z.perM2));
+      ps.push(Math.abs(pct) < 5 ? Z.mineNear(mv) : pct > 0 ? Z.mineAbove(mv, ltr(pct)) : Z.mineBelow(mv, ltr(-pct)));
+    }
+  }
+  const au = areaName ? areaPageUrl(l, lang) : null, gu = govPageUrl(l, lang);
+  const links = [au ? `<a class="maplink" href="${au}">${esc(Z.seeArea(dealLabel, areaName))}</a>` : "", gu ? `<a class="maplink" href="${gu}">${esc(Z.seeGov(dealLabel, gov))}</a>` : ""].filter(Boolean).join(" ");
+  return `<section class="card mkt"><h2>${Z.aboutArea}</h2>${ps.map((t) => `<p>${t}</p>`).join("")}${m ? `<p class="mnote">${Z.note}</p>` : ""}${links ? `<div class="mlinks">${links}</div>` : ""}</section>`;
+}
+function similarSection(l, lang) {
+  const list = similarFor(l, 6); if (!list.length) return "";
+  return `<section class="card"><h2>${X[lang].similar}</h2><ul class="sims">${list.map((o) => {
+    const t = `${typeName(o.property_type, lang)} ${o.deal === "rent" ? S[lang].forRent : S[lang].forSale}${has(o.area_m2) ? ` · ${o.area_m2} ${S[lang].sqm}` : ""}`, pl = [areaNm(o, lang), govName(o, lang)].filter(Boolean).join(S[lang].sep);
+    return `<li><a href="${urlFor(o, lang)}"><b>${esc(t)}</b><span>${esc(pl)}</span><em>${o.price_usd == null ? esc(POR[lang] || POR.en) : ltr(moneyL(o, lang))}</em></a></li>`; }).join("")}</ul></section>`;
+}
+function crumbs(l, lang, dealLabel, areaName, gov) {
+  const home = lang === "ar" ? SITE + CUR_PRE + "/" : `${SITE}${CUR_PRE}/?lang=${lang}`, gu = govPageUrl(l, lang), au = areaName ? areaPageUrl(l, lang) : null;
+  const items = [[S[lang].home, home], gu ? [`${dealLabel} ${S[lang].inPlace(gov)}`, gu] : null, au ? [areaName, au] : null].filter(Boolean);
+  return { html: `<nav class="crumb">${items.map(([n, u]) => `<a href="${u}">${esc(n)}</a>`).join("<i>›</i>")}</nav>`,
+    ld: { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: items.map(([n, u], i) => ({ "@type": "ListItem", position: i + 1, name: n, item: u })) } };
+}
 function renderPage(l, photos, lang, ogPath) {
   const W = S[lang], L = LANGS[lang];
   const typeLabel = typeName(l.property_type, lang);
@@ -242,6 +371,7 @@ function renderPage(l, photos, lang, ogPath) {
     ...(has(l.rooms) ? { "numberOfRooms": l.rooms } : {}),
     ...((l.videos || []).length ? { "video": (l.videos || []).map((v) => ({ "@type": "VideoObject", "name": title, "description": lead, "contentUrl": v.url, ...(v.thumb_url ? { "thumbnailUrl": v.thumb_url } : {}), "uploadDate": l.created_at })) } : {}),
   };
+  const cr = crumbs(l, lang, dealLabel, areaName, gov);
   const langBar = `<nav class="langs" aria-label="${W.langs}">${CUR_LANGS.map((k) => `<a href="${alts[k]}" hreflang="${k}" class="${k === lang ? "on" : ""}">${k === "ar" ? "عربي" : k.toUpperCase()}</a>`).join("")}</nav>`;
 
   return `<!DOCTYPE html><html lang="${lang}" dir="${L.dir}"><head><meta charset="UTF-8">
@@ -266,6 +396,7 @@ ${CUR_LANGS.map((k) => `<link rel="alternate" hreflang="${k}" href="${alts[k]}">
 <meta name="twitter:image" content="${esc(shareImg)}">
 <link rel="icon" type="image/svg+xml" href="${SITE}/brand/favicon.svg"><link rel="apple-touch-icon" href="${SITE}/brand/apple-touch-icon.png">
 <script type="application/ld+json">${jsonForScript(jsonLd)}</script>
+<script type="application/ld+json">${jsonForScript(cr.ld)}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
@@ -328,6 +459,11 @@ h1{font-size:22px;line-height:1.45;font-weight:800;color:var(--navy)}
 .btn.wa{background:var(--ok)}.btn:hover{filter:brightness(1.08)}.btns.one{grid-template-columns:1fr}
 .open{display:block;text-align:center;margin-top:12px;font-size:14.5px;font-weight:600;color:var(--navy);text-decoration:underline;text-underline-offset:3px}
 .open:hover{color:var(--gold)}
+.crumb{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;font-size:13.5px;color:var(--grey);padding-top:14px}.crumb a{color:var(--navy);font-weight:600}.crumb a:hover{color:var(--gold)}.crumb i{font-style:normal;color:var(--light)}
+.sum{margin-top:12px;font-size:15px;line-height:1.9;color:var(--ink)}
+.mkt p{margin-bottom:8px;font-size:15px;line-height:1.9}.mkt .mnote{font-size:12.5px;color:var(--light)}.mlinks{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.mlinks .maplink{margin-top:0}
+.sims{list-style:none;display:grid;gap:8px}.sims a{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--page)}.sims a:hover{border-color:var(--gold)}
+.sims b{font-size:14.5px;color:var(--navy)}.sims span{grid-column:1;font-size:13px;color:var(--grey)}.sims em{grid-row:1/3;grid-column:2;align-self:center;font-style:normal;font-weight:800;color:var(--gold)}
 footer{background:var(--navy-2);color:rgba(255,255,255,.8);margin-top:28px;padding:26px 0;font-size:14px}
 footer .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;justify-content:space-between}
 footer .brand{font-weight:700;color:var(--gold);font-size:16px}
@@ -346,6 +482,7 @@ footer .note{width:100%;color:rgba(255,255,255,.5);font-size:13px}
   <a class="logo" href="${lang === "ar" ? SITE + CUR_PRE + "/" : `${SITE}${CUR_PRE}/?lang=${lang}`}" aria-label="Balkoun">${MARK}<span class="w"><b>بلكون</b><small>BALKOUN</small></span></a>
 </div></header>
 
+<div class="wrap">${cr.html}</div>
 <main class="wrap main">
 <div class="col">
   <section>${hero}${thumbStrip}${(l.videos || []).map((v) => `<video class="lvid" controls preload="none" playsinline${v.thumb_url ? ` poster="${esc(v.thumb_url)}"` : ""} src="${esc(v.url)}"></video>`).join("")}</section>
@@ -354,11 +491,14 @@ footer .note{width:100%;color:rgba(255,255,255,.5);font-size:13px}
     ${place ? `<div class="place">${esc(place)}</div>` : ""}
     <div class="pricerow"><span class="price">${l.price_usd == null ? esc(POR[lang] || POR.en) : ltr(moneyL(l, lang))}${periodLabel ? `<small> / ${esc(periodLabel)}</small>` : ""}</span><span class="deal">${esc(dealLabel)}</span>${l.price_negotiable ? `<span class="neg">${W.negotiable}</span>` : ""}</div>
     <div class="pills">${pills}</div>
+    ${summaryLine(l, lang, typeLabel, dealLabel, place, tabuLabel)}
   </section>
   ${facts ? `<section class="card"><h2>${W.details}</h2><div class="facts">${facts}</div></section>` : ""}
   ${l.description ? `<section class="card"><h2>${W.desc}</h2>${lang !== "ar" ? `<p class="descnote">${W.descNote}</p>` : ""}<div class="desc${lang !== "ar" ? " ar" : ""}" ${lang !== "ar" ? 'lang="ar"' : ""}>${nl2br(l.description)}</div></section>` : ""}
   ${amenities.length ? `<section class="card"><h2>${W.amen}</h2><div class="amen">${amenities.map((a) => `<span>${esc(a)}</span>`).join("")}</div></section>` : ""}
   <section class="card loc"><h2>${W.location}</h2><p><b>${esc(gov)}</b>${areaName ? ` — ${esc(areaName)}` : ""}</p>${l.landmark ? `<p class="lm">${esc(l.landmark)}</p>` : ""}${osm ? `<a class="maplink" href="${osm}" target="_blank" rel="noopener">📍 ${W.onMap}</a>` : ""}</section>
+  ${areaSection(l, lang, typeLabel, dealLabel, areaName, gov)}
+  ${similarSection(l, lang)}
 </div>
 <aside class="col side">
   <section class="card contact"><h2>${W.contact}</h2>
@@ -382,12 +522,13 @@ async function main() {
   try {
     [listings, govs, areas] = await Promise.all([
       sb("v_listings?select=*&status=eq.live&order=created_at.desc"),
-      sb("governorates?select=id,name_ar,name_en,slug"),
-      sb("areas?select=id,governorate_id,name_ar,name_en,slug&limit=5000"),
+      sb("governorates?select=*"),
+      sb("areas?select=id,governorate_id,name_ar,name_en,slug,enabled&limit=5000"),
     ]);
   } catch (e) { console.error("Fetch failed:", e.message); process.exit(1); }
   govById = new Map(govs.map((g) => [g.id, g])); areaById = new Map(areas.map((a) => [a.id, a]));
   console.log(`Found ${listings.length} live listing(s).`);
+  indexListings(listings);
   // the admin's live property-type list (renames + types added from the admin) on top of the page's built-in table
   try { const ex = (await sb("site_content?select=extras&id=eq.1&limit=1"))[0]; mergePropertyTypes((ex && ex.extras && ex.extras.property_types) || null); }
   catch (e) { console.warn("property types unreadable, built-ins only:", e.message); }
