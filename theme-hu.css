@@ -1206,3 +1206,10 @@ html body .pwa-toast button{white-space:nowrap}
 /* results-page lists: the sticky governorate heading kept the light theme's white bar */
 html body .rs-f .chipsel-drop .cs-h{background:var(--navy-2)!important;color:var(--gold)!important;border-bottom:1px solid var(--line);font-size:12px}
 html body .rs-f .chipsel-drop .cs-h.cs-kind{background:transparent!important;color:var(--muted)!important;border:0}
+/* selected-filter chips under the search bar: had zero spacing, so they touched the filter row and sat on the divider line */
+html body .rs-bar .rs-chips{padding-top:12px!important;padding-bottom:14px!important;gap:8px!important;align-items:center}
+html body .rs-chip{height:34px;padding-block:0!important;padding-inline:12px 5px!important;gap:8px;border-radius:999px!important;background:rgba(202,144,81,.12)!important;border:1px solid rgba(202,144,81,.4);color:#fff!important;font-size:13px;font-weight:600;line-height:1}
+html body .rs-chip button{width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;background:rgba(255,255,255,.12)!important;color:#fff!important;font-size:12px}
+html body .rs-chip button:hover{background:rgba(226,92,92,.35)!important}
+html body .rs-chipclr{margin-inline-start:4px;color:rgba(255,255,255,.7)!important;font-size:13px}
+html body .rs-chipclr:hover{color:var(--gold)!important}
