@@ -1514,3 +1514,35 @@ html body .hero-outer.hu .pricepop input.pp-r,html body .pricepop input.pp-r{hei
 /* an old rule turns the popup's inputs left-to-right (right for typed numbers); the slider follows the page instead, so in Arabic
    the low end sits on the right under «من» and the gold fill (drawn with inline insets) lands between the two handles */
 html body .pricepop input.pp-r{direction:inherit!important}
+/* the price popup in the bar's own sizes (owner 2026-10-30: «the size of it, the font and the boxes to match the website»):
+   380 wide and 10px padding like the bar's other lists, 10px grey labels and 12–14px text like the bar's fields, white boxes
+   with a hairline like the bar, the gold button like «ابحث» (14/600), smaller slider handles */
+html body .hero-outer.hu .pricepop .pp-cur{font-size:11px!important;font-weight:400!important;color:#6B7484!important}
+html body .hero-outer.hu .pricepop .pp-cur b{font-weight:600!important;color:var(--navy)!important}
+html body .hero-outer.hu .pricepop .pp-txt{font-size:13.5px!important;font-weight:700!important}
+html body .hero-outer.hu .pricepop .pp-row label{font-size:10px!important;font-weight:400!important;color:#6B7484!important;letter-spacing:-.12px;gap:4px!important}
+html body .hero-outer.hu .pricepop input[type=number]{background:#fff!important;border:1px solid #E3E6EB!important;border-radius:8px!important;font-weight:600!important;color:var(--navy)!important;box-shadow:none!important}
+html body .hero-outer.hu .pricepop input[type=number]:focus{border-color:var(--gold)!important;box-shadow:0 0 0 3px rgba(202,144,81,.15)!important}
+html body .hero-outer.hu .pricepop .pp-clear{font-size:12px!important;font-weight:600!important}
+html body .hero-outer.hu .pricepop .pp-done{font-size:14px!important;font-weight:600!important;background:#CA9051!important;color:var(--navy)!important;border:0!important;border-radius:8px!important}
+@media (min-width:901px){
+  html body .hero-outer.hu .pricepop{width:380px!important;padding:12px!important;border:0!important;column-gap:10px!important}
+  html body .hero-outer.hu .pricepop .pp-head{margin-bottom:2px!important}
+  html body .hero-outer.hu .pricepop .pp-sl{height:26px;margin:0 2px 8px}
+  html body .hero-outer.hu .pricepop .pp-track{top:11px}
+  html body .hero-outer.hu .pricepop input.pp-r{height:26px!important}
+  html body .hero-outer.hu .pricepop .pp-r::-webkit-slider-runnable-track{height:26px}
+  html body .hero-outer.hu .pricepop .pp-r::-webkit-slider-thumb{width:18px;height:18px;border-width:2.5px;margin-top:4px}
+  html body .hero-outer.hu .pricepop .pp-r::-moz-range-thumb{width:13px;height:13px;border-width:2.5px}
+  html body .hero-outer.hu .pricepop .pp-row{gap:8px!important}
+  html body .hero-outer.hu .pricepop input[type=number]{height:36px!important;font-size:13.5px!important;padding:0 10px!important}
+  html body .hero-outer.hu .pricepop .pp-foot{gap:8px!important}
+  html body .hero-outer.hu .pricepop .pp-clear{height:36px!important}
+  html body .hero-outer.hu .pricepop .pp-done{height:36px!important;padding:0 18px!important}
+}
+@media (max-width:900px){
+  html body .hero-outer.hu .pricepop{padding:12px!important;border:0!important}
+  html body .hero-outer.hu .pricepop .pp-row label{font-size:11px!important}
+  html body .hero-outer.hu .pricepop input[type=number]{height:42px!important}
+  html body .hero-outer.hu .pricepop .pp-done,html body .hero-outer.hu .pricepop .pp-clear{height:40px!important}
+}
