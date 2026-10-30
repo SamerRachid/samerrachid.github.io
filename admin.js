@@ -2754,7 +2754,7 @@ function hsInspContact(){
   var pair=function(name,uk,nk,ph){ return fGrp(name)+'<div class="row">'+fText(t("linkL"),"c:"+uk,ph,true)+fText(t("accountNameL"),"c:"+nk,"@balkoun",true)+'</div>' };
   if(sd==="social") H.push(fHint(hsT("contactHint")), pair("Facebook","fb_url","fb_name","https://facebook.com/..."), pair("Instagram","ig_url","ig_name","https://instagram.com/..."), pair("YouTube","yt_url","yt_name","https://youtube.com/..."), pair("TikTok","tiktok_url","tiktok_name","https://tiktok.com/@..."));
   else H.push(fHint(hsT("contactHint")), '<div class="row">'+fText(t("waNumberL"),"c:wa_number","+9639xxxxxxxx",true)+fText(t("phoneNumberL"),"c:phone_number","+9639xxxxxxxx",true)+'</div>', fText(t("emailAddressL"),"c:email_address","info@balkoun.com",true),
-    fSel(GX("waFabL"),"x:wa_fab",[["nohome",GX("waFabNoHome")],["all",GX("waFabAll")],["off",GX("waFabOff")]],"nohome",true));
+    fSel(GX("waFabL"),"x:wa_fab",[["promote",GX("waFabPromote")],["nohome",GX("waFabNoHome")],["all",GX("waFabAll")],["off",GX("waFabOff")]],"promote",true));
   return {title:title,H:H};
 }
 function hsInspHome(){
@@ -5102,7 +5102,7 @@ function wireAdminOutreach(){
    edit / extend / report / stop. Data: bk_admin_placements (bookings = engagements rows), caps from site_content.extras. */
 Object.assign(GX_T,{
   waFabL:{ar:"زر واتساب العائم (الدائرة الخضراء أسفل الشاشة)",en:"Floating WhatsApp button",de:"Schwebender WhatsApp-Knopf"},
-  waFabNoHome:{ar:"في كل الصفحات ما عدا الرئيسية",en:"Every page except the home page",de:"Überall außer Startseite"}, waFabAll:{ar:"في كل الصفحات",en:"Every page",de:"Überall"}, waFabOff:{ar:"مخفي",en:"Hidden",de:"Ausgeblendet"},
+  waFabPromote:{ar:"في صفحة «روّج إعلانك» فقط",en:"Only on the promote page",de:"Nur auf der Werbeseite"}, waFabNoHome:{ar:"في كل الصفحات ما عدا الرئيسية",en:"Every page except the home page",de:"Überall außer Startseite"}, waFabAll:{ar:"في كل الصفحات",en:"Every page",de:"Überall"}, waFabOff:{ar:"مخفي",en:"Hidden",de:"Ausgeblendet"},
   botOffCol:{ar:"البوت لا يرد",en:"Bot silent",de:"Bot stumm"}, botOffH:{ar:"بوت واتساب",en:"WhatsApp bot",de:"WhatsApp-Bot"},
   botOffL:{ar:"البوت لا يرد على هذا العضو",en:"The bot does not answer this member",de:"Der Bot antwortet diesem Mitglied nicht"},
   botOffHint:{ar:"لمن لا ينشر إعلاناته بالرسائل: رسائله إلى واتساب بلكون لا يقرأها البوت ولا يرد عليها، وتردّ أنت عليه بنفسك.",en:"For members who don't post listings by message: the bot neither reads nor answers their WhatsApp messages; you reply yourself.",de:"Für Mitglieder, die nicht per Nachricht inserieren: der Bot liest und beantwortet ihre Nachrichten nicht."},

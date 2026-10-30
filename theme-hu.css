@@ -1432,3 +1432,9 @@ html body .svc-ph{position:relative}html body .svc-ph img{width:96px;height:72px
 html body .svc-ph button{position:absolute;top:-7px;inset-inline-end:-7px;width:22px;height:22px;border-radius:50%;border:0;background:#B3271E;color:#fff;cursor:pointer;line-height:1}
 html body .svc-phadd{width:96px;height:72px;border:1px dashed rgba(202,144,81,.6);border-radius:8px;display:grid;place-items:center;align-content:center;gap:2px;color:var(--gold);font-size:22px;cursor:pointer;line-height:1}
 html body .svc-phadd span{font-size:11.5px}
+
+/* /app: the Android app file (until Google Play) */
+html body .apppg-apk{margin-top:22px;padding:18px;border:1px solid rgba(202,144,81,.45);border-radius:12px;background:rgba(202,144,81,.06);display:grid;gap:8px;text-align:start}
+html body .apppg-apk b{font-size:17px}html body .apppg-apk p{color:var(--muted);margin:0}
+html body .apppg-apk a.gold{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+html body .apppg-apk small{color:var(--muted);text-align:center}html body .apppg-apk ol{margin:4px 0 0;padding-inline-start:20px;color:#D5DCE8;font-size:14px;display:grid;gap:4px}

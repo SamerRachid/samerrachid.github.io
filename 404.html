@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-slzWmXZLVdNfBnXg1kH/Lgq3DgHVJnWQlb370YY4+p4=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-//fqEV06hiPE1ehrgszS3m10bLK8yelyWSuiRem81jY=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -4991,7 +4991,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202610301030"><script>
+</style><link rel="stylesheet" href="/theme-hu.css?v=202610301041"><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
   brand:      "بلكون",
@@ -5987,8 +5987,8 @@ function header(){
  var right = USER
   ? notifBellHTML()+'<div class="menu" id="menu" hidden><a data-go="post" class="menupost">'+t("post")+'</a><a id="mMine">'+t("myAds")+'</a><a id="mSaved">'+t("mySaved")+'</a><a id="mSearch">'+t("mySearch")+'</a><a id="mMsgs">'+t("myMessages")+'</a><a id="mSet">'+t("settings")+'</a><a class="out" id="out">'+t("logout")+'</a></div>'
   : '<button class="mini" id="bIn" hidden>'+t("login")+'</button>';
- // the floating WhatsApp button: Studio › contact numbers › «زر واتساب العائم» (owner 2026-10-30: not on the home page by default)
- var waMode=SX("wa_fab","nohome"), waOn=waMode==="all"||(waMode==="nohome"&&VIEW!=="home");
+ // the floating WhatsApp button: Studio › contact numbers › «زر واتساب العائم» (owner 2026-10-30: only on «روّج إعلانك» by default)
+ var waMode=SX("wa_fab","promote"), waOn=waMode==="all"||(waMode==="nohome"&&VIEW!=="home")||(waMode==="promote"&&VIEW==="promote");
  var wa = CONFIG.whatsapp && waOn && VIEW.indexOf("listing:")!==0 ? '<a class="wa-fab'+(VIEW==="search"?' wa-up':'')+'" href="https://wa.me/'+String(CONFIG.whatsapp).replace(/\D/g,"")+'" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M4 20l1.3-3.8A8.5 8.5 0 1 1 8.2 19L4 20z"/><path d="M9 9.5c0 3 2.5 5.5 5.5 5.5l1.2-1.6-1.8-.8-.8.8a4 4 0 0 1-2.3-2.3l.8-.8-.8-1.8L9 9.5z"/></svg></a>' : '';
  return '<header><div class="wrap hbar">'+
   '<a class="logo blogo" data-go="home" aria-label="'+esc(CONFIG.brand)+' Balkoun">'+brandLogo()+'</a>'+
@@ -11068,6 +11068,9 @@ function appPage(){
     (done ? '<div class="apppg-done">✓ '+GX("pwaS_installed_T")+'</div><button type="button" class="gold" data-go="home">'+t("home")+'</button>'
           : (P.canPrompt&&P.canPrompt() ? '<button type="button" class="gold apppg-go" id="appInstallGo">'+MI.download+' '+GX("pwaBannerBtn")+'</button>' : '')+
             '<div class="apppg-steps">'+(P.stepsHtml?P.stepsHtml(pf):'')+'</div>')+
+    (!/ios/.test(pf) && pf!=="installed" && !/BalkounApp\//.test(navigator.userAgent||"") ?
+      '<div class="apppg-apk"><b>'+GX("apkH")+'</b><p>'+GX("apkP")+'</p><a class="gold" href="/downloads/balkoun.apk" download="balkoun.apk">'+MI.download+' '+GX("apkBtn")+'</a>'+
+      '<small class="ltr">'+GX("apkVer")+'</small><ol>'+[1,2,3].map(function(n){ return '<li>'+GX("apkS"+n)+'</li>' }).join("")+'</ol></div>' : '')+
     '<ul class="apppg-why"><li>'+GX("appPgWhy1")+'</li><li>'+GX("appPgWhy2")+'</li><li>'+GX("appPgWhy3")+'</li></ul>'+
     '</div></div>' }
 function wireAuth(){
@@ -15162,7 +15165,12 @@ var GX_T={
   xAdVideoMax:{ar:"الحد الأقصى لحجم فيديو المربع (MB)",en:"Maximum ad video size (MB)",de:"Maximale Videogröße (MB)"},
   xDesignH:{ar:"النتائج",en:"Results",de:"Ergebnisse"},
   xPageSize:{ar:"عدد الإعلانات في صفحة النتائج",en:"Listings per results page",de:"Anzeigen pro Ergebnisseite"},
-  xSimilar:{ar:"عدد «إعلانات أخرى» تحت صفحة الإعلان",en:"“More listings” shown under a listing",de:"„Weitere Anzeigen“ unter einer Anzeige"}, sponsored:{ar:"إعلان مدفوع",en:"Sponsored",de:"Gesponsert"}, promoNav:{ar:"روّج إعلانك",en:"Promote your listing",de:"Anzeige bewerben"},
+  xSimilar:{ar:"عدد «إعلانات أخرى» تحت صفحة الإعلان",en:"“More listings” shown under a listing",de:"„Weitere Anzeigen“ unter einer Anzeige"}, sponsored:{ar:"إعلان مدفوع",en:"Sponsored",de:"Gesponsert"},
+  apkH:{ar:"تطبيق أندرويد",en:"Android app",de:"Android-App"}, apkP:{ar:"حتى يصل التطبيق إلى Google Play، حمّله من هنا مباشرة.",en:"Until it is on Google Play, download it here.",de:"Bis zur Veröffentlichung bei Google Play hier laden."},
+  apkBtn:{ar:"حمّل التطبيق",en:"Download the app",de:"App herunterladen"}, apkVer:{ar:"النسخة 1.2 · 3 ميغا",en:"Version 1.2 · 3 MB",de:"Version 1.2 · 3 MB"},
+  apkS1:{ar:"اضغط «حمّل التطبيق» وانتظر انتهاء التحميل.",en:"Tap «Download the app» and wait for it to finish.",de:"Tippen und warten."},
+  apkS2:{ar:"افتح الملف. إذا طلب الهاتف السماح بالتثبيت من هذا المصدر، اسمح به.",en:"Open the file. If the phone asks, allow installs from this source.",de:"Datei öffnen und Installation erlauben."},
+  apkS3:{ar:"اضغط «تثبيت»، ثم افتح بلكون من شاشة هاتفك.",en:"Tap «Install», then open Balkoun from your home screen.",de:"Installieren und öffnen."}, promoNav:{ar:"روّج إعلانك",en:"Promote your listing",de:"Anzeige bewerben"},
   svcNav:{ar:"خدمات العقار",en:"Home services",de:"Hausdienste"}, svcEyebrow:{ar:"بعد أن تجد بيتك",en:"After you find your home",de:"Nach der Wohnungssuche"},
   svcTitle:{ar:"خدمات العقار",en:"Home services",de:"Hausdienste"}, svcLead:{ar:"إكساء وترميم، سباكة وكهرباء، طاقة شمسية، ألمنيوم ومطابخ، نقل أثاث وتنظيف. أصحاب مهن في مدينتك، تواصل معهم مباشرة على واتساب.",en:"Renovation, plumbing, electrics, solar, aluminium, kitchens, moving and cleaning: tradespeople in your city, straight on WhatsApp.",de:"Renovierung, Sanitär, Elektrik, Solar, Umzug: direkt per WhatsApp."},
   svcJoin:{ar:"سجّل خدمتك مجاناً",en:"List your service free",de:"Dienst kostenlos eintragen"}, svcSearchPH:{ar:"ابحث باسم أو خدمة أو منطقة…",en:"Search a name, trade or area…",de:"Name, Gewerk oder Gebiet…"},
