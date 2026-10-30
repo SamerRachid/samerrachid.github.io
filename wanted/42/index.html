@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-M/l4uJLt315gf/LmJQ1tDoRnVlZghOrdEJmyCBkTMks=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-/HigGAAxrr1rRkwK2Se05qBTZ8c2dqC4AS1NvgqFQHA=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -9369,7 +9369,8 @@ function agencyPage(id){
 var PROMO_DEF={
   wa:"",   // empty: the site's WhatsApp (CONFIG.whatsapp)
   pay:"سيريتل كاش أو MTN كاش أو تحويل",
-  stats:{visitors:"2,683",views:"12,582",contacts:"197",note:"أرقام بلكون الحقيقية، آخر 30 يوماً"},
+  // the numbers under the hero (owner 2026-10-30: visitor numbers are not shown publicly): each can be hidden; "auto" = live listings now
+  stats:{items:[{v:"auto",l:"إعلان منشور",on:true},{v:"12,582",l:"مشاهدة إعلان",on:true},{v:"197",l:"تواصل مع المعلنين",on:true},{v:"24/7",l:"خدمة العملاء",on:true}],note:"أرقام بلكون الحقيقية"},
   feat:{w1:7,w2:12,m1:20}, ad:{fee:15,day:3,days:5}, full:{price:50},
   ag:[{name:"أساسية",desc:"5 إعلانات مميزة كل شهر",price:49},{name:"احترافية",desc:"15 مميزاً، مربع في الرئيسية، ريلان ممولان، تقرير شهري",price:129},{name:"مميزة",desc:"تمييز بلا حد، بانر البحث، 4 ريلات، حملة شهرية، مدير حساب",price:249}],
   reels:[{url:"https://www.facebook.com/reel/1119468007326134/",views:"75K",title:"«عندك بيت أو أرض بسوريا وأنت بعيد عنها؟»",react:"735",comm:"85",share:"60"},
@@ -9395,8 +9396,11 @@ var PROMO_MSG={
   svc:"مرحباً، أريد عرض سعر لخدمة من فريق بلكون: ",
   ask:"مرحباً، عندي سؤال عن الترويج على بلكون."
 };
-var PROMO_TAB="ind";
-function promoPage(){
+var PROMO_TAB="ind", PROMO_LIVE=null;
+// "auto" in the numbers: the live listings counted on the server (the app holds only part of them in memory)
+function promoLive(){ if(PROMO_LIVE!=null||promoLive._q||!DB) return; promoLive._q=1;
+  DB.from("listings").select("id",{count:"exact",head:true}).eq("status","live").eq("country_code",COUNTRY).then(function(r){ promoLive._q=0; if(r&&r.count!=null){ PROMO_LIVE=r.count; $$("[data-splive]").forEach(function(e){ e.textContent=r.count.toLocaleString("en") }) } },function(){ promoLive._q=0 }) }
+function promoPage(){ promoLive();
   var c=promoCfg(), P=c.photos, n=function(v){ return esc(String(v==null?"":v)) }, usd=function(v){ return '<b class="ltr">$'+n(v)+'</b>' };
   var img=function(u){ return "background-image:url('"+esc(safeUrl(String(u||"")))+"')" };
   var wa=function(k,cls,label){ return '<a class="sp-btn '+cls+'" href="'+esc(promoWa(PROMO_MSG[k]))+'" target="_blank" rel="noopener">'+label+'</a>' };
@@ -9436,7 +9440,9 @@ function promoPage(){
     '<p data-sprv>نختار إعلانات مميزة ونروّجها على بلكون، وبإعلان ممول على فيسبوك وإنستغرام وحالات واتساب، لتصل إلى من يبحث عن عقار في مدينتك وإلى السوريين في الخارج.</p>'+
     '<div class="sp-acts" data-sprv><a class="sp-btn gold" href="#sp-plans" data-spjump="sp-plans" data-sptab="ind">روّج إعلاناً من إعلاناتي</a><a class="sp-btn line" href="#sp-plans" data-spjump="sp-plans" data-sptab="ag">للمكاتب العقارية</a></div></div>'+
     '<div class="sp-collage" data-sprv><div class="sp-f"><i style="'+img(P.hero1)+'"></i><span><b>فيلا بمسبح وتراس</b>من ريل بلكون</span></div><div class="sp-f"><i style="'+img(P.hero2)+'"></i><span><b>غرفة مطلة على المسبح</b>من ريل بلكون</span></div><div class="sp-f"><i style="'+img(P.hero3)+'"></i><span><b>مطبخ حديث</b>من ريل بلكون</span></div></div>'+
-  '</div><div class="sp-w"><div class="sp-stats" data-sprv><div><b class="ltr">'+n(c.stats.visitors)+'</b><span>زائر</span></div><div><b class="ltr">'+n(c.stats.views)+'</b><span>مشاهدة إعلان</span></div><div><b class="ltr">'+n(c.stats.contacts)+'</b><span>تواصل مع المعلنين</span></div><div><b class="ltr">24/7</b><span>خدمة العملاء</span></div><span class="sp-note">'+n(c.stats.note)+'</span></div></div></section>'+
+  '</div>'+(function(){ var it=(c.stats.items||[]).filter(function(x){ return x&&x.on!==false&&String(x.v||"").trim() });
+    if(!it.length) return '';
+    return '<div class="sp-w"><div class="sp-stats" data-sprv>'+it.map(function(x){ if(String(x.v).trim()==="auto") return '<div><b class="ltr" data-splive>'+(PROMO_LIVE!=null?PROMO_LIVE.toLocaleString("en"):"&nbsp;")+'</b><span>'+n(x.l)+'</span></div>'; return '<div><b class="ltr">'+n(x.v)+'</b><span>'+n(x.l)+'</span></div>' }).join("")+(c.stats.note?'<span class="sp-note">'+n(c.stats.note)+'</span>':'')+'</div></div>' })()+'</section>'+
   '<nav class="sp-jump" aria-label="أقسام الصفحة"><div class="sp-w"><a href="#sp-where" data-spjump="sp-where">أين يظهر</a><a href="#sp-plans" data-spjump="sp-plans">الباقات</a><a href="#sp-team" data-spjump="sp-team">فريقنا</a><a href="#sp-how" data-spjump="sp-how">كيف يعمل</a><a href="#sp-faq" data-spjump="sp-faq">أسئلة</a><a class="sp-go" href="#sp-plans" data-spjump="sp-plans">روّج الآن</a></div></nav>'+
   '<section class="sp-s" id="sp-where"><div class="sp-w"><div class="sp-head"><div><div class="sp-eye" data-sprv>أين يظهر إعلانك</div><h2 data-sprv>ثلاثة أماكن، وإعلان واحد.</h2></div><p class="sp-lede" data-sprv>هكذا يرى الناس إعلانك بعد الترويج. الصور لقطات من ريلات بلكون.</p></div>'+
     '<div class="sp-show">'+
