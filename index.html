@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-26Rg0Wh79jzbWJwGthKVI/ihVGIu3+F+HVWD1Kqr0rw=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-5lWNCt5HntFCnoLZFj2lHAZTIQpoGWm06kq0Oy2uybE=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -4991,7 +4991,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202610301514"><script>
+</style><link rel="stylesheet" href="/theme-hu.css?v=202610301943"><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
   brand:      "بلكون",
@@ -7097,7 +7097,7 @@ function listing(id){
     ? '<figure class="lg-main'+(onVid?' onvid':'')+'" style="--bg:url(&quot;'+(onVid?(VIDS[0].poster||""):curImg)+'&quot;)">'+
       (onVid ? '<video class="main" id="gvideo" controls playsinline preload="metadata"'+wmVideoAttrs()+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'+wmOverlayHtml()+'<button type="button" class="lg-enlarge" id="gVidFull" title="'+esc(GX("videoFull"))+'" aria-label="'+esc(GX("videoFull"))+'"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>'
              : (curImg ? '<img class="main" id="gmain" src="'+curImg+'" alt="'+esc(typeName)+'">' : '<div class="nophoto lg-none"><img src="/brand/logo-light.png" alt="بلكون"></div>'))+
-      (n>1 ? '<button class="gnav" id="gPrev" aria-label="prev" style="'+(rtlNow()?"right":"left")+':12px">‹</button><button class="gnav" id="gNext" aria-label="next" style="'+(rtlNow()?"left":"right")+':12px">›</button>' : '')+
+      (n>1 ? '<button class="gnav" id="gPrev" aria-label="'+esc(GX("galPrev"))+'" style="'+(rtlNow()?"right":"left")+':12px">'+galChev(rtlNow())+'</button><button class="gnav" id="gNext" aria-label="'+esc(GX("galNext"))+'" style="'+(rtlNow()?"left":"right")+':12px">'+galChev(!rtlNow())+'</button>' : '')+
       '<div class="gcount"><span class="ltr">'+(GI+1)+' / '+n+'</span></div>'+
       (VIDS.length && !onVid && !GVID_OFF ? '<button type="button" class="lg-vid" id="gVid"><span class="vplay">▶</span>'+GX("videoWatch")+'</button>' : '')+'</figure>'+
       (n>1 ? '<div class="lg-side" id="gth">'+thumbs.join("")+'</div>' : '')+
@@ -7110,8 +7110,8 @@ function listing(id){
    '<div class="lightbox" id="lightbox"><button class="lb-close" id="lbClose" aria-label="'+esc(GX("mdClose"))+'">×</button>'+
     '<div class="lb-count"><span class="ltr">'+(pi+1)+' / '+IMGS.length+'</span></div>'+
     (IMGS.length>1
-      ? '<button class="lb-nav" id="lbPrev" aria-label="'+esc(GX("galPrev"))+'" style="'+(rtlNow()?"right":"left")+':16px">‹</button>'+
-        '<button class="lb-nav" id="lbNext" aria-label="'+esc(GX("galNext"))+'" style="'+(rtlNow()?"left":"right")+':16px">›</button>'
+      ? '<button class="lb-nav" id="lbPrev" aria-label="'+esc(GX("galPrev"))+'" style="'+(rtlNow()?"right":"left")+':16px">'+galChev(rtlNow())+'</button>'+
+        '<button class="lb-nav" id="lbNext" aria-label="'+esc(GX("galNext"))+'" style="'+(rtlNow()?"left":"right")+':16px">'+galChev(!rtlNow())+'</button>'
       : '')+
     '<img class="lb-img" id="lbImg" src="'+curImg+'" alt="">'+
    '</div>' : '';
@@ -10707,7 +10707,10 @@ function wire(){
      var fg=$(".lg-main"); if(fg) fg.style.setProperty("--bg",'url("'+IM2[p2]+'")');
      var c=$(".gcount span"); if(c) c.textContent=(GI+1)+" / "+N2;
      $$("#gth [data-i]").forEach(function(im){ im.classList.toggle("sel", +im.dataset.i===GI) });
-     var selTh=$("#gth .sel"); if(selTh && selTh.scrollIntoView) try{ selTh.scrollIntoView({block:"nearest",inline:"nearest"}) }catch(e){}   // the strip follows the arrows
+     // the strip follows the arrows — only the strip scrolls (scrollIntoView also moved the whole page when the thumbnail sat below the fold)
+     var selTh=$("#gth .sel"), gth=$("#gth"); if(selTh && gth) try{ var tr=selTh.getBoundingClientRect(), cr=gth.getBoundingClientRect();
+       if(gth.scrollWidth>gth.clientWidth+1) gth.scrollBy({left:tr.left-cr.left-(cr.width-tr.width)/2,behavior:"smooth"});
+       else if(gth.scrollHeight>gth.clientHeight+1) gth.scrollBy({top:tr.top-cr.top-(cr.height-tr.height)/2,behavior:"smooth"}) }catch(e){}
      var lb=$("#lbImg"); if(lb) lb.src=IM2[p2];
      var lc=$(".lb-count span"); if(lc) lc.textContent=(p2+1)+" / "+IM2.length;
    };
@@ -15266,6 +15269,8 @@ function ppShort(usd){ var rate=curRate(), n=Math.round(CUR==="USD"?usd:usd*rate
 function ppCurText(){ var names={USD:{ar:"بالدولار الأمريكي",en:"in US dollars",de:"in US-Dollar",fr:"en dollars US"},SYP:{ar:"بالليرة السورية",en:"in Syrian pounds",de:"in syrischen Pfund",fr:"en livres syriennes"},
   LBP:{ar:"بالليرة اللبنانية",en:"in Lebanese pounds",de:"in libanesischen Pfund",fr:"en livres libanaises"},EUR:{ar:"باليورو",en:"in euros",de:"in Euro",fr:"en euros"}}, n=names[CUR];
   var w=n?(n[L]||n.en):((L==="ar"?"بـ ":"in ")+CUR); return (L==="ar"?"المبلغ ":L==="de"?"Betrag ":L==="fr"?"Montant ":"Amount ")+w+' <b>('+esc(curLabel(CUR,L))+')</b>' }
+// the gallery's arrow icon: points right (toRight) or left — each arrow points to its own side of the photo
+function galChev(toRight){ return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+(toRight?'M9 5l7 7-7 7':'M15 5l-7 7 7 7')+'"/></svg>' }
 function heroPriceLabel(){
   // short numbers so a range fits in the box: $50k – $120k, 1.2M ل.س
   var rate=curRate(), cur=curLabel(CUR,"ar"), k=function(n){ return n>=1e6 ? (Math.round(n/1e5)/10).toString().replace(/\.0$/,"")+"M" : n>=1000 ? (Math.round(n/100)/10).toString().replace(/\.0$/,"")+"k" : String(n) };

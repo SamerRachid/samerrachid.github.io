@@ -1576,3 +1576,62 @@ html body .hero-outer.hu .sf.sf-furn{flex-direction:row!important;justify-conten
 html body .hero-outer.hu .sf.sf-furn .chev{position:absolute!important;inset-inline-end:10px!important;inset-inline-start:auto!important;top:50%!important;margin:-7px 0 0!important;transform:none;pointer-events:none}
 /* the neighbours' arrows sit right after the box's inline padding (12px from 1401px up, 10px below) */
 @media (min-width:1401px){ html body .hero-outer.hu .sf.sf-furn .chev{inset-inline-end:12px!important} }
+
+/* ===== listing gallery, fixed and improved in its own layout (owner 2026-10-30: «fix the current one and improve it») =====
+   the big photo beside a column of thumbnails stays; the photo is shown WHOLE (no crop) over a soft blur of itself, nothing grows
+   on hover, the arrows sit in the same place on photos and the video, every thumbnail (the video too) is the same size and a short
+   list fills the column, the count stays visible, the frame follows the screen height instead of a fixed 700px */
+html body .lpage .lgal .lg-main{background:#0D1729!important;overflow:hidden}
+html body .lpage .lgal .lg-main::before{content:"";position:absolute;inset:-30px;background:var(--bg) center/cover no-repeat;filter:blur(26px) brightness(.55) saturate(.95);opacity:1;z-index:0}
+html body .lpage .lgal .lg-main img.main,html body .lpage .lgal .lg-main video.main{position:relative;z-index:1;object-fit:contain!important;transform:none!important;transition:none!important;background:transparent!important}
+html body .lpage .lgal figure:hover img.main{transform:none!important}
+html body .lpage .lgal .gnav{width:44px!important;height:44px!important;top:50%!important;margin-top:-22px!important;transform:none!important;background:#fff!important;color:var(--navy)!important;border:0!important;border-radius:50%!important;display:grid!important;place-items:center!important;box-shadow:0 4px 14px rgba(0,0,0,.28)!important;z-index:3!important;padding:0!important;font-size:0!important}
+html body .lpage .lgal .gnav svg{width:22px;height:22px;display:block}
+html body .lpage .lgal .gnav:hover{background:#F4F5F8!important}
+html body .lpage .lgal .gcount{z-index:3}
+html body .lpage .lgal .lg-main .lg-enlarge{inset-inline-start:auto!important;inset-inline-end:12px!important;top:12px!important;z-index:4}
+html body .lpage .lgal .lg-main .lg-vid{z-index:3}
+html body .lightbox .lb-nav{display:grid;place-items:center;font-size:0}
+html body .lightbox .lb-nav svg{width:24px;height:24px}
+@media (min-width:861px){
+  html body .lpage .lgal:not(.n0){height:clamp(460px,70vh,680px)!important}
+  html body .lpage .lgal .lg-side{display:flex!important;flex-direction:column;gap:10px;height:100%;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding:0}
+  html body .lpage .lgal .lg-side::-webkit-scrollbar{display:none}
+  html body .lpage .lgal .lg-side>.gt,html body .lpage .lgal .lg-side>.gthv{flex:1 0 calc((100% - 40px) / 5)!important;width:100%!important;height:auto!important;min-height:90px;border-radius:10px!important;overflow:hidden;position:relative;cursor:pointer;transform:none!important;opacity:1!important;outline:0!important;background:#0D1729}
+  html body .lpage .lgal .lg-side>*:hover{transform:none!important}
+  html body .lpage .lgal .lg-side .gt img,html body .lpage .lgal .lg-side .gthv img{position:absolute;inset:0;width:100%!important;height:100%!important;object-fit:cover;opacity:.8;transition:opacity .2s;border-radius:0!important}
+  html body .lpage .lgal .lg-side>*:hover img,html body .lpage .lgal .lg-side>.sel img{opacity:1}
+  html body .lpage .lgal .lg-side>.sel::after{content:"";position:absolute;inset:0;border:3px solid var(--gold);border-radius:10px;z-index:2;pointer-events:none}
+}
+@media (min-width:861px) and (max-width:1180px){ html body .lpage .lgal:not(.n0):has(.lg-side){grid-template-columns:1fr 230px!important} }
+/* the video thumbnail: its poster with a round play button in the middle */
+html body .lpage .lgal .lg-side .gthv{display:block}
+html body .lpage .lgal .lg-side .gthv .vplay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;width:42px;height:42px;border-radius:50%;background:rgba(17,33,63,.75);border:2px solid rgba(255,255,255,.85);color:#fff;font-size:14px;display:grid;place-items:center;padding-inline-start:2px}
+@media (max-width:860px){
+  html body .lpage .lgal .gnav{width:38px!important;height:38px!important;margin-top:-19px!important}
+  html body .lpage .lgal .gnav svg{width:19px;height:19px}
+  html body .lpage .lgal .lg-side{display:flex!important;flex-direction:row;gap:6px;overflow-x:auto;padding:8px 0 2px;scrollbar-width:none;height:auto;background:transparent}
+  html body .lpage .lgal .lg-side::-webkit-scrollbar{display:none}
+  html body .lpage .lgal .lg-side>.gt,html body .lpage .lgal .lg-side>.gthv{flex:0 0 72px!important;width:72px!important;height:54px!important;aspect-ratio:auto!important;border-radius:6px!important;overflow:hidden;position:relative;opacity:1!important;outline:0!important}
+  html body .lpage .lgal .lg-side .gt img,html body .lpage .lgal .lg-side .gthv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.75}
+  html body .lpage .lgal .lg-side>.sel img{opacity:1}
+  html body .lpage .lgal .lg-side>.sel::after{content:"";position:absolute;inset:0;border:2px solid var(--gold);border-radius:6px;z-index:2;pointer-events:none}
+  html body .lpage .lgal .lg-side .gthv .vplay{width:26px;height:26px;font-size:10px;border-width:1.5px}
+}
+/* the thumbnail strip must not widen the page on phones (20 thumbnails made the listing column 1400px wide) */
+html body .lpage>.lgrid,html body .lpage .lgal,html body .lpage .lgal .lg-side{min-width:0!important;max-width:100%}
+/* «كل الصور» sits in the big photo's top corner (it used to land on the first thumbnail, and under the video's enlarge button);
+   on a phone's video the count moves to the top so it clears the video's control bar */
+@media (min-width:861px){
+  html body .lpage .lgal .lg-all{top:12px!important;bottom:auto!important;inset-inline-start:auto!important;inset-inline-end:calc(310px + 20px + 12px)!important;z-index:4}
+  html body .lpage .lgal .lg-main.onvid~.lg-all{inset-inline-end:calc(310px + 20px + 62px)!important}
+}
+@media (min-width:861px) and (max-width:1180px){
+  html body .lpage .lgal .lg-all{inset-inline-end:calc(230px + 20px + 12px)!important}
+  html body .lpage .lgal .lg-main.onvid~.lg-all{inset-inline-end:calc(230px + 20px + 62px)!important}
+}
+@media (max-width:860px){
+  html body .lpage .lgal .lg-all{top:12px!important;bottom:auto!important;inset-inline-start:auto!important;inset-inline-end:12px!important;z-index:4;white-space:nowrap}
+  html body .lpage .lgal .lg-main.onvid~.lg-all{inset-inline-end:60px!important}
+  html body .lpage .lgal .lg-main.onvid .gcount{top:12px!important;bottom:auto!important}
+}
