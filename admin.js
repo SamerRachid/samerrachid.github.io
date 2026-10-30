@@ -5504,7 +5504,7 @@ Object.assign(GX_T,{
   saMember:{ar:"حساب",en:"Account",de:"Konto"}, saNoMember:{ar:"أضيف من اللوحة",en:"Added from the panel",de:"Aus dem Panel"}, saEmpty:{ar:"لا يوجد مزوّدون بعد.",en:"No providers yet.",de:"Noch keine Anbieter."},
   saPhotos:{ar:"صور الأعمال",en:"Work photos",de:"Fotos"}, saLogo:{ar:"الشعار أو الصورة",en:"Logo or photo",de:"Logo"}, saAddPhoto:{ar:"+ صورة",en:"+ Photo",de:"+ Foto"},
   saCatNew:{ar:"+ تصنيف جديد",en:"+ New category",de:"+ Kategorie"}, saCatSlug:{ar:"رمز بالإنكليزية (مثل glass)",en:"Code (e.g. glass)",de:"Code"}, saCatOn:{ar:"ظاهر",en:"Shown",de:"Sichtbar"}, saOrder:{ar:"الترتيب",en:"Order",de:"Reihenfolge"},
-  saFeatUntil:{ar:"مميز حتى",en:"Featured until",de:"Hervorgehoben bis"}
+  saFeatUntil:{ar:"مميز حتى",en:"Featured until",de:"Hervorgehoben bis"}, saReviews:{ar:"التقييمات",en:"Reviews",de:"Bewertungen"}, saRevShow:{ar:"إظهار",en:"Show",de:"Zeigen"}
 });
 function saState(){ if(!ADM.sa) ADM.sa={data:null,f:"pending",edit:null,form:null,catNew:false}; return ADM.sa }
 function saLoad(){ var S=saState(); rpc("bk_admin_services",{p_token:ADM.token,p_country:COUNTRY}).then(function(r){ S.data=r||{cats:[],providers:[]}; render() }).catch(function(e){ S.data={cats:[],providers:[],err:e.message||String(e)}; render() }) }
@@ -5533,6 +5533,7 @@ function adminServicesBody(){ var S=saState(), D=S.data;
     '.sa-form{display:grid;gap:9px;margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}.sa-form .row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}.sa-form label{display:grid;gap:4px;font-size:12.5px;color:var(--grey)}'+
     '.sa-form input[type=text],.sa-form textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;background:var(--card);color:inherit}'+
     '.sa-phs{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.sa-ph{position:relative}.sa-ph img,.sa-logo img{width:70px;height:52px;object-fit:cover;border-radius:6px;display:block}.sa-ph button{position:absolute;top:-6px;inset-inline-end:-6px;width:20px;height:20px;border-radius:50%;border:0;background:#B3271E;color:#fff;cursor:pointer;line-height:1}'+
+    '.sa-revs{margin-top:8px}.sa-revs summary{cursor:pointer;font-size:13px;color:var(--grey)}.sa-rev{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;padding:6px 0;border-bottom:1px dashed var(--line)}.sa-rev.off{opacity:.5}'+
     '.sa-logo{display:flex;gap:8px;align-items:center}.sa-cats{display:grid;gap:6px}.sa-cat{display:grid;grid-template-columns:70px 1fr 1fr 80px;gap:8px;align-items:center}.sa-cat input{height:34px;border:1px solid var(--line);border-radius:8px;padding:0 8px;background:var(--card);color:inherit;min-width:0}'+
     '.svc-pick{display:flex;flex-wrap:wrap;gap:6px}.svc-pick button{border:1px solid var(--line);background:transparent;color:inherit;border-radius:999px;padding:5px 11px;font:inherit;font-size:13px;cursor:pointer}.svc-pick button.on{background:var(--gold);border-color:var(--gold);color:#11213F;font-weight:700}'+
     '@media (max-width:760px){.sa-form .row2{grid-template-columns:1fr}.sa-cat{grid-template-columns:60px 1fr 70px}.sa-cat .en{display:none}}</style>';
@@ -5547,6 +5548,9 @@ function adminServicesBody(){ var S=saState(), D=S.data;
         '<label style="display:inline-flex;gap:5px;align-items:center"><input type="checkbox" data-saver="'+p.id+'"'+(p.verified?' checked':'')+'> '+GX("saVerified")+'</label>'+
         '<span style="display:inline-flex;gap:5px;align-items:center">'+GX("saFeature")+' <input type="number" min="0" max="365" data-safd="'+p.id+'" placeholder="0"></span>'+
         '<button type="button" class="ab" data-saedit="'+p.id+'">'+GX("saEdit")+'</button></div>';
+    var rv=x.reviews||[];
+    if(rv.length) H+='<details class="sa-revs"><summary>'+GX("saReviews")+' <span class="ltr">('+rv.length+')</span></summary>'+rv.map(function(r){ return '<div class="sa-rev'+(r.hidden?' off':'')+'"><span class="ltr" style="color:var(--gold)">'+"★".repeat(r.stars)+'</span> <b>'+esc(r.name||"")+'</b> '+(r.body?'<span>'+esc(r.body)+'</span> ':'')+
+      '<button type="button" class="ab" data-sarevhide="'+r.id+'" data-h="'+(r.hidden?0:1)+'">'+(r.hidden?GX("saRevShow"):GX("saHide"))+'</button></div>' }).join("")+'</details>';
     if(S.edit===p.id) H+=saForm(p);
     return H+'</div>' };
   var cats=(D.cats||[]).map(function(c){ return '<div class="sa-cat"><label style="display:inline-flex;gap:5px;align-items:center;font-size:12.5px"><input type="checkbox" data-sacat="'+esc(c.slug)+'" data-k="enabled"'+(c.enabled?' checked':'')+'> '+GX("saCatOn")+'</label>'+
@@ -5569,6 +5573,7 @@ function wireServicesAdm(){ var S=saState(), D=S.data; if(!D) return;
     area_names:p?(p.area_names||[]).join("، "):"",logo_url:p?p.logo_url:"",photos:p&&Array.isArray(p.photos)?p.photos.slice():[]} };
   $$("[data-saedit]").forEach(function(b){ b.onclick=function(){ var id=+this.dataset.saedit; if(S.edit===id){ S.edit=null; render(); return } var x=(D.providers||[]).filter(function(y){ return y.row.id===id })[0]; S.edit=id; openForm(x&&x.row); render() } });
   if($("#saNew")) $("#saNew").onclick=function(){ S.edit="new"; openForm(null); render() };
+  $$("[data-sarevhide]").forEach(function(b){ b.onclick=async function(){ try{ await rpc("bk_admin_service_review_hide",{p_token:ADM.token,p_id:+this.dataset.sarevhide,p_hidden:this.dataset.h==="1"}); admToast(t("savedOk")); saLoad() }catch(e){ alert(e.message) } } });
   if(S.form){
     $$("[data-saf]").forEach(function(i){ i.oninput=function(){ S.form[this.dataset.saf]=this.value } });
     $$("[data-sapick]").forEach(function(b){ b.onclick=function(){ var a=S.form[this.dataset.sapick], v=this.dataset.v, i=a.indexOf(v); if(i>-1) a.splice(i,1); else a.push(v); this.classList.toggle("on",i<0) } });

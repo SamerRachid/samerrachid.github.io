@@ -1412,3 +1412,14 @@ html body .svc-teamwa{display:inline-flex;align-items:center;gap:8px;color:#5BD6
 html body .svc-teamwa svg,html body .svc-teamwa .mi{width:18px;height:18px}
 html body .svc-help{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:14px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;color:#D5DCE8;font-size:14px}
 @media (max-width:640px){html body .svc-hacts{align-items:stretch}html body .svc-teamwa{justify-content:center}}
+
+/* «خدمات العقار» phase 2: ratings, reviews, the block on listing pages (2026-10-30) */
+html body .svc-rate{display:flex;align-items:center;gap:6px;font-size:13px;color:#D5DCE8}html body .svc-rate .starsbig{color:var(--gold);font-size:14px}
+html body .svc-revs{display:grid;gap:10px}html body .svc-rev{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--navy-2)}
+html body .svc-rev .starsbig{color:var(--gold)}html body .svc-rev small{color:var(--muted);margin-inline-start:6px}html body .svc-rev p{margin-top:6px;color:#D5DCE8}
+html body .svc-rform{display:grid;gap:10px;margin-top:14px;padding:14px;border:1px dashed rgba(202,144,81,.5);border-radius:10px}
+html body .svc-rform textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;background:var(--navy);color:#fff;padding:10px;font:inherit}
+html body .svc-rform .starpick span{font-size:28px;cursor:pointer;color:rgba(255,255,255,.25)}html body .svc-rform .starpick span.on{color:var(--gold)}
+html body .svc-inlisting p{color:var(--muted);margin:-4px 0 12px}
+html body .svc-inlisting .svc-pick a{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:7px 14px;color:#fff;text-decoration:none;font-size:14px}
+html body .svc-inlisting .svc-pick a span{color:var(--gold);font-weight:700}html body .svc-inlisting .svc-pick a:hover{border-color:var(--gold)}
