@@ -1551,3 +1551,12 @@ html body .hero-outer.hu .sf-price:has(.pricepop:not([hidden])) .pricetrig .chev
 /* on phones the top of «السعر»'s first letter rose above the price button and its clipping cut it off; the button there is
    150px wide, room enough for any chosen range */
 @media (max-width:900px){ html body .hero-outer.hu .sf .pricetrig{overflow:visible!important} }
+/* the price field's text sits in the middle of its box like the bar's other fields (owner 2026-10-30): the same space is kept
+   free for the little arrow (inline-end), and both «السعر / الكل» and a chosen range («$25k – $125k») are centred */
+html body .hero-outer.hu .sf .pricetrig{align-items:center!important;justify-content:center!important;text-align:center!important;padding-inline-end:27px!important;padding-inline-start:1px!important}
+html body .hero-outer.hu .sf .pricetrig .ph[data-all]{align-items:center!important;text-align:center}
+/* the hero headline a bit thinner (owner 2026-10-30): the white words lose the extra 1.5px outline (1.1px on phones) that made
+   them heavier than the gold «من هنا.»; the face stays Reem Kufi 700 */
+html body .hero-outer.hu .hero h1{-webkit-text-stroke:0!important}
+/* the base rule draws the headline as an outline on a transparent fill; with the outline gone it needs a fill when Studio sets none */
+html body .hero-outer.hu .hero h1:not([style*="color"]){color:#fff}
