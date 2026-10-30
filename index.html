@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-xqCy/RCmesexB7wzFjYkD4UL3bvIf8j8HGf2JyT+nuI=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-zC9rF07jdK8mPB1zbim5MDqWKlsJxct/4UkjBYqnwKk=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -4991,7 +4991,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202610301055"><script>
+</style><link rel="stylesheet" href="/theme-hu.css?v=202610301059"><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
   brand:      "بلكون",
@@ -10377,7 +10377,7 @@ function heroSearchBarHtml(){
         return D.TABU[v]?D.TABU[v][li()]:v},true)+'</div>')+
    '<div class="sf sf-rooms">'+chipSelect("csRooms",GX("roomsField"),F.rooms||[],roomsLabel,true)+'</div>'+
    '<div class="sf sf-price"><button type="button" class="pricetrig" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
-     '<div class="pricepop" id="hPricePop" hidden><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(curRate())):"")+'"></label>'+
+     '<div class="pricepop" id="hPricePop" hidden><div class="pp-cur">'+ppCurText()+'</div><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(curRate())):"")+'"></label>'+
      '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="∞" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(curRate())):"")+'"></label></div>'+
      '<div class="pp-foot"><button type="button" class="pp-clear" id="hPriceClear">'+GX("anyPrice")+'</button><button type="button" class="pp-done" id="hPriceDone">'+GX("done")+'</button></div></div></div>'+
    '<button class="sgo" id="hgo">'+t("search")+'<span id="hgoCount">'+heroCount(F.deal)+'</span></button>'+
@@ -15170,7 +15170,7 @@ var GX_T={
   xAdVideoMax:{ar:"الحد الأقصى لحجم فيديو المربع (MB)",en:"Maximum ad video size (MB)",de:"Maximale Videogröße (MB)"},
   xDesignH:{ar:"النتائج",en:"Results",de:"Ergebnisse"},
   xPageSize:{ar:"عدد الإعلانات في صفحة النتائج",en:"Listings per results page",de:"Anzeigen pro Ergebnisseite"},
-  xSimilar:{ar:"عدد «إعلانات أخرى» تحت صفحة الإعلان",en:"“More listings” shown under a listing",de:"„Weitere Anzeigen“ unter einer Anzeige"}, sponsored:{ar:"إعلان مدفوع",en:"Sponsored",de:"Gesponsert"},
+  xSimilar:{ar:"عدد «إعلانات أخرى» تحت صفحة الإعلان",en:"“More listings” shown under a listing",de:"„Weitere Anzeigen“ unter einer Anzeige"}, sponsored:{ar:"إعلان مدفوع",en:"Sponsored",de:"Gesponsert"}, ppCur:{ar:"المبلغ بـ {c}",en:"Amount in {c}",de:"Betrag in {c}",fr:"Montant en {c}"},
   apkH:{ar:"تطبيق أندرويد",en:"Android app",de:"Android-App"}, apkP:{ar:"حتى يصل التطبيق إلى Google Play، حمّله من هنا مباشرة.",en:"Until it is on Google Play, download it here.",de:"Bis zur Veröffentlichung bei Google Play hier laden."},
   apkBtn:{ar:"حمّل التطبيق",en:"Download the app",de:"App herunterladen"}, apkVer:{ar:"النسخة 1.2 · 3 ميغا",en:"Version 1.2 · 3 MB",de:"Version 1.2 · 3 MB"},
   apkS1:{ar:"اضغط «حمّل التطبيق» وانتظر انتهاء التحميل.",en:"Tap «Download the app» and wait for it to finish.",de:"Tippen und warten."},
@@ -15236,6 +15236,10 @@ function heroSubHtml(txt){
   return before+'<span class="flipw"><span class="flipw-in"><span class="f1">'+face1+'</span><span class="f2">'+alt+'</span></span></span>';
 }
 /* hero price field: label text and quick presets in the current currency */
+// the home bar's price popup says which money the numbers are in (the visitor can show prices in dollars or a local currency)
+function ppCurText(){ var names={USD:{ar:"بالدولار الأمريكي",en:"in US dollars",de:"in US-Dollar",fr:"en dollars US"},SYP:{ar:"بالليرة السورية",en:"in Syrian pounds",de:"in syrischen Pfund",fr:"en livres syriennes"},
+  LBP:{ar:"بالليرة اللبنانية",en:"in Lebanese pounds",de:"in libanesischen Pfund",fr:"en livres libanaises"},EUR:{ar:"باليورو",en:"in euros",de:"in Euro",fr:"en euros"}}, n=names[CUR];
+  var w=n?(n[L]||n.en):((L==="ar"?"بـ ":"in ")+CUR); return (L==="ar"?"المبلغ ":L==="de"?"Betrag ":L==="fr"?"Montant ":"Amount ")+w+' <b>('+esc(curLabel(CUR,L))+')</b>' }
 function heroPriceLabel(){
   // short numbers so a range fits in the box: $50k – $120k, 1.2M ل.س
   var rate=curRate(), cur=curLabel(CUR,"ar"), k=function(n){ return n>=1e6 ? (Math.round(n/1e5)/10).toString().replace(/\.0$/,"")+"M" : n>=1000 ? (Math.round(n/100)/10).toString().replace(/\.0$/,"")+"k" : String(n) };

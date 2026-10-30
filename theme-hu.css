@@ -1456,3 +1456,4 @@ html body:not(.adm-mode) input,html body:not(.adm-mode) textarea,html body:not(.
 html body .hero-outer.hu .sf .pricetrig .ph[data-all]{display:flex;flex-direction:column;gap:4px;color:#6B7484;font-size:10px;font-weight:400;line-height:10px}
 html body .hero-outer.hu .sf .pricetrig .ph[data-all]::after{content:attr(data-all);color:var(--navy);font-size:12px;font-weight:600;line-height:14px}
 html body .hero-outer.hu .sf .pricetrig{justify-content:center}
+html body .hero-outer.hu .pricepop .pp-cur{font-size:12px;color:#5B6371;margin-bottom:8px}html body .hero-outer.hu .pricepop .pp-cur b{color:var(--navy);font-weight:700}
