@@ -1378,3 +1378,8 @@ html body .res .card.c2.res-ad.full .ph img,html body .res .card.c2.res-ad.full 
 html body .res.list-view .res-ad.full{aspect-ratio:auto;min-height:260px}
 /* phones: on the search page the WhatsApp bubble sits above the filters / map / sort bar instead of over its last button (2026-10-30) */
 @media (max-width:900px){ html body .wa-fab.wa-up{bottom:calc(86px + env(safe-area-inset-bottom))} }
+/* «مطلوب»: every request card the same height, whatever its text, on every width (owner 2026-10-30); the poster line stays at the bottom */
+html body .w-grid{grid-auto-rows:1fr;align-items:stretch}
+html body .w-grid>.wcard{height:100%;display:flex;flex-direction:column}
+.spg .sp-sv.wide{grid-column:1/-1;display:grid;grid-template-columns:48px 1fr;column-gap:18px;align-items:center;border-inline-start:0!important;padding-inline-start:0!important}
+.spg .sp-sv.wide b{margin-top:0}.spg .sp-sv.wide p{max-width:680px}
