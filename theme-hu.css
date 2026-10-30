@@ -1166,7 +1166,9 @@ body.hu-opening .hero-outer.hu .stabs{animation:huFadeUp 1s ease-out both!import
 
 /* 2026-10-29 owner (desktop): "only the headline moves on opening". The header and bar entrances ran while the curtain was still
    covering them (it faded 1.45-2.05s). The curtain now fades right after the word lifts and the entrances start once it is gone. */
-html body .curtain{display:none!important}
+/* 2026-10-30 owner: the turning logo is back. The curtain now fades quickly once the word lifts (from ~1.15s to 1.65s) and the
+   entrances wait for it (base 1.35s in heroChoreo), so the header and the search bar are seen moving, not hidden under it */
+html body .curtain{transition:opacity .5s ease .2s!important}
 
 /* 2026-10-29 owner: the video's remove "x" in the post form was a bare browser button (white block, invisible x on the dark
    theme). Same round dark button as the photo thumbnails' remove */
