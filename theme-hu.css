@@ -1219,3 +1219,6 @@ html body .rs-chip button{width:24px!important;height:24px!important;min-width:2
 html body .rs-chip button:hover{background:rgba(226,92,92,.35)!important}
 html body .rs-chipclr{margin-inline-start:4px;color:rgba(255,255,255,.7)!important;font-size:13px}
 html body .rs-chipclr:hover{color:var(--gold)!important}
+/* 2026-10-30 (owner): the hero's «ابحث» rose 2px on hover and showed the white search row under it; it stays in place and only
+   lightens a little, in the theme's own gold (the old #D6952A orange belonged to the previous look) */
+html body .hero-outer.hu .srow .sgo:hover,html body .hero-outer.hu .srow .sgo:active{transform:none!important;background:#D49C5E!important}
