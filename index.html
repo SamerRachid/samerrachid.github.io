@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-rA/LjsEvjOee4BN+l1qyJ5b8bFN1478U2zyNgQfOjcA=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-gzXpfprr5t6/EdBg5K8KSg/pqFB4pKyj/TKgCkUTThI=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -4991,7 +4991,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202610300941"><script>
+</style><link rel="stylesheet" href="/theme-hu.css?v=202610300946"><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
   brand:      "بلكون",
@@ -9513,6 +9513,8 @@ async function loadServices(){ if(!DB){ SVC={cats:[],providers:[]}; return } try
 async function loadMyService(){ if(!DB||!USER){ SVMINE=null; return } try{ var r=await DB.rpc("bk_service_mine",{p_token:USER.token||null}); SVMINE=(r&&r.data)||null }catch(e){ SVMINE=null } }
 function svcCatName(slug){ var c=((SVC&&SVC.cats)||[]).filter(function(x){ return x.slug===slug })[0]; return c?(L==="ar"?c.name_ar:(c.name_en||c.name_ar)):slug }
 function svcWa(p){ return String(p.whatsapp||p.phone||"").replace(/\D/g,"").replace(/^00/,"").replace(/^0(?=9)/,"963") }
+// the Balkoun team on WhatsApp, for a provider who prefers to send his details or has a question (owner 2026-10-30)
+function svcTeamWa(cls){ var n=String(CONFIG.whatsapp||"").replace(/\D/g,""); return n?'<a class="'+cls+'" href="https://wa.me/'+n+'?text='+encodeURIComponent(GX("svcTeamMsg"))+'" target="_blank" rel="noopener">'+MI.msgs+'<span>'+GX("svcTeamWa")+'</span></a>':'' }
 function svcCard(p){ var ar=L==="ar", wa=svcWa(p), tel=String(p.phone||"").replace(/[^\d+]/g,"");
   return '<div class="agcard'+(p.featured?' svc-feat':'')+'" data-svopen="'+p.id+'" role="link" tabindex="0">'+
     (p.featured?'<span class="svc-ftag">'+GX("svcFeatured")+'</span>':'')+
@@ -9531,7 +9533,7 @@ function servicesPage(){
   var count={}; ((SVC&&SVC.providers)||[]).forEach(function(p){ (p.cats||[]).forEach(function(k){ count[k]=(count[k]||0)+1 }) });
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("svcNav")+'</div></div>'+
    '<div class="wrap agdir svcdir">'+
-    '<div class="ag-hero"><div><div class="eyebrow">'+GX("svcEyebrow")+'</div><h1>'+GX("svcTitle")+'</h1><p>'+GX("svcLead")+'</p></div><a class="gold" href="/services/join" data-go="servicejoin">'+GX("svcJoin")+'</a></div>'+
+    '<div class="ag-hero"><div><div class="eyebrow">'+GX("svcEyebrow")+'</div><h1>'+GX("svcTitle")+'</h1><p>'+GX("svcLead")+'</p></div><div class="svc-hacts"><a class="gold" href="/services/join" data-go="servicejoin">'+GX("svcJoin")+'</a>'+svcTeamWa("svc-teamwa")+'</div></div>'+
     '<div class="svc-cats">'+cats.map(function(c){ return '<button type="button" class="svc-cat'+(SVF.cat===c.slug?' on':'')+'" data-svcat="'+esc(c.slug)+'"><b>'+esc(L==="ar"?c.name_ar:(c.name_en||c.name_ar))+'</b><span class="ltr">'+(count[c.slug]||0)+'</span></button>' }).join("")+'</div>'+
     '<div class="ag-filters"><input id="svQ" data-allow-autofill placeholder="'+esc(GX("svcSearchPH"))+'" value="'+esc(SVF.q)+'">'+
      '<div class="ag-pills"><button type="button" class="'+(SVF.g?"":"on")+'" data-svg="">'+GX("agAllGov")+'</button>'+govs.map(function(g){ return '<button type="button" class="'+(SVF.g===g?"on":"")+'" data-svg="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
@@ -9565,6 +9567,7 @@ function serviceJoinPage(){
   var st=m.status?'<div class="svc-status">'+GX("svcStatus")+' '+agStatusPill(m.status)+'</div>':'';
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a href="/services" data-go="services">'+GX("svcNav")+'</a><i>›</i>'+GX("svcJoin")+'</div></div>'+
    '<div class="wrap svcjoin" style="max-width:760px;padding:22px 18px 60px"><h1>'+GX(m.id?"svcEditT":"svcJoinT")+'</h1><p class="svc-lead">'+GX("svcJoinLead")+'</p>'+st+
+    (m.id?'<div class="hintx" style="margin-bottom:12px">'+GX("svcEditReview")+'</div>':'')+'<div class="svc-help">'+GX("svcHelp")+' '+svcTeamWa("svc-teamwa")+'</div>'+
     '<div class="blk"><div class="in">'+fl("svfname",GX("svcFName"),f.name)+fl("svfcontact_person",GX("svcFPerson"),f.contact_person)+
       '<div class="row">'+fl("svfwhatsapp",GX("svcFWa"),f.whatsapp,"tel","+9639…")+fl("svfphone",GX("svcFPhone"),f.phone,"tel","+9639…")+'</div>'+
       '<div class="fl"><label>'+GX("svcFCats")+'</label><div class="svc-pick">'+cats.map(function(c){ return '<button type="button" class="'+(f.cats.indexOf(c.slug)>-1?"on":"")+'" data-svpick="cats" data-v="'+esc(c.slug)+'">'+esc(L==="ar"?c.name_ar:(c.name_en||c.name_ar))+'</button>' }).join("")+'</div></div>'+
@@ -15120,7 +15123,10 @@ var GX_T={
   svcJoin:{ar:"سجّل خدمتك مجاناً",en:"List your service free",de:"Dienst kostenlos eintragen"}, svcSearchPH:{ar:"ابحث باسم أو خدمة أو منطقة…",en:"Search a name, trade or area…",de:"Name, Gewerk oder Gebiet…"},
   svcEmpty:{ar:"لا يوجد مزوّدو خدمات بعد.",en:"No providers yet.",de:"Noch keine Anbieter."}, svcEmptyF:{ar:"لا يوجد مزوّد بهذا البحث بعد.",en:"Nobody matches this yet.",de:"Noch kein Treffer."},
   svcEmptyCta:{ar:"تعمل في إحدى هذه المهن؟ سجّل خدمتك ليجدك الناس.",en:"Working in one of these trades? List your service.",de:"Tragen Sie Ihren Dienst ein."},
-  svcFeatured:{ar:"مميز",en:"Featured",de:"Hervorgehoben"}, svcVerified:{ar:"موثّق",en:"Verified",de:"Verifiziert"}, svcWork:{ar:"من أعماله",en:"Their work",de:"Arbeiten"},
+  svcFeatured:{ar:"مميز",en:"Featured",de:"Hervorgehoben"}, svcVerified:{ar:"موثّق",en:"Verified",de:"Verifiziert"}, svcTeamWa:{ar:"أو تواصل معنا على واتساب",en:"or message us on WhatsApp",de:"oder per WhatsApp"},
+  svcTeamMsg:{ar:"مرحباً، أريد تسجيل خدمتي في «خدمات العقار» على بلكون.",en:"Hello, I want to list my service in Balkoun's home services.",de:"Hallo, ich möchte meinen Dienst eintragen."},
+  svcHelp:{ar:"تفضّل أن نسجّلك نحن، أو عندك سؤال؟",en:"Prefer us to list you, or have a question?",de:"Fragen?"},
+  svcEditReview:{ar:"أي تعديل على بطاقتك يعود للمراجعة، وتظهر من جديد بعد الموافقة.",en:"Any change goes back to review and shows again once approved.",de:"Jede Änderung wird erneut geprüft."}, svcWork:{ar:"من أعماله",en:"Their work",de:"Arbeiten"},
   svcWaMsg:{ar:"مرحباً، وجدتك على بلكون (خدمات العقار).",en:"Hello, I found you on Balkoun (home services).",de:"Hallo, ich habe Sie auf Balkoun gefunden."},
   svcNote:{ar:"بلكون يعرض أصحاب المهن ليتواصل الناس معهم مباشرة. الاتفاق على السعر والعمل بينك وبينهم.",en:"Balkoun lists tradespeople so you can reach them directly; price and work are agreed between you.",de:"Preis und Arbeit vereinbaren Sie direkt."},
   svcJoinT:{ar:"سجّل خدمتك على بلكون",en:"List your service on Balkoun",de:"Dienst auf Balkoun eintragen"}, svcEditT:{ar:"بطاقة خدمتك",en:"Your service card",de:"Ihre Dienstkarte"},

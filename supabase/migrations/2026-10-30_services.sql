@@ -70,7 +70,7 @@ begin
 end $$;
 grant execute on function public.bk_service_mine(text) to anon, authenticated;
 
--- a member registers / edits his card; a new card waits for the owner, an approved one stays approved
+-- a member registers / edits his card; a new card and every change wait for the owner's approval (a hidden card stays hidden)
 create or replace function public.bk_service_save(p_token text, p_data jsonb)
 returns json language plpgsql security definer set search_path to 'public', 'extensions' as $$
 declare uid uuid; r service_providers; v_cats text[];
@@ -91,7 +91,7 @@ begin
   on conflict (user_id) do update set name = excluded.name, contact_person = excluded.contact_person, phone = excluded.phone, whatsapp = excluded.whatsapp,
      description = excluded.description, logo_url = excluded.logo_url, photos = excluded.photos, cats = excluded.cats, gov_names = excluded.gov_names,
      area_names = excluded.area_names, updated_at = now(),
-     status = case when service_providers.status in ('approved','hidden') then service_providers.status else 'pending' end
+     status = case when service_providers.status = 'hidden' then 'hidden' else 'pending' end   -- owner: every change waits for his approval again
   returning * into r;
   return row_to_json(r);
 end $$;

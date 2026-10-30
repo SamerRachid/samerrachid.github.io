@@ -1407,3 +1407,8 @@ html body .agcard .agbtn.wa svg{color:#fff!important;stroke:#fff}
 @media (max-width:640px){html body .svc-cats{display:flex;overflow-x:auto;gap:8px;margin-inline:-18px;padding:2px 18px 6px;scrollbar-width:none}html body .svc-cats::-webkit-scrollbar{display:none}html body .svc-cat{flex:none;padding:9px 12px}}
 html body .svc-ftag{top:-11px!important;box-shadow:0 0 0 3px var(--navy)}
 @media (max-width:640px){html body .svcdir .ag-filters .ag-pills{flex-wrap:nowrap;overflow-x:auto;margin-inline:-18px;padding:2px 18px 6px;scrollbar-width:none}html body .svcdir .ag-filters .ag-pills::-webkit-scrollbar{display:none}html body .svcdir .ag-filters .ag-pills button{flex:none}}
+html body .svc-hacts{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+html body .svc-teamwa{display:inline-flex;align-items:center;gap:8px;color:#5BD68A;font-size:14px;font-weight:700;text-decoration:none}
+html body .svc-teamwa svg,html body .svc-teamwa .mi{width:18px;height:18px}
+html body .svc-help{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:14px;padding:10px 14px;border:1px solid var(--line);border-radius:10px;color:#D5DCE8;font-size:14px}
+@media (max-width:640px){html body .svc-hacts{align-items:stretch}html body .svc-teamwa{justify-content:center}}
