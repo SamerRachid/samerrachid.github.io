@@ -1495,11 +1495,10 @@ html body .pp-r:focus-visible::-webkit-slider-thumb{outline:2px solid var(--navy
 }
 /* the popup's box rules (height, padding, fill, border) were reaching the slider's two range inputs too */
 html body .hero-outer.hu .pricepop input.pp-r,html body .pricepop input.pp-r{height:30px!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;border-radius:0!important;outline:none}
-/* the same popup on a phone: the price box is half the bar's width, so the popup spans the whole bar instead and opens above
-   it (below it ran off the screen); white like on the computer, 16px text so the phone does not zoom in on typing */
+/* the same popup on a phone: the price box is half the bar's width (it is the row's second box), so the popup reaches across both
+   boxes (2 × width + the 6px gap + the two 1px borders) and opens above (below it ran off the screen); the field stays positioned so its arrow stays put; white like on the computer, 16px text so the phone does not zoom in on typing */
 @media (max-width:900px){
-  html body .hero-outer.hu .sf-price{position:static!important}
-  html body .hero-outer.hu .pricepop{top:auto!important;bottom:calc(100% + 8px)!important;inset-inline:0!important;width:auto!important;min-width:0!important;padding:14px!important;background:#fff!important;color:var(--navy)!important;border:1px solid rgba(17,33,63,.12)!important;border-radius:8px!important;box-shadow:0 18px 44px -10px rgba(0,0,0,.45)!important}
+  html body .hero-outer.hu .pricepop{top:auto!important;bottom:calc(100% + 8px)!important;inset-inline-start:auto!important;inset-inline-end:-1px!important;width:calc(200% + 10px)!important;min-width:0!important;padding:14px!important;background:#fff!important;color:var(--navy)!important;border:1px solid rgba(17,33,63,.12)!important;border-radius:8px!important;box-shadow:0 18px 44px -10px rgba(0,0,0,.45)!important}
   html body .hero-outer.hu .pricepop label{color:#5B6371!important;font-size:12px}
   html body .hero-outer.hu .pricepop .pp-row{gap:10px}
   html body .hero-outer.hu .pricepop input[type=number]{height:44px!important;font-size:16px!important;padding:0 12px!important;background:#F4F5F8!important;color:var(--navy)!important;border:1px solid rgba(17,33,63,.15)!important;border-radius:8px!important;-moz-appearance:textfield}
@@ -1546,3 +1545,9 @@ html body .hero-outer.hu .pricepop .pp-done{font-size:14px!important;font-weight
   html body .hero-outer.hu .pricepop input[type=number]{height:42px!important}
   html body .hero-outer.hu .pricepop .pp-done,html body .hero-outer.hu .pricepop .pp-clear{height:40px!important}
 }
+/* the price field's little arrow turns up while its popup is open, like the bar's other lists */
+html body .hero-outer.hu .sf-price .pricetrig .chev{transition:transform .2s}
+html body .hero-outer.hu .sf-price:has(.pricepop:not([hidden])) .pricetrig .chev{transform:rotate(180deg)}
+/* on phones the top of «السعر»'s first letter rose above the price button and its clipping cut it off; the button there is
+   150px wide, room enough for any chosen range */
+@media (max-width:900px){ html body .hero-outer.hu .sf .pricetrig{overflow:visible!important} }
