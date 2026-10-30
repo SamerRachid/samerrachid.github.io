@@ -833,6 +833,9 @@ html body .hero-outer.hu .sbar.hu-still,html body .hero-outer.hu .sbar.hu-still 
 /* 2026-10-30: the tabs and the AI bar inside a re-drawn bar stand still too (body.hu-opening stays on after the opening, so a click on
    «للإيجار» replayed their entrance: the three tabs vanished and faded back in) */
 html body .hero-outer.hu .sbar.hu-still .stabs,html body .hero-outer.hu .sbar.hu-still .aisearch{animation:none!important;opacity:1!important;transform:none!important}
+/* coming back to the home page after the opening: the tabs and the AI bar replay their entrance, so the search row rises with them
+   instead of standing still while they fade in around it */
+body.hu-opening .hero-outer.hu .sbar.hu-return .srow{animation:huFadeUp 1s ease-out both!important;animation-delay:calc(var(--hu-base,0ms) + 500ms)!important}
 html body .sbar.hu-still .chipsel-drop.on{animation:none!important}   /* the list re-opened after a pick stays put instead of sliding up again */
 /* phones: the field lists every chosen name (two lines in the filter sheet, one clipped line in the hero bar) */
 @media (max-width:640px){

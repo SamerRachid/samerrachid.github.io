@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-lmNAqifWeQgk6I1E2gaUyK4HB4Su+iB36GpDPbDikBs=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-gf72HGeSKvOT5F4qSJEwVstKwf6V0KzkJAY61vyMlP0=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -1009,7 +1009,8 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
 .js .seo-home{display:none}
 #bootSplash{display:none;position:fixed;inset:0;z-index:9999;background:#14213D;align-items:center;justify-content:center}
 .js #bootSplash{display:flex}#bootSplash img{width:150px;height:auto;opacity:.95}
-.inapp #bootSplash img{display:none}   /* the Android app has just shown its turning logo: the page's own small loading logo would flash after it (2026-10-30) */
+#bootSplash img{display:none}   /* 2026-10-30 (owner): the small loading logo flashed alone in the middle before the page drew; since the theme's opening has no
+   curtain any more nothing follows it, so the loading ground stays plain navy (the Android app shows its own turning logo first) */
 .seo-home{background:var(--navy);color:#fff;padding:28px 18px 40px;max-width:1220px;margin:0 auto;font-family:inherit}
 .seo-home h1{font-size:28px;line-height:1.4;margin:0 0 10px}.seo-home p{color:rgba(255,255,255,.85);line-height:1.9;max-width:900px}
 .seo-home h2{font-size:18px;margin:24px 0 10px;color:#E3B563}.seo-home ul{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:8px}
@@ -4999,7 +5000,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202610300707"><script>
+</style><link rel="stylesheet" href="/theme-hu.css?v=202610300714"><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
   brand:      "بلكون",
@@ -10076,7 +10077,7 @@ function huRevealResults(){ var res=$(".res"); if(!res) return; if(res.classList
   cards.forEach(function(c,i){ c.classList.remove("hu-reset"); c.style.setProperty("transition-delay",(Math.min(i,8)*70)+"ms","important") });
   void res.offsetWidth;
   cards.forEach(function(c,i){ c.classList.add("hu-in"); setTimeout(function(){ c.style.removeProperty("transition-delay"); c.classList.add("hu-done") },1150+Math.min(i,8)*70) }) }
-function huPageIn(){ if(window._huLastView===VIEW) return; window._huLastView=VIEW; $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.hero-outer,[id$=Modal],.modal")) return; e.classList.remove("hu-page"); void e.offsetWidth; e.style.animationDelay=Math.min(i,6)*40+"ms"; e.classList.add("hu-page") }) }
+function huPageIn(){ if(window._huLastView===VIEW) return; var back=VIEW==="home"&&window._huLastView&&!_openingActive; window._huLastView=VIEW; if(back){ var sb=$(".hero-outer .sbar"); if(sb&&!sb.classList.contains("hu-still")) sb.classList.add("hu-return") }   /* back on the home page: the search row rises with the tabs and the AI bar (owner 2026-10-30) */ $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.hero-outer,[id$=Modal],.modal")) return; e.classList.remove("hu-page"); void e.offsetWidth; e.style.animationDelay=Math.min(i,6)*40+"ms"; e.classList.add("hu-page") }) }
 function heroSlidesHtml(type,studio){
   if((type==="photo"||type==="video") && studio) return studio;   // a background set in the studio stays as it is
   var S=["umayyad","aleppo","arwad"], P="/next/images/hero/";
@@ -12685,7 +12686,7 @@ function render(){
      var tmp=document.createElement("div"); tmp.innerHTML=html;
      try{ morphdom(app,tmp,{childrenOnly:true,onBeforeElUpdated:function(a,b){ if(a.id==="sketchBox"||a.id==="dawnBox"||a.id==="rsMap") return false;
        // a block that has already revealed keeps its reveal state through the patch (no 50ms flicker), the results hook re-runs the motion when the set changes
-       if(a.classList&&b.classList){ ["choreo","choreo-hdr","choreo-slide"].forEach(function(k){ if(a.classList.contains(k)){ b.classList.add(k); if(a.style.animationDelay) b.style.animationDelay=a.style.animationDelay } }) }   // the opening choreography survives a data render
+       if(a.classList&&b.classList){ ["choreo","choreo-hdr","choreo-slide","hu-return"].forEach(function(k){ if(a.classList.contains(k)){ b.classList.add(k); if(a.style.animationDelay) b.style.animationDelay=a.style.animationDelay } }) }   // the opening choreography survives a data render
        if(a.classList&&a.classList.contains("hu-rv")&&b.classList){ b.classList.add("hu-rv"); if(a.classList.contains("hu-rv-t")) b.classList.add("hu-rv-t"); if(a.classList.contains("hu-in")) b.classList.add("hu-in"); if(a.classList.contains("hu-done")) b.classList.add("hu-done") }
        return !a.isEqualNode(b) }}) }catch(e){ app.innerHTML=html }
    } else app.innerHTML=html;
