@@ -1511,3 +1511,6 @@ html body .hero-outer.hu .pricepop input.pp-r,html body .pricepop input.pp-r{hei
   html body .hero-outer.hu .pricepop .pp-done{height:44px;padding:0 30px!important;font-size:15px!important;font-weight:700!important;background:#CA9051!important;color:var(--navy)!important;border:0!important;border-radius:8px!important}
   html body .hero-outer.hu .pricepop .pp-r::-webkit-slider-thumb{width:26px;height:26px;margin-top:2px}
 }
+/* an old rule turns the popup's inputs left-to-right (right for typed numbers); the slider follows the page instead, so in Arabic
+   the low end sits on the right under «من» and the gold fill (drawn with inline insets) lands between the two handles */
+html body .pricepop input.pp-r{direction:inherit!important}
