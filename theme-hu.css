@@ -1457,3 +1457,16 @@ html body .hero-outer.hu .sf .pricetrig .ph[data-all]{display:flex;flex-directio
 html body .hero-outer.hu .sf .pricetrig .ph[data-all]::after{content:attr(data-all);color:var(--navy);font-size:12px;font-weight:600;line-height:14px}
 html body .hero-outer.hu .sf .pricetrig{justify-content:center}
 html body .hero-outer.hu .pricepop .pp-cur{font-size:12px;color:#5B6371;margin-bottom:8px}html body .hero-outer.hu .pricepop .pp-cur b{color:var(--navy);font-weight:700}
+
+/* home bar price popup, tidied (owner 2026-10-30): no number arrows, the two buttons the same height, «أي سعر» a quiet text button */
+@media (min-width:901px){
+  html body .hero-outer.hu .pricepop{padding:16px!important;min-width:320px}
+  html body .hero-outer.hu .pricepop .pp-row{gap:12px}
+  html body .hero-outer.hu .pricepop input{height:44px!important;font-size:15px!important;padding:0 12px!important;-moz-appearance:textfield}
+  html body .hero-outer.hu .pricepop input::-webkit-outer-spin-button,html body .hero-outer.hu .pricepop input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  html body .hero-outer.hu .pricepop input::placeholder{color:#9AA1AE}
+  html body .hero-outer.hu .pricepop .pp-foot{margin-top:14px;padding-top:12px;align-items:center}
+  html body .hero-outer.hu .pricepop .pp-clear{border:0!important;background:none!important;color:#5B6371!important;height:40px;padding:0 4px!important;font-size:14px!important;font-weight:600!important;text-decoration:underline;text-underline-offset:4px;text-decoration-color:rgba(91,99,113,.35)}
+  html body .hero-outer.hu .pricepop .pp-clear:hover{color:var(--navy)!important}
+  html body .hero-outer.hu .pricepop .pp-done{height:40px;padding:0 26px!important;font-size:14.5px!important;font-weight:700!important}
+}
