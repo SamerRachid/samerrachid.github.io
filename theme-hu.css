@@ -1490,7 +1490,7 @@ html body .pp-r:focus-visible::-webkit-slider-thumb{outline:2px solid var(--navy
   html body .hero-outer.hu .pricepop[hidden]{display:none!important}
   html body .hero-outer.hu .pricepop .pp-head,html body .hero-outer.hu .pricepop .pp-sl{grid-column:1/-1}
   html body .hero-outer.hu .pricepop .pp-row label{font-size:11px;gap:3px}
-  html body .hero-outer.hu .pricepop input[type=number]{height:40px!important}
+  html body .hero-outer.hu .pricepop input:is([type=number],.pp-num){height:40px!important}
   html body .hero-outer.hu .pricepop .pp-foot{margin:0!important;padding:0!important;border:0!important;gap:10px}
 }
 /* the popup's box rules (height, padding, fill, border) were reaching the slider's two range inputs too */
@@ -1501,8 +1501,8 @@ html body .hero-outer.hu .pricepop input.pp-r,html body .pricepop input.pp-r{hei
   html body .hero-outer.hu .pricepop{top:auto!important;bottom:calc(100% + 8px)!important;inset-inline-start:auto!important;inset-inline-end:-1px!important;width:calc(200% + 10px)!important;min-width:0!important;padding:14px!important;background:#fff!important;color:var(--navy)!important;border:1px solid rgba(17,33,63,.12)!important;border-radius:8px!important;box-shadow:0 18px 44px -10px rgba(0,0,0,.45)!important}
   html body .hero-outer.hu .pricepop label{color:#5B6371!important;font-size:12px}
   html body .hero-outer.hu .pricepop .pp-row{gap:10px}
-  html body .hero-outer.hu .pricepop input[type=number]{height:44px!important;font-size:16px!important;padding:0 12px!important;background:#F4F5F8!important;color:var(--navy)!important;border:1px solid rgba(17,33,63,.15)!important;border-radius:8px!important;-moz-appearance:textfield}
-  html body .hero-outer.hu .pricepop input[type=number]:focus{border-color:var(--gold)!important;outline:none}
+  html body .hero-outer.hu .pricepop input:is([type=number],.pp-num){height:44px!important;font-size:16px!important;padding:0 12px!important;background:#F4F5F8!important;color:var(--navy)!important;border:1px solid rgba(17,33,63,.15)!important;border-radius:8px!important;-moz-appearance:textfield}
+  html body .hero-outer.hu .pricepop input:is([type=number],.pp-num):focus{border-color:var(--gold)!important;outline:none}
   html body .hero-outer.hu .pricepop input::-webkit-outer-spin-button,html body .hero-outer.hu .pricepop input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   html body .hero-outer.hu .pricepop input::placeholder{color:#9AA1AE}
   html body .hero-outer.hu .pricepop .pp-foot{display:flex;align-items:center;justify-content:space-between;margin-top:12px!important;padding-top:0!important;border:0!important}
@@ -1520,8 +1520,8 @@ html body .hero-outer.hu .pricepop .pp-cur{font-size:11px!important;font-weight:
 html body .hero-outer.hu .pricepop .pp-cur b{font-weight:600!important;color:var(--navy)!important}
 html body .hero-outer.hu .pricepop .pp-txt{font-size:13.5px!important;font-weight:700!important}
 html body .hero-outer.hu .pricepop .pp-row label{font-size:10px!important;font-weight:400!important;color:#6B7484!important;letter-spacing:-.12px;gap:4px!important}
-html body .hero-outer.hu .pricepop input[type=number]{background:#fff!important;border:1px solid #E3E6EB!important;border-radius:8px!important;font-weight:600!important;color:var(--navy)!important;box-shadow:none!important}
-html body .hero-outer.hu .pricepop input[type=number]:focus{border-color:var(--gold)!important;box-shadow:0 0 0 3px rgba(202,144,81,.15)!important}
+html body .hero-outer.hu .pricepop input:is([type=number],.pp-num){background:#fff!important;border:1px solid #E3E6EB!important;border-radius:8px!important;font-weight:600!important;color:var(--navy)!important;box-shadow:none!important}
+html body .hero-outer.hu .pricepop input:is([type=number],.pp-num):focus{border-color:var(--gold)!important;box-shadow:0 0 0 3px rgba(202,144,81,.15)!important}
 html body .hero-outer.hu .pricepop .pp-clear{font-size:12px!important;font-weight:600!important}
 html body .hero-outer.hu .pricepop .pp-done{font-size:14px!important;font-weight:600!important;background:#CA9051!important;color:var(--navy)!important;border:0!important;border-radius:8px!important}
 @media (min-width:901px){
@@ -1534,7 +1534,7 @@ html body .hero-outer.hu .pricepop .pp-done{font-size:14px!important;font-weight
   html body .hero-outer.hu .pricepop .pp-r::-webkit-slider-thumb{width:18px;height:18px;border-width:2.5px;margin-top:4px}
   html body .hero-outer.hu .pricepop .pp-r::-moz-range-thumb{width:13px;height:13px;border-width:2.5px}
   html body .hero-outer.hu .pricepop .pp-row{gap:8px!important}
-  html body .hero-outer.hu .pricepop input[type=number]{height:36px!important;font-size:13.5px!important;padding:0 10px!important}
+  html body .hero-outer.hu .pricepop input:is([type=number],.pp-num){height:36px!important;font-size:13.5px!important;padding:0 10px!important}
   html body .hero-outer.hu .pricepop .pp-foot{gap:8px!important}
   html body .hero-outer.hu .pricepop .pp-clear{height:36px!important}
   html body .hero-outer.hu .pricepop .pp-done{height:36px!important;padding:0 18px!important}
@@ -1542,7 +1542,7 @@ html body .hero-outer.hu .pricepop .pp-done{font-size:14px!important;font-weight
 @media (max-width:900px){
   html body .hero-outer.hu .pricepop{padding:12px!important;border:0!important}
   html body .hero-outer.hu .pricepop .pp-row label{font-size:11px!important}
-  html body .hero-outer.hu .pricepop input[type=number]{height:42px!important}
+  html body .hero-outer.hu .pricepop input:is([type=number],.pp-num){height:42px!important}
   html body .hero-outer.hu .pricepop .pp-done,html body .hero-outer.hu .pricepop .pp-clear{height:40px!important}
 }
 /* the price field's little arrow turns up while its popup is open, like the bar's other lists */
