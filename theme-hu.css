@@ -1366,3 +1366,14 @@ html body header.hu-enter{animation-name:huEnterDown!important}
   .spg .sp-btn{height:50px}.spg .sp-hero .sp-acts .sp-btn,.spg .sp-close .sp-acts .sp-btn{flex:1 1 100%}
 }
 .spg .sp-place figcaption span b{display:inline}
+
+/* «إعلاناتي»: one line to the promotion page; the search results' card ad in «full photo» layout (2026-10-30) */
+html body .mine-promo{display:flex;align-items:center;gap:12px;margin:0 0 18px;padding:12px 16px;border:1px solid rgba(202,144,81,.45);border-radius:10px;background:rgba(202,144,81,.07);color:#fff;text-decoration:none;font-size:14.5px}
+html body .mine-promo .mi,html body .mine-promo svg{width:20px;height:20px;color:var(--gold);flex:none}
+html body .mine-promo span{flex:1;color:#D5DCE8}html body .mine-promo b{color:var(--gold);white-space:nowrap}
+html body .mine-promo:hover{border-color:var(--gold)}
+html body .res-ad.full{position:relative;padding:0;min-height:320px}   /* beside other cards it takes their row's height; alone on a phone row it is 4:5 */
+@media (max-width:640px){html body .res:not(.list-view) .res-ad.full{aspect-ratio:4/5}}
+html body .res .card.c2.res-ad.full .ph{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;aspect-ratio:auto!important}
+html body .res .card.c2.res-ad.full .ph img,html body .res .card.c2.res-ad.full .ph video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;aspect-ratio:auto!important;object-fit:cover}
+html body .res.list-view .res-ad.full{aspect-ratio:auto;min-height:260px}

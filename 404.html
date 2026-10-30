@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-fsDe+joNqrRFQdW/eblu+gwkYZ8li6wcrcIsE42s6Gs=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-MHL4ceKkokspiJZyPfMcipvZWJnIs4JCNjXYRkJ0w3I=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -4991,7 +4991,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202610300816"><script>
+</style><link rel="stylesheet" href="/theme-hu.css?v=202610300841"><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
   brand:      "بلكون",
@@ -5833,6 +5833,7 @@ var NAVI=[
   {k:"coll",g:"discover",lab:function(){return HX("navColl")},ico:"coll",attrs:'data-mdscroll="collsSec"',o:50},
   {k:"expl",g:"discover",lab:function(){return HX("navAreas")},ico:"expl",attrs:'data-mdscroll="explSec"',o:60},
   {k:"guide",g:"discover",lab:function(){return HX("navGuide")},ico:"guide",attrs:'data-mdscroll="guidesSec"',o:70},
+  {k:"promote",g:"services",lab:function(){return GX("promoNav")},ico:"promote",attrs:'data-go="promote"',o:71},
   {k:"legal",g:"services",lab:function(){return GX("navLegalBoth")},ico:"legal",attrs:'data-soon="legal"',o:72,soon:true},
   {k:"help",g:"site",lab:function(){return GX("helpNav")},ico:"play",attrs:'data-go="help"',o:78,hide:function(){ return !guidesFor("page").length }},
   {k:"about",g:"site",lab:function(){return t("about")},ico:"about",attrs:'data-go="about"',o:80},
@@ -5964,6 +5965,7 @@ var MI=(function(){
     legaltx:w('<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>'),
     agency:w('<path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/>'),
     tower:w('<path d="M4 21h16M6 21V9l6-6 6 6v12"/><path d="M10 21v-4h4v4M9 12h.01M15 12h.01M9 16h.01M15 16h.01M12 3v3"/>'),
+    promote:w('<path d="M3 11l18-6v14L3 13z"/><path d="M7 12v5a2 2 0 0 0 4 0v-3"/>'),
     wanted:w('<path d="M3 11 12 4l9 7"/><path d="M5 10v10h5"/><circle cx="15.5" cy="15.5" r="3.5"/><path d="m18 18 3 3"/>'),
     download:w('<rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 7v7m-3-3 3 3 3-3M9 18h6"/>'),
     home:w('<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>'),
@@ -6005,6 +6007,7 @@ function footer(){
   '</div><a class="fall" href="'+cPre()+'/areas/">'+GX("allAreas")+' ›</a></div>'+
   '<div class="fcol"><h4>'+esc(CONFIG.brand)+'</h4>'+
   '<a href="'+cPre()+'/about/" data-go="about">'+t("about")+'</a>'+
+  '<a href="/promote" data-go="promote">'+GX("promoNav")+'</a>'+
   (SXb("help_footer",true) && guidesFor("page").length ? '<a data-go="help">'+GX("helpNav")+'</a>' : '')+
   '<a href="'+cPre()+'/contactus/" data-go="contactus">'+t("contactUsPageT")+'</a>'+
   '<a data-go="contact">'+t("contactUs")+'</a>'+
@@ -7004,7 +7007,8 @@ function resAdHtml(a,isListView){ var u=esc(safeUrl(String(a.url||""))), link=es
   var inner='<div class="ph">'+media+'<div class="bd"><span class="cbg res-adtag">'+esc(GX("sponsored"))+'</span></div></div>'+
     ((name||a.label||link)?'<div class="cb">'+(name?'<div class="ctitle">'+name+'</div>':'')+(a.label?'<div class="res-adtxt">'+esc(a.label)+'</div>':'')+
     (link?'<div class="res-adcta"><span>'+adCta(a.link)+'</span></div>':'')+'</div>':'');
-  var cls='card c2'+(isListView?' c2-list':'')+' res-ad';
+  var full=a.layout==="full", cls='card c2'+(isListView?' c2-list':'')+' res-ad'+(full?' full':'');
+  if(full) inner='<div class="ph">'+media+'<div class="bd"><span class="cbg res-adtag">'+esc(GX("sponsored"))+'</span></div></div>';   // the photo or video fills the whole card
   return link?'<a class="'+cls+'" href="'+link+'" target="_blank" rel="noopener sponsored" data-adid="'+(+a.id)+'">'+inner+'</a>':'<div class="'+cls+'" data-adid="'+(+a.id)+'">'+inner+'</div>' }
 var SIDE_TURN=0;
 function sideAdHtml(){ var ads=placementsFor(PLACEMENTS.side); if(!ads.length) return ""; var a=ads[(SIDE_TURN++)%ads.length];
@@ -8101,6 +8105,7 @@ function mine(){
  '<span class="n"><span class="ltr">'+r.length+'</span> '+t("listings")+'</span>'+
  '<a class="gold" data-go="post" style="margin-inline-start:auto;text-decoration:none;padding:9px 18px">'+t("post")+'</a></div>'+
  rewardBar()+
+ (r.length?'<a class="mine-promo" href="/promote" data-go="promote">'+MI.promote+'<span>'+GX("promoMine")+'</span><b>'+GX("promoNav")+' ›</b></a>':'')+   // owner 2026-10-30: the way to the promotion page from one's own listings
  (r.length
   ? '<div class="res">'+r.map(function(x,i){
       var closed=x.status==="sold"||x.status==="rented";
@@ -12810,7 +12815,7 @@ function render(){
    } else app.innerHTML=html;
    var bs=document.getElementById("bootSplash"); if(bs&&bs.parentNode) bs.parentNode.removeChild(bs); })();
  setTimeout(fabCheck,50);
- (function(){ var P={home:"/",search:"/search",wanted:"/wanted",agencies:"/agencies",projects:"/projects",about:"/about",contact:"/contact",contactus:"/contactus",post:"/post",mapsearch:"/mapsearch",areas:"/regions",mine:"/mine",saved:"/saved",searches:"/searches",msgs:"/msgs",account:"/account"}, pre=(typeof cPre==="function")?cPre():"";
+ (function(){ var P={home:"/",promote:"/promote",search:"/search",wanted:"/wanted",agencies:"/agencies",projects:"/projects",about:"/about",contact:"/contact",contactus:"/contactus",post:"/post",mapsearch:"/mapsearch",areas:"/regions",mine:"/mine",saved:"/saved",searches:"/searches",msgs:"/msgs",account:"/account"}, pre=(typeof cPre==="function")?cPre():"";
    $$("#app a[data-go]:not([href])").forEach(function(a){ var g=a.dataset.go, p=P[g]; if(!p){ a.setAttribute("role","button"); return } var q=a.dataset.deal?"?deal="+a.dataset.deal:""; a.setAttribute("href",(pre+p).replace(/\/+$/,"")||"/"); if(q) a.setAttribute("href",a.getAttribute("href")+q) });
    $$("#app a[data-open]:not([href])").forEach(function(a){ a.setAttribute("href","/listing/"+a.dataset.open) });
    $$("#app a:not([href])").forEach(function(a){ a.setAttribute("role","button"); a.setAttribute("tabindex","0") }) })();
@@ -15006,7 +15011,7 @@ var GX_T={
   xAdVideoMax:{ar:"الحد الأقصى لحجم فيديو المربع (MB)",en:"Maximum ad video size (MB)",de:"Maximale Videogröße (MB)"},
   xDesignH:{ar:"النتائج",en:"Results",de:"Ergebnisse"},
   xPageSize:{ar:"عدد الإعلانات في صفحة النتائج",en:"Listings per results page",de:"Anzeigen pro Ergebnisseite"},
-  xSimilar:{ar:"عدد «إعلانات أخرى» تحت صفحة الإعلان",en:"“More listings” shown under a listing",de:"„Weitere Anzeigen“ unter einer Anzeige"}, sponsored:{ar:"إعلان مدفوع",en:"Sponsored",de:"Gesponsert"}, adCtaWa:{ar:"تواصل على واتساب",en:"Chat on WhatsApp",de:"Auf WhatsApp schreiben"}, adCtaMore:{ar:"اعرف أكثر",en:"Learn more",de:"Mehr erfahren"}, featured:{ar:"مميز",en:"Featured",de:"Top"},
+  xSimilar:{ar:"عدد «إعلانات أخرى» تحت صفحة الإعلان",en:"“More listings” shown under a listing",de:"„Weitere Anzeigen“ unter einer Anzeige"}, sponsored:{ar:"إعلان مدفوع",en:"Sponsored",de:"Gesponsert"}, promoNav:{ar:"روّج إعلانك",en:"Promote your listing",de:"Anzeige bewerben"}, promoMine:{ar:"تريد وصولاً أسرع؟ روّج إعلانك على بلكون وفيسبوك وإنستغرام.",en:"Want more reach? Promote your listing on Balkoun, Facebook and Instagram.",de:"Mehr Reichweite? Bewerben Sie Ihre Anzeige."}, adCtaWa:{ar:"تواصل على واتساب",en:"Chat on WhatsApp",de:"Auf WhatsApp schreiben"}, adCtaMore:{ar:"اعرف أكثر",en:"Learn more",de:"Mehr erfahren"}, featured:{ar:"مميز",en:"Featured",de:"Top"},
   adVideoTooBig:{ar:"الفيديو كبير جداً ({mb} MB). الحد الأقصى {max} MB — صدّره بدقة 720p أو أقل ومدة قصيرة، ثم أعد الرفع.",en:"This video is too large ({mb} MB). The limit is {max} MB — export it at 720p or smaller and keep it short, then upload again.",de:"Dieses Video ist zu groß ({mb} MB). Maximal {max} MB — in 720p oder kleiner und kurz exportieren, dann erneut hochladen."},
   adVideoHint:{ar:"الفيديو: حتى {max} MB، يُفضّل 720p ومدة 10–20 ثانية",en:"Video: up to {max} MB, ideally 720p and 10–20 seconds",de:"Video: bis {max} MB, ideal 720p und 10–20 Sekunden"}
 };

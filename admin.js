@@ -2944,7 +2944,7 @@ function hsRenderInsp(){ var el=$("#hsInsp"); if(el) el.innerHTML=hsInspectorHtm
 function hsRenderOutline(){ var el=$("#hsOutline"); if(el) el.innerHTML=hsOutlineHtml() }
 async function hsUpload(file,folder){ if(!DB) throw new Error("no client"); var isVideo=/^video\//.test(file.type);
   if(isVideo && file.size>8*1048576) throw new Error(GX("videoTooBig").replace("{mb}",8)); if(!isVideo && file.size>12*1048576) throw new Error(GX("imageTooBig")); var path=(isVideo?"videos/":"photos/")+folder+"/"+Date.now()+"_"+file.name.replace(/[^a-zA-Z0-9._-]/g,"_"); var body=file, ct=file.type;
-  if(!isVideo){ var raw=await new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){res(r.result)}; r.onerror=function(){rej(new Error("read"))}; r.readAsDataURL(file) }); body=await shrink(raw,1600,0.85); ct="image/jpeg" }
+  if(!isVideo && file.type!=="image/gif"){ var raw=await new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){res(r.result)}; r.onerror=function(){rej(new Error("read"))}; r.readAsDataURL(file) }); body=await shrink(raw,1600,0.85); ct="image/jpeg" }   // a GIF goes up as it is, so it keeps moving (2026-10-30)
   var up=await storageUpload(path,body,{contentType:ct,upsert:false}); if(up.error) throw up.error; return DB.storage.from("photos").getPublicUrl(path).data.publicUrl }
 // ⋯ menu of one home section: show/hide, move one step / to an end, restore its default titles
 function hsMovable(){ return [].map.call($$("#hsOutline [data-hsdk]"),function(r){ return r.dataset.hsdk }) }
@@ -5145,6 +5145,8 @@ Object.assign(GX_T,{
   plcBannerHint:{ar:"يحلّ محل محتوى هذا البانر في الصفحة الرئيسية طوال مدة الحجز، ثم يعود البانر كما كان. اجعل الصورة عرضية بنسبة البانر: {w}×{h} (أو ضعفها لصورة أوضح).",en:"Replaces this banner's content on the home page for the booking, then the banner returns as it was. Make the image the banner's shape: {w}×{h} (or double for sharpness).",de:"Ersetzt den Inhalt dieses Banners für die Buchungsdauer. Bildformat wie das Banner: {w}×{h}."},
   plcResultsHint:{ar:"يظهر كبطاقة بين الإعلانات العقارية، بعد كل 8 بطاقات، فقط حين تكون النتائج 8 أو أكثر. «كل المحافظات» يحتاج مكاناً فارغاً في كل محافظة. الصورة 1200×900 (نسبة 4:3، مثل صور الإعلانات)، ونفس البطاقة على الهاتف والكمبيوتر.",en:"Shows as a card among the listings, after every 8 cards, only when there are 8 or more. «All governorates» needs a free place in every governorate. Image 1200×900 (4:3, like listing photos); the same card on phone and computer.",de:"Erscheint als Karte nach je 8 Anzeigen, nur bei 8+ Ergebnissen. Bild 1200×900 (4:3)."},
   plcSideHint:{ar:"يظهر تحت الخريطة بجانب النتائج على الكمبيوتر (لا يظهر على الهاتف). الصورة 1200×628، نفس مقاس صورة إعلان فيسبوك العادي.",en:"Shows under the map beside the results on a computer (not on phones). Image 1200×628, the usual Facebook link-ad size.",de:"Unter der Karte neben den Ergebnissen am Computer (nicht am Handy). Bild 1200×628."},
+  plcLayout:{ar:"شكل الإعلان",en:"Ad layout",de:"Layout"}, plcLayCard:{ar:"بطاقة: صورة 4:3 + الاسم والنص والزر",en:"Card: 4:3 photo + name, text and button",de:"Karte: Foto 4:3 + Text"},
+  plcLayFull:{ar:"صورة كاملة: الصورة أو الفيديو أو GIF يملأ البطاقة كلها (1080×1350)",en:"Full photo: the photo, video or GIF fills the whole card (1080×1350)",de:"Vollbild: Foto/Video/GIF füllt die Karte (1080×1350)"},
   plcAdText:{ar:"نص قصير تحت الاسم (اختياري)",en:"Short text under the name (optional)",de:"Kurzer Text unter dem Namen (optional)"},
   plcAdSql:{ar:"حجز البانرات يحتاج تحديث قاعدة البيانات (ملف 2026-10-30_ad_placements_phase2.sql).",en:"Booking banners needs the database update (2026-10-30_ad_placements_phase2.sql).",de:"Banner-Buchung braucht das Datenbank-Update."},
   plcGoSquares:{ar:"افتح المربعات الإعلانية",en:"Open ad squares",de:"Werbequadrate öffnen"},
@@ -5163,10 +5165,10 @@ function plcLinkNorm(v){ v=String(v||"").trim(); if(!v) return null;
   if(/^[+\d][\d\s()\-]{6,}$/.test(v)){ var d=v.replace(/\D/g,"").replace(/^00/,""); if(/^0/.test(d)) d=({SY:"963",LB:"961"}[COUNTRY]||"963")+d.slice(1); return "https://wa.me/"+d }
   if(!/^https?:\/\//i.test(v) && /\./.test(v)) return "https://"+v; return v }
 // the banner's shape on the site: results banners are 16:5 everywhere; a home banner takes its Studio size
-function plcRatio(p,bn){ if(p==="results") return [4,3]; if(p==="side") return [1200,628]; try{ var d=bannerDims(bannersConfig()[(bn||1)-1],false); return [d.w,d.h] }catch(e){ return [16,5] } }
-function plcPreview(url,mt,p,bn){ var r=plcRatio(p,bn), fit=plcTargeted(p)?"cover":"contain";
+function plcRatio(p,bn,lay){ if(p==="results") return lay==="full"?[4,5]:[4,3]; if(p==="side") return [1200,628]; try{ var d=bannerDims(bannersConfig()[(bn||1)-1],false); return [d.w,d.h] }catch(e){ return [16,5] } }
+function plcPreview(url,mt,p,bn,lay){ var r=plcRatio(p,bn,lay), fit=plcTargeted(p)?"cover":"contain";
   return '<div style="border:1px solid var(--pc-line);border-radius:8px;overflow:hidden;aspect-ratio:'+r[0]+'/'+r[1]+';background:#fff">'+(mt==="video"?'<video src="'+esc(url)+'" muted autoplay loop playsinline style="display:block;width:100%;height:100%;object-fit:'+fit+'"></video>':'<img src="'+esc(url)+'" alt="" style="display:block;width:100%;height:100%;object-fit:'+fit+'">')+'</div>'+
-    '<div class="hintx" style="font-size:11.5px">'+GX("plcShape").replace("{r}",p==="results"?"4:3":r[0]+"×"+r[1])+'</div>' }
+    '<div class="hintx" style="font-size:11.5px">'+GX("plcShape").replace("{r}",p==="results"?(lay==="full"?"4:5":"4:3"):r[0]+"×"+r[1])+'</div>' }
 function plcState(){ if(!ADM.plc){ var n=new Date(); ADM.plc={y:n.getFullYear(),m:n.getMonth(),view:"all",gov:null,sel:plcKey(n),data:null,err:null,find:null,edit:null,form:null} } return ADM.plc }
 function plcKey(d){ return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0") }
 function plcDate(k){ var p=String(k).slice(0,10).split("-"); return new Date(+p[0],+p[1]-1,+p[2]) }
@@ -5237,7 +5239,9 @@ function plcBookingRow(b){ var S=plcState(), o=b.obj||{}, sp=plcSpan(b);
       '<div class="row2"><label>'+GX("plcStart")+'<input type="date" id="plcEStart" value="'+st+'"></label><label>'+GX("plcEnd")+'<input type="date" id="plcEEnd" value="'+en+'"></label></div>'+
       '<div class="row2"><label>'+GX("plcPrice")+'<input type="number" min="0" step="1" id="plcEPrice" value="'+(b.price_usd!=null?+b.price_usd:"")+'"></label><label style="align-self:end"><span><input type="checkbox" id="plcEPaid"'+(b.paid?" checked":"")+'> '+GX("plcPaid")+'</span></label></div>'+
       (b.placement==="banner"||plcTargeted(b.placement)?(function(){ var eu=S.editMedia||{url:o.image,mt:/\/videos\//.test(String(o.image||""))?"video":"image"};
-        return (eu.url?plcPreview(eu.url,eu.mt,b.placement,o.banner_no):'')+'<label>'+GX("plcChange")+'<input type="file" id="plcEFile" accept="image/*,video/mp4,video/webm"></label>'+
+        var lay=S.editLay!=null?S.editLay:(o.layout||"card");
+        return (b.placement==="results"?'<label>'+GX("plcLayout")+'<select id="plcELay"><option value="card"'+(lay==="card"?" selected":"")+'>'+GX("plcLayCard")+'</option><option value="full"'+(lay==="full"?" selected":"")+'>'+GX("plcLayFull")+'</option></select></label>':'')+
+          (eu.url?plcPreview(eu.url,eu.mt,b.placement,o.banner_no,lay):'')+'<label>'+GX("plcChange")+'<input type="file" id="plcEFile" accept="image/*,video/mp4,video/webm"></label>'+
           '<label>'+GX("plcLink")+'<input type="text" id="plcELink" dir="ltr" placeholder="https://…  /  +963…" value="'+esc(S.editLink!=null?S.editLink:(o.link||""))+'"></label>'+((S.editLink!=null?S.editLink:o.link)?'':'<div class="hintx" style="font-size:11.5px;color:var(--pc-warn)">'+GX("plcNoLink")+'</div>') })():'')+
       '<label>'+GX("plcNotes")+'<input type="text" id="plcENotes" value="'+esc(b.notes||"")+'"></label>'+
       '<div class="acts" style="display:flex;gap:6px"><button type="button" class="btn-n" data-plcsave="'+b.id+'">'+GX("plcSave")+'</button><button type="button" class="ab" data-plccancel="1">'+GX("plcCancel")+'</button></div><div class="msg" id="plcEMsg"></div></div>';
@@ -5265,7 +5269,8 @@ function plcNewForm(){ var S=plcState(), f=S.form||{}, D=S.data||{}, p=f.p||"fea
         :'<div class="row2"><label>'+GX("plcGov")+'<select id="plcFGov">'+opt("",GX("plcGovAll"),f.gov==null?"":f.gov)+(D.govs||[]).map(function(g){ return opt(g.id,esc(g.name),f.gov==null?"":f.gov) }).join("")+'</select></label>'+
           '<label>'+GX("plcDeal")+'<select id="plcFDeal">'+opt("",GX("plcDealBoth"),f.deal||"")+opt("sale",GX("plcDealSale"),f.deal||"")+opt("rent",GX("plcDealRent"),f.deal||"")+'</select></label></div>')+
       '<label>'+GX("plcMedia")+'<input type="file" id="plcFFile" accept="image/*,video/mp4,video/webm"></label>'+
-      (f.url?plcPreview(f.url,f.mt,p,f.bn||1):'')+
+      (p==="results"?'<label>'+GX("plcLayout")+'<select id="plcFLay">'+opt("card",GX("plcLayCard"),f.lay||"card")+opt("full",GX("plcLayFull"),f.lay||"card")+'</select></label>':'')+
+      (f.url?plcPreview(f.url,f.mt,p,f.bn||1,f.lay):'')+
       '<label>'+GX("plcSponsor")+'<input type="text" id="plcFSponsor" value="'+esc(f.sponsor||"")+'"></label>'+
       (p==="results"?'<label>'+GX("plcAdText")+'<input type="text" id="plcFLabel" maxlength="120" value="'+esc(f.label||"")+'"></label>':'')+
       '<label>'+GX("plcLink")+'<input type="text" id="plcFLink" dir="ltr" placeholder="https://…  /  +963…" value="'+esc(f.link||"")+'"></label>'+(f.link?'':'<div class="hintx" style="font-size:11.5px;color:var(--pc-warn)">'+GX("plcNoLink")+'</div>')+
@@ -5338,11 +5343,12 @@ function wirePlacements(){ var S=plcState();
   if($("#plcAGo")) $("#plcAGo").onclick=function(){ var F=Object.assign({p:"featured",days:7},S.find||{}); F.res=plcFind(F.p,plcGovFor(F.p),F.days); F.pick=0; S.find=F; S.view=F.p;
     if(F.res[0]){ S.sel=F.res[0].s; var d=plcDate(F.res[0].s); S.y=d.getFullYear(); S.m=d.getMonth() } render() };
   $$("[data-plcpick]").forEach(function(b){ b.onclick=function(){ var F=S.find; F.pick=+this.dataset.plcpick; S.sel=F.res[F.pick].s; var d=plcDate(S.sel); S.y=d.getFullYear(); S.m=d.getMonth(); render() } });
-  $$("[data-plcedit]").forEach(function(b){ b.onclick=function(){ S.edit=+this.dataset.plcedit; S.ext=null; S.editMedia=null; S.editLink=null; render() } });
+  $$("[data-plcedit]").forEach(function(b){ b.onclick=function(){ S.edit=+this.dataset.plcedit; S.ext=null; S.editMedia=null; S.editLink=null; S.editLay=null; render() } });
   $$("[data-plcextopen]").forEach(function(b){ b.onclick=function(){ S.ext=+this.dataset.plcextopen; S.edit=null; render() } });
   $$("[data-plccancel]").forEach(function(b){ b.onclick=function(){ S.edit=null; S.ext=null; S.editMedia=null; S.editLink=null; render() } });
   var bk=function(id){ return ((S.data&&S.data.bookings)||[]).filter(function(x){ return x.id===id })[0] };
   var fullMsg=function(r){ return r&&r.error==="full"?GX("plcFullOn").replace("{d}",plcHuman(r.day)):(r&&r.error)||"" };
+  if($("#plcELay")) $("#plcELay").onchange=function(){ S.editLay=this.value; S.editLink=($("#plcELink")||{}).value; render() };
   if($("#plcEFile")) $("#plcEFile").onchange=async function(){ var file=this.files&&this.files[0], m=$("#plcEMsg"); if(!file) return; var b=bk(S.edit);
     S.editLink=($("#plcELink")||{}).value; if(m){ m.style.color="var(--pc-mut)"; m.textContent=GX("plcUploading") }
     try{ var url=await hsUpload(file,b&&b.placement==="banner"?"banners":"ads"); S.editMedia={url:url,mt:/^video\//.test(file.type)?"video":"image"}; render() }catch(e){ if(m){ m.style.color=""; m.textContent=e.message||"error" } } };
@@ -5355,7 +5361,8 @@ function wirePlacements(){ var S=plcState();
           p_client:($("#plcEClient")||{}).value||null,p_phone:($("#plcEPhone")||{}).value||null,p_price:price===""?null:+price,p_paid:!!($("#plcEPaid")||{}).checked});
         if(r2&&r2.error){ if(m) m.textContent=fullMsg(r2); btn.disabled=false; return }
         await rpc("bk_admin_booking_save",{p_token:ADM.token,p_id:id,p_client:null,p_phone:null,p_notes:($("#plcENotes")||{}).value||null,p_price:null,p_paid:null});
-        S.edit=null; S.editMedia=null; S.editLink=null; admToast(t("savedOk")); re(); return }
+        if(b.placement==="results"){ var nl=($("#plcELay")||{}).value||"card"; if(nl!==(o.layout||"card")) await rpc("bk_admin_ad_layout",{p_token:ADM.token,p_id:b.ref_id,p_layout:nl==="full"?"full":null}) }
+        S.edit=null; S.editMedia=null; S.editLink=null; S.editLay=null; admToast(t("savedOk")); re(); return }
       await rpc("bk_admin_booking_save",{p_token:ADM.token,p_id:id,p_client:($("#plcEClient")||{}).value||null,p_phone:($("#plcEPhone")||{}).value||null,p_notes:($("#plcENotes")||{}).value||null,p_price:price===""?null:+price,p_paid:!!($("#plcEPaid")||{}).checked});
       var st=($("#plcEStart")||{}).value, en=($("#plcEEnd")||{}).value, sp=plcSpan(b);
       if(st!==sp[0] || (en||"9999-12-31")!==sp[1]){ var r=await rpc("bk_admin_booking_dates",{p_token:ADM.token,p_id:id,p_starts:new Date(st+"T00:00:00").toISOString(),p_ends:en?new Date(en+"T23:59:59").toISOString():null});
@@ -5373,6 +5380,7 @@ function wirePlacements(){ var S=plcState();
   if($("#plcNew")) $("#plcNew").onclick=openForm; if($("#plcNewDay")) $("#plcNewDay").onclick=openForm;
   $$("[data-plcformclose]").forEach(function(b){ b.onclick=function(){ S.form=null; render() } });
   if($("#plcFBn")) $("#plcFBn").onchange=function(){ keepForm(); render() };
+  if($("#plcFLay")) $("#plcFLay").onchange=function(){ keepForm(); render() };
   if($("#plcFP")) $("#plcFP").onchange=function(){ keepForm(); S.form=Object.assign({},S.form,{p:this.value}); render() };
   if($("#plcFBook")) $("#plcFBook").onclick=async function(){ var m=$("#plcFMsg"), ref=(($("#plcFRef")||{}).value||"").trim(), btn=this;
     var L=((ADM.data&&ADM.data.listings)||[]).filter(function(x){ return String(x.ref||"").toLowerCase()===ref.toLowerCase() && (x.status||"live")==="live" })[0];
@@ -5391,7 +5399,7 @@ function wirePlacements(){ var S=plcState();
   // banner / results booking: what is typed is kept in S.form so a re-render (after an upload) loses nothing
   var keepForm=function(){ if(!S.form) return; var v=function(id){ var e=$(id); return e?e.value:undefined };
     Object.assign(S.form,{bn:v("#plcFBn")!=null?+v("#plcFBn"):S.form.bn, gov:v("#plcFGov")!=null?(v("#plcFGov")===""?null:+v("#plcFGov")):S.form.gov, deal:v("#plcFDeal")!=null?v("#plcFDeal"):S.form.deal,
-      sponsor:v("#plcFSponsor"), label:v("#plcFLabel")!=null?v("#plcFLabel"):S.form.label, link:v("#plcFLink"), start:v("#plcFStart")||S.form.start, days:+(v("#plcFDays")||7), client:v("#plcFClient"), phone:v("#plcFPhone"), price:v("#plcFPrice"), paid:!!($("#plcFPaid")||{}).checked}) };
+      lay:v("#plcFLay")!=null?v("#plcFLay"):S.form.lay, sponsor:v("#plcFSponsor"), label:v("#plcFLabel")!=null?v("#plcFLabel"):S.form.label, link:v("#plcFLink"), start:v("#plcFStart")||S.form.start, days:+(v("#plcFDays")||7), client:v("#plcFClient"), phone:v("#plcFPhone"), price:v("#plcFPrice"), paid:!!($("#plcFPaid")||{}).checked}) };
   if($("#plcFFile")) $("#plcFFile").onchange=async function(){ var file=this.files&&this.files[0], m=$("#plcFMsg"); if(!file) return; keepForm();
     if(m){ m.style.color="var(--pc-mut)"; m.textContent=GX("plcUploading") }
     try{ var url=await hsUpload(file,S.form.p==="banner"?"banners":"ads"); S.form.url=url; S.form.mt=/^video\//.test(file.type)?"video":"image"; render() }catch(e){ if(m){ m.style.color=""; m.textContent=e.message||"error" } } };
@@ -5407,6 +5415,7 @@ function wirePlacements(){ var S=plcState();
         p_label:f.p==="results"&&f.label?f.label:null,p_sponsor:f.sponsor||null,p_url:f.url,p_media_type:f.mt||"image",p_link:plcLinkNorm(f.link),p_starts:new Date(st+"T00:00:00").toISOString(),p_ends:new Date(en+"T23:59:59").toISOString(),
         p_client:f.client||null,p_phone:f.phone||null,p_price:f.price===""||f.price==null?null:+f.price,p_paid:!!f.paid});
       if(r&&r.error){ if(m) m.textContent=r.error==="full"?GX("plcFullOn").replace("{d}",plcHuman(r.day)):r.error; btn.disabled=false; return }
+      if(f.p==="results"&&r&&r.id&&f.lay==="full") await rpc("bk_admin_ad_layout",{p_token:ADM.token,p_id:r.id,p_layout:"full"});
       S.form=null; admToast(GX("plcBooked")); re() }
     catch(e){ if(m) m.textContent=/bk_admin_placement_ad_save|schema cache|function/i.test(String(e&&e.message))?GX("plcAdSql"):(e.message||"error"); btn.disabled=false } };
   if($("#plcWOpen")) $("#plcWOpen").onclick=function(){ S.waitForm=true; render() };
