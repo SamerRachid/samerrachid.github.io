@@ -896,8 +896,7 @@ html body.home-hero header.hdr-solid,html body.home-hero header{position:absolut
 html body .bmark .bdia{transform-box:view-box!important;transform-origin:50px 50px!important}
 /* the wordmark: the gradient is painted on the box, so the box gets room for the dot of ن and the tail of و (zero net size) */
 html body .hbar .blogo-w b{padding:.25em .12em;margin:-.25em -.12em;line-height:1.1}
-/* the Umayyad hero file carries a white line 6px from its top edge: that slide starts 2% higher, nothing else moves */
-html body .hslides img[src*="umayyad"]{top:-2%!important;height:102%!important}
+/* (the Umayyad photos' white top line is now cropped out of the files themselves, 2026-10-30: no 2% shift any more) */
 
 /* ===== 2026-10-29 owner: desktop search bar and its popups, and the country-code picker ===== */
 /* the bar: one text colour for every field (the placeholders were grey, the prices white); the active deal pill is gold */
