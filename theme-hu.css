@@ -12,8 +12,7 @@ a{color:inherit}
 /* ===== header: logo, gold "post", bell (member), burger. Absolute over the hero on the home page ===== */
 header{background:transparent;color:#fff;padding:25px 0 0}
 body:not(.home-hero) header{background:var(--navy);position:relative}
-body.home-hero header{position:absolute;top:0;left:0;right:0;z-index:40;animation:hdrIn 1s ease-out .5s both}
-@keyframes hdrIn{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
+body.home-hero header{position:absolute;top:0;left:0;right:0;z-index:40}
 .hbar{height:auto;min-height:40px;gap:16px;padding:0 0 25px}
 .hbar .logo{margin-inline-end:auto;transition:transform .3s}
 .hbar .logo:hover{transform:scale(1.05)}
@@ -124,17 +123,16 @@ body.mdw-open .wa-fab{display:none}
 .hdots i.on{background:var(--gold)}
 .hero-outer.hu .hero{min-height:0;padding:0 0 120px;text-align:center;width:100%;display:block}
 .hero-outer.hu .hero .wrap{width:840px;max-width:100%;padding:0;margin:0 auto}
-@keyframes heroUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
-.hero-outer.hu .hero h1{font-family:"Reem Kufi",var(--f);font-weight:700;font-size:68px;line-height:1.25;margin:0 auto 10px;padding:0 .1em;letter-spacing:.02em;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.92);text-shadow:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.7)) drop-shadow(0 8px 22px rgba(0,0,0,.45));animation:heroUp 1s ease-out both}
+.hero-outer.hu .hero h1{font-family:"Reem Kufi",var(--f);font-weight:700;font-size:68px;line-height:1.25;margin:0 auto 10px;padding:0 .1em;letter-spacing:.02em;color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.92);text-shadow:none;filter:drop-shadow(0 2px 3px rgba(0,0,0,.7)) drop-shadow(0 8px 22px rgba(0,0,0,.45))}
 .hero-outer.hu .hero h1 span{color:var(--gold);-webkit-text-stroke:0;font-weight:700}
-.hero-outer.hu .sbar,.home-hero .hero-outer.hu .sbar{display:block;background:none;box-shadow:none;border-radius:0;max-width:none;animation:heroUp 1s ease-out .3s backwards}
+.hero-outer.hu .sbar,.home-hero .hero-outer.hu .sbar{display:block;background:none;box-shadow:none;border-radius:0;max-width:none}
 .hero-outer.hu .sbar-glass{display:none}
 .hero-outer.hu .stabs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0 12px;background:none;border:0;border-radius:0;overflow:visible}
 .hero-outer.hu .stabs button{background:#fff;color:#6B7484;border:0;border-radius:8px;height:32px;line-height:32px;padding:0;font-size:12px;font-weight:400;cursor:pointer;transition:.3s}
 .hero-outer.hu .stabs button:hover{color:var(--navy)}
 .hero-outer.hu .stabs button.on{background:var(--gold);color:var(--navy)}
 .hero-outer.hu .stabs .stabs-map svg{display:none}
-.hero-outer.hu .srow{display:grid;grid-template-columns:repeat(6,1fr) 120px;background:#fff;border-radius:8px;overflow:hidden;height:61px;text-align:start;animation:heroUp 1s ease-out .5s backwards}
+.hero-outer.hu .srow{display:grid;grid-template-columns:repeat(6,1fr) 120px;background:#fff;border-radius:8px;overflow:hidden;height:61px;text-align:start}
 .hero-outer.hu .sf{height:61px;background:#fff;padding:8px 12px;border-inline-end:1px solid #e6e8ec;color:var(--navy);min-width:0;display:flex;flex-direction:column;justify-content:center;cursor:pointer;transition:background .3s;font-size:12px;line-height:14px;font-weight:600}
 .hero-outer.hu .sf:hover{background:#f7f7f9}
 .hero-outer.hu .sf .cs-compact .chipsel-box,.hero-outer.hu .sf .chipsel-box,.hero-outer.hu .sf .cs-sum,.hero-outer.hu .sf .chipsel-trig,.hero-outer.hu .sf .pricetrig,.hero-outer.hu .sf select{background:none;border:0;padding:0;font:inherit;color:var(--navy);width:100%;text-align:start;display:flex;justify-content:space-between;align-items:center;white-space:nowrap;overflow:hidden}
@@ -827,15 +825,7 @@ html body .rs-bar.hu-rv,html body .rs-bar.hu-rv.hu-in{opacity:1!important;transf
 @media (max-width:640px){
   html body .chipsel-drop.on,html body .chipsel-drop.on.flip-up,html body .home-hero .chipsel-drop.on.flip-up{top:auto!important;bottom:0!important;max-height:72vh!important;height:auto!important}
 }
-/* the hero bar replays its entrance after every pick (softRenderHero swaps it); the re-rendered bar gets .hu-still so the
-   bottom sheet fixed inside it does not shrink to the bar's box and slide for a second before snapping to full width */
-html body .hero-outer.hu .sbar.hu-still,html body .hero-outer.hu .sbar.hu-still .srow{animation:none!important;opacity:1!important;transform:none!important}
-/* 2026-10-30: the tabs and the AI bar inside a re-drawn bar stand still too (body.hu-opening stays on after the opening, so a click on
-   «للإيجار» replayed their entrance: the three tabs vanished and faded back in) */
-html body .hero-outer.hu .sbar.hu-still .stabs,html body .hero-outer.hu .sbar.hu-still .aisearch{animation:none!important;opacity:1!important;transform:none!important}
-/* coming back to the home page after the opening: the tabs and the AI bar replay their entrance, so the search row rises with them
-   instead of standing still while they fade in around it */
-body.hu-opening .hero-outer.hu .sbar.hu-return .srow{animation:huFadeUp 1s ease-out both!important;animation-delay:calc(var(--hu-base,0ms) + 500ms)!important}
+/* a hero bar re-drawn after a pick (softRenderHero) is marked .hu-still: its open list stays put instead of sliding in again */
 html body .sbar.hu-still .chipsel-drop.on{animation:none!important}   /* the list re-opened after a pick stays put instead of sliding up again */
 /* phones: the field lists every chosen name (two lines in the filter sheet, one clipped line in the hero bar) */
 @media (max-width:640px){
@@ -1116,13 +1106,10 @@ html body .vpick .vadd .vplay,html body .vplay{color:var(--gold)!important;backg
 
 /* 2026-10-29: the owner's phone (One UI 'reduce animations') reports prefers-reduced-motion, which switched every reveal and
    entrance off; HomeUAE animates regardless, so the theme no longer gates motion on that setting */
-/* the live sheet switches the intro, the header choreography and the logo spin off under prefers-reduced-motion; the
+/* the live sheet switches the intro and the logo spin off under prefers-reduced-motion; the
    owner's phone reports that setting and he wants the motion, as HomeUAE shows it regardless */
 @media (prefers-reduced-motion:reduce){
   html body .curtain{display:grid!important}
-  html body .choreo{animation-name:heroRise!important;animation-duration:.9s!important;animation-timing-function:cubic-bezier(.2,.7,.2,1)!important;animation-fill-mode:both!important}
-  html body .choreo-hdr{animation-name:hdrIn!important;animation-duration:.9s!important;animation-timing-function:cubic-bezier(.2,.7,.2,1)!important;animation-fill-mode:both!important}
-  html body .choreo-slide{animation-name:heroSlide!important;animation-duration:1.7s!important;animation-timing-function:cubic-bezier(.65,0,.25,1)!important;animation-fill-mode:both!important}
   html body .hbar .logo .bmark .bdia{animation:hdrDiaSpin 10s cubic-bezier(.65,0,.35,1) 2s infinite!important}
   html body .curtain .bmark .bdia{animation:diaSpin 1.25s cubic-bezier(.25,.6,.2,1) .05s both!important}
   html body .curtain.done .bmark .bdia{animation:diaSpinOut .85s cubic-bezier(.6,0,.2,1) forwards!important}
@@ -1152,18 +1139,6 @@ html body .au .aubox,html body .au .au-main,html body .au .aubody{scrollbar-widt
 html body .au .aubox::-webkit-scrollbar,html body .au .au-main::-webkit-scrollbar,html body .au .aubody::-webkit-scrollbar{width:8px}
 html body .au .aubox::-webkit-scrollbar-thumb,html body .au .au-main::-webkit-scrollbar-thumb,html body .au .aubody::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border-radius:4px}
 html body .au .aubox::-webkit-scrollbar-track,html body .au .au-main::-webkit-scrollbar-track,html body .au .aubody::-webkit-scrollbar-track{background:transparent}
-/* ===== 2026-10-29 opening: while the curtain plays, the theme's own entrance animations stand down and the live
-   choreography (header from the top, search bar from below, headline sliding in, all after the curtain lifts) runs ===== */
-body.hu-opening .hero-outer.hu .sbar,body.hu-opening .hero-outer.hu .srow,body.hu-opening .hero-outer.hu .hero h1,body.hu-opening header{animation:none}
-/* longhands, so the inline animation-delay the choreography computes (after the curtain) is kept */
-@keyframes huHdrIn{0%{opacity:0;transform:translateY(-20px)}100%{opacity:1;transform:translateY(0)}}
-@keyframes huFadeUp{0%{opacity:0;transform:translateY(30px)}100%{opacity:1;transform:translateY(0)}}
-body.hu-opening header.choreo-hdr{animation-name:huHdrIn!important;animation-duration:1s!important;animation-timing-function:ease-out!important;animation-fill-mode:both!important}
-body.hu-opening .hero-outer.hu .sbar.choreo{animation-name:huFadeUp!important;animation-duration:1s!important;animation-timing-function:ease-out!important;animation-fill-mode:both!important}
-body.hu-opening .hero-outer.hu .hero h1.choreo-slide{animation-name:huFadeUp!important;animation-duration:1s!important;animation-timing-function:ease-out!important;animation-fill-mode:both!important}
-body.hu-opening .hero-outer.hu .aisearch{animation:huFadeUp 1s ease-out both!important;animation-delay:calc(var(--hu-base,0ms) + 700ms)!important}
-body.hu-opening .hero-outer.hu .stabs{animation:huFadeUp 1s ease-out both!important;animation-delay:calc(var(--hu-base,0ms) + 100ms)!important}
-
 /* 2026-10-29 owner (desktop): "only the headline moves on opening". The header and bar entrances ran while the curtain was still
    covering them (it faded 1.45-2.05s). The curtain now fades right after the word lifts and the entrances start once it is gone. */
 /* 2026-10-30 owner: the turning logo is back. The curtain now fades quickly once the word lifts (from ~1.15s to 1.65s) and the
@@ -1224,5 +1199,11 @@ html body .rs-chipclr:hover{color:var(--gold)!important}
 /* 2026-10-30 (owner): the hero's «ابحث» rose 2px on hover and showed the white search row under it; it stays in place and only
    lightens a little, in the theme's own gold (the old #D6952A orange belonged to the previous look) */
 html body .hero-outer.hu .srow .sgo:hover,html body .hero-outer.hu .srow .sgo:active{transform:none!important;background:#D49C5E!important}
-/* the opening: the whole search bar rises as one (tabs and search row together), the AI bar under it follows (2026-10-30) */
-body.hu-opening .hero-outer.hu .sbar.choreo .stabs{animation:none!important}
+
+/* ===== home hero entrance, one system (2026-10-30 owner: "clean up the code, the old with the new is confusing"). heroEnter()
+   in index.html gives each block .hu-enter and its own start (--enter-d) once per arrival on the home page: after the opening
+   curtain on the first load, at once when the visitor comes back. Nothing else animates these blocks. ===== */
+@keyframes huEnterUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
+@keyframes huEnterDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:none}}
+html body .hu-enter{animation:huEnterUp 1s ease-out both!important;animation-delay:var(--enter-d,0ms)!important}
+html body header.hu-enter{animation-name:huEnterDown!important}

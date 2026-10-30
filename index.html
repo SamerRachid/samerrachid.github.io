@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-bWcscL7vNvfsVD7LPWmRBWEO2plJee+DXFCdmMvD01I=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-9XrS1yEQfiCnm0jR0XwrvRJYQBsJVLEJctaPFfBo/K4=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -1519,7 +1519,7 @@ footer{font-size:14px}
   .hv.on img,.hv.on video{animation:none}.cur{display:none}
   .hnav a::after{transition:none}}
 
-/* ── opening curtain + hero choreography ── */
+/* ── opening curtain (the hero entrance after it: heroEnter) ── */
 .curtain{position:fixed;inset:0;z-index:100000;background:radial-gradient(120% 90% at 50% 30%,#1B2C52,var(--navy) 70%);display:grid;place-items:center;transition:transform .95s cubic-bezier(.76,0,.24,1);will-change:transform}
 /* the navy stays where it is (it is the hero's own colour); only the word lifts away, then the curtain fades to reveal the drawing */
 .curtain{transition:opacity .6s ease .5s}
@@ -1543,15 +1543,6 @@ footer{font-size:14px}
 .curtain .cw::after{content:"";position:absolute;inset-inline-end:6px;bottom:4px;height:2px;width:0;background:var(--gold);animation:curLine .7s cubic-bezier(.2,.7,.2,1) .5s forwards}
 @keyframes curRise{to{transform:none}}
 @keyframes curLine{to{width:calc(100% - 12px)}}
-.choreo{animation:heroRise .9s cubic-bezier(.2,.7,.2,1) both}
-.choreo-hdr{animation:hdrIn .9s cubic-bezier(.2,.7,.2,1) both}
-@keyframes hdrIn{from{opacity:0;transform:translateY(-100%)}to{opacity:1;transform:none}}
-.sbar.choreo,.mkt.choreo{animation-name:heroRiseFar}
-@keyframes heroRiseFar{from{opacity:0;transform:translateY(90px)}to{opacity:1;transform:none}}
-/* headline: slides in from its reading side (left in English/German, right in Arabic) while the drawing moves aside */
-.choreo-slide{animation:heroSlide 1.7s cubic-bezier(.65,0,.25,1) both;--slide:-140px}
-[dir=rtl] .choreo-slide{--slide:140px}
-@keyframes heroSlide{from{opacity:0;transform:translateX(var(--slide))}60%{opacity:1}to{opacity:1;transform:none}}
 /* the last word of the headline flips to the brand every few seconds */
 .flipw{display:inline-grid;perspective:900px;vertical-align:bottom;white-space:nowrap}
 .flipw-in{grid-area:1/1;display:inline-grid;transform-style:preserve-3d;animation:flipWord 9s cubic-bezier(.7,0,.3,1) 4.5s infinite;transform-origin:50% 50%}
@@ -1720,7 +1711,7 @@ footer{font-size:14px}
   .chipsel-opt{padding:12px 10px;font-size:14px}
   body:has(.chipsel-drop.on) .mobfab{display:none}
 }
-@media (prefers-reduced-motion:reduce){.curtain{display:none}.choreo{animation:none}.menu.on,.chipsel-drop.on{animation:none}}
+@media (prefers-reduced-motion:reduce){.curtain{display:none}.menu.on,.chipsel-drop.on{animation:none}}
 
 /* ══ 2026-09-04 home page: Horizon restyle ═══════════════════════════════
    warmer stone ground, one heading pattern (eyebrow + display title + grey line),
@@ -5000,7 +4991,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202610300738"><script>
+</style><link rel="stylesheet" href="/theme-hu.css?v=202610300747"><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
   brand:      "بلكون",
@@ -10078,7 +10069,7 @@ function huRevealResults(){ var res=$(".res"); if(!res) return; if(res.classList
   cards.forEach(function(c,i){ c.classList.remove("hu-reset"); c.style.setProperty("transition-delay",(Math.min(i,8)*70)+"ms","important") });
   void res.offsetWidth;
   cards.forEach(function(c,i){ c.classList.add("hu-in"); setTimeout(function(){ c.style.removeProperty("transition-delay"); c.classList.add("hu-done") },1150+Math.min(i,8)*70) }) }
-function huPageIn(){ if(window._huLastView===VIEW) return; var back=VIEW==="home"&&window._huLastView&&!_openingActive; window._huLastView=VIEW; if(back){ var sb=$(".hero-outer .sbar"); if(sb&&!sb.classList.contains("hu-still")) sb.classList.add("hu-return") }   /* back on the home page: the search row rises with the tabs and the AI bar (owner 2026-10-30) */ $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.hero-outer,[id$=Modal],.modal")) return; e.classList.remove("hu-page"); void e.offsetWidth; e.style.animationDelay=Math.min(i,6)*40+"ms"; e.classList.add("hu-page") }) }
+function huPageIn(){ if(window._huLastView===VIEW) return; window._huLastView=VIEW; $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.hero-outer,[id$=Modal],.modal")) return; e.classList.remove("hu-page"); void e.offsetWidth; e.style.animationDelay=Math.min(i,6)*40+"ms"; e.classList.add("hu-page") }) }
 function heroSlidesHtml(type,studio){
   if((type==="photo"||type==="video") && studio) return studio;   // a background set in the studio stays as it is
   var S=["umayyad","aleppo","arwad"], P="/next/images/hero/";
@@ -10148,10 +10139,10 @@ function softRenderHero(){
   if(VIEW!=="home"||!old){ render(); return }
   var tmp=document.createElement("div"); tmp.innerHTML=heroSearchBarHtml();
   var nb=tmp.firstElementChild;
-  if(old.classList.contains("choreo")){   // swapped while its opening entrance is pending or playing: the new bar inherits it, with the time left
-    nb.classList.add("choreo"); nb.style.animationDelay=Math.max(0,(old._huChoreoAt||0)-performance.now())+"ms"; nb._huChoreoAt=old._huChoreoAt;
-    var h=function(ev){ if(ev.target!==nb) return; nb.removeEventListener("animationend",h); nb.classList.remove("choreo"); nb.style.animationDelay="" }; nb.addEventListener("animationend",h);
-  } else nb.classList.add("hu-still");   // re-rendered bar: no entrance animation (the open sheet is fixed inside it and would slide with it)
+  if(old.classList.contains("hu-enter")){   // swapped while still entering: the new bar carries on from the same moment (a negative delay = already under way)
+    nb._enterAt=old._enterAt; nb.style.setProperty("--enter-d",Math.round(old._enterAt-performance.now())+"ms"); nb.classList.add("hu-enter");
+    var h=function(ev){ if(ev.target!==nb) return; nb.removeEventListener("animationend",h); nb.classList.remove("hu-enter"); nb.style.removeProperty("--enter-d"); nb._enterAt=0 }; nb.addEventListener("animationend",h);
+  } else nb.classList.add("hu-still");   // re-drawn bar: no entrance, and its open list stays put
   old.replaceWith(nb);
   wireHeroBar(); syncHash();
 }
@@ -12690,7 +12681,7 @@ function render(){
      var tmp=document.createElement("div"); tmp.innerHTML=html;
      try{ morphdom(app,tmp,{childrenOnly:true,onBeforeElUpdated:function(a,b){ if(a.id==="sketchBox"||a.id==="dawnBox"||a.id==="rsMap") return false;
        // a block that has already revealed keeps its reveal state through the patch (no 50ms flicker), the results hook re-runs the motion when the set changes
-       if(a.classList&&b.classList){ ["choreo","choreo-hdr","choreo-slide","hu-return"].forEach(function(k){ if(a.classList.contains(k)){ b.classList.add(k); if(a.style.animationDelay) b.style.animationDelay=a.style.animationDelay } }) }   // the opening choreography survives a data render
+       if(a.classList&&b.classList&&a.classList.contains("hu-enter")){ b.classList.add("hu-enter"); b.style.setProperty("--enter-d",a.style.getPropertyValue("--enter-d")) }   // an entrance under way survives a data render
        if(a.classList&&a.classList.contains("hu-rv")&&b.classList){ b.classList.add("hu-rv"); if(a.classList.contains("hu-rv-t")) b.classList.add("hu-rv-t"); if(a.classList.contains("hu-in")) b.classList.add("hu-in"); if(a.classList.contains("hu-done")) b.classList.add("hu-done") }
        return !a.isEqualNode(b) }}) }catch(e){ app.innerHTML=html }
    } else app.innerHTML=html;
@@ -12710,7 +12701,7 @@ function render(){
  applySiteExtras();
  updateHdr();
  applyReveals();
- heroChoreo(); phoneHeadline();
+ heroEnterCheck(); phoneHeadline();
  homeExtras();
  asAdminBar();
  wire();
@@ -12974,9 +12965,7 @@ function initOpening(){
   var isApp=(window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone===true;
   if(isApp){ var oa=SX("opening_app",true); oe=!(oa===false||oa==="false") }
   if(oe===false||oe==="false") return;
-  // theme hu 2026-10-29: the opening plays whatever the phone's motion setting says (the owner's phone reports "reduce");
-  // body.hu-opening from this very moment, so the theme's own entrance animations stand down under the curtain
-  document.body.classList.add("hu-opening"); document.body.style.setProperty("--hu-base","1350ms");   // the CSS-timed entrances (tabs, AI bar) wait for the curtain from the very first frame
+  // theme hu 2026-10-29: the opening plays whatever the phone's motion setting says (the owner's phone reports "reduce")
   var c=document.createElement("div"); c.className="curtain";
   c.innerHTML='<div class="cw cwl"><span><span class="blogo">'+brandMark()+'<span class="blogo-w"><b>'+esc(CONFIG.brand)+'</b><small>BALKOUN</small></span></span></span></div>';
   /* 2026-10-30 (owner): the turning logo is back. The logo rises while the diamond spins into place, the curtain lifts after ~1s,
@@ -12986,7 +12975,6 @@ function initOpening(){
   try{ sessionStorage.setItem("balkoun_opened","1") }catch(e){}
   setTimeout(function(){ c.classList.add("done") },950);
   setTimeout(function(){ _openingActive=false; if(c.parentNode) c.parentNode.removeChild(c) },2100);
-  setTimeout(function(){ document.body.style.setProperty("--hu-base","0ms") },4200);   // every entrance has played: a later return to the home page enters at once
 }
 var PH_STATE=null, _phTimer=null, PH_WAIT_MAX=13500, PH_ENTER=false;
 function phoneLangSwitch(oldL,newL,apply){
@@ -13022,23 +13010,29 @@ function phoneHeadline(){
   document.addEventListener("sk-rest", function(){ setTimeout(go,600) }, {once:true});
   if(!_phTimer) _phTimer=setTimeout(go, PH_WAIT_MAX);   // if the scene never reports (another background type), the headline still comes
 }
-function heroChoreo(){
-  if(!_openingActive || VIEW!=="home") return;
-  var base=Math.max(0, 1350-(Date.now()-_openingT0));   // the entrances start as the curtain fades (HomeUAE timing counted from there)
-  document.body.classList.add("hu-opening");   // --hu-base stays as initOpening set it: the CSS-timed entrances count from when their elements were drawn, not from now
-  var done=window._huChoreoDone=window._huChoreoDone||new WeakSet();   // each element plays its entrance once, whatever later renders do
-  var hd=document.querySelector("header"); if(hd && !done.has(hd)){ done.add(hd); hd.classList.add("choreo-hdr"); hd.style.animationDelay=(base+500)+"ms" }
-  // header from the top and search bar from the bottom first; the headline only once the drawing has shrunk into its place
-  // once an entrance animation has finished, drop it: an animated transform on the search bar would otherwise
-  // trap the phone's bottom-sheet menus (position:fixed) inside the bar
-  // only the element's own animation settles it: animationend bubbles up from children (the tabs and the AI bar rise inside the bar)
-  var settle=function(el,cls){ var h=function(ev){ if(ev.target!==el) return; el.removeEventListener("animationend",h); el.classList.remove(cls); el.style.animationDelay="" }; el.addEventListener("animationend",h) };
-  [[".sbar",300],[".mkt",500],[".hnote",2800]].forEach(function(p){   // top to bottom: the search bar (+.3s), then the AI bar (+.7s, in the theme)
-    var el=$(p[0]); if(!el || done.has(el)) return; done.add(el);
-    el.classList.add("choreo"); el.style.animationDelay=(base+p[1])+"ms"; el._huChoreoAt=performance.now()+base+p[1]; settle(el,"choreo");
+// ── home hero entrance (2026-10-30, one system replacing the opening choreography, .hu-still/.hu-return and the theme's
+// CSS-timed entrances). Each block rises once per arrival on the home page: on the first load after the curtain lifts, and
+// at once when the visitor comes back from another page. Re-draws of the page (a tab click, data arriving) never replay it.
+// [selector, start in ms]: the headline first, the search bar and the AI bar together, the header with them, the note last.
+var HERO_ENTER=[[".hero-outer .hero h1",0],[".hero-outer .sbar",300],[".hero-outer .aisearch",300],[".hero-outer .mkt",300],["header",300],[".hero-outer .hnote",2800]];
+var _heroHere=false;
+function heroEnter(start){
+  var now=performance.now(), d1=parseFloat(SX("h1_delay",""));   // extras.h1_delay = seconds before the headline
+  HERO_ENTER.forEach(function(p){
+    var el=$(p[0]); if(!el) return;
+    if(p[0]===".hero-outer .hero h1" && $(".hero-outer.ph-over")) return;   // the phone's drawn hero slides its headline itself
+    var at=start+p[1]+(p[0]===".hero-outer .hero h1"&&!isNaN(d1)?Math.round(d1*1000):0);
+    el._enterAt=now+at; el.style.setProperty("--enter-d",at+"ms"); el.classList.add("hu-enter");
+    // done: the class goes (a transform left on the bar would trap the phone's bottom-sheet lists inside it)
+    var h=function(ev){ if(ev.target!==el) return; el.removeEventListener("animationend",h); el.classList.remove("hu-enter"); el.style.removeProperty("--enter-d"); el._enterAt=0 };
+    el.addEventListener("animationend",h);
   });
-  // the headline slides in from its own side while the drawing shrinks away from it (they run together)
-  var h1=$(".hero h1"); if(h1 && !(window.innerWidth<=700) && !done.has(h1)){ done.add(h1); var hd1=parseFloat(SX("h1_delay","")); if(isNaN(hd1)) hd1=0; h1.classList.add("choreo-slide"); h1.style.animationDelay=(base+Math.round(hd1*1000))+"ms"; settle(h1,"choreo-slide") }   // extras.h1_delay = seconds after the opening word lifts
+}
+// called after every render: the first draw of each visit to the home page starts the entrance
+function heroEnterCheck(){
+  if(VIEW!=="home"){ _heroHere=false; return }
+  if(_heroHere || !$(".hero-outer .sbar")) return; _heroHere=true;
+  heroEnter(_openingActive ? Math.max(0, 1350-(Date.now()-_openingT0)) : 0);   // the curtain fades from ~1.15s to 1.65s
 }
 
 /* ── "Damascus in gold lines": hero_bg_type = sketch ──
@@ -13242,7 +13236,7 @@ function sketchBuild(){
     var r=hv.getBoundingClientRect(); W=Math.max(320,Math.round(r.width)); H=Math.max(240,Math.round(r.height));
     var hd=document.querySelector("header"), top=(hd?hd.offsetHeight:64)+8;
     var sb=document.querySelector(".hero .sbar"), sbTop=H-24;
-    if(sb){ var sr=sb.getBoundingClientRect(); sbTop=sr.top-r.top-(sb.classList.contains("choreo")?90:0)-14 }
+    if(sb){ var sr=sb.getBoundingClientRect(); sbTop=sr.top-r.top-(sb.classList.contains("hu-enter")?30:0)-14 }
     var h1=document.querySelector(".hero h1"), rtl=typeof rtlNow==="function"?rtlNow():true, hx0=W*.5, hx1=W*.5;
     if(h1){ var hr=h1.getBoundingClientRect(); hx0=hr.left-r.left; hx1=hr.right-r.left }
     var bw = rtl ? Math.max(W*.3, Math.min(W*.52, hx0-W*.03-20)) : Math.max(W*.3, Math.min(W*.52, W-hx1-W*.03-20));
@@ -13425,7 +13419,7 @@ function sketchBuildLB(){
     var r=hv.getBoundingClientRect(); W=Math.max(320,Math.round(r.width)); H=Math.max(240,Math.round(r.height));
     var hd=document.querySelector("header"), top=(hd?hd.offsetHeight:64)+8;
     var sb=document.querySelector(".hero .sbar"), sbTop=H-24;
-    if(sb){ var sr=sb.getBoundingClientRect(); sbTop=sr.top-r.top-(sb.classList.contains("choreo")?90:0)-14 }
+    if(sb){ var sr=sb.getBoundingClientRect(); sbTop=sr.top-r.top-(sb.classList.contains("hu-enter")?30:0)-14 }
     var h1=document.querySelector(".hero h1"), rtl=typeof rtlNow==="function"?rtlNow():true, hx0=W*.5, hx1=W*.5;
     if(h1){ var hr=h1.getBoundingClientRect(); hx0=hr.left-r.left; hx1=hr.right-r.left }
     var bw = rtl ? Math.max(W*.3, Math.min(W*.52, hx0-W*.03-20)) : Math.max(W*.3, Math.min(W*.52, W-hx1-W*.03-20));
