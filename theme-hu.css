@@ -1470,3 +1470,44 @@ html body .hero-outer.hu .pricepop .pp-cur{font-size:12px;color:#5B6371;margin-b
   html body .hero-outer.hu .pricepop .pp-clear:hover{color:var(--navy)!important}
   html body .hero-outer.hu .pricepop .pp-done{height:40px;padding:0 26px!important;font-size:14.5px!important;font-weight:700!important}
 }
+
+/* home bar price popup, compact (owner 2026-10-30: «too low when I open it, thinner, a slider»): it opens ABOVE the field like the
+   bar's other lists, the boxes and the buttons share one row, and a two-handle slider sets the range in one drag */
+html body .hero-outer.hu .pricepop .pp-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px}
+html body .hero-outer.hu .pricepop .pp-cur{margin:0}
+html body .hero-outer.hu .pricepop .pp-txt{font-size:14px;color:var(--navy);white-space:nowrap}
+html body .pp-sl{position:relative;height:30px;margin:2px 4px 10px}
+html body .pp-track{position:absolute;inset-inline:0;top:13px;height:4px;border-radius:2px;background:#E2E5EB}
+html body .pp-fill{position:absolute;top:0;bottom:0;background:var(--gold);border-radius:2px}
+html body .pp-r{position:absolute;inset-inline:0;top:0;width:100%;height:30px;margin:0;background:none;pointer-events:none;-webkit-appearance:none;appearance:none}
+html body .pp-r::-webkit-slider-runnable-track{height:30px;background:none}
+html body .pp-r::-moz-range-track{height:30px;background:none}
+html body .pp-r::-webkit-slider-thumb{-webkit-appearance:none;pointer-events:auto;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid var(--gold);box-shadow:0 2px 6px rgba(17,33,63,.25);margin-top:4px;cursor:grab}
+html body .pp-r::-moz-range-thumb{pointer-events:auto;width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--gold);box-shadow:0 2px 6px rgba(17,33,63,.25);cursor:grab}
+html body .pp-r:focus-visible::-webkit-slider-thumb{outline:2px solid var(--navy);outline-offset:2px}
+@media (min-width:901px){
+  html body .hero-outer.hu .pricepop{top:auto!important;bottom:calc(100% + 8px)!important;width:460px!important;min-width:0;display:grid;grid-template-columns:1fr auto;column-gap:14px;align-items:end}
+  html body .hero-outer.hu .pricepop[hidden]{display:none!important}
+  html body .hero-outer.hu .pricepop .pp-head,html body .hero-outer.hu .pricepop .pp-sl{grid-column:1/-1}
+  html body .hero-outer.hu .pricepop .pp-row label{font-size:11px;gap:3px}
+  html body .hero-outer.hu .pricepop input[type=number]{height:40px!important}
+  html body .hero-outer.hu .pricepop .pp-foot{margin:0!important;padding:0!important;border:0!important;gap:10px}
+}
+/* the popup's box rules (height, padding, fill, border) were reaching the slider's two range inputs too */
+html body .hero-outer.hu .pricepop input.pp-r,html body .pricepop input.pp-r{height:30px!important;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;border-radius:0!important;outline:none}
+/* the same popup on a phone: the price box is half the bar's width, so the popup spans the whole bar instead and opens above
+   it (below it ran off the screen); white like on the computer, 16px text so the phone does not zoom in on typing */
+@media (max-width:900px){
+  html body .hero-outer.hu .sf-price{position:static!important}
+  html body .hero-outer.hu .pricepop{top:auto!important;bottom:calc(100% + 8px)!important;inset-inline:0!important;width:auto!important;min-width:0!important;padding:14px!important;background:#fff!important;color:var(--navy)!important;border:1px solid rgba(17,33,63,.12)!important;border-radius:8px!important;box-shadow:0 18px 44px -10px rgba(0,0,0,.45)!important}
+  html body .hero-outer.hu .pricepop label{color:#5B6371!important;font-size:12px}
+  html body .hero-outer.hu .pricepop .pp-row{gap:10px}
+  html body .hero-outer.hu .pricepop input[type=number]{height:44px!important;font-size:16px!important;padding:0 12px!important;background:#F4F5F8!important;color:var(--navy)!important;border:1px solid rgba(17,33,63,.15)!important;border-radius:8px!important;-moz-appearance:textfield}
+  html body .hero-outer.hu .pricepop input[type=number]:focus{border-color:var(--gold)!important;outline:none}
+  html body .hero-outer.hu .pricepop input::-webkit-outer-spin-button,html body .hero-outer.hu .pricepop input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  html body .hero-outer.hu .pricepop input::placeholder{color:#9AA1AE}
+  html body .hero-outer.hu .pricepop .pp-foot{display:flex;align-items:center;justify-content:space-between;margin-top:12px!important;padding-top:0!important;border:0!important}
+  html body .hero-outer.hu .pricepop .pp-clear{border:0!important;background:none!important;color:#5B6371!important;height:44px;padding:0 4px!important;font-size:14px!important;font-weight:600!important;text-decoration:underline;text-underline-offset:4px;text-decoration-color:rgba(91,99,113,.35)}
+  html body .hero-outer.hu .pricepop .pp-done{height:44px;padding:0 30px!important;font-size:15px!important;font-weight:700!important;background:#CA9051!important;color:var(--navy)!important;border:0!important;border-radius:8px!important}
+  html body .hero-outer.hu .pricepop .pp-r::-webkit-slider-thumb{width:26px;height:26px;margin-top:2px}
+}

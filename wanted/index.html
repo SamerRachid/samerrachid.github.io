@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-ngageiS1phZuwUXyNsAYf9qm3BqYMO6osAKTUXG2HHA=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-GmWjgVmDYsZKMwAJJash6XarQDMYEZULeRDUNwmST/w=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -4983,7 +4983,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202610301106"><script>
+</style><link rel="stylesheet" href="/theme-hu.css?v=202610301116"><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
   brand:      "بلكون",
@@ -10369,7 +10369,8 @@ function heroSearchBarHtml(){
         return D.TABU[v]?D.TABU[v][li()]:v},true)+'</div>')+
    '<div class="sf sf-rooms">'+chipSelect("csRooms",GX("roomsField"),F.rooms||[],roomsLabel,true)+'</div>'+
    '<div class="sf sf-price"><button type="button" class="pricetrig" id="hPrice">'+heroPriceLabel()+CHEV+'</button>'+
-     '<div class="pricepop" id="hPricePop" hidden><div class="pp-cur">'+ppCurText()+'</div><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(curRate())):"")+'"></label>'+
+     '<div class="pricepop" id="hPricePop" hidden><div class="pp-head"><div class="pp-cur">'+ppCurText()+'</div><b class="pp-txt" id="hPrTxt"></b></div>'+
+     '<div class="pp-sl"><div class="pp-track"><i class="pp-fill" id="hPrFill"></i></div><input type="range" class="pp-r" id="hPrA" min="0" max="'+(ppSteps().length-1)+'" step="1" aria-label="'+esc(GX("from"))+'"><input type="range" class="pp-r" id="hPrB" min="0" max="'+(ppSteps().length-1)+'" step="1" aria-label="'+esc(GX("to"))+'"></div><div class="pp-row"><label>'+GX("from")+'<input id="hPmin" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="0" value="'+(F.pmin?Math.round(CUR==="USD"?F.pmin:F.pmin*(curRate())):"")+'"></label>'+
      '<label>'+GX("to")+'<input id="hPmax" data-allow-autofill type="number" inputmode="numeric" min="0" placeholder="'+esc(GX("ppNoMax"))+'" value="'+(F.pmax?Math.round(CUR==="USD"?F.pmax:F.pmax*(curRate())):"")+'"></label></div>'+
      '<div class="pp-foot"><button type="button" class="pp-clear" id="hPriceClear">'+GX("anyPrice")+'</button><button type="button" class="pp-done" id="hPriceDone">'+GX("done")+'</button></div></div></div>'+
    '<button class="sgo" id="hgo">'+t("search")+'<span id="hgoCount">'+heroCount(F.deal)+'</span></button>'+
@@ -10384,11 +10385,22 @@ function wireHeroBar(){
    if($("#hPrice")){ // hero price range: popover with min / max and quick presets (values kept in USD like the rest of the filter)
      var pop=$("#hPricePop"), rate=curRate(), toUsd=function(v){ v=parseInt(latinDigits(String(v||"")),10)||0; return CUR==="USD"?v:usdFromLocal(v,rate) };
      var applyPrice=function(){ F.pmin=toUsd($("#hPmin").value); F.pmax=toUsd($("#hPmax").value); if(F.pmax&&F.pmin>F.pmax){ var sw=F.pmin; F.pmin=F.pmax; F.pmax=sw } softRenderHero() };
-     $("#hPrice").onclick=function(e){ e.stopPropagation(); closeAllMenus(pop); pop.hidden=!pop.hidden; if(!pop.hidden) setTimeout(function(){ var i=$("#hPmin"); if(i) i.focus() },30) };
+     // on a phone the slider is the main way in, so the keyboard does not jump up on open
+     $("#hPrice").onclick=function(e){ e.stopPropagation(); closeAllMenus(pop); pop.hidden=!pop.hidden; if(!pop.hidden&&innerWidth>900) setTimeout(function(){ var i=$("#hPmin"); if(i) i.focus() },30) };
      pop.onclick=function(e){ e.stopPropagation() };
      $("#hPriceDone").onclick=applyPrice; $("#hPriceClear").onclick=function(){ F.pmin=0; F.pmax=0; softRenderHero() };
      $$("#hPricePop [data-pp]").forEach(function(b){ b.onclick=function(){ var p=b.dataset.pp.split("-"); F.pmin=parseInt(p[0],10)||0; F.pmax=parseInt(p[1],10)||0; render() } });
      $$("#hPmin,#hPmax").forEach(function(i){ i.onkeydown=function(e){ if(e.key==="Enter") applyPrice() } });
+     // the slider: each stop is a dollar amount; moving it fills the boxes (in the visitor's currency), typing moves it
+     var st=ppSteps(), last=st.length-1, A=$("#hPrA"), B=$("#hPrB"), fromLocal=function(v){ v=parseInt(latinDigits(String(v||"")),10)||0; return CUR==="USD"?v:usdFromLocal(v,rate) };
+     var near=function(usd,isMax){ if(!usd) return isMax?last:0; var bi=0, bd=Infinity; for(var i=0;i<last;i++){ var d=Math.abs(st[i]-usd); if(d<bd){ bd=d; bi=i } } return bi };
+     var paint=function(){ var a=+A.value, b=+B.value, f=$("#hPrFill"); if(f){ f.style.insetInlineStart=(a/last*100)+"%"; f.style.insetInlineEnd=(100-b/last*100)+"%" }
+       var t2=$("#hPrTxt"); if(t2) t2.textContent=(a===0&&b===last)?GX("anyPrice"):(a===0?"":ppShort(st[a]))+(a===0?GX("ppUpTo")+" ":" – ")+(b===last?GX("ppNoMax"):ppShort(st[b])) };
+     var fromSlider=function(which){ var a=+A.value, b=+B.value; if(a>b){ if(which==="a"){ A.value=b; a=b } else { B.value=a; b=a } }
+       $("#hPmin").value=a===0?"":Math.round(CUR==="USD"?st[a]:st[a]*rate); $("#hPmax").value=b===last?"":Math.round(CUR==="USD"?st[b]:st[b]*rate); paint() };
+     if(A&&B){ A.value=near(F.pmin,false); B.value=near(F.pmax,true); paint();
+       A.oninput=function(){ fromSlider("a") }; B.oninput=function(){ fromSlider("b") };
+       $("#hPmin").addEventListener("input",function(){ A.value=near(fromLocal(this.value),false); paint() }); $("#hPmax").addEventListener("input",function(){ B.value=near(fromLocal(this.value),true); paint() }) }
      document.addEventListener("click",function h(e){ if(!pop.isConnected){ document.removeEventListener("click",h); return } if(!pop.hidden) pop.hidden=true });
    }
    $("#hgo").onclick=function(){
@@ -15162,7 +15174,7 @@ var GX_T={
   xAdVideoMax:{ar:"الحد الأقصى لحجم فيديو المربع (MB)",en:"Maximum ad video size (MB)",de:"Maximale Videogröße (MB)"},
   xDesignH:{ar:"النتائج",en:"Results",de:"Ergebnisse"},
   xPageSize:{ar:"عدد الإعلانات في صفحة النتائج",en:"Listings per results page",de:"Anzeigen pro Ergebnisseite"},
-  xSimilar:{ar:"عدد «إعلانات أخرى» تحت صفحة الإعلان",en:"“More listings” shown under a listing",de:"„Weitere Anzeigen“ unter einer Anzeige"}, sponsored:{ar:"إعلان مدفوع",en:"Sponsored",de:"Gesponsert"}, ppNoMax:{ar:"بلا حد",en:"No max",de:"Kein Maximum",fr:"Sans max"}, ppCur:{ar:"المبلغ بـ {c}",en:"Amount in {c}",de:"Betrag in {c}",fr:"Montant en {c}"},
+  xSimilar:{ar:"عدد «إعلانات أخرى» تحت صفحة الإعلان",en:"“More listings” shown under a listing",de:"„Weitere Anzeigen“ unter einer Anzeige"}, sponsored:{ar:"إعلان مدفوع",en:"Sponsored",de:"Gesponsert"}, ppNoMax:{ar:"بلا حد",en:"No max",de:"Kein Maximum",fr:"Sans max"}, ppUpTo:{ar:"حتى",en:"Up to",de:"Bis",fr:"Jusqu'à"}, ppCur:{ar:"المبلغ بـ {c}",en:"Amount in {c}",de:"Betrag in {c}",fr:"Montant en {c}"},
   apkH:{ar:"تطبيق أندرويد",en:"Android app",de:"Android-App"}, apkP:{ar:"حتى يصل التطبيق إلى Google Play، حمّله من هنا مباشرة.",en:"Until it is on Google Play, download it here.",de:"Bis zur Veröffentlichung bei Google Play hier laden."},
   apkBtn:{ar:"حمّل التطبيق",en:"Download the app",de:"App herunterladen"}, apkVer:{ar:"النسخة 1.2 · 3 ميغا",en:"Version 1.2 · 3 MB",de:"Version 1.2 · 3 MB"},
   apkS1:{ar:"اضغط «حمّل التطبيق» وانتظر انتهاء التحميل.",en:"Tap «Download the app» and wait for it to finish.",de:"Tippen und warten."},
@@ -15229,6 +15241,11 @@ function heroSubHtml(txt){
 }
 /* hero price field: label text and quick presets in the current currency */
 // the home bar's price popup says which money the numbers are in (the visitor can show prices in dollars or a local currency)
+// the slider's stops, in dollars like the filter: wider steps as prices grow; the last stop means «no limit»
+function ppSteps(){ return F.deal==="rent" ? [0,50,100,150,200,250,300,400,500,750,1000,1500,2000,3000,5000,0]
+  : [0,5000,10000,15000,20000,25000,30000,40000,50000,60000,75000,100000,125000,150000,200000,250000,300000,400000,500000,750000,1000000,2000000,0] }
+function ppShort(usd){ var rate=curRate(), n=Math.round(CUR==="USD"?usd:usd*rate), k=n>=1e6?(Math.round(n/1e5)/10).toString().replace(/\.0$/,"")+"M":n>=1000?(Math.round(n/100)/10).toString().replace(/\.0$/,"")+"k":String(n);
+  return CUR==="USD" ? "$"+k : k+" "+curLabel(CUR,L) }
 function ppCurText(){ var names={USD:{ar:"بالدولار الأمريكي",en:"in US dollars",de:"in US-Dollar",fr:"en dollars US"},SYP:{ar:"بالليرة السورية",en:"in Syrian pounds",de:"in syrischen Pfund",fr:"en livres syriennes"},
   LBP:{ar:"بالليرة اللبنانية",en:"in Lebanese pounds",de:"in libanesischen Pfund",fr:"en livres libanaises"},EUR:{ar:"باليورو",en:"in euros",de:"in Euro",fr:"en euros"}}, n=names[CUR];
   var w=n?(n[L]||n.en):((L==="ar"?"بـ ":"in ")+CUR); return (L==="ar"?"المبلغ ":L==="de"?"Betrag ":L==="fr"?"Montant ":"Amount ")+w+' <b>('+esc(curLabel(CUR,L))+')</b>' }
