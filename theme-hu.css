@@ -1560,3 +1560,7 @@ html body .hero-outer.hu .sf .pricetrig .ph[data-all]{align-items:center!importa
 html body .hero-outer.hu .hero h1{-webkit-text-stroke:0!important}
 /* the base rule draws the headline as an outline on a transparent fill; with the outline gone it needs a fill when Studio sets none */
 html body .hero-outer.hu .hero h1:not([style*="color"]){color:#fff}
+/* the site's press effect (buttons shrink a little on press) gave the price button a transform, which re-anchors its absolutely
+   placed arrow to the button for that moment: the arrow jumped ~13px and back (owner 2026-10-30). The bar's other fields are not
+   buttons and never shrink, so the price field doesn't either */
+html body .hero-outer.hu .sf .pricetrig,html body .hero-outer.hu .sf .pricetrig:active,html body .hero-outer.hu .sf .pricetrig:hover,html body .hero-outer.hu .sf .pricetrig:focus{transform:none!important}
