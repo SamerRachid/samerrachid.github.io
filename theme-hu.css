@@ -1383,3 +1383,27 @@ html body .w-grid{grid-auto-rows:1fr;align-items:stretch}
 html body .w-grid>.wcard{height:100%;display:flex;flex-direction:column}
 .spg .sp-sv.wide{grid-column:1/-1;display:grid;grid-template-columns:48px 1fr;column-gap:18px;align-items:center;border-inline-start:0!important;padding-inline-start:0!important}
 .spg .sp-sv.wide b{margin-top:0}.spg .sp-sv.wide p{max-width:680px}
+/* ===== «خدمات العقار» /services (2026-10-30): the cards reuse the agencies directory; these are its own pieces ===== */
+html body .svc-cats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:18px 0 6px}
+html body .svc-cat{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--navy-2);color:#fff;font:inherit;cursor:pointer;text-align:start;transition:border-color .2s,background .2s}
+html body .svc-cat b{font-size:14.5px;font-weight:700}html body .svc-cat span{font-size:12.5px;color:var(--muted);background:rgba(255,255,255,.06);border-radius:999px;padding:1px 8px}
+html body .svc-cat:hover{border-color:rgba(202,144,81,.6)}html body .svc-cat.on{border-color:var(--gold);background:rgba(202,144,81,.14)}html body .svc-cat.on span{color:var(--navy);background:var(--gold)}
+html body .svcdir .agcard{position:relative}
+html body .svcdir .agcard.svc-feat{border-color:rgba(202,144,81,.7)!important}
+html body .svc-ftag{position:absolute;top:12px;inset-inline-end:12px;font-size:11.5px;font-weight:700;color:var(--navy);background:var(--gold);border-radius:999px;padding:2px 10px}
+html body .svc-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+html body .svc-photos img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+html body .svc-note{color:var(--muted);font-size:13px;margin-top:22px}
+html body .svcjoin h1{font-size:28px;margin-bottom:6px}html body .svcjoin .svc-lead{color:var(--muted);margin-bottom:16px}
+html body .svc-status{margin-bottom:14px;color:#D5DCE8}
+html body .svc-pick{display:flex;flex-wrap:wrap;gap:8px}
+html body .svc-pick button{border:1px solid var(--line);background:transparent;color:#D5DCE8;border-radius:999px;padding:7px 14px;font:inherit;font-size:14px;cursor:pointer}
+html body .svc-pick button.on{background:var(--gold);border-color:var(--gold);color:var(--navy);font-weight:700}
+@media (max-width:640px){html body .svc-cats{grid-template-columns:1fr 1fr}}
+/* the WhatsApp button on directory cards (agencies and services) was a pale circle with a white icon: now WhatsApp green */
+html body .agcard .agbtn.wa{background:#25D366!important;border-color:#25D366!important;color:#fff!important}
+html body .agcard .agbtn.wa svg{color:#fff!important;stroke:#fff}
+/* phones: the categories scroll sideways in one row, so the providers start near the top */
+@media (max-width:640px){html body .svc-cats{display:flex;overflow-x:auto;gap:8px;margin-inline:-18px;padding:2px 18px 6px;scrollbar-width:none}html body .svc-cats::-webkit-scrollbar{display:none}html body .svc-cat{flex:none;padding:9px 12px}}
+html body .svc-ftag{top:-11px!important;box-shadow:0 0 0 3px var(--navy)}
+@media (max-width:640px){html body .svcdir .ag-filters .ag-pills{flex-wrap:nowrap;overflow-x:auto;margin-inline:-18px;padding:2px 18px 6px;scrollbar-width:none}html body .svcdir .ag-filters .ag-pills::-webkit-scrollbar{display:none}html body .svcdir .ag-filters .ag-pills button{flex:none}}

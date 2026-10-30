@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-wp8unE+O5h2qaFNsbsCicpftOWs2IFxN4DIaB2AsFes=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-rA/LjsEvjOee4BN+l1qyJ5b8bFN1478U2zyNgQfOjcA=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -4991,7 +4991,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202610300928"><script>
+</style><link rel="stylesheet" href="/theme-hu.css?v=202610300941"><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
   brand:      "بلكون",
@@ -5833,6 +5833,7 @@ var NAVI=[
   {k:"coll",g:"discover",lab:function(){return HX("navColl")},ico:"coll",attrs:'data-mdscroll="collsSec"',o:50},
   {k:"expl",g:"discover",lab:function(){return HX("navAreas")},ico:"expl",attrs:'data-mdscroll="explSec"',o:60},
   {k:"guide",g:"discover",lab:function(){return HX("navGuide")},ico:"guide",attrs:'data-mdscroll="guidesSec"',o:70},
+  {k:"services",g:"services",lab:function(){return GX("svcNav")},ico:"tools",attrs:'data-go="services"',o:70,tag:"newTag"},
   {k:"promote",g:"services",lab:function(){return GX("promoNav")},ico:"promote",attrs:'data-go="promote"',o:71},
   {k:"legal",g:"services",lab:function(){return GX("navLegalBoth")},ico:"legal",attrs:'data-soon="legal"',o:72,soon:true},
   {k:"help",g:"site",lab:function(){return GX("helpNav")},ico:"play",attrs:'data-go="help"',o:78,hide:function(){ return !guidesFor("page").length }},
@@ -5966,6 +5967,7 @@ var MI=(function(){
     agency:w('<path d="M3 21h18M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/>'),
     tower:w('<path d="M4 21h16M6 21V9l6-6 6 6v12"/><path d="M10 21v-4h4v4M9 12h.01M15 12h.01M9 16h.01M15 16h.01M12 3v3"/>'),
     promote:w('<path d="M3 11l18-6v14L3 13z"/><path d="M7 12v5a2 2 0 0 0 4 0v-3"/>'),
+    tools:w('<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/>'),
     wanted:w('<path d="M3 11 12 4l9 7"/><path d="M5 10v10h5"/><circle cx="15.5" cy="15.5" r="3.5"/><path d="m18 18 3 3"/>'),
     download:w('<rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 7v7m-3-3 3 3 3-3M9 18h6"/>'),
     home:w('<path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>'),
@@ -6010,6 +6012,7 @@ function footer(){
   '<div class="fcol"><h4>'+esc(CONFIG.brand)+'</h4>'+
   '<a href="'+cPre()+'/about/" data-go="about">'+t("about")+'</a>'+
   '<a href="/promote" data-go="promote">'+GX("promoNav")+'</a>'+
+  '<a href="/services" data-go="services">'+GX("svcNav")+'</a>'+
   (SXb("help_footer",true) && guidesFor("page").length ? '<a data-go="help">'+GX("helpNav")+'</a>' : '')+
   '<a href="'+cPre()+'/contactus/" data-go="contactus">'+t("contactUsPageT")+'</a>'+
   '<a data-go="contact">'+t("contactUs")+'</a>'+
@@ -9502,6 +9505,98 @@ if(!window._promoWired){ window._promoWired=true;
     var t=e.target.closest&&e.target.closest("[data-sptab]"); if(t){ PROMO_TAB=t.dataset.sptab; $$(".sp-seg button").forEach(function(b){ var on=b.dataset.sptab===PROMO_TAB; b.classList.toggle("on",on); b.setAttribute("aria-selected",on) }); $$(".sp-plan").forEach(function(p,i){ p.hidden=(i===0)!==(PROMO_TAB==="ind") }) }
     var j=e.target.closest&&e.target.closest("[data-spjump]"); if(j){ e.preventDefault(); var el=document.getElementById(j.dataset.spjump); if(el){ var bar=$(".sp-jump"), off=(bar?bar.offsetHeight:0)+10; scrollTo({top:el.getBoundingClientRect().top+scrollY-off,behavior:"smooth"}) } } });
 }
+/* ── «خدمات العقار» (2026-10-30): /services (the directory), /services/<id> (one provider), /services/join (register).
+   Data: bk_public_services (categories that are on + approved providers), bk_service_mine / bk_service_save for one's own card.
+   The cards reuse the agencies directory's look (ag-* classes); contact goes straight to the provider on WhatsApp or by phone. ── */
+var SVC=null, SVF={cat:"",g:"",q:""}, SVMINE=undefined, SVFORM=null;
+async function loadServices(){ if(!DB){ SVC={cats:[],providers:[]}; return } try{ var r=await DB.rpc("bk_public_services",{p_country:COUNTRY}); SVC=(r&&r.data)||{cats:[],providers:[]} }catch(e){ SVC={cats:[],providers:[]} } }
+async function loadMyService(){ if(!DB||!USER){ SVMINE=null; return } try{ var r=await DB.rpc("bk_service_mine",{p_token:USER.token||null}); SVMINE=(r&&r.data)||null }catch(e){ SVMINE=null } }
+function svcCatName(slug){ var c=((SVC&&SVC.cats)||[]).filter(function(x){ return x.slug===slug })[0]; return c?(L==="ar"?c.name_ar:(c.name_en||c.name_ar)):slug }
+function svcWa(p){ return String(p.whatsapp||p.phone||"").replace(/\D/g,"").replace(/^00/,"").replace(/^0(?=9)/,"963") }
+function svcCard(p){ var ar=L==="ar", wa=svcWa(p), tel=String(p.phone||"").replace(/[^\d+]/g,"");
+  return '<div class="agcard'+(p.featured?' svc-feat':'')+'" data-svopen="'+p.id+'" role="link" tabindex="0">'+
+    (p.featured?'<span class="svc-ftag">'+GX("svcFeatured")+'</span>':'')+
+    '<div class="aghead">'+avatar(p.logo_url,p.name,56,"aglogo")+'<div class="agname"><b>'+esc(p.name)+(p.verified?' <span class="vbadge">✓ '+GX("svcVerified")+'</span>':'')+'</b>'+
+      '<span class="agspecs">'+(p.cats||[]).slice(0,3).map(function(k){ return '<i>'+esc(svcCatName(k))+'</i>' }).join("")+((p.cats||[]).length>3?'<i>+'+((p.cats||[]).length-3)+'</i>':'')+'</span></div></div>'+
+    (p.description?'<p class="agdesc">'+esc(p.description).slice(0,150)+(p.description.length>150?"…":"")+'</p>':'')+
+    '<div class="agareas">'+MI.map+'<span>'+((p.gov_names||[]).map(gN).join(ar?"، ":", ")||"—")+'</span></div>'+
+    '<div class="agfoot"><span class="agcount">'+(p.contact_person?esc(p.contact_person):'')+'</span><span class="agacts">'+
+      (wa?'<a class="agbtn wa" href="https://wa.me/'+esc(wa)+'?text='+encodeURIComponent(GX("svcWaMsg"))+'" target="_blank" rel="noopener" data-stop title="WhatsApp">'+MI.msgs+'</a>':'')+
+      (tel?'<a class="agbtn" href="tel:'+esc(tel)+'" data-stop title="'+esc(GX("agCall"))+'">'+MI.phone+'</a>':'')+'</span></div></div>' }
+function servicesPage(){
+  if(SVC===null) loadServices().then(render);
+  var cats=(SVC&&SVC.cats)||[], govs=Object.keys(D.GEO);
+  var rows=((SVC&&SVC.providers)||[]).filter(function(p){ if(SVF.cat && (p.cats||[]).indexOf(SVF.cat)<0) return false; if(SVF.g && (p.gov_names||[]).indexOf(SVF.g)<0) return false;
+    if(SVF.q){ var q=kwNorm(SVF.q), hay=kwNorm([p.name,p.description,p.contact_person,(p.cats||[]).map(svcCatName).join(" "),(p.gov_names||[]).map(gN).join(" "),(p.area_names||[]).join(" ")].join(" ")); if(hay.indexOf(q)<0) return false } return true });
+  var count={}; ((SVC&&SVC.providers)||[]).forEach(function(p){ (p.cats||[]).forEach(function(k){ count[k]=(count[k]||0)+1 }) });
+  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("svcNav")+'</div></div>'+
+   '<div class="wrap agdir svcdir">'+
+    '<div class="ag-hero"><div><div class="eyebrow">'+GX("svcEyebrow")+'</div><h1>'+GX("svcTitle")+'</h1><p>'+GX("svcLead")+'</p></div><a class="gold" href="/services/join" data-go="servicejoin">'+GX("svcJoin")+'</a></div>'+
+    '<div class="svc-cats">'+cats.map(function(c){ return '<button type="button" class="svc-cat'+(SVF.cat===c.slug?' on':'')+'" data-svcat="'+esc(c.slug)+'"><b>'+esc(L==="ar"?c.name_ar:(c.name_en||c.name_ar))+'</b><span class="ltr">'+(count[c.slug]||0)+'</span></button>' }).join("")+'</div>'+
+    '<div class="ag-filters"><input id="svQ" data-allow-autofill placeholder="'+esc(GX("svcSearchPH"))+'" value="'+esc(SVF.q)+'">'+
+     '<div class="ag-pills"><button type="button" class="'+(SVF.g?"":"on")+'" data-svg="">'+GX("agAllGov")+'</button>'+govs.map(function(g){ return '<button type="button" class="'+(SVF.g===g?"on":"")+'" data-svg="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
+    (SVC===null ? '<div class="resempty"><b>'+t("loading")+'</b></div>' : rows.length ? '<div class="ag-grid">'+rows.map(svcCard).join("")+'</div>' :
+      '<div class="resempty">'+LICON.search+'<b>'+GX(SVF.cat||SVF.g||SVF.q?"svcEmptyF":"svcEmpty")+'</b><span>'+GX("svcEmptyCta")+'</span><a class="gold" href="/services/join" data-go="servicejoin" style="margin-top:12px;text-decoration:none">'+GX("svcJoin")+'</a></div>')+
+   '</div>' }
+function servicePage(id){
+  if(SVC===null){ loadServices().then(render); return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>' }
+  var p=(SVC.providers||[]).filter(function(x){ return String(x.id)===String(id) })[0];
+  if(!p) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:18px">'+t("notFound")+'</b><div style="margin-top:18px"><a class="btn-n" href="/services" data-go="services">'+GX("svcNav")+'</a></div></div></div>';
+  var wa=svcWa(p), tel=String(p.phone||"").replace(/[^\d+]/g,""), photos=Array.isArray(p.photos)?p.photos:[];
+  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a href="/services" data-go="services">'+GX("svcNav")+'</a><i>›</i>'+esc(p.name)+'</div></div>'+
+   '<div class="wrap agprof svcprof">'+
+    '<div class="profcard"><div class="profhead">'+avatar(p.logo_url,p.name,86,"big")+'<div class="profmeta"><h1>'+esc(p.name)+(p.verified?' <span class="vbadge">✓ '+GX("svcVerified")+'</span>':'')+'</h1>'+
+      (p.contact_person?'<div class="pl agperson">'+GX("agPersonL")+': <b>'+esc(p.contact_person)+'</b></div>':'')+
+      '<div class="agspecs big">'+(p.cats||[]).map(function(k){ return '<i>'+esc(svcCatName(k))+'</i>' }).join("")+'</div>'+
+      '<div class="pl">'+((p.gov_names||[]).map(gN).join(L==="ar"?"، ":", ")||"")+((p.area_names||[]).length?' · '+p.area_names.map(esc).join(L==="ar"?"، ":", "):'')+'</div>'+
+      (p.description?'<p class="bio">'+esc(p.description)+'</p>':'')+'</div></div>'+
+     '<div class="agcontact">'+(wa?'<a class="btn-n wa" href="https://wa.me/'+esc(wa)+'?text='+encodeURIComponent(GX("svcWaMsg"))+'" target="_blank" rel="noopener">'+MI.msgs+GX("agWa")+'</a>':'')+
+       (tel?'<a class="btn-n" href="tel:'+esc(tel)+'">'+MI.phone+GX("agCall")+'</a>':'')+'</div>'+
+    '</div>'+
+    (photos.length?'<h2 style="font-size:18px;font-weight:700;margin:22px 0 12px">'+GX("svcWork")+'</h2><div class="svc-photos">'+photos.slice(0,12).map(function(u){ return '<a href="'+esc(safeUrl(String(u)))+'" target="_blank" rel="noopener"><img src="'+esc(safeUrl(String(u)))+'" alt="" loading="lazy"></a>' }).join("")+'</div>':'')+
+    '<p class="svc-note">'+GX("svcNote")+'</p>'+
+   '</div>' }
+function serviceJoinPage(){
+  if(!USER) return gate();
+  if(SVMINE===undefined){ loadMyService().then(render); return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>' }
+  if(SVC===null) loadServices().then(render);
+  var m=SVMINE||{}, f=SVFORM||(SVFORM={name:m.name||"",contact_person:m.contact_person||fullName(USER)||"",phone:m.phone||USER.phone||"",whatsapp:m.whatsapp||USER.phone||"",description:m.description||"",cats:(m.cats||[]).slice(),gov_names:(m.gov_names||[]).slice(),area_names:(m.area_names||[]).join("، ")});
+  var cats=(SVC&&SVC.cats)||[], fl=function(id,label,val,type,ph){ return '<div class="fl"><label for="'+id+'">'+label+'</label><input id="'+id+'" data-svf="'+id.slice(3)+'" type="'+(type||"text")+'"'+(type==="tel"?' dir="ltr"':'')+' value="'+esc(val||"")+'"'+(ph?' placeholder="'+esc(ph)+'"':'')+'></div>' };
+  var st=m.status?'<div class="svc-status">'+GX("svcStatus")+' '+agStatusPill(m.status)+'</div>':'';
+  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a href="/services" data-go="services">'+GX("svcNav")+'</a><i>›</i>'+GX("svcJoin")+'</div></div>'+
+   '<div class="wrap svcjoin" style="max-width:760px;padding:22px 18px 60px"><h1>'+GX(m.id?"svcEditT":"svcJoinT")+'</h1><p class="svc-lead">'+GX("svcJoinLead")+'</p>'+st+
+    '<div class="blk"><div class="in">'+fl("svfname",GX("svcFName"),f.name)+fl("svfcontact_person",GX("svcFPerson"),f.contact_person)+
+      '<div class="row">'+fl("svfwhatsapp",GX("svcFWa"),f.whatsapp,"tel","+9639…")+fl("svfphone",GX("svcFPhone"),f.phone,"tel","+9639…")+'</div>'+
+      '<div class="fl"><label>'+GX("svcFCats")+'</label><div class="svc-pick">'+cats.map(function(c){ return '<button type="button" class="'+(f.cats.indexOf(c.slug)>-1?"on":"")+'" data-svpick="cats" data-v="'+esc(c.slug)+'">'+esc(L==="ar"?c.name_ar:(c.name_en||c.name_ar))+'</button>' }).join("")+'</div></div>'+
+      '<div class="fl"><label>'+GX("svcFGovs")+'</label><div class="svc-pick">'+Object.keys(D.GEO).map(function(g){ return '<button type="button" class="'+(f.gov_names.indexOf(g)>-1?"on":"")+'" data-svpick="gov_names" data-v="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
+      fl("svfarea_names",GX("svcFAreas"),f.area_names,"text",GX("svcFAreasPH"))+
+      '<div class="fl"><label for="svfdescription">'+GX("svcFDesc")+'</label><textarea id="svfdescription" data-svf="description" rows="5" maxlength="1500" placeholder="'+esc(GX("svcFDescPH"))+'">'+esc(f.description)+'</textarea></div>'+
+      '<div class="hintx">'+GX("svcFHint")+'</div>'+
+      '<div class="xactions"><button type="button" class="gold" id="svSave">'+GX(m.id?"svcSaveEdit":"svcSend")+'</button><span class="xmsg" id="svMsg"></span></div>'+
+    '</div></div></div>' }
+function wireServices(){
+  if(VIEW==="services"){
+    var q=$("#svQ"); if(q) q.oninput=function(){ SVF.q=this.value; clearTimeout(window._svT); window._svT=setTimeout(function(){ var pos=q.selectionStart; render(); var n=$("#svQ"); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos) }catch(e){} } },220) };
+    $$("[data-svg]").forEach(function(b){ b.onclick=function(){ SVF.g=this.dataset.svg; render() } });
+    $$("[data-svcat]").forEach(function(b){ b.onclick=function(){ SVF.cat=SVF.cat===this.dataset.svcat?"":this.dataset.svcat; render() } });
+  }
+  $$("[data-svopen]").forEach(function(a){ a.onclick=function(e){ if(e.target.closest("[data-stop]")) return; e.preventDefault(); VIEW="service:"+this.dataset.svopen; scrollTo(0,0); render() } });
+  if(VIEW==="servicejoin"&&SVFORM){
+    $$("[data-svf]").forEach(function(i){ i.oninput=function(){ SVFORM[this.dataset.svf]=this.value } });
+    $$("[data-svpick]").forEach(function(b){ b.onclick=function(){ var k=this.dataset.svpick, v=this.dataset.v, a=SVFORM[k], i=a.indexOf(v); if(i>-1) a.splice(i,1); else a.push(v); this.classList.toggle("on",i<0) } });
+    if($("#svSave")) $("#svSave").onclick=async function(){ var btn=this, m=$("#svMsg"), f=SVFORM;
+      var data={name:f.name,contact_person:f.contact_person,phone:f.phone,whatsapp:f.whatsapp,description:f.description,cats:f.cats,gov_names:f.gov_names,
+        area_names:String(f.area_names||"").split(/[،,]/).map(function(x){ return x.trim() }).filter(Boolean).slice(0,30),country:COUNTRY,
+        logo_url:(SVMINE&&SVMINE.logo_url)||null,photos:(SVMINE&&SVMINE.photos)||[]};
+      if(!String(data.name).trim()){ m.textContent=GX("svcErr_noname"); return } if(!data.cats.length){ m.textContent=GX("svcErr_nocat"); return }
+      if(!String(data.phone).trim()&&!String(data.whatsapp).trim()){ m.textContent=GX("svcErr_nophone"); return }
+      btn.disabled=true; m.textContent=t("saving");
+      try{ var r=await DB.rpc("bk_service_save",{p_token:USER.token,p_data:data}); if(r&&r.error) throw r.error; var d=(r&&r.data)||{};
+        if(d.error){ m.textContent=GX("svcErr_"+d.error)||d.error; btn.disabled=false; return }
+        SVMINE=d; SVFORM=null; SVC=null; m.textContent=""; render(); var mm=$("#svMsg"); if(mm){ mm.style.color="var(--ok)"; mm.textContent=GX(d.status==="approved"?"svcSavedLive":"svcSavedWait") } }
+      catch(e){ m.textContent=e.message||String(e); btn.disabled=false } };
+  }
+}
 function agencyFormPage(){ if(!USER) return gate(); ACC.agForm=true; return account() }
 /* ── message intake on the site: paste a WhatsApp text into the post form; the agency's "post by message" block ── */
 function intakeUrl(route){ return CONFIG.supabaseUrl+"/functions/v1/bk-intake/"+route }
@@ -10500,7 +10595,7 @@ function wire(){
    if(it){ it.photos = ph || []; GI=0; render() } }});
 
  $$("[data-soon]").forEach(function(a){ a.onclick=function(e){ e.preventDefault(); e.stopPropagation(); mdwClose(); soonOpen(this.dataset.soon) } });
- wireAgencies(); wireProjects(); wireWanted(); wireAreasView();
+ wireAgencies(); wireServices(); wireProjects(); wireWanted(); wireAreasView();
  $$("[data-deal2]").forEach(function(e){ e.onclick=function(){
    HOMEDEAL=e.dataset.deal2; F.deal=HOMEDEAL; render() }});
  wireAuth();
@@ -12433,6 +12528,8 @@ function routePathBase(){
          VIEW.indexOf("agency:")===0 ? "/agency/"+VIEW.split(":")[1] :
          VIEW.indexOf("project:")===0 ? "/project/"+VIEW.split(":")[1] :
          VIEW.indexOf("wanted:")===0 ? "/wanted/"+VIEW.split(":")[1] :
+         VIEW.indexOf("service:")===0 ? "/services/"+VIEW.split(":")[1] :
+         VIEW==="servicejoin" ? "/services/join" :
          VIEW==="areas" ? "/regions" :
          VIEW==="postmsg" ? "/post-by-message" :
          (VIEW==="about"||VIEW==="contactus"||VIEW==="privacy"||VIEW==="terms") ? "/"+VIEW+"/" :   // these also exist as static pages
@@ -12565,6 +12662,7 @@ var PAGE_T={
   projects:{ar:"مشاريع جديدة وقيد الإنشاء",en:"New projects",de:"Neubauprojekte"}, project:{ar:"مشروع",en:"Project",de:"Projekt"},
   app:{ar:"تطبيق بلكون",en:"Balkoun app",de:"Balkoun-App",fr:"Application Balkoun"}, help:{ar:"شروحات بلكون",en:"Balkoun guides",de:"Balkoun-Anleitungen",fr:"Tutoriels Balkoun"},
   promote:{ar:"روّج إعلانك",en:"Promote your listing",de:"Anzeige bewerben"},
+  services:{ar:"خدمات العقار: إكساء، سباكة، كهرباء، طاقة شمسية، نقل أثاث",en:"Home services",de:"Hausdienste"}, service:{ar:"خدمات العقار",en:"Home service",de:"Hausdienst"}, servicejoin:{ar:"سجّل خدمتك",en:"List your service",de:"Dienst eintragen"},
   wanted:{ar:"مطلوب: طلبات المشترين والمستأجرين",en:"Wanted",de:"Gesucht"}, wantedform:{ar:"أضف طلبك",en:"Post a request",de:"Anfrage aufgeben"}
 };
 (function(fr){ Object.keys(fr).forEach(function(k){ if(PAGE_T[k]) PAGE_T[k].fr=fr[k] }) })({"privacy":"Politique de confidentialité","terms":"Conditions d'utilisation","search":"Recherche immobilière","mapsearch":"Recherche sur la carte","post":"Publier une annonce","postmsg":"Publier par message","mine":"Mes annonces","saved":"Biens enregistrés","searches":"Recherches enregistrées","msgs":"Messages","account":"Mon compte","about":"À propos de Balkoun","contact":"Nous contacter","contactus":"Nous contacter","areas":"Tous les gouvernorats et quartiers","admin":"Administration","listing":"Détails du bien","by":"Annonces du vendeur","agencies":"Agences immobilières","agency":"Agence","agencyform":"Profil de l'agence","projects":"Projets neufs","project":"Projet","wanted":"Recherché","wantedform":"Publier une demande"});   // page titles in French
@@ -12612,6 +12710,7 @@ function viewFromHash(){
   if(p[0]==="wanted"&&p[1]) return "wanted:"+(p[1].match(/^\d+/)||[p[1]])[0];
   if(p[0]==="unsub"&&p[1]) return "unsub:"+p[1];
   if(p[0]==="ad-report"&&p[1]) return "adreport:"+p[1];
+  if(p[0]==="services"){ if(p[1]==="join") return "servicejoin"; if(p[1]&&/^\d+/.test(p[1])) return "service:"+p[1].match(/^\d+/)[0]; return "services" }
   if(p[0]==="regions") return "areas";
   if(p[0]==="post-by-message") return "postmsg";
   // balkoun.com/#/signup (posters, QR codes): the home page with the sign-up form already open
@@ -12800,7 +12899,7 @@ function render(){
  if(VIEW!==_lastRenderedView){ _lastRenderedView=VIEW; refreshListingsOnNavigate(); }
  document.documentElement.lang=L; document.documentElement.dir=D.I18N[L].dir; document.documentElement.setAttribute("data-cc",COUNTRY||"SY");
  var body= VIEW==="home"?home(): VIEW==="search"?search(): VIEW==="post"?post():
-          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="privacy"?legalPage("privacy"): VIEW==="terms"?legalPage("terms"): VIEW==="areas"?areasView(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="postmsg"?postMsgPage(): VIEW==="promote"?promoPage(): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW.indexOf("unsub:")===0?unsubPage(VIEW.split(":")[1]): VIEW.indexOf("adreport:")===0?adReportPage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): VIEW==="help"?helpPage(): VIEW==="app"?appPage(): listing(VIEW.split(":")[1]);
+          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="privacy"?legalPage("privacy"): VIEW==="terms"?legalPage("terms"): VIEW==="areas"?areasView(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="postmsg"?postMsgPage(): VIEW==="promote"?promoPage(): VIEW==="services"?servicesPage(): VIEW==="servicejoin"?serviceJoinPage(): VIEW.indexOf("service:")===0?servicePage(VIEW.split(":")[1]): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW.indexOf("unsub:")===0?unsubPage(VIEW.split(":")[1]): VIEW.indexOf("adreport:")===0?adReportPage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): VIEW==="help"?helpPage(): VIEW==="app"?appPage(): listing(VIEW.split(":")[1]);
  document.body.classList.remove("mdw-open");
  (function(){ var html=header()+body+footer()+authModal()+reportModal()+inquiryModal(), app=$("#app");
    // the home page is re-rendered several times while data arrives (cache → listings → settings): patch the DOM in place so
@@ -12819,7 +12918,7 @@ function render(){
    } else app.innerHTML=html;
    var bs=document.getElementById("bootSplash"); if(bs&&bs.parentNode) bs.parentNode.removeChild(bs); })();
  setTimeout(fabCheck,50);
- (function(){ var P={home:"/",promote:"/promote",search:"/search",wanted:"/wanted",agencies:"/agencies",projects:"/projects",about:"/about",contact:"/contact",contactus:"/contactus",post:"/post",mapsearch:"/mapsearch",areas:"/regions",mine:"/mine",saved:"/saved",searches:"/searches",msgs:"/msgs",account:"/account"}, pre=(typeof cPre==="function")?cPre():"";
+ (function(){ var P={home:"/",promote:"/promote",services:"/services",servicejoin:"/services/join",search:"/search",wanted:"/wanted",agencies:"/agencies",projects:"/projects",about:"/about",contact:"/contact",contactus:"/contactus",post:"/post",mapsearch:"/mapsearch",areas:"/regions",mine:"/mine",saved:"/saved",searches:"/searches",msgs:"/msgs",account:"/account"}, pre=(typeof cPre==="function")?cPre():"";
    $$("#app a[data-go]:not([href])").forEach(function(a){ var g=a.dataset.go, p=P[g]; if(!p){ a.setAttribute("role","button"); return } var q=a.dataset.deal?"?deal="+a.dataset.deal:""; a.setAttribute("href",(pre+p).replace(/\/+$/,"")||"/"); if(q) a.setAttribute("href",a.getAttribute("href")+q) });
    $$("#app a[data-open]:not([href])").forEach(function(a){ a.setAttribute("href","/listing/"+a.dataset.open) });
    $$("#app a:not([href])").forEach(function(a){ a.setAttribute("role","button"); a.setAttribute("tabindex","0") }) })();
@@ -15015,7 +15114,25 @@ var GX_T={
   xAdVideoMax:{ar:"الحد الأقصى لحجم فيديو المربع (MB)",en:"Maximum ad video size (MB)",de:"Maximale Videogröße (MB)"},
   xDesignH:{ar:"النتائج",en:"Results",de:"Ergebnisse"},
   xPageSize:{ar:"عدد الإعلانات في صفحة النتائج",en:"Listings per results page",de:"Anzeigen pro Ergebnisseite"},
-  xSimilar:{ar:"عدد «إعلانات أخرى» تحت صفحة الإعلان",en:"“More listings” shown under a listing",de:"„Weitere Anzeigen“ unter einer Anzeige"}, sponsored:{ar:"إعلان مدفوع",en:"Sponsored",de:"Gesponsert"}, promoNav:{ar:"روّج إعلانك",en:"Promote your listing",de:"Anzeige bewerben"}, promoMine:{ar:"تريد وصولاً أسرع؟ روّج إعلانك على بلكون وفيسبوك وإنستغرام.",en:"Want more reach? Promote your listing on Balkoun, Facebook and Instagram.",de:"Mehr Reichweite? Bewerben Sie Ihre Anzeige."}, adCtaWa:{ar:"تواصل على واتساب",en:"Chat on WhatsApp",de:"Auf WhatsApp schreiben"}, adCtaMore:{ar:"اعرف أكثر",en:"Learn more",de:"Mehr erfahren"}, featured:{ar:"مميز",en:"Featured",de:"Top"},
+  xSimilar:{ar:"عدد «إعلانات أخرى» تحت صفحة الإعلان",en:"“More listings” shown under a listing",de:"„Weitere Anzeigen“ unter einer Anzeige"}, sponsored:{ar:"إعلان مدفوع",en:"Sponsored",de:"Gesponsert"}, promoNav:{ar:"روّج إعلانك",en:"Promote your listing",de:"Anzeige bewerben"},
+  svcNav:{ar:"خدمات العقار",en:"Home services",de:"Hausdienste"}, svcEyebrow:{ar:"بعد أن تجد بيتك",en:"After you find your home",de:"Nach der Wohnungssuche"},
+  svcTitle:{ar:"خدمات العقار",en:"Home services",de:"Hausdienste"}, svcLead:{ar:"إكساء وترميم، سباكة وكهرباء، طاقة شمسية، ألمنيوم ومطابخ، نقل أثاث وتنظيف. أصحاب مهن في مدينتك، تواصل معهم مباشرة على واتساب.",en:"Renovation, plumbing, electrics, solar, aluminium, kitchens, moving and cleaning: tradespeople in your city, straight on WhatsApp.",de:"Renovierung, Sanitär, Elektrik, Solar, Umzug: direkt per WhatsApp."},
+  svcJoin:{ar:"سجّل خدمتك مجاناً",en:"List your service free",de:"Dienst kostenlos eintragen"}, svcSearchPH:{ar:"ابحث باسم أو خدمة أو منطقة…",en:"Search a name, trade or area…",de:"Name, Gewerk oder Gebiet…"},
+  svcEmpty:{ar:"لا يوجد مزوّدو خدمات بعد.",en:"No providers yet.",de:"Noch keine Anbieter."}, svcEmptyF:{ar:"لا يوجد مزوّد بهذا البحث بعد.",en:"Nobody matches this yet.",de:"Noch kein Treffer."},
+  svcEmptyCta:{ar:"تعمل في إحدى هذه المهن؟ سجّل خدمتك ليجدك الناس.",en:"Working in one of these trades? List your service.",de:"Tragen Sie Ihren Dienst ein."},
+  svcFeatured:{ar:"مميز",en:"Featured",de:"Hervorgehoben"}, svcVerified:{ar:"موثّق",en:"Verified",de:"Verifiziert"}, svcWork:{ar:"من أعماله",en:"Their work",de:"Arbeiten"},
+  svcWaMsg:{ar:"مرحباً، وجدتك على بلكون (خدمات العقار).",en:"Hello, I found you on Balkoun (home services).",de:"Hallo, ich habe Sie auf Balkoun gefunden."},
+  svcNote:{ar:"بلكون يعرض أصحاب المهن ليتواصل الناس معهم مباشرة. الاتفاق على السعر والعمل بينك وبينهم.",en:"Balkoun lists tradespeople so you can reach them directly; price and work are agreed between you.",de:"Preis und Arbeit vereinbaren Sie direkt."},
+  svcJoinT:{ar:"سجّل خدمتك على بلكون",en:"List your service on Balkoun",de:"Dienst auf Balkoun eintragen"}, svcEditT:{ar:"بطاقة خدمتك",en:"Your service card",de:"Ihre Dienstkarte"},
+  svcJoinLead:{ar:"مجاناً. اكتب ماذا تعمل وأين، فيجدك من يبحث عن خدمتك ويتواصل معك على واتساب. نراجع البطاقة قبل أن تظهر.",en:"Free. Say what you do and where; people looking for it reach you on WhatsApp. We review each card before it shows.",de:"Kostenlos. Wir prüfen jede Karte vor der Veröffentlichung."},
+  svcStatus:{ar:"حالة بطاقتك:",en:"Your card:",de:"Ihre Karte:"}, svcFName:{ar:"اسم العمل أو الورشة",en:"Business or workshop name",de:"Name des Betriebs"}, svcFPerson:{ar:"اسم صاحب العمل",en:"Your name",de:"Ihr Name"},
+  svcFWa:{ar:"رقم واتساب",en:"WhatsApp number",de:"WhatsApp-Nummer"}, svcFPhone:{ar:"رقم الاتصال",en:"Phone number",de:"Telefon"}, svcFCats:{ar:"ماذا تعمل؟ (اختر واحدة أو أكثر)",en:"What do you do? (one or more)",de:"Was machen Sie?"},
+  svcFGovs:{ar:"في أي محافظة تعمل؟",en:"Which governorates?",de:"Welche Gouvernements?"}, svcFAreas:{ar:"المناطق (اختياري)",en:"Areas (optional)",de:"Gebiete (optional)"}, svcFAreasPH:{ar:"مثلاً: المزة، كفرسوسة، المالكي",en:"e.g. Mezzeh, Kafr Souseh",de:"z. B. Mezzeh"},
+  svcFDesc:{ar:"عن عملك",en:"About your work",de:"Über Ihre Arbeit"}, svcFDescPH:{ar:"خبرتك، وما تقدّمه، وأوقات العمل…",en:"Experience, what you offer, hours…",de:"Erfahrung, Leistungen…"},
+  svcFHint:{ar:"رقمك يظهر للزوار ليتواصلوا معك. صور أعمالك يضيفها فريق بلكون بعد التواصل معك.",en:"Your number is shown so people can reach you. Photos of your work are added by the Balkoun team.",de:"Ihre Nummer wird angezeigt."},
+  svcSend:{ar:"أرسل للمراجعة",en:"Send for review",de:"Zur Prüfung senden"}, svcSaveEdit:{ar:"احفظ التعديل",en:"Save changes",de:"Speichern"},
+  svcSavedWait:{ar:"وصلتنا بطاقتك ✓ تظهر بعد المراجعة.",en:"Received ✓ It shows after review.",de:"Erhalten ✓"}, svcSavedLive:{ar:"حُفظ التعديل ✓",en:"Saved ✓",de:"Gespeichert ✓"},
+  svcErr_noname:{ar:"اكتب اسم العمل.",en:"Enter the business name.",de:"Name fehlt."}, svcErr_nocat:{ar:"اختر خدمة واحدة على الأقل.",en:"Pick at least one service.",de:"Mindestens einen Dienst wählen."}, svcErr_nophone:{ar:"اكتب رقم واتساب أو رقم اتصال.",en:"Enter a WhatsApp or phone number.",de:"Nummer fehlt."}, promoMine:{ar:"تريد وصولاً أسرع؟ روّج إعلانك على بلكون وفيسبوك وإنستغرام.",en:"Want more reach? Promote your listing on Balkoun, Facebook and Instagram.",de:"Mehr Reichweite? Bewerben Sie Ihre Anzeige."}, adCtaWa:{ar:"تواصل على واتساب",en:"Chat on WhatsApp",de:"Auf WhatsApp schreiben"}, adCtaMore:{ar:"اعرف أكثر",en:"Learn more",de:"Mehr erfahren"}, featured:{ar:"مميز",en:"Featured",de:"Top"},
   adVideoTooBig:{ar:"الفيديو كبير جداً ({mb} MB). الحد الأقصى {max} MB — صدّره بدقة 720p أو أقل ومدة قصيرة، ثم أعد الرفع.",en:"This video is too large ({mb} MB). The limit is {max} MB — export it at 720p or smaller and keep it short, then upload again.",de:"Dieses Video ist zu groß ({mb} MB). Maximal {max} MB — in 720p oder kleiner und kurz exportieren, dann erneut hochladen."},
   adVideoHint:{ar:"الفيديو: حتى {max} MB، يُفضّل 720p ومدة 10–20 ثانية",en:"Video: up to {max} MB, ideally 720p and 10–20 seconds",de:"Video: bis {max} MB, ideal 720p und 10–20 Sekunden"}
 };

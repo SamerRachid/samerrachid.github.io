@@ -37,7 +37,7 @@ async function storageRestore(paths){
        if(j && j.error) return {data:null, error:{message:j.error}};
        return {data:{restored:j.restored||[], failed:j.failed||[]}, error:null} }
   catch(e){ return {data:null, error:e} } }
-var TAB_PERM={guides:"homepage",dashboard:"dashboard",stats:"stats",countries:"super",listings:["listings_view","listings_edit","listings_delete"],photos:["listings_view","listings_edit"],wanted_adm:"wanted",users:["users_view","users_edit","users_delete","verify","passwords"],agencies_adm:"agencies",reviews:"reviews",house:"login_as",outreach:"campaigns",engage:["engage","featured","ads"],placements:["engage","featured","ads"],promopage:["ads"],projects_adm:"projects",ads:"ads",featured:["featured","rewards"],banners:"homepage",mainpage:"homepage",design:"design",geo:"geo",types:"types",contact:"contact",reports:"reports",feedback:"feedback",tickets:"tickets",intake:"intake",intake_cfg:"bot_cfg",msgs:"notify",settings:"settings",storage:"storage",admins:"super",danger:"super",campaigns:"campaigns",social:["social","featured"],maps:"geo",audit:"audit"};
+var TAB_PERM={guides:"homepage",dashboard:"dashboard",stats:"stats",countries:"super",listings:["listings_view","listings_edit","listings_delete"],photos:["listings_view","listings_edit"],wanted_adm:"wanted",users:["users_view","users_edit","users_delete","verify","passwords"],agencies_adm:"agencies",reviews:"reviews",house:"login_as",outreach:"campaigns",engage:["engage","featured","ads"],placements:["engage","featured","ads"],promopage:["ads"],services_adm:"agencies",projects_adm:"projects",ads:"ads",featured:["featured","rewards"],banners:"homepage",mainpage:"homepage",design:"design",geo:"geo",types:"types",contact:"contact",reports:"reports",feedback:"feedback",tickets:"tickets",intake:"intake",intake_cfg:"bot_cfg",msgs:"notify",settings:"settings",storage:"storage",admins:"super",danger:"super",campaigns:"campaigns",social:["social","featured"],maps:"geo",audit:"audit"};
 // the permission list (2026-10-17): groups for the admins page, and ready-made roles. Super admins hold every permission.
 var ADM_PERMS=[["pg_content",["listings_view","listings_edit","listings_delete","wanted","intake","reports","reviews"]],
   ["pg_people",["users_view","users_edit","users_delete","passwords","verify","login_as","agencies"]],
@@ -62,7 +62,7 @@ function permPicker(sel,cls){ sel=sel||[];
 // sidebar groups: one entry in the sidebar, sub-tabs rendered as a segmented bar on the page (the tab bodies stay keyed by the real tab)
 // the panel's sections (redesign 2026-10-16, Shopify-style): a section opens its last-visited page; its pages show under it
 // in the sidebar (desktop) or as a row of tabs (phone). Page keys are unchanged, so every link into a page still works.
-var ADM_GROUPS={g_listings:["listings","intake","reports","photos"],g_people:["users","agencies_adm","reviews","house"],
+var ADM_GROUPS={g_listings:["listings","intake","reports","photos"],g_people:["users","agencies_adm","services_adm","reviews","house"],
   g_msgs:["feedback","tickets","msgs","campaigns","outreach"],g_mkt:["placements","promopage","featured","ads","banners","engage","social","projects_adm"],
   g_site:["mainpage","design","contact","guides"],g_settings:["settings","countries","geo","maps","types","intake_cfg","admins","audit","storage","danger"]};
 var ADM_GROUP_ALIAS={inbox:"g_msgs",promo:"g_mkt",system:"g_settings"};   // the old section keys (bell links, saved state)
@@ -722,6 +722,7 @@ function adminView(){
  else if(ADM.tab==="engage"){ body = adminEngageBody(); }
  else if(ADM.tab==="placements"){ body = adminPlacementsBody(); }
  else if(ADM.tab==="promopage"){ body = adminPromoPageBody(); }
+ else if(ADM.tab==="services_adm"){ body = adminServicesBody(); }
  else if(ADM.tab==="campaigns"){ body = adminCampaignsBody(); }
  else if(ADM.tab==="intake"){ body = adminIntakeBody("drafts"); }
  else if(ADM.tab==="intake_cfg"){ body = adminIntakeBody("cfg"); }
@@ -866,7 +867,7 @@ function adminView(){
  var LBL={dashboard:t("dashboardTab"), listings:GX("navAllListings"), intake:GX("navBotDrafts"), reports:t("reportsTab"), photos:GX("tMedia"),
    wanted_adm:GX("tWanted"), users:t("usersTab"), agencies_adm:GX("tAgencies"), reviews:t("reviewsTab"), house:GX("tHouse"),
    feedback:t("feedbackTab"), tickets:GX("ticketsTab"), msgs:t("msgsNotifTab"), campaigns:GX("tCampaigns"), outreach:GX("tOutreach"),
-   featured:GX("tPromote"), ads:t("adsTab"), banners:GX("tBanners"), engage:GX("tEngage"), placements:GX("tPlacements"), promopage:GX("tPromoPage"), social:GX("tSocial"), projects_adm:GX("tProjects"),
+   featured:GX("tPromote"), ads:t("adsTab"), banners:GX("tBanners"), engage:GX("tEngage"), placements:GX("tPlacements"), promopage:GX("tPromoPage"), services_adm:GX("tServicesAdm"), social:GX("tSocial"), projects_adm:GX("tProjects"),
    stats:GX("navAnalytics"), guides:GX("tGuides"), mainpage:t("mainPageTab"), design:GX("tDesign"), contact:GX("tContact"),
    settings:GX("navGeneral"), intake_cfg:GX("navBot"), countries:GX("countriesTab"), geo:GX("geoTab"), maps:GX("tMaps"), types:GX("ptTab"), admins:t("adminsTab"), audit:GX("tAudit"), storage:GX("tStorage"), danger:t("dangerTab")};
  // badges count only what waits for the admin (pending, unread, due) — never totals
@@ -1767,6 +1768,7 @@ function wireAdmin(){
   }
   if(ADM.tab==="placements") wirePlacements();
   if(ADM.tab==="promopage") wirePromoPage();
+  if(ADM.tab==="services_adm") wireServicesAdm();
   if(ADM.tab==="engage"){
     var edays=ADM.erange==null?30:ADM.erange;
     if(ADM._engDays!==edays){ ADM._engDays=edays; ADM.eng=null; rpcScoped("bk_admin_engagements",{p_token:ADM.token,p_days:edays===0?null:edays,p_country:admScope()}).then(function(r){ ADM.eng=r||[]; render() }).catch(function(e){ ADM.eng=[]; ADM.engErr=e.message; render() }) }
@@ -5490,4 +5492,100 @@ function wirePromoPage(){ var S=prState(), c=S.cfg;
     try{ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:{promo:null}},p_country:COUNTRY});
       var ex=SITE.extras; if(typeof ex==="string"){ try{ ex=JSON.parse(ex) }catch(e){ ex={} } } ex=Object.assign({},ex||{}); delete ex.promo; SITE.extras=ex;
       ADM.pr=null; admToast(GX("prSaved")); render() }catch(e){ alert(e.message||"error") } };
+}
+
+/* ── «خدمات العقار» (2026-10-30): the providers (pending first: approve / hide / verify / feature / edit / add one) and the
+   categories (on/off, name, order, a new one). Data: bk_admin_services; saves: bk_admin_service_save, bk_admin_service_cat_save. ── */
+Object.assign(GX_T,{
+  tServicesAdm:{ar:"خدمات العقار",en:"Home services",de:"Hausdienste"},
+  saNew:{ar:"+ أضف مزوّد خدمة",en:"+ Add a provider",de:"+ Anbieter"}, saCats:{ar:"التصنيفات",en:"Categories",de:"Kategorien"}, saProviders:{ar:"المزوّدون",en:"Providers",de:"Anbieter"},
+  saAll:{ar:"الكل",en:"All",de:"Alle"}, saApprove:{ar:"وافق",en:"Approve",de:"Freigeben"}, saHide:{ar:"إخفاء",en:"Hide",de:"Ausblenden"}, saReject:{ar:"رفض",en:"Reject",de:"Ablehnen"},
+  saVerified:{ar:"موثّق",en:"Verified",de:"Verifiziert"}, saFeature:{ar:"تمييز (أيام)",en:"Feature (days)",de:"Hervorheben (Tage)"}, saEdit:{ar:"تعديل",en:"Edit",de:"Bearbeiten"},
+  saMember:{ar:"حساب",en:"Account",de:"Konto"}, saNoMember:{ar:"أضيف من اللوحة",en:"Added from the panel",de:"Aus dem Panel"}, saEmpty:{ar:"لا يوجد مزوّدون بعد.",en:"No providers yet.",de:"Noch keine Anbieter."},
+  saPhotos:{ar:"صور الأعمال",en:"Work photos",de:"Fotos"}, saLogo:{ar:"الشعار أو الصورة",en:"Logo or photo",de:"Logo"}, saAddPhoto:{ar:"+ صورة",en:"+ Photo",de:"+ Foto"},
+  saCatNew:{ar:"+ تصنيف جديد",en:"+ New category",de:"+ Kategorie"}, saCatSlug:{ar:"رمز بالإنكليزية (مثل glass)",en:"Code (e.g. glass)",de:"Code"}, saCatOn:{ar:"ظاهر",en:"Shown",de:"Sichtbar"}, saOrder:{ar:"الترتيب",en:"Order",de:"Reihenfolge"},
+  saFeatUntil:{ar:"مميز حتى",en:"Featured until",de:"Hervorgehoben bis"}
+});
+function saState(){ if(!ADM.sa) ADM.sa={data:null,f:"pending",edit:null,form:null,catNew:false}; return ADM.sa }
+function saLoad(){ var S=saState(); rpc("bk_admin_services",{p_token:ADM.token,p_country:COUNTRY}).then(function(r){ S.data=r||{cats:[],providers:[]}; render() }).catch(function(e){ S.data={cats:[],providers:[],err:e.message||String(e)}; render() }) }
+function saCatName(slug){ var c=((saState().data||{}).cats||[]).filter(function(x){ return x.slug===slug })[0]; return c?c.name_ar:slug }
+function saForm(p){ var S=saState(), f=S.form, D=S.data||{}, v=function(x){ return esc(x==null?"":String(x)) };
+  var pick=function(key,list,lab){ return '<div class="fl"><label>'+lab+'</label><div class="svc-pick">'+list.map(function(o){ return '<button type="button" class="'+(f[key].indexOf(o[0])>-1?"on":"")+'" data-sapick="'+key+'" data-v="'+esc(o[0])+'">'+esc(o[1])+'</button>' }).join("")+'</div></div>' };
+  var ph=(f.photos||[]).map(function(u,i){ return '<span class="sa-ph"><img src="'+esc(safeUrl(String(u)))+'" alt=""><button type="button" data-saphdel="'+i+'" aria-label="×">×</button></span>' }).join("");
+  return '<div class="sa-form"><div class="row2"><label>'+GX("svcFName")+'<input type="text" data-saf="name" value="'+v(f.name)+'"></label><label>'+GX("svcFPerson")+'<input type="text" data-saf="contact_person" value="'+v(f.contact_person)+'"></label></div>'+
+    '<div class="row2"><label>'+GX("svcFWa")+'<input type="text" dir="ltr" data-saf="whatsapp" value="'+v(f.whatsapp)+'"></label><label>'+GX("svcFPhone")+'<input type="text" dir="ltr" data-saf="phone" value="'+v(f.phone)+'"></label></div>'+
+    pick("cats",(D.cats||[]).map(function(c){ return [c.slug,c.name_ar] }),GX("svcFCats"))+
+    pick("gov_names",Object.keys(D_GEO()).map(function(g){ return [g,typeof gN==="function"?gN(g):g] }),GX("svcFGovs"))+
+    '<label>'+GX("svcFAreas")+'<input type="text" data-saf="area_names" value="'+v(f.area_names)+'"></label>'+
+    '<label>'+GX("svcFDesc")+'<textarea rows="4" data-saf="description">'+v(f.description)+'</textarea></label>'+
+    '<div class="row2"><label>'+GX("saLogo")+'<span class="sa-logo">'+(f.logo_url?'<img src="'+esc(safeUrl(String(f.logo_url)))+'" alt="">':'')+'<input type="file" accept="image/*" data-salogo="1"></span></label>'+
+      '<label>'+GX("saPhotos")+'<span class="sa-phs">'+ph+'<label class="ab sa-add">'+GX("saAddPhoto")+'<input type="file" accept="image/*" multiple data-saphoto="1" hidden></label></span></label></div>'+
+    '<div class="xactions"><button type="button" class="btn-n" id="saSave">'+t("save")+'</button><button type="button" class="ab" id="saCancel">'+t("cancel")+'</button><span class="xmsg" id="saMsg"></span></div></div>' }
+function D_GEO(){ return (typeof D!=="undefined"&&D.GEO)||{} }
+function adminServicesBody(){ var S=saState(), D=S.data;
+  if(!D){ if(!S._loading){ S._loading=true; setTimeout(function(){ S._loading=false; saLoad() },0) } return '<div class="blk"><div class="in adashempty">'+t("loading")+'</div></div>' }
+  if(D.err) return '<div class="blk"><div class="in adashempty">'+esc(/bk_admin_services|function/.test(D.err)?GX("plcNeedSql").replace("2026-10-30_ad_placements.sql","2026-10-30_services.sql"):D.err)+'</div></div>';
+  var P=D.providers||[], n={pending:0,approved:0,hidden:0,rejected:0}; P.forEach(function(x){ n[x.row.status]=(n[x.row.status]||0)+1 });
+  var rows=P.filter(function(x){ return S.f==="all"||x.row.status===S.f });
+  var css='<style id="saCss">.sa-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.sa-tabs button{border:1px solid var(--line);background:transparent;color:inherit;border-radius:999px;padding:6px 13px;font:700 13.5px inherit;cursor:pointer}.sa-tabs button.on{background:var(--gold);border-color:var(--gold);color:#11213F}'+
+    '.sa-it{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}.sa-it .h{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}.sa-it .m{color:var(--grey);font-size:12.5px;margin-top:3px}'+
+    '.sa-it .acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}.sa-it .acts input[type=number]{width:70px;height:32px}.sa-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}.sa-tags i{font-style:normal;font-size:11.5px;border-radius:999px;padding:1px 8px;background:rgba(127,127,127,.15)}'+
+    '.sa-form{display:grid;gap:9px;margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}.sa-form .row2{display:grid;grid-template-columns:1fr 1fr;gap:9px}.sa-form label{display:grid;gap:4px;font-size:12.5px;color:var(--grey)}'+
+    '.sa-form input[type=text],.sa-form textarea{width:100%;box-sizing:border-box;border:1px solid var(--line);border-radius:8px;padding:8px 10px;font:inherit;background:var(--card);color:inherit}'+
+    '.sa-phs{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.sa-ph{position:relative}.sa-ph img,.sa-logo img{width:70px;height:52px;object-fit:cover;border-radius:6px;display:block}.sa-ph button{position:absolute;top:-6px;inset-inline-end:-6px;width:20px;height:20px;border-radius:50%;border:0;background:#B3271E;color:#fff;cursor:pointer;line-height:1}'+
+    '.sa-logo{display:flex;gap:8px;align-items:center}.sa-cats{display:grid;gap:6px}.sa-cat{display:grid;grid-template-columns:70px 1fr 1fr 80px;gap:8px;align-items:center}.sa-cat input{height:34px;border:1px solid var(--line);border-radius:8px;padding:0 8px;background:var(--card);color:inherit;min-width:0}'+
+    '.svc-pick{display:flex;flex-wrap:wrap;gap:6px}.svc-pick button{border:1px solid var(--line);background:transparent;color:inherit;border-radius:999px;padding:5px 11px;font:inherit;font-size:13px;cursor:pointer}.svc-pick button.on{background:var(--gold);border-color:var(--gold);color:#11213F;font-weight:700}'+
+    '@media (max-width:760px){.sa-form .row2{grid-template-columns:1fr}.sa-cat{grid-template-columns:60px 1fr 70px}.sa-cat .en{display:none}}</style>';
+  var item=function(x){ var p=x.row, m=x.member, fu=p.featured_until&&new Date(p.featured_until)>new Date();
+    var H='<div class="sa-it"><div class="h"><div><b>'+esc(p.name)+'</b> '+agStatusPill(p.status)+(p.verified?' <span class="vbadge">✓</span>':'')+(fu?' <span class="plc-tag paid">'+GX("saFeatUntil")+' '+new Date(p.featured_until).toLocaleDateString()+'</span>':'')+
+      '<div class="m">'+(p.contact_person?esc(p.contact_person)+' · ':'')+'<span class="ltr">'+esc(p.whatsapp||p.phone||"")+'</span> · '+(m?GX("saMember")+': '+esc(m.name||"")+' <span class="ltr">'+esc(m.member_no||"")+'</span>':GX("saNoMember"))+'</div>'+
+      '<div class="sa-tags">'+(p.cats||[]).map(function(k){ return '<i>'+esc(saCatName(k))+'</i>' }).join("")+(p.gov_names||[]).map(function(g){ return '<i>'+esc(typeof gN==="function"?gN(g):g)+'</i>' }).join("")+'</div></div>'+
+      '<a class="ab" href="/services/'+p.id+'" target="_blank" rel="noopener">↗</a></div>'+
+      (p.description?'<div class="m" style="margin-top:6px">'+esc(p.description).slice(0,220)+'</div>':'')+
+      '<div class="acts">'+(p.status!=="approved"?'<button type="button" class="btn-n" data-saset="'+p.id+'" data-st="approved">'+GX("saApprove")+'</button>':'<button type="button" class="ab" data-saset="'+p.id+'" data-st="hidden">'+GX("saHide")+'</button>')+
+        (p.status==="pending"?'<button type="button" class="ab" data-saset="'+p.id+'" data-st="rejected">'+GX("saReject")+'</button>':'')+
+        '<label style="display:inline-flex;gap:5px;align-items:center"><input type="checkbox" data-saver="'+p.id+'"'+(p.verified?' checked':'')+'> '+GX("saVerified")+'</label>'+
+        '<span style="display:inline-flex;gap:5px;align-items:center">'+GX("saFeature")+' <input type="number" min="0" max="365" data-safd="'+p.id+'" placeholder="0"></span>'+
+        '<button type="button" class="ab" data-saedit="'+p.id+'">'+GX("saEdit")+'</button></div>';
+    if(S.edit===p.id) H+=saForm(p);
+    return H+'</div>' };
+  var cats=(D.cats||[]).map(function(c){ return '<div class="sa-cat"><label style="display:inline-flex;gap:5px;align-items:center;font-size:12.5px"><input type="checkbox" data-sacat="'+esc(c.slug)+'" data-k="enabled"'+(c.enabled?' checked':'')+'> '+GX("saCatOn")+'</label>'+
+    '<input type="text" data-sacat="'+esc(c.slug)+'" data-k="name_ar" value="'+esc(c.name_ar)+'"><input class="en" type="text" dir="ltr" data-sacat="'+esc(c.slug)+'" data-k="name_en" value="'+esc(c.name_en||"")+'"><input type="number" data-sacat="'+esc(c.slug)+'" data-k="sort" value="'+esc(c.sort)+'" title="'+esc(GX("saOrder"))+'"></div>' }).join("");
+  return css+'<div class="blk"><h3>'+GX("saProviders")+'</h3><div class="in">'+
+    '<div class="sa-tabs">'+[["pending",GX("st_pending")],["approved",GX("st_approved")],["hidden",GX("st_hidden")],["rejected",GX("st_rejected")],["all",GX("saAll")]].map(function(o){ return '<button type="button" data-saf2="'+o[0]+'" class="'+(S.f===o[0]?"on":"")+'">'+o[1]+(o[0]!=="all"?' <span class="ltr">'+(n[o[0]]||0)+'</span>':'')+'</button>' }).join("")+
+      '<button type="button" class="btn-n" id="saNew" style="margin-inline-start:auto">'+GX("saNew")+'</button></div>'+
+    (S.edit==="new"?'<div class="sa-it">'+saForm(null)+'</div>':'')+
+    (rows.length?rows.map(item).join(""):'<div class="hintx">'+GX("saEmpty")+'</div>')+'</div></div>'+
+    '<div class="blk"><h3>'+GX("saCats")+'</h3><div class="in"><div class="sa-cats">'+cats+'</div>'+
+      (S.catNew?'<div class="sa-cat" style="margin-top:8px"><input type="text" dir="ltr" id="saCatSlug" placeholder="'+esc(GX("saCatSlug"))+'"><input type="text" id="saCatName" placeholder="'+esc(GX("svcFName"))+'"><input class="en" type="text" dir="ltr" id="saCatEn" placeholder="English"><button type="button" class="btn-n" id="saCatAdd">'+t("save")+'</button></div>':'<button type="button" class="ab" id="saCatNewBtn" style="margin-top:8px">'+GX("saCatNew")+'</button>')+
+    '</div></div>' }
+function wireServicesAdm(){ var S=saState(), D=S.data; if(!D) return;
+  var save=async function(id,data){ var r=await rpc("bk_admin_service_save",{p_token:ADM.token,p_country:COUNTRY,p_id:id,p_data:data}); if(r&&r.error) throw new Error(r.error); return r };
+  $$("[data-saf2]").forEach(function(b){ b.onclick=function(){ S.f=this.dataset.saf2; render() } });
+  $$("[data-saset]").forEach(function(b){ b.onclick=async function(){ try{ await save(+this.dataset.saset,{status:this.dataset.st}); admToast(t("savedOk")); saLoad() }catch(e){ alert(e.message) } } });
+  $$("[data-saver]").forEach(function(c){ c.onchange=async function(){ try{ await save(+this.dataset.saver,{verified:this.checked}); saLoad() }catch(e){ alert(e.message) } } });
+  $$("[data-safd]").forEach(function(i){ i.onchange=async function(){ var d=+this.value||0; try{ await save(+this.dataset.safd,{featured_days:d}); admToast(t("savedOk")); saLoad() }catch(e){ alert(e.message) } } });
+  var openForm=function(p){ S.form={name:p?p.name:"",contact_person:p?p.contact_person:"",phone:p?p.phone:"",whatsapp:p?p.whatsapp:"",description:p?p.description:"",cats:p?(p.cats||[]).slice():[],gov_names:p?(p.gov_names||[]).slice():[],
+    area_names:p?(p.area_names||[]).join("، "):"",logo_url:p?p.logo_url:"",photos:p&&Array.isArray(p.photos)?p.photos.slice():[]} };
+  $$("[data-saedit]").forEach(function(b){ b.onclick=function(){ var id=+this.dataset.saedit; if(S.edit===id){ S.edit=null; render(); return } var x=(D.providers||[]).filter(function(y){ return y.row.id===id })[0]; S.edit=id; openForm(x&&x.row); render() } });
+  if($("#saNew")) $("#saNew").onclick=function(){ S.edit="new"; openForm(null); render() };
+  if(S.form){
+    $$("[data-saf]").forEach(function(i){ i.oninput=function(){ S.form[this.dataset.saf]=this.value } });
+    $$("[data-sapick]").forEach(function(b){ b.onclick=function(){ var a=S.form[this.dataset.sapick], v=this.dataset.v, i=a.indexOf(v); if(i>-1) a.splice(i,1); else a.push(v); this.classList.toggle("on",i<0) } });
+    $$("[data-saphdel]").forEach(function(b){ b.onclick=function(){ S.form.photos.splice(+this.dataset.saphdel,1); render() } });
+    var up=async function(files,cb){ var m=$("#saMsg"); if(m) m.textContent=GX("plcUploading"); try{ for(var i=0;i<files.length;i++){ cb(await hsUpload(files[i],"services")) } render() }catch(e){ if(m) m.textContent=e.message||"error" } };
+    if($("[data-salogo]")) $("[data-salogo]").onchange=function(){ up([].slice.call(this.files||[]).slice(0,1),function(u){ S.form.logo_url=u }) };
+    if($("[data-saphoto]")) $("[data-saphoto]").onchange=function(){ up([].slice.call(this.files||[]).slice(0,12),function(u){ if(S.form.photos.length<12) S.form.photos.push(u) }) };
+    if($("#saCancel")) $("#saCancel").onclick=function(){ S.edit=null; S.form=null; render() };
+    if($("#saSave")) $("#saSave").onclick=async function(){ var f=S.form, m=$("#saMsg"), btn=this;
+      if(!String(f.name||"").trim()){ m.textContent=GX("svcErr_noname"); return } if(!f.cats.length){ m.textContent=GX("svcErr_nocat"); return }
+      btn.disabled=true; var data={name:f.name,contact_person:f.contact_person,phone:f.phone,whatsapp:f.whatsapp,description:f.description,cats:f.cats,gov_names:f.gov_names,
+        area_names:String(f.area_names||"").split(/[،,]/).map(function(x){ return x.trim() }).filter(Boolean).slice(0,30),logo_url:f.logo_url||"",photos:f.photos||[]};
+      try{ await save(S.edit==="new"?null:S.edit,data); S.edit=null; S.form=null; admToast(t("savedOk")); saLoad() }catch(e){ m.textContent=e.message||"error"; btn.disabled=false } };
+  }
+  $$("[data-sacat]").forEach(function(i){ i.onchange=async function(){ var k=this.dataset.k, val=k==="enabled"?this.checked:k==="sort"?(+this.value||0):this.value, d={}; d[k]=val;
+    try{ await rpc("bk_admin_service_cat_save",{p_token:ADM.token,p_slug:this.dataset.sacat,p_data:d}); admToast(t("savedOk")) }catch(e){ alert(e.message) } } });
+  if($("#saCatNewBtn")) $("#saCatNewBtn").onclick=function(){ S.catNew=true; render() };
+  if($("#saCatAdd")) $("#saCatAdd").onclick=async function(){ var slug=($("#saCatSlug").value||"").trim().toLowerCase(), nm=($("#saCatName").value||"").trim();
+    try{ var r=await rpc("bk_admin_service_cat_save",{p_token:ADM.token,p_slug:slug,p_data:{name_ar:nm,name_en:($("#saCatEn").value||"").trim()}}); if(r&&r.error){ alert(r.error); return } S.catNew=false; saLoad() }catch(e){ alert(e.message) } };
 }
