@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-fSA8sA3J71vYfahouIBYm9CE6jVelMPrNpH39VjYN7M=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-RZ7I7JVZk2uHgfAvb3KKx6VAGYe9SuRoskEFNoEY0IY=' 'sha256-pNW3cd893IUnfweQOVUO7PVTKC0H+WqbRPutAZlHf1Q=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js";/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -680,11 +680,16 @@ footer a{cursor:pointer}footer a:hover{color:var(--gold)}
 .gmapbtn{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:8px;border:1px solid rgba(202,144,81,.6);color:var(--gold);font-weight:700;font-size:14px;text-decoration:none;white-space:nowrap}
 .gmapbtn:hover{background:rgba(202,144,81,.12)}
 @media (max-width:640px){ .gmapbtn{flex:1 1 100%;justify-content:center} }
-.res-ad{grid-column:1/-1;position:relative;display:block;border-radius:10px;overflow:hidden;border:1px solid rgba(202,144,81,.45);background:#0d1a33;width:100%;text-decoration:none}
-.res-ad img,.res-ad video{display:block;width:100%;height:auto;aspect-ratio:16/5;object-fit:cover}
-.res-ad-tag{position:absolute;top:10px;inset-inline-start:10px;z-index:2;font-size:11px;font-weight:700;color:#fff;background:rgba(17,33,63,.78);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:2px 9px}
-.res-ad-cap{position:absolute;inset:auto 0 0 0;z-index:2;padding:26px 16px 12px;background:linear-gradient(180deg,transparent,rgba(9,14,26,.85));color:#fff;display:grid;gap:2px}
-.res-ad-cap b{font-size:17px}.res-ad-cap span{font-size:13px;opacity:.9}
+.res-ad .ph img,.res-ad .ph video{display:block;width:100%;aspect-ratio:4/3;object-fit:cover}
+.res-ad .cbg.res-adtag{background:rgba(17,33,63,.82);color:#fff;border:1px solid rgba(255,255,255,.25)}
+.res-ad{border-color:rgba(202,144,81,.45)!important}.res-ad .cb{display:flex;flex-direction:column;gap:6px}
+html body .res-ad .cb .ctitle{order:1;font-size:18px}html body .res-ad .cb .res-adtxt{order:2}html body .res-ad .cb .res-adcta{order:3}
+.res-adtxt{font-size:14px;line-height:1.55;opacity:.85;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.res-adcta{margin-top:auto;padding-top:6px}.res-adcta span{display:inline-flex;align-items:center;justify-content:center;width:100%;height:40px;border-radius:8px;background:#CA9051;color:#11213F;font-weight:800;font-size:14.5px}
+.res.list-view .res-ad .ph img,.res.list-view .res-ad .ph video{height:100%;aspect-ratio:auto}
+.side-ad{position:relative;display:block;flex-shrink:0;border-top:1px solid var(--line);background:#0d1a33;text-decoration:none}
+.side-ad img,.side-ad video{display:block;width:100%;aspect-ratio:1200/628;object-fit:cover}
+.side-ad .res-ad-tag,.res-ad-tag{position:absolute;top:10px;inset-inline-start:10px;z-index:2;font-size:11px;font-weight:700;color:#fff;background:rgba(17,33,63,.78);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:2px 9px}
 .adrep-h .adrep-k{color:var(--gold);font-weight:700;font-size:13px}.adrep-h h1{font-size:28px;margin:4px 0}.adrep-h p{color:var(--grey)}.adrep-h p b.on{color:var(--ok)}
 .adrep-kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:22px 0}.adrep-kpis div{border:1px solid var(--line);border-radius:12px;padding:16px}.adrep-kpis b{display:block;font-size:30px}.adrep-kpis span{color:var(--grey)}
 .adrep h2{font-size:18px;margin:8px 0 10px}.adrep-days{display:grid;gap:6px}.adrep-d{display:grid;grid-template-columns:56px 1fr 56px 44px;gap:10px;align-items:center;font-size:13px}
@@ -6836,7 +6841,7 @@ function search(){
       Array.from({length:totalPages},function(_,idx){return idx+1}).map(function(p){ return '<a class="'+(p===F.page?"on":"")+'" data-pg="'+p+'">'+p+'</a>'}).join("")+
       (F.page<totalPages?'<a data-pg="'+(F.page+1)+'">›</a>':'')+'</div>':'')+
    '</div>'+
-   (mapOn?'<aside class="rs-map"><div class="rs-mapwrap"><div id="rsMap"></div><div class="rs-mapnote">'+GX("rsOnMap").replace("{n}",'<span class="ltr">'+withLoc+'</span>')+'</div></div>'+rsAvgBox(r)+'</aside>':'')+
+   (mapOn?'<aside class="rs-map"><div class="rs-mapwrap"><div id="rsMap"></div><div class="rs-mapnote">'+GX("rsOnMap").replace("{n}",'<span class="ltr">'+withLoc+'</span>')+'</div></div>'+rsAvgBox(r)+sideAdHtml()+'</aside>':'')+
   '</div>'+
   '<div class="rs-mbar"><button type="button" id="rsMFilters">'+GX("rsFilters")+(fc?' <b class="ltr">'+fc+'</b>':'')+'</button><button type="button" id="rsMMap">'+MI.map+GX("rsShowMap")+newTag()+'</button><span class="rs-msort">'+rsSortHtml("sortM")+'</span></div>'+
  '</div>' }
@@ -6987,22 +6992,32 @@ function rsWire(opts){
   $$(".res .card[data-open]").forEach(function(cd){ cd.addEventListener("mouseenter",function(){ var m=RS.pins[cd.dataset.open]; if(m&&m._icon){ m._icon.classList.add("on"); m.setZIndexOffset(1000) } }); cd.addEventListener("mouseleave",function(){ var m=RS.pins[cd.dataset.open]; if(m&&m._icon){ m._icon.classList.remove("on"); m.setZIndexOffset(0) } }) });
   if(!(opts&&opts.map) && rsMapOn() && window.innerWidth>=1100) setTimeout(rsMapInit,60); else rsMapStop();
 }
-// a booked results banner after every 8th card: one that targets the searched governorate (or every governorate) and the
-// searched deal (or both deals); several bookings take turns down the page; nothing is shown in a short result list
-function resAdsFor(){ var govNames=(F.govs&&F.govs.length)?F.govs:(F.g?[F.g]:[]), ids=govNames.map(function(n){ return GEO_META&&GEO_META.govId?GEO_META.govId[n]:null }).filter(function(x){ return x!=null });
-  return (PLACEMENTS.results||[]).filter(function(a){ if(a.deal&&a.deal!==F.deal) return false; if(a.gov==null) return true; return ids.length===1&&+ids[0]===+a.gov }) }
-function resAdHtml(a){ var u=esc(safeUrl(String(a.url||""))), link=esc(safeUrl(String(a.link||"")));
-  var media=a.type==="video"?'<video src="'+u+'" autoplay muted loop playsinline></video>':'<img src="'+u+'" alt="'+esc(a.sponsor||a.label||"")+'" loading="lazy">';
-  var cap=(a.top||a.bottom||a.sponsor)?'<span class="res-ad-cap">'+(a.top?'<b>'+esc(a.top)+'</b>':'')+(a.bottom?'<span>'+esc(a.bottom)+'</span>':'')+(!a.top&&!a.bottom&&a.sponsor?'<span>'+esc(a.sponsor)+'</span>':'')+'</span>':'';
-  var inner='<span class="res-ad-tag">'+esc(GX("sponsored"))+'</span>'+media+cap;
-  return link?'<a class="res-ad" href="'+link+'" target="_blank" rel="noopener sponsored" data-adid="'+(+a.id)+'">'+inner+'</a>':'<div class="res-ad" data-adid="'+(+a.id)+'">'+inner+'</div>' }
+// a booked ad between the results, shaped like a listing card, after every 8th card; and a side banner under the map.
+// Each shows only for its governorate (or every governorate) and its deal (or both); several bookings take turns.
+function placementsFor(list){ var govNames=(F.govs&&F.govs.length)?F.govs:(F.g?[F.g]:[]), ids=govNames.map(function(n){ return GEO_META&&GEO_META.govId?GEO_META.govId[n]:null }).filter(function(x){ return x!=null });
+  return (list||[]).filter(function(a){ if(a.deal&&a.deal!==F.deal) return false; if(a.gov==null) return true; return ids.length===1&&+ids[0]===+a.gov }) }
+function resAdsFor(){ return placementsFor(PLACEMENTS.results) }
+function adCta(link){ return /^https?:\/\/(wa\.me|api\.whatsapp\.com)\//i.test(link)?GX("adCtaWa"):GX("adCtaMore") }
+function resAdHtml(a,isListView){ var u=esc(safeUrl(String(a.url||""))), link=esc(safeUrl(String(a.link||""))), name=esc(a.sponsor||"");
+  var media=a.type==="video"?'<video src="'+u+'" autoplay muted loop playsinline></video>':'<img src="'+u+'" alt="'+name+'" loading="lazy">';
+  var inner='<div class="ph">'+media+'<div class="bd"><span class="cbg res-adtag">'+esc(GX("sponsored"))+'</span></div></div>'+
+    '<div class="cb">'+(name?'<div class="ctitle">'+name+'</div>':'')+(a.label?'<div class="res-adtxt">'+esc(a.label)+'</div>':'')+
+    (link?'<div class="res-adcta"><span>'+adCta(a.link)+'</span></div>':'')+'</div>';
+  var cls='card c2'+(isListView?' c2-list':'')+' res-ad';
+  return link?'<a class="'+cls+'" href="'+link+'" target="_blank" rel="noopener sponsored" data-adid="'+(+a.id)+'">'+inner+'</a>':'<div class="'+cls+'" data-adid="'+(+a.id)+'">'+inner+'</div>' }
+var SIDE_TURN=0;
+function sideAdHtml(){ var ads=placementsFor(PLACEMENTS.side); if(!ads.length) return ""; var a=ads[(SIDE_TURN++)%ads.length];
+  var u=esc(safeUrl(String(a.url||""))), link=esc(safeUrl(String(a.link||"")));
+  var media=a.type==="video"?'<video src="'+u+'" autoplay muted loop playsinline></video>':'<img src="'+u+'" alt="'+esc(a.sponsor||"")+'">';
+  var inner='<span class="res-ad-tag">'+esc(GX("sponsored"))+'</span>'+media;
+  return link?'<a class="side-ad" href="'+link+'" target="_blank" rel="noopener sponsored" data-adid="'+(+a.id)+'">'+inner+'</a>':'<div class="side-ad" data-adid="'+(+a.id)+'">'+inner+'</div>' }
 function resCardsWithAds(items){ var ads=items.length>=8?resAdsFor():[], k=0, out="";
-  items.forEach(function(x,i){ out+=card(x,i,VIEWMODE==="list"); if(ads.length && (i+1)%8===0 && (i+1<items.length||!k)){ out+=resAdHtml(ads[k%ads.length]); k++ } });
+  items.forEach(function(x,i){ out+=card(x,i,VIEWMODE==="list"); if(ads.length && (i+1)%8===0 && (i+1<items.length||!k)){ out+=resAdHtml(ads[k%ads.length],VIEWMODE==="list"); k++ } });
   return out }
 // a booked banner counts a view once per page it is seen on (squares log their own views)
 (function(){ if(!("IntersectionObserver" in window)) return; var seen={}, lastView=null;
   var io=new IntersectionObserver(function(es){ var ev=[]; es.forEach(function(en){ if(!en.isIntersecting) return; var id=en.target.dataset.adid, k=VIEW+"|"+id; io.unobserve(en.target); if(seen[k]) return; seen[k]=1; ev.push({slot:id,kind:"view",page:VIEW.split(":")[0]}) }); if(ev.length) logAds(ev) },{threshold:.5});
-  var scan=function(){ if(VIEW!==lastView){ lastView=VIEW } document.querySelectorAll(".topbanner-item[data-adid], .res-ad[data-adid]").forEach(function(el){ if(!el._adObs){ el._adObs=1; io.observe(el) } }) };
+  var scan=function(){ if(VIEW!==lastView){ lastView=VIEW } document.querySelectorAll(".topbanner-item[data-adid], .res-ad[data-adid], .side-ad[data-adid]").forEach(function(el){ if(!el._adObs){ el._adObs=1; io.observe(el) } }) };
   var app=document.getElementById("app")||document.body, t=null; new MutationObserver(function(){ clearTimeout(t); t=setTimeout(scan,300) }).observe(app,{childList:true,subtree:true}); setTimeout(scan,1500) })();
 // when a search finds nothing: the same search anywhere in the country, or failing that the newest listings
 function searchAlternatives(){
@@ -11777,8 +11792,10 @@ function stopAdminAlertsPolling(){
   if(_adminAlertsPollTimer){ clearInterval(_adminAlertsPollTimer); _adminAlertsPollTimer=null; }
 }
 // «الأماكن الإعلانية» (2026-10-30): home banners and banners between search results booked from the panel's calendar
-var PLACEMENTS={banner:[],results:[]};
-async function loadPlacements(){ if(!DB) return; try{ var r=await DB.rpc("bk_public_placements",{p_country:COUNTRY}); if(r&&r.data) PLACEMENTS={banner:r.data.banner||[],results:r.data.results||[]} }catch(e){} }
+var PLACEMENTS={banner:[],results:[],side:[]};
+async function loadPlacements(){ if(!DB) return; try{ var r=await DB.rpc("bk_public_placements",{p_country:COUNTRY}); if(r&&r.data){ PLACEMENTS={banner:r.data.banner||[],results:r.data.results||[],side:r.data.side||[]};
+  // arriving after the page was drawn: draw it again so the booked ad is there now, not on the next visit
+  if((VIEW==="search"&&(PLACEMENTS.results.length||PLACEMENTS.side.length))||(VIEW==="home"&&PLACEMENTS.banner.length)) render() } }catch(e){} }
 async function loadAdSlots(){
   loadPlacements();
   if(!DB) return;
@@ -12611,7 +12628,7 @@ function logAds(events){
   });
 }
 if(!window._adClickLog){ window._adClickLog=true;
-  document.addEventListener("click",function(e){ var a=e.target.closest&&e.target.closest(".adsec .adslot[data-adid], .topbanner-item[data-adid], .res-ad[data-adid]"); if(a) logAds([{slot:a.dataset.adid,kind:"click",page:VIEW.split(":")[0]}]) },true);
+  document.addEventListener("click",function(e){ var a=e.target.closest&&e.target.closest(".adsec .adslot[data-adid], .topbanner-item[data-adid], .res-ad[data-adid], .side-ad[data-adid]"); if(a) logAds([{slot:a.dataset.adid,kind:"click",page:VIEW.split(":")[0]}]) },true);
 }
 var _lastRenderedView = null;
 function fabCheck(){ var f=document.querySelector(".mobfab"); if(!f) return; var foot=document.querySelector("footer"), hide=false; if(foot){ var r=foot.getBoundingClientRect(); if(r.top < window.innerHeight-60) hide=true } document.body.classList.toggle("fab-hide",hide) }
@@ -14854,7 +14871,7 @@ var GX_T={
   xAdVideoMax:{ar:"الحد الأقصى لحجم فيديو المربع (MB)",en:"Maximum ad video size (MB)",de:"Maximale Videogröße (MB)"},
   xDesignH:{ar:"النتائج",en:"Results",de:"Ergebnisse"},
   xPageSize:{ar:"عدد الإعلانات في صفحة النتائج",en:"Listings per results page",de:"Anzeigen pro Ergebnisseite"},
-  xSimilar:{ar:"عدد «إعلانات أخرى» تحت صفحة الإعلان",en:"“More listings” shown under a listing",de:"„Weitere Anzeigen“ unter einer Anzeige"}, sponsored:{ar:"إعلان مدفوع",en:"Sponsored",de:"Gesponsert"}, featured:{ar:"مميز",en:"Featured",de:"Top"},
+  xSimilar:{ar:"عدد «إعلانات أخرى» تحت صفحة الإعلان",en:"“More listings” shown under a listing",de:"„Weitere Anzeigen“ unter einer Anzeige"}, sponsored:{ar:"إعلان مدفوع",en:"Sponsored",de:"Gesponsert"}, adCtaWa:{ar:"تواصل على واتساب",en:"Chat on WhatsApp",de:"Auf WhatsApp schreiben"}, adCtaMore:{ar:"اعرف أكثر",en:"Learn more",de:"Mehr erfahren"}, featured:{ar:"مميز",en:"Featured",de:"Top"},
   adVideoTooBig:{ar:"الفيديو كبير جداً ({mb} MB). الحد الأقصى {max} MB — صدّره بدقة 720p أو أقل ومدة قصيرة، ثم أعد الرفع.",en:"This video is too large ({mb} MB). The limit is {max} MB — export it at 720p or smaller and keep it short, then upload again.",de:"Dieses Video ist zu groß ({mb} MB). Maximal {max} MB — in 720p oder kleiner und kurz exportieren, dann erneut hochladen."},
   adVideoHint:{ar:"الفيديو: حتى {max} MB، يُفضّل 720p ومدة 10–20 ثانية",en:"Video: up to {max} MB, ideally 720p and 10–20 seconds",de:"Video: bis {max} MB, ideal 720p und 10–20 Sekunden"}
 };
