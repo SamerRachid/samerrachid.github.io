@@ -830,6 +830,9 @@ html body .rs-bar.hu-rv,html body .rs-bar.hu-rv.hu-in{opacity:1!important;transf
 /* the hero bar replays its entrance after every pick (softRenderHero swaps it); the re-rendered bar gets .hu-still so the
    bottom sheet fixed inside it does not shrink to the bar's box and slide for a second before snapping to full width */
 html body .hero-outer.hu .sbar.hu-still,html body .hero-outer.hu .sbar.hu-still .srow{animation:none!important;opacity:1!important;transform:none!important}
+/* 2026-10-30: the tabs and the AI bar inside a re-drawn bar stand still too (body.hu-opening stays on after the opening, so a click on
+   «للإيجار» replayed their entrance: the three tabs vanished and faded back in) */
+html body .hero-outer.hu .sbar.hu-still .stabs,html body .hero-outer.hu .sbar.hu-still .aisearch{animation:none!important;opacity:1!important;transform:none!important}
 html body .sbar.hu-still .chipsel-drop.on{animation:none!important}   /* the list re-opened after a pick stays put instead of sliding up again */
 /* phones: the field lists every chosen name (two lines in the filter sheet, one clipped line in the hero bar) */
 @media (max-width:640px){
