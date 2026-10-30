@@ -1917,6 +1917,12 @@ async function handleIncoming(m: Incoming) {
   const nm = m.source === "telegram" ? (m.text || "").trim().match(/^\/start\s+n([0-9a-f]{32})$/i) : null;
   if (nm) { await contactTgOpen(m, nm[1].toLowerCase(), c); return; }
   if (c.intake_enabled === false || (m.source === "telegram" && c.intake_telegram_on === false) || (m.source === "whatsapp" && c.intake_whatsapp_on === false)) return;
+  // a member the owner set to «البوت لا يرد», or someone the team messaged directly in the last hours: the bot stays
+  // silent and the owner answers by hand on Balkoun's WhatsApp (nothing is read, stored or replied)
+  if (m.source === "whatsapp") {
+    const q = await rpc<any>("bk_intake_quiet", { p_chat_id: m.chat }).catch(() => null);
+    if (q?.quiet) { await log(null, m.chat, "info", "quiet", { reason: q.reason, kind: m.kind }); return; }
+  }
   // pairing: /start <code> (Telegram) or "ربط <code>" / "link <code>"
   const pairMatch = (m.text || "").trim().match(/^(?:\/start|ربط|link|pair)\s+([A-Za-z0-9-]{4,40})$/i);
   if (pairMatch) {

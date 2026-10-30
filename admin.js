@@ -198,6 +198,7 @@ function admAddMember(){
     '<div class="row"><div class="fl"><label>'+t("country")+'</label><select id="amCountry">'+cs.map(function(c){ return '<option value="'+esc(c.code)+'"'+(c.code===cur?' selected':'')+'>'+flagOf(c.code)+' '+esc(countryName(c)||c.code)+'</option>' }).join("")+'</select></div>'+
     '<div class="fl"><label>'+GX("amAgency")+'</label><input id="amAgency" data-allow-autofill placeholder="'+esc(GX("amAgencyPH"))+'"></div></div>'+
     '<label class="xcheck"><input type="checkbox" id="amSend" checked><span>'+GX("amSendPw")+'</span></label>'+
+    '<label class="xcheck"><input type="checkbox" id="amBotOff"><span>'+GX("botOffL")+'</span></label><div class="hintx" style="margin:-4px 0 8px">'+GX("botOffHint")+'</div>'+
     '<div class="xactions"><button type="button" class="ab ok" id="amCreate">'+GX("amCreate")+'</button><span class="xmsg" id="amMsg"></span></div><div id="amDone"></div></div></div>';
   document.body.appendChild(ov);
   if(typeof wireOneCCPicker==="function") wireOneCCPicker("amCC");
@@ -214,6 +215,7 @@ function admAddMember(){
     try{ var h=await sha(pw);
       var r=await DB.rpc("bk_admin_create_member",{p_token:ADM.token,p_phone:phone,p_name:name,p_family:fam||null,p_email:email||null,p_country:cc,p_hash:h,p_agency_name:ag||null,p_password_plain:send?pw:null,p_send:send});
       var d=(r&&r.data)||{}; if(r&&r.error) throw r.error; if(d.error) throw new Error(GX("am_"+d.error)||d.error);
+      if(d.id && ($("#amBotOff")||{}).checked){ try{ await rpc("bk_admin_set_bot_off",{p_token:ADM.token,p_user:d.id,p_off:true}) }catch(e3){} }
       if(send){ try{ await intakeAdmin("tick") }catch(e2){} }
       m.textContent="";
       $("#amDone").innerHTML='<div class="done2" style="margin-top:12px;text-align:start"><b>'+GX("amDone")+'</b><p style="margin:8px 0 0;font-size:14px">'+GX("amMemberNo")+' <b class="ltr">'+esc(d.member_no||"")+'</b> · <span class="ltr">'+esc(d.phone||"")+'</span>'+(d.agency_id?' · '+GX("amAgencyMade"):'')+'</p>'+
@@ -1845,6 +1847,9 @@ function wireAdmin(){
 
   $$(".skipRev").forEach(function(cb){ cb.onchange=function(){
     rpc("bk_admin_set_skip_review",{p_token:ADM.token,p_user:this.dataset.uid,p_skip:this.checked}).catch(function(){}) }});
+  $$(".botOff").forEach(function(cb){ cb.onchange=function(){ var id=this.dataset.uid, on=this.checked, box=this;
+    ((ADM.data&&ADM.data.users)||[]).forEach(function(u){ if(u.id===id) u.bot_off=on }); $$('.botOff[data-uid="'+id+'"]').forEach(function(x){ x.checked=on });
+    rpc("bk_admin_set_bot_off",{p_token:ADM.token,p_user:id,p_off:on}).then(function(){ admToast(on?GX("botOffOn"):GX("botOffOff")) }).catch(function(){ box.checked=!on }) }});
   $$(".cardLogo").forEach(function(cb){ cb.onchange=function(){
     var id=this.dataset.uid, on=this.checked, box=this;
     ADM.cardLogos=(ADM.cardLogos||[]).filter(function(x){return x!==id}); if(on) ADM.cardLogos.push(id);
@@ -3383,7 +3388,7 @@ function adminUsersBody(d){
       '<td data-label="'+t("ratingCol")+'" class="unum ucount">'+(u.rating?'<b class="ltr">'+u.rating+'</b> <span class="ustar">★</span>':'<span class="udash">—</span>')+'</td>'+
       '<td data-label="'+t("levelCol")+'">'+(isAdmin?'<span class="lvl lvl-vip">Admin</span>':'<div class="usel"><select class="lvlpick" data-utype="'+u.id+'" title="'+esc(GX("accTypeL"))+'">'+[["member",GX("acctMember")],["broker",GX("acctBroker")],["agency",GX("acctAgency")]].map(function(o){ return '<option value="'+o[0]+'"'+((u.account_type||"member")===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select>'+
         '<select class="lvlpick" data-uid="'+u.id+'" title="'+GX("uLevelHint")+'">'+LEVELS_ALL.map(function(lv){ return '<option value="'+lv+'"'+(u.level===lv?" selected":"")+'>'+t("lv_"+lv)+'</option>' }).join("")+'</select></div>')+'</td>'+
-      '<td data-label="'+GX("uSettingsCol")+'">'+(isAdmin?'':'<div class="uswitches"><span title="'+esc(GX("uAutoHint"))+'">'+sw("skipRev",u.id,u.skip_review,GX("uAutoHint"))+'<small>'+t("autoApprove")+'</small></span><span title="'+esc(GX("cardLogoHint"))+'">'+sw("cardLogo",u.id,(ADM.cardLogos||[]).indexOf(u.id)>-1,GX("cardLogoHint"))+'<small>'+GX("cardLogoCol")+'</small></span></div>')+'</td>'+
+      '<td data-label="'+GX("uSettingsCol")+'">'+(isAdmin?'':'<div class="uswitches"><span title="'+esc(GX("uAutoHint"))+'">'+sw("skipRev",u.id,u.skip_review,GX("uAutoHint"))+'<small>'+t("autoApprove")+'</small></span><span title="'+esc(GX("cardLogoHint"))+'">'+sw("cardLogo",u.id,(ADM.cardLogos||[]).indexOf(u.id)>-1,GX("cardLogoHint"))+'<small>'+GX("cardLogoCol")+'</small></span><span title="'+esc(GX("botOffHint"))+'">'+sw("botOff",u.id,u.bot_off,GX("botOffHint"))+'<small>'+GX("botOffCol")+'</small></span></div>')+'</td>'+
       '<td data-label="'+t("role")+'"><span class="st '+(u.blocked?"st-removed":"st-live")+'">'+(u.blocked?GX("uBlocked"):GX("uActive"))+'</span></td></tr>';
     return html }).join("");
   // the member drawer (listings pattern): identity, actions, facts, moderation, danger, the member's listings, and the
@@ -3406,6 +3411,7 @@ function adminUsersBody(d){
         '<div class="ld-sec">'+t("levelCol")+'</div><div class="ld-pan usel">'+
           '<select class="lvlpick" data-utype="'+u.id+'" title="'+esc(GX("accTypeL"))+'">'+[["member",GX("acctMember")],["broker",GX("acctBroker")],["agency",GX("acctAgency")]].map(function(o){ return '<option value="'+o[0]+'"'+((u.account_type||"member")===o[0]?' selected':'')+'>'+o[1]+'</option>' }).join("")+'</select>'+
           '<select class="lvlpick" data-uid="'+u.id+'" title="'+GX("uLevelHint")+'">'+LEVELS_ALL.map(function(lv){ return '<option value="'+lv+'"'+(u.level===lv?" selected":"")+'>'+t("lv_"+lv)+'</option>' }).join("")+'</select></div>'+
+        '<div class="ld-sec">'+GX("botOffH")+'</div><div class="ld-pan"><label class="xcheck" style="display:flex;gap:8px;align-items:center">'+sw("botOff",u.id,u.bot_off,GX("botOffHint"))+'<span>'+GX("botOffL")+'</span></label><div class="hintx" style="margin-top:4px">'+GX("botOffHint")+'</div></div>'+
         '<div class="ld-sec">'+GX("lfData")+'</div><dl class="ld-kv">'+
           (u.member_no?'<dt>'+GX("memberNoL")+'</dt><dd class="ltr">'+esc(u.member_no)+'</dd>':'')+
           '<dt>'+GX("lfPhone")+'</dt><dd class="ltr">'+esc(u.phone||GX("uNoPhone"))+(u.phone_verified===false?' <span class="uunv">'+GX("uUnverified")+'</span>':'')+'</dd>'+
@@ -5090,6 +5096,10 @@ function wireAdminOutreach(){
    one or two left, red = full); «عميل يسأل» finds the nearest stays that fit; a day's panel lists what runs that day with
    edit / extend / report / stop. Data: bk_admin_placements (bookings = engagements rows), caps from site_content.extras. */
 Object.assign(GX_T,{
+  botOffCol:{ar:"البوت لا يرد",en:"Bot silent",de:"Bot stumm"}, botOffH:{ar:"بوت واتساب",en:"WhatsApp bot",de:"WhatsApp-Bot"},
+  botOffL:{ar:"البوت لا يرد على هذا العضو",en:"The bot does not answer this member",de:"Der Bot antwortet diesem Mitglied nicht"},
+  botOffHint:{ar:"لمن لا ينشر إعلاناته بالرسائل: رسائله إلى واتساب بلكون لا يقرأها البوت ولا يرد عليها، وتردّ أنت عليه بنفسك.",en:"For members who don't post listings by message: the bot neither reads nor answers their WhatsApp messages; you reply yourself.",de:"Für Mitglieder, die nicht per Nachricht inserieren: der Bot liest und beantwortet ihre Nachrichten nicht."},
+  botOffOn:{ar:"البوت لن يرد على هذا العضو",en:"The bot will not answer this member",de:"Bot antwortet nicht mehr"}, botOffOff:{ar:"البوت يرد على هذا العضو",en:"The bot answers this member",de:"Bot antwortet wieder"},
   tPlacements:{ar:"الأماكن الإعلانية",en:"Ad placements",de:"Werbeplätze"},
   plc_featured:{ar:"تمييز",en:"Featured",de:"Hervorgehoben"}, plc_square:{ar:"مربعات",en:"Squares",de:"Quadrate"},
   plc_banner:{ar:"بانر الرئيسية",en:"Home banner",de:"Startseiten-Banner"}, plc_results:{ar:"إعلان بين النتائج",en:"Ad between results",de:"Anzeige in Ergebnissen"}, plc_side:{ar:"بانر جانبي",en:"Side banner",de:"Seitenbanner"},
