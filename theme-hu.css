@@ -1442,3 +1442,17 @@ html body .apppg-apk small{color:var(--muted);text-align:center}html body .apppg
    and the admin panel (body.adm-mode) keeps selection for the team's own work */
 html body:not(.adm-mode){-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 html body:not(.adm-mode) input,html body:not(.adm-mode) textarea,html body:not(.adm-mode) select,html body:not(.adm-mode) [contenteditable="true"]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
+/* the home hero's Price popup matches the hero's other lists (white, navy text, 8px); the dark rule above is for the search page's
+   bar, whose lists are dark (owner 2026-10-30: «why does this one open blue unlike the others») */
+@media (min-width:901px){
+  html body .hero-outer.hu .pricepop{background:#fff!important;color:var(--navy)!important;border:1px solid rgba(17,33,63,.12)!important;border-radius:8px!important;box-shadow:0 18px 44px -10px rgba(0,0,0,.45)!important}
+  html body .hero-outer.hu .pricepop label{color:#5B6371!important}
+  html body .hero-outer.hu .pricepop input{background:#F4F5F8!important;color:var(--navy)!important;border:1px solid rgba(17,33,63,.15)!important}
+  html body .hero-outer.hu .pricepop input:focus{border-color:var(--gold)!important;outline:none}
+  html body .hero-outer.hu .pricepop .pp-clear{color:var(--navy)!important;border-color:rgba(17,33,63,.2)!important}
+  html body .hero-outer.hu .pricepop hr,html body .hero-outer.hu .pricepop .pp-acts{border-color:rgba(17,33,63,.1)!important}
+}
+/* the home bar's Price field reads like its neighbours: «السعر» small on top, «الكل» bold under it */
+html body .hero-outer.hu .sf .pricetrig .ph[data-all]{display:flex;flex-direction:column;gap:4px;color:#6B7484;font-size:10px;font-weight:400;line-height:10px}
+html body .hero-outer.hu .sf .pricetrig .ph[data-all]::after{content:attr(data-all);color:var(--navy);font-size:12px;font-weight:600;line-height:14px}
+html body .hero-outer.hu .sf .pricetrig{justify-content:center}
