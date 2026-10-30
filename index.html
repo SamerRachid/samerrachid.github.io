@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-//fqEV06hiPE1ehrgszS3m10bLK8yelyWSuiRem81jY=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-/P3NjEdrVCm372/9SDMYRpRH+3bkHhrpvKuQVhnEy28=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -4991,7 +4991,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202610301041"><script>
+</style><link rel="stylesheet" href="/theme-hu.css?v=202610301044"><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
   brand:      "بلكون",
@@ -7903,8 +7903,9 @@ function wireNotifBell(){
   if(NOTIF_OPEN) notifMenuFit();
   $("#bellBtn").onclick=function(e){
     e.stopPropagation();
+    var was=NOTIF_OPEN;   // closeAllMenus() resets NOTIF_OPEN, so a second tap on the bell used to open it again instead of closing it
     closeAllMenus($("#notifMenu"));
-    NOTIF_OPEN=!NOTIF_OPEN;
+    NOTIF_OPEN=!was;
     $("#notifMenu").classList.toggle("on",NOTIF_OPEN); if(NOTIF_OPEN) notifMenuFit();
     if(NOTIF_OPEN && NOTIFS.unread){
       NOTIFS.items.forEach(function(n){n.is_read=true}); NOTIFS.unread=0;
@@ -10132,6 +10133,10 @@ function markGreenTabu(root){
   while((n=walker.nextNode())){ var tx=n.nodeValue.trim(); if(!tx||labels.indexOf(tx)===-1) continue; var p=n.parentNode; if(!p||/^(SCRIPT|STYLE|TEXTAREA|OPTION|TITLE)$/.test(p.tagName)||p.classList.contains("tabu-green")) continue; nodes.push(n) }
   nodes.forEach(function(tn){ var sp=document.createElement("span"); sp.className="tabu-green"; sp.textContent=tn.nodeValue; tn.parentNode.replaceChild(sp,tn) });
 }
+// a click anywhere outside the bell closes the notifications (2026-10-30: the old closer was wired with the previous header's
+// account chip, which the theme's header no longer has, so the list stayed open)
+if(!window._notifOutside){ window._notifOutside=true; document.addEventListener("click",function(e){ if(!NOTIF_OPEN) return; var w=$("#notifWrap"); if(w && w.contains(e.target)) return;
+  var nm=$("#notifMenu"); if(nm) nm.classList.remove("on"); NOTIF_OPEN=false }) }
 function closeAllMenus(except){
   $$(".menu.on,.chipsel-drop.on,.notifmenu.on").forEach(function(m){ if(m!==except){ m.classList.remove("on"); if(m.id==="notifMenu") NOTIF_OPEN=false } });
   $$(".chipsel-input").forEach(function(i){ var d=$("#"+i.dataset.csfield+"Drop"); if(d && d!==except && document.activeElement===i) i.blur() });

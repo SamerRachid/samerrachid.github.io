@@ -1438,3 +1438,7 @@ html body .apppg-apk{margin-top:22px;padding:18px;border:1px solid rgba(202,144,
 html body .apppg-apk b{font-size:17px}html body .apppg-apk p{color:var(--muted);margin:0}
 html body .apppg-apk a.gold{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
 html body .apppg-apk small{color:var(--muted);text-align:center}html body .apppg-apk ol{margin:4px 0 0;padding-inline-start:20px;color:#D5DCE8;font-size:14px;display:grid;gap:4px}
+/* owner 2026-10-30: the site's text is not selectable / copyable with a long press or a drag; form fields stay normal,
+   and the admin panel (body.adm-mode) keeps selection for the team's own work */
+html body:not(.adm-mode){-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+html body:not(.adm-mode) input,html body:not(.adm-mode) textarea,html body:not(.adm-mode) select,html body:not(.adm-mode) [contenteditable="true"]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
