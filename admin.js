@@ -37,7 +37,7 @@ async function storageRestore(paths){
        if(j && j.error) return {data:null, error:{message:j.error}};
        return {data:{restored:j.restored||[], failed:j.failed||[]}, error:null} }
   catch(e){ return {data:null, error:e} } }
-var TAB_PERM={guides:"homepage",dashboard:"dashboard",stats:"stats",countries:"super",listings:["listings_view","listings_edit","listings_delete"],photos:["listings_view","listings_edit"],wanted_adm:"wanted",users:["users_view","users_edit","users_delete","verify","passwords"],agencies_adm:"agencies",reviews:"reviews",house:"login_as",outreach:"campaigns",engage:["engage","featured","ads"],placements:["engage","featured","ads"],projects_adm:"projects",ads:"ads",featured:["featured","rewards"],banners:"homepage",mainpage:"homepage",design:"design",geo:"geo",types:"types",contact:"contact",reports:"reports",feedback:"feedback",tickets:"tickets",intake:"intake",intake_cfg:"bot_cfg",msgs:"notify",settings:"settings",storage:"storage",admins:"super",danger:"super",campaigns:"campaigns",social:["social","featured"],maps:"geo",audit:"audit"};
+var TAB_PERM={guides:"homepage",dashboard:"dashboard",stats:"stats",countries:"super",listings:["listings_view","listings_edit","listings_delete"],photos:["listings_view","listings_edit"],wanted_adm:"wanted",users:["users_view","users_edit","users_delete","verify","passwords"],agencies_adm:"agencies",reviews:"reviews",house:"login_as",outreach:"campaigns",engage:["engage","featured","ads"],placements:["engage","featured","ads"],promopage:["ads"],projects_adm:"projects",ads:"ads",featured:["featured","rewards"],banners:"homepage",mainpage:"homepage",design:"design",geo:"geo",types:"types",contact:"contact",reports:"reports",feedback:"feedback",tickets:"tickets",intake:"intake",intake_cfg:"bot_cfg",msgs:"notify",settings:"settings",storage:"storage",admins:"super",danger:"super",campaigns:"campaigns",social:["social","featured"],maps:"geo",audit:"audit"};
 // the permission list (2026-10-17): groups for the admins page, and ready-made roles. Super admins hold every permission.
 var ADM_PERMS=[["pg_content",["listings_view","listings_edit","listings_delete","wanted","intake","reports","reviews"]],
   ["pg_people",["users_view","users_edit","users_delete","passwords","verify","login_as","agencies"]],
@@ -63,7 +63,7 @@ function permPicker(sel,cls){ sel=sel||[];
 // the panel's sections (redesign 2026-10-16, Shopify-style): a section opens its last-visited page; its pages show under it
 // in the sidebar (desktop) or as a row of tabs (phone). Page keys are unchanged, so every link into a page still works.
 var ADM_GROUPS={g_listings:["listings","intake","reports","photos"],g_people:["users","agencies_adm","reviews","house"],
-  g_msgs:["feedback","tickets","msgs","campaigns","outreach"],g_mkt:["placements","featured","ads","banners","engage","social","projects_adm"],
+  g_msgs:["feedback","tickets","msgs","campaigns","outreach"],g_mkt:["placements","promopage","featured","ads","banners","engage","social","projects_adm"],
   g_site:["mainpage","design","contact","guides"],g_settings:["settings","countries","geo","maps","types","intake_cfg","admins","audit","storage","danger"]};
 var ADM_GROUP_ALIAS={inbox:"g_msgs",promo:"g_mkt",system:"g_settings"};   // the old section keys (bell links, saved state)
 function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab)>-1) return g } return null }
@@ -721,6 +721,7 @@ function adminView(){
 
  else if(ADM.tab==="engage"){ body = adminEngageBody(); }
  else if(ADM.tab==="placements"){ body = adminPlacementsBody(); }
+ else if(ADM.tab==="promopage"){ body = adminPromoPageBody(); }
  else if(ADM.tab==="campaigns"){ body = adminCampaignsBody(); }
  else if(ADM.tab==="intake"){ body = adminIntakeBody("drafts"); }
  else if(ADM.tab==="intake_cfg"){ body = adminIntakeBody("cfg"); }
@@ -865,7 +866,7 @@ function adminView(){
  var LBL={dashboard:t("dashboardTab"), listings:GX("navAllListings"), intake:GX("navBotDrafts"), reports:t("reportsTab"), photos:GX("tMedia"),
    wanted_adm:GX("tWanted"), users:t("usersTab"), agencies_adm:GX("tAgencies"), reviews:t("reviewsTab"), house:GX("tHouse"),
    feedback:t("feedbackTab"), tickets:GX("ticketsTab"), msgs:t("msgsNotifTab"), campaigns:GX("tCampaigns"), outreach:GX("tOutreach"),
-   featured:GX("tPromote"), ads:t("adsTab"), banners:GX("tBanners"), engage:GX("tEngage"), placements:GX("tPlacements"), social:GX("tSocial"), projects_adm:GX("tProjects"),
+   featured:GX("tPromote"), ads:t("adsTab"), banners:GX("tBanners"), engage:GX("tEngage"), placements:GX("tPlacements"), promopage:GX("tPromoPage"), social:GX("tSocial"), projects_adm:GX("tProjects"),
    stats:GX("navAnalytics"), guides:GX("tGuides"), mainpage:t("mainPageTab"), design:GX("tDesign"), contact:GX("tContact"),
    settings:GX("navGeneral"), intake_cfg:GX("navBot"), countries:GX("countriesTab"), geo:GX("geoTab"), maps:GX("tMaps"), types:GX("ptTab"), admins:t("adminsTab"), audit:GX("tAudit"), storage:GX("tStorage"), danger:t("dangerTab")};
  // badges count only what waits for the admin (pending, unread, due) — never totals
@@ -1765,6 +1766,7 @@ function wireAdmin(){
     $$("[data-agtrust]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.agtrust.split(":"); try{ await rpc("bk_admin_agency_set",{p_token:ADM.token,p_id:+p[0],p_trusted:p[1]==="1"}); ADM._agLoaded=false; admToast(t("savedOk")); render() }catch(e){ admToast(e.message||"error","bad") } } });
   }
   if(ADM.tab==="placements") wirePlacements();
+  if(ADM.tab==="promopage") wirePromoPage();
   if(ADM.tab==="engage"){
     var edays=ADM.erange==null?30:ADM.erange;
     if(ADM._engDays!==edays){ ADM._engDays=edays; ADM.eng=null; rpcScoped("bk_admin_engagements",{p_token:ADM.token,p_days:edays===0?null:edays,p_country:admScope()}).then(function(r){ ADM.eng=r||[]; render() }).catch(function(e){ ADM.eng=[]; ADM.engErr=e.message; render() }) }
@@ -5415,4 +5417,63 @@ function wirePlacements(){ var S=plcState();
   if($("#plcCapsSave")) $("#plcCapsSave").onclick=async function(){ var ex={};
     $$("[data-plccap]").forEach(function(i){ var v=Math.max(1,Math.min(99,+i.value||1)); ex[{featured:"ads_cap_featured",square:"ad_max_squares",banner:"ads_cap_banner",results:"ads_cap_results",side:"ads_cap_side"}[i.dataset.plccap]]=v });
     try{ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:ex},p_country:COUNTRY}); admToast(t("savedOk")); re() }catch(e){ alert(e.message||"error") } };
+}
+
+/* ── «صفحة الترويج» (2026-10-30): edits the /promote page without code. It reads promoCfg() (the saved extras.promo over the
+   page's own defaults) and saves the whole object back to extras.promo; «رجوع للأصل» clears it. ── */
+Object.assign(GX_T,{
+  tPromoPage:{ar:"صفحة الترويج",en:"Promote page",de:"Werbeseite"},
+  prOpen:{ar:"افتح الصفحة",en:"Open the page",de:"Seite öffnen"}, prSaved:{ar:"حُفظت صفحة الترويج",en:"Promote page saved",de:"Gespeichert"},
+  prReset:{ar:"رجوع للأصل",en:"Back to the original",de:"Zurücksetzen"}, prResetQ:{ar:"إرجاع كل ما في الصفحة إلى النص والأسعار والصور الأصلية؟",en:"Put the whole page back to its original text, prices and photos?",de:"Alles zurücksetzen?"},
+  prPrices:{ar:"الأسعار ($)",en:"Prices ($)",de:"Preise ($)"}, prFeatW1:{ar:"تمييز أسبوع",en:"Featured 1 week",de:"1 Woche"}, prFeatW2:{ar:"تمييز أسبوعان",en:"Featured 2 weeks",de:"2 Wochen"}, prFeatM1:{ar:"تمييز شهر",en:"Featured 1 month",de:"1 Monat"},
+  prAdFee:{ar:"رسوم الإعلان الممول",en:"Sponsored ad fee",de:"Gebühr"}, prAdDay:{ar:"أقل ميزانية يومية",en:"Lowest daily budget",de:"Mindestbudget/Tag"}, prAdDays:{ar:"أيام المثال",en:"Days in the example",de:"Tage im Beispiel"},
+  prFull:{ar:"الباقة الكاملة",en:"Full package",de:"Komplettpaket"},
+  prAg:{ar:"باقات المكاتب (شهرياً)",en:"Agency plans (monthly)",de:"Büro-Pakete (monatlich)"}, prAgName:{ar:"الاسم",en:"Name",de:"Name"}, prAgDesc:{ar:"ماذا تشمل",en:"What it includes",de:"Inhalt"},
+  prStats:{ar:"أرقام بلكون في أعلى الصفحة",en:"Balkoun's numbers at the top",de:"Zahlen oben"}, prVisitors:{ar:"زائر",en:"Visitors",de:"Besucher"}, prViews:{ar:"مشاهدة إعلان",en:"Listing views",de:"Aufrufe"}, prContacts:{ar:"تواصل مع المعلنين",en:"Contacts",de:"Kontakte"}, prNote:{ar:"السطر تحت الأرقام",en:"Line under the numbers",de:"Zeile darunter"},
+  prReels:{ar:"ريلات فيسبوك",en:"Facebook reels",de:"Facebook-Reels"}, prReelUrl:{ar:"رابط الريل",en:"Reel link",de:"Link"}, prReelViews:{ar:"المشاهدات",en:"Views",de:"Aufrufe"}, prReelTitle:{ar:"العنوان",en:"Title",de:"Titel"},
+  prReact:{ar:"تفاعل",en:"Reactions",de:"Reaktionen"}, prComm:{ar:"تعليق",en:"Comments",de:"Kommentare"}, prShare:{ar:"مشاركة",en:"Shares",de:"Geteilt"},
+  prReelHint:{ar:"الريل الأول هو الذي يظهر في شاشة الهاتف، والثلاثة في شريط الأرقام تحته.",en:"The first reel is the one in the phone frame; all three are in the numbers strip.",de:"Das erste Reel erscheint im Handy-Rahmen."},
+  prContact:{ar:"التواصل والدفع",en:"Contact and payment",de:"Kontakt und Zahlung"}, prWa:{ar:"رقم واتساب لأزرار الصفحة (فارغ = رقم الموقع)",en:"WhatsApp number for the buttons (empty = the site's)",de:"WhatsApp-Nummer (leer = die der Seite)"},
+  prPay:{ar:"طرق الدفع (تظهر في «كيف يعمل» و«كيف أدفع؟»)",en:"How to pay (shown in the steps and the FAQ)",de:"Zahlungswege"},
+  prPhotos:{ar:"الصور",en:"Photos",de:"Fotos"}, prChange:{ar:"تغيير",en:"Change",de:"Ändern"},
+  prP_hero1:{ar:"الصورة الكبيرة في الأعلى",en:"Top, large",de:"Oben groß"}, prP_hero2:{ar:"الأعلى، الصغيرة الأولى",en:"Top, small 1",de:"Oben klein 1"}, prP_hero3:{ar:"الأعلى، الصغيرة الثانية",en:"Top, small 2",de:"Oben klein 2"},
+  prP_card:{ar:"بطاقة «مميز»",en:"«Featured» card",de:"Karte"}, prP_reel:{ar:"غلاف الريل",en:"Reel cover",de:"Reel-Cover"}, prP_square:{ar:"المربع الإعلاني",en:"Ad square",de:"Quadrat"},
+  prP_opt1:{ar:"باقة التمييز",en:"Featured plan",de:"Paket 1"}, prP_opt2:{ar:"باقة الإعلان الممول",en:"Sponsored plan",de:"Paket 2"}, prP_opt3:{ar:"الباقة الكاملة",en:"Full package",de:"Paket 3"},
+  prP_band1:{ar:"المكاتب، الأعلى",en:"Agencies, top",de:"Büros oben"}, prP_band2:{ar:"المكاتب، الأسفل",en:"Agencies, bottom",de:"Büros unten"}, prP_close:{ar:"صورة الخاتمة",en:"Closing photo",de:"Schlussbild"}
+});
+function prState(){ if(!ADM.pr) ADM.pr={cfg:JSON.parse(JSON.stringify(promoCfg())),busy:false}; return ADM.pr }
+function adminPromoPageBody(){ var S=prState(), c=S.cfg, v=function(x){ return esc(x==null?"":String(x)) };
+  var num=function(path,label){ var p=path.split("."); return '<label>'+GX(label)+'<input type="number" min="0" step="1" data-pr="'+path+'" value="'+v(c[p[0]][p[1]])+'"></label>' };
+  var txt=function(path,label,ltr){ var p=path.split("."), val=p.length>1?c[p[0]][p[1]]:c[p[0]]; return '<label>'+GX(label)+'<input type="text" data-pr="'+path+'"'+(ltr?' dir="ltr"':'')+' value="'+v(val)+'"></label>' };
+  var css='<style id="prCss">.prw{display:grid;gap:16px;max-width:980px}.prw .blk .in{display:grid;gap:12px}.prw .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.prw .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}'+
+    '.prw label{display:grid;gap:4px;font-size:12.5px;color:var(--grey)}.prw input{height:38px;border:1px solid var(--line);border-radius:8px;padding:0 10px;font:inherit;background:var(--card);color:inherit;width:100%;box-sizing:border-box;min-width:0}'+
+    '.prw .prrow{display:grid;grid-template-columns:1fr 2fr 110px;gap:10px;align-items:end}.prw .prreel{display:grid;grid-template-columns:2fr 90px 2fr;gap:10px;padding-bottom:10px;border-bottom:1px dashed var(--line)}.prw .prreel .n3{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}'+
+    '.prw .ph{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.prw .ph figure{margin:0;display:grid;gap:6px}.prw .ph i{display:block;aspect-ratio:4/3;border-radius:8px;background:#0d1a33 center/cover;border:1px solid var(--line)}.prw .ph figcaption{font-size:12px;color:var(--grey)}'+
+    '.prw .ph label.ab{display:inline-flex;justify-content:center;cursor:pointer}.prw .ph input[type=file]{display:none}.prw .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}'+
+    '@media (max-width:760px){.prw .g3,.prw .g4,.prw .row,.prw .reel,.prw .prreel .n3{grid-template-columns:1fr 1fr}.prw .ph{grid-template-columns:1fr 1fr}}</style>';
+  var phs=["hero1","hero2","hero3","card","reel","square","opt1","opt2","opt3","band1","band2","close"].map(function(k){ return '<figure><i style="background-image:url(\''+esc(safeUrl(String(c.photos[k]||"")))+'\')"></i><figcaption>'+GX("prP_"+k)+'</figcaption><label class="ab">'+GX("prChange")+'<input type="file" accept="image/*" data-prphoto="'+k+'"></label></figure>' }).join("");
+  return css+'<div class="prw"><div class="bar"><button type="button" class="btn-n" id="prSave">'+t("save")+'</button><a class="ab" href="/promote" target="_blank" rel="noopener">'+GX("prOpen")+'</a><button type="button" class="ab" id="prReset">'+GX("prReset")+'</button><span class="hintx" id="prMsg"></span></div>'+
+    '<div class="blk"><h3>'+GX("prPrices")+'</h3><div class="in"><div class="g3">'+num("feat.w1","prFeatW1")+num("feat.w2","prFeatW2")+num("feat.m1","prFeatM1")+'</div><div class="g4">'+num("ad.fee","prAdFee")+num("ad.day","prAdDay")+num("ad.days","prAdDays")+num("full.price","prFull")+'</div></div></div>'+
+    '<div class="blk"><h3>'+GX("prAg")+'</h3><div class="in">'+c.ag.map(function(a,i){ return '<div class="prrow"><label>'+GX("prAgName")+'<input type="text" data-prag="'+i+'.name" value="'+v(a.name)+'"></label><label>'+GX("prAgDesc")+'<input type="text" data-prag="'+i+'.desc" value="'+v(a.desc)+'"></label><label>$<input type="number" min="0" data-prag="'+i+'.price" value="'+v(a.price)+'"></label></div>' }).join("")+'</div></div>'+
+    '<div class="blk"><h3>'+GX("prStats")+'</h3><div class="in"><div class="g3">'+txt("stats.visitors","prVisitors",1)+txt("stats.views","prViews",1)+txt("stats.contacts","prContacts",1)+'</div>'+txt("stats.note","prNote")+'</div></div>'+
+    '<div class="blk"><h3>'+GX("prReels")+'</h3><div class="in"><div class="hintx">'+GX("prReelHint")+'</div>'+c.reels.slice(0,3).map(function(r,i){ var f=function(k,l,ltr){ return '<label>'+GX(l)+'<input type="text" data-prreel="'+i+'.'+k+'"'+(ltr?' dir="ltr"':'')+' value="'+v(r[k])+'"></label>' };
+      return '<div class="prreel">'+f("url","prReelUrl",1)+f("views","prReelViews",1)+f("title","prReelTitle")+'<div class="n3">'+f("react","prReact",1)+f("comm","prComm",1)+f("share","prShare",1)+'</div></div>' }).join("")+'</div></div>'+
+    '<div class="blk"><h3>'+GX("prContact")+'</h3><div class="in">'+txt("wa","prWa",1)+txt("pay","prPay")+'</div></div>'+
+    '<div class="blk"><h3>'+GX("prPhotos")+'</h3><div class="in"><div class="ph">'+phs+'</div></div></div>'+
+  '</div>' }
+function wirePromoPage(){ var S=prState(), c=S.cfg;
+  // what is typed goes straight into the working copy, so an upload (which redraws) loses nothing
+  $$("[data-pr]").forEach(function(i){ i.oninput=function(){ var p=this.dataset.pr.split("."), val=this.type==="number"?(this.value===""?"":+this.value):this.value; if(p.length>1) c[p[0]][p[1]]=val; else c[p[0]]=val } });
+  $$("[data-prag]").forEach(function(i){ i.oninput=function(){ var p=this.dataset.prag.split("."); c.ag[+p[0]][p[1]]=p[1]==="price"?(this.value===""?"":+this.value):this.value } });
+  $$("[data-prreel]").forEach(function(i){ i.oninput=function(){ var p=this.dataset.prreel.split("."); c.reels[+p[0]][p[1]]=this.value } });
+  $$("[data-prphoto]").forEach(function(i){ i.onchange=async function(){ var f=this.files&&this.files[0], k=this.dataset.prphoto, m=$("#prMsg"); if(!f) return;
+    if(m) m.textContent=GX("plcUploading")||"…"; try{ c.photos[k]=await hsUpload(f,"promo"); render() }catch(e){ if(m) m.textContent=e.message||"error" } } });
+  if($("#prSave")) $("#prSave").onclick=async function(){ var btn=this, m=$("#prMsg"); btn.disabled=true;
+    try{ var patch={extras:{promo:c}}; await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:patch,p_country:COUNTRY});
+      var ex=SITE.extras; if(typeof ex==="string"){ try{ ex=JSON.parse(ex) }catch(e){ ex={} } } SITE.extras=Object.assign({},ex||{},{promo:c});
+      admToast(GX("prSaved")); if(m) m.textContent="" }catch(e){ if(m) m.textContent=e.message||"error" } btn.disabled=false };
+  if($("#prReset")) $("#prReset").onclick=async function(){ if(!confirm(GX("prResetQ"))) return;
+    try{ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:{promo:null}},p_country:COUNTRY});
+      var ex=SITE.extras; if(typeof ex==="string"){ try{ ex=JSON.parse(ex) }catch(e){ ex={} } } ex=Object.assign({},ex||{}); delete ex.promo; SITE.extras=ex;
+      ADM.pr=null; admToast(GX("prSaved")); render() }catch(e){ alert(e.message||"error") } };
 }
