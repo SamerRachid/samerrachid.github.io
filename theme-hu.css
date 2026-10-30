@@ -1423,3 +1423,12 @@ html body .svc-rform .starpick span{font-size:28px;cursor:pointer;color:rgba(255
 html body .svc-inlisting p{color:var(--muted);margin:-4px 0 12px}
 html body .svc-inlisting .svc-pick a{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:7px 14px;color:#fff;text-decoration:none;font-size:14px}
 html body .svc-inlisting .svc-pick a span{color:var(--gold);font-weight:700}html body .svc-inlisting .svc-pick a:hover{border-color:var(--gold)}
+
+/* the provider's own logo and work photos on /services/join (2026-10-30) */
+html body .svc-up{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+html body .svc-logo img,html body .svc-logo .aglogo{width:64px;height:64px;border-radius:50%;object-fit:cover;display:block}
+html body .svc-upbtn{cursor:pointer}
+html body .svc-ph{position:relative}html body .svc-ph img{width:96px;height:72px;object-fit:cover;border-radius:8px;display:block;border:1px solid var(--line)}
+html body .svc-ph button{position:absolute;top:-7px;inset-inline-end:-7px;width:22px;height:22px;border-radius:50%;border:0;background:#B3271E;color:#fff;cursor:pointer;line-height:1}
+html body .svc-phadd{width:96px;height:72px;border:1px dashed rgba(202,144,81,.6);border-radius:8px;display:grid;place-items:center;align-content:center;gap:2px;color:var(--gold);font-size:22px;cursor:pointer;line-height:1}
+html body .svc-phadd span{font-size:11.5px}

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-fxLu/NOYufVF1lvP9SWHe7N74D2m60j+hv/VM2L1uQU=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-slzWmXZLVdNfBnXg1kH/Lgq3DgHVJnWQlb370YY4+p4=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -4983,7 +4983,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202610301009"><script>
+</style><link rel="stylesheet" href="/theme-hu.css?v=202610301030"><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
   brand:      "بلكون",
@@ -9575,7 +9575,7 @@ function serviceJoinPage(){
   if(!USER) return gate();
   if(SVMINE===undefined){ loadMyService().then(render); return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>' }
   if(SVC===null) loadServices().then(render);
-  var m=SVMINE||{}, f=SVFORM||(SVFORM={name:m.name||"",contact_person:m.contact_person||fullName(USER)||"",phone:m.phone||USER.phone||"",whatsapp:m.whatsapp||USER.phone||"",description:m.description||"",cats:(m.cats||[]).slice(),gov_names:(m.gov_names||[]).slice(),area_names:(m.area_names||[]).join("، ")});
+  var m=SVMINE||{}, f=SVFORM||(SVFORM={name:m.name||"",contact_person:m.contact_person||fullName(USER)||"",phone:m.phone||USER.phone||"",whatsapp:m.whatsapp||USER.phone||"",description:m.description||"",cats:(m.cats||[]).slice(),gov_names:(m.gov_names||[]).slice(),area_names:(m.area_names||[]).join("، "),logo_url:m.logo_url||"",photos:Array.isArray(m.photos)?m.photos.slice():[]});
   var cats=(SVC&&SVC.cats)||[], fl=function(id,label,val,type,ph){ return '<div class="fl"><label for="'+id+'">'+label+'</label><input id="'+id+'" data-svf="'+id.slice(3)+'" type="'+(type||"text")+'"'+(type==="tel"?' dir="ltr"':'')+' value="'+esc(val||"")+'"'+(ph?' placeholder="'+esc(ph)+'"':'')+'></div>' };
   var st=m.status?'<div class="svc-status">'+GX("svcStatus")+' '+agStatusPill(m.status)+'</div>':'';
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a href="/services" data-go="services">'+GX("svcNav")+'</a><i>›</i>'+GX("svcJoin")+'</div></div>'+
@@ -9586,8 +9586,12 @@ function serviceJoinPage(){
       '<div class="fl"><label>'+GX("svcFCats")+'</label><div class="svc-pick">'+cats.map(function(c){ return '<button type="button" class="'+(f.cats.indexOf(c.slug)>-1?"on":"")+'" data-svpick="cats" data-v="'+esc(c.slug)+'">'+esc(L==="ar"?c.name_ar:(c.name_en||c.name_ar))+'</button>' }).join("")+'</div></div>'+
       '<div class="fl"><label>'+GX("svcFGovs")+'</label><div class="svc-pick">'+Object.keys(D.GEO).map(function(g){ return '<button type="button" class="'+(f.gov_names.indexOf(g)>-1?"on":"")+'" data-svpick="gov_names" data-v="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
       fl("svfarea_names",GX("svcFAreas"),f.area_names,"text",GX("svcFAreasPH"))+
+      '<div class="fl"><label>'+GX("svcFLogo")+'</label><div class="svc-up"><span class="svc-logo">'+(f.logo_url?'<img src="'+esc(safeUrl(String(f.logo_url)))+'" alt="">':avatar(null,f.name||"?",56,"aglogo"))+'</span>'+
+        '<label class="btn-n svc-upbtn">'+GX(f.logo_url?"svcChange":"svcAddLogo")+'<input type="file" accept="image/*" id="svLogoFile" hidden></label></div></div>'+
+      '<div class="fl"><label>'+GX("svcFPhotos")+'</label><div class="svc-up svc-ups">'+(f.photos||[]).map(function(u,i){ return '<span class="svc-ph"><img src="'+esc(safeUrl(String(u)))+'" alt=""><button type="button" data-svphdel="'+i+'" aria-label="×">×</button></span>' }).join("")+
+        ((f.photos||[]).length<8?'<label class="svc-phadd">+<span>'+GX("svcAddPhoto")+'</span><input type="file" accept="image/*" multiple id="svPhotoFile" hidden></label>':'')+'</div><span class="xmsg" id="svUpMsg"></span></div>'+
       '<div class="fl"><label for="svfdescription">'+GX("svcFDesc")+'</label><textarea id="svfdescription" data-svf="description" rows="5" maxlength="1500" placeholder="'+esc(GX("svcFDescPH"))+'">'+esc(f.description)+'</textarea></div>'+
-      '<div class="hintx">'+GX("svcFHint")+'</div>'+
+      '<div class="hintx">'+GX("svcFHint2")+'</div>'+
       '<div class="xactions"><button type="button" class="gold" id="svSave">'+GX(m.id?"svcSaveEdit":"svcSend")+'</button><span class="xmsg" id="svMsg"></span></div>'+
     '</div></div></div>' }
 function wireServices(){
@@ -9609,11 +9613,19 @@ function wireServices(){
   }
   if(VIEW==="servicejoin"&&SVFORM){
     $$("[data-svf]").forEach(function(i){ i.oninput=function(){ SVFORM[this.dataset.svf]=this.value } });
+    var svUp=async function(file,big){ var raw=await readFile(file), img=await shrink(raw,big?1600:600,big?0.85:0.85), path="avatars/"+USER.id+"-svc-"+Date.now()+"-"+Math.random().toString(36).slice(2,7)+".jpg";
+      var up=await storageUpload(path,img,{contentType:"image/jpeg"}); if(up.error) throw new Error(up.error.message); return DB.storage.from("photos").getPublicUrl(path).data.publicUrl };
+    var upMsg=function(t2,bad){ var m=$("#svUpMsg"); if(m){ m.style.color=bad?"var(--danger)":"var(--grey)"; m.textContent=t2 } };
+    if($("#svLogoFile")) $("#svLogoFile").onchange=async function(){ var f=(this.files||[])[0]; this.value=""; if(!f||!/^image\//.test(f.type)) return; upMsg(t("uploading"));
+      try{ SVFORM.logo_url=await svUp(f,false); render() }catch(e){ upMsg(e.message||"error",true) } };
+    if($("#svPhotoFile")) $("#svPhotoFile").onchange=async function(){ var fs=[].slice.call(this.files||[]).filter(function(f){ return /^image\//.test(f.type) }); this.value=""; if(!fs.length) return; upMsg(t("uploading"));
+      try{ for(var i=0;i<fs.length&&SVFORM.photos.length<8;i++){ SVFORM.photos.push(await svUp(fs[i],true)) } render() }catch(e){ upMsg(e.message||"error",true) } };
+    $$("[data-svphdel]").forEach(function(b){ b.onclick=function(){ SVFORM.photos.splice(+this.dataset.svphdel,1); render() } });
     $$("[data-svpick]").forEach(function(b){ b.onclick=function(){ var k=this.dataset.svpick, v=this.dataset.v, a=SVFORM[k], i=a.indexOf(v); if(i>-1) a.splice(i,1); else a.push(v); this.classList.toggle("on",i<0) } });
     if($("#svSave")) $("#svSave").onclick=async function(){ var btn=this, m=$("#svMsg"), f=SVFORM;
       var data={name:f.name,contact_person:f.contact_person,phone:f.phone,whatsapp:f.whatsapp,description:f.description,cats:f.cats,gov_names:f.gov_names,
         area_names:String(f.area_names||"").split(/[،,]/).map(function(x){ return x.trim() }).filter(Boolean).slice(0,30),country:COUNTRY,
-        logo_url:(SVMINE&&SVMINE.logo_url)||null,photos:(SVMINE&&SVMINE.photos)||[]};
+        logo_url:f.logo_url||null,photos:f.photos||[]};
       if(!String(data.name).trim()){ m.textContent=GX("svcErr_noname"); return } if(!data.cats.length){ m.textContent=GX("svcErr_nocat"); return }
       if(!String(data.phone).trim()&&!String(data.whatsapp).trim()){ m.textContent=GX("svcErr_nophone"); return }
       btn.disabled=true; m.textContent=t("saving");
@@ -15149,6 +15161,9 @@ var GX_T={
   svcEmpty:{ar:"لا يوجد مزوّدو خدمات بعد.",en:"No providers yet.",de:"Noch keine Anbieter."}, svcEmptyF:{ar:"لا يوجد مزوّد بهذا البحث بعد.",en:"Nobody matches this yet.",de:"Noch kein Treffer."},
   svcEmptyCta:{ar:"تعمل في إحدى هذه المهن؟ سجّل خدمتك ليجدك الناس.",en:"Working in one of these trades? List your service.",de:"Tragen Sie Ihren Dienst ein."},
   svcFeatured:{ar:"مميز",en:"Featured",de:"Hervorgehoben"}, svcVerified:{ar:"موثّق",en:"Verified",de:"Verifiziert"},
+  svcFLogo:{ar:"شعار عملك أو صورتك",en:"Your logo or photo",de:"Logo oder Foto"}, svcAddLogo:{ar:"أضف صورة",en:"Add a photo",de:"Foto hinzufügen"}, svcChange:{ar:"تغيير",en:"Change",de:"Ändern"},
+  svcFPhotos:{ar:"صور من أعمالك (حتى 8)",en:"Photos of your work (up to 8)",de:"Fotos Ihrer Arbeit (bis 8)"}, svcAddPhoto:{ar:"أضف صوراً",en:"Add photos",de:"Fotos"},
+  svcFHint2:{ar:"رقمك يظهر للزوار ليتواصلوا معك. الصور الحقيقية من أعمالك تجعل الناس يثقون بك أكثر.",en:"Your number is shown so people can reach you. Real photos of your work build trust.",de:"Echte Fotos schaffen Vertrauen."},
   svcReviewsH:{ar:"تقييمات العملاء",en:"Reviews",de:"Bewertungen"}, svcNoReviews:{ar:"لا توجد تقييمات بعد. تعاملت معه؟ قيّمه ليستفيد غيرك.",en:"No reviews yet.",de:"Noch keine Bewertungen."},
   svcRateT:{ar:"قيّم تجربتك معه",en:"Rate your experience",de:"Bewerten"}, svcRateEdit:{ar:"تقييمك (تستطيع تعديله)",en:"Your review (you can change it)",de:"Ihre Bewertung"},
   svcRatePH:{ar:"كيف كان العمل والالتزام بالمواعيد والسعر؟ (اختياري)",en:"How were the work, timing and price? (optional)",de:"Wie war die Arbeit? (optional)"},
