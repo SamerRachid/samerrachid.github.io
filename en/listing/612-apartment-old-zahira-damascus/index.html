@@ -1,9 +1,65 @@
-<!DOCTYPE html><html lang="en" dir="ltr"><head><meta charset="UTF-8">
+<!DOCTYPE html><html lang="en" dir="ltr"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-p1xe7JdjkmwIWg3qKM8gQSm/MTYpPyY5uSu49QvRaAM=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+(function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
+  window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
+  window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
+  // the app has not drawn after 12 s although the script ran: that is a failure too (a network or data step that never returned)
+  setTimeout(function(){ var a=document.getElementById("app"); if(a && a.querySelector("#seoHome")) rep("app not rendered after 12s", null, null, null) },12000);
+})();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14213D">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="بلكون"><meta name="mobile-web-app-capable" content="yes">
+<link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="/brand/favicon-32.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/brand/apple-touch-icon.png">
+<!--
+ ═══════════════════════════════════════════════════════════════════════
+  بلكون — BALKOUN
+  عقارات سوريا · Syrian property · Syrische Immobilien
+ ═══════════════════════════════════════════════════════════════════════
+
+  دليل التعديل · HOW TO EDIT THIS FILE
+  كل شي بدك تعدّله موجود بأول الملف بخمس كتل واضحة.
+  Everything you'll want to change sits in five clearly marked blocks.
+
+   BLOCK 1  ── الإعدادات · SETTINGS
+              رقم واتساب، سعر الصرف، الاسم.  WhatsApp number, exchange rate, brand.
+
+   BLOCK 2  ── الألوان والخطوط · THEME
+              كل الألوان بمكان واحد (:root).  Every colour in one place.
+
+   BLOCK 3  ── الإعلانات · LISTINGS
+              انسخ إعلان وعدّل عليه.  Copy one entry and edit it.
+
+   BLOCK 4  ── المناطق · PLACES
+              ٦٥٧ منطقة. زيد أو احذف بحرية.  657 areas — add or remove freely.
+
+   BLOCK 5  ── الترجمات · WORDS
+              عربي / English / Deutsch.  Add a language by copying one object.
+
+  ما تحت هالخمسة هو محرّك الموقع — نادراً بتحتاج تلمسه.
+  Below those five is the engine — you rarely need to touch it.
+
+  للنشر الحقيقي: هالملف صفحة وحدة. وقت تبني الباك إند، كل view
+  (home / search / listing / post) بينفصل لصفحة برابط مستقل.
+  For production: split each view into its own URL. The code is
+  already organised that way.
+ ═══════════════════════════════════════════════════════════════════════
+-->
+<link rel="preconnect" href="https://coajrqynjrptujmzjjdh.supabase.co" crossorigin><link rel="dns-prefetch" href="https://coajrqynjrptujmzjjdh.supabase.co"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- no font `rel=preload`: Google Fonts rotates the exact file hash behind this CSS, and a stale hardcoded
+     preload href downloads a file nothing uses AND the real one the CSS below points to — confirmed live: none
+     of the 3 previously hardcoded URLs appear in Google's current CSS response at all. preconnect above already
+     warms the connection; the stylesheet itself is the only accurate source of which files are actually needed. -->
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700&family=Zain:wght@300;400;700;800&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
+<script src="/vendor/supabase-2.114.0.es2017.min.js" integrity="sha384-H9XQgeFDejz7cF0dTyKEueeMcuAM2KvDuI9fGCYNLMagHsKcvzSim+StmCzQiFUY"></script>
+<script src="/vendor/morphdom-2.7.4.min.js" integrity="sha384-1Kpyy6fJtxPI22Yq5Lt3SzKVMJDfDDChb4HFf0stEn8pNSz3e9Mvgfjv5hrqsT1U"></script>
+<!-- Leaflet (maps) is loaded on demand by ensureLeaflet() the first time a map is shown,
+     instead of on every page view — see the map initializers in the script below. -->
+<!--seo-head-->
 <title>Apartment for sale, 100 m² in Old Zahira, Damascus (SY10579), Syria | Balkoun</title>
 <meta name="description" content="Apartment for sale in Old Zahira, Damascus, 100 m², 3 rooms, $160,000.">
 <meta name="robots" content="index, follow">
-<meta name="theme-color" content="#14213D">
 <link rel="canonical" href="https://balkoun.com/en/listing/612-apartment-old-zahira-damascus/">
 <link rel="alternate" hreflang="ar" href="https://balkoun.com/listing/612-شقة-الزاهرة-القديمة-دمشق/">
 <link rel="alternate" hreflang="en" href="https://balkoun.com/en/listing/612-apartment-old-zahira-damascus/">
@@ -14,101 +70,21 @@
 <meta property="og:title" content="Apartment for sale, 100 m² in Old Zahira, Damascus (SY10579), Syria | Balkoun">
 <meta property="og:description" content="Apartment for sale in Old Zahira, Damascus, 100 m², 3 rooms, $160,000.">
 <meta property="og:url" content="https://balkoun.com/en/listing/612-apartment-old-zahira-damascus/">
-<meta property="og:image" content="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/612/og-share.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image" content="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/612/og-share.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:locale" content="en_US">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Apartment for sale, 100 m² in Old Zahira, Damascus (SY10579), Syria | Balkoun">
 <meta name="twitter:description" content="Apartment for sale in Old Zahira, Damascus, 100 m², 3 rooms, $160,000.">
 <meta name="twitter:image" content="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/612/og-share.png">
-<link rel="icon" type="image/svg+xml" href="https://balkoun.com/brand/favicon.svg"><link rel="apple-touch-icon" href="https://balkoun.com/brand/apple-touch-icon.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"RealEstateListing","name":"Apartment for sale, 100 m² in Old Zahira, Damascus (SY10579), Syria | Balkoun","description":"#للبيع بيت بالميدان – الزاهرة القديمة، مقابل المركز الثقافي، على الشارع مباشرة\n🏢 الطابق السادس وليس الأخير، مع مصعد يعمل على الطاقة الشمسية 24 ساعة\n📐 المساحة 100 متر\n🛏️ 3 غرف وصوفا بتصير غرفة جلوس أو غرفة سفرة\n🌿 برندا شمالية غربية مطلّة على الحديقة الخلفية\n✨ الكسوة جيدة جداً🚪 المنافع معزولة عن الغرف بكوريدور🏠 سقايف فوق المنافع\n🔒 حماية حديد للشبابيك❄️ مكيفان\n💧 حنفية ماء بير داخل المنزل على مدار 24 ساعة\n🔥 طاقة مدخنة بالصوفا وطاقة مدخنة بالحمام\n☀️ طاقة شمسية لتسخين المياه فقط، وليست للكهرباء\n♨️ تمديدات شوفاج\n🛗 مصعد يعمل على الطاقة الشمسية 24 ساعة\n👨‍🔧 ناطور لخدمات البناء\n🏢 دكاكين وأقبية مشتركة مؤجّرة، يعود ريعها لصيانة البناء والمصعد والبير بشكل دوري\n💰 السعر المطلوب: 160 ألف دولار\nللتواصل ⤵⤵⤵","url":"https://balkoun.com/en/listing/612-apartment-old-zahira-damascus/","inLanguage":"en","datePosted":"2026-10-25T09:24:49.588859+00:00","identifier":"BK-612","image":["https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/612/1792916881522-1-gk7ku.jpg"],"offers":{"@type":"Offer","price":160000,"priceCurrency":"USD","availability":"https://schema.org/InStock","url":"https://balkoun.com/en/listing/612-apartment-old-zahira-damascus/"},"address":{"@type":"PostalAddress","addressLocality":"Old Zahira","addressRegion":"Damascus","addressCountry":"SY"},"floorSize":{"@type":"QuantitativeValue","value":100,"unitCode":"MTK"},"numberOfRooms":3}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://balkoun.com/?lang=en"},{"@type":"ListItem","position":2,"name":"for sale in Damascus","item":"https://balkoun.com/en/for-sale/damascus/"},{"@type":"ListItem","position":3,"name":"Old Zahira","item":"https://balkoun.com/en/for-sale/damascus/old-zahira/"}]}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
-<style>
-:root{--navy:#14213D;--navy-2:#0D1729;--navy-w:#EEF1F7;--gold:#C4881F;--gold-w:#FDF5E7;
---ink:#22252A;--grey:#6B7280;--light:#9CA3AF;--line:#E4E4E7;--page:#F6F6F7;--card:#FFF;
---ok:#2E7D5B;--ok-w:#EAF5EF;--f:'Noto Kufi Arabic','Lato',system-ui,sans-serif;
---sh:0 1px 2px rgba(20,33,61,.06);--sh2:0 2px 8px rgba(20,33,61,.10)}
-html[lang=en],html[lang=de]{--f:'Lato','Noto Kufi Arabic',system-ui,sans-serif}
-*{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%}
-body{background:var(--page);color:var(--ink);font-family:var(--f);font-size:15px;line-height:1.8;-webkit-font-smoothing:antialiased;overflow-x:hidden;padding-bottom:132px}
-a{color:inherit;text-decoration:none}
-img{display:block;max-width:100%}
-:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
-.ltr{direction:ltr;display:inline-block;font-variant-numeric:tabular-nums;unicode-bidi:isolate}
-.wrap{max-width:1080px;margin:0 auto;padding-inline:16px}
-.top{background:var(--navy);color:#fff}
-.top .wrap{display:flex;align-items:center;justify-content:space-between;height:56px;direction:ltr;gap:12px}
-.logo{display:inline-flex;align-items:center;gap:6px;color:#CFC4AE;flex-direction:row-reverse;margin-left:auto}
-.logo svg{width:34px;height:34px}.logo .w{display:flex;flex-direction:column;align-items:flex-end;line-height:1}.logo .w b{font:800 20px/1 'Noto Kufi Arabic',sans-serif}.logo .w small{font:700 8.5px 'Lato',sans-serif;letter-spacing:.34em;color:#9DB0CC;margin-top:3px}
-.top nav{display:flex;gap:14px}.top nav a{font-size:14.5px;color:rgba(255,255,255,.86);font-weight:600}
-.top nav a:hover{color:var(--gold)}
-.langs{display:flex;gap:6px;font-size:12px}.langs a{padding:3px 8px;border-radius:999px;border:1px solid rgba(255,255,255,.22);color:rgba(255,255,255,.8);font-weight:600}.langs a.on{background:rgba(255,255,255,.14);color:#fff}
-.main{padding-top:16px;display:grid;gap:16px;grid-template-columns:1fr}
-.col{display:grid;gap:16px;align-content:start}
-.hero{display:block;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:var(--navy-2);box-shadow:var(--sh)}
-.hero img{width:100%;height:100%;object-fit:cover}
-.hero.ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:rgba(255,255,255,.85)}
-.hero.ph img{width:40%;max-width:260px;height:auto;object-fit:contain}
-.thumbs{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:8px}
-.thumbs a{display:block;aspect-ratio:4/3;border-radius:8px;overflow:hidden;background:var(--navy-w)}
-.thumbs img{width:100%;height:100%;object-fit:cover}
-.lvid{display:block;width:100%;max-height:440px;margin-top:10px;border-radius:12px;background:#000}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh);padding:18px}
-.card h2{font-size:17px;font-weight:700;color:var(--navy);margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
-.card h2::before{content:"";width:4px;height:18px;border-radius:4px;background:var(--gold)}
-h1{font-size:22px;line-height:1.45;font-weight:800;color:var(--navy)}
-.place{color:var(--grey);font-size:14.5px;margin-top:2px}
-.pricerow{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px;margin-top:10px}
-.price{font-size:32px;font-weight:800;color:var(--gold);line-height:1.2;letter-spacing:-.5px}
-.price small{font-size:15px;font-weight:600;color:var(--grey);letter-spacing:0}
-.deal{font-size:15px;font-weight:700;color:var(--navy);background:var(--navy-w);padding:3px 12px;border-radius:4px}
-.neg{font-size:13.5px;color:var(--grey)}
-.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.pill{display:inline-flex;align-items:center;font-size:13.5px;font-weight:600;padding:4px 12px;border-radius:4px;background:var(--navy-w);color:var(--navy);line-height:1.6}
-.pill.ok{background:var(--ok-w);color:var(--ok)}.pill.grey{background:#F0F0F2;color:var(--grey)}.pill.gold{background:var(--gold-w);color:#8A6522}.pill.muted{background:transparent;color:var(--light);border:1px solid var(--line);font-weight:500}
-.facts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.fact{background:var(--page);border:1px solid var(--line);border-radius:8px;padding:10px 12px;min-width:0}
-.fact .fl{display:block;font-size:13px;color:var(--grey);line-height:1.5}
-.fact .fv{display:block;font-size:16px;font-weight:700;color:var(--ink);line-height:1.5;overflow-wrap:anywhere}
-.desc{font-size:15.5px;line-height:1.9;overflow-wrap:anywhere}.desc.ar{direction:rtl;text-align:right;font-family:'Noto Kufi Arabic',sans-serif}.descnote{font-size:12.5px;color:var(--light);margin-bottom:6px}
-.amen{display:flex;flex-wrap:wrap;gap:8px}
-.amen span{background:var(--navy-w);color:var(--navy);font-size:14px;font-weight:600;padding:5px 12px;border-radius:4px}
-.loc p{margin-bottom:6px}.loc .lm{color:var(--grey);font-size:14.5px}
-.maplink{display:inline-flex;align-items:center;gap:6px;margin-top:8px;font-size:14.5px;font-weight:700;color:var(--navy);background:var(--navy-w);padding:8px 14px;border-radius:8px}
-.maplink:hover{background:#E2E7F1}
-.contact .who{font-size:14.5px;color:var(--grey);margin-bottom:12px}.contact .who b{color:var(--ink);font-weight:700}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 14px;border-radius:8px;font-weight:700;font-size:15.5px;color:#fff;background:var(--navy);text-align:center;line-height:1.4}
-.btn.wa{background:var(--ok)}.btn:hover{filter:brightness(1.08)}.btns.one{grid-template-columns:1fr}
-.open{display:block;text-align:center;margin-top:12px;font-size:14.5px;font-weight:600;color:var(--navy);text-decoration:underline;text-underline-offset:3px}
-.open:hover{color:var(--gold)}
-.crumb{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center;font-size:13.5px;color:var(--grey);padding-top:14px}.crumb a{color:var(--navy);font-weight:600}.crumb a:hover{color:var(--gold)}.crumb i{font-style:normal;color:var(--light)}
-.sum{margin-top:12px;font-size:15px;line-height:1.9;color:var(--ink)}
-.mkt p{margin-bottom:8px;font-size:15px;line-height:1.9}.mkt .mnote{font-size:12.5px;color:var(--light)}.mlinks{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}.mlinks .maplink{margin-top:0}
-.sims{list-style:none;display:grid;gap:8px}.sims a{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--page)}.sims a:hover{border-color:var(--gold)}
-.sims b{font-size:14.5px;color:var(--navy)}.sims span{grid-column:1;font-size:13px;color:var(--grey)}.sims em{grid-row:1/3;grid-column:2;align-self:center;font-style:normal;font-weight:800;color:var(--gold)}
-footer{background:var(--navy-2);color:rgba(255,255,255,.8);margin-top:28px;padding:26px 0;font-size:14px}
-footer .wrap{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;justify-content:space-between}
-footer .brand{font-weight:700;color:var(--gold);font-size:16px}
-footer nav{display:flex;gap:18px}footer nav a:hover{color:var(--gold)}
-footer .note{width:100%;color:rgba(255,255,255,.5);font-size:13px}
-@media(max-width:899px){
-  .contact{position:fixed;bottom:0;left:0;right:0;z-index:10;border-radius:12px 12px 0 0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -4px 16px rgba(20,33,61,.12)}
-  .contact h2,.contact .who{display:none}.btn{padding:12px 10px}.open{margin-top:8px;font-size:14px}.thumbs{grid-template-columns:repeat(3,1fr)}
-}
-@media(min-width:720px){.facts{grid-template-columns:repeat(4,1fr)}h1{font-size:26px}.price{font-size:36px}}
-@media(min-width:900px){body{padding-bottom:0}.main{grid-template-columns:minmax(0,1fr) 340px;align-items:start;padding-top:22px;gap:22px}.side{position:sticky;top:22px}.thumbs{grid-template-columns:repeat(6,1fr)}}
-</style></head><body>
-<header class="top"><div class="wrap">
-  <nav><a href="https://balkoun.com/?lang=en">Home</a><a href="https://balkoun.com/search?lang=en">All listings</a></nav>
-  <nav class="langs" aria-label="Languages"><a href="https://balkoun.com/listing/612-شقة-الزاهرة-القديمة-دمشق/" hreflang="ar" class="">عربي</a><a href="https://balkoun.com/en/listing/612-apartment-old-zahira-damascus/" hreflang="en" class="on">EN</a><a href="https://balkoun.com/de/listing/612-apartment-old-zahira-damascus/" hreflang="de" class="">DE</a></nav>
-  <a class="logo" href="https://balkoun.com/?lang=en" aria-label="Balkoun"><svg viewBox="0 0 100 100" aria-hidden="true"><rect x="19" y="19" width="62" height="62" fill="none" stroke="currentColor" stroke-width="7"/><path d="M50 5 95 50 50 95 5 50Z" fill="none" stroke="#C4881F" stroke-width="9"/><rect x="42.5" y="42.5" width="15" height="15" fill="currentColor"/></svg><span class="w"><b>بلكون</b><small>BALKOUN</small></span></a>
-</div></header>
-
-<div class="wrap"><nav class="crumb"><a href="https://balkoun.com/?lang=en">Home</a><i>›</i><a href="https://balkoun.com/en/for-sale/damascus/">for sale in Damascus</a><i>›</i><a href="https://balkoun.com/en/for-sale/damascus/old-zahira/">Old Zahira</a></nav></div>
+<!--/seo-head-->
+<meta name="bk-route" content="{&quot;path&quot;:&quot;/en/listing/612-apartment-old-zahira-damascus/&quot;,&quot;lang&quot;:&quot;en&quot;}"><!--bk-shell-->
+<body>
+<div id="bootSplash" aria-hidden="true"><img src="/brand/logo-light.png" alt="" width="150" height="43"></div>
+<div id="app" role="main"><!--seo-page--><div class="wrap"><nav class="crumb"><a href="https://balkoun.com/?lang=en">Home</a><i>›</i><a href="https://balkoun.com/en/for-sale/damascus/">for sale in Damascus</a><i>›</i><a href="https://balkoun.com/en/for-sale/damascus/old-zahira/">Old Zahira</a></nav></div>
 <main class="wrap main">
 <div class="col">
   <section><a class="hero" href="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/612/1792916881522-1-gk7ku.jpg" target="_blank" rel="noopener"><img src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/612/1792916881522-1-gk7ku.jpg" alt="Apartment for sale, 100 m² in Old Zahira, Damascus (SY10579), Syria | Balkoun" width="1080" height="608" fetchpriority="high"></a></section>
@@ -133,10 +109,5 @@ footer .note{width:100%;color:rgba(255,255,255,.5);font-size:13px}
     <a class="open" href="https://balkoun.com/listing/612?lang=en">Open the full listing in the app</a>
   </section>
 </aside>
-</main>
-<footer><div class="wrap">
-  <span class="brand">Balkoun — real estate in Syria, direct from owners</span>
-  <nav><a href="https://balkoun.com/en/about/">About</a><a href="https://balkoun.com/en/contactus/">Contact</a></nav>
-  <span class="note">Listing pages are generated automatically from the Balkoun database. Reference <span class="ltr">BK-612</span>.</span>
-</div></footer>
-</body></html>
+</main><!--/seo-page--></div>
+<link rel="stylesheet" href="/bundle/app.26e575e67a.css"><link rel="stylesheet" href="/theme-hu.css?v=202610302149"><script src="/bundle/app.26e575e67a.js"></script></body></html>

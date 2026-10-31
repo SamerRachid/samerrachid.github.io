@@ -48,11 +48,14 @@ jobs:
       - name: Real 200 pages for the app routes (/search, /wanted, /agencies, /projects, /mapsearch)
         run: node scripts/generate-routes.mjs
 
+      - name: The static pages open in the app (listing, for-sale/rent, agency, guides, en/de) — app CSS/JS once under /bundle/
+        run: node scripts/static-shell.mjs
+
       - name: Commit and push if anything changed
         run: |
           git config user.name "balkoun-bot"
           git config user.email "actions@github.com"
-          git add index.html listing agency for-sale for-rent areas about contactus privacy terms guides en de search mapsearch wanted agencies projects app help sitemap.xml 404.html
+          git add index.html listing agency for-sale for-rent areas about contactus privacy terms guides en de search mapsearch wanted agencies projects app help services promote sitemap.xml 404.html bundle
           # other countries live under two-letter folders (/lb/, /jo/ …); -A also stages a tree removed when a country is switched off
           git add -A -- ':(glob)[a-z][a-z]/**' || true
           git diff --cached --quiet || git commit -m "Rebuild static pages [auto]"

@@ -1635,3 +1635,28 @@ html body .lpage>.lgrid,html body .lpage .lgal,html body .lpage .lgal .lg-side{m
   html body .lpage .lgal .lg-main.onvid~.lg-all{inset-inline-end:60px!important}
   html body .lpage .lgal .lg-main.onvid .gcount{top:12px!important;bottom:auto!important}
 }
+/* ===== a guide opened from its own address (/guides/…, scripts/static-shell.mjs, 2026-10-31): its generated text inside the
+   app's frame, in the site's dark theme (the old pages had their own cream design) ===== */
+html body .stpage{max-width:860px;margin:0 auto;padding-top:28px;padding-bottom:70px;color:#E6EAF2;font-size:16px;line-height:1.9}
+html body .stpage main.wrap{max-width:none;padding:0;margin:0}
+html body .stpage .crumbs{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13.5px;color:var(--muted);margin-bottom:18px}
+html body .stpage .crumbs a{color:var(--muted);text-decoration:none}html body .stpage .crumbs a:hover{color:#fff}
+html body .stpage h1{font-family:"Reem Kufi",var(--f);font-weight:700;font-size:34px;line-height:1.35;color:#fff;margin:0 0 12px}
+html body .stpage h2{color:var(--gold);font-size:22px;line-height:1.5;font-weight:600;margin:34px 0 10px}
+html body .stpage p{margin:0 0 14px}
+html body .stpage .lede{font-size:18px;color:#fff}
+html body .stpage .meta,html body .stpage .disc{font-size:13.5px;color:var(--muted)}
+html body .stpage a{color:var(--gold)}
+html body .stpage ul,html body .stpage ol{padding-inline-start:22px;margin:0 0 14px}
+html body .stpage li{margin-bottom:6px}
+html body .stpage .k{background:var(--navy);border-radius:12px;padding:16px 20px;margin:18px 0;border-inline-start:3px solid var(--gold)}
+html body .stpage .faq details{background:var(--navy);border-radius:10px;padding:12px 16px;margin-bottom:10px}
+html body .stpage .faq summary{cursor:pointer;font-weight:600;color:#fff}
+html body .stpage .cta{display:flex;flex-wrap:wrap;gap:10px;margin:26px 0}
+html body .stpage .cta a,html body .stpage a.gold{display:inline-flex;align-items:center;height:44px;padding:0 20px;border-radius:8px;background:var(--gold);color:var(--navy);font-weight:700;text-decoration:none}
+html body .stpage .morelist{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+html body .stpage .chip{display:inline-flex;align-items:center;padding:8px 14px;border-radius:20px;border:1px solid var(--line);color:#fff;text-decoration:none;font-size:14px}
+html body .stpage .chip:hover{border-color:var(--gold)}
+@media (max-width:640px){ html body .stpage{padding-top:16px;font-size:15.5px} html body .stpage h1{font-size:26px} html body .stpage h2{font-size:19px} }
+html body .stpage .chip{white-space:normal;max-width:100%;line-height:1.5;padding-block:7px}
+html body .stpage,html body .stpage *{overflow-wrap:anywhere}

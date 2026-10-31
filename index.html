@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-+yXhb2V73kG6HbcTCjzgsy6EveNZsUclMwj56iFhVx4=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-p1xe7JdjkmwIWg3qKM8gQSm/MTYpPyY5uSu49QvRaAM=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -4991,7 +4991,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202610301943"><script>
+</style><link rel="stylesheet" href="/theme-hu.css?v=202610302149"><script>
 /* ═══ BLOCK 1 ── SETTINGS · الإعدادات ═══════════════════════════ */
 var CONFIG = {
   brand:      "بلكون",
@@ -5238,7 +5238,12 @@ var D = {"I18N": {"ar": {"dir": "rtl", "name": "عربي", "buy": "شراء", "r
     D.I18N  = BLOCK 5 · words       D.TYPES / D.TABU / D.COND = labels  */
 
 /* ═══ ENGINE ── محرّك الموقع (rarely edited) ════════════════════ */
+// a static page turned into the app (scripts/static-shell.mjs, 2026-10-31): <meta name="bk-route"> names its language and, for
+// /for-sale/<gov>/<area>/, the deal / governorate / area; its own text sits in #app between <!--seo-page--> markers (guides show it)
+var BK_SHELL=(function(){ try{ var m=document.querySelector('meta[name="bk-route"]'); if(!m) return null; var o=JSON.parse(m.getAttribute("content")||"{}")||{};
+  var a=document.getElementById("app"), h=a?a.innerHTML.match(/<!--seo-page-->([\s\S]*?)<!--\/seo-page-->/):null; o.html=h?h[1]:""; return o }catch(e){ return null } })();
 function detectLang(){
+  if(BK_SHELL && BK_SHELL.lang && D.I18N[BK_SHELL.lang]) return BK_SHELL.lang;   // /en/…, /de/… pages open in their language
   try{
     var m=location.search.match(/[?&]lang=(ar|en|de|fr)(?![a-z])/); if(m){ try{ localStorage.setItem("balkoun_lang",m[1]) }catch(e){} return m[1] }
   }catch(e){}
@@ -12570,6 +12575,12 @@ function applyFilterFromQuery(qs){
   if(params.page) F.page=parseInt(params.page,10)||1;
 }
 function syncHash(){
+  if(BK_SHELL){ var q0=function(sel,at){ var e=document.querySelector(sel); return e?e.getAttribute(at):null };
+    if(!BK_SHELL.v0){ BK_SHELL.v0=VIEW; BK_SHELL.rp0=routePath(); BK_SHELL.m0={t:document.title,d:q0('meta[name="description"]',"content"),ot:q0('meta[property="og:title"]',"content"),od:q0('meta[property="og:description"]',"content"),ou:q0('meta[property="og:url"]',"content"),c:q0('link[rel="canonical"]',"href")} }
+    if(VIEW===BK_SHELL.v0 && routePath()===BK_SHELL.rp0){ _FIRST_HISTORY_SYNC=false;
+      if(BK_SHELL.left){ var m0=BK_SHELL.m0; document.title=m0.t; if(m0.d!=null) metaSet('meta[name="description"]',m0.d); if(m0.ot!=null) metaSet('meta[property="og:title"]',m0.ot); if(m0.od!=null) metaSet('meta[property="og:description"]',m0.od); if(m0.ou!=null) metaSet('meta[property="og:url"]',m0.ou); if(m0.c!=null) metaSet('link[rel="canonical"]',m0.c) }
+      return }
+    BK_SHELL.left=true }   // Back to the opened page puts its own title and head back
   // Real page addresses (multi-page structure): /search?…, /post, /about, /listing/123 …
   // GitHub Pages serves 404.html (a copy of this file) for any path, so deep links work.
   var h = routePath();
@@ -12624,6 +12635,7 @@ function routePathBase(){
          VIEW==="services" ? "/services"+(SVF.cat?"/"+SVF.cat:"")+(SVF.g?"?g="+encodeURIComponent(SVF.g):"") :
          VIEW==="servicejoin" ? "/services/join" :
          VIEW==="areas" ? "/regions" :
+         VIEW==="static" ? location.pathname :
          VIEW==="postmsg" ? "/post-by-message" :
          (VIEW==="about"||VIEW==="contactus"||VIEW==="privacy"||VIEW==="terms") ? "/"+VIEW+"/" :   // these also exist as static pages
          "/"+VIEW+(VIEW==="search"?filterToQuery():"");
@@ -12788,6 +12800,11 @@ function viewFromHash(){
   // Prefer the real path (/search?…); still understand old #/search links and convert them.
   var raw=(location.hash||"").replace(/^#\/?/,"");
   if(!raw) raw=location.pathname.replace(/^\/+/,"").replace(/\/+$/,"").replace(/^index\.html$/,"")+location.search;
+  if(BK_SHELL && BK_SHELL.view && !location.hash){ var shp=""; try{ shp=decodeURI(location.pathname) }catch(e){ shp=location.pathname }
+    if(shp===BK_SHELL.path || shp+"/"===BK_SHELL.path){
+      if(BK_SHELL.view==="search"){ F.deal=BK_SHELL.deal||""; F.govs=BK_SHELL.gov?[BK_SHELL.gov]:[]; F.g=""; F.areas=BK_SHELL.area?[BK_SHELL.area]:[]; F.a=""; F.page=1; return "search" }   // at load and on Back to this address
+      return BK_SHELL.view } }
+  raw=raw.replace(/^(en|de|fr)(\/|(?=\?)|$)/,"");
   raw=raw.replace(/^[a-z]{2}\/(?=(listing|seller|agency|project|wanted)\/[^\/?])/,"");   // an old /lb/listing/500 link: the item decides the country
   if(countryFromPath()) raw=raw.replace(/^[a-z]{2}(\/|(?=\?)|$)/,"");
   if(PREVIEW){ var pvv=(location.search.match(/[?&]view=([a-z]+)/)||[])[1]; if(pvv) raw=pvv }
@@ -12805,7 +12822,7 @@ function viewFromHash(){
   if(p[0]==="ad-report"&&p[1]) return "adreport:"+p[1];
   if(p[0]==="services"){ if(p[1]==="join") return "servicejoin"; if(p[1]&&/^\d+/.test(p[1])) return "service:"+p[1].match(/^\d+/)[0];
     if(typeof SVF!=="undefined"){ SVF.cat=p[1]&&/^[a-z][a-z0-9_]*$/.test(p[1])?p[1]:""; var gq=(qs.match(/[?&]g=([^&]+)/)||[])[1]; SVF.g=gq?decodeURIComponent(gq):"" } return "services" }
-  if(p[0]==="regions") return "areas";
+  if(p[0]==="regions"||p[0]==="areas") return "areas";
   if(p[0]==="post-by-message") return "postmsg";
   // balkoun.com/#/signup (posters, QR codes): the home page with the sign-up form already open
   if(p[0]==="signup"||p[0]==="join"){ if(typeof AU!=="undefined"&&!(typeof USER!=="undefined"&&USER&&USER.id)){ AU.open=true; AU.mode="up"; AU.step=1; setTimeout(function(){ try{ render() }catch(e){} },0) } return "home" }
@@ -12993,7 +13010,7 @@ function render(){
  if(VIEW!==_lastRenderedView){ _lastRenderedView=VIEW; refreshListingsOnNavigate(); }
  document.documentElement.lang=L; document.documentElement.dir=D.I18N[L].dir; document.documentElement.setAttribute("data-cc",COUNTRY||"SY");
  var body= VIEW==="home"?home(): VIEW==="search"?search(): VIEW==="post"?post():
-          VIEW==="edit"?editView(): VIEW==="about"?about(): VIEW==="privacy"?legalPage("privacy"): VIEW==="terms"?legalPage("terms"): VIEW==="areas"?areasView(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="postmsg"?postMsgPage(): VIEW==="promote"?promoPage(): VIEW==="services"?servicesPage(): VIEW==="servicejoin"?serviceJoinPage(): VIEW.indexOf("service:")===0?servicePage(VIEW.split(":")[1]): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW.indexOf("unsub:")===0?unsubPage(VIEW.split(":")[1]): VIEW.indexOf("adreport:")===0?adReportPage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): VIEW==="help"?helpPage(): VIEW==="app"?appPage(): listing(VIEW.split(":")[1]);
+          VIEW==="edit"?editView(): VIEW==="static"?staticPage(): VIEW==="about"?about(): VIEW==="privacy"?legalPage("privacy"): VIEW==="terms"?legalPage("terms"): VIEW==="areas"?areasView(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="postmsg"?postMsgPage(): VIEW==="promote"?promoPage(): VIEW==="services"?servicesPage(): VIEW==="servicejoin"?serviceJoinPage(): VIEW.indexOf("service:")===0?servicePage(VIEW.split(":")[1]): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW.indexOf("unsub:")===0?unsubPage(VIEW.split(":")[1]): VIEW.indexOf("adreport:")===0?adReportPage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): VIEW==="help"?helpPage(): VIEW==="app"?appPage(): listing(VIEW.split(":")[1]);
  document.body.classList.remove("mdw-open");
  (function(){ var html=header()+body+footer()+authModal()+reportModal()+inquiryModal(), app=$("#app");
    // the home page is re-rendered several times while data arrives (cache → listings → settings): patch the DOM in place so
@@ -15287,6 +15304,7 @@ function ppCurText(){ var names={USD:{ar:"بالدولار الأمريكي",en:
   var w=n?(n[L]||n.en):((L==="ar"?"بـ ":"in ")+CUR); return (L==="ar"?"المبلغ ":L==="de"?"Betrag ":L==="fr"?"Montant ":"Amount ")+w+' <b>('+esc(curLabel(CUR,L))+')</b>' }
 // the gallery's arrow icon: points right (toRight) or left — each arrow points to its own side of the photo
 function galChev(toRight){ return '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+(toRight?'M9 5l7 7-7 7':'M15 5l-7 7 7 7')+'"/></svg>' }
+function staticPage(){ return '<div class="wrap stpage" dir="'+(L==="ar"?"rtl":"ltr")+'">'+((BK_SHELL&&BK_SHELL.html)||"")+'</div>' }
 function heroPriceLabel(){
   // short numbers so a range fits in the box: $50k – $120k, 1.2M ل.س
   var rate=curRate(), cur=curLabel(CUR,"ar"), k=function(n){ return n>=1e6 ? (Math.round(n/1e5)/10).toString().replace(/\.0$/,"")+"M" : n>=1000 ? (Math.round(n/100)/10).toString().replace(/\.0$/,"")+"k" : String(n) };
@@ -15602,7 +15620,8 @@ window._scrollMem={}; window._scrollKey=function(){ return location.pathname+loc
 function scrollRestore(){ var y=window._scrollMem[_scrollKey()]||0, moved=false;
   var stop=function(){ moved=true }; ["wheel","touchstart","keydown"].forEach(function(ev){ window.addEventListener(ev,stop,{once:true,passive:true}) });
   [0,80,250,600,1200].forEach(function(ms){ setTimeout(function(){ if(!moved && Math.abs((window.scrollY||0)-y)>4) window.scrollTo(0,y) },ms) }) }
-window.onpopstate=window.onhashchange=function(){var v=viewFromHash(); if(v&&v!==VIEW&&!editLeaveOk()){ try{ history.pushState({bk:1,n:((history.state&&history.state.n)||0)+1},"",routePath()) }catch(e){} return } if(v&&v!==VIEW){VIEW=v;render();refreshListingsOnNavigate();scrollRestore()} else if(location.hash){ _FIRST_HISTORY_SYNC=true; syncHash() }};
+// Back / Forward between two searches (deal=rent → deal=sale): the filters come back from the address, so the results are redrawn too
+window.onpopstate=window.onhashchange=function(){var v=viewFromHash(); if(v&&v!==VIEW&&!editLeaveOk()){ try{ history.pushState({bk:1,n:((history.state&&history.state.n)||0)+1},"",routePath()) }catch(e){} return } if(v&&v!==VIEW){VIEW=v;render();refreshListingsOnNavigate();scrollRestore()} else if(v&&v==="search"&&!location.hash){ F.page=1; render() } else if(location.hash){ _FIRST_HISTORY_SYNC=true; syncHash() }};
 document.addEventListener("keydown",function(e){
   if(!LIGHTBOX_OPEN) return;
   if(e.key==="Escape"){ LIGHTBOX_OPEN=false; render() }
