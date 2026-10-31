@@ -411,7 +411,7 @@ ${withL.length ? `<div class="chips">${withL.map((a) => `<a class="chip" href="$
 ${listings.length ? `<div class="grid">${listings.map((l) => card(l, l.area_id ? avgByArea.get(l.area_id) : null, lang)).join("")}</div>` : `<div class="none"><h2>${esc(W.noneH(dw, gname))}</h2><p>${W.noneP}</p><a class="gold" href="${appUrl(lang, "post")}">${W.postFree}</a></div>`}
 <section class="sec"><h2>${esc(W.areasOf(gname))}</h2><p class="sub">${W.areasSub}</p>
 <ul class="areas">${areas.map((a) => a.count[deal] > 0 ? `<li><a href="${pageUrl(lang, `${d.slug}/${g.slug}/${a.slug}/`)}">${esc(areaName(a, lang))} <b>${ltr(a.count[deal])}</b></a></li>` : `<li>${esc(areaName(a, lang))}</li>`).join("")}</ul></section>`;
-  const ld = [c.ld, { "@context":"https://schema.org", "@type":"CollectionPage", name: title, description: desc, url, numberOfItems: listings.length, inLanguage: lang }];
+  const ld = [c.ld, { "@context":"https://schema.org", "@type":"CollectionPage", name: title, description: desc, url, mainEntity: { "@type": "ItemList", numberOfItems: listings.length }, inLanguage: lang }];
   return { url, html: shell({ lang, title: title + " | Balkoun", desc, canonical: url, alts: altsFor(rel), robots: listings.length ? "index, follow" : "noindex, follow", jsonld: ld, body, image: listings[0]?.cover_url, footLinks }) };
 }
 
@@ -434,7 +434,7 @@ function areaPage({ lang, deal, g, a, listings, siblings, market, footLinks }) {
 <div class="grid">${listings.map((l) => card(l, avg, lang)).join("")}</div>
 ${siblings.length ? `<section class="sec"><h2>${esc(W.near(gname))}</h2><div class="chips">${siblings.map((s) => `<a class="chip" href="${pageUrl(lang, `${d.slug}/${g.slug}/${s.slug}/`)}">${esc(areaName(s, lang))} <b>${ltr(s.count[deal])}</b></a>`).join("")}<a class="chip" href="${pageUrl(lang, `${d.slug}/${g.slug}/`)}" style="color:var(--grey)">${esc(W.allOf(gname))}</a></div></section>` : ""}
 <section class="faq"><h2>${esc(W.faqH(aname))}</h2>${faq.map((f) => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join("")}</section>`;
-  const ld = [c.ld, { "@context":"https://schema.org", "@type":"CollectionPage", name: title, description: desc, url, numberOfItems: listings.length, inLanguage: lang },
+  const ld = [c.ld, { "@context":"https://schema.org", "@type":"CollectionPage", name: title, description: desc, url, mainEntity: { "@type": "ItemList", numberOfItems: listings.length }, inLanguage: lang },
     { "@context":"https://schema.org", "@type":"FAQPage", mainEntity: faq.map((f) => ({ "@type":"Question", name: f.q, acceptedAnswer: { "@type":"Answer", text: f.a } })) }];
   return { url, html: shell({ lang, title: title + " | Balkoun", desc, canonical: url, alts: altsFor(rel), jsonld: ld, body, image: listings[0]?.cover_url, footLinks }) };
 }
@@ -577,7 +577,7 @@ ${CTX.isDefault ? `<h2>أدلة عملية للشراء والإيجار</h2><ul
 }
 function injectHomeSeo(block) {
   const f = path.join(ROOT, "index.html"), src = fs.readFileSync(f, "utf8");
-  const re = /<!--seo-home-->[\s\S]*?<!--\/seo-home-->/;
+  const re = /(?<=<div id="app" role="main">)<!--seo-home-->[\s\S]*?<!--\/seo-home-->/;   // anchored to #app (the CSS before it may name the marker)
   const out = re.test(src) ? src.replace(re, () => block) : src.replace('<div id="app" role="main">', () => '<div id="app" role="main">' + block);
   if (out !== src) fs.writeFileSync(f, out);
 }

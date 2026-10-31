@@ -1021,7 +1021,7 @@ function footer(){
     return '<a '+(gp?'href="'+gp+'"':'data-go="search" data-gov="'+g+'"')+'>'+
       (L==="ar"?"عقارات في ":L==="de"?"Immobilien in ":L==="fr"?"Immobilier à ":"Properties in ")+gN(g)+'</a>'}).join("")+
   '</div><a class="fall" href="'+cPre()+'/areas/">'+GX("allAreas")+' ›</a></div>'+
-  '<div class="fcol"><h4>'+esc(CONFIG.brand)+'</h4>'+
+  '<div class="fcol"><h4 aria-level="2">'+esc(CONFIG.brand)+'</h4>'+
   '<a href="'+cPre()+'/about/" data-go="about">'+t("about")+'</a>'+
   '<a href="/promote" data-go="promote">'+GX("promoNav")+'</a>'+
   '<a href="/services" data-go="services">'+GX("svcNav")+'</a>'+
@@ -1029,7 +1029,7 @@ function footer(){
   '<a href="'+cPre()+'/contactus/" data-go="contactus">'+t("contactUsPageT")+'</a>'+
   '<a data-go="contact">'+t("contactUs")+'</a>'+
   '</div>'+
-  '<div class="fcol"><h4>'+H.legal+'</h4>'+
+  '<div class="fcol"><h4 aria-level="2">'+H.legal+'</h4>'+
   '<a href="'+cPre()+'/terms/" data-go="terms">'+(PAGE_T.terms[L]||PAGE_T.terms.en)+'</a>'+
   '<a href="'+cPre()+'/privacy/" data-go="privacy">'+(PAGE_T.privacy[L]||PAGE_T.privacy.en)+'</a>'+
   '</div>'+
@@ -1830,7 +1830,7 @@ function rsFiltersHtml(count){
   '</div>'+
   '<div class="rs-ff"><button type="button" class="gh" id="clrM">'+t("clearFilters")+'</button><button type="button" class="btn-n" id="rsFApply">'+(countsOn()?GX("rsShow").replace("{n}",'<span class="ltr">'+count+'</span>'):t("showResults"))+'</button></div>'+
  '</div>' }
-function rsSortHtml(id){ return '<select id="'+id+'"><option value="new"'+(F.sort==="new"||!F.sort?" selected":"")+'>'+t("sortNew")+'</option><option value="lo"'+(F.sort==="lo"?" selected":"")+'>'+t("sortLo")+'</option><option value="hi"'+(F.sort==="hi"?" selected":"")+'>'+t("sortHi")+'</option><option value="area"'+(F.sort==="area"?" selected":"")+'>'+t("sortA")+'</option></select>' }
+function rsSortHtml(id){ return '<select id="'+id+'" aria-label="'+esc(GX("rsSort"))+'"><option value="new"'+(F.sort==="new"||!F.sort?" selected":"")+'>'+t("sortNew")+'</option><option value="lo"'+(F.sort==="lo"?" selected":"")+'>'+t("sortLo")+'</option><option value="hi"'+(F.sort==="hi"?" selected":"")+'>'+t("sortHi")+'</option><option value="area"'+(F.sort==="area"?" selected":"")+'>'+t("sortA")+'</option></select>' }
 function search(){
  var srv=srvOn(), st=srv?srvSearchState():null;
  var r=srv?((st.q&&st.q.pins)||[]):rsResults();
@@ -1857,7 +1857,7 @@ function search(){
       rsSortHtml("sort")+
       '<button type="button" class="rs-maptg'+(mapOn?' on':'')+'" id="rsMapToggle">'+MI.map+'<span>'+(mapOn?GX("rsHideMap"):GX("rsShowMap"))+'</span>'+newTag()+'</button></div></div>'+
     '<div class="res'+(VIEWMODE==="list"?" list-view":"")+(srvWait&&pageItems.length?" srv-wait":"")+'">'+(pageItems.length?resCardsWithAds(pageItems):
-     (!LISTINGS_LOADED||srvWait) ? '<div class="resempty"><b>'+t("loading")+'</b></div>' :
+     (!LISTINGS_LOADED||srvWait) ? '<div class="resempty rs-loading"><b>'+t("loading")+'</b></div>' :
      '<div class="resempty">'+LICON.search+'<b>'+t("none")+'</b><span>'+t("none2")+'</span></div>')+'</div>'+
     (pageItems.length||!LISTINGS_LOADED||srvWait ? '' : searchAlternatives())+
     (totalPages>1?'<div class="pg">'+(F.page>1?'<a data-pg="'+(F.page-1)+'">‹</a>':'')+
@@ -2369,7 +2369,7 @@ function post(){
  '<div class="steps"><div id="k1"><b>1</b>'+t("p1")+'</div><div id="k2"><b>2</b>'+t("p2")+'</div>'+
   '<div id="k3"><b>3</b>'+t("p3")+'</div><div id="k4"><b>4</b>'+t("p4")+'</div>'+
   '<div id="k5"><b>5</b>'+t("photos")+'</div><div id="k6"><b>6</b>'+t("p5")+'</div></div>'+
- '<div class="blk"><h3><span class="n">1</span>'+t("p1")+'</h3><div class="in">'+
+ '<div class="blk"><h3 aria-level="2"><span class="n">1</span>'+t("p1")+'</h3><div class="in">'+
   '<div class="fl"><label class="req">'+t("deal")+'</label><div class="pick">'+
    '<label><input type="radio" name="dl" value="sale" checked><span>'+t("forsale")+'</span></label>'+
    '<label><input type="radio" name="dl" value="rent"><span>'+t("forrent")+'</span></label>'+
@@ -2377,13 +2377,13 @@ function post(){
   '<div class="fl" style="margin-bottom:0"><label class="req">'+t("ptype")+'</label><select id="ptype">'+
    Object.keys(D.TYPES).map(function(k){return '<option value="'+k+'">'+D.TYPES[k][li()]+'</option>'}).join("")+
    '</select></div></div></div>'+
- '<div class="blk"><h3><span class="n">2</span>'+t("p2")+'</h3><div class="in"><div class="row">'+
+ '<div class="blk"><h3 aria-level="2"><span class="n">2</span>'+t("p2")+'</h3><div class="in"><div class="row">'+
   '<div class="fl"><label class="req">'+t("gov")+'</label><select id="pg"></select></div>'+
   '<div class="fl"><label class="req">'+t("area")+'</label><select id="pa"></select>'+
     '<input id="paOther" autocomplete="off" maxlength="60" placeholder="'+esc(GX("areaOtherPH"))+'" style="display:none;margin-top:6px;border-color:var(--gold)"><div class="hintx" id="paOtherHint" style="display:none">'+GX("areaOtherHint")+'</div></div></div>'+
   '<div class="fl" style="margin-bottom:0"><label>'+t("landmark")+'</label><input id="plm" autocomplete="off">'+
   '<div class="hintx">'+t("landmarkH")+'</div></div></div></div>'+
- '<div class="blk"><h3><span class="n">3</span>'+t("p3")+'</h3><div class="in"><div class="row3">'+
+ '<div class="blk"><h3 aria-level="2"><span class="n">3</span>'+t("p3")+'</h3><div class="in"><div class="row3">'+
   '<div class="fl"><label class="req">'+t("areaM")+'</label><input type="number" id="pm2" autocomplete="off" placeholder=""></div>'+
   '<div class="fl homes-f"><label>'+t("kRooms")+'</label><input type="number" id="pr" autocomplete="off"></div>'+
   '<div class="fl homes-f"><label>'+t("kBaths")+'</label><input type="number" id="pb" autocomplete="off"></div>'+
@@ -2440,13 +2440,13 @@ function post(){
   '<div class="pick" id="ptabu">'+pk(D.TABU,"tb2")+'</div>'+
   '<div class="deedbox g" id="dbG">'+t("deedG")+'</div>'+
   '<div class="deedbox y" id="dbY">'+t("deedY")+'</div></div></div></div>'+
- '<div class="blk"><h3><span class="n">5</span>'+t("photos")+'</h3><div class="in">'+
+ '<div class="blk"><h3 aria-level="2"><span class="n">5</span>'+t("photos")+'</h3><div class="in">'+
   '<div class="drop" id="drop"><b>'+t("dropB")+'</b><span>'+t("dropS")+' · '+GX("photoMaxHint").replace("{n}",PHOTO_MAX)+'</span>'+
    (NEW.photos.length?'<div style="margin-top:8px;font-weight:700;color:var(--ok)">'+
      t("photoPicked").replace("{n}",NEW.photos.length)+'</div>':'')+'</div>'+
   '<input type="file" id="files" accept="image/*,video/*" multiple hidden><div class="shots" id="shots"></div>'+
   '<div class="tipbox">'+t("photoTips")+'</div>'+videoPickHtml()+'</div></div>'+
- '<div class="blk"><h3><span class="n">6</span>'+t("p5")+'</h3><div class="in"><div class="row">'+
+ '<div class="blk"><h3 aria-level="2"><span class="n">6</span>'+t("p5")+'</h3><div class="in"><div class="row">'+
   '<div class="fl"><label id="priceLabel">'+t("price")+'</label>'+
    '<div style="display:flex;gap:8px"><input type="number" id="pp" autocomplete="off" placeholder="" style="flex:1">'+
    curSelHtml("pcur", NEW.pcur||CUR)+'</div>'+
@@ -2503,7 +2503,7 @@ function editView(){
  '<div class="wrap" style="max-width:760px;padding:22px 18px 60px">'+
  '<h1 style="font-size:22px;font-weight:700">'+t("editListing")+' <span class="ltr" style="font-size:14px;color:var(--grey)">'+(x.ref||x.id)+'</span></h1>'+
  '<p style="color:var(--grey);font-size:14px;margin-bottom:16px">'+t("editP")+'</p>'+
- '<div class="blk"><h3><span class="n">1</span>'+t("price")+'</h3><div class="in">'+
+ '<div class="blk"><h3 aria-level="2"><span class="n">1</span>'+t("price")+'</h3><div class="in">'+
   '<div class="row"><div class="fl"><label>'+t("price")+'</label>'+
    '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+(x.pl>0&&x.pcur?x.pl:(x.p==null?"":x.p))+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur",(x.pl>0&&x.pcur)?x.pcur:"USD")+'</div>'+
    (x.orig&&x.orig>x.p?'<div class="hintx">'+t("wasPrice")+' <span class="ltr">'+money(x.orig)+'</span></div>':'')+
@@ -2540,10 +2540,10 @@ function editView(){
    '<div class="fl"><label>'+t("advanceM")+'</label><input type="number" id="eAdv" value="'+(x.adv||"")+'" autocomplete="off"></div>'+
    '<div class="fl"><label>'+t("depositL")+'</label><input type="number" id="eDep" value="'+(x.dep||"")+'" autocomplete="off"></div></div>':'')+
  '</div></div>'+
-   (!EDIT.isAdmin ? '<div class="blk"><h3><span class="n">4</span>'+GX("edLocH")+'</h3><div class="in"><div class="hintx" style="margin-bottom:8px">'+GX("edLocHint")+'</div>'+
+   (!EDIT.isAdmin ? '<div class="blk"><h3 aria-level="2"><span class="n">4</span>'+GX("edLocH")+'</h3><div class="in"><div class="hintx" style="margin-bottom:8px">'+GX("edLocHint")+'</div>'+
    '<div class="row"><div class="fl"><label>'+t("gov")+'</label><select id="eGov" data-cur="'+esc(x.g||"")+'"></select></div><div class="fl"><label>'+t("area")+'</label><select id="eAreaSel" data-cur="'+esc(x.a||"")+'"></select></div></div>'+
    '<div class="fl"><label>'+GX("ik_f_landmark")+'</label><input id="eLandmark" value="'+esc(x.lm||"")+'" autocomplete="off" placeholder="'+esc(GX("edLandmarkPH"))+'"></div></div></div>' : '')+
-   (EDIT.isAdmin ? '<div class="blk"><h3><span class="n">A</span>'+GX("edBasicsH")+'</h3><div class="in">'+
+   (EDIT.isAdmin ? '<div class="blk"><h3 aria-level="2"><span class="n">A</span>'+GX("edBasicsH")+'</h3><div class="in">'+
    '<div class="row"><div class="fl"><label>'+t("forsale")+' / '+t("forrent")+'</label><select id="eDeal"><option value="sale"'+(x.d==="sale"?" selected":"")+'>'+t("forsale")+'</option><option value="rent"'+(x.d==="rent"?" selected":"")+'>'+t("forrent")+'</option></select></div>'+
    '<div class="fl"><label>'+t("ptype")+'</label><select id="eType">'+Object.keys(D.TYPES).map(function(k){ return '<option value="'+k+'"'+(x.t===k?" selected":"")+'>'+D.TYPES[k][li()]+'</option>' }).join("")+'</select></div></div>'+
    '<div class="row"><div class="fl"><label>'+t("gov")+'</label><select id="eGov" data-cur="'+esc(x.g||"")+'"></select></div><div class="fl"><label>'+t("area")+'</label><select id="eAreaSel" data-cur="'+esc(x.a||"")+'"></select></div></div>'+
@@ -2553,7 +2553,7 @@ function editView(){
      (EDIT.agencies||[]).filter(function(a){ return a.user_id && String(a.user_id)!==String(x.uid||"") }).map(function(a){ return '<option value="'+esc(String(a.user_id))+'">'+esc(a.name)+(a.user_name?' — '+esc(a.user_name):'')+'</option>' }).join("")+
    '</select><div class="hintx">'+GX("edOwnerHint")+'</div></div>'+
    '<div class="hintx">'+GX("edBasicsHint")+'</div></div></div>' : '')+
-'<div class="blk"><h3><span class="n">2</span>'+t("detH")+'</h3><div class="in">'+
+'<div class="blk"><h3 aria-level="2"><span class="n">2</span>'+t("detH")+'</h3><div class="in">'+
   (secOf(x.t)==="land" ? '' : '<div class="fl"><label>'+t("kFloor")+'</label><select id="eFloor">'+
    '<option value="">—</option>'+[-1,0].concat(Array.apply(null,{length:20}).map(function(_,n){return n+1}))
      .map(function(v){return '<option value="'+v+'"'+(String(v)===String(x.fl)?" selected":"")+'>'+floorLabel(v)+'</option>'}).join("")+
@@ -2652,7 +2652,7 @@ function about(){
  '<h1 style="font-size:clamp(24px,4vw,32px);font-weight:700;line-height:1.5;margin-bottom:6px">'+cl(A.h1)+'</h1>'+
  '<p style="font-size:17px;color:var(--grey);margin-bottom:22px">'+cl(A.lede)+'</p>'+
  A.blocks.map(function(b){
-   return '<div class="blk"><h3><span class="n">•</span>'+cl(b[0])+'</h3><div class="in">'+
+   return '<div class="blk"><h3 aria-level="2"><span class="n">•</span>'+cl(b[0])+'</h3><div class="in">'+
    b[1].map(function(p){return '<p style="margin-bottom:10px;color:#3F444B">'+cl(p)+'</p>'}).join("")+
    '</div></div>'}).join("")+
  '<div class="band" style="margin-top:6px"><div><h2>'+cl(A.ctaH)+'</h2><p>'+cl(A.ctaP)+'</p></div>'+
@@ -3221,7 +3221,7 @@ function account(){
    .concat(hasIntake?[["intake",ACI.intake,GX("aiTitle"),(MYINTAKE.agency.paired?'<span class="st st-live">'+GX("aiPaired")+'</span>':'')]]:[])
    .concat([["me",ACI.me,GX("accMe"),""],["channels",ACI.channels,GX("accChannels"),(ch&&ch.tg_linked?'<span class="st st-live">'+GX("accChLinked")+'</span>':"")],["security",ACI.lock,GX("accSecurity"),""]]);
  var cur=ACC.sec||(isAg?"agency":"me");
- var sec=function(id,title,body,side){ return '<section class="acsec" id="acs-'+id+'"><div class="blk"><h3><span class="acs-ico">'+ACI[id==="security"?"lock":id]+'</span>'+title+(side?'<span class="acs-side">'+side+'</span>':'')+'</h3><div class="in">'+body+'</div></div></section>' };
+ var sec=function(id,title,body,side){ return '<section class="acsec" id="acs-'+id+'"><div class="blk"><h3 aria-level="2"><span class="acs-ico">'+ACI[id==="security"?"lock":id]+'</span>'+title+(side?'<span class="acs-side">'+side+'</span>':'')+'</h3><div class="in">'+body+'</div></div></section>' };
  var agencyBody = !showAg
    ? '<div class="accta"><div><b>'+GX("accCtaT")+'</b><p>'+GX("accCtaP")+'</p></div><button type="button" class="btn-n" id="agStart" style="width:auto">'+GX("agRegister")+'</button></div>'
    : (MYAGENCY===null?'<div class="hintx">'+t("loading")+'</div>':'')+
@@ -4169,7 +4169,7 @@ function wantedOnePage(id){
       (w.description?'<p class="wdesc big">'+esc(w.description).replace(/\n/g,"<br>")+'</p>':'')+
       (mine?'<div class="wacts own"><button type="button" class="ab" data-wedit="'+w.id+'">'+t("edit")+'</button>'+(w.status==="open"&&!expired?'<button type="button" class="ab" data-wset="'+w.id+':fulfilled">'+GX("wMarkDone")+'</button>':'')+((w.status==="fulfilled"||(w.status==="open"&&expired))?'<button type="button" class="ab ok" data-wset="'+w.id+':open">'+GX("wReopen")+'</button>':'')+'<button type="button" class="ab bad" data-wdel="'+w.id+'">'+t("del")+'</button><span class="hintx">'+(w.expires_at?GX("wExpires").replace("{d}",'<span class="ltr">'+String(w.expires_at).slice(0,10)+'</span>'):'')+'</span></div>':'')+
      '</div></div>'+
-    '<aside class="wside"><div class="blk"><h3>'+GX("wContact")+'</h3><div class="in">'+
+    '<aside class="wside"><div class="blk"><h3 aria-level="2">'+GX("wContact")+'</h3><div class="in">'+
       '<div class="wwho big">'+avatar(w.user_avatar,w.user_name,52,"av")+'<div><b>'+esc(w.user_name||"")+'</b>'+(w.phone_verified?'<span class="wverline">✓ '+GX("wVerified")+'</span>':'')+'</div></div>'+
       '<div class="agcontact">'+(w.phone?'<a class="btn-n" href="tel:'+esc(w.phone)+'">'+MI.phone+GX("agCall")+'</a>':'')+(wa?'<a class="btn-n wa" href="https://wa.me/'+wa+'?text='+encodeURIComponent(GX("wWaHi")+location.origin+"/wanted/"+w.id)+'" target="_blank" rel="noopener">'+MI.msgs+GX("agWa")+'</a>':'')+'</div>'+
       '<button type="button" class="gh wshare" data-wshare="'+w.id+'">'+LICON.share+'<span>'+GX("wShare")+'</span></button>'+
@@ -4288,7 +4288,7 @@ function projectPage(id){
       (p.developer_name?'<div class="pjdevline">'+GX("pjDev")+': <b>'+esc(p.developer_name)+'</b>'+(p.agency_id?' · <a data-agopen="'+p.agency_id+'" class="elink">'+GX("pjDevPage")+'</a>':'')+'</div>':'')+'</div>'+
      '<div class="pjtiles">'+(p.price_from?'<div><small>'+GX("pjFrom")+'</small><b class="ltr">'+pjFmt(p.price_from)+'</b></div>':'')+(p.delivery?'<div><small>'+GX("pjDelivery")+'</small><b>'+esc(p.delivery)+'</b></div>':'')+(units.length?'<div><small>'+GX("pjUnits")+'</small><b class="ltr">'+units.reduce(function(a,u){ return a+(+u.count||0) },0)+'</b></div>':'')+(pjPlanText(p)?'<div class="wide"><small>'+GX("pjPlan")+'</small><b>'+pjPlanText(p)+'</b></div>':'')+'</div></div>'+
     '<div class="pjcols"><div class="pjmaincol">'+
-     (p.description?'<div class="blk"><h3>'+GX("pjAbout")+'</h3><div class="in"><p class="pjdesc">'+esc(p.description).replace(/\n/g,"<br>")+'</p></div></div>':'')+
+     (p.description?'<div class="blk"><h3 aria-level="2">'+GX("pjAbout")+'</h3><div class="in"><p class="pjdesc">'+esc(p.description).replace(/\n/g,"<br>")+'</p></div></div>':'')+
      (units.length?'<div class="blk" style="margin-top:16px"><h3>'+GX("pjUnits")+'</h3><div class="in" style="padding:0"><div class="pjunits"><table><thead><tr><th>'+GX("pjUnitType")+'</th><th>'+GX("pjArea")+'</th><th>'+GX("pjRooms")+'</th><th>'+GX("pjPrice")+'</th><th>'+GX("pjCount")+'</th></tr></thead><tbody>'+
        units.map(function(u){ return '<tr><td>'+esc(u.type||"")+'</td><td class="ltr">'+(u.area_m2?u.area_m2+' '+t("sqm"):"—")+'</td><td class="ltr">'+(u.rooms||"—")+'</td><td class="ltr"><b>'+(u.price_usd?pjFmt(u.price_usd):"—")+'</b></td><td class="ltr">'+(u.count||"—")+'</td></tr>' }).join("")+'</tbody></table></div></div></div>':'')+
      (plans.length?'<div class="blk" style="margin-top:16px"><h3>'+GX("pjPlan")+'</h3><div class="in"><div class="pjplans">'+plans.map(function(pl,i){ return '<div class="pjplanc'+(i===(PROJECT._plan||0)?' on':'')+'" data-pjplan="'+i+'"><b>'+esc(pl.name||GX("pjPlan")+" "+(i+1))+'</b><span>'+pjPlanText(pl)+'</span></div>' }).join("")+'</div></div></div>':'')+
@@ -5369,8 +5369,10 @@ function huPageIn(){ if(window._huLastView===VIEW) return; window._huLastView=VI
 function heroSlidesHtml(type,studio){
   if((type==="photo"||type==="video") && studio) return studio;   // a background set in the studio stays as it is
   var S=["umayyad","aleppo","arwad"], P="/next/images/hero/", V="?v=2";   // V: 2026-10-30 the Umayyad photos lost their capture frame (a white edge line); a new address so phones fetch them again
-  return '<div class="hslides">'+S.map(function(n,i){ return '<div class="hslide'+(i?'':' on')+'"><picture><source media="(max-width:860px)" type="image/avif" srcset="'+P+n+'-phone.avif'+V+'"><source media="(max-width:860px)" type="image/webp" srcset="'+P+n+'-phone.webp'+V+'"><source type="image/avif" srcset="'+P+n+'-1080.avif'+V+' 1080w, '+P+n+'-1920.avif'+V+' 1920w" sizes="100vw"><img src="'+P+n+'-1920.webp'+V+'" srcset="'+P+n+'-1080.webp'+V+' 1080w, '+P+n+'-1920.webp'+V+' 1920w" sizes="100vw" alt=""'+(i?' loading="lazy"':' fetchpriority="high"')+'></picture></div>' }).join("")+'</div><div class="hdots">'+S.map(function(_,i){ return '<i class="'+(i?'':'on')+'"></i>' }).join("")+'</div>' }
-function wireHeroSlides(){ var s=$$(".hslide"), d=$$(".hdots i"); if(window._hsTimer){ clearInterval(window._hsTimer); window._hsTimer=null }
+  return '<div class="hslides">'+S.map(function(n,i){ return '<div class="hslide'+(i?'':' on')+'"><picture><source media="(max-width:860px)" type="image/avif" srcset="'+P+n+'-phone.avif'+V+'"><source media="(max-width:860px)" type="image/webp" srcset="'+P+n+'-phone.webp'+V+'"><source type="image/avif" srcset="'+P+n+'-1080.avif'+V+' 1080w, '+P+n+'-1920.avif'+V+' 1920w" sizes="100vw"><img src="'+P+n+'-1920.webp'+V+'" srcset="'+P+n+'-1080.webp'+V+' 1080w, '+P+n+'-1920.webp'+V+' 1920w" sizes="100vw" alt=""'+(i?' loading="lazy"':' fetchpriority="high"')+'></picture></div>' }).join("").replace(/(<div class="hslide">[\s\S]*?<\/div>)/g,function(m){ return window._hsAll ? m : m.replace(/ (srcset|src)="/g,' data-$1="') })+'</div><div class="hdots">'+S.map(function(_,i){ return '<i class="'+(i?'':'on')+'"></i>' }).join("")+'</div>' }
+function wireHeroSlides(){ if(!window._hsAll){ var fill=function(){ window._hsAll=true; $$(".hslide [data-srcset],.hslide [data-src]").forEach(function(e){ if(e.dataset.srcset){ e.setAttribute("srcset",e.dataset.srcset); e.removeAttribute("data-srcset") } if(e.dataset.src){ e.setAttribute("src",e.dataset.src); e.removeAttribute("data-src") } }) };
+    if(document.readyState==="complete") setTimeout(fill,1500); else addEventListener("load",function(){ setTimeout(fill,1500) },{once:true}) }
+  var s=$$(".hslide"), d=$$(".hdots i"); if(window._hsTimer){ clearInterval(window._hsTimer); window._hsTimer=null }
   // the floating "post" button waits until the hero has scrolled away (it covered the search strip on phones)
   if(!window._heroScroll){ window._heroScroll=true; var hv=function(){ document.body.classList.toggle("hero-in-view", VIEW==="home" && scrollY < innerHeight*0.8) }; addEventListener("scroll",hv,{passive:true}); window._heroScrollCheck=hv } window._heroScrollCheck();
   if(s.length<2) return; var k=0;
@@ -10449,7 +10451,7 @@ function healthStrip(an){
     [GX("hPending"),h.pending,"listings:pending",h.pending>0?"warn":""],[GX("hReports"),h.open_reports,"reports",h.open_reports>0?"warn":""],[GX("hFeedback"),h.open_feedback,"feedback",h.open_feedback>0?"warn":""],
     [GX("hNoPhotos"),h.listings_without_photos,"listings",h.listings_without_photos>0?"warn":""],[GX("hFeatExp"),h.expiring_featured,"featured",""],[GX("hBlocked"),h.blocked_users,"users",""],
     [GX("hStorage"),(h.storage_mb!=null?h.storage_mb+" MB":"—"),"storage",""],[GX("hLastView"),h.last_view_at?when(h.last_view_at):"—",null,""]];
-  return '<div class="blk"><h3>'+GX("healthH")+(items.some(function(i){return i[3]==="warn"})?'':' <span class="lvl" style="background:var(--ok-w);color:var(--ok)">'+GX("hOk")+'</span>')+'</h3><div class="in"><div class="health">'+
+  return '<div class="blk"><h3 aria-level="2">'+GX("healthH")+(items.some(function(i){return i[3]==="warn"})?'':' <span class="lvl" style="background:var(--ok-w);color:var(--ok)">'+GX("hOk")+'</span>')+'</h3><div class="in"><div class="health">'+
     items.map(function(i){ return '<'+(i[2]?'button type="button" data-goto="'+i[2]+'"':'div')+' class="hitem '+i[3]+'"><b class="ltr">'+(i[1]==null?"—":i[1])+'</b><span>'+i[0]+'</span></'+(i[2]?'button':'div')+'>' }).join("")+'</div></div></div>' }
 function topListingsTable(an,limit){
   var rows=(an.top_listings||[]).slice(0,limit||8);

@@ -60,10 +60,12 @@ const SEO_TAG = /<title>[\s\S]*?<\/title>\n?|<meta name="(?:description|keywords
 let tpl = app.slice(0, css.at) + `<link rel="stylesheet" href="/bundle/${cssFile}">` + app.slice(css.at + css.full.length);
 const jsAt = tpl.indexOf(js.full);
 tpl = tpl.slice(0, jsAt) + `<script src="/bundle/${jsFile}"></script>` + tpl.slice(jsAt + js.full.length);
+// the vendor scripts and the app file: defer (run in order once the page is parsed — the static text and the splash paint first)
+tpl = tpl.replace(/<script src="\/(vendor|bundle)\//g, '<script defer src="/$1/');
 const headEnd = tpl.indexOf("</head>") > -1 ? tpl.indexOf("</head>") : tpl.indexOf("<body");
 tpl = tpl.slice(0, headEnd).replace(SEO_TAG, "") + "@@SEOHEAD@@\n" + tpl.slice(headEnd);
 tpl = tpl.replace(/<html[^>]*>/, "<html@@HTMLATTR@@>");
-tpl = tpl.replace(/<div id="app" role="main">[\s\S]*?<\/div>\s*(?=<style|<link rel="stylesheet" href="\/bundle\/)/, () => '<div id="app" role="main"><!--seo-page-->@@BODY@@<!--/seo-page--></div>\n');
+tpl = tpl.replace(/<div id="app" role="main"><!--seo-home-->[\s\S]*?<!--\/seo-home--><\/div>|<div id="app" role="main"><\/div>/, () => '<div id="app" role="main"><!--seo-page-->@@BODY@@<!--/seo-page--></div>');
 if (!tpl.includes("@@BODY@@") || !tpl.includes("@@SEOHEAD@@") || !tpl.includes("@@HTMLATTR@@")) throw new Error("template slots not found");
 
 // ── 3. names for /for-sale/<gov>/<area>/ ──
@@ -119,7 +121,9 @@ function convert(file, rel) {
     .replace("@@SEOHEAD@@", () => `<!--seo-head-->\n${seoHead}\n<!--/seo-head-->\n<meta name="bk-route" content="${escAttr(JSON.stringify(route))}"><!--bk-shell-->`)
     .replace("@@BODY@@", () => body);
   if (out === src) return "same";
-  fs.writeFileSync(file, out); return "written";
+  // a file held for a moment by another program (antivirus / indexer on Windows) is tried again rather than stopping the run
+  for (let k = 0; ; k++) { try { fs.writeFileSync(file, out); break; } catch (e) { if (k >= 5) throw e; const t = Date.now(); while (Date.now() - t < 300 * (k + 1)) {} } }
+  return "written";
 }
 const count = { written: 0, same: 0, skip: 0 };
 function walk(dir, rel) {

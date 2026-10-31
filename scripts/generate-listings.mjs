@@ -368,7 +368,8 @@ function renderPage(l, photos, lang, ogPath) {
     "address": { "@type": "PostalAddress", "addressLocality": areaName || gov, "addressRegion": gov, "addressCountry": CUR_CN.code },
     ...(has(l.lat) && has(l.lng) ? { "geo": { "@type": "GeoCoordinates", "latitude": l.lat, "longitude": l.lng } } : {}),
     ...(has(l.area_m2) ? { "floorSize": { "@type": "QuantitativeValue", "value": l.area_m2, "unitCode": "MTK" } } : {}),
-    ...(has(l.rooms) ? { "numberOfRooms": l.rooms } : {}),
+    // the rooms belong to the place itself (schema.org: Accommodation), not to the listing page
+    ...(has(l.rooms) || has(l.area_m2) ? { "about": { "@type": "Accommodation", ...(has(l.rooms) ? { "numberOfRooms": l.rooms } : {}), ...(has(l.area_m2) ? { "floorSize": { "@type": "QuantitativeValue", "value": l.area_m2, "unitCode": "MTK" } } : {}) } } : {}),
     ...((l.videos || []).length ? { "video": (l.videos || []).map((v) => ({ "@type": "VideoObject", "name": title, "description": lead, "contentUrl": v.url, ...(v.thumb_url ? { "thumbnailUrl": v.thumb_url } : {}), "uploadDate": l.created_at })) } : {}),
   };
   const cr = crumbs(l, lang, dealLabel, areaName, gov);

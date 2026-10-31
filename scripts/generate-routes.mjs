@@ -55,7 +55,8 @@ function writeCopy(app, dir, url, title, desc, extra) {
     // the language alternates describe the Syrian home page only
     .replace(/<link rel="alternate" hreflang="[^"]*" href="[^"]*">\n?/g, "")
     // the crawlable home block belongs to / only (duplicate text on /search etc. would compete with the home)
-    .replace(/<!--seo-home-->[\s\S]*?<!--\/seo-home-->/, "");
+    // anchored to #app: the marker text may also appear in a comment of the CSS, which now sits in <head> before #app
+    .replace(/(<div id="app" role="main">)<!--seo-home-->[\s\S]*?<!--\/seo-home-->/, "$1");
   if (extra) html = extra(html);
   fs.mkdirSync(dir, { recursive: true });
   fs.writeFileSync(path.join(dir, "index.html"), html);

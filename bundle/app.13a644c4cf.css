@@ -911,7 +911,7 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
 .aboutsec .aboutlinks .govs{display:flex;flex-wrap:wrap;gap:8px}
 .aboutsec .aboutmore{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
 @media(max-width:860px){.aboutsec .aboutcols{grid-template-columns:1fr;gap:16px}.aboutsec .aboutp p{font-size:14.5px;line-height:1.85}}
-/* ── crawlable home content written by scripts/generate-pages.mjs (see <!--seo-home-->); the first render replaces it. With scripts
+/* ── crawlable home content written by scripts/generate-pages.mjs (see the seo-home markers inside #app); the first render replaces it. With scripts
    on, it is hidden from the eye and a navy splash shows while the page is parsed (no "other page" flashing by) ── */
 .js .seo-home{display:none}
 #bootSplash{display:none;position:fixed;inset:0;z-index:9999;background:#14213D;align-items:center;justify-content:center}

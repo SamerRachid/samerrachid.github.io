@@ -1660,3 +1660,8 @@ html body .stpage .chip:hover{border-color:var(--gold)}
 @media (max-width:640px){ html body .stpage{padding-top:16px;font-size:15.5px} html body .stpage h1{font-size:26px} html body .stpage h2{font-size:19px} }
 html body .stpage .chip{white-space:normal;max-width:100%;line-height:1.5;padding-block:7px}
 html body .stpage,html body .stpage *{overflow-wrap:anywhere}
+
+/* Lighthouse run (2026-10-31): the green badge («مكتب عقاري ✓») had white text at 3.2:1 — a darker green reaches 5.3:1;
+   the results «loading» box keeps the room the cards will take, so the footer does not jump (layout shift) */
+html body .vbadge:not(.soft){background:#1E7A4F!important;color:#fff!important}
+html body .resempty.rs-loading{min-height:80vh;align-content:start}
