@@ -5605,7 +5605,7 @@ function wireServicesAdm(){ var S=saState(), D=S.data; if(!D) return;
 
 /* blurry video posters (owner 2026-10-31): a video that came by WhatsApp carries the tiny preview WhatsApp sends (~500 bytes, a few
    dozen pixels wide) as its poster. While the panel is open, this browser swaps such posters — and missing ones — for the sharpest
-   frame of the video itself (videoSharpFrame), up to 25 per visit (~2 s each), at most every 10 minutes, one at a time in the background.
+   frame of the video itself (videoSharpFrame), up to 40 per visit (~2 s each), at most every 10 minutes, one at a time in the background.
    Only posters made from the video are replaced and their old file trashed; a listing photo the owner chose as poster stays. */
 async function admFixVideoPosters(){
   if(window._vpFixRunning || !ADM.token || typeof videoSharpFrame!=="function") return;
@@ -5613,11 +5613,16 @@ async function admFixVideoPosters(){
   window._vpFixRunning=true; var fixed=0, tried=0;
   try{
     var rows=await rpc("bk_admin_video_list",{p_token:ADM.token}); if(!Array.isArray(rows)) return;
-    var small=function(u){ return new Promise(function(res){ if(!u) return res(true); var im=new Image(); var to=setTimeout(function(){ res(false) },10000);
-      im.onload=function(){ clearTimeout(to); res(im.naturalWidth<400) }; im.onerror=function(){ clearTimeout(to); res(true) }; im.src=u }) };
-    for(var i=0;i<rows.length && tried<25;i++){
+    // a poster needs redoing when it is missing, tiny in both directions (WhatsApp's preview: 40x72, 180x320), or an almost empty
+    // file (a black frame). The width alone is not the test: a phone video is 360 wide, so its own sharp frame is too, and those
+    // were redone on every visit, using up the 25 and never reaching the older tiny ones (owner, 2026-10-31: SY10491 still blurred)
+    var small=function(u){ if(!u) return Promise.resolve(true);
+      return fetch(u,{cache:"no-store"}).then(function(r){ return r.ok ? r.blob() : null }).then(function(bl){ if(!bl) return true; if(bl.size<8000) return true;
+        return createImageBitmap(bl).then(function(im){ var t=im.width<400 && im.height<400; try{ im.close() }catch(e){} return t }) }).catch(function(){ return false }) };
+    for(var i=0;i<rows.length && tried<40;i++){
       var r=rows[i]; if(!r||!r.url) continue;
       if(r.thumb_url && !/-poster\.jpg(\?|$)/.test(r.thumb_url)) continue;   // a listing photo chosen as poster: the owner's choice
+      if(r.thumb_url && /-vf-poster\.jpg(\?|$)/.test(r.thumb_url)) continue;   // already the video's sharpest frame (made here)
       if(!(await small(r.thumb_url))) continue;
       tried++;
       var v=document.createElement("video"); v.crossOrigin="anonymous"; v.muted=true; v.preload="auto"; v.playsInline=true; v.src=r.url;
@@ -5625,7 +5630,7 @@ async function admFixVideoPosters(){
       if(!ok){ v.removeAttribute("src"); continue }
       var f=await videoSharpFrame(v,1280); v.removeAttribute("src"); try{ v.load() }catch(e){}
       if(!f||!f.blob||f.blob.size<3000) continue;
-      var path="photos/listings/"+r.listing_id+"/"+Date.now()+"-"+Math.random().toString(36).slice(2,8)+"-poster.jpg";
+      var path="photos/listings/"+r.listing_id+"/"+Date.now()+"-"+Math.random().toString(36).slice(2,8)+"-vf-poster.jpg";   // -vf-: made from the video here, never redone
       var up=await storageUpload(path,f.blob,{contentType:"image/jpeg",upsert:false}); if(up&&up.error) continue;
       var url=DB.storage.from("photos").getPublicUrl(path).data.publicUrl;
       var s=await rpc("bk_admin_photo_set_poster",{p_token:ADM.token,p_photo:r.id,p_url:url}); if(s&&s.error) continue;
