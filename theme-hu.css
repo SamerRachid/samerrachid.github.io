@@ -1669,3 +1669,25 @@ html body .resempty.rs-loading{min-height:80vh;align-content:start}
 /* 2026-10-31 (owner, iPhone): the install-steps window is white, but its step text took the theme's white --ink, so only the
    gold 1 2 3 showed. Inside the white windows the steps are navy; on the dark /app page they stay white */
 .soon-c .pwa-steps li{color:var(--navy)}
+
+/* 2026-10-31 (owner): typing in the home search's province / area fields showed nothing (the typing box wrote white on the
+   white field) and the box covered the field with a big, clipped «المحافظة». Now the field keeps its small label and its
+   value line: on opening, the value turns grey (as a hint) and what you type takes its place, same size, in navy */
+.hero-outer.hu .sf .cs-compact .chipsel-input{padding:14px 0 0;padding-inline-end:26px;font:600 12px/14px var(--f);color:var(--navy);-webkit-text-fill-color:var(--navy);caret-color:var(--gold-dk)}
+.hero-outer.hu .sf .cs-compact .chipsel-input::placeholder{color:transparent;-webkit-text-fill-color:transparent}
+.hero-outer.hu .sf .cs-compact:has(.chipsel-drop.on) .cs-sum{opacity:1}
+.hero-outer.hu .sf .cs-compact:has(.chipsel-drop.on) .cs-sum,.hero-outer.hu .sf .cs-compact:has(.chipsel-drop.on) .cs-sum::after{color:#9CA3AF!important}
+.hero-outer.hu .sf .cs-compact:has(.chipsel-input:not(:placeholder-shown)) .cs-sum,.hero-outer.hu .sf .cs-compact:has(.chipsel-input:not(:placeholder-shown)) .cs-sum::after{color:transparent!important}
+.hero-outer.hu .sf .cs-compact:has(.chipsel-input:not(:placeholder-shown)) .cs-sum *{visibility:hidden}
+@media (max-width:860px){ .hero-outer.hu .sf .cs-compact .chipsel-input{padding-top:12px} }
+.hero-outer.hu .sf .cs-compact .chipsel-input{text-align:center}
+/* two or more chosen: «حمص +2» on one line (the «+2» used to drop to a third line, out of the field) */
+.hero-outer.hu .sf .cs-sum{display:block!important;text-align:center}
+.hero-outer.hu .sf .cs-sum::before{margin-bottom:4px!important}
+@media (max-width:860px){ .hero-outer.hu .sf .cs-sum::before{margin-bottom:2px!important} }
+/* 861–900px wide: an old phone rule put «ابحث» on a row of its own, squeezing the fields to a sliver (text cut) */
+@media (min-width:861px) and (max-width:900px){ .hero-outer.hu .srow .sgo{grid-column:auto} }
+/* the empty fields' «الكل» in the page language (the English page showed Arabic; the price field already said «Any») */
+html[lang=en] .hero-outer.hu .sf .cs-sum:empty::after,html[lang=en] .hero-outer.hu .sf .cs-sum[data-names="[]"]::after{content:"Any"}
+html[lang=de] .hero-outer.hu .sf .cs-sum:empty::after,html[lang=de] .hero-outer.hu .sf .cs-sum[data-names="[]"]::after{content:"Alle"}
+html[lang=fr] .hero-outer.hu .sf .cs-sum:empty::after,html[lang=fr] .hero-outer.hu .sf .cs-sum[data-names="[]"]::after{content:"Tous"}
