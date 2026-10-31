@@ -349,6 +349,7 @@ const T = {
     audioNo: `الرسائل الصوتية غير مدعومة؛ اكتب التفاصيل نصاً من فضلك.`,
     videoGot: `استلمت الفيديو 🎬 سيظهر مع الإعلان.`,
     mediaOnly: `وصلت الصور ✅ الآن أرسل تفاصيل العقار: نوعه (شقة، أرض، محل…)، بيع أم إيجار، المحافظة والحي، المساحة، والسعر إن وُجد.`,
+    needDetails: `أهلاً 👋 أرسل تفاصيل العقار: نوعه (شقة، أرض، محل…)، بيع أم إيجار، المحافظة والحي، المساحة، والسعر، ومعها الصور.`,
     videoBig: (mb: number) => `الفيديو كبير؛ الحد ${mb} MB. أرسله مضغوطاً أو أقصر.`,
     videoLong: (min: number) => `الفيديو أطول من الحد (${min} دقائق). أرسل مقطعاً أقصر.`,
     videoMax: (n: number) => `وصلنا الحد الأقصى للفيديو في الإعلان (${n}).`,
@@ -461,6 +462,7 @@ const T = {
     audioNo: `Voice messages are not supported; please write the details as text.`,
     videoGot: `Video received 🎬 It will show with the listing.`,
     mediaOnly: `Media received ✅ Now send the property details: type (apartment, land, shop…), sale or rent, governorate and area, size, and the price if any.`,
+    needDetails: `Hello 👋 Send the property details: type (apartment, land, shop…), sale or rent, governorate and area, size, the price, and the photos.`,
     videoBig: (mb: number) => `The video is too large; the limit is ${mb} MB. Send it compressed or shorter.`,
     videoLong: (min: number) => `The video is longer than the limit (${min} minutes). Send a shorter clip.`,
     videoMax: (n: number) => `The listing already has the maximum number of videos (${n}).`,
@@ -1259,13 +1261,17 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   const user = `Sender: ${d.sender_name || "?"}${d.agency_name ? " (agency: " + d.agency_name + ")" : ""}\nPhotos attached: ${photos}\n\nMESSAGE:\n${(memberNo ? rawText.replace(MEMBER_NO, " ") : rawText).slice(0, 6000)}`;
   let fields: Record<string, any> = {}, missing: string[] = [], usage: Usage = { in: 0, out: 0, cache_write: 0, cache_read: 0 }, cost = 0, err: string | null = null, raw: Record<string, any> = {}, attributed: string | null = null;
   let ambig: { area: string; governorates: string[] } | null = null;   // "الصناعة is in دمشق / اللاذقية…": asked with the list
-  // photos / a video and no words yet: nothing to read — no model call, no guessed type; the sender is asked for the details
-  if (rawText.replace(/\s+/g, "").length < 10) {
-    const need = ["deal", "property_type", "governorate", "area_m2"];
-    await rpc("bk_intake_save_read", { p_draft: draftId, p_fields: {}, p_missing: need, p_summary: t.mediaOnly, p_status: "needs_info", p_model: null, p_in: 0, p_out: 0, p_cost: 0, p_error: null });
-    await log(draftId, d.chat_id, "info", "media_only", { photos, videos });
-    if (!opts.quiet && d.source !== "web") await reply(d.source, d.chat_id, t.mediaOnly);
-    return { status: "needs_info", media_only: true };
+  // nothing worth reading yet — no model call, no guessed type; the sender is asked for the details. «وصلت الصور» only when a photo or
+  // video really came: a short text with no media («شقه للبيع», 8 letters) used to get «وصلت الصور» and was never read (owner
+  // 2026-10-31; 14 such replies in 30 days). Now: media + under 10 characters → «وصلت الصور»; no media and under 4 letters/digits
+  // (an emoji, «ف») → «أرسل التفاصيل»; any real words → read normally, so the model takes «شقة للبيع» and asks only for the rest
+  const compact = rawText.replace(/\s+/g, ""), wordChars = (rawText.match(/[\p{L}\p{N}]/gu) || []).length;
+  if ((photos + videos > 0 && compact.length < 10) || (photos + videos === 0 && wordChars < 4)) {
+    const need = ["deal", "property_type", "governorate", "area_m2"], msg = photos + videos > 0 ? t.mediaOnly : t.needDetails;
+    await rpc("bk_intake_save_read", { p_draft: draftId, p_fields: {}, p_missing: need, p_summary: msg, p_status: "needs_info", p_model: null, p_in: 0, p_out: 0, p_cost: 0, p_error: null });
+    await log(draftId, d.chat_id, "info", photos + videos > 0 ? "media_only" : "too_short", { photos, videos, chars: compact.length });
+    if (!opts.quiet && d.source !== "web") await reply(d.source, d.chat_id, msg);
+    return { status: "needs_info", media_only: photos + videos > 0 };
   }
   if (!(d.fields || {}).split_done) {
     const parts = splitListings(rawText);
