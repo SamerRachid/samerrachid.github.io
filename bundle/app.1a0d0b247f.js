@@ -895,7 +895,7 @@ function mdrawer(){
   // (the green WhatsApp «شكاوى واقتراحات» that sat here repeated the site link of the same name; removed 2026-10-30, owner)
   var foot='<div class="mm-foot mm-box" style="--i:3">'+countries+langs+curs+(USER?'<a class="mm-out" data-md="out">'+mi("out")+t("logout")+'</a>':'')+'</div>';
   return '<div class="mdw" id="mdw"><div class="mdw-bg" id="mdwBg"></div><aside class="mdw-p mdw2 mm" role="dialog" aria-label="'+GX("mdMenu")+'">'+
-    '<div class="mm-bg"><img src="/next/images/hero/umayyad-1080.webp?v=2" alt="" loading="lazy"></div>'+
+    '<div class="mm-bg"><img '+(window._mmBg?'src':'data-src')+'="/next/images/hero/umayyad-1080.webp?v=2" alt=""></div>'+   // fetched the first time the menu opens (it cost every page load ~150 KB)
     '<div class="mdw-top"><a class="logo blogo" data-go="home" aria-label="'+esc(t("home"))+'">'+brandLogo()+'</a><button class="mdw-x" id="mdwX" aria-label="'+GX("mdClose")+'">'+
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>'+
     '<div class="mm-in">'+acct+'<div class="mm-main">'+tiles+sec(GX("mdDiscover"),search.concat(discover),1)+sec(GX("mdServices"),grp("services"),2)+sec(GX("mdSite"),site,3)+'</div>'+
@@ -920,7 +920,7 @@ function soonOpen(k){
   d.querySelector(".soon-bg").onclick=close; d.querySelector(".soon-x").onclick=close; d.querySelector(".soon-ok").onclick=close;
   document.addEventListener("keydown",function h(e){ if(e.key==="Escape"){ close(); document.removeEventListener("keydown",h) } });
 }
-function mdwOpen(){ var d=$("#mdw"); if(!d) return; closeAllMenus(); d.classList.add("on"); document.body.classList.add("mdw-open") }
+function mdwOpen(){ var d=$("#mdw"); if(!d) return; closeAllMenus(); window._mmBg=true; var bi=d.querySelector(".mm-bg img[data-src]"); if(bi){ bi.src=bi.dataset.src; bi.removeAttribute("data-src") } d.classList.add("on"); document.body.classList.add("mdw-open") }
 function mdwClose(){ var d=$("#mdw"); if(d) d.classList.remove("on"); document.body.classList.remove("mdw-open") }
 // the Android app's Back button asks this first (owner, 2026-10-23): an open window closes before the page goes back
 window.bkBack=function(){ try{
@@ -8316,11 +8316,12 @@ function initOpening(){
   // plays on every load of the home page (a refresh included); in-app navigation back to home does not re-run it
   if(VIEW!=="home" || PREVIEW) return;
   if(/BalkounApp\//.test(navigator.userAgent||"")) return;   // the Android app has already shown the turning logo on its own launch screen
-  var oe=SX("opening_enabled",true); if(window.innerWidth<=700){ var om=SX("opening_enabled_m",""); if(om!=="") oe=(om===true||om==="true") }   // phones may differ (extras.opening_enabled_m; "" = same as desktop)
+  var bb={}; try{ bb=JSON.parse((document.querySelector('meta[name="bk-boot"]')||{}).content||"{}")||{} }catch(e){}
+  var oe=SX("opening_enabled",bb.opening!=null?bb.opening:true); if(window.innerWidth<=700){ var om=SX("opening_enabled_m",bb.opening_m!=null?bb.opening_m:""); if(om!=="") oe=(om===true||om==="true") }   // phones may differ (extras.opening_enabled_m; "" = same as desktop)
   // the installed app has its own switch (owner, 2026-10-23: the app opened on a still logo; the intro is off for phones in the
   // browser, but the app should open like the website, with the turning logo)
   var isApp=(window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone===true;
-  if(isApp){ var oa=SX("opening_app",true); oe=!(oa===false||oa==="false") }
+  if(isApp){ var oa=SX("opening_app",bb.opening_app!=null?bb.opening_app:true); oe=!(oa===false||oa==="false") }
   if(oe===false||oe==="false") return;
   // theme hu 2026-10-29: the opening plays whatever the phone's motion setting says (the owner's phone reports "reduce")
   var c=document.createElement("div"); c.className="curtain";

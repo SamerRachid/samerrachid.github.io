@@ -158,7 +158,22 @@ for (const l of LANG_DIRS) {
   const homeBlock = (app.match(/<div id="app" role="main">(<!--seo-home-->[\s\S]*?<!--\/seo-home-->)<\/div>/) || [, ""])[1];
   const page = (body) => tpl.replace("@@HTMLATTR@@", () => htmlAttr).replace("@@SEOHEAD@@", () => seo)
     .replace("<!--seo-page-->@@BODY@@<!--/seo-page-->", () => body);
-  for (const [f, html] of [["index.html", page(homeBlock)], ["404.html", page("")]]) {
+  // the home only: (1) the intro switches as they are now (a first visit has no saved settings, so the phone intro the owner
+  // switched off played anyway); (2) the first hero photo is requested from the start instead of after the app has drawn the
+  // hero (Lighthouse: the photo is the largest paint, and it waited ~4.6 s for the script on a phone)
+  let boot = {}, heroPreload = "";
+  try {
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/site_content?select=extras,hero_bg_type&id=eq.1&limit=1`, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
+    const row = r.ok ? (await r.json())[0] : null, ex = (row && row.extras) || {};
+    for (const [k, v] of [["opening", "opening_enabled"], ["opening_m", "opening_enabled_m"], ["opening_app", "opening_app"]]) if (ex[v] !== undefined && ex[v] !== null) boot[k] = ex[v];
+    if (row && row.hero_bg_type !== "photo" && row.hero_bg_type !== "video") {   // the built-in slides (a studio photo/video has its own address)
+      const P = "/next/images/hero/umayyad", V = "?v=2";
+      heroPreload = `<link rel="preload" as="image" type="image/avif" href="${P}-phone.avif${V}" media="(max-width:860px)" fetchpriority="high">` +
+        `<link rel="preload" as="image" type="image/avif" imagesrcset="${P}-1080.avif${V} 1080w, ${P}-1920.avif${V} 1920w" imagesizes="100vw" media="(min-width:861px)" fetchpriority="high">`;
+    }
+  } catch (e) { console.warn("site settings unreadable, home without boot settings:", e.message); }
+  const homeHtml = page(homeBlock).replace("</title>", () => `</title>\n<meta name="bk-boot" content="${escAttr(JSON.stringify(boot))}">${heroPreload}`);
+  for (const [f, html] of [["index.html", homeHtml], ["404.html", page("")]]) {
     const p = path.join(ROOT, f); const old = fs.existsSync(p) ? fs.readFileSync(p, "utf8") : "";
     if (old !== html) { for (let k = 0; ; k++) { try { fs.writeFileSync(p, html); break; } catch (e) { if (k >= 5) throw e; const t = Date.now(); while (Date.now() - t < 300 * (k + 1)) {} } } }
   }
