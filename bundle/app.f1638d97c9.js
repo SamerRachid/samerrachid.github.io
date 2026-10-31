@@ -1775,7 +1775,8 @@ function rsTitle(){
  if(deal && L!=="ar") deal=deal.charAt(0).toLowerCase()+deal.slice(1);
  var loc = (F.areas&&F.areas.length) ? F.areas.map(aN).join(ar?"، ":", ")+((F.govs&&F.govs.length===1)?(ar?"، ":", ")+gN(F.govs[0]):"")
          : F.a ? aN(F.a) : (F.govs&&F.govs.length) ? F.govs.map(gN).join(ar?"، ":", ") : F.g ? gN(F.g) : (countryOf(COUNTRY) ? countryName(countryOf(COUNTRY)) : GX("rsSyria"));
- return (typeTxt+(deal?" "+deal:"")+" "+GX("lIn")+" "+loc).replace(/[<>]/g,"") }
+ var rooms=(F.rooms||[]).slice().sort(function(a,b){ return a-b }).map(roomsLabel).join(ar?"، ":", ");
+ return (typeTxt+(deal?" "+deal:"")+" "+GX("lIn")+" "+loc+(rooms?" · "+rooms:"")).replace(/[<>]/g,"") }
 function rsMarket(r){
  if(SX("results_market_line",true)===false || F.deal==="rent") return "";
  var areas=(F.areas&&F.areas.length)?F.areas:(F.a?[F.a]:[]);
@@ -1975,10 +1976,12 @@ function rsWire(opts){
     $$("#hPmin,#hPmax").forEach(function(i){ i.onkeydown=function(e){ if(e.key==="Enter") applyPrice() }; i.onchange=function(){ if(window.innerWidth<=900) applyPrice() } });
     document.addEventListener("click",function h(e){ if(!pop.isConnected){ document.removeEventListener("click",h); return } if(pop._open && window.innerWidth>900){ pop._open=false; pop.hidden=true; keepTyped() } }) }
   var mp=$("#rsMorePop"), mb=$("#rsMore");
-  if(mb){ mb.onclick=function(e){ e.stopPropagation(); closeAllMenus(); if(pop) pop.hidden=true; mp.classList.toggle("on") }; mp.onclick=function(e){ e.stopPropagation() };
-    document.addEventListener("click",function h2(e){ if(!mp.isConnected){ document.removeEventListener("click",h2); return } if(window.innerWidth>900) mp.classList.remove("on") });
-    document.addEventListener("keydown",function h3(e){ if(!mp.isConnected){ document.removeEventListener("keydown",h3); return } if(e.key==="Escape") mp.classList.remove("on") }) }
-  if(mp && window._rsMoreOpen){ window._rsMoreOpen=false; mp.classList.add("on") }   // the list stays open after a square is tapped
+  if(mb){ mb.onclick=function(e){ e.stopPropagation(); closeAllMenus(); if(pop) pop.hidden=true; mp.classList.toggle("on"); window._rsMoreOpen=mp.classList.contains("on") }; mp.onclick=function(e){ e.stopPropagation() };
+    document.addEventListener("click",function h2(e){ if(!mp.isConnected){ document.removeEventListener("click",h2); return } if(window.innerWidth>900){ mp.classList.remove("on"); window._rsMoreOpen=false } });
+    document.addEventListener("keydown",function h3(e){ if(!mp.isConnected){ document.removeEventListener("keydown",h3); return } if(e.key==="Escape"){ mp.classList.remove("on"); window._rsMoreOpen=false } }) }
+  // «المزيد» stays open until the visitor closes it (outside, Escape, the button): a pick redraws the page, and in server mode the
+  // results redraw it a second time — a one-shot flag reopened it only for the first (owner 2026-10-31: rooms could not be picked twice)
+  if(mp && window._rsMoreOpen) mp.classList.add("on")
   $$("[data-rsq]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); var v=this.dataset.rsq, a=F.rooms||[]; F.rooms = a.indexOf(v)>-1 ? a.filter(function(x){ return x!==v }) : a.concat([v]); F.page=1; window._rsMoreOpen=true; render() } });
   $$('input[name=cd]').forEach(function(r){ r.onclick=function(){ F.cd=F.cd===r.value?"":r.value; F.page=1; render() } });
   $$('input[name=rentalPeriod]').forEach(function(r){ r.onclick=function(){ F.rentalPeriod=r.value; F.page=1; render() } });
@@ -7545,6 +7548,7 @@ function filterToQuery(){
   if(F.rentalPeriod) q.rp=F.rentalPeriod;
   if(F.pmin) q.pmin=F.pmin;
   if(F.pmax) q.pmax=F.pmax;
+  if(F.rooms&&F.rooms.length) q.rooms=F.rooms.join(",");
   if(F.ownerOnly) q.owner=1;
   if(F.shareOnly) q.share=1;
   if(F.sort && F.sort!=="new") q.sort=F.sort;
@@ -7576,6 +7580,7 @@ function applyFilterFromQuery(qs){
   if(params.rp) F.rentalPeriod=params.rp;
   if(params.pmin) F.pmin=parseFloat(params.pmin)||0;
   if(params.pmax) F.pmax=parseFloat(params.pmax)||0;
+  if(params.rooms) F.rooms=params.rooms.split(",").filter(function(v){ return /^\d{1,2}$/.test(v) });
   if(params.owner) F.ownerOnly=true;
   if(params.share) F.shareOnly=true;
   if(params.sort) F.sort=params.sort;
@@ -10627,7 +10632,8 @@ window._scrollMem={}; window._scrollKey=function(){ return location.pathname+loc
 function scrollRestore(){ var y=window._scrollMem[_scrollKey()]||0, moved=false;
   var stop=function(){ moved=true }; ["wheel","touchstart","keydown"].forEach(function(ev){ window.addEventListener(ev,stop,{once:true,passive:true}) });
   [0,80,250,600,1200].forEach(function(ms){ setTimeout(function(){ if(!moved && Math.abs((window.scrollY||0)-y)>4) window.scrollTo(0,y) },ms) }) }
-window.onpopstate=window.onhashchange=function(){var v=viewFromHash(); if(v&&v!==VIEW&&!editLeaveOk()){ try{ history.pushState({bk:1,n:((history.state&&history.state.n)||0)+1},"",routePath()) }catch(e){} return } if(v&&v!==VIEW){VIEW=v;render();refreshListingsOnNavigate();scrollRestore()} else if(location.hash){ _FIRST_HISTORY_SYNC=true; syncHash() }};
+// Back / Forward between two searches (deal=rent → deal=sale): the filters come back from the address, so the results are redrawn too
+window.onpopstate=window.onhashchange=function(){var v=viewFromHash(); if(v&&v!==VIEW&&!editLeaveOk()){ try{ history.pushState({bk:1,n:((history.state&&history.state.n)||0)+1},"",routePath()) }catch(e){} return } if(v&&v!==VIEW){VIEW=v;render();refreshListingsOnNavigate();scrollRestore()} else if(v&&v==="search"&&!location.hash){ F.page=1; render() } else if(location.hash){ _FIRST_HISTORY_SYNC=true; syncHash() }};
 document.addEventListener("keydown",function(e){
   if(!LIGHTBOX_OPEN) return;
   if(e.key==="Escape"){ LIGHTBOX_OPEN=false; render() }

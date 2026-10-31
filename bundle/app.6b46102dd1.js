@@ -1775,7 +1775,8 @@ function rsTitle(){
  if(deal && L!=="ar") deal=deal.charAt(0).toLowerCase()+deal.slice(1);
  var loc = (F.areas&&F.areas.length) ? F.areas.map(aN).join(ar?"، ":", ")+((F.govs&&F.govs.length===1)?(ar?"، ":", ")+gN(F.govs[0]):"")
          : F.a ? aN(F.a) : (F.govs&&F.govs.length) ? F.govs.map(gN).join(ar?"، ":", ") : F.g ? gN(F.g) : (countryOf(COUNTRY) ? countryName(countryOf(COUNTRY)) : GX("rsSyria"));
- return (typeTxt+(deal?" "+deal:"")+" "+GX("lIn")+" "+loc).replace(/[<>]/g,"") }
+ var rooms=(F.rooms||[]).slice().sort(function(a,b){ return a-b }).map(roomsLabel).join(ar?"، ":", ");
+ return (typeTxt+(deal?" "+deal:"")+" "+GX("lIn")+" "+loc+(rooms?" · "+rooms:"")).replace(/[<>]/g,"") }
 function rsMarket(r){
  if(SX("results_market_line",true)===false || F.deal==="rent") return "";
  var areas=(F.areas&&F.areas.length)?F.areas:(F.a?[F.a]:[]);
@@ -7545,6 +7546,7 @@ function filterToQuery(){
   if(F.rentalPeriod) q.rp=F.rentalPeriod;
   if(F.pmin) q.pmin=F.pmin;
   if(F.pmax) q.pmax=F.pmax;
+  if(F.rooms&&F.rooms.length) q.rooms=F.rooms.join(",");
   if(F.ownerOnly) q.owner=1;
   if(F.shareOnly) q.share=1;
   if(F.sort && F.sort!=="new") q.sort=F.sort;
@@ -7576,13 +7578,19 @@ function applyFilterFromQuery(qs){
   if(params.rp) F.rentalPeriod=params.rp;
   if(params.pmin) F.pmin=parseFloat(params.pmin)||0;
   if(params.pmax) F.pmax=parseFloat(params.pmax)||0;
+  if(params.rooms) F.rooms=params.rooms.split(",").filter(function(v){ return /^\d{1,2}$/.test(v) });
   if(params.owner) F.ownerOnly=true;
   if(params.share) F.shareOnly=true;
   if(params.sort) F.sort=params.sort;
   if(params.page) F.page=parseInt(params.page,10)||1;
 }
 function syncHash(){
-  if(BK_SHELL){ if(!BK_SHELL.v0){ BK_SHELL.v0=VIEW; BK_SHELL.rp0=routePath() } if(VIEW===BK_SHELL.v0 && routePath()===BK_SHELL.rp0){ _FIRST_HISTORY_SYNC=false; return } }
+  if(BK_SHELL){ var q0=function(sel,at){ var e=document.querySelector(sel); return e?e.getAttribute(at):null };
+    if(!BK_SHELL.v0){ BK_SHELL.v0=VIEW; BK_SHELL.rp0=routePath(); BK_SHELL.m0={t:document.title,d:q0('meta[name="description"]',"content"),ot:q0('meta[property="og:title"]',"content"),od:q0('meta[property="og:description"]',"content"),ou:q0('meta[property="og:url"]',"content"),c:q0('link[rel="canonical"]',"href")} }
+    if(VIEW===BK_SHELL.v0 && routePath()===BK_SHELL.rp0){ _FIRST_HISTORY_SYNC=false;
+      if(BK_SHELL.left){ var m0=BK_SHELL.m0; document.title=m0.t; if(m0.d!=null) metaSet('meta[name="description"]',m0.d); if(m0.ot!=null) metaSet('meta[property="og:title"]',m0.ot); if(m0.od!=null) metaSet('meta[property="og:description"]',m0.od); if(m0.ou!=null) metaSet('meta[property="og:url"]',m0.ou); if(m0.c!=null) metaSet('link[rel="canonical"]',m0.c) }
+      return }
+    BK_SHELL.left=true }   // Back to the opened page puts its own title and head back
   // Real page addresses (multi-page structure): /search?…, /post, /about, /listing/123 …
   // GitHub Pages serves 404.html (a copy of this file) for any path, so deep links work.
   var h = routePath();
@@ -10622,7 +10630,8 @@ window._scrollMem={}; window._scrollKey=function(){ return location.pathname+loc
 function scrollRestore(){ var y=window._scrollMem[_scrollKey()]||0, moved=false;
   var stop=function(){ moved=true }; ["wheel","touchstart","keydown"].forEach(function(ev){ window.addEventListener(ev,stop,{once:true,passive:true}) });
   [0,80,250,600,1200].forEach(function(ms){ setTimeout(function(){ if(!moved && Math.abs((window.scrollY||0)-y)>4) window.scrollTo(0,y) },ms) }) }
-window.onpopstate=window.onhashchange=function(){var v=viewFromHash(); if(v&&v!==VIEW&&!editLeaveOk()){ try{ history.pushState({bk:1,n:((history.state&&history.state.n)||0)+1},"",routePath()) }catch(e){} return } if(v&&v!==VIEW){VIEW=v;render();refreshListingsOnNavigate();scrollRestore()} else if(location.hash){ _FIRST_HISTORY_SYNC=true; syncHash() }};
+// Back / Forward between two searches (deal=rent → deal=sale): the filters come back from the address, so the results are redrawn too
+window.onpopstate=window.onhashchange=function(){var v=viewFromHash(); if(v&&v!==VIEW&&!editLeaveOk()){ try{ history.pushState({bk:1,n:((history.state&&history.state.n)||0)+1},"",routePath()) }catch(e){} return } if(v&&v!==VIEW){VIEW=v;render();refreshListingsOnNavigate();scrollRestore()} else if(v&&v==="search"&&!location.hash){ F.page=1; render() } else if(location.hash){ _FIRST_HISTORY_SYNC=true; syncHash() }};
 document.addEventListener("keydown",function(e){
   if(!LIGHTBOX_OPEN) return;
   if(e.key==="Escape"){ LIGHTBOX_OPEN=false; render() }
