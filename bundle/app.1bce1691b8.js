@@ -1837,7 +1837,8 @@ function search(){
  var PAGE_SIZE=+SX("search_page_size",24)||24;
  var totalPages=Math.max(1,Math.ceil(r.length/PAGE_SIZE));
  if(!F.page || F.page<1) F.page=1;
- if(F.page>totalPages){ F.page=totalPages; if(srv && st.q) st=srvSearchState() }
+ // only once the results are in: «page 2» (or 5) from a link or a refresh fell back to page 1 (owner's test run 2026-10-31)
+ if(F.page>totalPages && LISTINGS_LOADED && (!srv || (st.q && st.q.key===srvKey()))){ F.page=totalPages; if(srv && st.q) st=srvSearchState() }   // not on the first draws: the settings (server mode) and the listings are not in yet, and st.q can still be the previous search's answer
  var pageItems=srv?((st.q&&st.q.pages[F.page])||[]):r.slice((F.page-1)*PAGE_SIZE, F.page*PAGE_SIZE), srvWait=!!(srv&&st.wait);
  // while the server answers, the previous cards stay on screen (dimmed) instead of a "loading" line: one change, not two
  if(srvWait && !pageItems.length && RS.prevItems && RS.prevItems.length) pageItems=RS.prevItems; else if(pageItems.length && !srvWait) RS.prevItems=pageItems;
@@ -1976,10 +1977,12 @@ function rsWire(opts){
     $$("#hPmin,#hPmax").forEach(function(i){ i.onkeydown=function(e){ if(e.key==="Enter") applyPrice() }; i.onchange=function(){ if(window.innerWidth<=900) applyPrice() } });
     document.addEventListener("click",function h(e){ if(!pop.isConnected){ document.removeEventListener("click",h); return } if(pop._open && window.innerWidth>900){ pop._open=false; pop.hidden=true; keepTyped() } }) }
   var mp=$("#rsMorePop"), mb=$("#rsMore");
-  if(mb){ mb.onclick=function(e){ e.stopPropagation(); closeAllMenus(); if(pop) pop.hidden=true; mp.classList.toggle("on") }; mp.onclick=function(e){ e.stopPropagation() };
-    document.addEventListener("click",function h2(e){ if(!mp.isConnected){ document.removeEventListener("click",h2); return } if(window.innerWidth>900) mp.classList.remove("on") });
-    document.addEventListener("keydown",function h3(e){ if(!mp.isConnected){ document.removeEventListener("keydown",h3); return } if(e.key==="Escape") mp.classList.remove("on") }) }
-  if(mp && window._rsMoreOpen){ window._rsMoreOpen=false; mp.classList.add("on") }   // the list stays open after a square is tapped
+  if(mb){ mb.onclick=function(e){ e.stopPropagation(); closeAllMenus(); if(pop) pop.hidden=true; mp.classList.toggle("on"); window._rsMoreOpen=mp.classList.contains("on") }; mp.onclick=function(e){ e.stopPropagation() };
+    document.addEventListener("click",function h2(e){ if(!mp.isConnected){ document.removeEventListener("click",h2); return } if(window.innerWidth>900){ mp.classList.remove("on"); window._rsMoreOpen=false } });
+    document.addEventListener("keydown",function h3(e){ if(!mp.isConnected){ document.removeEventListener("keydown",h3); return } if(e.key==="Escape"){ mp.classList.remove("on"); window._rsMoreOpen=false } }) }
+  // «المزيد» stays open until the visitor closes it (outside, Escape, the button): a pick redraws the page, and in server mode the
+  // results redraw it a second time — a one-shot flag reopened it only for the first (owner 2026-10-31: rooms could not be picked twice)
+  if(mp && window._rsMoreOpen) mp.classList.add("on")
   $$("[data-rsq]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); var v=this.dataset.rsq, a=F.rooms||[]; F.rooms = a.indexOf(v)>-1 ? a.filter(function(x){ return x!==v }) : a.concat([v]); F.page=1; window._rsMoreOpen=true; render() } });
   $$('input[name=cd]').forEach(function(r){ r.onclick=function(){ F.cd=F.cd===r.value?"":r.value; F.page=1; render() } });
   $$('input[name=rentalPeriod]').forEach(function(r){ r.onclick=function(){ F.rentalPeriod=r.value; F.page=1; render() } });
@@ -7532,7 +7535,7 @@ async function fetchPhotos(id){
 var _FIRST_HISTORY_SYNC = true;
 function filterToQuery(){
   var q={};
-  if(F.deal) q.deal=F.deal;
+  q.deal=F.deal||"all";   // «الكل» is written too: a link without deal= opens on «للبيع» (the default), so sale+rent was lost on refresh / share
   if(F.govs&&F.govs.length) q.govs=F.govs.join(",");
   else if(F.g) q.g=F.g;
   if(F.areas&&F.areas.length) q.areas=F.areas.join(",");
@@ -7564,7 +7567,7 @@ function applyFilterFromQuery(qs){
     var v=""; try{ v=decodeURIComponent(kv[1]||"") }catch(e){ v="" }
     params[kv[0]]=v.replace(/[<>"'`\\]/g,"").slice(0,120);
   });
-  if(params.deal!=null) F.deal=params.deal;
+  if(params.deal!=null) F.deal=params.deal==="all"?"":params.deal;
   if(params.govs) F.govs=params.govs.split(",").filter(Boolean);
   else if(params.g) F.g=params.g;
   if(params.areas) F.areas=params.areas.split(",").filter(Boolean);

@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-89LmKqNZYu/5HjKtcp82B8TXYADwtfZYKBn65hirbl4=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-aZgm0f9xo/gyMUdn2auclFXJM8MITD0AVrh1jy7qeIk=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -6830,7 +6830,8 @@ function search(){
  var PAGE_SIZE=+SX("search_page_size",24)||24;
  var totalPages=Math.max(1,Math.ceil(r.length/PAGE_SIZE));
  if(!F.page || F.page<1) F.page=1;
- if(F.page>totalPages){ F.page=totalPages; if(srv && st.q) st=srvSearchState() }
+ // only once the results are in: «page 2» (or 5) from a link or a refresh fell back to page 1 (owner's test run 2026-10-31)
+ if(F.page>totalPages && LISTINGS_LOADED && (!srv || (st.q && st.q.key===srvKey()))){ F.page=totalPages; if(srv && st.q) st=srvSearchState() }   // not on the first draws: the settings (server mode) and the listings are not in yet, and st.q can still be the previous search's answer
  var pageItems=srv?((st.q&&st.q.pages[F.page])||[]):r.slice((F.page-1)*PAGE_SIZE, F.page*PAGE_SIZE), srvWait=!!(srv&&st.wait);
  // while the server answers, the previous cards stay on screen (dimmed) instead of a "loading" line: one change, not two
  if(srvWait && !pageItems.length && RS.prevItems && RS.prevItems.length) pageItems=RS.prevItems; else if(pageItems.length && !srvWait) RS.prevItems=pageItems;
@@ -12527,7 +12528,7 @@ async function fetchPhotos(id){
 var _FIRST_HISTORY_SYNC = true;
 function filterToQuery(){
   var q={};
-  if(F.deal) q.deal=F.deal;
+  q.deal=F.deal||"all";   // «الكل» is written too: a link without deal= opens on «للبيع» (the default), so sale+rent was lost on refresh / share
   if(F.govs&&F.govs.length) q.govs=F.govs.join(",");
   else if(F.g) q.g=F.g;
   if(F.areas&&F.areas.length) q.areas=F.areas.join(",");
@@ -12559,7 +12560,7 @@ function applyFilterFromQuery(qs){
     var v=""; try{ v=decodeURIComponent(kv[1]||"") }catch(e){ v="" }
     params[kv[0]]=v.replace(/[<>"'`\\]/g,"").slice(0,120);
   });
-  if(params.deal!=null) F.deal=params.deal;
+  if(params.deal!=null) F.deal=params.deal==="all"?"":params.deal;
   if(params.govs) F.govs=params.govs.split(",").filter(Boolean);
   else if(params.g) F.g=params.g;
   if(params.areas) F.areas=params.areas.split(",").filter(Boolean);
@@ -12643,7 +12644,7 @@ function routePathBase(){
          VIEW==="static" ? location.pathname :
          VIEW==="postmsg" ? "/post-by-message" :
          (VIEW==="about"||VIEW==="contactus"||VIEW==="privacy"||VIEW==="terms") ? "/"+VIEW+"/" :   // these also exist as static pages
-         "/"+VIEW+(VIEW==="search"?filterToQuery():"");
+         "/"+VIEW+(VIEW==="search"?filterToQuery():VIEW==="mapsearch"?filterToQuery().replace(/[?&]page=\d+/,"").replace(/^&/,"?"):"");
 }
 /* ── legal pages: defaults live here (one block, also read by scripts/generate-pages.mjs for the static /privacy/ and /terms/ pages);
    the admin can override each language from the panel (extras legal_privacy_<lang>, legal_terms_<lang>: "## heading" lines + paragraphs).
@@ -12832,7 +12833,7 @@ function viewFromHash(){
   // balkoun.com/#/signup (posters, QR codes): the home page with the sign-up form already open
   if(p[0]==="signup"||p[0]==="join"){ if(typeof AU!=="undefined"&&!(typeof USER!=="undefined"&&USER&&USER.id)){ AU.open=true; AU.mode="up"; AU.step=1; setTimeout(function(){ try{ render() }catch(e){} },0) } return "home" }
   if(["help","app","search","post","postmsg","mine","saved","searches","msgs","account","about","contact","contactus","privacy","terms","admin","mapsearch","agencies","agencyform","projects","wanted","wantedform","promote"].indexOf(p[0])>-1){
-    if(p[0]==="search" && qs) applyFilterFromQuery(qs);
+    if((p[0]==="search"||p[0]==="mapsearch") && qs) applyFilterFromQuery(qs);   // the map keeps its filters in the address too
     return p[0];
   }
   return "home";

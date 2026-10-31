@@ -1837,7 +1837,8 @@ function search(){
  var PAGE_SIZE=+SX("search_page_size",24)||24;
  var totalPages=Math.max(1,Math.ceil(r.length/PAGE_SIZE));
  if(!F.page || F.page<1) F.page=1;
- if(F.page>totalPages){ F.page=totalPages; if(srv && st.q) st=srvSearchState() }
+ // only once the results are in: «page 2» (or 5) from a link or a refresh fell back to page 1 (owner's test run 2026-10-31)
+ if(F.page>totalPages && LISTINGS_LOADED && (!srv || (st.q && st.q.key===srvKey()))){ F.page=totalPages; if(srv && st.q) st=srvSearchState() }   // not on the first draws: the settings (server mode) and the listings are not in yet, and st.q can still be the previous search's answer
  var pageItems=srv?((st.q&&st.q.pages[F.page])||[]):r.slice((F.page-1)*PAGE_SIZE, F.page*PAGE_SIZE), srvWait=!!(srv&&st.wait);
  // while the server answers, the previous cards stay on screen (dimmed) instead of a "loading" line: one change, not two
  if(srvWait && !pageItems.length && RS.prevItems && RS.prevItems.length) pageItems=RS.prevItems; else if(pageItems.length && !srvWait) RS.prevItems=pageItems;

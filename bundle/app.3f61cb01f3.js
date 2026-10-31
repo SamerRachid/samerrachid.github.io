@@ -1775,7 +1775,8 @@ function rsTitle(){
  if(deal && L!=="ar") deal=deal.charAt(0).toLowerCase()+deal.slice(1);
  var loc = (F.areas&&F.areas.length) ? F.areas.map(aN).join(ar?"، ":", ")+((F.govs&&F.govs.length===1)?(ar?"، ":", ")+gN(F.govs[0]):"")
          : F.a ? aN(F.a) : (F.govs&&F.govs.length) ? F.govs.map(gN).join(ar?"، ":", ") : F.g ? gN(F.g) : (countryOf(COUNTRY) ? countryName(countryOf(COUNTRY)) : GX("rsSyria"));
- return (typeTxt+(deal?" "+deal:"")+" "+GX("lIn")+" "+loc).replace(/[<>]/g,"") }
+ var rooms=(F.rooms||[]).slice().sort(function(a,b){ return a-b }).map(roomsLabel).join(ar?"، ":", ");
+ return (typeTxt+(deal?" "+deal:"")+" "+GX("lIn")+" "+loc+(rooms?" · "+rooms:"")).replace(/[<>]/g,"") }
 function rsMarket(r){
  if(SX("results_market_line",true)===false || F.deal==="rent") return "";
  var areas=(F.areas&&F.areas.length)?F.areas:(F.a?[F.a]:[]);
@@ -1836,7 +1837,8 @@ function search(){
  var PAGE_SIZE=+SX("search_page_size",24)||24;
  var totalPages=Math.max(1,Math.ceil(r.length/PAGE_SIZE));
  if(!F.page || F.page<1) F.page=1;
- if(F.page>totalPages){ F.page=totalPages; if(srv && st.q) st=srvSearchState() }
+ // only once the results are in: «page 2» (or 5) from a link or a refresh fell back to page 1 (owner's test run 2026-10-31)
+ if(F.page>totalPages && LISTINGS_LOADED && (!srv || (st.q && st.q.key===srvKey()))){ F.page=totalPages; if(srv && st.q) st=srvSearchState() }   // not on the first draws: the settings (server mode) and the listings are not in yet, and st.q can still be the previous search's answer
  var pageItems=srv?((st.q&&st.q.pages[F.page])||[]):r.slice((F.page-1)*PAGE_SIZE, F.page*PAGE_SIZE), srvWait=!!(srv&&st.wait);
  // while the server answers, the previous cards stay on screen (dimmed) instead of a "loading" line: one change, not two
  if(srvWait && !pageItems.length && RS.prevItems && RS.prevItems.length) pageItems=RS.prevItems; else if(pageItems.length && !srvWait) RS.prevItems=pageItems;
@@ -1975,10 +1977,12 @@ function rsWire(opts){
     $$("#hPmin,#hPmax").forEach(function(i){ i.onkeydown=function(e){ if(e.key==="Enter") applyPrice() }; i.onchange=function(){ if(window.innerWidth<=900) applyPrice() } });
     document.addEventListener("click",function h(e){ if(!pop.isConnected){ document.removeEventListener("click",h); return } if(pop._open && window.innerWidth>900){ pop._open=false; pop.hidden=true; keepTyped() } }) }
   var mp=$("#rsMorePop"), mb=$("#rsMore");
-  if(mb){ mb.onclick=function(e){ e.stopPropagation(); closeAllMenus(); if(pop) pop.hidden=true; mp.classList.toggle("on") }; mp.onclick=function(e){ e.stopPropagation() };
-    document.addEventListener("click",function h2(e){ if(!mp.isConnected){ document.removeEventListener("click",h2); return } if(window.innerWidth>900) mp.classList.remove("on") });
-    document.addEventListener("keydown",function h3(e){ if(!mp.isConnected){ document.removeEventListener("keydown",h3); return } if(e.key==="Escape") mp.classList.remove("on") }) }
-  if(mp && window._rsMoreOpen){ window._rsMoreOpen=false; mp.classList.add("on") }   // the list stays open after a square is tapped
+  if(mb){ mb.onclick=function(e){ e.stopPropagation(); closeAllMenus(); if(pop) pop.hidden=true; mp.classList.toggle("on"); window._rsMoreOpen=mp.classList.contains("on") }; mp.onclick=function(e){ e.stopPropagation() };
+    document.addEventListener("click",function h2(e){ if(!mp.isConnected){ document.removeEventListener("click",h2); return } if(window.innerWidth>900){ mp.classList.remove("on"); window._rsMoreOpen=false } });
+    document.addEventListener("keydown",function h3(e){ if(!mp.isConnected){ document.removeEventListener("keydown",h3); return } if(e.key==="Escape"){ mp.classList.remove("on"); window._rsMoreOpen=false } }) }
+  // «المزيد» stays open until the visitor closes it (outside, Escape, the button): a pick redraws the page, and in server mode the
+  // results redraw it a second time — a one-shot flag reopened it only for the first (owner 2026-10-31: rooms could not be picked twice)
+  if(mp && window._rsMoreOpen) mp.classList.add("on")
   $$("[data-rsq]").forEach(function(b){ b.onclick=function(e){ e.stopPropagation(); var v=this.dataset.rsq, a=F.rooms||[]; F.rooms = a.indexOf(v)>-1 ? a.filter(function(x){ return x!==v }) : a.concat([v]); F.page=1; window._rsMoreOpen=true; render() } });
   $$('input[name=cd]').forEach(function(r){ r.onclick=function(){ F.cd=F.cd===r.value?"":r.value; F.page=1; render() } });
   $$('input[name=rentalPeriod]').forEach(function(r){ r.onclick=function(){ F.rentalPeriod=r.value; F.page=1; render() } });
@@ -7531,7 +7535,7 @@ async function fetchPhotos(id){
 var _FIRST_HISTORY_SYNC = true;
 function filterToQuery(){
   var q={};
-  if(F.deal) q.deal=F.deal;
+  q.deal=F.deal||"all";   // «الكل» is written too: a link without deal= opens on «للبيع» (the default), so sale+rent was lost on refresh / share
   if(F.govs&&F.govs.length) q.govs=F.govs.join(",");
   else if(F.g) q.g=F.g;
   if(F.areas&&F.areas.length) q.areas=F.areas.join(",");
@@ -7545,6 +7549,7 @@ function filterToQuery(){
   if(F.rentalPeriod) q.rp=F.rentalPeriod;
   if(F.pmin) q.pmin=F.pmin;
   if(F.pmax) q.pmax=F.pmax;
+  if(F.rooms&&F.rooms.length) q.rooms=F.rooms.join(",");
   if(F.ownerOnly) q.owner=1;
   if(F.shareOnly) q.share=1;
   if(F.sort && F.sort!=="new") q.sort=F.sort;
@@ -7562,7 +7567,7 @@ function applyFilterFromQuery(qs){
     var v=""; try{ v=decodeURIComponent(kv[1]||"") }catch(e){ v="" }
     params[kv[0]]=v.replace(/[<>"'`\\]/g,"").slice(0,120);
   });
-  if(params.deal!=null) F.deal=params.deal;
+  if(params.deal!=null) F.deal=params.deal==="all"?"":params.deal;
   if(params.govs) F.govs=params.govs.split(",").filter(Boolean);
   else if(params.g) F.g=params.g;
   if(params.areas) F.areas=params.areas.split(",").filter(Boolean);
@@ -7576,6 +7581,7 @@ function applyFilterFromQuery(qs){
   if(params.rp) F.rentalPeriod=params.rp;
   if(params.pmin) F.pmin=parseFloat(params.pmin)||0;
   if(params.pmax) F.pmax=parseFloat(params.pmax)||0;
+  if(params.rooms) F.rooms=params.rooms.split(",").filter(function(v){ return /^\d{1,2}$/.test(v) });
   if(params.owner) F.ownerOnly=true;
   if(params.share) F.shareOnly=true;
   if(params.sort) F.sort=params.sort;
@@ -7645,7 +7651,7 @@ function routePathBase(){
          VIEW==="static" ? location.pathname :
          VIEW==="postmsg" ? "/post-by-message" :
          (VIEW==="about"||VIEW==="contactus"||VIEW==="privacy"||VIEW==="terms") ? "/"+VIEW+"/" :   // these also exist as static pages
-         "/"+VIEW+(VIEW==="search"?filterToQuery():"");
+         "/"+VIEW+(VIEW==="search"?filterToQuery():VIEW==="mapsearch"?filterToQuery().replace(/[?&]page=\d+/,"").replace(/^&/,"?"):"");
 }
 /* ── legal pages: defaults live here (one block, also read by scripts/generate-pages.mjs for the static /privacy/ and /terms/ pages);
    the admin can override each language from the panel (extras legal_privacy_<lang>, legal_terms_<lang>: "## heading" lines + paragraphs).
@@ -7834,7 +7840,7 @@ function viewFromHash(){
   // balkoun.com/#/signup (posters, QR codes): the home page with the sign-up form already open
   if(p[0]==="signup"||p[0]==="join"){ if(typeof AU!=="undefined"&&!(typeof USER!=="undefined"&&USER&&USER.id)){ AU.open=true; AU.mode="up"; AU.step=1; setTimeout(function(){ try{ render() }catch(e){} },0) } return "home" }
   if(["help","app","search","post","postmsg","mine","saved","searches","msgs","account","about","contact","contactus","privacy","terms","admin","mapsearch","agencies","agencyform","projects","wanted","wantedform","promote"].indexOf(p[0])>-1){
-    if(p[0]==="search" && qs) applyFilterFromQuery(qs);
+    if((p[0]==="search"||p[0]==="mapsearch") && qs) applyFilterFromQuery(qs);   // the map keeps its filters in the address too
     return p[0];
   }
   return "home";
