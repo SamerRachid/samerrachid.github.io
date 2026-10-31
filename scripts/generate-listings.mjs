@@ -44,12 +44,12 @@ async function sb(endpoint) {
 
 // the app's own label tables (property types, deed status, condition) so every language matches the site
 function loadAppData() {
-  const src = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  const src = fs.readFileSync(path.join(ROOT, "app.html"), "utf8");
   const line = src.split("\n").find((l) => /^var D\s*=\s*\{/.test(l));
   const sandbox = {}; vm.runInNewContext(line.replace(/^var D\s*=/, "D=").replace(/;\s*$/, ""), sandbox);
   return addFrLabels(sandbox.D, FR_LABELS);   // French labels: a 4th entry per row, as the app adds them at runtime
 }
-const FR_LABELS = loadFrLabels(fs.readFileSync(path.join(ROOT, "index.html"), "utf8"));
+const FR_LABELS = loadFrLabels(fs.readFileSync(path.join(ROOT, "app.html"), "utf8"));
 const D = loadAppData();
 const LI = { ar: 0, en: 1, de: 2, fr: 3 };
 const LANGS = { ar: { dir: "rtl", prefix: "", og: "ar_SY" }, en: { dir: "ltr", prefix: "/en", og: "en_US" }, de: { dir: "ltr", prefix: "/de", og: "de_DE" }, fr: { dir: "ltr", prefix: "/fr", og: "fr_FR" } };

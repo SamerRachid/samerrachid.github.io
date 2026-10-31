@@ -33,7 +33,7 @@ const TREES = ["listing", "agency", "for-sale", "for-rent", "areas", "guides", "
 const KEEP_VERSIONS = 3;
 
 // ── 1. the app's CSS and script, once, under a content hash ──
-const app = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+const app = fs.readFileSync(path.join(ROOT, "app.html"), "utf8");   // the app's source
 function largest(re) {
   let best = null, m;
   while ((m = re.exec(app))) if (!best || m[2].length > best.body.length) best = { full: m[0], body: m[2], at: m.index };
@@ -41,7 +41,7 @@ function largest(re) {
 }
 const css = largest(/<style(\s[^>]*)?>([\s\S]*?)<\/style>/g);
 const js = largest(/<script((?![^>]*\ssrc=)(?![^>]*application\/ld\+json)[^>]*)>([\s\S]*?)<\/script>/g);
-if (!css || !js || css.body.length < 100000 || js.body.length < 500000) throw new Error("app CSS/script not found in index.html");
+if (!css || !js || css.body.length < 100000 || js.body.length < 500000) throw new Error("app CSS/script not found in app.html");
 const hash = crypto.createHash("sha1").update(css.body).update(js.body).digest("hex").slice(0, 10);
 const appDir = path.join(ROOT, "bundle");
 fs.mkdirSync(appDir, { recursive: true });
@@ -148,5 +148,20 @@ for (const l of LANG_DIRS) {
   if (!fs.existsSync(path.join(ROOT, l))) continue;
   const home = path.join(ROOT, l, "index.html"); if (fs.existsSync(home)) count[convert(home, l)]++;
   for (const t of TREES) walk(path.join(ROOT, l, t), l + "/" + t);
+}
+// ── 5. the home (index.html) and the deep-link fallback (404.html, which GitHub Pages answers for /listing/123, /post …) are
+//       light pages too (2026-10-31): the app's own head, the crawlable home block in #app (the home only), no bk-route meta —
+//       the app reads the address itself, exactly as it did when both were full 2 MB copies of the app
+{
+  const head = app.slice(0, app.indexOf("<body")), htmlAttr = (app.match(/<html([^>]*)>/) || [, ' lang="ar" dir="rtl"'])[1];
+  const seo = (head.match(SEO_TAG) || []).map((t) => t.trim()).join("\n");
+  const homeBlock = (app.match(/<div id="app" role="main">(<!--seo-home-->[\s\S]*?<!--\/seo-home-->)<\/div>/) || [, ""])[1];
+  const page = (body) => tpl.replace("@@HTMLATTR@@", () => htmlAttr).replace("@@SEOHEAD@@", () => seo)
+    .replace("<!--seo-page-->@@BODY@@<!--/seo-page-->", () => body);
+  for (const [f, html] of [["index.html", page(homeBlock)], ["404.html", page("")]]) {
+    const p = path.join(ROOT, f); const old = fs.existsSync(p) ? fs.readFileSync(p, "utf8") : "";
+    if (old !== html) { for (let k = 0; ; k++) { try { fs.writeFileSync(p, html); break; } catch (e) { if (k >= 5) throw e; const t = Date.now(); while (Date.now() - t < 300 * (k + 1)) {} } } }
+  }
+  if (!homeBlock) console.warn("warning: no <!--seo-home--> block in app.html — the home page has no crawlable text");
 }
 console.log(`static pages → app shell (app.${hash}): ${count.written} written, ${count.same} unchanged, ${count.skip} left as they are`);

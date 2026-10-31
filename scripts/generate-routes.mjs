@@ -63,7 +63,7 @@ function writeCopy(app, dir, url, title, desc, extra) {
 }
 
 export async function buildRoutes() {
-  const app = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  const app = fs.readFileSync(path.join(ROOT, "app.html"), "utf8");
   let countries = [{ code: "SY", name_ar: "سوريا", name_en: "Syria", enabled: true, is_default: true }];
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/countries?select=code,name_ar,name_en,enabled,is_default,languages&order=sort_order.asc`, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
@@ -104,7 +104,7 @@ export async function buildRoutes() {
 // the app's own type names (the `var D = {…}` data line of index.html), so a type added in the panel is named too
 const W_AR = (() => {
   try {
-    const line = fs.readFileSync(path.join(ROOT, "index.html"), "utf8").split("\n").find((l) => /^var D\s*=\s*\{/.test(l));
+    const line = fs.readFileSync(path.join(ROOT, "app.html"), "utf8").split("\n").find((l) => /^var D\s*=\s*\{/.test(l));
     const box = {}; vm.runInNewContext(line.replace(/^var D\s*=/, "D=").replace(/;\s*$/, ""), box);
     return Object.fromEntries(Object.entries(box.D.TYPES || {}).map(([k, v]) => [k, v[0]]));
   } catch (e) { console.warn("type names unreadable:", e.message); return {}; }

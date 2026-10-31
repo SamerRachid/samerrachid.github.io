@@ -55,21 +55,21 @@ async function all(table, select, order) {
 
 // ── the app's own data block (types, deed labels, governorate names, about text) ──
 function loadAppData() {
-  const src = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  const src = fs.readFileSync(path.join(ROOT, "app.html"), "utf8");
   const line = src.split("\n").find((l) => /^var D\s*=\s*\{/.test(l));
-  if (!line) throw new Error("index.html: data line not found");
+  if (!line) throw new Error("app.html: data line not found");
   const sandbox = {};
   vm.runInNewContext(line.replace(/^var D\s*=/, "D=").replace(/;\s*$/, ""), sandbox);
   return addFrLabels(sandbox.D, FR_LABELS);   // French labels: a 4th entry per row, as the app adds them at runtime
 }
-const APP_SRC = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+const APP_SRC = fs.readFileSync(path.join(ROOT, "app.html"), "utf8");
 const FR_LABELS = loadFrLabels(APP_SRC);
 const D = loadAppData();
 // ── the legal pages' default texts (index.html, between the __LEGAL_BEGIN__/__LEGAL_END__ markers) ──
 function loadLegal() {
-  const src = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  const src = fs.readFileSync(path.join(ROOT, "app.html"), "utf8");
   const m = src.match(/\/\*__LEGAL_BEGIN__\*\/var LEGAL=([\s\S]*?);\/\*__LEGAL_END__\*\//);
-  if (!m) throw new Error("index.html: LEGAL block not found");
+  if (!m) throw new Error("app.html: LEGAL block not found");
   const sandbox = {};
   vm.runInNewContext("LEGAL=" + m[1], sandbox);
   // later languages are assigned right after the marker (LEGAL.privacy.fr={…}; LEGAL.terms.fr={…};): take those lines too
@@ -554,7 +554,7 @@ ${(a.area_names || []).length ? `<section class="sec"><h2>مناطق العمل<
 // ── the Arabic home is the app (index.html): its #app starts empty, so Google read nothing of it. The build writes a crawlable
 //    block between <!--seo-home--> markers (headline, intro, governorates, latest listings, offices, guides); the app's first render replaces it. ──
 function appText(key, lang) {   // a default text from the app's HX_T table (index.html), e.g. appText("aboutP","en")
-  const src = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  const src = fs.readFileSync(path.join(ROOT, "app.html"), "utf8");
   if (lang === "fr") {   // French home texts live in the app's FR_HX table (var FR_HX={…} plus Object.assign(FR_HX,{…}) lines); the last one wins, as in the app
     const i = src.indexOf("var FR_HX="), j = src.indexOf("Object.keys(FR_HX)", i);
     if (i < 0 || j < 0) return "";
@@ -576,7 +576,7 @@ ${agencies.length ? `<h2>مكاتب عقارية على بلكون</h2><ul>${age
 ${CTX.isDefault ? `<h2>أدلة عملية للشراء والإيجار</h2><ul>${GUIDES.map((g) => `<li><a href="${pageUrl("ar", `guides/${g.slug}/`)}">${esc(g.title.ar)}</a></li>`).join("")}</ul>` : ""}</div><!--/seo-home-->`;
 }
 function injectHomeSeo(block) {
-  const f = path.join(ROOT, "index.html"), src = fs.readFileSync(f, "utf8");
+  const f = path.join(ROOT, "app.html"), src = fs.readFileSync(f, "utf8");   // the app's source; static-shell.mjs carries the block into index.html
   const re = /(?<=<div id="app" role="main">)<!--seo-home-->[\s\S]*?<!--\/seo-home-->/;   // anchored to #app (the CSS before it may name the marker)
   const out = re.test(src) ? src.replace(re, () => block) : src.replace('<div id="app" role="main">', () => '<div id="app" role="main">' + block);
   if (out !== src) fs.writeFileSync(f, out);

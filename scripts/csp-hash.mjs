@@ -8,12 +8,12 @@
 //  locally before a commit, and in the Actions build right before the
 //  route copies and 404.html are written (they inherit the same scripts).
 //
-//  usage: node scripts/csp-hash.mjs [file ...]     (default: index.html)
+//  usage: node scripts/csp-hash.mjs [file ...]     (default: app.html, the app's source)
 // ════════════════════════════════════════════════════════════════════════
 import fs from "fs";
 import crypto from "crypto";
 
-const files = process.argv.slice(2).length ? process.argv.slice(2) : ["index.html"];
+const files = process.argv.slice(2).length ? process.argv.slice(2) : ["app.html"];
 let failed = false;
 for (const f of files) {
   const html = fs.readFileSync(f, "utf8");
