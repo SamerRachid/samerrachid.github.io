@@ -1691,3 +1691,8 @@ html body .resempty.rs-loading{min-height:80vh;align-content:start}
 html[lang=en] .hero-outer.hu .sf .cs-sum:empty::after,html[lang=en] .hero-outer.hu .sf .cs-sum[data-names="[]"]::after{content:"Any"}
 html[lang=de] .hero-outer.hu .sf .cs-sum:empty::after,html[lang=de] .hero-outer.hu .sf .cs-sum[data-names="[]"]::after{content:"Alle"}
 html[lang=fr] .hero-outer.hu .sf .cs-sum:empty::after,html[lang=fr] .hero-outer.hu .sf .cs-sum[data-names="[]"]::after{content:"Tous"}
+/* 2026-10-31 (owner): the chosen items at the top of the list had a navy «×» on the navy bar (invisible), so they looked
+   impossible to remove. The «×» is white on a light disc, 22px, and turns gold on hover */
+html body .chipsel-drop .cs-selected .chip{display:inline-flex;align-items:center;gap:6px}
+html body .chipsel-drop .cs-selected .chip-x{display:inline-grid;place-items:center;width:22px;height:22px;margin:0;margin-inline-start:2px;border-radius:50%;background:rgba(255,255,255,.18)!important;color:#fff!important;font-size:15px;line-height:1;cursor:pointer;transition:background .15s,color .15s}
+html body .chipsel-drop .cs-selected .chip-x:hover,html body .chipsel-drop .cs-selected .chip-x:focus-visible{background:var(--gold)!important;color:var(--navy)!important}
