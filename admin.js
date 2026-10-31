@@ -1101,6 +1101,7 @@ async function adminLoad(){
       startAdminAlertsPolling();
     }
     if(ADM.token){ syncAdminTodo();
+      if(can("listings_edit")) setTimeout(admFixVideoPosters,8000);   // blurry video posters → the video's sharpest frame, in the background
     }
   }
   catch(e){ var em=e.message||"error";
@@ -5593,4 +5594,37 @@ function wireServicesAdm(){ var S=saState(), D=S.data; if(!D) return;
   if($("#saCatNewBtn")) $("#saCatNewBtn").onclick=function(){ S.catNew=true; render() };
   if($("#saCatAdd")) $("#saCatAdd").onclick=async function(){ var slug=($("#saCatSlug").value||"").trim().toLowerCase(), nm=($("#saCatName").value||"").trim();
     try{ var r=await rpc("bk_admin_service_cat_save",{p_token:ADM.token,p_slug:slug,p_data:{name_ar:nm,name_en:($("#saCatEn").value||"").trim()}}); if(r&&r.error){ alert(r.error); return } S.catNew=false; saLoad() }catch(e){ alert(e.message) } };
+}
+
+/* blurry video posters (owner 2026-10-31): a video that came by WhatsApp carries the tiny preview WhatsApp sends (~500 bytes, a few
+   dozen pixels wide) as its poster. While the panel is open, this browser swaps such posters — and missing ones — for the sharpest
+   frame of the video itself (videoSharpFrame), a few per visit, at most every 30 minutes, one at a time in the background.
+   Only posters made from the video are replaced and their old file trashed; a listing photo the owner chose as poster stays. */
+async function admFixVideoPosters(){
+  if(window._vpFixRunning || !ADM.token || typeof videoSharpFrame!=="function") return;
+  try{ var last=+localStorage.getItem("bk_vpfix_at")||0; if(Date.now()-last<30*60000) return; localStorage.setItem("bk_vpfix_at",String(Date.now())) }catch(e){}
+  window._vpFixRunning=true; var fixed=0, tried=0;
+  try{
+    var rows=await rpc("bk_admin_video_list",{p_token:ADM.token}); if(!Array.isArray(rows)) return;
+    var small=function(u){ return new Promise(function(res){ if(!u) return res(true); var im=new Image(); var to=setTimeout(function(){ res(false) },10000);
+      im.onload=function(){ clearTimeout(to); res(im.naturalWidth<400) }; im.onerror=function(){ clearTimeout(to); res(true) }; im.src=u }) };
+    for(var i=0;i<rows.length && tried<6;i++){
+      var r=rows[i]; if(!r||!r.url) continue;
+      if(r.thumb_url && !/-poster\.jpg(\?|$)/.test(r.thumb_url)) continue;   // a listing photo chosen as poster: the owner's choice
+      if(!(await small(r.thumb_url))) continue;
+      tried++;
+      var v=document.createElement("video"); v.crossOrigin="anonymous"; v.muted=true; v.preload="auto"; v.playsInline=true; v.src=r.url;
+      var ok=await new Promise(function(res){ var to=setTimeout(function(){ res(false) },30000); v.onloadedmetadata=function(){ clearTimeout(to); res(true) }; v.onerror=function(){ clearTimeout(to); res(false) } });
+      if(!ok){ v.removeAttribute("src"); continue }
+      var f=await videoSharpFrame(v,1280); v.removeAttribute("src"); try{ v.load() }catch(e){}
+      if(!f||!f.blob||f.blob.size<3000) continue;
+      var path="photos/listings/"+r.listing_id+"/"+Date.now()+"-"+Math.random().toString(36).slice(2,8)+"-poster.jpg";
+      var up=await storageUpload(path,f.blob,{contentType:"image/jpeg",upsert:false}); if(up&&up.error) continue;
+      var url=DB.storage.from("photos").getPublicUrl(path).data.publicUrl;
+      var s=await rpc("bk_admin_photo_set_poster",{p_token:ADM.token,p_photo:r.id,p_url:url}); if(s&&s.error) continue;
+      if(r.thumb_url && /-poster\.jpg(\?|$)/.test(r.thumb_url)){ try{ var op=storagePathFromUrl(r.thumb_url); if(op) storageTrash([op]) }catch(e){} }
+      fixed++;
+    }
+  }catch(e){ if(/function .*bk_admin_video_list|does not exist/i.test(String(e&&e.message||e))) try{ localStorage.removeItem("bk_vpfix_at") }catch(x){} }
+  finally{ window._vpFixRunning=false; if(fixed) try{ console.info("video posters sharpened: "+fixed) }catch(e){} }
 }
