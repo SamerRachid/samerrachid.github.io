@@ -106,6 +106,11 @@ function convert(file, rel) {
     htmlAttr = (src.match(/<html([^>]*)>/) || [, ""])[1];
     seoHead = (src.match(/<!--seo-head-->([\s\S]*?)<!--\/seo-head-->/) || [, ""])[1].trim();
     body = (src.match(/<!--seo-page-->([\s\S]*?)<!--\/seo-page-->/) || [, ""])[1];
+  } else if (APP_COPY.test(src)) {
+    // a full copy of the app written by generate-routes.mjs (/search/, /wanted/<id>/ …): its own head, no text of its own
+    htmlAttr = (src.match(/<html([^>]*)>/) || [, ' lang="ar" dir="rtl"'])[1];
+    seoHead = (src.slice(0, src.indexOf("<body")).match(SEO_TAG) || []).map((t) => t.trim()).join("\n");
+    body = "";
   } else {
     if (!/<main[\s>]/.test(src) || /http-equiv="refresh"/.test(src)) return "skip";   // id stubs and old-slug redirects stay as they are
     htmlAttr = (src.match(/<html([^>]*)>/) || [, ' lang="ar" dir="rtl"'])[1];
@@ -125,6 +130,10 @@ function convert(file, rel) {
   for (let k = 0; ; k++) { try { fs.writeFileSync(file, out); break; } catch (e) { if (k >= 5) throw e; const t = Date.now(); while (Date.now() - t < 300 * (k + 1)) {} } }
   return "written";
 }
+// the app's own route pages (generate-routes.mjs): full 2 MB copies until here — the same small shell now (2026-10-31: on a phone
+// /search/ painted after 6.4 s in Lighthouse, the shell pages after 1.6 s)
+const APP_COPY = /<script>[\s\S]{500000,}?<\/script>/;
+const ROUTE_DIRS = ["search", "mapsearch", "wanted", "agencies", "help", "app", "services", "promote", "projects"];
 const count = { written: 0, same: 0, skip: 0 };
 function walk(dir, rel) {
   if (!fs.existsSync(dir)) return;
@@ -134,6 +143,7 @@ function walk(dir, rel) {
   }
 }
 for (const t of TREES) walk(path.join(ROOT, t), t);
+for (const t of ROUTE_DIRS) walk(path.join(ROOT, t), t);
 for (const l of LANG_DIRS) {
   if (!fs.existsSync(path.join(ROOT, l))) continue;
   const home = path.join(ROOT, l, "index.html"); if (fs.existsSync(home)) count[convert(home, l)]++;
