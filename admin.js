@@ -5598,17 +5598,17 @@ function wireServicesAdm(){ var S=saState(), D=S.data; if(!D) return;
 
 /* blurry video posters (owner 2026-10-31): a video that came by WhatsApp carries the tiny preview WhatsApp sends (~500 bytes, a few
    dozen pixels wide) as its poster. While the panel is open, this browser swaps such posters — and missing ones — for the sharpest
-   frame of the video itself (videoSharpFrame), a few per visit, at most every 30 minutes, one at a time in the background.
+   frame of the video itself (videoSharpFrame), up to 25 per visit (~2 s each), at most every 10 minutes, one at a time in the background.
    Only posters made from the video are replaced and their old file trashed; a listing photo the owner chose as poster stays. */
 async function admFixVideoPosters(){
   if(window._vpFixRunning || !ADM.token || typeof videoSharpFrame!=="function") return;
-  try{ var last=+localStorage.getItem("bk_vpfix_at")||0; if(Date.now()-last<30*60000) return; localStorage.setItem("bk_vpfix_at",String(Date.now())) }catch(e){}
+  try{ var last=+localStorage.getItem("bk_vpfix_at")||0; if(Date.now()-last<10*60000) return; localStorage.setItem("bk_vpfix_at",String(Date.now())) }catch(e){}
   window._vpFixRunning=true; var fixed=0, tried=0;
   try{
     var rows=await rpc("bk_admin_video_list",{p_token:ADM.token}); if(!Array.isArray(rows)) return;
     var small=function(u){ return new Promise(function(res){ if(!u) return res(true); var im=new Image(); var to=setTimeout(function(){ res(false) },10000);
       im.onload=function(){ clearTimeout(to); res(im.naturalWidth<400) }; im.onerror=function(){ clearTimeout(to); res(true) }; im.src=u }) };
-    for(var i=0;i<rows.length && tried<6;i++){
+    for(var i=0;i<rows.length && tried<25;i++){
       var r=rows[i]; if(!r||!r.url) continue;
       if(r.thumb_url && !/-poster\.jpg(\?|$)/.test(r.thumb_url)) continue;   // a listing photo chosen as poster: the owner's choice
       if(!(await small(r.thumb_url))) continue;
