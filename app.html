@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-sVkYKzzOJkOMHt02SzjwtS80CnYy0Rol5cadLGKTmyA=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-rCW9C5LyQfY7b9k909eiU3KHNFgARdwpZxGK2Z4acOs=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -9717,6 +9717,16 @@ function qfLocalRead(raw, geo, learned, home){
     ["apartment",/ (شقه|شقق|شقتين) /],["house",/ (منزل|بيت) /]];
   T=T.filter(function(p){ return !D.TYPES||D.TYPES[p[0]] });
   var pt=first(T,true); if(pt) f.property_type=pt;
+  // names in Balkoun's own lists that no rule here knows (a type, deed, finish or amenity the admin adds later): used only when
+  // the rules found nothing, only as the exact whole name, 4+ letters, never a general word; two equal matches → nothing
+  var GENW=/^(ارض|طابق|بيت|منزل|شقه|محل|مكتب|بناء|سكني|تجاري|زراعي|عقار|غرفه)$/;
+  var lbl=function(v){ return N(Array.isArray(v)?v[0]:(v&&typeof v==="object"?(v.ar||""):v)).replace(/[^؀-ۿ ]/g," ").replace(/s+/g," ").trim() };
+  var at=function(L){ var m=new RegExp(" (?:و|ب|بال|وب|وال)?"+L.replace(/^ال/,"(?:ال)?")+" ").exec(t); return m?m.index:-1 };   // the whole name, «و/بـ» stuck to it allowed
+  var byName=function(dict,known){ var hits=[]; Object.keys(dict||{}).forEach(function(k){ if(known[k]) return; var L=lbl(dict[k]); if(L.length<4||GENW.test(L)) return;
+      var i=at(L); if(i>-1) hits.push({k:k,i:i,len:L.length}) });
+    if(!hits.length) return null; hits.sort(function(a,b){ return a.i-b.i||b.len-a.len });
+    return (hits[1]&&hits[1].i===hits[0].i&&hits[1].len===hits[0].len) ? null : hits[0].k };
+  if(!f.property_type){ var knownT={}; T.forEach(function(p){ knownT[p[0]]=1 }); var nt=byName(D.TYPES,knownT); if(nt) f.property_type=nt }
   if(f.property_type==="hotelapt") f.deal="rent";
   // size
   var unitRe="(?:م2|م²|م ?مربع|متر ?مربع|مترمربع|متر|متار|امتار|م|دونم|دونمات|دنم|دنمات|هكتار)", szAll=[], m;
@@ -9752,6 +9762,7 @@ function qfLocalRead(raw, geo, learned, home){
   else if(has(/طابو اخضر| طابو نظامي| 2400 سهم| الفين واربعمائه سهم| الفين و ?اربعمئه سهم/)) tb="green";
   else if(has(/تنازل جمعيه|جمعيه سكنيه|سجل مؤقت/)) tb="coop"; else if(has(/ (كاتب عدل|وكاله)/)) tb="poa";
   else if(has(/ (وضع يد|واضع يد)/)) tb="possession"; else if(has(/ (اسهم|\d+ سهم) /)) tb="shares"; else if(has(/ (بدون طابو|عقد عرفي)/)) tb="none";
+  if(!tb) tb=byName(D.TABU,{green:1,shares:1,court:1,court_desc:1,possession:1,poa:1,agri:1,coop:1,housing:1,none:1});
   if(tb) f.tabu=tb;
   // condition (repair wins over old; land has its own list)
   var land=/^(plot|agri|resid|comm|indust|tourist|farm|mahdar)$/.test(f.property_type||"");
@@ -9759,6 +9770,7 @@ function qfLocalRead(raw, geo, learned, home){
     : (has(/ (بحاجه|يحتاج|بدها|بدو) ترميم/)?"repair" : first([["superdeluxe",/ (سوبر ديلوكس|سوبر سوبر|كسوه سوبر|اكساء سوبر|سوبر لوكس|(?:ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء|كسوتو) ممتازه? جدا|(?:ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء|كسوتو) ممتازه? كثير)/],["deluxe",/ (ديلوكس|كسوه ديلوكس|لوكس|(?:ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء|كسوتو) ممتازه?) /],
        ["shell",/ (علي العظم|عالعظم|ع العظم|علي العضم|عالعضم|عاالعضم|عضم|ع العضم) /],["finishing",/ (قيد الاكساء|تحت الاكساء|عم ينكسي|بمرحله الاكساء|قيد التشطيب)/],["stripped",/ (معفش|معفشه) /],
        ["damaged",/ (متضرر|متضرره) /],["old",/ (اكساء قديم|كسوه قديمه|اكساء عادي)/],["intact",/ (سليم|سليمه|جاهز للسكن|جاهزه للسكن|(ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء) (جيده|جيد|جيده جدا|نظيفه|حلوه|جديده|جديد)) /]]));
+  if(!cd) cd=byName(land?D.LANDC:D.COND,land?{fenced:1,planted:1,built:1,empty:1}:{repair:1,superdeluxe:1,deluxe:1,shell:1,finishing:1,stripped:1,damaged:1,old:1,intact:1});
   if(cd&&(land?D.LANDC:D.COND)&&(land?D.LANDC:D.COND)[cd]) f.condition=cd;
   if(has(/ (غير مفروش|بدون فرش|بلا فرش)/)) f.furnished=false; else if(has(/ (مفروش|مفروشه|بفرشه|بفرشها|مع الفرش) /)) f.furnished=true;
   // facing: «قبلي» is always a direction; the other words only after «اتجاه / واجهة»
@@ -9772,7 +9784,10 @@ function qfLocalRead(raw, geo, learned, home){
   // amenities (the Arabic labels; applyQuickFill maps them to the page language)
   var AM=land?[["سور",/ (سور|مسوره) /],["بئر ماء",/ (بئر|بير) /],["كهرباء واصلة",/ كهرباء واصله/],["ماء واصل",/ (ماء|مي|مياه) واصل/],["طريق معبّد",/ (طريق معبد|مزفت|زفت)/],["أرض مستوية",/ مستويه /],["داخل التنظيم",/ (داخل|ضمن) التنظيم/],["مفرزة",/ مفرز/],["إطلالة",/ (اطلاله|مطله|مطل) /],["قريبة من الطريق العام",/ (علي|عل|قريبه من|قرب) (الطريق|الشارع) العام/]]
      :[["مصعد",/ (مصعد|اسانسير) /],["موقف سيارات",/ (موقف سيارات|كراج سياره|باركينغ|موقف خاص)/],["تدفئة مركزية",/ تدفئه مركزيه/],["خزّان مياه",/ (خزان|خزانات) /],["اشتراك مولّدة",/ (اشتراك موّلده|اشتراك مولده|امبيرات|امبير) /],["حارس",/ (حارس|ناطور) /],["إنترنت",/ (انترنت|نت) /],["باب أمان",/ (باب امان|باب حمايه|ابواب حمايه|باب مصفح)/],["شرفة",/ و?(شرفه|برندا|برنده|فرندا|فرنده|ورندا|بلكونه|بلكونات|شرفات|برندات|برندتين) /],["تكييف",/ (تكييف|مكيف|مكيفات|مكيفه) /],["طاقة بديلة",/ (طاقه شمسيه|طاقه بديله|الواح شمسيه|ليثيوم|طاقه) /]];
-  var am=AM.filter(function(p){ return p[1].test(t) }).map(function(p){ return p[0] }); if(am.length) f.amenities=am;
+  var am=AM.filter(function(p){ return p[1].test(t) }).map(function(p){ return p[0] });
+  var amList=((land?D.LANDAMEN:D.AMEN)||{}).ar||[], amKnown={}; AM.forEach(function(p){ amKnown[p[0]]=1 });
+  amList.forEach(function(a){ if(amKnown[a]||am.indexOf(a)>-1) return; var L=lbl(a); if(L.length>=4&&!GENW.test(L)&&at(L)>-1) am.push(a) });   // an amenity added later, by its exact name
+  if(am.length) f.amenities=am;
   // rental period
   if(f.deal==="rent"){ var rp=first([["daily",/ (يومي|باليوم|الليله) /],["weekly",/ (اسبوعي|بالاسبوع) /],["monthly",/ (شهري|بالشهر|شهريا) /],["yearly",/ (سنوي|بالسنه|سنويا) /]]); if(rp) f.rental_period=rp }
   // price: the number near «السعر/المطلوب» or with a currency; "85 ألف" multiplies, "66000 ألف" does not; phone numbers are skipped
