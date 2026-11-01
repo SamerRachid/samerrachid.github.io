@@ -1696,3 +1696,12 @@ html[lang=fr] .hero-outer.hu .sf .cs-sum:empty::after,html[lang=fr] .hero-outer.
 html body .chipsel-drop .cs-selected .chip{display:inline-flex;align-items:center;gap:6px}
 html body .chipsel-drop .cs-selected .chip-x{display:inline-grid;place-items:center;width:22px;height:22px;margin:0;margin-inline-start:2px;border-radius:50%;background:rgba(255,255,255,.18)!important;color:#fff!important;font-size:15px;line-height:1;cursor:pointer;transition:background .15s,color .15s}
 html body .chipsel-drop .cs-selected .chip-x:hover,html body .chipsel-drop .cs-selected .chip-x:focus-visible{background:var(--gold)!important;color:var(--navy)!important}
+/* 2026-11-01 (owner, Galaxy Z Flip5): on phones the map page had no side margin — its heading touched the screen's edge.
+   Same 20px as the results page */
+@media (max-width:900px){ html body .rs-mappage .rs-mapwrap{padding-inline:20px!important} }
+/* map page clusters (2026-11-01): a gold circle with the number of listings under it; bigger for 10+ and 100+ */
+.mclu-w{background:none!important;border:0!important}
+.mclu{position:absolute;left:0;top:0;transform:translate(-50%,-50%);display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:var(--gold);color:var(--navy);font:700 13px/1 var(--f);box-shadow:0 0 0 5px rgba(202,144,81,.35),0 4px 12px rgba(0,0,0,.35);cursor:pointer;transition:transform .15s}
+.mclu.m{width:42px;height:42px;font-size:14px}
+.mclu.l{width:50px;height:50px;font-size:15px}
+.mclu:hover{transform:translate(-50%,-50%) scale(1.08)}

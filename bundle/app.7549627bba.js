@@ -4966,6 +4966,9 @@ function initMapSearch(){
   // through a closure, which is exactly what caused stale/empty data
   // to win a race against a later render in the previous attempt
   var withLoc = mapWithApproxLoc(mapSearchMatches());
+  // the heading's «N إعلان على الخريطة» says what the map shows (owner 2026-11-01: opened from the results it said 26 over 453 pins,
+  // the search's pins having arrived after the page was drawn)
+  var _mcn=document.querySelector(".rs-maphead .rs-sub b"); if(_mcn) _mcn.textContent=withLoc.length;
   var cc=countryCenter();
   var center = withLoc.length ? [withLoc[0].lat, withLoc[0].lng] : [cc[0], cc[1]];
   var map = LMap.map(container).setView(center, withLoc.length ? 11 : cc[2]);
@@ -5023,6 +5026,7 @@ function initMapSearch(){
   // panning/zooming moves every pin's screen position — the preview
   // would otherwise sit frozen, visibly detached from its pin
   map.on("movestart zoomstart", function(){ previewEl.style.display="none"; activePinId=null });
+  var pops={};
   withLoc.forEach(function(x){
     var cover = (x.thumbs&&x.thumbs[0]) || (x.photos&&x.photos[0]) || x.cover || (x.videos&&x.videos[0]&&x.videos[0].poster) || null;
     var priceText = x.d==="rent" ? (money(x.p,x)+" "+rentLbl(x.rentalPeriod)) : money(x.p,x);
@@ -5035,21 +5039,53 @@ function initMapSearch(){
        (x.living?'<span>'+ICON_SOFA+x.living+'</span>':'')+
       '</div>'+
       '<div class="mappin-type">'+D.TYPES[x.t][li()]+(x.d!=="rent"&&x.tb&&D.TABU[x.tb]?' · '+(strongDeed(x.tb)?'<span class="tabu-green">'+D.TABU[x.tb][li()]+'</span>':D.TABU[x.tb][li()]):'')+'</div></div></div>';
-    var marker = LMap.marker([x.lat,x.lng]).addTo(map);
+    pops[x.id] = popupHtml;
+    bounds.push([x.lat,x.lng]);
+  });
+  mapClusterLayer(LMap, map, withLoc, function(x){
+    var marker = LMap.marker([x.lat,x.lng]);
     marker.on("mouseover", function(){
       cancelPopupClose();
       activePinId = x.id;
-      previewEl.innerHTML = popupHtml;
+      previewEl.innerHTML = pops[x.id];
       previewEl.style.display = "block";
-      positionPreview(map.latLngToContainerPoint([x.lat,x.lng]));
+      positionPreview(map.latLngToContainerPoint(marker.getLatLng()));   // the pin's own place (a ring of same-spot pins moves it)
     });
     marker.on("mouseout", function(){ schedulePopupClose() });
     marker.on("click", function(){ goToMapListing(x.id) });
-    bounds.push([x.lat,x.lng]);
+    return marker;
   });
   if(bounds.length>1){ try{ map.fitBounds(bounds, {padding:[30,30],maxZoom:14}) }catch(e){} }
   _mapSearchInstance = map;
   setTimeout(function(){ if(_mapSearchInstance===map) map.invalidateSize() }, 120);
+}
+// map page (owner 2026-11-01): pins that would sit on top of each other gather into one gold circle with their number; a tap
+// zooms in until they separate. From zoom 16 every pin shows, and pins at the very same spot (an area's centre, used when a
+// listing has no exact location) fan out in a small ring so each can be reached.
+function mapClusterLayer(LMap, map, items, makeMarker){   // LMap: the page's Leaflet
+  var CELL=56, MAXZ=16, layer=LMap.layerGroup().addTo(map), made={};
+  function mk(it){ return made[it.id]||(made[it.id]=makeMarker(it)) }
+  function draw(){
+    layer.clearLayers(); var z=map.getZoom(), groups={}, order=[];
+    items.forEach(function(it){ var p=map.project([it.lat,it.lng],z), k=Math.floor(p.x/CELL)+":"+Math.floor(p.y/CELL); if(!groups[k]){ groups[k]=[]; order.push(k) } groups[k].push(it) });
+    order.forEach(function(k){ var g=groups[k];
+      if(g.length===1 || z>=MAXZ){
+        var same={}; g.forEach(function(it){ var kk=it.lat.toFixed(5)+","+it.lng.toFixed(5); (same[kk]=same[kk]||[]).push(it) });
+        Object.keys(same).forEach(function(kk){ var s=same[kk];
+          s.forEach(function(it,i){ var m=mk(it);
+            if(s.length>1){ var c=map.project([it.lat,it.lng],z), r=16+s.length*3, an=2*Math.PI*i/s.length; m.setLatLng(map.unproject(c.add([r*Math.cos(an), r*Math.sin(an)]),z)) }
+            else m.setLatLng([it.lat,it.lng]);
+            layer.addLayer(m) }) });
+        return }
+      var lat=0,lng=0; g.forEach(function(it){ lat+=it.lat; lng+=it.lng }); var n=g.length;
+      var ic=LMap.divIcon({className:"mclu-w",html:'<span class="mclu'+(n>=100?" l":n>=10?" m":"")+'">'+n+'</span>',iconSize:[0,0],iconAnchor:[0,0]});
+      var cm=LMap.marker([lat/n,lng/n],{icon:ic,title:String(n),riseOnHover:true});
+      cm.on("click",function(){ var bb=LMap.latLngBounds(g.map(function(it){ return [it.lat,it.lng] }));
+        var to=map.getBoundsZoom(bb.pad(0.15)); if(to<=z) map.setView(bb.getCenter(), Math.min(z+2,MAXZ)); else map.fitBounds(bb,{padding:[40,40],maxZoom:MAXZ}) });
+      layer.addLayer(cm) });
+  }
+  map.on("zoomend",draw); draw();
+  return {redraw:draw};
 }
 function stopMapSearch(){
   if(_mapSearchInitTimer){ clearTimeout(_mapSearchInitTimer); _mapSearchInitTimer=null; }
@@ -5278,6 +5314,7 @@ function wireChipSelects(){
       $$('[data-cspick="'+id+'"]').forEach(function(e){ e.onclick=function(ev){
         if(ev){ev.stopPropagation();if(ev.preventDefault)ev.preventDefault()}
         var v=this.dataset.csval;
+        if((F[cfg.arrKey]||[]).indexOf(v)>-1) return;   // already chosen
         F[cfg.arrKey]=(F[cfg.arrKey]||[]).concat([v]);
         if(window.innerWidth<=640 && compact){ csPickInPlace(id,cfg,v,this,drop); return }   // phone sheet: no re-render, no flash
         window._csReopen=id; softRenderHero();
@@ -5299,6 +5336,10 @@ function wireChipSelects(){
 
     // keyboard: arrows move the highlight, Enter picks, Escape closes
     input.addEventListener("keydown",function(e){
+      // the hero keeps its fields across re-draws, so this runs once per listener added: one key press is handled once
+      // (owner, 2026-10-31: Enter after typing «حم» added Homs three times)
+      if(e._csDone) return; e._csDone=true;
+      var drop=$("#"+id+"Drop"); if(!drop) return;   // the list as it is now (the listener that answers may be an older one)
       if(e.key==="ArrowDown"||e.key==="ArrowUp"){
         var arr=[].slice.call(drop.querySelectorAll(".chipsel-opt")); if(!arr.length) return;
         e.preventDefault();
@@ -5365,7 +5406,11 @@ function huRevealResults(){ var res=$(".res"); if(!res) return; if(res.classList
   cards.forEach(function(c,i){ c.classList.remove("hu-reset"); c.style.setProperty("transition-delay",(Math.min(i,8)*70)+"ms","important") });
   void res.offsetWidth;
   cards.forEach(function(c,i){ c.classList.add("hu-in"); setTimeout(function(){ c.style.removeProperty("transition-delay"); c.classList.add("hu-done") },1150+Math.min(i,8)*70) }) }
-function huPageIn(){ if(window._huLastView===VIEW) return; window._huLastView=VIEW; $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.hero-outer,[id$=Modal],.modal")) return; e.classList.remove("hu-page"); void e.offsetWidth; e.style.animationDelay=Math.min(i,6)*40+"ms"; e.classList.add("hu-page") }) }
+// one layout pass for all the blocks (2026-10-31: a forced layout per block cost ~0.85 s on a mid phone at every page change)
+function huPageIn(){ if(window._huLastView===VIEW) return; window._huLastView=VIEW;
+  var els=[]; $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.hero-outer,[id$=Modal],.modal")) return; e.classList.remove("hu-page"); els.push([e,i]) });
+  if(!els.length) return; void document.body.offsetWidth;
+  els.forEach(function(p){ p[0].style.animationDelay=Math.min(p[1],6)*40+"ms"; p[0].classList.add("hu-page") }) }
 function heroSlidesHtml(type,studio){
   if((type==="photo"||type==="video") && studio) return studio;   // a background set in the studio stays as it is
   var S=["umayyad","aleppo","arwad"], P="/next/images/hero/", V="?v=2";   // V: 2026-10-30 the Umayyad photos lost their capture frame (a white edge line); a new address so phones fetch them again
@@ -5496,7 +5541,7 @@ function aiSearchBarHtml(){
   return '<div class="aisearch'+(glass?" glass":"")+(glow?" aiglow":"")+glowCls(SX("ai_bar_glow_style","")||SX("sbar_glow_style",""))+'" id="aiSearchBox">'+
     '<div class="aisearch-pill">'+
       '<span class="aisearch-badge">'+AI_SPARKLE+'<span>'+GX("aiSearchBadge")+'</span></span>'+
-      '<input id="aiSearchInput" type="text" data-allow-autofill autocomplete="off" enterkeyhint="search" placeholder="'+esc(GX(innerWidth<=640?"aiSearchPHm":"aiSearchPH"))+'" maxlength="200" aria-label="'+esc(GX("aiSearchPH"))+'">'+
+      '<input id="aiSearchInput" type="text" data-allow-autofill autocomplete="off" enterkeyhint="search" placeholder="'+esc(GX(matchMedia("(max-width:640px)").matches?"aiSearchPHm":"aiSearchPH"))+'" maxlength="200" aria-label="'+esc(GX("aiSearchPH"))+'">'+
       '<button type="button" id="aiSearchGo" class="aisearch-go" aria-label="'+esc(GX("aiSearchGo"))+'">'+MI.search+'<span class="aisearch-star" aria-hidden="true">'+AI_SPARKLE+'</span></button>'+
     '</div>'+
     '<div class="aisearch-result" id="aiSearchResult" hidden></div>'+
@@ -10606,7 +10651,7 @@ function updateHdr(){
  var y=window.pageYOffset||document.documentElement.scrollTop||0;
  h.classList.toggle("hdr-solid", document.body.classList.contains("home-hero") && y>30);
 }
-window.addEventListener("scroll",updateHdr,{passive:true});
+var _hdrRaf=0; window.addEventListener("scroll",function(){ if(!_hdrRaf) _hdrRaf=requestAnimationFrame(function(){ _hdrRaf=0; updateHdr() }) },{passive:true});   // once per frame, not per scroll event
 // custom cursor removed 2026-09-04 (confused visitors; hover states carry the affordance)
 DEMO = D.LIST.slice();
 USER = loadSession();
