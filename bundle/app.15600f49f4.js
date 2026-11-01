@@ -3101,10 +3101,13 @@ function myRewards(){ return (USER&&RW.data&&RW.uid===USER.id)?RW.data:null }
 async function loadMyRewards(){ if(!USER||RW.loading) return; var uid=USER.id; RW.loading=true;
   try{ var r=await rpc("bk_my_rewards",{}); if(USER&&USER.id===uid){ RW.data=r||{}; RW.uid=uid } }catch(e){ if(USER&&USER.id===uid){ RW.data={on:false}; RW.uid=uid } }
   RW.loading=false; if(VIEW==="mine") render() }
+// panel switch «reward_use_on» (owner 2026-11-01): when off, members can't spend saved credit; the credit stays on their account
+function rwUseOn(rw){ return (rw||{}).use_on!==false && SXb("reward_use_on",true) }
 function rewardBar(){
   var rw=myRewards(); if(!rw) return "";
   if(SXb("reward_bar_hidden",false)) return "";   // panel switch (owner 2026-10-29): the message is hidden, the reward itself keeps running
   var until=rw.active_until?new Date(rw.active_until):null, active=until&&until>new Date();
+  if(!rwUseOn(rw) && !active) return "";   // spending is paused: don't invite the member to use his credit
   var loc=L==="ar"?"ar-SY-u-nu-latn":L==="de"?"de-DE":L==="fr"?"fr-FR":"en-GB";
   var when=until?until.toLocaleString(loc,{weekday:"long",hour:"2-digit",minute:"2-digit"}):"";
   var earning=rw.earning!==false && rw.on!==false;
@@ -3116,7 +3119,7 @@ function rewardBar(){
 function mine(){
  if(!USER) return gate();
  if(!myRewards() && !RW.loading) loadMyRewards();
- var rw=myRewards()||{}, canUse=rw.credits>0&&!(rw.active_until&&new Date(rw.active_until)>new Date());
+ var rw=myRewards()||{}, canUse=rw.credits>0&&!(rw.active_until&&new Date(rw.active_until)>new Date())&&rwUseOn(rw);
  if(MYLIST===null) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2">'+
    '<b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>';
  var r=MYLIST.slice()
@@ -4666,7 +4669,165 @@ function wireServices(){
 function agencyFormPage(){ if(!USER) return gate(); ACC.agForm=true; return account() }
 /* ── message intake on the site: paste a WhatsApp text into the post form; the agency's "post by message" block ── */
 function intakeUrl(route){ return CONFIG.supabaseUrl+"/functions/v1/bk-intake/"+route }
+/* QF-LOCAL-START */
+/* ── free reader for the «املأ الحقول» box (owner 2026-11-01): reads a pasted listing message in the browser with rules
+   and Balkoun's own place list — no server, no model, no cost. Answers in the same shape as the bk-intake /web read
+   ({fields, missing}), so applyQuickFill() places both the same way. When a fact is unclear it is left empty, never guessed. ── */
+function qfLocalRead(raw, geo){
+  geo=geo||D.GEO;
+  var lat=String(raw||"").replace(/[٠-٩]/g,function(d){ return String(d.charCodeAt(0)-0x660) }).replace(/[۰-۹]/g,function(d){ return String(d.charCodeAt(0)-0x6f0) })
+    .replace(/(\d)[٬,](?=\d{3}\b)/g,"$1").replace(/٫/g,".");
+  var N=function(s){ return String(s||"").toLowerCase().replace(/[ً-ْـ]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي") };
+  var t=" "+N(lat).replace(/[،؛؟٪«»؜​-‏]/g," ").replace(/(\D)\.|\.(\D)/g,"$1 $2").replace(/[^؀-ۿa-z0-9$.\/²%]+/g," ").replace(/\s+/g," ")+" ";   // one line, words and numbers only (Arabic commas and dots split words)
+  var f={}, has=function(re){ return re.test(t) }, NEAR=/(مقابل|قرب|قريب من|جانب|بجانب|خلف|بعد|امتداد|فوق|تحت|جنب|عند|ورا|شارع|مدخل) ?$/, first=function(list,skipNear){ var best=null;
+    list.forEach(function(p){ var re=new RegExp(p[1].source,"g"), m; while((m=re.exec(t))){ if(skipNear&&NEAR.test(t.slice(Math.max(0,m.index-14),m.index+1))){ re.lastIndex=m.index+1; continue } if(!best||m.index<best.i) best={i:m.index,v:p[0]}; break } }); return best?best.v:null };
+  var W="(?=[\\s.,:؛،)!؟]|$)";   // end of word
+  // deal
+  var rentRe=/ (لل|ل)?(ايجار|اجار|اجاره|تاجير|استئجار)|(^| )(شهري|بالشهر|سنوي|بالسنه|يومي|اسبوعي|ايجار شهري) /, saleRe=/ (لل|ل)?(بيع|مبيع|بسع) /, shareRe=/ (لل)?مشاركه /;
+  var dm=[["rent",rentRe],["sale",saleRe],["share",shareRe]].map(function(p){ var m=p[1].exec(t); return m?{v:p[0],i:m.index}:null }).filter(Boolean).sort(function(a,b){ return a.i-b.i });
+  if(dm.length) f.deal=dm[0].v;
+  // property type: the earliest type word wins (the message names the property before its features)
+  var T=[["hotelapt",/ (شقه|شقق) (مفروشه )?فندقيه/],["duplex",/ (شقه )?دوبل(ي)?كس/],["terrace",/ (شقه|طابق) (تراس|سطح)| روف |^ تراس /],
+    ["studio",/ (ا)?ستوديو /],["suite",/ سويت /],["floor",/ طابق كامل /],["building",/ (بناء كامل|بنايه|عماره|بناء مؤلف|بناء من) /],
+    ["villa",/ (فيلا|فيله|فيلل|فلل|فله) /],["arab",/ (بيت عربي|بيت شامي|حوش|ارض ديار) /],["chalet",/ شاليه /],["clinic",/ عياده /],
+    ["restaurant",/ مطعم /],["hall",/ (صاله|قاعه) (افراح|مناسبات|احتفالات) /],["showroom",/ (صاله عرض|معرض) /],["station",/ (كازيه|محطه وقود|بنزينه) /],
+    ["hotel",/ (فندق|منشاه سياحيه) /],["workshop",/ (ورشه|معمل صغير) /],["factory",/ (معمل|مصنع) /],["warehouse",/ (مستودع|هنكار) /],
+    ["basement",/ قبو (تجاري|صناعي) /],["shop",/ (محل|محلات|دكان|محلين) /],["farm",/ مزرعه /],
+    ["agri",/ (ارض|قطعه ارض) زراعيه /],["resid",/ (ارض|قطعه ارض) سكنيه /],["comm",/ (ارض|قطعه ارض) تجاريه /],["indust",/ (ارض|قطعه ارض) صناعيه /],["tourist",/ (ارض|قطعه ارض) سياحيه /],
+    ["mahdar",/ محضر /],["plot",/ (ارض|قطعه ارض|مقسم) /],["office",/ (مكتب|مكاتب|مكتبين)(?! (عقاري|العقار|عقاريه|الصلح|المحامي|عقار))/],
+    ["apartment",/ (شقه|شقق|شقتين) /],["house",/ (منزل|بيت) /]];
+  T=T.filter(function(p){ return !D.TYPES||D.TYPES[p[0]] });
+  var pt=first(T,true); if(pt) f.property_type=pt;
+  // a land word never wins over a home that came first in the text ("شقة ... أرضي") — "ارضي" is not "ارض"; "منزل" on a floor / with a lift is a flat
+  if(f.property_type==="house" && / (ط|طابق|الطابق) ?(\d|اول|ثاني|ثالث|رابع|خامس)| مصعد /.test(t)) f.property_type="apartment";
+  if(f.property_type==="hotelapt") f.deal="rent";
+  // size
+  var unitRe="(?:م2|م²|م ?مربع|متر ?مربع|مترمربع|متر|متار|امتار|م|دونم|دونمات|دنم|دنمات|هكتار)", szAll=[], m;
+  var szRe=new RegExp("(\\d+(?:\\.\\d+)?) ?(الف )?(و ?نص |و ?نصف )?"+unitRe+W,"g");
+  var szT=t.replace(/ نصف? (دونم|دنم) /g," 0.5 دونم ").replace(/ (دونم|دنم) و ?نص(ف)? /g," 1.5 دونم ");
+  while((m=szRe.exec(szT))){ var u=m[0].replace(m[1],"").trim(), v=parseFloat(m[1]); if(m[2]) v*=1000; if(m[3]) v+=0.5; if(/(دونم|دنم)/.test(u)) v*=1000; else if(/هكتار/.test(u)) v*=10000;
+    var before=szT.slice(Math.max(0,m.index-16),m.index); szAll.push({v:Math.round(v),i:m.index,key:/(مساح|مسطح)/.test(before),side:/(واجه|بعد|تراس|حديق|برند|شرف|عرض|طول|عمق|ارتفاع|شارع|سطح|قبو|مستودع|محل|مدخل|الطابق)/.test(before)}) }
+  var szK=szT.match(/(?:مساحه?|مسطح)(?:ها|ه|تها|تو)? ?(?:[:؛(]| حوالي| تقريبا| بحدود| الاجماليه| الطابق)? ?(\d+(?:\.\d+)?)/);
+  var sz=szAll.filter(function(x){ return x.key })[0]||(szK?{v:Math.round(parseFloat(szK[1]))}:null)||szAll.filter(function(x){ return !x.side })[0];
+  if(sz&&sz.v>=8&&sz.v<=2000000) f.area_m2=sz.v;
+  // rooms / baths / living rooms
+  var NUMW={"واحد":1,"وحده":1,"اثنين":2,"ثلاث":3,"ثلاثه":3,"تلات":3,"تلاته":3,"اربع":4,"اربعه":4,"خمس":5,"خمسه":5,"ست":6,"سته":6,"سبع":7,"سبعه":7,"ثمان":8,"ثماني":8,"تمن":8};
+  var wn="(\\d{1,2}|"+Object.keys(NUMW).join("|")+")", num=function(s){ return /^\d+$/.test(s)?+s:NUMW[s] };
+  var rm=t.match(new RegExp(" "+wn+" (غرف|غرفه|اوض|غرف نوم|نوم)"+W));
+  if(rm) f.rooms=num(rm[1]); else if(/ و?(غرفتين|غرفتان|اوضتين) /.test(t)) f.rooms=2; else if(/ (غرفه|اوضه) و ?صالون /.test(t)) f.rooms=1;
+  var bm=t.match(new RegExp(" "+wn+" (حمام|حمامات)"+W));
+  if(bm) f.baths=num(bm[1]); else if(/ و?حمامين /.test(t)) f.baths=2;
+  var lv=t.match(new RegExp(" "+wn+" (صالون|صالونات)"+W));
+  if(lv) f.living_rooms=num(lv[1]); else if(/ و?صالونين /.test(t)) f.living_rooms=2; else if(/ و ?صالون /.test(t)) f.living_rooms=1;
+  if(f.rooms>20) delete f.rooms; if(f.baths>10) delete f.baths;
+  // floor ("ط" = طابق)
+  var ORD={"ارضي":0,"الارضي":0,"اول":1,"الاول":1,"ثاني":2,"الثاني":2,"تاني":2,"ثالث":3,"الثالث":3,"تالت":3,"رابع":4,"الرابع":4,"خامس":5,"الخامس":5,"سادس":6,"السادس":6,"سابع":7,"السابع":7,"ثامن":8,"الثامن":8,"تاسع":9,"التاسع":9,"عاشر":10,"العاشر":10,"تسويه":-1,"قبو":-1};
+  var fm=t.match(new RegExp(" (?:ب?الطابق|طابق|ط\\.?) ?(\\d{1,2}|"+Object.keys(ORD).join("|")+")"+W));
+  if(fm) f.floor=/^\d+$/.test(fm[1])?+fm[1]:ORD[fm[1]]; else if(/ (شقه|بيت|منزل) (ارضي|ارضيه) /.test(t)) f.floor=0;
+  if(f.floor>30) delete f.floor;
+  // deed
+  var tb=null;
+  if(has(/حكم محكمه موصوف/)) tb="court_desc"; else if(has(/حكم محكمه/)) tb="court";
+  else if(has(/(طابو|سند) زراعي|سند 25|مشاع زراعي/)) tb="agri"; else if(has(/طابو اسكان|مؤسسه الاسكان/)) tb="housing";
+  else if(has(/ اسهم من طابو| حصص سهميه/)) tb="shares";
+  else if(has(/طابو اخضر| طابو نظامي| 2400 سهم| الفين واربعمائه سهم| الفين و ?اربعمئه سهم/)) tb="green";
+  else if(has(/تنازل جمعيه|جمعيه سكنيه|سجل مؤقت/)) tb="coop"; else if(has(/ (كاتب عدل|وكاله)/)) tb="poa";
+  else if(has(/ (وضع يد|واضع يد)/)) tb="possession"; else if(has(/ (اسهم|\d+ سهم) /)) tb="shares"; else if(has(/ (بدون طابو|عقد عرفي)/)) tb="none";
+  if(tb) f.tabu=tb;
+  // condition (repair wins over old; land has its own list)
+  var land=/^(plot|agri|resid|comm|indust|tourist|farm|mahdar)$/.test(f.property_type||"");
+  var cd=land ? first([["fenced",/ مسور/],["planted",/ مزروع/],["built",/ عليها (بناء|بيت|غرفه)/],["empty",/ ارض (فارغه|بيضاء)/]])
+    : (has(/ (بحاجه|يحتاج|بدها|بدو) ترميم/)?"repair" : first([["superdeluxe",/ (سوبر ديلوكس|سوبر سوبر|كسوه سوبر|اكساء سوبر|سوبر لوكس)/],["deluxe",/ (ديلوكس|ديلوكس|كسوه ديلوكس|لوكس) /],
+       ["shell",/ (على العظم|عالعظم|ع العظم|على العضم|عالعضم|عاالعضم|عضم|ع العضم) /],["finishing",/ (قيد الاكساء|تحت الاكساء|عم ينكسي|بمرحله الاكساء|قيد التشطيب)/],["stripped",/ (معفش|معفشه) /],
+       ["damaged",/ (متضرر|متضرره) /],["old",/ (اكساء قديم|كسوه قديمه|اكساء عادي)/],["intact",/ (سليم|سليمه|جاهز للسكن|جاهزه للسكن) /]]));
+  if(cd&&(land?D.LANDC:D.COND)&&(land?D.LANDC:D.COND)[cd]) f.condition=cd;
+  if(has(/ (غير مفروش|بدون فرش|بلا فرش)/)) f.furnished=false; else if(has(/ (مفروش|مفروشه|بفرشه|بفرشها|مع الفرش) /)) f.furnished=true;
+  // facing: «قبلي» is always a direction; the other words only after «اتجاه / واجهة»
+  var dr=null, dctx=/ (ب?الاتجاه|اتجاه|اتجاهها|واجهه|الواجهه|واجهتها) ?:? ?(قبلي|جنوبي|شمالي|شرقي|غربي)( (شرقي|غربي))?/.exec(t)||/ (قبلي)( (شرقي|غربي))? /.exec(t);
+  if(dctx){ var a=dctx[2]||dctx[1], b2=(dctx[4]||dctx[3]||"").trim(), base={"قبلي":"s","جنوبي":"s","شمالي":"n","شرقي":"e","غربي":"w"}[a];
+    dr=base; if((base==="s"||base==="n")&&b2) dr=base+(b2==="شرقي"?"e":"w"); }
+  if(dr) f.direction=dr;
+  // amenities (the Arabic labels; applyQuickFill maps them to the page language)
+  var AM=land?[["سور",/ (سور|مسوره) /],["بئر ماء",/ (بئر|بير) /],["كهرباء واصلة",/ كهرباء واصله/],["ماء واصل",/ (ماء|مي|مياه) واصل/],["طريق معبّد",/ (طريق معبد|مزفت|زفت)/],["أرض مستوية",/ مستويه /],["داخل التنظيم",/ (داخل|ضمن) التنظيم/],["مفرزة",/ مفرز/],["إطلالة",/ (اطلاله|مطله|مطل) /],["قريبة من الطريق العام",/ (على|قريبه من|قرب) (الطريق|الشارع) العام/]]
+     :[["مصعد",/ (مصعد|اسانسير) /],["موقف سيارات",/ (موقف سيارات|كراج سياره|باركينغ|موقف خاص)/],["تدفئة مركزية",/ تدفئه مركزيه/],["خزّان مياه",/ (خزان|خزانات) /],["اشتراك مولّدة",/ (اشتراك موّلده|اشتراك مولده|امبيرات|امبير) /],["حارس",/ (حارس|ناطور) /],["إنترنت",/ (انترنت|نت) /],["باب أمان",/ (باب امان|باب حمايه|ابواب حمايه|باب مصفح)/],["شرفة",/ (شرفه|برندا|برنده|بلكونه|بلكونات|شرفات) /],["تكييف",/ (تكييف|مكيف|مكيفات|مكيفه) /],["طاقة بديلة",/ (طاقه شمسيه|طاقه بديله|الواح شمسيه|ليثيوم|طاقه) /]];
+  var am=AM.filter(function(p){ return p[1].test(t) }).map(function(p){ return p[0] }); if(am.length) f.amenities=am;
+  // rental period
+  if(f.deal==="rent"){ var rp=first([["daily",/ (يومي|باليوم|الليله) /],["weekly",/ (اسبوعي|بالاسبوع) /],["monthly",/ (شهري|بالشهر|شهريا) /],["yearly",/ (سنوي|بالسنه|سنويا) /]]); if(rp) f.rental_period=rp }
+  // price: the number near «السعر/المطلوب» or with a currency; "85 ألف" multiplies, "66000 ألف" does not; phone numbers are skipped
+  var pr=[], pRe=/(\d+(?:\.\d+)?) ?(\$)? ?(الف|الاف|مليون|ملايين|مليار)? ?(و ?نص|و ?نصف|و ?ربع)?( ?و ?(\d+)( ?(الف|مليون))?)? ?(دولار|دولر|دلار|\$|usd|ليره سوريه|ليره|ل\.?س|ل س|sy|syp)?/g, mul={"الف":1e3,"الاف":1e3,"مليون":1e6,"ملايين":1e6,"مليار":1e9};
+  var wordsP=t.replace(/ مليونين /g," 2 مليون ").replace(/ مليون /g,function(x,i,s){ return /\d ?$/.test(s.slice(0,i))?x:" 1 مليون " }).replace(/ الفين /g," 2 الف ").replace(/ مليارين /g," 2 مليار ");
+  while((m=pRe.exec(wordsP))){ if(!m[0].trim()) { pRe.lastIndex++; continue }
+    var digits=m[1].replace(".",""); if(digits.length>=9 || /^0\d{8,}/.test(m[1])) continue;
+    var after=wordsP.slice(m.index+m[0].length, m.index+m[0].length+10), bef=wordsP.slice(Math.max(0,m.index-22),m.index);
+    if(/^ ?(م|متر|م2|م²|دونم|دنم|غرف|غرفه|حمام|سهم|طابق|امبير|ساعه|شهر|اشهر|سنه|سنوات|دقيقه|كم|%)/.test(after) && !m[3] && !m[2] && !m[9]) continue;
+    if(!m[9]&&!m[2]&&/^ ?(م|متر|م2|دونم|دنم|هكتار)( |$)/.test(after)) continue;   // "240 ألف متر" is a size
+    var unitPrice=/(للمتر|بالمتر|المتر|للدونم|الدونم|بالدونم|الدنم|للدنم|بالدنم|للمتر المربع)/.test(after+" "+bef.slice(-10));   // "75 دولار للمتر", "سعر الدونم 2200": not the asking price
+    var base=parseFloat(m[1]), mu=m[3]?mul[m[3]]:1, v=(m[3]&&base<1000)?base*mu:base;
+    if(m[3]&&base<1000&&m[4]) v+= (/ربع/.test(m[4])?0.25:0.5)*mu;   // "مليونين ونص" = 2,500,000
+    if(m[3]&&base<1000&&m[6]) v+= +m[6]*(m[8]?mul[m[8]]:(mu>=1e6?1e3:1));   // "مليون و200" = 1,200,000; "15 مليون و500 الف" = 15,500,000
+    var c=m[9]||m[2]; var cur=c?(/(دولار|دولر|دلار|\$|usd)/.test(c)?"USD":"SYP"):null;
+    var key=/(سعر|السعر|سعرو|سعرها|المطلوب|بسعر|الطلب|الثمن|بدل|💰)/.test(bef);
+    if(!cur&&!key&&!m[3]) continue;
+    pr.push({v:Math.round(v),cur:cur,key:key,mu:!!m[3],unit:unitPrice,i:m.index}) }
+  var curAll=/(دولار|دولر|دلار|\$| usd)/.test(t)?"USD":(/ (ليره|ل\.?س|ل س|syp)/.test(t)?"SYP":null);
+  pr.sort(function(a,b){ return a.unit-b.unit || (b.cur==="USD")-(a.cur==="USD") || (!!b.cur)-(!!a.cur) || b.key-a.key || b.mu-a.mu || a.i-b.i });
+  pr=pr.filter(function(x){ return !x.unit });
+  var p0=pr.filter(function(x){ return x.v>=50 && (x.cur||x.mu||x.v>=1000) })[0];
+  if(p0){ f.price=p0.v; f.currency=p0.cur||curAll||"USD" }
+  if(has(/ و?(بازار|قابل للتفاوض|قابل للنقاش|قابل للبازار)/)) f.negotiable=true; else if(has(/ (منهي|نهائي|غير قابل للتفاوض)/)) f.negotiable=false;
+  // place: the governorate written in the text, then the longest area name of Balkoun's list found in it
+  var govs=Object.keys(geo), gIdx={}, aIdx={};
+  var bare=function(s){ return N(s).replace(/[^؀-ۿ0-9 ]/g," ").replace(/\s+/g," ").trim().split(" ").map(function(w){ return w.replace(/^ال/,"") }).join(" ") };
+  govs.forEach(function(g){ gIdx[bare(g)]=g; (geo[g]||[]).forEach(function(a){ String(a).split("/").forEach(function(p){ var k=bare(p); if(k.length<3) return; (aIdx[k]=aIdx[k]||[]).push({g:g,a:a}) }) }) });
+  gIdx["شام"]="دمشق"; if(geo["حماة"]) gIdx["حماه"]="حماة";
+  var words=t.trim().split(" "), stripW=function(w){ return w.replace(/^(و|ف)?(بال|لل|ال|ب|ل)(?=..)/,"").replace(/^ال/,"") };
+  var gHits={}, aHits=[];
+  for(var i=0;i<words.length;i++){
+    for(var n=4;n>=1;n--){ if(i+n>words.length) continue;
+      var seg=words.slice(i,i+n), k1=seg.map(function(w,j){ return j===0?stripW(w):w.replace(/^ال/,"") }).join(" "), k0=seg.map(function(w){ return w.replace(/^ال/,"") }).join(" ");
+      var prev=words.slice(Math.max(0,i-2),i).join(" ");
+      [k0,k1].forEach(function(k){ if(gIdx[k]&&!(gIdx[k]==="دمشق"&&/ريف$/.test(prev))) gHits[gIdx[k]]=Math.min(gHits[gIdx[k]]||1e9,i);
+        if(k==="ريف دمشق"||k==="ريف شام") gHits["ريف دمشق"]=Math.min(gHits["ريف دمشق"]||1e9,i) });
+      var k=aIdx[k0]?k0:(aIdx[k1]?k1:null); if(!k) continue;
+      var way=/(مكرو|ميكرو|خط|سرفيس|باص|كراج|قرب|قريب|قريبه|مقابل|جانب|بجانب|خلف|بعد|جنب|طريق|اوتستراد|شارع|دوار|جامع|مدرسه|مشفى|مستشفى|كنيسه|حديقه|فرن|صيدليه|ساحه|مفرق|موقف)( من)?$/.test(prev);
+      aHits.push({k:k,i:i,n:n,len:k.length,way:way,c:aIdx[k]}); }
+  }
+  var gNamed=Object.keys(gHits).sort(function(a,b){ return gHits[a]-gHits[b] });
+  if(/ ريف (حماه|حلب|ادلب|حمص|اللاذقيه|طرطوس|درعا) /.test(t) && gNamed.indexOf("ريف دمشق")>-1 && !/ ريف (دمشق|الشام) /.test(t)) gNamed.splice(gNamed.indexOf("ريف دمشق"),1);
+  var BLOCK={}; "حفيان خريطه نموذجيه قسمين عرقوب بابان حارات علي سعر كسوه سهم قبو جامع شمسيه رئيسي جديده دوار حمام مشروع مزرعه فيلات مدرسه كبيره نادي جسر مزارع حاره جيد داخليه اسكان كورنيش صور طوال فسحه دور حره ابين ذهبيه وادي كروم ملعب جميله شهداء رشيد جنينه عفش عاليه صغيره عريض شماليه شجره سيده ناعم مطله عمر عليه عيون صنع باب حلوه معامل عباره كليه عماره معزوله ساحه سوق طريق شارع حديقه بساتين ابراج ادخار مضافه زراعه مدينه قريه بلده ضيعه مركز منطقه حي سكن جبل بحر نهر سهل تل".split(" ").forEach(function(w){ BLOCK[w]=1 });
+  var IN=/(في|بحي|حي|منطقه|بمنطقه|المنطقه|الموقع|العنوان|بلده|قريه|ضاحيه|بضاحيه|ببلده|بقريه|مدينه|بمدينه|:)$/;
+  var pick=null, score=function(h){ return (h.way?-100:0) + h.n*10 + Math.min(h.len,20) - h.i/50 };
+  aHits.sort(function(a,b){ return score(b)-score(a) });
+  var near=function(g){ return g==="دمشق"?["دمشق","ريف دمشق"]:g==="ريف دمشق"?["ريف دمشق","دمشق"]:[g] };   // people write «دمشق» for places of its countryside
+  for(var j=0;j<aHits.length&&!pick;j++){ var h=aHits[j]; if(h.way) continue;
+    var one=h.n===1, marked=IN.test(words.slice(Math.max(0,h.i-1),h.i).join(" ")) || !BLOCK[h.k] && /^(و)?(ب|بال|في)/.test(words[h.i]) && words[h.i].length>h.k.length+1;
+    if(one && BLOCK[h.k] && !marked) continue;   // an area named like an everyday word ("مدرسة", "الكبيرة") counts only after «في / حي / منطقة»
+    var inG=h.c.filter(function(c){ return gNamed.indexOf(c.g)>-1 });
+    if(!inG.length&&gNamed.length) inG=h.c.filter(function(c){ return near(gNamed[0]).indexOf(c.g)>-1 });
+    if(inG.length===1) pick=inG[0];
+    else if(!gNamed.length && h.c.length===1 && (!one || marked || (h.len>=5&&!BLOCK[h.k]))) pick=h.c[0];
+  }
+  if(pick){ f.governorate=pick.g; f.area=pick.a }
+  else if(gNamed.length){ f.governorate=gNamed[0];
+  }
+  // what the reader could not find (same keys as the server read)
+  var miss=[]; ["deal","property_type","governorate","price","area_m2"].forEach(function(k){ if(f[k]==null) miss.push(k) });
+  if(f.deal==="sale"&&!f.tabu&&!land) miss.push("tabu");
+  return {fields:f, missing:miss};
+}
+/* QF-LOCAL-END */
+// panel (استقبال الرسائل): «intake_qf_on» shows the box; «intake_qf_mode» = "free" (the reader above, default) or "ai" (bk-intake /web)
+function qfOn(){ return SXb("intake_qf_on", true) }
+function qfMode(){ return SX("intake_qf_mode","free")==="ai" ? "ai" : "free" }
+// the pasted message goes into the description as the sender wrote it — the bot's rule (keepSenderText / stripPhones in bk-intake)
+function qfKeepText(s){
+  s=String(s||"").replace(/^\s*(تم|تمام|نعم|لا|جديد|done|yes|no|new)\s*$/gim,"");
+  if(USER&&USER.hide_phone) s=s.replace(/(?:\+|00)?[\d٠-٩][\d٠-٩\s\-.()]{7,}[\d٠-٩]/g,function(m){ return (m.match(/[\d٠-٩]/g)||[]).length>=9?" ":m })
+    .replace(/(?:للتواصل|للاتصال|للإستفسار|للاستفسار|اتصل|واتس(?:اب)?|واتساب)\s*[:：]?\s*(?:⤵|👇|☎|📞|📱)*\s*$/gm,"");
+  return s.replace(/[ \t]+/g," ").replace(/\s*\n\s*/g,"\n").replace(/\n{3,}/g,"\n\n").trim().slice(0,1200);
+}
 function quickFillHtml(){
+  if(!qfOn()) return "";
   return '<div class="qfill" id="qfill"><h3>'+MI.msgs+GX("qfTitle")+'</h3><div class="hintx">'+GX("qfHint")+'</div>'+guideLine("post","helpPostLine")+
     '<textarea id="qfText" data-allow-autofill placeholder="'+esc(GX("qfPH"))+'">'+esc(NEW.qfText||"")+'</textarea>'+
     '<div class="qfrow"><button type="button" class="gh" id="qfGo" style="margin:0;padding:9px 18px;width:auto">'+GX("qfBtn")+'</button><span class="qfmsg" id="qfMsg">'+esc(NEW.qfMsg||"")+'</span></div></div>' }
@@ -4679,13 +4840,18 @@ function wireQuickFill(){
 async function quickFillRun(){
   var ta=$("#qfText"), btn=$("#qfGo"), msg=$("#qfMsg"); if(!ta||!btn) return;
   var text=ta.value.trim(); if(text.length<10){ if(msg){ msg.style.color="var(--danger)"; msg.textContent=GX("qfShort") } return }
-  if(!USER||!USER.token){ if(msg){ msg.style.color="var(--danger)"; msg.textContent=GX("qfLogin") } return }
+  var ai=qfMode()==="ai";
+  if(ai&&(!USER||!USER.token)){ if(msg){ msg.style.color="var(--danger)"; msg.textContent=GX("qfLogin") } return }
   btn.disabled=true; var old=btn.textContent; btn.textContent=GX("qfBusy"); if(msg){ msg.style.color="var(--grey)"; msg.textContent="" }
   try{
-    var r=await fetch(intakeUrl("web"),{method:"POST",headers:{"Content-Type":"application/json","apikey":CONFIG.supabaseKey,"Authorization":"Bearer "+CONFIG.supabaseKey},body:JSON.stringify({token:USER.token,text:text,country:COUNTRY})});
-    var j=null; try{ j=await r.json() }catch(e){ j={} }
-    if(!r.ok||!j||j.error) throw new Error(j&&j.error==="no_key"?GX("qfNoKey"):j&&j.error==="limit"?GX("qfLimit"):j&&j.error==="unauthorised"?GX("qfLogin"):GX("qfFail"));
-    applyQuickFill(j.fields||{});
+    var j;
+    if(ai){
+      var r=await fetch(intakeUrl("web"),{method:"POST",headers:{"Content-Type":"application/json","apikey":CONFIG.supabaseKey,"Authorization":"Bearer "+CONFIG.supabaseKey},body:JSON.stringify({token:USER.token,text:text,country:COUNTRY})});
+      j=null; try{ j=await r.json() }catch(e){ j={} }
+      if(!r.ok||!j||j.error) throw new Error(j&&j.error==="no_key"?GX("qfNoKey"):j&&j.error==="limit"?GX("qfLimit"):j&&j.error==="unauthorised"?GX("qfLogin"):GX("qfFail"));
+    } else j=qfLocalRead(text);   // free: read in the browser, nothing leaves the page
+    var fl=j.fields||{}, kept=qfKeepText(text); if(kept.length>=20) fl.description=kept;   // the message itself, not a rewrite
+    applyQuickFill(fl);
     var miss=(j.missing||[]).map(function(m){ return GX("qfm_"+m) });
     NEW.qfMsg = miss.length ? GX("qfMissing")+" "+miss.join(L==="ar"?"، ":", ") : GX("qfDone");
     if(msg){ msg.style.color=miss.length?"var(--warn)":"var(--ok)"; msg.textContent=NEW.qfMsg }
@@ -9696,7 +9862,7 @@ var GX_T={
   ik_notRead:{ar:"لم تُقرأ بعد",en:"Not read yet",de:"Noch nicht gelesen"},
   ik_maxVideos:{ar:"فيديو لكل إعلان (0 = إيقاف)",en:"Videos per listing (0 = off)",de:"Videos pro Anzeige (0 = aus)"}, ik_videoMb:{ar:"حجم الفيديو الأقصى (MB)",en:"Max video size (MB)",de:"Max. Videogröße (MB)"}, ik_videoSec:{ar:"مدة الفيديو القصوى (ثانية)",en:"Max video length (seconds)",de:"Max. Videolänge (Sekunden)"},
   ik_videoHint:{ar:"الفيديو لا يمر على الذكاء الاصطناعي ولا يستهلك رموزاً؛ يُرفع كما هو ويظهر مع الإعلان. تيليغرام لا يسلّم ملفات أكبر من 20 MB، وواتساب يضغط الفيديو بنفسه إلى نحو 16 MB.",en:"Videos never reach the AI and cost no tokens; they are stored as sent and shown with the listing. Telegram does not hand over files above 20 MB; WhatsApp compresses videos to about 16 MB itself.",de:"Videos gehen nicht an die KI und kosten keine Tokens. Telegram liefert keine Dateien über 20 MB; WhatsApp komprimiert auf etwa 16 MB."},
-  ik_keepText:{ar:"الوصف = نص المرسل كما كتبه",en:"Description = the sender's own text",de:"Beschreibung = Originaltext des Absenders"},
+  ik_qfH:{ar:"مربع «املأ الإعلان من رسالة» في صفحة «أضف إعلانك»",en:"The “fill from a message” box on the post page",de:"Feld „Aus Nachricht ausfüllen“ auf der Inserat-Seite"}, ik_qfOn:{ar:"إظهار المربع",en:"Show the box",de:"Feld anzeigen"}, ik_qfMode:{ar:"طريقة القراءة",en:"How it reads",de:"Leseart"}, ik_qfFree:{ar:"مجاني — داخل المتصفح بلا كلفة",en:"Free — in the browser, no cost",de:"Kostenlos — im Browser"}, ik_qfAi:{ar:"ذكاء اصطناعي — نموذج البوت (مدفوع)",en:"AI — the bot's model (paid)",de:"KI — Modell des Bots (kostenpflichtig)"}, ik_qfHint:{ar:"في الطريقتين تنتقل الرسالة كما هي إلى خانة الوصف، وتُملأ باقي الحقول منها. البوت على واتساب وتيليغرام لا يتأثر.",en:"Either way the message goes into the description as written and the other fields are filled from it. The WhatsApp/Telegram bot is not affected.",de:"In beiden Fällen kommt die Nachricht unverändert in die Beschreibung; die übrigen Felder werden daraus gefüllt. Der Bot bleibt unberührt."}, ik_keepText:{ar:"الوصف = نص المرسل كما كتبه",en:"Description = the sender's own text",de:"Beschreibung = Originaltext des Absenders"},
   ik_keepTextHint:{ar:"مفعّل: يُنشر الإعلان بنص المرسل نفسه بعد حذف أرقام الهواتف والروابط وعلامات #. معطّل: يعيد الذكاء الاصطناعي صياغة الوصف.",en:"On: the listing is published with the sender's text (phone numbers, links and # marks removed). Off: the AI rewrites the description.",de:"An: Originaltext des Absenders (ohne Telefonnummern, Links, #). Aus: KI formuliert die Beschreibung neu."}, ik_noPhoto:{ar:"بلا صور",en:"No photos",de:"Keine Fotos"},
   ik_collecting:{ar:"قيد التجميع",en:"Collecting",de:"Wird gesammelt"}, ik_reading:{ar:"قيد القراءة",en:"Reading",de:"Wird gelesen"}, ik_ready:{ar:"بانتظار موافقة المرسل",en:"Awaiting sender's OK",de:"Wartet auf Bestätigung"}, ik_needs_info:{ar:"ينقص معلومات",en:"Missing details",de:"Angaben fehlen"}, ik_review:{ar:"بانتظارك",en:"Needs you",de:"Wartet auf Sie"}, ik_published:{ar:"منشور",en:"Published",de:"Veröffentlicht"}, ik_cancelled:{ar:"ملغى",en:"Cancelled",de:"Abgebrochen"}, ik_failed:{ar:"فشل",en:"Failed",de:"Fehlgeschlagen"}, ik_web:{ar:"الموقع",en:"Website",de:"Website"},
   ik_st_open:{ar:"قيد التجميع أو بانتظار المرسل",en:"Collecting or awaiting sender",de:"In Sammlung / wartet auf Absender"}, ik_st_attention:{ar:"بانتظارك",en:"Need you",de:"Warten auf Sie"}, ik_st_published:{ar:"منشورة",en:"Published",de:"Veröffentlicht"}, ik_st_today:{ar:"آخر 24 ساعة",en:"Last 24 hours",de:"Letzte 24 Stunden"}, ik_st_cost:{ar:"تكلفة القراءة هذا الشهر",en:"Reading cost this month",de:"Lesekosten diesen Monat"},
@@ -9964,7 +10130,7 @@ var GX_T={
   rwH:{ar:"مكافأة التمييز المجاني",en:"Free-feature reward",de:"Gratis-Hervorhebung als Belohnung"},
   rwHint:{ar:"كل عدد معيّن من الإعلانات التي تُنشر فعلياً يمنح صاحبها تمييزاً مجانياً: إعلان واحد على الصفحة الرئيسية لمدة محددة. يختار الإعلان بنفسه من صفحة «إعلاناتي». النقطة تُحسب مرة واحدة لكل إعلان، والإعلان المحذوف خلال 7 أيام يفقدها، وتمييز واحد نشط لكل حساب.",en:"Every N listings that actually go live earn the poster one free feature: one listing on the homepage for a set time. They pick the listing themselves from “My listings”. One point per listing for life, a listing deleted within 7 days loses it, one active feature per account.",de:"Je N tatsächlich veröffentlichte Anzeigen erhält der Inserent eine Gratis-Hervorhebung: eine Anzeige für eine festgelegte Zeit auf der Startseite. Er wählt sie selbst unter „Meine Anzeigen”. Ein Punkt pro Anzeige, eine binnen 7 Tagen gelöschte Anzeige verliert ihn, eine aktive Hervorhebung pro Konto."},
   rwOn:{ar:"تشغيل المكافأة",en:"Reward on",de:"Belohnung aktiv"}, rwEvery:{ar:"إعلان منشور لكل تمييز",en:"Live listings per feature",de:"Veröffentlichte Anzeigen pro Hervorhebung"}, rwHours:{ar:"مدة التمييز (ساعات)",en:"Feature length (hours)",de:"Dauer (Stunden)"},
-  rwWelcome:{ar:"مكافأة الترحيب: تمييز مع أول إعلان",en:"Welcome bonus: a feature with the first listing",de:"Willkommensbonus: Hervorhebung bei der ersten Anzeige"}, rwUsers:{ar:"تشمل الأفراد (وليس المكاتب فقط)",en:"Individuals too (not only agencies)",de:"Auch Privatpersonen (nicht nur Büros)"}, mapMap:{ar:"خريطة",en:"Map",de:"Karte"},mapSat:{ar:"قمر صناعي",en:"Satellite",de:"Satellit"},gmapOpen:{ar:"افتح في خرائط Google",en:"Open in Google Maps",de:"In Google Maps öffnen"},ssSaved:{ar:"حُفظ البحث «{l}» — اضغط «محفوظ» مرة ثانية لإلغاء الحفظ",en:"Search saved “{l}” — tap “Saved” again to remove it",de:"Suche „{l}“ gespeichert — erneut tippen zum Entfernen"},ssRemoved:{ar:"أُلغي حفظ هذا البحث",en:"Search removed from saved",de:"Suche aus den gespeicherten entfernt"},ssSaveTip:{ar:"احفظ هذه الفلاتر لترجع لها بضغطة من القائمة",en:"Save these filters to come back in one tap from the menu",de:"Filter speichern und mit einem Tipp aus dem Menü zurückkehren"},ssUnsaveTip:{ar:"هذا البحث محفوظ — اضغط لإلغاء الحفظ",en:"This search is saved — tap to remove it",de:"Diese Suche ist gespeichert — tippen zum Entfernen"},rwBarHide:{ar:"إخفاء رسالة التمييز عن الأعضاء في «إعلاناتي» (تبقى المكافأة شغّالة وتُحتسب)",en:"Hide the feature message from members on “my listings” (the reward keeps running)",de:"Hinweis auf der Seite „Meine Anzeigen“ ausblenden (die Belohnung läuft weiter)"},
+  rwWelcome:{ar:"مكافأة الترحيب: تمييز مع أول إعلان",en:"Welcome bonus: a feature with the first listing",de:"Willkommensbonus: Hervorhebung bei der ersten Anzeige"}, rwUsers:{ar:"تشمل الأفراد (وليس المكاتب فقط)",en:"Individuals too (not only agencies)",de:"Auch Privatpersonen (nicht nur Büros)"}, mapMap:{ar:"خريطة",en:"Map",de:"Karte"},mapSat:{ar:"قمر صناعي",en:"Satellite",de:"Satellit"},gmapOpen:{ar:"افتح في خرائط Google",en:"Open in Google Maps",de:"In Google Maps öffnen"},ssSaved:{ar:"حُفظ البحث «{l}» — اضغط «محفوظ» مرة ثانية لإلغاء الحفظ",en:"Search saved “{l}” — tap “Saved” again to remove it",de:"Suche „{l}“ gespeichert — erneut tippen zum Entfernen"},ssRemoved:{ar:"أُلغي حفظ هذا البحث",en:"Search removed from saved",de:"Suche aus den gespeicherten entfernt"},ssSaveTip:{ar:"احفظ هذه الفلاتر لترجع لها بضغطة من القائمة",en:"Save these filters to come back in one tap from the menu",de:"Filter speichern und mit einem Tipp aus dem Menü zurückkehren"},ssUnsaveTip:{ar:"هذا البحث محفوظ — اضغط لإلغاء الحفظ",en:"This search is saved — tap to remove it",de:"Diese Suche ist gespeichert — tippen zum Entfernen"},rwUseOn:{ar:"يستطيع الأعضاء استعمال رصيدهم المحفوظ (زر «ميّز على الرئيسية» في «إعلاناتي»)",en:"Members can spend their saved credit (the “Feature on homepage” button on “my listings”)",de:"Mitglieder können ihr Guthaben nutzen (Knopf „Auf der Startseite hervorheben“ unter „Meine Anzeigen“)"}, rwBarHide:{ar:"إخفاء رسالة التمييز عن الأعضاء في «إعلاناتي» (تبقى المكافأة شغّالة وتُحتسب)",en:"Hide the feature message from members on “my listings” (the reward keeps running)",de:"Hinweis auf der Seite „Meine Anzeigen“ ausblenden (die Belohnung läuft weiter)"},
   rwBalances:{ar:"الأرصدة",en:"Balances",de:"Guthaben"}, rwPoints:{ar:"النقاط",en:"Points",de:"Punkte"}, rwCredits:{ar:"الرصيد",en:"Credits",de:"Guthaben"}, rwActive:{ar:"مميز حتى",en:"Featured until",de:"Hervorgehoben bis"}, rwNone:{ar:"لا أرصدة بعد؛ تبدأ مع أول إعلان منشور.",en:"No balances yet; they start with the first live listing.",de:"Noch kein Guthaben; es beginnt mit der ersten veröffentlichten Anzeige."},
   rwGrant:{ar:"منح",en:"Grant",de:"Gewähren"}, rwRevoke:{ar:"سحب",en:"Revoke",de:"Entziehen"}, rwGrantQ:{ar:"كم تمييزاً تريد منحه لـ {n}؟",en:"How many features to grant {n}?",de:"Wie viele Hervorhebungen für {n} gewähren?"}, rwRevokeQ:{ar:"كم تمييزاً تريد سحبه من {n}؟",en:"How many features to revoke from {n}?",de:"Wie viele Hervorhebungen von {n} entziehen?"}, rwNoteQ:{ar:"ملاحظة (اختياري)",en:"Note (optional)",de:"Notiz (optional)"},
   rwLog:{ar:"آخر الحركات",en:"Recent activity",de:"Letzte Vorgänge"}, rwK_point:{ar:"نقطة إعلان",en:"listing point",de:"Anzeigenpunkt"}, rwK_point_revoked:{ar:"نقطة مسحوبة",en:"point revoked",de:"Punkt entzogen"}, rwK_earned:{ar:"تمييز مكتسب",en:"feature earned",de:"Hervorhebung verdient"}, rwK_welcome:{ar:"مكافأة ترحيب",en:"welcome bonus",de:"Willkommensbonus"}, rwK_used:{ar:"تمييز مستخدم",en:"feature used",de:"Hervorhebung genutzt"}, rwK_granted:{ar:"منح من الإدارة",en:"granted by admin",de:"vom Admin gewährt"}, rwK_revoked:{ar:"سحب من الإدارة",en:"revoked by admin",de:"vom Admin entzogen"},
@@ -9994,7 +10160,7 @@ var GX_T={
   rwMyActive:{ar:"إعلانك مميز على الرئيسية حتى {t}",en:"Your listing is featured on the homepage until {t}",de:"Deine Anzeige ist bis {t} auf der Startseite hervorgehoben"},
   rwUseBtn:{ar:"ميّز على الرئيسية {h} ساعة",en:"Feature on homepage for {h}h",de:"{h} Std. auf der Startseite hervorheben"}, rwUseQ:{ar:"استخدام تمييز مجاني على هذا الإعلان الآن؟ يبدأ فوراً ويستمر {h} ساعة.",en:"Use a free feature on this listing now? It starts immediately and lasts {h} hours.",de:"Jetzt eine Gratis-Hervorhebung für diese Anzeige nutzen? Sie beginnt sofort und dauert {h} Stunden."},
   rwUsed:{ar:"تم ✅ إعلانك الآن على الصفحة الرئيسية.",en:"Done ✅ Your listing is now on the homepage.",de:"Erledigt ✅ Deine Anzeige ist jetzt auf der Startseite."},
-  rwErr_nocredit:{ar:"لا يوجد رصيد تمييز.",en:"No feature credit available.",de:"Kein Guthaben vorhanden."}, rwErr_active:{ar:"لديك إعلان مميز نشط الآن؛ انتظر انتهاءه.",en:"You already have an active feature; wait for it to end.",de:"Du hast bereits eine aktive Hervorhebung; warte, bis sie endet."}, rwErr_notlive:{ar:"يُميَّز الإعلان المنشور فقط.",en:"Only a live listing can be featured.",de:"Nur eine veröffentlichte Anzeige kann hervorgehoben werden."}, rwErr_already:{ar:"هذا الإعلان مميز أصلاً.",en:"This listing is already featured.",de:"Diese Anzeige ist bereits hervorgehoben."}, rwErr_off:{ar:"المكافأة متوقفة حالياً.",en:"The reward is currently off.",de:"Die Belohnung ist derzeit deaktiviert."}, rwErr_full:{ar:"مربّعات الصفحة الرئيسية ممتلئة الآن؛ رصيدك محفوظ، جرّب لاحقاً.",en:"The home-page squares are full right now; your credit is kept, try again later.",de:"Die Startseiten-Kacheln sind gerade voll; dein Guthaben bleibt erhalten, versuche es später."},
+  rwErr_nocredit:{ar:"لا يوجد رصيد تمييز.",en:"No feature credit available.",de:"Kein Guthaben vorhanden."}, rwErr_off:{ar:"استعمال رصيد التمييز متوقف حالياً.",en:"Using feature credit is paused right now.",de:"Das Einlösen von Guthaben ist derzeit pausiert."}, rwErr_active:{ar:"لديك إعلان مميز نشط الآن؛ انتظر انتهاءه.",en:"You already have an active feature; wait for it to end.",de:"Du hast bereits eine aktive Hervorhebung; warte, bis sie endet."}, rwErr_notlive:{ar:"يُميَّز الإعلان المنشور فقط.",en:"Only a live listing can be featured.",de:"Nur eine veröffentlichte Anzeige kann hervorgehoben werden."}, rwErr_already:{ar:"هذا الإعلان مميز أصلاً.",en:"This listing is already featured.",de:"Diese Anzeige ist bereits hervorgehoben."}, rwErr_off:{ar:"المكافأة متوقفة حالياً.",en:"The reward is currently off.",de:"Die Belohnung ist derzeit deaktiviert."}, rwErr_full:{ar:"مربّعات الصفحة الرئيسية ممتلئة الآن؛ رصيدك محفوظ، جرّب لاحقاً.",en:"The home-page squares are full right now; your credit is kept, try again later.",de:"Die Startseiten-Kacheln sind gerade voll; dein Guthaben bleibt erhalten, versuche es später."},
   uDelete:{ar:"حذف نهائي",en:"Delete permanently",de:"Endgültig löschen"},
   uDeleted:{ar:"المحذوفون",en:"Deleted",de:"Gelöscht"}, uDeletedAt:{ar:"تاريخ الحذف",en:"Deleted on",de:"Gelöscht am"}, uDeletedBy:{ar:"مَن حذفه",en:"Deleted by",de:"Gelöscht von"},
   uDelBySelf:{ar:"حذف حسابه بنفسه",en:"Deleted their own account",de:"Selbst gelöscht"}, uDelByAdmin:{ar:"حذفه المشرف",en:"Deleted by admin",de:"Vom Admin gelöscht"}, uDelBySystem:{ar:"حذف تلقائي",en:"System",de:"System"},

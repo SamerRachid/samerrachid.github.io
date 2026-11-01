@@ -4328,6 +4328,9 @@ function adminIntakeBody(mode){
     '<div class="row3">'+sel("intake_model",GX("ik_model"),[["claude-haiku-4-5-20251001","Claude Haiku 4.5"],["claude-sonnet-5","Claude Sonnet 5"],["claude-opus-5","Claude Opus 5"]])+num("intake_price_in",GX("ik_priceIn"),1,0,100,0.01)+num("intake_price_out",GX("ik_priceOut"),5,0,500,0.01)+'</div>'+
     '<div class="row3">'+sel("intake_reply_lang",GX("ik_lang"),[["ar","العربية"],["en","English"]])+txt("intake_wa_display",GX("ik_waDisplay"))+txt("intake_contact_phone",GX("ik_contactPhone"))+'</div>'+
     '<div class="row">'+txt("intake_contact_email",GX("ik_contactEmail"))+'</div>'+
+    '<h4 style="margin:18px 0 6px">'+GX("ik_qfH")+'</h4>'+
+    '<div class="row"><div class="fl"><div class="chkgrid">'+chk("intake_qf_on",GX("ik_qfOn"))+'</div></div>'+sel("intake_qf_mode",GX("ik_qfMode"),[["free",GX("ik_qfFree")],["ai",GX("ik_qfAi")]])+'</div>'+
+    '<div class="hintx">'+GX("ik_qfHint")+'</div>'+
     '<h4 style="margin:18px 0 6px">'+GX("ik_welcomeH")+'</h4><div class="hintx">'+GX("ik_welcomeHint")+'</div>'+
     '<div class="chkgrid">'+chk("intake_welcome_on",GX("ik_welcomeOn"))+'</div>'+
     '<div class="row">'+ta("intake_welcome_whatsapp_ar",GX("ik_welcomeWa")+" · AR")+ta("intake_welcome_whatsapp_en",GX("ik_welcomeWa")+" · EN")+'</div>'+
