@@ -4675,7 +4675,8 @@ var QF_PLACES=null;   // [[phrase, governorate, area]] the bot learned — loade
 /* ── free reader for the «املأ الحقول» box (owner 2026-11-01): reads a pasted listing message in the browser with rules
    and Balkoun's own place list — no server, no model, no cost. Answers in the same shape as the bk-intake /web read
    ({fields, missing}), so applyQuickFill() places both the same way. When a fact is unclear it is left empty, never guessed. ── */
-function qfLocalRead(raw, geo, learned){
+function qfLocalRead(raw, geo, learned, home){
+  home=(home||[]).filter(function(g){ return (geo||D.GEO)[g] });   // the poster's governorates, first = main
   geo=geo||D.GEO; learned=learned||QF_PLACES||[];
   var lat=String(raw||"").replace(/[٠-٩]/g,function(d){ return String(d.charCodeAt(0)-0x660) }).replace(/[۰-۹]/g,function(d){ return String(d.charCodeAt(0)-0x6f0) })
     .replace(/(\d)[٬,](?=\d{3}\b)/g,"$1").replace(/٫/g,".");
@@ -4741,7 +4742,7 @@ function qfLocalRead(raw, geo, learned){
   var land=/^(plot|agri|resid|comm|indust|tourist|farm|mahdar)$/.test(f.property_type||"");
   var cd=land ? first([["fenced",/ مسور/],["planted",/ مزروع/],["built",/ عليها (بناء|بيت|غرفه)/],["empty",/ ارض (فارغه|بيضاء)/]])
     : (has(/ (بحاجه|يحتاج|بدها|بدو) ترميم/)?"repair" : first([["superdeluxe",/ (سوبر ديلوكس|سوبر سوبر|كسوه سوبر|اكساء سوبر|سوبر لوكس|(?:ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء|كسوتو) ممتازه? جدا|(?:ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء|كسوتو) ممتازه? كثير)/],["deluxe",/ (ديلوكس|كسوه ديلوكس|لوكس|(?:ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء|كسوتو) ممتازه?) /],
-       ["shell",/ (على العظم|عالعظم|ع العظم|على العضم|عالعضم|عاالعضم|عضم|ع العضم) /],["finishing",/ (قيد الاكساء|تحت الاكساء|عم ينكسي|بمرحله الاكساء|قيد التشطيب)/],["stripped",/ (معفش|معفشه) /],
+       ["shell",/ (علي العظم|عالعظم|ع العظم|علي العضم|عالعضم|عاالعضم|عضم|ع العضم) /],["finishing",/ (قيد الاكساء|تحت الاكساء|عم ينكسي|بمرحله الاكساء|قيد التشطيب)/],["stripped",/ (معفش|معفشه) /],
        ["damaged",/ (متضرر|متضرره) /],["old",/ (اكساء قديم|كسوه قديمه|اكساء عادي)/],["intact",/ (سليم|سليمه|جاهز للسكن|جاهزه للسكن|(ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء) (جيده|جيد|جيده جدا|نظيفه|حلوه|جديده|جديد)) /]]));
   if(cd&&(land?D.LANDC:D.COND)&&(land?D.LANDC:D.COND)[cd]) f.condition=cd;
   if(has(/ (غير مفروش|بدون فرش|بلا فرش)/)) f.furnished=false; else if(has(/ (مفروش|مفروشه|بفرشه|بفرشها|مع الفرش) /)) f.furnished=true;
@@ -4754,14 +4755,18 @@ function qfLocalRead(raw, geo, learned){
     if(ns||ew) f.direction=ns+ew;   // first north/south word + first east/west word
   }
   // amenities (the Arabic labels; applyQuickFill maps them to the page language)
-  var AM=land?[["سور",/ (سور|مسوره) /],["بئر ماء",/ (بئر|بير) /],["كهرباء واصلة",/ كهرباء واصله/],["ماء واصل",/ (ماء|مي|مياه) واصل/],["طريق معبّد",/ (طريق معبد|مزفت|زفت)/],["أرض مستوية",/ مستويه /],["داخل التنظيم",/ (داخل|ضمن) التنظيم/],["مفرزة",/ مفرز/],["إطلالة",/ (اطلاله|مطله|مطل) /],["قريبة من الطريق العام",/ (على|قريبه من|قرب) (الطريق|الشارع) العام/]]
+  var AM=land?[["سور",/ (سور|مسوره) /],["بئر ماء",/ (بئر|بير) /],["كهرباء واصلة",/ كهرباء واصله/],["ماء واصل",/ (ماء|مي|مياه) واصل/],["طريق معبّد",/ (طريق معبد|مزفت|زفت)/],["أرض مستوية",/ مستويه /],["داخل التنظيم",/ (داخل|ضمن) التنظيم/],["مفرزة",/ مفرز/],["إطلالة",/ (اطلاله|مطله|مطل) /],["قريبة من الطريق العام",/ (علي|عل|قريبه من|قرب) (الطريق|الشارع) العام/]]
      :[["مصعد",/ (مصعد|اسانسير) /],["موقف سيارات",/ (موقف سيارات|كراج سياره|باركينغ|موقف خاص)/],["تدفئة مركزية",/ تدفئه مركزيه/],["خزّان مياه",/ (خزان|خزانات) /],["اشتراك مولّدة",/ (اشتراك موّلده|اشتراك مولده|امبيرات|امبير) /],["حارس",/ (حارس|ناطور) /],["إنترنت",/ (انترنت|نت) /],["باب أمان",/ (باب امان|باب حمايه|ابواب حمايه|باب مصفح)/],["شرفة",/ و?(شرفه|برندا|برنده|فرندا|فرنده|ورندا|بلكونه|بلكونات|شرفات|برندات|برندتين) /],["تكييف",/ (تكييف|مكيف|مكيفات|مكيفه) /],["طاقة بديلة",/ (طاقه شمسيه|طاقه بديله|الواح شمسيه|ليثيوم|طاقه) /]];
   var am=AM.filter(function(p){ return p[1].test(t) }).map(function(p){ return p[0] }); if(am.length) f.amenities=am;
   // rental period
   if(f.deal==="rent"){ var rp=first([["daily",/ (يومي|باليوم|الليله) /],["weekly",/ (اسبوعي|بالاسبوع) /],["monthly",/ (شهري|بالشهر|شهريا) /],["yearly",/ (سنوي|بالسنه|سنويا) /]]); if(rp) f.rental_period=rp }
   // price: the number near «السعر/المطلوب» or with a currency; "85 ألف" multiplies, "66000 ألف" does not; phone numbers are skipped
   var pr=[], pRe=/(\d+(?:\.\d+)?) ?(\$)? ?(الف|الاف|مليون|ملايين|مليار)? ?(و ?نص|و ?نصف|و ?ربع)?( ?و ?(\d+)( ?(الف|مليون))?)? ?(دولار|دولر|دلار|\$|usd|ليره سوريه|ليره|ل\.?س|ل س|sy|syp)?/g, mul={"الف":1e3,"الاف":1e3,"مليون":1e6,"ملايين":1e6,"مليار":1e9};
-  var wordsP=t.replace(/ مليونين /g," 2 مليون ").replace(/ مليون /g,function(x,i,s){ return /\d ?$/.test(s.slice(0,i))?x:" 1 مليون " }).replace(/ الفين /g," 2 الف ").replace(/ مليارين /g," 2 مليار ");
+  // hundreds written in words after «ألف و…» («22 ألف وخمسمية» = 22,500)
+  var HUN0={"مية":100,"ميه":100,"مئه":100,"مايه":100,"ميتين":200,"مئتين":200,"ميتان":200,"تلتمية":300,"تلاتمية":300,"ثلاثمية":300,"ثلاثمئه":300,"ثلثمئه":300,"اربعمية":400,"اربعمئه":400,"خمسمية":500,"خمسمئه":500,"خمسماىه":500,"ستمية":600,"ستمئه":600,"سبعمية":700,"سبعمئه":700,"تمنمية":800,"ثمانمئه":800,"ثمنمية":800,"تسعمية":900,"تسعمئه":900};
+  var HUN={}; Object.keys(HUN0).forEach(function(k){ HUN[N(k)]=HUN0[k] });
+  var wordsP=t.replace(new RegExp("(^| )و?("+Object.keys(HUN).join("|")+")(?= )","g"),function(x,s,w){ return s+"و"+HUN[w] })
+    .replace(/ مليونين /g," 2 مليون ").replace(/ مليون /g,function(x,i,s){ return /\d ?$/.test(s.slice(0,i))?x:" 1 مليون " }).replace(/ الفين /g," 2 الف ").replace(/ مليارين /g," 2 مليار ");
   while((m=pRe.exec(wordsP))){ if(!m[0].trim()) { pRe.lastIndex++; continue }
     var digits=m[1].replace(".",""); if(digits.length>=9 || /^0\d{8,}/.test(m[1])) continue;
     var after=wordsP.slice(m.index+m[0].length, m.index+m[0].length+10), bef=wordsP.slice(Math.max(0,m.index-22),m.index);
@@ -4808,7 +4813,7 @@ function qfLocalRead(raw, geo, learned){
   aHits=aHits.filter(function(h){ return !NEVER[h.k] });
   // «كسوة» is the finishing; «الكسوة» is also a town (ريف دمشق). It is the town only with «ال» and nothing describing a finish
   // after it: «بالكسوة», «في الكسوة», «الكسوة ريف دمشق» — never «كسوة ممتازة», «بكسوة جيدة», «الكسوة: سوبر ديلوكس», «كسوة 85%»
-  var FIN=/^(ممتاز|ممتازه|جيد|جيده|جديد|جديده|سوبر|ديلوكس|لوكس|قديم|قديمه|عادي|عاديه|نظيف|نظيفه|حلوه|ملكي|ملكيه|حديث|حديثه|خارجي|خارجيه|داخلي|داخليه|كامل|كامله|فخم|فخمه|راقي|راقيه|مميز|مميزه|بحاجه|نص|نصف|متوسط|متوسطه|عاليه|ممتاذه|vip|\d+%)$/;
+  var FIN=/^(ممتاز|ممتازه|جيد|جيده|جديد|جديده|سوبر|ديلوكس|لوكس|قديم|قديمه|عادي|عاديه|نظيف|نظيفه|حلوه|ملكي|ملكيه|حديث|حديثه|خارجي|خارجيه|داخلي|داخليه|كامل|كامله|فخم|فخمه|راقي|راقيه|مميز|مميزه|بحاجه|نص|نصف|متوسط|متوسطه|عاليه|ممتاذه|علي|عل|ع|عالعظم|عالعضم|مكسي|مكسيه|مكسوه|او|vip|\d+%)$/;   // «الكسوة: على العظم أو مكسي» is the finishing
   aHits=aHits.filter(function(h){ if(h.k!=="كسوه") return true;
     var w=words[h.i]||"", nx=(words[h.i+1]||"").replace(/^:/,""), nx2=words[h.i+2]||"";
     if(!/^(و)?(ب|في|ف)?ال?كسوه$/.test(w) || !/الكسوه$/.test(w)) return false;   // «كسوة» / «بكسوة» without «ال»: the finishing
@@ -4845,6 +4850,9 @@ function qfLocalRead(raw, geo, learned){
     var inG=h.c.filter(function(c){ return gNamed.indexOf(c.g)>-1 });
     if(!inG.length&&gNamed.length) inG=h.c.filter(function(c){ return near(gNamed[0]).indexOf(c.g)>-1 });
     if(inG.length===1) pick=inG[0];
+    // no governorate written: the poster's own governorate (the agency's, from its profile) when the area is there (owner 2026-11-01)
+    else if(!gNamed.length && home.length && (!h.one || h.marked || (h.len>=4&&!BLOCK[h.k])) && h.c.some(function(c){ return home.indexOf(c.g)>-1 })){
+      var inH=h.c.filter(function(c){ return home.indexOf(c.g)>-1 }).sort(function(x,y){ return home.indexOf(x.g)-home.indexOf(y.g) }); pick=inH[0] }
     else if(!gNamed.length && h.c.length===1 && (!h.one || h.marked || (h.len>=5&&!BLOCK[h.k]))) pick=h.c[0];
     // a name found in several governorates and no governorate written («الميدان»): the one where most of Balkoun's
     // listings are, when the name is clearly the place (after «في / بـ / حي», or several words)
@@ -4883,6 +4891,13 @@ function qfLocalRead(raw, geo, learned){
 // panel (استقبال الرسائل): «intake_qf_on» shows the box; «intake_qf_mode» = "free" (the reader above, default) or "ai" (bk-intake /web)
 function qfOn(){ return SXb("intake_qf_on", true) }
 function qfMode(){ return SX("intake_qf_mode","free")==="ai" ? "ai" : "free" }
+// the poster's own governorates for the reader (owner 2026-11-01): the agency's, as chosen in its profile, then the account's
+// city when it is a governorate's name. Used only when the message names no governorate and the area exists there.
+async function qfHomeGovs(){
+  if(MYAGENCY===null && USER){ try{ await loadMyAgency() }catch(e){} }
+  var out=((MYAGENCY&&MYAGENCY.gov_names)||[]).slice();
+  var c=kwNorm(USER&&USER.city||"").replace(/^ال/,""); if(c) Object.keys(D.GEO).forEach(function(g){ if(kwNorm(g).replace(/^ال/,"")===c && out.indexOf(g)<0) out.push(g) });
+  return out }
 // the bot's learned places (bk_intake_places_public): fetched once; if it fails or is slow the reader works with the area list alone
 async function qfLoadPlaces(){
   try{ var r=await Promise.race([DB.rpc("bk_intake_places_public",{p_country:COUNTRY}), new Promise(function(ok){ setTimeout(function(){ ok({error:"slow"}) },2500) })]);
@@ -4917,7 +4932,7 @@ async function quickFillRun(){
       var r=await fetch(intakeUrl("web"),{method:"POST",headers:{"Content-Type":"application/json","apikey":CONFIG.supabaseKey,"Authorization":"Bearer "+CONFIG.supabaseKey},body:JSON.stringify({token:USER.token,text:text,country:COUNTRY})});
       j=null; try{ j=await r.json() }catch(e){ j={} }
       if(!r.ok||!j||j.error) throw new Error(j&&j.error==="no_key"?GX("qfNoKey"):j&&j.error==="limit"?GX("qfLimit"):j&&j.error==="unauthorised"?GX("qfLogin"):GX("qfFail"));
-    } else { if(QF_PLACES===null) QF_PLACES=await qfLoadPlaces(); j=qfLocalRead(text,null,QF_PLACES) }   // free: read in the browser, the text never leaves the page
+    } else { if(QF_PLACES===null) QF_PLACES=await qfLoadPlaces(); j=qfLocalRead(text,null,QF_PLACES,await qfHomeGovs()) }   // free: read in the browser, the text never leaves the page
     var fl=j.fields||{}, kept=qfKeepText(text); if(kept.length>=20) fl.description=kept;   // the message itself, not a rewrite
     applyQuickFill(fl);
     var miss=(j.missing||[]).map(function(m){ return GX("qfm_"+m) });
@@ -10922,7 +10937,16 @@ var _hdrRaf=0; window.addEventListener("scroll",function(){ if(!_hdrRaf) _hdrRaf
     if(!imgs.length) return;
     var post=document.getElementById("drop"), inp=document.getElementById("eFiles");
     if(!post && !(inp&&inp.onchange)) return;
-    if(!cd.getData("text")) e.preventDefault();
+    // the text that came with the photo: plain text, or the formatted copy when that is all there is (WhatsApp often
+    // gives only that), put in the field that was pasted into, else in the message box
+    e.preventDefault();
+    var txt=cd.getData("text/plain")||"";
+    if(!txt){ var html=cd.getData("text/html")||""; if(html){ try{ var dd=new DOMParser().parseFromString(html,"text/html");
+      [].forEach.call(dd.querySelectorAll("br"),function(x){ x.replaceWith("\n") }); [].forEach.call(dd.querySelectorAll("p,div,li,tr,h1,h2,h3"),function(x){ x.append("\n") });
+      [].forEach.call(dd.querySelectorAll("img,script,style"),function(x){ x.remove() }); txt=(dd.body.textContent||"").replace(/\n{3,}/g,"\n\n").trim() }catch(x){} } }
+    if(txt){ var tg=e.target, field=(tg&&(tg.tagName==="TEXTAREA"||(tg.tagName==="INPUT"&&/^(text|search|tel|number|email|url|)$/.test(tg.type||""))))?tg:document.getElementById("qfText");
+      if(field){ try{ field.setRangeText(txt, field.selectionStart==null?field.value.length:field.selectionStart, field.selectionEnd==null?field.value.length:field.selectionEnd, "end") }catch(x){ field.value+=txt }
+        field.dispatchEvent(new Event("input",{bubbles:true})) } }
     var dt=new DataTransfer(); imgs.forEach(function(f,i){ dt.items.add(f.name&&f.name!=="image.png"?f:new File([f],"pasted-"+Date.now()+"-"+i+"."+((f.type.split("/")[1]||"png").replace("jpeg","jpg")),{type:f.type})) });
     if(post){ addFiles(dt.files); var b=post.closest(".blk"); if(b) b.scrollIntoView({behavior:"smooth",block:"center"}) }
     else { try{ inp.files=dt.files }catch(x){} inp.onchange.call(inp) } });
