@@ -3366,9 +3366,11 @@ function checkPost(){
    telPrev.textContent = dRaw ? ("→ +"+ccRaw+" "+dRaw) : "";
  }
  if(!v("pa") || (v("pa")==="__other__" && v("paOther").trim().length<2)) need.push(t("area"));
- if(!v("pm2"))need.push(t("areaM"));
  var isLand = secOf(v("ptype"))==="land", isHomes = secOf(v("ptype"))==="homes";
  var isRent = ($('input[name=dl]:checked')||{}).value==="rent";
+ // the size is required for a sale only (owner 2026-11-01: never for any rental)
+ if(!isRent && !(+v("pm2")>0)) need.push(t("areaM"));
+ var m2Lbl=$("#pm2")&&$("#pm2").closest(".fl")&&$("#pm2").closest(".fl").querySelector("label"); if(m2Lbl) m2Lbl.classList.toggle("req",!isRent);
  // rooms, baths and condition are optional on the site (owner, 2026-10-15); a missing condition is published as the
  // bot does it: «سليم» for a home or shop, «فارغة» for land
  // the deed and the price are optional (2026-10-02): a listing without them publishes with "السعر عند التواصل" and no deed pill
@@ -3383,7 +3385,7 @@ function checkPost(){
  var telCC=v("pcc")||(USER&&USER.phone?ccOf(USER.phone):phoneCC()), telD=phoneNat(telCC,v("ptel")), telBad=phoneLenMsg(telCC,telD);
  if(telBad) need.push(t("tel"));
  if(telPrev && v("ptel").replace(/\D/g,"")){ telPrev.style.color=telBad?"var(--danger)":""; if(telBad) telPrev.textContent=telBad }
- [["k1",true],["k2",!!v("pg")||true],["k3",!!v("pm2")],
+ [["k1",true],["k2",!!v("pg")||true],["k3",!!v("pm2")||isRent],
   ["k4",isRent||!!$('input[name=tb2]:checked')],["k5",NEW.photos.length>=needPh],["k6",!!v("pp")]]
   .forEach(function(p){var e=$("#"+p[0]); if(e)e.classList.toggle("done",p[1])});
  var m=$("#msg"),b=$("#pub"); if(!m)return;
@@ -4731,7 +4733,7 @@ function qfLocalRead(raw, geo, learned, home){
   var bm2=t.match(/ (?:حمام|حمامات) (?:عدد|عدد:|×|x) ?(\d)/);
   if(bm) f.baths=num(bm[1]); else if(bm2) f.baths=+bm2[1]; else if(/ و?حمامين /.test(t)) f.baths=2; else if(/ (و|،)? ?حمام (و|،|مطبخ|موزع|ماستر|رئيسي)/.test(t)) f.baths=1;
   var lv=t.match(new RegExp(" و?"+wn+" (صالون|صالونات)"+W));
-  if(lv) f.living_rooms=num(lv[1]); else if(/ و?صالونين /.test(t)) f.living_rooms=2; else if(/ و ?صالون /.test(t)) f.living_rooms=1;
+  if(lv) f.living_rooms=num(lv[1]); else if(/ و?صالونين /.test(t)) f.living_rooms=2; else if(/ و ?(صالون|صوفا|صوفه|قعده) /.test(t)) f.living_rooms=1;
   if(f.rooms>20) delete f.rooms; if(f.baths>10) delete f.baths;
   // floor ("ط" = طابق)
   var ORD={"ارضي":0,"الارضي":0,"اول":1,"الاول":1,"ثاني":2,"الثاني":2,"تاني":2,"ثالث":3,"الثالث":3,"تالت":3,"رابع":4,"الرابع":4,"خامس":5,"الخامس":5,"سادس":6,"السادس":6,"سابع":7,"السابع":7,"ثامن":8,"الثامن":8,"تاسع":9,"التاسع":9,"عاشر":10,"العاشر":10,"تسويه":-1,"قبو":-1};
@@ -4759,7 +4761,8 @@ function qfLocalRead(raw, geo, learned, home){
        ["damaged",/ (متضرر|متضرره) /],["old",/ (اكساء قديم|كسوه قديمه|اكساء عادي)/],["intact",/ (سليم|سليمه|جاهز للسكن|جاهزه للسكن|(ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء) (و ?فرش |والفرش )?(جيده|جيد|جيده جدا|نظيفه|حلوه|جديده|جديد)) /]]));
   if(!cd) cd=byName(land?D.LANDC:D.COND,land?{fenced:1,planted:1,built:1,empty:1}:{repair:1,superdeluxe:1,deluxe:1,shell:1,finishing:1,stripped:1,damaged:1,old:1,intact:1});
   if(cd&&(land?D.LANDC:D.COND)&&(land?D.LANDC:D.COND)[cd]) f.condition=cd;
-  if(has(/ (غير مفروش|بدون فرش|بلا فرش)/)) f.furnished=false; else if(has(/ (مفروش|مفروشه|بفرشه|بفرشها|مع الفرش) /)) f.furnished=true;
+  // «فاضي» = unfurnished
+  if(has(/ (غير مفروش|غير مفروشه|بدون فرش|بلا فرش|فاضي|فاضيه|فارغ|فارغه) /)) f.furnished=false; else if(has(/ (مفروش|مفروشه|بفرشه|بفرشها|مع الفرش) /)) f.furnished=true;
   // facing: «قبلي» is always a direction; the other words only after «اتجاه / واجهة»
   // the words after it, in any order and with "و"/"•" between them: north/south + east/west make a corner ("شرقي قبلي" = se)
   var DW="(قبلي|جنوبي|شمالي|شرقي|غربي)ه?", dctx=new RegExp(" (?:ب?الاتجاه|اتجاه|اتجاهها|الاتجاهات|اتجاهات|واجهه|الواجهه|واجهتها) ?(?:[:•] ?)?"+DW+"((?: ?[•و]? ?"+DW+"){0,3})").exec(t)||/ (قبلي)((?: (?:و ?)?(?:شرقي|غربي|شمالي)){0,2}) /.exec(t);
@@ -4812,7 +4815,7 @@ function qfLocalRead(raw, geo, learned, home){
   // place: the governorate written in the text, then the longest area name of Balkoun's list found in it
   var govs=Object.keys(geo), gIdx={}, aIdx={};
   var bare=function(s){ return N(s).replace(/[^؀-ۿ0-9 ]/g," ").replace(/\s+/g," ").trim().split(" ").map(function(w){ return w.replace(/^ال/,"") }).join(" ") };
-  govs.forEach(function(g){ gIdx[bare(g)]=g; (geo[g]||[]).forEach(function(a){ String(a).split("/").forEach(function(p){ var k=bare(p); if(k.length<3) return; (aIdx[k]=aIdx[k]||[]).push({g:g,a:a});
+  govs.forEach(function(g){ gIdx[bare(g)]=g; (geo[g]||[]).forEach(function(a){ String(a).split("/").forEach(function(p){ var k=bare(p); if(k.length<3) return; (aIdx[k]=aIdx[k]||[]).push({g:g,a:a}); var ks=k.replace(/ /g,""); if(ks!==k && ks.length>=5) (aIdx[ks]=aIdx[ks]||[]).push({g:g,a:a});
         var kw=k.split(" "); if(kw.length===2&&/^(اوتوستراد|طريق)$/.test(kw[1])){ var rk=kw[1]+" "+kw[0]; (aIdx[rk]=aIdx[rk]||[]).push({g:g,a:a}) } }) }) });
   gIdx["شام"]="دمشق"; if(geo["حماة"]) gIdx["حماه"]="حماة";
   var words=t.trim().split(" "), stripW=function(w){ return w.replace(/^(و|ف)?(بال|لل|ال|ب|ل)(?=..)/,"").replace(/^ال/,"") };
@@ -4823,14 +4826,14 @@ function qfLocalRead(raw, geo, learned, home){
       var prev=words.slice(Math.max(0,i-2),i).join(" ");
       [k0,k1].forEach(function(k){ if(gIdx[k]&&!(gIdx[k]==="دمشق"&&/ريف$/.test(prev))) gHits[gIdx[k]]=Math.min(gHits[gIdx[k]]||1e9,i);
         if(k==="ريف دمشق"||k==="ريف شام") gHits["ريف دمشق"]=Math.min(gHits["ريف دمشق"]||1e9,i) });
-      var k=aIdx[k0]?k0:(aIdx[k1]?k1:null); if(!k) continue;
+      var k=aIdx[k0]?k0:(aIdx[k1]?k1:(n>1&&aIdx[k0.replace(/ /g,"")]?k0.replace(/ /g,""):(n>1&&aIdx[k1.replace(/ /g,"")]?k1.replace(/ /g,""):null))); if(!k) continue;
       var prev3=words.slice(Math.max(0,i-3),i).join(" ");
       var way=/(^| )(مكرو|ميكرو|خط|سرفيس|باص|كراج|قرب|قريب|قريبه|مقابل|تجاه|جانب|بجانب|خلف|بعد|جنب|عند|اوتستراد|دوار|جامع|مدرسه|مشفى|مستشفى|كنيسه|حديقه|فرن|صيدليه|ساحه|مفرق|موقف|كازيه|مول|فندق|مطعم|الى|نحو|باتجاه|مقسم)( من)?( [^ ]+)?$/.test(prev3) && !/(في|بحي|حي|منطقه|بمنطقه)$/.test(prev);
       aHits.push({k:k,i:i,n:n,len:k.length,way:way,c:aIdx[k]}); }
   }
   var gNamed=Object.keys(gHits).sort(function(a,b){ return gHits[a]-gHits[b] });
   if(/ ريف (حماه|حلب|ادلب|حمص|اللاذقيه|طرطوس|درعا) /.test(t) && gNamed.indexOf("ريف دمشق")>-1 && !/ ريف (دمشق|الشام) /.test(t)) gNamed.splice(gNamed.indexOf("ريف دمشق"),1);
-  var BLOCK={}; "حفيان خريطه نموذجيه قسمين عرقوب بابان حارات سعر كسوه سهم قبو جامع شمسيه رئيسي جديده دوار حمام مشروع مزرعه فيلات مدرسه كبيره نادي جسر مزارع حاره جيد داخليه اسكان كورنيش صور طوال فسحه دور حره ابين ذهبيه وادي كروم ملعب جميله شهداء رشيد جنينه عفش عاليه صغيره عريض شماليه شجره سيده ناعم مطله عمر عليه عيون صنع باب حلوه معامل عباره كليه عماره معزوله ساحه سوق طريق شارع حديقه بساتين ابراج ادخار مضافه زراعه مدينه قريه بلده ضيعه مركز منطقه حي سكن جبل بحر نهر سهل تل".split(" ").forEach(function(w){ BLOCK[w]=1 });
+  var BLOCK={}; "كفر حفيان خريطه نموذجيه قسمين عرقوب بابان حارات سعر كسوه سهم قبو جامع شمسيه رئيسي جديده دوار حمام مشروع مزرعه فيلات مدرسه كبيره نادي جسر مزارع حاره جيد داخليه اسكان كورنيش صور طوال فسحه دور حره ابين ذهبيه وادي كروم ملعب جميله شهداء رشيد جنينه عفش عاليه صغيره عريض شماليه شجره سيده ناعم مطله عمر عليه عيون صنع باب حلوه معامل عباره كليه عماره معزوله ساحه سوق طريق شارع حديقه بساتين ابراج ادخار مضافه زراعه مدينه قريه بلده ضيعه مركز منطقه حي سكن جبل بحر نهر سهل تل".split(" ").forEach(function(w){ BLOCK[w]=1 });
   var NEVER={"علي":1,"في":1,"من":1,"الي":1,"مع":1,"عن":1};   // «على» normalises to «علي»: a preposition, never a place
   var IN=/(في|بحي|حي|منطقه|بمنطقه|المنطقه|الموقع|العنوان|بلده|قريه|ضاحيه|بضاحيه|ببلده|بقريه|مدينه|بمدينه)$/;
   aHits=aHits.filter(function(h){ return !NEVER[h.k] });
@@ -4908,7 +4911,7 @@ function qfLocalRead(raw, geo, learned, home){
   lm=lm.filter(function(v,i){ return lm.indexOf(v)===i });
   if(lm.length) f.landmark=lm.join(" - ").slice(0,90);
   // what the reader could not find (same keys as the server read)
-  var miss=[]; ["deal","property_type","governorate","price","area_m2"].forEach(function(k){ if(f[k]==null) miss.push(k) });
+  var miss=[]; ["deal","property_type","governorate","price","area_m2"].forEach(function(k){ if(f[k]==null && !(k==="area_m2"&&f.deal==="rent")) miss.push(k) });   // a rental needs no size
   if(f.deal==="sale"&&!f.tabu&&!land) miss.push("tabu");
   return {fields:f, missing:miss};
 }
@@ -4986,7 +4989,7 @@ function applyQuickFill(f){
   set("pm2", f.area_m2); set("pr", f.rooms); set("pb", f.baths); set("pLiving", f.living_rooms);
   var fl=$("#pfl"); if(fl&&f.floor!=null&&hasOpt(fl,f.floor)){ fl.value=String(f.floor); fire(fl,"change") }
   set("py", f.year_built); set("pel", f.power_hours);
-  var rp=$("#pRentalPeriod"); if(rp&&f.rental_period&&hasOpt(rp,f.rental_period)) rp.value=f.rental_period;
+  var rp=$("#pRentalPeriod"); if(rp&&f.rental_period&&hasOpt(rp,f.rental_period)){ rp.value=f.rental_period; fire(rp,"change") }   // the price label («الإيجار الشهري») follows
   set("pLease", f.lease_months); set("pAdv", f.advance_months); set("pDep", f.deposit_usd);
   if($("#pBills")&&f.bills_included!=null) $("#pBills").checked=!!f.bills_included;
   if($("#pFurn")&&f.furnished!=null) $("#pFurn").checked=!!f.furnished;
@@ -7735,7 +7738,7 @@ async function savePost(){
       price_usd: val("pp") ? toUsdFrom(parseInt(val("pp"),10), val("pcur")) : null,   // empty → "السعر عند التواصل"
       price_local: val("pp") && (val("pcur")||"USD").toUpperCase()!=="USD" ? parseInt(val("pp"),10) : null,   // the poster's own figure, kept verbatim
       price_cur: val("pp") && (val("pcur")||"USD").toUpperCase()!=="USD" ? (val("pcur")||"").toUpperCase() : null,
-      area_m2: Math.round((parseFloat(val("pm2"))||0) * (parseInt(val("pUnit"),10)||1)),
+      area_m2: Math.round((parseFloat(val("pm2"))||0) * (parseInt(val("pUnit"),10)||1)) || null,   // empty (a rental may leave it out) → null; the DB refuses 0
       rooms: secOf(val("ptype"))==="land" ? null : (parseInt(val("pr"),10)||null),
       baths: secOf(val("ptype"))==="land" ? null : (parseInt(val("pb"),10)||null),
       living_rooms: LIVING_T.indexOf(val("ptype"))>-1 ? (parseInt(val("pLiving"),10)||null) : null,
