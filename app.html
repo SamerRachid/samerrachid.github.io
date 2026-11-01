@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-lyAwRhmfBFKsfr7UEWeKgpVWObmOLdAfuQvMGYTZNjQ=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-UZlF/uF7qpf2/gfNSHCrLA3j1Wojdpcwb+7E9MrRpnA=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -9753,6 +9753,8 @@ function qfLocalRead(raw, geo, learned, home){
   var fm=t.match(new RegExp(" (?:ب?الطابق|طابق|ط\\.?) ?(\\d{1,2}|"+Object.keys(ORD).join("|")+")"+W));
   if(fm) f.floor=/^\d+$/.test(fm[1])?+fm[1]:ORD[fm[1]]; else if(/ (شقه|بيت|منزل) (ارضي|ارضيه) /.test(t)) f.floor=0;
   if(f.floor>30) delete f.floor;
+  // «غرفة وصالون قبو»: the unit is the basement («والقبو», «بالقبو», «حصة بالقبو» are a share of it, not the floor)
+  if(f.floor==null && / قبو /.test(t) && !/ (حصه|حصه في) قبو | قبو (تجاري|صناعي) /.test(t)) f.floor=-1;
   if(f.property_type==="house" && (f.floor>=1 || / مصعد /.test(t))) f.property_type="apartment";   // a «منزل» on an upper floor or with a lift is a flat (owner's rule)
   // deed
   var tb=null;
@@ -9815,7 +9817,12 @@ function qfLocalRead(raw, geo, learned, home){
   pr.sort(function(a,b){ return a.unit-b.unit || (b.cur==="USD")-(a.cur==="USD") || (!!b.cur)-(!!a.cur) || b.key-a.key || b.mu-a.mu || a.i-b.i });
   pr=pr.filter(function(x){ return !x.unit });
   var p0=pr.filter(function(x){ return x.v>=50 && (x.cur||x.mu||x.v>=1000) })[0];
-  if(p0){ f.price=p0.v; f.currency=p0.cur||curAll||"USD" }
+  if(p0){ f.price=p0.v; f.currency=p0.cur||curAll||"USD";
+    // no currency written and an amount no dollar price reaches (5 مليون بالشهر, 150 مليون للبيع): Syrian pounds
+    if(!p0.cur && !curAll && ((f.deal==="rent" && f.price>=50000) || (f.deal!=="rent" && f.price>=10000000))) f.currency="SYP" }
+  // rent paid ahead: «دفع ست شهور», «دفعة 6 اشهر», «سلف سنه»
+  var adv=new RegExp(" (?:دفع|دفعه|سلف|مقدم|الدفع) ?"+wn+"? ?(شهر|شهور|اشهر|سنه)"+W).exec(t)||/ (?:دفع|دفعه|سلف) (سنه) /.exec(t);
+  if(f.deal==="rent" && adv){ var an=adv[2]?adv[1]:null, au=adv[2]||adv[1]; f.advance_months = au==="سنه" ? 12 : (an?num(an):1) }
   if(has(/ و?(بازار|قابل للتفاوض|قابل للنقاش|قابل للبازار)/)) f.negotiable=true; else if(has(/ (منهي|نهائي|غير قابل للتفاوض)/)) f.negotiable=false;
   // place: the governorate written in the text, then the longest area name of Balkoun's list found in it
   var govs=Object.keys(geo), gIdx={}, aIdx={};
@@ -9911,7 +9918,7 @@ function qfLocalRead(raw, geo, learned, home){
     var ow=clean.split(" "), nw=ow.map(function(w){ return N(w).replace(/[^؀-ۿ]/g,"") });
     for(var x=0;x<nw.length;x++){ var two=nw[x]+" "+(nw[x+1]||"");
       if(!LMK.test(two+" ") && !LMK.test(nw[x]+" ")) continue;
-      var out=[]; for(var y=x;y<ow.length&&out.length<6;y++){ if(/\d/.test(ow[y])||/^(طابق|ط|الطابق|غرف|غرفه|مساحه|المساحه|السعر|سعر|للبيع|للايجار|للاجار|بسعر|طابو|كسوه|اكساء|بناء|البناء|بنايه|مخدم|مخدمه|في|مع|يوجد|فيه|فيها)$/.test(nw[y])) break; out.push(ow[y]) }
+      var out=[]; for(var y=x;y<ow.length&&out.length<6;y++){ if(/\d/.test(ow[y])||/^(طابق|ط|الطابق|غرف|غرفه|مساحه|المساحه|السعر|سعر|للبيع|للايجار|للاجار|بسعر|طابو|كسوه|اكساء|بناء|البناء|بنايه|قبو|غرفه|غرفتين|منزل|شقه|مفروش|مفروشه|مخدم|مخدمه|في|مع|يوجد|فيه|فيها)$/.test(nw[y])) break; out.push(ow[y]) }
       if(out.length>=2) lm.push(out.join(" ").replace(/[.:،,]+$/,"")); break } });
   lm=lm.filter(function(v,i){ return lm.indexOf(v)===i });
   if(lm.length) f.landmark=lm.join(" - ").slice(0,90);
