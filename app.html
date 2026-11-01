@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-LWqJmF/0MdhEnzn6hAvWLyPHw2l8X7GhliqylsDMz+g=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-rDK5imMtTQx5OcFvCDiDjGJOVr/oJYrtPPLt5he4+CQ=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -11873,7 +11873,7 @@ function wireEditMedia(){
     }catch(x){ alert(x.message||"error") } }});
 
   if($("#eDrop")){
-    $("#eDrop").onclick=function(){ $("#eFiles").click() };
+    $("#eDrop").onclick=function(){ $("#eFiles").click() };   // dropped files: the page-wide drop handler feeds them to #eFiles
     $("#eFiles").onchange=async function(){
       var el=this, files=[].slice.call(el.files);
       var msg=$("#ePhMsg"), bad=false;
@@ -15917,6 +15917,19 @@ function updateHdr(){
  h.classList.toggle("hdr-solid", document.body.classList.contains("home-hero") && y>30);
 }
 var _hdrRaf=0; window.addEventListener("scroll",function(){ if(!_hdrRaf) _hdrRaf=requestAnimationFrame(function(){ _hdrRaf=0; updateHdr() }) },{passive:true});   // once per frame, not per scroll event
+// files dragged onto the page (owner 2026-11-01: dropped photos opened in new tabs): never let the browser open them; on the
+// post / edit page they go to the listing's photos wherever they land. A drop zone with its own handler (#drop) has
+// already called preventDefault, so it is not added twice.
+(function(){
+  var hasFiles=function(e){ var ty=e.dataTransfer&&e.dataTransfer.types; return !!ty && [].indexOf.call(ty,"Files")>-1 };
+  var zone=function(){ return document.getElementById("drop")||document.getElementById("eDrop") };
+  window.addEventListener("dragover",function(e){ if(!hasFiles(e)) return; e.preventDefault(); var z=zone(); if(z) z.classList.add("over"); e.dataTransfer.dropEffect=z?"copy":"none" });
+  window.addEventListener("dragleave",function(e){ if(e.clientX<=0||e.clientY<=0||e.clientX>=innerWidth||e.clientY>=innerHeight){ var z=zone(); if(z) z.classList.remove("over") } });
+  window.addEventListener("drop",function(e){ if(!hasFiles(e)) return; var done=e.defaultPrevented; e.preventDefault(); var z=zone(); if(z) z.classList.remove("over");
+    var fl=e.dataTransfer.files; if(done||!fl||!fl.length) return;
+    if(document.getElementById("drop")){ addFiles(fl); var b=document.getElementById("drop").closest(".blk"); if(b) b.scrollIntoView({behavior:"smooth",block:"center"}) }
+    else { var inp=document.getElementById("eFiles"); if(inp&&inp.onchange){ try{ inp.files=fl }catch(x){} inp.onchange.call(inp) } } });
+})();
 // custom cursor removed 2026-09-04 (confused visitors; hover states carry the affordance)
 DEMO = D.LIST.slice();
 USER = loadSession();

@@ -3375,6 +3375,7 @@ function checkPost(){
  // the description is optional too (owner, 2026-10-15): an empty or short one is completed from the listing's own facts
  // at publish (the database keeps its 30-character minimum)
  if(priceReq() && !(+v("pp")>0)) need.push(t("price"));
+ if(tabuReq() && !isRent && !$('input[name=tb2]:checked')) need.push(t("deed"));   // owner 2026-11-01: no sale without its deed (rent has none)
  var needPh = 0;   // photos and videos are optional (listings with photos get more views; the hint says so)
  if(NEW.photos.length<needPh)need.push(t("photos"));
  // the number after the country code: 9 digits for Syria (+963 9xx…), 7–8 elsewhere (Lebanon +961 70 123456 / 3 123456);
@@ -6131,6 +6132,8 @@ function wire(){
  if($("#eSave")) $("#eSave").onclick=async function(){
    var v=function(i){var e=$("#"+i);return e?e.value:""};
    if(priceReq() && !(+v("ePrice")>0)){ alert(GX("priceReqMsg")); var ep=$("#ePrice"); if(ep){ ep.focus(); ep.style.borderColor="var(--danger)" } return }
+   // the deed picker only shows for a sale
+   if(tabuReq() && $('input[name=etb]') && v("eDeal")!=="rent" && !$('input[name=etb]:checked')){ alert(GX("tabuReqMsg")); var et=$('input[name=etb]'); if(et&&et.closest(".pick")) et.closest(".pick").scrollIntoView({block:"center"}); return }
    this.disabled=true; this.textContent=t("saving");
    try{
      var patch={};
@@ -6855,7 +6858,7 @@ function wireEditMedia(){
     }catch(x){ alert(x.message||"error") } }});
 
   if($("#eDrop")){
-    $("#eDrop").onclick=function(){ $("#eFiles").click() };
+    $("#eDrop").onclick=function(){ $("#eFiles").click() };   // dropped files: the page-wide drop handler feeds them to #eFiles
     $("#eFiles").onchange=async function(){
       var el=this, files=[].slice.call(el.files);
       var msg=$("#ePhMsg"), bad=false;
@@ -6957,6 +6960,7 @@ async function editVideoPick(f){ var m=$("#eVMsg"); if(m) m.style.color="";
   catch(err){ if(m){ m.textContent=err.message||"error"; m.style.color="var(--danger)" } } }
 // owner, 2026-10-23: a panel switch makes the price required (site form, edit page and bot); off = «السعر عند التواصل»
 function priceReq(){ return SXb("intake_price_required",false)===true }
+function tabuReq(){ return SXb("intake_tabu_required",true)===true }   // panel «قواعد إضافة الإعلان»; on unless switched off
 function videoCfg(){ return { on: SX("video_enabled",true)!==false, mb: Math.min(100, +SX("video_max_mb",100)||100), s: +SX("video_max_s",90)||90, n: +SX("video_max",1)||1 } }
 function fmtDur(sec){ sec=Math.round(sec||0); return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0") }
 // the sharpest of several frames of a video, as the poster (owner 2026-10-31: «the video's image is mostly blurred — take a later
@@ -9500,6 +9504,8 @@ var GX_T={
   msrcHint:{ar:"«مباشر» = كتب العنوان أو فتح الموقع من رابط بلا مصدر (كثير من زوار تطبيق فيسبوك يظهرون هكذا). «غير معروف» = سجّل قبل تفعيل هذه الميزة.",en:"«Direct» = typed the address or a link without a source. «Unknown» = signed up before this feature.",de:"«Direkt» = Adresse getippt oder Link ohne Quelle. «Unbekannt» = vor dieser Funktion registriert."},
   priceReqH:{ar:"قواعد إضافة الإعلان",en:"Listing rules",de:"Regeln für Anzeigen"},
   priceReqL:{ar:"السعر إلزامي",en:"Price is required",de:"Preis ist Pflicht"},
+  tabuReqL:{ar:"الطابو (نوع الملكية) إلزامي في إعلانات البيع",en:"Title deed is required for sale listings",de:"Eigentumsnachweis ist bei Verkaufsanzeigen Pflicht"},
+  tabuReqMsg:{ar:"اختر نوع الملكية (الطابو) قبل الحفظ.",en:"Choose the title deed before saving.",de:"Bitte vor dem Speichern den Eigentumsnachweis wählen."},
   priceReqHint:{ar:"عند التشغيل: لا يُنشر إعلان بلا سعر، من صفحة «أضف إعلانك» ومن صفحة التعديل ومن البوت (يطلب البوت السعر ولا يمكن تخطيه). عند الإيقاف: الإعلان بلا سعر يُنشر بعبارة «السعر عند التواصل».",en:"On: no listing is published without a price — from «Add listing», the edit page and the bot (the bot asks for it and it cannot be skipped). Off: a listing without a price shows «Price on request».",de:"An: keine Anzeige ohne Preis — Formular, Bearbeiten und Bot (der Bot fragt danach, Überspringen geht nicht). Aus: ohne Preis erscheint «Preis auf Anfrage»."},
   priceReqMsg:{ar:"السعر إلزامي: اكتب السعر قبل الحفظ",en:"A price is required: enter it before saving",de:"Preis ist Pflicht: bitte vor dem Speichern eintragen"},
   navBack:{ar:"رجوع",en:"Back",de:"Zurück"},
@@ -10896,6 +10902,19 @@ function updateHdr(){
  h.classList.toggle("hdr-solid", document.body.classList.contains("home-hero") && y>30);
 }
 var _hdrRaf=0; window.addEventListener("scroll",function(){ if(!_hdrRaf) _hdrRaf=requestAnimationFrame(function(){ _hdrRaf=0; updateHdr() }) },{passive:true});   // once per frame, not per scroll event
+// files dragged onto the page (owner 2026-11-01: dropped photos opened in new tabs): never let the browser open them; on the
+// post / edit page they go to the listing's photos wherever they land. A drop zone with its own handler (#drop) has
+// already called preventDefault, so it is not added twice.
+(function(){
+  var hasFiles=function(e){ var ty=e.dataTransfer&&e.dataTransfer.types; return !!ty && [].indexOf.call(ty,"Files")>-1 };
+  var zone=function(){ return document.getElementById("drop")||document.getElementById("eDrop") };
+  window.addEventListener("dragover",function(e){ if(!hasFiles(e)) return; e.preventDefault(); var z=zone(); if(z) z.classList.add("over"); e.dataTransfer.dropEffect=z?"copy":"none" });
+  window.addEventListener("dragleave",function(e){ if(e.clientX<=0||e.clientY<=0||e.clientX>=innerWidth||e.clientY>=innerHeight){ var z=zone(); if(z) z.classList.remove("over") } });
+  window.addEventListener("drop",function(e){ if(!hasFiles(e)) return; var done=e.defaultPrevented; e.preventDefault(); var z=zone(); if(z) z.classList.remove("over");
+    var fl=e.dataTransfer.files; if(done||!fl||!fl.length) return;
+    if(document.getElementById("drop")){ addFiles(fl); var b=document.getElementById("drop").closest(".blk"); if(b) b.scrollIntoView({behavior:"smooth",block:"center"}) }
+    else { var inp=document.getElementById("eFiles"); if(inp&&inp.onchange){ try{ inp.files=fl }catch(x){} inp.onchange.call(inp) } } });
+})();
 // custom cursor removed 2026-09-04 (confused visitors; hover states carry the affordance)
 DEMO = D.LIST.slice();
 USER = loadSession();
