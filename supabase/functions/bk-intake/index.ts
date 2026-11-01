@@ -716,7 +716,7 @@ Rules:
 - Condition: "سليم"/"جاهز" = intact, "ديلوكس"/"كسوة ديلوكس" = deluxe, "سوبر ديلوكس"/"سوبر" (about the finishing) = superdeluxe, "على العظم" = shell, "قيد الإكساء"/"قيد الاكساء"/"تحت الإكساء"/"عم ينكسي"/"بمرحلة الإكساء" (finishing work under way, not yet done) = finishing, "بحاجة ترميم" = repair, "معفش" = stripped (Syria only), "متضرر" = damaged. "إكساء قديم"/"كسوة قديمة"/"اكساء قديم"/"اكساء عادي" = old (an old but usable finishing); old finishing alone is NOT repair. But if the sender also says it needs repair ("بحاجة ترميم", "يحتاج ترميم", "بدها ترميم", "بدو ترميم"), repair wins over old. Set repair only when the sender says the property needs repair ("بحاجة ترميم", "يحتاج ترميم", "بدو ترميم").
 - Floor: "ط" is the abbreviation of "طابق" ("ط 3" / "ط3" = floor 3, "ط أرضي" = ground, "ط أخير" = top floor); it is not a typo and not part of an area name.
 - The description must be a clean Arabic paragraph written for the website: no phone numbers, no prices, no emojis, no hashtags, no "للتواصل". Keep facts only; do not invent.
-- Put in "missing" every required fact that the message truly does not state: deal, property_type, governorate, price, area_m2 (and tabu for a sale).
+- Put in "missing" every required fact that the message truly does not state: deal, property_type, governorate, price, and for a sale also area_m2 and tabu (a rental needs no size).
 - Intent: if the sender is LOOKING for a property ("أبحث عن", "أريد", "بدي", "مطلوب", "أدور على", "looking for", "I want to buy/rent"), set intent = "wanted" and still fill the fields they ask for (type, place, deal, budget as price). A property being offered is intent = "listing". A question or chat is "other".
 - Property type: keep the word the sender used ("فيلا" = villa, "شقة" = apartment, "بيت عربي" = arab, "منزل" or "بيت" = house, "تراس"/"تيراس"/"شقة تراس"/"طابق تراس"/"سطح"/"شقة سطح"/"روف" = terrace, a roof-level flat with a terrace, "دوبلكس"/"دوبليكس"/"شقة دوبلكس"/"طابقين" for one flat on two levels = duplex). Codes added by the admin appear in the taxonomy with their Arabic names; use them when the sender's word matches. A "منزل" that clearly describes a flat (a floor number with an elevator, "شقة" written too) is apartment; "حوش", "أرض ديار", "ساحة سماوية" = arab; otherwise "منزل"/"بيت" stays house.
 - Transport lines are NOT the neighbourhood: a name after "مكرو", "ميكرو", "خط", "سرفيس", "باص", "كراج" ("مكرو خط المهاجرين عباب الشقة" = the Muhajireen microbus line passes by) tells how to reach the place; never take that name as the area. Same for "قريب من", "بعد", "مقابل", "جانب" + a place: that is a landmark, not the area, unless the message clearly says the property is IN it. If the true neighbourhood is not stated, leave area empty and put the way-finding text in landmark.
@@ -1072,8 +1072,8 @@ function settle(f: Record<string, any>, tax: any, rawText?: string) {
   // landmark (owner's rule: a missing area must never block the sender — the admin adds it from the suggestions list)
   else if (!out.area_id && (g.areas || []).length && !out.landmark) missing.push("area");
   // price and deed are optional (owner's rule, 2026-10-02): no price → "السعر عند التواصل", no deed word → nothing shown
-  // a farm or chalet let by the day/season is advertised by its features, not its m² (owner's rule): size optional there
-  if (!out.area_m2 && !(out.deal === "rent" && ["farm", "chalet"].includes(out.property_type))) missing.push("area_m2");
+  // the size is required for a sale only: never for any rental (owner, 2026-11-01 — it was farms and chalets before)
+  if (!out.area_m2 && out.deal !== "rent") missing.push("area_m2");
   // the panel switch «السعر إلزامي» (extras.intake_price_required, owner 2026-10-23) makes the price a required fact again
   if (PRICE_REQ && !(Number(out.price) > 0)) missing.push("price");
   return { fields: out, missing };
@@ -1094,7 +1094,7 @@ function summary(f: Record<string, any>, tax: any, photos: number, lang: string,
   const place = [f.governorate, areaShown, lm].filter(Boolean).join(" – "); if (place) L.push("• " + place);
   const facts = [f.area_m2 ? `${fmtNum(f.area_m2)} ${ar ? "م²" : "m²"}` : "", f.rooms ? `${f.rooms} ${ar ? "غرف" : "rooms"}` : "", f.living_rooms ? `${f.living_rooms} ${ar ? "صالون" : "living"}` : "", f.baths ? `${f.baths} ${ar ? "حمام" : "baths"}` : "", f.floor != null ? `${ar ? "طابق" : "floor"} ${f.floor}` : ""].filter(Boolean);
   if (facts.length) L.push("• " + facts.join(" · "));
-  if (!f.area_m2 && !(f.deal === "rent" && ["farm", "chalet"].includes(f.property_type))) L.push(tt.sizeNone);
+  if (!f.area_m2 && f.deal !== "rent") L.push(tt.sizeNone);
   const st = [deed ? (ar ? deed.ar : deed.en) : "", cond ? cond.ar : "", f.furnished ? (ar ? "مفروش" : "furnished") : ""].filter(Boolean);
   if (st.length) L.push("• " + st.join(" · "));
   // no "will be published without a deed" line any more: a sale without a deed word is asked for it before publishing
