@@ -502,6 +502,7 @@ function adminView(){
    '</div></div>'+
    '<div class="blk"><h3>'+GX("priceReqH")+'</h3><div class="in">'+
     '<label style="display:flex;gap:8px;align-items:center;font-size:14px;margin-bottom:8px"><input type="checkbox" id="scPriceReq"'+(priceReq()?' checked':'')+'>'+GX("priceReqL")+'</label>'+
+    '<label style="display:flex;gap:8px;align-items:center;font-size:14px;margin-bottom:8px"><input type="checkbox" id="scTabuReq"'+(tabuReq()?' checked':'')+'>'+GX("tabuReqL")+'</label>'+
     '<div class="hintx" style="margin-bottom:10px">'+GX("priceReqHint")+'</div>'+
     '<button class="ab ok" id="scPriceReqSave">'+t("save")+'</button>'+
     '<span style="font-size:12.5px;color:var(--ok);margin-inline-start:8px" id="scPriceReqMsg"></span>'+
@@ -2120,7 +2121,7 @@ function wireAdmin(){
     saveSiteContent({extras:{video_enabled:!!($("#scVideoOn")||{}).checked, video_max_mb:mb, video_max_s:sec, video_max:n}},"scVideoMsg",this);
   };
   if($("#scPriceReqSave")) $("#scPriceReqSave").onclick=function(){
-    saveSiteContent({extras:{intake_price_required:!!($("#scPriceReq")||{}).checked}},"scPriceReqMsg",this);
+    saveSiteContent({extras:{intake_price_required:!!($("#scPriceReq")||{}).checked, intake_tabu_required:!!($("#scTabuReq")||{}).checked}},"scPriceReqMsg",this);
   };
   if($("#scStorageLimitSave")) $("#scStorageLimitSave").onclick=function(){
     var mb=parseInt(($("#scStorageLimit")||{}).value,10);

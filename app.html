@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-CIbGCTEXUE/naQimtumqBpyhVzpnZTcXZRm8ZSBTt3U=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-LWqJmF/0MdhEnzn6hAvWLyPHw2l8X7GhliqylsDMz+g=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -8390,6 +8390,7 @@ function checkPost(){
  // the description is optional too (owner, 2026-10-15): an empty or short one is completed from the listing's own facts
  // at publish (the database keeps its 30-character minimum)
  if(priceReq() && !(+v("pp")>0)) need.push(t("price"));
+ if(tabuReq() && !isRent && !$('input[name=tb2]:checked')) need.push(t("deed"));   // owner 2026-11-01: no sale without its deed (rent has none)
  var needPh = 0;   // photos and videos are optional (listings with photos get more views; the hint says so)
  if(NEW.photos.length<needPh)need.push(t("photos"));
  // the number after the country code: 9 digits for Syria (+963 9xx…), 7–8 elsewhere (Lebanon +961 70 123456 / 3 123456);
@@ -9695,6 +9696,7 @@ function qfLocalRead(raw, geo, learned){
     .replace(/(\d)[٬,](?=\d{3}\b)/g,"$1").replace(/٫/g,".");
   var N=function(s){ return String(s||"").replace(/(?:ا|أ|إ)?(?:وتستراد|وتوستراد|توستراد|ستراد)/g,"اوتوستراد").toLowerCase().replace(/ڤ/g,"ف").replace(/[ً-ْـ]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي") };
   var t=" "+N(lat).replace(/[،؛؟٪«»؜​-‏]/g," ").replace(/(\D)\.|\.(\D)/g,"$1 $2").replace(/[^؀-ۿa-z0-9$.\/²%]+/g," ").replace(/\s+/g," ")+" ";   // one line, words and numbers only (Arabic commas and dots split words)
+  t=t.replace(/(كسوه|اكساء)(?=سوبر|ديلوكس|جيد|ممتاز|ملكي|قديم)/g,"$1 ").replace(/سوبرديلوكس/g,"سوبر ديلوكس").replace(/سوبر(?=لوكس)/g,"سوبر ");   // hashtags glue words: «#كسوةسوبرديلوكس»
   var f={}, has=function(re){ return re.test(t) }, NEAR=/(مقابل|قرب|قريب من|جانب|بجانب|خلف|بعد|امتداد|فوق|تحت|جنب|عند|ورا|شارع|مدخل|تجاه|ضمن|دخله|نزله|طلعه) ?$/, first=function(list,skipNear){ var best=null;
     list.forEach(function(p){ var re=new RegExp(p[1].source,"g"), m; while((m=re.exec(t))){ if(skipNear&&NEAR.test(t.slice(Math.max(0,m.index-14),m.index+1))){ re.lastIndex=m.index+1; continue } if(!best||m.index<best.i) best={i:m.index,v:p[0]}; break } }); return best?best.v:null };
   var W="(?=[\\s.,:؛،)!؟]|$)";   // end of word
@@ -9753,9 +9755,9 @@ function qfLocalRead(raw, geo, learned){
   // condition (repair wins over old; land has its own list)
   var land=/^(plot|agri|resid|comm|indust|tourist|farm|mahdar)$/.test(f.property_type||"");
   var cd=land ? first([["fenced",/ مسور/],["planted",/ مزروع/],["built",/ عليها (بناء|بيت|غرفه)/],["empty",/ ارض (فارغه|بيضاء)/]])
-    : (has(/ (بحاجه|يحتاج|بدها|بدو) ترميم/)?"repair" : first([["superdeluxe",/ (سوبر ديلوكس|سوبر سوبر|كسوه سوبر|اكساء سوبر|سوبر لوكس)/],["deluxe",/ (ديلوكس|ديلوكس|كسوه ديلوكس|لوكس) /],
+    : (has(/ (بحاجه|يحتاج|بدها|بدو) ترميم/)?"repair" : first([["superdeluxe",/ (سوبر ديلوكس|سوبر سوبر|كسوه سوبر|اكساء سوبر|سوبر لوكس|(?:ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء|كسوتو) ممتازه? جدا|(?:ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء|كسوتو) ممتازه? كثير)/],["deluxe",/ (ديلوكس|كسوه ديلوكس|لوكس|(?:ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء|كسوتو) ممتازه?) /],
        ["shell",/ (على العظم|عالعظم|ع العظم|على العضم|عالعضم|عاالعضم|عضم|ع العضم) /],["finishing",/ (قيد الاكساء|تحت الاكساء|عم ينكسي|بمرحله الاكساء|قيد التشطيب)/],["stripped",/ (معفش|معفشه) /],
-       ["damaged",/ (متضرر|متضرره) /],["old",/ (اكساء قديم|كسوه قديمه|اكساء عادي)/],["intact",/ (سليم|سليمه|جاهز للسكن|جاهزه للسكن|(كسوه|كسوتها|اكساء|الكسوه|الاكساء) (ممتازه|ممتاز|جيده|جيد|جيده جدا|نظيفه|حلوه|جديده|جديد)) /]]));
+       ["damaged",/ (متضرر|متضرره) /],["old",/ (اكساء قديم|كسوه قديمه|اكساء عادي)/],["intact",/ (سليم|سليمه|جاهز للسكن|جاهزه للسكن|(ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء) (جيده|جيد|جيده جدا|نظيفه|حلوه|جديده|جديد)) /]]));
   if(cd&&(land?D.LANDC:D.COND)&&(land?D.LANDC:D.COND)[cd]) f.condition=cd;
   if(has(/ (غير مفروش|بدون فرش|بلا فرش)/)) f.furnished=false; else if(has(/ (مفروش|مفروشه|بفرشه|بفرشها|مع الفرش) /)) f.furnished=true;
   // facing: «قبلي» is always a direction; the other words only after «اتجاه / واجهة»
@@ -9819,6 +9821,14 @@ function qfLocalRead(raw, geo, learned){
   var NEVER={"علي":1,"في":1,"من":1,"الي":1,"مع":1,"عن":1};   // «على» normalises to «علي»: a preposition, never a place
   var IN=/(في|بحي|حي|منطقه|بمنطقه|المنطقه|الموقع|العنوان|بلده|قريه|ضاحيه|بضاحيه|ببلده|بقريه|مدينه|بمدينه)$/;
   aHits=aHits.filter(function(h){ return !NEVER[h.k] });
+  // «كسوة» is the finishing; «الكسوة» is also a town (ريف دمشق). It is the town only with «ال» and nothing describing a finish
+  // after it: «بالكسوة», «في الكسوة», «الكسوة ريف دمشق» — never «كسوة ممتازة», «بكسوة جيدة», «الكسوة: سوبر ديلوكس», «كسوة 85%»
+  var FIN=/^(ممتاز|ممتازه|جيد|جيده|جديد|جديده|سوبر|ديلوكس|لوكس|قديم|قديمه|عادي|عاديه|نظيف|نظيفه|حلوه|ملكي|ملكيه|حديث|حديثه|خارجي|خارجيه|داخلي|داخليه|كامل|كامله|فخم|فخمه|راقي|راقيه|مميز|مميزه|بحاجه|نص|نصف|متوسط|متوسطه|عاليه|ممتاذه|vip|\d+%)$/;
+  aHits=aHits.filter(function(h){ if(h.k!=="كسوه") return true;
+    var w=words[h.i]||"", nx=(words[h.i+1]||"").replace(/^:/,""), nx2=words[h.i+2]||"";
+    if(!/^(و)?(ب|في|ف)?ال?كسوه$/.test(w) || !/الكسوه$/.test(w)) return false;   // «كسوة» / «بكسوة» without «ال»: the finishing
+    if(FIN.test(nx) || (nx===":"&&FIN.test(nx2)) || /^(اكساء|كسوه)$/.test(words[h.i-1]||"")) return false;
+    h.kisTown=true; return true });
   // places the bot learned from earlier messages ("جامع المصطفى" → الصناعة): each part of a learned phrase, without its
   // «قرب / جانب / مقابل…», is looked for as whole words; a part made only of everyday words is ignored
   if(learned.length){ var GEN=/^(اوتستراد|اوتوستراد|شارع|طريق|عام|رئيسي|كورنيش|جسر|دوار|ساحه|جامع|مسجد|مشفى|مستشفى|مدرسه|حديقه|سوق|مطعم|فرن|حي|منطقه|اول|اخر|الشارع|غربي|شرقي|شمالي|جنوبي|قديم|جديد|جديده|قديمه|نزله|دخله|حاره)$/;
@@ -9837,7 +9847,7 @@ function qfLocalRead(raw, geo, learned){
         aHits.push({k:core,i:wi,n:cw.length,len:core.length,way:false,c:[{g:g,a:a}],learned:true}) }) }
   // «في / بـ» before a name = the property is in it (owner's rule, every area); «على» before a road = it is on that road
   aHits.forEach(function(h){ var pw=words[h.i-1]||"";
-    h.one=h.n===1; h.marked=IN.test(words.slice(Math.max(0,h.i-1),h.i).join(" ")) || pw==="ب" || (!BLOCK[h.k] && /^(و)?(ب|بال|في)/.test(words[h.i]) && words[h.i].length>h.k.length+1);
+    h.one=h.n===1; h.marked=!!h.kisTown || IN.test(words.slice(Math.max(0,h.i-1),h.i).join(" ")) || pw==="ب" || (!BLOCK[h.k] && /^(و)?(ب|بال|في)/.test(words[h.i]) && words[h.i].length>h.k.length+1);
     h.road=/^(طريق|شارع|اوتستراد|اوتوستراد|كورنيش|جسر|دوار) /.test(h.k);
     if(h.road && /^(علي|عل|ع|عالـ?)$/.test(pw)){ h.road=false; h.way=false; h.marked=true } });
   // a real neighbourhood beats a road named like an area («طريق المطار»), a landmark is a last resort, «في / حي / منطقة» before a name counts
@@ -11137,6 +11147,8 @@ function wire(){
  if($("#eSave")) $("#eSave").onclick=async function(){
    var v=function(i){var e=$("#"+i);return e?e.value:""};
    if(priceReq() && !(+v("ePrice")>0)){ alert(GX("priceReqMsg")); var ep=$("#ePrice"); if(ep){ ep.focus(); ep.style.borderColor="var(--danger)" } return }
+   // the deed picker only shows for a sale
+   if(tabuReq() && $('input[name=etb]') && v("eDeal")!=="rent" && !$('input[name=etb]:checked')){ alert(GX("tabuReqMsg")); var et=$('input[name=etb]'); if(et&&et.closest(".pick")) et.closest(".pick").scrollIntoView({block:"center"}); return }
    this.disabled=true; this.textContent=t("saving");
    try{
      var patch={};
@@ -11963,6 +11975,7 @@ async function editVideoPick(f){ var m=$("#eVMsg"); if(m) m.style.color="";
   catch(err){ if(m){ m.textContent=err.message||"error"; m.style.color="var(--danger)" } } }
 // owner, 2026-10-23: a panel switch makes the price required (site form, edit page and bot); off = «السعر عند التواصل»
 function priceReq(){ return SXb("intake_price_required",false)===true }
+function tabuReq(){ return SXb("intake_tabu_required",true)===true }   // panel «قواعد إضافة الإعلان»; on unless switched off
 function videoCfg(){ return { on: SX("video_enabled",true)!==false, mb: Math.min(100, +SX("video_max_mb",100)||100), s: +SX("video_max_s",90)||90, n: +SX("video_max",1)||1 } }
 function fmtDur(sec){ sec=Math.round(sec||0); return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0") }
 // the sharpest of several frames of a video, as the poster (owner 2026-10-31: «the video's image is mostly blurred — take a later
@@ -14506,6 +14519,8 @@ var GX_T={
   msrcHint:{ar:"«مباشر» = كتب العنوان أو فتح الموقع من رابط بلا مصدر (كثير من زوار تطبيق فيسبوك يظهرون هكذا). «غير معروف» = سجّل قبل تفعيل هذه الميزة.",en:"«Direct» = typed the address or a link without a source. «Unknown» = signed up before this feature.",de:"«Direkt» = Adresse getippt oder Link ohne Quelle. «Unbekannt» = vor dieser Funktion registriert."},
   priceReqH:{ar:"قواعد إضافة الإعلان",en:"Listing rules",de:"Regeln für Anzeigen"},
   priceReqL:{ar:"السعر إلزامي",en:"Price is required",de:"Preis ist Pflicht"},
+  tabuReqL:{ar:"الطابو (نوع الملكية) إلزامي في إعلانات البيع",en:"Title deed is required for sale listings",de:"Eigentumsnachweis ist bei Verkaufsanzeigen Pflicht"},
+  tabuReqMsg:{ar:"اختر نوع الملكية (الطابو) قبل الحفظ.",en:"Choose the title deed before saving.",de:"Bitte vor dem Speichern den Eigentumsnachweis wählen."},
   priceReqHint:{ar:"عند التشغيل: لا يُنشر إعلان بلا سعر، من صفحة «أضف إعلانك» ومن صفحة التعديل ومن البوت (يطلب البوت السعر ولا يمكن تخطيه). عند الإيقاف: الإعلان بلا سعر يُنشر بعبارة «السعر عند التواصل».",en:"On: no listing is published without a price — from «Add listing», the edit page and the bot (the bot asks for it and it cannot be skipped). Off: a listing without a price shows «Price on request».",de:"An: keine Anzeige ohne Preis — Formular, Bearbeiten und Bot (der Bot fragt danach, Überspringen geht nicht). Aus: ohne Preis erscheint «Preis auf Anfrage»."},
   priceReqMsg:{ar:"السعر إلزامي: اكتب السعر قبل الحفظ",en:"A price is required: enter it before saving",de:"Preis ist Pflicht: bitte vor dem Speichern eintragen"},
   navBack:{ar:"رجوع",en:"Back",de:"Zurück"},
