@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-S/FxK0HiFB94WZYOLaCAbaaXU8wfrxRehpo+kSNyOvQ=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-qcmRupiFEYrM9Dky2j6SsPjchropwCzoah7LHnESqT4=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -9690,7 +9690,8 @@ var QF_PLACES=null;   // [[phrase, governorate, area]] the bot learned — loade
 /* ── free reader for the «املأ الحقول» box (owner 2026-11-01): reads a pasted listing message in the browser with rules
    and Balkoun's own place list — no server, no model, no cost. Answers in the same shape as the bk-intake /web read
    ({fields, missing}), so applyQuickFill() places both the same way. When a fact is unclear it is left empty, never guessed. ── */
-function qfLocalRead(raw, geo, learned){
+function qfLocalRead(raw, geo, learned, home){
+  home=(home||[]).filter(function(g){ return (geo||D.GEO)[g] });   // the poster's governorates, first = main
   geo=geo||D.GEO; learned=learned||QF_PLACES||[];
   var lat=String(raw||"").replace(/[٠-٩]/g,function(d){ return String(d.charCodeAt(0)-0x660) }).replace(/[۰-۹]/g,function(d){ return String(d.charCodeAt(0)-0x6f0) })
     .replace(/(\d)[٬,](?=\d{3}\b)/g,"$1").replace(/٫/g,".");
@@ -9860,6 +9861,9 @@ function qfLocalRead(raw, geo, learned){
     var inG=h.c.filter(function(c){ return gNamed.indexOf(c.g)>-1 });
     if(!inG.length&&gNamed.length) inG=h.c.filter(function(c){ return near(gNamed[0]).indexOf(c.g)>-1 });
     if(inG.length===1) pick=inG[0];
+    // no governorate written: the poster's own governorate (the agency's, from its profile) when the area is there (owner 2026-11-01)
+    else if(!gNamed.length && home.length && (!h.one || h.marked || (h.len>=4&&!BLOCK[h.k])) && h.c.some(function(c){ return home.indexOf(c.g)>-1 })){
+      var inH=h.c.filter(function(c){ return home.indexOf(c.g)>-1 }).sort(function(x,y){ return home.indexOf(x.g)-home.indexOf(y.g) }); pick=inH[0] }
     else if(!gNamed.length && h.c.length===1 && (!h.one || h.marked || (h.len>=5&&!BLOCK[h.k]))) pick=h.c[0];
     // a name found in several governorates and no governorate written («الميدان»): the one where most of Balkoun's
     // listings are, when the name is clearly the place (after «في / بـ / حي», or several words)
@@ -9898,6 +9902,13 @@ function qfLocalRead(raw, geo, learned){
 // panel (استقبال الرسائل): «intake_qf_on» shows the box; «intake_qf_mode» = "free" (the reader above, default) or "ai" (bk-intake /web)
 function qfOn(){ return SXb("intake_qf_on", true) }
 function qfMode(){ return SX("intake_qf_mode","free")==="ai" ? "ai" : "free" }
+// the poster's own governorates for the reader (owner 2026-11-01): the agency's, as chosen in its profile, then the account's
+// city when it is a governorate's name. Used only when the message names no governorate and the area exists there.
+async function qfHomeGovs(){
+  if(MYAGENCY===null && USER){ try{ await loadMyAgency() }catch(e){} }
+  var out=((MYAGENCY&&MYAGENCY.gov_names)||[]).slice();
+  var c=kwNorm(USER&&USER.city||"").replace(/^ال/,""); if(c) Object.keys(D.GEO).forEach(function(g){ if(kwNorm(g).replace(/^ال/,"")===c && out.indexOf(g)<0) out.push(g) });
+  return out }
 // the bot's learned places (bk_intake_places_public): fetched once; if it fails or is slow the reader works with the area list alone
 async function qfLoadPlaces(){
   try{ var r=await Promise.race([DB.rpc("bk_intake_places_public",{p_country:COUNTRY}), new Promise(function(ok){ setTimeout(function(){ ok({error:"slow"}) },2500) })]);
@@ -9932,7 +9943,7 @@ async function quickFillRun(){
       var r=await fetch(intakeUrl("web"),{method:"POST",headers:{"Content-Type":"application/json","apikey":CONFIG.supabaseKey,"Authorization":"Bearer "+CONFIG.supabaseKey},body:JSON.stringify({token:USER.token,text:text,country:COUNTRY})});
       j=null; try{ j=await r.json() }catch(e){ j={} }
       if(!r.ok||!j||j.error) throw new Error(j&&j.error==="no_key"?GX("qfNoKey"):j&&j.error==="limit"?GX("qfLimit"):j&&j.error==="unauthorised"?GX("qfLogin"):GX("qfFail"));
-    } else { if(QF_PLACES===null) QF_PLACES=await qfLoadPlaces(); j=qfLocalRead(text,null,QF_PLACES) }   // free: read in the browser, the text never leaves the page
+    } else { if(QF_PLACES===null) QF_PLACES=await qfLoadPlaces(); j=qfLocalRead(text,null,QF_PLACES,await qfHomeGovs()) }   // free: read in the browser, the text never leaves the page
     var fl=j.fields||{}, kept=qfKeepText(text); if(kept.length>=20) fl.description=kept;   // the message itself, not a rewrite
     applyQuickFill(fl);
     var miss=(j.missing||[]).map(function(m){ return GX("qfm_"+m) });
