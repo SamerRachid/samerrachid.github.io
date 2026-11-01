@@ -4675,7 +4675,8 @@ var QF_PLACES=null;   // [[phrase, governorate, area]] the bot learned — loade
 /* ── free reader for the «املأ الحقول» box (owner 2026-11-01): reads a pasted listing message in the browser with rules
    and Balkoun's own place list — no server, no model, no cost. Answers in the same shape as the bk-intake /web read
    ({fields, missing}), so applyQuickFill() places both the same way. When a fact is unclear it is left empty, never guessed. ── */
-function qfLocalRead(raw, geo, learned){
+function qfLocalRead(raw, geo, learned, home){
+  home=(home||[]).filter(function(g){ return (geo||D.GEO)[g] });   // the poster's governorates, first = main
   geo=geo||D.GEO; learned=learned||QF_PLACES||[];
   var lat=String(raw||"").replace(/[٠-٩]/g,function(d){ return String(d.charCodeAt(0)-0x660) }).replace(/[۰-۹]/g,function(d){ return String(d.charCodeAt(0)-0x6f0) })
     .replace(/(\d)[٬,](?=\d{3}\b)/g,"$1").replace(/٫/g,".");
@@ -4845,6 +4846,9 @@ function qfLocalRead(raw, geo, learned){
     var inG=h.c.filter(function(c){ return gNamed.indexOf(c.g)>-1 });
     if(!inG.length&&gNamed.length) inG=h.c.filter(function(c){ return near(gNamed[0]).indexOf(c.g)>-1 });
     if(inG.length===1) pick=inG[0];
+    // no governorate written: the poster's own governorate (the agency's, from its profile) when the area is there (owner 2026-11-01)
+    else if(!gNamed.length && home.length && (!h.one || h.marked || (h.len>=4&&!BLOCK[h.k])) && h.c.some(function(c){ return home.indexOf(c.g)>-1 })){
+      var inH=h.c.filter(function(c){ return home.indexOf(c.g)>-1 }).sort(function(x,y){ return home.indexOf(x.g)-home.indexOf(y.g) }); pick=inH[0] }
     else if(!gNamed.length && h.c.length===1 && (!h.one || h.marked || (h.len>=5&&!BLOCK[h.k]))) pick=h.c[0];
     // a name found in several governorates and no governorate written («الميدان»): the one where most of Balkoun's
     // listings are, when the name is clearly the place (after «في / بـ / حي», or several words)
@@ -4883,6 +4887,13 @@ function qfLocalRead(raw, geo, learned){
 // panel (استقبال الرسائل): «intake_qf_on» shows the box; «intake_qf_mode» = "free" (the reader above, default) or "ai" (bk-intake /web)
 function qfOn(){ return SXb("intake_qf_on", true) }
 function qfMode(){ return SX("intake_qf_mode","free")==="ai" ? "ai" : "free" }
+// the poster's own governorates for the reader (owner 2026-11-01): the agency's, as chosen in its profile, then the account's
+// city when it is a governorate's name. Used only when the message names no governorate and the area exists there.
+async function qfHomeGovs(){
+  if(MYAGENCY===null && USER){ try{ await loadMyAgency() }catch(e){} }
+  var out=((MYAGENCY&&MYAGENCY.gov_names)||[]).slice();
+  var c=kwNorm(USER&&USER.city||"").replace(/^ال/,""); if(c) Object.keys(D.GEO).forEach(function(g){ if(kwNorm(g).replace(/^ال/,"")===c && out.indexOf(g)<0) out.push(g) });
+  return out }
 // the bot's learned places (bk_intake_places_public): fetched once; if it fails or is slow the reader works with the area list alone
 async function qfLoadPlaces(){
   try{ var r=await Promise.race([DB.rpc("bk_intake_places_public",{p_country:COUNTRY}), new Promise(function(ok){ setTimeout(function(){ ok({error:"slow"}) },2500) })]);
@@ -4917,7 +4928,7 @@ async function quickFillRun(){
       var r=await fetch(intakeUrl("web"),{method:"POST",headers:{"Content-Type":"application/json","apikey":CONFIG.supabaseKey,"Authorization":"Bearer "+CONFIG.supabaseKey},body:JSON.stringify({token:USER.token,text:text,country:COUNTRY})});
       j=null; try{ j=await r.json() }catch(e){ j={} }
       if(!r.ok||!j||j.error) throw new Error(j&&j.error==="no_key"?GX("qfNoKey"):j&&j.error==="limit"?GX("qfLimit"):j&&j.error==="unauthorised"?GX("qfLogin"):GX("qfFail"));
-    } else { if(QF_PLACES===null) QF_PLACES=await qfLoadPlaces(); j=qfLocalRead(text,null,QF_PLACES) }   // free: read in the browser, the text never leaves the page
+    } else { if(QF_PLACES===null) QF_PLACES=await qfLoadPlaces(); j=qfLocalRead(text,null,QF_PLACES,await qfHomeGovs()) }   // free: read in the browser, the text never leaves the page
     var fl=j.fields||{}, kept=qfKeepText(text); if(kept.length>=20) fl.description=kept;   // the message itself, not a rewrite
     applyQuickFill(fl);
     var miss=(j.missing||[]).map(function(m){ return GX("qfm_"+m) });
@@ -10914,6 +10925,27 @@ var _hdrRaf=0; window.addEventListener("scroll",function(){ if(!_hdrRaf) _hdrRaf
     var fl=e.dataTransfer.files; if(done||!fl||!fl.length) return;
     if(document.getElementById("drop")){ addFiles(fl); var b=document.getElementById("drop").closest(".blk"); if(b) b.scrollIntoView({behavior:"smooth",block:"center"}) }
     else { var inp=document.getElementById("eFiles"); if(inp&&inp.onchange){ try{ inp.files=fl }catch(x){} inp.onchange.call(inp) } } });
+  // a photo pasted (Ctrl+V) on the post / edit page joins the listing's photos the same way; text in the same paste still goes
+  // where it was pasted, and a paste with no image is left alone
+  window.addEventListener("paste",function(e){
+    var cd=e.clipboardData; if(!cd||!cd.items) return;
+    var imgs=[].slice.call(cd.items).filter(function(it){ return it.kind==="file" && /^image\//.test(it.type) }).map(function(it){ return it.getAsFile() }).filter(Boolean);
+    if(!imgs.length) return;
+    var post=document.getElementById("drop"), inp=document.getElementById("eFiles");
+    if(!post && !(inp&&inp.onchange)) return;
+    // the text that came with the photo: plain text, or the formatted copy when that is all there is (WhatsApp often
+    // gives only that), put in the field that was pasted into, else in the message box
+    e.preventDefault();
+    var txt=cd.getData("text/plain")||"";
+    if(!txt){ var html=cd.getData("text/html")||""; if(html){ try{ var dd=new DOMParser().parseFromString(html,"text/html");
+      [].forEach.call(dd.querySelectorAll("br"),function(x){ x.replaceWith("\n") }); [].forEach.call(dd.querySelectorAll("p,div,li,tr,h1,h2,h3"),function(x){ x.append("\n") });
+      [].forEach.call(dd.querySelectorAll("img,script,style"),function(x){ x.remove() }); txt=(dd.body.textContent||"").replace(/\n{3,}/g,"\n\n").trim() }catch(x){} } }
+    if(txt){ var tg=e.target, field=(tg&&(tg.tagName==="TEXTAREA"||(tg.tagName==="INPUT"&&/^(text|search|tel|number|email|url|)$/.test(tg.type||""))))?tg:document.getElementById("qfText");
+      if(field){ try{ field.setRangeText(txt, field.selectionStart==null?field.value.length:field.selectionStart, field.selectionEnd==null?field.value.length:field.selectionEnd, "end") }catch(x){ field.value+=txt }
+        field.dispatchEvent(new Event("input",{bubbles:true})) } }
+    var dt=new DataTransfer(); imgs.forEach(function(f,i){ dt.items.add(f.name&&f.name!=="image.png"?f:new File([f],"pasted-"+Date.now()+"-"+i+"."+((f.type.split("/")[1]||"png").replace("jpeg","jpg")),{type:f.type})) });
+    if(post){ addFiles(dt.files); var b=post.closest(".blk"); if(b) b.scrollIntoView({behavior:"smooth",block:"center"}) }
+    else { try{ inp.files=dt.files }catch(x){} inp.onchange.call(inp) } });
 })();
 // custom cursor removed 2026-09-04 (confused visitors; hover states carry the affordance)
 DEMO = D.LIST.slice();
