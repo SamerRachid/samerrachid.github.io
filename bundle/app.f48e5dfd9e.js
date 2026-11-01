@@ -3101,10 +3101,13 @@ function myRewards(){ return (USER&&RW.data&&RW.uid===USER.id)?RW.data:null }
 async function loadMyRewards(){ if(!USER||RW.loading) return; var uid=USER.id; RW.loading=true;
   try{ var r=await rpc("bk_my_rewards",{}); if(USER&&USER.id===uid){ RW.data=r||{}; RW.uid=uid } }catch(e){ if(USER&&USER.id===uid){ RW.data={on:false}; RW.uid=uid } }
   RW.loading=false; if(VIEW==="mine") render() }
+// panel switch «reward_use_on» (owner 2026-11-01): when off, members can't spend saved credit; the credit stays on their account
+function rwUseOn(rw){ return (rw||{}).use_on!==false && SXb("reward_use_on",true) }
 function rewardBar(){
   var rw=myRewards(); if(!rw) return "";
   if(SXb("reward_bar_hidden",false)) return "";   // panel switch (owner 2026-10-29): the message is hidden, the reward itself keeps running
   var until=rw.active_until?new Date(rw.active_until):null, active=until&&until>new Date();
+  if(!rwUseOn(rw) && !active) return "";   // spending is paused: don't invite the member to use his credit
   var loc=L==="ar"?"ar-SY-u-nu-latn":L==="de"?"de-DE":L==="fr"?"fr-FR":"en-GB";
   var when=until?until.toLocaleString(loc,{weekday:"long",hour:"2-digit",minute:"2-digit"}):"";
   var earning=rw.earning!==false && rw.on!==false;
@@ -3116,7 +3119,7 @@ function rewardBar(){
 function mine(){
  if(!USER) return gate();
  if(!myRewards() && !RW.loading) loadMyRewards();
- var rw=myRewards()||{}, canUse=rw.credits>0&&!(rw.active_until&&new Date(rw.active_until)>new Date());
+ var rw=myRewards()||{}, canUse=rw.credits>0&&!(rw.active_until&&new Date(rw.active_until)>new Date())&&rwUseOn(rw);
  if(MYLIST===null) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2">'+
    '<b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>';
  var r=MYLIST.slice()
@@ -5063,11 +5066,20 @@ function initMapSearch(){
 // zooms in until they separate. From zoom 16 every pin shows, and pins at the very same spot (an area's centre, used when a
 // listing has no exact location) fan out in a small ring so each can be reached.
 function mapClusterLayer(LMap, map, items, makeMarker){   // LMap: the page's Leaflet
-  var CELL=56, MAXZ=16, layer=LMap.layerGroup().addTo(map), made={};
+  var CELL=60, MAXZ=16, layer=LMap.layerGroup().addTo(map), made={};
   function mk(it){ return made[it.id]||(made[it.id]=makeMarker(it)) }
   function draw(){
-    layer.clearLayers(); var z=map.getZoom(), groups={}, order=[];
-    items.forEach(function(it){ var p=map.project([it.lat,it.lng],z), k=Math.floor(p.x/CELL)+":"+Math.floor(p.y/CELL); if(!groups[k]){ groups[k]=[]; order.push(k) } groups[k].push(it) });
+    layer.clearLayers(); var z=map.getZoom(), cl=[];
+    // by distance, not by a grid (a grid let two circles sit on top of each other across a cell line): a pin joins the first
+    // group within CELL px, then groups whose centres are still closer than CELL merge, until none are
+    items.forEach(function(it){ var p=map.project([it.lat,it.lng],z), hit=null;
+      for(var i=0;i<cl.length;i++){ var c=cl[i]; if(Math.abs(c.x-p.x)<CELL && Math.abs(c.y-p.y)<CELL && Math.hypot(c.x-p.x,c.y-p.y)<CELL){ hit=c; break } }
+      if(hit){ hit.g.push(it); hit.sx+=p.x; hit.sy+=p.y; hit.x=hit.sx/hit.g.length; hit.y=hit.sy/hit.g.length } else cl.push({g:[it],sx:p.x,sy:p.y,x:p.x,y:p.y}) });
+    for(var again=true; again && z<MAXZ;){ again=false;
+      for(var i=0;i<cl.length && !again;i++) for(var j=i+1;j<cl.length;j++){ var A=cl[i], B=cl[j];
+        var ay=A.g.length===1?A.y-20:A.y, by=B.g.length===1?B.y-20:B.y;   // a lone pin's head stands ~20px above its point
+        if(Math.hypot(A.x-B.x,ay-by)<CELL){ A.g=A.g.concat(B.g); A.sx+=B.sx; A.sy+=B.sy; A.x=A.sx/A.g.length; A.y=A.sy/A.g.length; cl.splice(j,1); again=true; break } } }
+    var groups={}, order=[]; cl.forEach(function(c,i){ groups[i]=c.g; order.push(i) });
     order.forEach(function(k){ var g=groups[k];
       if(g.length===1 || z>=MAXZ){
         var same={}; g.forEach(function(it){ var kk=it.lat.toFixed(5)+","+it.lng.toFixed(5); (same[kk]=same[kk]||[]).push(it) });
@@ -5084,7 +5096,8 @@ function mapClusterLayer(LMap, map, items, makeMarker){   // LMap: the page's Le
         var to=map.getBoundsZoom(bb.pad(0.15)); if(to<=z) map.setView(bb.getCenter(), Math.min(z+2,MAXZ)); else map.fitBounds(bb,{padding:[40,40],maxZoom:MAXZ}) });
       layer.addLayer(cm) });
   }
-  map.on("zoomend",draw); draw();
+  // redraw once the zoom has settled (redrawing inside a running zoom animation made Leaflet throw on a removed marker)
+  var raf=0; map.on("zoomend",function(){ if(raf) cancelAnimationFrame(raf); raf=requestAnimationFrame(function(){ raf=0; if(map._container && !map._animatingZoom) draw(); else map.once("zoomend",draw) }) }); draw();
   return {redraw:draw};
 }
 function stopMapSearch(){
@@ -9954,7 +9967,7 @@ var GX_T={
   rwH:{ar:"مكافأة التمييز المجاني",en:"Free-feature reward",de:"Gratis-Hervorhebung als Belohnung"},
   rwHint:{ar:"كل عدد معيّن من الإعلانات التي تُنشر فعلياً يمنح صاحبها تمييزاً مجانياً: إعلان واحد على الصفحة الرئيسية لمدة محددة. يختار الإعلان بنفسه من صفحة «إعلاناتي». النقطة تُحسب مرة واحدة لكل إعلان، والإعلان المحذوف خلال 7 أيام يفقدها، وتمييز واحد نشط لكل حساب.",en:"Every N listings that actually go live earn the poster one free feature: one listing on the homepage for a set time. They pick the listing themselves from “My listings”. One point per listing for life, a listing deleted within 7 days loses it, one active feature per account.",de:"Je N tatsächlich veröffentlichte Anzeigen erhält der Inserent eine Gratis-Hervorhebung: eine Anzeige für eine festgelegte Zeit auf der Startseite. Er wählt sie selbst unter „Meine Anzeigen”. Ein Punkt pro Anzeige, eine binnen 7 Tagen gelöschte Anzeige verliert ihn, eine aktive Hervorhebung pro Konto."},
   rwOn:{ar:"تشغيل المكافأة",en:"Reward on",de:"Belohnung aktiv"}, rwEvery:{ar:"إعلان منشور لكل تمييز",en:"Live listings per feature",de:"Veröffentlichte Anzeigen pro Hervorhebung"}, rwHours:{ar:"مدة التمييز (ساعات)",en:"Feature length (hours)",de:"Dauer (Stunden)"},
-  rwWelcome:{ar:"مكافأة الترحيب: تمييز مع أول إعلان",en:"Welcome bonus: a feature with the first listing",de:"Willkommensbonus: Hervorhebung bei der ersten Anzeige"}, rwUsers:{ar:"تشمل الأفراد (وليس المكاتب فقط)",en:"Individuals too (not only agencies)",de:"Auch Privatpersonen (nicht nur Büros)"}, mapMap:{ar:"خريطة",en:"Map",de:"Karte"},mapSat:{ar:"قمر صناعي",en:"Satellite",de:"Satellit"},gmapOpen:{ar:"افتح في خرائط Google",en:"Open in Google Maps",de:"In Google Maps öffnen"},ssSaved:{ar:"حُفظ البحث «{l}» — اضغط «محفوظ» مرة ثانية لإلغاء الحفظ",en:"Search saved “{l}” — tap “Saved” again to remove it",de:"Suche „{l}“ gespeichert — erneut tippen zum Entfernen"},ssRemoved:{ar:"أُلغي حفظ هذا البحث",en:"Search removed from saved",de:"Suche aus den gespeicherten entfernt"},ssSaveTip:{ar:"احفظ هذه الفلاتر لترجع لها بضغطة من القائمة",en:"Save these filters to come back in one tap from the menu",de:"Filter speichern und mit einem Tipp aus dem Menü zurückkehren"},ssUnsaveTip:{ar:"هذا البحث محفوظ — اضغط لإلغاء الحفظ",en:"This search is saved — tap to remove it",de:"Diese Suche ist gespeichert — tippen zum Entfernen"},rwBarHide:{ar:"إخفاء رسالة التمييز عن الأعضاء في «إعلاناتي» (تبقى المكافأة شغّالة وتُحتسب)",en:"Hide the feature message from members on “my listings” (the reward keeps running)",de:"Hinweis auf der Seite „Meine Anzeigen“ ausblenden (die Belohnung läuft weiter)"},
+  rwWelcome:{ar:"مكافأة الترحيب: تمييز مع أول إعلان",en:"Welcome bonus: a feature with the first listing",de:"Willkommensbonus: Hervorhebung bei der ersten Anzeige"}, rwUsers:{ar:"تشمل الأفراد (وليس المكاتب فقط)",en:"Individuals too (not only agencies)",de:"Auch Privatpersonen (nicht nur Büros)"}, mapMap:{ar:"خريطة",en:"Map",de:"Karte"},mapSat:{ar:"قمر صناعي",en:"Satellite",de:"Satellit"},gmapOpen:{ar:"افتح في خرائط Google",en:"Open in Google Maps",de:"In Google Maps öffnen"},ssSaved:{ar:"حُفظ البحث «{l}» — اضغط «محفوظ» مرة ثانية لإلغاء الحفظ",en:"Search saved “{l}” — tap “Saved” again to remove it",de:"Suche „{l}“ gespeichert — erneut tippen zum Entfernen"},ssRemoved:{ar:"أُلغي حفظ هذا البحث",en:"Search removed from saved",de:"Suche aus den gespeicherten entfernt"},ssSaveTip:{ar:"احفظ هذه الفلاتر لترجع لها بضغطة من القائمة",en:"Save these filters to come back in one tap from the menu",de:"Filter speichern und mit einem Tipp aus dem Menü zurückkehren"},ssUnsaveTip:{ar:"هذا البحث محفوظ — اضغط لإلغاء الحفظ",en:"This search is saved — tap to remove it",de:"Diese Suche ist gespeichert — tippen zum Entfernen"},rwUseOn:{ar:"يستطيع الأعضاء استعمال رصيدهم المحفوظ (زر «ميّز على الرئيسية» في «إعلاناتي»)",en:"Members can spend their saved credit (the “Feature on homepage” button on “my listings”)",de:"Mitglieder können ihr Guthaben nutzen (Knopf „Auf der Startseite hervorheben“ unter „Meine Anzeigen“)"}, rwBarHide:{ar:"إخفاء رسالة التمييز عن الأعضاء في «إعلاناتي» (تبقى المكافأة شغّالة وتُحتسب)",en:"Hide the feature message from members on “my listings” (the reward keeps running)",de:"Hinweis auf der Seite „Meine Anzeigen“ ausblenden (die Belohnung läuft weiter)"},
   rwBalances:{ar:"الأرصدة",en:"Balances",de:"Guthaben"}, rwPoints:{ar:"النقاط",en:"Points",de:"Punkte"}, rwCredits:{ar:"الرصيد",en:"Credits",de:"Guthaben"}, rwActive:{ar:"مميز حتى",en:"Featured until",de:"Hervorgehoben bis"}, rwNone:{ar:"لا أرصدة بعد؛ تبدأ مع أول إعلان منشور.",en:"No balances yet; they start with the first live listing.",de:"Noch kein Guthaben; es beginnt mit der ersten veröffentlichten Anzeige."},
   rwGrant:{ar:"منح",en:"Grant",de:"Gewähren"}, rwRevoke:{ar:"سحب",en:"Revoke",de:"Entziehen"}, rwGrantQ:{ar:"كم تمييزاً تريد منحه لـ {n}؟",en:"How many features to grant {n}?",de:"Wie viele Hervorhebungen für {n} gewähren?"}, rwRevokeQ:{ar:"كم تمييزاً تريد سحبه من {n}؟",en:"How many features to revoke from {n}?",de:"Wie viele Hervorhebungen von {n} entziehen?"}, rwNoteQ:{ar:"ملاحظة (اختياري)",en:"Note (optional)",de:"Notiz (optional)"},
   rwLog:{ar:"آخر الحركات",en:"Recent activity",de:"Letzte Vorgänge"}, rwK_point:{ar:"نقطة إعلان",en:"listing point",de:"Anzeigenpunkt"}, rwK_point_revoked:{ar:"نقطة مسحوبة",en:"point revoked",de:"Punkt entzogen"}, rwK_earned:{ar:"تمييز مكتسب",en:"feature earned",de:"Hervorhebung verdient"}, rwK_welcome:{ar:"مكافأة ترحيب",en:"welcome bonus",de:"Willkommensbonus"}, rwK_used:{ar:"تمييز مستخدم",en:"feature used",de:"Hervorhebung genutzt"}, rwK_granted:{ar:"منح من الإدارة",en:"granted by admin",de:"vom Admin gewährt"}, rwK_revoked:{ar:"سحب من الإدارة",en:"revoked by admin",de:"vom Admin entzogen"},
@@ -9984,7 +9997,7 @@ var GX_T={
   rwMyActive:{ar:"إعلانك مميز على الرئيسية حتى {t}",en:"Your listing is featured on the homepage until {t}",de:"Deine Anzeige ist bis {t} auf der Startseite hervorgehoben"},
   rwUseBtn:{ar:"ميّز على الرئيسية {h} ساعة",en:"Feature on homepage for {h}h",de:"{h} Std. auf der Startseite hervorheben"}, rwUseQ:{ar:"استخدام تمييز مجاني على هذا الإعلان الآن؟ يبدأ فوراً ويستمر {h} ساعة.",en:"Use a free feature on this listing now? It starts immediately and lasts {h} hours.",de:"Jetzt eine Gratis-Hervorhebung für diese Anzeige nutzen? Sie beginnt sofort und dauert {h} Stunden."},
   rwUsed:{ar:"تم ✅ إعلانك الآن على الصفحة الرئيسية.",en:"Done ✅ Your listing is now on the homepage.",de:"Erledigt ✅ Deine Anzeige ist jetzt auf der Startseite."},
-  rwErr_nocredit:{ar:"لا يوجد رصيد تمييز.",en:"No feature credit available.",de:"Kein Guthaben vorhanden."}, rwErr_active:{ar:"لديك إعلان مميز نشط الآن؛ انتظر انتهاءه.",en:"You already have an active feature; wait for it to end.",de:"Du hast bereits eine aktive Hervorhebung; warte, bis sie endet."}, rwErr_notlive:{ar:"يُميَّز الإعلان المنشور فقط.",en:"Only a live listing can be featured.",de:"Nur eine veröffentlichte Anzeige kann hervorgehoben werden."}, rwErr_already:{ar:"هذا الإعلان مميز أصلاً.",en:"This listing is already featured.",de:"Diese Anzeige ist bereits hervorgehoben."}, rwErr_off:{ar:"المكافأة متوقفة حالياً.",en:"The reward is currently off.",de:"Die Belohnung ist derzeit deaktiviert."}, rwErr_full:{ar:"مربّعات الصفحة الرئيسية ممتلئة الآن؛ رصيدك محفوظ، جرّب لاحقاً.",en:"The home-page squares are full right now; your credit is kept, try again later.",de:"Die Startseiten-Kacheln sind gerade voll; dein Guthaben bleibt erhalten, versuche es später."},
+  rwErr_nocredit:{ar:"لا يوجد رصيد تمييز.",en:"No feature credit available.",de:"Kein Guthaben vorhanden."}, rwErr_off:{ar:"استعمال رصيد التمييز متوقف حالياً.",en:"Using feature credit is paused right now.",de:"Das Einlösen von Guthaben ist derzeit pausiert."}, rwErr_active:{ar:"لديك إعلان مميز نشط الآن؛ انتظر انتهاءه.",en:"You already have an active feature; wait for it to end.",de:"Du hast bereits eine aktive Hervorhebung; warte, bis sie endet."}, rwErr_notlive:{ar:"يُميَّز الإعلان المنشور فقط.",en:"Only a live listing can be featured.",de:"Nur eine veröffentlichte Anzeige kann hervorgehoben werden."}, rwErr_already:{ar:"هذا الإعلان مميز أصلاً.",en:"This listing is already featured.",de:"Diese Anzeige ist bereits hervorgehoben."}, rwErr_off:{ar:"المكافأة متوقفة حالياً.",en:"The reward is currently off.",de:"Die Belohnung ist derzeit deaktiviert."}, rwErr_full:{ar:"مربّعات الصفحة الرئيسية ممتلئة الآن؛ رصيدك محفوظ، جرّب لاحقاً.",en:"The home-page squares are full right now; your credit is kept, try again later.",de:"Die Startseiten-Kacheln sind gerade voll; dein Guthaben bleibt erhalten, versuche es später."},
   uDelete:{ar:"حذف نهائي",en:"Delete permanently",de:"Endgültig löschen"},
   uDeleted:{ar:"المحذوفون",en:"Deleted",de:"Gelöscht"}, uDeletedAt:{ar:"تاريخ الحذف",en:"Deleted on",de:"Gelöscht am"}, uDeletedBy:{ar:"مَن حذفه",en:"Deleted by",de:"Gelöscht von"},
   uDelBySelf:{ar:"حذف حسابه بنفسه",en:"Deleted their own account",de:"Selbst gelöscht"}, uDelByAdmin:{ar:"حذفه المشرف",en:"Deleted by admin",de:"Vom Admin gelöscht"}, uDelBySystem:{ar:"حذف تلقائي",en:"System",de:"System"},
