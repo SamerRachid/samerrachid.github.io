@@ -2504,6 +2504,12 @@ function editView(){
  '<h1 style="font-size:22px;font-weight:700">'+t("editListing")+' <span class="ltr" style="font-size:14px;color:var(--grey)">'+(x.ref||x.id)+'</span></h1>'+
  '<p style="color:var(--grey);font-size:14px;margin-bottom:16px">'+t("editP")+'</p>'+
  '<div class="blk"><h3 aria-level="2"><span class="n">1</span>'+t("price")+'</h3><div class="in">'+
+  // sale ⇄ rent (owner, 2026-11-02: a listing posted as «for sale» could not be turned into a rental); the admin's
+  // «basics» block below has its own select, so the member gets the pills; switching redraws the rent/deed fields
+  (EDIT.isAdmin ? '' : '<div class="fl"><label>'+t("deal")+'</label><div class="pick" id="eDealPick">'+
+   ["sale","rent"].map(function(d){ var off=d==="sale"&&RENT_ONLY_TYPES.indexOf(x.t)>-1;
+     return '<label'+(off?' style="opacity:.45"':'')+'><input type="radio" name="edl" value="'+d+'"'+(x.d===d?" checked":"")+(off?" disabled":"")+'><span>'+t(d==="sale"?"forsale":"forrent")+'</span></label>' }).join("")+
+   '</div></div>')+
   '<div class="row"><div class="fl"><label>'+t("price")+'</label>'+
    '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+(x.pl>0&&x.pcur?x.pl:(x.p==null?"":x.p))+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur",(x.pl>0&&x.pcur)?x.pcur:"USD")+'</div>'+
    (x.orig&&x.orig>x.p?'<div class="hintx">'+t("wasPrice")+' <span class="ltr">'+money(x.orig)+'</span></div>':'')+
@@ -2533,7 +2539,7 @@ function editView(){
     (EDIT.lat ? '<button type="button" class="ab bad" id="eMapClear" style="margin-top:8px">'+t("removeLocationBtn")+'</button>' : '')+
    '</div></div>'+
   (x.d==="rent"?'<div class="fl"><label>'+t("rentalPeriodL")+'</label><select id="eRentalPeriod">'+
-    rentPeriodOpts(x.rentalPeriod||"yearly", SHORT_STAY.indexOf(x.t)>-1)+
+    rentPeriodOpts(x.rentalPeriod||"monthly", SHORT_STAY.indexOf(x.t)>-1)+
    '</select></div>':'')+
   (x.d==="rent"?'<div class="row3">'+
    '<div class="fl"><label>'+t("leaseM")+'</label><input type="number" id="eLease" value="'+(x.lease||"")+'" autocomplete="off"></div>'+
@@ -3326,7 +3332,12 @@ function areaCombo(as){
  wrap.appendChild(box); wrap.appendChild(drop);
  as.parentNode.insertBefore(wrap,as);
  var sync=function(){ input.value = as.value ? labelOf(as.value) : "" };
- var pick=function(v){ as.value=v; sync(); drop.classList.remove("on"); input.setAttribute("aria-expanded","false"); try{ input.blur() }catch(e){} as.dispatchEvent(new Event("change",{bubbles:true})) };
+ // a place typed that is not in the list becomes «other» with that name in its box, offered as «أضف «…»» and kept
+ // when the sender leaves the box (owner, 2026-11-02: the typed name vanished and the box to add it never showed)
+ var typed="";
+ var hasOther=function(){ return liveOpts().some(function(o){ return o.v==="__other__" }) };
+ var exactOpt=function(q){ var n=kwNorm(q); return liveOpts().filter(function(o){ return o.v && o.v!=="__other__" && kwNorm(o.t)===n })[0] };
+ var pick=function(v){ if(v==="__other__" && typed.trim().length>=2 && !exactOpt(typed)){ var ob=document.getElementById("paOther"); if(ob) ob.value=typed.trim() } typed=""; as.value=v; sync(); drop.classList.remove("on"); input.setAttribute("aria-expanded","false"); try{ input.blur() }catch(e){} as.dispatchEvent(new Event("change",{bubbles:true})) };
  // phones show the list as a bottom sheet; iPhone's keyboard does not shrink the page, so the sheet would sit behind it
  var lift=function(){ try{ var vv=window.visualViewport; if(!vv || !drop.classList.contains("on") || !matchMedia("(max-width:640px)").matches){ drop.style.bottom=""; return }
    var kb=Math.max(0, window.innerHeight-vv.height-vv.offsetTop); drop.style.bottom=kb?kb+"px":""; if(kb) drop.style.maxHeight=Math.max(160, Math.round(vv.height*0.6))+"px" }catch(e){} };
@@ -3335,17 +3346,27 @@ function areaCombo(as){
    var n=kwNorm(q||""), cur=as.value;
    var keep=liveOpts().filter(function(o){ return o.v && (o.v==="__other__" || !n || kwNorm(o.t).indexOf(n)>-1) });
    drop.innerHTML = keep.length ? keep.map(function(o){
-     return '<div class="chipsel-opt'+(o.v===cur?" act":"")+'" data-acval="'+esc(o.v)+'">'+esc(o.t)+'</div>' }).join("")
+     var lbl = o.v==="__other__" && (q||"").trim().length>=2 && !exactOpt(q) ? GX("areaAddTyped").replace("{x}",(q||"").trim()) : o.t;
+     return '<div class="chipsel-opt'+(o.v===cur?" act":"")+'" data-acval="'+esc(o.v)+'">'+esc(lbl)+'</div>' }).join("")
      : '<div class="chipsel-empty">'+t("noResultsFor")+'</div>';
    $$(".chipsel-opt",drop).forEach(function(el){ el.onclick=function(){ pick(el.dataset.acval) } });
+   if(!drop.classList.contains("on")) drop._openAt=Date.now();
    closeAllMenus(drop); drop.classList.add("on"); input.setAttribute("aria-expanded","true");
    positionDropUpOrDown(input,drop); lift();
  };
  drop.onclick=function(ev){ ev.stopPropagation() };
  input.addEventListener("focus",function(){ render("") });
- input.addEventListener("input",function(){ render(this.value) });
+ input.addEventListener("input",function(){ typed=this.value; render(this.value) });
  input.addEventListener("click",function(e){ e.stopPropagation(); if(!drop.classList.contains("on")) render("") });
- input.addEventListener("blur",function(){ setTimeout(function(){ if(!drop.classList.contains("on")) sync() },150) });
+ // the list closes on the click that took the focus away, which can come after this check: wait for it (up to 3 s)
+ var settle=function(tries){ if(document.activeElement===input) return;
+   if(drop.classList.contains("on")){ if(tries<20){ setTimeout(function(){ settle(tries+1) },150); return } drop.classList.remove("on"); input.setAttribute("aria-expanded","false") }
+   var hit=typed.trim().length>=2 && exactOpt(typed);
+   var n=kwNorm(typed), near=!hit && n && liveOpts().some(function(o){ return o.v && o.v!=="__other__" && kwNorm(o.t).indexOf(n)>-1 });
+   if(hit){ if(as.value!==hit.v) pick(hit.v); else { typed=""; sync() } }
+   else if(typed.trim().length>=2 && !near && hasOther()) pick("__other__");
+   else if(!(typed.trim() && near)) { typed=""; sync() } };   // a part of several names stays on screen until one is chosen
+ input.addEventListener("blur",function(){ setTimeout(function(){ settle(0) },150) });
  input.addEventListener("keydown",function(e){
    if(e.key==="ArrowDown"||e.key==="ArrowUp"){
      var arr=[].slice.call(drop.querySelectorAll(".chipsel-opt")); if(!arr.length) return;
@@ -3355,7 +3376,7 @@ function areaCombo(as){
      arr[i].classList.add("act"); if(arr[i].scrollIntoView) arr[i].scrollIntoView({block:"nearest"});
    } else if(e.key==="Enter"){
      if(drop.classList.contains("on")){ var a=drop.querySelector(".chipsel-opt.act")||drop.querySelector(".chipsel-opt"); if(a){ e.preventDefault(); pick(a.dataset.acval) } }
-   } else if(e.key==="Escape"){ drop.classList.remove("on"); sync(); input.blur() }
+   } else if(e.key==="Escape"){ typed=""; drop.classList.remove("on"); sync(); input.blur() }
  });
  as._combo={sync:sync};
  sync();
@@ -5499,6 +5520,9 @@ if(!window._menusEscAdded){ window._menusEscAdded=true;
 // phones (2026-10-29): a pick used to re-render the whole bar/page and re-open the sheet, which read as a flash and a
 // refresh on every tap; now the open sheet is edited in place and the page catches up when the sheet is closed
 // phones (owner 2026-10-29): sheets leave the way they came — .out plays the exit animation, then the element is hidden
+// a list opened by the focus of a tap: on a phone its backdrop is laid under the finger before that same tap's click,
+// which then closed it at once (area box on the post page, 2026-11-02); the opening tap does not count as an outside tap
+function csJustOpened(d){ return !!(d && d._openAt && Date.now()-d._openAt<350) }
 function huHide(el,cb){ if(!el||!el.classList.contains("on")){ if(cb) cb(); return }
   if(window.innerWidth>640){ el.classList.remove("on","out"); huDim(el,false); if(cb) cb(); return }
   if(el.classList.contains("out")) return;   // already on its way out (two listeners fire on an outside tap)
@@ -5511,7 +5535,7 @@ function huDim(drop,on){ if(window.innerWidth>640 || !drop || !drop.classList.co
   var host=document.body, e=drop.parentElement;
   while(e && e!==document.body){ var cs=getComputedStyle(e); if((cs.zIndex!=="auto" && cs.position!=="static") || +cs.opacity<1 || cs.transform!=="none" || cs.filter!=="none" || (cs.backdropFilter&&cs.backdropFilter!=="none") || cs.isolation==="isolate" || cs.mixBlendMode!=="normal"){ host=e; break } e=e.parentElement }
   var dim=host.querySelector(":scope > .hu-dim");
-  if(on){ if(dim){ dim.classList.remove("out"); return } dim=document.createElement("div"); dim.className="hu-dim"; dim.onclick=function(ev){ ev.stopPropagation(); $$(".chipsel-drop.on").forEach(function(d){ huHide(d) }) }; host.appendChild(dim) }
+  if(on){ if(dim){ dim.classList.remove("out"); return } dim=document.createElement("div"); dim.className="hu-dim"; dim.onclick=function(ev){ ev.stopPropagation(); $$(".chipsel-drop.on").forEach(function(d){ if(!csJustOpened(d)) huHide(d) }) }; host.appendChild(dim) }
   else if(dim){ dim.classList.add("out"); setTimeout(function(){ if(dim.parentNode) dim.parentNode.removeChild(dim) },260) } }
 function csSumUpdate(id,cfg){
   var wrap=$("#"+id+"Wrap"), sum=wrap&&wrap.querySelector(".cs-sum");
@@ -5653,7 +5677,7 @@ function wireChipSelects(){
   if(!_csDocListenerAdded){
     _csDocListenerAdded=true;
     document.addEventListener("click",function(){
-      $$(".chipsel-drop.on").forEach(function(d){huHide(d)});
+      $$(".chipsel-drop.on").forEach(function(d){ if(!csJustOpened(d)) huHide(d) });
     });
   }
   // after a pick or a removal the page re-renders; re-open the same list so the user can continue
@@ -6159,6 +6183,11 @@ function wire(){
    VIEW="edit"; scrollTo(0,0); render();
    try{ var r=await rpc("bk_photos",{p_listing:+id}); EDIT.photos=r||[]; editMediaRedraw() }catch(e){} };
 
+  if(VIEW==="edit"&&EDIT&&EDIT.row){
+   var dealSwitch=function(d){ if(d!=="sale"&&d!=="rent"||d===EDIT.row.d) return; EDIT.row.d=d; EDIT.touched=true; render() };
+   $$('input[name=edl]').forEach(function(r){ r.onchange=function(){ if(this.checked) dealSwitch(this.value) } });
+   if($("#eDeal")) $("#eDeal").onchange=function(){ dealSwitch(this.value) };
+  }
   if(VIEW==="edit"&&$("#eGov")&&!$("#eGov").options.length){
    var gs=$("#eGov"), as=$("#eAreaSel"); fillGeo(gs,as,false,false);
    if(gs.dataset.cur&&D.GEO[gs.dataset.cur]){ gs.value=gs.dataset.cur; gs.dispatchEvent(new Event("change")); if(as.dataset.cur) as.value=as.dataset.cur }
@@ -6221,6 +6250,7 @@ function wire(){
      } else {
        if($("#eTelM")){ var eCC=v("eCC")||phoneCC(), eNat=phoneNat(eCC, v("eTelM"));   // the listing's own number, checked like everywhere else
          if(eNat){ var eBad=phoneLenMsg(eCC,eNat); if(eBad) throw new Error(eBad); var eNum="+"+eCC+eNat; if((EDIT.row&&EDIT.row.tel||"").replace(/\D/g,"")!==eNum.replace(/\D/g,"")) patch.contact_phone=eNum } }
+       var edl=$('input[name=edl]:checked'); if(edl) patch.deal=edl.value;
        if($("#eGov")){ var gname2=v("eGov"), aname2=v("eAreaSel"), gid2=(GEO_META.govId||{})[gname2];
          if(gid2){ patch.governorate_id=gid2; patch.area_id=aname2?((GEO_META.areaId||{})[gname2+"/"+aname2]||null):null }
          if($("#eLandmark")) patch.landmark=v("eLandmark").trim()||null; }
@@ -9951,7 +9981,7 @@ var GX_T={
   priceOnRequest:{ar:"السعر عند التواصل",en:"Price on request",de:"Preis auf Anfrage",fr:"Prix sur demande"},
   areaSearchPH:{ar:"🔍 اكتب أول حروف الحي أو القرية…",en:"🔍 Type the first letters of the area…",de:"🔍 Anfangsbuchstaben des Gebiets…",fr:"🔍 Premières lettres du quartier…"},
   pickArea:{ar:"اختر الحي أو البلدة",en:"Choose the area",de:"Gebiet wählen",fr:"Choisir le quartier"}, areaOther:{ar:"أخرى… غير موجودة في القائمة",en:"Other… not in the list",de:"Andere… nicht in der Liste",fr:"Autre… pas dans la liste"},
-  areaOtherPH:{ar:"اكتب اسم الحي أو القرية",en:"Type the neighbourhood or village",de:"Stadtteil oder Dorf eingeben",fr:"Quartier ou village"}, areaOtherHint:{ar:"يُنشر إعلانك بهذا الاسم كمَعلم، وتضيفه الإدارة إلى القائمة قريباً.",en:"Your listing is published with this name as its landmark; the team adds it to the list soon.",de:"Ihre Anzeige erscheint mit diesem Namen als Orientierungspunkt; das Team ergänzt die Liste bald.",fr:"Votre annonce paraît avec ce nom comme repère ; l'équipe l'ajoutera bientôt à la liste."},
+  areaAddTyped:{ar:"＋ أضف «{x}» كمنطقة جديدة",en:"+ Add «{x}» as a new area",de:"+ «{x}» als neues Gebiet hinzufügen",fr:"+ Ajouter «{x}» comme nouveau quartier"}, areaOtherPH:{ar:"اكتب اسم الحي أو القرية",en:"Type the neighbourhood or village",de:"Stadtteil oder Dorf eingeben",fr:"Quartier ou village"}, areaOtherHint:{ar:"يُنشر إعلانك بهذا الاسم كمَعلم، وتضيفه الإدارة إلى القائمة قريباً.",en:"Your listing is published with this name as its landmark; the team adds it to the list soon.",de:"Ihre Anzeige erscheint mit diesem Namen als Orientierungspunkt; das Team ergänzt die Liste bald.",fr:"Votre annonce paraît avec ce nom comme repère ; l'équipe l'ajoutera bientôt à la liste."},
   uViewsShort:{ar:"مشاهدة/30 يومًا",en:"views/30d",de:"Aufrufe/30T"}, rvText:{ar:"نص التقييم",en:"Review text",de:"Bewertungstext"},
   uSettingsCol:{ar:"الإعدادات",en:"Settings",de:"Einstellungen"}, uMemberCol:{ar:"العضو",en:"Member",de:"Mitglied"},
   agColAgency:{ar:"المكتب",en:"Agency",de:"Büro"}, agColCoverage:{ar:"التغطية",en:"Coverage",de:"Abdeckung"}, agColOwner:{ar:"المالك",en:"Owner",de:"Inhaber"}, agSpecL:{ar:"التخصص",en:"Specialties",de:"Schwerpunkte"}, agIntakeOnShort:{ar:"مفعّل",en:"On",de:"An"}, agIntakeOffShort:{ar:"متوقف",en:"Off",de:"Aus"}, memberNoL:{ar:"رقم العضوية",en:"Member no.",de:"Mitgliedsnr."},
