@@ -514,6 +514,7 @@ body.home-hero.hero-in-view .mobfab{display:none}
 .lowner{border-top:0;padding-top:0;margin-top:20px;background:var(--navy);border-radius:12px;padding:18px 24px}
 .lbtn{border-radius:8px;font-size:15px;font-weight:700}
 .lbtn.navy{background:var(--gold);color:var(--navy)}
+.lbtn.navy:hover{background:var(--gold-dk);color:var(--navy)}
 .lbtn.line{background:transparent;color:#fff;border:1px solid rgba(255,255,255,.5)}
 .lbtn.wa{background:var(--wa);color:#fff}
 .lacts button{background:rgba(255,255,255,.08);color:#fff;border-color:var(--line);border-radius:8px}
