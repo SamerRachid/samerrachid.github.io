@@ -2358,7 +2358,7 @@ function post(){
    '<b style="font-size:19px">'+(NEW.saved?t("okH"):t("failH"))+'</b>'+
    '<p style="color:var(--grey);font-size:14.5px;margin-top:6px">'+
     (NEW.saved
-      ? t("ref")+' <b class="ltr">'+NEW.ref+'</b><br>'+t("okP")+
+      ? t("ref")+' <b class="ltr">'+NEW.ref+'</b><br>'+(NEW.live?GX("okLiveP"):t("okP"))+
         (NEW.tryPhotos?'<br><span style="font-size:13px;'+(NEW.okPhotos<NEW.tryPhotos?'color:var(--danger)':'color:var(--ok)')+'">'+
         t("photoCount").replace("{a}",NEW.okPhotos).replace("{b}",NEW.tryPhotos)+'</span>':'')+
         (NEW.photoErr?'<br><span style="color:var(--danger);font-size:12.5px">'+NEW.photoErr+'</span>':'')
@@ -6106,8 +6106,9 @@ function wire(){
 
    if($("#ph")) $("#ph").onclick=function(){
      if(!tel){ this.textContent=t("noPhone"); this.disabled=true; return }
+     // keep the theme's button colours: a hard-coded navy background hid the navy number (2026-11-02)
      this.innerHTML='<span class="ltr">'+tel+'</span>';
-     this.style.background="#1C2E52"; log("reveal_phone") };
+     log("reveal_phone") };
 
    if($("#wab")) $("#wab").onclick=function(){
      if(!dig){ alert(t("noPhone")); return }
@@ -7826,6 +7827,8 @@ async function savePost(){
     }
     NEW.ref = ins.data.ref || String(id);
     NEW.id = id;
+    // members who skip review are published at once by the server (trg_listing_autopublish): say so instead of «after review»
+    NEW.live = ins.data.status === "live";
     F = {g:"", a:"", t:"", tb:"", cd:"", deal:row.deal, sort:"new"};
     NEW.saved = true; LOADED.mine=false;
     await loadListings();
@@ -9849,7 +9852,7 @@ var GX_T={
   asAdminT:{ar:"أنت تتصفح بحساب {n} من لوحة الإدارة. ما تنشره يظهر باسمه.",en:"You are browsing as {n} from the admin panel. Whatever you post appears under their name.",de:"Du bist als {n} aus dem Admin-Panel unterwegs. Was du einstellst, erscheint unter diesem Namen."}, asAdminOut:{ar:"إنهاء والعودة",en:"End and go back",de:"Beenden und zurück"},
   amBtn:{ar:"إضافة عضو",en:"Add member",de:"Mitglied hinzufügen"}, amTitle:{ar:"إضافة عضو من الإدارة",en:"Add a member from the panel",de:"Mitglied aus dem Panel anlegen"},
   amHint:{ar:"يُنشأ الحساب موثّقاً مباشرة بلا رمز تحقق. كلمة مرور مؤقتة تُولَّد الآن وتظهر لك مرة واحدة، وتُرسل للعضو على واتساب مع رسالة الترحيب المعتادة. إن كتبت اسم مكتب تُنشأ له صفحة مكتب معتمدة.",en:"The account is created verified, with no code. A temporary password is generated now, shown to you once, and sent to the member on WhatsApp with the usual welcome message. An agency name creates an approved agency page.",de:"Das Konto wird sofort verifiziert angelegt, ohne Code. Ein temporäres Passwort wird erzeugt, einmal angezeigt und per WhatsApp mit der üblichen Willkommensnachricht gesendet. Ein Büroname legt eine freigegebene Büroseite an."},
-  amPhone:{ar:"رقم الهاتف (مع رمز الدولة)",en:"Phone (with country code)",de:"Telefon (mit Ländervorwahl)"}, amEmail:{ar:"البريد (اختياري)",en:"Email (optional)",de:"E-Mail (optional)"}, amAgency:{ar:"اسم المكتب (اختياري)",en:"Agency name (optional)",de:"Büroname (optional)"}, amAgencyPH:{ar:"اتركه فارغاً لحساب فرد",en:"Leave empty for an individual",de:"Leer lassen für Privatperson"},
+  amPhone:{ar:"رقم الهاتف (مع رمز الدولة)",en:"Phone (with country code)",de:"Telefon (mit Ländervorwahl)"}, okLiveP:{ar:"نُشر إعلانك الآن وهو ظاهر للجميع.",en:"Your listing is published and visible to everyone now.",de:"Ihre Anzeige ist jetzt veröffentlicht und für alle sichtbar."}, amEmail:{ar:"البريد (اختياري)",en:"Email (optional)",de:"E-Mail (optional)"}, amEmailBad:{ar:"هذا ليس بريداً (لا يحتوي @). هل هو اسم المكتب؟",en:"This is not an email (no @). Is it the agency name?",de:"Das ist keine E-Mail (kein @). Ist es der Büroname?"}, amEmailMove:{ar:"انقله إلى اسم المكتب",en:"Move it to the agency name",de:"Zum Büronamen verschieben"},amAgency:{ar:"اسم المكتب (اختياري)",en:"Agency name (optional)",de:"Büroname (optional)"}, amAgencyPH:{ar:"اتركه فارغاً لحساب فرد",en:"Leave empty for an individual",de:"Leer lassen für Privatperson"},
   amSendPw:{ar:"إرسال كلمة المرور المؤقتة على واتساب",en:"Send the temporary password on WhatsApp",de:"Temporäres Passwort per WhatsApp senden"}, amCreate:{ar:"إنشاء الحساب",en:"Create account",de:"Konto anlegen"},
   amDone:{ar:"تم إنشاء الحساب ✅",en:"Account created ✅",de:"Konto angelegt ✅"}, amMemberNo:{ar:"رقم العضوية:",en:"Member no.:",de:"Mitgliedsnr.:"}, amAgencyMade:{ar:"صفحة المكتب معتمدة",en:"agency page approved",de:"Büroseite freigegeben"},
   amPw:{ar:"كلمة المرور المؤقتة:",en:"Temporary password:",de:"Temporäres Passwort:"}, amPwSent:{ar:"أُرسلت للعضو على واتساب. تظهر هنا مرة واحدة فقط.",en:"Sent to the member on WhatsApp. Shown here once only.",de:"Per WhatsApp gesendet. Wird nur einmal angezeigt."}, amPwKeep:{ar:"لم تُرسل. انسخها الآن وأعطها للعضو؛ لن تظهر مرة أخرى.",en:"Not sent. Copy it now and give it to the member; it will not be shown again.",de:"Nicht gesendet. Jetzt kopieren und weitergeben; wird nicht erneut angezeigt."},
