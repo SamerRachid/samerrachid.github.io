@@ -796,6 +796,7 @@
   <url><loc>https://balkoun.com/agency/67/</loc><lastmod>2026-11-02</lastmod><priority>0.7</priority></url>
   <url><loc>https://balkoun.com/agency/62/</loc><lastmod>2026-11-02</lastmod><priority>0.5</priority></url>
   <url><loc>https://balkoun.com/agency/53/</loc><lastmod>2026-11-02</lastmod><priority>0.5</priority></url>
+  <url><loc>https://balkoun.com/agency/96/</loc><lastmod>2026-11-02</lastmod><priority>0.7</priority></url>
   <url><loc>https://balkoun.com/agency/78/</loc><lastmod>2026-11-02</lastmod><priority>0.7</priority></url>
   <url><loc>https://balkoun.com/agency/83/</loc><lastmod>2026-11-02</lastmod><priority>0.7</priority></url>
   <url><loc>https://balkoun.com/agency/43/</loc><lastmod>2026-11-02</lastmod><priority>0.7</priority></url>
@@ -1426,7 +1427,15 @@
   <url><loc>https://balkoun.com/listing/760-منزل-القرداحة-اللاذقية/</loc><lastmod>2026-11-02</lastmod><priority>0.9</priority></url>
   <url><loc>https://balkoun.com/listing/761-شقة-الغوطة-حمص/</loc><lastmod>2026-11-02</lastmod><priority>0.9</priority></url>
   <url><loc>https://balkoun.com/listing/763-أرض-الباب-حلب/</loc><lastmod>2026-11-02</lastmod><priority>0.9</priority></url>
+  <url><loc>https://balkoun.com/listing/764-شقة-عقربا-ريف-دمشق/</loc><lastmod>2026-11-02</lastmod><priority>0.9</priority></url>
+  <url><loc>https://balkoun.com/listing/765-محل-تجاري-جرمانا-ريف-دمشق/</loc><lastmod>2026-11-02</lastmod><priority>0.9</priority></url>
+  <url><loc>https://balkoun.com/listing/766-شقة-عقربا-ريف-دمشق/</loc><lastmod>2026-11-02</lastmod><priority>0.9</priority></url>
+  <url><loc>https://balkoun.com/listing/767-مستودع-عقربا-ريف-دمشق/</loc><lastmod>2026-11-02</lastmod><priority>0.9</priority></url>
+  <url><loc>https://balkoun.com/listing/769-شقة-عقربا-ريف-دمشق/</loc><lastmod>2026-11-02</lastmod><priority>0.9</priority></url>
   <url><loc>https://balkoun.com/listing/77-شقة-الزاهرة-القديمة-دمشق/</loc><lastmod>2026-11-02</lastmod><priority>0.9</priority></url>
+  <url><loc>https://balkoun.com/listing/770-منزل-عقربا-ريف-دمشق/</loc><lastmod>2026-11-02</lastmod><priority>0.9</priority></url>
+  <url><loc>https://balkoun.com/listing/771-شقة-عقربا-ريف-دمشق/</loc><lastmod>2026-11-02</lastmod><priority>0.9</priority></url>
+  <url><loc>https://balkoun.com/listing/772-فيلا-عقربا-ريف-دمشق/</loc><lastmod>2026-11-02</lastmod><priority>0.9</priority></url>
   <url><loc>https://balkoun.com/listing/78-شقة-الصناعة-دمشق/</loc><lastmod>2026-11-02</lastmod><priority>0.9</priority></url>
   <url><loc>https://balkoun.com/listing/79-شقة-الزاهرة-الجديدة-دمشق/</loc><lastmod>2026-11-02</lastmod><priority>0.9</priority></url>
   <url><loc>https://balkoun.com/listing/80-مكتب-السبع-بحرات-دمشق/</loc><lastmod>2026-11-02</lastmod><priority>0.9</priority></url>
@@ -2060,7 +2069,15 @@
   <url><loc>https://balkoun.com/en/listing/760-house-al-qardaha-latakia/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/en/listing/761-apartment-al-ghouta-homs/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/en/listing/763-land-al-bab-aleppo/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/en/listing/764-apartment-rural-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/en/listing/765-shop-jaramana-rural-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/en/listing/766-apartment-rural-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/en/listing/767-warehouse-rural-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/en/listing/769-apartment-rural-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/en/listing/77-apartment-old-zahira-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/en/listing/770-house-rural-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/en/listing/771-apartment-rural-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/en/listing/772-villa-rural-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/en/listing/78-apartment-al-sinaa-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/en/listing/79-apartment-new-zahira-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/en/listing/80-office-sabaa-bahrat-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
@@ -2694,7 +2711,15 @@
   <url><loc>https://balkoun.com/de/listing/760-house-al-qardaha-latakia/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/de/listing/761-apartment-al-ghouta-homs/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/de/listing/763-land-al-bab-aleppo/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/de/listing/764-apartment-rural-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/de/listing/765-shop-jaramana-rural-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/de/listing/766-apartment-rural-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/de/listing/767-warehouse-rural-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/de/listing/769-apartment-rural-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/de/listing/77-apartment-old-zahira-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/de/listing/770-house-rural-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/de/listing/771-apartment-rural-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
+  <url><loc>https://balkoun.com/de/listing/772-villa-rural-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/de/listing/78-apartment-al-sinaa-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/de/listing/79-apartment-new-zahira-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
   <url><loc>https://balkoun.com/de/listing/80-office-sabaa-bahrat-damascus/</loc><lastmod>2026-11-02</lastmod><priority>0.8</priority></url>
