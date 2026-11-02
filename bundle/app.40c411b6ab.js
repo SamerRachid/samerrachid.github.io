@@ -2504,6 +2504,14 @@ function editView(){
  '<h1 style="font-size:22px;font-weight:700">'+t("editListing")+' <span class="ltr" style="font-size:14px;color:var(--grey)">'+(x.ref||x.id)+'</span></h1>'+
  '<p style="color:var(--grey);font-size:14px;margin-bottom:16px">'+t("editP")+'</p>'+
  '<div class="blk"><h3 aria-level="2"><span class="n">1</span>'+t("price")+'</h3><div class="in">'+
+  // sale ⇄ rent (owner, 2026-11-02: a listing posted as «for sale» could not be turned into a rental); the admin's
+  // «basics» block below has its own select, so the member gets the pills; switching redraws the rent/deed fields
+  (EDIT.isAdmin ? '' : '<div class="fl"><label>'+t("deal")+'</label><div class="pick" id="eDealPick">'+
+   ["sale","rent"].map(function(d){ var off=d==="sale"&&RENT_ONLY_TYPES.indexOf(x.t)>-1;
+     return '<label'+(off?' style="opacity:.45"':'')+'><input type="radio" name="edl" value="'+d+'"'+(x.d===d?" checked":"")+(off?" disabled":"")+'><span>'+t(d==="sale"?"forsale":"forrent")+'</span></label>' }).join("")+
+   '</div></div>'+
+   // the property type too (owner, 2026-11-02): a type the admin has since switched off still shows as the current one
+   '<div class="fl"><label>'+t("ptype")+'</label><select id="eType">'+Object.keys(D.TYPES).concat(D.TYPES[x.t]||!x.t?[]:[x.t]).map(function(k){ return '<option value="'+k+'"'+(x.t===k?" selected":"")+'>'+(D.TYPES[k]?D.TYPES[k][li()]:k)+'</option>' }).join("")+'</select></div>')+
   '<div class="row"><div class="fl"><label>'+t("price")+'</label>'+
    '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+(x.pl>0&&x.pcur?x.pl:(x.p==null?"":x.p))+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur",(x.pl>0&&x.pcur)?x.pcur:"USD")+'</div>'+
    (x.orig&&x.orig>x.p?'<div class="hintx">'+t("wasPrice")+' <span class="ltr">'+money(x.orig)+'</span></div>':'')+
@@ -2533,7 +2541,7 @@ function editView(){
     (EDIT.lat ? '<button type="button" class="ab bad" id="eMapClear" style="margin-top:8px">'+t("removeLocationBtn")+'</button>' : '')+
    '</div></div>'+
   (x.d==="rent"?'<div class="fl"><label>'+t("rentalPeriodL")+'</label><select id="eRentalPeriod">'+
-    rentPeriodOpts(x.rentalPeriod||"yearly", SHORT_STAY.indexOf(x.t)>-1)+
+    rentPeriodOpts(x.rentalPeriod||"monthly", SHORT_STAY.indexOf(x.t)>-1)+
    '</select></div>':'')+
   (x.d==="rent"?'<div class="row3">'+
    '<div class="fl"><label>'+t("leaseM")+'</label><input type="number" id="eLease" value="'+(x.lease||"")+'" autocomplete="off"></div>'+
@@ -5529,7 +5537,7 @@ function huDim(drop,on){ if(window.innerWidth>640 || !drop || !drop.classList.co
   var host=document.body, e=drop.parentElement;
   while(e && e!==document.body){ var cs=getComputedStyle(e); if((cs.zIndex!=="auto" && cs.position!=="static") || +cs.opacity<1 || cs.transform!=="none" || cs.filter!=="none" || (cs.backdropFilter&&cs.backdropFilter!=="none") || cs.isolation==="isolate" || cs.mixBlendMode!=="normal"){ host=e; break } e=e.parentElement }
   var dim=host.querySelector(":scope > .hu-dim");
-  if(on){ if(dim){ dim.classList.remove("out"); return } dim=document.createElement("div"); dim.className="hu-dim"; dim.onclick=function(ev){ ev.stopPropagation(); $(".chipsel-drop.on").forEach(function(d){ if(!csJustOpened(d)) huHide(d) }) }; host.appendChild(dim) }
+  if(on){ if(dim){ dim.classList.remove("out"); return } dim=document.createElement("div"); dim.className="hu-dim"; dim.onclick=function(ev){ ev.stopPropagation(); $$(".chipsel-drop.on").forEach(function(d){ if(!csJustOpened(d)) huHide(d) }) }; host.appendChild(dim) }
   else if(dim){ dim.classList.add("out"); setTimeout(function(){ if(dim.parentNode) dim.parentNode.removeChild(dim) },260) } }
 function csSumUpdate(id,cfg){
   var wrap=$("#"+id+"Wrap"), sum=wrap&&wrap.querySelector(".cs-sum");
@@ -5671,7 +5679,7 @@ function wireChipSelects(){
   if(!_csDocListenerAdded){
     _csDocListenerAdded=true;
     document.addEventListener("click",function(){
-      $(".chipsel-drop.on").forEach(function(d){ if(!csJustOpened(d)) huHide(d) });
+      $$(".chipsel-drop.on").forEach(function(d){ if(!csJustOpened(d)) huHide(d) });
     });
   }
   // after a pick or a removal the page re-renders; re-open the same list so the user can continue
@@ -6173,10 +6181,19 @@ function wire(){
  if($("#edt")) $("#edt").onclick=async function(){
    var id=VIEW.split(":")[1];
    var _er=D.LIST.filter(function(l){return String(l.id)===String(id)})[0];
-   EDIT={id:id,row:_er,msg:"",photos:[],lat:(_er&&_er.lat)||null,lng:(_er&&_er.lng)||null,locTouched:false};
+   EDIT={id:id,row:_er&&Object.assign({},_er),msg:"",photos:[],lat:(_er&&_er.lat)||null,lng:(_er&&_er.lng)||null,locTouched:false};
    VIEW="edit"; scrollTo(0,0); render();
    try{ var r=await rpc("bk_photos",{p_listing:+id}); EDIT.photos=r||[]; editMediaRedraw() }catch(e){} };
 
+  if(VIEW==="edit"&&EDIT&&EDIT.row){
+   var dealSwitch=function(d){ if(d!=="sale"&&d!=="rent"||d===EDIT.row.d) return; EDIT.row.d=d; EDIT.touched=true; render() };
+   $$('input[name=edl]').forEach(function(r){ r.onchange=function(){ if(this.checked) dealSwitch(this.value) } });
+   if($("#eDeal")) $("#eDeal").onchange=function(){ dealSwitch(this.value) };
+   // a new type redraws the type-bound fields (floor, living rooms, land conditions, amenities); a let-only type forces «rent»
+   if($("#eType")) $("#eType").onchange=function(){ var k=this.value; if(!k||k===EDIT.row.t) return; if(EDIT.t0===undefined) EDIT.t0=EDIT.row.t; EDIT.row.t=k;
+     if(RENT_ONLY_TYPES.indexOf(k)>-1){ EDIT.row.d="rent"; var rr=$('input[name=edl][value=rent]'); if(rr) rr.checked=true; if($("#eDeal")) $("#eDeal").value="rent" }
+     EDIT.touched=true; render() };
+  }
   if(VIEW==="edit"&&$("#eGov")&&!$("#eGov").options.length){
    var gs=$("#eGov"), as=$("#eAreaSel"); fillGeo(gs,as,false,false);
    if(gs.dataset.cur&&D.GEO[gs.dataset.cur]){ gs.value=gs.dataset.cur; gs.dispatchEvent(new Event("change")); if(as.dataset.cur) as.value=as.dataset.cur }
@@ -6239,6 +6256,8 @@ function wire(){
      } else {
        if($("#eTelM")){ var eCC=v("eCC")||phoneCC(), eNat=phoneNat(eCC, v("eTelM"));   // the listing's own number, checked like everywhere else
          if(eNat){ var eBad=phoneLenMsg(eCC,eNat); if(eBad) throw new Error(eBad); var eNum="+"+eCC+eNat; if((EDIT.row&&EDIT.row.tel||"").replace(/\D/g,"")!==eNum.replace(/\D/g,"")) patch.contact_phone=eNum } }
+       var edl=$('input[name=edl]:checked'); if(edl) patch.deal=edl.value;
+       if($("#eType")&&v("eType")&&EDIT.t0!==undefined&&v("eType")!==EDIT.t0){ patch.property_type=v("eType"); patch.section=secOf(v("eType")) }   // only a real change: an old row's section stays as it is
        if($("#eGov")){ var gname2=v("eGov"), aname2=v("eAreaSel"), gid2=(GEO_META.govId||{})[gname2];
          if(gid2){ patch.governorate_id=gid2; patch.area_id=aname2?((GEO_META.areaId||{})[gname2+"/"+aname2]||null):null }
          if($("#eLandmark")) patch.landmark=v("eLandmark").trim()||null; }
@@ -6308,7 +6327,7 @@ function wire(){
    // data-editid is only ever generated from "mine" (own listings, any status) — MYLIST has it even when
    // the status (hidden/rejected/sold…) means it was never loaded into the public D.LIST at all
    var _er=(MYLIST||[]).filter(function(l){return String(l.id)===String(id)})[0] || D.LIST.filter(function(l){return String(l.id)===String(id)})[0];
-   EDIT={id:id,row:_er,msg:"",photos:[],lat:(_er&&_er.lat)||null,lng:(_er&&_er.lng)||null,locTouched:false};
+   EDIT={id:id,row:_er&&Object.assign({},_er),msg:"",photos:[],lat:(_er&&_er.lat)||null,lng:(_er&&_er.lng)||null,locTouched:false};
    VIEW="edit"; scrollTo(0,0); render();
    try{ var r=await rpc("bk_photos",{p_listing:+id}); EDIT.photos=r||[]; editMediaRedraw() }catch(x){} }});
  if($("#delOwn")) $("#delOwn").onclick=function(){
