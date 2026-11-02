@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-OXoG/J7wsscoYxcvUchFBNFxyyPzwaLroXQ/cJfuNyE=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-xPb8t7eQK2qfd/SMCXXIWgH1tRFZaij+XceWFi6Ybnc=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -5666,7 +5666,12 @@ function arLatin(s){
 }
 var aN=function(a){ return L==="ar" ? a : ((GEO_META.areaEn&&GEO_META.areaEn[a])||arLatin(a)) };   // the database English name when it has one (every country but Syria), else a transliteration
 // the rent label for a period (owner, 2026-10-21): a listing with no period is yearly, as everywhere else on the site
-function rentLbl(p){ return GX("rentP_"+(["yearly","monthly","weekly","daily"].indexOf(p)>-1?p:"yearly")) }
+function rentLbl(p){ return GX("rentP_"+(RENT_PERIODS.indexOf(p)>-1?p:"yearly")) }
+// what the rent price is for (owner 2026-11-01): a month, 3 months, 6 months, a year — the amount is for that whole period;
+// a day / a week only for a hotel-style furnished flat
+var RENT_PERIODS=["monthly","quarterly","semiannual","yearly","weekly","daily"], SHORT_STAY=["hotelapt","chalet"];   // a day / a week: these types only
+function periodLbl(p){ return p==="quarterly"||p==="semiannual" ? GX("period_"+p) : t("period"+p.charAt(0).toUpperCase()+p.slice(1)) }
+function rentPeriodOpts(sel,hotel){ return RENT_PERIODS.filter(function(p){ return hotel || (p!=="weekly"&&p!=="daily") || p===sel }).map(function(p){ return '<option value="'+p+'"'+(p===sel?" selected":"")+'>'+periodLbl(p)+'</option>' }).join("") }
 function priceBlock(x,big){
   var cut = x.orig && x.orig > x.p;
   var pct = cut ? Math.round((1 - x.p/x.orig)*100) : 0;
@@ -6807,7 +6812,7 @@ function rsChipsHtml(){
  if(F.deal!=="rent"){ (F.tbs||[]).forEach(function(v){ c.push(["tbs",v,D.TABU[v]?D.TABU[v][li()]:v]) }); if(!(F.tbs&&F.tbs.length)&&F.tb) c.push(["tb",F.tb,D.TABU[F.tb]?D.TABU[F.tb][li()]:F.tb]) }
  if(F.cd) c.push(["cd",F.cd,(D.COND[F.cd]||D.LANDC[F.cd]||[F.cd,F.cd,F.cd])[li()]]);
  if(F.deal==="rent"&&F.furn) c.push(["furn",F.furn,F.furn==="yes"?t("furnYes"):t("furnNo")]);
- if(F.deal==="rent"&&F.rentalPeriod) c.push(["rentalPeriod",F.rentalPeriod,t("period"+F.rentalPeriod.charAt(0).toUpperCase()+F.rentalPeriod.slice(1))]);
+ if(F.deal==="rent"&&F.rentalPeriod) c.push(["rentalPeriod",F.rentalPeriod,periodLbl(F.rentalPeriod)]);
  // "3+ rooms" from the AI bar arrives as every value from 3 up to the max: one chip for that run, not five
  var rr=(F.rooms||[]).map(Number).sort(function(a,b){return a-b}), run=rr.length>1 && rr[rr.length-1]===ROOMS_MAX && rr.every(function(v,i){ return i===0 || v===rr[i-1]+1 });
  if(run) c.push(["roomsAll","",roomsLabel(String(ROOMS_MAX)).replace(/\d+/,String(rr[0]))]);
@@ -6824,7 +6829,7 @@ function rsFiltersHtml(count){
  var grp=function(obj,f){return Object.keys(obj).map(function(k){ return '<label class="ck"><input type="radio" name="'+f+'" value="'+k+'"'+(F[f]===k?" checked":"")+'> '+obj[k][li()]+(countsOn()?'<span class="c ltr">'+n(f,k)+'</span>':'')+'</label>'}).join("")};
  var moreN=(F.rooms&&F.rooms.length?1:0)+(F.cd?1:0)+(F.deal==="rent"&&F.rentalPeriod?1:0)+(F.deal!=="rent"&&F.ownerOnly?1:0)+(F.deal!=="rent"&&F.shareOnly?1:0);
  var more=roomsSquaresHtml()+'<div class="fg"><h4>'+t("cond")+'</h4>'+(F.sec==="land"?grp(D.LANDC,"cd"):grp(D.COND,"cd"))+'</div>'+
-   (F.deal==="rent" ? '<div class="fg"><h4>'+t("rentalPeriodL")+'</h4>'+["","yearly","monthly","weekly","daily"].map(function(v){ return '<label class="ck"><input type="radio" name="rentalPeriod" value="'+v+'"'+(F.rentalPeriod===v?" checked":"")+'> '+(v===""?t("anyPeriod"):t("period"+v.charAt(0).toUpperCase()+v.slice(1)))+'</label>' }).join("")+'</div>'
+   (F.deal==="rent" ? '<div class="fg"><h4>'+t("rentalPeriodL")+'</h4>'+[""].concat(RENT_PERIODS).map(function(v){ return '<label class="ck"><input type="radio" name="rentalPeriod" value="'+v+'"'+(F.rentalPeriod===v?" checked":"")+'> '+(v===""?t("anyPeriod"):periodLbl(v))+'</label>' }).join("")+'</div>'
                     : '<div class="fg"><h4>'+t("extras")+'</h4><label class="ck"><input type="checkbox" id="fOwnerOnly"'+(F.ownerOnly?" checked":"")+'> '+t("owneronly")+'</label><label class="ck"><input type="checkbox" id="fShareOnly"'+(F.shareOnly?" checked":"")+'> '+GX("shareOnly")+'</label></div>');
  var rate=curRate();
  return '<div class="rs-filters'+(MOBILE_FILTERS_OPEN?' on':'')+'" id="rsFilters">'+
@@ -7412,12 +7417,7 @@ function post(){
   // sale — syncForm() moves the one field that applies into it, so each field keeps a single element and its value
   '<div id="pSlot" style="display:contents"></div></div>'+
   '<div class="rentonly" style="display:none">'+
-   '<div class="fl"><label>'+t("rentalPeriodL")+'</label><select id="pRentalPeriod">'+
-    '<option value="yearly" selected>'+t("periodYearly")+'</option>'+
-    '<option value="monthly">'+t("periodMonthly")+'</option>'+
-    '<option value="weekly">'+t("periodWeekly")+'</option>'+
-    '<option value="daily">'+t("periodDaily")+'</option>'+
-   '</select></div>'+
+   '<div class="fl"><label>'+t("rentalPeriodL")+'</label><select id="pRentalPeriod">'+rentPeriodOpts("monthly",false)+'</select></div>'+   // monthly unless chosen (owner 2026-11-01)
    '<div class="row3">'+
    '<div class="fl"><label>'+t("leaseM")+'</label><input type="number" id="pLease" autocomplete="off" placeholder="12"></div>'+
    '<div class="fl"><label>'+t("advanceM")+'</label><input type="number" id="pAdv" autocomplete="off" placeholder="6"></div>'+
@@ -7548,7 +7548,7 @@ function editView(){
     (EDIT.lat ? '<button type="button" class="ab bad" id="eMapClear" style="margin-top:8px">'+t("removeLocationBtn")+'</button>' : '')+
    '</div></div>'+
   (x.d==="rent"?'<div class="fl"><label>'+t("rentalPeriodL")+'</label><select id="eRentalPeriod">'+
-    ["yearly","monthly","weekly","daily"].map(function(p){return '<option value="'+p+'"'+((x.rentalPeriod||"yearly")===p?" selected":"")+'>'+t("period"+p.charAt(0).toUpperCase()+p.slice(1))+'</option>'}).join("")+
+    rentPeriodOpts(x.rentalPeriod||"yearly", SHORT_STAY.indexOf(x.t)>-1)+
    '</select></div>':'')+
   (x.d==="rent"?'<div class="row3">'+
    '<div class="fl"><label>'+t("leaseM")+'</label><input type="number" id="eLease" value="'+(x.lease||"")+'" autocomplete="off"></div>'+
@@ -9795,7 +9795,7 @@ function qfLocalRead(raw, geo, learned, home){
   amList.forEach(function(a){ if(amKnown[a]||am.indexOf(a)>-1) return; var L=lbl(a); if(L.length>=4&&!GENW.test(L)&&at(L)>-1) am.push(a) });   // an amenity added later, by its exact name
   if(am.length) f.amenities=am;
   // rental period
-  if(f.deal==="rent"){ var rp=first([["daily",/ (يومي|باليوم|الليله) /],["weekly",/ (اسبوعي|بالاسبوع) /],["monthly",/ (شهري|بالشهر|شهريا) /],["yearly",/ (سنوي|بالسنه|سنويا) /]]); if(rp) f.rental_period=rp }
+  if(f.deal==="rent"){ var rp=first([["daily",/ (يومي|باليوم|الليله) /],["weekly",/ (اسبوعي|بالاسبوع) /],["monthly",/ (شهري|بالشهر|شهريا|الشهري|بالشهري) /],["quarterly",/ (كل|لكل|ب) ?(3|ثلاث|تلات|ثلاثه|تلاته) (اشهر|شهور) /],["semiannual",/ (كل|لكل|ب) ?(6|ست|سته) (اشهر|شهور) | (نص سنوي|كل نص سنه|لكل نص سنه|نصف سنوي) /],["yearly",/ (سنوي|بالسنه|سنويا|السنوي|لكل سنه|كل سنه) /]]); if(rp) f.rental_period=rp }   // the price is for that period (owner 2026-11-01)
   // price: the number near «السعر/المطلوب» or with a currency; "85 ألف" multiplies, "66000 ألف" does not; phone numbers are skipped
   var pr=[], pRe=/(\d+(?:\.\d+)?) ?(\$)? ?(الف|الاف|مليون|ملايين|مليار)? ?(و ?نص|و ?نصف|و ?ربع)?( ?و ?(\d+)( ?(الف|مليون))?)? ?(دولار|دولر|دلار|\$|usd|ليره سوريه|ليره|ل\.?س|ل س|sy|syp)?/g, mul={"الف":1e3,"الاف":1e3,"مليون":1e6,"ملايين":1e6,"مليار":1e9};
   // hundreds written in words after «ألف و…» («22 ألف وخمسمية» = 22,500)
@@ -11121,8 +11121,9 @@ function wire(){
 
    if($("#ph")) $("#ph").onclick=function(){
      if(!tel){ this.textContent=t("noPhone"); this.disabled=true; return }
+     // keep the theme's button colours: a hard-coded navy background hid the navy number (2026-11-02)
      this.innerHTML='<span class="ltr">'+tel+'</span>';
-     this.style.background="#1C2E52"; log("reveal_phone") };
+     log("reveal_phone") };
 
    if($("#wab")) $("#wab").onclick=function(){
      if(!dig){ alert(t("noPhone")); return }
@@ -11399,15 +11400,16 @@ function wire(){
      // rentals don't ask about title deed status — it isn't relevant
      // when you're renting rather than buying
      var db=$("#deedBlk"); if(db) db.style.display = rent ? "none" : "";
+     var rpS=$("#pRentalPeriod"); if(rpS){ var hotel=SHORT_STAY.indexOf(($("#ptype")||{}).value)>-1, cur=rpS.value; if(!!rpS._hotel!==hotel){ rpS._hotel=hotel; rpS.innerHTML=rentPeriodOpts(hotel||cur==="weekly"||cur==="daily"?cur:(cur||"monthly"),hotel); if(!hotel&&(cur==="weekly"||cur==="daily")) rpS.value="monthly" } }
      var pl=$("#priceLabel"); if(pl) pl.textContent = rent ? rentLbl(($("#pRentalPeriod")||{}).value) : t("price");
-     var rpSel=$("#pRentalPeriod"); if(rpSel && !rpSel._lblWired){ rpSel._lblWired=true; rpSel.addEventListener("change",function(){ var l2=$("#priceLabel"); if(l2 && ($('input[name=dl]:checked')||{}).value==="rent") l2.textContent=rentLbl(rpSel.value) }) }
+     var rpSel=$("#pRentalPeriod"); if(rpSel && !rpSel._lblWired){ rpSel._lblWired=true; rpSel.addEventListener("change",function(ev){ if(ev.isTrusted) rpSel._picked=true; var l2=$("#priceLabel"); if(l2 && ($('input[name=dl]:checked')||{}).value==="rent") l2.textContent=rentLbl(rpSel.value) }) }
      // chalets are usually short daily rentals, furnished, with AC —
      // suggest those defaults the moment someone picks chalet+rent,
      // but only if they haven't already changed them themselves
      var typeSel=$("#ptype");
      if(rent && typeSel && typeSel.value==="chalet"){
        var rp=$("#pRentalPeriod");
-       if(rp && (rp.value==="yearly" || rp.value==="")) rp.value="daily";
+       if(rp && (rp.value==="monthly" || rp.value==="yearly" || rp.value==="") && !rp._picked){ rp.value="daily"; var pl2=$("#priceLabel"); if(pl2) pl2.textContent=rentLbl("daily") }
        var fu=$("#pFurn");
        if(fu && !fu.checked) fu.checked=true;
      }
@@ -14610,7 +14612,7 @@ var GX_T={
   pwaHasS:{ar:"شارك رابط التطبيق مع غيرك",en:"Share the app link with others",de:"App-Link mit anderen teilen"},
   pwaLinkCopied:{ar:"تم نسخ رابط التطبيق",en:"App link copied",de:"App-Link kopiert"},
   rentP_yearly:{ar:"الإيجار السنوي",en:"Yearly rent",de:"Jahresmiete"}, rentP_monthly:{ar:"الإيجار الشهري",en:"Monthly rent",de:"Monatsmiete"},
-  rentP_weekly:{ar:"الإيجار الأسبوعي",en:"Weekly rent",de:"Wochenmiete"}, rentP_daily:{ar:"الإيجار اليومي",en:"Daily rent",de:"Tagesmiete"},
+  rentP_weekly:{ar:"الإيجار الأسبوعي",en:"Weekly rent",de:"Wochenmiete"}, rentP_daily:{ar:"الإيجار اليومي",en:"Daily rent",de:"Tagesmiete"}, rentP_quarterly:{ar:"الإيجار لكل 3 أشهر",en:"Rent per 3 months",de:"Miete pro 3 Monate"}, rentP_semiannual:{ar:"الإيجار لكل 6 أشهر",en:"Rent per 6 months",de:"Miete pro 6 Monate"}, period_quarterly:{ar:"كل 3 أشهر",en:"Every 3 months",de:"Alle 3 Monate"}, period_semiannual:{ar:"كل 6 أشهر",en:"Every 6 months",de:"Alle 6 Monate"},
   adShowPrice:{ar:"إظهار السعر في المربعات",en:"Show the price in the squares",de:"Preis in den Kacheln zeigen"},
   adFeatRotate:{ar:"تبديل صور الإعلانات المميزة في المربعات",en:"Cycle the photos of featured listings in the squares",de:"Fotos hervorgehobener Anzeigen in den Kacheln wechseln"},
   adFeatRotateHint:{ar:"عند الإيقاف يبقى في مربع الإعلان المميز صورة الغلاف فقط.",en:"When off, a featured square keeps to its cover photo.",de:"Wenn aus, zeigt eine hervorgehobene Kachel nur ihr Titelbild."},

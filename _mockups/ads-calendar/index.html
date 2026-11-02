@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>تقويم الأماكن الإعلانية | لوحة بلكون</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Zain:wght@400;700;800&display=swap" rel="stylesheet">
+<style>
+/* mock of the panel's «الأماكن الإعلانية» calendar — sample bookings only */
+:root{--bg:#0F141C;--card:#171E2A;--card2:#1D2635;--line:#2A3446;--txt:#E6EAF2;--mut:#8C97AB;--gold:#CA9051;
+  --ok:#2EA36B;--okw:rgba(46,163,107,.16);--warn:#D9A13B;--warnw:rgba(217,161,59,.16);--full:#D45B5B;--fullw:rgba(212,91,91,.16);--f:Lato,Zain,system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font:400 15px/1.6 var(--f);padding:22px 26px 40px}
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block;font-variant-numeric:tabular-nums}
+.mock{display:inline-block;font-size:12px;font-weight:700;color:#F5A3A3;border:1px solid rgba(212,91,91,.5);border-radius:999px;padding:3px 10px;margin-bottom:12px}
+.top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+h1{font-size:24px;font-weight:800}
+.mnav{display:flex;align-items:center;gap:8px;margin-inline-start:auto}
+.mnav button,.btn{background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:8px;height:38px;padding:0 14px;font:700 14px var(--f);cursor:pointer}
+.mnav b{font-size:18px;min-width:140px;text-align:center}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:#11213F}
+.bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tabs button{background:transparent;border:1px solid var(--line);color:var(--mut);border-radius:999px;padding:7px 14px;font:700 14px var(--f);cursor:pointer}
+.tabs button.on{background:var(--gold);border-color:var(--gold);color:#11213F}
+select{background:var(--card2);color:var(--txt);border:1px solid var(--line);border-radius:8px;height:38px;padding:0 10px;font:700 14px var(--f)}
+.legend{display:flex;gap:14px;margin-inline-start:auto;color:var(--mut);font-size:13px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-inline-end:6px;vertical-align:-1px}
+.wrapc{display:grid;grid-template-columns:1fr 340px;gap:18px;margin-top:16px;align-items:start}
+.cal{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.dow{display:grid;grid-template-columns:repeat(7,1fr);background:var(--card2);border-bottom:1px solid var(--line)}
+.dow div{padding:8px;text-align:center;color:var(--mut);font-size:13px;font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(7,1fr)}
+.day{min-height:118px;border-inline-start:1px solid var(--line);border-bottom:1px solid var(--line);padding:7px 8px;cursor:pointer;position:relative;transition:background .15s}
+.day:nth-child(7n+1){border-inline-start:0}
+.day:hover{background:rgba(255,255,255,.03)}
+.day.out{opacity:.28;cursor:default}
+.day.sel{outline:2px solid var(--gold);outline-offset:-2px;background:rgba(202,144,81,.06)}
+.day.past .n{color:var(--mut)}
+.day .n{font:700 15px var(--f)}.day.today .n{background:var(--gold);color:#11213F;border-radius:999px;padding:0 7px}
+.rows{display:grid;gap:4px;margin-top:6px}
+.r{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:12px;border-radius:5px;padding:2px 6px}
+.r b{font-weight:700}.r .ltr{font-weight:700}
+.r.ok{background:var(--okw);color:#7FD9A8}.r.warn{background:var(--warnw);color:#F0C67A}.r.full{background:var(--fullw);color:#F09A9A}
+/* single-placement view: big count + little squares */
+.big{margin-top:6px}.big .c{font:800 20px var(--f)}.big .c small{font-size:13px;color:var(--mut);font-weight:400}
+.sq{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;margin-top:6px;max-width:110px}
+.sq i{aspect-ratio:1;border-radius:3px;background:var(--okw);border:1px solid rgba(46,163,107,.45)}
+.sq i.u{background:var(--gold);border-color:var(--gold)}
+.big.full .c{color:#F09A9A}.big.ok .c{color:#7FD9A8}.big.warn .c{color:#F0C67A}
+/* availability finder: the answer to a client on the phone */
+.finder{margin-top:16px;background:linear-gradient(180deg,rgba(202,144,81,.10),rgba(202,144,81,.03));border:1px solid rgba(202,144,81,.45);border-radius:12px;padding:14px 16px}
+.finder .q{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.finder .q>b{font-size:16px;margin-inline-end:6px}
+.finder .res{margin-top:12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.finder .res .lbl{color:var(--mut);font-size:14px}
+.opt{border:1px solid rgba(46,163,107,.55);background:var(--okw);color:#BFF0D4;border-radius:10px;padding:8px 12px;font:700 14px var(--f);cursor:pointer;text-align:start}
+.opt small{display:block;color:#7FD9A8;font-weight:400;font-size:12px}
+.opt.on{background:var(--ok);color:#06301A;border-color:var(--ok)}.opt.on small{color:#06301A}
+.finder .none{color:#F09A9A;font-size:14px}
+.day.fit{background:rgba(46,163,107,.13)}.day.fit::after{content:"";position:absolute;inset:0;border:2px solid var(--ok);pointer-events:none}
+.day.fit.fs::before{content:"البداية";position:absolute;top:6px;left:8px;font-size:11px;font-weight:700;color:#06301A;background:var(--ok);border-radius:4px;padding:0 6px}
+/* day panel */
+.side{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;position:sticky;top:16px}
+.side h2{font-size:18px}.side .sub{color:var(--mut);font-size:13px}
+.cap{display:grid;gap:8px;margin-top:14px}
+.cap div{display:flex;justify-content:space-between;align-items:center;background:var(--card2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:14px}
+.cap .pill{font-size:12px;font-weight:700;border-radius:999px;padding:2px 9px}
+.pill.ok{background:var(--okw);color:#7FD9A8}.pill.warn{background:var(--warnw);color:#F0C67A}.pill.full{background:var(--fullw);color:#F09A9A}
+.list{margin-top:14px;display:grid;gap:8px;max-height:430px;overflow:auto;padding-inline-end:4px}
+.side.compact .it .acts{display:none}.side.compact .it{padding:7px 10px}
+.it{border:1px solid var(--line);border-radius:8px;padding:9px 10px;background:var(--card2)}
+.it .h{display:flex;justify-content:space-between;gap:8px}.it b{font-size:14px}
+.it .m{color:var(--mut);font-size:12.5px}
+.tag{font-size:11px;font-weight:700;border-radius:4px;padding:1px 6px;background:rgba(255,255,255,.08);color:var(--mut)}
+.tag.paid{background:var(--okw);color:#7FD9A8}.tag.unpaid{background:var(--warnw);color:#F0C67A}.tag.rew{background:rgba(120,140,255,.16);color:#AEB9FF}
+.it .acts{display:flex;gap:6px;margin-top:6px}.it .acts button{background:transparent;border:1px solid var(--line);color:var(--txt);border-radius:6px;font:700 12px var(--f);padding:3px 9px;cursor:pointer}
+.side .btn{width:100%;margin-top:12px}
+.queue{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.queue b{font-size:14px}.queue p{color:var(--mut);font-size:13px}
+</style>
+</head>
+<body>
+<span class="mock">نموذج للعرض فقط · بيانات أمثلة</span>
+<div class="top">
+  <h1>الأماكن الإعلانية</h1>
+  <button class="btn gold" type="button">+ حجز جديد</button>
+  <div class="mnav"><button type="button" aria-label="الشهر السابق">›</button><b id="mlabel"></b><button type="button" aria-label="الشهر التالي">‹</button><button type="button">اليوم</button></div>
+</div>
+<div class="bar">
+  <div class="tabs" id="tabs"></div>
+  <select id="city" aria-label="المدينة"><option>دمشق</option><option>ريف دمشق</option><option>حلب</option><option>حمص</option><option>كل المدن</option></select>
+  <div class="legend"><span><i style="background:var(--ok)"></i>يوجد مكان</span><span><i style="background:var(--warn)"></i>مكان أو مكانان</span><span><i style="background:var(--full)"></i>ممتلئ</span></div>
+</div>
+<div class="finder">
+  <div class="q"><b>عميل يسأل: متى يتوفر مكان؟</b>
+    <select id="fP" aria-label="الخدمة"><option value="feat">تمييز في أول النتائج</option><option value="sq">مربع في الرئيسية</option><option value="ban">بانر الرئيسية</option><option value="res">بانر بين النتائج</option></select>
+    <select id="fC" aria-label="المدينة"><option>دمشق</option><option>ريف دمشق</option><option>حلب</option><option>حمص</option></select>
+    <select id="fD" aria-label="المدة"><option value="7">أسبوع</option><option value="14">أسبوعان</option><option value="30">شهر</option></select>
+    <button type="button" class="btn gold" id="fGo">اعرض أقرب المواعيد</button></div>
+  <div class="res" id="fRes"></div>
+</div>
+<div class="wrapc">
+  <div class="cal"><div class="dow">
+    <div>السبت</div><div>الأحد</div><div>الاثنين</div><div>الثلاثاء</div><div>الأربعاء</div><div>الخميس</div><div>الجمعة</div>
+  </div><div class="grid" id="grid"></div></div>
+  <aside class="side" id="side"></aside>
+</div>
+
+<script>
+var P=[{k:"feat",ar:"تمييز",cap:10,city:true},{k:"sq",ar:"مربعات",cap:8},{k:"ban",ar:"بانر الرئيسية",cap:3},{k:"res",ar:"بانر النتائج",cap:3,city:true}];
+var VIEW="all", SEL=12, Y=2026, M=10;   // November 2026 (0-based month), «today» = 12
+// sample bookings: [placement, client, from, to, paid?, reward?]
+var B=[["feat","مكتب الأيهم العقاري",1,30,1],["feat","سامي — SY10612",3,9,1],["feat","مكتب الشهباء",5,18,0],["feat","مؤسسة الأخوة",1,14,1],["feat","مكافأة — SY10633",8,11,1,1],
+  ["feat","نور — SY10580",10,16,1],["feat","مكتب الأمين",12,25,1],["feat","فيلا يعفور",12,26,0],["feat","SY10644",14,20,1],["feat","مكتب دمر",16,30,1],["feat","SY10601",20,27,1],
+  ["sq","مفروشات الشام",1,30,1],["sq","طاقة شمسية النور",1,14,1],["sq","مكتب الأيهم",4,17,1],["sq","SY10529",6,12,0],["sq","مشروع قبر الإنكليزي",1,30,1],["sq","ألمنيوم الفارس",10,23,1],["sq","SY10612",15,21,1],
+  ["ban","مشروع قبر الإنكليزي",1,30,1],["ban","بنك الإيداع",8,21,0],["ban","شحن الأمانة",18,30,1],
+  ["res","مكتب الأيهم",1,30,1],["res","مفروشات الشام",9,22,1]];
+var FIT=null, MON=["كانون الثاني","شباط","آذار","نيسان","أيار","حزيران","تموز","آب","أيلول","تشرين الأول","تشرين الثاني","كانون الأول"];
+function dstr(n){ var x=new Date(Y,M,n); return x.getDate()+" "+MON[x.getMonth()] }
+// the nearest start dates (from today) where every day of the stay still has a free place; days after this month count as free in the mock
+function finder(){ var k=document.getElementById("fP").value, dur=+document.getElementById("fD").value, p=P.filter(function(x){ return x.k===k })[0], out=[];
+  for(var st=12; st<=30 && out.length<3; st++){ var ok=true; for(var d=st; d<st+dur && d<=30; d++){ if(count(k,d)>=p.cap){ ok=false; break } } if(ok){ out.push(st); st+=Math.max(0,Math.min(dur,7)-1) } }
+  var el=document.getElementById("fRes");
+  if(!out.length){ FIT=null; el.innerHTML='<span class="none">لا يوجد مكان فارغ لهذه المدة هذا الشهر. أضِف العميل إلى قائمة الانتظار، أو جرّب مدة أقصر.</span>'; render(); return }
+  FIT={k:k,s:out[0],e:out[0]+dur-1}; VIEW=k; SEL=out[0];
+  el.innerHTML='<span class="lbl">أقرب المواعيد المتاحة:</span>'+out.map(function(st,i){ var e=st+dur-1; var min=p.cap; for(var d=st; d<=Math.min(e,30); d++) min=Math.min(min,p.cap-count(k,d)); return '<button type="button" class="opt'+(i?'':' on')+'" data-fit="'+st+'" data-dur="'+dur+'">من '+dstr(st)+' إلى '+dstr(e)+'<small>'+(i?'':'الأقرب · ')+'يبقى مكان واحد على الأقل كل يوم ('+min+' متاح)</small></button>' }).join("")+'<button type="button" class="btn gold">احجز الموعد المختار</button>';
+  render() }
+function count(k,d){ return B.filter(function(b){ return b[0]===k && d>=b[2] && d<=b[3] }).length }
+function cls(n,cap){ return n>=cap?"full":(cap-n)<=2?"warn":"ok" }
+function tabs(){ document.getElementById("tabs").innerHTML=[["all","الكل"]].concat(P.map(function(p){ return [p.k,p.ar] })).map(function(t){ return '<button type="button" data-v="'+t[0]+'" class="'+(VIEW===t[0]?"on":"")+'">'+t[1]+'</button>' }).join("") }
+function render(){
+  document.getElementById("mlabel").textContent="تشرين الثاني 2026";
+  var first=new Date(Y,M,1).getDay(), lead=(first+1)%7, days=30, H="";
+  for(var i=0;i<lead;i++) H+='<div class="day out"></div>';
+  for(var d=1; d<=days; d++){
+    var c="day"+(d===SEL?" sel":"")+(d<12?" past":"")+(d===12?" today":"")+(FIT&&VIEW===FIT.k&&d>=FIT.s&&d<=FIT.e?" fit"+(d===FIT.s?" fs":""):"");
+    var inner='<span class="n ltr">'+d+'</span>';
+    if(VIEW==="all"){
+      inner+='<div class="rows">'+P.map(function(p){ var n=count(p.k,d); return '<div class="r '+cls(n,p.cap)+'"><b>'+p.ar+'</b><span class="ltr">'+n+'/'+p.cap+'</span></div>' }).join("")+'</div>';
+    } else {
+      var p=P.filter(function(x){ return x.k===VIEW })[0], n=count(p.k,d), sq="";
+      for(var j=0;j<p.cap;j++) sq+='<i class="'+(j<n?"u":"")+'"></i>';
+      inner+='<div class="big '+cls(n,p.cap)+'"><div class="c"><span class="ltr">'+n+'/'+p.cap+'</span> <small>'+(p.cap-n>0?("متاح "+(p.cap-n)):"ممتلئ")+'</small></div><div class="sq">'+sq+'</div></div>';
+    }
+    H+='<div class="'+c+'" data-d="'+d+'">'+inner+'</div>';
+  }
+  var tail=(7-((lead+days)%7))%7; for(var k=0;k<tail;k++) H+='<div class="day out"></div>';
+  document.getElementById("grid").innerHTML=H; side(); tabs();
+}
+function side(){
+  var d=SEL, items=B.filter(function(b){ return d>=b[2]&&d<=b[3]&&(VIEW==="all"||b[0]===VIEW) });
+  var name=function(k){ return P.filter(function(p){ return p.k===k })[0].ar };
+  var S='<h2>'+d+' تشرين الثاني</h2><div class="sub">دمشق · ما يعمل في هذا اليوم</div><div class="cap">'+P.filter(function(p){ return VIEW==="all"||p.k===VIEW }).map(function(p){ var n=count(p.k,d), cl=cls(n,p.cap); return '<div><span>'+p.ar+'</span><span class="pill '+cl+'"><span class="ltr">'+n+'/'+p.cap+'</span> · '+(p.cap-n>0?("متاح "+(p.cap-n)):"ممتلئ")+'</span></div>' }).join("")+'</div>';
+  S+='<div class="list">'+items.map(function(b){ return '<div class="it"><div class="h"><b>'+b[1]+'</b><span class="tag">'+name(b[0])+'</span></div><div class="m">من <span class="ltr">'+b[2]+'/11</span> إلى <span class="ltr">'+b[3]+'/11</span> '+(b[5]?'<span class="tag rew">مكافأة</span>':b[4]?'<span class="tag paid">مدفوع</span>':'<span class="tag unpaid">غير مدفوع</span>')+'</div><div class="acts"><button type="button">تعديل</button><button type="button">تمديد</button><button type="button">تقرير</button><button type="button">إيقاف</button></div></div>' }).join("")+'</div>';
+  S+='<button class="btn gold" type="button">+ حجز يبدأ '+d+' تشرين الثاني</button>';
+  S+='<div class="queue"><b>قائمة الانتظار</b><p>مكتب البيطرة: تمييز في دمشق، يبدأ تلقائياً عند أول مكان يفرغ.</p></div>';
+  var el=document.getElementById("side"); el.classList.toggle("compact",VIEW==="all"); el.innerHTML=S;
+}
+document.getElementById("fP").addEventListener("change",function(){ var p=P.filter(function(x){ return x.k===this.value },this)[0]; document.getElementById("fC").hidden=!p.city });
+document.getElementById("fC").hidden=false;
+document.addEventListener("click",function(e){ if(e.target.closest("#fGo")){ finder(); return }
+  var o=e.target.closest("[data-fit]"); if(o){ document.querySelectorAll(".opt").forEach(function(b){ b.classList.toggle("on",b===o) }); FIT={k:document.getElementById("fP").value,s:+o.dataset.fit,e:+o.dataset.fit+(+o.dataset.dur)-1}; SEL=FIT.s; render(); return }
+  var t=e.target.closest("[data-v]"); if(t){ VIEW=t.dataset.v; render(); return }
+  var d=e.target.closest(".day[data-d]"); if(d){ SEL=+d.dataset.d; render() } });
+render();
+</script>
+</body>
+</html>

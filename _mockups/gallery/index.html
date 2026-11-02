@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>معرض الصور — نماذج</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Zain:wght@300;400;700;800&family=Reem+Kufi:wght@700&display=swap">
+<style>
+:root{--navy:#11213F;--navy-2:#172B4F;--gold:#CA9051;--muted:#9AA3B2;--line:rgba(255,255,255,.12);--f:Lato,Zain,system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--navy-2);color:#fff;font-family:var(--f);-webkit-font-smoothing:antialiased}
+.page{max-width:1200px;margin:0 auto;padding:22px 20px 40px}
+.tag{display:inline-flex;align-items:center;gap:8px;background:rgba(202,144,81,.14);color:var(--gold);border:1px solid rgba(202,144,81,.35);border-radius:20px;padding:6px 14px;font-size:14px;font-weight:700;margin-bottom:14px}
+.tag small{color:#C9D2E0;font-weight:400}
+h1{font-family:"Reem Kufi",var(--f);font-weight:700;font-size:28px;margin:18px 0 6px}
+.meta{color:var(--muted);font-size:15px}
+.price{color:var(--gold);font-size:24px;font-weight:700;margin-top:8px}
+svg{display:block}
+
+/* shared bits */
+.nav{position:absolute;top:50%;width:44px;height:44px;margin-top:-22px;border-radius:50%;border:0;background:#fff;color:var(--navy);display:grid;place-items:center;box-shadow:0 4px 14px rgba(0,0,0,.28);cursor:pointer;z-index:3}
+.nav svg{width:22px;height:22px}
+.nav.prev{right:16px}.nav.next{left:16px}
+.pill{position:absolute;z-index:3;background:rgba(17,33,63,.78);backdrop-filter:blur(6px);color:#fff;border-radius:20px;padding:6px 12px;font-size:13px;font-weight:700;display:inline-flex;align-items:center;gap:7px}
+.pill .pl{width:20px;height:20px;border-radius:50%;background:var(--gold);display:grid;place-items:center}
+.pill .pl svg{width:9px;height:9px;margin-inline-start:2px}
+.count{top:14px;left:14px;direction:ltr}
+.vidp{bottom:14px;right:14px}
+.allp{bottom:14px;left:14px;background:#fff;color:var(--navy)}
+.allp svg{width:16px;height:16px}
+.play{position:absolute;inset:0;display:grid;place-items:center;z-index:2}
+.play i{width:46px;height:46px;border-radius:50%;background:rgba(17,33,63,.75);display:grid;place-items:center;border:2px solid rgba(255,255,255,.85)}
+.play svg{width:16px;height:16px;margin-inline-start:3px}
+.dur{position:absolute;bottom:6px;left:6px;background:rgba(0,0,0,.65);font-size:11px;border-radius:4px;padding:1px 5px;direction:ltr;z-index:2}
+
+/* A — Facebook post mosaic */
+.fb{display:grid;gap:4px;border-radius:12px;overflow:hidden;height:560px}
+.fb.n6{grid-template-columns:repeat(3,1fr);grid-template-rows:2fr 1fr}
+.fb.n6 .t0{grid-column:1/-1}
+.fb.n1{grid-template-columns:1fr}
+.fb>div{position:relative;overflow:hidden;background:#0D1729}
+.fb img{width:100%;height:100%;object-fit:cover;display:block}
+.fb .more{position:absolute;inset:0;background:rgba(10,18,36,.55);display:grid;place-items:center;font-size:34px;font-weight:700;direction:ltr}
+
+/* A — Facebook "theatre" viewer */
+.theatre{display:grid;grid-template-columns:1fr 340px;height:640px;border-radius:12px;overflow:hidden;background:#05080F}
+.stage{position:relative;display:grid;place-items:center;overflow:hidden}
+.stage img{max-width:100%;max-height:100%;object-fit:contain;position:relative;z-index:1}
+.stage .bg{position:absolute;inset:-30px;background-size:cover;background-position:center;filter:blur(28px) brightness(.45);z-index:0}
+.side{background:#fff;color:var(--navy);padding:22px;display:flex;flex-direction:column;gap:12px}
+.side h3{font-family:"Reem Kufi",var(--f);font-size:20px;margin:0}
+.side .p{color:var(--gold);font-weight:700;font-size:22px}
+.side .m{color:#5B6371;font-size:14px}
+.side .st{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:auto}
+.side .st div{aspect-ratio:1;border-radius:6px;overflow:hidden;position:relative;background:#E3E6EB}
+.side .st img{width:100%;height:100%;object-fit:cover}
+.side .st .on{outline:2px solid var(--gold);outline-offset:-2px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;height:46px;border-radius:8px;font-weight:700;font-size:15px}
+.btn.wa{background:#25D366;color:#fff}.btn.call{background:var(--navy);color:#fff}
+.x{position:absolute;top:14px;right:14px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.16);display:grid;place-items:center;z-index:3;font-size:22px}
+
+/* B — Airbnb bento */
+.bento{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:8px;height:520px;border-radius:14px;overflow:hidden;position:relative}
+.bento .t0{grid-row:1/3}
+.bento>div{position:relative;overflow:hidden;background:#0D1729}
+.bento img{width:100%;height:100%;object-fit:cover;display:block;transition:filter .2s}
+.bento.n1{grid-template-columns:1fr;grid-template-rows:1fr}
+
+/* C — fixed frame + strip */
+.frame{position:relative;aspect-ratio:3/2;max-height:min(70vh,620px);width:100%;border-radius:12px;overflow:hidden;background:#0D1729}
+.frame .bg{position:absolute;inset:-30px;background-size:cover;background-position:center;filter:blur(26px) brightness(.5)}
+.frame img.main{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:1}
+.strip{display:flex;gap:8px;margin-top:10px;overflow-x:auto;padding-bottom:4px}
+.strip div{flex:0 0 96px;height:72px;border-radius:8px;overflow:hidden;position:relative;background:#0D1729;opacity:.72}
+.strip div.on{opacity:1;outline:2px solid var(--gold);outline-offset:-2px}
+.strip img{width:100%;height:100%;object-fit:cover;display:block}
+.strip .play i{width:28px;height:28px;border-width:1.5px}.strip .play svg{width:10px;height:10px}
+
+/* phone */
+@media (max-width:600px){
+  .page{padding:12px 12px 30px}
+  h1{font-size:22px}
+  .fb,.bento{height:auto}
+  .fb.n6{grid-template-rows:240px 110px}
+  .fb.n1{grid-template-rows:280px}
+  .frame{aspect-ratio:4/3;border-radius:10px}
+  .nav{width:38px;height:38px;margin-top:-19px}.nav svg{width:19px;height:19px}
+  .nav.prev{right:10px}.nav.next{left:10px}
+  .strip div{flex-basis:72px;height:54px}
+  .dots{display:flex;justify-content:center;gap:6px;margin-top:10px}
+  .dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.3)}.dots i.on{background:var(--gold);width:16px;border-radius:3px}
+}
+</style>
+</head>
+<body>
+<div class="page" id="pg"></div>
+<script>
+var B="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/";
+var L={
+  6:{title:"مزرعة 80 م² في الغزلانية",meta:"الغزلانية، ريف دمشق · 4 غرف",price:"$125,000",
+     photos:["629/1792973267109-2-6y7qq.jpg","629/1792973268744-3-2xdgc.jpg","629/1792973270002-4-q76q8.jpg","629/1792973271686-5-dundw.jpg","629/1792973272896-6-8j7pw.jpg","629/1792973274269-7-b5alr.jpg"].map(function(p){return B+p}),
+     poster:B+"629/1792973139726-v-88dky-poster.jpg"},
+  1:{title:"فيلا 4000 م² في يعفور",meta:"يعفور، ريف دمشق",price:"$3,000,000",
+     photos:[B+"285/1791061498324-0-o7ubuo.jpg"],poster:B+"285/1790985925700-v-94tjb-poster.jpg"}
+};
+var q=new URLSearchParams(location.search), opt=q.get("opt")||"c", n=q.get("n")==="1"?1:6, x=L[n];
+var CH='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+var CHL='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>';
+var PL='<svg viewBox="0 0 10 12" fill="#fff"><path d="M0 0l10 6-10 6z"/></svg>';
+var GRID='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>';
+var all=n+1, cnt='<span class="pill count">1 / '+all+'</span>', vid='<span class="pill vidp"><span class="pl">'+PL+'</span>شاهد الفيديو</span>';
+var navs='<button class="nav prev" aria-label="السابق">'+CH+'</button><button class="nav next" aria-label="التالي">'+CHL+'</button>';
+var names={a:"أ — نمط فيسبوك",b:"ب — شبكة صور (Airbnb)",c:"ج — إطار ثابت + شريط صور مصغّرة (Property Finder / Bayut)",t:"أ — نمط فيسبوك: عرض الصورة عند الضغط عليها"};
+var notes={a:"الصورة الأولى كبيرة وتحتها الباقي، وآخر مربع عليه +العدد — بالضبط مثل منشور فيسبوك",b:"صورة كبيرة على اليمين وأربع صغيرة على اليسار، وزر «كل الصور»",c:"إطار واحد لا يتغير مقاسه للصورة والفيديو، الصورة كاملة بدون قص، وتحتها كل الصور والفيديو بنفس الحجم",t:"شاشة سوداء، الصورة في الوسط، وعلى الجانب السعر وأزرار التواصل وكل الصور"};
+var h='<div class="tag">'+names[opt]+' <small>· '+(n===1?"إعلان بصورة واحدة + فيديو (59% من الإعلانات)":"إعلان بـ 6 صور + فيديو")+'</small></div>';
+if(opt==="a"){
+  if(n===6){ h+='<div class="fb n6">'+[0,1,2,3].map(function(i){ return '<div class="t'+i+'"><img src="'+x.photos[i]+'" alt="">'+(i===3?'<span class="more">+'+(all-4)+'</span>':'')+'</div>' }).join("")+'</div>' }
+  else h+='<div class="fb n1"><div class="t0"><img src="'+x.photos[0]+'" alt="">'+vid+'</div></div>';
+} else if(opt==="t"){
+  h+='<div class="theatre"><div class="stage"><div class="bg" style="background-image:url('+x.photos[1]+')"></div><span class="x">×</span><img src="'+x.photos[1]+'" alt="">'+navs+'<span class="pill count" style="top:auto;bottom:14px;left:50%;transform:translateX(-50%)">2 / '+all+'</span></div>'+
+     '<div class="side"><h3>'+x.title+'</h3><div class="m">'+x.meta+'</div><div class="p">'+x.price+'</div><div class="btn wa">تواصل على واتساب</div><div class="btn call">اتصال</div>'+
+     '<div class="st">'+x.photos.map(function(p,i){ return '<div class="'+(i===1?'on':'')+'"><img src="'+p+'" alt=""></div>' }).join("")+'</div></div></div>';
+} else if(opt==="b"){
+  if(n===6) h+='<div class="bento">'+[0,1,2,3,4].map(function(i){ return '<div class="t'+i+'"><img src="'+x.photos[i]+'" alt=""></div>' }).join("")+'<span class="pill allp">'+GRID+'كل الصور ('+all+')</span></div>';
+  else h+='<div class="bento n1"><div class="t0"><img src="'+x.photos[0]+'" alt="">'+vid+'</div></div>';
+} else {
+  h+='<div class="frame"><div class="bg" style="background-image:url('+x.photos[0]+')"></div><img class="main" src="'+x.photos[0]+'" alt="">'+navs+cnt+vid+'</div>';
+  h+='<div class="strip">'+x.photos.map(function(p,i){ return '<div class="'+(i===0?'on':'')+'"><img src="'+p+'" alt=""></div>' }).join("")+'<div><img src="'+x.poster+'" alt=""><span class="play"><i>'+PL+'</i></span><span class="dur">0:42</span></div></div>';
+}
+h+='<h1>'+x.title+'</h1><div class="meta">'+x.meta+'</div><div class="price">'+x.price+'</div><p class="meta" style="margin-top:14px;max-width:70ch">'+notes[opt]+'</p>';
+document.getElementById("pg").innerHTML=h;
+</script>
+</body>
+</html>

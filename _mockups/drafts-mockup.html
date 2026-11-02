@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مسوّدات البوت · تصوّر</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;700&display=swap">
+<style>
+:root{--navy:#14213D;--gold:#C4881F;--gold-w:#FBF3E4;--ink:#1B2333;--grey:#6B7280;--line:#E6E8EC;--page:#F4F2ED;--card:#fff;--ok:#1D7A4E;--ok-bg:#E3F4EA;--warn:#8A5A00;--warn-bg:#FFF4DC;--bad:#B42318;--bad-bg:#FDECEA}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);font-family:'Noto Kufi Arabic',system-ui,sans-serif;color:var(--ink);padding:24px 16px 48px}
+h2.sec{font-size:15px;font-weight:500;color:var(--grey);margin:0 auto 10px;max-width:1180px}
+.fitwrap{max-width:1180px;margin:0 auto 40px;overflow:hidden}.desk{width:1180px;transform-origin:top right;background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.top{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--navy);color:#fff}
+.brand{font-weight:700;font-size:18px;color:var(--gold)}
+.brand small{font-weight:400;font-size:12px;color:#C9D1E3;margin-inline-start:6px}
+.q{flex:1;max-width:380px;background:#fff;color:#8A92A3;border-radius:8px;padding:8px 12px;font-size:13px}
+.grid{display:grid;grid-template-columns:200px 1fr 380px;min-height:640px}
+.side{background:#FAFAF7;border-inline-end:1px solid var(--line);padding:12px 10px;display:flex;flex-direction:column;gap:2px;font-size:14px}
+.side a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--ink)}
+.side a.on{background:var(--navy);color:#fff}
+.side a.sub{padding-inline-start:30px;font-size:13px;color:var(--grey)}
+.side a.sub.on{background:var(--gold-w);color:var(--navy);font-weight:700}
+.side .n{margin-inline-start:auto;background:var(--gold);color:#fff;font-size:11px;border-radius:10px;padding:1px 8px}
+.main{padding:18px 20px;border-inline-end:1px solid var(--line)}
+.crumb{font-size:12px;color:var(--grey)}
+h1{font-size:20px;margin:2px 0 14px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin-bottom:12px}
+.tabs span{padding:8px 12px;font-size:13px;color:var(--grey);border-bottom:2px solid transparent}
+.tabs span.on{color:var(--navy);font-weight:700;border-color:var(--navy)}
+.tabs i{font-style:normal;background:var(--page);border-radius:9px;padding:0 7px;margin-inline-start:4px;font-size:11px}
+.tools{display:flex;gap:8px;margin-bottom:10px}
+.tools .s{flex:1;border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:13px;color:#8A92A3}
+.tools .f{border:1px solid var(--line);border-radius:8px;padding:8px 12px;font-size:13px}
+.bulk{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--gold-w);border:1px solid #EBD9B5;border-radius:10px;padding:8px 10px;margin-bottom:10px;font-size:13px}
+.bulk .b{border:1px solid #D9C49B;background:#fff;border-radius:8px;padding:6px 10px}
+.bulk .p{background:var(--navy);color:#fff;border-color:var(--navy)}
+.row{display:grid;grid-template-columns:22px 52px 1fr auto;gap:10px;align-items:center;padding:10px;border-bottom:1px solid var(--line);font-size:13px}
+.row.sel{background:#FFFBF2}
+.row .chk{width:18px;height:18px;border:1.5px solid #B8BEC9;border-radius:5px}
+.row.sel .chk{background:var(--navy);border-color:var(--navy)}
+.row .ph{width:52px;height:52px;border-radius:9px;background:linear-gradient(135deg,#D9D2C3,#B9AE96)}
+.row .ph.none{background:var(--page);display:grid;place-items:center;color:var(--grey);font-size:10px}
+.row b{font-size:13px}
+.row small{display:block;color:var(--grey);font-size:12px}
+.owner{color:var(--navy)}
+.owner.no{color:var(--warn)}
+.st{font-size:11px;border-radius:999px;padding:3px 9px;white-space:nowrap}
+.st.w{background:var(--warn-bg);color:var(--warn)}
+.st.o{background:var(--ok-bg);color:var(--ok)}
+.st.r{background:#EEF1F7;color:var(--navy)}
+.more{text-align:center;padding:12px;font-size:13px;color:var(--navy)}
+.drawer{padding:16px 18px;background:#FCFCFB;display:flex;flex-direction:column}
+.drawer h3{margin:0;font-size:16px}
+.drawer .meta{font-size:12px;color:var(--grey);margin:2px 0 12px}
+.lbl{font-size:12px;color:var(--grey);margin:10px 0 4px}
+.raw{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13px;line-height:1.8}
+.pics{display:flex;gap:6px}
+.pics div{width:58px;height:58px;border-radius:8px;background:linear-gradient(135deg,#D9D2C3,#B9AE96)}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fld{border:1px solid var(--line);border-radius:8px;background:#fff;padding:8px 10px;font-size:13px}
+.fld small{display:block;color:var(--grey);font-size:11px}
+.fld.miss{border-color:#E8B54D;background:#FFFBF0}
+.sticky{margin-top:auto;display:flex;gap:8px;padding-top:14px}
+.btn{flex:1;height:42px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-size:13px;display:grid;place-items:center}
+.btn.p{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.bad{color:var(--bad)}
+.phones{display:flex;gap:28px;justify-content:center;flex-wrap:wrap}
+.phone{width:340px;background:var(--card);border-radius:34px;border:10px solid #10151F;overflow:hidden;display:flex;flex-direction:column;height:700px}
+.ptop{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--navy);color:#fff;font-size:15px}
+.ptop .bk{font-size:20px}
+.pbody{flex:1;overflow:hidden;background:var(--page);padding:10px 12px 0}
+.ptabs{display:flex;gap:6px;overflow:hidden;margin-bottom:10px}
+.ptabs span{flex:none;background:#fff;border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:12px}
+.ptabs span.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.pcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;display:grid;grid-template-columns:56px 1fr;gap:10px;font-size:13px}
+.pcard .ph{width:56px;height:56px;border-radius:9px;background:linear-gradient(135deg,#D9D2C3,#B9AE96)}
+.pcard small{display:block;color:var(--grey);font-size:12px}
+.pcard .foot{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center}
+.tab{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:#fff;padding:8px 2px 14px;text-align:center;font-size:11px;color:var(--grey)}
+.tab div{display:flex;flex-direction:column;align-items:center;gap:3px}.tab .ic{font-size:19px;line-height:1}.tab .on{color:var(--navy);font-weight:700}
+.pact{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 12px 16px;background:#fff;border-top:1px solid var(--line)}
+.pact .btn{height:46px}
+.cap{text-align:center;color:var(--grey);font-size:12px;margin-top:8px}
+</style>
+</head>
+<body>
+
+<h2 class="sec">الكمبيوتر · الإعلانات ← مسوّدات البوت (القائمة على اليمين، والمسودة المفتوحة على اليسار)</h2>
+<div class="fitwrap" id="fw"><div class="desk" id="dk">
+  <div class="top"><div class="brand">بلكون<small>لوحة الإدارة</small></div><div class="q">🔍 ابحث: رقم إعلان أو طلب، اسم، هاتف…</div></div>
+  <div class="grid">
+    <nav class="side">
+      <a>⌂ الرئيسية</a>
+      <a class="on">▦ الإعلانات <span class="n">5</span></a>
+      <a class="sub">كل الإعلانات</a>
+      <a class="sub on">مسوّدات البوت <span class="n">3</span></a>
+      <a class="sub">البلاغات</a>
+      <a class="sub">مكتبة الوسائط</a>
+      <a>⌕ الطلبات</a><a>👥 الأعضاء</a><a>✉ الرسائل</a><a>📣 التسويق</a><a>📊 التحليلات</a><a>🌐 الموقع</a>
+      <a style="margin-top:auto">⚙ الإعدادات</a>
+    </nav>
+    <main class="main">
+      <div class="crumb">الإعلانات ›</div>
+      <h1>مسوّدات البوت</h1>
+      <div class="tabs"><span class="on">بانتظارك<i>3</i></span><span>جارية<i>2</i></span><span>منشورة<i>142</i></span><span>ملغاة<i>61</i></span><span>الكل</span></div>
+      <div class="tools"><div class="s">🔍 ابحث برقم المسودة أو اسم المرسل أو هاتفه</div><div class="f">المصدر ▾</div><div class="f">المحافظة ▾</div></div>
+      <div class="bulk"><b>2 محددة</b><span class="b">المحافظة ▾</span><span class="b">صاحب الإعلان: ابحث…</span><span class="b">طبّق</span><span class="b p">انشر المحدد</span><span class="b" style="color:var(--bad)">ألغِ</span></div>
+      <div class="row sel"><span class="chk"></span><div class="ph"></div><div><b>#742 · أرض للبيع · حماة، الشير</b><small>Samer · واتساب · منذ 5 دقائق</small><small class="owner">سيُنشر باسم: أبو علي للعقارات</small></div><span class="st w">ينقصه: السعر</span></div>
+      <div class="row sel"><span class="chk"></span><div class="ph"></div><div><b>#741 · شقة للبيع · دمشق، المزة</b><small>أبو ماهر · واتساب · منذ ساعة</small><small class="owner no">لم يُحدَّد صاحب الإعلان بعد</small></div><span class="st r">جاهز للنشر</span></div>
+      <div class="row"><span class="chk"></span><div class="ph none">بلا صور</div><div><b>#740 · محل تجاري للبيع · الحريقة</b><small>Samer · تيليغرام · اليوم</small><small class="owner">سيُنشر باسم: ابو</small></div><span class="st r">جاهز للنشر</span></div>
+      <div class="more">عرض 25 أخرى ↓</div>
+    </main>
+    <aside class="drawer">
+      <h3>#742 · أرض للبيع في حماة</h3>
+      <div class="meta">من Samer · واتساب · 📍 موقع على الخريطة</div>
+      <div class="lbl">النص كما وصل</div>
+      <div class="raw">🚨 أرض مميزة للبيع في حماة - الشير • المساحة: 3 دونم • طابو 2400 سهم • معدة للبناء ومسورة…</div>
+      <div class="lbl">الصور (3)</div>
+      <div class="pics"><div></div><div></div><div></div></div>
+      <div class="lbl">ما فهمه البوت</div>
+      <div class="f2">
+        <div class="fld"><small>النوع</small>أرض</div><div class="fld"><small>العرض</small>للبيع</div>
+        <div class="fld"><small>المنطقة</small>حماة · الشير</div><div class="fld"><small>المساحة</small>3 دونم</div>
+        <div class="fld miss"><small>السعر</small>— ينقص</div><div class="fld"><small>الملكية</small>طابو أخضر</div>
+      </div>
+      <div class="lbl">صاحب الإعلان</div>
+      <div class="fld">أبو علي للعقارات ▾</div>
+      <div class="sticky"><span class="btn bad">ألغِ</span><span class="btn">للمراجعة</span><span class="btn p">انشر الآن</span></div>
+    </aside>
+  </div>
+</div></div>
+
+<h2 class="sec">الهاتف</h2>
+<div class="phones">
+  <div>
+    <div class="phone">
+      <div class="ptop"><span class="bk">›</span>مسوّدات البوت</div>
+      <div class="pbody">
+        <div class="ptabs"><span class="on">بانتظارك 3</span><span>جارية 2</span><span>منشورة</span><span>ملغاة</span></div>
+        <div class="pcard"><div class="ph"></div><div><b>#742 · أرض للبيع</b><small>حماة، الشير · Samer</small><small class="owner">باسم: أبو علي للعقارات</small></div><div class="foot"><span class="st w">ينقصه: السعر</span><small>منذ 5 د</small></div></div>
+        <div class="pcard"><div class="ph"></div><div><b>#741 · شقة للبيع</b><small>دمشق، المزة · أبو ماهر</small><small class="owner no">بلا صاحب إعلان</small></div><div class="foot"><span class="st r">جاهز للنشر</span><small>منذ ساعة</small></div></div>
+        <div class="pcard"><div class="ph" style="background:var(--page)"></div><div><b>#740 · محل تجاري للبيع</b><small>الحريقة · Samer</small><small class="owner">باسم: ابو</small></div><div class="foot"><span class="st r">جاهز للنشر</span><small>اليوم</small></div></div>
+      </div>
+      <div class="tab"><div><span class="ic">⌂</span>الرئيسية</div><div class="on"><span class="ic">▦</span>الإعلانات</div><div><span class="ic">⌕</span>الطلبات</div><div><span class="ic">✉</span>الرسائل</div><div><span class="ic">≡</span>المزيد</div></div>
+    </div>
+    <p class="cap">القائمة: بطاقة لكل مسودة</p>
+  </div>
+  <div>
+    <div class="phone">
+      <div class="ptop"><span class="bk">›</span>#742 · أرض للبيع</div>
+      <div class="pbody" style="padding-top:12px">
+        <div class="pics" style="margin-bottom:10px"><div></div><div></div><div></div></div>
+        <div class="raw" style="margin-bottom:10px">🚨 أرض مميزة للبيع في حماة - الشير • 3 دونم • طابو 2400 سهم…</div>
+        <div class="f2" style="margin-bottom:10px">
+          <div class="fld"><small>النوع</small>أرض</div><div class="fld"><small>العرض</small>للبيع</div>
+          <div class="fld"><small>المنطقة</small>الشير</div><div class="fld miss"><small>السعر</small>— ينقص</div>
+        </div>
+        <div class="fld">صاحب الإعلان: أبو علي للعقارات ▾</div>
+      </div>
+      <div class="pact"><span class="btn">للمراجعة</span><span class="btn p">انشر الآن</span></div>
+    </div>
+    <p class="cap">المسودة تفتح بكامل الشاشة، والأزرار ثابتة في الأسفل</p>
+  </div>
+</div>
+<script>function fit(){var w=document.getElementById("fw"),d=document.getElementById("dk");var k=Math.min(1,w.clientWidth/1180);d.style.transform="scale("+k+")";w.style.height=(d.offsetHeight*k)+"px"}addEventListener("resize",fit);addEventListener("load",fit);fit()</script>
+<style id="darkcss">
+html.dark{--ink:#E7EAF0;--grey:#9AA3B5;--line:#2A3348;--page:#0E1320;--card:#151B29;--gold-w:#2B2414;--ok:#5FD39A;--ok-bg:#12301F;--warn:#F2C062;--warn-bg:#33270F;--bad:#FF8A80;--bad-bg:#3A1714}
+html.dark body{background:var(--page);color:var(--ink)}
+html.dark .top,html.dark .ptop{background:#0A0F1A}
+html.dark .q{background:#1C2334;color:#7D879B}
+html.dark .side{background:#121826}
+html.dark .side a{color:var(--ink)}
+html.dark .side a.on{background:var(--gold);color:#1A1206}
+html.dark .side a.sub.on{background:var(--gold-w);color:#F2D39A}
+html.dark .drawer,html.dark .box h3{background:#121826}
+html.dark .raw,html.dark .fld,html.dark .btn,html.dark .pcard,html.dark .who,html.dark .chips span,html.dark .tools .s,html.dark .tools .f,html.dark .pbody .met,html.dark .pbody .todo,html.dark .ptabs span,html.dark .tab,html.dark .pact,html.dark .back,html.dark .acts button,html.dark .lcard,html.dark .pmenu .pbody a,html.dark .bulk .b{background:#1A2132;color:var(--ink);border-color:var(--line)}
+html.dark .fld.miss{background:#2E2513;border-color:#7A5A1C}
+html.dark .btn.p,html.dark .acts button.ok,html.dark .bulk .p,html.dark .ptabs span.on{background:var(--gold);color:#1A1206;border-color:var(--gold)}
+html.dark .tabs span.on{color:#F2D39A;border-color:var(--gold)}
+html.dark .lrow:hover,html.dark .row.sel{background:#1A2132}
+html.dark .lrow.cur{background:#1D2740;box-shadow:inset -3px 0 0 var(--gold)}
+html.dark .price,html.dark .owner,html.dark .todo .go{color:#F2D39A}
+html.dark .ph,html.dark .gal div,html.dark .pics div,html.dark .lcard .ph{background:linear-gradient(135deg,#3A3F4D,#2A2F3B)!important}
+html.dark .st.r{background:#1E2A44;color:#A9C1F5}
+html.dark .met{background:#1A2132}
+html.dark .bulk{background:#241F14;border-color:#4A3D20}
+html.dark .phone{border-color:#000}
+.modebtn{position:fixed;top:12px;left:12px;z-index:9;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;cursor:pointer}
+</style>
+<button class="modebtn" id="modeBtn" type="button">🌙 الوضع الليلي</button>
+<script>
+(function(){var h=document.documentElement,b=document.getElementById("modeBtn");
+function set(d){h.classList.toggle("dark",d);b.textContent=d?"☀️ الوضع النهاري":"🌙 الوضع الليلي";try{localStorage.setItem("mk_dark",d?"1":"0")}catch(e){}}
+var d=/[?&]dark/.test(location.search);try{if(!d)d=localStorage.getItem("mk_dark")==="1"}catch(e){}
+set(d);b.onclick=function(){set(!h.classList.contains("dark"))}})();
+</script>
+</body>
+</html>

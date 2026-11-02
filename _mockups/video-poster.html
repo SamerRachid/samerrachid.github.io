@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>صورة معاينة الفيديو — معاينة</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700;900&display=swap">
+<style>
+:root{--navy:#14213D;--gold:#C4881F;--gold-w:#FDF5E7;--ink:#1d2433;--grey:#5b6475;--line:#E6E2D8;--page:#F4F2ED;--ok:#1F9D55;--fd:'Noto Kufi Arabic','Lato',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+body{font-family:var(--fd);background:var(--page);color:var(--ink);padding:22px 16px 60px}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.note{font-size:13px;color:var(--grey);line-height:1.9;background:#fff;border:1px dashed var(--line);border-radius:12px;padding:10px 14px}
+.note b{color:var(--navy)}
+.crumb{font-size:13px;color:var(--grey)}
+h1{font-size:22px;color:var(--navy)}
+.blk{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.blk h3{display:flex;align-items:center;gap:10px;font-size:16px;color:var(--navy);padding:14px 18px;border-bottom:1px solid var(--line)}
+.blk h3 .n{width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;display:grid;place-items:center}
+.in{padding:16px 18px 18px;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:22px}
+@media(max-width:760px){.in{grid-template-columns:1fr}}
+.lbl{font-size:13.5px;font-weight:700;color:var(--navy);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.lbl small{font-weight:500;color:var(--grey);font-size:12px}
+.player{position:relative;border-radius:12px;overflow:hidden;background:#0D1729;aspect-ratio:16/9}
+.player video{width:100%;height:100%;object-fit:contain;display:block}
+.player .t{position:absolute;bottom:8px;inset-inline-start:8px;background:rgba(9,14,26,.7);color:#fff;font-size:12px;padding:2px 9px;border-radius:999px;font-family:'Lato',var(--fd);direction:ltr;unicode-bidi:isolate}
+.scrub{display:flex;align-items:center;gap:8px;margin-top:10px}
+.scrub input[type=range]{flex:1;accent-color:var(--gold);height:28px}
+.stepb{flex:none;width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--navy);font-size:15px;cursor:pointer}
+.stepb:hover{border-color:var(--gold)}
+.hint{font-size:12px;color:var(--grey);margin-top:6px;line-height:1.7}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;padding:10px 18px;font:700 14px var(--fd);cursor:pointer;border:0}
+.btn.gold{background:var(--gold);color:#1A1206}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--navy)}
+.btn:focus-visible,.stepb:focus-visible,.pk:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.cap{margin-top:12px;width:auto;padding:9px 16px;font-size:13.5px}
+.or{display:flex;align-items:center;gap:10px;color:var(--grey);font-size:12px;margin:16px 0 12px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.picks{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.pk{position:relative;aspect-ratio:4/3;border-radius:9px;overflow:hidden;border:2px solid transparent;cursor:pointer;padding:0;background:#0D1729}
+.pk img{width:100%;height:100%;object-fit:cover;display:block}
+.pk.on{border-color:var(--gold)}
+.pk.on::after{content:"✓";position:absolute;top:4px;inset-inline-end:4px;width:20px;height:20px;border-radius:50%;background:var(--gold);color:#fff;font-size:12px;display:grid;place-items:center}
+.side{display:flex;flex-direction:column;gap:14px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cmp figure{display:flex;flex-direction:column;gap:6px}
+.cmp figcaption{font-size:12px;color:var(--grey);text-align:center}
+.pv{position:relative;aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:#0D1729}
+.pv img{width:100%;height:100%;object-fit:cover;display:block}
+.pv .play{position:absolute;inset:0;margin:auto;width:34px;height:34px;border-radius:50%;background:rgba(9,14,26,.75);color:#fff;display:grid;place-items:center;font-size:12px}
+.pv.new{outline:2px solid var(--gold);outline-offset:-2px}
+.pv .empty{position:absolute;inset:0;display:grid;place-items:center;color:rgba(255,255,255,.55);font-size:11.5px;text-align:center;padding:8px}
+.card{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 10px 24px -18px rgba(20,33,61,.5)}
+.card .pv{border-radius:0;aspect-ratio:16/10}
+.card .vb{position:absolute;top:8px;inset-inline-start:8px;background:rgba(9,14,26,.72);color:#fff;font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px}
+.card .bd{padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.card .p{font-family:'Lato',var(--fd);font-weight:900;font-size:17px;color:var(--navy);align-self:flex-start;direction:ltr}
+.card .l{font-size:13px;color:var(--ink)}
+.card .s{font-size:12px;color:var(--grey)}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.toast{font-size:12.5px;color:var(--ok);min-height:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="note"><b>معاينة فقط — لم يتغير شيء في الموقع.</b> هذا شكل جزء «الفيديو» في صفحة تعديل الإعلان، بفيديو حقيقي من الإعلان SY10480 على الموقع. الصفحة تعمل فعلاً: حرّك الشريط، ثم اضغط «اجعل هذه اللقطة صورة المعاينة» أو اختر إحدى الصور، وشاهد كيف تتغير البطاقة. الحفظ هنا لا يرسل شيئاً.</div>
+  <div class="crumb">الرئيسية › إعلاناتي › تعديل الإعلان</div>
+  <h1>تعديل الإعلان</h1>
+
+  <section class="blk">
+    <h3><span class="n">4</span>فيديو العقار</h3>
+    <div class="in">
+      <div>
+        <div class="lbl">اختر لقطة من الفيديو <small>تظهر قبل تشغيله في البطاقات وصفحة الإعلان</small></div>
+        <div class="player"><video id="v" crossorigin="anonymous" preload="auto" playsinline muted src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/videos/listings/506/1792434266699-r6ho4j.mp4"></video><span class="t" id="tl">0:00 / 0:00</span></div>
+        <div class="scrub">
+          <button class="stepb" id="back" aria-label="ثانية للخلف">→</button>
+          <input type="range" id="sl" min="0" max="169" step="0.1" value="1" aria-label="مكان اللقطة في الفيديو">
+          <button class="stepb" id="fwd" aria-label="ثانية للأمام">←</button>
+        </div>
+        <div class="hint">حرّك الشريط حتى تظهر اللقطة التي تريدها، أو استخدم الأسهم للتقديم والتأخير ثانية ثانية.</div>
+        <button class="btn gold cap" id="capBtn">📸 استخدم هذه اللقطة</button>
+        <div class="or">أو</div>
+        <div class="lbl">استخدم صورة من صور الإعلان</div>
+        <div class="picks" id="picks"></div>
+      </div>
+
+      <div class="side">
+        <div class="cmp">
+          <figure><div class="pv"><img id="curImg" src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/506/1792434266699-r6ho4j-poster.jpg" alt=""><span class="play">▶</span></div><figcaption>الحالية</figcaption></figure>
+          <figure><div class="pv new" id="newBox"><span class="empty" id="newEmpty">اختر لقطة أو صورة</span><img id="newImg" alt="" hidden><span class="play">▶</span></div><figcaption>الجديدة</figcaption></figure>
+        </div>
+        <div>
+          <div class="lbl">كيف ستظهر في نتائج البحث</div>
+          <div class="card">
+            <div class="pv"><img id="cardImg" src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/506/1792434266699-r6ho4j-poster.jpg" alt=""><span class="vb">▶ 2:49</span></div>
+            <div class="bd"><span class="p">$83,000</span><span class="l">شقة · النزهة، حمص</span><span class="s">120 م² · 4 غرف</span></div>
+          </div>
+        </div>
+        <div class="acts"><button class="btn gold" id="save" disabled style="opacity:.5">حفظ صورة المعاينة</button><button class="btn ghost" id="undo">تراجع</button></div>
+        <div class="toast" id="toast"></div>
+        <div class="hint">الفيديو نفسه لا يتغير، فقط الصورة التي تظهر قبل تشغيله. تُضاف علامة بلكون على اللقطة كما في باقي الصور.</div>
+      </div>
+    </div>
+  </section>
+</div>
+<script>
+var PH=["1792434261863-2-lvajuw","1792434264195-3-41pvx2","1792434256036-0-c94bjq","1792434259115-1-7afb5c"].map(function(k){ return "https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/506/"+k+"-t.jpg" });
+var v=document.getElementById("v"), sl=document.getElementById("sl"), tl=document.getElementById("tl");
+var fmt=function(s){ s=Math.max(0,Math.round(s||0)); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0") };
+var show=function(){ tl.textContent=fmt(v.currentTime)+" / "+fmt(v.duration) };
+v.addEventListener("loadedmetadata",function(){ sl.max=v.duration.toFixed(1); v.currentTime=+sl.value; show() });
+v.addEventListener("seeked",show);
+sl.addEventListener("input",function(){ v.currentTime=+sl.value });
+document.getElementById("back").onclick=function(){ v.currentTime=Math.max(0,v.currentTime-1); sl.value=v.currentTime };
+document.getElementById("fwd").onclick=function(){ v.currentTime=Math.min(v.duration||0,v.currentTime+1); sl.value=v.currentTime };
+var setNew=function(src){ var i=document.getElementById("newImg"); i.src=src; i.hidden=false; document.getElementById("newEmpty").hidden=true; document.getElementById("cardImg").src=src; var s=document.getElementById("save"); s.disabled=false; s.style.opacity=1; document.getElementById("toast").textContent="" };
+document.getElementById("capBtn").onclick=function(){
+  var c=document.createElement("canvas"), W=v.videoWidth||1280, H=v.videoHeight||720, k=Math.min(1,1200/W); c.width=Math.round(W*k); c.height=Math.round(H*k);
+  var x=c.getContext("2d"); x.drawImage(v,0,0,c.width,c.height);
+  x.font="700 "+Math.round(c.width/34)+"px 'Noto Kufi Arabic',sans-serif"; x.fillStyle="rgba(255,255,255,.75)"; x.textAlign="left"; x.fillText("بلكون BALKOUN", c.width*.03, c.height*.95);
+  try{ setNew(c.toDataURL("image/jpeg",.85)); [].forEach.call(document.querySelectorAll(".pk"),function(b){ b.classList.remove("on") }) }catch(e){ document.getElementById("toast").textContent="تعذّر التقاط اللقطة" }
+};
+document.getElementById("picks").innerHTML=PH.map(function(u,i){ return '<button class="pk" data-i="'+i+'" aria-label="الصورة '+(i+1)+'"><img src="'+u+'" alt=""></button>' }).join("");
+[].forEach.call(document.querySelectorAll(".pk"),function(b){ b.onclick=function(){ [].forEach.call(document.querySelectorAll(".pk"),function(o){ o.classList.toggle("on",o===b) }); setNew(PH[+b.dataset.i].replace("-t.jpg",".jpg")) } });
+document.getElementById("undo").onclick=function(){ document.getElementById("newImg").hidden=true; document.getElementById("newEmpty").hidden=false; document.getElementById("cardImg").src=document.getElementById("curImg").src; var s=document.getElementById("save"); s.disabled=true; s.style.opacity=.5; [].forEach.call(document.querySelectorAll(".pk"),function(o){ o.classList.remove("on") }) };
+document.getElementById("save").onclick=function(){ document.getElementById("toast").textContent="✓ (في الموقع الحقيقي تُحفظ هنا — في هذه المعاينة لا يُرسل شيء)" };
+</script>
+</body>
+</html>

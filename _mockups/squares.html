@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مربعات الإعلانات — مقارنة</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700;900&display=swap">
+<style>
+:root{--navy:#14213D;--navy2:#0F1B33;--gold:#C4881F;--gold-l:#E2A93B;--green:#1F9D55;--fd:'Noto Kufi Arabic','Lato',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fd);background:#F4F2ED;color:#1d2433;padding:24px 16px 60px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
+h1{font-size:22px;color:var(--navy)}
+.lead{font-size:13.5px;color:#5b6475;line-height:1.9;max-width:80ch}
+.opt{background:linear-gradient(180deg,#14213D 0%,#101B33 100%);border-radius:18px;padding:20px 20px 22px;color:#fff;display:flex;flex-direction:column;gap:14px}
+.opt-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.opt-h b{font-size:16px}
+.tagk{font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,.1);color:#cfd8ea}
+.tagk.rec{background:var(--gold);color:#fff}
+.notes{display:grid;grid-template-columns:1fr 1fr;gap:6px 22px;font-size:12.5px;color:#c4cde0;line-height:1.8}
+.notes .p::before{content:"✓ ";color:#6fd19a;font-weight:800}.notes .m::before{content:"– ";color:#f0a35e;font-weight:800}
+.row{display:flex;gap:14px;overflow-x:auto;padding:8px 4px 12px;align-items:flex-start}
+@media(max-width:700px){.notes{grid-template-columns:1fr}}
+.ltr{direction:ltr;unicode-bidi:isolate}
+
+/* ── current ── */
+.cur{position:relative;flex:none;width:130px;height:130px;border-radius:14px;overflow:hidden;background:#0F1B33;box-shadow:0 14px 30px -14px rgba(0,0,0,.65)}
+.cur.f{box-shadow:0 0 0 2px var(--gold),0 14px 30px -14px rgba(0,0,0,.65)}
+.cur img{width:100%;height:100%;object-fit:cover;display:block}
+.cur .pl{position:absolute;top:3px;inset-inline-start:5px;font-size:9px;font-weight:600;padding:1px 6px;border-radius:4px;background:rgba(9,14,26,.6);text-shadow:0 1px 3px rgba(0,0,0,.75);max-width:calc(100% - 38px)}
+.cur .st{position:absolute;top:5px;inset-inline-end:5px;width:22px;height:22px;border-radius:50%;background:var(--gold);font-size:13px;line-height:22px;text-align:center}
+.cur .ft{position:absolute;bottom:0;left:0;right:0;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:6px 6px 5px;font-size:9px;font-weight:600;background:linear-gradient(to top,rgba(9,14,26,.85),rgba(9,14,26,.47) 55%,transparent);text-shadow:0 1px 3px rgba(0,0,0,.75)}
+.cur .ft .pr{flex:0 0 100%;text-align:center;font-weight:800;font-size:12px}
+
+/* ── A: same square, clean hierarchy ── */
+.sa{position:relative;flex:none;width:130px;height:130px;border-radius:14px;overflow:hidden;background:#0F1B33;box-shadow:0 14px 30px -14px rgba(0,0,0,.65)}
+.sa.f{box-shadow:0 0 0 2px var(--gold),0 14px 30px -14px rgba(0,0,0,.65)}
+.sa img{width:100%;height:100%;object-fit:cover;display:block}
+.sa::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(8,13,26,.92) 0%,rgba(8,13,26,.55) 38%,rgba(8,13,26,0) 62%),linear-gradient(to bottom,rgba(8,13,26,.45),transparent 30%)}
+.chip{position:absolute;top:7px;inset-inline-start:7px;z-index:2;font-size:9.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.chip.rent{background:rgba(31,157,85,.9)}
+.star{position:absolute;top:6px;inset-inline-end:6px;z-index:2;width:20px;height:20px;border-radius:50%;background:var(--gold);font-size:11px;line-height:20px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.sa .tx{position:absolute;bottom:7px;inset-inline:9px;z-index:2;display:flex;flex-direction:column;gap:1px}
+.sa .pr{font-family:'Lato',var(--fd);font-weight:900;font-size:15px;letter-spacing:.2px;text-align:start}
+.sa .l2{font-size:10px;font-weight:600;color:rgba(255,255,255,.88);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sa .l3{font-size:9px;color:rgba(255,255,255,.66);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── B: portrait card ── */
+.sb{position:relative;flex:none;width:138px;height:184px;border-radius:16px;overflow:hidden;background:#0F1B33;box-shadow:0 16px 32px -16px rgba(0,0,0,.7)}
+.sb.f{box-shadow:0 0 0 2px var(--gold),0 16px 32px -16px rgba(0,0,0,.7)}
+.sb img{width:100%;height:100%;object-fit:cover;display:block}
+.sb::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(8,13,26,.95) 0%,rgba(8,13,26,.6) 34%,rgba(8,13,26,0) 58%),linear-gradient(to bottom,rgba(8,13,26,.4),transparent 26%)}
+.sb .tx{position:absolute;bottom:10px;inset-inline:10px;z-index:2;display:flex;flex-direction:column;gap:3px}
+.sb .pr{font-family:'Lato',var(--fd);font-weight:900;font-size:17px}
+.sb .l2{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb .l3{font-size:9.5px;color:rgba(255,255,255,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb .sp{display:flex;gap:8px;font-size:9.5px;color:rgba(255,255,255,.8);margin-top:2px}
+.sb .sp i{font-style:normal;display:inline-flex;align-items:center;gap:3px}
+
+/* ── C: photo, text underneath ── */
+.sc{flex:none;width:150px;border-radius:14px;overflow:hidden;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);box-shadow:0 14px 30px -16px rgba(0,0,0,.65)}
+.sc.f{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 14px 30px -16px rgba(0,0,0,.65)}
+.sc .ph{position:relative;height:108px}
+.sc .ph img{width:100%;height:100%;object-fit:cover;display:block}
+.sc .bd{padding:8px 10px 9px;display:flex;flex-direction:column;gap:2px}
+.sc .pr{font-family:'Lato',var(--fd);font-weight:900;font-size:15px;color:var(--gold-l)}
+.sc .l2{font-size:10.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc .l3{font-size:9.5px;color:rgba(255,255,255,.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc .mz{position:absolute;bottom:6px;inset-inline-start:6px;font-size:9px;font-weight:800;padding:2px 7px;border-radius:999px;background:var(--gold)}
+
+.sa .pr,.sb .pr,.sc .pr{align-self:flex-start}   /* the price is LTR text but sits at the RTL start */
+.foot{font-size:12.5px;color:#5b6475;line-height:1.9}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>مربعات الإعلانات تحت البحث: الحالي وثلاثة بدائل</h1>
+  <p class="lead">الصور والأسعار والمناطق من إعلانات حقيقية في المربعات الآن. المربعات ذات الإطار الذهبي والنجمة مميزة. لم يتغير شيء على الموقع، هذه صفحة معاينة فقط.</p>
+
+  <section class="opt">
+    <div class="opt-h"><b>الحالي</b><span class="tagk">كما هو اليوم</span></div>
+    <div class="row" id="rowCur"></div>
+    <div class="notes">
+      <span class="m">ثلاث مجموعات نص متفرقة: المكان في الأعلى، والسعر والأيقونات في الأسفل، والنجمة في الزاوية. العين لا تعرف من أين تبدأ.</span>
+      <span class="m">اسم المكان الطويل ينزل لسطرين ويغطي جزءاً كبيراً من الصورة.</span>
+      <span class="m">لا يظهر نوع العقار (شقة، مكتب، مصنع) ولا إن كان للبيع أو للإيجار.</span>
+      <span class="m">أيقونات الغرف والحمّامات بحجم 9px تقريباً، صعبة القراءة على الجوال.</span>
+    </div>
+  </section>
+
+  <section class="opt">
+    <div class="opt-h"><b>أ — نفس المربع، ترتيب أوضح</b><span class="tagk rec">أنصح به</span></div>
+    <div class="row" id="rowA"></div>
+    <div class="notes">
+      <span class="p">نفس الحجم والشكل، فلا يتغير شيء في حركة الشريط أو تصميم الصفحة.</span>
+      <span class="p">قراءة بترتيب واحد: السعر كبير، ثم النوع والمكان، ثم المساحة والغرف.</span>
+      <span class="p">شارة «للبيع» أو «للإيجار» (خضراء للإيجار) أعلى المربع.</span>
+      <span class="p">كل سطر يبقى سطراً واحداً، والاسم الطويل يُختصر بـ «…» بدل أن يغطي الصورة.</span>
+    </div>
+  </section>
+
+  <section class="opt">
+    <div class="opt-h"><b>ب — بطاقة طولية</b><span class="tagk">أكثر عرضاً للصورة</span></div>
+    <div class="row" id="rowB"></div>
+    <div class="notes">
+      <span class="p">مساحة أكبر للصورة والنص، وشكل يشبه تطبيقات العقارات والقصص.</span>
+      <span class="p">مكان للأيقونات بحجم مقروء.</span>
+      <span class="m">الشريط يصبح أطول بنحو 55px، فتنزل الأقسام تحته قليلاً.</span>
+      <span class="m">يتسع الشريط لعدد مربعات أقل على الجوال.</span>
+    </div>
+  </section>
+
+  <section class="opt">
+    <div class="opt-h"><b>ج — صورة ونص تحتها</b><span class="tagk">أوضح قراءة</span></div>
+    <div class="row" id="rowC"></div>
+    <div class="notes">
+      <span class="p">الصورة نظيفة بلا أي نص فوقها، والنص على خلفية ثابتة فيُقرأ دائماً مهما كانت الصورة فاتحة.</span>
+      <span class="p">السعر بالذهبي يلفت النظر كألوان الموقع.</span>
+      <span class="m">أعلى من المربع الحالي بنحو 50px.</span>
+      <span class="m">يشبه بطاقات نتائج البحث أكثر، وأقل لفتاً كإعلان.</span>
+    </div>
+  </section>
+
+  <p class="foot">إعدادات اللوحة الحالية (حجم المربع، ألوان النص والظل، إظهار السعر، إظهار الموقع، تبديل صور المميز) تبقى تعمل في كل الخيارات. يمكن أيضاً أخذ جزء من خيار ووضعه في آخر، مثلاً شارة «للبيع / للإيجار» من (أ) داخل التصميم الحالي فقط.</p>
+</div>
+
+<script>
+var L=[
+ {f:true, img:"https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/501/1792430530407-0-dtv8vk.jpg", p:12500, d:"rent", type:"مصنع", area:"الكسوة", gov:"ريف دمشق", r:null,b:null,m2:4150},
+ {f:true, img:"https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/516/1792528266381-0-8b4fmx.jpg", p:100000, d:"sale", type:"مكتب", area:"الثورة", gov:"طرطوس", r:null,b:null,m2:80},
+ {f:false,img:"https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/459/1791953965950-1-tlp9k.jpg", p:1000000, d:"sale", type:"شقة", area:"المالكي", gov:"دمشق", r:3,b:2,m2:200},
+ {f:false,img:"https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/285/1791061498324-0-o7ubuo.jpg", p:3000000, d:"sale", type:"فيلا", area:"يعفور", gov:"ريف دمشق", r:null,b:null,m2:4000},
+ {f:false,img:"https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/372/1791522256705-1-6fafw.jpg", p:300000, d:"sale", type:"شقة", area:"مشروع دمر", gov:"دمشق", r:null,b:null,m2:145},
+ {f:false,img:"https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/411/1791645236399-1-2ng63.jpg", p:180000, d:"sale", type:"مكتب", area:"الشاغور", gov:"دمشق", r:8,b:null,m2:130}
+];
+var BED='<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M2 19v-6.5A2.5 2.5 0 0 1 4.5 10H9a2 2 0 0 1 2 2v1h2v-1a2 2 0 0 1 2-2h4.5A2.5 2.5 0 0 1 22 12.5V19h-2v-2H4v2H2zm4-8a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/></svg>';
+var BATH='<svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><path d="M7 9V6a2 2 0 0 1 3.6-1.2l-1.4 1.3A.5.5 0 0 0 9 6.5V9h12a1 1 0 0 1 1 1v2a6.5 6.5 0 0 1-4 6v2a1 1 0 1 1-2 0v-1.2a6.6 6.6 0 0 1-1 .1H9a6.6 6.6 0 0 1-1-.1V20a1 1 0 1 1-2 0v-2a6.5 6.5 0 0 1-4-6v-2a1 1 0 0 1 1-1h4z"/></svg>';
+var AREA='<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8V3h5M21 8V3h-5M3 16v5h5M21 16v5h-5"/></svg>';
+function money(v){ return "$"+Number(v).toLocaleString("en") }
+function deal(x){ return x.d==="rent"?"للإيجار":"للبيع" }
+function specs(x){ var s=[x.m2+" م²"]; if(x.r) s.push(x.r+" غرف"); if(x.b) s.push(x.b+" حمّام"); return s.join(" · ") }
+function el(id,html){ document.getElementById(id).innerHTML=html }
+el("rowCur", L.map(function(x){ return '<div class="cur'+(x.f?' f':'')+'"><img src="'+x.img+'" alt="">'+
+  '<div class="pl">'+x.area+", "+x.gov+'</div>'+(x.f?'<span class="st">★</span>':'')+
+  '<div class="ft"><span class="pr ltr">'+money(x.p)+'</span>'+(x.r?'<span>'+x.r+' 🛏</span>':'')+(x.b?'<span>'+x.b+' 🛁</span>':'')+'<span class="ltr">⛶ '+x.m2+'</span></div></div>' }).join(""));
+el("rowA", L.map(function(x){ return '<div class="sa'+(x.f?' f':'')+'"><img src="'+x.img+'" alt="">'+
+  '<span class="chip'+(x.d==="rent"?' rent':'')+'">'+deal(x)+'</span>'+(x.f?'<span class="star">★</span>':'')+
+  '<div class="tx"><span class="pr ltr">'+money(x.p)+'</span><span class="l2">'+x.type+' · '+x.area+'</span><span class="l3">'+specs(x)+'</span></div></div>' }).join(""));
+el("rowB", L.map(function(x){ return '<div class="sb'+(x.f?' f':'')+'"><img src="'+x.img+'" alt="">'+
+  '<span class="chip'+(x.d==="rent"?' rent':'')+'">'+deal(x)+'</span>'+(x.f?'<span class="star">★</span>':'')+
+  '<div class="tx"><span class="pr ltr">'+money(x.p)+'</span><span class="l2">'+x.type+' في '+x.area+'</span><span class="l3">'+x.gov+'</span>'+
+  '<div class="sp"><i>'+AREA+'<span class="ltr">'+x.m2+'</span> م²</i>'+(x.r?'<i>'+BED+x.r+'</i>':'')+(x.b?'<i>'+BATH+x.b+'</i>':'')+'</div></div></div>' }).join(""));
+el("rowC", L.map(function(x){ return '<div class="sc'+(x.f?' f':'')+'"><div class="ph"><img src="'+x.img+'" alt="">'+
+  '<span class="chip'+(x.d==="rent"?' rent':'')+'">'+deal(x)+'</span>'+(x.f?'<span class="mz">★ مميز</span>':'')+'</div>'+
+  '<div class="bd"><span class="pr ltr">'+money(x.p)+'</span><span class="l2">'+x.type+' · '+x.area+'، '+x.gov+'</span><span class="l3">'+specs(x)+'</span></div></div>' }).join(""));
+</script>
+</body>
+</html>

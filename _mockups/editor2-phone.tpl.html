@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>محرر الموقع على الجوال — نموذج ٢</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#14213D;--navy2:#22305A;--gold:#C4881F;--gold2:#E2B55C;--goldw:#FBF3E4;--ink:#1B2333;--ink2:#5B6475;--ink3:#8B93A3;--line:#E6E8EC;--hover:#F1EFE9;--blue:#1F6FEB;--ok:#2E7D5B}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{font-family:"Noto Kufi Arabic",system-ui,sans-serif;background:#E7E4DC;background-image:radial-gradient(#D9D5CB 1px,transparent 1px);background-size:16px 16px;color:var(--ink);display:flex;align-items:center;justify-content:center;gap:40px;overflow:hidden;-webkit-font-smoothing:antialiased}
+.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.i.s{width:15px;height:15px}
+.col{display:flex;flex-direction:column;align-items:center;gap:12px}
+.cap{font-size:13.5px;font-weight:700;color:var(--navy);text-align:center}.cap small{display:block;font-weight:500;color:var(--ink2);font-size:11.5px;margin-top:2px}
+.phone{width:300px;height:620px;border-radius:40px;background:#0B0F19;padding:9px;box-shadow:0 22px 50px rgba(20,33,61,.28)}
+.scr{width:282px;height:602px;border-radius:32px;overflow:hidden;position:relative;background:#fff;display:flex;flex-direction:column}
+.eb{height:50px;background:var(--navy);display:flex;align-items:flex-end;gap:6px;padding:0 9px 7px;color:#fff;flex:none}
+.eb .x{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:var(--navy2)}
+.eb .pp{flex:1;height:30px;border-radius:8px;background:var(--navy2);display:flex;align-items:center;justify-content:space-between;padding:0 9px;font-weight:700;font-size:11.5px}
+.eb .pp span{display:inline-flex;align-items:center;gap:6px}
+.eb .pub{height:30px;border-radius:8px;background:var(--gold);color:#1A1206;font-weight:800;padding:0 12px;display:grid;place-items:center;font-size:12px}
+.pv{flex:1;position:relative;overflow:hidden;background:#0F1A31}
+.pv iframe{border:0;width:390px;transform:scale(.7231);transform-origin:top right;position:absolute;top:0;right:0;pointer-events:none}
+.ol{position:absolute;border:2px solid var(--gold);border-radius:6px;pointer-events:none;z-index:3}
+.ol.edit{box-shadow:0 0 0 3px rgba(196,136,31,.25)}
+.dim{position:absolute;inset:0;background:rgba(9,14,26,.35);z-index:4}
+.sheet{position:absolute;inset-inline:0;bottom:0;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -12px 30px rgba(9,14,26,.25);z-index:5;display:flex;flex-direction:column}
+.grab{width:36px;height:4px;border-radius:2px;background:#D3D6DC;margin:8px auto 2px;flex:none}
+.bar{display:flex;gap:6px;padding:6px 10px 14px}
+.bt{flex:1;height:44px;border-radius:12px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:6px;font-weight:700;font-size:12px;background:#fff}
+.bt.pri{background:var(--navy);color:#fff;border-color:var(--navy);flex:1.4}
+.shh{display:flex;align-items:center;justify-content:space-between;padding:4px 14px 6px;flex:none}
+.shh b{font-size:13.5px}
+.shh .add{color:var(--blue);font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:4px}
+.list{overflow:hidden;padding:0 8px}
+.g{font-size:10.5px;font-weight:700;color:var(--ink3);padding:8px 8px 3px}
+.r{display:flex;align-items:center;gap:8px;height:42px;padding:0 6px;border-bottom:1px solid #F0F1F3}
+.r .gp{color:#B8BDC6}.r .ic{color:var(--ink2)}
+.r .nm{flex:1;font-weight:600;font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.r .bt2{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;color:var(--ink2)}
+.r.off .nm,.r.off .ic{opacity:.42}.r.off .ey{color:var(--ink3)}
+.r.sel{background:var(--goldw);border-radius:10px;border-bottom-color:transparent}
+.back{display:flex;align-items:center;gap:6px;padding:2px 10px 8px;border-bottom:1px solid var(--line);flex:none}
+.back b{flex:1;font-size:13.5px}
+.chip{font-size:10px;border-radius:999px;padding:1px 8px;font-weight:700;background:var(--goldw);color:#8A5D10}
+.form{padding:2px 14px;overflow:hidden}
+.fg{border-bottom:1px solid var(--line);padding:9px 0}.fg:last-child{border-bottom:0}
+.fg h4{margin:0 0 7px;font-size:11px;color:var(--ink2);display:flex;justify-content:space-between;align-items:center}
+.q{width:16px;height:16px;border-radius:50%;border:1px solid #C7CBD3;color:var(--ink3);display:grid;place-items:center;font-size:9.5px;font-weight:700}
+.lb{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:600;margin-bottom:4px}
+.lg span{font:700 9px system-ui;border-radius:4px;padding:0 4px;line-height:15px;margin-inline-start:2px}.lg .y{background:#E6F4EC;color:var(--ok)}.lg .n{background:#F1F2F4;color:#9AA1AE}
+.in{min-height:44px;border:1px solid #C9CDD5;border-radius:10px;display:flex;align-items:center;padding:0 11px;font-size:15px;margin-bottom:8px}
+.in.foc{border-color:var(--gold);box-shadow:0 0 0 3px rgba(196,136,31,.18)}
+.tg{display:flex;align-items:center;justify-content:space-between;height:38px;font-weight:700;font-size:12px}
+.sw{width:38px;height:22px;border-radius:999px;background:var(--gold);position:relative}.sw:after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:16px;height:16px;border-radius:50%;background:#fff}
+.caret{display:inline-block;width:2px;height:18px;background:var(--gold);margin-inline-start:2px;vertical-align:middle}
+.toast{position:absolute;inset-inline:10px;top:10px;z-index:6;background:#1B2333;color:#fff;border-radius:10px;padding:8px 10px;font-size:11px;display:flex;align-items:center;gap:8px;box-shadow:0 8px 20px rgba(0,0,0,.3)}
+.toast b{color:var(--gold2)}
+</style>
+</head>
+<body>
+%%SYMBOLS%%
+<!-- 1 · the real page fills the phone -->
+<div class="col">
+  <div class="phone"><div class="scr">
+    <div class="eb"><span class="x"><svg class="i s"><use href="#x"/></svg></span><span class="pp"><span><svg class="i s"><use href="#home"/></svg>الصفحة الرئيسية</span><svg class="i s"><use href="#chev"/></svg></span><span class="pub">نشر</span></div>
+    <div class="pv" id="pv1"><iframe id="f1" src="/" height="1100"></iframe>
+      <div class="sheet"><div class="grab"></div><div class="bar"><span class="bt pri"><svg class="i s"><use href="#stack"/></svg>الأقسام</span><span class="bt"><svg class="i s"><use href="#undo"/></svg></span><span class="bt">عربي<svg class="i s"><use href="#chev"/></svg></span></div></div>
+    </div>
+  </div></div>
+  <div class="cap">١ · الصفحة نفسها<small>اضغط أي جزء لتعديله</small></div>
+</div>
+
+<!-- 2 · sections slide up -->
+<div class="col">
+  <div class="phone"><div class="scr">
+    <div class="eb"><span class="x"><svg class="i s"><use href="#x"/></svg></span><span class="pp"><span><svg class="i s"><use href="#home"/></svg>الصفحة الرئيسية</span><svg class="i s"><use href="#chev"/></svg></span><span class="pub">نشر</span></div>
+    <div class="pv"><iframe id="f2" src="/" height="1100"></iframe><div class="dim"></div>
+      <div class="sheet" style="height:84%"><div class="grab"></div>
+        <div class="shh"><b>أقسام الصفحة</b><span class="add"><svg class="i s"><use href="#plus"/></svg>قسم</span></div>
+        <div class="list">
+          <div class="g">أقسام الصفحة</div>
+          <div class="r sel"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><svg class="i s ic"><use href="#hero"/></svg><span class="nm">الترحيب</span><span class="bt2"><svg class="i s"><use href="#eye"/></svg></span><span class="bt2"><svg class="i s"><use href="#dots"/></svg></span></div>
+          <div class="r"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><svg class="i s ic"><use href="#grid"/></svg><span class="nm">المربعات الإعلانية</span><span class="bt2"><svg class="i s"><use href="#eye"/></svg></span><span class="bt2"><svg class="i s"><use href="#dots"/></svg></span></div>
+          <div class="r"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><svg class="i s ic"><use href="#info"/></svg><span class="nm">عن عقارات سوريا</span><span class="bt2"><svg class="i s"><use href="#eye"/></svg></span><span class="bt2"><svg class="i s"><use href="#dots"/></svg></span></div>
+          <div class="r"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><svg class="i s ic"><use href="#fire"/></svg><span class="nm">الأكثر مشاهدة</span><span class="bt2"><svg class="i s"><use href="#eye"/></svg></span><span class="bt2"><svg class="i s"><use href="#dots"/></svg></span></div>
+          <div class="r"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><svg class="i s ic"><use href="#stack"/></svg><span class="nm">مجموعات مختارة</span><span class="bt2"><svg class="i s"><use href="#eye"/></svg></span><span class="bt2"><svg class="i s"><use href="#dots"/></svg></span></div>
+          <div class="r"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><svg class="i s ic"><use href="#bld"/></svg><span class="nm">تصفّح حسب النوع</span><span class="bt2"><svg class="i s"><use href="#eye"/></svg></span><span class="bt2"><svg class="i s"><use href="#dots"/></svg></span></div>
+          <div class="r off"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><svg class="i s ic"><use href="#map"/></svg><span class="nm">البانرات</span><span class="bt2 ey"><svg class="i s"><use href="#eyeoff"/></svg></span><span class="bt2"><svg class="i s"><use href="#dots"/></svg></span></div>
+          <div class="r"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><svg class="i s ic"><use href="#shield"/></svg><span class="nm">لماذا بلكون</span><span class="bt2"><svg class="i s"><use href="#eye"/></svg></span><span class="bt2"><svg class="i s"><use href="#dots"/></svg></span></div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap">٢ · الأقسام<small>اسحب للترتيب · العين للإظهار والإخفاء</small></div>
+</div>
+
+<!-- 3 · editing one item; the page above changes as you type -->
+<div class="col">
+  <div class="phone"><div class="scr">
+    <div class="eb"><span class="x"><svg class="i s"><use href="#x"/></svg></span><span class="pp"><span><svg class="i s"><use href="#home"/></svg>الصفحة الرئيسية</span><svg class="i s"><use href="#chev"/></svg></span><span class="pub">نشر</span></div>
+    <div class="pv" id="pv3"><iframe id="f3" src="/" height="1100"></iframe>
+      <div class="sheet" style="height:60%"><div class="grab"></div>
+        <div class="back"><span class="bt2" style="width:28px;height:28px;display:grid;place-items:center"><svg class="i"><use href="#back"/></svg></span><b>العنوان الرئيسي</b><span class="chip">جوال</span></div>
+        <div class="form">
+          <div class="fg"><div class="tg">إظهار العنوان <span class="sw"></span></div></div>
+          <div class="fg"><h4>النص <span class="q">؟</span></h4>
+            <div class="lb">العنوان <span class="lg"><span class="y">AR</span><span class="y">EN</span><span class="n">DE</span></span></div><div class="in foc">بيتك القادم<span class="caret"></span></div>
+            <div class="lb">الجزء المميّز <span class="lg"><span class="y">AR</span><span class="y">EN</span><span class="n">DE</span></span></div><div class="in">يبدأ من الشرفة.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap">٣ · تعديل عنصر<small>الصفحة فوقه تتغيّر وأنت تكتب</small></div>
+</div>
+
+<script>
+var S=.7231;
+function hl(fid, pvid, cls){ var f=document.getElementById(fid), d; try{ d=f.contentDocument }catch(e){ return } if(!d) return;
+  try{ var st=d.createElement("style"); st.textContent="html{scrollbar-width:none}html::-webkit-scrollbar{display:none}"; d.head.appendChild(st) }catch(e){}
+  var h=d.querySelector("h1"); if(!h) return; var r=h.getBoundingClientRect(), pv=document.getElementById(pvid), o=document.createElement("div");
+  o.className="ol"+(cls?" "+cls:""); var x=(390-r.right)*S;  /* right-anchored frame */
+  o.style.right=(x-4)+"px"; o.style.top=(r.top*S-4)+"px"; o.style.width=(r.width*S+8)+"px"; o.style.height=(r.height*S+8)+"px"; pv.appendChild(o) }
+function after(id,cb){ document.getElementById(id).addEventListener("load",function(){ setTimeout(cb,6500) }) }
+after("f1",function(){ hl("f1","pv1") });
+after("f3",function(){ hl("f3","pv3","edit") });
+after("f2",function(){ try{ var d=document.getElementById("f2").contentDocument, st=d.createElement("style"); st.textContent="html{scrollbar-width:none}html::-webkit-scrollbar{display:none}"; d.head.appendChild(st) }catch(e){} });
+</script>
+</body>
+</html>

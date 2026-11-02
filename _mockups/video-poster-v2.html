@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>صورة معاينة الفيديو — الشكل الثاني</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&family=Lato:wght@400;700;900&display=swap">
+<style>
+:root{--navy:#14213D;--navy2:#0D1729;--gold:#C4881F;--gold-l:#E2A93B;--gold-w:#FDF5E7;--ink:#1d2433;--grey:#5b6475;--line:#E6E2D8;--page:#F4F2ED;--ok:#1F9D55;--fd:'Noto Kufi Arabic','Lato',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+body{font-family:var(--fd);background:var(--page);color:var(--ink);padding:22px 16px 60px}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.note{font-size:13px;color:var(--grey);line-height:1.9;background:#fff;border:1px dashed var(--line);border-radius:12px;padding:10px 14px}
+.note b{color:var(--navy)}
+.blk{background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.blk h3{display:flex;align-items:center;gap:10px;font-size:16px;color:var(--navy);padding:14px 18px;border-bottom:1px solid var(--line)}
+.blk h3 .n{width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;font-size:12px;display:grid;place-items:center}
+.in{padding:16px 18px 18px;display:flex;flex-direction:column;gap:14px}
+.ttl{display:flex;flex-direction:column;gap:2px}
+.ttl b{font-size:15px;color:var(--navy)}
+.ttl span{font-size:12.5px;color:var(--grey)}
+
+/* segmented tabs */
+.seg{display:grid;grid-template-columns:1fr 1fr;background:#F1EEE7;border-radius:12px;padding:4px;gap:4px}
+.seg button{border:0;background:none;border-radius:9px;padding:9px 8px;font:700 13.5px var(--fd);color:var(--grey);cursor:pointer;transition:background .2s,color .2s,box-shadow .2s}
+.seg button.on{background:#fff;color:var(--navy);box-shadow:0 2px 8px -3px rgba(20,33,61,.3)}
+.seg button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* stage: the chosen frame, big */
+.stage{position:relative;border-radius:14px;overflow:hidden;background:var(--navy2);aspect-ratio:16/10}
+.stage video,.stage img{width:100%;height:100%;object-fit:contain;display:block}
+.stage .bg{position:absolute;inset:-20px;background-size:cover;background-position:center;filter:blur(22px) saturate(.9);opacity:.55}
+.stage video,.stage .photo{position:relative}
+.badge{position:absolute;top:10px;inset-inline-start:10px;z-index:2;background:var(--gold);color:#1A1206;font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:999px;box-shadow:0 4px 12px -4px rgba(0,0,0,.5)}
+.tm{position:absolute;bottom:10px;inset-inline-end:10px;z-index:2;background:rgba(9,14,26,.7);color:#fff;font:700 12px 'Lato',var(--fd);padding:3px 10px;border-radius:999px;direction:ltr}
+
+/* filmstrip with a draggable gold frame (the Instagram / TikTok cover picker) */
+.strip{position:relative;height:66px;border-radius:12px;overflow:hidden;background:#1a2440;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none}
+.strip:active{cursor:grabbing}
+.frames{position:absolute;inset:0;display:flex}
+.frames canvas{flex:1;min-width:0;height:100%;object-fit:cover;display:block}
+.frames .ph{flex:1;background:linear-gradient(90deg,#1a2440,#22305a,#1a2440);background-size:200% 100%;animation:sh 1.2s linear infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.sel{position:absolute;top:0;bottom:0;width:13%;min-width:44px;border:3px solid var(--gold-l);border-radius:10px;box-shadow:0 0 0 999px rgba(9,14,26,.55),0 6px 16px -4px rgba(0,0,0,.6);transition:right .12s ease-out;pointer-events:none}
+.sel::after{content:"";position:absolute;inset:0;border:1px solid rgba(255,255,255,.65);border-radius:7px}
+.drag-hint{font-size:12px;color:var(--grey);text-align:center}
+
+/* photos tab */
+.photos{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:480px){.photos{grid-template-columns:repeat(2,1fr)}}
+.pk{position:relative;aspect-ratio:4/3;border-radius:10px;overflow:hidden;border:0;padding:0;cursor:pointer;background:var(--navy2);box-shadow:0 0 0 1px var(--line)}
+.pk img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .25s}
+.pk:hover img{transform:scale(1.04)}
+.pk.on{box-shadow:0 0 0 3px var(--gold)}
+.pk.on::after{content:"✓";position:absolute;top:6px;inset-inline-end:6px;width:22px;height:22px;border-radius:50%;background:var(--gold);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center}
+.pk:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* footer: before → after, then the actions */
+.foot{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:14px}
+.ba{display:flex;align-items:center;gap:8px;flex:1;min-width:200px}
+.ba figure{display:flex;flex-direction:column;align-items:center;gap:3px}
+.ba .th{width:74px;aspect-ratio:4/3;border-radius:8px;overflow:hidden;background:var(--navy2)}
+.ba .th img{width:100%;height:100%;object-fit:cover;display:block}
+.ba .th.new{box-shadow:0 0 0 2px var(--gold)}
+.ba figcaption{font-size:11px;color:var(--grey)}
+.ba .arr{color:var(--gold);font-size:18px;margin-top:-14px}
+.acts{display:flex;gap:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;padding:9px 18px;font:700 13.5px var(--fd);cursor:pointer;border:0;white-space:nowrap}
+.btn.gold{background:var(--gold);color:#1A1206}
+.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--navy)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.toast{font-size:12.5px;color:var(--ok);min-height:18px;text-align:center}
+.small{font-size:12px;color:var(--grey);line-height:1.8}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="note"><b>معاينة فقط — الشكل الثاني.</b> بنفس الفيديو الحقيقي من الإعلان SY10480. اسحب الإطار الذهبي على شريط اللقطات، أو جرّب تبويب «صورة من الإعلان». الحفظ هنا لا يرسل شيئاً.</div>
+
+  <section class="blk">
+    <h3><span class="n">4</span>فيديو العقار</h3>
+    <div class="in">
+      <div class="ttl"><b>صورة المعاينة</b><span>هي ما يراه الناس قبل تشغيل الفيديو، في البطاقات وصفحة الإعلان</span></div>
+
+      <div class="seg" role="tablist">
+        <button class="on" id="tabV" role="tab" aria-selected="true">🎞️ لقطة من الفيديو</button>
+        <button id="tabP" role="tab" aria-selected="false">🖼️ صورة من الإعلان</button>
+      </div>
+
+      <div class="stage" id="stage">
+        <div class="bg" id="stageBg"></div>
+        <video id="v" crossorigin="anonymous" preload="auto" playsinline muted src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/videos/listings/506/1792434266699-r6ho4j.mp4"></video>
+        <img class="photo" id="stagePhoto" alt="" hidden>
+        <span class="badge">صورة المعاينة</span>
+        <span class="tm" id="tm">0:00</span>
+      </div>
+
+      <div id="paneV">
+        <div class="strip" id="strip" role="slider" aria-label="مكان اللقطة في الفيديو" tabindex="0">
+          <div class="frames" id="frames"></div>
+          <div class="sel" id="sel"></div>
+        </div>
+        <div class="drag-hint" style="margin-top:8px">اسحب الإطار الذهبي أو اضغط على أي لقطة</div>
+      </div>
+
+      <div id="paneP" hidden>
+        <div class="photos" id="photos"></div>
+      </div>
+
+      <div class="foot">
+        <div class="ba">
+          <figure><div class="th"><img id="beforeImg" src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/506/1792434266699-r6ho4j-poster.jpg" alt=""></div><figcaption>الحالية</figcaption></figure>
+          <span class="arr">←</span>
+          <figure><div class="th new"><img id="afterImg" alt=""></div><figcaption>الجديدة</figcaption></figure>
+        </div>
+        <div class="acts"><button class="btn ghost" id="undo">تراجع</button><button class="btn gold" id="save">حفظ</button></div>
+      </div>
+      <div class="toast" id="toast"></div>
+      <div class="small">الفيديو نفسه لا يتغير. تُضاف علامة بلكون على اللقطة كما في باقي الصور.</div>
+    </div>
+  </section>
+</div>
+<script>
+var SRC="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/videos/listings/506/1792434266699-r6ho4j.mp4";
+var PH=["1792434261863-2-lvajuw","1792434264195-3-41pvx2","1792434256036-0-c94bjq","1792434259115-1-7afb5c"].map(function(k){ return "https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/506/"+k });
+var N=8, v=document.getElementById("v"), strip=document.getElementById("strip"), sel=document.getElementById("sel"), frames=document.getElementById("frames");
+var fmt=function(s){ s=Math.max(0,Math.round(s||0)); return Math.floor(s/60)+":"+String(s%60).padStart(2,"0") };
+var mode="video", frac=0.44, photoPick=null;
+frames.innerHTML=Array.apply(null,{length:N}).map(function(){ return '<div class="ph"></div>' }).join("");
+
+// the gold frame: fraction 0 = start of the video at the right (RTL), 1 = end at the left
+function placeSel(){ var w=strip.clientWidth, sw=sel.offsetWidth; sel.style.right=(frac*(w-sw))+"px" }
+var seeking=false, want=null;
+function seekTo(t){ want=t; if(seeking) return; seeking=true; v.currentTime=t }
+v.addEventListener("seeked",function(){ seeking=false; document.getElementById("tm").textContent=fmt(v.currentTime); if(want!==null && Math.abs(want-v.currentTime)>0.05){ var t=want; want=null; seekTo(t) } else { want=null; snapAfter() } });
+function setFrac(f){ frac=Math.max(0,Math.min(1,f)); placeSel(); if(v.duration) seekTo(frac*(v.duration-0.1)) }
+function fracFromX(clientX){ var r=strip.getBoundingClientRect(), sw=sel.offsetWidth; return ((r.right-clientX)-sw/2)/(r.width-sw) }
+var dragging=false;
+strip.addEventListener("pointerdown",function(e){ dragging=true; strip.setPointerCapture(e.pointerId); setFrac(fracFromX(e.clientX)) });
+strip.addEventListener("pointermove",function(e){ if(dragging) setFrac(fracFromX(e.clientX)) });
+strip.addEventListener("pointerup",function(){ dragging=false });
+strip.addEventListener("keydown",function(e){ if(e.key==="ArrowLeft"){ setFrac(frac+0.02); e.preventDefault() } if(e.key==="ArrowRight"){ setFrac(frac-0.02); e.preventDefault() } });
+window.addEventListener("resize",placeSel);
+
+// the strip: N frames taken from the video at even steps (a second, hidden copy does the seeking)
+v.addEventListener("loadedmetadata",function(){ placeSel(); seekTo(frac*(v.duration-0.1)); buildStrip() });
+function buildStrip(){
+  var w=document.createElement("video"); w.crossOrigin="anonymous"; w.muted=true; w.preload="auto"; w.src=SRC; var i=0;
+  var next=function(){ if(i>=N) return; w.currentTime=(i+0.5)/N*w.duration };
+  w.addEventListener("loadedmetadata",next);
+  w.addEventListener("seeked",function(){ var c=document.createElement("canvas"); c.width=160; c.height=Math.round(160*(w.videoHeight/w.videoWidth||0.56));
+    try{ c.getContext("2d").drawImage(w,0,0,c.width,c.height) }catch(e){}
+    var slot=frames.children[i]; if(slot) frames.replaceChild(c,slot); i++; next() });
+}
+// the chosen frame, with the watermark, as the "after" picture
+function grab(){ var c=document.createElement("canvas"), W=v.videoWidth||1280, H=v.videoHeight||720, k=Math.min(1,1200/W); c.width=Math.round(W*k); c.height=Math.round(H*k);
+  var x=c.getContext("2d"); x.drawImage(v,0,0,c.width,c.height); x.font="700 "+Math.round(c.width/26)+"px 'Noto Kufi Arabic',sans-serif"; x.fillStyle="rgba(255,255,255,.75)"; x.fillText("BALKOUN", c.width*.04, c.height*.95);
+  return c.toDataURL("image/jpeg",.85) }
+function snapAfter(){ if(mode!=="video") return; try{ var u=grab(); document.getElementById("afterImg").src=u; document.getElementById("stageBg").style.backgroundImage="url("+u+")" }catch(e){} }
+
+// tabs
+function tab(m){ mode=m; document.getElementById("tabV").classList.toggle("on",m==="video"); document.getElementById("tabP").classList.toggle("on",m==="photo");
+  document.getElementById("tabV").setAttribute("aria-selected",m==="video"); document.getElementById("tabP").setAttribute("aria-selected",m==="photo");
+  document.getElementById("paneV").hidden=m!=="video"; document.getElementById("paneP").hidden=m!=="photo";
+  v.hidden=m!=="video"; document.getElementById("tm").hidden=m!=="video"; var sp=document.getElementById("stagePhoto"); sp.hidden=m!=="photo" || !photoPick;
+  if(m==="video") snapAfter(); else if(photoPick) showPhoto(photoPick) }
+document.getElementById("tabV").onclick=function(){ tab("video") };
+document.getElementById("tabP").onclick=function(){ tab("photo"); if(!photoPick) pickPhoto(0) };
+document.getElementById("photos").innerHTML=PH.map(function(u,i){ return '<button class="pk" data-i="'+i+'" aria-label="الصورة '+(i+1)+'"><img src="'+u+'-t.jpg" alt=""></button>' }).join("");
+function showPhoto(u){ var sp=document.getElementById("stagePhoto"); sp.src=u; sp.hidden=false; document.getElementById("afterImg").src=u; document.getElementById("stageBg").style.backgroundImage="url("+u+")" }
+function pickPhoto(i){ photoPick=PH[i]+".jpg"; [].forEach.call(document.querySelectorAll(".pk"),function(b){ b.classList.toggle("on",+b.dataset.i===i) }); showPhoto(photoPick) }
+[].forEach.call(document.querySelectorAll(".pk"),function(b){ b.onclick=function(){ pickPhoto(+b.dataset.i) } });
+document.getElementById("undo").onclick=function(){ tab("video"); setFrac(0.44); document.getElementById("toast").textContent="" };
+document.getElementById("save").onclick=function(){ document.getElementById("toast").textContent="✓ في الموقع الحقيقي تُحفظ هنا — في هذه المعاينة لا يُرسل شيء" };
+</script>
+</body>
+</html>

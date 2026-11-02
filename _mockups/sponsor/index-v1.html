@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>روّج إعلانك | بلكون (نموذج)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Zain:wght@300;400;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#11213F;--navy-2:#172B4F;--navy-3:#1D3560;--gold:#CA9051;--gold-w:rgba(202,144,81,.14);--gold-l:#E3B563;--line:rgba(255,255,255,.12);--muted:#9AA3B2;--wa:#25D366;--ok:#2FB6A3;--f:'Lato','Zain',system-ui,sans-serif}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--navy);color:#fff;font-family:var(--f);font-size:15px;line-height:1.65}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1200px;margin:0 auto;padding-inline:24px}
+/* header (same as the live site) */
+header{background:var(--navy);border-bottom:1px solid var(--line)}
+.hbar{display:flex;align-items:center;justify-content:space-between;height:94px}
+.logo{display:flex;align-items:center;gap:10px}
+.logo img{width:44px;height:44px}
+.logo b{font-family:'Zain';font-size:30px;font-weight:800;line-height:1;color:#E7DCC6}
+.logo small{display:block;font-size:10px;letter-spacing:3px;color:#9DB0CC;margin-top:2px}
+.htools{display:flex;align-items:center;gap:18px}
+.cta-add{background:var(--gold);color:var(--navy);font-weight:700;padding:10px 18px;border-radius:8px;font-size:14px}
+.hmb{width:26px;display:grid;gap:6px}.hmb i{display:block;height:2px;background:#fff;border-radius:2px}
+.crumb{background:var(--navy-2);border-bottom:1px solid var(--line);font-size:14px;color:#fff}
+.crumb .wrap{height:44px;display:flex;align-items:center;gap:6px}.crumb span{color:var(--muted)}
+.mockbadge{position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:50;background:#E25C5C;color:#fff;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px}
+/* hero */
+.hero{padding:64px 0 40px;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--gold);font-weight:700;font-size:14px;margin-bottom:14px}
+.eyebrow::before,.eyebrow::after{content:"";width:28px;height:1px;background:var(--gold)}
+h1{font-size:44px;line-height:1.25;font-weight:800;max-width:820px;margin:0 auto}
+h1 em{font-style:normal;color:var(--gold)}
+.hero p{color:var(--muted);font-size:17px;max-width:640px;margin:16px auto 0}
+.stats{display:flex;justify-content:center;gap:14px;margin-top:30px;flex-wrap:wrap}
+.stat{background:var(--navy-2);border:1px solid var(--line);border-radius:12px;padding:14px 22px;min-width:170px}
+.stat b{display:block;font-size:26px;font-family:'Lato';color:#fff}.stat span{color:var(--muted);font-size:13px}
+.stat-note{color:var(--muted);font-size:12px;margin-top:10px}
+/* audience switch (same look as the search tabs) */
+.aud{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:520px;margin:44px auto 26px}
+.aud button{font:700 15px var(--f);height:44px;border-radius:8px;border:0;cursor:pointer;background:#fff;color:#55607a;transition:.3s}
+.aud button.on{background:var(--gold);color:var(--navy)}
+/* packages */
+.sec{padding:20px 0 56px}
+.sec-h{text-align:center;margin-bottom:26px}.sec-h h2{font-size:30px;font-weight:800}.sec-h p{color:var(--muted);margin-top:6px}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;align-items:stretch}
+.plan{position:relative;background:var(--navy-2);border:1px solid var(--line);border-radius:14px;padding:26px 24px 22px;display:flex;flex-direction:column;transition:transform .3s,border-color .3s}
+.plan:hover{transform:translateY(-4px);border-color:rgba(202,144,81,.6)}
+.plan.best{border-color:var(--gold);box-shadow:0 20px 50px -24px rgba(202,144,81,.55)}
+.ribbon{position:absolute;top:-12px;inset-inline-start:22px;background:var(--gold);color:var(--navy);font-size:12px;font-weight:800;padding:3px 12px;border-radius:999px}
+.picon{width:46px;height:46px;border-radius:12px;background:var(--gold-w);display:grid;place-items:center;margin-bottom:14px}
+.picon svg{width:24px;height:24px;stroke:var(--gold);fill:none;stroke-width:1.7}
+.plan h3{font-size:21px;font-weight:800}
+.plan .for{color:var(--muted);font-size:13.5px;margin-top:2px;min-height:44px}
+.price{margin:16px 0 4px;display:flex;align-items:baseline;gap:6px}
+.price b{font-family:'Lato';font-size:34px}.price span{color:var(--muted);font-size:14px}
+.sample{display:inline-block;font-size:11px;color:#F3B3B3;border:1px dashed rgba(226,92,92,.6);border-radius:6px;padding:0 6px;margin-bottom:12px;width:max-content}
+.plan ul{list-style:none;display:grid;gap:9px;margin:6px 0 22px;flex:1}
+.plan li{display:flex;gap:9px;font-size:14px;line-height:1.55}
+.plan li::before{content:"";flex:none;width:18px;height:18px;margin-top:2px;border-radius:50%;background:rgba(47,182,163,.18) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232FB6A3' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E") center/11px no-repeat}
+.plan li.off{color:var(--muted)}.plan li.off::before{background:rgba(255,255,255,.06) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239AA3B2' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M6 12h12'/%3E%3C/svg%3E") center/10px no-repeat}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;height:46px;border-radius:8px;font:700 15px var(--f);cursor:pointer;border:1px solid rgba(255,255,255,.5);background:transparent;color:#fff;transition:.3s}
+.btn:hover{border-color:var(--gold);color:var(--gold)}
+.btn.gold{background:var(--gold);border-color:var(--gold);color:var(--navy)}.btn.gold:hover{background:var(--gold-l);color:var(--navy)}
+.btn.wa{background:var(--wa);border-color:var(--wa);color:#fff}
+.hidden{display:none!important}
+/* how it works */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.step{background:var(--navy-2);border:1px solid var(--line);border-radius:12px;padding:20px}
+.step .n{width:32px;height:32px;border-radius:50%;background:var(--gold);color:var(--navy);font-weight:800;display:grid;place-items:center;margin-bottom:12px;font-family:'Lato'}
+.step b{display:block;font-size:16px}.step p{color:var(--muted);font-size:13.5px;margin-top:4px}
+.pay{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.pay span{font-size:12px;border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:#fff}
+/* report + inside the account */
+.duo{display:grid;grid-template-columns:1.25fr 1fr;gap:20px;align-items:start}
+.card{background:var(--navy-2);border:1px solid var(--line);border-radius:14px;padding:22px}
+.card-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px}
+.card-h b{font-size:17px}.tag{font-size:11.5px;color:var(--gold);border:1px solid rgba(202,144,81,.5);border-radius:999px;padding:1px 10px}
+.rep-l{display:flex;gap:14px;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.rep-l .ph{width:92px;height:64px;border-radius:8px;background:#0D1729 url(/next/images/hero/umayyad-1080.webp) center/cover}
+.rep-l b{display:block}.rep-l span{color:var(--muted);font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+.kpi{background:var(--navy-3);border-radius:10px;padding:12px}
+.kpi b{display:block;font-family:'Lato';font-size:22px;font-variant-numeric:tabular-nums}.kpi span{color:var(--muted);font-size:12.5px}
+.kpi.hi b{color:var(--wa)}
+.chart{display:flex;align-items:flex-end;gap:10px;height:120px;padding-top:6px;border-bottom:1px solid var(--line)}
+.bar{flex:1;background:linear-gradient(180deg,var(--gold),rgba(202,144,81,.35));border-radius:6px 6px 0 0;position:relative}
+.bar i{position:absolute;top:-20px;inset-inline:0;text-align:center;font-style:normal;font-size:11.5px;color:var(--muted);font-family:'Lato'}
+.days{display:flex;gap:10px;margin-top:6px}.days span{flex:1;text-align:center;color:var(--muted);font-size:12px}
+.rep-note{color:var(--muted);font-size:12.5px;margin-top:14px}
+/* phone sheet */
+.phone{width:320px;margin:0 auto;background:#0B162B;border:8px solid #1F2C47;border-radius:36px;overflow:hidden;box-shadow:0 30px 60px -30px rgba(0,0,0,.7)}
+.ph-top{height:160px;background:#0D1729 url(/next/images/hero/umayyad-1080.webp) center/cover;opacity:.45}
+.sheet{background:var(--navy-2);border-radius:18px 18px 0 0;margin-top:-40px;position:relative;padding:12px 16px 18px}
+.grab{width:40px;height:4px;border-radius:4px;background:rgba(255,255,255,.25);margin:0 auto 12px}
+.sheet h4{font-size:17px}.sheet .sub{color:var(--muted);font-size:12.5px;margin-bottom:12px}
+.opt{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:8px}
+.opt.on{border-color:var(--gold);background:var(--gold-w)}
+.radio{width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.35);flex:none}
+.opt.on .radio{border:5px solid var(--gold)}
+.opt b{display:block;font-size:14px}.opt small{color:var(--muted);font-size:12px}
+.opt .pr{margin-inline-start:auto;font-family:'Lato';font-weight:700}
+.sum{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin:10px 0 12px}.sum b{color:#fff}
+/* trust + faq */
+.rules{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.rule{border-top:2px solid var(--gold);background:var(--navy-2);border-radius:0 0 12px 12px;padding:18px}
+.rule b{display:block;font-size:16px;margin-bottom:4px}.rule p{color:var(--muted);font-size:13.5px}
+.faq{max-width:820px;margin:0 auto;display:grid;gap:10px}
+details{background:var(--navy-2);border:1px solid var(--line);border-radius:10px;padding:14px 18px}
+summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between}
+summary::after{content:"+";color:var(--gold);font-size:20px;line-height:1}details[open] summary::after{content:"–"}
+details p{color:var(--muted);font-size:14px;margin-top:8px}
+.final{margin:30px auto 70px;max-width:900px;text-align:center;background:linear-gradient(135deg,var(--navy-3),var(--navy-2));border:1px solid rgba(202,144,81,.45);border-radius:16px;padding:34px 24px}
+.final h2{font-size:26px;font-weight:800}.final p{color:var(--muted);margin:6px 0 20px}
+.final .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}.final .btn{min-width:230px;padding:0 20px}
+@media (max-width:860px){
+  .plans,.steps,.rules,.duo{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}
+  h1{font-size:27px}.hero{padding:38px 0 24px}.hero p{font-size:15px}.sec-h h2{font-size:23px}
+  .hbar{height:70px}.logo img{width:36px;height:36px}.logo b{font-size:24px}.cta-add{padding:8px 12px;font-size:13px}
+  .wrap{padding-inline:16px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.stat{min-width:0;padding:10px 8px}.stat b{font-size:19px}.stat span{font-size:11.5px;line-height:1.4;display:block}
+  .aud{margin-top:30px}.plan .for{min-height:0}.mockbadge{top:auto;bottom:12px}
+}
+</style>
+</head>
+<body>
+<div class="mockbadge">نموذج للعرض فقط · الأسعار أمثلة</div>
+<header><div class="wrap hbar">
+  <a class="logo" href="#"><img src="/brand/mark.svg" alt=""><span><b>بلكون</b><small>BALKOUN</small></span></a>
+  <div class="htools"><a class="cta-add" href="#">+ أضف إعلانك</a><span class="hmb"><i></i><i></i><i></i></span></div>
+</div></header>
+<div class="crumb"><div class="wrap">الرئيسية <span>›</span> روّج إعلانك</div></div>
+
+<section class="hero"><div class="wrap">
+  <div class="eyebrow">إعلانات ممولة</div>
+  <h1>أوصل عقارك إلى <em>آلاف المهتمين</em> داخل سوريا وخارجها</h1>
+  <p>نصمّم لإعلانك ريلاً وصورة باسم بلكون، ونموّله على فيسبوك وإنستغرام، ونرفعه إلى أول الموقع. وتصلك أرقام النتائج يوماً بيوم.</p>
+  <div class="stats">
+    <div class="stat"><b>2,683</b><span>زائراً للموقع في 30 يوماً</span></div>
+    <div class="stat"><b>12,582</b><span>مشاهدة صفحة في 30 يوماً</span></div>
+    <div class="stat"><b>197</b><span>تواصلاً مع المعلنين في 30 يوماً</span></div>
+  </div>
+  <div class="stat-note">أرقام حقيقية من الموقع، تتحدّث تلقائياً.</div>
+
+  <div class="aud" role="tablist">
+    <button class="on" data-aud="ind">للأفراد والمالكين</button>
+    <button data-aud="ag">للمكاتب العقارية</button>
+  </div>
+</div></section>
+
+<section class="sec" style="padding-top:0"><div class="wrap">
+  <!-- individuals -->
+  <div class="plans" data-for="ind">
+    <div class="plan">
+      <div class="picon"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg></div>
+      <h3>تمييز على بلكون</h3><div class="for">لمن يريد أن يظهر أولاً لمن يبحث على الموقع.</div>
+      <div class="price"><b>$10</b><span>/ 7 أيام</span></div><span class="sample">سعر مثال</span>
+      <ul><li>أول نتائج البحث في منطقتك</li><li>شارة «مميز» على البطاقة</li><li>مكان في مربعات الصفحة الرئيسية</li><li class="off">إعلان ممول على فيسبوك وإنستغرام</li><li class="off">تقرير نتائج</li></ul>
+      <a class="btn" href="#">اختر هذه الباقة</a>
+    </div>
+    <div class="plan best"><span class="ribbon">الأكثر طلباً</span>
+      <div class="picon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9.5v5l4.5-2.5z"/></svg></div>
+      <h3>إعلان ممول</h3><div class="for">ريل وصورة من صور عقارك، نموّلهما لجمهور مختار داخل سوريا والمغتربين.</div>
+      <div class="price"><b>$25</b><span>/ 5 أيام، الميزانية مشمولة</span></div><span class="sample">سعر مثال</span>
+      <ul><li>ريل 12 ثانية بشعار بلكون وصوت</li><li>تمويل على فيسبوك وإنستغرام</li><li>استهداف: المدينة + المغتربون السوريون</li><li>الرسائل تصلك مباشرة على واتسابك</li><li>تقرير يومي بالأرقام</li></ul>
+      <a class="btn gold" href="#">اختر هذه الباقة</a>
+    </div>
+    <div class="plan">
+      <div class="picon"><svg viewBox="0 0 24 24"><path d="M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/></svg></div>
+      <h3>الباقة الكاملة</h3><div class="for">للعقارات التي تريد أن تُباع أو تُؤجَّر بسرعة.</div>
+      <div class="price"><b>$40</b><span>/ 14 يوماً</span></div><span class="sample">سعر مثال</span>
+      <ul><li>كل ما في «التمييز» لمدة 14 يوماً</li><li>إعلان ممول لمدة 7 أيام</li><li>منشور في مجموعات بلكون</li><li>إعادة نشر الريل بعد أسبوع</li><li>تقرير نهائي مفصّل</li></ul>
+      <a class="btn" href="#">اختر هذه الباقة</a>
+    </div>
+  </div>
+  <!-- agencies -->
+  <div class="plans hidden" data-for="ag">
+    <div class="plan">
+      <div class="picon"><svg viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h5"/></svg></div>
+      <h3>أساسية</h3><div class="for">لمكتب يبدأ مع بلكون.</div>
+      <div class="price"><b>$49</b><span>/ شهرياً</span></div><span class="sample">سعر مثال</span>
+      <ul><li>5 إعلانات مميزة في الشهر</li><li>شعار المكتب على بطاقاته</li><li>صفحة مكتب معتمدة</li><li class="off">مربع إعلاني في الرئيسية</li><li class="off">ريلات ممولة</li></ul>
+      <a class="btn" href="#">اطلب الباقة</a>
+    </div>
+    <div class="plan best"><span class="ribbon">الأنسب لمعظم المكاتب</span>
+      <div class="picon"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg></div>
+      <h3>احترافية</h3><div class="for">ظهور دائم وإعلانات ممولة كل أسبوعين.</div>
+      <div class="price"><b>$129</b><span>/ شهرياً</span></div><span class="sample">سعر مثال</span>
+      <ul><li>15 إعلاناً مميزاً في الشهر</li><li>مربع إعلاني ثابت في الرئيسية</li><li>ريلان ممولان في الشهر</li><li>تقرير شهري بالزيارات والرسائل</li><li>شعار المكتب على بطاقاته</li></ul>
+      <a class="btn gold" href="#">اطلب الباقة</a>
+    </div>
+    <div class="plan">
+      <div class="picon"><svg viewBox="0 0 24 24"><path d="M12 2l3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/></svg></div>
+      <h3>مميزة</h3><div class="for">للمكاتب والمطوّرين الذين يريدون الصدارة.</div>
+      <div class="price"><b>$249</b><span>/ شهرياً</span></div><span class="sample">سعر مثال</span>
+      <ul><li>إعلانات مميزة بلا حد</li><li>بانر في رأس صفحة البحث</li><li>4 ريلات ممولة في الشهر</li><li>حملة باسم المكتب مرة في الشهر</li><li>مسؤول حساب يردّ خلال ساعة</li></ul>
+      <a class="btn" href="#">اطلب الباقة</a>
+    </div>
+  </div>
+</div></section>
+
+<section class="sec"><div class="wrap">
+  <div class="sec-h"><h2>كيف يعمل</h2><p>بلا استمارات معقّدة. كل شيء من حسابك أو برسالة واتساب.</p></div>
+  <div class="steps">
+    <div class="step"><span class="n">1</span><b>اختر الباقة</b><p>من هذه الصفحة، أو من زر «روّج» بجانب إعلانك في «إعلاناتي».</p></div>
+    <div class="step"><span class="n">2</span><b>نراجع إعلانك</b><p>نتأكد أنه حقيقي، وسعره معلن، وصوره واضحة. خلال ساعة في أوقات العمل.</p></div>
+    <div class="step"><span class="n">3</span><b>ادفع بالطريقة التي تناسبك</b><p>يصلك رقم الطلب ومبلغه على واتساب.</p><div class="pay"><span>سيريتل كاش</span><span>MTN كاش</span><span>تحويل</span></div></div>
+    <div class="step"><span class="n">4</span><b>نطلق ونقيس</b><p>يبدأ الترويج، وتتابع الأرقام من حسابك يوماً بيوم.</p></div>
+  </div>
+</div></section>
+
+<section class="sec"><div class="wrap">
+  <div class="sec-h"><h2>ماذا تحصل في النهاية</h2><p>تقرير واضح، ومن داخل حسابك تطلب الترويج بنقرتين.</p></div>
+  <div class="duo">
+    <div class="card">
+      <div class="card-h"><b>تقرير الإعلان الممول</b><span class="tag">مثال</span></div>
+      <div class="rep-l"><div class="ph"></div><div><b>شقة للبيع 140 م² · المزة، دمشق</b><span>إعلان ممول · 5 أيام · انتهى</span></div></div>
+      <div class="kpis">
+        <div class="kpi"><b>18,400</b><span>ظهور</span></div>
+        <div class="kpi"><b>9,150</b><span>شاهدوا الريل</span></div>
+        <div class="kpi"><b>540</b><span>زاروا الإعلان</span></div>
+        <div class="kpi hi"><b>41</b><span>رسالة واتساب</span></div>
+      </div>
+      <div class="chart">
+        <div class="bar" style="height:42%"><i>62</i></div><div class="bar" style="height:78%"><i>118</i></div><div class="bar" style="height:100%"><i>151</i></div><div class="bar" style="height:84%"><i>127</i></div><div class="bar" style="height:54%"><i>82</i></div>
+      </div>
+      <div class="days"><span>اليوم 1</span><span>اليوم 2</span><span>اليوم 3</span><span>اليوم 4</span><span>اليوم 5</span></div>
+      <div class="rep-note">الأعمدة: زيارات الإعلان من الحملة كل يوم. الظهور والمشاهدات من فيسبوك وإنستغرام، والزيارات والرسائل يقيسها بلكون.</div>
+    </div>
+    <div>
+      <div class="phone">
+        <div class="ph-top"></div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <h4>روّج هذا الإعلان</h4><div class="sub">شقة للبيع 140 م² · المزة</div>
+          <div class="opt"><span class="radio"></span><div><b>تمييز على بلكون</b><small>7 أيام</small></div><span class="pr">$10</span></div>
+          <div class="opt on"><span class="radio"></span><div><b>إعلان ممول</b><small>5 أيام · فيسبوك وإنستغرام</small></div><span class="pr">$25</span></div>
+          <div class="opt"><span class="radio"></span><div><b>الباقة الكاملة</b><small>14 يوماً</small></div><span class="pr">$40</span></div>
+          <div class="sum"><span>رقم الطلب يصلك على واتساب</span><b>$25</b></div>
+          <a class="btn gold" href="#">أرسل الطلب</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<section class="sec"><div class="wrap">
+  <div class="sec-h"><h2>قواعدنا</h2></div>
+  <div class="rules">
+    <div class="rule"><b>نروّج الإعلانات الحقيقية فقط</b><p>إعلان بسعر معلن وصور حقيقية. إن رفضنا إعلانك يُعاد المبلغ كاملاً.</p></div>
+    <div class="rule"><b>نَعِد بالوصول، لا بالبيع</b><p>نضمن مدة الترويج وتقرير الأرقام. البيع يتوقف على العقار وسعره.</p></div>
+    <div class="rule"><b>الإعلان يبقى باسمك</b><p>الرسائل تصلك مباشرة، بلا وسيط وبلا عمولة على البيع.</p></div>
+  </div>
+</div></section>
+
+<section class="sec"><div class="wrap">
+  <div class="sec-h"><h2>أسئلة شائعة</h2></div>
+  <div class="faq">
+    <details open><summary>هل النشر على بلكون ما زال مجانياً؟</summary><p>نعم. النشر مجاني دائماً وبلا عمولة. الترويج خدمة إضافية لمن يريد وصولاً أكبر.</p></details>
+    <details><summary>كم يحتاج الإعلان الممول ليبدأ؟</summary><p>عادة في اليوم نفسه بعد المراجعة والدفع.</p></details>
+    <details><summary>من يرى الإعلان الممول؟</summary><p>أشخاص في المدينة التي فيها العقار، والسوريون في الخارج المهتمون بالعقار، حسب الباقة.</p></details>
+    <details><summary>هل أستطيع إيقاف الترويج؟</summary><p>نعم. تُعاد قيمة الأيام غير المستخدمة من الإعلان الممول.</p></details>
+  </div>
+</div></section>
+
+<div class="wrap"><div class="final">
+  <h2>جاهز تروّج عقارك؟</h2><p>اختر من إعلاناتك، أو أرسل لنا رابط الإعلان على واتساب.</p>
+  <div class="row"><a class="btn gold" href="#">روّج من إعلاناتي</a><a class="btn wa" href="#">اطلب عبر واتساب</a></div>
+</div></div>
+
+<script>
+document.querySelectorAll('[data-aud]').forEach(function(b){ b.onclick=function(){
+  document.querySelectorAll('[data-aud]').forEach(function(x){ x.classList.toggle('on', x===b) });
+  document.querySelectorAll('[data-for]').forEach(function(p){ p.classList.toggle('hidden', p.dataset.for!==b.dataset.aud) });
+} });
+</script>
+</body>
+</html>

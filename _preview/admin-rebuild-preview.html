@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>معاينة: الهيكل الجديد للوحة الإدارة — بلكون</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;600;700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#14213D; --navy-2:#0D1729; --gold:#C4881F; --gold-dk:#9c6c17;
+  --ink:#22252A; --grey:#5B6371; --light:#6E7583; --line:#E4E4E7; --line-2:#D3D4D8;
+  --page:#F4F2ED; --card:#FFF; --ok:#2E7D5B; --ok-w:#EAF5EF; --warn:#B45309; --danger:#B3271E;
+  --f:'Noto Kufi Arabic','Lato',system-ui,sans-serif; --fd:'Noto Kufi Arabic','Lato',system-ui,sans-serif;
+  --p-bg:#1a1a1a; --p-surface:#fff; --p-ink:#303030; --p-ink2:#616161; --p-ink3:#8a8a8a;
+  --p-line:#e3e3e3; --p-line2:#ebebeb; --p-dark:#303030; --p-darker:#1a1a1a; --p-hover:#f7f7f7; --p-sel:#f1f1f1;
+  --p-succ-bg:#affebf; --p-succ:#014b40; --p-warn-bg:#ffd6a4; --p-warn:#5e4200; --p-crit-bg:#fedad9; --p-crit:#8e1f0b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#f1f1f1;color:var(--ink);font-family:var(--f);font-size:14px;line-height:1.7;-webkit-font-smoothing:antialiased}
+
+/* ───────── disclaimer banner ───────── */
+.previewBanner{position:sticky;top:0;z-index:200;background:var(--gold);color:#241a05;font-weight:700;text-align:center;padding:8px 14px;font-size:13px;display:flex;gap:10px;align-items:center;justify-content:center}
+.previewBanner button{background:rgba(0,0,0,.12);border:0;color:inherit;border-radius:6px;padding:3px 10px;cursor:pointer;font:inherit;font-weight:700}
+.previewBanner.hidden{display:none}
+
+/* ───────── legend ───────── */
+.legend{position:fixed;inset-inline-end:16px;bottom:16px;z-index:150;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 8px 28px rgba(20,33,61,.18);padding:10px 14px;font-size:12.5px;display:flex;gap:14px;align-items:center}
+.legend b{display:inline-flex;align-items:center;gap:6px}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+.dot.new{background:var(--gold)}.dot.keep{background:var(--ok)}
+
+/* ───────── top bar ───────── */
+.adm{min-height:100vh;background:#1a1a1a}
+.adm-top{position:sticky;top:34px;z-index:120;display:flex;align-items:center;gap:14px;padding:0 18px;height:56px;background:var(--p-darker);color:#fff}
+.adm-brand{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.adm-logo{font-family:var(--fd);font-weight:800;color:var(--gold);font-size:19px}
+.adm-sub{font-size:11.5px;color:#9a9a9a}
+.adm-q{position:relative;flex:1;max-width:320px;display:flex;align-items:center;gap:6px;background:#2b2b2b;border-radius:8px;padding:0 10px;height:36px;color:#cfcfcf}
+.adm-q input{background:transparent;border:0;outline:0;color:#fff;font:inherit;font-size:13px;width:100%}
+.adm-actions{display:flex;align-items:center;gap:8px;margin-inline-start:auto}
+.adm-actions select{background:#2b2b2b;color:#fff;border:1px solid #3a3a3a;border-radius:7px;padding:6px 8px;font:inherit;font-size:12.5px}
+.ab{display:inline-flex;align-items:center;gap:6px;background:#2b2b2b;border:1px solid #3a3a3a;color:#fff;border-radius:7px;padding:7px 11px;font:inherit;font-size:12.5px;cursor:pointer;position:relative}
+.ab:hover{background:#363636}
+.ab.spin svg{animation:vspin .8s linear infinite}
+@keyframes vspin{to{transform:rotate(360deg)}}
+.bell{position:relative}
+.bell .bdg{position:absolute;top:-5px;inset-inline-end:-5px;background:var(--danger);color:#fff;font-size:10px;border-radius:9px;min-width:16px;height:16px;display:grid;place-items:center;padding:0 3px}
+.adm-me{display:flex;align-items:center;gap:7px;background:#2b2b2b;border:1px solid #3a3a3a;border-radius:20px;padding:4px 10px 4px 4px;cursor:pointer}
+.ava2{width:26px;height:26px;border-radius:50%;background:var(--gold);color:#241a05;display:grid;place-items:center;font-weight:800;font-size:12px}
+.tip{position:absolute;top:120%;inset-inline-end:0;background:#1a1a1a;color:#fff;border:1px solid #3a3a3a;border-radius:8px;padding:9px 11px;font-size:11.5px;line-height:1.6;width:230px;box-shadow:0 10px 30px rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .15s;z-index:50}
+.ab:hover .tip{opacity:1}
+.newtag{background:var(--gold);color:#241a05;font-size:10px;font-weight:800;border-radius:5px;padding:1px 6px;margin-inline-start:4px}
+
+/* ───────── shell ───────── */
+.ashell{display:flex;align-items:flex-start;background:#1a1a1a}
+.asidebar{width:238px;flex-shrink:0;background:#1a1a1a;padding:12px 10px;position:sticky;top:90px;height:calc(100vh - 90px);overflow:auto;color:#e3e3e3}
+.asidebar-label{display:flex;align-items:center;justify-content:space-between;width:100%;background:none;border:0;cursor:pointer;font:inherit;text-align:start;color:var(--gold);font-size:10.5px;font-weight:700;letter-spacing:.06em;padding:10px 10px 4px}
+.asidebar-items{display:flex;flex-direction:column;gap:2px;margin-bottom:6px}
+.atab{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:7px;color:#cfcfcf;text-decoration:none;font-size:13px;cursor:pointer;border:0;background:none;width:100%;text-align:start;font-family:inherit}
+.atab:hover{background:#262626}
+.atab.on{background:var(--p-dark);color:#fff;font-weight:700}
+.atab svg{width:16px;height:16px;flex-shrink:0;opacity:.85}
+.atab .abadge2{margin-inline-start:auto;background:var(--danger);color:#fff;border-radius:9px;font-size:10.5px;min-width:17px;height:17px;display:grid;place-items:center;padding:0 4px}
+
+.acontent{flex:1;min-width:0;background:#f1f1f1;border-radius:16px 16px 0 0;padding:22px 26px 90px;min-height:calc(100vh - 90px)}
+.apage-crumb{font-size:12px;color:var(--light)}
+.apage-h{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:16px;flex-wrap:wrap}
+.apage-h h1{font-size:21px;font-weight:800;color:var(--navy);margin:2px 0 3px;font-family:var(--fd)}
+.apage-h p{font-size:13px;color:var(--grey);max-width:560px}
+.apage-h .flag{background:#fff;border:1px solid var(--line);border-radius:20px;padding:5px 12px;font-size:12.5px;display:inline-flex;gap:6px;align-items:center}
+
+.blk{background:#fff;border:1px solid #E3E6EC;border-radius:12px;margin:0 0 16px;box-shadow:0 1px 2px rgba(20,33,61,.04)}
+.blk>h3{font-size:14.5px;padding:13px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px}
+.blk>.in{padding:16px}
+.fl{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.fl label{font-size:12.5px;color:var(--grey);font-weight:600}
+.fl input,.fl select{border:1px solid var(--line-2);border-radius:6px;padding:8px 11px;font-size:13.5px;font-family:inherit}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.xcheck{display:flex;align-items:center;gap:8px;font-size:13px;padding:9px 0}
+
+/* ───────── sticky section nav (existing pattern, kept) ───────── */
+.asecnav{position:sticky;top:90px;z-index:30;display:flex;gap:6px;overflow-x:auto;padding:8px 0;margin:-4px 0 14px;background:linear-gradient(#f1f1f1 82%,rgba(241,241,241,0))}
+.asecnav button{height:30px;padding:0 13px;border-radius:16px;border:1px solid var(--line-2);background:#fff;font:inherit;font-size:12.5px;color:var(--grey);cursor:pointer;white-space:nowrap}
+.asecnav button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.acsec{scroll-margin-top:132px}
+
+/* ───────── toolbar (unified pattern) ───────── */
+.lbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 12px}
+.lbar input[type=search]{border:1px solid var(--line-2);border-radius:7px;padding:7px 11px;font:inherit;font-size:13px;min-width:200px}
+.lbar select{border:1px solid var(--line-2);border-radius:7px;padding:7px 9px;font:inherit;font-size:12.5px;background:#fff}
+.lbar .lcnt{font-weight:700;color:var(--navy);font-size:13px}
+.lbar .sp{flex:1}
+
+/* ───────── table w/ sticky header (NEW) ───────── */
+.atableWrap{background:#fff;border:1px solid #E3E6EC;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(20,33,61,.04);position:relative}
+.scrollBox{max-height:460px;overflow:auto;position:relative}
+table.ltbl{width:100%;border-collapse:collapse;font-size:13px}
+table.ltbl thead th{position:sticky;top:0;background:#FAFAF8;z-index:5;text-align:start;font-size:11.5px;color:var(--light);font-weight:700;padding:10px 14px;border-bottom:1px solid var(--line);box-shadow:0 1px 0 var(--line)}
+table.ltbl td{padding:11px 14px;border-bottom:1px solid #EFEFEF;vertical-align:middle}
+table.ltbl tr:hover td{background:#F8FAFC}
+.ltitle{display:flex;align-items:center;gap:10px}
+.thumb{width:40px;height:40px;border-radius:8px;background:linear-gradient(135deg,#dfe3ea,#c7cdd8);flex-shrink:0}
+.st{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;border-radius:14px;padding:3px 9px}
+.st-live{background:var(--ok-w);color:var(--ok)}.st-pending{background:#FFF3DF;color:var(--warn)}.st-hidden{background:#EFEFEF;color:var(--light)}
+
+/* ───────── pagination (NEW) ───────── */
+.pager{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:11px 14px;border-top:1px solid var(--line);font-size:12.5px;color:var(--grey)}
+.pager .pages{display:flex;gap:4px}
+.pager button{width:30px;height:30px;border-radius:7px;border:1px solid var(--line-2);background:#fff;cursor:pointer;font:inherit;font-size:12.5px}
+.pager button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.pager select{border:1px solid var(--line-2);border-radius:6px;padding:4px 7px;font:inherit;font-size:12px}
+
+.badgeTag{position:absolute;top:-10px;inset-inline-start:14px;background:var(--gold);color:#241a05;font-size:10.5px;font-weight:800;border-radius:6px;padding:2px 8px;box-shadow:0 2px 6px rgba(0,0,0,.18);z-index:6}
+.badgeTag.keep{background:var(--ok)}
+
+/* ───────── drawer ───────── */
+.ldrawer{position:fixed;inset-inline-end:0;top:90px;bottom:0;width:360px;background:#fff;border-inline-start:1px solid var(--line);box-shadow:-10px 0 30px rgba(20,33,61,.12);z-index:60;padding:16px;transform:translateX(105%);transition:transform .2s;overflow:auto}
+[dir=rtl] .ldrawer{transform:translateX(-105%)}
+.ldrawer.open{transform:none}
+.ld-hd{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ld-hd h2{font-size:15px;flex:1}
+.lx{background:none;border:0;cursor:pointer;font-size:16px;color:var(--light)}
+
+/* ───────── toast / pulse ───────── */
+#toast{position:fixed;bottom:22px;inset-inline-start:50%;transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:10px 20px;border-radius:30px;font-size:13px;opacity:0;transition:.25s;z-index:300;pointer-events:none}
+[dir=rtl] #toast{transform:translateX(50%) translateY(20px)}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+[dir=rtl] #toast.on{transform:translateX(50%) translateY(0)}
+.pulse{animation:pulseKF .9s ease}
+@keyframes pulseKF{0%{background:#FFF3DF}100%{background:transparent}}
+
+@media(max-width:860px){.asidebar{position:fixed;inset-inline-start:0;top:90px;bottom:0;transform:translateX(-105%);z-index:140;width:min(84vw,300px)}[dir=rtl] .asidebar{transform:translateX(105%)}.asidebar.open{transform:none}.ldrawer{width:100%}}
+</style>
+</head>
+<body>
+
+<div class="previewBanner" id="banner">
+  🧪 هذا عرض تصميمي للهيكل الجديد فقط — بيانات وهمية، بلا اتصال بقاعدة البيانات. جرّب: افتح «الإعلانات»، مرّر لتحت، ثم اضغط «تحديث» في الأعلى ولاحظ أن الصفحة لا تتحرك.
+  <button onclick="document.getElementById('banner').classList.add('hidden')">إخفاء ✕</button>
+</div>
+
+<div class="adm">
+  <header class="adm-top">
+    <div class="adm-brand"><span class="adm-logo">بلكون</span><span class="adm-sub">لوحة الإدارة</span></div>
+    <label class="adm-q">🔎<input placeholder="بحث في اللوحة... (مثال: المناطق)"></label>
+    <div class="adm-actions">
+      <select><option>🇸🇾 سوريا</option><option>🌍 كل الدول</option></select>
+      <select><option>AR</option><option>EN</option><option>DE</option></select>
+      <button class="ab bell">🔔<span class="bdg">5</span></button>
+      <button class="ab" id="refreshBtn">↻ <span>تحديث</span>
+        <span class="tip">🆕 يُحدّث البيانات في مكانها فقط — لا تتحرك الصفحة، ولا تُغلق أي نافذة جانبية مفتوحة.</span>
+      </button>
+      <div class="adm-me"><span class="ava2">س</span><span>سامر</span></div>
+      <button class="ab">خروج</button>
+    </div>
+  </header>
+
+  <div class="ashell">
+    <nav class="asidebar" id="sidebar">
+      <div class="asidebar-label">نظرة عامة</div>
+      <div class="asidebar-items">
+        <button class="atab" data-go="dash">📊 لوحة التحكم</button>
+        <button class="atab" data-go="other">📈 إحصاءات الزوار</button>
+        <button class="atab" data-go="other">📥 صندوق الوارد <span class="abadge2" id="inboxBdg">4</span></button>
+      </div>
+      <div class="asidebar-label">الدول والأسواق</div>
+      <div class="asidebar-items"><button class="atab" data-go="other">🌍 الدول</button></div>
+      <div class="asidebar-label">الإعلانات</div>
+      <div class="asidebar-items">
+        <button class="atab on" data-go="listings">🏠 الإعلانات <span class="abadge2" id="listBdg">428</span></button>
+        <button class="atab" data-go="other">🖼 مكتبة الوسائط</button>
+        <button class="atab" data-go="other">🔎 الطلبات (مطلوب)</button>
+        <button class="atab" data-go="other">💬 النشر بالرسائل</button>
+      </div>
+      <div class="asidebar-label">الأشخاص</div>
+      <div class="asidebar-items">
+        <button class="atab" data-go="other">👤 المستخدمون</button>
+        <button class="atab" data-go="other">🏢 المكاتب</button>
+        <button class="atab" data-go="other">⭐ التقييمات</button>
+        <button class="atab" data-go="other">🧪 حسابات تجريبية</button>
+        <button class="atab" data-go="other">📞 التواصل مع المكاتب</button>
+      </div>
+      <div class="asidebar-label">التسويق والإيرادات</div>
+      <div class="asidebar-items">
+        <button class="atab" data-go="other">📣 الترويج والإعلانات</button>
+        <button class="atab" data-go="other">🏗 المشاريع</button>
+        <button class="atab" data-go="other">✉️ الحملات والرسائل</button>
+      </div>
+      <div class="asidebar-label">الموقع</div>
+      <div class="asidebar-items">
+        <button class="atab" data-go="other">🏠 الصفحة الرئيسية</button>
+        <button class="atab" data-go="other">🎨 البحث والبطاقات</button>
+        <button class="atab" data-go="other">🗺 المناطق</button>
+        <button class="atab" data-go="other">📨 التواصل</button>
+        <button class="atab" data-go="settings">⚙️ إعدادات النظام</button>
+      </div>
+    </nav>
+
+    <main class="acontent" id="content"></main>
+  </div>
+</div>
+
+<aside class="ldrawer" id="drawer">
+  <div class="ld-hd"><h2 id="drawerTitle">—</h2><button class="lx" onclick="closeDrawer()">✕</button></div>
+  <div class="fl"><label>الحالة</label><select><option>منشور</option><option>مخفي</option></select></div>
+  <div class="fl"><label>السعر</label><input value="85,000$"></div>
+  <p style="font-size:12px;color:var(--grey);margin-top:10px">جرّب فتح هذه النافذة، ثم اضغط «تحديث» بالأعلى — تبقى مفتوحة كما هي.</p>
+</aside>
+
+<div id="toast"></div>
+
+<div class="legend">
+  <b><span class="dot new"></span> جديد في هذا الهيكل</b>
+  <b><span class="dot keep"></span> موجود حالياً — بلا تغيير</b>
+</div>
+
+<script>
+var ROWS=[];
+var GOVS=["دمشق","ريف دمشق","حلب","حمص","اللاذقية","حماة","طرطوس","درعا"];
+var TYPES=["شقة للبيع","شقة للإيجار","فيلا للبيع","محل للإيجار","أرض للبيع","مكتب للإيجار"];
+var WHO=["مالك","مكتب الشام","مكتب النخبة","عضو"];
+var STS=[["live","منشور"],["pending","قيد المراجعة"],["hidden","مخفي"]];
+for(var i=1;i<=428;i++){
+  ROWS.push({id:10000+i,title:TYPES[i%TYPES.length],gov:GOVS[i%GOVS.length],price:(20+(i%60))+",000$",who:WHO[i%WHO.length],st:STS[i%3],date:"2026-10-"+String((i%28)+1).padStart(2,"0")});
+}
+var PAGE=1, PSIZE=10;
+
+function toast(msg){ var el=document.getElementById('toast'); el.textContent=msg; el.classList.add('on'); clearTimeout(el._t); el._t=setTimeout(function(){ el.classList.remove('on') },2200); }
+
+function pageRows(){ var s=(PAGE-1)*PSIZE; return ROWS.slice(s,s+PSIZE); }
+function totalPages(){ return Math.ceil(ROWS.length/PSIZE); }
+
+function listingsPage(){
+  var rows=pageRows().map(function(r){
+    return '<tr onclick="openDrawer(\''+r.title+' — SY'+r.id+'\')"><td><div class="ltitle"><div class="thumb"></div><div><b>'+r.title+'</b><div style="font-size:11.5px;color:var(--light)">SY'+r.id+'</div></div></div></td>'+
+      '<td>'+r.gov+'</td><td>'+r.price+'</td><td>'+r.who+'</td>'+
+      '<td><span class="st st-'+r.st[0]+'">'+r.st[1]+'</span></td><td style="color:var(--light);font-size:12px">'+r.date+'</td></tr>';
+  }).join("");
+  var tp=totalPages(), from=(PAGE-1)*PSIZE+1, to=Math.min(PAGE*PSIZE,ROWS.length);
+  var pageBtns=""; var start=Math.max(1,PAGE-2), end=Math.min(tp,start+4);
+  for(var p=start;p<=end;p++){ pageBtns+='<button class="'+(p===PAGE?'on':'')+'" onclick="gotoPage('+p+')">'+p+'</button>'; }
+  return ''+
+  '<div class="apage-h"><div><div class="apage-crumb">الإعلانات</div><h1>الإعلانات <span style="color:var(--light);font-weight:400;font-size:15px">('+ROWS.length+')</span></h1>'+
+    '<p>كل العقارات المنشورة والمعلّقة والمخفية، مع فلاتر وبحث.</p></div><span class="flag">🇸🇾 سوريا</span></div>'+
+  '<div class="lbar"><span class="lcnt">'+ROWS.length+' نتيجة</span><input type="search" placeholder="بحث بالعنوان أو رقم الإعلان..."><select><option>كل الحالات</option><option>منشور</option><option>قيد المراجعة</option><option>مخفي</option></select><select><option>كل المحافظات</option>'+GOVS.map(function(g){return '<option>'+g+'</option>'}).join("")+'</select><span class="sp"></span><select><option>الأحدث</option><option>الأكثر مشاهدة</option></select></div>'+
+  '<div class="atableWrap"><span class="badgeTag">🆕 ترويسة لاصقة</span>'+
+   '<div class="scrollBox"><table class="ltbl"><thead><tr><th>العنوان</th><th>المحافظة</th><th>السعر</th><th>من</th><th>الحالة</th><th>التاريخ</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+
+   '<div class="pager"><span>عرض '+from+'–'+to+' من '+ROWS.length+'</span><div class="pages"><button onclick="gotoPage(Math.max(1,'+PAGE+'-1))">‹</button>'+pageBtns+'<button onclick="gotoPage(Math.min('+tp+','+PAGE+'+1))">›</button></div><span style="display:flex;align-items:center;gap:6px">لكل صفحة <select onchange="PSIZE=+this.value;PAGE=1;render()"><option '+(PSIZE===10?'selected':'')+'>10</option><option '+(PSIZE===25?'selected':'')+'>25</option><option '+(PSIZE===50?'selected':'')+'>50</option></select></span></div>'+
+  '</div>'+
+  '<p style="margin-top10px;color:var(--light);font-size:11.5px;margin-top:10px">🆕 جديد أيضاً: شريط أدوات واحد بنفس الشكل والترتيب في كل صفحات القوائم (الإعلانات، المستخدمون، المكاتب...).</p>';
+}
+
+function settingsPage(){
+  var secs=[
+    {t:"معلومات عامة",f:["اسم الموقع","البريد للتواصل","رمز الدولة الافتراضي"]},
+    {t:"الصلاحيات والمدراء",f:["دعوة مدير جديد","صلاحيات كل مدير","سجل الدخول الأخير"]},
+    {t:"الإشعارات",f:["إشعارات واتساب للمالك","إشعار عند إعلان جديد","إشعار عند تقييم جديد"]},
+    {t:"وضع الصيانة",f:["تفعيل وضع الصيانة","رسالة الصيانة للزوار"]},
+    {t:"خيارات متقدمة",f:["سعر الصرف اليدوي","أقصى عدد صور بالإعلان","مهلة انتهاء الطلبات"]}
+  ];
+  var nav='<nav class="asecnav" id="secnav">'+secs.map(function(s,i){return '<button data-sec="'+i+'" onclick="jumpSec('+i+')">'+s.t+'</button>'}).join("")+'</nav>';
+  var cards=secs.map(function(s,i){
+    return '<div class="blk acsec" id="sec'+i+'" data-sec="'+i+'"><h3>'+s.t+'</h3><div class="in">'+s.f.map(function(f){return '<div class="fl"><label>'+f+'</label><input placeholder="—"></div>'}).join("")+'<label class="xcheck"><input type="checkbox"> <span>مثال خيار تبديل</span></label></div></div>';
+  }).join("");
+  return '<div class="apage-h"><div><div class="apage-crumb">الموقع · إعدادات النظام</div><h1>إعدادات النظام</h1><p>كل ضبط الموقع العام، مقسّم إلى أقسام قصيرة بدل صفحة واحدة طويلة.</p></div></div>'+
+   '<div style="position:relative"><span class="badgeTag keep" style="position:static;display:inline-block;margin-bottom:8px">✅ موجود حالياً — بلا تغيير</span></div>'+
+   nav+cards;
+}
+
+function render(){
+  var c=document.getElementById('content');
+  if(CUR==="listings") c.innerHTML=listingsPage();
+  else if(CUR==="settings") c.innerHTML=settingsPage();
+  if(CUR==="settings") setupScrollSpy();
+}
+function gotoPage(p){ PAGE=p; render(); }
+function jumpSec(i){ var el=document.getElementById('sec'+i); if(!el) return; var y=el.getBoundingClientRect().top+window.scrollY-130; window.scrollTo({top:y,behavior:'smooth'}); }
+function setupScrollSpy(){
+  var blks=[].slice.call(document.querySelectorAll('.acsec'));
+  if(!('IntersectionObserver' in window)) return;
+  var vis={};
+  var io=new IntersectionObserver(function(es){ es.forEach(function(x){ vis[x.target.id]=x.isIntersecting }); var first=blks.find(function(b){return vis[b.id]}); document.querySelectorAll('#secnav button').forEach(function(bt,i){ bt.classList.toggle('on', blks[i]===first) }); },{rootMargin:"-140px 0px -55% 0px"});
+  blks.forEach(function(b){ io.observe(b) });
+}
+
+var CUR="listings";
+document.querySelectorAll('[data-go]').forEach(function(btn){
+  btn.onclick=function(){
+    var g=this.dataset.go;
+    if(g==="other"){ toast("هذا جزء من اللوحة الحقيقية — غير مُفعّل في هذا العرض التصميمي"); return; }
+    document.querySelectorAll('.atab').forEach(function(a){a.classList.remove('on')}); this.classList.add('on');
+    CUR = g==="dash" ? "listings" : g;
+    window.scrollTo(0,0);
+    render();
+  };
+});
+
+function openDrawer(title){ document.getElementById('drawerTitle').textContent=title; document.getElementById('drawer').classList.add('open'); }
+function closeDrawer(){ document.getElementById('drawer').classList.remove('open'); }
+
+document.getElementById('refreshBtn').addEventListener('click', function(){
+  var btn=this; btn.classList.add('spin');
+  var before=window.scrollY;
+  setTimeout(function(){
+    btn.classList.remove('spin');
+    // bump some badge numbers to simulate fresh data, WITHOUT touching scroll or the open drawer
+    var ib=document.getElementById('inboxBdg'); if(ib){ ib.textContent = (+ib.textContent)+1; ib.classList.add('pulse'); setTimeout(function(){ib.classList.remove('pulse')},900); }
+    var lb=document.getElementById('listBdg'); if(lb){ lb.classList.add('pulse'); setTimeout(function(){lb.classList.remove('pulse')},900); }
+    toast("تحديث ✓ — لاحظ أن موضع التمرير لم يتغيّر (" + Math.round(before) + "px)");
+  },650);
+});
+
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>محرر الموقع على الجوال — نموذج</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#14213D;--gold:#C4881F;--goldw:#FBF3E4;--page:#F4F2ED;--ink:#1B2333;--ink2:#5B6475;--line:#E6E8EC;--hover:#EFEDE7;--ok:#2E7D5B}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{font-family:"Noto Kufi Arabic",system-ui,sans-serif;background:#E4E1D9;color:var(--ink);min-height:100vh;display:flex;align-items:center;justify-content:center;gap:34px;padding:20px}
+.col{display:flex;flex-direction:column;align-items:center;gap:12px}
+.cap{font-size:14px;font-weight:700;color:var(--navy)}
+.cap small{display:block;font-weight:500;color:var(--ink2);font-size:12px;text-align:center;margin-top:2px}
+.phone{width:300px;height:620px;border-radius:38px;background:#0B0F19;padding:10px;box-shadow:0 20px 50px rgba(20,33,61,.25)}
+.scr{width:100%;height:100%;border-radius:30px;overflow:hidden;background:#fff;position:relative;display:flex;flex-direction:column;font-size:12px}
+.stat{height:26px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:11px;font-weight:700;background:var(--navy);color:#fff;direction:ltr}
+/* editor bar */
+.eb{height:46px;background:var(--navy);display:flex;align-items:center;gap:6px;padding:0 10px;color:#fff}
+.eb .x{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:#22305A}
+.eb .pp{flex:1;height:30px;border-radius:8px;background:#22305A;display:flex;align-items:center;justify-content:space-between;padding:0 10px;font-weight:700;font-size:12px}
+.eb .sv{height:30px;border-radius:8px;background:var(--gold);color:#1A1206;font-weight:800;padding:0 12px;display:grid;place-items:center}
+/* preview (phone layout of the site) */
+.pv{flex:1;overflow:hidden;position:relative;background:#fff}
+.snav{height:38px;background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:0 12px;color:#DCE4F5}
+.snav b{color:var(--gold);font-size:14px}
+.hero{background:radial-gradient(120% 90% at 20% 30%,#22345E 0%,#14213D 60%,#0F1A31 100%);color:#fff;padding:22px 14px 18px}
+.hero h1{margin:0;font-size:21px;line-height:1.45;font-weight:800}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p{margin:6px 0 12px;color:#B9C6E2;font-size:11px}
+.sb{background:#fff;border-radius:12px;padding:7px;color:var(--ink2)}
+.sb .t{display:flex;gap:4px;margin-bottom:6px}.sb .t span{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:#F2F1EC}.sb .t span.on{background:var(--navy);color:#fff}
+.sb .f{height:32px;border:1px solid var(--line);border-radius:8px;display:flex;align-items:center;padding:0 8px;font-size:11px;margin-bottom:5px}
+.sb .go{height:32px;border-radius:8px;background:var(--gold);color:#1A1206;font-weight:800;display:grid;place-items:center}
+.sec{padding:14px}
+.sec h2{margin:0 0 8px;font-size:14px;color:var(--navy)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.card{border:1px solid var(--line);border-radius:10px;overflow:hidden}.card i{display:block;height:62px}.card div{padding:5px 7px;font-size:10.5px}.card b{display:block;color:var(--navy);direction:ltr;text-align:right}
+.pick{position:absolute;border:2px solid var(--gold);border-radius:6px;pointer-events:none}
+.pick span{position:absolute;top:-19px;inset-inline-start:-2px;background:var(--gold);color:#1A1206;font-size:10px;font-weight:800;border-radius:5px 5px 0 0;padding:1px 7px}
+/* bottom sheet */
+.sheet{position:absolute;inset-inline:0;bottom:0;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -10px 30px rgba(20,33,61,.18);display:flex;flex-direction:column}
+.grab{width:38px;height:4px;border-radius:2px;background:#D3D6DC;margin:8px auto 4px}
+.sh{display:flex;align-items:center;justify-content:space-between;padding:4px 14px 8px}
+.sh b{font-size:13.5px}
+.sh .bk{display:flex;align-items:center;gap:6px}
+.sh .dev{font-size:10px;background:var(--goldw);color:#8A5D10;border-radius:999px;padding:1px 8px;font-weight:700}
+.bar{display:flex;gap:6px;padding:0 12px 12px}
+.bar .bt{flex:1;height:42px;border-radius:12px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;gap:6px;font-weight:700;font-size:12px}
+.bar .bt.pri{background:var(--navy);color:#fff;border-color:var(--navy)}
+.list{overflow:hidden;padding:0 8px}
+.g{font-size:10.5px;font-weight:700;color:var(--ink2);padding:8px 8px 4px}
+.r{display:flex;align-items:center;gap:8px;height:44px;padding:0 8px;border-bottom:1px solid #F0F1F3}
+.r .gr{color:#A8AEB9;font-size:13px}
+.r .nm{flex:1;font-weight:600;font-size:12.5px}
+.r .ey{color:var(--ink2)}
+.r.off .nm{opacity:.45}
+.r.sel{background:var(--goldw);border-radius:10px;border-bottom-color:transparent}
+.r .ch{color:var(--ink2)}
+.form{padding:0 14px;overflow:hidden}
+.fg{border-top:1px solid var(--line);padding:10px 0}
+.fg h4{margin:0 0 8px;font-size:11.5px;display:flex;justify-content:space-between;align-items:center}
+.q{width:16px;height:16px;border-radius:50%;border:1px solid #C7CBD3;color:var(--ink2);display:grid;place-items:center;font-size:10px}
+.lb{display:flex;justify-content:space-between;font-size:11px;color:var(--ink2);font-weight:600;margin-bottom:4px}
+.lg span{font-size:9px;font-weight:800;border-radius:4px;padding:0 4px;margin-inline-start:2px}.lg .y{background:#E6F4EC;color:var(--ok)}.lg .n{background:#F1F2F4;color:#9AA1AE}
+.in{height:44px;border:1px solid #C9CDD5;border-radius:10px;display:flex;align-items:center;padding:0 11px;font-size:14px;margin-bottom:9px}
+.tg{display:flex;align-items:center;justify-content:space-between;height:40px;font-weight:700;font-size:12.5px}
+.sw{width:38px;height:22px;border-radius:999px;background:var(--gold);position:relative}.sw:after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:16px;height:16px;border-radius:50%;background:#fff}
+.dim{position:absolute;inset:0;background:rgba(9,14,26,.18)}
+</style>
+</head>
+<body>
+<!-- 1 · the page itself fills the phone; a slim bar at the bottom opens the sections -->
+<div class="col">
+  <div class="phone"><div class="scr">
+    <div class="stat"><span>9:41</span><span>●●● 5G</span></div>
+    <div class="eb"><span class="x">✕</span><span class="pp">الصفحة الرئيسية <span>▾</span></span><span class="sv">حفظ</span></div>
+    <div class="pv">
+      <div class="snav"><b>بلكون</b><span>☰</span></div>
+      <div class="hero"><h1 id="a1">بيتك القادم <em>يبدأ من الشرفة.</em></h1><p>آلاف العقارات في سوريا — بيع، إيجار، ومكاتب موثّقة.</p>
+        <div class="sb"><div class="t"><span class="on">للبيع</span><span>للإيجار</span><span>مطلوب</span></div><div class="f">المحافظة</div><div class="f">نوع العقار</div><div class="go">ابحث</div></div></div>
+      <div class="sec"><h2>الإعلانات المميزة</h2><div class="cards"><div class="card"><i style="background:linear-gradient(135deg,#C9B79C,#8E7A5F)"></i><div><b>$36,000</b>أرض · إدلب</div></div><div class="card"><i style="background:linear-gradient(135deg,#A9B8C9,#5E7389)"></i><div><b>$25,000</b>شقة · دمشق</div></div></div></div>
+      <div class="sheet"><div class="grab"></div><div class="bar"><span class="bt pri">☰ الأقسام</span><span class="bt">جوال ▾</span><span class="bt">عربي ▾</span></div></div>
+    </div>
+  </div></div>
+  <div class="cap">١ · الصفحة بحجمها<small>اضغط أي جزء لتعديله، أو «الأقسام»</small></div>
+</div>
+
+<!-- 2 · the sections slide up over the page -->
+<div class="col">
+  <div class="phone"><div class="scr">
+    <div class="stat"><span>9:41</span><span>●●● 5G</span></div>
+    <div class="eb"><span class="x">✕</span><span class="pp">الصفحة الرئيسية <span>▾</span></span><span class="sv">حفظ</span></div>
+    <div class="pv">
+      <div class="snav"><b>بلكون</b><span>☰</span></div>
+      <div class="hero"><h1>بيتك القادم <em>يبدأ من الشرفة.</em></h1></div>
+      <div class="dim"></div>
+      <div class="sheet" style="height:82%"><div class="grab"></div>
+        <div class="sh"><b>أقسام الصفحة</b><span style="color:#1F6FEB;font-weight:700">+ قسم</span></div>
+        <div class="list">
+          <div class="g">الرأس</div>
+          <div class="r"><span class="gr">⋮⋮</span><span class="nm">شريط التنقّل</span><span class="ch">‹</span></div>
+          <div class="g">أقسام الصفحة</div>
+          <div class="r sel"><span class="gr">⋮⋮</span><span class="nm">الترحيب</span><span class="ey">◉</span><span class="ch">‹</span></div>
+          <div class="r"><span class="gr">⋮⋮</span><span class="nm">المربعات الإعلانية</span><span class="ey">◉</span><span class="ch">‹</span></div>
+          <div class="r"><span class="gr">⋮⋮</span><span class="nm">الإعلانات المميزة</span><span class="ey">◉</span><span class="ch">‹</span></div>
+          <div class="r"><span class="gr">⋮⋮</span><span class="nm">عن عقارات سوريا</span><span class="ey">◉</span><span class="ch">‹</span></div>
+          <div class="r off"><span class="gr">⋮⋮</span><span class="nm">البانرات</span><span class="ey" style="color:#9AA1AE">⊘</span><span class="ch">‹</span></div>
+          <div class="r off"><span class="gr">⋮⋮</span><span class="nm">نبض السوق</span><span class="ey" style="color:#9AA1AE">⊘</span><span class="ch">‹</span></div>
+          <div class="r"><span class="gr">⋮⋮</span><span class="nm">الأكثر مشاهدة</span><span class="ey">◉</span><span class="ch">‹</span></div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap">٢ · الأقسام<small>اسحب ⋮⋮ للترتيب · ◉ إظهار/إخفاء</small></div>
+</div>
+
+<!-- 3 · one item's settings, the page still visible above -->
+<div class="col">
+  <div class="phone"><div class="scr">
+    <div class="stat"><span>9:41</span><span>●●● 5G</span></div>
+    <div class="eb"><span class="x">✕</span><span class="pp">الصفحة الرئيسية <span>▾</span></span><span class="sv">حفظ</span></div>
+    <div class="pv">
+      <div class="snav"><b>بلكون</b><span>☰</span></div>
+      <div class="hero" style="padding-top:26px"><h1 id="c1">بيتك القادم <em>يبدأ من الشرفة.</em></h1></div>
+      <div class="sheet" style="height:68%"><div class="grab"></div>
+        <div class="sh"><span class="bk"><span style="font-size:15px">›</span><b>العنوان الرئيسي</b></span><span class="dev">جوال</span></div>
+        <div class="form">
+          <div class="tg">إظهار العنوان <span class="sw"></span></div>
+          <div class="fg"><h4>النص <span class="q">؟</span></h4>
+            <div class="lb">العنوان <span class="lg"><span class="y">AR</span><span class="y">EN</span><span class="n">DE</span></span></div><div class="in">بيتك القادم</div>
+            <div class="lb">الجزء المميّز <span class="lg"><span class="y">AR</span><span class="y">EN</span><span class="n">DE</span></span></div><div class="in">يبدأ من الشرفة.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+  <div class="cap">٣ · إعدادات العنصر<small>الصفحة فوقها تتغيّر وأنت تكتب</small></div>
+</div>
+
+<div class="pick" id="pa"><span>العنوان الرئيسي</span></div>
+<div class="pick" id="pc"><span>العنوان الرئيسي</span></div>
+<script>
+function place(p,el){ var r=document.getElementById(el).getBoundingClientRect(), d=document.getElementById(p); d.style.left=(r.left-4)+"px"; d.style.top=(r.top-4)+"px"; d.style.width=(r.width+8)+"px"; d.style.height=(r.height+8)+"px" }
+function go(){ place("pa","a1"); place("pc","c1") } document.fonts.ready.then(go); window.onresize=go; go();
+</script>
+</body>
+</html>

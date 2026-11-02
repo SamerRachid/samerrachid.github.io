@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>محرر الموقع — نموذج ٢</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#14213D;--navy2:#22305A;--navy3:#2C3B66;--gold:#C4881F;--gold2:#E2B55C;--goldw:#FBF3E4;--page:#F4F2ED;--side:#FCFBF8;--ink:#1B2333;--ink2:#5B6475;--ink3:#8B93A3;--line:#E6E8EC;--hover:#F1EFE9;--blue:#1F6FEB;--ok:#2E7D5B;--bad:#B3261E}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{font-family:"Noto Kufi Arabic",system-ui,sans-serif;font-size:13px;color:var(--ink);background:var(--page);overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.i.s{width:15px;height:15px}
+/* ── top bar ── */
+.top{height:56px;background:var(--navy);color:#fff;display:flex;align-items:center;gap:8px;padding:0 12px;position:relative;z-index:5}
+.tb{height:34px;border-radius:9px;border:1px solid var(--navy3);background:var(--navy2);color:#fff;display:inline-flex;align-items:center;gap:7px;padding:0 11px;font-size:13px;font-weight:600;white-space:nowrap}
+.tb.ic{width:34px;padding:0;justify-content:center}
+.tb.gh{background:transparent;border-color:transparent;color:#C9D6F2}
+.tb.dim{opacity:.45}
+.brand{font-weight:800;color:var(--gold);font-size:17px}
+.vs{width:1px;height:24px;background:var(--navy3);margin:0 2px}
+.pp{min-width:200px;justify-content:space-between}
+.seg{display:flex;background:var(--navy2);border:1px solid var(--navy3);border-radius:9px;padding:3px;gap:2px}
+.seg button{height:26px;border:0;border-radius:7px;background:transparent;color:#C9D6F2;padding:0 9px;display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600}
+.seg button.on{background:#fff;color:var(--navy)}
+.grow{flex:1}
+.state{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;color:#C9D6F2;padding:0 6px}
+.state i{width:8px;height:8px;border-radius:50%;background:var(--gold2);display:inline-block;box-shadow:0 0 0 3px rgba(226,181,92,.2)}
+.pub{background:var(--gold);border-color:var(--gold);color:#1A1206;padding:0 16px;font-weight:800}
+.pubwrap{display:flex}
+.pubwrap .pub{border-radius:0 9px 9px 0}
+.pubwrap .pub+.pub{border-radius:9px 0 0 9px;border-inline-start:1px solid #A5711A;padding:0 8px}
+/* popovers */
+.pop{position:absolute;background:#fff;color:var(--ink);border-radius:12px;box-shadow:0 12px 40px rgba(20,33,61,.22),0 0 0 1px rgba(20,33,61,.06);z-index:20}
+.menu{padding:6px;min-width:190px}
+.menu a{display:flex;align-items:center;gap:10px;height:36px;padding:0 10px;border-radius:8px;font-weight:600;font-size:13px}
+.menu a:hover,.menu a.hl{background:var(--hover)}
+.menu a.bad{color:var(--bad)}
+.menu hr{border:0;border-top:1px solid var(--line);margin:5px 4px}
+.menu kbd{margin-inline-start:auto;font:600 11px system-ui;color:var(--ink3)}
+/* ── layout ── */
+.wrap{display:flex;height:calc(100% - 56px)}
+.side{width:320px;flex:none;background:var(--side);border-inline-end:1px solid var(--line);display:flex;flex-direction:column;position:relative}
+.sh{padding:14px 16px 10px;display:flex;align-items:center;gap:8px}
+.sh b{font-size:14.5px;flex:1}
+.sh .cnt{font-size:11.5px;color:var(--ink3)}
+.tree{flex:1;overflow:auto;padding:0 8px 14px}
+.grp{font-size:11px;font-weight:700;color:var(--ink3);padding:12px 10px 5px;letter-spacing:.03em}
+.row{display:flex;align-items:center;gap:7px;height:36px;padding:0 6px;border-radius:9px;position:relative}
+.row:hover,.row.hv{background:var(--hover)}
+.row .gp{color:#B8BDC6;opacity:0}
+.row:hover .gp,.row.hv .gp{opacity:1}
+.row .cv{width:16px;display:grid;place-items:center;color:var(--ink3)}
+.row .ic{color:var(--ink2)}
+.row .nm{flex:1;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .act{display:flex;gap:2px;opacity:0}
+.row:hover .act,.row.hv .act,.row.sel .act{opacity:1}
+.row .act button{border:0;background:none;width:26px;height:26px;border-radius:7px;display:grid;place-items:center;color:var(--ink2)}
+.row .act button:hover,.row .act button.on{background:#E4E1DA}
+.row.off .nm,.row.off .ic{opacity:.42}
+.row.off .act{opacity:1}
+.row.off .act .eye{color:var(--ink3)}
+.row.sel{background:var(--goldw);box-shadow:inset 0 0 0 1px #EBCB8F}
+.row.sel .nm{color:var(--navy)}
+.kids{padding-inline-start:24px;position:relative;margin:1px 0 3px}
+.kids:before{content:"";position:absolute;inset-inline-start:15px;top:2px;bottom:6px;width:1px;background:var(--line)}
+.kids .row{height:32px}.kids .row .nm{font-weight:500}
+.addl{display:flex;align-items:center;gap:7px;height:34px;padding:0 10px;color:var(--blue);font-weight:700;border-radius:9px}
+.addl.sm{font-size:12px;height:30px;font-weight:600}
+.addl.on{background:#E8F0FE}
+.sf{border-top:1px solid var(--line);padding:10px 14px;display:flex;align-items:center;gap:8px;color:var(--ink3);font-size:11.5px}
+/* settings */
+.back{display:flex;align-items:center;gap:6px;padding:10px 10px 10px 14px;border-bottom:1px solid var(--line)}
+.back .bb{border:0;background:none;width:30px;height:30px;border-radius:8px;display:grid;place-items:center}
+.back b{font-size:14.5px;flex:1}
+.chip{font-size:11px;border-radius:999px;padding:2px 9px;font-weight:700}
+.chip.g{background:var(--goldw);color:#8A5D10}
+.form{flex:1;overflow:auto;padding:0 16px 10px}
+.fg{border-bottom:1px solid var(--line);padding:13px 0}
+.fg h4{margin:0 0 9px;font-size:12px;color:var(--ink2);display:flex;align-items:center;justify-content:space-between;letter-spacing:.02em}
+.q{width:17px;height:17px;border-radius:50%;border:1px solid #C7CBD3;color:var(--ink3);display:grid;place-items:center;font-size:10.5px;font-weight:700}
+.f{margin-bottom:11px}.f:last-child{margin-bottom:0}
+.f label{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;margin-bottom:5px}
+.lg{display:flex;gap:3px}.lg span{font:700 10px system-ui;border-radius:5px;padding:0 5px;line-height:17px}.lg .y{background:#E6F4EC;color:var(--ok)}.lg .n{background:#F1F2F4;color:#9AA1AE}
+.in{height:36px;border:1px solid #C9CDD5;border-radius:8px;background:#fff;display:flex;align-items:center;padding:0 11px;font-size:13.5px}
+.tg{display:flex;align-items:center;justify-content:space-between;height:34px;font-weight:600}
+.sw{width:36px;height:20px;border-radius:999px;background:var(--gold);position:relative}.sw:after{content:"";position:absolute;top:3px;inset-inline-start:3px;width:14px;height:14px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.2)}
+.sw.off{background:#C9CDD5}.sw.off:after{inset-inline-start:auto;inset-inline-end:3px}
+.opts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.opt{border:1px solid #C9CDD5;border-radius:8px;height:34px;display:grid;place-items:center;font-weight:600;font-size:12px;background:#fff}
+.opt.on{border-color:var(--navy);box-shadow:inset 0 0 0 1px var(--navy);color:var(--navy)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.ck{display:inline-flex;align-items:center;gap:6px;border:1px solid #C9CDD5;border-radius:999px;padding:0 10px;height:28px;font-size:12px;font-weight:600;background:#fff}
+.ck.on{background:var(--navy);border-color:var(--navy);color:#fff}
+/* ── canvas ── */
+.canvas{flex:1;position:relative;overflow:hidden;background:#E7E4DC;background-image:radial-gradient(#D9D5CB 1px,transparent 1px);background-size:16px 16px}
+.dev{position:absolute;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 3px rgba(20,33,61,.12),0 14px 40px rgba(20,33,61,.12)}
+.dev iframe{border:0;transform-origin:top right;display:block;pointer-events:none}
+.dev.ph{border-radius:30px;border:9px solid #0B0F19;box-shadow:0 18px 40px rgba(20,33,61,.25)}
+.devlbl{position:absolute;font-size:11.5px;font-weight:700;color:var(--ink2);display:flex;align-items:center;gap:6px}
+/* overlays on the preview */
+.ol{position:absolute;pointer-events:none;border-radius:6px;z-index:4}
+.ol.sel{border:2px solid var(--gold)}
+.ol.hov{border:1.5px dashed var(--blue)}
+.ol .tag{position:absolute;bottom:100%;inset-inline-start:-2px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px 6px 0 0;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.ol.sel .tag{background:var(--gold);color:#1A1206}
+.ol.hov .tag{background:var(--blue);color:#fff;inset-inline-start:auto;inset-inline-end:-2px}
+.ol.edit{border:2px solid var(--gold);box-shadow:0 0 0 4px rgba(196,136,31,.18)}
+.itb{position:absolute;z-index:6;display:flex;align-items:center;gap:2px;background:#1B2333;color:#fff;border-radius:10px;padding:4px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.itb button{border:0;background:none;color:#fff;height:30px;min-width:30px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:0 7px;font-size:12.5px;font-weight:700}
+.itb button:hover,.itb button.on{background:#2E3A52}
+.itb .sp{width:1px;height:18px;background:#3A465E;margin:0 3px}
+.itb .dot{width:14px;height:14px;border-radius:4px;background:var(--gold);box-shadow:inset 0 0 0 1px rgba(255,255,255,.3)}
+.itb .ok{background:var(--gold);color:#1A1206}
+.caret{position:absolute;width:2px;background:var(--gold2);z-index:6;animation:bl 1s steps(2) infinite}
+@keyframes bl{50%{opacity:0}}
+.hint{position:absolute;z-index:6;background:#fff;border-radius:8px;padding:6px 10px;font-size:11.5px;color:var(--ink2);box-shadow:0 6px 20px rgba(20,33,61,.15);display:flex;align-items:center;gap:6px}
+/* add-section gallery */
+.gal{position:absolute;top:0;bottom:0;inset-inline-start:320px;width:560px;background:#fff;z-index:8;box-shadow:-18px 0 40px rgba(20,33,61,.16);display:flex;flex-direction:column}
+.gal-h{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--line)}
+.gal-h b{font-size:15px;flex:1}
+.gal-s{margin:12px 18px 6px;height:38px;border:1px solid #C9CDD5;border-radius:10px;display:flex;align-items:center;gap:8px;padding:0 12px;color:var(--ink3)}
+.gal-t{display:flex;gap:6px;padding:6px 18px 4px}
+.gal-t span{font-size:12px;font-weight:700;padding:5px 12px;border-radius:999px;background:#F2F1EC;color:var(--ink2)}
+.gal-t span.on{background:var(--navy);color:#fff}
+.gal-g{flex:1;overflow:auto;padding:12px 18px 18px;display:grid;grid-template-columns:1fr 1fr;gap:14px;align-content:start;grid-auto-rows:max-content}
+.tile{border:1px solid var(--line);border-radius:12px;background:#fff}.tile .th{border-radius:11px 11px 0 0}
+.tile:hover,.tile.hl{border-color:var(--gold);box-shadow:0 0 0 3px rgba(196,136,31,.15)}
+.th{height:104px;background:#F4F2ED;padding:10px;display:flex;flex-direction:column;gap:6px;justify-content:center}
+.tt{padding:9px 12px}
+.tt b{display:block;font-size:13px}
+.tt small{display:block;color:var(--ink3);font-size:11.5px;line-height:1.6}.tile{display:flex;flex-direction:column}.th{flex:none}
+.bar{height:8px;border-radius:4px;background:#DCD7CC}
+.bar.n{background:var(--navy)}.bar.g{background:var(--gold)}
+.mini{display:grid;gap:5px}
+.mini i{display:block;border-radius:5px;background:#D6D0C3}
+/* history */
+.hist{width:300px;padding:8px}
+.hist h5{margin:4px 8px 8px;font-size:12px;color:var(--ink3)}
+.ver{display:flex;gap:10px;padding:8px;border-radius:8px;align-items:flex-start}
+.ver:hover,.ver.hl{background:var(--hover)}
+.ver .dt{width:10px;height:10px;border-radius:50%;background:#C9CDD5;margin-top:6px;flex:none}
+.ver.live .dt{background:var(--ok)}
+.ver b{display:block;font-size:12.5px}
+.ver small{color:var(--ink3);font-size:11.5px}
+.ver .rb{margin-inline-start:auto;font-size:11.5px;font-weight:700;color:var(--blue);white-space:nowrap;align-self:center}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="grip" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="eye" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.8"/></symbol>
+  <symbol id="eyeoff" viewBox="0 0 24 24"><path d="M3 3l18 18M10.5 5.7A9.6 9.6 0 0 1 12 5.5c6.4 0 10 6.5 10 6.5a17 17 0 0 1-2.9 3.7M6.4 6.5C3.6 8.3 2 12 2 12s3.6 6.5 10 6.5c1.9 0 3.6-.6 5-1.4"/><path d="M9.9 10a2.8 2.8 0 0 0 4 4"/></symbol>
+  <symbol id="dots" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="chev" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></symbol>
+  <symbol id="chevs" viewBox="0 0 24 24"><path d="M14 7l-5 5 5 5"/></symbol>
+  <symbol id="back" viewBox="0 0 24 24"><path d="M10 6l6 6-6 6"/></symbol>
+  <symbol id="plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="home" viewBox="0 0 24 24"><path d="M3.5 10.5L12 4l8.5 6.5V20a1 1 0 0 1-1 1H15v-6H9v6H4.5a1 1 0 0 1-1-1z"/></symbol>
+  <symbol id="hdr" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></symbol>
+  <symbol id="ftr" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 15h18"/></symbol>
+  <symbol id="hero" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 10h7M7 13.5h10"/></symbol>
+  <symbol id="grid" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></symbol>
+  <symbol id="info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="fire" viewBox="0 0 24 24"><path d="M12 21a7 7 0 0 0 7-7c0-4-3-6-4-9-1 2-2 3-4 3 0-2 0-3 1-5C7 5 5 9 5 14a7 7 0 0 0 7 7z"/></symbol>
+  <symbol id="stack" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+  <symbol id="bld" viewBox="0 0 24 24"><path d="M4 21V5l8-2v18M12 8l8 3v10M3 21h18M7.5 8v.01M7.5 12v.01M7.5 16v.01M15.5 13v.01M15.5 17v.01"/></symbol>
+  <symbol id="shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></symbol>
+  <symbol id="map" viewBox="0 0 24 24"><path d="M9 4L3 6.5v13.5L9 17.5l6 2.5 6-2.5V4l-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/></symbol>
+  <symbol id="book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20"/></symbol>
+  <symbol id="undo" viewBox="0 0 24 24"><path d="M15 8H8.5L11.5 5M8.5 8A7 7 0 1 1 5.5 14"/></symbol>
+  <symbol id="redo" viewBox="0 0 24 24"><path d="M9 8h6.5L12.5 5M15.5 8a7 7 0 1 0 3 6"/></symbol>
+  <symbol id="desk" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8.5 20h7M12 16v4"/></symbol>
+  <symbol id="phone" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2"/><path d="M11 18.5h2"/></symbol>
+  <symbol id="both" viewBox="0 0 24 24"><rect x="2" y="5" width="14" height="10" rx="1.3"/><path d="M6 19h6"/><rect x="17" y="8" width="5" height="11" rx="1.2"/></symbol>
+  <symbol id="clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+  <symbol id="ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-8 8M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+  <symbol id="copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></symbol>
+  <symbol id="trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+  <symbol id="up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"/></symbol>
+  <symbol id="search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+  <symbol id="bold" viewBox="0 0 24 24"><path d="M7 5h6a3.5 3.5 0 0 1 0 7H7zM7 12h7a3.5 3.5 0 0 1 0 7H7z"/></symbol>
+  <symbol id="type" viewBox="0 0 24 24"><path d="M5 7V5h14v2M12 5v14M9 19h6"/></symbol>
+  <symbol id="check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="cloud" viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.5-9 6 6 0 0 1 11.5 1.5A3.8 3.8 0 0 1 17.5 18z"/></symbol>
+</svg>
+
+<!-- ═════════ top bar ═════════ -->
+<header class="top">
+  <button class="tb gh"><svg class="i s"><use href="#back"/></svg>خروج</button>
+  <span class="brand">بلكون</span>
+  <span class="vs"></span>
+  <button class="tb pp" id="pagePick"><span style="display:inline-flex;align-items:center;gap:8px"><svg class="i s"><use href="#home"/></svg>الصفحة الرئيسية</span><svg class="i s"><use href="#chev"/></svg></button>
+  <div class="seg" id="devSeg"><button data-d="desk" class="on"><svg class="i s"><use href="#desk"/></svg>كمبيوتر</button><button data-d="phone"><svg class="i s"><use href="#phone"/></svg>جوال</button><button data-d="both"><svg class="i s"><use href="#both"/></svg>الاثنان</button></div>
+  <div class="seg"><button class="on">عربي</button><button>EN</button><button>DE</button></div>
+  <span class="grow"></span>
+  <span class="state" id="state"><i></i>تغييرات غير منشورة · حُفظت كمسودة</span>
+  <button class="tb ic" title="تراجع (Ctrl+Z)"><svg class="i s"><use href="#undo"/></svg></button>
+  <button class="tb ic dim" title="إعادة"><svg class="i s"><use href="#redo"/></svg></button>
+  <button class="tb ic" id="histBtn" title="سجل النسخ"><svg class="i s"><use href="#clock"/></svg></button>
+  <button class="tb"><svg class="i s"><use href="#ext"/></svg>معاينة</button>
+  <div class="pubwrap"><button class="tb pub">نشر</button><button class="tb pub" title="خيارات النشر"><svg class="i s"><use href="#chev"/></svg></button></div>
+</header>
+
+<div class="wrap">
+  <!-- ═════════ sidebar: sections ═════════ -->
+  <aside class="side" id="list">
+    <div class="sh"><b>الصفحة الرئيسية</b><span class="cnt">9 أقسام · 2 مخفية</span></div>
+    <div class="tree">
+      <div class="grp">الرأس</div>
+      <div class="row"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><span class="cv"></span><svg class="i s ic"><use href="#hdr"/></svg><span class="nm">شريط التنقّل</span></div>
+
+      <div class="grp">أقسام الصفحة</div>
+      <div class="row" id="rHero"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><span class="cv"><svg class="i s"><use href="#chev"/></svg></span><svg class="i s ic"><use href="#hero"/></svg><span class="nm">الترحيب</span><span class="act"><button class="eye"><svg class="i s"><use href="#eye"/></svg></button><button><svg class="i s"><use href="#dots"/></svg></button></span></div>
+      <div class="kids">
+        <div class="row sel" id="rH1"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><svg class="i s ic"><use href="#type"/></svg><span class="nm">العنوان الرئيسي</span><span class="act"><button class="eye"><svg class="i s"><use href="#eye"/></svg></button></span></div>
+        <div class="row"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><svg class="i s ic"><use href="#stack"/></svg><span class="nm">الخلفية والرسم</span></div>
+        <div class="row" id="rSearch"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><svg class="i s ic"><use href="#search"/></svg><span class="nm">شريط البحث</span></div>
+        <div class="row off"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><svg class="i s ic"><use href="#grid"/></svg><span class="nm">سطر الإحصائيات</span><span class="act"><button class="eye"><svg class="i s"><use href="#eyeoff"/></svg></button></span></div>
+        <div class="addl sm"><svg class="i s"><use href="#plus"/></svg>إضافة عنصر</div>
+      </div>
+      <div class="row"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><span class="cv"><svg class="i s"><use href="#chevs"/></svg></span><svg class="i s ic"><use href="#grid"/></svg><span class="nm">المربعات الإعلانية</span><span class="act"><button class="eye"><svg class="i s"><use href="#eye"/></svg></button><button><svg class="i s"><use href="#dots"/></svg></button></span></div>
+      <div class="row" id="rAbout"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><span class="cv"><svg class="i s"><use href="#chevs"/></svg></span><svg class="i s ic"><use href="#info"/></svg><span class="nm">عن عقارات سوريا</span><span class="act"><button class="eye"><svg class="i s"><use href="#eye"/></svg></button><button id="dotsBtn"><svg class="i s"><use href="#dots"/></svg></button></span></div>
+      <div class="row"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><span class="cv"><svg class="i s"><use href="#chevs"/></svg></span><svg class="i s ic"><use href="#fire"/></svg><span class="nm">الأكثر مشاهدة</span><span class="act"><button class="eye"><svg class="i s"><use href="#eye"/></svg></button><button><svg class="i s"><use href="#dots"/></svg></button></span></div>
+      <div class="row"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><span class="cv"><svg class="i s"><use href="#chevs"/></svg></span><svg class="i s ic"><use href="#stack"/></svg><span class="nm">مجموعات مختارة</span><span class="act"><button class="eye"><svg class="i s"><use href="#eye"/></svg></button><button><svg class="i s"><use href="#dots"/></svg></button></span></div>
+      <div class="row"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><span class="cv"><svg class="i s"><use href="#chevs"/></svg></span><svg class="i s ic"><use href="#bld"/></svg><span class="nm">تصفّح حسب النوع</span><span class="act"><button class="eye"><svg class="i s"><use href="#eye"/></svg></button><button><svg class="i s"><use href="#dots"/></svg></button></span></div>
+      <div class="row"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><span class="cv"><svg class="i s"><use href="#chevs"/></svg></span><svg class="i s ic"><use href="#shield"/></svg><span class="nm">لماذا بلكون</span><span class="act"><button class="eye"><svg class="i s"><use href="#eye"/></svg></button><button><svg class="i s"><use href="#dots"/></svg></button></span></div>
+      <div class="row off"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><span class="cv"></span><svg class="i s ic"><use href="#map"/></svg><span class="nm">البانرات</span><span class="act"><button class="eye"><svg class="i s"><use href="#eyeoff"/></svg></button><button><svg class="i s"><use href="#dots"/></svg></button></span></div>
+      <div class="row"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><span class="cv"><svg class="i s"><use href="#chevs"/></svg></span><svg class="i s ic"><use href="#book"/></svg><span class="nm">أدلة ومقالات</span><span class="act"><button class="eye"><svg class="i s"><use href="#eye"/></svg></button><button><svg class="i s"><use href="#dots"/></svg></button></span></div>
+      <div class="addl" id="addBtn"><svg class="i s"><use href="#plus"/></svg>إضافة قسم</div>
+      <div class="grp">التذييل</div>
+      <div class="row"><span class="gp"><svg class="i s"><use href="#grip"/></svg></span><span class="cv"></span><svg class="i s ic"><use href="#ftr"/></svg><span class="nm">روابط وأرقام التواصل</span></div>
+    </div>
+    <div class="sf"><svg class="i s"><use href="#cloud"/></svg>كل تعديل يُحفظ كمسودة فوراً — الزوار لا يرونه حتى «نشر»</div>
+  </aside>
+
+  <!-- ═════════ sidebar: one item's settings ═════════ -->
+  <aside class="side" id="settings" hidden>
+    <div class="back"><button class="bb"><svg class="i"><use href="#back"/></svg></button><b>شريط البحث</b><span class="chip g">الترحيب</span></div>
+    <div class="form">
+      <div class="fg"><div class="tg">إظهار شريط البحث <span class="sw"></span></div></div>
+      <div class="fg"><h4>الأزرار <span class="q">؟</span></h4>
+        <div class="f"><label>التبويبات الظاهرة</label><div class="chips"><span class="ck on"><svg class="i s"><use href="#check"/></svg>للبيع</span><span class="ck on"><svg class="i s"><use href="#check"/></svg>للإيجار</span><span class="ck on"><svg class="i s"><use href="#check"/></svg>الكل</span><span class="ck">مطلوب</span></div></div>
+        <div class="f"><label>الحقول</label><div class="chips"><span class="ck on">المحافظة</span><span class="ck on">المنطقة</span><span class="ck on">نوع العقار</span><span class="ck on">الملكية</span><span class="ck on">الغرف</span><span class="ck on">السعر</span><span class="ck">المساحة</span></div></div>
+      </div>
+      <div class="fg"><h4>البحث بالذكاء <span class="q">؟</span></h4>
+        <div class="tg">إظهار «اسأل AI» <span class="sw"></span></div>
+        <div class="f" style="margin-top:8px"><label>مثال داخل الحقل <span class="lg"><span class="y">AR</span><span class="y">EN</span><span class="n">DE</span></span></label><div class="in" style="height:auto;min-height:36px;padding:7px 11px;line-height:1.6">مثال: شقة 3 غرف بالمزة تحت 80 ألف دولار</div></div>
+      </div>
+      <div class="fg"><h4>الشكل</h4>
+        <div class="f"><label>النمط</label><div class="opts"><span class="opt on">زجاجي</span><span class="opt">أبيض</span><span class="opt">شفاف</span></div></div>
+        <div class="f"><label>العرض على الجوال</label><div class="opts"><span class="opt">سطر واحد</span><span class="opt on">مطويّ</span><span class="opt">كامل</span></div></div>
+      </div>
+    </div>
+    <div class="sf" style="justify-content:space-between"><span style="display:inline-flex;gap:6px;align-items:center;color:var(--bad);font-weight:700"><svg class="i s"><use href="#eyeoff"/></svg>إخفاء</span><span>يُطبَّق على الكمبيوتر والجوال</span></div>
+  </aside>
+
+  <!-- ═════════ canvas with the real site ═════════ -->
+  <main class="canvas" id="canvas">
+    <div class="dev" id="dDesk"><iframe id="fDesk" src="/" width="1366" height="1400" loading="eager"></iframe></div>
+    <div class="dev ph" id="dPhone" hidden><iframe id="fPhone" src="/" width="390" height="1400"></iframe></div>
+    <span class="devlbl" id="lDesk" hidden><svg class="i s"><use href="#desk"/></svg>كمبيوتر · 1366</span>
+    <span class="devlbl" id="lPhone" hidden><svg class="i s"><use href="#phone"/></svg>جوال · 390</span>
+  </main>
+</div>
+
+<!-- overlays (positioned from the real elements inside the preview) -->
+<div class="ol sel" id="oSel" hidden><span class="tag"><svg class="i s" style="width:12px;height:12px"><use href="#type"/></svg>العنوان الرئيسي</span></div>
+<div class="ol hov" id="oHov" hidden><span class="tag">شريط البحث · اضغط للتعديل</span></div>
+<div class="ol sel" id="oSel2" hidden></div>
+<div class="ol sel" id="oSel3" hidden></div>
+<div class="itb" id="itb" hidden><button class="on"><svg class="i s"><use href="#bold"/></svg></button><button><span class="dot"></span>لون مميّز</button><span class="sp"></span><button>عربي <svg class="i s" style="width:12px"><use href="#chev"/></svg></button><span class="sp"></span><button class="ok"><svg class="i s"><use href="#check"/></svg>تم</button></div>
+<div class="caret" id="caret" hidden></div>
+
+<!-- ⋯ menu on a section -->
+<div class="pop menu" id="dotsMenu" hidden>
+  <a><svg class="i s"><use href="#copy"/></svg>تكرار القسم</a>
+  <a><svg class="i s"><use href="#up"/></svg>نقل للأعلى</a>
+  <a><svg class="i s"><use href="#down"/></svg>نقل للأسفل</a>
+  <a><svg class="i s"><use href="#eyeoff"/></svg>إخفاء<kbd>H</kbd></a>
+  <hr><a class="bad"><svg class="i s"><use href="#trash"/></svg>حذف القسم</a>
+</div>
+
+<!-- add-section gallery -->
+<div class="gal" id="gal" hidden style="top:56px">
+  <div class="gal-h"><b>إضافة قسم</b><span style="color:var(--ink3);font-size:12px">يُضاف تحت «عن عقارات سوريا»</span><button class="tb ic" style="background:#F2F1EC;border-color:transparent;color:var(--ink)"><svg class="i s"><use href="#x"/></svg></button></div>
+  <div class="gal-s"><svg class="i s"><use href="#search"/></svg>ابحث عن قسم…</div>
+  <div class="gal-t"><span class="on">الكل</span><span>إعلانات</span><span>محتوى</span><span>تسويق</span><span>ثقة</span></div>
+  <div class="gal-g">
+    <div class="tile hl"><div class="th"><div class="mini" style="grid-template-columns:repeat(4,1fr)"><i style="height:44px"></i><i style="height:44px"></i><i style="height:44px"></i><i style="height:44px"></i></div><div class="bar" style="width:40%"></div></div><div class="tt"><b>شبكة إعلانات</b><small>حسب منطقة أو نوع أو سعر</small></div></div>
+    <div class="tile"><div class="th" style="background:var(--navy)"><div class="bar g" style="width:55%"></div><div class="bar" style="width:75%;background:#3A4B7C"></div><div class="bar" style="width:30%;background:#C4881F;height:16px;border-radius:6px"></div></div><div class="tt"><b>شريط دعوة</b><small>عنوان + زر (مثلاً «أضف إعلانك»)</small></div></div>
+    <div class="tile"><div class="th"><div class="mini" style="grid-template-columns:1fr 1fr"><i style="height:62px"></i><div style="display:grid;gap:6px;align-content:center"><div class="bar n"></div><div class="bar"></div><div class="bar" style="width:70%"></div></div></div></div><div class="tt"><b>صورة ونص</b><small>قسم تعريفي بصورة جانبية</small></div></div>
+    <div class="tile"><div class="th"><div class="mini" style="grid-template-columns:repeat(3,1fr)"><i style="height:30px;border-radius:50%;width:30px;justify-self:center"></i><i style="height:30px;border-radius:50%;width:30px;justify-self:center"></i><i style="height:30px;border-radius:50%;width:30px;justify-self:center"></i></div><div class="bar" style="width:80%;margin:0 auto"></div></div><div class="tt"><b>المكاتب الموثّقة</b><small>شعارات المكاتب المعتمدة</small></div></div>
+    <div class="tile"><div class="th"><div class="mini" style="grid-template-columns:1fr 1fr 1fr"><div style="text-align:center"><b style="font-size:18px;color:var(--navy)">406</b><div class="bar" style="margin-top:4px"></div></div><div style="text-align:center"><b style="font-size:18px;color:var(--navy)">17</b><div class="bar" style="margin-top:4px"></div></div><div style="text-align:center"><b style="font-size:18px;color:var(--navy)">4.8k</b><div class="bar" style="margin-top:4px"></div></div></div></div><div class="tt"><b>أرقام</b><small>عدد الإعلانات والمكاتب والمناطق</small></div></div>
+    <div class="tile"><div class="th"><div style="display:grid;gap:6px"><div style="display:flex;justify-content:space-between"><div class="bar n" style="width:60%"></div><span style="color:var(--ink3)">+</span></div><div style="display:flex;justify-content:space-between"><div class="bar" style="width:70%"></div><span style="color:var(--ink3)">+</span></div><div style="display:flex;justify-content:space-between"><div class="bar" style="width:50%"></div><span style="color:var(--ink3)">+</span></div></div></div><div class="tt"><b>أسئلة شائعة</b><small>تظهر أيضاً في Google</small></div></div>
+  </div>
+</div>
+
+<!-- version history -->
+<div class="pop hist" id="hist" hidden>
+  <h5>سجل النسخ</h5>
+  <div class="ver"><span class="dt" style="background:var(--gold2)"></span><div><b>المسودة الحالية</b><small>3 تعديلات · الآن</small></div></div>
+  <div class="ver live"><span class="dt"></span><div><b>المنشورة على الموقع</b><small>اليوم 14:20 · Samer</small></div><span class="rb">عرض</span></div>
+  <div class="ver hl"><span class="dt"></span><div><b>تغيير العنوان الرئيسي</b><small>أمس 22:05 · Samer</small></div><span class="rb">استرجاع</span></div>
+  <div class="ver"><span class="dt"></span><div><b>إخفاء البانرات</b><small>14 تشرين الأول · Samer</small></div><span class="rb">استرجاع</span></div>
+  <div class="ver"><span class="dt"></span><div><b>ترتيب الأقسام</b><small>10 تشرين الأول · Samer</small></div><span class="rb">استرجاع</span></div>
+</div>
+
+<script>
+var MODE=(new URLSearchParams(location.search).get("m"))||(location.hash||"#inline").slice(1), $=function(id){ return document.getElementById(id) };
+var canvas=$("canvas"), PAD=22;
+function layout(){
+  var cw=canvas.clientWidth, ch=canvas.clientHeight, cr=canvas.getBoundingClientRect();
+  if(MODE==="both"){
+    var phW=300, gap=26, dw=cw-PAD*2-phW-gap, s=dw/1366, ps=(phW-18)/390;
+    var d=$("dDesk"), f=$("fDesk"); d.style.top=(PAD+18)+"px"; d.style.right=PAD+"px"; d.style.width=dw+"px"; d.style.height=(ch-PAD*2-18)+"px"; f.style.transform="scale("+s+")"; f.height=Math.ceil((ch)/s);
+    var p=$("dPhone"), g=$("fPhone"); p.hidden=false; p.style.top=(PAD+18)+"px"; p.style.left=PAD+"px"; p.style.width=phW+"px"; p.style.height=Math.min(ch-PAD*2-18,620)+"px"; g.style.transform="scale("+ps+")"; g.height=Math.ceil(700/ps);
+    $("lDesk").hidden=false; $("lDesk").style.top=PAD-2+"px"; $("lDesk").style.right=PAD+"px";
+    $("lPhone").hidden=false; $("lPhone").style.top=PAD-2+"px"; $("lPhone").style.left=PAD+"px";
+    return {s:s, ps:ps};
+  }
+  var w=cw-PAD*2, s=w/1366, d=$("dDesk"), f=$("fDesk"); d.style.top=PAD+"px"; d.style.right=PAD+"px"; d.style.width=w+"px"; d.style.height=(ch-PAD*2)+"px"; f.style.transform="scale("+s+")"; f.height=Math.ceil((ch)/s);
+  return {s:s};
+}
+function rectIn(frame, el, s){ var fr=frame.getBoundingClientRect(), r=el.getBoundingClientRect(); return {left:fr.left+(fr.width-(frame.width*s))+r.left*s, top:fr.top+r.top*s, width:r.width*s, height:r.height*s} }
+// transform-origin is top right, so the scaled frame's left edge moves; getBoundingClientRect on the frame already reflects the transform
+function rectOf(frame, el, s){ var fr=frame.getBoundingClientRect(), r=el.getBoundingClientRect(); return {left:fr.left+r.left*s, top:fr.top+r.top*s, width:r.width*s, height:r.height*s} }
+function put(id, R, pad){ var o=$(id); o.hidden=false; o.style.left=(R.left-pad)+"px"; o.style.top=(R.top-pad)+"px"; o.style.width=(R.width+pad*2)+"px"; o.style.height=(R.height+pad*2)+"px"; return o }
+function find(doc){
+  var h1=doc.querySelector("h1");
+  var cands=[].slice.call(doc.querySelectorAll("div,form")).filter(function(d){ var t=d.textContent; return /للبيع/.test(t)&&/ابحث/.test(t)&&/المحافظة/.test(t)&&!/اسأل/.test(t) });
+  cands.sort(function(a,b){ var ra=a.getBoundingClientRect(), rb=b.getBoundingClientRect(); return ra.width*ra.height-rb.width*rb.height });
+  return {h1:h1, sb:cands[0]};
+}
+function quiet(doc){ try{ var st=doc.createElement("style"); st.textContent="html{scrollbar-width:none}html::-webkit-scrollbar{display:none}"; doc.head.appendChild(st) }catch(e){} }
+function draw(){
+  var S=layout(), fd=$("fDesk"), doc; try{ doc=fd.contentDocument }catch(e){ return }
+  if(!doc||!doc.body) return; var F=find(doc); if(!F.h1) return;
+  if(MODE==="inline"){
+    var R=rectOf(fd,F.h1,S.s); put("oSel",R,6).classList.add("edit");
+    var t=$("itb"); t.hidden=false; t.style.left=(R.left+R.width-t.offsetWidth)+"px"; t.style.top=(R.top-6-30-46)+"px";
+    $("oSel").querySelector(".tag").style.display="none";
+    var c=$("caret"); c.hidden=false; c.style.left=(R.left+R.width*0.30)+"px"; c.style.top=(R.top+R.height*0.56)+"px"; c.style.height=(R.height*0.38)+"px";
+    if(F.sb) put("oHov",rectOf(fd,F.sb,S.s),5);
+  }
+  if(MODE==="add"){ $("gal").hidden=false; $("addBtn").classList.add("on"); $("rH1").classList.remove("sel") }
+  if(MODE==="inline"){
+    var b=$("dotsBtn"); b.classList.add("on"); $("rAbout").classList.add("hv"); var br=b.getBoundingClientRect(), m=$("dotsMenu"); m.hidden=false; m.style.left=(br.left-m.offsetWidth+br.width)+"px"; m.style.top=(br.bottom+4)+"px";
+  }
+  if(MODE==="history"){ var h=$("hist"), hb=$("histBtn").getBoundingClientRect(); h.hidden=false; h.style.left=(hb.left)+"px"; h.style.top=(hb.bottom+8)+"px"; $("histBtn").style.background="#3A4B7C"; $("rH1").classList.remove("sel") }
+  if(MODE==="both"){
+    $("list").hidden=true; $("settings").hidden=false;
+    [].forEach.call($("devSeg").children,function(x){ x.classList.toggle("on",x.dataset.d==="both") });
+    if(F.sb) put("oSel2",rectOf(fd,F.sb,S.s),5);
+    try{ var pd=$("fPhone").contentDocument, P=find(pd); if(P.sb) put("oSel3",rectOf($("fPhone"),P.sb,S.ps),4) }catch(e){}
+  }
+}
+function ready(f, cb){ var go=function(){ try{ quiet(f.contentDocument) }catch(e){} setTimeout(cb,6500) }; f.addEventListener("load",go) }
+layout();
+ready($("fDesk"), function(){ if(MODE!=="both") draw() });
+if(MODE==="both"){ var n=0, done=function(){ if(++n===2) draw() }; ready($("fDesk"),done); ready($("fPhone"),done) }
+window.onresize=draw;
+</script>
+</body>
+</html>

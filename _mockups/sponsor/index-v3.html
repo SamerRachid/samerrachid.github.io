@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>روّج إعلانك | بلكون</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Zain:wght@300;400;700;800&family=Reem+Kufi:wght@700&display=swap" rel="stylesheet">
+<style>
+/* mock of the «روّج إعلانك» page — same tokens as theme-hu.css on the live site */
+:root{--navy:#11213F;--navy-2:#172B4F;--gold:#CA9051;--gold-l:#E3B57E;--line:rgba(255,255,255,.12);--line-2:rgba(255,255,255,.2);--muted:#9AA6BC;--ok:#5BD68A;
+  --f:Lato,Zain,system-ui,sans-serif;--fd:"Reem Kufi",Zain,Lato,sans-serif;--ease:cubic-bezier(.22,.8,.3,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--navy);color:#fff;font:400 16px/1.75 var(--f);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}img{display:block;max-width:100%}
+.wrap{max-width:1200px;margin:0 auto;padding-inline:60px}
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block;font-variant-numeric:tabular-nums}
+.eyebrow{display:flex;align-items:center;gap:10px;color:var(--gold);font-size:13px;font-weight:700;letter-spacing:.02em}
+.eyebrow::before{content:"";width:28px;height:1px;background:var(--gold)}
+h1,h2,h3{font-family:var(--fd);font-weight:700;line-height:1.25}
+h2{font-size:42px;margin-top:10px;text-wrap:balance}
+.lede{color:var(--muted);font-size:17px;max-width:520px;margin-top:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;height:52px;padding:0 26px;border-radius:8px;font:700 16px var(--f);cursor:pointer;border:1px solid transparent;transition:transform .2s var(--ease),background .2s,border-color .2s,color .2s;white-space:nowrap}
+.btn:active{transform:scale(.98)}
+.btn.gold{background:var(--gold);color:var(--navy)}.btn.gold:hover{background:var(--gold-l)}
+.btn.line{border-color:var(--line-2);color:#fff;background:rgba(17,33,63,.35)}.btn.line:hover{border-color:var(--gold);color:var(--gold-l)}
+.mocktag{position:absolute;top:96px;left:16px;z-index:6;background:rgba(17,33,63,.92);border:1px solid rgba(226,92,92,.55);color:#F5A3A3;font-size:12.5px;font-weight:700;padding:6px 12px;border-radius:999px}
+
+/* header — as on balkoun.com */
+.top{position:absolute;inset:0 0 auto 0;z-index:5}
+.top .wrap{display:flex;align-items:center;gap:18px;height:86px}
+.logo img{height:40px;width:auto}
+.top .sp{flex:1}
+.burger{width:28px;display:grid;gap:6px}.burger i{display:block;height:2px;background:#fff;border-radius:2px}
+.top .add{height:44px;padding:0 18px;font-size:15px}
+
+/* hero — text beside a framed collage of real listings (listing photos are ~1000px, too soft to stretch full-bleed) */
+.hero{position:relative;padding-block:150px 0;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background:radial-gradient(900px 500px at 15% 30%,rgba(202,144,81,.10),transparent 70%)}
+.hero .wrap{position:relative;display:grid;grid-template-columns:1fr 1.05fr;gap:60px;align-items:center}
+.hero h1{font-size:58px;margin-top:14px;text-wrap:balance}
+.hero h1 em{font-style:normal;color:var(--gold)}
+.hero p{color:#D5DCE8;font-size:18px;max-width:540px;margin-top:14px}
+.hero .acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.collage{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1.25fr 1fr;gap:14px;height:520px}
+.collage .f{border:1px solid var(--line);padding:7px;border-radius:14px;background:rgba(255,255,255,.02);position:relative}
+.collage .f:first-child{grid-column:1/3}
+.collage .f i{display:block;height:100%;border-radius:9px;background:#0d1a33 center/cover}
+.collage .f span{position:absolute;inset:auto 18px 16px 18px;font-size:13px;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.7)}
+.collage .f span b{display:block;font:700 17px var(--fd)}
+.hero .wrap.st{display:block}
+.hstats{display:flex;gap:44px;margin-top:70px;padding-block:26px;border-block:1px solid var(--line)}
+.hstats div b{display:block;font:700 34px/1 var(--f);color:#fff}
+.hstats div span{color:var(--muted);font-size:14px}
+.hstats .note{margin-inline-start:auto;align-self:flex-end;color:var(--muted);font-size:12.5px}
+
+section.s{padding-top:110px}
+.head{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;flex-wrap:wrap}
+
+/* where your listing appears — three real placements */
+.show{display:grid;grid-template-columns:1.05fr .9fr 1.05fr;gap:28px;margin-top:48px;align-items:end}
+.place figcaption{margin-top:16px}.place figcaption b{display:block;font-size:17px}.place figcaption span{color:var(--muted);font-size:14.5px}
+.frame{border:1px solid var(--line);padding:8px;border-radius:14px;background:rgba(255,255,255,.02)}
+.card{background:var(--navy-2);border-radius:10px;overflow:hidden}
+.card .ph{position:relative;aspect-ratio:4/3;background:#0d1a33 center/cover}
+.card .ph .feat{position:absolute;top:12px;inset-inline-start:12px;background:var(--gold);color:var(--navy);font-weight:800;font-size:12.5px;padding:4px 11px;border-radius:999px}
+.card .bd{padding:14px 16px 16px}.card .bd b{font-size:16px;display:block}.card .bd .pl{color:var(--muted);font-size:13px}
+.card .bd .pr{display:flex;justify-content:space-between;align-items:baseline;margin-top:10px}.card .bd .pr strong{color:var(--gold);font-size:19px}.card .bd .pr small{color:var(--muted);font-size:12.5px}
+.phone{width:100%;max-width:300px;margin-inline:auto;border-radius:34px;border:1px solid var(--line-2);padding:10px;background:#0a1428;box-shadow:0 30px 60px -30px rgba(0,0,0,.7)}
+.reel{position:relative;border-radius:26px;overflow:hidden;aspect-ratio:9/16;background:#000 center/cover}
+.reel::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.35),transparent 30%,transparent 55%,rgba(0,0,0,.8))}
+.reel .rt{position:absolute;z-index:2;top:16px;inset-inline:14px;display:flex;align-items:center;gap:8px;font-size:12.5px;line-height:1.2}
+.reel .rt i{width:28px;height:28px;border-radius:50%;background:var(--navy) url("/brand/favicon.svg") center/18px no-repeat;border:1px solid var(--gold)}
+.reel .rt span{color:#D5DCE8;font-size:11px;display:block}
+.reel .rb{position:absolute;z-index:2;bottom:14px;inset-inline:14px}
+.reel .rb b{font:700 20px/1.3 var(--fd);display:block}.reel .rb p{font-size:12.5px;color:#E3E8F1;margin-top:4px}
+.reel .rb .cta{margin-top:10px;display:flex;align-items:center;justify-content:center;height:36px;border-radius:8px;background:#25D366;color:#06301A;font-weight:800;font-size:13px}
+.reel .bar{position:absolute;z-index:2;top:7px;inset-inline:14px;height:2px;background:rgba(255,255,255,.3);border-radius:2px}.reel .bar i{display:block;width:38%;height:100%;background:#fff;border-radius:2px}
+.square{position:relative;border-radius:10px;overflow:hidden;aspect-ratio:1/1;background:#0d1a33 center/cover}
+.square::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(17,33,63,.95))}
+.square .in{position:absolute;z-index:2;inset:auto 18px 18px 18px}
+.square .ad{position:absolute;z-index:2;top:12px;inset-inline-end:12px;font-size:11px;background:rgba(17,33,63,.7);border:1px solid var(--line-2);border-radius:999px;padding:2px 9px}
+.square .in small{color:var(--gold);font-weight:700;font-size:13px}.square .in b{display:block;font:700 22px/1.3 var(--fd);margin-top:2px}.square .in span{color:#D5DCE8;font-size:13.5px}
+
+.reel.fb{background:#000}.reel.fb::after{content:none}.reel.fb iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.reel .poster{position:absolute;inset:0;border:0;cursor:pointer;background:#000 center/cover;display:grid;place-items:center}
+.reel .play{width:64px;height:64px;border-radius:50%;background:rgba(17,33,63,.55);border:2px solid #fff;position:relative;transition:transform .2s var(--ease),background .2s}
+.reel .play::after{content:"";position:absolute;inset:0;margin:auto;width:0;height:0;border-style:solid;border-width:11px 0 11px 18px;border-color:transparent transparent transparent #fff;transform:translateX(3px)}
+.reel .poster:hover .play{transform:scale(1.06);background:var(--gold)}
+.reel .fbtag{position:absolute;bottom:14px;inset-inline:14px;text-align:center;font-size:12.5px;font-weight:700;background:rgba(17,33,63,.75);border:1px solid var(--line-2);border-radius:999px;padding:6px 10px}.reel .fbtag b{color:var(--gold)}
+.proof{display:grid;grid-template-columns:1.1fr repeat(3,1fr);gap:0;margin-top:56px;border-block:1px solid var(--line)}
+.proof>*{padding:24px 22px}.proof>*+*{border-inline-start:1px solid var(--line)}
+.proof .ph p{color:var(--muted);font-size:14.5px;margin-top:6px}
+.proof .rl b{font:700 40px/1 var(--f);color:var(--gold)}.proof .rl em{font-style:normal;color:var(--muted);font-size:14px;margin-inline-start:8px}
+.proof .rl span{display:block;margin-top:10px;font-size:15px}.proof .rl small{display:block;color:var(--muted);font-size:13px;margin-top:4px}.proof .rl small i{font-style:normal}
+.proof .rl:hover b{color:var(--gold-l)}
+/* options — editorial rows, not a pricing table */
+.opts{margin-top:44px;border-top:1px solid var(--line)}
+.opt{display:grid;grid-template-columns:260px 1fr auto;gap:36px;align-items:center;padding-block:30px;border-bottom:1px solid var(--line)}
+.opt .im{aspect-ratio:16/10;border-radius:10px;background:#0d1a33 center/cover;border:1px solid var(--line)}
+.opt h3{font-size:26px}.opt p{color:#C9D2E1;margin-top:6px;max-width:560px}
+.opt ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px 18px;margin-top:12px;color:var(--muted);font-size:14.5px}
+.opt ul li::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-inline-end:8px;vertical-align:middle}
+.opt .pr{text-align:end;min-width:150px}.opt .pr b{display:block;font:700 34px/1 var(--f)}
+.opt .pr em{display:block;font-style:normal;color:var(--muted);font-size:12.5px;margin-top:6px}
+.opt .pr .btn{margin-top:14px;height:44px;padding:0 22px;font-size:14.5px}
+.opt.hi .pr b{color:var(--gold)}
+.opt .tag{display:inline-block;margin-inline-start:10px;vertical-align:middle;font:700 12px var(--f);color:var(--navy);background:var(--gold);border-radius:999px;padding:3px 10px}
+
+/* agencies — one wide band with a real photo */
+.band{margin-top:44px;border-radius:16px;overflow:hidden;min-height:440px;display:grid;grid-template-columns:1.1fr 1fr;border:1px solid var(--line)}
+.band .pic{display:grid;grid-template-rows:1fr 1fr;gap:2px;background:var(--line)}.band .pic i{background:#0d1a33 center/cover}
+.band .tx{background:var(--navy-2);padding:44px 44px 40px;display:flex;flex-direction:column}
+.band .tx h3{font-size:30px}.band .tx p{color:#C9D2E1;margin-top:8px}
+.tiers{margin-block:24px 28px;border-top:1px solid var(--line)}
+.tier{display:flex;justify-content:space-between;gap:18px;align-items:baseline;padding-block:14px;border-bottom:1px solid var(--line)}
+.tier b{font-size:17px}.tier span{display:block;color:var(--muted);font-size:13.5px}.tier strong{font:700 22px var(--f);white-space:nowrap}.tier strong small{font-size:13px;color:var(--muted);font-weight:400}
+.band .tx .btn{margin-top:auto;align-self:flex-start}
+
+/* team & services */
+.svc{display:grid;grid-template-columns:repeat(3,1fr);margin-top:44px;border-top:1px solid var(--line)}
+.sv{padding:30px 28px 30px 0;border-bottom:1px solid var(--line)}
+.sv:not(:nth-child(3n+1)){border-inline-start:1px solid var(--line);padding-inline-start:28px}
+.sv i{width:48px;height:48px;border-radius:12px;border:1px solid rgba(202,144,81,.45);display:grid;place-items:center;color:var(--gold);background:rgba(202,144,81,.06)}
+.sv i svg{width:22px;height:22px}.sv b{display:block;font-size:19px;margin-top:16px}.sv p{color:var(--muted);font-size:15px;margin-top:6px;max-width:320px}
+.svc-cta{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:28px;padding:22px 26px;border:1px solid var(--line);border-radius:14px;background:var(--navy-2)}
+.svc-cta span{color:#C9D2E1}
+/* report */
+.report{display:grid;grid-template-columns:1fr 1.15fr;gap:60px;align-items:center}
+.rep{background:var(--navy-2);border:1px solid var(--line);border-radius:14px;padding:26px}
+.rep .rh{display:flex;align-items:center;gap:14px;padding-bottom:18px;border-bottom:1px solid var(--line)}
+.rep .rh i{width:58px;height:44px;border-radius:6px;background:#0d1a33 center/cover;flex:none}.rep .rh b{display:block}.rep .rh span{color:var(--muted);font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+.kpis div b{display:block;font:700 26px/1.1 var(--f)}.kpis div span{color:var(--muted);font-size:12.5px}.kpis div:last-child b{color:var(--ok)}
+.bars{display:flex;align-items:flex-end;gap:12px;height:130px;margin-top:22px;padding-top:10px;border-top:1px dashed var(--line)}
+.bars div{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.bars i{display:block;width:100%;max-width:38px;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,var(--gold-l),var(--gold))}
+.bars span{color:var(--muted);font-size:12px}
+.report .pts{display:grid;gap:22px;margin-top:26px}
+.pt{display:grid;grid-template-columns:44px 1fr;gap:14px}.pt i{width:44px;height:44px;border-radius:10px;border:1px solid var(--line-2);display:grid;place-items:center;color:var(--gold)}
+.pt i svg{width:20px;height:20px}.pt b{font-size:17px}.pt p{color:var(--muted);font-size:15px}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);margin-top:44px;border-top:1px solid var(--line)}
+.step{padding-top:26px}.step+.step{border-inline-start:1px solid var(--line);padding-inline-start:26px}
+.step:not(:last-child){padding-inline-end:26px}
+.step em{font:700 15px var(--f);font-style:normal;color:var(--gold)}.step b{display:block;font-size:19px;margin-top:6px}.step p{color:var(--muted);font-size:14.5px;margin-top:4px}
+
+/* closing */
+.close{position:relative;margin-top:110px;min-height:440px;display:flex;align-items:center;overflow:hidden}
+.close .bg{position:absolute;inset:0;background:url("/assets/home/damascene.jpg") center/cover}
+.close::after{content:"";position:absolute;inset:0;background:linear-gradient(270deg,rgba(17,33,63,.97) 0%,rgba(17,33,63,.9) 50%,rgba(17,33,63,.4) 100%)}
+.close .wrap{position:relative;z-index:2;width:100%}
+.close h2{max-width:640px}.close .acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px}
+.close .rules{display:flex;flex-wrap:wrap;gap:8px 26px;margin-top:26px;color:#C9D2E1;font-size:14.5px}
+.close .rules span::before{content:"✓";color:var(--gold);margin-inline-end:8px;font-weight:700}
+.credit{color:rgba(255,255,255,.4);font-size:12px;padding-block:16px 26px}
+footer{border-top:1px solid var(--line);padding-block:26px;color:var(--muted);font-size:14px}
+
+/* entrance: content is visible at rest; the motion runs only once JS marks the page */
+.js .rv{opacity:0;transform:translateY(40px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.js .rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.js .rv{opacity:1;transform:none;transition:none}}
+
+@media (max-width:1000px){
+  .wrap{padding-inline:20px}
+  .hero{padding-top:110px}.hero .wrap{grid-template-columns:1fr;gap:34px}.hero h1{font-size:40px}.hero p{font-size:16px}
+  .collage{height:380px;gap:10px}.collage .f{padding:5px}.collage .f span{inset:auto 12px 10px 12px;font-size:12px}.collage .f span b{font-size:15px}
+  .hstats{gap:22px;flex-wrap:wrap;margin-top:40px}.hstats div b{font-size:26px}.hstats .note{width:100%;margin:0}
+  h2{font-size:30px}section.s{padding-top:76px}
+  .show{grid-template-columns:1fr;gap:34px}
+  .proof{grid-template-columns:1fr}.proof>*{padding:18px 0}.proof>*+*{border-inline-start:0;border-top:1px solid var(--line)}.show .place:nth-child(2){order:-1}
+  .opt{grid-template-columns:1fr;gap:16px}.opt .pr{text-align:start;display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0}.opt .pr .btn{margin:0}
+  .band{grid-template-columns:1fr}.band .pic{min-height:360px}.band .tx{padding:26px 20px}.band .tx .btn{align-self:stretch}
+  .svc{grid-template-columns:1fr}.sv,.sv:not(:nth-child(3n+1)){padding:22px 0;border-inline-start:0}
+  .svc-cta{padding:18px}.svc-cta .btn{flex:1 1 100%}
+  .report{grid-template-columns:1fr;gap:30px}.kpis{grid-template-columns:repeat(2,1fr);row-gap:16px}
+  .steps{grid-template-columns:1fr 1fr}.step,.step+.step,.step:not(:last-child){padding:22px 0 0;border:0}.steps .step:nth-child(even){border-inline-start:1px solid var(--line);padding-inline-start:18px}.steps .step:nth-child(odd){padding-inline-end:18px}
+  .close{min-height:0;padding-block:70px;margin-top:76px}.close::after{background:linear-gradient(180deg,rgba(17,33,63,.7),rgba(17,33,63,.96))}
+  .btn{height:50px}.hero .acts .btn,.close .acts .btn{flex:1 1 100%}
+  .top .add{display:none}
+  .mocktag{top:auto;bottom:auto;position:static;display:block;width:max-content;margin:84px 20px -64px auto}
+}
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add("js")</script>
+<span class="mocktag">نموذج للعرض فقط · الأسعار أمثلة</span>
+
+<header class="top"><div class="wrap">
+  <a class="logo" href="/" aria-label="بلكون"><img src="/brand/logo-light.png" alt="بلكون" width="139" height="40"></a>
+  <span class="sp"></span>
+  <a class="btn gold add" href="#">+ أضف إعلانك</a>
+  <span class="burger" aria-hidden="true"><i></i><i></i><i></i></span>
+</div></header>
+
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow rv">للمالكين والمكاتب العقارية</div>
+      <h1 class="rv">إعلانك أمام من يبحث <em>فعلاً</em>.</h1>
+      <p class="rv">نختار إعلانات مميزة ونروّجها على بلكون وعلى فيسبوك وإنستغرام، لتصل إلى من يبحث عن عقار في مدينتك وإلى السوريين في الخارج.</p>
+      <div class="acts rv"><a class="btn gold" href="#opts">روّج إعلاناً من إعلاناتي</a><a class="btn line" href="#agencies">للمكاتب العقارية</a></div>
+    </div>
+    <div class="collage rv">
+      <div class="f"><i style="background-image:url('img/hero-terrace.jpg')"></i><span><b>فيلا بمسبح وتراس</b>من ريل بلكون</span></div>
+      <div class="f"><i style="background-image:url('img/hero-bedroom-view.jpg')"></i><span><b>غرفة مطلة على المسبح</b>من ريل بلكون</span></div>
+      <div class="f"><i style="background-image:url('img/hero-kitchen.jpg')"></i><span><b>مطبخ حديث</b>من ريل بلكون</span></div>
+    </div>
+  </div>
+  <div class="wrap st"><div class="hstats rv">
+    <div><b class="ltr">2,683</b><span>زائر</span></div>
+    <div><b class="ltr">12,582</b><span>مشاهدة إعلان</span></div>
+    <div><b class="ltr">197</b><span>تواصل مع المعلنين</span></div>
+    <span class="note">أرقام بلكون الحقيقية، آخر 30 يوماً</span>
+  </div></div>
+</section>
+
+<section class="s"><div class="wrap">
+  <div class="head"><div><div class="eyebrow rv">أين يظهر إعلانك</div><h2 class="rv">ثلاثة أماكن، وإعلان واحد.</h2></div>
+    <p class="lede rv">هكذا يرى الناس إعلانك بعد الترويج. الصور لقطات من ريلات بلكون.</p></div>
+  <div class="show">
+    <figure class="place rv">
+      <div class="frame"><div class="card">
+        <div class="ph" style="background-image:url('img/card-villa-lit.jpg')"><span class="feat">★ مميز</span></div>
+        <div class="bd"><b>فيلا ومزرعة للبيع</b><span class="pl">مثال على إعلان مميز</span>
+          <div class="pr"><strong>سعر مثال</strong><small>من ريل بلكون</small></div></div>
+      </div></div>
+      <figcaption><b>أول نتائج البحث</b><span>يظهر إعلانك فوق غيره في مدينته، بشارة «مميز».</span></figcaption>
+    </figure>
+    <figure class="place rv">
+      <div class="phone"><div class="reel fb"><a class="poster" href="https://www.facebook.com/reel/1119468007326134/" target="_blank" rel="noopener" aria-label="شاهد ريل بلكون على فيسبوك" style="background-image:url('img/reel-cover-inside.jpg')"><span class="play"></span><span class="fbtag">شاهد على فيسبوك · <b class="ltr">75K</b></span></a></div></div>
+      <figcaption style="text-align:center"><b>ريل على فيسبوك وإنستغرام</b><span>ريل حقيقي من صفحة بلكون: <b class="ltr" style="display:inline;color:var(--gold)">75K</b> مشاهدة.</span></figcaption>
+    </figure>
+    <figure class="place rv">
+      <div class="frame"><div class="square" style="background-image:url('img/square-modern-pool.jpg')">
+        <span class="ad">إعلان</span>
+        <div class="in"><small>مثال على مربع إعلاني</small><b>فيلا حديثة بمسبح</b><span>من ريل بلكون</span></div>
+      </div></div>
+      <figcaption><b>مربع في الصفحة الرئيسية</b><span>مكان ثابت في أول ما يراه كل زائر.</span></figcaption>
+    </figure>
+  </div>
+  <div class="proof rv">
+    <div class="ph"><div class="eyebrow">ريلات بلكون على فيسبوك</div><p>أرقام حقيقية من صفحتنا، كما يعرضها فيسبوك اليوم.</p></div>
+    <a class="rl" href="https://www.facebook.com/reel/1119468007326134/" target="_blank" rel="noopener"><b class="ltr">75K</b><em>مشاهدة</em><span>«عندك بيت أو أرض بسوريا وأنت بعيد عنها؟»</span><small><i class="ltr">735</i> تفاعل · <i class="ltr">85</i> تعليق · <i class="ltr">60</i> مشاركة</small></a>
+    <a class="rl" href="https://www.facebook.com/reel/4642301579349382/" target="_blank" rel="noopener"><b class="ltr">50K</b><em>مشاهدة</em><span>«بلكون… منصة عقارات سوريا المجانية»</span><small><i class="ltr">344</i> تفاعل · <i class="ltr">54</i> تعليق · <i class="ltr">84</i> مشاركة</small></a>
+    <a class="rl" href="https://www.facebook.com/reel/2540365209809653/" target="_blank" rel="noopener"><b class="ltr">20K</b><em>مشاهدة</em><span>«فيلا ومزرعة VIP للبيع»، ريل إعلان</span><small><i class="ltr">622</i> تفاعل · <i class="ltr">87</i> تعليق · <i class="ltr">11</i> مشاركة</small></a>
+  </div>
+</div></section>
+
+<section class="s" id="opts"><div class="wrap">
+  <div class="head"><div><div class="eyebrow rv">للأفراد والمالكين</div><h2 class="rv">اختر كيف تروّج إعلانك.</h2></div>
+    <p class="lede rv">تدفع بعد أن نراجع إعلانك ونوافق عليه. وإن لم نقبله لا تدفع شيئاً.</p></div>
+  <div class="opts">
+    <div class="opt rv">
+      <div class="im" style="background-image:url('img/opt-living.jpg')"></div>
+      <div><h3>تمييز على بلكون</h3><p>إعلانك في أول نتائج البحث في مدينته، بشارة «مميز» ذهبية.</p>
+        <ul><li>7 أيام</li><li>أول النتائج</li><li>شارة «مميز»</li></ul></div>
+      <div class="pr"><div><b class="ltr">$10</b><em>سعر مثال</em></div><a class="btn line" href="#">اختر</a></div>
+    </div>
+    <div class="opt hi rv">
+      <div class="im" style="background-image:url('img/opt-night-pool.jpg')"></div>
+      <div><h3>إعلان ممول <span class="tag">الأكثر طلباً</span></h3><p>نصنع من صور إعلانك ريلاً قصيراً، وننشره ممولاً على فيسبوك وإنستغرام في مدينتك وللمغتربين. الرسائل تصلك مباشرة على واتساب.</p>
+        <ul><li>5 أيام</li><li>الميزانية ضمن السعر</li><li>تقرير يومي</li></ul></div>
+      <div class="pr"><div><b class="ltr">$25</b><em>سعر مثال</em></div><a class="btn gold" href="#">اختر</a></div>
+    </div>
+    <div class="opt rv">
+      <div class="im" style="background-image:url('img/opt-villa-lit.jpg')"></div>
+      <div><h3>الباقة الكاملة</h3><p>التمييز والإعلان الممول معاً، ومربع في الصفحة الرئيسية.</p>
+        <ul><li>14 يوماً</li><li>تمييز وريل ممول</li><li>مربع في الرئيسية</li></ul></div>
+      <div class="pr"><div><b class="ltr">$40</b><em>سعر مثال</em></div><a class="btn line" href="#">اختر</a></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="s" id="agencies"><div class="wrap">
+  <div class="head"><div><div class="eyebrow rv">للمكاتب العقارية</div><h2 class="rv">شريك بلكون، كل شهر.</h2></div>
+    <p class="lede rv">اشتراك شهري يضع مكتبك أمام الناس باستمرار، بلا عمولة على أي صفقة.</p></div>
+  <div class="band rv">
+    <div class="pic"><i style="background-image:url('img/band-stone-terrace.jpg')"></i><i style="background-image:url('img/band-terrace-sunset.jpg')"></i></div>
+    <div class="tx">
+      <h3>اختر حجم حضورك</h3><p>كل الباقات تشمل شعار مكتبك على بطاقاته وصفحة خاصة بالمكتب.</p>
+      <div class="tiers">
+        <div class="tier"><div><b>أساسية</b><span>5 إعلانات مميزة كل شهر</span></div><strong class="ltr">$49<small> / شهر</small></strong></div>
+        <div class="tier"><div><b>احترافية</b><span>15 مميزاً، مربع في الرئيسية، ريلان ممولان، تقرير شهري</span></div><strong class="ltr">$129<small> / شهر</small></strong></div>
+        <div class="tier"><div><b>مميزة</b><span>تمييز بلا حد، بانر البحث، 4 ريلات، حملة شهرية، مدير حساب</span></div><strong class="ltr">$249<small> / شهر</small></strong></div>
+      </div>
+      <a class="btn gold" href="#">تحدث معنا على واتساب</a>
+    </div>
+  </div>
+</div></section>
+
+<section class="s" id="team"><div class="wrap">
+  <div class="head"><div><div class="eyebrow rv">فريق بلكون</div><h2 class="rv">فريق كامل يعمل لإعلانك.</h2></div>
+    <p class="lede rv">ليس إعلاناً فقط. عندنا مصورون ومحررو فيديو ومصممون وخبراء إعلانات، ونستطيع إدارة صفحاتك وحملاتك من البداية للنهاية.</p></div>
+  <div class="svc"><div class="sv rv"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="4"/></svg></i><b>تصوير احترافي</b><p>مصورون يزورون العقار ويصورونه بالضوء الصحيح، داخلاً وخارجاً، بصور تبيع.</p></div><div class="sv rv"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M10 9l5 3-5 3z"/></svg></i><b>مونتاج الفيديو والريلات</b><p>محررو فيديو يصنعون ريلاً قصيراً بموسيقى وعناوين وشعار، جاهزاً للنشر.</p></div><div class="sv rv"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19l7-7 3 3-7 7z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18z"/><circle cx="11" cy="11" r="2"/></svg></i><b>تصميم</b><p>مصممون لمنشورات الإعلان، وهوية المكتب، والشعار، والبطاقات.</p></div><div class="sv rv"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-6v14L3 13z"/><path d="M7 12v5a2 2 0 0 0 4 0v-3"/></svg></i><b>خبراء إعلانات</b><p>نختار الجمهور والميزانية والمدينة، ونتابع الحملة يوماً بيوم لتصل بأقل تكلفة.</p></div><div class="sv rv"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M9 7h6M9 11h6M9 15h3"/></svg></i><b>إدارة صفحات التواصل</b><p>ننشر على صفحتك بانتظام، ونرد على التعليقات، ونرتّب الرسائل إلى واتساب.</p></div><div class="sv rv"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 20V10l4-3 4 3v10"/><path d="M13 20V6l4-3 4 3v14"/></svg></i><b>حملات متكاملة</b><p>حملة كاملة لمشروع أو مكتب: تصوير، ومحتوى، وإعلانات، وتقرير نتائج.</p></div></div>
+  <div class="svc-cta rv"><span>كل خدمة بسعر حسب العمل. نرسل لك عرضاً واضحاً قبل أن نبدأ.</span><a class="btn gold" href="#">اطلب عرض سعر على واتساب</a></div>
+</div></section>
+
+<section class="s"><div class="wrap report">
+  <div>
+    <div class="eyebrow rv">بعد الترويج</div><h2 class="rv">ترى ماذا حدث، بالأرقام.</h2>
+    <div class="pts">
+      <div class="pt rv"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18M6 16V9M11 16V5M16 16v-4M21 16V8"/></svg></i><div><b>تقرير في حسابك</b><p>كم شخصاً رأى الريل، وكم زار إعلانك، وكم راسلك، يوماً بيوم.</p></div></div>
+      <div class="pt rv"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-5.1A8 8 0 1 1 21 12z"/></svg></i><div><b>الرسائل لك وحدك</b><p>الناس يتواصلون معك مباشرة، ولا نأخذ أي عمولة على البيع.</p></div></div>
+      <div class="pt rv"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z"/><path d="M8.5 12l2.5 2.5L16 9.5"/></svg></i><div><b>نعد بالوصول، لا بالبيع</b><p>نضمن أن يصل إعلانك للناس. أما البيع فقرار المشتري.</p></div></div>
+    </div>
+  </div>
+  <div class="rep rv">
+    <div class="rh"><i style="background-image:url('img/card-villa-lit.jpg')"></i><div><b>فيلا ومزرعة VIP للبيع</b><span>إعلان ممول · 5 أيام · أرقام مثال</span></div></div>
+    <div class="kpis">
+      <div><b class="ltr">18,400</b><span>ظهور</span></div>
+      <div><b class="ltr">9,150</b><span>مشاهدة للريل</span></div>
+      <div><b class="ltr">540</b><span>زيارة للإعلان</span></div>
+      <div><b class="ltr">41</b><span>رسالة واتساب</span></div>
+    </div>
+    <div class="bars">
+      <div><i style="height:38%"></i><span>يوم 1</span></div><div><i style="height:62%"></i><span>يوم 2</span></div><div><i style="height:88%"></i><span>يوم 3</span></div><div><i style="height:70%"></i><span>يوم 4</span></div><div><i style="height:54%"></i><span>يوم 5</span></div>
+    </div>
+  </div>
+</div></section>
+
+<section class="s"><div class="wrap">
+  <div class="eyebrow rv">كيف يعمل</div><h2 class="rv">أربع خطوات، وكلها من هاتفك.</h2>
+  <div class="steps">
+    <div class="step rv"><em class="ltr">1</em><b>اختر الإعلان والطريقة</b><p>من «إعلاناتي»، اضغط «روّج» واختر.</p></div>
+    <div class="step rv"><em class="ltr">2</em><b>نراجع إعلانك</b><p>نتأكد أنه حقيقي وصوره واضحة، خلال ساعات.</p></div>
+    <div class="step rv"><em class="ltr">3</em><b>تدفع</b><p>سيريتل كاش أو MTN كاش أو تحويل.</p></div>
+    <div class="step rv"><em class="ltr">4</em><b>ينطلق الترويج</b><p>وتتابع النتائج في حسابك يوماً بيوم.</p></div>
+  </div>
+</div></section>
+
+<section class="close">
+  <div class="bg"></div>
+  <div class="wrap">
+    <div class="eyebrow rv">ابدأ اليوم</div>
+    <h2 class="rv">النشر على بلكون مجاني دائماً. الترويج خيار، حين تريد وصولاً أسرع.</h2>
+    <div class="acts rv"><a class="btn gold" href="#">روّج إعلاناً من إعلاناتي</a><a class="btn line" href="#">اسألنا على واتساب</a></div>
+    <div class="rules rv"><span>إعلانات حقيقية فقط</span><span>لا تدفع إن رفضنا الإعلان</span><span>بلا عمولة على البيع</span></div>
+  </div>
+</section>
+<div class="wrap credit">صور البيوت لقطات من ريلات بلكون على فيسبوك. صورة الخاتمة: ويكيميديا كومنز (CC BY-SA).</div>
+<footer><div class="wrap">بلكون، عقارات سوريا من المالك مباشرة</div></footer>
+
+<script>
+(function(){ var els=[].slice.call(document.querySelectorAll(".rv"));
+  if(!("IntersectionObserver" in window)){ els.forEach(function(e){e.classList.add("in")}); return }
+  var io=new IntersectionObserver(function(es){ var n=0; es.forEach(function(en){ if(!en.isIntersecting) return; var e=en.target; e.style.transitionDelay=(Math.min(n++,5)*90)+"ms"; e.classList.add("in"); io.unobserve(e) }) },{threshold:.12});
+  els.forEach(function(e){ io.observe(e) }) })();
+</script>
+</body>
+</html>

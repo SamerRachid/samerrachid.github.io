@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>لوحة بلكون الجديدة</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;500;700&display=swap">
+<style>
+:root{--navy:#14213D;--gold:#C4881F;--gold-w:#FBF3E4;--ink:#1B2333;--grey:#6B7280;--line:#E6E8EC;--page:#F4F2ED;--card:#fff;--ok:#1D7A4E;--warn-bg:#FFF4DC;--warn:#8A5A00}
+*{box-sizing:border-box}
+body{margin:0;background:var(--page);font-family:'Noto Kufi Arabic',system-ui,sans-serif;color:var(--ink);padding:24px 16px 48px}
+h2.sec{font-size:15px;font-weight:500;color:var(--grey);margin:0 auto 10px;max-width:1100px}
+.desk{max-width:1100px;margin:0 auto 40px;background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.top{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--navy);color:#fff}
+.brand{font-weight:700;font-size:18px;color:var(--gold)}
+.brand small{font-weight:400;font-size:12px;color:#C9D1E3;margin-inline-start:6px}
+.q{flex:1;max-width:380px;background:#fff;color:#8A92A3;border-radius:8px;padding:8px 12px;font-size:13px}
+.tr{margin-inline-start:auto;display:flex;gap:10px;align-items:center;font-size:13px}
+.pill{border:1px solid #33416A;border-radius:8px;padding:6px 10px}
+.bell{position:relative;border:1px solid #33416A;border-radius:8px;padding:6px 10px}
+.bell i{position:absolute;top:-6px;left:-6px;background:#D83A3A;color:#fff;font-style:normal;font-size:10px;border-radius:9px;padding:1px 5px}
+.grid{display:grid;grid-template-columns:220px 1fr;min-height:560px}
+.side{background:#FAFAF7;border-inline-end:1px solid var(--line);padding:12px 10px;display:flex;flex-direction:column;gap:2px}
+.side a{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:14px;color:var(--ink);text-decoration:none}
+.side a.on{background:var(--navy);color:#fff}
+.side a .n{margin-inline-start:auto;background:var(--gold);color:#fff;font-size:11px;border-radius:10px;padding:1px 8px}
+.side .sub{padding-inline-start:34px;font-size:13px;color:var(--grey)}
+.side .sp{flex:1}
+.main{padding:22px 26px}
+.main h1{font-size:20px;margin:0 0 4px}
+.main .hint{color:var(--grey);font-size:13px;margin:0 0 18px}
+.mets{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.met{background:var(--page);border-radius:10px;padding:12px 14px}
+.met small{display:block;color:var(--grey);font-size:12px}
+.met b{font-size:22px}
+.box{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.box h3{margin:0;padding:12px 16px;font-size:14px;border-bottom:1px solid var(--line);background:#FBFBFD}
+.todo{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);font-size:14px}
+.todo:last-child{border-bottom:0}
+.todo .dot{width:34px;height:34px;border-radius:9px;background:var(--gold-w);color:var(--gold);display:grid;place-items:center;font-weight:700}
+.todo .go{margin-inline-start:auto;border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:13px;color:var(--navy)}
+.phones{display:flex;gap:28px;justify-content:center;flex-wrap:wrap}
+.phone{width:340px;background:var(--card);border-radius:34px;border:10px solid #10151F;overflow:hidden;display:flex;flex-direction:column;height:690px}
+.ptop{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--navy);color:#fff}
+.ptop .brand{font-size:17px}
+.ptop span{margin-inline-start:auto;font-size:18px}
+.pbody{flex:1;overflow:hidden;padding:14px 14px 0;background:var(--page)}
+.pbody .mets{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.pbody .met{background:#fff}
+.pbody .todo{padding:12px 14px;min-height:52px;background:#fff}
+.pbody .go{padding:0;border:0;font-size:18px;color:var(--grey)}
+.lcard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;margin-top:12px}
+.lcard .row{display:flex;gap:10px}
+.lcard .ph{width:64px;height:64px;border-radius:10px;background:linear-gradient(135deg,#D9D2C3,#B9AE96)}
+.lcard b{font-size:14px}
+.lcard small{display:block;color:var(--grey);font-size:12px;margin-top:2px}
+.acts{display:flex;gap:8px;margin-top:12px}
+.acts button{flex:1;height:44px;border-radius:10px;font:inherit;font-size:14px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+.acts button.ok{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tab{display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--line);background:#fff;padding:8px 2px 14px;text-align:center;font-size:11px;color:var(--grey)}
+.tab div{display:flex;flex-direction:column;align-items:center;gap:3px}
+.tab .ic{font-size:19px;line-height:1}
+.tab .on{color:var(--navy);font-weight:700}
+.tab .badge{background:var(--gold);color:#fff;border-radius:8px;font-size:10px;padding:0 5px}
+.pmenu .pbody a{display:flex;justify-content:space-between;align-items:center;background:#fff;border-bottom:1px solid var(--line);padding:14px;font-size:14px;color:var(--ink);text-decoration:none;min-height:52px}
+.pmenu .pbody a:first-child{border-radius:12px 12px 0 0}.pmenu .pbody a:last-child{border-radius:0 0 12px 12px;border-bottom:0}
+.cap{text-align:center;color:var(--grey);font-size:12px;margin-top:8px}
+</style>
+</head>
+<body>
+
+<h2 class="sec">الكمبيوتر</h2>
+<div class="desk">
+  <div class="top">
+    <div class="brand">بلكون<small>لوحة الإدارة</small></div>
+    <div class="q">🔍 ابحث: رقم إعلان أو طلب، اسم، هاتف، أو صفحة…</div>
+    <div class="tr"><span class="pill">سوريا ▾</span><span class="bell">🔔<i>4</i></span><span class="pill">سامر</span></div>
+  </div>
+  <div class="grid">
+    <nav class="side">
+      <a class="on">⌂ الرئيسية</a>
+      <a>▦ الإعلانات <span class="n">5</span></a>
+      <a class="sub">مسوّدات البوت · البلاغات · الوسائط</a>
+      <a>⌕ الطلبات (مطلوب) <span class="n">2</span></a>
+      <a>👥 الأعضاء</a>
+      <a class="sub">المكاتب · التقييمات · تجريبية</a>
+      <a>✉ الرسائل <span class="n">3</span></a>
+      <a>📣 التسويق</a>
+      <a>📊 التحليلات</a>
+      <a>🌐 الموقع</a>
+      <div class="sp"></div>
+      <a>⚙ الإعدادات</a>
+    </nav>
+    <main class="main">
+      <h1>صباح الخير سامر</h1>
+      <p class="hint">هذا ما يحتاج تصرّفك اليوم.</p>
+      <div class="mets">
+        <div class="met"><small>زوار اليوم</small><b>312</b></div>
+        <div class="met"><small>إعلانات جديدة</small><b>9</b></div>
+        <div class="met"><small>تواصل مع المعلنين</small><b>47</b></div>
+        <div class="met"><small>أعضاء جدد</small><b>4</b></div>
+      </div>
+      <div class="box">
+        <h3>بانتظارك</h3>
+        <a class="todo" href="pending-mockup.html" style="color:inherit;text-decoration:none;cursor:pointer"><span class="dot">5</span>إعلانات بانتظار الموافقة<span class="go">راجع</span></a>
+        <a class="todo" href="drafts-mockup.html" style="color:inherit;text-decoration:none"><span class="dot">3</span>مسوّدات من البوت تحتاج مراجعة<span class="go">راجع</span></a>
+        <div class="todo"><span class="dot">2</span>طلبات جديدة (مطلوب)<span class="go">راجع</span></div>
+        <div class="todo"><span class="dot">1</span>بلاغ عن إعلان<span class="go">راجع</span></div>
+        <div class="todo"><span class="dot">2</span>أرقام بانتظار التأكيد<span class="go">راجع</span></div>
+      </div>
+    </main>
+  </div>
+</div>
+
+<h2 class="sec">الهاتف</h2>
+<div class="phones">
+  <div>
+    <div class="phone">
+      <div class="ptop"><div class="brand">بلكون</div><span>🔍</span><span>🔔</span></div>
+      <div class="pbody">
+        <div class="mets">
+          <div class="met"><small>زوار اليوم</small><b>312</b></div>
+          <div class="met"><small>إعلانات جديدة</small><b>9</b></div>
+        </div>
+        <div class="box">
+          <a class="todo" href="pending-mockup.html" style="color:inherit;text-decoration:none"><span class="dot">5</span>بانتظار الموافقة<span class="go">‹</span></a>
+          <div class="todo"><span class="dot">3</span>مسوّدات البوت<span class="go">‹</span></div>
+          <div class="todo"><span class="dot">2</span>طلبات جديدة<span class="go">‹</span></div>
+        </div>
+        <div class="lcard">
+          <div class="row"><div class="ph"></div><div><b>SY10473 · شقة للبيع</b><small>المزة · 150 م² · 3 غرف</small><small>$80,000 · أبو علي للعقارات</small></div></div>
+          <div class="acts"><button>رفض</button><button class="ok">موافقة</button></div>
+        </div>
+      </div>
+      <div class="tab">
+        <div class="on"><span class="ic">⌂</span>الرئيسية</div>
+        <div><span class="ic">▦</span>الإعلانات</div>
+        <div><span class="ic">⌕</span>الطلبات</div>
+        <div><span class="ic">✉</span>الرسائل <span class="badge">3</span></div>
+        <div><span class="ic">≡</span>المزيد</div>
+      </div>
+    </div>
+    <p class="cap">الرئيسية على الهاتف</p>
+  </div>
+
+  <div class="pmenu">
+    <div class="phone">
+      <div class="ptop"><div class="brand">المزيد</div></div>
+      <div class="pbody">
+        <a>👥 الأعضاء <span>‹</span></a>
+        <a>📣 التسويق <span>‹</span></a>
+        <a>📊 التحليلات <span>‹</span></a>
+        <a>🌐 الموقع <span>‹</span></a>
+        <a>⚙ الإعدادات <span>‹</span></a>
+      </div>
+      <div class="tab">
+        <div><span class="ic">⌂</span>الرئيسية</div>
+        <div><span class="ic">▦</span>الإعلانات</div>
+        <div><span class="ic">⌕</span>الطلبات</div>
+        <div><span class="ic">✉</span>الرسائل <span class="badge">3</span></div>
+        <div class="on"><span class="ic">≡</span>المزيد</div>
+      </div>
+    </div>
+    <p class="cap">زر «المزيد» يفتح باقي الأقسام</p>
+  </div>
+</div>
+
+<style id="darkcss">
+html.dark{--ink:#E7EAF0;--grey:#9AA3B5;--line:#2A3348;--page:#0E1320;--card:#151B29;--gold-w:#2B2414;--ok:#5FD39A;--ok-bg:#12301F;--warn:#F2C062;--warn-bg:#33270F;--bad:#FF8A80;--bad-bg:#3A1714}
+html.dark body{background:var(--page);color:var(--ink)}
+html.dark .top,html.dark .ptop{background:#0A0F1A}
+html.dark .q{background:#1C2334;color:#7D879B}
+html.dark .side{background:#121826}
+html.dark .side a{color:var(--ink)}
+html.dark .side a.on{background:var(--gold);color:#1A1206}
+html.dark .side a.sub.on{background:var(--gold-w);color:#F2D39A}
+html.dark .drawer,html.dark .box h3{background:#121826}
+html.dark .raw,html.dark .fld,html.dark .btn,html.dark .pcard,html.dark .who,html.dark .chips span,html.dark .tools .s,html.dark .tools .f,html.dark .pbody .met,html.dark .pbody .todo,html.dark .ptabs span,html.dark .tab,html.dark .pact,html.dark .back,html.dark .acts button,html.dark .lcard,html.dark .pmenu .pbody a,html.dark .bulk .b{background:#1A2132;color:var(--ink);border-color:var(--line)}
+html.dark .fld.miss{background:#2E2513;border-color:#7A5A1C}
+html.dark .btn.p,html.dark .acts button.ok,html.dark .bulk .p,html.dark .ptabs span.on{background:var(--gold);color:#1A1206;border-color:var(--gold)}
+html.dark .tabs span.on{color:#F2D39A;border-color:var(--gold)}
+html.dark .lrow:hover,html.dark .row.sel{background:#1A2132}
+html.dark .lrow.cur{background:#1D2740;box-shadow:inset -3px 0 0 var(--gold)}
+html.dark .price,html.dark .owner,html.dark .todo .go{color:#F2D39A}
+html.dark .ph,html.dark .gal div,html.dark .pics div,html.dark .lcard .ph{background:linear-gradient(135deg,#3A3F4D,#2A2F3B)!important}
+html.dark .st.r{background:#1E2A44;color:#A9C1F5}
+html.dark .met{background:#1A2132}
+html.dark .bulk{background:#241F14;border-color:#4A3D20}
+html.dark .phone{border-color:#000}
+.modebtn{position:fixed;top:12px;left:12px;z-index:9;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:8px 14px;font:inherit;font-size:13px;cursor:pointer}
+</style>
+<button class="modebtn" id="modeBtn" type="button">🌙 الوضع الليلي</button>
+<script>
+(function(){var h=document.documentElement,b=document.getElementById("modeBtn");
+function set(d){h.classList.toggle("dark",d);b.textContent=d?"☀️ الوضع النهاري":"🌙 الوضع الليلي";try{localStorage.setItem("mk_dark",d?"1":"0")}catch(e){}}
+var d=/[?&]dark/.test(location.search);try{if(!d)d=localStorage.getItem("mk_dark")==="1"}catch(e){}
+set(d);b.onclick=function(){set(!h.classList.contains("dark"))}})();
+</script>
+</body>
+</html>
