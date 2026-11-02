@@ -3297,6 +3297,10 @@ function fillGeo(gs,as,withAll,multi){
    as.innerHTML=(multi?'<option value="">'+t("addArea")+'</option>':(withAll?'<option value="">'+t("allareas")+'</option>':'<option value="">'+GX("pickArea")+'</option>'))+
      opts.map(function(a){return '<option value="'+a+'"'+(!multi&&F.a===a?" selected":"")+'>'+aN(a)+'</option>'}).join("")+
      (postForm?'<option value="__other__">'+GX("areaOther")+'</option>':'');
+   // a governorate changed after «other» was typed rebuilt the list and dropped the pick, while the typed place stayed on
+   // screen: the form then said «missing: area» (owner, 2026-11-02). Keep «other» while its box holds a name; hide an empty box.
+   if(postForm){ var oBox=document.getElementById("paOther"), oHint=document.getElementById("paOtherHint");
+     if(oBox&&oBox.style.display!=="none"){ if(oBox.value.trim()) as.value="__other__"; else { oBox.style.display="none"; if(oHint) oHint.style.display="none" } } }
    if(postForm&&!as._otherWired){ as._otherWired=true; as.addEventListener("change",function(){ var o=document.getElementById("paOther"), h=document.getElementById("paOtherHint"), on=as.value==="__other__"; if(o){ o.style.display=on?"":"none"; if(on) o.focus() } if(h) h.style.display=on?"":"none"; if(typeof checkPost==="function") checkPost() }) }
    if(!multi && !withAll) areaCombo(as)};
  gs.addEventListener("change",fill); fill()}
@@ -3322,7 +3326,12 @@ function areaCombo(as){
  wrap.appendChild(box); wrap.appendChild(drop);
  as.parentNode.insertBefore(wrap,as);
  var sync=function(){ input.value = as.value ? labelOf(as.value) : "" };
- var pick=function(v){ as.value=v; sync(); drop.classList.remove("on"); input.setAttribute("aria-expanded","false"); try{ input.blur() }catch(e){} as.dispatchEvent(new Event("change",{bubbles:true})) };
+ // a place typed that is not in the list becomes «other» with that name in its box, offered as «أضف «…»» and kept
+ // when the sender leaves the box (owner, 2026-11-02: the typed name vanished and the box to add it never showed)
+ var typed="";
+ var hasOther=function(){ return liveOpts().some(function(o){ return o.v==="__other__" }) };
+ var exactOpt=function(q){ var n=kwNorm(q); return liveOpts().filter(function(o){ return o.v && o.v!=="__other__" && kwNorm(o.t)===n })[0] };
+ var pick=function(v){ if(v==="__other__" && typed.trim().length>=2 && !exactOpt(typed)){ var ob=document.getElementById("paOther"); if(ob) ob.value=typed.trim() } typed=""; as.value=v; sync(); drop.classList.remove("on"); input.setAttribute("aria-expanded","false"); try{ input.blur() }catch(e){} as.dispatchEvent(new Event("change",{bubbles:true})) };
  // phones show the list as a bottom sheet; iPhone's keyboard does not shrink the page, so the sheet would sit behind it
  var lift=function(){ try{ var vv=window.visualViewport; if(!vv || !drop.classList.contains("on") || !matchMedia("(max-width:640px)").matches){ drop.style.bottom=""; return }
    var kb=Math.max(0, window.innerHeight-vv.height-vv.offsetTop); drop.style.bottom=kb?kb+"px":""; if(kb) drop.style.maxHeight=Math.max(160, Math.round(vv.height*0.6))+"px" }catch(e){} };
@@ -3331,17 +3340,27 @@ function areaCombo(as){
    var n=kwNorm(q||""), cur=as.value;
    var keep=liveOpts().filter(function(o){ return o.v && (o.v==="__other__" || !n || kwNorm(o.t).indexOf(n)>-1) });
    drop.innerHTML = keep.length ? keep.map(function(o){
-     return '<div class="chipsel-opt'+(o.v===cur?" act":"")+'" data-acval="'+esc(o.v)+'">'+esc(o.t)+'</div>' }).join("")
+     var lbl = o.v==="__other__" && (q||"").trim().length>=2 && !exactOpt(q) ? GX("areaAddTyped").replace("{x}",(q||"").trim()) : o.t;
+     return '<div class="chipsel-opt'+(o.v===cur?" act":"")+'" data-acval="'+esc(o.v)+'">'+esc(lbl)+'</div>' }).join("")
      : '<div class="chipsel-empty">'+t("noResultsFor")+'</div>';
    $$(".chipsel-opt",drop).forEach(function(el){ el.onclick=function(){ pick(el.dataset.acval) } });
+   if(!drop.classList.contains("on")) drop._openAt=Date.now();
    closeAllMenus(drop); drop.classList.add("on"); input.setAttribute("aria-expanded","true");
    positionDropUpOrDown(input,drop); lift();
  };
  drop.onclick=function(ev){ ev.stopPropagation() };
  input.addEventListener("focus",function(){ render("") });
- input.addEventListener("input",function(){ render(this.value) });
+ input.addEventListener("input",function(){ typed=this.value; render(this.value) });
  input.addEventListener("click",function(e){ e.stopPropagation(); if(!drop.classList.contains("on")) render("") });
- input.addEventListener("blur",function(){ setTimeout(function(){ if(!drop.classList.contains("on")) sync() },150) });
+ // the list closes on the click that took the focus away, which can come after this check: wait for it (up to 3 s)
+ var settle=function(tries){ if(document.activeElement===input) return;
+   if(drop.classList.contains("on")){ if(tries<20){ setTimeout(function(){ settle(tries+1) },150); return } drop.classList.remove("on"); input.setAttribute("aria-expanded","false") }
+   var hit=typed.trim().length>=2 && exactOpt(typed);
+   var n=kwNorm(typed), near=!hit && n && liveOpts().some(function(o){ return o.v && o.v!=="__other__" && kwNorm(o.t).indexOf(n)>-1 });
+   if(hit){ if(as.value!==hit.v) pick(hit.v); else { typed=""; sync() } }
+   else if(typed.trim().length>=2 && !near && hasOther()) pick("__other__");
+   else if(!(typed.trim() && near)) { typed=""; sync() } };   // a part of several names stays on screen until one is chosen
+ input.addEventListener("blur",function(){ setTimeout(function(){ settle(0) },150) });
  input.addEventListener("keydown",function(e){
    if(e.key==="ArrowDown"||e.key==="ArrowUp"){
      var arr=[].slice.call(drop.querySelectorAll(".chipsel-opt")); if(!arr.length) return;
@@ -3351,7 +3370,7 @@ function areaCombo(as){
      arr[i].classList.add("act"); if(arr[i].scrollIntoView) arr[i].scrollIntoView({block:"nearest"});
    } else if(e.key==="Enter"){
      if(drop.classList.contains("on")){ var a=drop.querySelector(".chipsel-opt.act")||drop.querySelector(".chipsel-opt"); if(a){ e.preventDefault(); pick(a.dataset.acval) } }
-   } else if(e.key==="Escape"){ drop.classList.remove("on"); sync(); input.blur() }
+   } else if(e.key==="Escape"){ typed=""; drop.classList.remove("on"); sync(); input.blur() }
  });
  as._combo={sync:sync};
  sync();
@@ -5495,6 +5514,9 @@ if(!window._menusEscAdded){ window._menusEscAdded=true;
 // phones (2026-10-29): a pick used to re-render the whole bar/page and re-open the sheet, which read as a flash and a
 // refresh on every tap; now the open sheet is edited in place and the page catches up when the sheet is closed
 // phones (owner 2026-10-29): sheets leave the way they came — .out plays the exit animation, then the element is hidden
+// a list opened by the focus of a tap: on a phone its backdrop is laid under the finger before that same tap's click,
+// which then closed it at once (area box on the post page, 2026-11-02); the opening tap does not count as an outside tap
+function csJustOpened(d){ return !!(d && d._openAt && Date.now()-d._openAt<350) }
 function huHide(el,cb){ if(!el||!el.classList.contains("on")){ if(cb) cb(); return }
   if(window.innerWidth>640){ el.classList.remove("on","out"); huDim(el,false); if(cb) cb(); return }
   if(el.classList.contains("out")) return;   // already on its way out (two listeners fire on an outside tap)
@@ -5507,7 +5529,7 @@ function huDim(drop,on){ if(window.innerWidth>640 || !drop || !drop.classList.co
   var host=document.body, e=drop.parentElement;
   while(e && e!==document.body){ var cs=getComputedStyle(e); if((cs.zIndex!=="auto" && cs.position!=="static") || +cs.opacity<1 || cs.transform!=="none" || cs.filter!=="none" || (cs.backdropFilter&&cs.backdropFilter!=="none") || cs.isolation==="isolate" || cs.mixBlendMode!=="normal"){ host=e; break } e=e.parentElement }
   var dim=host.querySelector(":scope > .hu-dim");
-  if(on){ if(dim){ dim.classList.remove("out"); return } dim=document.createElement("div"); dim.className="hu-dim"; dim.onclick=function(ev){ ev.stopPropagation(); $$(".chipsel-drop.on").forEach(function(d){ huHide(d) }) }; host.appendChild(dim) }
+  if(on){ if(dim){ dim.classList.remove("out"); return } dim=document.createElement("div"); dim.className="hu-dim"; dim.onclick=function(ev){ ev.stopPropagation(); $$(".chipsel-drop.on").forEach(function(d){ if(!csJustOpened(d)) huHide(d) }) }; host.appendChild(dim) }
   else if(dim){ dim.classList.add("out"); setTimeout(function(){ if(dim.parentNode) dim.parentNode.removeChild(dim) },260) } }
 function csSumUpdate(id,cfg){
   var wrap=$("#"+id+"Wrap"), sum=wrap&&wrap.querySelector(".cs-sum");
@@ -5649,7 +5671,7 @@ function wireChipSelects(){
   if(!_csDocListenerAdded){
     _csDocListenerAdded=true;
     document.addEventListener("click",function(){
-      $$(".chipsel-drop.on").forEach(function(d){huHide(d)});
+      $$(".chipsel-drop.on").forEach(function(d){ if(!csJustOpened(d)) huHide(d) });
     });
   }
   // after a pick or a removal the page re-renders; re-open the same list so the user can continue
@@ -9947,7 +9969,7 @@ var GX_T={
   priceOnRequest:{ar:"السعر عند التواصل",en:"Price on request",de:"Preis auf Anfrage",fr:"Prix sur demande"},
   areaSearchPH:{ar:"🔍 اكتب أول حروف الحي أو القرية…",en:"🔍 Type the first letters of the area…",de:"🔍 Anfangsbuchstaben des Gebiets…",fr:"🔍 Premières lettres du quartier…"},
   pickArea:{ar:"اختر الحي أو البلدة",en:"Choose the area",de:"Gebiet wählen",fr:"Choisir le quartier"}, areaOther:{ar:"أخرى… غير موجودة في القائمة",en:"Other… not in the list",de:"Andere… nicht in der Liste",fr:"Autre… pas dans la liste"},
-  areaOtherPH:{ar:"اكتب اسم الحي أو القرية",en:"Type the neighbourhood or village",de:"Stadtteil oder Dorf eingeben",fr:"Quartier ou village"}, areaOtherHint:{ar:"يُنشر إعلانك بهذا الاسم كمَعلم، وتضيفه الإدارة إلى القائمة قريباً.",en:"Your listing is published with this name as its landmark; the team adds it to the list soon.",de:"Ihre Anzeige erscheint mit diesem Namen als Orientierungspunkt; das Team ergänzt die Liste bald.",fr:"Votre annonce paraît avec ce nom comme repère ; l'équipe l'ajoutera bientôt à la liste."},
+  areaAddTyped:{ar:"＋ أضف «{x}» كمنطقة جديدة",en:"+ Add «{x}» as a new area",de:"+ «{x}» als neues Gebiet hinzufügen",fr:"+ Ajouter «{x}» comme nouveau quartier"}, areaOtherPH:{ar:"اكتب اسم الحي أو القرية",en:"Type the neighbourhood or village",de:"Stadtteil oder Dorf eingeben",fr:"Quartier ou village"}, areaOtherHint:{ar:"يُنشر إعلانك بهذا الاسم كمَعلم، وتضيفه الإدارة إلى القائمة قريباً.",en:"Your listing is published with this name as its landmark; the team adds it to the list soon.",de:"Ihre Anzeige erscheint mit diesem Namen als Orientierungspunkt; das Team ergänzt die Liste bald.",fr:"Votre annonce paraît avec ce nom comme repère ; l'équipe l'ajoutera bientôt à la liste."},
   uViewsShort:{ar:"مشاهدة/30 يومًا",en:"views/30d",de:"Aufrufe/30T"}, rvText:{ar:"نص التقييم",en:"Review text",de:"Bewertungstext"},
   uSettingsCol:{ar:"الإعدادات",en:"Settings",de:"Einstellungen"}, uMemberCol:{ar:"العضو",en:"Member",de:"Mitglied"},
   agColAgency:{ar:"المكتب",en:"Agency",de:"Büro"}, agColCoverage:{ar:"التغطية",en:"Coverage",de:"Abdeckung"}, agColOwner:{ar:"المالك",en:"Owner",de:"Inhaber"}, agSpecL:{ar:"التخصص",en:"Specialties",de:"Schwerpunkte"}, agIntakeOnShort:{ar:"مفعّل",en:"On",de:"An"}, agIntakeOffShort:{ar:"متوقف",en:"Off",de:"Aus"}, memberNoL:{ar:"رقم العضوية",en:"Member no.",de:"Mitgliedsnr."},
