@@ -2481,9 +2481,14 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .rs-map #rsMap{width:100%;height:100%}
 .rs-mapnote{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:500;background:rgba(255,255,255,.94);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:600;color:var(--navy);box-shadow:0 4px 12px rgba(9,14,26,.15);pointer-events:none}
 .rs-pinw{background:none;border:0}
-.rs-pin{display:inline-block;transform:translate(-50%,-100%);background:#fff;color:var(--navy);border:1.5px solid var(--navy);border-radius:999px;padding:4px 9px;font:700 12px var(--f);white-space:nowrap;box-shadow:0 4px 12px rgba(9,14,26,.25);direction:ltr;cursor:pointer;transition:transform .15s,background .15s}
-.rs-pin.feat{border-color:var(--gold);background:var(--gold-w)}
-.rs-pin.on,.rs-pin:hover,.rs-pinw.on .rs-pin{background:var(--navy);color:#fff;transform:translate(-50%,-100%) scale(1.08)}
+/* 2026-11-03 owner («3»): a smaller price tag whose pointer marks the spot; crowded pins gather into the gold .mclu circles */
+.rs-pin{display:inline-block;position:relative;transform:translate(-50%,calc(-100% - 4px));background:#fff;color:var(--navy);border-radius:6px;padding:2px 6px;font:700 10.5px/1.3 var(--f);white-space:nowrap;box-shadow:0 1px 4px rgba(9,14,26,.35);direction:ltr;cursor:pointer;transition:transform .15s,background .15s}
+.rs-pin::after{content:"";position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);border:4px solid transparent;border-top-color:#fff;border-bottom:0;transition:border-color .15s}
+.rs-pin.feat{background:var(--gold-w);box-shadow:0 0 0 1.5px var(--gold),0 1px 4px rgba(9,14,26,.35)}
+.rs-pin.feat::after{border-top-color:var(--gold)}
+.rs-pin.on,.rs-pin:hover,.rs-pinw.on .rs-pin{background:var(--navy);color:#fff;transform:translate(-50%,calc(-100% - 4px)) scale(1.1)}
+.rs-pin.on::after,.rs-pin:hover::after,.rs-pinw.on .rs-pin::after{border-top-color:var(--navy)}
+.mclu-w.on .mclu{background:var(--navy);color:#fff;box-shadow:0 0 0 4px var(--gold)}
 .res .card.hl{box-shadow:0 0 0 3px var(--gold),0 22px 40px -26px rgba(20,33,61,.45);transform:translateY(-3px)}
 .rs-mbar{display:none}
 /* results + side map ("model B"): a narrower sticky map column, two wide cards per row beside it, and an

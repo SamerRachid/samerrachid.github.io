@@ -647,8 +647,11 @@ function amenityLabel(saved){
   var pools=[D.AMEN,D.LANDAMEN];
   for(var p=0;p<pools.length;p++){
     for(var i=0;i<AMEN_LANGS.length;i++){
-      var idx=pools[p][AMEN_LANGS[i]].indexOf(saved);
-      if(idx>-1) return pools[p][AMEN_LANGS[li()]][idx];
+      // a list kept in its own file (German, scripts/lang-split.mjs) is absent until it loads: skip it (2026-11-03: reading it
+      // stopped every listing page whose amenity is not in the Arabic or English list, e.g. land listings)
+      var list=pools[p][AMEN_LANGS[i]]; if(!list) continue;
+      var idx=list.indexOf(saved);
+      if(idx>-1){ var out=pools[p][AMEN_LANGS[li()]]; return (out&&out[idx])||saved }
     }
   }
   return saved; // not a recognized amenity string — show as-saved
@@ -1900,8 +1903,8 @@ function rsAvgBox(r){
  if(!rows.length) return "";
  return '<div class="rs-avgbox"><b>'+GX("rsAvgH")+'</b>'+rows.map(function(o){ return '<div class="rs-avgrow"><span>'+aN(o.a)+'</span><span class="ltr">$'+Math.round(o.v).toLocaleString("en")+'/'+t("sqm")+'</span></div>' }).join("")+'</div>' }
 // a map pin in the listing's own currency (owner, 2026-10-23)
-function rsShort(x){ var cur=lcur(x), v=cur==="USD"?(+x.p||0):(+x.pl||0); var sh = v>=1e6 ? (Math.round(v/1e5)/10).toString().replace(/\.0$/,"")+"M" : v>=1000 ? Math.round(v/1000)+"K" : String(v); return cur==="USD" ? "$"+sh : sh+" "+curLabel(cur,"ar") }
-function rsMapStop(){ rsFloatHide(); if(RS.map){ try{ RS.map.remove() }catch(e){} RS.map=null; RS.pins={} } }
+function rsShort(x){ var cur=lcur(x), v=cur==="USD"?(+x.p||0):(+x.pl||0); if(!v) return "—"; /* no price yet: a dash, not «$0» */ var sh = v>=1e6 ? (Math.round(v/1e5)/10).toString().replace(/\.0$/,"")+"M" : v>=1000 ? Math.round(v/1000)+"K" : String(v); return cur==="USD" ? "$"+sh : sh+" "+curLabel(cur,"ar") }
+function rsMapStop(){ rsFloatHide(); if(RS.map){ try{ RS.map.remove() }catch(e){} RS.map=null; RS.pins={}; RS.clu=null } }
 // open a listing from a map card (the hover card and the clicked pin's card)
 function rsGoListing(id){ rsFloatHide(); rsMapStop(); GI=0; LIGHTBOX_OPEN=false; VIEW="listing:"+id; scrollTo(0,0); render(); refreshListingsOnNavigate();
   fetchPhotos(id).then(function(ph){ var it=D.LIST.filter(function(l){ return String(l.id)===String(id) })[0]; if(it){ it.photos=ph||[]; GI=0; render() } }) }
@@ -1933,18 +1936,20 @@ function rsMapInit(){
   // the count under the map was worked out before the area locations arrived (14 instead of 347): it follows the pins drawn
   var note=document.querySelector(".rs-mapnote"); if(note) note.innerHTML=GX("rsOnMap").replace("{n}",'<span class="ltr">'+pts.length+'</span>');
   var map, fresh=!keep;
-  if(keep){ map=RS.map; Object.keys(RS.pins).forEach(function(k){ try{ map.removeLayer(RS.pins[k]) }catch(e){} }); RS.pins={}; try{ map.closePopup() }catch(e){} }
+  if(keep){ map=RS.map; if(RS.clu){ RS.clu.remove(); RS.clu=null } RS.pins={}; try{ map.closePopup() }catch(e){} }
   else { map=LMap.map(c,{zoomControl:true}).setView(pts.length?[pts[0].lat,pts[0].lng]:countryCenter().slice(0,2), pts.length?11:countryCenter()[2]); huTiles(LMap).addTo(map) }
   var b=[];
   pts.forEach(function(x){
     var ic=LMap.divIcon({className:"rs-pinw",html:'<span class="rs-pin'+(x.featured?' feat':'')+'" data-pin="'+x.id+'">'+rsShort(x)+'</span>',iconSize:[0,0],iconAnchor:[0,0]});
-    var m=LMap.marker([x.lat,x.lng],{icon:ic}).addTo(map); RS.pins[x.id]=m;
+    var m=LMap.marker([x.lat,x.lng],{icon:ic}); RS.pins[x.id]=m;   // put on the map by the cluster layer below
     m.on("click",function(){ RS.pinnedId=x.id; rsPinOpen(x,m) });
     // hover: the mini card opens over the pin and the list card lights up; it closes shortly after the mouse leaves
     // both the pin and the card, unless the pin was clicked (pinned)
     m.on("mouseover",function(){ clearTimeout(RS.closeT); rsPinShow(x,m,{pan:false,scroll:"nearest"}) });
     m.on("mouseout",function(){ if(RS.pinnedId===x.id) return; RS.closeT=setTimeout(function(){ if(RS.pinnedId!==x.id) rsPinHide(x,m) },350) });
     b.push([x.lat,x.lng]) });
+  // owner 2026-11-03 («3»): pins that would sit on each other gather into the map page's gold circle with their number
+  RS.clu=mapClusterLayer(LMap, map, pts, function(x){ return RS.pins[x.id] });
   if(b.length>1){ try{ map.fitBounds(b,{padding:[40,40],maxZoom:14,animate:keep}) }catch(e){} }   // a kept map glides to the new pins; a fresh one opens in place (leaving mid-animation made Leaflet throw)
   if(fresh){
   // the mini card's "view listing" button (popup DOM is created by Leaflet, so it is wired here, not by the page's data-open pass)
@@ -1975,7 +1980,7 @@ function rsPinShow(x,m,o){
   rsFloatHide();
   $$(".res .card.hl").forEach(function(c){ if(+c.dataset.open!==x.id) c.classList.remove("hl") });
   var cd=document.querySelector('.res .card[data-open="'+x.id+'"]'); if(cd){ cd.classList.add("hl"); if(o.scroll && cd.scrollIntoView) cd.scrollIntoView({block:o.scroll,behavior:"smooth"}) }
-  try{ if(!m.getPopup()){ m.bindPopup(rsMiniCard(x),{className:"rs-pop",closeButton:true,maxWidth:280,minWidth:220,offset:[0,-36],autoPan:!!o.pan}); try{ m.off("click",m._openPopup,m) }catch(e2){} }   // Leaflet's own click-toggle would close the card that hover already opened
+  try{ if(!m.getPopup()){ m.bindPopup(rsMiniCard(x),{className:"rs-pop",closeButton:true,maxWidth:280,minWidth:220,offset:[0,-28],autoPan:!!o.pan}); try{ m.off("click",m._openPopup,m) }catch(e2){} }   // Leaflet's own click-toggle would close the card that hover already opened
     m.getPopup().options.autoPan=!!o.pan; if(o.pan && m.isPopupOpen()){ RS._reopen=true; try{ m.closePopup() }finally{ RS._reopen=false } } if(!m.isPopupOpen()) m.openPopup() }catch(e){}   // a click re-opens with auto-pan so the whole card is inside the map
 }
 function rsPinHide(x,m){ var fl=document.getElementById("rsFloat"); if(fl && fl.dataset.id===String(x.id)) rsFloatHide(); try{ if(m.isPopupOpen()) m.closePopup() }catch(e){} var cd=document.querySelector('.res .card[data-open="'+x.id+'"]'); if(cd) cd.classList.remove("hl") }
@@ -1984,6 +1989,8 @@ function rsPinOpen(x,m){
   var all=rsResults(), idx=-1; all.forEach(function(l,i){ if(idx<0&&l.id===x.id) idx=i });
   var size=+SX("search_page_size",24)||24, pg=Math.floor(Math.max(0,idx)/size)+1;
   if(idx>-1 && pg!==F.page){ F.page=pg; RS.focusId=x.id; render(); return }
+  // its pin is inside a circle: zoom until it stands alone, then open its card
+  if(!m._map && RS.clu){ var mp=RS.map; mp.once("zoomend",function(){ setTimeout(function(){ if(RS.map===mp && m._map) rsPinShow(x,m,{pan:true,scroll:"center"}) },80) }); mp.setView([x.lat,x.lng],RS.clu.maxZoom); return }
   rsPinShow(x,m,{pan:true,scroll:"center"});
 }
 function rsWire(opts){
@@ -2042,7 +2049,8 @@ function rsWire(opts){
       b.disabled=false; ssMark() }
     catch(e){ b.disabled=false; sp.textContent=(e.message||"error"); b.style.color="var(--danger)" } } }
   // cards ↔ pins
-  $$(".res .card[data-open]").forEach(function(cd){ cd.addEventListener("mouseenter",function(){ var m=RS.pins[cd.dataset.open]; if(m&&m._icon){ m._icon.classList.add("on"); m.setZIndexOffset(1000) } }); cd.addEventListener("mouseleave",function(){ var m=RS.pins[cd.dataset.open]; if(m&&m._icon){ m._icon.classList.remove("on"); m.setZIndexOffset(0) } }) });
+  var rsLit=function(id){ var m=RS.pins[id]; return (m&&m._map)?m:(RS.clu&&RS.clu.where(+id)) };   // the pin, or the circle that holds it
+  $$(".res .card[data-open]").forEach(function(cd){ cd.addEventListener("mouseenter",function(){ var m=rsLit(cd.dataset.open); if(m&&m._icon){ m._icon.classList.add("on"); m.setZIndexOffset(1000) } }); cd.addEventListener("mouseleave",function(){ var m=rsLit(cd.dataset.open); if(m&&m._icon){ m._icon.classList.remove("on"); m.setZIndexOffset(0) } }) });
   if(!(opts&&opts.map) && rsMapOn() && window.innerWidth>=1100) setTimeout(rsMapInit,60); else rsMapStop();
 }
 // a booked ad between the results, shaped like a listing card, after every 8th card; and a side banner under the map.
@@ -3358,7 +3366,7 @@ function areaCombo(as){
  // when the sender leaves the box (owner, 2026-11-02: the typed name vanished and the box to add it never showed)
  var typed="";
  var hasOther=function(){ return liveOpts().some(function(o){ return o.v==="__other__" }) };
- var exactOpt=function(q){ var n=kwNorm(q); return liveOpts().filter(function(o){ return o.v && o.v!=="__other__" && kwNorm(o.t)===n })[0] };
+ var exactOpt=function(q){ var n=kwNorm(q), al=placeAliasExact(q); return liveOpts().filter(function(o){ return o.v && o.v!=="__other__" && (kwNorm(o.t)===n || o.v===al) })[0] };   // a learned name (ساحة الميسات) counts as its area
  var pick=function(v){ if(v==="__other__" && typed.trim().length>=2 && !exactOpt(typed)){ var ob=document.getElementById("paOther"); if(ob) ob.value=typed.trim() } typed=""; as.value=v; sync(); drop.classList.remove("on"); input.setAttribute("aria-expanded","false"); try{ input.blur() }catch(e){} as.dispatchEvent(new Event("change",{bubbles:true})) };
  // phones show the list as a bottom sheet; iPhone's keyboard does not shrink the page, so the sheet would sit behind it
  var lift=function(){ try{ var vv=window.visualViewport; if(!vv || !drop.classList.contains("on") || !matchMedia("(max-width:640px)").matches){ drop.style.bottom=""; return }
@@ -3366,7 +3374,7 @@ function areaCombo(as){
  if(window.visualViewport){ visualViewport.addEventListener("resize",lift); visualViewport.addEventListener("scroll",lift) }
  var render=function(q){
    var n=kwNorm(q||""), cur=as.value;
-   var keep=liveOpts().filter(function(o){ return o.v && (o.v==="__other__" || !n || kwNorm(o.t).indexOf(n)>-1) });
+   var al=placeAliasAreas(q), keep=liveOpts().filter(function(o){ return o.v && (o.v==="__other__" || !n || kwNorm(o.t).indexOf(n)>-1 || al.indexOf(o.v)>-1) });
    drop.innerHTML = keep.length ? keep.map(function(o){
      var lbl = o.v==="__other__" && (q||"").trim().length>=2 && !exactOpt(q) ? GX("areaAddTyped").replace("{x}",(q||"").trim()) : o.t;
      return '<div class="chipsel-opt'+(o.v===cur?" act":"")+'" data-acval="'+esc(o.v)+'">'+esc(lbl)+'</div>' }).join("")
@@ -3377,14 +3385,14 @@ function areaCombo(as){
    positionDropUpOrDown(input,drop); lift();
  };
  drop.onclick=function(ev){ ev.stopPropagation() };
- input.addEventListener("focus",function(){ render("") });
+ input.addEventListener("focus",function(){ render(""); placeAliasLoad().then(function(){ if(document.activeElement===input && input.value) render(input.value) }) });
  input.addEventListener("input",function(){ typed=this.value; render(this.value) });
  input.addEventListener("click",function(e){ e.stopPropagation(); if(!drop.classList.contains("on")) render("") });
  // the list closes on the click that took the focus away, which can come after this check: wait for it (up to 3 s)
  var settle=function(tries){ if(document.activeElement===input) return;
    if(drop.classList.contains("on")){ if(tries<20){ setTimeout(function(){ settle(tries+1) },150); return } drop.classList.remove("on"); input.setAttribute("aria-expanded","false") }
    var hit=typed.trim().length>=2 && exactOpt(typed);
-   var n=kwNorm(typed), near=!hit && n && liveOpts().some(function(o){ return o.v && o.v!=="__other__" && kwNorm(o.t).indexOf(n)>-1 });
+   var n=kwNorm(typed), al=placeAliasAreas(typed), near=!hit && n && liveOpts().some(function(o){ return o.v && o.v!=="__other__" && (kwNorm(o.t).indexOf(n)>-1 || al.indexOf(o.v)>-1) });
    if(hit){ if(as.value!==hit.v) pick(hit.v); else { typed=""; sync() } }
    else if(typed.trim().length>=2 && !near && hasOther()) pick("__other__");
    else if(!(typed.trim() && near)) { typed=""; sync() } };   // a part of several names stays on screen until one is chosen
@@ -4976,6 +4984,17 @@ async function qfHomeGovs(){
 async function qfLoadPlaces(){
   try{ var r=await Promise.race([DB.rpc("bk_intake_places_public",{p_country:COUNTRY}), new Promise(function(ok){ setTimeout(function(){ ok({error:"slow"}) },2500) })]);
        return (r&&!r.error&&Array.isArray(r.data))?r.data:[] }catch(e){ return [] } }
+// owner 2026-11-03: a place the bot has learned is another name of its area in the area boxes too — «ساحة الميسات» typed in the
+// post form or the search finds «الميسات». Loaded once, when an area box is first used; until then the boxes match names only
+var PLACE_ALIAS=null, _placeAliasReq=null;
+function placeAliasLoad(){
+  if(PLACE_ALIAS) return Promise.resolve(PLACE_ALIAS);
+  return _placeAliasReq||(_placeAliasReq=qfLoadPlaces().then(function(rows){ PLACE_ALIAS=rows.map(function(r){ return {n:kwNorm(r[0]),g:r[1],a:r[2]} }); return PLACE_ALIAS })) }
+// areas one of whose learned names holds the typed words (at least 4 letters, so «ال» or «سا» list nothing)
+function placeAliasAreas(q){ var n=kwNorm(q||""); if(!PLACE_ALIAS || n.length<4) return [];
+  var out=[]; PLACE_ALIAS.forEach(function(p){ if(p.n.indexOf(n)>-1 && out.indexOf(p.a)<0) out.push(p.a) }); return out }
+// the area a learned name stands for when the typed words are that whole name
+function placeAliasExact(q){ var n=kwNorm(q||""); if(!PLACE_ALIAS || !n) return null; var p=PLACE_ALIAS.filter(function(x){ return x.n===n })[0]; return p?p.a:null }
 // the pasted message goes into the description as the sender wrote it — the bot's rule (keepSenderText / stripPhones in bk-intake)
 function qfKeepText(s){
   s=String(s||"").replace(/^\s*(تم|تمام|نعم|لا|جديد|done|yes|no|new)\s*$/gim,"");
@@ -5387,10 +5406,12 @@ function initMapSearch(){
 // zooms in until they separate. From zoom 16 every pin shows, and pins at the very same spot (an area's centre, used when a
 // listing has no exact location) fan out in a small ring so each can be reached.
 function mapClusterLayer(LMap, map, items, makeMarker){   // LMap: the page's Leaflet
-  var CELL=60, MAXZ=16, layer=LMap.layerGroup().addTo(map), made={};
+  var CELL=60, MAXZ=16, layer=LMap.layerGroup().addTo(map), made={}, where={};
   function mk(it){ return made[it.id]||(made[it.id]=makeMarker(it)) }
   function draw(){
-    layer.clearLayers(); var z=map.getZoom(), cl=[];
+    // 2026-11-03: what is drawn is gathered first and only the difference is applied, so a pin that stays on the map is never
+    // taken off and put back (its open card used to close at every zoom); where[id] = the circle a listing is inside now
+    var z=map.getZoom(), cl=[], next=[]; where={};
     // by distance, not by a grid (a grid let two circles sit on top of each other across a cell line): a pin joins the first
     // group within CELL px, then groups whose centres are still closer than CELL merge, until none are
     items.forEach(function(it){ var p=map.project([it.lat,it.lng],z), hit=null;
@@ -5399,7 +5420,8 @@ function mapClusterLayer(LMap, map, items, makeMarker){   // LMap: the page's Le
     for(var again=true; again && z<MAXZ;){ again=false;
       for(var i=0;i<cl.length && !again;i++) for(var j=i+1;j<cl.length;j++){ var A=cl[i], B=cl[j];
         var ay=A.g.length===1?A.y-20:A.y, by=B.g.length===1?B.y-20:B.y;   // a lone pin's head stands ~20px above its point
-        if(Math.hypot(A.x-B.x,ay-by)<CELL){ A.g=A.g.concat(B.g); A.sx+=B.sx; A.sy+=B.sy; A.x=A.sx/A.g.length; A.y=A.sy/A.g.length; cl.splice(j,1); again=true; break } } }
+        // a lone pin beside a circle needs a little more room: the circle is wider than the pin (2026-11-03: a tag touched a circle)
+        if(Math.hypot(A.x-B.x,ay-by)<CELL+((A.g.length>1)!==(B.g.length>1)?10:0)){ A.g=A.g.concat(B.g); A.sx+=B.sx; A.sy+=B.sy; A.x=A.sx/A.g.length; A.y=A.sy/A.g.length; cl.splice(j,1); again=true; break } } }
     var groups={}, order=[]; cl.forEach(function(c,i){ groups[i]=c.g; order.push(i) });
     order.forEach(function(k){ var g=groups[k];
       if(g.length===1 || z>=MAXZ){
@@ -5408,18 +5430,22 @@ function mapClusterLayer(LMap, map, items, makeMarker){   // LMap: the page's Le
           s.forEach(function(it,i){ var m=mk(it);
             if(s.length>1){ var c=map.project([it.lat,it.lng],z), r=16+s.length*3, an=2*Math.PI*i/s.length; m.setLatLng(map.unproject(c.add([r*Math.cos(an), r*Math.sin(an)]),z)) }
             else m.setLatLng([it.lat,it.lng]);
-            layer.addLayer(m) }) });
+            next.push(m) }) });
         return }
       var lat=0,lng=0; g.forEach(function(it){ lat+=it.lat; lng+=it.lng }); var n=g.length;
       var ic=LMap.divIcon({className:"mclu-w",html:'<span class="mclu'+(n>=100?" l":n>=10?" m":"")+'">'+n+'</span>',iconSize:[0,0],iconAnchor:[0,0]});
       var cm=LMap.marker([lat/n,lng/n],{icon:ic,title:String(n),riseOnHover:true});
       cm.on("click",function(){ var bb=LMap.latLngBounds(g.map(function(it){ return [it.lat,it.lng] }));
         var to=map.getBoundsZoom(bb.pad(0.15)); if(to<=z) map.setView(bb.getCenter(), Math.min(z+2,MAXZ)); else map.fitBounds(bb,{padding:[40,40],maxZoom:MAXZ}) });
-      layer.addLayer(cm) });
+      g.forEach(function(it){ where[it.id]=cm }); next.push(cm) });
+    layer.eachLayer(function(l){ if(next.indexOf(l)<0) layer.removeLayer(l) });
+    next.forEach(function(l){ if(!layer.hasLayer(l)) layer.addLayer(l) });
   }
   // redraw once the zoom has settled (redrawing inside a running zoom animation made Leaflet throw on a removed marker)
-  var raf=0; map.on("zoomend",function(){ if(raf) cancelAnimationFrame(raf); raf=requestAnimationFrame(function(){ raf=0; if(map._container && !map._animatingZoom) draw(); else map.once("zoomend",draw) }) }); draw();
-  return {redraw:draw};
+  var raf=0, onZoom=function(){ if(raf) cancelAnimationFrame(raf); raf=requestAnimationFrame(function(){ raf=0; if(map._container && !map._animatingZoom) draw(); else map.once("zoomend",draw) }) };
+  map.on("zoomend",onZoom); draw();
+  return {redraw:draw, maxZoom:MAXZ, where:function(id){ return where[id]||null },
+    remove:function(){ map.off("zoomend",onZoom); if(raf) cancelAnimationFrame(raf); try{ map.removeLayer(layer) }catch(e){} }};
 }
 function stopMapSearch(){
   if(_mapSearchInitTimer){ clearTimeout(_mapSearchInitTimer); _mapSearchInitTimer=null; }
@@ -5588,8 +5614,11 @@ function wireChipSelects(){
       // under their governorate when more than one is in play, and on phones the list
       // opens as a bottom sheet with its own title row and close button (CSS)
       var sel=F[cfg.arrKey]||[], ql=(q||"").toLowerCase(), cnt=csCounts();
+      if(id==="csArea" && !PLACE_ALIAS) placeAliasLoad().then(function(){ if(drop.classList.contains("on") && q) renderDrop(q) });   // first use: fetch the learned names, then match again
+      var listOf=function(q){ var sel=F[cfg.arrKey]||[], ql=(q||"").toLowerCase();
+      var al=id==="csArea"?placeAliasAreas(q):[];   // a learned place name finds its area (ساحة الميسات → الميسات)
       var opts=cfg.getOptions().filter(function(o){
-        return sel.indexOf(o.value)===-1 && (!ql || o.label.toLowerCase().indexOf(ql)>-1) });
+        return sel.indexOf(o.value)===-1 && (!ql || o.label.toLowerCase().indexOf(ql)>-1 || al.indexOf(o.value)>-1) });
       var optHtml=function(o,n){
         return '<div class="chipsel-opt" data-cspick="'+id+'" data-csval="'+o.value.replace(/"/g,"&quot;")+'">'+
                '<span>'+o.label+'</span>'+(n&&countsOn()?'<span class="cs-n ltr">'+n+'</span>':'')+'</div>' };
@@ -5610,6 +5639,8 @@ function wireChipSelects(){
       } else {
         opts.slice(0,60).forEach(function(o){ html+=optHtml(o, id==="csGov" ? cnt.g[o.value] : 0) });
       }
+      return html };
+      var html=listOf(q);
       var wrapEl=$("#"+id+"Wrap"), compact=wrapEl&&wrapEl.classList.contains("cs-compact");
       var selHtml = (compact && sel.length) ? '<div class="cs-selected">'+sel.map(function(v){ var o=cfg.getOptions().filter(function(x){return x.value===v})[0]; return '<span class="chip">'+(o?o.label:v)+'<button type="button" class="chip-x" data-csremove="'+id+'" data-csval="'+String(v).replace(/"/g,"&quot;")+'">×</button></span>' }).join("")+'</div>' : '';
       drop.innerHTML = '<div class="cs-sheet-h"><span>'+input.placeholder+'</span><button type="button" class="cs-close" aria-label="close">×</button>'+
@@ -5629,6 +5660,12 @@ function wireChipSelects(){
       if(sq){
         var refilter=function(){
           var v=sq.value.trim().toLowerCase();
+          // areas (owner 2026-11-03: «الميسات» could not be found on a phone): the first draw lists at most 120 areas and Damascus
+          // has 121, so hiding within what was drawn missed the rest; the list is rebuilt from every area of the chosen governorates
+          if(id==="csArea"){ $$(".chipsel-opt,.cs-h,.chipsel-empty",drop).forEach(function(e){ e.parentNode.removeChild(e) });
+            var ft=drop.querySelector(".cs-sheet-f"), tmp=document.createElement("div"); tmp.innerHTML=listOf(sq.value.trim())||'<div class="chipsel-empty cs-sheet-empty">'+t("noResultsFor")+'</div>';
+            while(tmp.firstChild) drop.insertBefore(tmp.firstChild,ft);
+            markGreenTabu(drop); wireOpts(); return }
           drop.querySelectorAll(".chipsel-opt").forEach(function(o){ o.hidden = !!v && o.textContent.toLowerCase().indexOf(v)===-1 });
           [].slice.call(drop.querySelectorAll(".cs-h")).forEach(function(h){
             var kind=h.classList.contains("cs-kind"), n=h.nextElementSibling, any=false;
@@ -5639,6 +5676,7 @@ function wireChipSelects(){
           if(em) em.hidden=!none;
         };
         sq.addEventListener("input",refilter);
+        if(id==="csArea" && !PLACE_ALIAS) placeAliasLoad().then(function(){ if(sq.value.trim()) refilter() });   // the learned names arrived after typing began
         sq.addEventListener("focus",function(){ drop.classList.add("kb"); csVvh() });
         sq.addEventListener("blur",function(){ setTimeout(function(){ if(document.activeElement!==sq) drop.classList.remove("kb") },160) });
         sq.addEventListener("click",function(e){ e.stopPropagation() });
@@ -5648,14 +5686,15 @@ function wireChipSelects(){
       drop.classList.add("on"); drop.classList.remove("out");
       positionDropUpOrDown(input,drop);
       if(compact) huDim(drop,true);
-      $$('[data-cspick="'+id+'"]').forEach(function(e){ e.onclick=function(ev){
+      wireOpts();
+      function wireOpts(){ $$('[data-cspick="'+id+'"]').forEach(function(e){ e.onclick=function(ev){
         if(ev){ev.stopPropagation();if(ev.preventDefault)ev.preventDefault()}
         var v=this.dataset.csval;
         if((F[cfg.arrKey]||[]).indexOf(v)>-1) return;   // already chosen
         F[cfg.arrKey]=(F[cfg.arrKey]||[]).concat([v]);
         if(window.innerWidth<=640 && compact){ csPickInPlace(id,cfg,v,this,drop); return }   // phone sheet: no re-render, no flash
         window._csReopen=id; softRenderHero();
-      }});
+      }}) }
     };
     // on phones the field is a plain tap target: one tap opens the sheet, a second closes it, and the hidden
     // input is never focused (it used to catch the tap, which sometimes raised the keyboard over the sheet)
