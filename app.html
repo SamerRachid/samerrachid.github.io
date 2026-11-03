@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-dywETUHBVrxQf7K+P0ALCtOwbCRPmplcZs/BGstjt1Y=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-yv6Fn3JtBlNlmb4WZ8/8FI6Iv263Kc6W42czyBvSv9E=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -5457,7 +5457,7 @@ function countryPickHtml(where){
   var cur=countryOf(COUNTRY)||en[0];
   return '<div class="mdw2-sec"><div class="mdw2-h">'+GX("cCountry")+'</div><button type="button" class="mdw2-crow" id="mdwCountry">'+flagSvg(cur.code)+'<b>'+esc(countryName(cur))+'</b><span>'+GX("cChange")+' '+CHEV+'</span></button></div>';
 }
-var _bootLoads=null;
+var _bootLoads=null, _bootDrawn=false;
 var _cgen=0;
 async function switchCountry(code, o){
   o=o||{}; var c=countryOf(code); if(!c || code===COUNTRY) return;
@@ -10740,9 +10740,12 @@ function huRevealResults(){ var res=$(".res"); if(!res) return; if(res.classList
   cards.forEach(function(c,i){ c.classList.add("hu-in"); setTimeout(function(){ c.style.removeProperty("transition-delay"); c.classList.add("hu-done") },1150+Math.min(i,8)*70) }) }
 // one layout pass for all the blocks (2026-10-31: a forced layout per block cost ~0.85 s on a mid phone at every page change)
 function huPageIn(){ if(window._huLastView===VIEW) return; window._huLastView=VIEW;
-  var els=[]; $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.hero-outer,[id$=Modal],.modal")) return; e.classList.remove("hu-page"); els.push([e,i]) });
-  if(!els.length) return; void document.body.offsetWidth;
-  els.forEach(function(p){ p[0].style.animationDelay=Math.min(p[1],6)*40+"ms"; p[0].classList.add("hu-page") }) }
+  var els=[], again=false; $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.hero-outer,[id$=Modal],.modal")) return; if(e._huPaged||e.classList.contains("hu-page")) again=true; e.classList.remove("hu-page"); els.push([e,i]) });
+  if(!els.length) return;
+  // 2026-11-02 speed: a block drawn new starts its entrance without help; only a block kept from the last page (morphdom reuses
+  // elements, _huPaged marks them) needs a layout between losing and regaining the class. That forced layout cost ~0.55 s on a mid phone
+  if(again) void document.body.offsetWidth;
+  els.forEach(function(p){ p[0].style.animationDelay=Math.min(p[1],6)*40+"ms"; p[0].classList.add("hu-page"); p[0]._huPaged=true }) }
 function heroSlidesHtml(type,studio){
   if((type==="photo"||type==="video") && studio) return studio;   // a background set in the studio stays as it is
   var S=["umayyad","aleppo","arwad"], P="/next/images/hero/", V="?v=2";   // V: 2026-10-30 the Umayyad photos lost their capture frame (a white edge line); a new address so phones fetch them again
@@ -10751,7 +10754,9 @@ function wireHeroSlides(){ if(!window._hsAll){ var fill=function(){ window._hsAl
     if(document.readyState==="complete") setTimeout(fill,1500); else addEventListener("load",function(){ setTimeout(fill,1500) },{once:true}) }
   var s=$$(".hslide"), d=$$(".hdots i"); if(window._hsTimer){ clearInterval(window._hsTimer); window._hsTimer=null }
   // the floating "post" button waits until the hero has scrolled away (it covered the search strip on phones)
-  if(!window._heroScroll){ window._heroScroll=true; var hv=function(){ document.body.classList.toggle("hero-in-view", VIEW==="home" && scrollY < innerHeight*0.8) }; addEventListener("scroll",hv,{passive:true}); window._heroScrollCheck=hv } window._heroScrollCheck();
+  // 2026-11-02 speed: from a draw it uses the kept scroll position and window height (reading them there forced a full layout per draw)
+  if(!window._heroScroll){ window._heroScroll=true; var hv=function(kept){ var y=kept?_hdrY:scrollY; if(!kept) _hdrVh=innerHeight; document.body.classList.toggle("hero-in-view", VIEW==="home" && y < _hdrVh*0.8) };
+    addEventListener("scroll",function(){ hv(false) },{passive:true}); addEventListener("resize",function(){ _hdrVh=innerHeight },{passive:true}); window._heroScrollCheck=hv } window._heroScrollCheck(true);
   if(s.length<2) return; var k=0;
   function go(n){ s[k].classList.remove("on"); if(d[k]) d[k].classList.remove("on"); k=(n+s.length)%s.length; s[k].classList.add("on"); if(d[k]) d[k].classList.add("on") }
   window._hsTimer=setInterval(function(){ go(k+1) },5000); d.forEach(function(x,i){ x.onclick=function(){ go(i) } }) }
@@ -12374,7 +12379,7 @@ async function loadSiteContent(){
       SITE = escDeep(r.data[0]);
       try{ localStorage.setItem(siteCacheKey(), JSON.stringify(SITE)) }catch(e){}
       // geography changed in the admin since this visitor last downloaded it → refetch now, not in 24 h
-      try{ var gc=JSON.parse(localStorage.getItem(geoCacheKey())||"null"), gv=SX("geo_v"); if(gv && (!gc || String(gc._v)!==String(gv))) loadGeo(true).then(function(){ render() }) }catch(e){}
+      try{ var gc=JSON.parse(localStorage.getItem(geoCacheKey())||"null"), gv=SX("geo_v"); if(gv && (!gc || String(gc._v)!==String(gv))) loadGeo(true).then(function(){ if(_bootDrawn) render() }) }catch(e){}   // before the boot data draw: that draw shows it
       try{ applyPropertyTypes() }catch(e){}
       applyCardSizeVar();
       applyBannerSizeVar();
@@ -13453,7 +13458,8 @@ function render(){
  (function(){ var tl=document.querySelector("link[href*=\"theme-hu.css\"]"); if(tl) tl.disabled=(VIEW==="admin"); $$(".wa-fab,.cta-add,.mm-bg,footer").forEach(function(e){ e.hidden=(VIEW==="admin") }) })();   /* the pieces that exist only for the theme (WhatsApp bubble, add button, drawer photo) would otherwise show unstyled, huge, in the panel */   // theme hu 2026-10-29: the admin panel keeps its own design (its windows reuse .fl/.blk and the --navy variable, which the theme recolours)
  applySiteExtras();
  updateHdr();
- applyReveals();
+ // 2026-11-02 speed: in the next frame, so its position reads share the layout that frame does anyway (an extra full layout per draw)
+ if(!window._rvRaf) window._rvRaf=requestAnimationFrame(function(){ window._rvRaf=0; applyReveals() });
  heroEnterCheck(); phoneHeadline();
  homeExtras();
  asAdminBar();
@@ -13742,6 +13748,8 @@ function initOpening(){
   setTimeout(function(){ _openingActive=false; if(c.parentNode) c.parentNode.removeChild(c) },2100);
 }
 var PH_STATE=null, _phTimer=null, PH_WAIT_MAX=13500, PH_ENTER=false;
+// 2026-11-02 speed: window.innerWidth read inside a draw forced a full layout; the width is kept here and refreshed on resize
+var PH_NARROW=window.innerWidth<=700; window.addEventListener("resize",function(){ PH_NARROW=window.innerWidth<=700 },{passive:true});
 function phoneLangSwitch(oldL,newL,apply){
   var phone=window.innerWidth<=700, h1=document.querySelector(".home-hero .hero.ph-over h1"), st=document.querySelector(".home-hero .sk-stage");
   if(!phone || PH_STATE!=="over" || VIEW!=="home" || oldL===newL || !h1 || !st || !st.animate){ apply(); return }
@@ -13755,7 +13763,7 @@ function phoneLangSwitch(oldL,newL,apply){
 function phoneHeadline(){
   var hero=document.querySelector(".home-hero .hero"), outer=document.querySelector(".home-hero .hero-outer");
   if(!hero || !outer || VIEW!=="home") return;
-  if(!(window.innerWidth<=700)) return;
+  if(!PH_NARROW) return;
   if(PH_STATE==="over"){
     outer.classList.add("ph-over");
     if(PH_ENTER){ PH_ENTER=false; hero.classList.add("ph-wait");   // the new headline starts off-screen on its own side, then slides in
@@ -14506,10 +14514,14 @@ function applyReveals(){
   var vh=window.innerHeight||800;
   var io=new IntersectionObserver(function(es){ es.forEach(function(e){
       if(e.isIntersecting){ e.target.classList.add("in"); if(e.target.classList.contains("typecell")) e.target.classList.add("tl"); io.unobserve(e.target) } }) },{rootMargin:"0px 0px -6% 0px"});
-  document.querySelectorAll(".typecell").forEach(function(el){ if(el.getBoundingClientRect().top < vh*0.92) el.classList.add("tl") });   // tiles already on screen get their photo at once
+  // 2026-11-02 speed: all positions are read first and the classes set after, so the page is laid out once (reading after each
+  // change re-ran the layout per card: ~130 layouts per page load)
+  var tiles=[].slice.call(document.querySelectorAll(".typecell")), blocks=[].slice.call(document.querySelectorAll(".sec, .band, .card, .govs a, .guide, .mkt, .coll, .typecell, .tlist>div, .nums>div"));
+  var tileTop=tiles.map(function(el){ return el.getBoundingClientRect().top }), blockTop=blocks.map(function(el){ return el.getBoundingClientRect().top });
+  tiles.forEach(function(el,i){ if(tileTop[i] < vh*0.92) el.classList.add("tl") });   // tiles already on screen get their photo at once
   var n=0;
-  document.querySelectorAll(".sec, .band, .card, .govs a, .guide, .mkt, .coll, .typecell, .tlist>div, .nums>div").forEach(function(el,i){
-    if(n>=80 || el.getBoundingClientRect().top < vh*0.92) return;
+  blocks.forEach(function(el,i){
+    if(n>=80 || blockTop[i] < vh*0.92) return;
     el.classList.add("rv"); el.style.transitionDelay=((i%3)*60)+"ms"; io.observe(el); n++;
   });
   clearTimeout(window._rvSafety); window._rvSafety=setTimeout(function(){ document.querySelectorAll(".rv:not(.in)").forEach(function(el){ el.classList.add("in") }) },1800);
@@ -16010,12 +16022,16 @@ function wireGeoAdmin(){
       if(r.error){ var m=(r.error&&r.error.message)||""; if(m.indexOf("slug_taken")>-1){ var s2=(ADM.geo&&ADM.geo.areas||[]).filter(function(a){ return a.governorate_id===ADM.geoGov && (a.slug===(row.slug||"").trim().toLowerCase() || norm(a.name_ar)===norm(name)) })[0]; if(s2){ ADM.geoHi=s2.id; render(); msg(GX("geoExists").replace("{n}",s2.name_ar),true); return } } return err(r.error) }
       ADM.geoHi=r.data&&r.data.id; reload().then(function(){ msg(GX("geoAdded").replace("{n}",name)) }) },function(){ btn.disabled=false }) };
 }
-function updateHdr(){
+// 2026-11-02 speed: render() calls this after changing the page, where reading the scroll position forced a full layout each
+// time (7 per page load, ~0.37 s on a mid phone). It uses the position kept by the scroll handler; any scroll (scrollTo after a
+// page change included) fires that handler, which reads it fresh
+var _hdrY=0, _hdrVh=window.innerHeight||800;
+function updateHdr(fresh){
  var h=document.querySelector("header"); if(!h) return;
- var y=window.pageYOffset||document.documentElement.scrollTop||0;
- h.classList.toggle("hdr-solid", document.body.classList.contains("home-hero") && y>30);
+ if(fresh) _hdrY=window.pageYOffset||document.documentElement.scrollTop||0;
+ h.classList.toggle("hdr-solid", document.body.classList.contains("home-hero") && _hdrY>30);
 }
-var _hdrRaf=0; window.addEventListener("scroll",function(){ if(!_hdrRaf) _hdrRaf=requestAnimationFrame(function(){ _hdrRaf=0; updateHdr() }) },{passive:true});   // once per frame, not per scroll event
+var _hdrRaf=0; window.addEventListener("scroll",function(){ if(!_hdrRaf) _hdrRaf=requestAnimationFrame(function(){ _hdrRaf=0; updateHdr(true) }) },{passive:true});   // once per frame, not per scroll event
 // files dragged onto the page (owner 2026-11-01: dropped photos opened in new tabs): never let the browser open them; on the
 // post / edit page they go to the listing's photos wherever they land. A drop zone with its own handler (#drop) has
 // already called preventDefault, so it is not added twice.
@@ -16235,5 +16251,5 @@ applyGeoCache();
 function startLoads(){ var sp=window._sitePromise=loadSiteContent(); return Promise.all([loadListings(),loadCounts(),sp,loadAdSlots(),loadGeo()]) }
 _bootLoads = COUNTRIES ? startLoads() : refreshCountries().then(startLoads);   // first visit ever: learn the served countries first, so a visitor in Lebanon or Jordan opens on their own country
 if(COUNTRIES) refreshCountries();
-_bootLoads.then(function(){ render(); startAdRotation(); startAdCarouselRotation(); startBannerRotation(); startFeaturedPolling(); startListingsPolling(); setTimeout(maybeShowChooser, _openingActive?1500:400) });
+_bootLoads.then(function(){ _bootDrawn=true; render(); startAdRotation(); startAdCarouselRotation(); startBannerRotation(); startFeaturedPolling(); startListingsPolling(); setTimeout(maybeShowChooser, _openingActive?1500:400) });
 </script></body></html>

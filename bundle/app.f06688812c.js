@@ -442,7 +442,7 @@ function countryPickHtml(where){
   var cur=countryOf(COUNTRY)||en[0];
   return '<div class="mdw2-sec"><div class="mdw2-h">'+GX("cCountry")+'</div><button type="button" class="mdw2-crow" id="mdwCountry">'+flagSvg(cur.code)+'<b>'+esc(countryName(cur))+'</b><span>'+GX("cChange")+' '+CHEV+'</span></button></div>';
 }
-var _bootLoads=null;
+var _bootLoads=null, _bootDrawn=false;
 var _cgen=0;
 async function switchCountry(code, o){
   o=o||{}; var c=countryOf(code); if(!c || code===COUNTRY) return;
@@ -1622,7 +1622,7 @@ function home(){
      '<span class="qfteaser-tx"><b>'+GX("qfTeaserT")+'</b><small>'+GX("qfTeaserP")+'</small></span>'+
      '<span class="qfteaser-cta">'+GX("qfTeaserBtn")+'</span></a>'+
      '<button type="button" class="qfteaser-x" data-qfx aria-label="'+esc(GX("mdClose"))+'">×</button></div></div>' })();
- return '<div class="hero-outer hu"><div class="hv on" id="hv">'+heroSlidesHtml(heroBgType,heroBgHtml)+'</div>'+
+ return '<div class="hero-outer hu" id="huHero"><div class="hv on" id="hv">'+heroSlidesHtml(heroBgType,heroBgHtml)+'</div>'+
   '<div class="hscrim"></div>'+
   '<section class="hero"><div class="wrap">'+
   (bannersTop && !heroOff ? (function(){ var row=topBannerCoreRowHtml(); return row ? '<div class="topbanner-wrap tb-inhero">'+row+'</div>' : '' })() : '')+
@@ -2509,7 +2509,9 @@ function editView(){
   (EDIT.isAdmin ? '' : '<div class="fl"><label>'+t("deal")+'</label><div class="pick" id="eDealPick">'+
    ["sale","rent"].map(function(d){ var off=d==="sale"&&RENT_ONLY_TYPES.indexOf(x.t)>-1;
      return '<label'+(off?' style="opacity:.45"':'')+'><input type="radio" name="edl" value="'+d+'"'+(x.d===d?" checked":"")+(off?" disabled":"")+'><span>'+t(d==="sale"?"forsale":"forrent")+'</span></label>' }).join("")+
-   '</div></div>')+
+   '</div></div>'+
+   // the property type too (owner, 2026-11-02): a type the admin has since switched off still shows as the current one
+   '<div class="fl"><label>'+t("ptype")+'</label><select id="eType">'+Object.keys(D.TYPES).concat(D.TYPES[x.t]||!x.t?[]:[x.t]).map(function(k){ return '<option value="'+k+'"'+(x.t===k?" selected":"")+'>'+(D.TYPES[k]?D.TYPES[k][li()]:k)+'</option>' }).join("")+'</select></div>')+
   '<div class="row"><div class="fl"><label>'+t("price")+'</label>'+
    '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+(x.pl>0&&x.pcur?x.pl:(x.p==null?"":x.p))+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur",(x.pl>0&&x.pcur)?x.pcur:"USD")+'</div>'+
    (x.orig&&x.orig>x.p?'<div class="hintx">'+t("wasPrice")+' <span class="ltr">'+money(x.orig)+'</span></div>':'')+
@@ -5723,9 +5725,12 @@ function huRevealResults(){ var res=$(".res"); if(!res) return; if(res.classList
   cards.forEach(function(c,i){ c.classList.add("hu-in"); setTimeout(function(){ c.style.removeProperty("transition-delay"); c.classList.add("hu-done") },1150+Math.min(i,8)*70) }) }
 // one layout pass for all the blocks (2026-10-31: a forced layout per block cost ~0.85 s on a mid phone at every page change)
 function huPageIn(){ if(window._huLastView===VIEW) return; window._huLastView=VIEW;
-  var els=[]; $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.hero-outer,[id$=Modal],.modal")) return; e.classList.remove("hu-page"); els.push([e,i]) });
-  if(!els.length) return; void document.body.offsetWidth;
-  els.forEach(function(p){ p[0].style.animationDelay=Math.min(p[1],6)*40+"ms"; p[0].classList.add("hu-page") }) }
+  var els=[], again=false; $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.hero-outer,[id$=Modal],.modal")) return; if(e._huPaged||e.classList.contains("hu-page")) again=true; e.classList.remove("hu-page"); els.push([e,i]) });
+  if(!els.length) return;
+  // 2026-11-02 speed: a block drawn new starts its entrance without help; only a block kept from the last page (morphdom reuses
+  // elements, _huPaged marks them) needs a layout between losing and regaining the class. That forced layout cost ~0.55 s on a mid phone
+  if(again) void document.body.offsetWidth;
+  els.forEach(function(p){ p[0].style.animationDelay=Math.min(p[1],6)*40+"ms"; p[0].classList.add("hu-page"); p[0]._huPaged=true }) }
 function heroSlidesHtml(type,studio){
   if((type==="photo"||type==="video") && studio) return studio;   // a background set in the studio stays as it is
   var S=["umayyad","aleppo","arwad"], P="/next/images/hero/", V="?v=2";   // V: 2026-10-30 the Umayyad photos lost their capture frame (a white edge line); a new address so phones fetch them again
@@ -5734,7 +5739,9 @@ function wireHeroSlides(){ if(!window._hsAll){ var fill=function(){ window._hsAl
     if(document.readyState==="complete") setTimeout(fill,1500); else addEventListener("load",function(){ setTimeout(fill,1500) },{once:true}) }
   var s=$$(".hslide"), d=$$(".hdots i"); if(window._hsTimer){ clearInterval(window._hsTimer); window._hsTimer=null }
   // the floating "post" button waits until the hero has scrolled away (it covered the search strip on phones)
-  if(!window._heroScroll){ window._heroScroll=true; var hv=function(){ document.body.classList.toggle("hero-in-view", VIEW==="home" && scrollY < innerHeight*0.8) }; addEventListener("scroll",hv,{passive:true}); window._heroScrollCheck=hv } window._heroScrollCheck();
+  // 2026-11-02 speed: from a draw it uses the kept scroll position and window height (reading them there forced a full layout per draw)
+  if(!window._heroScroll){ window._heroScroll=true; var hv=function(kept){ var y=kept?_hdrY:scrollY; if(!kept) _hdrVh=innerHeight; document.body.classList.toggle("hero-in-view", VIEW==="home" && y < _hdrVh*0.8) };
+    addEventListener("scroll",function(){ hv(false) },{passive:true}); addEventListener("resize",function(){ _hdrVh=innerHeight },{passive:true}); window._heroScrollCheck=hv } window._heroScrollCheck(true);
   if(s.length<2) return; var k=0;
   function go(n){ s[k].classList.remove("on"); if(d[k]) d[k].classList.remove("on"); k=(n+s.length)%s.length; s[k].classList.add("on"); if(d[k]) d[k].classList.add("on") }
   window._hsTimer=setInterval(function(){ go(k+1) },5000); d.forEach(function(x,i){ x.onclick=function(){ go(i) } }) }
@@ -6179,7 +6186,7 @@ function wire(){
  if($("#edt")) $("#edt").onclick=async function(){
    var id=VIEW.split(":")[1];
    var _er=D.LIST.filter(function(l){return String(l.id)===String(id)})[0];
-   EDIT={id:id,row:_er,msg:"",photos:[],lat:(_er&&_er.lat)||null,lng:(_er&&_er.lng)||null,locTouched:false};
+   EDIT={id:id,row:_er&&Object.assign({},_er),msg:"",photos:[],lat:(_er&&_er.lat)||null,lng:(_er&&_er.lng)||null,locTouched:false};
    VIEW="edit"; scrollTo(0,0); render();
    try{ var r=await rpc("bk_photos",{p_listing:+id}); EDIT.photos=r||[]; editMediaRedraw() }catch(e){} };
 
@@ -6187,6 +6194,10 @@ function wire(){
    var dealSwitch=function(d){ if(d!=="sale"&&d!=="rent"||d===EDIT.row.d) return; EDIT.row.d=d; EDIT.touched=true; render() };
    $$('input[name=edl]').forEach(function(r){ r.onchange=function(){ if(this.checked) dealSwitch(this.value) } });
    if($("#eDeal")) $("#eDeal").onchange=function(){ dealSwitch(this.value) };
+   // a new type redraws the type-bound fields (floor, living rooms, land conditions, amenities); a let-only type forces «rent»
+   if($("#eType")) $("#eType").onchange=function(){ var k=this.value; if(!k||k===EDIT.row.t) return; if(EDIT.t0===undefined) EDIT.t0=EDIT.row.t; EDIT.row.t=k;
+     if(RENT_ONLY_TYPES.indexOf(k)>-1){ EDIT.row.d="rent"; var rr=$('input[name=edl][value=rent]'); if(rr) rr.checked=true; if($("#eDeal")) $("#eDeal").value="rent" }
+     EDIT.touched=true; render() };
   }
   if(VIEW==="edit"&&$("#eGov")&&!$("#eGov").options.length){
    var gs=$("#eGov"), as=$("#eAreaSel"); fillGeo(gs,as,false,false);
@@ -6251,6 +6262,7 @@ function wire(){
        if($("#eTelM")){ var eCC=v("eCC")||phoneCC(), eNat=phoneNat(eCC, v("eTelM"));   // the listing's own number, checked like everywhere else
          if(eNat){ var eBad=phoneLenMsg(eCC,eNat); if(eBad) throw new Error(eBad); var eNum="+"+eCC+eNat; if((EDIT.row&&EDIT.row.tel||"").replace(/\D/g,"")!==eNum.replace(/\D/g,"")) patch.contact_phone=eNum } }
        var edl=$('input[name=edl]:checked'); if(edl) patch.deal=edl.value;
+       if($("#eType")&&v("eType")&&EDIT.t0!==undefined&&v("eType")!==EDIT.t0){ patch.property_type=v("eType"); patch.section=secOf(v("eType")) }   // only a real change: an old row's section stays as it is
        if($("#eGov")){ var gname2=v("eGov"), aname2=v("eAreaSel"), gid2=(GEO_META.govId||{})[gname2];
          if(gid2){ patch.governorate_id=gid2; patch.area_id=aname2?((GEO_META.areaId||{})[gname2+"/"+aname2]||null):null }
          if($("#eLandmark")) patch.landmark=v("eLandmark").trim()||null; }
@@ -6320,7 +6332,7 @@ function wire(){
    // data-editid is only ever generated from "mine" (own listings, any status) — MYLIST has it even when
    // the status (hidden/rejected/sold…) means it was never loaded into the public D.LIST at all
    var _er=(MYLIST||[]).filter(function(l){return String(l.id)===String(id)})[0] || D.LIST.filter(function(l){return String(l.id)===String(id)})[0];
-   EDIT={id:id,row:_er,msg:"",photos:[],lat:(_er&&_er.lat)||null,lng:(_er&&_er.lng)||null,locTouched:false};
+   EDIT={id:id,row:_er&&Object.assign({},_er),msg:"",photos:[],lat:(_er&&_er.lat)||null,lng:(_er&&_er.lng)||null,locTouched:false};
    VIEW="edit"; scrollTo(0,0); render();
    try{ var r=await rpc("bk_photos",{p_listing:+id}); EDIT.photos=r||[]; editMediaRedraw() }catch(x){} }});
  if($("#delOwn")) $("#delOwn").onclick=function(){
@@ -7352,7 +7364,7 @@ async function loadSiteContent(){
       SITE = escDeep(r.data[0]);
       try{ localStorage.setItem(siteCacheKey(), JSON.stringify(SITE)) }catch(e){}
       // geography changed in the admin since this visitor last downloaded it → refetch now, not in 24 h
-      try{ var gc=JSON.parse(localStorage.getItem(geoCacheKey())||"null"), gv=SX("geo_v"); if(gv && (!gc || String(gc._v)!==String(gv))) loadGeo(true).then(function(){ render() }) }catch(e){}
+      try{ var gc=JSON.parse(localStorage.getItem(geoCacheKey())||"null"), gv=SX("geo_v"); if(gv && (!gc || String(gc._v)!==String(gv))) loadGeo(true).then(function(){ if(_bootDrawn) render() }) }catch(e){}   // before the boot data draw: that draw shows it
       try{ applyPropertyTypes() }catch(e){}
       applyCardSizeVar();
       applyBannerSizeVar();
@@ -8407,7 +8419,8 @@ function render(){
    // element with an id it no longer sees, which stripped the Sword's clip-path and left the flag a bare rectangle (2026-10-18)
    // theme hu (2026-10-29): every re-render of the SAME view is patched in place too (a filter change, results arriving),
    // so the page never flashes or jumps — HomeUAE swaps only what changed; a new view is still drawn fresh
-   if(window.morphdom && app.firstElementChild && !$("#seoHome") && !PREVIEW && (VIEW==="home" || (VIEW===window._huLastView && VIEW!=="admin"))){
+   // 2026-11-02: the home shell carries a copy of the hero (static-shell.mjs, #huHero) — the first draw patches it too, so the photo on screen is kept
+   if(window.morphdom && app.firstElementChild && (!$("#seoHome") || (VIEW==="home" && $("#huHero"))) && !PREVIEW && (VIEW==="home" || (VIEW===window._huLastView && VIEW!=="admin"))){
      var tmp=document.createElement("div"); tmp.innerHTML=html;
      try{ morphdom(app,tmp,{childrenOnly:true,onBeforeElUpdated:function(a,b){ if(a.id==="sketchBox"||a.id==="dawnBox"||a.id==="rsMap") return false;
        // a block that has already revealed keeps its reveal state through the patch (no 50ms flicker), the results hook re-runs the motion when the set changes
@@ -8430,7 +8443,8 @@ function render(){
  (function(){ var tl=document.querySelector("link[href*=\"theme-hu.css\"]"); if(tl) tl.disabled=(VIEW==="admin"); $$(".wa-fab,.cta-add,.mm-bg,footer").forEach(function(e){ e.hidden=(VIEW==="admin") }) })();   /* the pieces that exist only for the theme (WhatsApp bubble, add button, drawer photo) would otherwise show unstyled, huge, in the panel */   // theme hu 2026-10-29: the admin panel keeps its own design (its windows reuse .fl/.blk and the --navy variable, which the theme recolours)
  applySiteExtras();
  updateHdr();
- applyReveals();
+ // 2026-11-02 speed: in the next frame, so its position reads share the layout that frame does anyway (an extra full layout per draw)
+ if(!window._rvRaf) window._rvRaf=requestAnimationFrame(function(){ window._rvRaf=0; applyReveals() });
  heroEnterCheck(); phoneHeadline();
  homeExtras();
  asAdminBar();
@@ -8629,6 +8643,14 @@ function syriaMapHtml(){
 var _homeMap=null;
 function homeMapInit(){
   var el=$("#humap"); if(!el || el.dataset.ready) return; el.dataset.ready="1";
+  // 2026-11-02 speed: the map library and its tiles load when the map comes near the screen, not with the page (on a phone
+  // they were fetched while the hero photo was still on its way)
+  if(window.IntersectionObserver){ if(el._io) return;
+    el._io=new IntersectionObserver(function(es){ if(!es.some(function(e){ return e.isIntersecting })) return; el._io.disconnect(); el._io=null; homeMapStart(el) },{rootMargin:"600px 0px"});
+    el._io.observe(el); return }
+  homeMapStart(el);
+}
+function homeMapStart(el){
   var cnt={}; srvGovCounts(cnt);
   ensureLeaflet().then(function(LMap){
     if(!document.body.contains(el)) return;
@@ -8685,9 +8707,12 @@ function homeExtras(){
    browser session, never for a visitor who arrives on a listing link, and never when the
    visitor asked for reduced motion. */
 var _openingActive=false,_openingT0=0;
+// 2026-11-02 speed: index.html paints the first hero photo before the script runs (static-shell.mjs); set at boot. With the
+// photo already on screen the curtain would cover it, so it does not play; the header logo still turns
+var PRE_HERO=false;
 function initOpening(){
   // plays on every load of the home page (a refresh included); in-app navigation back to home does not re-run it
-  if(VIEW!=="home" || PREVIEW) return;
+  if(VIEW!=="home" || PREVIEW || PRE_HERO) return;
   if(/BalkounApp\//.test(navigator.userAgent||"")) return;   // the Android app has already shown the turning logo on its own launch screen
   var bb={}; try{ bb=JSON.parse((document.querySelector('meta[name="bk-boot"]')||{}).content||"{}")||{} }catch(e){}
   var oe=SX("opening_enabled",bb.opening!=null?bb.opening:true); if(window.innerWidth<=700){ var om=SX("opening_enabled_m",bb.opening_m!=null?bb.opening_m:""); if(om!=="") oe=(om===true||om==="true") }   // phones may differ (extras.opening_enabled_m; "" = same as desktop)
@@ -8708,6 +8733,8 @@ function initOpening(){
   setTimeout(function(){ _openingActive=false; if(c.parentNode) c.parentNode.removeChild(c) },2100);
 }
 var PH_STATE=null, _phTimer=null, PH_WAIT_MAX=13500, PH_ENTER=false;
+// 2026-11-02 speed: window.innerWidth read inside a draw forced a full layout; the width is kept here and refreshed on resize
+var PH_NARROW=window.innerWidth<=700; window.addEventListener("resize",function(){ PH_NARROW=window.innerWidth<=700 },{passive:true});
 function phoneLangSwitch(oldL,newL,apply){
   var phone=window.innerWidth<=700, h1=document.querySelector(".home-hero .hero.ph-over h1"), st=document.querySelector(".home-hero .sk-stage");
   if(!phone || PH_STATE!=="over" || VIEW!=="home" || oldL===newL || !h1 || !st || !st.animate){ apply(); return }
@@ -8721,7 +8748,7 @@ function phoneLangSwitch(oldL,newL,apply){
 function phoneHeadline(){
   var hero=document.querySelector(".home-hero .hero"), outer=document.querySelector(".home-hero .hero-outer");
   if(!hero || !outer || VIEW!=="home") return;
-  if(!(window.innerWidth<=700)) return;
+  if(!PH_NARROW) return;
   if(PH_STATE==="over"){
     outer.classList.add("ph-over");
     if(PH_ENTER){ PH_ENTER=false; hero.classList.add("ph-wait");   // the new headline starts off-screen on its own side, then slides in
@@ -9472,10 +9499,14 @@ function applyReveals(){
   var vh=window.innerHeight||800;
   var io=new IntersectionObserver(function(es){ es.forEach(function(e){
       if(e.isIntersecting){ e.target.classList.add("in"); if(e.target.classList.contains("typecell")) e.target.classList.add("tl"); io.unobserve(e.target) } }) },{rootMargin:"0px 0px -6% 0px"});
-  document.querySelectorAll(".typecell").forEach(function(el){ if(el.getBoundingClientRect().top < vh*0.92) el.classList.add("tl") });   // tiles already on screen get their photo at once
+  // 2026-11-02 speed: all positions are read first and the classes set after, so the page is laid out once (reading after each
+  // change re-ran the layout per card: ~130 layouts per page load)
+  var tiles=[].slice.call(document.querySelectorAll(".typecell")), blocks=[].slice.call(document.querySelectorAll(".sec, .band, .card, .govs a, .guide, .mkt, .coll, .typecell, .tlist>div, .nums>div"));
+  var tileTop=tiles.map(function(el){ return el.getBoundingClientRect().top }), blockTop=blocks.map(function(el){ return el.getBoundingClientRect().top });
+  tiles.forEach(function(el,i){ if(tileTop[i] < vh*0.92) el.classList.add("tl") });   // tiles already on screen get their photo at once
   var n=0;
-  document.querySelectorAll(".sec, .band, .card, .govs a, .guide, .mkt, .coll, .typecell, .tlist>div, .nums>div").forEach(function(el,i){
-    if(n>=80 || el.getBoundingClientRect().top < vh*0.92) return;
+  blocks.forEach(function(el,i){
+    if(n>=80 || blockTop[i] < vh*0.92) return;
     el.classList.add("rv"); el.style.transitionDelay=((i%3)*60)+"ms"; io.observe(el); n++;
   });
   clearTimeout(window._rvSafety); window._rvSafety=setTimeout(function(){ document.querySelectorAll(".rv:not(.in)").forEach(function(el){ el.classList.add("in") }) },1800);
@@ -10976,12 +11007,16 @@ function wireGeoAdmin(){
       if(r.error){ var m=(r.error&&r.error.message)||""; if(m.indexOf("slug_taken")>-1){ var s2=(ADM.geo&&ADM.geo.areas||[]).filter(function(a){ return a.governorate_id===ADM.geoGov && (a.slug===(row.slug||"").trim().toLowerCase() || norm(a.name_ar)===norm(name)) })[0]; if(s2){ ADM.geoHi=s2.id; render(); msg(GX("geoExists").replace("{n}",s2.name_ar),true); return } } return err(r.error) }
       ADM.geoHi=r.data&&r.data.id; reload().then(function(){ msg(GX("geoAdded").replace("{n}",name)) }) },function(){ btn.disabled=false }) };
 }
-function updateHdr(){
+// 2026-11-02 speed: render() calls this after changing the page, where reading the scroll position forced a full layout each
+// time (7 per page load, ~0.37 s on a mid phone). It uses the position kept by the scroll handler; any scroll (scrollTo after a
+// page change included) fires that handler, which reads it fresh
+var _hdrY=0, _hdrVh=window.innerHeight||800;
+function updateHdr(fresh){
  var h=document.querySelector("header"); if(!h) return;
- var y=window.pageYOffset||document.documentElement.scrollTop||0;
- h.classList.toggle("hdr-solid", document.body.classList.contains("home-hero") && y>30);
+ if(fresh) _hdrY=window.pageYOffset||document.documentElement.scrollTop||0;
+ h.classList.toggle("hdr-solid", document.body.classList.contains("home-hero") && _hdrY>30);
 }
-var _hdrRaf=0; window.addEventListener("scroll",function(){ if(!_hdrRaf) _hdrRaf=requestAnimationFrame(function(){ _hdrRaf=0; updateHdr() }) },{passive:true});   // once per frame, not per scroll event
+var _hdrRaf=0; window.addEventListener("scroll",function(){ if(!_hdrRaf) _hdrRaf=requestAnimationFrame(function(){ _hdrRaf=0; updateHdr(true) }) },{passive:true});   // once per frame, not per scroll event
 // files dragged onto the page (owner 2026-11-01: dropped photos opened in new tabs): never let the browser open them; on the
 // post / edit page they go to the listing's photos wherever they land. A drop zone with its own handler (#drop) has
 // already called preventDefault, so it is not added twice.
@@ -11022,6 +11057,7 @@ USER = loadSession();
 if(USER && USER.preferred_currency && (((countryOf(COUNTRY)||{}).currencies)||["USD"]).indexOf(USER.preferred_currency)>-1){ CUR=USER.preferred_currency; curPrefSet(COUNTRY,CUR) }
 try{ ADM.token=localStorage.getItem("balkoun_adm")||null }catch(e){}
 var _h=viewFromHash(); if(_h) VIEW=_h;
+PRE_HERO = VIEW==="home" && !PREVIEW && !!document.getElementById("huHero");
 initOpening();
 document.addEventListener("keydown",function(e){
   if(e.key==="Escape") $$(".menu.on,.chipsel-drop.on").forEach(function(m){ m.classList.remove("on") });
@@ -11200,4 +11236,4 @@ applyGeoCache();
 function startLoads(){ var sp=window._sitePromise=loadSiteContent(); return Promise.all([loadListings(),loadCounts(),sp,loadAdSlots(),loadGeo()]) }
 _bootLoads = COUNTRIES ? startLoads() : refreshCountries().then(startLoads);   // first visit ever: learn the served countries first, so a visitor in Lebanon or Jordan opens on their own country
 if(COUNTRIES) refreshCountries();
-_bootLoads.then(function(){ render(); startAdRotation(); startAdCarouselRotation(); startBannerRotation(); startFeaturedPolling(); startListingsPolling(); setTimeout(maybeShowChooser, _openingActive?1500:400) });
+_bootLoads.then(function(){ _bootDrawn=true; render(); startAdRotation(); startAdCarouselRotation(); startBannerRotation(); startFeaturedPolling(); startListingsPolling(); setTimeout(maybeShowChooser, _openingActive?1500:400) });
