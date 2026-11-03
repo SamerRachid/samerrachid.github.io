@@ -2489,6 +2489,9 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .rs-pin.on,.rs-pin:hover,.rs-pinw.on .rs-pin{background:var(--navy);color:#fff;transform:translate(-50%,calc(-100% - 4px)) scale(1.1)}
 .rs-pin.on::after,.rs-pin:hover::after,.rs-pinw.on .rs-pin::after{border-top-color:var(--navy)}
 .mclu-w.on .mclu{background:var(--navy);color:#fff;box-shadow:0 0 0 4px var(--gold)}
+/* «account needed» page (gate, 2026-11-03): log-in is the outlined twin of the gold «create account» button, same size */
+html body .done2 .gate-in{display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box;height:46px;padding:0 26px!important;border-radius:8px!important;background:transparent!important;color:var(--gold)!important;border:1.5px solid var(--gold)!important;font:600 15px/1.4 var(--f)!important;cursor:pointer;box-shadow:none!important;transition:background .2s}
+html body .done2 .gate-in:hover{background:rgba(202,144,81,.12)!important}
 .res .card.hl{box-shadow:0 0 0 3px var(--gold),0 22px 40px -26px rgba(20,33,61,.45);transform:translateY(-3px)}
 .rs-mbar{display:none}
 /* results + side map ("model B"): a narrower sticky map column, two wide cards per row beside it, and an

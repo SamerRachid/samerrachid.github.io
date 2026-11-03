@@ -647,8 +647,11 @@ function amenityLabel(saved){
   var pools=[D.AMEN,D.LANDAMEN];
   for(var p=0;p<pools.length;p++){
     for(var i=0;i<AMEN_LANGS.length;i++){
-      var idx=pools[p][AMEN_LANGS[i]].indexOf(saved);
-      if(idx>-1) return pools[p][AMEN_LANGS[li()]][idx];
+      // a list kept in its own file (German, scripts/lang-split.mjs) is absent until it loads: skip it (2026-11-03: reading it
+      // stopped every listing page whose amenity is not in the Arabic or English list, e.g. land listings)
+      var list=pools[p][AMEN_LANGS[i]]; if(!list) continue;
+      var idx=list.indexOf(saved);
+      if(idx>-1){ var out=pools[p][AMEN_LANGS[li()]]; return (out&&out[idx])||saved }
     }
   }
   return saved; // not a recognized amenity string — show as-saved
@@ -3311,9 +3314,12 @@ function gate(){
   '<div class="tk" style="background:var(--navy-w);color:var(--navy)">⚑</div>'+
   '<b style="font-size:19px">'+t("loginToPost")+'</b>'+
   '<p style="color:var(--grey);font-size:14.5px;margin-top:6px">'+t("loginToPostP")+'</p>'+
-  '<div style="margin-top:18px;display:flex;flex-direction:column;gap:10px;align-items:center">'+
-   '<button class="btn-n" id="goLoginGate" style="width:220px">'+t("login")+'</button>'+
-   '<span style="font-size:13px;color:var(--grey)">'+t("noAccountYet")+' <a id="goSignupGate" style="color:var(--navy);font-weight:600;cursor:pointer;text-decoration:underline">'+t("signup")+'</a></span>'+
+  // owner 2026-11-03: most visitors who land here have no account, and the text already says «create one in a minute» — so
+  // «create an account» is the main button and «log in» the second one under «have an account?» (it was a small link before)
+  '<div style="margin-top:20px;display:flex;flex-direction:column;gap:10px;align-items:center">'+
+   '<button class="btn-n" id="goSignupGate" style="width:240px;max-width:100%">'+t("signup")+'</button>'+
+   '<span style="font-size:13px;color:var(--grey);margin-top:6px">'+GX("auHaveAcct")+'</span>'+
+   '<button class="line gate-in" id="goLoginGate" style="width:240px;max-width:100%">'+t("login")+'</button>'+
   '</div></div></div>'}
 
 /* ── wiring ── */
@@ -4490,20 +4496,21 @@ var PROMO_MSG={
   full:"مرحباً، أريد الباقة الكاملة لإعلاني على بلكون. رقم الإعلان: ",
   ag:"مرحباً، أنا مكتب عقاري وأريد أن أعرف باقات المكاتب على بلكون.",
   svc:"مرحباً، أريد عرض سعر لخدمة من فريق بلكون: ",
-  ask:"مرحباً، عندي سؤال عن الترويج على بلكون."
+  ask:"مرحباً، عندي سؤال عن الترويج على بلكون.",
+  team:"مرحباً، أريد أن أعرف أكثر عن خدمات فريق بلكون: "
 };
 var PROMO_TAB="ind", PROMO_LIVE=null;
 // "auto" in the numbers: the live listings counted on the server (the app holds only part of them in memory)
 function promoLive(){ if(PROMO_LIVE!=null||promoLive._q||!DB) return; promoLive._q=1;
   DB.from("listings").select("id",{count:"exact",head:true}).eq("status","live").eq("country_code",COUNTRY).then(function(r){ promoLive._q=0; if(r&&r.count!=null){ PROMO_LIVE=r.count; $$("[data-splive]").forEach(function(e){ e.textContent=r.count.toLocaleString("en") }) } },function(){ promoLive._q=0 }) }
-function promoPage(){ promoLive();
+function promoPage(){ promoLive(); var APP=/BalkounApp\//.test(navigator.userAgent||"");   // the Google Play / App Store app: see the app version below
   var c=promoCfg(), P=c.photos, n=function(v){ return esc(String(v==null?"":v)) }, usd=function(v){ return '<b class="ltr">$'+n(v)+'</b>' };
   var img=function(u){ return "background-image:url('"+esc(safeUrl(String(u||"")))+"')" };
   var wa=function(k,cls,label){ return '<a class="sp-btn '+cls+'" href="'+esc(promoWa(PROMO_MSG[k]))+'" target="_blank" rel="noopener">'+label+'</a>' };
   var r0=c.reels[0]||{};
   var ic=function(d){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg>' };
   var svc=[["M4 8h3l2-3h6l2 3h3v11H4z|c12,13,4","تصوير احترافي","مصورون يزورون العقار ويصورونه بالضوء الصحيح، داخلاً وخارجاً، بصور تبيع."],
-    ["r3,5,18,14,2|M10 9l5 3-5 3z","مونتاج الفيديو والريلات","محررو فيديو يصنعون ريلاً احترافياً بموسيقى وعناوين وشعار. السعر حسب حجم العمل، وهل تصوّر الفيديو بنفسك أم يصوّره فريقنا."],
+    ["r3,5,18,14,2|M10 9l5 3-5 3z","مونتاج الفيديو والريلات","محررو فيديو يصنعون ريلاً احترافياً بموسيقى وعناوين وشعار."+(APP?"":" السعر حسب حجم العمل، وهل تصوّر الفيديو بنفسك أم يصوّره فريقنا.")],
     ["M12 19l7-7 3 3-7 7z|M18 13l-1.5-7.5L2 2l3.5 14.5L13 18z|c11,11,2","تصميم","مصممون لمنشورات الإعلان، وهوية المكتب، والشعار، والبطاقات."],
     ["M3 11l18-6v14L3 13z|M7 12v5a2 2 0 0 0 4 0v-3","خبراء إعلانات","نختار الجمهور والميزانية والمدينة، ونتابع الحملة يوماً بيوم لتصل بأقل تكلفة."],
     ["r5,2,14,20,2|M9 7h6M9 11h6M9 15h3","إدارة صفحات التواصل","ننشر على صفحتك بانتظام، ونرد على التعليقات، ونرتّب الرسائل إلى واتساب."],
@@ -4515,6 +4522,43 @@ function promoPage(){ promoLive();
   var more=[["معاينة عن بُعد للمغتربين","نزور العقار ونعرضه لك بمكالمة فيديو مباشرة."],["جولة فيديو داخل العقار","تمشي في البيت غرفةً غرفة قبل أن تزوره."],["مخطط العقار","رسم واضح للغرف والمساحات."],
     ["إعلان بأي لغة تختارها","بالعربي والإنجليزي، أو الألمانية والتركية وغيرها، ليفهمه المشتري أينما كان."],["لوحة «للبيع» برمز QR","تُعلَّق على العقار وتفتح إعلانه على بلكون."],["للمطوّرين العقاريين","صفحة للمشروع وحملة إطلاق للمشاريع قيد الإنشاء."]]
     .map(function(m){ return '<li><strong>'+m[0]+'</strong><span>'+m[1]+'</span></li>' }).join("");
+  var stats=(function(){ var it=(c.stats.items||[]).filter(function(x){ return x&&x.on!==false&&String(x.v||"").trim() });
+    if(!it.length) return '';
+    return '<div class="sp-w"><div class="sp-stats" data-sprv>'+it.map(function(x){ if(String(x.v).trim()==="auto") return '<div><b class="ltr" data-splive>'+(PROMO_LIVE!=null?PROMO_LIVE.toLocaleString("en"):"&nbsp;")+'</b><span>'+n(x.l)+'</span></div>'; return '<div><b class="ltr">'+n(x.v)+'</b><span>'+n(x.l)+'</span></div>' }).join("")+(c.stats.note?'<span class="sp-note">'+n(c.stats.note)+'</span>':'')+'</div></div>' })();
+  var collage='<div class="sp-collage" data-sprv><div class="sp-f"><i style="'+img(P.hero1)+'"></i><span><b>فيلا بمسبح وتراس</b>من ريل بلكون</span></div><div class="sp-f"><i style="'+img(P.hero2)+'"></i><span><b>غرفة مطلة على المسبح</b>من ريل بلكون</span></div><div class="sp-f"><i style="'+img(P.hero3)+'"></i><span><b>مطبخ حديث</b>من ريل بلكون</span></div></div>';
+  var reelFig='<figure class="sp-place" data-sprv><div class="sp-phone"><div class="sp-reel"><a class="sp-poster" href="'+esc(safeUrl(String(r0.url||"")))+'" target="_blank" rel="noopener" aria-label="شاهد ريل بلكون على فيسبوك" style="'+img(P.reel)+'"><span class="sp-play"></span><span class="sp-fbtag">شاهد على فيسبوك · <b class="ltr">'+n(r0.views)+'</b></span></a></div></div><figcaption style="text-align:center"><b>إعلان ممول على فيسبوك وإنستغرام وحالات واتساب</b><span>ريل حقيقي من صفحة بلكون: <b class="ltr sp-gold">'+n(r0.views)+'</b> مشاهدة.</span></figcaption></figure>';
+  var proof='<div class="sp-proof" data-sprv><div class="sp-pp"><div class="sp-eye">ريلات بلكون على فيسبوك</div><p>أرقام حقيقية من صفحتنا، كما يعرضها فيسبوك.</p></div>'+
+      c.reels.slice(0,3).map(function(r){ return '<a class="sp-rl" href="'+esc(safeUrl(String(r.url||"")))+'" target="_blank" rel="noopener"><b class="ltr">'+n(r.views)+'</b><em>مشاهدة</em><span>'+n(r.title)+'</span><small><i class="ltr">'+n(r.react)+'</i> تفاعل · <i class="ltr">'+n(r.comm)+'</i> تعليق · <i class="ltr">'+n(r.share)+'</i> مشاركة</small></a>' }).join("")+'</div>';
+  var report='<div class="sp-report"><div><h3 class="sp-sub" data-sprv>وبعد الانطلاق، ترى ماذا حدث بالأرقام.</h3><div class="sp-pts">'+
+      [["M3 20h18M6 16V9M11 16V5M16 16v-4M21 16V8","تقرير برابط خاص","كم شخصاً رأى إعلانك، وكم ضغط عليه أو تواصل معك، يوماً بيوم."],["M21 12a8 8 0 0 1-11.6 7.1L4 20l1-5.1A8 8 0 1 1 21 12z","الرسائل لك وحدك","الناس يتواصلون معك مباشرة، ولا نأخذ أي عمولة على البيع."],
+       ["M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z|M8.5 12l2.5 2.5L16 9.5","نعد بالوصول، لا بالبيع","نضمن أن يصل إعلانك للناس. أما البيع فقرار المشتري."],["c12,12,9|M12 7v5l3 2","خدمة عملاء 24/7","فريقنا معك في أي وقت، ليلاً ونهاراً، على واتساب."]].map(function(s){
+        var d=s[0].split("|").map(function(x){ var m=x.match(/^c(\d+),(\d+),(\d+)$/); return m?'<circle cx="'+m[1]+'" cy="'+m[2]+'" r="'+m[3]+'"/>':'<path d="'+x+'"/>' }).join("");
+        return '<div class="sp-pt" data-sprv><i>'+ic(d)+'</i><div><b>'+s[1]+'</b><p>'+s[2]+'</p></div></div>' }).join("")+'</div></div>'+
+      '<div class="sp-rep" data-sprv><div class="sp-rh"><i style="'+img(P.card)+'"></i><div><b>فيلا ومزرعة VIP للبيع</b><span>إعلان ممول · 5 أيام · أرقام مثال</span></div></div>'+
+        '<div class="sp-kpis"><div><b class="ltr">18,400</b><span>ظهور</span></div><div><b class="ltr">9,150</b><span>مشاهدة للريل</span></div><div><b class="ltr">540</b><span>زيارة للإعلان</span></div><div><b class="ltr">41</b><span>تواصل على واتساب</span></div></div>'+
+        '<div class="sp-bars">'+[38,62,88,70,54].map(function(h,i){ return '<div><i style="height:'+h+'%"></i><span>يوم '+(i+1)+'</span></div>' }).join("")+'</div></div></div>';
+  /* inside the Google Play / App Store app (BalkounApp in the user agent): the stores' payment rules allow selling only work done
+     outside the app, so this version has no prices, no packages, no payment and no paid places on Balkoun (owner 2026-11-03) */
+  if(APP) return '<div class="spg">'+
+    '<section class="sp-hero"><div class="sp-w sp-hgrid"><div>'+
+      '<div class="sp-eye" data-sprv>للمالكين والمكاتب العقارية</div><h1 data-sprv>إعلانك أمام من يبحث <em>فعلاً</em>.</h1>'+
+      '<p data-sprv>ننشر إعلانك ونروّجه بإعلان ممول على فيسبوك وإنستغرام وحالات واتساب، ليصل إلى من يبحث عن عقار في مدينتك وإلى السوريين في الخارج.</p>'+
+      '<div class="sp-acts" data-sprv>'+wa("ind","gold","تواصل معنا على واتساب")+'</div></div>'+collage+
+    '</div>'+stats+'</section>'+
+    '<nav class="sp-jump" aria-label="أقسام الصفحة"><div class="sp-w"><a href="#sp-where" data-spjump="sp-where">الإعلان الممول</a><a href="#sp-team" data-spjump="sp-team">فريقنا</a><a href="#sp-how" data-spjump="sp-how">كيف يعمل</a></div></nav>'+
+    '<section class="sp-s" id="sp-where"><div class="sp-w"><div class="sp-head"><div><div class="sp-eye" data-sprv>إعلان ممول</div><h2 data-sprv>على فيسبوك وإنستغرام وحالات واتساب.</h2></div><p class="sp-lede" data-sprv>نصنع من صور إعلانك ريلاً قصيراً، وننشره إعلاناً ممولاً في مدينتك وللمغتربين، ويتواصل معك المهتمون على واتساب مباشرة.</p></div>'+
+      '<div class="sp-show one">'+reelFig+'</div>'+proof+'</div></section>'+
+    '<section class="sp-s" id="sp-team"><div class="sp-w"><div class="sp-head"><div><div class="sp-eye" data-sprv>فريق بلكون</div><h2 data-sprv>فريق كامل يعمل لإعلانك.</h2></div><p class="sp-lede" data-sprv>ليس إعلاناً فقط. عندنا مصورون ومحررو فيديو ومصممون وخبراء إعلانات، ونستطيع إدارة صفحاتك وحملاتك من البداية للنهاية.</p></div>'+
+      '<div class="sp-svc">'+svc+'</div><div class="sp-more" data-sprv><b>وخدمات أخرى عند الطلب</b><ul>'+more+'</ul></div>'+
+      '<div class="sp-svccta" data-sprv><span>أخبرنا ماذا تحتاج، ونرتّب كل شيء معك على واتساب.</span>'+wa("team","gold","اسألنا على واتساب")+'</div></div></section>'+
+    '<section class="sp-s" id="sp-how"><div class="sp-w"><div class="sp-eye" data-sprv>كيف يعمل</div><h2 data-sprv>ثلاث خطوات، وكلها من هاتفك.</h2>'+
+      '<div class="sp-steps s3"><div class="sp-step" data-sprv><em class="ltr">1</em><b>تواصل معنا</b><p>أرسل لنا رقم إعلانك على واتساب.</p></div><div class="sp-step" data-sprv><em class="ltr">2</em><b>نراجع إعلانك</b><p>نتأكد أنه حقيقي وصوره واضحة، خلال ساعات.</p></div><div class="sp-step" data-sprv><em class="ltr">3</em><b>ينطلق الترويج</b><p>ويصلك رابط تقرير تتابع منه النتائج يوماً بيوم.</p></div></div>'+
+      report+'</div></section>'+
+    '<section class="sp-close"><div class="sp-cbg" style="'+img(P.close)+'"></div><div class="sp-w"><div class="sp-eye" data-sprv>ابدأ اليوم</div><h2 data-sprv>النشر على بلكون مجاني دائماً. الترويج خيار، حين تريد وصولاً أسرع.</h2>'+
+      '<div class="sp-acts" data-sprv>'+wa("ind","gold","روّج إعلاناً من إعلاناتي")+wa("ask","line","اسألنا على واتساب")+'</div>'+
+      '<div class="sp-rules" data-sprv><span>إعلانات حقيقية فقط</span><span>بلا عمولة على البيع</span><span>خدمة عملاء 24/7</span></div></div></section>'+
+    '<div class="sp-w sp-credit">صور البيوت لقطات من ريلات بلكون على فيسبوك. صورة الخاتمة: ويكيميديا كومنز (CC BY-SA).</div>'+
+    '</div>';
   var adEx=(+c.ad.days||5)*(+c.ad.day||3), adTot=adEx+(+c.ad.fee||0);
   var plans='<div class="sp-plan"'+(PROMO_TAB==="ind"?'':' hidden')+'><p class="sp-lede sp-pl">تدفع بعد أن نراجع إعلانك ونوافق عليه. وإن لم نقبله لا تدفع شيئاً.</p><div class="sp-opts">'+
     '<div class="sp-opt" data-sprv><div class="sp-im" style="'+img(P.opt1)+'"></div><div><h3>تمييز على بلكون</h3><p>إعلانك في أول نتائج البحث في مدينته، بشارة «مميز» ذهبية. الأماكن محدودة في كل مدينة.</p>'+
@@ -4537,19 +4581,16 @@ function promoPage(){ promoLive();
     '<div class="sp-eye" data-sprv>للمالكين والمكاتب العقارية</div><h1 data-sprv>إعلانك أمام من يبحث <em>فعلاً</em>.</h1>'+
     '<p data-sprv>نختار إعلانات مميزة ونروّجها على بلكون، وبإعلان ممول على فيسبوك وإنستغرام وحالات واتساب، لتصل إلى من يبحث عن عقار في مدينتك وإلى السوريين في الخارج.</p>'+
     '<div class="sp-acts" data-sprv><a class="sp-btn gold" href="#sp-plans" data-spjump="sp-plans" data-sptab="ind">روّج إعلاناً من إعلاناتي</a><a class="sp-btn line" href="#sp-plans" data-spjump="sp-plans" data-sptab="ag">للمكاتب العقارية</a></div></div>'+
-    '<div class="sp-collage" data-sprv><div class="sp-f"><i style="'+img(P.hero1)+'"></i><span><b>فيلا بمسبح وتراس</b>من ريل بلكون</span></div><div class="sp-f"><i style="'+img(P.hero2)+'"></i><span><b>غرفة مطلة على المسبح</b>من ريل بلكون</span></div><div class="sp-f"><i style="'+img(P.hero3)+'"></i><span><b>مطبخ حديث</b>من ريل بلكون</span></div></div>'+
-  '</div>'+(function(){ var it=(c.stats.items||[]).filter(function(x){ return x&&x.on!==false&&String(x.v||"").trim() });
-    if(!it.length) return '';
-    return '<div class="sp-w"><div class="sp-stats" data-sprv>'+it.map(function(x){ if(String(x.v).trim()==="auto") return '<div><b class="ltr" data-splive>'+(PROMO_LIVE!=null?PROMO_LIVE.toLocaleString("en"):"&nbsp;")+'</b><span>'+n(x.l)+'</span></div>'; return '<div><b class="ltr">'+n(x.v)+'</b><span>'+n(x.l)+'</span></div>' }).join("")+(c.stats.note?'<span class="sp-note">'+n(c.stats.note)+'</span>':'')+'</div></div>' })()+'</section>'+
+    collage+
+  '</div>'+stats+'</section>'+
   '<nav class="sp-jump" aria-label="أقسام الصفحة"><div class="sp-w"><a href="#sp-where" data-spjump="sp-where">أين يظهر</a><a href="#sp-plans" data-spjump="sp-plans">الباقات</a><a href="#sp-team" data-spjump="sp-team">فريقنا</a><a href="#sp-how" data-spjump="sp-how">كيف يعمل</a><a href="#sp-faq" data-spjump="sp-faq">أسئلة</a><a class="sp-go" href="#sp-plans" data-spjump="sp-plans">روّج الآن</a></div></nav>'+
   '<section class="sp-s" id="sp-where"><div class="sp-w"><div class="sp-head"><div><div class="sp-eye" data-sprv>أين يظهر إعلانك</div><h2 data-sprv>ثلاثة أماكن، وإعلان واحد.</h2></div><p class="sp-lede" data-sprv>هكذا يرى الناس إعلانك بعد الترويج. الصور لقطات من ريلات بلكون.</p></div>'+
     '<div class="sp-show">'+
       '<figure class="sp-place" data-sprv><div class="sp-frame"><div class="sp-card"><div class="sp-ph" style="'+img(P.card)+'"><span class="sp-feat">★ مميز</span></div><div class="sp-bd"><b>فيلا ومزرعة للبيع</b><span class="sp-pl2">مثال على إعلان مميز</span><div class="sp-cpr"><strong>سعر مثال</strong><small>من ريل بلكون</small></div></div></div></div><figcaption><b>أول نتائج البحث</b><span>يظهر إعلانك فوق غيره في مدينته، بشارة «مميز».</span></figcaption></figure>'+
-      '<figure class="sp-place" data-sprv><div class="sp-phone"><div class="sp-reel"><a class="sp-poster" href="'+esc(safeUrl(String(r0.url||"")))+'" target="_blank" rel="noopener" aria-label="شاهد ريل بلكون على فيسبوك" style="'+img(P.reel)+'"><span class="sp-play"></span><span class="sp-fbtag">شاهد على فيسبوك · <b class="ltr">'+n(r0.views)+'</b></span></a></div></div><figcaption style="text-align:center"><b>إعلان ممول على فيسبوك وإنستغرام وحالات واتساب</b><span>ريل حقيقي من صفحة بلكون: <b class="ltr sp-gold">'+n(r0.views)+'</b> مشاهدة.</span></figcaption></figure>'+
+      reelFig+
       '<figure class="sp-place" data-sprv><div class="sp-frame"><div class="sp-square" style="'+img(P.square)+'"><span class="sp-ad">إعلان</span><div class="sp-in"><small>مثال على مربع إعلاني</small><b>فيلا حديثة بمسبح</b><span>من ريل بلكون</span></div></div></div><figcaption><b>مربع في الصفحة الرئيسية</b><span>مكان ثابت في أول ما يراه كل زائر.</span></figcaption></figure>'+
     '</div>'+
-    '<div class="sp-proof" data-sprv><div class="sp-pp"><div class="sp-eye">ريلات بلكون على فيسبوك</div><p>أرقام حقيقية من صفحتنا، كما يعرضها فيسبوك.</p></div>'+
-      c.reels.slice(0,3).map(function(r){ return '<a class="sp-rl" href="'+esc(safeUrl(String(r.url||"")))+'" target="_blank" rel="noopener"><b class="ltr">'+n(r.views)+'</b><em>مشاهدة</em><span>'+n(r.title)+'</span><small><i class="ltr">'+n(r.react)+'</i> تفاعل · <i class="ltr">'+n(r.comm)+'</i> تعليق · <i class="ltr">'+n(r.share)+'</i> مشاركة</small></a>' }).join("")+'</div>'+
+    proof+
   '</div></section>'+
   '<section class="sp-s" id="sp-plans"><div class="sp-w"><div class="sp-head"><div><div class="sp-eye" data-sprv>الباقات</div><h2 data-sprv>اختر ما يناسبك.</h2></div>'+
     '<div class="sp-seg" data-sprv role="tablist" aria-label="نوع المعلن"><button type="button" role="tab" data-sptab="ind" class="'+(PROMO_TAB==="ind"?"on":"")+'" aria-selected="'+(PROMO_TAB==="ind")+'">للأفراد والمالكين</button><button type="button" role="tab" data-sptab="ag" class="'+(PROMO_TAB==="ag"?"on":"")+'" aria-selected="'+(PROMO_TAB==="ag")+'">للمكاتب العقارية</button></div></div>'+plans+'</div></section>'+
@@ -4558,14 +4599,7 @@ function promoPage(){ promoLive();
     '<div class="sp-svccta" data-sprv><span>كل خدمة بسعر حسب العمل. نرسل لك عرضاً واضحاً قبل أن نبدأ.</span>'+wa("svc","gold","اطلب عرض سعر على واتساب")+'</div></div></section>'+
   '<section class="sp-s" id="sp-how"><div class="sp-w"><div class="sp-eye" data-sprv>كيف يعمل</div><h2 data-sprv>أربع خطوات، وكلها من هاتفك.</h2>'+
     '<div class="sp-steps"><div class="sp-step" data-sprv><em class="ltr">1</em><b>اختر الطريقة</b><p>اضغط «اختر» وأرسل لنا رقم إعلانك على واتساب.</p></div><div class="sp-step" data-sprv><em class="ltr">2</em><b>نراجع إعلانك</b><p>نتأكد أنه حقيقي وصوره واضحة، خلال ساعات.</p></div><div class="sp-step" data-sprv><em class="ltr">3</em><b>تدفع</b><p>'+n(c.pay)+'.</p></div><div class="sp-step" data-sprv><em class="ltr">4</em><b>ينطلق الترويج</b><p>ويصلك رابط تقرير تتابع منه النتائج يوماً بيوم.</p></div></div>'+
-    '<div class="sp-report"><div><h3 class="sp-sub" data-sprv>وبعد الانطلاق، ترى ماذا حدث بالأرقام.</h3><div class="sp-pts">'+
-      [["M3 20h18M6 16V9M11 16V5M16 16v-4M21 16V8","تقرير برابط خاص","كم شخصاً رأى إعلانك، وكم ضغط عليه أو تواصل معك، يوماً بيوم."],["M21 12a8 8 0 0 1-11.6 7.1L4 20l1-5.1A8 8 0 1 1 21 12z","الرسائل لك وحدك","الناس يتواصلون معك مباشرة، ولا نأخذ أي عمولة على البيع."],
-       ["M12 3l8 4v5c0 5-3.5 8-8 9-4.5-1-8-4-8-9V7z|M8.5 12l2.5 2.5L16 9.5","نعد بالوصول، لا بالبيع","نضمن أن يصل إعلانك للناس. أما البيع فقرار المشتري."],["c12,12,9|M12 7v5l3 2","خدمة عملاء 24/7","فريقنا معك في أي وقت، ليلاً ونهاراً، على واتساب."]].map(function(s){
-        var d=s[0].split("|").map(function(x){ var m=x.match(/^c(\d+),(\d+),(\d+)$/); return m?'<circle cx="'+m[1]+'" cy="'+m[2]+'" r="'+m[3]+'"/>':'<path d="'+x+'"/>' }).join("");
-        return '<div class="sp-pt" data-sprv><i>'+ic(d)+'</i><div><b>'+s[1]+'</b><p>'+s[2]+'</p></div></div>' }).join("")+'</div></div>'+
-      '<div class="sp-rep" data-sprv><div class="sp-rh"><i style="'+img(P.card)+'"></i><div><b>فيلا ومزرعة VIP للبيع</b><span>إعلان ممول · 5 أيام · أرقام مثال</span></div></div>'+
-        '<div class="sp-kpis"><div><b class="ltr">18,400</b><span>ظهور</span></div><div><b class="ltr">9,150</b><span>مشاهدة للريل</span></div><div><b class="ltr">540</b><span>زيارة للإعلان</span></div><div><b class="ltr">41</b><span>تواصل على واتساب</span></div></div>'+
-        '<div class="sp-bars">'+[38,62,88,70,54].map(function(h,i){ return '<div><i style="height:'+h+'%"></i><span>يوم '+(i+1)+'</span></div>' }).join("")+'</div></div></div>'+
+    report+
   '</div></section>'+
   '<section class="sp-s" id="sp-faq"><div class="sp-w sp-faqw"><div><div class="sp-eye" data-sprv>أسئلة</div><h2 data-sprv>قبل أن تبدأ.</h2></div><div class="sp-faq">'+
     [["هل النشر على بلكون مجاني؟","نعم، دائماً. الترويج خيار إضافي لمن يريد وصولاً أسرع."],["هل تروّجون أي إعلان؟","لا. نراجع كل إعلان، ونختار الإعلانات الحقيقية بصور واضحة وسعر معقول. وإن لم نقبل إعلانك لا تدفع شيئاً."],

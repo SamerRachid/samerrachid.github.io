@@ -1313,6 +1313,7 @@ html body header.hu-enter{animation-name:huEnterDown!important}
 .spg .sp-more li{padding:14px 0;border-bottom:1px solid var(--sp-line)}.spg .sp-more li strong{display:block;font-size:16px}.spg .sp-more li span{color:var(--sp-mut);font-size:14px}
 /* how it works + report */
 .spg .sp-steps{display:grid;grid-template-columns:repeat(4,1fr);margin-top:44px;border-top:1px solid var(--sp-line)}
+.spg .sp-steps.s3{grid-template-columns:repeat(3,1fr)}.spg .sp-show.one{grid-template-columns:minmax(0,340px);justify-content:center}   /* the app's /promote: three steps, one figure */
 .spg .sp-step{padding-top:26px}.spg .sp-step+.sp-step{border-inline-start:1px solid var(--sp-line);padding-inline-start:26px}.spg .sp-step:not(:last-child){padding-inline-end:26px}
 .spg .sp-step em{font-size:15px;font-weight:700;font-style:normal;color:var(--sp-gold)}.spg .sp-step b{display:block;font-size:19px;margin-top:6px}.spg .sp-step p{color:var(--sp-mut);font-size:14.5px;margin-top:4px}
 .spg .sp-report{display:grid;grid-template-columns:1fr 1.15fr;gap:60px;align-items:center;margin-top:70px}
@@ -1362,6 +1363,7 @@ html body header.hu-enter{animation-name:huEnterDown!important}
   .spg .sp-faqw{grid-template-columns:1fr;gap:20px}.spg .sp-seg{width:100%}.spg .sp-seg button{flex:1;padding:10px 8px;font-size:14px}
   .spg .sp-jump{margin-top:30px}.spg .sp-jump .sp-go{display:none}.spg .sp-kpis{grid-template-columns:repeat(2,1fr);row-gap:16px}
   .spg .sp-steps{grid-template-columns:1fr 1fr}.spg .sp-step,.spg .sp-step+.sp-step,.spg .sp-step:not(:last-child){padding:22px 0 0;border:0}.spg .sp-steps .sp-step:nth-child(even){border-inline-start:1px solid var(--sp-line);padding-inline-start:18px}.spg .sp-steps .sp-step:nth-child(odd){padding-inline-end:18px}
+  .spg .sp-steps.s3{grid-template-columns:1fr}.spg .sp-steps.s3 .sp-step:nth-child(n){border-inline-start:0;padding-inline:0}.spg .sp-show.one{grid-template-columns:1fr}
   .spg .sp-close{min-height:0;padding-block:70px;margin-top:76px}.spg .sp-close::after{background:linear-gradient(180deg,rgba(17,33,63,.7),rgba(17,33,63,.96))!important}
   .spg .sp-btn{height:50px}.spg .sp-hero .sp-acts .sp-btn,.spg .sp-close .sp-acts .sp-btn{flex:1 1 100%}
 }
