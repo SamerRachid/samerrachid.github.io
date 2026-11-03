@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-GCOpDow0DtgtJSOAG2xeOMet7RnNrrnqBpBK6xujOyA=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-ieY1ntLK82dULejjS9jRXqLuC/hGbpUlmP7jhdz2SCs=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -2586,9 +2586,14 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .rs-map #rsMap{width:100%;height:100%}
 .rs-mapnote{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:500;background:rgba(255,255,255,.94);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:600;color:var(--navy);box-shadow:0 4px 12px rgba(9,14,26,.15);pointer-events:none}
 .rs-pinw{background:none;border:0}
-.rs-pin{display:inline-block;transform:translate(-50%,-100%);background:#fff;color:var(--navy);border:1.5px solid var(--navy);border-radius:999px;padding:4px 9px;font:700 12px var(--f);white-space:nowrap;box-shadow:0 4px 12px rgba(9,14,26,.25);direction:ltr;cursor:pointer;transition:transform .15s,background .15s}
-.rs-pin.feat{border-color:var(--gold);background:var(--gold-w)}
-.rs-pin.on,.rs-pin:hover,.rs-pinw.on .rs-pin{background:var(--navy);color:#fff;transform:translate(-50%,-100%) scale(1.08)}
+/* 2026-11-03 owner («3»): a smaller price tag whose pointer marks the spot; crowded pins gather into the gold .mclu circles */
+.rs-pin{display:inline-block;position:relative;transform:translate(-50%,calc(-100% - 4px));background:#fff;color:var(--navy);border-radius:6px;padding:2px 6px;font:700 10.5px/1.3 var(--f);white-space:nowrap;box-shadow:0 1px 4px rgba(9,14,26,.35);direction:ltr;cursor:pointer;transition:transform .15s,background .15s}
+.rs-pin::after{content:"";position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);border:4px solid transparent;border-top-color:#fff;border-bottom:0;transition:border-color .15s}
+.rs-pin.feat{background:var(--gold-w);box-shadow:0 0 0 1.5px var(--gold),0 1px 4px rgba(9,14,26,.35)}
+.rs-pin.feat::after{border-top-color:var(--gold)}
+.rs-pin.on,.rs-pin:hover,.rs-pinw.on .rs-pin{background:var(--navy);color:#fff;transform:translate(-50%,calc(-100% - 4px)) scale(1.1)}
+.rs-pin.on::after,.rs-pin:hover::after,.rs-pinw.on .rs-pin::after{border-top-color:var(--navy)}
+.mclu-w.on .mclu{background:var(--navy);color:#fff;box-shadow:0 0 0 4px var(--gold)}
 .res .card.hl{box-shadow:0 0 0 3px var(--gold),0 22px 40px -26px rgba(20,33,61,.45);transform:translateY(-3px)}
 .rs-mbar{display:none}
 /* results + side map ("model B"): a narrower sticky map column, two wide cards per row beside it, and an
@@ -6907,8 +6912,8 @@ function rsAvgBox(r){
  if(!rows.length) return "";
  return '<div class="rs-avgbox"><b>'+GX("rsAvgH")+'</b>'+rows.map(function(o){ return '<div class="rs-avgrow"><span>'+aN(o.a)+'</span><span class="ltr">$'+Math.round(o.v).toLocaleString("en")+'/'+t("sqm")+'</span></div>' }).join("")+'</div>' }
 // a map pin in the listing's own currency (owner, 2026-10-23)
-function rsShort(x){ var cur=lcur(x), v=cur==="USD"?(+x.p||0):(+x.pl||0); var sh = v>=1e6 ? (Math.round(v/1e5)/10).toString().replace(/\.0$/,"")+"M" : v>=1000 ? Math.round(v/1000)+"K" : String(v); return cur==="USD" ? "$"+sh : sh+" "+curLabel(cur,"ar") }
-function rsMapStop(){ rsFloatHide(); if(RS.map){ try{ RS.map.remove() }catch(e){} RS.map=null; RS.pins={} } }
+function rsShort(x){ var cur=lcur(x), v=cur==="USD"?(+x.p||0):(+x.pl||0); if(!v) return "—"; /* no price yet: a dash, not «$0» */ var sh = v>=1e6 ? (Math.round(v/1e5)/10).toString().replace(/\.0$/,"")+"M" : v>=1000 ? Math.round(v/1000)+"K" : String(v); return cur==="USD" ? "$"+sh : sh+" "+curLabel(cur,"ar") }
+function rsMapStop(){ rsFloatHide(); if(RS.map){ try{ RS.map.remove() }catch(e){} RS.map=null; RS.pins={}; RS.clu=null } }
 // open a listing from a map card (the hover card and the clicked pin's card)
 function rsGoListing(id){ rsFloatHide(); rsMapStop(); GI=0; LIGHTBOX_OPEN=false; VIEW="listing:"+id; scrollTo(0,0); render(); refreshListingsOnNavigate();
   fetchPhotos(id).then(function(ph){ var it=D.LIST.filter(function(l){ return String(l.id)===String(id) })[0]; if(it){ it.photos=ph||[]; GI=0; render() } }) }
@@ -6940,18 +6945,20 @@ function rsMapInit(){
   // the count under the map was worked out before the area locations arrived (14 instead of 347): it follows the pins drawn
   var note=document.querySelector(".rs-mapnote"); if(note) note.innerHTML=GX("rsOnMap").replace("{n}",'<span class="ltr">'+pts.length+'</span>');
   var map, fresh=!keep;
-  if(keep){ map=RS.map; Object.keys(RS.pins).forEach(function(k){ try{ map.removeLayer(RS.pins[k]) }catch(e){} }); RS.pins={}; try{ map.closePopup() }catch(e){} }
+  if(keep){ map=RS.map; if(RS.clu){ RS.clu.remove(); RS.clu=null } RS.pins={}; try{ map.closePopup() }catch(e){} }
   else { map=LMap.map(c,{zoomControl:true}).setView(pts.length?[pts[0].lat,pts[0].lng]:countryCenter().slice(0,2), pts.length?11:countryCenter()[2]); huTiles(LMap).addTo(map) }
   var b=[];
   pts.forEach(function(x){
     var ic=LMap.divIcon({className:"rs-pinw",html:'<span class="rs-pin'+(x.featured?' feat':'')+'" data-pin="'+x.id+'">'+rsShort(x)+'</span>',iconSize:[0,0],iconAnchor:[0,0]});
-    var m=LMap.marker([x.lat,x.lng],{icon:ic}).addTo(map); RS.pins[x.id]=m;
+    var m=LMap.marker([x.lat,x.lng],{icon:ic}); RS.pins[x.id]=m;   // put on the map by the cluster layer below
     m.on("click",function(){ RS.pinnedId=x.id; rsPinOpen(x,m) });
     // hover: the mini card opens over the pin and the list card lights up; it closes shortly after the mouse leaves
     // both the pin and the card, unless the pin was clicked (pinned)
     m.on("mouseover",function(){ clearTimeout(RS.closeT); rsPinShow(x,m,{pan:false,scroll:"nearest"}) });
     m.on("mouseout",function(){ if(RS.pinnedId===x.id) return; RS.closeT=setTimeout(function(){ if(RS.pinnedId!==x.id) rsPinHide(x,m) },350) });
     b.push([x.lat,x.lng]) });
+  // owner 2026-11-03 («3»): pins that would sit on each other gather into the map page's gold circle with their number
+  RS.clu=mapClusterLayer(LMap, map, pts, function(x){ return RS.pins[x.id] });
   if(b.length>1){ try{ map.fitBounds(b,{padding:[40,40],maxZoom:14,animate:keep}) }catch(e){} }   // a kept map glides to the new pins; a fresh one opens in place (leaving mid-animation made Leaflet throw)
   if(fresh){
   // the mini card's "view listing" button (popup DOM is created by Leaflet, so it is wired here, not by the page's data-open pass)
@@ -6982,7 +6989,7 @@ function rsPinShow(x,m,o){
   rsFloatHide();
   $$(".res .card.hl").forEach(function(c){ if(+c.dataset.open!==x.id) c.classList.remove("hl") });
   var cd=document.querySelector('.res .card[data-open="'+x.id+'"]'); if(cd){ cd.classList.add("hl"); if(o.scroll && cd.scrollIntoView) cd.scrollIntoView({block:o.scroll,behavior:"smooth"}) }
-  try{ if(!m.getPopup()){ m.bindPopup(rsMiniCard(x),{className:"rs-pop",closeButton:true,maxWidth:280,minWidth:220,offset:[0,-36],autoPan:!!o.pan}); try{ m.off("click",m._openPopup,m) }catch(e2){} }   // Leaflet's own click-toggle would close the card that hover already opened
+  try{ if(!m.getPopup()){ m.bindPopup(rsMiniCard(x),{className:"rs-pop",closeButton:true,maxWidth:280,minWidth:220,offset:[0,-28],autoPan:!!o.pan}); try{ m.off("click",m._openPopup,m) }catch(e2){} }   // Leaflet's own click-toggle would close the card that hover already opened
     m.getPopup().options.autoPan=!!o.pan; if(o.pan && m.isPopupOpen()){ RS._reopen=true; try{ m.closePopup() }finally{ RS._reopen=false } } if(!m.isPopupOpen()) m.openPopup() }catch(e){}   // a click re-opens with auto-pan so the whole card is inside the map
 }
 function rsPinHide(x,m){ var fl=document.getElementById("rsFloat"); if(fl && fl.dataset.id===String(x.id)) rsFloatHide(); try{ if(m.isPopupOpen()) m.closePopup() }catch(e){} var cd=document.querySelector('.res .card[data-open="'+x.id+'"]'); if(cd) cd.classList.remove("hl") }
@@ -6991,6 +6998,8 @@ function rsPinOpen(x,m){
   var all=rsResults(), idx=-1; all.forEach(function(l,i){ if(idx<0&&l.id===x.id) idx=i });
   var size=+SX("search_page_size",24)||24, pg=Math.floor(Math.max(0,idx)/size)+1;
   if(idx>-1 && pg!==F.page){ F.page=pg; RS.focusId=x.id; render(); return }
+  // its pin is inside a circle: zoom until it stands alone, then open its card
+  if(!m._map && RS.clu){ var mp=RS.map; mp.once("zoomend",function(){ setTimeout(function(){ if(RS.map===mp && m._map) rsPinShow(x,m,{pan:true,scroll:"center"}) },80) }); mp.setView([x.lat,x.lng],RS.clu.maxZoom); return }
   rsPinShow(x,m,{pan:true,scroll:"center"});
 }
 function rsWire(opts){
@@ -7049,7 +7058,8 @@ function rsWire(opts){
       b.disabled=false; ssMark() }
     catch(e){ b.disabled=false; sp.textContent=(e.message||"error"); b.style.color="var(--danger)" } } }
   // cards ↔ pins
-  $$(".res .card[data-open]").forEach(function(cd){ cd.addEventListener("mouseenter",function(){ var m=RS.pins[cd.dataset.open]; if(m&&m._icon){ m._icon.classList.add("on"); m.setZIndexOffset(1000) } }); cd.addEventListener("mouseleave",function(){ var m=RS.pins[cd.dataset.open]; if(m&&m._icon){ m._icon.classList.remove("on"); m.setZIndexOffset(0) } }) });
+  var rsLit=function(id){ var m=RS.pins[id]; return (m&&m._map)?m:(RS.clu&&RS.clu.where(+id)) };   // the pin, or the circle that holds it
+  $$(".res .card[data-open]").forEach(function(cd){ cd.addEventListener("mouseenter",function(){ var m=rsLit(cd.dataset.open); if(m&&m._icon){ m._icon.classList.add("on"); m.setZIndexOffset(1000) } }); cd.addEventListener("mouseleave",function(){ var m=rsLit(cd.dataset.open); if(m&&m._icon){ m._icon.classList.remove("on"); m.setZIndexOffset(0) } }) });
   if(!(opts&&opts.map) && rsMapOn() && window.innerWidth>=1100) setTimeout(rsMapInit,60); else rsMapStop();
 }
 // a booked ad between the results, shaped like a listing card, after every 8th card; and a side banner under the map.
@@ -10394,10 +10404,12 @@ function initMapSearch(){
 // zooms in until they separate. From zoom 16 every pin shows, and pins at the very same spot (an area's centre, used when a
 // listing has no exact location) fan out in a small ring so each can be reached.
 function mapClusterLayer(LMap, map, items, makeMarker){   // LMap: the page's Leaflet
-  var CELL=60, MAXZ=16, layer=LMap.layerGroup().addTo(map), made={};
+  var CELL=60, MAXZ=16, layer=LMap.layerGroup().addTo(map), made={}, where={};
   function mk(it){ return made[it.id]||(made[it.id]=makeMarker(it)) }
   function draw(){
-    layer.clearLayers(); var z=map.getZoom(), cl=[];
+    // 2026-11-03: what is drawn is gathered first and only the difference is applied, so a pin that stays on the map is never
+    // taken off and put back (its open card used to close at every zoom); where[id] = the circle a listing is inside now
+    var z=map.getZoom(), cl=[], next=[]; where={};
     // by distance, not by a grid (a grid let two circles sit on top of each other across a cell line): a pin joins the first
     // group within CELL px, then groups whose centres are still closer than CELL merge, until none are
     items.forEach(function(it){ var p=map.project([it.lat,it.lng],z), hit=null;
@@ -10406,7 +10418,8 @@ function mapClusterLayer(LMap, map, items, makeMarker){   // LMap: the page's Le
     for(var again=true; again && z<MAXZ;){ again=false;
       for(var i=0;i<cl.length && !again;i++) for(var j=i+1;j<cl.length;j++){ var A=cl[i], B=cl[j];
         var ay=A.g.length===1?A.y-20:A.y, by=B.g.length===1?B.y-20:B.y;   // a lone pin's head stands ~20px above its point
-        if(Math.hypot(A.x-B.x,ay-by)<CELL){ A.g=A.g.concat(B.g); A.sx+=B.sx; A.sy+=B.sy; A.x=A.sx/A.g.length; A.y=A.sy/A.g.length; cl.splice(j,1); again=true; break } } }
+        // a lone pin beside a circle needs a little more room: the circle is wider than the pin (2026-11-03: a tag touched a circle)
+        if(Math.hypot(A.x-B.x,ay-by)<CELL+((A.g.length>1)!==(B.g.length>1)?10:0)){ A.g=A.g.concat(B.g); A.sx+=B.sx; A.sy+=B.sy; A.x=A.sx/A.g.length; A.y=A.sy/A.g.length; cl.splice(j,1); again=true; break } } }
     var groups={}, order=[]; cl.forEach(function(c,i){ groups[i]=c.g; order.push(i) });
     order.forEach(function(k){ var g=groups[k];
       if(g.length===1 || z>=MAXZ){
@@ -10415,18 +10428,22 @@ function mapClusterLayer(LMap, map, items, makeMarker){   // LMap: the page's Le
           s.forEach(function(it,i){ var m=mk(it);
             if(s.length>1){ var c=map.project([it.lat,it.lng],z), r=16+s.length*3, an=2*Math.PI*i/s.length; m.setLatLng(map.unproject(c.add([r*Math.cos(an), r*Math.sin(an)]),z)) }
             else m.setLatLng([it.lat,it.lng]);
-            layer.addLayer(m) }) });
+            next.push(m) }) });
         return }
       var lat=0,lng=0; g.forEach(function(it){ lat+=it.lat; lng+=it.lng }); var n=g.length;
       var ic=LMap.divIcon({className:"mclu-w",html:'<span class="mclu'+(n>=100?" l":n>=10?" m":"")+'">'+n+'</span>',iconSize:[0,0],iconAnchor:[0,0]});
       var cm=LMap.marker([lat/n,lng/n],{icon:ic,title:String(n),riseOnHover:true});
       cm.on("click",function(){ var bb=LMap.latLngBounds(g.map(function(it){ return [it.lat,it.lng] }));
         var to=map.getBoundsZoom(bb.pad(0.15)); if(to<=z) map.setView(bb.getCenter(), Math.min(z+2,MAXZ)); else map.fitBounds(bb,{padding:[40,40],maxZoom:MAXZ}) });
-      layer.addLayer(cm) });
+      g.forEach(function(it){ where[it.id]=cm }); next.push(cm) });
+    layer.eachLayer(function(l){ if(next.indexOf(l)<0) layer.removeLayer(l) });
+    next.forEach(function(l){ if(!layer.hasLayer(l)) layer.addLayer(l) });
   }
   // redraw once the zoom has settled (redrawing inside a running zoom animation made Leaflet throw on a removed marker)
-  var raf=0; map.on("zoomend",function(){ if(raf) cancelAnimationFrame(raf); raf=requestAnimationFrame(function(){ raf=0; if(map._container && !map._animatingZoom) draw(); else map.once("zoomend",draw) }) }); draw();
-  return {redraw:draw};
+  var raf=0, onZoom=function(){ if(raf) cancelAnimationFrame(raf); raf=requestAnimationFrame(function(){ raf=0; if(map._container && !map._animatingZoom) draw(); else map.once("zoomend",draw) }) };
+  map.on("zoomend",onZoom); draw();
+  return {redraw:draw, maxZoom:MAXZ, where:function(id){ return where[id]||null },
+    remove:function(){ map.off("zoomend",onZoom); if(raf) cancelAnimationFrame(raf); try{ map.removeLayer(layer) }catch(e){} }};
 }
 function stopMapSearch(){
   if(_mapSearchInitTimer){ clearTimeout(_mapSearchInitTimer); _mapSearchInitTimer=null; }
