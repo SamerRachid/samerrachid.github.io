@@ -24,6 +24,7 @@
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
+import { split as langSplit } from "./lang-split.mjs";
 
 const ROOT = path.resolve(".");
 const SUPABASE_URL = "https://coajrqynjrptujmzjjdh.supabase.co";
@@ -46,12 +47,22 @@ const hash = crypto.createHash("sha1").update(css.body).update(js.body).digest("
 const appDir = path.join(ROOT, "bundle");
 fs.mkdirSync(appDir, { recursive: true });
 const cssFile = `app.${hash}.css`, jsFile = `app.${hash}.js`;
+// German in its own file (lang-split.mjs): the app script without it, and /bundle/lang-de.<hash>.js for the German pages
+const LS = langSplit(js.body);
+if (!LS) throw new Error("lang-split: nothing moved — the tables changed shape?");
+const langFile = `lang-${LS.lang}.${hash}.js`;
 // the script loader (see the template below). A new behaviour gets a new number: the service worker serves .js files from its
 // cache first, so a changed file under the same name would reach some phones one visit late
-const LOADER = "loader-1.js";
+const LOADER = "loader-2.js";
 const LOADER_SRC = `/* Balkoun: adds the page's scripts (data-src: "url#integrity url …", run in that order). On a phone's home page they wait
-   until the hero photo the page already carries is painted (at most 2.5 s); elsewhere they are added at once */
-(function(){ var me=document.currentScript, list=((me&&me.getAttribute("data-src"))||"").split(" "), done=false, go=function(){
+   until the hero photo the page already carries is painted (at most 2.5 s); elsewhere they are added at once. A page that opens
+   in a language kept in its own file (data-lang-<code>) gets that file first — the language is found as the app finds it */
+(function(){ var me=document.currentScript, list=((me&&me.getAttribute("data-src"))||"").split(" "), done=false, lang=null;
+  try{ var mr=document.querySelector('meta[name="bk-route"]'); if(mr) lang=(JSON.parse(mr.getAttribute("content")||"{}")||{}).lang||null }catch(x){}
+  if(!lang){ var q=location.search.match(/[?&]lang=(ar|en|de|fr)(?![a-z])/); if(q) lang=q[1] }
+  if(!lang){ try{ lang=localStorage.getItem("balkoun_lang") }catch(x){} }
+  var pack=lang&&me&&me.getAttribute("data-lang-"+lang); if(pack) list.unshift(pack);
+  var go=function(){
   if(done) return; done=true;
   for(var i=0;i<list.length;i++){ if(!list[i]) continue; var p=list[i].split("#"), s=document.createElement("script"); s.src=p[0]; if(p[1]) s.integrity=p[1]; s.async=false; document.body.appendChild(s) } };
   var img=document.querySelector("#huHero img");
@@ -66,14 +77,14 @@ const LOADER_SRC = `/* Balkoun: adds the page's scripts (data-src: "url#integrit
   if(img.complete) ready(); else { img.addEventListener("load",ready); img.addEventListener("error",go) } })();
 `;
 if (!fs.existsSync(path.join(appDir, cssFile))) fs.writeFileSync(path.join(appDir, cssFile), css.body);
-if (!fs.existsSync(path.join(appDir, jsFile))) fs.writeFileSync(path.join(appDir, jsFile), js.body);
+for (const [f, body] of [[jsFile, LS.code], [langFile, LS.pack]]) { const p = path.join(appDir, f); if (!fs.existsSync(p) || fs.readFileSync(p, "utf8") !== body) fs.writeFileSync(p, body); }
 { const lp = path.join(appDir, LOADER); if (!fs.existsSync(lp) || fs.readFileSync(lp, "utf8") !== LOADER_SRC) fs.writeFileSync(lp, LOADER_SRC); }
 // keep the last few versions (a page cached in a browser for its 10 minutes may still ask for the previous one)
 const verFile = path.join(appDir, "versions.json");
 let versions = []; try { versions = JSON.parse(fs.readFileSync(verFile, "utf8")); } catch (e) {}
 versions = [hash, ...versions.filter((v) => v !== hash)].slice(0, KEEP_VERSIONS);
 fs.writeFileSync(verFile, JSON.stringify(versions) + "\n");
-for (const f of fs.readdirSync(appDir)) { const m = f.match(/^app\.([0-9a-f]{10})\.(css|js)$/); if (m && !versions.includes(m[1])) fs.rmSync(path.join(appDir, f)); }
+for (const f of fs.readdirSync(appDir)) { const m = f.match(/^(?:app|lang-[a-z]{2})\.([0-9a-f]{10})\.(css|js)$/); if (m && !versions.includes(m[1])) fs.rmSync(path.join(appDir, f)); }
 
 // ── 2. the page template: the app with the two big blocks as files, and empty SEO slots ──
 const SEO_TAG = /<title>[\s\S]*?<\/title>\n?|<meta name="(?:description|keywords|robots)"[^>]*>\n?|<link rel="(?:canonical|alternate)"[^>]*>\n?|<meta property="og:[^"]*"[^>]*>\n?|<meta name="twitter:[^"]*"[^>]*>\n?|<script type="application\/ld\+json">[\s\S]*?<\/script>\n?/g;
@@ -89,7 +100,7 @@ tpl = tpl.slice(0, jsAt) + `<script src="/bundle/${jsFile}"></script>` + tpl.sli
   const list = tags.map((t) => t[1] + (t[2] ? "#" + t[2] : "")).join(" ");
   const at = tags[0].index;
   for (const t of tags.slice().reverse()) tpl = tpl.slice(0, t.index) + tpl.slice(t.index + t[0].length);
-  tpl = tpl.slice(0, at) + `<script defer src="/bundle/${LOADER}" data-src="${list}"></script>\n` + tpl.slice(at);
+  tpl = tpl.slice(0, at) + `<script defer src="/bundle/${LOADER}" data-src="${list}" data-lang-${LS.lang}="/bundle/${langFile}"></script>\n` + tpl.slice(at);
 }
 const headEnd = tpl.indexOf("</head>") > -1 ? tpl.indexOf("</head>") : tpl.indexOf("<body");
 tpl = tpl.slice(0, headEnd).replace(SEO_TAG, "") + "@@SEOHEAD@@\n" + tpl.slice(headEnd);

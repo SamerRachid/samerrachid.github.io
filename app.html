@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-yv6Fn3JtBlNlmb4WZ8/8FI6Iv263Kc6W42czyBvSv9E=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-RBB5W5quweR0aubaE2YEIrGBUMIfdl2qovqetaOB5u0=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -5277,6 +5277,17 @@ function detectLang(){
   // the language switch in the header stores the visitor's own choice and wins from then on
   return "ar";
 }
+// 2026-11-02 speed: on the live site German is in its own file (scripts/lang-split.mjs; the loader adds it before this script
+// for a page that opens in German). Switching to it later loads it first. In app.html itself nothing is split: resolves at once
+var _langReq={};
+function bkLangLoad(l){
+  if(!window.BK_LANG_SPLIT || BK_LANG_SPLIT.indexOf(l)<0 || (window.__BK_LANG && __BK_LANG.lang===l)) return Promise.resolve();
+  if(_langReq[l]) return _langReq[l];
+  var tag=document.querySelector("script[data-lang-"+l+"]"), url=tag&&tag.getAttribute("data-lang-"+l);
+  if(!url) return Promise.reject(new Error("lang file"));
+  return (_langReq[l]=new Promise(function(res,rej){ var s=document.createElement("script"); s.src=url;
+    s.onload=function(){ if(!(window.__BK_LANG && __BK_LANG.lang===l)){ _langReq[l]=null; rej(new Error("lang file")); return } ["D","GX_T","HX_T","LEGAL"].forEach(function(n){ bkLangFill(n) }); res() };
+    s.onerror=function(){ _langReq[l]=null; rej(new Error("lang file")) }; document.head.appendChild(s) })) }
 function detectCurrency(){
   try{
     var saved = curPrefGet(COUNTRY), c1=countryOf(COUNTRY), list1=(c1&&c1.currencies)||["USD"];
@@ -5527,6 +5538,7 @@ function showChooser(soon){
   d.querySelector("#cchooseX").onclick=function(){ close(); COUNTRY_CHOSEN=true; try{ localStorage.setItem("balkoun_country",COUNTRY) }catch(e){} };
 }
 var L=detectLang(), CUR=detectCurrency(), VIEW="home", GI=0, LIGHTBOX_OPEN=false;
+if(window.BK_LANG_SPLIT && BK_LANG_SPLIT.indexOf(L)>-1 && !(window.__BK_LANG && __BK_LANG.lang===L)) L="en";   // its language file did not arrive: English rather than missing words
 // ?preview=1 — the page is embedded in the admin's homepage studio: no analytics, no curtain, settings arrive by postMessage
 var PREVIEW=/[?&]preview=1/.test(location.search), _pvLast=null;
 var SHARED_IN=/[?&]shared=1/.test(location.search);   // the installed app received a share (see sw.js → /post?shared=1)
@@ -11025,7 +11037,9 @@ function wire(){
  }
  $$("[data-langpick]").forEach(function(e){ e.onclick=function(){
    var nl=this.dataset.langpick;
-   phoneLangSwitch(L, nl, function(){ L=nl; try{localStorage.setItem("balkoun_lang",L)}catch(err){} render(); });
+   bkLangLoad(nl).then(function(){   // a language kept in its own file is fetched before the switch
+     phoneLangSwitch(L, nl, function(){ L=nl; try{localStorage.setItem("balkoun_lang",L)}catch(err){} render(); });
+   }, function(){ /* the file did not arrive (offline): the page stays in its language */ });
  }});
  $("#cur").onclick=function(){
    CUR=CUR==="USD"?localCur():"USD";
@@ -13400,7 +13414,8 @@ window.addEventListener("unhandledrejection",function(e){ try{ console.warn("Bal
 /* ── admin panel + studio live in /admin.js and load only when an admin opens the panel (keeps 248 KB out of every visitor's download) ── */
 var _admJs=null;
 function ensureAdminJs(){ if(window.__admLoaded) return Promise.resolve(); if(_admJs) return _admJs;
-  _admJs=new Promise(function(res,rej){ var sc=document.createElement("script"); sc.src="/admin.js?v="+Date.now(); sc.onload=function(){ window.__admLoaded=true; res() }; sc.onerror=function(){ _admJs=null; rej(new Error("admin.js")) }; document.head.appendChild(sc) });
+  // the panel shows and edits every language (the studio's language tabs, the sign-up consent in each language): German first
+  _admJs=bkLangLoad("de").catch(function(){}).then(function(){ return new Promise(function(res,rej){ var sc=document.createElement("script"); sc.src="/admin.js?v="+Date.now(); sc.onload=function(){ window.__admLoaded=true; res() }; sc.onerror=function(){ _admJs=null; rej(new Error("admin.js")) }; document.head.appendChild(sc) }) });
   return _admJs }
 function adminView(){ if(!window.__admLoaded){ ensureAdminJs().then(function(){ render() }).catch(function(){}); return '<div class="done2" style="margin:80px auto;max-width:420px"><b>'+t("loading")+'</b></div>' } return adminView() }
 function wireAdmin(){ if(!window.__admLoaded) return; wireAdmin() }
