@@ -647,8 +647,11 @@ function amenityLabel(saved){
   var pools=[D.AMEN,D.LANDAMEN];
   for(var p=0;p<pools.length;p++){
     for(var i=0;i<AMEN_LANGS.length;i++){
-      var idx=pools[p][AMEN_LANGS[i]].indexOf(saved);
-      if(idx>-1) return pools[p][AMEN_LANGS[li()]][idx];
+      // a list kept in its own file (German, scripts/lang-split.mjs) is absent until it loads: skip it (2026-11-03: reading it
+      // stopped every listing page whose amenity is not in the Arabic or English list, e.g. land listings)
+      var list=pools[p][AMEN_LANGS[i]]; if(!list) continue;
+      var idx=list.indexOf(saved);
+      if(idx>-1){ var out=pools[p][AMEN_LANGS[li()]]; return (out&&out[idx])||saved }
     }
   }
   return saved; // not a recognized amenity string — show as-saved
@@ -3311,9 +3314,12 @@ function gate(){
   '<div class="tk" style="background:var(--navy-w);color:var(--navy)">⚑</div>'+
   '<b style="font-size:19px">'+t("loginToPost")+'</b>'+
   '<p style="color:var(--grey);font-size:14.5px;margin-top:6px">'+t("loginToPostP")+'</p>'+
-  '<div style="margin-top:18px;display:flex;flex-direction:column;gap:10px;align-items:center">'+
-   '<button class="btn-n" id="goLoginGate" style="width:220px">'+t("login")+'</button>'+
-   '<span style="font-size:13px;color:var(--grey)">'+t("noAccountYet")+' <a id="goSignupGate" style="color:var(--navy);font-weight:600;cursor:pointer;text-decoration:underline">'+t("signup")+'</a></span>'+
+  // owner 2026-11-03: most visitors who land here have no account, and the text already says «create one in a minute» — so
+  // «create an account» is the main button and «log in» the second one under «have an account?» (it was a small link before)
+  '<div style="margin-top:20px;display:flex;flex-direction:column;gap:10px;align-items:center">'+
+   '<button class="btn-n" id="goSignupGate" style="width:240px;max-width:100%">'+t("signup")+'</button>'+
+   '<span style="font-size:13px;color:var(--grey);margin-top:6px">'+GX("auHaveAcct")+'</span>'+
+   '<button class="line gate-in" id="goLoginGate" style="width:240px;max-width:100%">'+t("login")+'</button>'+
   '</div></div></div>'}
 
 /* ── wiring ── */
@@ -3363,7 +3369,7 @@ function areaCombo(as){
  // when the sender leaves the box (owner, 2026-11-02: the typed name vanished and the box to add it never showed)
  var typed="";
  var hasOther=function(){ return liveOpts().some(function(o){ return o.v==="__other__" }) };
- var exactOpt=function(q){ var n=kwNorm(q); return liveOpts().filter(function(o){ return o.v && o.v!=="__other__" && kwNorm(o.t)===n })[0] };
+ var exactOpt=function(q){ var n=kwNorm(q), al=placeAliasExact(q); return liveOpts().filter(function(o){ return o.v && o.v!=="__other__" && (kwNorm(o.t)===n || o.v===al) })[0] };   // a learned name (ساحة الميسات) counts as its area
  var pick=function(v){ if(v==="__other__" && typed.trim().length>=2 && !exactOpt(typed)){ var ob=document.getElementById("paOther"); if(ob) ob.value=typed.trim() } typed=""; as.value=v; sync(); drop.classList.remove("on"); input.setAttribute("aria-expanded","false"); try{ input.blur() }catch(e){} as.dispatchEvent(new Event("change",{bubbles:true})) };
  // phones show the list as a bottom sheet; iPhone's keyboard does not shrink the page, so the sheet would sit behind it
  var lift=function(){ try{ var vv=window.visualViewport; if(!vv || !drop.classList.contains("on") || !matchMedia("(max-width:640px)").matches){ drop.style.bottom=""; return }
@@ -3371,7 +3377,7 @@ function areaCombo(as){
  if(window.visualViewport){ visualViewport.addEventListener("resize",lift); visualViewport.addEventListener("scroll",lift) }
  var render=function(q){
    var n=kwNorm(q||""), cur=as.value;
-   var keep=liveOpts().filter(function(o){ return o.v && (o.v==="__other__" || !n || kwNorm(o.t).indexOf(n)>-1) });
+   var al=placeAliasAreas(q), keep=liveOpts().filter(function(o){ return o.v && (o.v==="__other__" || !n || kwNorm(o.t).indexOf(n)>-1 || al.indexOf(o.v)>-1) });
    drop.innerHTML = keep.length ? keep.map(function(o){
      var lbl = o.v==="__other__" && (q||"").trim().length>=2 && !exactOpt(q) ? GX("areaAddTyped").replace("{x}",(q||"").trim()) : o.t;
      return '<div class="chipsel-opt'+(o.v===cur?" act":"")+'" data-acval="'+esc(o.v)+'">'+esc(lbl)+'</div>' }).join("")
@@ -3382,14 +3388,14 @@ function areaCombo(as){
    positionDropUpOrDown(input,drop); lift();
  };
  drop.onclick=function(ev){ ev.stopPropagation() };
- input.addEventListener("focus",function(){ render("") });
+ input.addEventListener("focus",function(){ render(""); placeAliasLoad().then(function(){ if(document.activeElement===input && input.value) render(input.value) }) });
  input.addEventListener("input",function(){ typed=this.value; render(this.value) });
  input.addEventListener("click",function(e){ e.stopPropagation(); if(!drop.classList.contains("on")) render("") });
  // the list closes on the click that took the focus away, which can come after this check: wait for it (up to 3 s)
  var settle=function(tries){ if(document.activeElement===input) return;
    if(drop.classList.contains("on")){ if(tries<20){ setTimeout(function(){ settle(tries+1) },150); return } drop.classList.remove("on"); input.setAttribute("aria-expanded","false") }
    var hit=typed.trim().length>=2 && exactOpt(typed);
-   var n=kwNorm(typed), near=!hit && n && liveOpts().some(function(o){ return o.v && o.v!=="__other__" && kwNorm(o.t).indexOf(n)>-1 });
+   var n=kwNorm(typed), al=placeAliasAreas(typed), near=!hit && n && liveOpts().some(function(o){ return o.v && o.v!=="__other__" && (kwNorm(o.t).indexOf(n)>-1 || al.indexOf(o.v)>-1) });
    if(hit){ if(as.value!==hit.v) pick(hit.v); else { typed=""; sync() } }
    else if(typed.trim().length>=2 && !near && hasOther()) pick("__other__");
    else if(!(typed.trim() && near)) { typed=""; sync() } };   // a part of several names stays on screen until one is chosen
@@ -4981,6 +4987,17 @@ async function qfHomeGovs(){
 async function qfLoadPlaces(){
   try{ var r=await Promise.race([DB.rpc("bk_intake_places_public",{p_country:COUNTRY}), new Promise(function(ok){ setTimeout(function(){ ok({error:"slow"}) },2500) })]);
        return (r&&!r.error&&Array.isArray(r.data))?r.data:[] }catch(e){ return [] } }
+// owner 2026-11-03: a place the bot has learned is another name of its area in the area boxes too — «ساحة الميسات» typed in the
+// post form or the search finds «الميسات». Loaded once, when an area box is first used; until then the boxes match names only
+var PLACE_ALIAS=null, _placeAliasReq=null;
+function placeAliasLoad(){
+  if(PLACE_ALIAS) return Promise.resolve(PLACE_ALIAS);
+  return _placeAliasReq||(_placeAliasReq=qfLoadPlaces().then(function(rows){ PLACE_ALIAS=rows.map(function(r){ return {n:kwNorm(r[0]),g:r[1],a:r[2]} }); return PLACE_ALIAS })) }
+// areas one of whose learned names holds the typed words (at least 4 letters, so «ال» or «سا» list nothing)
+function placeAliasAreas(q){ var n=kwNorm(q||""); if(!PLACE_ALIAS || n.length<4) return [];
+  var out=[]; PLACE_ALIAS.forEach(function(p){ if(p.n.indexOf(n)>-1 && out.indexOf(p.a)<0) out.push(p.a) }); return out }
+// the area a learned name stands for when the typed words are that whole name
+function placeAliasExact(q){ var n=kwNorm(q||""); if(!PLACE_ALIAS || !n) return null; var p=PLACE_ALIAS.filter(function(x){ return x.n===n })[0]; return p?p.a:null }
 // the pasted message goes into the description as the sender wrote it — the bot's rule (keepSenderText / stripPhones in bk-intake)
 function qfKeepText(s){
   s=String(s||"").replace(/^\s*(تم|تمام|نعم|لا|جديد|done|yes|no|new)\s*$/gim,"");
@@ -5600,8 +5617,11 @@ function wireChipSelects(){
       // under their governorate when more than one is in play, and on phones the list
       // opens as a bottom sheet with its own title row and close button (CSS)
       var sel=F[cfg.arrKey]||[], ql=(q||"").toLowerCase(), cnt=csCounts();
+      if(id==="csArea" && !PLACE_ALIAS) placeAliasLoad().then(function(){ if(drop.classList.contains("on") && q) renderDrop(q) });   // first use: fetch the learned names, then match again
+      var listOf=function(q){ var sel=F[cfg.arrKey]||[], ql=(q||"").toLowerCase();
+      var al=id==="csArea"?placeAliasAreas(q):[];   // a learned place name finds its area (ساحة الميسات → الميسات)
       var opts=cfg.getOptions().filter(function(o){
-        return sel.indexOf(o.value)===-1 && (!ql || o.label.toLowerCase().indexOf(ql)>-1) });
+        return sel.indexOf(o.value)===-1 && (!ql || o.label.toLowerCase().indexOf(ql)>-1 || al.indexOf(o.value)>-1) });
       var optHtml=function(o,n){
         return '<div class="chipsel-opt" data-cspick="'+id+'" data-csval="'+o.value.replace(/"/g,"&quot;")+'">'+
                '<span>'+o.label+'</span>'+(n&&countsOn()?'<span class="cs-n ltr">'+n+'</span>':'')+'</div>' };
@@ -5622,6 +5642,8 @@ function wireChipSelects(){
       } else {
         opts.slice(0,60).forEach(function(o){ html+=optHtml(o, id==="csGov" ? cnt.g[o.value] : 0) });
       }
+      return html };
+      var html=listOf(q);
       var wrapEl=$("#"+id+"Wrap"), compact=wrapEl&&wrapEl.classList.contains("cs-compact");
       var selHtml = (compact && sel.length) ? '<div class="cs-selected">'+sel.map(function(v){ var o=cfg.getOptions().filter(function(x){return x.value===v})[0]; return '<span class="chip">'+(o?o.label:v)+'<button type="button" class="chip-x" data-csremove="'+id+'" data-csval="'+String(v).replace(/"/g,"&quot;")+'">×</button></span>' }).join("")+'</div>' : '';
       drop.innerHTML = '<div class="cs-sheet-h"><span>'+input.placeholder+'</span><button type="button" class="cs-close" aria-label="close">×</button>'+
@@ -5641,6 +5663,12 @@ function wireChipSelects(){
       if(sq){
         var refilter=function(){
           var v=sq.value.trim().toLowerCase();
+          // areas (owner 2026-11-03: «الميسات» could not be found on a phone): the first draw lists at most 120 areas and Damascus
+          // has 121, so hiding within what was drawn missed the rest; the list is rebuilt from every area of the chosen governorates
+          if(id==="csArea"){ $$(".chipsel-opt,.cs-h,.chipsel-empty",drop).forEach(function(e){ e.parentNode.removeChild(e) });
+            var ft=drop.querySelector(".cs-sheet-f"), tmp=document.createElement("div"); tmp.innerHTML=listOf(sq.value.trim())||'<div class="chipsel-empty cs-sheet-empty">'+t("noResultsFor")+'</div>';
+            while(tmp.firstChild) drop.insertBefore(tmp.firstChild,ft);
+            markGreenTabu(drop); wireOpts(); return }
           drop.querySelectorAll(".chipsel-opt").forEach(function(o){ o.hidden = !!v && o.textContent.toLowerCase().indexOf(v)===-1 });
           [].slice.call(drop.querySelectorAll(".cs-h")).forEach(function(h){
             var kind=h.classList.contains("cs-kind"), n=h.nextElementSibling, any=false;
@@ -5651,6 +5679,7 @@ function wireChipSelects(){
           if(em) em.hidden=!none;
         };
         sq.addEventListener("input",refilter);
+        if(id==="csArea" && !PLACE_ALIAS) placeAliasLoad().then(function(){ if(sq.value.trim()) refilter() });   // the learned names arrived after typing began
         sq.addEventListener("focus",function(){ drop.classList.add("kb"); csVvh() });
         sq.addEventListener("blur",function(){ setTimeout(function(){ if(document.activeElement!==sq) drop.classList.remove("kb") },160) });
         sq.addEventListener("click",function(e){ e.stopPropagation() });
@@ -5660,14 +5689,15 @@ function wireChipSelects(){
       drop.classList.add("on"); drop.classList.remove("out");
       positionDropUpOrDown(input,drop);
       if(compact) huDim(drop,true);
-      $$('[data-cspick="'+id+'"]').forEach(function(e){ e.onclick=function(ev){
+      wireOpts();
+      function wireOpts(){ $$('[data-cspick="'+id+'"]').forEach(function(e){ e.onclick=function(ev){
         if(ev){ev.stopPropagation();if(ev.preventDefault)ev.preventDefault()}
         var v=this.dataset.csval;
         if((F[cfg.arrKey]||[]).indexOf(v)>-1) return;   // already chosen
         F[cfg.arrKey]=(F[cfg.arrKey]||[]).concat([v]);
         if(window.innerWidth<=640 && compact){ csPickInPlace(id,cfg,v,this,drop); return }   // phone sheet: no re-render, no flash
         window._csReopen=id; softRenderHero();
-      }});
+      }}) }
     };
     // on phones the field is a plain tap target: one tap opens the sheet, a second closes it, and the hidden
     // input is never focused (it used to catch the tap, which sometimes raised the keyboard over the sheet)
