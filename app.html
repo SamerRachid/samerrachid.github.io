@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-VOewnLwQdPc7NqT/zsjxJUtj3h1TTAaLVIvodLkC2pk=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-dywETUHBVrxQf7K+P0ALCtOwbCRPmplcZs/BGstjt1Y=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -6637,7 +6637,7 @@ function home(){
      '<span class="qfteaser-tx"><b>'+GX("qfTeaserT")+'</b><small>'+GX("qfTeaserP")+'</small></span>'+
      '<span class="qfteaser-cta">'+GX("qfTeaserBtn")+'</span></a>'+
      '<button type="button" class="qfteaser-x" data-qfx aria-label="'+esc(GX("mdClose"))+'">×</button></div></div>' })();
- return '<div class="hero-outer hu"><div class="hv on" id="hv">'+heroSlidesHtml(heroBgType,heroBgHtml)+'</div>'+
+ return '<div class="hero-outer hu" id="huHero"><div class="hv on" id="hv">'+heroSlidesHtml(heroBgType,heroBgHtml)+'</div>'+
   '<div class="hscrim"></div>'+
   '<section class="hero"><div class="wrap">'+
   (bannersTop && !heroOff ? (function(){ var row=topBannerCoreRowHtml(); return row ? '<div class="topbanner-wrap tb-inhero">'+row+'</div>' : '' })() : '')+
@@ -13429,7 +13429,8 @@ function render(){
    // element with an id it no longer sees, which stripped the Sword's clip-path and left the flag a bare rectangle (2026-10-18)
    // theme hu (2026-10-29): every re-render of the SAME view is patched in place too (a filter change, results arriving),
    // so the page never flashes or jumps — HomeUAE swaps only what changed; a new view is still drawn fresh
-   if(window.morphdom && app.firstElementChild && !$("#seoHome") && !PREVIEW && (VIEW==="home" || (VIEW===window._huLastView && VIEW!=="admin"))){
+   // 2026-11-02: the home shell carries a copy of the hero (static-shell.mjs, #huHero) — the first draw patches it too, so the photo on screen is kept
+   if(window.morphdom && app.firstElementChild && (!$("#seoHome") || (VIEW==="home" && $("#huHero"))) && !PREVIEW && (VIEW==="home" || (VIEW===window._huLastView && VIEW!=="admin"))){
      var tmp=document.createElement("div"); tmp.innerHTML=html;
      try{ morphdom(app,tmp,{childrenOnly:true,onBeforeElUpdated:function(a,b){ if(a.id==="sketchBox"||a.id==="dawnBox"||a.id==="rsMap") return false;
        // a block that has already revealed keeps its reveal state through the patch (no 50ms flicker), the results hook re-runs the motion when the set changes
@@ -13651,6 +13652,14 @@ function syriaMapHtml(){
 var _homeMap=null;
 function homeMapInit(){
   var el=$("#humap"); if(!el || el.dataset.ready) return; el.dataset.ready="1";
+  // 2026-11-02 speed: the map library and its tiles load when the map comes near the screen, not with the page (on a phone
+  // they were fetched while the hero photo was still on its way)
+  if(window.IntersectionObserver){ if(el._io) return;
+    el._io=new IntersectionObserver(function(es){ if(!es.some(function(e){ return e.isIntersecting })) return; el._io.disconnect(); el._io=null; homeMapStart(el) },{rootMargin:"600px 0px"});
+    el._io.observe(el); return }
+  homeMapStart(el);
+}
+function homeMapStart(el){
   var cnt={}; srvGovCounts(cnt);
   ensureLeaflet().then(function(LMap){
     if(!document.body.contains(el)) return;
@@ -13707,9 +13716,12 @@ function homeExtras(){
    browser session, never for a visitor who arrives on a listing link, and never when the
    visitor asked for reduced motion. */
 var _openingActive=false,_openingT0=0;
+// 2026-11-02 speed: index.html paints the first hero photo before the script runs (static-shell.mjs); set at boot. With the
+// photo already on screen the curtain would cover it, so it does not play; the header logo still turns
+var PRE_HERO=false;
 function initOpening(){
   // plays on every load of the home page (a refresh included); in-app navigation back to home does not re-run it
-  if(VIEW!=="home" || PREVIEW) return;
+  if(VIEW!=="home" || PREVIEW || PRE_HERO) return;
   if(/BalkounApp\//.test(navigator.userAgent||"")) return;   // the Android app has already shown the turning logo on its own launch screen
   var bb={}; try{ bb=JSON.parse((document.querySelector('meta[name="bk-boot"]')||{}).content||"{}")||{} }catch(e){}
   var oe=SX("opening_enabled",bb.opening!=null?bb.opening:true); if(window.innerWidth<=700){ var om=SX("opening_enabled_m",bb.opening_m!=null?bb.opening_m:""); if(om!=="") oe=(om===true||om==="true") }   // phones may differ (extras.opening_enabled_m; "" = same as desktop)
@@ -16044,6 +16056,7 @@ USER = loadSession();
 if(USER && USER.preferred_currency && (((countryOf(COUNTRY)||{}).currencies)||["USD"]).indexOf(USER.preferred_currency)>-1){ CUR=USER.preferred_currency; curPrefSet(COUNTRY,CUR) }
 try{ ADM.token=localStorage.getItem("balkoun_adm")||null }catch(e){}
 var _h=viewFromHash(); if(_h) VIEW=_h;
+PRE_HERO = VIEW==="home" && !PREVIEW && !!document.getElementById("huHero");
 initOpening();
 document.addEventListener("keydown",function(e){
   if(e.key==="Escape") $$(".menu.on,.chipsel-drop.on").forEach(function(m){ m.classList.remove("on") });

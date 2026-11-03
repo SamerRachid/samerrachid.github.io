@@ -46,8 +46,28 @@ const hash = crypto.createHash("sha1").update(css.body).update(js.body).digest("
 const appDir = path.join(ROOT, "bundle");
 fs.mkdirSync(appDir, { recursive: true });
 const cssFile = `app.${hash}.css`, jsFile = `app.${hash}.js`;
+// the script loader (see the template below). A new behaviour gets a new number: the service worker serves .js files from its
+// cache first, so a changed file under the same name would reach some phones one visit late
+const LOADER = "loader-1.js";
+const LOADER_SRC = `/* Balkoun: adds the page's scripts (data-src: "url#integrity url …", run in that order). On a phone's home page they wait
+   until the hero photo the page already carries is painted (at most 2.5 s); elsewhere they are added at once */
+(function(){ var me=document.currentScript, list=((me&&me.getAttribute("data-src"))||"").split(" "), done=false, go=function(){
+  if(done) return; done=true;
+  for(var i=0;i<list.length;i++){ if(!list[i]) continue; var p=list[i].split("#"), s=document.createElement("script"); s.src=p[0]; if(p[1]) s.integrity=p[1]; s.async=false; document.body.appendChild(s) } };
+  var img=document.querySelector("#huHero img");
+  if(!img || !window.requestAnimationFrame){ go(); return }
+  // a photo filling the whole screen (desktop) is taken for a background and never reported as the largest paint: nothing to wait for
+  var r=img.getBoundingClientRect(); if(r.width>=innerWidth && r.height>=innerHeight){ go(); return }
+  setTimeout(go,2500);
+  // Chrome / Edge / Firefox report the paint itself (largest-contentful-paint names the photo); other browsers: decoded, then a frame
+  var types=(window.PerformanceObserver&&PerformanceObserver.supportedEntryTypes)||[];
+  if(types.indexOf("largest-contentful-paint")>-1){ try{ new PerformanceObserver(function(l){ var e=l.getEntries(); for(var i=0;i<e.length;i++) if(e[i].element===img){ setTimeout(go,0); return } }).observe({type:"largest-contentful-paint",buffered:true}); img.addEventListener("error",go); return }catch(x){} }
+  var after=function(){ requestAnimationFrame(function(){ setTimeout(go,0) }) }, ready=function(){ if(img.decode) img.decode().then(after,after); else after() };
+  if(img.complete) ready(); else { img.addEventListener("load",ready); img.addEventListener("error",go) } })();
+`;
 if (!fs.existsSync(path.join(appDir, cssFile))) fs.writeFileSync(path.join(appDir, cssFile), css.body);
 if (!fs.existsSync(path.join(appDir, jsFile))) fs.writeFileSync(path.join(appDir, jsFile), js.body);
+{ const lp = path.join(appDir, LOADER); if (!fs.existsSync(lp) || fs.readFileSync(lp, "utf8") !== LOADER_SRC) fs.writeFileSync(lp, LOADER_SRC); }
 // keep the last few versions (a page cached in a browser for its 10 minutes may still ask for the previous one)
 const verFile = path.join(appDir, "versions.json");
 let versions = []; try { versions = JSON.parse(fs.readFileSync(verFile, "utf8")); } catch (e) {}
@@ -60,8 +80,17 @@ const SEO_TAG = /<title>[\s\S]*?<\/title>\n?|<meta name="(?:description|keywords
 let tpl = app.slice(0, css.at) + `<link rel="stylesheet" href="/bundle/${cssFile}">` + app.slice(css.at + css.full.length);
 const jsAt = tpl.indexOf(js.full);
 tpl = tpl.slice(0, jsAt) + `<script src="/bundle/${jsFile}"></script>` + tpl.slice(jsAt + js.full.length);
-// the vendor scripts and the app file: defer (run in order once the page is parsed — the static text and the splash paint first)
-tpl = tpl.replace(/<script src="\/(vendor|bundle)\//g, '<script defer src="/$1/');
+// the vendor scripts and the app file (2026-11-02): one small loader runs once the page is parsed and adds them in the same
+// order — on the home page once the hero photo is painted, so it is on screen before the 1.5 MB app script runs (with plain
+// defer the photo had arrived but waited behind the script; Lighthouse phone: ~8 s); on every other page at once, as before
+{
+  const tags = [...tpl.matchAll(/<script src="(\/(?:vendor|bundle)\/[^"]+)"(?: integrity="([^"]+)")?><\/script>\n?/g)];
+  if (tags.length !== 3 || !tags[2][1].startsWith("/bundle/app.")) throw new Error("expected supabase, morphdom and the app script, found " + tags.map((t) => t[1]).join(", "));
+  const list = tags.map((t) => t[1] + (t[2] ? "#" + t[2] : "")).join(" ");
+  const at = tags[0].index;
+  for (const t of tags.slice().reverse()) tpl = tpl.slice(0, t.index) + tpl.slice(t.index + t[0].length);
+  tpl = tpl.slice(0, at) + `<script defer src="/bundle/${LOADER}" data-src="${list}"></script>\n` + tpl.slice(at);
+}
 const headEnd = tpl.indexOf("</head>") > -1 ? tpl.indexOf("</head>") : tpl.indexOf("<body");
 tpl = tpl.slice(0, headEnd).replace(SEO_TAG, "") + "@@SEOHEAD@@\n" + tpl.slice(headEnd);
 tpl = tpl.replace(/<html[^>]*>/, "<html@@HTMLATTR@@>");
@@ -161,7 +190,10 @@ for (const l of LANG_DIRS) {
   // the home only: (1) the intro switches as they are now (a first visit has no saved settings, so the phone intro the owner
   // switched off played anyway); (2) the first hero photo is requested from the start instead of after the app has drawn the
   // hero (Lighthouse: the photo is the largest paint, and it waited ~4.6 s for the script on a phone)
-  let boot = {}, heroPreload = "";
+  // (3) 2026-11-02: the hero's first photo is in the page, in the same markup the app draws and under the same id, so the app's
+  // first draw takes it over (morphdom) instead of the page staying empty until the 500 KB script has run (Lighthouse phone: the
+  // photo painted at ~8 s). Not the headline: its place depends on the search bar under it, which only the app draws
+  let boot = {}, heroPreload = "", preHero = "";
   try {
     const r = await fetch(`${SUPABASE_URL}/rest/v1/site_content?select=extras,hero_bg_type&id=eq.1&limit=1`, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
     const row = r.ok ? (await r.json())[0] : null, ex = (row && row.extras) || {};
@@ -170,9 +202,20 @@ for (const l of LANG_DIRS) {
       const P = "/next/images/hero/umayyad", V = "?v=2";
       heroPreload = `<link rel="preload" as="image" type="image/avif" href="${P}-phone.avif${V}" media="(max-width:860px)" fetchpriority="high">` +
         `<link rel="preload" as="image" type="image/avif" imagesrcset="${P}-1080.avif${V} 1080w, ${P}-1920.avif${V} 1920w" imagesizes="100vw" media="(min-width:861px)" fetchpriority="high">`;
+      // the first slide exactly as heroSlidesHtml() writes it, so the app's patch keeps the same image element
+      const slide = `<div class="hslide on"><picture><source media="(max-width:860px)" type="image/avif" srcset="${P}-phone.avif${V}"><source media="(max-width:860px)" type="image/webp" srcset="${P}-phone.webp${V}"><source type="image/avif" srcset="${P}-1080.avif${V} 1080w, ${P}-1920.avif${V} 1920w" sizes="100vw"><img src="${P}-1920.webp${V}" srcset="${P}-1080.webp${V} 1080w, ${P}-1920.webp${V} 1920w" sizes="100vw" alt="" fetchpriority="high"></picture></div>`;
+      preHero = `<div class="hero-outer hu pre" id="huHero"><div class="hv on" id="hv"><div class="hslides">${slide}</div></div><div class="hscrim"></div></div>`;   // no empty <section class="hero">: filled later it would grow upwards and count as a layout shift
     }
   } catch (e) { console.warn("site settings unreadable, home without boot settings:", e.message); }
-  const homeHtml = page(homeBlock).replace("</title>", () => `</title>\n<meta name="bk-boot" content="${escAttr(JSON.stringify(boot))}">${heroPreload}`);
+  let homeHtml = page(preHero + homeBlock).replace("</title>", () => `</title>\n<meta name="bk-boot" content="${escAttr(JSON.stringify(boot))}">${heroPreload}`);
+  if (preHero) {   // the hero's styles are scoped to body.home-hero in places; render() sets the same class
+    homeHtml = homeHtml.replace("<body>", '<body class="home-hero">');
+    if (!homeHtml.includes('<body class="home-hero">')) throw new Error("home: <body> not found for the hero copy");
+    // the navy loading cover would sit over the photo until the app draws; the photo is the loading screen now
+    const splash = '<div id="bootSplash" aria-hidden="true"></div>';
+    if (!homeHtml.includes(splash)) throw new Error("home: bootSplash not found");
+    homeHtml = homeHtml.replace(splash, "");
+  }
   for (const [f, html] of [["index.html", homeHtml], ["404.html", page("")]]) {
     const p = path.join(ROOT, f); const old = fs.existsSync(p) ? fs.readFileSync(p, "utf8") : "";
     if (old !== html) { for (let k = 0; ; k++) { try { fs.writeFileSync(p, html); break; } catch (e) { if (k >= 5) throw e; const t = Date.now(); while (Date.now() - t < 300 * (k + 1)) {} } } }
