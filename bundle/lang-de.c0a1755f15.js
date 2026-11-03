@@ -2116,7 +2116,7 @@ window.__BK_LANG={lang:"de",t:{"D":[[["I18N"],"de",{"buy": "Kaufen","rent": "Mie
 [["apkH"],"de","Android-App",0],
 [["apkP"],"de","Bis zur Veröffentlichung bei Google Play hier laden.",0],
 [["apkBtn"],"de","App herunterladen",0],
-[["apkVer"],"de","Version 1.2 · 3 MB",0],
+[["apkVer"],"de","Version 1.3 · 3 MB",0],
 [["apkS1"],"de","Tippen und warten.",0],
 [["apkS2"],"de","Datei öffnen und Installation erlauben.",0],
 [["apkS3"],"de","Installieren und öffnen.",0],

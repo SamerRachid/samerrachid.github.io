@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-kevrVHi/rMxoJZls5s87t7tuwTSonuXUt5VwGvyt1Lg=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-P+GN4Z17a/d/E4d8SJo+27VGxFWvRFHWv7WyLGGfD4M=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -3176,10 +3176,13 @@ html.maint-on{overflow:hidden}
 .gdm-t{padding:10px 14px 12px;color:#fff;display:flex;flex-direction:column;gap:2px}.gdm-t span{font-size:13px;color:rgba(255,255,255,.7)}
 .gdm-x{position:absolute;top:8px;inset-inline-end:8px;z-index:2;width:38px;height:38px;border-radius:50%;border:0;background:rgba(255,255,255,.22);color:#fff;font-size:24px;line-height:1;cursor:pointer}
 /* iPhone app (owner, 2026-10-22): the logo sat under the camera, the language under the clock, ☰ under the battery */
-header{padding-top:env(safe-area-inset-top,0px)}
-.home-hero .hero-outer{padding-top:calc(62px + env(safe-area-inset-top,0px))}
-@media(max-width:700px){.home-hero .hero-outer{padding-top:calc(60px + env(safe-area-inset-top,0px))}}
-@media(max-width:640px){.home-hero .hero-outer{padding-top:calc(58px + env(safe-area-inset-top,0px))}}
+/* (2026-11-03) the Android app reports the bars as --safe-area-inset-* (Capacitor) where its WebView has no env(); take the larger */
+header{padding-top:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px))}
+.home-hero .hero-outer{padding-top:calc(62px + max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px)))}
+@media(max-width:700px){.home-hero .hero-outer{padding-top:calc(60px + max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px)))}}
+@media(max-width:640px){.home-hero .hero-outer{padding-top:calc(58px + max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px)))}}
+/* a very short screen (the Z Flip's outer screen, a phone held sideways): the headline reached up into the logo row */
+@media(max-height:560px){.home-hero .hero-outer{padding-top:calc(96px + max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px)))}}
 .rs-bar{top:env(safe-area-inset-top,0px)}
 .mdw-p{padding-top:env(safe-area-inset-top,0px)}
 .lightbox .lb-close{top:max(16px,calc(env(safe-area-inset-top,0px) + 8px))}
@@ -5011,7 +5014,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202611020300">
+</style><link rel="stylesheet" href="/theme-hu.css?v=202611031742">
 <body>
 <div id="bootSplash" aria-hidden="true"></div>
 <div id="app" role="main"><!--seo-home--><div class="seo-home" id="seoHome"><h1>عقارات سوريا للبيع والإيجار، من المالك مباشرة</h1><p>شقق وبيوت وأراضٍ في كل محافظات سوريا، مع حالة الطابو في كل إعلان وبدون عمولة.</p><h2>سوق العقارات في سوريا، بمكان واحد وبلغة واضحة</h2><p>بلكون موقع عقاري سوري يجمع الشقق والبيوت والفلل والأراضي والمحلات للبيع والإيجار في كل المحافظات: دمشق وريفها، حلب، حمص، حماة، اللاذقية، طرطوس، درعا، السويداء، دير الزور، الحسكة، الرقة، إدلب والقنيطرة. كل إعلان يحمل حالة الطابو (أخضر، حكم محكمة، أسهم أو غيرها) ومتوسط سعر المتر في منطقته خلال الشهر الأخير، لتعرف إن كان السعر معقولاً قبل أن تتصل.</p><p>ينشر المالكون والمكاتب العقارية إعلاناتهم مجاناً وبلا عمولة، بالصور أو بالفيديو، ويتواصل المشتري أو المستأجر معهم مباشرة بالهاتف أو واتساب. وللسوريين في المهجر: تصفّح بالعربية أو الإنجليزية أو الألمانية، أسعار بالدولار، ودليل عملي للشراء من الخارج ونقل الملكية.</p>
@@ -11602,7 +11605,9 @@ function appPage(){
     (done ? '<div class="apppg-done">✓ '+GX("pwaS_installed_T")+'</div><button type="button" class="gold" data-go="home">'+t("home")+'</button>'
           : (P.canPrompt&&P.canPrompt() ? '<button type="button" class="gold apppg-go" id="appInstallGo">'+MI.download+' '+GX("pwaBannerBtn")+'</button>' : '')+
             '<div class="apppg-steps">'+(P.stepsHtml?P.stepsHtml(pf):'')+'</div>')+
-    (!/ios/.test(pf) && pf!=="installed" && !/BalkounApp\//.test(navigator.userAgent||"") ?
+    // the Android app file: also offered inside the home-screen web app on Android (owner 2026-11-03 could not reach it there),
+    // never inside the Android app itself or on an iPhone
+    (!/BalkounApp\//.test(navigator.userAgent||"") && (pf==="installed" ? /android/i.test(navigator.userAgent||"") : !/ios/.test(pf)) ?
       '<div class="apppg-apk"><b>'+GX("apkH")+'</b><p>'+GX("apkP")+'</p><a class="gold" href="/downloads/balkoun.apk" download="balkoun.apk">'+MI.download+' '+GX("apkBtn")+'</a>'+
       '<small class="ltr">'+GX("apkVer")+'</small><ol>'+[1,2,3].map(function(n){ return '<li>'+GX("apkS"+n)+'</li>' }).join("")+'</ol></div>' : '')+
     '<ul class="apppg-why"><li>'+GX("appPgWhy1")+'</li><li>'+GX("appPgWhy2")+'</li><li>'+GX("appPgWhy3")+'</li></ul>'+
@@ -15760,7 +15765,7 @@ var GX_T={
   xPageSize:{ar:"عدد الإعلانات في صفحة النتائج",en:"Listings per results page",de:"Anzeigen pro Ergebnisseite"},
   xSimilar:{ar:"عدد «إعلانات أخرى» تحت صفحة الإعلان",en:"“More listings” shown under a listing",de:"„Weitere Anzeigen“ unter einer Anzeige"}, sponsored:{ar:"إعلان مدفوع",en:"Sponsored",de:"Gesponsert"}, ppNoMax:{ar:"بلا حد",en:"No max",de:"Kein Maximum",fr:"Sans max"}, ppUpTo:{ar:"حتى",en:"Up to",de:"Bis",fr:"Jusqu'à"}, ppCur:{ar:"المبلغ بـ {c}",en:"Amount in {c}",de:"Betrag in {c}",fr:"Montant en {c}"},
   apkH:{ar:"تطبيق أندرويد",en:"Android app",de:"Android-App"}, apkP:{ar:"حتى يصل التطبيق إلى Google Play، حمّله من هنا مباشرة.",en:"Until it is on Google Play, download it here.",de:"Bis zur Veröffentlichung bei Google Play hier laden."},
-  apkBtn:{ar:"حمّل التطبيق",en:"Download the app",de:"App herunterladen"}, apkVer:{ar:"النسخة 1.2 · 3 ميغا",en:"Version 1.2 · 3 MB",de:"Version 1.2 · 3 MB"},
+  apkBtn:{ar:"حمّل التطبيق",en:"Download the app",de:"App herunterladen"}, apkVer:{ar:"النسخة 1.3 · 3 ميغا",en:"Version 1.3 · 3 MB",de:"Version 1.3 · 3 MB"},
   apkS1:{ar:"اضغط «حمّل التطبيق» وانتظر انتهاء التحميل.",en:"Tap «Download the app» and wait for it to finish.",de:"Tippen und warten."},
   apkS2:{ar:"افتح الملف. إذا طلب الهاتف السماح بالتثبيت من هذا المصدر، اسمح به.",en:"Open the file. If the phone asks, allow installs from this source.",de:"Datei öffnen und Installation erlauben."},
   apkS3:{ar:"اضغط «تثبيت»، ثم افتح بلكون من شاشة هاتفك.",en:"Tap «Install», then open Balkoun from your home screen.",de:"Installieren und öffnen."}, promoNav:{ar:"روّج إعلانك",en:"Promote your listing",de:"Anzeige bewerben"},

@@ -10,7 +10,7 @@ a{color:inherit}
 .wrap{max-width:1440px;padding:0 60px}
 
 /* ===== header: logo, gold "post", bell (member), burger. Absolute over the hero on the home page ===== */
-header{background:transparent;color:#fff;padding:25px 0 0}
+header{background:transparent;color:#fff;padding:calc(25px + max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px))) 0 0}   /* + the phone's status bar: the Android/iPhone app and the home-screen web app draw under it (owner 2026-11-03) */
 body:not(.home-hero) header{background:var(--navy);position:relative}
 body.home-hero header{position:absolute;top:0;left:0;right:0;z-index:40}
 .hbar{height:auto;min-height:40px;gap:16px;padding:0 0 25px}
@@ -31,7 +31,7 @@ body.mdw-open .hmb .bars b:nth-child(2){opacity:0}
 body.mdw-open .hmb .bars b:nth-child(3){top:8px;transform:rotate(-45deg)}
 .hmb-dot{position:absolute;top:6px;right:6px;width:9px;height:9px;border-radius:50%;background:#E24B4B;border:2px solid var(--navy)}
 .bell{background:none;border:0;color:#fff;font-size:20px;cursor:pointer;position:relative}
-.wa-fab{position:fixed;left:18px;bottom:28px;z-index:30;width:56px;height:56px;border-radius:50%;background:var(--wa);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.35);transition:transform .3s;text-decoration:none}
+.wa-fab{position:fixed;left:18px;bottom:calc(28px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)));z-index:30;width:56px;height:56px;border-radius:50%;background:var(--wa);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 18px rgba(0,0,0,.35);transition:transform .3s;text-decoration:none}
 .wa-fab:hover{transform:scale(1.08)}
 .wa-fab svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
 body.mdw-open .wa-fab{display:none}
@@ -228,7 +228,7 @@ input,select,textarea{color-scheme:dark}
 }
 @media (min-width:1800px){
   .wrap{padding:0 180px}
-  header{padding-top:30px}
+  header{padding-top:calc(30px + max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px)))}
   .hbar .logo .bmark{width:64px;height:64px}
   .cta-add{height:46px;padding:0 22px;font-size:16px;border-radius:23px}
   .hero-outer.hu .hero h1{font-size:88px}
@@ -244,11 +244,11 @@ input,select,textarea{color-scheme:dark}
 }
 @media (max-width:860px){
   .wrap{padding:0 20px}
-  header{padding-top:20px}
+  header{padding-top:calc(20px + max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px)))}
   .hbar{padding-bottom:20px}
   .hbar .logo .bmark{width:39px;height:39px}
   .cta-add{display:none}
-  .wa-fab{left:auto;right:20px;bottom:20px}
+  .wa-fab{left:auto;right:20px;bottom:calc(20px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)))}
   body.home-hero header{position:absolute}
   .hero-outer.hu{min-height:100vh;height:100vh;display:block}
   .hero-outer.hu .hv,.hslides{height:560px;bottom:auto}
@@ -348,7 +348,7 @@ input,select,textarea{color-scheme:dark}
 .hero-outer.hu .sf .chipsel-box,.hero-outer.hu .sf .cs-compact .chipsel-box{background:transparent!important;color:var(--navy)!important;border:0!important}
 .hero-outer.hu .sf .cs-sum,.hero-outer.hu .sf .cs-sum::after{color:var(--navy)!important}
 .hero-outer.hu .sf .cs-sum::before{color:#6B7484!important}
-@media (max-width:860px){ .hero-outer.hu .sf{background:#fff!important} .mobfab{bottom:90px} }
+@media (max-width:860px){ .hero-outer.hu .sf{background:#fff!important} .mobfab{bottom:calc(90px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)))} }
 
 /* owner, 2026-10-28: no map tab in the hero (the map lives in the menu), no ad squares in the hero, the search strip sits at the bottom like HomeUAE */
 .home-hero .hero-outer.hu .stabs{grid-template-columns:repeat(3,1fr)!important}
@@ -360,7 +360,7 @@ input,select,textarea{color-scheme:dark}
 /* the hero block sits at the bottom of the 100vh photo (the live .hero stretches to fill; undo that) */
 .hero-outer.hu .hero{flex:0 0 auto!important;margin-top:auto;align-self:stretch}
 body.home-hero.hero-in-view .mobfab{display:none}
-.mobfab{bottom:20px}
+.mobfab{bottom:calc(20px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)))}
 
 /* ===== QA pass 2026-10-28: dropdowns were clipped by the strip's overflow; the two bars now share one shape ===== */
 .hero-outer.hu .srow{overflow:visible;border-radius:8px}
@@ -1708,3 +1708,8 @@ html body .chipsel-drop .cs-selected .chip-x:hover,html body .chipsel-drop .cs-s
 .mclu.m{width:42px;height:42px;font-size:14px}
 .mclu.l{width:50px;height:50px;font-size:15px}
 .mclu:hover{transform:translate(-50%,-50%) scale(1.08)}
+
+/* the phone's status bar inside the app and the home-screen web app (owner 2026-11-03): the page draws under it, so a solid
+   navy strip of the bar's height sits behind the clock and battery, and scrolled text no longer runs under them
+   (0 high in a browser tab, where the phone keeps its own bar) */
+body::before{content:"";position:fixed;top:0;left:0;right:0;height:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px));background:#14213D;z-index:2147483000;pointer-events:none}

@@ -3,7 +3,7 @@
    app shell answers when the network is down. Static files (brand, photos, fonts): cache first with a
    background refresh. Database calls are never cached. The version below changes whenever this file
    changes, which retires old caches. */
-const VERSION = "bk-2026-10-18";
+const VERSION = "bk-2026-11-03";
 const SHELL = VERSION + "-shell";
 const STATIC = VERSION + "-static";
 const PHOTOS = VERSION + "-photos";
@@ -76,6 +76,9 @@ self.addEventListener("fetch", (e) => {
   // response rebuilt here (cache.match ignores the Range header outright) makes WebKit mark the media unplayable —
   // listing videos played as a direct URL on iPhone but not embedded in the page, on every listing, until this
   if (isMedia(req, url)) return;
+  // the Android app file (/downloads/balkoun.apk) goes straight to the network as a plain download (owner 2026-11-03:
+  // opening the link from the phone showed the site instead of downloading)
+  if (sameOrigin(url) && /^\/downloads\//.test(url.pathname)) return;
   if (isNav(req) && sameOrigin(url)) { e.respondWith(networkFirstPage(req, url)); return; }
   if (isStatic(url) || isFont(url)) { e.respondWith(staleWhileRevalidate(req, STATIC, 200)); return; }
   if (isPhoto(url)) { e.respondWith(staleWhileRevalidate(req, PHOTOS, 300)); return; }
