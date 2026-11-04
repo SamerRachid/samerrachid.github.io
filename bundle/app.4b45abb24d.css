@@ -2480,7 +2480,7 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .rs-map{position:sticky;top:76px;height:calc(100vh - 96px);min-height:420px;border-radius:16px;overflow:hidden;border:1px solid var(--line);background:#EEF0F4;display:none;isolation:isolate;z-index:0}
 .rs-map #rsMap{width:100%;height:100%}
 .rs-mapnote{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:500;background:rgba(255,255,255,.94);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:600;color:var(--navy);box-shadow:0 4px 12px rgba(9,14,26,.15);pointer-events:none}
-.rs-pinw{background:none;border:0}
+.rs-pinw{background:none;border:0;direction:ltr}   /* 2026-11-04: in the right-to-left page the tag started at the marker's right edge, so every price tag stood one tag-width left of its place */
 /* 2026-11-03 owner («3»): a smaller price tag whose pointer marks the spot; crowded pins gather into the gold .mclu circles */
 .rs-pin{display:inline-block;position:relative;transform:translate(-50%,calc(-100% - 4px));background:#fff;color:var(--navy);border-radius:6px;padding:2px 6px;font:700 10.5px/1.3 var(--f);white-space:nowrap;box-shadow:0 1px 4px rgba(9,14,26,.35);direction:ltr;cursor:pointer;transition:transform .15s,background .15s}
 .rs-pin::after{content:"";position:absolute;left:50%;bottom:-4px;transform:translateX(-50%);border:4px solid transparent;border-top-color:#fff;border-bottom:0;transition:border-color .15s}

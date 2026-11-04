@@ -173,7 +173,7 @@ function convert(file, rel) {
 // the app's own route pages (generate-routes.mjs): full 2 MB copies until here — the same small shell now (2026-10-31: on a phone
 // /search/ painted after 6.4 s in Lighthouse, the shell pages after 1.6 s)
 const APP_COPY = /<script>[\s\S]{500000,}?<\/script>/;
-const ROUTE_DIRS = ["search", "mapsearch", "wanted", "agencies", "help", "app", "services", "promote", "projects"];
+const ROUTE_DIRS = ["search", "mapsearch", "wanted", "agencies", "help", "app", "services", "promote", "projects", "delete-account"];
 const count = { written: 0, same: 0, skip: 0 };
 function walk(dir, rel) {
   if (!fs.existsSync(dir)) return;
