@@ -594,6 +594,11 @@ function asAdminBar(){
 // exactly what a password manager already knows how to do — this is
 // deliberately just the piece that only the app itself can remember.
 function saveRememberedPhone(cc,phone){ try{ localStorage.setItem("balkoun_remember", JSON.stringify({cc:cc,phone:phone})) }catch(e){} }
+// a visitor presses something that needs an account (report, block): the same login window as everywhere, a line saying why,
+// and the action itself runs right after the login (owner 2026-11-04: «report» showed a different, signup-only box)
+function needLogin(why,then){ var r=loadRememberedPhone();
+  AU={open:true,mode:"in",step:1,cc:(r&&r.cc)||"963",phone:(r&&r.phone)||"",name:"",fam:"",code:"",email:"",remember:true,why:why,then:then}; render() }
+function authDone(){ var f=AU.then; AU.open=false; AU.why=AU.then=null; render(); if(f&&USER) f() }
 function loadRememberedPhone(){ try{ var s=localStorage.getItem("balkoun_remember"); return s?JSON.parse(s):null }catch(e){ return null } }
 function clearRememberedPhone(){ try{ localStorage.removeItem("balkoun_remember") }catch(e){} }
 
@@ -953,7 +958,7 @@ function mdwClose(){ var d=$("#mdw"); if(d) d.classList.remove("on"); document.b
 // the Android app's Back button asks this first (owner, 2026-10-23): an open window closes before the page goes back
 window.bkBack=function(){ try{
   var m=document.getElementById("soonM"); if(m){ m.remove(); return true }
-  if(typeof AU!=="undefined" && AU.open){ AU.open=false; render(); return true }
+  if(typeof AU!=="undefined" && AU.open){ AU.open=false; AU.why=AU.then=null; render(); return true }
   if(LIGHTBOX_OPEN){ LIGHTBOX_OPEN=false; render(); return true }
   var d=document.getElementById("mdw"); if(d && d.classList.contains("on")){ mdwClose(); return true }
   var dr=document.querySelectorAll(".menu.on,.chipsel-drop.on"); if(dr.length){ dr.forEach(function(x){ huHide(x) }); CS_OPEN=null; return true }
@@ -1060,6 +1065,7 @@ function footer(){
   '<div class="fcol"><h4 aria-level="2">'+H.legal+'</h4>'+
   '<a href="'+cPre()+'/terms/" data-go="terms">'+(PAGE_T.terms[L]||PAGE_T.terms.en)+'</a>'+
   '<a href="'+cPre()+'/privacy/" data-go="privacy">'+(PAGE_T.privacy[L]||PAGE_T.privacy.en)+'</a>'+
+  '<a href="/delete-account" data-go="delete-account">'+GX("daNav")+'</a>'+
   '</div>'+
   '</div><div class="fbot"><span>© 2026 '+(L==="ar"?CONFIG.brand:"Balkoun")+' · '+CONFIG.domain+
   // an admin who's just browsing the regular site (via the "View
@@ -1422,6 +1428,7 @@ function authModal(){
   '<aside class="au-brand"><span class="logo blogo">'+brandLogo()+'</span><h3>'+GX("auBrandH")+'</h3><p>'+GX("auBrandP")+'</p>'+
    '<ul><li>'+GX("auB1")+'</li><li>'+GX("auB2")+'</li><li>'+GX("auB3")+'</li></ul></aside>'+
   '<div class="au-main"><div class="autop"><b>'+title+'</b><button id="auX" aria-label="'+GX("mdClose")+'">×</button></div>'+
+  (AU.why&&AU.step===1?'<div class="au-why">'+GX(AU.why)+'</div>':'')+   // why we ask: «log in to report / block» (owner 2026-11-04)
   (AU.step<5&&AU.step!==4?'<div class="autabs"><button type="button" data-m="in" class="'+(AU.mode==="in"?"on":"")+'">'+t("login")+
   '</button><button type="button" data-m="up" class="'+(AU.mode==="up"?"on":"")+'">'+t("signup")+'</button></div>':'')+
   body+
@@ -2857,7 +2864,7 @@ function blkButtons(uid,name,cls){ if(!uid||(USER&&String(uid)===String(USER.id)
   return '<button type="button" class="'+(cls||"")+' danger" data-rptuser="'+esc(String(uid))+'" data-name="'+esc(name||"")+'">'+I.flag+'<span>'+GX("ruBtn")+'</span></button>'+
     '<button type="button" class="'+(cls||"")+(on?'':' danger')+'" data-blk="'+esc(String(uid))+'" data-name="'+esc(name||"")+'" data-on="'+(on?1:0)+'">'+I.ban+'<span>'+(on?GX("blkUndo"):GX("blkBtn"))+'</span></button>' }
 async function blkToggle(uid,name,on){
-  if(!USER){ AU.open=true; AU.mode="in"; render(); return }
+  if(!USER) return needLogin("needLoginBlk",function(){ if(String(uid)!==String(USER.id)) blkToggle(uid,name,on) });
   if(on && !confirm(GX("blkQ").replace("{n}",name||t("owner")))) return;
   try{ var r=await rpc("bk_block_user",{p_user:uid,p_block:!!on}); if(!r||r.error) throw new Error((r&&r.error)||"error");
     blkSet(r.blocked||[]); rpc("bk_my_blocks",{}).then(function(x){ if(x&&!x.error){ BLK.list=x.list||[]; render() } }).catch(function(){});
@@ -2874,8 +2881,8 @@ function reportModal(){
  if(!USER) return '<div class="au on" id="rptOv"><div class="aubox">'+
    '<div class="autop"><b>'+(RPT.user?GX("ruTitle"):t("reportListing"))+'</b><button id="rptX">✕</button></div>'+
    '<div class="aubody"><p style="font-size:14px;color:var(--grey);text-align:center">'+
-   t("loginToPostP")+'</p><button class="aub" id="goSignup" style="margin-top:12px">'+
-   t("signup")+'</button></div></div></div>';
+   GX(RPT.user?"needLoginRptU":"needLoginRpt")+'</p><button class="aub" id="goSignup" style="margin-top:12px">'+
+   t("login")+'</button></div></div></div>';
  var body = RPT.sent
   ? '<div class="aubody"><div class="audone"><div class="tk">✓</div>'+
     '<b style="font-size:17px">'+t("rptThanks")+'</b>'+
@@ -4984,6 +4991,7 @@ function qfLocalRead(raw, geo, learned, home){
       String(L[0]).split(/[،,–-]| و(?=[^ ]+ )/).forEach(function(part){ var core=bare(part).replace(/^((بالقرب من|قريب من|قرب|جانب|بجانب|مقابل|خلف|بعد|عند|دخله|نزله|طلعه|اول|امام|فوق|تحت|على|علي|الى|الي|بين|مواجه|ضمن|داخل|تقاطع|امتداد) )+/,"").replace(/[a-z0-9 ]+$/,"").trim();
         var cw=core?core.split(" "):[]; if(!cw.length||core.length<4) return;
         if(cw.every(function(w){ return GEN.test(w)||BLOCK[w]||NEVER[w] })) return;
+        if(cw.length<=3 && /^(طريق|شارع|اوتستراد|اوتوستراد|كورنيش)$/.test(cw[0])) return;   // a road alone («طريق حماة») runs past many neighbourhoods: one listing on it says nothing about the next (2026-11-04)
         if(cw.length===1&&!(oneWord&&core.length>=4)) return;   // one word only when the learned phrase is that word («غواص», «أميسا»)
         if(aIdx[core]&&!(aIdx[core].length===1&&aIdx[core][0].a===a)) return;   // an area's own name is matched by the area list, not here
         var key=core, prevA=lc[key]; if(prevA&&prevA.a!==a){ lc[key]={bad:1}; return } lc[key]={g:g,a:a,n:cw.length} }) });
@@ -5003,6 +5011,7 @@ function qfLocalRead(raw, geo, learned, home){
   var pick=null;
   for(var j=0;j<aHits.length&&!pick;j++){ var h=aHits[j];
     if(h.one && BLOCK[h.k] && !h.marked) continue;   // an area named like an everyday word ("مدرسة", "الكبيرة") counts only after «في / حي / منطقة»
+    if(!h.one && !h.learned && !h.marked && h.k.split(" ").every(function(w){ return /^(مركز|وسط|مدينه|بلده|قريه|ضيعه|منطقه|حي)$/.test(w) })) continue;   // same for a name that only says «the centre / the town»: «8 كم عن مركز مدينة حمص» is not the area «مركز المدينة» (2026-11-04)
     var inG=h.c.filter(function(c){ return gNamed.indexOf(c.g)>-1 });
     if(!inG.length&&gNamed.length) inG=h.c.filter(function(c){ return near(gNamed[0]).indexOf(c.g)>-1 });
     if(inG.length===1) pick=inG[0];
@@ -6479,8 +6488,10 @@ function wire(){
    await loadByUser(e.dataset.byuser); render() }});
 
  if($("#rptOpen")) $("#rptOpen").onclick=function(){
-   RPT={open:true,id:VIEW.split(":")[1],user:null,sent:false,msg:""}; render() };
- $$("[data-rptuser]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation(); RPT={open:true,id:null,user:{id:b.dataset.rptuser,name:b.dataset.name||""},sent:false,msg:""}; render() } });
+   var id=VIEW.split(":")[1], go=function(){ RPT={open:true,id:id,user:null,sent:false,msg:""}; render() };
+   if(!USER) return needLogin("needLoginRpt",go); go() };
+ if($("#daLogin")) $("#daLogin").onclick=function(){ AU.open=true; AU.mode="in"; render() };
+ $$("[data-rptuser]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation(); var go=function(){ RPT={open:true,id:null,user:{id:b.dataset.rptuser,name:b.dataset.name||""},sent:false,msg:""}; render() }; if(!USER) return needLogin("needLoginRptU",go); go() } });
  $$("[data-blk]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation(); blkToggle(b.dataset.blk,b.dataset.name||"",b.dataset.on!=="1") } });
  if($("#rptX")) $("#rptX").onclick=function(){ RPT.open=false; render() };
  if($("#rptClose2")) $("#rptClose2").onclick=function(){ RPT.open=false; render() };
@@ -6524,7 +6535,7 @@ function wire(){
         CU.sent=true; CU.msg=""; render();
    }catch(e){ CU.msg=e.message||"error"; this.disabled=false; this.textContent=t("send"); render() }};
 
- if($("#goSignup"))$("#goSignup").onclick=function(){AU.open=true;AU.mode="up";AU.step=1;render()};
+ if($("#goSignup"))$("#goSignup").onclick=function(){ var r=RPT; RPT={open:false}; needLogin(r.user?"needLoginRptU":"needLoginRpt",function(){ RPT=Object.assign(r,{open:true}); render() }) };
  if($("#goSignupGate"))$("#goSignupGate").onclick=function(){AU.open=true;AU.mode="up";AU.step=1;render()};
  if($("#goLoginGate"))$("#goLoginGate").onclick=function(){AU.open=true;AU.mode="in";AU.step=1;render()};
 
@@ -6708,9 +6719,9 @@ function wireAuth(){
    }});
  }
  wireNotifBell();
- if($("#auX"))$("#auX").onclick=function(){AU.open=false;verifyPollStop();render()};
+ if($("#auX"))$("#auX").onclick=function(){AU.open=false;AU.why=AU.then=null;verifyPollStop();render()};
  $$(".autabs button,.au-switch a[data-m]").forEach(function(b){b.onclick=function(){AU.mode=b.dataset.m;AU.step=1;verifyPollStop();render()}});
- if($("#au"))$("#au").onclick=function(e){if(e.target.id==="au"){AU.open=false;verifyPollStop();render()}};
+ if($("#au"))$("#au").onclick=function(e){if(e.target.id==="au"){AU.open=false;AU.why=AU.then=null;verifyPollStop();render()}};
  wireUnverified();
 
  /* ── sign in ── */
@@ -6727,7 +6738,7 @@ function wireAuth(){
      if(rememberChecked) saveRememberedPhone($("#auCC").value, $("#auPhone").value);
      else clearRememberedPhone();
      if(u.preferred_currency && (((countryOf(COUNTRY)||{}).currencies)||["USD"]).indexOf(u.preferred_currency)>-1){ CUR=u.preferred_currency; curPrefSet(COUNTRY,CUR) }
-     AU.step=4; render();
+     if(AU.then) authDone(); else { AU.step=4; render() }
      loadNotifications().then(render);
      startNotifPolling();
    }catch(e){ btn.disabled=false; btn.textContent=t("login");
@@ -6842,7 +6853,7 @@ function wireAuth(){
    }catch(e){ this.disabled=false; this.textContent=t("savePass");
      err(e.message==="nouser"?"noUser":e.message==="notverified"||e.message==="expired"?GX("vExpired"):e.message) }};
 
- if($("#auGo"))$("#auGo").onclick=function(){AU.open=false;render()};
+ if($("#auGo"))$("#auGo").onclick=function(){ authDone() };
  if($("#auTgNudge"))$("#auTgNudge").onclick=function(){ acTgPoll() };
 
  /* ── account settings ── */
@@ -8257,7 +8268,7 @@ LEGAL.privacy.fr={"title":"Politique de confidentialité","intro":"Cette politiq
 function legalVars(){ var ar=L==="ar";
   return { brand: ar?CONFIG.brand:"Balkoun",
     company: SX("legal_company_name","")||(ar?"فريق بلكون: فريق عربي مقيم في كندا":L==="de"?"das Balkoun-Team, ein arabisches Team mit Sitz in Kanada":L==="fr"?"l'équipe Balkoun, une équipe arabe basée au Canada":"the Balkoun team, an Arab team based in Canada"),
-    reg: SX("legal_company_reg","")||(ar?"بلكون خدمة مجانية غير تجارية أُنشئت لمساعدة الناس في العالم العربي، ولا تقف خلفها شركة مسجّلة حالياً؛ عند تأسيس جهة قانونية ستُحدَّث هذه الصفحة ببياناتها":L==="de"?"Balkoun ist ein kostenloser, nicht kommerzieller Dienst, geschaffen, um Menschen in der arabischen Welt zu helfen; derzeit steht keine eingetragene Gesellschaft dahinter. Sobald eine Rechtsperson gegründet wird, wird diese Seite aktualisiert":L==="fr"?"Balkoun est un service gratuit et non commercial créé pour aider les habitants du monde arabe ; aucune société enregistrée ne le porte à ce jour. Cette page sera mise à jour dès la création d'une entité juridique":"Balkoun is a free, non-commercial service created to help people across the Arab world; no registered company stands behind it at present. This page will be updated once a legal entity is set up"),
+    reg: SX("legal_company_reg","")||(ar?"بلكون منصة عقارية مجانية لنشر الإعلانات وتصفّحها في العالم العربي":L==="de"?"Balkoun ist eine kostenlose Immobilienplattform für die arabische Welt":L==="fr"?"Balkoun est une plateforme gratuite d'annonces immobilières pour le monde arabe":"Balkoun is a free real-estate listings platform for the Arab world"),
     address: SX("legal_company_address","")||(ar?"كندا":L==="de"?"Kanada":"Canada"),
     email: SX("legal_email","")||SX("intake_contact_email","info@balkoun.com"), site: "https://"+CONFIG.domain, updated: SX("legal_updated","")||"2026-09-26" } }
 function legalFill(s,v){ return String(s||"").replace(/\{(brand|company|reg|address|email|site|updated)\}/g,function(m,k){ return v[k]||"" }) }
@@ -8265,6 +8276,21 @@ function legalText(kind){ var v=legalVars(), base=(LEGAL[kind]||{})[L]||LEGAL[ki
   if(custom){ var cur=null; custom.split(/\r?\n/).forEach(function(line){ var t2=line.trim(); if(!t2) return; if(/^##\s*/.test(t2)){ cur=[t2.replace(/^##\s*/,""),[]]; out.sections.push(cur) } else if(cur) cur[1].push(esc(t2)); else out.intro+=(out.intro?" ":"")+esc(t2) }) }
   else { out.intro=base.intro; out.sections=base.sections.map(function(s){ return [s[0],s[1].slice()] }) }
   out.intro=legalFill(out.intro,v); out.sections=out.sections.map(function(s){ return [legalFill(s[0],v),s[1].map(function(p){ return legalFill(p,v) })] }); return out }
+/* ── balkoun.com/delete-account (Google Play's account-deletion rule, 2026-11-04): how to delete the account, from inside it
+   or by a request when one cannot sign in, what is deleted, and what is kept and for how long. The in-account delete is
+   bk_delete_account → bk_user_purge (listings, drafts, the member contact and the user row; a short deletion record stays). ── */
+function deleteAccountPage(){ var v=legalVars(), wa=String(CONFIG.whatsapp||"").replace(/\D/g,"");
+  var li=function(k){ return '<li>'+GX(k)+'</li>' };
+  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("daH")+'</div></div>'+
+   '<div class="wrap legal delacct" style="max-width:820px;padding:22px 18px 60px">'+
+    '<h1>'+GX("daH")+'</h1><p class="lead">'+GX("daIntro")+'</p>'+
+    '<h2>'+GX("daInT")+'</h2><ol>'+li("daIn1")+li("daIn2")+li("daIn3")+'</ol>'+
+    (USER?'<button type="button" class="da-go" data-go="account">'+GX("daOpen")+'</button>':'<button type="button" class="da-go" id="daLogin">'+t("login")+'</button>')+
+    '<h2>'+GX("daReqT")+'</h2><p>'+GX("daReqP").replace("{wa}",'<a href="https://wa.me/'+wa+'" target="_blank" rel="noopener"><bdi dir="ltr">+'+wa+'</bdi></a>').replace("{email}",'<a href="mailto:'+esc(v.email)+'?subject=Delete%20account"><bdi dir="ltr">'+esc(v.email)+'</bdi></a>')+'</p>'+
+    '<h2>'+GX("daGoneT")+'</h2><ul>'+li("daGone1")+li("daGone2")+li("daGone3")+li("daGone4")+'</ul>'+
+    '<h2>'+GX("daKeptT")+'</h2><ul>'+li("daKept1")+li("daKept2")+'</ul>'+
+    '<p class="hintx">'+GX("daMore").replace("{p}",'<a href="'+cPre()+'/privacy/" data-go="privacy">'+(PAGE_T.privacy[L]||PAGE_T.privacy.en)+'</a>')+'</p>'+
+   '</div>' }
 function legalPage(kind){ var x=legalText(kind), other=kind==="privacy"?"terms":"privacy";
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+x.title+'</div></div>'+
    '<div class="wrap legal" style="max-width:820px;padding:26px 18px 60px"><h1>'+x.title+'</h1><div class="legal-meta">'+GX("legalUpdated")+' <span class="ltr">'+esc(x.updated)+'</span> · <a data-go="'+other+'">'+PAGE_T[other][L]+'</a></div>'+
@@ -8343,7 +8369,7 @@ function viewFromHash(){
   if(p[0]==="post-by-message") return "postmsg";
   // balkoun.com/#/signup (posters, QR codes): the home page with the sign-up form already open
   if(p[0]==="signup"||p[0]==="join"){ if(typeof AU!=="undefined"&&!(typeof USER!=="undefined"&&USER&&USER.id)){ AU.open=true; AU.mode="up"; AU.step=1; setTimeout(function(){ try{ render() }catch(e){} },0) } return "home" }
-  if(["help","app","search","post","postmsg","mine","saved","searches","msgs","account","about","contact","contactus","privacy","terms","admin","mapsearch","agencies","agencyform","projects","wanted","wantedform","promote"].indexOf(p[0])>-1){
+  if(["help","app","search","post","postmsg","mine","saved","searches","msgs","account","about","contact","contactus","privacy","terms","admin","mapsearch","agencies","agencyform","projects","wanted","wantedform","promote","delete-account"].indexOf(p[0])>-1){
     if((p[0]==="search"||p[0]==="mapsearch") && qs) applyFilterFromQuery(qs);   // the map keeps its filters in the address too
     return p[0];
   }
@@ -8529,7 +8555,7 @@ function render(){
  if(VIEW!==_lastRenderedView){ _lastRenderedView=VIEW; refreshListingsOnNavigate(); }
  document.documentElement.lang=L; document.documentElement.dir=D.I18N[L].dir; document.documentElement.setAttribute("data-cc",COUNTRY||"SY");
  var body= VIEW==="home"?home(): VIEW==="search"?search(): VIEW==="post"?post():
-          VIEW==="edit"?editView(): VIEW==="static"?staticPage(): VIEW==="about"?about(): VIEW==="privacy"?legalPage("privacy"): VIEW==="terms"?legalPage("terms"): VIEW==="areas"?areasView(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="postmsg"?postMsgPage(): VIEW==="promote"?promoPage(): VIEW==="services"?servicesPage(): VIEW==="servicejoin"?serviceJoinPage(): VIEW.indexOf("service:")===0?servicePage(VIEW.split(":")[1]): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW.indexOf("unsub:")===0?unsubPage(VIEW.split(":")[1]): VIEW.indexOf("adreport:")===0?adReportPage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): VIEW==="help"?helpPage(): VIEW==="app"?appPage(): listing(VIEW.split(":")[1]);
+          VIEW==="edit"?editView(): VIEW==="static"?staticPage(): VIEW==="about"?about(): VIEW==="privacy"?legalPage("privacy"): VIEW==="terms"?legalPage("terms"): VIEW==="areas"?areasView(): VIEW==="contact"?contact(): VIEW==="contactus"?contactUsPage(): VIEW.indexOf("by:")===0?byUserView(): VIEW==="agencies"?agenciesPage(): VIEW.indexOf("agency:")===0?agencyPage(VIEW.split(":")[1]): VIEW==="agencyform"?agencyFormPage(): VIEW==="postmsg"?postMsgPage(): VIEW==="promote"?promoPage(): VIEW==="services"?servicesPage(): VIEW==="servicejoin"?serviceJoinPage(): VIEW.indexOf("service:")===0?servicePage(VIEW.split(":")[1]): VIEW==="projects"?projectsPage(): VIEW.indexOf("project:")===0?projectPage(VIEW.split(":")[1]): VIEW==="wanted"?wantedPage(): VIEW==="wantedform"?wantedFormPage(): VIEW.indexOf("wanted:")===0?wantedOnePage(VIEW.split(":")[1]): VIEW.indexOf("unsub:")===0?unsubPage(VIEW.split(":")[1]): VIEW.indexOf("adreport:")===0?adReportPage(VIEW.split(":")[1]): VIEW==="admin"?adminView(): VIEW==="mine"?mine(): VIEW==="saved"?savedView(): VIEW==="searches"?searchesView(): VIEW==="msgs"?msgsView(): VIEW==="account"?account(): VIEW==="mapsearch"?mapSearchPage(): VIEW==="help"?helpPage(): VIEW==="app"?appPage(): VIEW==="delete-account"?deleteAccountPage(): listing(VIEW.split(":")[1]);
  document.body.classList.remove("mdw-open");
  (function(){ var html=header()+body+footer()+authModal()+reportModal()+inquiryModal(), app=$("#app");
    // the home page is re-rendered several times while data arrives (cache → listings → settings): patch the DOM in place so
@@ -10057,7 +10083,7 @@ var GX_T={
   legalLawyer:{ar:"هذه الصفحة تشرح كيف تعمل المنصة ولا تُعد استشارة قانونية. للتحقق من ملكية عقار أو إتمام عقد استعن بمحامٍ أو كاتب عدل.",en:"This page explains how the platform works and is not legal advice. To verify a property's ownership or complete a contract, consult a lawyer or notary."},
   auLegalLinks:{ar:"وأوافق على {terms} و{privacy}.",en:"and I accept the {terms} and the {privacy}."},
   legalAdminH:{ar:"الصفحات القانونية (سياسة الخصوصية وشروط الاستخدام)",en:"Legal pages (privacy policy & terms)"},
-  legalAdminHint:{ar:"بيانات الجهة المشغّلة تُملأ تلقائياً في النصوص. اترك الحقول فارغة لاستخدام الصياغة الافتراضية (خدمة مجانية بلا شركة مسجّلة حالياً).",en:"The operator's details are filled into the texts automatically. Leave fields empty to use the default wording (free service, no registered company yet)."},
+  legalAdminHint:{ar:"بيانات الجهة المشغّلة تُملأ تلقائياً في النصوص. اترك الحقول فارغة لاستخدام الصياغة الافتراضية (منصة عقارية مجانية).",en:"The operator's details are filled into the texts automatically. Leave fields empty to use the default wording (a free real-estate platform)."},
   legalCompany:{ar:"اسم الجهة / الشركة",en:"Operator / company name"}, legalReg:{ar:"السجل التجاري / الترخيص",en:"Registration / licence"}, legalAddress:{ar:"العنوان",en:"Address"},
   legalEmail:{ar:"بريد الطلبات القانونية",en:"Legal contact email"}, legalUpdatedF:{ar:"تاريخ آخر تحديث (YYYY-MM-DD)",en:"Last-updated date (YYYY-MM-DD)"},
   legalOverrideHint:{ar:"لتعديل نص صفحة بالكامل اكتبه هنا: سطر يبدأ بـ «## » يكون عنوان قسم، وكل سطر بعده فقرة. الفارغ = النص الافتراضي. المتغيرات: {brand} {company} {reg} {address} {email} {site} {updated}",en:"To replace a page's text entirely, write it here: a line starting with \"## \" is a section heading, each following line a paragraph. Empty = default text. Placeholders: {brand} {company} {reg} {address} {email} {site} {updated}"},
@@ -10805,10 +10831,31 @@ var GX_T={
   svcFHint:{ar:"رقمك يظهر للزوار ليتواصلوا معك. صور أعمالك يضيفها فريق بلكون بعد التواصل معك.",en:"Your number is shown so people can reach you. Photos of your work are added by the Balkoun team."},
   svcSend:{ar:"أرسل للمراجعة",en:"Send for review"}, svcSaveEdit:{ar:"احفظ التعديل",en:"Save changes"},
   svcSavedWait:{ar:"وصلتنا بطاقتك ✓ تظهر بعد المراجعة.",en:"Received ✓ It shows after review."}, svcSavedLive:{ar:"حُفظ التعديل ✓",en:"Saved ✓"},
-  svcErr_noname:{ar:"اكتب اسم العمل.",en:"Enter the business name."}, svcErr_nocat:{ar:"اختر خدمة واحدة على الأقل.",en:"Pick at least one service."}, svcErr_nophone:{ar:"اكتب رقم واتساب أو رقم اتصال.",en:"Enter a WhatsApp or phone number."}, promoMine:{ar:"تريد وصولاً أسرع؟ روّج إعلانك على بلكون وفيسبوك وإنستغرام.",en:"Want more reach? Promote your listing on Balkoun, Facebook and Instagram."}, ruBtn:{ar:"إبلاغ عن المستخدم",en:"Report user"}, ruTitle:{ar:"إبلاغ عن مستخدم",en:"Report a user"},
+  svcErr_noname:{ar:"اكتب اسم العمل.",en:"Enter the business name."}, svcErr_nocat:{ar:"اختر خدمة واحدة على الأقل.",en:"Pick at least one service."}, svcErr_nophone:{ar:"اكتب رقم واتساب أو رقم اتصال.",en:"Enter a WhatsApp or phone number."}, promoMine:{ar:"تريد وصولاً أسرع؟ روّج إعلانك على بلكون وفيسبوك وإنستغرام.",en:"Want more reach? Promote your listing on Balkoun, Facebook and Instagram."}, daNav:{ar:"حذف الحساب",en:"Delete account"}, daH:{ar:"حذف حسابك في بلكون",en:"Delete your Balkoun account"},
+  daIntro:{ar:"تطبيق بلكون وموقع balkoun.com حساب واحد. هنا تعرف كيف تحذف حسابك، وما الذي يُحذف، وما الذي نحتفظ به ولماذا.",en:"The Balkoun app and balkoun.com share one account. Here is how to delete it, what is deleted, and what we keep and why."},
+  daInT:{ar:"من داخل حسابك (الأسرع)",en:"From your account (fastest)"},
+  daIn1:{ar:"سجّل الدخول في التطبيق أو الموقع، وافتح «حسابي».",en:"Sign in on the app or the website and open «My account»."},
+  daIn2:{ar:"انزل إلى قسم «الأمان» ثم «حذف الحساب».",en:"Go to «Security», then «Delete account»."},
+  daIn3:{ar:"اكتب كلمة المرور واضغط «احذف حسابي نهائياً». يُحذف فوراً.",en:"Enter your password and tap «Delete my account permanently». It is deleted at once."},
+  daOpen:{ar:"افتح حسابي",en:"Open my account"},
+  daReqT:{ar:"إذا لم تستطع الدخول",en:"If you cannot sign in"},
+  daReqP:{ar:"أرسل طلب «حذف حساب» من رقمك المسجّل في بلكون على واتساب {wa}، أو إلى البريد {email} مع رقم هاتفك المسجّل. نتأكد أنك صاحب الحساب، ونحذفه خلال 7 أيام ونخبرك.",en:"Send «Delete account» from the phone number registered on Balkoun to WhatsApp {wa}, or email {email} with your registered phone number. We check that the account is yours, delete it within 7 days and let you know."},
+  daGoneT:{ar:"ما الذي يُحذف",en:"What is deleted"},
+  daGone1:{ar:"الحساب: اسمك ورقم هاتفك وبريدك وكلمة المرور وصورتك.",en:"The account: your name, phone number, email, password and photo."},
+  daGone2:{ar:"كل إعلاناتك مع صورها وفيديوهاتها.",en:"All your listings with their photos and videos."},
+  daGone3:{ar:"المحفوظات وعمليات البحث المحفوظة والتنبيهات.",en:"Saved listings, saved searches and alerts."},
+  daGone4:{ar:"الرسائل والإشعارات ومسودات النشر عبر واتساب.",en:"Messages, notifications and drafts sent through WhatsApp."},
+  daKeptT:{ar:"ما الذي نحتفظ به ولماذا",en:"What we keep, and why"},
+  daKept1:{ar:"سجل مختصر بالحذف (الاسم، رقم الهاتف، تاريخ الحذف، وملخص الإعلانات المحذوفة) لمنع الاحتيال وإعادة نشر الإعلانات المخالفة، لمدة أقصاها 12 شهراً ثم يُحذف.",en:"A short deletion record (name, phone number, date, and a summary of the deleted listings) to prevent fraud and the re-posting of rejected listings, for at most 12 months, then it is deleted."},
+  daKept2:{ar:"رقم هاتفك وبريدك في قائمة «عدم الإرسال»، حتى لا تصلك منا أي رسالة بعد الحذف.",en:"Your phone number and email on a «do not contact» list, so that we send you nothing after the deletion."},
+  daMore:{ar:"التفاصيل الكاملة في {p}.",en:"Full details are in the {p}."},
+  ruBtn:{ar:"إبلاغ عن المستخدم",en:"Report user"}, ruTitle:{ar:"إبلاغ عن مستخدم",en:"Report a user"},
   ruScam:{ar:"احتيال أو طلب مال مسبقاً",en:"Scam or asking for money upfront"}, ruFake:{ar:"إعلانات وهمية أو مضللة",en:"Fake or misleading listings"},
   ruAbuse:{ar:"إساءة أو تحرش",en:"Abuse or harassment"}, ruSpam:{ar:"رسائل مزعجة أو إعلانات مكررة",en:"Spam or repeated listings"},
   ruAlsoBlock:{ar:"احظر هذا المستخدم أيضاً",en:"Block this user too"},
+  needLoginRpt:{ar:"سجّل الدخول أو أنشئ حساباً لتبلّغ عن هذا الإعلان",en:"Log in or create an account to report this listing"},
+  needLoginRptU:{ar:"سجّل الدخول أو أنشئ حساباً لتبلّغ عن هذا المعلن",en:"Log in or create an account to report this advertiser"},
+  needLoginBlk:{ar:"سجّل الدخول أو أنشئ حساباً لتحظر هذا المعلن",en:"Log in or create an account to block this advertiser"},
   blkBtn:{ar:"حظر",en:"Block"}, blkOwner:{ar:"حظر المعلن",en:"Block advertiser"}, blkUndo:{ar:"إلغاء الحظر",en:"Unblock"},
   blkQ:{ar:"حظر {n}؟ لن ترى إعلاناته بعد الآن. يمكنك إلغاء الحظر من صفحة حسابك.",en:"Block {n}? You will no longer see their listings. You can unblock them from your account page."},
   blkDone:{ar:"لقد حظرت هذا المستخدم، وإعلاناته مخفية عنك.",en:"You blocked this user; their listings are hidden from you."},
