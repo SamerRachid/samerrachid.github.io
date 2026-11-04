@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-P+GN4Z17a/d/E4d8SJo+27VGxFWvRFHWv7WyLGGfD4M=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-TbT4BcZH4E5lgpYnIZPVui+FWlElnl1OmcZFEQi7JGc=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -8187,7 +8187,7 @@ function mine(){
  '<span class="n"><span class="ltr">'+r.length+'</span> '+t("listings")+'</span>'+
  '<a class="gold" data-go="post" style="margin-inline-start:auto;text-decoration:none;padding:9px 18px">'+t("post")+'</a></div>'+
  rewardBar()+
- (r.length?'<a class="mine-promo" href="/promote" data-go="promote">'+MI.promote+'<span>'+GX("promoMine")+'</span><b>'+GX("promoNav")+' ›</b></a>':'')+   // owner 2026-10-30: the way to the promotion page from one's own listings
+ (r.length?'<a class="mine-promo" href="/promote" data-go="promote">'+MI.promote+'<span>'+GX(/BalkounApp\//.test(navigator.userAgent||"")?"promoMineApp":"promoMine")+'</span><b>'+GX("promoNav")+' ›</b></a>':'')+   // owner 2026-10-30: the way to the promotion page from one's own listings
  (r.length
   ? '<div class="res">'+r.map(function(x,i){
       var closed=x.status==="sold"||x.status==="rented";
@@ -9515,7 +9515,10 @@ var PROMO_MSG={
   ag:"مرحباً، أنا مكتب عقاري وأريد أن أعرف باقات المكاتب على بلكون.",
   svc:"مرحباً، أريد عرض سعر لخدمة من فريق بلكون: ",
   ask:"مرحباً، عندي سؤال عن الترويج على بلكون.",
-  team:"مرحباً، أريد أن أعرف أكثر عن خدمات فريق بلكون: "
+  team:"مرحباً، أريد أن أعرف أكثر عن خدمات فريق بلكون: ",
+  // inside the app (owner 2026-11-03): nothing that reads as buying a place on Balkoun itself, only the ads and work done outside it
+  appAd:"مرحباً، أريد إعلاناً ممولاً على فيسبوك وإنستغرام لإعلاني. رقم الإعلان: ",
+  appAsk:"مرحباً، عندي سؤال عن الإعلانات الممولة وخدمات فريق بلكون."
 };
 var PROMO_TAB="ind", PROMO_LIVE=null;
 // "auto" in the numbers: the live listings counted on the server (the app holds only part of them in memory)
@@ -9561,7 +9564,7 @@ function promoPage(){ promoLive(); var APP=/BalkounApp\//.test(navigator.userAge
     '<section class="sp-hero"><div class="sp-w sp-hgrid"><div>'+
       '<div class="sp-eye" data-sprv>للمالكين والمكاتب العقارية</div><h1 data-sprv>إعلانك أمام من يبحث <em>فعلاً</em>.</h1>'+
       '<p data-sprv>ننشر إعلانك ونروّجه بإعلان ممول على فيسبوك وإنستغرام وحالات واتساب، ليصل إلى من يبحث عن عقار في مدينتك وإلى السوريين في الخارج.</p>'+
-      '<div class="sp-acts" data-sprv>'+wa("ind","gold","تواصل معنا على واتساب")+'</div></div>'+collage+
+      '<div class="sp-acts" data-sprv>'+wa("appAd","gold","تواصل معنا على واتساب")+'</div></div>'+collage+
     '</div>'+stats+'</section>'+
     '<nav class="sp-jump" aria-label="أقسام الصفحة"><div class="sp-w"><a href="#sp-where" data-spjump="sp-where">الإعلان الممول</a><a href="#sp-team" data-spjump="sp-team">فريقنا</a><a href="#sp-how" data-spjump="sp-how">كيف يعمل</a></div></nav>'+
     '<section class="sp-s" id="sp-where"><div class="sp-w"><div class="sp-head"><div><div class="sp-eye" data-sprv>إعلان ممول</div><h2 data-sprv>على فيسبوك وإنستغرام وحالات واتساب.</h2></div><p class="sp-lede" data-sprv>نصنع من صور إعلانك ريلاً قصيراً، وننشره إعلاناً ممولاً في مدينتك وللمغتربين، ويتواصل معك المهتمون على واتساب مباشرة.</p></div>'+
@@ -9573,7 +9576,7 @@ function promoPage(){ promoLive(); var APP=/BalkounApp\//.test(navigator.userAge
       '<div class="sp-steps s3"><div class="sp-step" data-sprv><em class="ltr">1</em><b>تواصل معنا</b><p>أرسل لنا رقم إعلانك على واتساب.</p></div><div class="sp-step" data-sprv><em class="ltr">2</em><b>نراجع إعلانك</b><p>نتأكد أنه حقيقي وصوره واضحة، خلال ساعات.</p></div><div class="sp-step" data-sprv><em class="ltr">3</em><b>ينطلق الترويج</b><p>ويصلك رابط تقرير تتابع منه النتائج يوماً بيوم.</p></div></div>'+
       report+'</div></section>'+
     '<section class="sp-close"><div class="sp-cbg" style="'+img(P.close)+'"></div><div class="sp-w"><div class="sp-eye" data-sprv>ابدأ اليوم</div><h2 data-sprv>النشر على بلكون مجاني دائماً. الترويج خيار، حين تريد وصولاً أسرع.</h2>'+
-      '<div class="sp-acts" data-sprv>'+wa("ind","gold","روّج إعلاناً من إعلاناتي")+wa("ask","line","اسألنا على واتساب")+'</div>'+
+      '<div class="sp-acts" data-sprv>'+wa("appAd","gold","اطلب إعلاناً ممولاً")+wa("appAsk","line","اسألنا على واتساب")+'</div>'+
       '<div class="sp-rules" data-sprv><span>إعلانات حقيقية فقط</span><span>بلا عمولة على البيع</span><span>خدمة عملاء 24/7</span></div></div></section>'+
     '<div class="sp-w sp-credit">صور البيوت لقطات من ريلات بلكون على فيسبوك. صورة الخاتمة: ويكيميديا كومنز (CC BY-SA).</div>'+
     '</div>';
@@ -15799,7 +15802,7 @@ var GX_T={
   svcFHint:{ar:"رقمك يظهر للزوار ليتواصلوا معك. صور أعمالك يضيفها فريق بلكون بعد التواصل معك.",en:"Your number is shown so people can reach you. Photos of your work are added by the Balkoun team.",de:"Ihre Nummer wird angezeigt."},
   svcSend:{ar:"أرسل للمراجعة",en:"Send for review",de:"Zur Prüfung senden"}, svcSaveEdit:{ar:"احفظ التعديل",en:"Save changes",de:"Speichern"},
   svcSavedWait:{ar:"وصلتنا بطاقتك ✓ تظهر بعد المراجعة.",en:"Received ✓ It shows after review.",de:"Erhalten ✓"}, svcSavedLive:{ar:"حُفظ التعديل ✓",en:"Saved ✓",de:"Gespeichert ✓"},
-  svcErr_noname:{ar:"اكتب اسم العمل.",en:"Enter the business name.",de:"Name fehlt."}, svcErr_nocat:{ar:"اختر خدمة واحدة على الأقل.",en:"Pick at least one service.",de:"Mindestens einen Dienst wählen."}, svcErr_nophone:{ar:"اكتب رقم واتساب أو رقم اتصال.",en:"Enter a WhatsApp or phone number.",de:"Nummer fehlt."}, promoMine:{ar:"تريد وصولاً أسرع؟ روّج إعلانك على بلكون وفيسبوك وإنستغرام.",en:"Want more reach? Promote your listing on Balkoun, Facebook and Instagram.",de:"Mehr Reichweite? Bewerben Sie Ihre Anzeige."}, adCtaWa:{ar:"تواصل على واتساب",en:"Chat on WhatsApp",de:"Auf WhatsApp schreiben"}, adCtaMore:{ar:"اعرف أكثر",en:"Learn more",de:"Mehr erfahren"}, featured:{ar:"مميز",en:"Featured",de:"Top"},
+  svcErr_noname:{ar:"اكتب اسم العمل.",en:"Enter the business name.",de:"Name fehlt."}, svcErr_nocat:{ar:"اختر خدمة واحدة على الأقل.",en:"Pick at least one service.",de:"Mindestens einen Dienst wählen."}, svcErr_nophone:{ar:"اكتب رقم واتساب أو رقم اتصال.",en:"Enter a WhatsApp or phone number.",de:"Nummer fehlt."}, promoMine:{ar:"تريد وصولاً أسرع؟ روّج إعلانك على بلكون وفيسبوك وإنستغرام.",en:"Want more reach? Promote your listing on Balkoun, Facebook and Instagram.",de:"Mehr Reichweite? Bewerben Sie Ihre Anzeige."}, promoMineApp:{ar:"تريد وصولاً أسرع؟ نروّج إعلانك بإعلان ممول على فيسبوك وإنستغرام.",en:"Want more reach? We run a sponsored ad for your listing on Facebook and Instagram.",de:"Mehr Reichweite? Wir schalten eine Anzeige auf Facebook und Instagram."}, adCtaWa:{ar:"تواصل على واتساب",en:"Chat on WhatsApp",de:"Auf WhatsApp schreiben"}, adCtaMore:{ar:"اعرف أكثر",en:"Learn more",de:"Mehr erfahren"}, featured:{ar:"مميز",en:"Featured",de:"Top"},
   adVideoTooBig:{ar:"الفيديو كبير جداً ({mb} MB). الحد الأقصى {max} MB — صدّره بدقة 720p أو أقل ومدة قصيرة، ثم أعد الرفع.",en:"This video is too large ({mb} MB). The limit is {max} MB — export it at 720p or smaller and keep it short, then upload again.",de:"Dieses Video ist zu groß ({mb} MB). Maximal {max} MB — in 720p oder kleiner und kurz exportieren, dann erneut hochladen."},
   adVideoHint:{ar:"الفيديو: حتى {max} MB، يُفضّل 720p ومدة 10–20 ثانية",en:"Video: up to {max} MB, ideally 720p and 10–20 seconds",de:"Video: bis {max} MB, ideal 720p und 10–20 Sekunden"}
 };
