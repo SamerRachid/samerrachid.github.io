@@ -1226,7 +1226,7 @@ async function storageUpload(path, file, opts){   // same {data,error} shape sup
     return {data:{path:path}, error:null};
   }catch(e){ return {data:null, error:{message:(e&&e.message)||String(e)}} } }
 
-var MEMBER_FNS={bk_member_set_source:1,bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,bk_set_hide_phone:1,
+var MEMBER_FNS={bk_block_user:1,bk_my_blocks:1,bk_member_set_source:1,bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,bk_set_hide_phone:1,
   bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_my_listings:1,bk_own_delete:1,bk_delete_account:1,bk_my_rewards:1,bk_use_feature_credit:1,bk_set_account_type:1,
   bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_photo_order:1,bk_photo_set_poster:1,bk_own_phone_sync:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
   bk_search_del:1,bk_search_list:1,bk_search_save:1,bk_set_avatar:1,bk_set_bio:1,bk_set_currency:1,
@@ -1669,6 +1669,7 @@ function home(){
 
 /* ── listing card ── */
 function card(x,i,isListView){
+ if(x&&isBlk(x.uid)) return "";   // a member this member has blocked
  var I=LICON, ar=L==="ar";
  var photos = (x.photos&&x.photos.length) ? x.photos : (x.cover ? [x.cover] : []);
  // the card only ever shows a small cover photo — the ~35 KB thumbnail the server already generates, not the
@@ -1746,6 +1747,7 @@ function kwMatch(x){
   return words.every(function(w){ var stem=w.replace(/^(وال|بال|لل|ال|و|ب|ل)/,""); return hay.indexOf(w)>-1 || (stem.length>1 && hay.indexOf(stem)>-1) });
 }
 function passesFilter(x, skipField){
+  if(isBlk(x.uid)) return false;   // a member this member has blocked (see BLK)
   // pending (not-yet-approved) listings must never appear in public
   // search/browse results — only the owner (and admins, via a fully
   // separate admin data path) should ever see them before approval.
@@ -2264,7 +2266,9 @@ function listing(id){
    '<div class="lacts">'+
     '<button id="savl">'+I.heart+'<span>'+(SAVED.indexOf(String(x.id))>-1?t("savedL"):t("saveL"))+'</span></button>'+
     '<button id="shr">'+I.share+'<span>'+t("shareL")+'</span></button>'+
-    '<button id="rptOpen" class="danger">'+I.flag+'<span>'+t("reportListing")+'</span></button></div>'+
+    '<button id="rptOpen" class="danger">'+I.flag+'<span>'+t("reportListing")+'</span></button>'+
+    ((USER&&x.uid===USER.id)||!x.uid?'':'<button type="button" class="'+(isBlk(x.uid)?'':'danger')+'" data-blk="'+esc(String(x.uid))+'" data-name="'+esc(x.who||"")+'" data-on="'+(isBlk(x.uid)?1:0)+'">'+I.ban+'<span>'+(isBlk(x.uid)?GX("blkUndo"):GX("blkOwner"))+'</span></button>')+'</div>'+
+    (isBlk(x.uid)?'<div class="hintx" style="margin-top:6px">'+GX("blkDone")+'</div>':'')+
    ((USER&&x.uid===USER.id)
      ? '<div class="lown"><button class="lbtn line" id="edt">'+t("editListing")+'</button>'+
        '<button class="lbtn line" id="mark">'+t("markSold")+'</button>'+
@@ -2310,6 +2314,7 @@ var LICON=(function(){
     share:w('<circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8l7.6-4.6M8.2 13.2l7.6 4.6"/>'),
     heart:w('<path d="M12 20.5s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.9c0 5.4-7.5 10-7.5 10z"/>'),
     flag:w('<path d="M5 21V4h10l1 2h4v10h-9l-1-2H5"/>'),
+    ban:w('<circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/>'),
     phone:w('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/>'),
     wa:w('<path d="M4 20l1.3-4A8 8 0 1 1 8 19.2z"/><path d="M9.5 9.5c0 3 2 5 5 5l1-1.5-1.8-.8-.8.8a3.5 3.5 0 0 1-2-2l.8-.8-.8-1.8z"/>')
   };
@@ -2653,7 +2658,8 @@ function byUserView(){
     '<div><b class="ltr">'+(p.sold||0)+'</b><span>'+t("soldAds")+'</span></div>'+
     '<div><b class="ltr">'+(p.total||rows.length)+'</b><span>'+t("totalAds")+'</span></div>'+
    '</div>'+
-  '</div></div>'+
+  '</div>'+(isSelf?'':'<div class="profblk">'+blkButtons(p.id||BYUSER.id,nm,"gh")+'</div>')+'</div>'+
+ (isBlk(p.id||BYUSER.id)?'<div class="done2" style="margin-top:14px"><b>'+GX("blkDone")+'</b></div>':'')+
  reviewsBlock(rv,isSelf,t("rateMember"))+
  (rows.length?'<h2 style="font-size:18px;font-weight:700;margin:20px 0 12px">'+t("theirAds")+'</h2>'+
    '<div class="res">'+rows.map(function(x,i){return card(x,i,false)}).join("")+'</div>'
@@ -2832,11 +2838,41 @@ function wireInquiry(){
         INQ.sent=true; INQ.msg=""; render() }
    catch(e){ var m=String(e.message||"error"); INQ.msg = m==="limit"?GX("hpLimit") : m==="phone"?GX("hpNeedPhone") : m; this.disabled=false; this.textContent=t("send"); render() } };
 }
-var RPT={open:false,id:null,sent:false,msg:""};
+var RPT={open:false,id:null,user:null,sent:false,msg:""};
+/* ── block and report a member (Google Play / App Store rules for user content, owner 2026-11-03).
+   BLK.ids: the members this member has blocked (kept per account in localStorage, refreshed from bk_my_blocks);
+   their listings are left out of every card and filter. A report about a member goes to the panel's feedback
+   inbox (bk_feedback, kind complaint). ── */
+var BLK={uid:null,ids:[],list:null};
+function blkSync(){ var u=(USER&&USER.id)||null; if(BLK.uid===u) return; BLK.uid=u; BLK.ids=[]; BLK.list=null; if(!u) return;
+  try{ BLK.ids=JSON.parse(localStorage.getItem("bk_blocks_"+u)||"[]")||[] }catch(e){}
+  // straight to DB, not rpc(): a quiet background read must never sign anyone out on an expired session (rpc() does)
+  if(!DB||!USER.token) return;
+  DB.rpc("bk_my_blocks",{p_token:USER.token}).then(function(x){ var r=x&&x.data; if(!r||r.error||BLK.uid!==u) return; BLK.list=r.list||[]; blkSet(BLK.list.map(function(y){ return y.id })); render() },function(){}) }
+function blkSet(ids){ BLK.ids=(ids||[]).map(String); try{ localStorage.setItem("bk_blocks_"+BLK.uid,JSON.stringify(BLK.ids)) }catch(e){} }
+function isBlk(uid){ return !!uid && BLK.ids.indexOf(String(uid))>-1 }
+// the two buttons for a member who is not oneself: report, and block / unblock
+function blkButtons(uid,name,cls){ if(!uid||(USER&&String(uid)===String(USER.id))) return "";
+  var I=LICON, on=isBlk(uid);
+  return '<button type="button" class="'+(cls||"")+' danger" data-rptuser="'+esc(String(uid))+'" data-name="'+esc(name||"")+'">'+I.flag+'<span>'+GX("ruBtn")+'</span></button>'+
+    '<button type="button" class="'+(cls||"")+(on?'':' danger')+'" data-blk="'+esc(String(uid))+'" data-name="'+esc(name||"")+'" data-on="'+(on?1:0)+'">'+I.ban+'<span>'+(on?GX("blkUndo"):GX("blkBtn"))+'</span></button>' }
+async function blkToggle(uid,name,on){
+  if(!USER){ AU.open=true; AU.mode="in"; render(); return }
+  if(on && !confirm(GX("blkQ").replace("{n}",name||t("owner")))) return;
+  try{ var r=await rpc("bk_block_user",{p_user:uid,p_block:!!on}); if(!r||r.error) throw new Error((r&&r.error)||"error");
+    blkSet(r.blocked||[]); rpc("bk_my_blocks",{}).then(function(x){ if(x&&!x.error){ BLK.list=x.list||[]; render() } }).catch(function(){});
+    render() }
+  catch(e){ alert(String(e.message||e)) } }
+// account page: the members one has blocked, each with «unblock»
+function blkListHtml(){ var l=BLK.list;
+  return '<div class="acs-sub" style="margin-top:8px">'+GX("blkListH")+'</div><p class="hintx">'+GX("blkListP")+'</p>'+
+    (l===null?'<div class="hintx">'+t("loading")+'</div>':!l.length?'<div class="hintx">'+GX("blkNone")+'</div>':
+     '<div class="blklist">'+l.map(function(x){ return '<div class="blkrow">'+avatar(x.avatar_url,x.name,32)+'<b>'+esc(x.name||t("owner"))+'</b>'+
+       '<button type="button" class="gh" data-blk="'+esc(String(x.id))+'" data-name="'+esc(x.name||"")+'" data-on="1" style="margin:0;width:auto">'+GX("blkUndo")+'</button></div>' }).join("")+'</div>') }
 function reportModal(){
  if(!RPT.open) return "";
  if(!USER) return '<div class="au on" id="rptOv"><div class="aubox">'+
-   '<div class="autop"><b>'+t("reportListing")+'</b><button id="rptX">✕</button></div>'+
+   '<div class="autop"><b>'+(RPT.user?GX("ruTitle"):t("reportListing"))+'</b><button id="rptX">✕</button></div>'+
    '<div class="aubody"><p style="font-size:14px;color:var(--grey);text-align:center">'+
    t("loginToPostP")+'</p><button class="aub" id="goSignup" style="margin-top:12px">'+
    t("signup")+'</button></div></div></div>';
@@ -2848,16 +2884,18 @@ function reportModal(){
   : '<div class="aubody">'+
     '<div class="auf"><label>'+t("rptWhy")+'</label>'+
     '<div class="pick" id="rptWhy" style="flex-direction:column;gap:6px">'+
-    [["fake",t("rFake")],["sold",t("rSold")],["price",t("rPrice")],
-     ["photos",t("rPhotos")],["duplicate",t("rDup")],["other",t("rOther")]]
+    (RPT.user?[["scam",GX("ruScam")],["fake",GX("ruFake")],["abuse",GX("ruAbuse")],["spam",GX("ruSpam")],["other",t("rOther")]]
+     :[["fake",t("rFake")],["sold",t("rSold")],["price",t("rPrice")],
+     ["photos",t("rPhotos")],["duplicate",t("rDup")],["other",t("rOther")]])
     .map(function(r,n){return '<label style="width:100%"><input type="radio" name="rw" value="'+r[0]+'"'+
       (n===0?" checked":"")+'><span style="display:block">'+r[1]+'</span></label>'}).join("")+'</div></div>'+
     '<div class="auf"><label>'+t("rptNote")+'</label><textarea id="rptNote" maxlength="500" '+
      'style="width:100%;min-height:70px;border:1px solid var(--line-2);border-radius:6px;padding:10px;font-family:inherit"></textarea></div>'+
+    (RPT.user&&!isBlk(RPT.user.id)?'<label class="xcheck" style="margin:2px 0 12px"><input type="checkbox" id="rptBlk"><span>'+GX("ruAlsoBlock")+'</span></label>':'')+
     '<button class="aub" id="rptSend">'+t("send")+'</button>'+
     '<div class="auerr" id="rptMsg">'+(RPT.msg||"")+'</div></div>';
  return '<div class="au on" id="rptOv"><div class="aubox">'+
-  '<div class="autop"><b>'+t("reportListing")+'</b><button id="rptX">✕</button></div>'+
+  '<div class="autop"><b>'+(RPT.user?GX("ruTitle"):t("reportListing"))+'</b><button id="rptX">✕</button></div>'+
   body+'</div></div>'}
 
 /* ── admin ──────────────────────────────────────────────────────────
@@ -3169,7 +3207,7 @@ function mine(){
  '<span class="n"><span class="ltr">'+r.length+'</span> '+t("listings")+'</span>'+
  '<a class="gold" data-go="post" style="margin-inline-start:auto;text-decoration:none;padding:9px 18px">'+t("post")+'</a></div>'+
  rewardBar()+
- (r.length?'<a class="mine-promo" href="/promote" data-go="promote">'+MI.promote+'<span>'+GX("promoMine")+'</span><b>'+GX("promoNav")+' ›</b></a>':'')+   // owner 2026-10-30: the way to the promotion page from one's own listings
+ (r.length?'<a class="mine-promo" href="/promote" data-go="promote">'+MI.promote+'<span>'+GX(/BalkounApp\//.test(navigator.userAgent||"")?"promoMineApp":"promoMine")+'</span><b>'+GX("promoNav")+' ›</b></a>':'')+   // owner 2026-10-30: the way to the promotion page from one's own listings
  (r.length
   ? '<div class="res">'+r.map(function(x,i){
       var closed=x.status==="sold"||x.status==="rented";
@@ -3298,6 +3336,7 @@ function account(){
       '<div class="hintx">'+t("phoneWarn")+'</div>'+
       (ACC.phSync && ACC.phSync.n>0 && ACC.phSyncHide!==USER.phone ? '<div class="psync" id="psync"><span>'+GX("psyncQ").replace("{n}",'<b class="ltr">'+ACC.phSync.n+'</b>').replace("{p}",'<b class="ltr">'+esc(USER.phone)+'</b>')+'</span>'+
         '<div class="psync-a"><button type="button" class="btn-n" id="psyncGo" style="width:auto">'+GX("psyncGo")+'</button><button type="button" class="gh" id="psyncNo" style="margin:0;width:auto">'+GX("psyncNo")+'</button></div><span class="xmsg" id="psyncMsg"></span></div>' : '')+
+      blkListHtml()+
       (USER.role==="admin"?'':'<div class="acs-sub acdel-h">'+GX("accDelT")+'</div><p class="hintx">'+GX("accDelP")+'</p>'+
       '<div class="fl"><label>'+t("password")+'</label>'+pwField("delPass","off")+'</div>'+
       '<div class="xactions"><button type="button" class="gh acdel-btn" id="acDelete" style="width:auto;margin:0">'+GX("accDelBtn")+'</button><span class="xmsg" id="acDelMsg"></span></div>'), "")+
@@ -4457,6 +4496,7 @@ function agencyPage(id){
     '<div class="agcontact">'+(a.hide_phone?'<a class="btn-n" id="agInq" style="cursor:pointer">'+MI.msgs+GX("hpMessageAg")+'</a>':'')+(a.phone?'<a class="btn-n" href="tel:'+esc(a.phone)+'">'+MI.phone+GX("agCall")+'</a>':'')+(wa?'<a class="btn-n wa" href="https://wa.me/'+wa+'" target="_blank" rel="noopener">'+MI.msgs+GX("agWa")+'</a>':'')+
       (a.email?'<a class="gh" href="mailto:'+esc(a.email)+'">'+MI.mail+GX("agEmail")+'</a>':'')+(a.website&&safeUrl(a.website)?'<a class="gh" href="'+esc(safeUrl(a.website))+'" target="_blank" rel="noopener">'+MI.about+GX("agWeb")+'</a>':'')+
       '<a class="gh" href="/agency/'+a.id+'/" role="button" data-agshare="'+a.id+'" data-agname="'+esc(a.name||"")+'">'+LICON.share+'<span>'+GX("agShare")+'</span></a>'+
+      blkButtons(a.user_id,a.name,"gh")+
       (USER&&USER.id===a.user_id?'<a class="gh agown" data-go="agencyform">'+GX("accManage")+'</a>':'')+'</div>'+   // the owner: straight to the edit page (Telegram link card lives there)
     '</div>'+   // end of the profile card (2026-10-30: it was never closed, so the areas, the listings and the reviews sat inside its panel)
     ((a.gov_names||[]).length||(a.area_names||[]).length ? '<div class="blk" style="margin-top:16px"><h3>'+GX("agAreasServed")+'</h3><div class="in"><div class="agchips">'+
@@ -4497,7 +4537,10 @@ var PROMO_MSG={
   ag:"مرحباً، أنا مكتب عقاري وأريد أن أعرف باقات المكاتب على بلكون.",
   svc:"مرحباً، أريد عرض سعر لخدمة من فريق بلكون: ",
   ask:"مرحباً، عندي سؤال عن الترويج على بلكون.",
-  team:"مرحباً، أريد أن أعرف أكثر عن خدمات فريق بلكون: "
+  team:"مرحباً، أريد أن أعرف أكثر عن خدمات فريق بلكون: ",
+  // inside the app (owner 2026-11-03): nothing that reads as buying a place on Balkoun itself, only the ads and work done outside it
+  appAd:"مرحباً، أريد إعلاناً ممولاً على فيسبوك وإنستغرام لإعلاني. رقم الإعلان: ",
+  appAsk:"مرحباً، عندي سؤال عن الإعلانات الممولة وخدمات فريق بلكون."
 };
 var PROMO_TAB="ind", PROMO_LIVE=null;
 // "auto" in the numbers: the live listings counted on the server (the app holds only part of them in memory)
@@ -4543,7 +4586,7 @@ function promoPage(){ promoLive(); var APP=/BalkounApp\//.test(navigator.userAge
     '<section class="sp-hero"><div class="sp-w sp-hgrid"><div>'+
       '<div class="sp-eye" data-sprv>للمالكين والمكاتب العقارية</div><h1 data-sprv>إعلانك أمام من يبحث <em>فعلاً</em>.</h1>'+
       '<p data-sprv>ننشر إعلانك ونروّجه بإعلان ممول على فيسبوك وإنستغرام وحالات واتساب، ليصل إلى من يبحث عن عقار في مدينتك وإلى السوريين في الخارج.</p>'+
-      '<div class="sp-acts" data-sprv>'+wa("ind","gold","تواصل معنا على واتساب")+'</div></div>'+collage+
+      '<div class="sp-acts" data-sprv>'+wa("appAd","gold","تواصل معنا على واتساب")+'</div></div>'+collage+
     '</div>'+stats+'</section>'+
     '<nav class="sp-jump" aria-label="أقسام الصفحة"><div class="sp-w"><a href="#sp-where" data-spjump="sp-where">الإعلان الممول</a><a href="#sp-team" data-spjump="sp-team">فريقنا</a><a href="#sp-how" data-spjump="sp-how">كيف يعمل</a></div></nav>'+
     '<section class="sp-s" id="sp-where"><div class="sp-w"><div class="sp-head"><div><div class="sp-eye" data-sprv>إعلان ممول</div><h2 data-sprv>على فيسبوك وإنستغرام وحالات واتساب.</h2></div><p class="sp-lede" data-sprv>نصنع من صور إعلانك ريلاً قصيراً، وننشره إعلاناً ممولاً في مدينتك وللمغتربين، ويتواصل معك المهتمون على واتساب مباشرة.</p></div>'+
@@ -4555,7 +4598,7 @@ function promoPage(){ promoLive(); var APP=/BalkounApp\//.test(navigator.userAge
       '<div class="sp-steps s3"><div class="sp-step" data-sprv><em class="ltr">1</em><b>تواصل معنا</b><p>أرسل لنا رقم إعلانك على واتساب.</p></div><div class="sp-step" data-sprv><em class="ltr">2</em><b>نراجع إعلانك</b><p>نتأكد أنه حقيقي وصوره واضحة، خلال ساعات.</p></div><div class="sp-step" data-sprv><em class="ltr">3</em><b>ينطلق الترويج</b><p>ويصلك رابط تقرير تتابع منه النتائج يوماً بيوم.</p></div></div>'+
       report+'</div></section>'+
     '<section class="sp-close"><div class="sp-cbg" style="'+img(P.close)+'"></div><div class="sp-w"><div class="sp-eye" data-sprv>ابدأ اليوم</div><h2 data-sprv>النشر على بلكون مجاني دائماً. الترويج خيار، حين تريد وصولاً أسرع.</h2>'+
-      '<div class="sp-acts" data-sprv>'+wa("ind","gold","روّج إعلاناً من إعلاناتي")+wa("ask","line","اسألنا على واتساب")+'</div>'+
+      '<div class="sp-acts" data-sprv>'+wa("appAd","gold","اطلب إعلاناً ممولاً")+wa("appAsk","line","اسألنا على واتساب")+'</div>'+
       '<div class="sp-rules" data-sprv><span>إعلانات حقيقية فقط</span><span>بلا عمولة على البيع</span><span>خدمة عملاء 24/7</span></div></div></section>'+
     '<div class="sp-w sp-credit">صور البيوت لقطات من ريلات بلكون على فيسبوك. صورة الخاتمة: ويكيميديا كومنز (CC BY-SA).</div>'+
     '</div>';
@@ -6436,7 +6479,9 @@ function wire(){
    await loadByUser(e.dataset.byuser); render() }});
 
  if($("#rptOpen")) $("#rptOpen").onclick=function(){
-   RPT={open:true,id:VIEW.split(":")[1],sent:false,msg:""}; render() };
+   RPT={open:true,id:VIEW.split(":")[1],user:null,sent:false,msg:""}; render() };
+ $$("[data-rptuser]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation(); RPT={open:true,id:null,user:{id:b.dataset.rptuser,name:b.dataset.name||""},sent:false,msg:""}; render() } });
+ $$("[data-blk]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation(); blkToggle(b.dataset.blk,b.dataset.name||"",b.dataset.on!=="1") } });
  if($("#rptX")) $("#rptX").onclick=function(){ RPT.open=false; render() };
  if($("#rptClose2")) $("#rptClose2").onclick=function(){ RPT.open=false; render() };
  if($("#rptOv")) $("#rptOv").onclick=function(ev){ if(ev.target.id==="rptOv"){RPT.open=false;render()} };
@@ -6446,8 +6491,15 @@ function wire(){
  $$("[data-aginq]").forEach(function(b){ b.onclick=function(ev){ ev.stopPropagation(); ev.preventDefault(); var ag=(AGENCIES||[]).find(function(x){ return String(x.id)===String(b.dataset.aginq) })||{}; INQ={open:true,listing:null,toUser:b.dataset.aguser||ag.user_id||null,ref:ag.name||"",kind:"message",sent:false,msg:""}; render() } });
  if($("#rptSend")) $("#rptSend").onclick=async function(){
    this.disabled=true; this.textContent=t("saving");
-   try{ await rpc("bk_report",{p_listing:+RPT.id,
-          p_reason:($('input[name=rw]:checked')||{value:"other"}).value,
+   try{ var why=($('input[name=rw]:checked')||{value:"other"}).value;
+        if(RPT.user){
+          var lbl=(why==="other"?t("rOther"):GX("ru"+why.charAt(0).toUpperCase()+why.slice(1)));
+          var r=await rpc("bk_feedback",{p_kind:"complaint", p_name:fullName(USER)||null, p_contact:USER.phone||null, p_country:COUNTRY,
+            p_body:"بلاغ عن مستخدم: "+(RPT.user.name||"")+" (id "+RPT.user.id+")\nالسبب: "+lbl+($("#rptNote").value?"\n"+$("#rptNote").value:""), p_user:USER.id});
+          if(r&&r.error) throw new Error(r.error);
+          if($("#rptBlk")&&$("#rptBlk").checked){ var b=await rpc("bk_block_user",{p_user:RPT.user.id,p_block:true}); if(b&&!b.error) blkSet(b.blocked||[]) }
+        } else await rpc("bk_report",{p_listing:+RPT.id,
+          p_reason:why,
           p_note:$("#rptNote").value||null, p_user:(USER&&USER.id)||null});
         RPT.sent=true; render();
    }catch(e){ RPT.msg=e.message||"error"; this.disabled=false; this.textContent=t("send"); render() }};
@@ -6587,7 +6639,9 @@ function appPage(){
     (done ? '<div class="apppg-done">✓ '+GX("pwaS_installed_T")+'</div><button type="button" class="gold" data-go="home">'+t("home")+'</button>'
           : (P.canPrompt&&P.canPrompt() ? '<button type="button" class="gold apppg-go" id="appInstallGo">'+MI.download+' '+GX("pwaBannerBtn")+'</button>' : '')+
             '<div class="apppg-steps">'+(P.stepsHtml?P.stepsHtml(pf):'')+'</div>')+
-    (!/ios/.test(pf) && pf!=="installed" && !/BalkounApp\//.test(navigator.userAgent||"") ?
+    // the Android app file: also offered inside the home-screen web app on Android (owner 2026-11-03 could not reach it there),
+    // never inside the Android app itself or on an iPhone
+    (!/BalkounApp\//.test(navigator.userAgent||"") && (pf==="installed" ? /android/i.test(navigator.userAgent||"") : !/ios/.test(pf)) ?
       '<div class="apppg-apk"><b>'+GX("apkH")+'</b><p>'+GX("apkP")+'</p><a class="gold" href="/downloads/balkoun.apk" download="balkoun.apk">'+MI.download+' '+GX("apkBtn")+'</a>'+
       '<small class="ltr">'+GX("apkVer")+'</small><ol>'+[1,2,3].map(function(n){ return '<li>'+GX("apkS"+n)+'</li>' }).join("")+'</ol></div>' : '')+
     '<ul class="apppg-why"><li>'+GX("appPgWhy1")+'</li><li>'+GX("appPgWhy2")+'</li><li>'+GX("appPgWhy3")+'</li></ul>'+
@@ -8458,6 +8512,7 @@ function adminBellHtml(){ if(!window.__admLoaded){ if(ADM.token) ensureAdminJs()
 function wireAdminBell(){ if(!window.__admLoaded) return; wireAdminBell() }
 
 function render(){
+ blkSync();
  var _ek=(VIEW==="edit")?editKeep():null;   // the edit page's typed, unsaved values, put back after the redraw
  syncHash();
  if(window.PWA && PWA.syncBar) try{ PWA.syncBar() }catch(e){}
@@ -10716,7 +10771,7 @@ var GX_T={
   xPageSize:{ar:"عدد الإعلانات في صفحة النتائج",en:"Listings per results page"},
   xSimilar:{ar:"عدد «إعلانات أخرى» تحت صفحة الإعلان",en:"“More listings” shown under a listing"}, sponsored:{ar:"إعلان مدفوع",en:"Sponsored"}, ppNoMax:{ar:"بلا حد",en:"No max",fr:"Sans max"}, ppUpTo:{ar:"حتى",en:"Up to",fr:"Jusqu'à"}, ppCur:{ar:"المبلغ بـ {c}",en:"Amount in {c}",fr:"Montant en {c}"},
   apkH:{ar:"تطبيق أندرويد",en:"Android app"}, apkP:{ar:"حتى يصل التطبيق إلى Google Play، حمّله من هنا مباشرة.",en:"Until it is on Google Play, download it here."},
-  apkBtn:{ar:"حمّل التطبيق",en:"Download the app"}, apkVer:{ar:"النسخة 1.2 · 3 ميغا",en:"Version 1.2 · 3 MB"},
+  apkBtn:{ar:"حمّل التطبيق",en:"Download the app"}, apkVer:{ar:"النسخة 1.3 · 3 ميغا",en:"Version 1.3 · 3 MB"},
   apkS1:{ar:"اضغط «حمّل التطبيق» وانتظر انتهاء التحميل.",en:"Tap «Download the app» and wait for it to finish."},
   apkS2:{ar:"افتح الملف. إذا طلب الهاتف السماح بالتثبيت من هذا المصدر، اسمح به.",en:"Open the file. If the phone asks, allow installs from this source."},
   apkS3:{ar:"اضغط «تثبيت»، ثم افتح بلكون من شاشة هاتفك.",en:"Tap «Install», then open Balkoun from your home screen."}, promoNav:{ar:"روّج إعلانك",en:"Promote your listing"},
@@ -10750,7 +10805,16 @@ var GX_T={
   svcFHint:{ar:"رقمك يظهر للزوار ليتواصلوا معك. صور أعمالك يضيفها فريق بلكون بعد التواصل معك.",en:"Your number is shown so people can reach you. Photos of your work are added by the Balkoun team."},
   svcSend:{ar:"أرسل للمراجعة",en:"Send for review"}, svcSaveEdit:{ar:"احفظ التعديل",en:"Save changes"},
   svcSavedWait:{ar:"وصلتنا بطاقتك ✓ تظهر بعد المراجعة.",en:"Received ✓ It shows after review."}, svcSavedLive:{ar:"حُفظ التعديل ✓",en:"Saved ✓"},
-  svcErr_noname:{ar:"اكتب اسم العمل.",en:"Enter the business name."}, svcErr_nocat:{ar:"اختر خدمة واحدة على الأقل.",en:"Pick at least one service."}, svcErr_nophone:{ar:"اكتب رقم واتساب أو رقم اتصال.",en:"Enter a WhatsApp or phone number."}, promoMine:{ar:"تريد وصولاً أسرع؟ روّج إعلانك على بلكون وفيسبوك وإنستغرام.",en:"Want more reach? Promote your listing on Balkoun, Facebook and Instagram."}, adCtaWa:{ar:"تواصل على واتساب",en:"Chat on WhatsApp"}, adCtaMore:{ar:"اعرف أكثر",en:"Learn more"}, featured:{ar:"مميز",en:"Featured"},
+  svcErr_noname:{ar:"اكتب اسم العمل.",en:"Enter the business name."}, svcErr_nocat:{ar:"اختر خدمة واحدة على الأقل.",en:"Pick at least one service."}, svcErr_nophone:{ar:"اكتب رقم واتساب أو رقم اتصال.",en:"Enter a WhatsApp or phone number."}, promoMine:{ar:"تريد وصولاً أسرع؟ روّج إعلانك على بلكون وفيسبوك وإنستغرام.",en:"Want more reach? Promote your listing on Balkoun, Facebook and Instagram."}, ruBtn:{ar:"إبلاغ عن المستخدم",en:"Report user"}, ruTitle:{ar:"إبلاغ عن مستخدم",en:"Report a user"},
+  ruScam:{ar:"احتيال أو طلب مال مسبقاً",en:"Scam or asking for money upfront"}, ruFake:{ar:"إعلانات وهمية أو مضللة",en:"Fake or misleading listings"},
+  ruAbuse:{ar:"إساءة أو تحرش",en:"Abuse or harassment"}, ruSpam:{ar:"رسائل مزعجة أو إعلانات مكررة",en:"Spam or repeated listings"},
+  ruAlsoBlock:{ar:"احظر هذا المستخدم أيضاً",en:"Block this user too"},
+  blkBtn:{ar:"حظر",en:"Block"}, blkOwner:{ar:"حظر المعلن",en:"Block advertiser"}, blkUndo:{ar:"إلغاء الحظر",en:"Unblock"},
+  blkQ:{ar:"حظر {n}؟ لن ترى إعلاناته بعد الآن. يمكنك إلغاء الحظر من صفحة حسابك.",en:"Block {n}? You will no longer see their listings. You can unblock them from your account page."},
+  blkDone:{ar:"لقد حظرت هذا المستخدم، وإعلاناته مخفية عنك.",en:"You blocked this user; their listings are hidden from you."},
+  blkListH:{ar:"المستخدمون المحظورون",en:"Blocked users"}, blkListP:{ar:"إعلانات من تحظرهم لا تظهر لك.",en:"Listings from people you block are hidden from you."},
+  blkNone:{ar:"لم تحظر أحداً.",en:"You have not blocked anyone."},
+  promoMineApp:{ar:"تريد وصولاً أسرع؟ نروّج إعلانك بإعلان ممول على فيسبوك وإنستغرام.",en:"Want more reach? We run a sponsored ad for your listing on Facebook and Instagram."}, adCtaWa:{ar:"تواصل على واتساب",en:"Chat on WhatsApp"}, adCtaMore:{ar:"اعرف أكثر",en:"Learn more"}, featured:{ar:"مميز",en:"Featured"},
   adVideoTooBig:{ar:"الفيديو كبير جداً ({mb} MB). الحد الأقصى {max} MB — صدّره بدقة 720p أو أقل ومدة قصيرة، ثم أعد الرفع.",en:"This video is too large ({mb} MB). The limit is {max} MB — export it at 720p or smaller and keep it short, then upload again."},
   adVideoHint:{ar:"الفيديو: حتى {max} MB، يُفضّل 720p ومدة 10–20 ثانية",en:"Video: up to {max} MB, ideally 720p and 10–20 seconds"}
 };

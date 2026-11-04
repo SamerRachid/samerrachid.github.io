@@ -1713,3 +1713,14 @@ html body .chipsel-drop .cs-selected .chip-x:hover,html body .chipsel-drop .cs-s
    navy strip of the bar's height sits behind the clock and battery, and scrolled text no longer runs under them
    (0 high in a browser tab, where the phone keeps its own bar) */
 body::before{content:"";position:fixed;top:0;left:0;right:0;height:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px));background:#14213D;z-index:2147483000;pointer-events:none}
+
+/* report / block a member (2026-11-03): under a member's profile, in the agency contact row, and the account page's list */
+.profblk{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.profblk .gh,.agcontact [data-blk],.agcontact [data-rptuser]{display:inline-flex;align-items:center;gap:6px;width:auto;margin:0}
+.profblk .danger,.agcontact .danger{color:#E5484D}
+.blklist{display:grid;gap:4px;margin:8px 0 14px}
+.blkrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.blkrow b{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* four actions on a listing (save, share, report, block the advertiser): one row of four on a wide screen, two rows of two on a phone, never three and one */
+.lacts:has(> :nth-child(4)){grid-template-columns:repeat(4,170px)}
+@media (max-width:860px){ html body .lacts:has(> :nth-child(4)){grid-template-columns:repeat(2,1fr)!important} }
