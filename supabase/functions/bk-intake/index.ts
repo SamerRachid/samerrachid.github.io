@@ -1337,7 +1337,16 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
         : String(raw.area || "").trim() || (fields.landmark && String(fields.landmark).split(/[،,\-–]/)[0].trim().split(/\s+/).length <= 3 ? String(fields.landmark).split(/[،,\-–]/)[0].trim() : "");
       // only a name the sender actually wrote (a confirmed one, or one found in the message) — never a model guess
       const written = prev.area_confirmed === "1" || (cand && norm(rawText).includes(norm(cand)));
-      if (cand && written && /[؀-ۿ]/.test(cand) && !/^(قرب|جانب|بعد|مقابل|خلف|أمام|طريق|شارع|دوار|جامع|مشفى|مدرسة|كازية|كراج)/.test(cand)) {
+      // the "unknown" name is often a listed area with a place word in front ("بلدة حاس" → حاس, owner 2026-11-05:
+      // the bot told an Idlib sender «حاس» was not in the list): look it up in the governorate before suggesting it
+      const og = (tax.governorates || []).find((x: any) => x.id === fields.governorate_id);
+      const placeOk = !!cand && !!written && !/^(قرب|جانب|بعد|مقابل|خلف|أمام|طريق|شارع|دوار|جامع|مشفى|مدرسة|كازية|كراج)/.test(cand);
+      const known = placeOk ? (findArea(og, cand) || findArea(og, cand.replace(/^(بلدة|بلده|قرية|قريه|مدينة|مدينه|ضيعة|ضيعه|ناحية|ناحيه|حي|منطقة|منطقه)\s+/, ""))) : null;
+      if (known && norm(rawText).includes(norm(known[1]))) {
+        fields.area = known[1]; fields.area_id = known[0]; missing = missing.filter((m) => m !== "area");
+        if (fields.landmark && norm(String(fields.landmark).split(/[،,]/)[0]) === norm(cand)) { const rest = String(fields.landmark).split(/[،,]/).slice(1).join("،").trim(); if (rest) fields.landmark = rest; else delete fields.landmark; }
+        await log(draftId, d.chat_id, "info", "area_from_place_word", { said: cand, area: known[1] });
+      } else if (cand && written && /[؀-ۿ]/.test(cand) && !/^(قرب|جانب|بعد|مقابل|خلف|أمام|طريق|شارع|دوار|جامع|مشفى|مدرسة|كازية|كراج)/.test(cand)) {
         fields.area_text = cand; if (!fields.landmark) fields.landmark = cand;
         // no question to the sender about the name (owner's rule, 2026-10-02): it publishes as written and the admin
         // gets the "منطقة غير موجودة" alert at publish time and adds it from the suggestions list
