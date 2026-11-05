@@ -3402,6 +3402,7 @@ body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
 .au2 .autop{background:transparent;color:var(--navy);padding:18px 22px 0;display:flex;align-items:center;justify-content:space-between}
 .au2 .autop b{font-size:20px;font-weight:800}
 .au2 #auX{width:34px;height:34px;border-radius:50%;border:0;background:var(--page);color:var(--ink);font-size:20px;line-height:1;cursor:pointer;padding:0;display:grid;place-items:center}
+.au-why{margin:14px 22px 0;padding:10px 14px;border-radius:12px;background:rgba(196,136,31,.14);color:inherit;font-size:14px;line-height:1.6;text-align:center}
 .au2 .autabs{margin:14px 22px 4px;border:0;background:var(--page);border-radius:12px;padding:3px;gap:2px}
 .au2 .autabs button{padding:9px;border-radius:9px;border:0;font-size:13.5px;color:var(--grey)}
 .au2 .autabs button.on{background:#fff;color:var(--navy);box-shadow:0 1px 2px rgba(20,33,61,.12);border:0}

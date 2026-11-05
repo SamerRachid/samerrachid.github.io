@@ -594,6 +594,11 @@ function asAdminBar(){
 // exactly what a password manager already knows how to do — this is
 // deliberately just the piece that only the app itself can remember.
 function saveRememberedPhone(cc,phone){ try{ localStorage.setItem("balkoun_remember", JSON.stringify({cc:cc,phone:phone})) }catch(e){} }
+// a visitor presses something that needs an account (report, block): the same login window as everywhere, a line saying why,
+// and the action itself runs right after the login (owner 2026-11-04: «report» showed a different, signup-only box)
+function needLogin(why,then){ var r=loadRememberedPhone();
+  AU={open:true,mode:"in",step:1,cc:(r&&r.cc)||"963",phone:(r&&r.phone)||"",name:"",fam:"",code:"",email:"",remember:true,why:why,then:then}; render() }
+function authDone(){ var f=AU.then; AU.open=false; AU.why=AU.then=null; render(); if(f&&USER) f() }
 function loadRememberedPhone(){ try{ var s=localStorage.getItem("balkoun_remember"); return s?JSON.parse(s):null }catch(e){ return null } }
 function clearRememberedPhone(){ try{ localStorage.removeItem("balkoun_remember") }catch(e){} }
 
@@ -953,7 +958,7 @@ function mdwClose(){ var d=$("#mdw"); if(d) d.classList.remove("on"); document.b
 // the Android app's Back button asks this first (owner, 2026-10-23): an open window closes before the page goes back
 window.bkBack=function(){ try{
   var m=document.getElementById("soonM"); if(m){ m.remove(); return true }
-  if(typeof AU!=="undefined" && AU.open){ AU.open=false; render(); return true }
+  if(typeof AU!=="undefined" && AU.open){ AU.open=false; AU.why=AU.then=null; render(); return true }
   if(LIGHTBOX_OPEN){ LIGHTBOX_OPEN=false; render(); return true }
   var d=document.getElementById("mdw"); if(d && d.classList.contains("on")){ mdwClose(); return true }
   var dr=document.querySelectorAll(".menu.on,.chipsel-drop.on"); if(dr.length){ dr.forEach(function(x){ huHide(x) }); CS_OPEN=null; return true }
@@ -1423,6 +1428,7 @@ function authModal(){
   '<aside class="au-brand"><span class="logo blogo">'+brandLogo()+'</span><h3>'+GX("auBrandH")+'</h3><p>'+GX("auBrandP")+'</p>'+
    '<ul><li>'+GX("auB1")+'</li><li>'+GX("auB2")+'</li><li>'+GX("auB3")+'</li></ul></aside>'+
   '<div class="au-main"><div class="autop"><b>'+title+'</b><button id="auX" aria-label="'+GX("mdClose")+'">×</button></div>'+
+  (AU.why&&AU.step===1?'<div class="au-why">'+GX(AU.why)+'</div>':'')+   // why we ask: «log in to report / block» (owner 2026-11-04)
   (AU.step<5&&AU.step!==4?'<div class="autabs"><button type="button" data-m="in" class="'+(AU.mode==="in"?"on":"")+'">'+t("login")+
   '</button><button type="button" data-m="up" class="'+(AU.mode==="up"?"on":"")+'">'+t("signup")+'</button></div>':'')+
   body+
@@ -2858,7 +2864,7 @@ function blkButtons(uid,name,cls){ if(!uid||(USER&&String(uid)===String(USER.id)
   return '<button type="button" class="'+(cls||"")+' danger" data-rptuser="'+esc(String(uid))+'" data-name="'+esc(name||"")+'">'+I.flag+'<span>'+GX("ruBtn")+'</span></button>'+
     '<button type="button" class="'+(cls||"")+(on?'':' danger')+'" data-blk="'+esc(String(uid))+'" data-name="'+esc(name||"")+'" data-on="'+(on?1:0)+'">'+I.ban+'<span>'+(on?GX("blkUndo"):GX("blkBtn"))+'</span></button>' }
 async function blkToggle(uid,name,on){
-  if(!USER){ AU.open=true; AU.mode="in"; render(); return }
+  if(!USER) return needLogin("needLoginBlk",function(){ if(String(uid)!==String(USER.id)) blkToggle(uid,name,on) });
   if(on && !confirm(GX("blkQ").replace("{n}",name||t("owner")))) return;
   try{ var r=await rpc("bk_block_user",{p_user:uid,p_block:!!on}); if(!r||r.error) throw new Error((r&&r.error)||"error");
     blkSet(r.blocked||[]); rpc("bk_my_blocks",{}).then(function(x){ if(x&&!x.error){ BLK.list=x.list||[]; render() } }).catch(function(){});
@@ -2875,8 +2881,8 @@ function reportModal(){
  if(!USER) return '<div class="au on" id="rptOv"><div class="aubox">'+
    '<div class="autop"><b>'+(RPT.user?GX("ruTitle"):t("reportListing"))+'</b><button id="rptX">✕</button></div>'+
    '<div class="aubody"><p style="font-size:14px;color:var(--grey);text-align:center">'+
-   t("loginToPostP")+'</p><button class="aub" id="goSignup" style="margin-top:12px">'+
-   t("signup")+'</button></div></div></div>';
+   GX(RPT.user?"needLoginRptU":"needLoginRpt")+'</p><button class="aub" id="goSignup" style="margin-top:12px">'+
+   t("login")+'</button></div></div></div>';
  var body = RPT.sent
   ? '<div class="aubody"><div class="audone"><div class="tk">✓</div>'+
     '<b style="font-size:17px">'+t("rptThanks")+'</b>'+
@@ -4985,6 +4991,7 @@ function qfLocalRead(raw, geo, learned, home){
       String(L[0]).split(/[،,–-]| و(?=[^ ]+ )/).forEach(function(part){ var core=bare(part).replace(/^((بالقرب من|قريب من|قرب|جانب|بجانب|مقابل|خلف|بعد|عند|دخله|نزله|طلعه|اول|امام|فوق|تحت|على|علي|الى|الي|بين|مواجه|ضمن|داخل|تقاطع|امتداد) )+/,"").replace(/[a-z0-9 ]+$/,"").trim();
         var cw=core?core.split(" "):[]; if(!cw.length||core.length<4) return;
         if(cw.every(function(w){ return GEN.test(w)||BLOCK[w]||NEVER[w] })) return;
+        if(cw.length<=3 && /^(طريق|شارع|اوتستراد|اوتوستراد|كورنيش)$/.test(cw[0])) return;   // a road alone («طريق حماة») runs past many neighbourhoods: one listing on it says nothing about the next (2026-11-04)
         if(cw.length===1&&!(oneWord&&core.length>=4)) return;   // one word only when the learned phrase is that word («غواص», «أميسا»)
         if(aIdx[core]&&!(aIdx[core].length===1&&aIdx[core][0].a===a)) return;   // an area's own name is matched by the area list, not here
         var key=core, prevA=lc[key]; if(prevA&&prevA.a!==a){ lc[key]={bad:1}; return } lc[key]={g:g,a:a,n:cw.length} }) });
@@ -5004,6 +5011,7 @@ function qfLocalRead(raw, geo, learned, home){
   var pick=null;
   for(var j=0;j<aHits.length&&!pick;j++){ var h=aHits[j];
     if(h.one && BLOCK[h.k] && !h.marked) continue;   // an area named like an everyday word ("مدرسة", "الكبيرة") counts only after «في / حي / منطقة»
+    if(!h.one && !h.learned && !h.marked && h.k.split(" ").every(function(w){ return /^(مركز|وسط|مدينه|بلده|قريه|ضيعه|منطقه|حي)$/.test(w) })) continue;   // same for a name that only says «the centre / the town»: «8 كم عن مركز مدينة حمص» is not the area «مركز المدينة» (2026-11-04)
     var inG=h.c.filter(function(c){ return gNamed.indexOf(c.g)>-1 });
     if(!inG.length&&gNamed.length) inG=h.c.filter(function(c){ return near(gNamed[0]).indexOf(c.g)>-1 });
     if(inG.length===1) pick=inG[0];
@@ -6480,9 +6488,10 @@ function wire(){
    await loadByUser(e.dataset.byuser); render() }});
 
  if($("#rptOpen")) $("#rptOpen").onclick=function(){
-   RPT={open:true,id:VIEW.split(":")[1],user:null,sent:false,msg:""}; render() };
+   var id=VIEW.split(":")[1], go=function(){ RPT={open:true,id:id,user:null,sent:false,msg:""}; render() };
+   if(!USER) return needLogin("needLoginRpt",go); go() };
  if($("#daLogin")) $("#daLogin").onclick=function(){ AU.open=true; AU.mode="in"; render() };
- $$("[data-rptuser]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation(); RPT={open:true,id:null,user:{id:b.dataset.rptuser,name:b.dataset.name||""},sent:false,msg:""}; render() } });
+ $$("[data-rptuser]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation(); var go=function(){ RPT={open:true,id:null,user:{id:b.dataset.rptuser,name:b.dataset.name||""},sent:false,msg:""}; render() }; if(!USER) return needLogin("needLoginRptU",go); go() } });
  $$("[data-blk]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation(); blkToggle(b.dataset.blk,b.dataset.name||"",b.dataset.on!=="1") } });
  if($("#rptX")) $("#rptX").onclick=function(){ RPT.open=false; render() };
  if($("#rptClose2")) $("#rptClose2").onclick=function(){ RPT.open=false; render() };
@@ -6526,7 +6535,7 @@ function wire(){
         CU.sent=true; CU.msg=""; render();
    }catch(e){ CU.msg=e.message||"error"; this.disabled=false; this.textContent=t("send"); render() }};
 
- if($("#goSignup"))$("#goSignup").onclick=function(){AU.open=true;AU.mode="up";AU.step=1;render()};
+ if($("#goSignup"))$("#goSignup").onclick=function(){ var r=RPT; RPT={open:false}; needLogin(r.user?"needLoginRptU":"needLoginRpt",function(){ RPT=Object.assign(r,{open:true}); render() }) };
  if($("#goSignupGate"))$("#goSignupGate").onclick=function(){AU.open=true;AU.mode="up";AU.step=1;render()};
  if($("#goLoginGate"))$("#goLoginGate").onclick=function(){AU.open=true;AU.mode="in";AU.step=1;render()};
 
@@ -6710,9 +6719,9 @@ function wireAuth(){
    }});
  }
  wireNotifBell();
- if($("#auX"))$("#auX").onclick=function(){AU.open=false;verifyPollStop();render()};
+ if($("#auX"))$("#auX").onclick=function(){AU.open=false;AU.why=AU.then=null;verifyPollStop();render()};
  $$(".autabs button,.au-switch a[data-m]").forEach(function(b){b.onclick=function(){AU.mode=b.dataset.m;AU.step=1;verifyPollStop();render()}});
- if($("#au"))$("#au").onclick=function(e){if(e.target.id==="au"){AU.open=false;verifyPollStop();render()}};
+ if($("#au"))$("#au").onclick=function(e){if(e.target.id==="au"){AU.open=false;AU.why=AU.then=null;verifyPollStop();render()}};
  wireUnverified();
 
  /* ── sign in ── */
@@ -6729,7 +6738,7 @@ function wireAuth(){
      if(rememberChecked) saveRememberedPhone($("#auCC").value, $("#auPhone").value);
      else clearRememberedPhone();
      if(u.preferred_currency && (((countryOf(COUNTRY)||{}).currencies)||["USD"]).indexOf(u.preferred_currency)>-1){ CUR=u.preferred_currency; curPrefSet(COUNTRY,CUR) }
-     AU.step=4; render();
+     if(AU.then) authDone(); else { AU.step=4; render() }
      loadNotifications().then(render);
      startNotifPolling();
    }catch(e){ btn.disabled=false; btn.textContent=t("login");
@@ -6844,7 +6853,7 @@ function wireAuth(){
    }catch(e){ this.disabled=false; this.textContent=t("savePass");
      err(e.message==="nouser"?"noUser":e.message==="notverified"||e.message==="expired"?GX("vExpired"):e.message) }};
 
- if($("#auGo"))$("#auGo").onclick=function(){AU.open=false;render()};
+ if($("#auGo"))$("#auGo").onclick=function(){ authDone() };
  if($("#auTgNudge"))$("#auTgNudge").onclick=function(){ acTgPoll() };
 
  /* ── account settings ── */
@@ -7466,6 +7475,9 @@ function loadSiteCache(){
     var cached = localStorage.getItem(siteCacheKey());
     if(cached) return JSON.parse(cached);
   }catch(e){}
+  // a first visit: the home page carries the Syrian row as it was at the last build (static-shell.mjs), so the first draw already
+  // has the owner's headline instead of the built-in one (the swap moved the search bar ~180 px on a desktop)
+  try{ var bs=document.getElementById("bkSite"); if(bs && COUNTRY==="SY"){ var row=JSON.parse(bs.textContent); if(row && row.id===1) return escDeep(row) } }catch(e){}
   return {hero_enabled:true,stats_enabled:true};
 }
 var SITE = loadSiteCache();
@@ -10844,6 +10856,9 @@ var GX_T={
   ruScam:{ar:"احتيال أو طلب مال مسبقاً",en:"Scam or asking for money upfront"}, ruFake:{ar:"إعلانات وهمية أو مضللة",en:"Fake or misleading listings"},
   ruAbuse:{ar:"إساءة أو تحرش",en:"Abuse or harassment"}, ruSpam:{ar:"رسائل مزعجة أو إعلانات مكررة",en:"Spam or repeated listings"},
   ruAlsoBlock:{ar:"احظر هذا المستخدم أيضاً",en:"Block this user too"},
+  needLoginRpt:{ar:"سجّل الدخول أو أنشئ حساباً لتبلّغ عن هذا الإعلان",en:"Log in or create an account to report this listing"},
+  needLoginRptU:{ar:"سجّل الدخول أو أنشئ حساباً لتبلّغ عن هذا المعلن",en:"Log in or create an account to report this advertiser"},
+  needLoginBlk:{ar:"سجّل الدخول أو أنشئ حساباً لتحظر هذا المعلن",en:"Log in or create an account to block this advertiser"},
   blkBtn:{ar:"حظر",en:"Block"}, blkOwner:{ar:"حظر المعلن",en:"Block advertiser"}, blkUndo:{ar:"إلغاء الحظر",en:"Unblock"},
   blkQ:{ar:"حظر {n}؟ لن ترى إعلاناته بعد الآن. يمكنك إلغاء الحظر من صفحة حسابك.",en:"Block {n}? You will no longer see their listings. You can unblock them from your account page."},
   blkDone:{ar:"لقد حظرت هذا المستخدم، وإعلاناته مخفية عنك.",en:"You blocked this user; their listings are hidden from you."},

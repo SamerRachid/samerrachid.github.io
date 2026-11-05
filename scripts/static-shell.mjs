@@ -204,10 +204,14 @@ for (const l of LANG_DIRS) {
   // (3) 2026-11-02: the hero's first photo is in the page, in the same markup the app draws and under the same id, so the app's
   // first draw takes it over (morphdom) instead of the page staying empty until the 500 KB script has run (Lighthouse phone: the
   // photo painted at ~8 s). Not the headline: its place depends on the search bar under it, which only the app draws
-  let boot = {}, heroPreload = "", preHero = "";
+  let boot = {}, heroPreload = "", preHero = "", siteCopy = "";
   try {
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/site_content?select=extras,hero_bg_type&id=eq.1&limit=1`, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/site_content?select=*&id=eq.1&limit=1`, { headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}` } });
     const row = r.ok ? (await r.json())[0] : null, ex = (row && row.extras) || {};
+    // (4) 2026-11-04: the whole Syrian settings row, for a first visit (nothing saved in the browser yet). Without it the app drew
+    //     its built-in headline (four lines on a desktop) and swapped in the owner's one-line headline when the row arrived, so the
+    //     search bar jumped up ~180 px (Lighthouse desktop CLS 0.165). A JSON script block never runs, so the CSP needs no hash
+    if (row) siteCopy = `<script type="application/json" id="bkSite">${JSON.stringify(row).replace(/</g, String.fromCharCode(92) + "u003c")}</script>`;
     for (const [k, v] of [["opening", "opening_enabled"], ["opening_m", "opening_enabled_m"], ["opening_app", "opening_app"]]) if (ex[v] !== undefined && ex[v] !== null) boot[k] = ex[v];
     if (row && row.hero_bg_type !== "photo" && row.hero_bg_type !== "video") {   // the built-in slides (a studio photo/video has its own address)
       const P = "/next/images/hero/umayyad", V = "?v=2";
@@ -218,7 +222,7 @@ for (const l of LANG_DIRS) {
       preHero = `<div class="hero-outer hu pre" id="huHero"><div class="hv on" id="hv"><div class="hslides">${slide}</div></div><div class="hscrim"></div></div>`;   // no empty <section class="hero">: filled later it would grow upwards and count as a layout shift
     }
   } catch (e) { console.warn("site settings unreadable, home without boot settings:", e.message); }
-  let homeHtml = page(preHero + homeBlock).replace("</title>", () => `</title>\n<meta name="bk-boot" content="${escAttr(JSON.stringify(boot))}">${heroPreload}`);
+  let homeHtml = page(preHero + homeBlock).replace("</title>", () => `</title>\n<meta name="bk-boot" content="${escAttr(JSON.stringify(boot))}">${heroPreload}${siteCopy}`);
   if (preHero) {   // the hero's styles are scoped to body.home-hero in places; render() sets the same class
     homeHtml = homeHtml.replace("<body>", '<body class="home-hero">');
     if (!homeHtml.includes('<body class="home-hero">')) throw new Error("home: <body> not found for the hero copy");
