@@ -613,7 +613,7 @@ function adminView(){
   var renderMediaSection = function(items, opts){
     var q = (ms.q||"").trim().toLowerCase();
     var filtered = items.filter(function(it){
-      if(q && (it.label||"").toLowerCase().indexOf(q)===-1) return false;
+      if(q && admNormQ(it.label).indexOf(admNormQ(q))===-1) return false;   // admNormQ: ا/أ/إ/آ, ة/ه, ى/ي match (owner 2026-11-05)
       if(ms.used==="used" && !it.isUsed) return false;
       if(ms.used==="unused" && it.isUsed) return false;
       if(ms.type==="photo" && it.isVideo) return false;
@@ -2087,8 +2087,8 @@ function wireAdmin(){
     var renderMatches=function(q){
       var qq=(q||"").trim().toLowerCase();
       var matches = !qq ? allListings.slice(0,30) : allListings.filter(function(l){
-        var hay=[(l.ref||String(l.id)),l.poster_name,l.agency_name,l.area,l.gov,typeOf(l)].join(" ").toLowerCase();
-        return hay.indexOf(qq)>-1;
+        var hay=admNormQ([(l.ref||String(l.id)),l.poster_name,l.agency_name,l.area,l.gov,typeOf(l)].join(" "));
+        return hay.indexOf(admNormQ(qq))>-1;
       }).slice(0,30);
       drop.innerHTML = matches.length ? matches.map(function(l){
         return '<div class="chipsel-opt" data-ftpicklisting="1" data-lid="'+l.id+'" data-lref="'+((l.ref||l.id)+"").replace(/"/g,"&quot;")+'" data-lname="'+((l.poster_name||"").replace(/"/g,"&quot;"))+'">'+
@@ -2221,7 +2221,7 @@ function wireAdmin(){
     var visible=0;
     $$("tr",body).forEach(function(tr){
       var rt=tr.dataset.rowText||"";
-      var okText = !qq || rt.indexOf(qq)>-1 || (qd.length>=4 && rt.split(/\s+/).some(function(w){ return w.replace(/\D/g,"").indexOf(qd)>-1 }));
+      var okText = !qq || admNormQ(rt).indexOf(admNormQ(qq))>-1 || (qd.length>=4 && rt.split(/\s+/).some(function(w){ return w.replace(/\D/g,"").indexOf(qd)>-1 }));
       var okStatus = !statusSel || !tr.dataset.rowStatus || tr.dataset.rowStatus===statusSel;
       var okTabu = !tabuSel || !tr.dataset.rowTabu || tr.dataset.rowTabu===tabuSel;
       var okDeal = !dealSel || !tr.dataset.rowDeal || tr.dataset.rowDeal===dealSel;
@@ -2241,7 +2241,7 @@ function wireAdmin(){
     if(ADM.uQ) filterRows("aUserBody", ADM.uQ, "") }
   if($("#amOpen")) $("#amOpen").onclick=function(){ admAddMember() };
   ["report","feedback","ticket"].forEach(function(k){ var q=$("#aq"+k); if(!q) return; q.oninput=function(){ var v=this.value.trim().toLowerCase();
-    $$("#inboxRows"+k+" [data-emailrow]").forEach(function(r){ r.style.display = (!v || ((r.dataset.rowText||"")+" "+r.textContent).toLowerCase().indexOf(v)>-1) ? "" : "none" }) } });
+    $$("#inboxRows"+k+" [data-emailrow]").forEach(function(r){ r.style.display = (!v || admNormQ((r.dataset.rowText||"")+" "+r.textContent).indexOf(admNormQ(v))>-1) ? "" : "none" }) } });
 
   $$("[data-goto]").forEach(function(e){ e.onclick=function(){
     var parts=e.dataset.goto.split(":");
@@ -3231,7 +3231,7 @@ function adminEngageBody(){
     (ADM.engLastCode?'<div class="ecodebox" style="margin-bottom:14px">'+GX("engCodeIs")+' <b class="ltr">'+esc(ADM.engLastCode)+'</b> <button type="button" class="ab" data-ecopy="'+esc(ADM.engLastCode)+'">'+GX("engCopy")+'</button></div>':'')+
     (ADM.engAdd ? engAddForm() : '');
   if(!all) return head+'<div class="blk"><div class="in adashempty">'+(ADM.engErr||t("loading"))+'</div></div>';
-  var rows=all.filter(function(e){ if(!q) return true; var o=e.obj||{}; return [e.code,e.client_name,e.title,e.ref_text,e.phone,e.notes,o.poster,o.sponsor,o.ref,o.label].join(" ").toLowerCase().indexOf(q)>-1 });
+  var rows=all.filter(function(e){ if(!q) return true; var o=e.obj||{}; return admNormQ([e.code,e.client_name,e.title,e.ref_text,e.phone,e.notes,o.poster,o.sponsor,o.ref,o.label].join(" ")).indexOf(admNormQ(q))>-1 });
   var live=function(k){ return rows.filter(function(e){ return e.kind===k && (e.live||e.scheduled) }) }, hist=function(k){ return rows.filter(function(e){ return e.kind===k && !(e.live||e.scheduled) }) };
   var kpis='<div class="kpis" style="margin-bottom:16px">'+["featured","ad","banner"].map(function(k){ return '<div class="kpi"><div class="kpi-l">'+engKindLabel(k)+' · '+GX("engLive")+'</div><div class="kpi-v ltr">'+live(k).length+'</div><div class="kpi-d"><small>'+GX("engHistory")+': <span class="ltr">'+hist(k).length+'</span></small></div></div>' }).join("")+'</div>';
   var sec=function(k,ico){ var lv=live(k), hs=hist(k); return '<div class="blk" style="margin-top:16px"><h3>'+ico+' '+engKindLabel(k)+' <span class="n">'+lv.length+'</span></h3><div class="in eng-in">'+
@@ -4691,7 +4691,7 @@ function mapsTableRegionHtml(){
 function mapsAreasTableHtml(){
   var areas = ADM._areasMap||[];
   var q=(ADM.mapsQ||"").trim().toLowerCase();
-  var list = q ? areas.filter(function(a){ return (a.area+" "+a.gov).toLowerCase().indexOf(q)>-1 }) : areas;
+  var list = q ? areas.filter(function(a){ return admNormQ(a.area+" "+a.gov).indexOf(admNormQ(q))>-1 }) : areas;
   var page=ADM.mapsPage||1, totalPages=Math.max(1,Math.ceil(list.length/MAPS_PAGE_SIZE));
   if(page>totalPages) page=totalPages;
   var pageItems=list.slice((page-1)*MAPS_PAGE_SIZE, page*MAPS_PAGE_SIZE);
@@ -4712,7 +4712,7 @@ function mapsListingsTableHtml(statusKey){
   if(!listings) return '<div class="done2" style="margin-top:12px"><b>'+t("loading")+'</b></div>';
   var q=(ADM.mapsQ||"").trim().toLowerCase();
   var base = listings.filter(function(l){ return l.mstatus===statusKey });
-  var list = q ? base.filter(function(l){ return ((l.ref||"")+" "+(l.area||"")+" "+(l.gov||"")).toLowerCase().indexOf(q)>-1 }) : base;
+  var list = q ? base.filter(function(l){ return admNormQ((l.ref||"")+" "+(l.area||"")+" "+(l.gov||"")).indexOf(admNormQ(q))>-1 }) : base;
   var page=ADM.mapsPage||1, totalPages=Math.max(1,Math.ceil(list.length/MAPS_PAGE_SIZE));
   if(page>totalPages) page=totalPages;
   var pageItems=list.slice((page-1)*MAPS_PAGE_SIZE, page*MAPS_PAGE_SIZE);
@@ -4801,7 +4801,7 @@ function adminSocialBody(){
       '<div class="ld-acts"><button type="button" class="ab ok" id="socialSettingsSave">'+t("save")+'</button></div></div>' : '';
     var all=((ADM.data&&ADM.data.listings)||[]).filter(function(x){ return x.status==="live" });
     var q=(s.q||"").trim().toLowerCase();
-    var allRows=(q?all.filter(function(x){ return ((x.ref||"")+" "+(x.gov||"")+" "+(x.area||"")).toLowerCase().indexOf(q)>-1 }):all), rows=allRows.slice(0,admShown("social",24));
+    var allRows=(q?all.filter(function(x){ return admNormQ((x.ref||"")+" "+(x.gov||"")+" "+(x.area||"")).indexOf(admNormQ(q))>-1 }):all), rows=allRows.slice(0,admShown("social",24));
     return '<div class="ld-sec">📣 '+GX("tSocial")+'</div><div class="hintx" style="margin-bottom:10px">'+GX("socialPickHint")+'</div>'+
       settingsPanel+
       '<input id="socialQ" dir="auto" class="asearch" placeholder="'+esc(t("searchPH"))+'" value="'+esc(s.q||"")+'" style="max-width:420px;margin-bottom:12px">'+
@@ -5059,7 +5059,7 @@ function adminOutreachBody(){
     if(f==="open" && (o.stage==="active"||o.stage==="declined")) return false;
     if(f==="due" && !(o.next_at && new Date(o.next_at)<=new Date())) return false;
     if(OUT_STAGES.indexOf(f)>-1 && o.stage!==f) return false;
-    if(q){ var hay=[o.name,o.phone,o.city,o.area,o.source,o.notes].join(" ").toLowerCase(); if(hay.indexOf(q)===-1) return false }
+    if(q){ var hay=admNormQ([o.name,o.phone,o.city,o.area,o.source,o.notes].join(" ")); if(hay.indexOf(admNormQ(q))===-1) return false }
     return true });
   var pipe='<div class="astat ikstats">'+OUT_STAGES.map(function(s){ return '<button type="button" class="astat ikstat'+(f===s?' on':'')+'" data-outf="'+s+'" style="cursor:pointer;border:0"><b class="ltr">'+counts[s]+'</b><span>'+outStageLabel(s)+'</span></button>' }).join("")+'</div>';
   var tools='<div class="rtop" style="margin:10px 0"><input id="outQ" dir="auto" class="aq" placeholder="'+esc(GX("outSearchPH"))+'" value="'+esc(ADM.outQ||"")+'" data-allow-autofill style="max-width:260px">'+

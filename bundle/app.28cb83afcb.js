@@ -5701,7 +5701,7 @@ function wireChipSelects(){
       var listOf=function(q){ var sel=F[cfg.arrKey]||[], ql=(q||"").toLowerCase();
       var al=id==="csArea"?placeAliasAreas(q):[];   // a learned place name finds its area (ساحة الميسات → الميسات)
       var opts=cfg.getOptions().filter(function(o){
-        return sel.indexOf(o.value)===-1 && (!ql || o.label.toLowerCase().indexOf(ql)>-1 || al.indexOf(o.value)>-1) });
+        return sel.indexOf(o.value)===-1 && (!ql || kwNorm(o.label).indexOf(kwNorm(ql))>-1 || al.indexOf(o.value)>-1) });   // kwNorm: ا/أ/إ/آ, ة/ه, ى/ي and tashkeel match (owner 2026-11-05: «ابو رمانة» did not find «أبو رمانة»)
       var optHtml=function(o,n){
         return '<div class="chipsel-opt" data-cspick="'+id+'" data-csval="'+o.value.replace(/"/g,"&quot;")+'">'+
                '<span>'+o.label+'</span>'+(n&&countsOn()?'<span class="cs-n ltr">'+n+'</span>':'')+'</div>' };
@@ -5749,7 +5749,7 @@ function wireChipSelects(){
             var ft=drop.querySelector(".cs-sheet-f"), tmp=document.createElement("div"); tmp.innerHTML=listOf(sq.value.trim())||'<div class="chipsel-empty cs-sheet-empty">'+t("noResultsFor")+'</div>';
             while(tmp.firstChild) drop.insertBefore(tmp.firstChild,ft);
             markGreenTabu(drop); wireOpts(); return }
-          drop.querySelectorAll(".chipsel-opt").forEach(function(o){ o.hidden = !!v && o.textContent.toLowerCase().indexOf(v)===-1 });
+          drop.querySelectorAll(".chipsel-opt").forEach(function(o){ o.hidden = !!v && kwNorm(o.textContent).indexOf(kwNorm(v))===-1 });
           [].slice.call(drop.querySelectorAll(".cs-h")).forEach(function(h){
             var kind=h.classList.contains("cs-kind"), n=h.nextElementSibling, any=false;
             while(n){ if(n.classList.contains("cs-h")){ if(kind || !n.classList.contains("cs-kind")) break } else if(n.classList.contains("chipsel-opt") && !n.hidden){ any=true; break } n=n.nextElementSibling }
@@ -7475,6 +7475,9 @@ function loadSiteCache(){
     var cached = localStorage.getItem(siteCacheKey());
     if(cached) return JSON.parse(cached);
   }catch(e){}
+  // a first visit: the home page carries the Syrian row as it was at the last build (static-shell.mjs), so the first draw already
+  // has the owner's headline instead of the built-in one (the swap moved the search bar ~180 px on a desktop)
+  try{ var bs=document.getElementById("bkSite"); if(bs && COUNTRY==="SY"){ var row=JSON.parse(bs.textContent); if(row && row.id===1) return escDeep(row) } }catch(e){}
   return {hero_enabled:true,stats_enabled:true};
 }
 var SITE = loadSiteCache();

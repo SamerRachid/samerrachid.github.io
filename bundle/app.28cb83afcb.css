@@ -3224,7 +3224,7 @@ html[lang=fr] .htools a.gold{white-space:nowrap}
 .wone .wtiles>div{background:var(--page);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:3px}.wone .wtiles small{font-size:11.5px;color:var(--light)}.wone .wtiles b{font-size:14.5px;color:var(--navy)}
 .wone .wtiles>div.hi{background:var(--navy)}.wone .wtiles>div.hi small{color:rgba(255,255,255,.7)}.wone .wtiles>div.hi b{color:#E3B563;font-size:16px}
 .wmh{font-size:18px;font-weight:700;margin:22px 0 12px}
-.wside{grid-area:side;position:sticky;top:76px}.wref{font-size:12px;font-weight:700;color:var(--grey);background:var(--page);border-radius:6px;padding:2px 8px}.wshare{width:100%;margin:10px 0 0;display:flex;align-items:center;justify-content:center;gap:8px}.wshare svg{width:18px;height:18px;flex:none}.wside .agcontact{margin-top:0}.wside .agcontact a{flex:1;justify-content:center}
+.wside{grid-area:side;position:sticky;top:76px}.wref{font-size:12px;font-weight:700;color:var(--grey);background:var(--page);border-radius:6px;padding:2px 8px}.wshare{width:100%;margin:10px 0 0;display:flex;align-items:center;justify-content:center;gap:8px}.wshare svg{width:18px;height:18px;flex:none}.wside .agcontact{margin-top:0}.wside .agcontact a,.wside .agcontact button{flex:1;justify-content:center}
 .wsaved{background:var(--ok-w);color:var(--ok);border-radius:12px;padding:12px 14px;font-weight:700;margin:12px 0 4px}
 .ag-pills.one button.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 @media(max-width:900px){.wone{grid-template-columns:1fr;grid-template-areas:"det" "side" "match"}.wside{position:static}.w-row{grid-auto-columns:minmax(250px,280px)}.wone h1{font-size:20px}}
@@ -3271,7 +3271,7 @@ html[lang=fr] .htools a.gold{white-space:nowrap}
 .pjsendbtn{width:100%;height:48px;border-radius:12px;font-size:15px;border:0;cursor:pointer}
 .pjsent{background:var(--ok-w);color:var(--ok);border-radius:12px;padding:14px;font-weight:700;text-align:center}
 .pjdevc{border-top:1px solid var(--line);padding-top:12px}.pjdevc b{display:block;font-size:13px;color:var(--grey);margin-bottom:8px}.pjdevc .agcontact{margin-top:0}
-.pjdevc .agcontact a{flex:1;justify-content:center}
+.pjdevc .agcontact a,.pjdevc .agcontact button{flex:1;justify-content:center}
 @media(max-width:900px){.pjcols{grid-template-columns:1fr}.pjside{position:static}.pjmain{aspect-ratio:16/10}.pjhead h1{font-size:22px}.pj-row{grid-auto-columns:minmax(250px,280px)}}
 /* admin */
 .pjthumb{position:relative;display:inline-block}.pjthumb img{width:72px;height:56px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}.pjthumb button{position:absolute;top:-6px;inset-inline-end:-6px;width:20px;height:20px;border-radius:50%;border:0;background:var(--danger);color:#fff;font-size:12px;cursor:pointer;line-height:1}
@@ -3308,7 +3308,8 @@ html[lang=fr] .htools a.gold{white-space:nowrap}
 .agbtn svg,.agareas svg,.agcontact svg{width:16px;height:16px;display:block}
 .agprof{padding:22px 18px 50px}
 .agcontact{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
-.agcontact a{display:inline-flex;align-items:center;gap:8px;text-decoration:none;width:auto;margin:0;border-radius:999px;padding:10px 16px;cursor:pointer}
+/* report / block are <button>s (blkButtons): same pill as the links beside them (owner 2026-11-05) */
+.agcontact a,.agcontact button{display:inline-flex;align-items:center;gap:8px;text-decoration:none;width:auto;margin:0;border-radius:999px;padding:10px 16px;cursor:pointer}
 .agcontact .wa{background:#1D9E5A;border-color:#1D9E5A;color:#fff}
 .agcontact .mi{display:inline-flex}
 .agchips{display:flex;flex-wrap:wrap;gap:6px}.agchips .chip{cursor:pointer;text-decoration:none}.agchips .chip.soft{background:#F1F2F4;color:var(--grey)}
@@ -3321,7 +3322,7 @@ html[lang=fr] .htools a.gold{white-space:nowrap}
 .adm .agc-acts{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}.adm .agc-acts .ab{margin:0;padding:6px 11px;font-size:12.5px}
 .adm .agintk{grid-column:1/-1;display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12.5px;color:var(--grey);border-top:1px dashed var(--line);padding-top:10px}.adm .agintk>b{color:var(--ink)}.adm .agintk .ab{margin:0;padding:5px 10px;font-size:12px}.adm .agintk .ab.on{background:var(--navy);color:#fff;border-color:var(--navy)}
 @media(max-width:1000px){.adm .agcard2{grid-template-columns:1fr}.adm .agc-acts{justify-content:flex-start}}
-@media(max-width:700px){.ag-hero h1{font-size:22px}.ag-filters input{max-width:none}.agcontact a{flex:1 1 44%;justify-content:center}}
+@media(max-width:700px){.ag-hero h1{font-size:22px}.ag-filters input{max-width:none}.agcontact a,.agcontact button{flex:1 1 44%;justify-content:center;white-space:nowrap}}
 /* "new" tag + gold spinning pin on every map button */
 .newtag{position:absolute;top:-8px;inset-inline-end:-6px;font-style:normal;font-size:10.5px;font-weight:800;letter-spacing:.03em;background:var(--gold);color:#1A1206;border-radius:999px;padding:1px 6px;line-height:1.6;box-shadow:0 2px 6px rgba(9,14,26,.25);pointer-events:none;z-index:2}
 .home-hero .sgo-map,.rs-maptg,.rs-mbar #rsMMap{position:relative;overflow:visible}
