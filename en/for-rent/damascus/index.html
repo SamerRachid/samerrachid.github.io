@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en" dir="ltr"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-bhAFzjZwwYjRochPmxQsB0VNb+lktzTeSuf4BMg8UB4=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="en" dir="ltr"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-p4O/R0/oWrhkKx4xKKKPCCKioxE936C1kXJn99DCeC8=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -75,10 +75,10 @@
 @font-face{font-family: 'Zain'; font-style: normal; font-weight: 800; font-display: swap; src: url(/fonts/zain-800-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
 @font-face{font-family: 'Lato'; font-style: normal; font-weight: 400; font-display: optional; src: url(/fonts/lato-400-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}
 @font-face{font-family: 'Lato'; font-style: normal; font-weight: 700; font-display: optional; src: url(/fonts/lato-700-latin.woff2) format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;}</style>
-<link rel="stylesheet" href="/bundle/app.1e6de71965.css"><link rel="stylesheet" href="/theme-hu.css?v=202611051929">
+<link rel="stylesheet" href="/bundle/app.b130581d7c.css"><link rel="stylesheet" href="/theme-hu.css?v=202611052027">
 <!--seo-head-->
 <title>Property for rent in Damascus, Syria | Balkoun</title>
-<meta name="description" content="86 listings for rent in Damascus, Syria: apartments, houses, villas, shops and land, direct from owners with no commission. Average price $1,699 per m².">
+<meta name="description" content="57 listings for rent in Damascus, Syria: apartments, houses, villas, shops and land, direct from owners with no commission. Average price $1,794 per m².">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://balkoun.com/en/for-rent/damascus/">
 <link rel="alternate" hreflang="ar" href="https://balkoun.com/for-rent/damascus/">
@@ -89,200 +89,20 @@
 <meta property="og:site_name" content="Balkoun">
 <meta property="og:locale" content="en_US">
 <meta property="og:title" content="Property for rent in Damascus, Syria | Balkoun">
-<meta property="og:description" content="86 listings for rent in Damascus, Syria: apartments, houses, villas, shops and land, direct from owners with no commission. Average price $1,699 per m².">
+<meta property="og:description" content="57 listings for rent in Damascus, Syria: apartments, houses, villas, shops and land, direct from owners with no commission. Average price $1,794 per m².">
 <meta property="og:url" content="https://balkoun.com/en/for-rent/damascus/">
 <meta property="og:image" content="https://balkoun.com/brand/og-image.png">
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://balkoun.com/en/"},{"@type":"ListItem","position":2,"name":"for rent","item":"https://balkoun.com/search?deal=rent&lang=en"},{"@type":"ListItem","position":3,"name":"Damascus"}]}</script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Property for rent in Damascus, Syria","description":"86 listings for rent in Damascus, Syria: apartments, houses, villas, shops and land, direct from owners with no commission. Average price $1,699 per m².","url":"https://balkoun.com/en/for-rent/damascus/","mainEntity":{"@type":"ItemList","numberOfItems":86},"inLanguage":"en"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Property for rent in Damascus, Syria","description":"57 listings for rent in Damascus, Syria: apartments, houses, villas, shops and land, direct from owners with no commission. Average price $1,794 per m².","url":"https://balkoun.com/en/for-rent/damascus/","mainEntity":{"@type":"ItemList","numberOfItems":57},"inLanguage":"en"}</script>
 <!--/seo-head-->
 <meta name="bk-route" content="{&quot;path&quot;:&quot;/en/for-rent/damascus/&quot;,&quot;lang&quot;:&quot;en&quot;,&quot;view&quot;:&quot;search&quot;,&quot;deal&quot;:&quot;rent&quot;,&quot;gov&quot;:&quot;دمشق&quot;}"><!--bk-shell-->
 <body>
 <div id="bootSplash" aria-hidden="true"></div>
 <div id="app" role="main"><!--seo-page--><main class="wrap"><nav class="crumbs" aria-label="Breadcrumb"><a href="https://balkoun.com/en/">Home</a><span>›</span><a href="https://balkoun.com/search?deal=rent&lang=en">for rent</a><span>›</span><span>Damascus</span></nav>
-<div class="pagehead"><h1>Property for rent in Damascus, Syria</h1><p class="sub"><span class="ltr">86</span> listings · average price per m² <b><span class="ltr">$1,699</span></b> · <a href="https://balkoun.com/en/for-sale/damascus/" style="color:var(--gold-dk)">Property for sale in Damascus, Syria</a> · <a href="https://balkoun.com/search?deal=rent&govs=%D8%AF%D9%85%D8%B4%D9%82&lang=en" style="color:var(--gold-dk)">Advanced search</a></p></div>
-<div class="chips"><a class="chip" href="https://balkoun.com/en/for-rent/damascus/midan/">Al-Midan <b><span class="ltr">19</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/bab-msla/">Bab Musalla <b><span class="ltr">7</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/old-zahira/">Old Zahira <b><span class="ltr">7</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/bramka/">Baramkeh <b><span class="ltr">5</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/midan-corniche/">Midan Corniche <b><span class="ltr">5</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/new-zahira/">New Zahira <b><span class="ltr">4</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/al-sinaa/">Al-Sinaa <b><span class="ltr">4</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/al-fahhama/">Al-Fahhama <b><span class="ltr">4</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/kafr-souseh/">Kafr Sousa <b><span class="ltr">3</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/mezzeh-highway/">Mezzeh Highway <b><span class="ltr">3</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/ibn-asaker/">Ibn Asaker <b><span class="ltr">3</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/mezzeh/">Mezzeh <b><span class="ltr">2</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/zahra/">Al-Zahira <b><span class="ltr">2</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/rukn-al-din/">Rukn al-Din <b><span class="ltr">2</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/khalid-ibn-al-walid/">Khalid Ibn al-Walid <b><span class="ltr">2</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/mezzeh-eastern-villas/">Mezzeh Eastern Villas <b><span class="ltr">2</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/mezzeh-villas-west/">Mezzeh Western Villas <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/jsr-abyd/">Al-Jisr al-Abyad <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/bab-shrqy/">Bab Sharqi <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/msakn-brza/">Masaken Barzeh <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/sba-bhrat/">Sabaa Bahrat <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/al-hariqa/">Al-Hariqa <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/baghdad-street/">Baghdad Street <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/al-mujtahid/">Al-Mujtahid <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/bab-al-jabiyah/">Bab al-Jabiyah <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/al-bahsa/">Al-Bahsa <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/al-qaymariyah/">Al-Qaymariyah <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/al-jazmatiyeh/">Al-Jazmatiyeh <b><span class="ltr">1</span></b></a></div>
-<div class="grid"><a class="card" href="https://balkoun.com/en/listing/874-apartment-al-sinaa-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$200</span> <small>/ month</small></div>
-<div class="cb-loc">Al-Sinaa, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span>Fl. <span class="ltr">2</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/873-apartment-al-sinaa-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$300</span> <small>/ month</small></div>
-<div class="cb-loc">Al-Sinaa, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">3</span> rooms</span><span>Fl. <span class="ltr">1</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/872-apartment-khalid-ibn-al-walid-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$425</span> <small>/ month</small></div>
-<div class="cb-loc">Khalid Ibn al-Walid, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">3</span> rooms</span><span>Fl. <span class="ltr">1</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/871-office-baramkeh-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$1,000</span> <small>/ month</small></div>
-<div class="cb-loc">Baramkeh, Damascus</div>
-<div class="cb-details"><span class="cb-type">Office</span><span><span class="ltr">60</span> m²</span><span>Fl. <span class="ltr">1</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/870-house-kafr-sousa-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$407</span> <small>/ month</small></div>
-<div class="cb-loc">Kafr Sousa, Damascus</div>
-<div class="cb-details"><span class="cb-type">House</span><span><span class="ltr">3</span> rooms</span><span>Fl. <span class="ltr">0</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/869-apartment-kafr-sousa-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$800</span> <small>/ month</small></div>
-<div class="cb-loc">Kafr Sousa, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">1</span> rooms</span><span>Fl. <span class="ltr">2</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/868-apartment-baramkeh-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$500</span> <small>/ month</small></div>
-<div class="cb-loc">Baramkeh, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">3</span> rooms</span><span>Fl. <span class="ltr">2</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/867-apartment-al-fahhama-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$800</span> <small>/ month</small></div>
-<div class="cb-loc">Al-Fahhama, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">4</span> rooms</span><span>Fl. <span class="ltr">4</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/866-apartment-al-fahhama-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$700</span> <small>/ month</small></div>
-<div class="cb-loc">Al-Fahhama, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">4</span> rooms</span><span>Fl. <span class="ltr">3</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/865-house-new-zahira-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$400</span> <small>/ month</small></div>
-<div class="cb-loc">New Zahira, Damascus</div>
-<div class="cb-details"><span class="cb-type">House</span><span><span class="ltr">2</span> rooms</span><span>Fl. <span class="ltr">0</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/864-house-al-zahira-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$750</span> <small>/ month</small></div>
-<div class="cb-loc">Al-Zahira, Damascus</div>
-<div class="cb-details"><span class="cb-type">House</span><span><span class="ltr">4</span> rooms</span><span>Fl. <span class="ltr">0</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/863-apartment-new-zahira-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$500</span> <small>/ month</small></div>
-<div class="cb-loc">New Zahira, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">2</span> rooms</span><span>Fl. <span class="ltr">3</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/862-apartment-old-zahira-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$650</span> <small>/ month</small></div>
-<div class="cb-loc">Old Zahira, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">3</span> rooms</span><span>Fl. <span class="ltr">2</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/861-apartment-old-zahira-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$400</span> <small>/ month</small></div>
-<div class="cb-loc">Old Zahira, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">3</span> rooms</span><span>Fl. <span class="ltr">2</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/860-apartment-old-zahira-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$1,000</span> <small>/ month</small></div>
-<div class="cb-loc">Old Zahira, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">3</span> rooms</span><span>Fl. <span class="ltr">1</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/859-apartment-bab-musalla-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$600</span> <small>/ month</small></div>
-<div class="cb-loc">Bab Musalla, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">3</span> rooms</span><span>Fl. <span class="ltr">3</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/858-apartment-bab-musalla-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$600</span> <small>/ month</small></div>
-<div class="cb-loc">Bab Musalla, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">3</span> rooms</span><span>Fl. <span class="ltr">2</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/857-house-al-midan-damascus/">
-<div class="ph"><img src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/857/1793807950894-0-7xyxna-t.jpg" alt="House in Al-Midan" loading="lazy" width="800" height="600">
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$200</span> <small>/ month</small></div>
-<div class="cb-loc">Al-Midan, Damascus</div>
-<div class="cb-details"><span class="cb-type">House</span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/856-house-al-midan-damascus/">
-<div class="ph"><img src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/856/1793807847470-0-t2c29e-t.jpg" alt="House in Al-Midan" loading="lazy" width="800" height="600">
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$450</span> <small>/ month</small></div>
-<div class="cb-loc">Al-Midan, Damascus</div>
-<div class="cb-details"><span class="cb-type">House</span><span><span class="ltr">2</span> rooms</span><span>Fl. <span class="ltr">0</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/855-apartment-al-midan-damascus/">
-<div class="ph"><img src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/855/1793807123500-0-qxx9yp-t.jpg" alt="Apartment in Al-Midan" loading="lazy" width="800" height="600">
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$350</span> <small>/ month</small></div>
-<div class="cb-loc">Al-Midan, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">3</span> rooms</span><span>Fl. <span class="ltr">3</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/854-house-al-midan-damascus/">
-<div class="ph"><img src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/854/1793807054038-0-c8rncb-t.jpg" alt="House in Al-Midan" loading="lazy" width="800" height="600">
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$1,300</span> <small>/ month</small></div>
-<div class="cb-loc">Al-Midan, Damascus</div>
-<div class="cb-details"><span class="cb-type">House</span><span><span class="ltr">2</span> rooms</span><span>Fl. <span class="ltr">0</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/853-house-al-midan-damascus/">
-<div class="ph"><img src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/853/1793807002431-0-twiozu-t.jpg" alt="House in Al-Midan" loading="lazy" width="800" height="600">
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$300</span> <small>/ month</small></div>
-<div class="cb-loc">Al-Midan, Damascus</div>
-<div class="cb-details"><span class="cb-type">House</span><span><span class="ltr">2</span> rooms</span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/852-apartment-al-midan-damascus/">
-<div class="ph"><img src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/852/1793806963239-0-3jxak7-t.jpg" alt="Apartment in Al-Midan" loading="lazy" width="800" height="600">
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$500</span> <small>/ month</small></div>
-<div class="cb-loc">Al-Midan, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">3</span> rooms</span><span>Fl. <span class="ltr">2</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/851-house-al-midan-damascus/">
-<div class="ph"><img src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/851/1793806907431-0-2bleu4-t.jpg" alt="House in Al-Midan" loading="lazy" width="800" height="600">
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$500</span> <small>/ month</small></div>
-<div class="cb-loc">Al-Midan, Damascus</div>
-<div class="cb-details"><span class="cb-type">House</span><span><span class="ltr">3</span> rooms</span><span>Fl. <span class="ltr">0</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/850-house-al-midan-damascus/">
-<div class="ph"><img src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/850/1793806875750-0-ratzrb-t.jpg" alt="House in Al-Midan" loading="lazy" width="800" height="600">
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$300</span> <small>/ month</small></div>
-<div class="cb-loc">Al-Midan, Damascus</div>
-<div class="cb-details"><span class="cb-type">House</span><span><span class="ltr">1</span> rooms</span><span>Fl. <span class="ltr">0</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/849-house-al-midan-damascus/">
-<div class="ph"><img src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/849/1793806793439-0-ehjwlx-t.jpg" alt="House in Al-Midan" loading="lazy" width="800" height="600">
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$300</span> <small>/ month</small></div>
-<div class="cb-loc">Al-Midan, Damascus</div>
-<div class="cb-details"><span class="cb-type">House</span><span><span class="ltr">1</span> rooms</span><span>Fl. <span class="ltr">0</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/848-house-al-midan-damascus/">
-<div class="ph"><img src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/848/1793806765844-0-gscfwg-t.jpg" alt="House in Al-Midan" loading="lazy" width="800" height="600">
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$370</span> <small>/ month</small></div>
-<div class="cb-loc">Al-Midan, Damascus</div>
-<div class="cb-details"><span class="cb-type">House</span><span><span class="ltr">1</span> rooms</span><span>Fl. <span class="ltr">-1</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/847-apartment-midan-corniche-damascus/">
-<div class="ph"><img src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/847/1793806730896-0-m2c48b-t.jpg" alt="Apartment in Midan Corniche" loading="lazy" width="800" height="600">
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$650</span> <small>/ month</small></div>
-<div class="cb-loc">Midan Corniche, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">3</span> rooms</span><span>Fl. <span class="ltr">3</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/846-apartment-midan-corniche-damascus/">
-<div class="ph"><img src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/846/1793806695209-0-e975mv-t.jpg" alt="Apartment in Midan Corniche" loading="lazy" width="800" height="600">
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$20,000</span> <small>/ year</small></div>
-<div class="cb-loc">Midan Corniche, Damascus</div>
-<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">2</span> rooms</span><span>Fl. <span class="ltr">10</span></span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/844-shop-rukn-al-din-damascus/">
-<div class="ph"><div class="nop">No photo</div>
-<div class="badges"></div></div>
-<div class="cb"><div class="p"><span class="ltr">$12,000</span> <small>/ year</small></div>
-<div class="cb-loc">Rukn al-Din, Damascus</div>
-<div class="cb-details"><span class="cb-type">Shop</span><span><span class="ltr">35</span> m²</span></div>
-</div></a><a class="card" href="https://balkoun.com/en/listing/754-apartment-al-sinaa-damascus/">
+<div class="pagehead"><h1>Property for rent in Damascus, Syria</h1><p class="sub"><span class="ltr">57</span> listings · average price per m² <b><span class="ltr">$1,794</span></b> · <a href="https://balkoun.com/en/for-sale/damascus/" style="color:var(--gold-dk)">Property for sale in Damascus, Syria</a> · <a href="https://balkoun.com/search?deal=rent&govs=%D8%AF%D9%85%D8%B4%D9%82&lang=en" style="color:var(--gold-dk)">Advanced search</a></p></div>
+<div class="chips"><a class="chip" href="https://balkoun.com/en/for-rent/damascus/midan/">Al-Midan <b><span class="ltr">9</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/bab-msla/">Bab Musalla <b><span class="ltr">5</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/old-zahira/">Old Zahira <b><span class="ltr">4</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/bramka/">Baramkeh <b><span class="ltr">3</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/midan-corniche/">Midan Corniche <b><span class="ltr">3</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/mezzeh-highway/">Mezzeh Highway <b><span class="ltr">3</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/ibn-asaker/">Ibn Asaker <b><span class="ltr">3</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/mezzeh/">Mezzeh <b><span class="ltr">2</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/new-zahira/">New Zahira <b><span class="ltr">2</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/al-sinaa/">Al-Sinaa <b><span class="ltr">2</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/mezzeh-eastern-villas/">Mezzeh Eastern Villas <b><span class="ltr">2</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/al-fahhama/">Al-Fahhama <b><span class="ltr">2</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/mezzeh-villas-west/">Mezzeh Western Villas <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/salihiyah/">Salihiyeh <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/jsr-abyd/">Al-Jisr al-Abyad <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/bab-shrqy/">Bab Sharqi <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/zahra/">Al-Zahira <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/kafr-souseh/">Kafr Sousa <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/rukn-al-din/">Rukn al-Din <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/msakn-brza/">Masaken Barzeh <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/sba-bhrat/">Sabaa Bahrat <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/al-hariqa/">Al-Hariqa <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/baghdad-street/">Baghdad Street <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/khalid-ibn-al-walid/">Khalid Ibn al-Walid <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/al-mujtahid/">Al-Mujtahid <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/bab-al-jabiyah/">Bab al-Jabiyah <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/al-bahsa/">Al-Bahsa <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/al-qaymariyah/">Al-Qaymariyah <b><span class="ltr">1</span></b></a><a class="chip" href="https://balkoun.com/en/for-rent/damascus/al-jazmatiyeh/">Al-Jazmatiyeh <b><span class="ltr">1</span></b></a></div>
+<div class="grid"><a class="card" href="https://balkoun.com/en/listing/754-apartment-al-sinaa-damascus/">
 <div class="ph"><div class="nop">No photo</div>
 <div class="badges"></div></div>
 <div class="cb"><div class="p"><span class="ltr">$200</span> <small>/ month</small></div>
@@ -516,6 +336,12 @@
 <div class="cb"><div class="p"><span class="ltr">$1,500</span> <small>/ year</small></div>
 <div class="cb-loc">Al-Hariqa, Damascus</div>
 <div class="cb-details"><span class="cb-type">Office</span><span><span class="ltr">105</span> m²</span><span>Fl. <span class="ltr">3</span></span></div>
+</div></a><a class="card" href="https://balkoun.com/en/listing/405-apartment-salihiyeh-damascus/">
+<div class="ph"><img src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/405/1791575221157-1-4qldh-t.jpg" alt="Apartment in Salihiyeh" loading="lazy" width="800" height="600">
+<div class="badges"></div></div>
+<div class="cb"><div class="p">Price on request <small>/ year</small></div>
+<div class="cb-loc">Salihiyeh, Damascus</div>
+<div class="cb-details"><span class="cb-type">Apartment</span><span><span class="ltr">2</span> rooms</span><span><span class="ltr">100</span> m²</span><span>Fl. <span class="ltr">2</span></span></div>
 </div></a><a class="card" href="https://balkoun.com/en/listing/376-office-mezzeh-eastern-villas-damascus/">
 <div class="ph"><img src="https://coajrqynjrptujmzjjdh.supabase.co/storage/v1/object/public/photos/photos/listings/376/1791545879032-1-ggb9m-t.jpg" alt="Office in Mezzeh Eastern Villas" loading="lazy" width="800" height="600">
 <div class="badges"></div></div>
@@ -620,6 +446,6 @@
 <div class="cb-details"><span class="cb-type">Whole floor</span><span><span class="ltr">600</span> m²</span><span>Fl. <span class="ltr">1</span></span><span class="cb-deed">none</span></div>
 </div></a></div>
 <section class="sec"><h2>Areas of Damascus</h2><p class="sub">Areas with listings have their own page.</p>
-<ul class="areas"><li><a href="https://balkoun.com/en/for-rent/damascus/mezzeh/">Mezzeh <b><span class="ltr">2</span></b></a></li><li><a href="https://balkoun.com/en/for-rent/damascus/mezzeh-villas-west/">Mezzeh Western Villas <b><span class="ltr">1</span></b></a></li><li>Mezzeh 86</li><li>Mezzeh Jabal</li><li>Malki</li><li>Abu Rummaneh</li><li>Al-Rawda</li><li>Shaalan</li><li>Salihiyeh</li><li>Al-Hamra</li><li><a href="https://balkoun.com/en/for-rent/damascus/jsr-abyd/">Al-Jisr al-Abyad <b><span class="ltr">1</span></b></a></li><li>Arnous</li><li>Al-Halbouni</li><li><a href="https://balkoun.com/en/for-rent/damascus/bramka/">Baramkeh <b><span class="ltr">5</span></b></a></li><li>Bab Touma</li><li>Al-Qassaa</li><li><a href="https://balkoun.com/en/for-rent/damascus/bab-shrqy/">Bab Sharqi <b><span class="ltr">1</span></b></a></li><li>Bab Srijeh</li><li>Al-Shaghour</li><li><a href="https://balkoun.com/en/for-rent/damascus/midan/">Al-Midan <b><span class="ltr">19</span></b></a></li><li>Al-Qadam</li><li>Al-Assali</li><li>Yarmouk</li><li>Al-Tadamon</li><li><a href="https://balkoun.com/en/for-rent/damascus/zahra/">Al-Zahira <b><span class="ltr">2</span></b></a></li><li>Nahr Aisha</li><li><a href="https://balkoun.com/en/for-rent/damascus/kafr-souseh/">Kafr Sousa <b><span class="ltr">3</span></b></a></li><li>Al-Mazraa</li><li><a href="https://balkoun.com/en/for-rent/damascus/rukn-al-din/">Rukn al-Din <b><span class="ltr">2</span></b></a></li><li>Al-Muhajirin</li><li>Barzeh</li><li><a href="https://balkoun.com/en/for-rent/damascus/msakn-brza/">Masaken Barzeh <b><span class="ltr">1</span></b></a></li><li>Qaboun</li><li>Jobar</li><li>Dummar</li><li>Dummar Project</li><li>Al-Rabweh</li><li>Qanawat</li><li>Sarouja</li><li>Al-Amin</li><li>Sheikh Muhyiddin</li><li><a href="https://balkoun.com/en/for-rent/damascus/sba-bhrat/">Sabaa Bahrat <b><span class="ltr">1</span></b></a></li><li>Daf al-Shok</li><li>Al-Qusour</li><li>Tishreen</li><li>Ush al-Warwar</li><li><a href="https://balkoun.com/en/for-rent/damascus/bab-msla/">Bab Musalla <b><span class="ltr">7</span></b></a></li><li>Sheikh Saad</li><li>Al-Adawi</li><li><a href="https://balkoun.com/en/for-rent/damascus/al-hariqa/">Al-Hariqa <b><span class="ltr">1</span></b></a></li><li>Al-Haqleh</li><li><a href="https://balkoun.com/en/for-rent/damascus/new-zahira/">New Zahira <b><span class="ltr">4</span></b></a></li><li>Al-Jorah</li><li><a href="https://balkoun.com/en/for-rent/damascus/al-sinaa/">Al-Sinaa <b><span class="ltr">4</span></b></a></li><li>Al-Zablatani</li><li><a href="https://balkoun.com/en/for-rent/damascus/baghdad-street/">Baghdad Street <b><span class="ltr">1</span></b></a></li><li>Masaken al-Haras</li><li>Old Bab Sharqi</li><li><a href="https://balkoun.com/en/for-rent/damascus/khalid-ibn-al-walid/">Khalid Ibn al-Walid <b><span class="ltr">2</span></b></a></li><li><a href="https://balkoun.com/en/for-rent/damascus/mezzeh-eastern-villas/">Mezzeh Eastern Villas <b><span class="ltr">2</span></b></a></li><li>Al-Abbasiyeen</li><li><a href="https://balkoun.com/en/for-rent/damascus/al-mujtahid/">Al-Mujtahid <b><span class="ltr">1</span></b></a></li><li>Bustan al-Door</li><li>Al-Sheikh Raslan</li><li>Al-Sheikh Khaled</li><li>Al-Amara</li><li>Al-Qazzaz</li><li><a href="https://balkoun.com/en/for-rent/damascus/al-fahhama/">Al-Fahhama <b><span class="ltr">4</span></b></a></li><li><a href="https://balkoun.com/en/for-rent/damascus/old-zahira/">Old Zahira <b><span class="ltr">7</span></b></a></li><li>Al-Marjeh</li><li>Al-Jalaa</li><li>Bab al-Salam</li><li><a href="https://balkoun.com/en/for-rent/damascus/bab-al-jabiyah/">Bab al-Jabiyah <b><span class="ltr">1</span></b></a></li><li>Al-Tabbaleh</li><li>Al-Thawra Street</li><li>Al-Zuhour</li><li>Eastern Sabe Bahrat</li><li><a href="https://balkoun.com/en/for-rent/damascus/midan-corniche/">Midan Corniche <b><span class="ltr">5</span></b></a></li><li><a href="https://balkoun.com/en/for-rent/damascus/al-bahsa/">Al-Bahsa <b><span class="ltr">1</span></b></a></li><li><a href="https://balkoun.com/en/for-rent/damascus/mezzeh-highway/">Mezzeh Highway <b><span class="ltr">3</span></b></a></li><li>Al-Tijara</li><li>Abu Jarash</li><li><a href="https://balkoun.com/en/for-rent/damascus/al-qaymariyah/">Al-Qaymariyah <b><span class="ltr">1</span></b></a></li><li>Umayyad Square</li><li><a href="https://balkoun.com/en/for-rent/damascus/ibn-asaker/">Ibn Asaker <b><span class="ltr">3</span></b></a></li><li>Al-Buzuriyah</li><li>Al-Wihda</li><li>Eastern Rawda</li><li>Al-Dahadil</li><li><a href="https://balkoun.com/en/for-rent/damascus/al-jazmatiyeh/">Al-Jazmatiyeh <b><span class="ltr">1</span></b></a></li><li>Al-Firdaws</li><li>Al-Akrad</li><li>Al-Dweilaa</li><li>Ibn al-Nafees</li><li>Sabe Bahrat Square</li><li>Mezzeh Basateen</li><li>Al-Talyani</li><li>Ain al-Kersh</li><li>Old Mezzeh</li><li>Qabr Atikah</li><li>Barzeh al-Balad</li><li>Kafr Sousa al-Balad</li><li>Al-Baytara</li><li>Victoria</li><li>Al-Itfaiyeh</li><li>Argentina Street</li><li>Al-Afif</li><li>Zqaq Tala</li><li>Jewish Quarter</li><li>Aqyba</li><li>Soumariyyah</li><li>Al Woroud</li><li>Bab al-Faraj</li><li>Al-Hijaz, Damascus</li><li>Burqush</li><li>Mazanet al-Shahem</li><li>Bab Bryd</li><li>Soufanieh</li><li>Saha Mrja</li><li>Marwta Syty</li><li>Al-Maysat</li></ul></section></main><!--/seo-page--></div>
-<script defer src="/bundle/loader-2.js" data-src="/vendor/supabase-2.114.0.es2017.min.js#sha384-H9XQgeFDejz7cF0dTyKEueeMcuAM2KvDuI9fGCYNLMagHsKcvzSim+StmCzQiFUY /vendor/morphdom-2.7.4.min.js#sha384-1Kpyy6fJtxPI22Yq5Lt3SzKVMJDfDDChb4HFf0stEn8pNSz3e9Mvgfjv5hrqsT1U /bundle/app.1e6de71965.js" data-lang-de="/bundle/lang-de.1e6de71965.js"></script>
+<ul class="areas"><li><a href="https://balkoun.com/en/for-rent/damascus/mezzeh/">Mezzeh <b><span class="ltr">2</span></b></a></li><li><a href="https://balkoun.com/en/for-rent/damascus/mezzeh-villas-west/">Mezzeh Western Villas <b><span class="ltr">1</span></b></a></li><li>Mezzeh 86</li><li>Mezzeh Jabal</li><li>Malki</li><li>Abu Rummaneh</li><li>Al-Rawda</li><li>Shaalan</li><li><a href="https://balkoun.com/en/for-rent/damascus/salihiyah/">Salihiyeh <b><span class="ltr">1</span></b></a></li><li>Al-Hamra</li><li><a href="https://balkoun.com/en/for-rent/damascus/jsr-abyd/">Al-Jisr al-Abyad <b><span class="ltr">1</span></b></a></li><li>Arnous</li><li>Al-Halbouni</li><li><a href="https://balkoun.com/en/for-rent/damascus/bramka/">Baramkeh <b><span class="ltr">3</span></b></a></li><li>Bab Touma</li><li>Al-Qassaa</li><li><a href="https://balkoun.com/en/for-rent/damascus/bab-shrqy/">Bab Sharqi <b><span class="ltr">1</span></b></a></li><li>Bab Srijeh</li><li>Al-Shaghour</li><li><a href="https://balkoun.com/en/for-rent/damascus/midan/">Al-Midan <b><span class="ltr">9</span></b></a></li><li>Al-Qadam</li><li>Al-Assali</li><li>Yarmouk</li><li>Al-Tadamon</li><li><a href="https://balkoun.com/en/for-rent/damascus/zahra/">Al-Zahira <b><span class="ltr">1</span></b></a></li><li>Nahr Aisha</li><li><a href="https://balkoun.com/en/for-rent/damascus/kafr-souseh/">Kafr Sousa <b><span class="ltr">1</span></b></a></li><li>Al-Mazraa</li><li><a href="https://balkoun.com/en/for-rent/damascus/rukn-al-din/">Rukn al-Din <b><span class="ltr">1</span></b></a></li><li>Al-Muhajirin</li><li>Barzeh</li><li><a href="https://balkoun.com/en/for-rent/damascus/msakn-brza/">Masaken Barzeh <b><span class="ltr">1</span></b></a></li><li>Qaboun</li><li>Jobar</li><li>Dummar</li><li>Dummar Project</li><li>Al-Rabweh</li><li>Qanawat</li><li>Sarouja</li><li>Al-Amin</li><li>Sheikh Muhyiddin</li><li><a href="https://balkoun.com/en/for-rent/damascus/sba-bhrat/">Sabaa Bahrat <b><span class="ltr">1</span></b></a></li><li>Daf al-Shok</li><li>Al-Qusour</li><li>Tishreen</li><li>Ush al-Warwar</li><li><a href="https://balkoun.com/en/for-rent/damascus/bab-msla/">Bab Musalla <b><span class="ltr">5</span></b></a></li><li>Sheikh Saad</li><li>Al-Adawi</li><li><a href="https://balkoun.com/en/for-rent/damascus/al-hariqa/">Al-Hariqa <b><span class="ltr">1</span></b></a></li><li>Al-Haqleh</li><li><a href="https://balkoun.com/en/for-rent/damascus/new-zahira/">New Zahira <b><span class="ltr">2</span></b></a></li><li>Al-Jorah</li><li><a href="https://balkoun.com/en/for-rent/damascus/al-sinaa/">Al-Sinaa <b><span class="ltr">2</span></b></a></li><li>Al-Zablatani</li><li><a href="https://balkoun.com/en/for-rent/damascus/baghdad-street/">Baghdad Street <b><span class="ltr">1</span></b></a></li><li>Masaken al-Haras</li><li>Old Bab Sharqi</li><li><a href="https://balkoun.com/en/for-rent/damascus/khalid-ibn-al-walid/">Khalid Ibn al-Walid <b><span class="ltr">1</span></b></a></li><li><a href="https://balkoun.com/en/for-rent/damascus/mezzeh-eastern-villas/">Mezzeh Eastern Villas <b><span class="ltr">2</span></b></a></li><li>Al-Abbasiyeen</li><li><a href="https://balkoun.com/en/for-rent/damascus/al-mujtahid/">Al-Mujtahid <b><span class="ltr">1</span></b></a></li><li>Bustan al-Door</li><li>Al-Sheikh Raslan</li><li>Al-Sheikh Khaled</li><li>Al-Amara</li><li>Al-Qazzaz</li><li><a href="https://balkoun.com/en/for-rent/damascus/al-fahhama/">Al-Fahhama <b><span class="ltr">2</span></b></a></li><li><a href="https://balkoun.com/en/for-rent/damascus/old-zahira/">Old Zahira <b><span class="ltr">4</span></b></a></li><li>Al-Marjeh</li><li>Al-Jalaa</li><li>Bab al-Salam</li><li><a href="https://balkoun.com/en/for-rent/damascus/bab-al-jabiyah/">Bab al-Jabiyah <b><span class="ltr">1</span></b></a></li><li>Al-Tabbaleh</li><li>Al-Thawra Street</li><li>Al-Zuhour</li><li>Eastern Sabe Bahrat</li><li><a href="https://balkoun.com/en/for-rent/damascus/midan-corniche/">Midan Corniche <b><span class="ltr">3</span></b></a></li><li><a href="https://balkoun.com/en/for-rent/damascus/al-bahsa/">Al-Bahsa <b><span class="ltr">1</span></b></a></li><li><a href="https://balkoun.com/en/for-rent/damascus/mezzeh-highway/">Mezzeh Highway <b><span class="ltr">3</span></b></a></li><li>Al-Tijara</li><li>Abu Jarash</li><li><a href="https://balkoun.com/en/for-rent/damascus/al-qaymariyah/">Al-Qaymariyah <b><span class="ltr">1</span></b></a></li><li>Umayyad Square</li><li><a href="https://balkoun.com/en/for-rent/damascus/ibn-asaker/">Ibn Asaker <b><span class="ltr">3</span></b></a></li><li>Al-Buzuriyah</li><li>Al-Wihda</li><li>Eastern Rawda</li><li>Al-Dahadil</li><li><a href="https://balkoun.com/en/for-rent/damascus/al-jazmatiyeh/">Al-Jazmatiyeh <b><span class="ltr">1</span></b></a></li><li>Al-Firdaws</li><li>Al-Akrad</li><li>Al-Dweilaa</li><li>Ibn al-Nafees</li><li>Sabe Bahrat Square</li><li>Mezzeh Basateen</li><li>Al-Talyani</li><li>Ain al-Kersh</li><li>Old Mezzeh</li><li>Qabr Atikah</li><li>Barzeh al-Balad</li><li>Kafr Sousa al-Balad</li><li>Al-Baytara</li><li>Victoria</li><li>Al-Itfaiyeh</li><li>Argentina Street</li><li>Al-Afif</li><li>Zqaq Tala</li><li>Jewish Quarter</li><li>Aqyba</li><li>Soumariyyah</li><li>Al Woroud</li><li>Bab al-Faraj</li><li>Al-Hijaz, Damascus</li><li>Burqush</li><li>Mazanet al-Shahem</li><li>Bab Bryd</li><li>Soufanieh</li><li>Saha Mrja</li><li>Marwta Syty</li><li>Al-Maysat</li></ul></section></main><!--/seo-page--></div>
+<script defer src="/bundle/loader-2.js" data-src="/vendor/supabase-2.114.0.es2017.min.js#sha384-H9XQgeFDejz7cF0dTyKEueeMcuAM2KvDuI9fGCYNLMagHsKcvzSim+StmCzQiFUY /vendor/morphdom-2.7.4.min.js#sha384-1Kpyy6fJtxPI22Yq5Lt3SzKVMJDfDDChb4HFf0stEn8pNSz3e9Mvgfjv5hrqsT1U /bundle/app.b130581d7c.js" data-lang-de="/bundle/lang-de.b130581d7c.js"></script>
 </body></html>

@@ -1696,7 +1696,7 @@ function card(x,i,isListView){
  var badges = (showFeatBadge?'<span class="cbg gold">'+featBadgeText+'</span>':'')+(isNew?'<span class="cbg ok">'+t("newBadge")+'</span>':'')+(isShare(x)?'<span class="cbg share">'+GX("shareBadge")+'</span>':'')+(x.videos&&x.videos.length?'<span class="cbg vid">▶ '+GX("videoBadge")+'</span>':'');
  var photo = '<div class="ph">'+
    (closed?'<div class="stamp'+(x.status==="rented"?" stamp-r":"")+'">'+(x.status==="rented"?t("st_rented"):t("st_sold"))+'</div>':'')+
-   (cover ? '<img src="'+cover+'" alt="'+esc(typeName)+'" loading="lazy">' : (x.videos&&x.videos[0]&&x.videos[0].url) ? '<video class="vcover" muted playsinline preload="metadata" src="'+x.videos[0].url+'#t=0.5" data-logo-fallback="1"></video>' : '<div class="nophoto"><img src="/brand/logo-light.png" alt="بلكون" loading="lazy"></div>')+
+   (cover ? '<img src="'+cover+'" alt="'+esc(typeName)+'" loading="lazy">' : (x.videos&&x.videos[0]&&x.videos[0].url) ? '<video class="vcover" muted playsinline preload="metadata" src="'+x.videos[0].url+'#t=0.5" data-logo-fallback="1"></video>' : '<div class="nophoto"><img src="/brand/logo-light-s.png" alt="بلكون" loading="lazy"></div>')+
    (badges?'<div class="bd">'+badges+'</div>':'')+
    '<button type="button" class="cfav'+(saved?' on':'')+'" data-fav="'+x.id+'" aria-label="'+t("saveL")+'">'+I.heart+'</button>'+
    (photos.length>1?'<span class="cpc">'+I.cam+' <span class="ltr">'+photos.length+'</span></span>':'')+
@@ -2154,13 +2154,13 @@ function listing(id){
   (n
     ? '<figure class="lg-main'+(onVid?' onvid':'')+'" style="--bg:url(&quot;'+(onVid?(VIDS[0].poster||""):curImg)+'&quot;)">'+
       (onVid ? '<video class="main" id="gvideo" controls playsinline preload="metadata"'+wmVideoAttrs()+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'+wmOverlayHtml()+'<button type="button" class="lg-enlarge" id="gVidFull" title="'+esc(GX("videoFull"))+'" aria-label="'+esc(GX("videoFull"))+'"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>'
-             : (curImg ? '<img class="main" id="gmain" src="'+curImg+'" alt="'+esc(typeName)+'">' : '<div class="nophoto lg-none"><img src="/brand/logo-light.png" alt="بلكون"></div>'))+
+             : (curImg ? '<img class="main" id="gmain" src="'+curImg+'" alt="'+esc(typeName)+'">' : '<div class="nophoto lg-none"><img src="/brand/logo-light-s.png" alt="بلكون"></div>'))+
       (n>1 ? '<button class="gnav" id="gPrev" aria-label="'+esc(GX("galPrev"))+'" style="'+(rtlNow()?"right":"left")+':12px">'+galChev(rtlNow())+'</button><button class="gnav" id="gNext" aria-label="'+esc(GX("galNext"))+'" style="'+(rtlNow()?"left":"right")+':12px">'+galChev(!rtlNow())+'</button>' : '')+
       '<div class="gcount"><span class="ltr">'+(GI+1)+' / '+n+'</span></div>'+
       (VIDS.length && !onVid && !GVID_OFF ? '<button type="button" class="lg-vid" id="gVid"><span class="vplay">▶</span>'+GX("videoWatch")+'</button>' : '')+'</figure>'+
       (n>1 ? '<div class="lg-side" id="gth">'+thumbs.join("")+'</div>' : '')+
       (IMGS.length>1 ? '<button class="lg-all" id="gAll">'+I.grid+GX("lAllPhotos")+' <span class="ltr">('+IMGS.length+')</span></button>' : '')
-    : '<div class="nophoto lg-none"><img src="/brand/logo-light.png" alt="بلكون"></div>')+
+    : '<div class="nophoto lg-none"><img src="/brand/logo-light-s.png" alt="بلكون"></div>')+
  '</div>';
 
  /* ── lightbox (unchanged behaviour) ── */
@@ -2287,7 +2287,7 @@ function listing(id){
 
  return '<div class="crumb crumb-l"><div class="wrap"><a class="crumb-back" data-back="1" href="#" role="button">'+(rtlNow()?'→':'←')+' '+GX("navBack")+'</a><a data-go="home">'+t("home")+'</a><i>›</i>'+
   '<a data-go="search" data-gov="'+x.g+'">'+gN(x.g)+'</a><i>›</i>'+aN(x.a)+'</div></div>'+
- '<div class="wrap lpage">'+lb+
+ '<div class="wrap lpage'+(VLB_OPEN&&VIDS.length?' vlb-on':lb?' lb-on':'')+'">'+lb+
   '<div class="lgrid"><div class="lmain">'+gal+head+facts+
    '<section class="lsec"><h2>'+t("descH")+'</h2><div class="ldesc">'+dsOf(x)+'</div></section>'+
    details+amen+deed+util+map+svcForListing(x)+
@@ -2490,6 +2490,7 @@ function post(){
   '<div class="fl"><label id="priceLabel">'+t("price")+'</label>'+
    '<div style="display:flex;gap:8px"><input type="number" id="pp" autocomplete="off" placeholder="" style="flex:1">'+
    curSelHtml("pcur", NEW.pcur||CUR)+'</div>'+
+   perPickHtml("pper")+
    '<div class="hintx" id="ppm"></div></div>'+
   '<div class="fl"><label>'+t("contactName")+'</label>'+
    '<input id="pname" autocomplete="off" value="'+esc(fullName(USER))+'" readonly'+
@@ -2553,7 +2554,7 @@ function editView(){
    // the property type too (owner, 2026-11-02): a type the admin has since switched off still shows as the current one
    '<div class="fl"><label>'+t("ptype")+'</label><select id="eType">'+Object.keys(D.TYPES).concat(D.TYPES[x.t]||!x.t?[]:[x.t]).map(function(k){ return '<option value="'+k+'"'+(x.t===k?" selected":"")+'>'+(D.TYPES[k]?D.TYPES[k][li()]:k)+'</option>' }).join("")+'</select></div>')+
   '<div class="row"><div class="fl"><label>'+t("price")+'</label>'+
-   '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+(x.pl>0&&x.pcur?x.pl:(x.p==null?"":x.p))+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur",(x.pl>0&&x.pcur)?x.pcur:"USD")+'</div>'+
+   '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+(x.pl>0&&x.pcur?x.pl:(x.p==null?"":x.p))+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur",(x.pl>0&&x.pcur)?x.pcur:"USD")+'</div>'+perPickHtml("eper")+'<div class="hintx" id="epm"></div>'+
    (x.orig&&x.orig>x.p?'<div class="hintx">'+t("wasPrice")+' <span class="ltr">'+money(x.orig)+'</span></div>':'')+
    '</div>'+
   '<div class="fl"><label class="req">'+t("areaM")+'</label><input type="number" id="eArea" value="'+(x.m2||"")+'" autocomplete="off"></div></div>'+
@@ -3481,6 +3482,9 @@ function checkPost(){
  // the description is optional too (owner, 2026-10-15): an empty or short one is completed from the listing's own facts
  // at publish (the database keeps its 30-character minimum)
  if(priceReq() && !(+v("pp")>0)) need.push(t("price"));
+ // a typed price must be a real one: at least PRICE_MIN after a per-metre / per-dunam price is multiplied out
+ if(+v("pp")>0 && $("#ppm")){ var totUsd=toUsdFrom(priceTotal(v("pp"), perOf("pper"), (parseFloat(v("pm2"))||0)*(parseInt(v("pUnit"),10)||1)), v("pcur"));
+   if(perOf("pper")==="whole" || (parseFloat(v("pm2"))||0)>0){ if(priceMinBad(totUsd, isRent)){ need.push(t("price")); var pmEl=$("#ppm"); pmEl.textContent=GX("priceMinMsg").replace("{min}",PRICE_MIN[isRent?"rent":"sale"]); pmEl.style.color="var(--danger)" } } }
  if(tabuReq() && !isRent && !$('input[name=tb2]:checked')) need.push(t("deed"));   // owner 2026-11-01: no sale without its deed (rent has none)
  var needPh = 0;   // photos and videos are optional (listings with photos get more views; the hint says so)
  if(NEW.photos.length<needPh)need.push(t("photos"));
@@ -3612,7 +3616,7 @@ function adSlotsRow(){
      var l2=[tyName, showLoc?spot:""].filter(Boolean).join(" · ");
      media = (lHasPh ? '<img class="adslot-rotimg" src="'+a.l_photos[0]+'" data-photos="'+
        encodeURIComponent(JSON.stringify(a.l_photos))+'" data-idx="0" alt="'+esc([tyName, place].filter(Boolean).join(" · "))+'" loading="lazy">'
-       : '<div class="nophoto adslot-noph"><img src="/brand/logo-light.png" alt="بلكون" loading="lazy"></div>')+
+       : '<div class="nophoto adslot-noph"><img src="/brand/logo-light-s.png" alt="بلكون" loading="lazy"></div>')+
        (a.l_deal ? '<span class="adslot-deal'+(a.l_deal==="rent"?' rent':'')+'" style="color:'+textColor+'">'+esc(a.l_deal==="rent"?t("forrent"):t("forsale"))+'</span>' : '')+
        '<div class="adslot-info" style="'+tShadow+'color:'+textColor+';'+
          'background:linear-gradient(to top,rgba('+shadeRgb+','+(.95*shadeOp)+') 0%,rgba('+shadeRgb+','+(.78*shadeOp)+') 45%,rgba('+shadeRgb+','+(.35*shadeOp)+') 75%,rgba('+shadeRgb+',0) 100%)">'+
@@ -4216,6 +4220,25 @@ function wMoney(n,cur){ n=+n||0; cur=(cur||"USD").toUpperCase(); return cur==="U
 function curSelHtml(id, sel, extraStyle){ var list=wCurrencies(); sel=(sel||"").toUpperCase(); if(list.indexOf(sel)<0) sel=list[0];
   return '<select id="'+id+'" style="'+(extraStyle||"width:110px")+'">'+list.map(function(c){ return '<option value="'+c+'"'+(c===sel?' selected':'')+'>'+c+' '+esc(curLabel(c,L))+'</option>' }).join("")+'</select>' }
 function toUsdFrom(v, cur){ v=+v||0; cur=(cur||"USD").toUpperCase(); if(cur==="USD"||!v) return v; var r=curRate(cur); return r>0 ? Math.round(v/r) : v }
+// the price box of the post and edit forms holds the whole price, or a price per metre / per dunam that is multiplied by
+// the size before saving (owner 2026-11-05: «سعر المتر 275$» was published as a $275 apartment). Sale only; the dunam
+// pill shows for land. The saved price is always the whole price, as the bot saves it.
+var PRICE_MIN = { sale: 500, rent: 10 };   // USD; below this the form refuses (owner 2026-11-05: $1 / $15 / $123 prices)
+function perPickHtml(name){ return '<div class="pick perpick" id="'+name+'Box">'+["whole","m2","dunam"].map(function(k){ return '<label class="per-'+k+'"><input type="radio" name="'+name+'" value="'+k+'"'+(k==="whole"?" checked":"")+'><span>'+GX("per_"+k)+'</span></label>' }).join("")+'</div>' }
+function perOf(name){ return (($('input[name='+name+']:checked')||{}).value)||"whole" }
+function priceTotal(raw, per, m2){ raw=+raw||0; m2=+m2||0; if(!raw) return 0; return per==="m2" ? Math.round(raw*m2) : per==="dunam" ? Math.round(raw*m2/1000) : raw }
+// rent or a type change: back to «للعقار كاملاً»; the dunam pill only for land
+function perSync(name, isRent, isLand){ var box=$("#"+name+"Box"); if(!box) return; box.style.display=isRent?"none":""; var du=box.querySelector(".per-dunam"); if(du) du.style.display=isLand?"":"none";
+ var cur=perOf(name); if(isRent || (cur==="dunam" && !isLand)){ var w=box.querySelector('input[value=whole]'); if(w) w.checked=true } }
+// the line under the price: the total when a unit price is typed, else ≈ per metre (per dunam for land), plus a nudge when a
+// sale price is so small for its size that it looks like a price per metre
+function perHint(raw, cur, per, m2, isRent, isLand){
+ var tot=toUsdFrom(priceTotal(raw, per, m2), cur); if(isRent || !(tot>0)) return { text:"", warn:false };
+ if(per!=="whole") return { text: m2>0 ? GX("per_total").replace("{p}","$"+tot.toLocaleString("en")) : GX("per_needSize"), warn: !(m2>0) };
+ var low = m2>0 && tot < (isLand ? 0.5*m2 : 20*m2) && tot < 20000;   // $275 for 167 m² ($1.6/m²); farmland at $2/m² is real
+ var each = m2>0 ? (isLand ? "≈ $"+Math.round(tot/m2*1000).toLocaleString("en")+" "+GX("per_dunamShort") : "≈ $"+Math.round(tot/m2).toLocaleString("en")+" "+t("perm")) : "";
+ return { text: low ? GX("per_lowWarn") : each, warn: low } }
+function priceMinBad(totUsd, isRent){ return totUsd>0 && totUsd < PRICE_MIN[isRent?"rent":"sale"] }
 function wCurrencies(){ var c=countryOf(COUNTRY), list=(c&&c.currencies&&c.currencies.length)?c.currencies.slice():["USD","SYP"]; if(list.indexOf("USD")<0) list.unshift("USD"); return list }
 function wBudgetText(w){ var a=w.budget_min, b=w.budget_max; if(!a&&!b) return GX("wOpenBudget"); if(a&&b) return GX("wFromTo").replace("{a}",wMoney(a,w.currency)).replace("{b}",wMoney(b,w.currency)); if(b) return GX("wUpTo").replace("{n}",wMoney(b,w.currency)); return GX("wFromN").replace("{a}",wMoney(a,w.currency)) }
 function wTypeKeys(w){ return (w.property_types&&w.property_types.length) ? w.property_types : (w.property_type?[w.property_type]:[]) }
@@ -4366,7 +4389,7 @@ async function loadProject(id){ if(!DB){ PROJECT={missing:true,id:id}; return } 
 function pjCard(p){
   var ar=L==="ar", ph=(p.photos&&p.photos[0])||null, loc=[p.area_name?aN(p.area_name):"",p.gov_name?gN(p.gov_name):""].filter(Boolean).join(ar?"، ":", ");
   return '<a class="pjcard" href="/project/'+p.id+'" data-pjopen="'+p.id+'">'+
-    '<div class="pjph">'+(ph?'<img src="'+esc(ph)+'" alt="" loading="lazy">':'<div class="nophoto"><img src="/brand/logo-light.png" alt="بلكون" loading="lazy"></div>')+'<span class="pjst st-'+esc(p.status)+'">'+pjSt(p.status)+'</span>'+(p.featured?'<span class="pjfeat">★</span>':'')+'</div>'+
+    '<div class="pjph">'+(ph?'<img src="'+esc(ph)+'" alt="" loading="lazy">':'<div class="nophoto"><img src="/brand/logo-light-s.png" alt="بلكون" loading="lazy"></div>')+'<span class="pjst st-'+esc(p.status)+'">'+pjSt(p.status)+'</span>'+(p.featured?'<span class="pjfeat">★</span>':'')+'</div>'+
     '<div class="pjb"><b class="pjname">'+esc(p.name)+'</b>'+(p.developer_name?'<span class="pjdev">'+esc(p.developer_name)+'</span>':'')+
      (loc?'<span class="pjloc">'+MI.map+esc(loc)+'</span>':'')+
      '<div class="pjfacts">'+(p.price_from?'<span><small>'+GX("pjFrom")+'</small><b class="ltr">'+pjFmt(p.price_from)+'</b></span>':'')+(p.delivery?'<span><small>'+GX("pjDelivery")+'</small><b>'+esc(p.delivery)+'</b></span>':'')+'</div>'+
@@ -5457,7 +5480,7 @@ function initMapSearch(){
     var cover = (x.thumbs&&x.thumbs[0]) || (x.photos&&x.photos[0]) || x.cover || (x.videos&&x.videos[0]&&x.videos[0].poster) || null;
     var priceText = x.d==="rent" ? (money(x.p,x)+" "+rentLbl(x.rentalPeriod)) : money(x.p,x);
     var popupHtml = '<div class="mappin-preview" data-pin-listing="'+x.id+'" style="cursor:pointer">'+
-      (cover ? '<img src="'+cover+'" alt="">' : '<div class="mappin-nophoto"><img src="/brand/logo-light.png" alt="بلكون"></div>')+
+      (cover ? '<img src="'+cover+'" alt="">' : '<div class="mappin-nophoto"><img src="/brand/logo-light-s.png" alt="بلكون"></div>')+
       '<div class="mappin-body"><b class="mappin-price">'+priceText+'</b>'+
       '<div class="mappin-loc">'+ICON_PIN+aN(x.a)+(L==="ar"?'، ':', ')+gN(x.g)+(x._approx?' · '+GX("mapApprox"):'')+'</div>'+
       '<div class="mappin-meta">'+
@@ -5877,8 +5900,12 @@ function heroSlidesHtml(type,studio){
   if((type==="photo"||type==="video") && studio) return studio;   // a background set in the studio stays as it is
   var S=["umayyad","aleppo","arwad"], P="/next/images/hero/", V="?v=2";   // V: 2026-10-30 the Umayyad photos lost their capture frame (a white edge line); a new address so phones fetch them again
   return '<div class="hslides">'+S.map(function(n,i){ return '<div class="hslide'+(i?'':' on')+'"><picture><source media="(max-width:860px)" type="image/avif" srcset="'+P+n+'-phone.avif'+V+'"><source media="(max-width:860px)" type="image/webp" srcset="'+P+n+'-phone.webp'+V+'"><source type="image/avif" srcset="'+P+n+'-1080.avif'+V+' 1080w, '+P+n+'-1920.avif'+V+' 1920w" sizes="100vw"><img src="'+P+n+'-1920.webp'+V+'" srcset="'+P+n+'-1080.webp'+V+' 1080w, '+P+n+'-1920.webp'+V+' 1920w" sizes="100vw" alt=""'+(i?' loading="lazy"':' fetchpriority="high"')+'></picture></div>' }).join("").replace(/(<div class="hslide">[\s\S]*?<\/div>)/g,function(m){ return window._hsAll ? m : m.replace(/ (srcset|src)="/g,' data-$1="') })+'</div><div class="hdots">'+S.map(function(_,i){ return '<i class="'+(i?'':'on')+'"></i>' }).join("")+'</div>' }
-function wireHeroSlides(){ if(!window._hsAll){ var fill=function(){ window._hsAll=true; $$(".hslide [data-srcset],.hslide [data-src]").forEach(function(e){ if(e.dataset.srcset){ e.setAttribute("srcset",e.dataset.srcset); e.removeAttribute("data-srcset") } if(e.dataset.src){ e.setAttribute("src",e.dataset.src); e.removeAttribute("data-src") } }) };
-    if(document.readyState==="complete") setTimeout(fill,1500); else addEventListener("load",function(){ setTimeout(fill,1500) },{once:true}) }
+function hsFill(){ window._hsAll=true; $$(".hslide [data-srcset],.hslide [data-src]").forEach(function(e){ if(e.dataset.srcset){ e.setAttribute("srcset",e.dataset.srcset); e.removeAttribute("data-srcset") } if(e.dataset.src){ e.setAttribute("src",e.dataset.src); e.removeAttribute("data-src") } }) }
+// 2026-11-05 weak internet (the browser reports 2g/3g or data saver; iPhones report nothing and behave as before): slides 2 and 3
+// are not fetched (~316 KB on a phone) and the hero stays on the first photo; tapping a dot still loads them
+function heroNetSlow(){ var c=navigator.connection||{}; return c.saveData===true || /2g|3g/.test(c.effectiveType||"") }
+function wireHeroSlides(){ var slow=heroNetSlow(); if(!window._hsAll && !slow){
+    if(document.readyState==="complete") setTimeout(hsFill,1500); else addEventListener("load",function(){ setTimeout(hsFill,1500) },{once:true}) }
   var s=$$(".hslide"), d=$$(".hdots i"); if(window._hsTimer){ clearInterval(window._hsTimer); window._hsTimer=null }
   // the floating "post" button waits until the hero has scrolled away (it covered the search strip on phones)
   // 2026-11-02 speed: from a draw it uses the kept scroll position and window height (reading them there forced a full layout per draw)
@@ -5886,6 +5913,7 @@ function wireHeroSlides(){ if(!window._hsAll){ var fill=function(){ window._hsAl
     addEventListener("scroll",function(){ hv(false) },{passive:true}); addEventListener("resize",function(){ _hdrVh=innerHeight },{passive:true}); window._heroScrollCheck=hv } window._heroScrollCheck(true);
   if(s.length<2) return; var k=0;
   function go(n){ s[k].classList.remove("on"); if(d[k]) d[k].classList.remove("on"); k=(n+s.length)%s.length; s[k].classList.add("on"); if(d[k]) d[k].classList.add("on") }
+  if(slow && !window._hsAll){ d.forEach(function(x,i){ x.onclick=function(){ hsFill(); go(i) } }); return }
   window._hsTimer=setInterval(function(){ go(k+1) },5000); d.forEach(function(x,i){ x.onclick=function(){ go(i) } }) }
 function heroSearchBarHtml(){
   var sgOn=function(k){ var v=SX(k,true); return !(v===false||v==="false") };
@@ -6360,9 +6388,22 @@ function wire(){
  }
  if($("#eMapClear")) $("#eMapClear").onclick=clearEditMap;
  if($("#eMap") && EDIT.lat){ setTimeout(initEditMap,50) }
+ // the price box: whole / per metre / per dunam, the total or ≈ per metre under it (perPickHtml)
+ var eRentNow=function(){ return ((($('input[name=edl]:checked')||{}).value)||(($("#eDeal")||{}).value))==="rent" };
+ var eLandNow=function(){ return secOf((($("#eType")||{}).value)||((EDIT.row||{}).t))==="land" };
+ var ePriceHint=function(){ var el=$("#epm"); if(!el) return; perSync("eper", eRentNow(), eLandNow());
+   var h=perHint(($("#ePrice")||{}).value, ($("#ecur")||{}).value, perOf("eper"), +(($("#eArea")||{}).value)||0, eRentNow(), eLandNow()); el.textContent=h.text; el.style.color=h.warn?"var(--danger)":"" };
+ ["ePrice","eArea"].forEach(function(id){ var e=$("#"+id); if(e) e.addEventListener("input",ePriceHint) });
+ ["ecur","eType"].forEach(function(id){ var e=$("#"+id); if(e) e.addEventListener("change",ePriceHint) });
+ $$('input[name=eper],input[name=edl]').forEach(function(r){ r.addEventListener("change",ePriceHint) });
+ ePriceHint();
  if($("#eSave")) $("#eSave").onclick=async function(){
    var v=function(i){var e=$("#"+i);return e?e.value:""};
    if(priceReq() && !(+v("ePrice")>0)){ alert(GX("priceReqMsg")); var ep=$("#ePrice"); if(ep){ ep.focus(); ep.style.borderColor="var(--danger)" } return }
+   // the whole price (a per-metre / per-dunam figure times the size) and the minimum (PRICE_MIN)
+   var ePer=eRentNow()?"whole":perOf("eper"), eTot=v("ePrice").trim()?priceTotal(parseFloat(v("ePrice")), ePer, +v("eArea")||0):0;
+   if(v("ePrice").trim() && ePer!=="whole" && !(+v("eArea")>0)){ alert(GX("per_needSize")); var ea=$("#eArea"); if(ea){ ea.focus(); ea.style.borderColor="var(--danger)" } return }
+   if(priceMinBad(toUsdFrom(eTot, v("ecur")), eRentNow())){ alert(GX("priceMinMsg").replace("{min}",PRICE_MIN[eRentNow()?"rent":"sale"])); var ep2=$("#ePrice"); if(ep2){ ep2.focus(); ep2.style.borderColor="var(--danger)" } return }
    // the deed picker only shows for a sale
    if(tabuReq() && $('input[name=etb]') && v("eDeal")!=="rent" && !$('input[name=etb]:checked')){ alert(GX("tabuReqMsg")); var et=$('input[name=etb]'); if(et&&et.closest(".pick")) et.closest(".pick").scrollIntoView({block:"center"}); return }
    this.disabled=true; this.textContent=t("saving");
@@ -6370,7 +6411,7 @@ function wire(){
      var patch={};
      // always set price_usd (even to null): the server only clears a field when its key is present in the
      // patch at all, so leaving the key out when the field is cleared (the old behaviour) silently kept the old price
-     if(v("ePrice").trim()){ patch.price_usd=toUsdFrom(v("ePrice"), v("ecur")); var ec=(v("ecur")||"USD").toUpperCase(); patch.price_local = ec!=="USD" ? +v("ePrice") : null; patch.price_cur = ec!=="USD" ? ec : null; }
+     if(v("ePrice").trim()){ patch.price_usd=toUsdFrom(eTot, v("ecur")); var ec=(v("ecur")||"USD").toUpperCase(); patch.price_local = ec!=="USD" ? eTot : null; patch.price_cur = ec!=="USD" ? ec : null; }
      else { patch.price_usd=null; patch.price_local=null; patch.price_cur=null; }
      if(v("eArea"))  patch.area_m2=+v("eArea");
      patch.rooms = v("eRooms")?+v("eRooms"):null;
@@ -6580,6 +6621,7 @@ function wire(){
        else { slot.appendChild(livingFl); if(rentRow) rentRow.insertBefore(leaseFl, rentRow.firstChild) }
      }
      var u=$("#pUnit"); if(u){ u.style.display=isLand?"":"none" }
+     perSync("pper", rent, isLand);
      var m2=$("#pm2h"); if(m2){ var v=parseFloat(($("#pm2")||{}).value)||0,
        mult=parseInt(($("#pUnit")||{}).value,10)||1;
        m2.textContent = (isLand&&mult>1&&v)? (v*1000).toLocaleString("en")+" "+t("sqm") : "" }
@@ -6599,18 +6641,19 @@ function wire(){
        var fu=$("#pFurn");
        if(fu && !fu.checked) fu.checked=true;
      }
-     checkPost();
+     if($("#pp") && $("#pp").oninput) $("#pp").oninput(); else checkPost();
    };
    $$('input[name=dl]').forEach(function(r){r.onchange=syncForm});
+   $$('input[name=pper]').forEach(function(r){r.onchange=function(){ if($("#pp")) $("#pp").oninput() }});
    if($("#ptype")) $("#ptype").onchange=syncForm;
    if($("#pUnit")) $("#pUnit").onchange=syncForm;
    if($("#pm2")) $("#pm2").addEventListener("input",syncForm);
    syncForm();
    $("#pd").oninput=function(){$("#dc").textContent=this.value.length;checkPost()};
    if($("#pcur")) $("#pcur").onchange=function(){ NEW.pcur=this.value; if($("#pp")) $("#pp").oninput() };
-   $("#pp").oninput=function(){var a=+$("#pm2").value,p=toUsdFrom(this.value,($("#pcur")||{}).value);
-     var isRentNow=($('input[name=dl]:checked')||{}).value==="rent";
-     $("#ppm").textContent=isRentNow?"":((a>0&&p>0)?("≈ $"+Math.round(p/a).toLocaleString("en")+" "+t("perm")):"");checkPost()};
+   $("#pp").oninput=function(){ var m2=(parseFloat(($("#pm2")||{}).value)||0)*(parseInt(($("#pUnit")||{}).value,10)||1);
+     var isRentNow=($('input[name=dl]:checked')||{}).value==="rent", isLandNow=secOf(($("#ptype")||{}).value)==="land";
+     var h=perHint(this.value, ($("#pcur")||{}).value, perOf("pper"), m2, isRentNow, isLandNow), el=$("#ppm"); el.textContent=h.text; el.style.color=h.warn?"var(--danger)":""; checkPost()};
    $$('input[name=tb2]').forEach(function(r){r.onchange=function(){
      $("#dbG").classList.toggle("on",r.value==="green");
      $("#dbY").classList.toggle("on",r.value!=="green");checkPost()}});
@@ -7550,7 +7593,7 @@ function applyMaintenance(gex){
   var title = ar ? "نرتّب البيت قليلاً 🛠️" : L==="de" ? "Wir räumen kurz auf 🛠️" : L==="fr" ? "Petite maintenance en cours 🛠️" : "A little housekeeping 🛠️";
   var body = custom || (ar ? "بلكون في صيانة قصيرة لنجهّز لك تجربة أفضل. عُد بعد قليل وستجد كل شيء في مكانه." : L==="de" ? "Balkoun wird gerade kurz gewartet. Schau in ein paar Minuten wieder vorbei." : L==="fr" ? "Balkoun est en courte maintenance pour améliorer votre expérience. Veuillez réessayer dans quelques instants." : "Balkoun is down for a short maintenance to make things better. Please try again in a little while.");
   var btn = ar ? "حاول مرة أخرى" : L==="de" ? "Erneut versuchen" : L==="fr" ? "Réessayer" : "Try again";
-  var html = '<div class="maint-card"><div class="maint-logo"><img src="/brand/logo-light.png" alt="بلكون"></div><h1>'+esc(title)+'</h1><p>'+esc(body)+'</p><button type="button" id="maintReload">'+btn+'</button><small>balkoun.com</small></div>';
+  var html = '<div class="maint-card"><div class="maint-logo"><img src="/brand/logo-light-s.png" alt="بلكون"></div><h1>'+esc(title)+'</h1><p>'+esc(body)+'</p><button type="button" id="maintReload">'+btn+'</button><small>balkoun.com</small></div>';
   if(!el){ el=document.createElement("div"); el.id="maint"; el.setAttribute("dir", ar?"rtl":"ltr"); document.body.appendChild(el) }
   el.innerHTML = html; document.documentElement.classList.add("maint-on");
   var rb=el.querySelector("#maintReload"); if(rb) rb.onclick=function(){ location.reload() };
@@ -7936,6 +7979,8 @@ async function savePost(){
     if(otherArea){ try{ await DB.rpc("bk_area_suggest_public",{p_gov:g.data.id,p_name:otherArea}) }catch(e){} }
 
     var sec = secOf(val("ptype"));
+    // the whole price: a per-metre / per-dunam figure is multiplied by the size here (perPickHtml); empty stays empty
+    var ppRaw = val("pp") ? priceTotal(parseFloat(val("pp")), ($('input[name=dl]:checked')||{}).value==="rent" ? "whole" : perOf("pper"), (parseFloat(val("pm2"))||0)*(parseInt(val("pUnit"),10)||1)) : 0;
 
     var row = {
       section: sec,
@@ -7943,9 +7988,9 @@ async function savePost(){
       property_type: val("ptype"),
       governorate_id: g.data.id,
       area_id: (a.data&&a.data[0])?a.data[0].id:null,
-      price_usd: val("pp") ? toUsdFrom(parseInt(val("pp"),10), val("pcur")) : null,   // empty → "السعر عند التواصل"
-      price_local: val("pp") && (val("pcur")||"USD").toUpperCase()!=="USD" ? parseInt(val("pp"),10) : null,   // the poster's own figure, kept verbatim
-      price_cur: val("pp") && (val("pcur")||"USD").toUpperCase()!=="USD" ? (val("pcur")||"").toUpperCase() : null,
+      price_usd: ppRaw ? toUsdFrom(ppRaw, val("pcur")) : null,   // empty → "السعر عند التواصل"
+      price_local: ppRaw && (val("pcur")||"USD").toUpperCase()!=="USD" ? ppRaw : null,   // the poster's own figure, kept verbatim
+      price_cur: ppRaw && (val("pcur")||"USD").toUpperCase()!=="USD" ? (val("pcur")||"").toUpperCase() : null,
       area_m2: Math.round((parseFloat(val("pm2"))||0) * (parseInt(val("pUnit"),10)||1)) || null,   // empty (a rental may leave it out) → null; the DB refuses 0
       rooms: secOf(val("ptype"))==="land" ? null : (parseInt(val("pr"),10)||null),
       baths: secOf(val("ptype"))==="land" ? null : (parseInt(val("pb"),10)||null),
@@ -9770,6 +9815,12 @@ var GX_T={
   tabuReqMsg:{ar:"اختر نوع الملكية (الطابو) قبل الحفظ.",en:"Choose the title deed before saving."},
   priceReqHint:{ar:"عند التشغيل: لا يُنشر إعلان بلا سعر، من صفحة «أضف إعلانك» ومن صفحة التعديل ومن البوت (يطلب البوت السعر ولا يمكن تخطيه). عند الإيقاف: الإعلان بلا سعر يُنشر بعبارة «السعر عند التواصل».",en:"On: no listing is published without a price — from «Add listing», the edit page and the bot (the bot asks for it and it cannot be skipped). Off: a listing without a price shows «Price on request»."},
   priceReqMsg:{ar:"السعر إلزامي: اكتب السعر قبل الحفظ",en:"A price is required: enter it before saving"},
+  per_whole:{ar:"للعقار كاملاً",en:"Whole property",fr:"Prix total"}, per_m2:{ar:"للمتر",en:"Per m²",fr:"Par m²"}, per_dunam:{ar:"للدونم",en:"Per dunam",fr:"Par dounam"},
+  per_dunamShort:{ar:"للدونم",en:"per dunam",fr:"par dounam"},
+  per_total:{ar:"السعر الإجمالي: {p}",en:"Total price: {p}",fr:"Prix total : {p}"},
+  per_needSize:{ar:"اكتب المساحة ليُحسب السعر الإجمالي",en:"Enter the size to work out the total price",fr:"Saisissez la surface pour calculer le prix total"},
+  per_lowWarn:{ar:"السعر صغير جداً لهذه المساحة — إذا كان سعر المتر اختر «للمتر»",en:"Very low for this size — if it is the price per m², choose «Per m²»",fr:"Très bas pour cette surface — si c'est le prix au m², choisissez «Par m²»"},
+  priceMinMsg:{ar:"السعر أقل من الحد الأدنى ({min}$) — اكتب السعر الحقيقي",en:"The price is below the minimum (${min}) — enter the real price",fr:"Le prix est inférieur au minimum ({min} $) — saisissez le vrai prix"},
   navBack:{ar:"رجوع",en:"Back"},
   eTelL:{ar:"رقم التواصل لهذا الإعلان",en:"Contact number for this listing"},
   eTelHint:{ar:"الرقم الذي يتصل عليه الزوار ويراسلونه على واتساب لهذا الإعلان.",en:"The number visitors call or message on WhatsApp for this listing."},
