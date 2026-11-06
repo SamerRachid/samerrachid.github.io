@@ -1696,7 +1696,7 @@ function card(x,i,isListView){
  var badges = (showFeatBadge?'<span class="cbg gold">'+featBadgeText+'</span>':'')+(isNew?'<span class="cbg ok">'+t("newBadge")+'</span>':'')+(isShare(x)?'<span class="cbg share">'+GX("shareBadge")+'</span>':'')+(x.videos&&x.videos.length?'<span class="cbg vid">▶ '+GX("videoBadge")+'</span>':'');
  var photo = '<div class="ph">'+
    (closed?'<div class="stamp'+(x.status==="rented"?" stamp-r":"")+'">'+(x.status==="rented"?t("st_rented"):t("st_sold"))+'</div>':'')+
-   (cover ? '<img src="'+cover+'" alt="'+esc(typeName)+'" loading="lazy">' : (x.videos&&x.videos[0]&&x.videos[0].url) ? '<video class="vcover" muted playsinline preload="metadata" src="'+x.videos[0].url+'#t=0.5" data-logo-fallback="1"></video>' : '<div class="nophoto"><img src="/brand/logo-light.png" alt="بلكون" loading="lazy"></div>')+
+   (cover ? '<img src="'+cover+'" alt="'+esc(typeName)+'" loading="lazy">' : (x.videos&&x.videos[0]&&x.videos[0].url) ? '<video class="vcover" muted playsinline preload="metadata" src="'+x.videos[0].url+'#t=0.5" data-logo-fallback="1"></video>' : '<div class="nophoto"><img src="/brand/logo-light-s.png" alt="بلكون" loading="lazy"></div>')+
    (badges?'<div class="bd">'+badges+'</div>':'')+
    '<button type="button" class="cfav'+(saved?' on':'')+'" data-fav="'+x.id+'" aria-label="'+t("saveL")+'">'+I.heart+'</button>'+
    (photos.length>1?'<span class="cpc">'+I.cam+' <span class="ltr">'+photos.length+'</span></span>':'')+
@@ -2154,13 +2154,13 @@ function listing(id){
   (n
     ? '<figure class="lg-main'+(onVid?' onvid':'')+'" style="--bg:url(&quot;'+(onVid?(VIDS[0].poster||""):curImg)+'&quot;)">'+
       (onVid ? '<video class="main" id="gvideo" controls playsinline preload="metadata"'+wmVideoAttrs()+(VIDS[0].poster?' poster="'+VIDS[0].poster+'"':'')+' src="'+VIDS[0].url+'"></video>'+wmOverlayHtml()+'<button type="button" class="lg-enlarge" id="gVidFull" title="'+esc(GX("videoFull"))+'" aria-label="'+esc(GX("videoFull"))+'"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>'
-             : (curImg ? '<img class="main" id="gmain" src="'+curImg+'" alt="'+esc(typeName)+'">' : '<div class="nophoto lg-none"><img src="/brand/logo-light.png" alt="بلكون"></div>'))+
+             : (curImg ? '<img class="main" id="gmain" src="'+curImg+'" alt="'+esc(typeName)+'">' : '<div class="nophoto lg-none"><img src="/brand/logo-light-s.png" alt="بلكون"></div>'))+
       (n>1 ? '<button class="gnav" id="gPrev" aria-label="'+esc(GX("galPrev"))+'" style="'+(rtlNow()?"right":"left")+':12px">'+galChev(rtlNow())+'</button><button class="gnav" id="gNext" aria-label="'+esc(GX("galNext"))+'" style="'+(rtlNow()?"left":"right")+':12px">'+galChev(!rtlNow())+'</button>' : '')+
       '<div class="gcount"><span class="ltr">'+(GI+1)+' / '+n+'</span></div>'+
       (VIDS.length && !onVid && !GVID_OFF ? '<button type="button" class="lg-vid" id="gVid"><span class="vplay">▶</span>'+GX("videoWatch")+'</button>' : '')+'</figure>'+
       (n>1 ? '<div class="lg-side" id="gth">'+thumbs.join("")+'</div>' : '')+
       (IMGS.length>1 ? '<button class="lg-all" id="gAll">'+I.grid+GX("lAllPhotos")+' <span class="ltr">('+IMGS.length+')</span></button>' : '')
-    : '<div class="nophoto lg-none"><img src="/brand/logo-light.png" alt="بلكون"></div>')+
+    : '<div class="nophoto lg-none"><img src="/brand/logo-light-s.png" alt="بلكون"></div>')+
  '</div>';
 
  /* ── lightbox (unchanged behaviour) ── */
@@ -2287,7 +2287,7 @@ function listing(id){
 
  return '<div class="crumb crumb-l"><div class="wrap"><a class="crumb-back" data-back="1" href="#" role="button">'+(rtlNow()?'→':'←')+' '+GX("navBack")+'</a><a data-go="home">'+t("home")+'</a><i>›</i>'+
   '<a data-go="search" data-gov="'+x.g+'">'+gN(x.g)+'</a><i>›</i>'+aN(x.a)+'</div></div>'+
- '<div class="wrap lpage">'+lb+
+ '<div class="wrap lpage'+(VLB_OPEN&&VIDS.length?' vlb-on':lb?' lb-on':'')+'">'+lb+
   '<div class="lgrid"><div class="lmain">'+gal+head+facts+
    '<section class="lsec"><h2>'+t("descH")+'</h2><div class="ldesc">'+dsOf(x)+'</div></section>'+
    details+amen+deed+util+map+svcForListing(x)+
@@ -3616,7 +3616,7 @@ function adSlotsRow(){
      var l2=[tyName, showLoc?spot:""].filter(Boolean).join(" · ");
      media = (lHasPh ? '<img class="adslot-rotimg" src="'+a.l_photos[0]+'" data-photos="'+
        encodeURIComponent(JSON.stringify(a.l_photos))+'" data-idx="0" alt="'+esc([tyName, place].filter(Boolean).join(" · "))+'" loading="lazy">'
-       : '<div class="nophoto adslot-noph"><img src="/brand/logo-light.png" alt="بلكون" loading="lazy"></div>')+
+       : '<div class="nophoto adslot-noph"><img src="/brand/logo-light-s.png" alt="بلكون" loading="lazy"></div>')+
        (a.l_deal ? '<span class="adslot-deal'+(a.l_deal==="rent"?' rent':'')+'" style="color:'+textColor+'">'+esc(a.l_deal==="rent"?t("forrent"):t("forsale"))+'</span>' : '')+
        '<div class="adslot-info" style="'+tShadow+'color:'+textColor+';'+
          'background:linear-gradient(to top,rgba('+shadeRgb+','+(.95*shadeOp)+') 0%,rgba('+shadeRgb+','+(.78*shadeOp)+') 45%,rgba('+shadeRgb+','+(.35*shadeOp)+') 75%,rgba('+shadeRgb+',0) 100%)">'+
@@ -4389,7 +4389,7 @@ async function loadProject(id){ if(!DB){ PROJECT={missing:true,id:id}; return } 
 function pjCard(p){
   var ar=L==="ar", ph=(p.photos&&p.photos[0])||null, loc=[p.area_name?aN(p.area_name):"",p.gov_name?gN(p.gov_name):""].filter(Boolean).join(ar?"، ":", ");
   return '<a class="pjcard" href="/project/'+p.id+'" data-pjopen="'+p.id+'">'+
-    '<div class="pjph">'+(ph?'<img src="'+esc(ph)+'" alt="" loading="lazy">':'<div class="nophoto"><img src="/brand/logo-light.png" alt="بلكون" loading="lazy"></div>')+'<span class="pjst st-'+esc(p.status)+'">'+pjSt(p.status)+'</span>'+(p.featured?'<span class="pjfeat">★</span>':'')+'</div>'+
+    '<div class="pjph">'+(ph?'<img src="'+esc(ph)+'" alt="" loading="lazy">':'<div class="nophoto"><img src="/brand/logo-light-s.png" alt="بلكون" loading="lazy"></div>')+'<span class="pjst st-'+esc(p.status)+'">'+pjSt(p.status)+'</span>'+(p.featured?'<span class="pjfeat">★</span>':'')+'</div>'+
     '<div class="pjb"><b class="pjname">'+esc(p.name)+'</b>'+(p.developer_name?'<span class="pjdev">'+esc(p.developer_name)+'</span>':'')+
      (loc?'<span class="pjloc">'+MI.map+esc(loc)+'</span>':'')+
      '<div class="pjfacts">'+(p.price_from?'<span><small>'+GX("pjFrom")+'</small><b class="ltr">'+pjFmt(p.price_from)+'</b></span>':'')+(p.delivery?'<span><small>'+GX("pjDelivery")+'</small><b>'+esc(p.delivery)+'</b></span>':'')+'</div>'+
@@ -5480,7 +5480,7 @@ function initMapSearch(){
     var cover = (x.thumbs&&x.thumbs[0]) || (x.photos&&x.photos[0]) || x.cover || (x.videos&&x.videos[0]&&x.videos[0].poster) || null;
     var priceText = x.d==="rent" ? (money(x.p,x)+" "+rentLbl(x.rentalPeriod)) : money(x.p,x);
     var popupHtml = '<div class="mappin-preview" data-pin-listing="'+x.id+'" style="cursor:pointer">'+
-      (cover ? '<img src="'+cover+'" alt="">' : '<div class="mappin-nophoto"><img src="/brand/logo-light.png" alt="بلكون"></div>')+
+      (cover ? '<img src="'+cover+'" alt="">' : '<div class="mappin-nophoto"><img src="/brand/logo-light-s.png" alt="بلكون"></div>')+
       '<div class="mappin-body"><b class="mappin-price">'+priceText+'</b>'+
       '<div class="mappin-loc">'+ICON_PIN+aN(x.a)+(L==="ar"?'، ':', ')+gN(x.g)+(x._approx?' · '+GX("mapApprox"):'')+'</div>'+
       '<div class="mappin-meta">'+
@@ -5900,8 +5900,12 @@ function heroSlidesHtml(type,studio){
   if((type==="photo"||type==="video") && studio) return studio;   // a background set in the studio stays as it is
   var S=["umayyad","aleppo","arwad"], P="/next/images/hero/", V="?v=2";   // V: 2026-10-30 the Umayyad photos lost their capture frame (a white edge line); a new address so phones fetch them again
   return '<div class="hslides">'+S.map(function(n,i){ return '<div class="hslide'+(i?'':' on')+'"><picture><source media="(max-width:860px)" type="image/avif" srcset="'+P+n+'-phone.avif'+V+'"><source media="(max-width:860px)" type="image/webp" srcset="'+P+n+'-phone.webp'+V+'"><source type="image/avif" srcset="'+P+n+'-1080.avif'+V+' 1080w, '+P+n+'-1920.avif'+V+' 1920w" sizes="100vw"><img src="'+P+n+'-1920.webp'+V+'" srcset="'+P+n+'-1080.webp'+V+' 1080w, '+P+n+'-1920.webp'+V+' 1920w" sizes="100vw" alt=""'+(i?' loading="lazy"':' fetchpriority="high"')+'></picture></div>' }).join("").replace(/(<div class="hslide">[\s\S]*?<\/div>)/g,function(m){ return window._hsAll ? m : m.replace(/ (srcset|src)="/g,' data-$1="') })+'</div><div class="hdots">'+S.map(function(_,i){ return '<i class="'+(i?'':'on')+'"></i>' }).join("")+'</div>' }
-function wireHeroSlides(){ if(!window._hsAll){ var fill=function(){ window._hsAll=true; $$(".hslide [data-srcset],.hslide [data-src]").forEach(function(e){ if(e.dataset.srcset){ e.setAttribute("srcset",e.dataset.srcset); e.removeAttribute("data-srcset") } if(e.dataset.src){ e.setAttribute("src",e.dataset.src); e.removeAttribute("data-src") } }) };
-    if(document.readyState==="complete") setTimeout(fill,1500); else addEventListener("load",function(){ setTimeout(fill,1500) },{once:true}) }
+function hsFill(){ window._hsAll=true; $$(".hslide [data-srcset],.hslide [data-src]").forEach(function(e){ if(e.dataset.srcset){ e.setAttribute("srcset",e.dataset.srcset); e.removeAttribute("data-srcset") } if(e.dataset.src){ e.setAttribute("src",e.dataset.src); e.removeAttribute("data-src") } }) }
+// 2026-11-05 weak internet (the browser reports 2g/3g or data saver; iPhones report nothing and behave as before): slides 2 and 3
+// are not fetched (~316 KB on a phone) and the hero stays on the first photo; tapping a dot still loads them
+function heroNetSlow(){ var c=navigator.connection||{}; return c.saveData===true || /2g|3g/.test(c.effectiveType||"") }
+function wireHeroSlides(){ var slow=heroNetSlow(); if(!window._hsAll && !slow){
+    if(document.readyState==="complete") setTimeout(hsFill,1500); else addEventListener("load",function(){ setTimeout(hsFill,1500) },{once:true}) }
   var s=$$(".hslide"), d=$$(".hdots i"); if(window._hsTimer){ clearInterval(window._hsTimer); window._hsTimer=null }
   // the floating "post" button waits until the hero has scrolled away (it covered the search strip on phones)
   // 2026-11-02 speed: from a draw it uses the kept scroll position and window height (reading them there forced a full layout per draw)
@@ -5909,6 +5913,7 @@ function wireHeroSlides(){ if(!window._hsAll){ var fill=function(){ window._hsAl
     addEventListener("scroll",function(){ hv(false) },{passive:true}); addEventListener("resize",function(){ _hdrVh=innerHeight },{passive:true}); window._heroScrollCheck=hv } window._heroScrollCheck(true);
   if(s.length<2) return; var k=0;
   function go(n){ s[k].classList.remove("on"); if(d[k]) d[k].classList.remove("on"); k=(n+s.length)%s.length; s[k].classList.add("on"); if(d[k]) d[k].classList.add("on") }
+  if(slow && !window._hsAll){ d.forEach(function(x,i){ x.onclick=function(){ hsFill(); go(i) } }); return }
   window._hsTimer=setInterval(function(){ go(k+1) },5000); d.forEach(function(x,i){ x.onclick=function(){ go(i) } }) }
 function heroSearchBarHtml(){
   var sgOn=function(k){ var v=SX(k,true); return !(v===false||v==="false") };
@@ -7588,7 +7593,7 @@ function applyMaintenance(gex){
   var title = ar ? "نرتّب البيت قليلاً 🛠️" : L==="de" ? "Wir räumen kurz auf 🛠️" : L==="fr" ? "Petite maintenance en cours 🛠️" : "A little housekeeping 🛠️";
   var body = custom || (ar ? "بلكون في صيانة قصيرة لنجهّز لك تجربة أفضل. عُد بعد قليل وستجد كل شيء في مكانه." : L==="de" ? "Balkoun wird gerade kurz gewartet. Schau in ein paar Minuten wieder vorbei." : L==="fr" ? "Balkoun est en courte maintenance pour améliorer votre expérience. Veuillez réessayer dans quelques instants." : "Balkoun is down for a short maintenance to make things better. Please try again in a little while.");
   var btn = ar ? "حاول مرة أخرى" : L==="de" ? "Erneut versuchen" : L==="fr" ? "Réessayer" : "Try again";
-  var html = '<div class="maint-card"><div class="maint-logo"><img src="/brand/logo-light.png" alt="بلكون"></div><h1>'+esc(title)+'</h1><p>'+esc(body)+'</p><button type="button" id="maintReload">'+btn+'</button><small>balkoun.com</small></div>';
+  var html = '<div class="maint-card"><div class="maint-logo"><img src="/brand/logo-light-s.png" alt="بلكون"></div><h1>'+esc(title)+'</h1><p>'+esc(body)+'</p><button type="button" id="maintReload">'+btn+'</button><small>balkoun.com</small></div>';
   if(!el){ el=document.createElement("div"); el.id="maint"; el.setAttribute("dir", ar?"rtl":"ltr"); document.body.appendChild(el) }
   el.innerHTML = html; document.documentElement.classList.add("maint-on");
   var rb=el.querySelector("#maintReload"); if(rb) rb.onclick=function(){ location.reload() };
@@ -8423,9 +8428,12 @@ var _viewCountry = null, _lastLoggedView = null;
 async function resolveCountry(){
   if(_viewCountry!==null) return _viewCountry;
   try{
+    // the loader keeps the answer a day (balkoun_geo): one lookup per visitor per day instead of one per page load
+    try{ var kept=JSON.parse(localStorage.getItem("balkoun_geo")||"null"); if(kept && kept.n && Date.now()-kept.t<86400000){ _viewCountry=kept.n; return _viewCountry } }catch(e){}
     var res = await fetch("https://get.geojs.io/v1/ip/country.json");
     var txt = String(((await res.json())||{}).name||"").trim();
     _viewCountry = (txt && txt.length<60) ? txt : "";
+    if(_viewCountry) try{ localStorage.setItem("balkoun_geo", JSON.stringify({n:_viewCountry,t:Date.now()})) }catch(e){}
   }catch(e){ _viewCountry = "" }
   return _viewCountry;
 }
@@ -8524,14 +8532,16 @@ var TOUCH=(function(){
 function touchForSignup(){ var st=TOUCH||{}, l=st.last, f=st.first||{s:"direct",d:""};
   var pick=(l && Date.now()-l.t<30*86400000) ? l : f;   // an ad clicked in the last 30 days wins over an older first visit
   return {s:pick.s, d:("first="+f.s+(f.d?"("+f.d+")":"")+(l?" last="+l.s+(l.d?"("+l.d+")":""):"")).slice(0,160)} }
-var _logReady=false, _logArmed=false;
+// 2026-11-05 owner: "a visitor even for a moment is a visitor" — no 3-second wait any more (it was there to leave out crawlers
+// that open a page and leave; IS_BOT still leaves out the ones that say what they are)
+var _logReady=true, _hitTaken=false;
 function logView(){
   if(PREVIEW || IS_BOT) return;
-  // a visit counts once the page has been open 3 seconds: crawlers that open a page and leave at once are not visitors
-  if(!_logReady){ if(!_logArmed){ _logArmed=true; setTimeout(function(){ _logReady=true; logView() }, Math.max(0, 3000-((window.performance&&performance.now())||0))) } return }
   if(VIEW===_lastLoggedView) return;
   _lastLoggedView = VIEW;
   if(!DB || (ADM&&ADM.token&&VIEW==="admin")) return;
+  // the loader (bundle/loader-3.js) already reported the page the visit opened on, the moment it opened: not twice
+  if(window.__bkHit && !_hitTaken){ _hitTaken=true; _refLogged=true; visitorPing(false); return }
   var ref=""; if(!_refLogged){ _refLogged=true; ref=(document.referrer||"").replace(/^https?:\/\//,"").split("/")[0]; if(ref===location.host) ref="";
     // campaign links (balkoun.com/…?src=fb-damas) → the source wins over the referrer and is remembered for this visitor
     var srcTag=SRC_TAG||(location.search.match(/[?&]src=([\w-]{1,40})/)||[])[1]; if(srcTag){ ref="src:"+srcTag } }

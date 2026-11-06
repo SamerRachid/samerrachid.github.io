@@ -415,6 +415,10 @@ html.js .rv.in{opacity:1;transform:none}
 .thumbs img.sel{opacity:1;outline:2px solid var(--gold);outline-offset:-2px}
 .lightbox{position:fixed;inset:0;background:rgba(10,14,24,.94);z-index:1200;display:flex;
   align-items:center;justify-content:center;padding:20px}
+/* 2026-11-05: the viewers live inside .lpage; its page entrance (huPage, an opacity animation kept with fill "both") makes it
+   its own layer, so the viewer's z-index only counted inside it and the similar listings and the footer drew over the photo.
+   While a viewer is open the whole box takes the viewer's level */
+.lpage.lb-on{position:relative;z-index:1200}.lpage.vlb-on{position:relative;z-index:9000}
 .lb-img{max-width:min(92vw,1100px);max-height:88vh;object-fit:contain;border-radius:6px}
 .lb-close{position:absolute;top:16px;inset-inline-end:20px;background:rgba(255,255,255,.12);
   color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:22px;cursor:pointer;line-height:1}

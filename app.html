@@ -1,10 +1,52 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-p4O/R0/oWrhkKx4xKKKPCCKioxE936C1kXJn99DCeC8=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-SYaYdwfKmSJ31alE6GObS62fYcx+jAcaFTycN2oFJkU=' 'sha256-tcHEDIoqIBjPHQzt0zk3F//ThLif3RWHRRutWt/svYc=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
   // the app has not drawn after 12 s although the script ran: that is a failure too (a network or data step that never returned)
   setTimeout(function(){ var a=document.getElementById("app"); if(a && a.querySelector("#seoHome")) rep("app not rendered after 12s", null, null, null) },12000);
 })();</script>
+<script>/* 2026-11-05 owner: "a visitor even for a moment is a visitor". The visit is reported here, while the page is still arriving
+   (before the style files and the app): on a weak line the app comes seconds after a quick visitor has left. Same fields as the
+   app's logView (same visitor id, device, referrer, campaign tag, member); window.__bkHit tells the app not to report this first
+   page again. Bots, ?preview=1 and the panel are left out as before. The country waits for its lookup at most 1.5 s (kept a day).
+   ES5, like the script above. A link like /listing/175 arrives as /#/listing/175: the page is the part after "#" */
+(function(){ try{
+  var ua=navigator.userAgent||"", path=location.pathname||"/", qs=location.search||"", hp=(location.hash||"").match(/^#(\/[^?#]*)(\?[^#]*)?/);
+  if(hp){ path=hp[1]; qs=qs||hp[2]||"" }
+  if(navigator.webdriver===true || /bot|crawl|spider|slurp|headless|lighthouse|facebookexternalhit|embedly|preview|scrap|python|curl|wget|phantom|puppeteer|playwright|bytespider|gptbot|claudebot/i.test(ua)
+     || /[?&]preview=1/.test(qs) || /[?&#]maintpreview=1/.test(location.href||"") || /\/admin\/?$/.test(path)) return;
+  window.__bkHit=new Date().getTime();
+  var U="https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/", K="sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t";
+  var get=function(k){ try{ return localStorage.getItem(k) }catch(e){ return null } }, put=function(k,v){ try{ localStorage.setItem(k,v) }catch(e){} };
+  var vid=get("balkoun_vid"); if(!vid){ vid=Math.random().toString(36).slice(2,10)+new Date().getTime().toString(36); put("balkoun_vid",vid); if(get("balkoun_vid")!==vid) vid=null }
+  var me=null; try{ me=JSON.parse(get("balkoun_user")||"null") }catch(e){}
+  var uid=(me&&me.id)||null, tok=(me&&me.token)||null;
+  var dev=(window.innerWidth<=700 || /Mobi|Android|iPhone/i.test(ua)) ? "mobile" : "desktop";
+  var ref=(document.referrer||"").replace(/^https?:\/\//,"").split("/")[0]; if(ref===location.host) ref="";
+  var src=(qs.match(/[?&]src=([\w-]{1,40})/)||[])[1]; if(src){ ref="src:"+src; put("balkoun_src",src) }
+  var site=(get("balkoun_country")||"SY").toUpperCase().slice(0,2);
+  // the page's name as the app calls it (its VIEW), from the address
+  var sg=[], view; try{ sg=decodeURIComponent(path).split("/") }catch(e){ sg=path.split("/") }
+  for(var i=sg.length-1;i>=0;i--) if(!sg[i]) sg.splice(i,1);
+  if(/^(en|de|fr)$/.test(sg[0]||"")) sg.shift();
+  var s0=sg[0]||"", M={"":"home",listing:"listing",seller:"by",agency:"agency",project:"project",wanted:"wanted",regions:"areas",guides:"static","post-by-message":"postmsg","for-sale":"search","for-rent":"search"};
+  view = s0==="services" ? (sg[1]==="join"?"servicejoin":sg[1]?"service":"services") : (M.hasOwnProperty(s0) ? M[s0] : s0);
+  var post=function(fn,body,done){ var b=JSON.stringify(body), h={"Content-Type":"application/json",apikey:K,Authorization:"Bearer "+K};
+    if(window.fetch){ var o={method:"POST",keepalive:true,headers:h,body:b}; fetch(U+fn,o)["catch"](function(){ o.keepalive=false; return fetch(U+fn,o) }).then(function(r){ if(done) done(r&&r.ok) },function(){}); return }
+    try{ var x=new XMLHttpRequest(); x.open("POST",U+fn,true); for(var k in h) x.setRequestHeader(k,h[k]); x.onload=function(){ if(done) done(x.status<300) }; x.send(b) }catch(e){} };
+  var sent=false, send=function(country){ if(sent) return; sent=true;
+    var a={p_path:(path+qs).slice(0,300),p_view:String(view).slice(0,40),p_user:uid,p_country:country||null,p_token:tok,p_visitor:vid,p_device:dev,p_referrer:ref,p_site_country:site};
+    post("bk_log_view2",a,function(okd){ if(!okd && uid){ a.p_user=null; a.p_token=null; post("bk_log_view2",a) } });   // a saved session that is no longer valid: still a visit
+    post("bk_visitor_ping",{p_visitor:vid,p_device:dev,p_site_country:site,p_user:uid,p_view:String(view).slice(0,40),p_country:country||null}) };
+  var cc=null; try{ cc=JSON.parse(get("balkoun_geo")||"null") }catch(e){}
+  if(cc && cc.n && new Date().getTime()-cc.t<86400000){ send(cc.n); return }
+  var t=setTimeout(function(){ send(null) },1500);
+  // leaving (or switching apps on a phone) before the country is known: report at once, without it
+  window.addEventListener("pagehide",function(){ send(null) });
+  document.addEventListener("visibilitychange",function(){ if(document.visibilityState==="hidden") send(null) });
+  if(window.fetch) fetch("https://get.geojs.io/v1/ip/country.json").then(function(r){ return r.json() }).then(function(j){ var n=String((j||{}).name||"").replace(/^\s+|\s+$/g,"");
+    if(n && n.length<60){ put("balkoun_geo",JSON.stringify({n:n,t:new Date().getTime()})); clearTimeout(t); send(n) } },function(){});
+}catch(e){} })();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin">
 <title>بلكون — عقارات سوريا للبيع والإيجار من المالك مباشرة | Balkoun · Real estate in Syria</title>
@@ -5021,7 +5063,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202611052104">
+</style><link rel="stylesheet" href="/theme-hu.css?v=202611052209">
 <body>
 <div id="bootSplash" aria-hidden="true"></div>
 <div id="app" role="main"><!--seo-home--><div class="seo-home" id="seoHome"><h1>عقارات سوريا للبيع والإيجار، من المالك مباشرة</h1><p>شقق وبيوت وأراضٍ في كل محافظات سوريا، مع حالة الطابو في كل إعلان وبدون عمولة.</p><h2>سوق العقارات في سوريا، بمكان واحد وبلغة واضحة</h2><p>بلكون موقع عقاري سوري يجمع الشقق والبيوت والفلل والأراضي والمحلات للبيع والإيجار في كل المحافظات: دمشق وريفها، حلب، حمص، حماة، اللاذقية، طرطوس، درعا، السويداء، دير الزور، الحسكة، الرقة، إدلب والقنيطرة. كل إعلان يحمل حالة الطابو (أخضر، حكم محكمة، أسهم أو غيرها) ومتوسط سعر المتر في منطقته خلال الشهر الأخير، لتعرف إن كان السعر معقولاً قبل أن تتصل.</p><p>ينشر المالكون والمكاتب العقارية إعلاناتهم مجاناً وبلا عمولة، بالصور أو بالفيديو، ويتواصل المشتري أو المستأجر معهم مباشرة بالهاتف أو واتساب. وللسوريين في المهجر: تصفّح بالعربية أو الإنجليزية أو الألمانية، أسعار بالدولار، ودليل عملي للشراء من الخارج ونقل الملكية.</p>
@@ -13482,9 +13524,12 @@ var _viewCountry = null, _lastLoggedView = null;
 async function resolveCountry(){
   if(_viewCountry!==null) return _viewCountry;
   try{
+    // the loader keeps the answer a day (balkoun_geo): one lookup per visitor per day instead of one per page load
+    try{ var kept=JSON.parse(localStorage.getItem("balkoun_geo")||"null"); if(kept && kept.n && Date.now()-kept.t<86400000){ _viewCountry=kept.n; return _viewCountry } }catch(e){}
     var res = await fetch("https://get.geojs.io/v1/ip/country.json");
     var txt = String(((await res.json())||{}).name||"").trim();
     _viewCountry = (txt && txt.length<60) ? txt : "";
+    if(_viewCountry) try{ localStorage.setItem("balkoun_geo", JSON.stringify({n:_viewCountry,t:Date.now()})) }catch(e){}
   }catch(e){ _viewCountry = "" }
   return _viewCountry;
 }
@@ -13583,14 +13628,16 @@ var TOUCH=(function(){
 function touchForSignup(){ var st=TOUCH||{}, l=st.last, f=st.first||{s:"direct",d:""};
   var pick=(l && Date.now()-l.t<30*86400000) ? l : f;   // an ad clicked in the last 30 days wins over an older first visit
   return {s:pick.s, d:("first="+f.s+(f.d?"("+f.d+")":"")+(l?" last="+l.s+(l.d?"("+l.d+")":""):"")).slice(0,160)} }
-var _logReady=false, _logArmed=false;
+// 2026-11-05 owner: "a visitor even for a moment is a visitor" — no 3-second wait any more (it was there to leave out crawlers
+// that open a page and leave; IS_BOT still leaves out the ones that say what they are)
+var _logReady=true, _hitTaken=false;
 function logView(){
   if(PREVIEW || IS_BOT) return;
-  // a visit counts once the page has been open 3 seconds: crawlers that open a page and leave at once are not visitors
-  if(!_logReady){ if(!_logArmed){ _logArmed=true; setTimeout(function(){ _logReady=true; logView() }, Math.max(0, 3000-((window.performance&&performance.now())||0))) } return }
   if(VIEW===_lastLoggedView) return;
   _lastLoggedView = VIEW;
   if(!DB || (ADM&&ADM.token&&VIEW==="admin")) return;
+  // the loader (bundle/loader-3.js) already reported the page the visit opened on, the moment it opened: not twice
+  if(window.__bkHit && !_hitTaken){ _hitTaken=true; _refLogged=true; visitorPing(false); return }
   var ref=""; if(!_refLogged){ _refLogged=true; ref=(document.referrer||"").replace(/^https?:\/\//,"").split("/")[0]; if(ref===location.host) ref="";
     // campaign links (balkoun.com/…?src=fb-damas) → the source wins over the referrer and is remembered for this visitor
     var srcTag=SRC_TAG||(location.search.match(/[?&]src=([\w-]{1,40})/)||[])[1]; if(srcTag){ ref="src:"+srcTag } }
