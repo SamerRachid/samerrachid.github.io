@@ -1753,6 +1753,19 @@ function kwMatch(x){
   if(!words.length) return true;
   return words.every(function(w){ var stem=w.replace(/^(وال|بال|لل|ال|و|ب|ل)/,""); return hay.indexOf(w)>-1 || (stem.length>1 && hay.indexOf(stem)>-1) });
 }
+// chosen areas narrow only their own governorate: «دمشق (الميدان) + حمص» is Midan plus all of Homs (owner 2026-11-07; bk_srch_ok does the same).
+// Many area names repeat (الميدان is in 4 governorates, الصناعة in 6), so the area menu records where each was picked: F.apick «دمشق|الميدان»
+function areaPicks(){ var as=(F.areas&&F.areas.length)?F.areas:(F.a?[F.a]:[]); return (F.apick||[]).filter(function(k){ return as.indexOf(k.slice(k.indexOf("|")+1))>-1 }) }
+function govsFree(){ var as=(F.areas&&F.areas.length)?F.areas:(F.a?[F.a]:[]), gs=(F.govs&&F.govs.length)?F.govs:(F.g?[F.g]:[]);
+  if(!as.length) return gs; var pk=areaPicks();
+  return gs.filter(function(g){ var ga=(D.GEO&&D.GEO[g])||[];
+    return !as.some(function(a){ var mine=pk.filter(function(k){ return k.slice(k.indexOf("|")+1)===a });
+      return mine.length ? mine.indexOf(g+"|"+a)>-1 : ga.indexOf(a)>-1 }) }) }
+function areaPass(x){ var as=(F.areas&&F.areas.length)?F.areas:(F.a?[F.a]:[]);
+  if(!as.length || govsFree().indexOf(x.g)>-1) return true;
+  if(as.indexOf(x.a)===-1) return false;
+  var mine=areaPicks().filter(function(k){ return k.slice(k.indexOf("|")+1)===x.a });
+  return !mine.length || mine.indexOf(x.g+"|"+x.a)>-1 }
 function passesFilter(x, skipField){
   if(isBlk(x.uid)) return false;   // a member this member has blocked (see BLK)
   // pending (not-yet-approved) listings must never appear in public
@@ -1763,7 +1776,7 @@ function passesFilter(x, skipField){
     if(!(USER && x.uid && x.uid===USER.id)) return false;
   }
   if(skipField!=="g" && (F.govs&&F.govs.length ? F.govs.indexOf(x.g)===-1 : (F.g&&x.g!==F.g))) return false;
-  if(skipField!=="a" && (F.areas&&F.areas.length ? F.areas.indexOf(x.a)===-1 : (F.a&&x.a!==F.a))) return false;
+  if(skipField!=="a" && !areaPass(x)) return false;
   if(skipField!=="tb" && F.deal!=="rent"){
     if(F.tbs&&F.tbs.length ? F.tbs.indexOf(x.tb)===-1 : (F.tb&&x.tb!==F.tb)) return false;
   }
@@ -1810,14 +1823,17 @@ function rsTitle(){
  var typeTxt = types.length ? types.map(function(k){ return k==="land"?t("landGroup"):(D.TYPES[k]?D.TYPES[k][li()]:k) }).join(ar?"، ":", ") : GX("rsAll");
  var deal = F.deal==="sale" ? t("forsale") : F.deal==="rent" ? t("forrent") : "";
  if(deal && L!=="ar") deal=deal.charAt(0).toLowerCase()+deal.slice(1);
- var loc = (F.areas&&F.areas.length) ? F.areas.map(aN).join(ar?"، ":", ")+((F.govs&&F.govs.length===1)?(ar?"، ":", ")+gN(F.govs[0]):"")
+ var gFree=govsFree();
+ var pk=areaPicks(), aLbl=function(a){ var k=pk.filter(function(x){ return x.slice(x.indexOf("|")+1)===a })[0];   // two governorates: «الميدان (دمشق)، حمص», not «الميدان، حمص»
+   return aN(a)+((F.govs&&F.govs.length>1&&k)?" ("+gN(k.slice(0,k.indexOf("|")))+")":"") };
+ var loc = (F.areas&&F.areas.length) ? F.areas.map(aLbl).concat((F.govs&&F.govs.length===1&&!gFree.length)?[gN(F.govs[0])]:gFree.map(gN)).join(ar?"، ":", ")
          : F.a ? aN(F.a) : (F.govs&&F.govs.length) ? F.govs.map(gN).join(ar?"، ":", ") : F.g ? gN(F.g) : (countryOf(COUNTRY) ? countryName(countryOf(COUNTRY)) : GX("rsSyria"));
  var rooms=(F.rooms||[]).slice().sort(function(a,b){ return a-b }).map(roomsLabel).join(ar?"، ":", ");
  return (typeTxt+(deal?" "+deal:"")+" "+GX("lIn")+" "+loc+(rooms?" · "+rooms:"")).replace(/[<>]/g,"") }
 function rsMarket(r){
  if(SX("results_market_line",true)===false || F.deal==="rent") return "";
  var areas=(F.areas&&F.areas.length)?F.areas:(F.a?[F.a]:[]);
- if(areas.length===1){ var x=r.filter(function(l){ return l.a===areas[0] && l.aid })[0]; var ap=x&&AREA_PRICES[x.aid]; if(ap && +ap.avg_price_per_m2) return ' · <span class="rs-avg">'+GX("rsAvg")+' <span class="ltr">$'+Math.round(+ap.avg_price_per_m2).toLocaleString("en")+'</span>/'+t("sqm")+'</span> '+GX("rsInArea") }
+ if(areas.length===1 && !govsFree().length){ var x=r.filter(function(l){ return l.a===areas[0] && l.aid })[0]; var ap=x&&AREA_PRICES[x.aid]; if(ap && +ap.avg_price_per_m2) return ' · <span class="rs-avg">'+GX("rsAvg")+' <span class="ltr">$'+Math.round(+ap.avg_price_per_m2).toLocaleString("en")+'</span>/'+t("sqm")+'</span> '+GX("rsInArea") }
  var sale=r.filter(function(l){ return l.d==="sale" && l.m2>0 && l.p>0 }); if(sale.length<3) return "";
  var avg=Math.round(sale.reduce(function(a,l){ return a+l.p/l.m2 },0)/sale.length);
  return ' · <span class="rs-avg">'+GX("rsAvg")+' <span class="ltr">$'+avg.toLocaleString("en")+'</span>/'+t("sqm")+'</span>' }
@@ -2031,8 +2047,9 @@ function rsWire(opts){
   if($("#fShareOnly")) $("#fShareOnly").onchange=function(){ F.shareOnly=this.checked; F.page=1; render() };
   $$("[data-rschip]").forEach(function(b){ b.onclick=function(){ var k=this.dataset.rschip, v=this.dataset.rsval;
     if(k==="price"){ F.pmin=0; F.pmax=0 } else if(k==="ownerOnly"){ F.ownerOnly=false } else if(k==="shareOnly"){ F.shareOnly=false } else if(k==="roomsAll"){ F.rooms=[] } else if(Array.isArray(F[k])){ F[k]=F[k].filter(function(x){ return x!==v }) } else { F[k]="" }
+    if(k==="types"||k==="t") csTypesTidy();
     F.page=1; render() } });
-  var clear=function(){ F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:[],pmin:0,pmax:0,ownerOnly:false,shareOnly:false,kw:"",sec:F.sec,deal:F.deal,sort:"new",page:1}; render() };
+  var clear=function(){ F={g:"",a:"",areas:[],govs:[],t:"",types:[],tb:"",tbs:[],cd:"",furn:"",rentalPeriod:"",rooms:[],pmin:0,pmax:0,ownerOnly:false,shareOnly:false,kw:"",sec:"",apick:[],deal:F.deal,sort:"new",page:1}; render() };
   if($("#clr")) $("#clr").onclick=clear; if($("#clrM")) $("#clrM").onclick=clear;
   $$("#sort,#sortM").forEach(function(sel){ sel.onchange=function(){ F.sort=this.value; F.page=1; render() } });
   if($("#vmGrid")) $("#vmGrid").onclick=function(){ VIEWMODE="grid"; try{localStorage.setItem("balkoun_viewmode","grid")}catch(e){} render() };
@@ -2287,7 +2304,7 @@ function listing(id){
 
  return '<div class="crumb crumb-l"><div class="wrap"><a class="crumb-back" data-back="1" href="#" role="button">'+(rtlNow()?'→':'←')+' '+GX("navBack")+'</a><a data-go="home">'+t("home")+'</a><i>›</i>'+
   '<a data-go="search" data-gov="'+x.g+'">'+gN(x.g)+'</a><i>›</i>'+aN(x.a)+'</div></div>'+
- '<div class="wrap lpage">'+lb+
+ '<div class="wrap lpage'+(VLB_OPEN&&VIDS.length?' vlb-on':lb?' lb-on':'')+'">'+lb+
   '<div class="lgrid"><div class="lmain">'+gal+head+facts+
    '<section class="lsec"><h2>'+t("descH")+'</h2><div class="ldesc">'+dsOf(x)+'</div></section>'+
    details+amen+deed+util+map+svcForListing(x)+
@@ -5691,7 +5708,12 @@ function huDim(drop,on){ if(window.innerWidth>640 || !drop || !drop.classList.co
   var dim=host.querySelector(":scope > .hu-dim");
   if(on){ if(dim){ dim.classList.remove("out"); return } dim=document.createElement("div"); dim.className="hu-dim"; dim.onclick=function(ev){ ev.stopPropagation(); $$(".chipsel-drop.on").forEach(function(d){ if(!csJustOpened(d)) huHide(d) }) }; host.appendChild(dim) }
   else if(dim){ dim.classList.add("out"); setTimeout(function(){ if(dim.parentNode) dim.parentNode.removeChild(dim) },260) } }
+// after any change in a field menu: back to page 1 (a later page of the new results hid the first 24, owner 2026-11-07), and
+// the section that a home tile set (F.sec, no chip of its own) follows the chosen types instead of hiding the others
+function csTypesTidy(){ var ty=(F.types&&F.types.length)?F.types:(F.t?[F.t]:[]); F.sec=(ty.length===1&&(ty[0]==="land"||secOf(ty[0])==="land"))?"land":"" }
+function csChanged(cfg){ F.page=1; if(cfg&&cfg.arrKey==="types"){ if(F.types&&F.types.length) F.t=""; csTypesTidy() } }
 function csSumUpdate(id,cfg){
+  csChanged(cfg);
   var wrap=$("#"+id+"Wrap"), sum=wrap&&wrap.querySelector(".cs-sum");
   var names=(F[cfg.arrKey]||[]).map(function(v){ var o=cfg.getOptions().filter(function(x){return x.value===v})[0]; return o?o.label:v });
   if(sum){ sum.setAttribute("data-names",JSON.stringify(names)); sum.innerHTML=names.length ? esc(names[0])+(names.length>1?' <b class="cs-more">+'+(names.length-1)+'</b>':'') : '<span class="ph">'+esc(sum.getAttribute("data-ph")||"")+'</span>' }
@@ -5725,8 +5747,8 @@ function wireChipSelects(){
       var al=id==="csArea"?placeAliasAreas(q):[];   // a learned place name finds its area (ساحة الميسات → الميسات)
       var opts=cfg.getOptions().filter(function(o){
         return sel.indexOf(o.value)===-1 && (!ql || kwNorm(o.label).indexOf(kwNorm(ql))>-1 || al.indexOf(o.value)>-1) });   // kwNorm: ا/أ/إ/آ, ة/ه, ى/ي and tashkeel match (owner 2026-11-05: «ابو رمانة» did not find «أبو رمانة»)
-      var optHtml=function(o,n){
-        return '<div class="chipsel-opt" data-cspick="'+id+'" data-csval="'+o.value.replace(/"/g,"&quot;")+'">'+
+      var optHtml=function(o,n,g){
+        return '<div class="chipsel-opt" data-cspick="'+id+'" data-csval="'+o.value.replace(/"/g,"&quot;")+'"'+(g?' data-csgov="'+esc(g)+'"':'')+'>'+
                '<span>'+o.label+'</span>'+(n&&countsOn()?'<span class="cs-n ltr">'+n+'</span>':'')+'</div>' };
       var html="", shown=0;
       if(id==="csArea"){
@@ -5738,9 +5760,9 @@ function wireChipSelects(){
           // cities first (admin sets the kind in the Areas tab), then districts and villages
           var cities=inG.filter(function(o){return geoKind(g,o.value)==="city"}), rest=inG.filter(function(o){return geoKind(g,o.value)!=="city"});
           if(cities.length&&rest.length) html+='<div class="cs-h cs-kind">'+GX("cities")+'</div>';
-          cities.forEach(function(o){ if(shown<120){ html+=optHtml(o,cnt.a[o.value]); shown++ } });
+          cities.forEach(function(o){ if(shown<120){ html+=optHtml(o,cnt.a[o.value],g); shown++ } });
           if(cities.length&&rest.length) html+='<div class="cs-h cs-kind">'+GX("districts")+'</div>';
-          rest.forEach(function(o){ if(shown<120){ html+=optHtml(o,cnt.a[o.value]); shown++ } });
+          rest.forEach(function(o){ if(shown<120){ html+=optHtml(o,cnt.a[o.value],g); shown++ } });
         });
       } else {
         opts.slice(0,60).forEach(function(o){ html+=optHtml(o, id==="csGov" ? cnt.g[o.value] : 0) });
@@ -5755,11 +5777,11 @@ function wireChipSelects(){
         '<div class="cs-sheet-f">'+(sel.length?'<button type="button" class="cs-clear" data-csclearall="'+id+'">'+GX("csClear")+'</button>':'')+'<button type="button" class="cs-done">'+GX("csDone")+(sel.length?' <b class="ltr">'+sel.length+'</b>':'')+'</button></div>';
       drop.onclick=function(ev){ ev.stopPropagation(); if(window.innerWidth<=640 && ev.target===drop && ev.clientY<drop.getBoundingClientRect().top) closeSheet(ev) };
       markGreenTabu(drop);
-      $$("#"+id+"Drop [data-csremove]").forEach(function(e){ e.onclick=function(ev){ ev.stopPropagation(); ev.preventDefault(); var val=this.dataset.csval; F[cfg.arrKey]=(F[cfg.arrKey]||[]).filter(function(v){return v!==val}); if(window.innerWidth<=640 && compact){ renderDrop(""); csSumUpdate(id,cfg); return } window._csReopen=id; softRenderHero() } });
+      $$("#"+id+"Drop [data-csremove]").forEach(function(e){ e.onclick=function(ev){ ev.stopPropagation(); ev.preventDefault(); var val=this.dataset.csval; F[cfg.arrKey]=(F[cfg.arrKey]||[]).filter(function(v){return v!==val}); csChanged(cfg); if(window.innerWidth<=640 && compact){ renderDrop(""); csSumUpdate(id,cfg); return } window._csReopen=id; softRenderHero() } });
       var closeSheet=function(ev){ if(ev){ ev.stopPropagation(); ev.preventDefault() } huHide(drop); input.blur() };
       var cl=drop.querySelector(".cs-close"); if(cl) cl.onclick=closeSheet;
       var dn=drop.querySelector(".cs-done"); if(dn) dn.onclick=closeSheet;
-      var ca=drop.querySelector("[data-csclearall]"); if(ca) ca.onclick=function(ev){ ev.stopPropagation(); ev.preventDefault(); F[cfg.arrKey]=[]; if(window.innerWidth<=640 && compact){ renderDrop(""); csSumUpdate(id,cfg); return } window._csReopen=id; softRenderHero() };
+      var ca=drop.querySelector("[data-csclearall]"); if(ca) ca.onclick=function(ev){ ev.stopPropagation(); ev.preventDefault(); F[cfg.arrKey]=[]; if(cfg.arrKey==="types") F.t=""; if(cfg.arrKey==="areas") F.apick=[]; csChanged(cfg); if(window.innerWidth<=640 && compact){ renderDrop(""); csSumUpdate(id,cfg); return } window._csReopen=id; softRenderHero() };
       // phone sheet search: filters the list in place (no re-render, so the keyboard stays), and while the
       // keyboard is up the sheet hangs from the top of the visible area instead of hiding behind the keyboard
       var sq=drop.querySelector(".cs-sheet-q");
@@ -5797,7 +5819,9 @@ function wireChipSelects(){
         if(ev){ev.stopPropagation();if(ev.preventDefault)ev.preventDefault()}
         var v=this.dataset.csval;
         if((F[cfg.arrKey]||[]).indexOf(v)>-1) return;   // already chosen
-        F[cfg.arrKey]=(F[cfg.arrKey]||[]).concat([v]);
+        if(cfg.arrKey==="types" && F.t && !(F.types&&F.types.length)) F.types=[F.t];   // «شقة» from a home tile stays chosen when «محل» is added
+        F[cfg.arrKey]=(F[cfg.arrKey]||[]).concat([v]); csChanged(cfg);
+        if(id==="csArea" && this.dataset.csgov) F.apick=(F.apick||[]).filter(function(k){ return k.slice(k.indexOf("|")+1)!==v }).concat([this.dataset.csgov+"|"+v]);
         if(window.innerWidth<=640 && compact){ csPickInPlace(id,cfg,v,this,drop); return }   // phone sheet: no re-render, no flash
         window._csReopen=id; softRenderHero();
       }}) }
@@ -7748,6 +7772,7 @@ function srvF(f){ f=f||F; var o={};
   ["govs","areas","tbs","types","rooms"].forEach(function(k){ if(f[k]&&f[k].length) o[k]=f[k].map(String) });
   ["g","a","tb","t","cd","furn","rentalPeriod","sec","deal","kw"].forEach(function(k){ if(f[k]) o[k]=String(f[k]) });
   if(+f.pmin) o.pmin=+f.pmin; if(+f.pmax) o.pmax=+f.pmax; if(f.ownerOnly) o.ownerOnly=true; if(f.shareOnly) o.shareOnly=true;
+  if(o.areas&&f.apick&&f.apick.length){ var ap=f.apick.filter(function(k){ return o.areas.indexOf(k.slice(k.indexOf("|")+1))>-1 }); if(ap.length) o.apick=ap }
   return o }
 function srvKey(){ return COUNTRY+"|"+JSON.stringify(srvF(F))+"|"+(F.sort||"new")+"|"+SRV.gen }
 function srvPageSize(){ return +SX("search_page_size",24)||24 }
@@ -8130,7 +8155,7 @@ function filterToQuery(){
   q.deal=F.deal||"all";   // «الكل» is written too: a link without deal= opens on «للبيع» (the default), so sale+rent was lost on refresh / share
   if(F.govs&&F.govs.length) q.govs=F.govs.join(",");
   else if(F.g) q.g=F.g;
-  if(F.areas&&F.areas.length) q.areas=F.areas.join(",");
+  if(F.areas&&F.areas.length){ q.areas=F.areas.join(","); var ap=areaPicks(); if(ap.length) q.ap=ap.join(",") }
   else if(F.a) q.a=F.a;
   if(F.types&&F.types.length) q.types=F.types.join(",");
   else if(F.t) q.t=F.t;
@@ -8164,6 +8189,7 @@ function applyFilterFromQuery(qs){
   else if(params.g) F.g=params.g;
   if(params.areas) F.areas=params.areas.split(",").filter(Boolean);
   else if(params.a) F.a=params.a;
+  F.apick=params.ap?params.ap.split(",").filter(Boolean):[];
   if(params.types) F.types=params.types.split(",").filter(Boolean);
   else if(params.t) F.t=params.t;
   if(params.tbs) F.tbs=params.tbs.split(",").filter(Boolean);
@@ -8428,9 +8454,12 @@ var _viewCountry = null, _lastLoggedView = null;
 async function resolveCountry(){
   if(_viewCountry!==null) return _viewCountry;
   try{
+    // the loader keeps the answer a day (balkoun_geo): one lookup per visitor per day instead of one per page load
+    try{ var kept=JSON.parse(localStorage.getItem("balkoun_geo")||"null"); if(kept && kept.n && Date.now()-kept.t<86400000){ _viewCountry=kept.n; return _viewCountry } }catch(e){}
     var res = await fetch("https://get.geojs.io/v1/ip/country.json");
     var txt = String(((await res.json())||{}).name||"").trim();
     _viewCountry = (txt && txt.length<60) ? txt : "";
+    if(_viewCountry) try{ localStorage.setItem("balkoun_geo", JSON.stringify({n:_viewCountry,t:Date.now()})) }catch(e){}
   }catch(e){ _viewCountry = "" }
   return _viewCountry;
 }
@@ -8529,14 +8558,16 @@ var TOUCH=(function(){
 function touchForSignup(){ var st=TOUCH||{}, l=st.last, f=st.first||{s:"direct",d:""};
   var pick=(l && Date.now()-l.t<30*86400000) ? l : f;   // an ad clicked in the last 30 days wins over an older first visit
   return {s:pick.s, d:("first="+f.s+(f.d?"("+f.d+")":"")+(l?" last="+l.s+(l.d?"("+l.d+")":""):"")).slice(0,160)} }
-var _logReady=false, _logArmed=false;
+// 2026-11-05 owner: "a visitor even for a moment is a visitor" — no 3-second wait any more (it was there to leave out crawlers
+// that open a page and leave; IS_BOT still leaves out the ones that say what they are)
+var _logReady=true, _hitTaken=false;
 function logView(){
   if(PREVIEW || IS_BOT) return;
-  // a visit counts once the page has been open 3 seconds: crawlers that open a page and leave at once are not visitors
-  if(!_logReady){ if(!_logArmed){ _logArmed=true; setTimeout(function(){ _logReady=true; logView() }, Math.max(0, 3000-((window.performance&&performance.now())||0))) } return }
   if(VIEW===_lastLoggedView) return;
   _lastLoggedView = VIEW;
   if(!DB || (ADM&&ADM.token&&VIEW==="admin")) return;
+  // the loader (bundle/loader-3.js) already reported the page the visit opened on, the moment it opened: not twice
+  if(window.__bkHit && !_hitTaken){ _hitTaken=true; _refLogged=true; visitorPing(false); return }
   var ref=""; if(!_refLogged){ _refLogged=true; ref=(document.referrer||"").replace(/^https?:\/\//,"").split("/")[0]; if(ref===location.host) ref="";
     // campaign links (balkoun.com/…?src=fb-damas) → the source wins over the referrer and is remembered for this visitor
     var srcTag=SRC_TAG||(location.search.match(/[?&]src=([\w-]{1,40})/)||[])[1]; if(srcTag){ ref="src:"+srcTag } }
