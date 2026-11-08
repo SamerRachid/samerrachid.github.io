@@ -428,6 +428,7 @@ const T = {
     stReading: `جارٍ قراءة إعلانك… ⏳`,
     stNeeds: (miss: string) => `إعلانك ينقصه: ${miss}\nأرسلها هنا، أو اكتب «تخطي» للنشر من دونها.`,
     stReady: `ملخص إعلانك جاهز ✅ اكتب «نعم» للنشر، أو «تصحيح» لتعديل معلومة.`,
+    remindReady: (title: string) => `تذكير 👋 ملخص إعلانك${title ? " «" + title + "»" : ""} جاهز ولم يُنشر بعد.\nاكتب «نعم» لنشره، أو «تصحيح» لتعديل معلومة، أو «إلغاء» إن لم تعد تريده.`,
     stReview: `إعلانك عند الإدارة للمراجعة قبل النشر ⏳ سيصلك رابطه فور نشره.`,
     stLive: (ref: string, url: string) => `إعلانك ${ltr(ref)} منشور ✅\n${url}`,
     stFailed: (n: string) => `تعذّرت قراءة إعلانك الأخير. أرسل تفاصيله مرة أخرى${n ? `، أو تواصل مع الإدارة: ${ltr(n)}` : "."}`,
@@ -541,6 +542,7 @@ const T = {
     stReading: `Reading your listing… ⏳`,
     stNeeds: (miss: string) => `Your listing is missing: ${miss}\nSend them here, or write "skip" to publish without them.`,
     stReady: `Your listing summary is ready ✅ Write "yes" to publish, or "correct" to change a detail.`,
+    remindReady: (title: string) => `A reminder 👋 your listing summary${title ? " (" + title + ")" : ""} is ready and not published yet.\nWrite "yes" to publish it, "correct" to change a detail, or "cancel" if you no longer want it.`,
     stReview: `Your listing is with the team for review before it goes live ⏳ You will get the link as soon as it is published.`,
     stLive: (ref: string, url: string) => `Your listing ${ltr(ref)} is live ✅\n${url}`,
     stFailed: (n: string) => `Your last listing could not be read. Send its details again${n ? `, or contact the team: ${ltr(n)}` : "."}`,
@@ -1648,6 +1650,9 @@ async function tick(): Promise<number> {
         if (d.source !== "web") await reply(d.source, d.chat_id, tx("ar").readFailed);
       }
     }
+    // one reminder per ready summary the sender has not answered for 20 hours (owner, 2026-11-07); inside WhatsApp's 24-hour window
+    try { const rem = await rpc<any[]>("bk_intake_remind_due", {}); for (const d of rem || []) await reply(d.source, d.chat_id, tx("ar").remindReady(String(d.title || ""))); }
+    catch (e) { console.error("remind", errStr(e)); }
     await notifyFlush();
     await campaignFlush();
     await wahaHealth();
