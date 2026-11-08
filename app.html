@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-SYaYdwfKmSJ31alE6GObS62fYcx+jAcaFTycN2oFJkU=' 'sha256-+NLqM70adYg8mEinwFHEO3kxPgQesOsVJ9WOL+UR1Zs=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-SYaYdwfKmSJ31alE6GObS62fYcx+jAcaFTycN2oFJkU=' 'sha256-BmHKNftRW0/GwWXdEuwFK4LwjvU7B7iEADo37bmo6qU=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -1356,7 +1356,7 @@ footer{font-size:14px}
 .resalt{margin-top:22px}
 .resalt-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .resalt-h h3{font-size:16px;font-weight:700;color:var(--navy);margin:0}
-.resalt-h .ab{margin:0}
+.resalt-h .ab{margin:0;background:transparent;padding:8px 14px;font-size:13.5px}   /* the theme's links are white: on .ab's white ground the label vanished */
 .resempty{grid-column:1/-1;background:#fff;border:1px dashed var(--line-2);border-radius:16px;padding:56px 20px;text-align:center;color:var(--grey);display:flex;flex-direction:column;align-items:center;gap:8px}
 .resempty svg{color:var(--gold)}
 .resempty b{color:var(--ink);font-size:16px}
@@ -7174,17 +7174,31 @@ function resCardsWithAds(items){ var ads=items.length>=8?resAdsFor():[], k=0, ou
   var io=new IntersectionObserver(function(es){ var ev=[]; es.forEach(function(en){ if(!en.isIntersecting) return; var id=en.target.dataset.adid, k=VIEW+"|"+id; io.unobserve(en.target); if(seen[k]) return; seen[k]=1; ev.push({slot:id,kind:"view",page:VIEW.split(":")[0]}) }); if(ev.length) logAds(ev) },{threshold:.5});
   var scan=function(){ if(VIEW!==lastView){ lastView=VIEW } document.querySelectorAll(".topbanner-item[data-adid], .res-ad[data-adid], .side-ad[data-adid]").forEach(function(el){ if(!el._adObs){ el._adObs=1; io.observe(el) } }) };
   var app=document.getElementById("app")||document.body, t=null; new MutationObserver(function(){ clearTimeout(t); t=setTimeout(scan,300) }).observe(app,{childList:true,subtree:true}); setTimeout(scan,1500) })();
-// when a search finds nothing: the same search anywhere in the country, or failing that the newest listings
+// when a search finds nothing, the suggestions stay in the chosen governorate (owner, 2026-11-08): the same search without
+// the area, then without the details, then without the deal and the section; only a governorate with nothing at all
+// falls back to the whole country (the same search, then the newest listings). Each step lists the filter keys it drops.
+function altLadder(f){
+  var gov=(f.govs&&f.govs.length)?f.govs:(f.g?[f.g]:[]), area=!!((f.areas&&f.areas.length)||f.a);
+  var A=["areas","a","apick"], P=["govs","g"].concat(A), DET=["types","t","tbs","tb","cd","pmin","pmax","furn","rentalPeriod","ownerOnly","shareOnly"], XD=DET.concat(["rooms","kw"]), s=[];
+  if(gov.length){
+    if(area) s.push({drop:A, tk:"altResGov"});
+    s.push({drop:A.concat(XD), tk:"altResGov2"}, {drop:A.concat(XD,["deal"]), tk:"altResGov2"}, {drop:A.concat(XD,["deal","sec"]), tk:"altResGov2"});
+  }
+  s.push({drop:P, tk:"altResH"}, {drop:P.concat(DET), tk:"altResH2"});
+  return {gov:gov, steps:s} }
 function searchAlternatives(){
-  var saved=F, alt=[], title="";
-  if(srvOn()){ var sa=SRV.q&&SRV.q.alt; if(!sa) return ''; alt=sa.rows.slice(); title=sa.title } else
+  var saved=F, alt=[], tk="", gov=[];
+  if(srvOn()){ var sa=SRV.q&&SRV.q.alt; if(!sa) return ''; alt=sa.rows.slice(); tk=sa.tk; gov=sa.gov } else
   try{
-    F=Object.assign({},saved,{govs:[],areas:[],g:"",a:""});
-    alt=D.LIST.filter(function(x){ return passesFilter(x,null) });
-    title=GX("altResH");
-    if(!alt.length){ F=Object.assign({},saved,{govs:[],areas:[],g:"",a:"",types:[],t:"",tbs:[],tb:"",cd:"",pmin:0,pmax:0,furn:"",rentalPeriod:"",ownerOnly:false,shareOnly:false}); alt=D.LIST.filter(function(x){ return passesFilter(x,null) }); title=GX("altResH2") }
+    var lad=altLadder(saved), tried={}; tried[JSON.stringify(srvF(saved))]=1; gov=lad.gov;
+    for(var i=0; i<lad.steps.length && !alt.length; i++){
+      var f=Object.assign({},saved);
+      lad.steps[i].drop.forEach(function(k){ if(!(k in f)) return; var v=f[k]; f[k]=Array.isArray(v)?[]:(typeof v==="boolean"?false:(typeof v==="number"?0:"")) });
+      var key=JSON.stringify(srvF(f)); if(tried[key]) continue; tried[key]=1;
+      F=f; alt=D.LIST.filter(function(x){ return passesFilter(x,null) }); tk=lad.steps[i].tk }
   }finally{ F=saved }
   if(!alt.length) return '';
+  var title=GX(tk).replace("{gov}", gov.map(gN).join(L==="ar"?"، ":", "));
   alt.sort(function(a,b){ return (b.featured?1:0)-(a.featured?1:0) || new Date(b.createdAt||0)-new Date(a.createdAt||0) });
   return '<div class="resalt"><div class="resalt-h"><h3>'+title+'</h3><a class="ab" data-go="search" data-deal="'+(F.deal||"")+'" data-sec="'+(F.sec||"")+'">'+GX("altResBtn")+'</a></div>'+
     '<div class="res'+(VIEWMODE==="list"?" list-view":"")+'">'+alt.slice(0,6).map(function(x,i){ return card(x,i,VIEWMODE==="list") }).join("")+'</div></div>';
@@ -12887,12 +12901,14 @@ async function srvRunPage(key,pg){
   try{ var r=await srvQ(srvF(F), F.sort||"new", (pg-1)*size, size, []);
     if(SRV.q&&SRV.q.key===key){ SRV.q.pages[pg]=r.rows; if(VIEW==="search"||VIEW==="mapsearch") render() }
   }catch(e){ srvFail(e) }finally{ delete SRV.pend[pk] } }
-// nothing found: the same two wider searches as searchAlternatives() (without the place, then without the details)
+// nothing found: the same wider searches as searchAlternatives() (altLadder: the governorate first, then the country)
 async function srvAlternatives(base){
-  var f1=Object.assign({},base); ["govs","areas","g","a"].forEach(function(k){ delete f1[k] });
-  var r=await srvQ(f1,"new",0,6,[]); if(r.rows.length) return {title:GX("altResH"), rows:r.rows};
-  var f2=Object.assign({},f1); ["types","t","tbs","tb","cd","pmin","pmax","furn","rentalPeriod","ownerOnly","shareOnly"].forEach(function(k){ delete f2[k] });
-  r=await srvQ(f2,"new",0,6,[]); return r.rows.length?{title:GX("altResH2"), rows:r.rows}:null }
+  var lad=altLadder(base), tried={}; tried[JSON.stringify(base)]=1;
+  for(var i=0; i<lad.steps.length; i++){
+    var f=Object.assign({},base); lad.steps[i].drop.forEach(function(k){ delete f[k] });
+    var key=JSON.stringify(f); if(tried[key]) continue; tried[key]=1;
+    var r=await srvQ(f,"new",0,6,[]); if(r.rows.length) return {tk:lad.steps[i].tk, gov:lad.gov, rows:r.rows} }
+  return null }
 // the home search button's count: fetched once per filter state, written into the button when it arrives
 function srvHeroCount(deal){
   var f=srvF(F); if(deal) f.deal=deal; else delete f.deal;
@@ -15198,6 +15214,8 @@ var GX_T={
   navSoonHeader:{ar:"إظهار خدمات «قريباً» في شريط رأس الكمبيوتر (تبقى داخل القائمة دائماً)",en:"Show the “coming soon” services in the desktop header bar (always inside the menu too)",de:"„Bald“-Dienste in der Desktop-Kopfzeile zeigen (im Menü immer vorhanden)"},
   altResH:{ar:"لا توجد إعلانات مطابقة هنا — إليك إعلانات مشابهة في مناطق أخرى",en:"Nothing matches here — similar listings elsewhere",de:"Hier passt nichts – ähnliche Anzeigen anderswo"},
   altResH2:{ar:"لا توجد إعلانات مطابقة — إليك أحدث الإعلانات",en:"Nothing matches — here are the latest listings",de:"Nichts passt – die neuesten Anzeigen"},
+  altResGov:{ar:"لا توجد إعلانات مطابقة هنا — إليك إعلانات مشابهة في {gov}",en:"Nothing matches here — similar listings in {gov}",de:"Hier passt nichts – ähnliche Anzeigen in {gov}",fr:"Rien ne correspond ici — annonces similaires à {gov}"},
+  altResGov2:{ar:"لا توجد إعلانات مطابقة — إليك إعلانات أخرى في {gov}",en:"Nothing matches — other listings in {gov}",de:"Nichts passt – weitere Anzeigen in {gov}",fr:"Rien ne correspond — autres annonces à {gov}"},
   altResBtn:{ar:"عرض كل الإعلانات",en:"Show all listings",de:"Alle Anzeigen zeigen"},
   geoTab:{ar:"المناطق",en:"Areas",de:"Gebiete"}, allAreas:{ar:"كل المناطق",en:"All areas",de:"Alle Gebiete"},
   city:{ar:"مدينة",en:"City",de:"Stadt"}, area:{ar:"حي / منطقة",en:"District",de:"Bezirk"}, village:{ar:"قرية / بلدة",en:"Village",de:"Dorf"},

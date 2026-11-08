@@ -2107,17 +2107,31 @@ function resCardsWithAds(items){ var ads=items.length>=8?resAdsFor():[], k=0, ou
   var io=new IntersectionObserver(function(es){ var ev=[]; es.forEach(function(en){ if(!en.isIntersecting) return; var id=en.target.dataset.adid, k=VIEW+"|"+id; io.unobserve(en.target); if(seen[k]) return; seen[k]=1; ev.push({slot:id,kind:"view",page:VIEW.split(":")[0]}) }); if(ev.length) logAds(ev) },{threshold:.5});
   var scan=function(){ if(VIEW!==lastView){ lastView=VIEW } document.querySelectorAll(".topbanner-item[data-adid], .res-ad[data-adid], .side-ad[data-adid]").forEach(function(el){ if(!el._adObs){ el._adObs=1; io.observe(el) } }) };
   var app=document.getElementById("app")||document.body, t=null; new MutationObserver(function(){ clearTimeout(t); t=setTimeout(scan,300) }).observe(app,{childList:true,subtree:true}); setTimeout(scan,1500) })();
-// when a search finds nothing: the same search anywhere in the country, or failing that the newest listings
+// when a search finds nothing, the suggestions stay in the chosen governorate (owner, 2026-11-08): the same search without
+// the area, then without the details, then without the deal and the section; only a governorate with nothing at all
+// falls back to the whole country (the same search, then the newest listings). Each step lists the filter keys it drops.
+function altLadder(f){
+  var gov=(f.govs&&f.govs.length)?f.govs:(f.g?[f.g]:[]), area=!!((f.areas&&f.areas.length)||f.a);
+  var A=["areas","a","apick"], P=["govs","g"].concat(A), DET=["types","t","tbs","tb","cd","pmin","pmax","furn","rentalPeriod","ownerOnly","shareOnly"], XD=DET.concat(["rooms","kw"]), s=[];
+  if(gov.length){
+    if(area) s.push({drop:A, tk:"altResGov"});
+    s.push({drop:A.concat(XD), tk:"altResGov2"}, {drop:A.concat(XD,["deal"]), tk:"altResGov2"}, {drop:A.concat(XD,["deal","sec"]), tk:"altResGov2"});
+  }
+  s.push({drop:P, tk:"altResH"}, {drop:P.concat(DET), tk:"altResH2"});
+  return {gov:gov, steps:s} }
 function searchAlternatives(){
-  var saved=F, alt=[], title="";
-  if(srvOn()){ var sa=SRV.q&&SRV.q.alt; if(!sa) return ''; alt=sa.rows.slice(); title=sa.title } else
+  var saved=F, alt=[], tk="", gov=[];
+  if(srvOn()){ var sa=SRV.q&&SRV.q.alt; if(!sa) return ''; alt=sa.rows.slice(); tk=sa.tk; gov=sa.gov } else
   try{
-    F=Object.assign({},saved,{govs:[],areas:[],g:"",a:""});
-    alt=D.LIST.filter(function(x){ return passesFilter(x,null) });
-    title=GX("altResH");
-    if(!alt.length){ F=Object.assign({},saved,{govs:[],areas:[],g:"",a:"",types:[],t:"",tbs:[],tb:"",cd:"",pmin:0,pmax:0,furn:"",rentalPeriod:"",ownerOnly:false,shareOnly:false}); alt=D.LIST.filter(function(x){ return passesFilter(x,null) }); title=GX("altResH2") }
+    var lad=altLadder(saved), tried={}; tried[JSON.stringify(srvF(saved))]=1; gov=lad.gov;
+    for(var i=0; i<lad.steps.length && !alt.length; i++){
+      var f=Object.assign({},saved);
+      lad.steps[i].drop.forEach(function(k){ if(!(k in f)) return; var v=f[k]; f[k]=Array.isArray(v)?[]:(typeof v==="boolean"?false:(typeof v==="number"?0:"")) });
+      var key=JSON.stringify(srvF(f)); if(tried[key]) continue; tried[key]=1;
+      F=f; alt=D.LIST.filter(function(x){ return passesFilter(x,null) }); tk=lad.steps[i].tk }
   }finally{ F=saved }
   if(!alt.length) return '';
+  var title=GX(tk).replace("{gov}", gov.map(gN).join(L==="ar"?"، ":", "));
   alt.sort(function(a,b){ return (b.featured?1:0)-(a.featured?1:0) || new Date(b.createdAt||0)-new Date(a.createdAt||0) });
   return '<div class="resalt"><div class="resalt-h"><h3>'+title+'</h3><a class="ab" data-go="search" data-deal="'+(F.deal||"")+'" data-sec="'+(F.sec||"")+'">'+GX("altResBtn")+'</a></div>'+
     '<div class="res'+(VIEWMODE==="list"?" list-view":"")+'">'+alt.slice(0,6).map(function(x,i){ return card(x,i,VIEWMODE==="list") }).join("")+'</div></div>';
@@ -3436,8 +3450,9 @@ function areaCombo(as){
  var exactOpt=function(q){ var n=kwNorm(q), al=placeAliasExact(q); return liveOpts().filter(function(o){ return o.v && o.v!=="__other__" && (kwNorm(o.t)===n || o.v===al) })[0] };   // a learned name (ساحة الميسات) counts as its area
  var pick=function(v){ if(v==="__other__" && typed.trim().length>=2 && !exactOpt(typed)){ var ob=document.getElementById("paOther"); if(ob) ob.value=typed.trim() } typed=""; as.value=v; sync(); drop.classList.remove("on"); input.setAttribute("aria-expanded","false"); try{ input.blur() }catch(e){} as.dispatchEvent(new Event("change",{bubbles:true})) };
  // phones show the list as a bottom sheet; iPhone's keyboard does not shrink the page, so the sheet would sit behind it
- var lift=function(){ try{ var vv=window.visualViewport; if(!vv || !drop.classList.contains("on") || !matchMedia("(max-width:640px)").matches){ drop.style.bottom=""; return }
-   var kb=Math.max(0, window.innerHeight-vv.height-vv.offsetTop); drop.style.bottom=kb?kb+"px":""; if(kb) drop.style.maxHeight=Math.max(160, Math.round(vv.height*0.6))+"px" }catch(e){} };
+ // (set as !important: theme-hu.css pins every phone sheet to bottom:0 with !important, which had cancelled this lift)
+ var lift=function(){ try{ var vv=window.visualViewport, st=drop.style; if(!vv || !drop.classList.contains("on") || !matchMedia("(max-width:640px)").matches){ st.removeProperty("bottom"); st.removeProperty("max-height"); return }
+   var kb=Math.max(0, window.innerHeight-vv.height-vv.offsetTop); if(kb){ st.setProperty("bottom",kb+"px","important"); st.setProperty("max-height",Math.max(160, Math.round(vv.height*0.6))+"px","important") } else { st.removeProperty("bottom"); st.removeProperty("max-height") } }catch(e){} };
  if(window.visualViewport){ visualViewport.addEventListener("resize",lift); visualViewport.addEventListener("scroll",lift) }
  var render=function(q){
    var n=kwNorm(q||""), cur=as.value;
@@ -5590,7 +5605,7 @@ function csAllAreas(){
   // area across the whole country (flat search, no governorate chosen yet)
   var govs = (F.govs&&F.govs.length) ? F.govs.filter(function(g){return D.GEO[g]}) : Object.keys(D.GEO);
   var out=[];
-  govs.forEach(function(g){ D.GEO[g].forEach(function(a){ out.push(a) }) });
+  govs.forEach(function(g){ D.GEO[g].forEach(function(a){ if(out.indexOf(a)===-1) out.push(a) }) });   // once each: «الميدان» is in several governorates and was listed 3× under every one
   return out;
 }
 function csTypeOptions(){
@@ -5638,8 +5653,9 @@ var CS_CONFIGS={
 };
 var _csDocListenerAdded=false;
 // height of the visible area (shrinks when the phone keyboard is up) for the filter sheets
-function csVvh(){ var vv=window.visualViewport; var h=vv?vv.height:Math.round(window.innerHeight*.6); document.documentElement.style.setProperty("--vvh",Math.round(h)+"px") }
-if(window.visualViewport && !window._vvBound){ window._vvBound=true; window.visualViewport.addEventListener("resize",function(){ if(document.querySelector(".chipsel-drop.on.kb")) csVvh() }) }
+function csVvh(){ var vv=window.visualViewport; var h=vv?vv.height:Math.round(window.innerHeight*.6); document.documentElement.style.setProperty("--vvh",Math.round(h)+"px");
+  document.documentElement.style.setProperty("--vvt",Math.round(vv?vv.offsetTop:0)+"px") }   // --vvt: the phone may scroll the visible area down when the keyboard opens
+if(window.visualViewport && !window._vvBound){ window._vvBound=true; ["resize","scroll"].forEach(function(ev){ window.visualViewport.addEventListener(ev,function(){ if(document.querySelector(".chipsel-drop.on.kb")) csVvh() }) }) }
 // live listing counts per governorate and per area, shown inside the field menus
 function csCounts(){
   if(srvOn()){ var ss=srvStatsNow(), sa={}; Object.keys(ss.a||{}).forEach(function(k){ var nm=k.slice(k.indexOf("|")+1); sa[nm]=(sa[nm]||0)+ss.a[k] }); return {g:Object.assign({},ss.g||{}), a:sa} }
@@ -7818,12 +7834,14 @@ async function srvRunPage(key,pg){
   try{ var r=await srvQ(srvF(F), F.sort||"new", (pg-1)*size, size, []);
     if(SRV.q&&SRV.q.key===key){ SRV.q.pages[pg]=r.rows; if(VIEW==="search"||VIEW==="mapsearch") render() }
   }catch(e){ srvFail(e) }finally{ delete SRV.pend[pk] } }
-// nothing found: the same two wider searches as searchAlternatives() (without the place, then without the details)
+// nothing found: the same wider searches as searchAlternatives() (altLadder: the governorate first, then the country)
 async function srvAlternatives(base){
-  var f1=Object.assign({},base); ["govs","areas","g","a"].forEach(function(k){ delete f1[k] });
-  var r=await srvQ(f1,"new",0,6,[]); if(r.rows.length) return {title:GX("altResH"), rows:r.rows};
-  var f2=Object.assign({},f1); ["types","t","tbs","tb","cd","pmin","pmax","furn","rentalPeriod","ownerOnly","shareOnly"].forEach(function(k){ delete f2[k] });
-  r=await srvQ(f2,"new",0,6,[]); return r.rows.length?{title:GX("altResH2"), rows:r.rows}:null }
+  var lad=altLadder(base), tried={}; tried[JSON.stringify(base)]=1;
+  for(var i=0; i<lad.steps.length; i++){
+    var f=Object.assign({},base); lad.steps[i].drop.forEach(function(k){ delete f[k] });
+    var key=JSON.stringify(f); if(tried[key]) continue; tried[key]=1;
+    var r=await srvQ(f,"new",0,6,[]); if(r.rows.length) return {tk:lad.steps[i].tk, gov:lad.gov, rows:r.rows} }
+  return null }
 // the home search button's count: fetched once per filter state, written into the button when it arrives
 function srvHeroCount(deal){
   var f=srvF(F); if(deal) f.deal=deal; else delete f.deal;
@@ -10100,6 +10118,8 @@ var GX_T={
   navSoonHeader:{ar:"إظهار خدمات «قريباً» في شريط رأس الكمبيوتر (تبقى داخل القائمة دائماً)",en:"Show the “coming soon” services in the desktop header bar (always inside the menu too)"},
   altResH:{ar:"لا توجد إعلانات مطابقة هنا — إليك إعلانات مشابهة في مناطق أخرى",en:"Nothing matches here — similar listings elsewhere"},
   altResH2:{ar:"لا توجد إعلانات مطابقة — إليك أحدث الإعلانات",en:"Nothing matches — here are the latest listings"},
+  altResGov:{ar:"لا توجد إعلانات مطابقة هنا — إليك إعلانات مشابهة في {gov}",en:"Nothing matches here — similar listings in {gov}",fr:"Rien ne correspond ici — annonces similaires à {gov}"},
+  altResGov2:{ar:"لا توجد إعلانات مطابقة — إليك إعلانات أخرى في {gov}",en:"Nothing matches — other listings in {gov}",fr:"Rien ne correspond — autres annonces à {gov}"},
   altResBtn:{ar:"عرض كل الإعلانات",en:"Show all listings"},
   geoTab:{ar:"المناطق",en:"Areas"}, allAreas:{ar:"كل المناطق",en:"All areas"},
   city:{ar:"مدينة",en:"City"}, area:{ar:"حي / منطقة",en:"District"}, village:{ar:"قرية / بلدة",en:"Village"},

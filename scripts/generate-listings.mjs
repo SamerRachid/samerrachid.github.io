@@ -149,21 +149,27 @@ const appLink = (lang, p) => `${SITE}${CUR_PRE}/${p}${lang === "ar" ? "" : `?lan
 const MARK = `<svg viewBox="0 0 100 100" aria-hidden="true"><rect x="19" y="19" width="62" height="62" fill="none" stroke="currentColor" stroke-width="7"/><path d="M50 5 95 50 50 95 5 50Z" fill="none" stroke="#C4881F" stroke-width="9"/><rect x="42.5" y="42.5" width="15" height="15" fill="currentColor"/></svg>`;
 
 // a tiny 200 page at the id-only address the app links to (/listing/325, also the promo links): search engines get the title,
-// description, image and the canonical slug page; a visitor is sent on into the app (hash route, query kept so ?src= tags count).
+// description, image and the canonical slug page; a visitor is sent on to the listing's own page in their language (query kept so
+// ?src= tags count). It used to go to the home page with a #/listing hash, which flashed the home hero first (owner, 2026-11-08).
 // Without it GitHub Pages answered these addresses with 404.html and a 404 status, so every internal link looked broken to Google.
 function stubPage(l, photos, ogPath) {
   const W = S.ar, typeLabel = typeName(l.property_type, "ar"), dealLabel = l.deal === "rent" ? W.forRent : W.forSale;
   const sizeTxt = has(l.area_m2) ? `${l.area_m2} ${W.sqm}` : "", areaName = areaNm(l, "ar"), gov = govName(l, "ar");
   const title = `${typeLabel} ${dealLabel} ${sizeTxt} — ${areaName} ${gov} | بلكون`.replace(/\s+/g, " ");
   const desc = ([`${typeLabel} ${dealLabel} ${W.inPlace([areaName, gov].filter(Boolean).join(W.sep))}`, sizeTxt, has(l.rooms) ? `${l.rooms} ${W.roomsShort}` : "", l.tabu ? tabuName(l.tabu, "ar") : "", money(l.price_usd)].filter(Boolean).join(W.sep) + ".").slice(0, 155);
-  const url = urlFor(l, "ar"), cover = photos[0] || l.cover_url || SITE + "/brand/og-image.png", app = "/";   // the app takes the listing's country from the listing
+  const url = urlFor(l, "ar"), cover = photos[0] || l.cover_url || SITE + "/brand/og-image.png";
+  const pages = Object.fromEntries(CUR_LANGS.map((lg) => [lg, urlFor(l, lg).slice(SITE.length)]));   // the slug page per language, as paths
   const shareImg = ogPath || cover, dims = ogPath ? `<meta property="og:image:width" content="${OG_WIDTH}"><meta property="og:image:height" content="${OG_HEIGHT}">` : "";
   return `<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${esc(title)}</title><meta name="description" content="${esc(desc)}"><meta name="robots" content="noindex, follow"><link rel="canonical" href="${url}">
 <meta property="og:type" content="product"><meta property="og:site_name" content="Balkoun"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}"><meta property="og:url" content="${url}"><meta property="og:image" content="${esc(shareImg)}">${dims}<meta name="twitter:card" content="summary_large_image">
 <style>body{margin:0;background:#14213D;color:#fff;font:15px/1.7 system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;text-align:center}a{color:#E3B563}</style></head>
 <body><div><p>${esc(title)}</p><a href="${url}">فتح الإعلان</a></div>
-<script>location.replace(${JSON.stringify(app)}+location.search+"#/listing/${l.id}")</script></body></html>`;
+<script>${stubGo(pages)}</script></body></html>`;
+}
+// ?lang= first, then the language the visitor chose before, else Arabic
+function stubGo(pages) {
+  return `var u=${JSON.stringify(pages)},m=location.search.match(/[?&]lang=([a-z]{2})/),k=m&&m[1];if(!k)try{k=localStorage.getItem("balkoun_lang")}catch(e){}location.replace((u[k]||u.ar)+location.search)`;
 }
 // ── what makes each listing page its own (2026-10-29): Search Console showed 1,188 pages "discovered, not indexed" and
 // 174 "crawled, not indexed" — the pages were ~63 words, nearly alike, and linked to nothing but the home page.

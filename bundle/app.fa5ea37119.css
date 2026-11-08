@@ -1209,7 +1209,7 @@ footer{font-size:14px}
 .resalt{margin-top:22px}
 .resalt-h{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
 .resalt-h h3{font-size:16px;font-weight:700;color:var(--navy);margin:0}
-.resalt-h .ab{margin:0}
+.resalt-h .ab{margin:0;background:transparent;padding:8px 14px;font-size:13.5px}   /* the theme's links are white: on .ab's white ground the label vanished */
 .resempty{grid-column:1/-1;background:#fff;border:1px dashed var(--line-2);border-radius:16px;padding:56px 20px;text-align:center;color:var(--grey);display:flex;flex-direction:column;align-items:center;gap:8px}
 .resempty svg{color:var(--gold)}
 .resempty b{color:var(--ink);font-size:16px}

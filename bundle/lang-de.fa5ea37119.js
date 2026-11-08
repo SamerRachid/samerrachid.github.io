@@ -631,6 +631,8 @@ window.__BK_LANG={lang:"de",t:{"D":[[["I18N"],"de",{"buy": "Kaufen","rent": "Mie
 [["navSoonHeader"],"de","„Bald“-Dienste in der Desktop-Kopfzeile zeigen (im Menü immer vorhanden)",0],
 [["altResH"],"de","Hier passt nichts – ähnliche Anzeigen anderswo",0],
 [["altResH2"],"de","Nichts passt – die neuesten Anzeigen",0],
+[["altResGov"],"de","Hier passt nichts – ähnliche Anzeigen in {gov}",0],
+[["altResGov2"],"de","Nichts passt – weitere Anzeigen in {gov}",0],
 [["altResBtn"],"de","Alle Anzeigen zeigen",0],
 [["geoTab"],"de","Gebiete",0],
 [["allAreas"],"de","Alle Gebiete",0],
