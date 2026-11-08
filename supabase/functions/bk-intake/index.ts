@@ -962,9 +962,19 @@ function govGuard(fields: Record<string, any>, missing: string[], rawText: strin
 // place names that are also ordinary listing words: "الكسوة: جيدة جداً" is the finishing, not the town of الكسوة in Rif
 // Dimashq. Such a name counts as a place only when the text does not use it as that word.
 const NOUN_AREAS: Record<string, RegExp> = {
-  "كسوه": /(?:^|\s)(?:ال)?كسوه\s*(?::|：|جيده|سوبر|ديلوكس|ممتازه|كامله|حجر|جديده|فاخره|عاديه|وسط|متوسطه|قديمه|حديثه|راقيه)/,
+  "كسوه": /(?:^|\s)(?:و)?(?:ب)?(?:ال)?كسوه\s*(?::|：|جيد|سوبر|ديلوكس|لوكس|ممتاز|كامل|حجر|جديد|فاخر|عادي|وسط|متوسط|قديم|حديث|راقي|نظيف|نضيف|ملكي|حلو|بحاله|مميز|فخم|خارجي|داخلي|نص|[0-9٠-٩])/,
   "صناعه": /منطقه\s+(?:ال)?صناعيه|(?:ال)?صناعه\s+(?:الخفيفه|الثقيله)/,
 };
+// …but «في الكسوة» / «بالكسوة» / «بلدة الكسوة» with no finish word after it is the town even when the same text also
+// describes a finish ("بالكسوة، كسوة ديلوكس"); «مو بالكسوة» says the opposite (owner 2026-11-08: SY10571)
+const NOUN_AREA_TOWN: Record<string, RegExp> = {
+  "كسوه": /(?<!(?:مو|مش|ما|ليس|ليست|مانو|مانها)\s*)(?:^|\s)(?:و)?(?:بال|في\s+ال|منطقه\s+ال|بلده\s+ال|مدينه\s+ال)كسوه(?![\s:：]*(?:جيد|سوبر|ديلوكس|لوكس|ممتاز|كامل|جديد|فاخر|عادي|متوسط|قديم|حديث|راقي|نظيف|نضيف|ملكي|حلو|بحاله|مميز|فخم|[0-9٠-٩]))/,
+};
+// village names that are everyday listing words even WITH ال ("السعر 50 ألف" is not the village السعر in Aleppo, "جديدة
+// البلد" is not البل, "شقة لقطة" is not لقطة in Raqqa, "طاقة شمسية" is not الشمسية in Hama): such a name is the area
+// only after a place word ("قرية السعر", "بلدة البل") or when a line of the message is that name alone (the answer to
+// «المنطقة؟»). Owner 2026-11-08: three Damascus/Rif listings had landed in Aleppo villages this way.
+const WORD_AREAS = new Set(["سعر", "بل", "كفر", "لقطه", "شمسيه", "طاقه", "رئيسي", "صور", "عفش", "عاليه", "قبو", "شجره", "مدرسه", "جديده", "صاله", "خلف", "شرق"]);
 // ordinary place words that also sit in the areas list ("مدرسة" in Aleppo, "الروضة" in six governorates, "الجامع" in
 // Hama): "جانب مدرسة المناضل" names a landmark, not the neighbourhood. Such a word counts as the area only when the
 // message uses it as a place — "حي الروضة", "منطقة الكورنيش", "بالروضة" — not when it heads a landmark ("مدرسة X").
@@ -972,7 +982,12 @@ const NOUN_AREAS: Record<string, RegExp> = {
 const GENERIC_PLACE_WORDS = new Set(["عباره", "مدخل", "مخرج", "عرض", "طلب", "سعر", "مساحه", "غرف", "غرفه", "طابق", "اكساء", "جديده", "قديمه", "كبيره", "صغيره", "وسط", "شمال", "جنوب", "شرق", "غرب", "شرقي", "غربي", "شمالي", "جنوبي", "قبلي", "اول", "ثاني", "ثالث", "رابع", "ارضي", "علوي", "سفلي", "مفروش", "مفروشه", "فاخر", "فاخره", "ممتاز", "ممتازه", "مستقل", "مستقله", "واسع", "واسعه", "جاهز", "جاهزه", "مرخص", "مرخصه", "نجمه", "نجمتين", "صالون", "صاله", "منافع", "برندا", "بلكون", "شرفه", "حديقه", "موقف", "مصعد", "مولد", "طاقه", "شمسيه", "ماء", "مياه", "كهرباء", "بير", "خزان", "مدرسه", "جامع", "مسجد", "نادي", "شارع", "ساحه", "مشفي", "مستشفي", "جامعه", "سوق", "محطه", "كراج", "دوار", "مدينه", "حي", "منطقه", "قريه", "بلده", "مزرعه", "بناء", "برج", "مجمع", "فندق", "مطعم", "حديقه", "مركز", "معمل", "مصنع", "مخفر", "بريد", "كنيسه", "مقبره", "جسر", "نفق", "مول", "صيدليه", "عياده", "مكتب", "مكتبه", "شركه", "محل", "قصر", "بيت", "دار", "نهر", "جبل", "وادي", "سد", "بحيره", "مطار", "مرفا", "ميناء", "جزيره", "بستان", "كرم", "مخيم", "ملعب", "معهد", "كليه", "ثانويه", "روضه", "مؤسسه", "بنك", "مصرف", "فرن", "قلعه", "مقام", "ضريح", "شاليه", "فيلا", "مزار", "كازيه", "طريق", "كورنيش", "اوتوستراد", "مبني", "عماره", "سكن", "ضاحيه", "مشروع", "تل", "عين", "بئر", "خان", "حمام", "سينما", "مسرح", "متحف", "نقابه", "وزاره", "مديريه", "بلديه", "محافظه", "ناحيه"]);
 function areaIsNoun(area: string, rawText: string): boolean {
   const n = norm(area), said = norm(rawText);
-  const re = NOUN_AREAS[n]; if (re && re.test(said)) return true;
+  const re = NOUN_AREAS[n]; if (re && re.test(said) && !(NOUN_AREA_TOWN[n] && NOUN_AREA_TOWN[n].test(said))) return true;
+  if (WORD_AREAS.has(n)) {
+    const placed = new RegExp(`(?:^|\\s)(?:و)?(?:ب|في\\s+)?(?:حي|منطقه|ضاحيه|بلده|قريه|ضيعه|ناحيه|مدينه)\\s+(?:ال)?${n}(?=\\s|$|[،,.:؛])`, "u").test(said);
+    const alone = String(rawText || "").split(/\n+/).some((l) => norm(l).replace(/[^\p{L}\p{N}\s]/gu, "").trim().replace(/^(?:في\s+|ب)/, "").replace(/^ال/, "") === n);
+    return !(placed || alone);
+  }
   if (!GENERIC_PLACE_WORDS.has(n)) return false;
   // it is a place when some mention carries ال (or follows حي/منطقة/…) and is not itself the head of a landmark:
   // "بالروضة", "حي الروضة" → place · "مدرسة المناضل", "جانب الجامع الكبير", "مقابل نادي النضال" → landmark
@@ -993,7 +1008,13 @@ function areaGuards(fields: Record<string, any>, missing: string[], raw: Record<
   const said = norm(rawText), names = [fields.area, a ? a[2] : ""].filter(Boolean).map(norm);
   const drop = () => { delete fields.area; delete fields.area_id; if (g && (g.areas || []).length && !fields.landmark && !missing.includes("area")) missing.push("area"); };
   if (areaIsNoun(fields.area, rawText)) { out.push({ event: "area_is_noun", detail: { picked: fields.area } }); drop(); return out; }
-  if (!names.some((n) => n && said.includes(n))) {
+  // a short name (≤ 4 letters without ال) must be written as a word of its own — «البلد» does not vouch for «البل», «كفر
+  // سوسة» not for «كفر» — with ال / و / ب / ل / عال glued on and anything but a letter after it («الامين100الف»). Longer
+  // names stay a plain substring: posters glue words («دار البيطرةجانب», «شقةالصناعة») and those were read right.
+  const esc = (x: string) => x.replace(/[.*+?^$(){}|[\]\\]/g, "\\$&");
+  const writtenIn = (n: string) => n.replace(/\s+/g, "").length > 4 ? said.includes(n)
+    : new RegExp(`(?:^|[^\\p{L}])(?:و|ف)?(?:بال|لل|عال|ب|ل)?(?:ال)?${esc(n)}(?![\\p{L}])`, "u").test(said);
+  if (!names.some((n) => n && writtenIn(n))) {
     out.push({ event: "area_not_in_text", detail: { picked: fields.area, landmark: raw.area || raw.landmark || null } });
     if (!fields.landmark && raw.area && norm(raw.area) !== norm(fields.area)) fields.landmark = raw.area;
     drop(); return out;
