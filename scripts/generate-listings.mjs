@@ -41,6 +41,15 @@ async function sb(endpoint) {
   if (!res.ok) throw new Error(`Supabase request failed (${res.status}): ${endpoint}`);
   return res.json();
 }
+// the server answers at most 1000 rows per request: a bigger table (areas ~8,400, live listings once past 1000) is read page by page
+// (with one request for "limit=5000" the English/German pages of 100 listings had lost their area name)
+async function sbAll(endpoint) {
+  const out = [];
+  for (let from = 0; ; from += 1000) {
+    const rows = await sb(`${endpoint}&offset=${from}&limit=1000`); out.push(...rows);
+    if (rows.length < 1000) return out;
+  }
+}
 
 // the app's own label tables (property types, deed status, condition) so every language matches the site
 function loadAppData() {
@@ -528,9 +537,9 @@ async function main() {
   let listings, govs, areas;
   try {
     [listings, govs, areas] = await Promise.all([
-      sb("v_listings?select=*&status=eq.live&order=created_at.desc"),
+      sbAll("v_listings?select=*&status=eq.live&order=created_at.desc,id.desc"),
       sb("governorates?select=*"),
-      sb("areas?select=id,governorate_id,name_ar,name_en,slug,enabled&limit=5000"),
+      sbAll("areas?select=id,governorate_id,name_ar,name_en,slug,enabled&order=id.asc"),
     ]);
   } catch (e) { console.error("Fetch failed:", e.message); process.exit(1); }
   govById = new Map(govs.map((g) => [g.id, g])); areaById = new Map(areas.map((a) => [a.id, a]));

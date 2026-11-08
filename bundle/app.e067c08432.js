@@ -2107,17 +2107,31 @@ function resCardsWithAds(items){ var ads=items.length>=8?resAdsFor():[], k=0, ou
   var io=new IntersectionObserver(function(es){ var ev=[]; es.forEach(function(en){ if(!en.isIntersecting) return; var id=en.target.dataset.adid, k=VIEW+"|"+id; io.unobserve(en.target); if(seen[k]) return; seen[k]=1; ev.push({slot:id,kind:"view",page:VIEW.split(":")[0]}) }); if(ev.length) logAds(ev) },{threshold:.5});
   var scan=function(){ if(VIEW!==lastView){ lastView=VIEW } document.querySelectorAll(".topbanner-item[data-adid], .res-ad[data-adid], .side-ad[data-adid]").forEach(function(el){ if(!el._adObs){ el._adObs=1; io.observe(el) } }) };
   var app=document.getElementById("app")||document.body, t=null; new MutationObserver(function(){ clearTimeout(t); t=setTimeout(scan,300) }).observe(app,{childList:true,subtree:true}); setTimeout(scan,1500) })();
-// when a search finds nothing: the same search anywhere in the country, or failing that the newest listings
+// when a search finds nothing, the suggestions stay in the chosen governorate (owner, 2026-11-08): the same search without
+// the area, then without the details, then without the deal and the section; only a governorate with nothing at all
+// falls back to the whole country (the same search, then the newest listings). Each step lists the filter keys it drops.
+function altLadder(f){
+  var gov=(f.govs&&f.govs.length)?f.govs:(f.g?[f.g]:[]), area=!!((f.areas&&f.areas.length)||f.a);
+  var A=["areas","a","apick"], P=["govs","g"].concat(A), DET=["types","t","tbs","tb","cd","pmin","pmax","furn","rentalPeriod","ownerOnly","shareOnly"], XD=DET.concat(["rooms","kw"]), s=[];
+  if(gov.length){
+    if(area) s.push({drop:A, tk:"altResGov"});
+    s.push({drop:A.concat(XD), tk:"altResGov2"}, {drop:A.concat(XD,["deal"]), tk:"altResGov2"}, {drop:A.concat(XD,["deal","sec"]), tk:"altResGov2"});
+  }
+  s.push({drop:P, tk:"altResH"}, {drop:P.concat(DET), tk:"altResH2"});
+  return {gov:gov, steps:s} }
 function searchAlternatives(){
-  var saved=F, alt=[], title="";
-  if(srvOn()){ var sa=SRV.q&&SRV.q.alt; if(!sa) return ''; alt=sa.rows.slice(); title=sa.title } else
+  var saved=F, alt=[], tk="", gov=[];
+  if(srvOn()){ var sa=SRV.q&&SRV.q.alt; if(!sa) return ''; alt=sa.rows.slice(); tk=sa.tk; gov=sa.gov } else
   try{
-    F=Object.assign({},saved,{govs:[],areas:[],g:"",a:""});
-    alt=D.LIST.filter(function(x){ return passesFilter(x,null) });
-    title=GX("altResH");
-    if(!alt.length){ F=Object.assign({},saved,{govs:[],areas:[],g:"",a:"",types:[],t:"",tbs:[],tb:"",cd:"",pmin:0,pmax:0,furn:"",rentalPeriod:"",ownerOnly:false,shareOnly:false}); alt=D.LIST.filter(function(x){ return passesFilter(x,null) }); title=GX("altResH2") }
+    var lad=altLadder(saved), tried={}; tried[JSON.stringify(srvF(saved))]=1; gov=lad.gov;
+    for(var i=0; i<lad.steps.length && !alt.length; i++){
+      var f=Object.assign({},saved);
+      lad.steps[i].drop.forEach(function(k){ if(!(k in f)) return; var v=f[k]; f[k]=Array.isArray(v)?[]:(typeof v==="boolean"?false:(typeof v==="number"?0:"")) });
+      var key=JSON.stringify(srvF(f)); if(tried[key]) continue; tried[key]=1;
+      F=f; alt=D.LIST.filter(function(x){ return passesFilter(x,null) }); tk=lad.steps[i].tk }
   }finally{ F=saved }
   if(!alt.length) return '';
+  var title=GX(tk).replace("{gov}", gov.map(gN).join(L==="ar"?"، ":", "));
   alt.sort(function(a,b){ return (b.featured?1:0)-(a.featured?1:0) || new Date(b.createdAt||0)-new Date(a.createdAt||0) });
   return '<div class="resalt"><div class="resalt-h"><h3>'+title+'</h3><a class="ab" data-go="search" data-deal="'+(F.deal||"")+'" data-sec="'+(F.sec||"")+'">'+GX("altResBtn")+'</a></div>'+
     '<div class="res'+(VIEWMODE==="list"?" list-view":"")+'">'+alt.slice(0,6).map(function(x,i){ return card(x,i,VIEWMODE==="list") }).join("")+'</div></div>';
@@ -7820,12 +7834,14 @@ async function srvRunPage(key,pg){
   try{ var r=await srvQ(srvF(F), F.sort||"new", (pg-1)*size, size, []);
     if(SRV.q&&SRV.q.key===key){ SRV.q.pages[pg]=r.rows; if(VIEW==="search"||VIEW==="mapsearch") render() }
   }catch(e){ srvFail(e) }finally{ delete SRV.pend[pk] } }
-// nothing found: the same two wider searches as searchAlternatives() (without the place, then without the details)
+// nothing found: the same wider searches as searchAlternatives() (altLadder: the governorate first, then the country)
 async function srvAlternatives(base){
-  var f1=Object.assign({},base); ["govs","areas","g","a"].forEach(function(k){ delete f1[k] });
-  var r=await srvQ(f1,"new",0,6,[]); if(r.rows.length) return {title:GX("altResH"), rows:r.rows};
-  var f2=Object.assign({},f1); ["types","t","tbs","tb","cd","pmin","pmax","furn","rentalPeriod","ownerOnly","shareOnly"].forEach(function(k){ delete f2[k] });
-  r=await srvQ(f2,"new",0,6,[]); return r.rows.length?{title:GX("altResH2"), rows:r.rows}:null }
+  var lad=altLadder(base), tried={}; tried[JSON.stringify(base)]=1;
+  for(var i=0; i<lad.steps.length; i++){
+    var f=Object.assign({},base); lad.steps[i].drop.forEach(function(k){ delete f[k] });
+    var key=JSON.stringify(f); if(tried[key]) continue; tried[key]=1;
+    var r=await srvQ(f,"new",0,6,[]); if(r.rows.length) return {tk:lad.steps[i].tk, gov:lad.gov, rows:r.rows} }
+  return null }
 // the home search button's count: fetched once per filter state, written into the button when it arrives
 function srvHeroCount(deal){
   var f=srvF(F); if(deal) f.deal=deal; else delete f.deal;
@@ -10102,6 +10118,8 @@ var GX_T={
   navSoonHeader:{ar:"إظهار خدمات «قريباً» في شريط رأس الكمبيوتر (تبقى داخل القائمة دائماً)",en:"Show the “coming soon” services in the desktop header bar (always inside the menu too)"},
   altResH:{ar:"لا توجد إعلانات مطابقة هنا — إليك إعلانات مشابهة في مناطق أخرى",en:"Nothing matches here — similar listings elsewhere"},
   altResH2:{ar:"لا توجد إعلانات مطابقة — إليك أحدث الإعلانات",en:"Nothing matches — here are the latest listings"},
+  altResGov:{ar:"لا توجد إعلانات مطابقة هنا — إليك إعلانات مشابهة في {gov}",en:"Nothing matches here — similar listings in {gov}",fr:"Rien ne correspond ici — annonces similaires à {gov}"},
+  altResGov2:{ar:"لا توجد إعلانات مطابقة — إليك إعلانات أخرى في {gov}",en:"Nothing matches — other listings in {gov}",fr:"Rien ne correspond — autres annonces à {gov}"},
   altResBtn:{ar:"عرض كل الإعلانات",en:"Show all listings"},
   geoTab:{ar:"المناطق",en:"Areas"}, allAreas:{ar:"كل المناطق",en:"All areas"},
   city:{ar:"مدينة",en:"City"}, area:{ar:"حي / منطقة",en:"District"}, village:{ar:"قرية / بلدة",en:"Village"},
@@ -11183,8 +11201,10 @@ function engAddForm(){ var today=new Date(); var iso=today.getFullYear()+"-"+Str
 var LEVELS_ALL=["member","silver","gold","trusted","vip","partner"];   // "trusted_agency" retired 2026-09-28: the agency's own ✓ says it
 var ST_PLANS={free:{storage:1024,egress:5120}, pro:{storage:102400,egress:256000}};
 function stSize(b){ b=+b||0; if(b<1024) return b+' B'; if(b<1048576) return Math.round(b/1024)+' KB'; if(b<1073741824) return (Math.round(b/1048576*10)/10)+' MB'; return (Math.round(b/1073741824*100)/100)+' GB' }
+var _geoN=0;   // how many times an area list was applied (the boot redraws once when the downloaded one lands after its first draw)
 function applyGeo(geo){
   if(!geo||!geo.g||!geo.g.length) return;
+  _geoN++;
   var GEO={}, GOVN={}, meta={govId:{},govSlug:{},areaId:{},areaSlug:{},kind:{},govLL:{},areaLL:{},areaEn:{}};
   geo.g.forEach(function(g){ GEO[g[1]]=[]; GOVN[g[1]]=[g[2]||g[1], g[2]||g[1]]; meta.govId[g[1]]=g[0]; meta.govSlug[g[1]]=g[3]; meta.kind[g[1]]={}; if(g[4]!=null&&g[5]!=null) meta.govLL[g[1]]=[+g[4],+g[5]] });
   var byId={}; geo.g.forEach(function(g){ byId[g[0]]=g[1] });
@@ -11499,7 +11519,14 @@ window.PWA=(function(){
 })();
 if(COUNTRY!=="SY"){ D.GEO={}; D.GOVN={} }   // the data line carries Syria's governorates; another country waits for its own (cache or bk_geo)
 applyGeoCache();
-function startLoads(){ var sp=window._sitePromise=loadSiteContent(); return Promise.all([loadListings(),loadCounts(),sp,loadAdSlots(),loadGeo()]) }
+// the full area list (~8,400 names, ~250 KB) is not waited for when the page already holds one (the built-in Syrian list or
+// this visitor's saved copy): the first full draw comes with the listings, and the page redraws once when the list lands —
+// unless the visitor is typing or has a menu open (the new list is used from the next draw on)
+function startLoads(){
+  var sp=window._sitePromise=loadSiteContent(), n0=_geoN, g=loadGeo(), waitGeo=!Object.keys(D.GEO||{}).length;
+  if(!waitGeo) g.then(function(){ var ae=document.activeElement;
+    if(_bootDrawn && _geoN!==n0 && safeToBackgroundRender() && !(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) && !document.querySelector(".chipsel-drop.on")) render() });
+  return Promise.all([loadListings(),loadCounts(),sp,loadAdSlots()].concat(waitGeo?[g]:[])) }
 _bootLoads = COUNTRIES ? startLoads() : refreshCountries().then(startLoads);   // first visit ever: learn the served countries first, so a visitor in Lebanon or Jordan opens on their own country
 if(COUNTRIES) refreshCountries();
 _bootLoads.then(function(){ _bootDrawn=true; render(); startAdRotation(); startAdCarouselRotation(); startBannerRotation(); startFeaturedPolling(); startListingsPolling(); setTimeout(maybeShowChooser, _openingActive?1500:400) });

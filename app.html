@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-SYaYdwfKmSJ31alE6GObS62fYcx+jAcaFTycN2oFJkU=' 'sha256-BmHKNftRW0/GwWXdEuwFK4LwjvU7B7iEADo37bmo6qU=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-SYaYdwfKmSJ31alE6GObS62fYcx+jAcaFTycN2oFJkU=' 'sha256-BNwCrl4ESHHjmNZkJgrQFyNvCLPeqUQRn32MwZZxgj0=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -16296,8 +16296,10 @@ function engAddForm(){ var today=new Date(); var iso=today.getFullYear()+"-"+Str
 var LEVELS_ALL=["member","silver","gold","trusted","vip","partner"];   // "trusted_agency" retired 2026-09-28: the agency's own ✓ says it
 var ST_PLANS={free:{storage:1024,egress:5120}, pro:{storage:102400,egress:256000}};
 function stSize(b){ b=+b||0; if(b<1024) return b+' B'; if(b<1048576) return Math.round(b/1024)+' KB'; if(b<1073741824) return (Math.round(b/1048576*10)/10)+' MB'; return (Math.round(b/1073741824*100)/100)+' GB' }
+var _geoN=0;   // how many times an area list was applied (the boot redraws once when the downloaded one lands after its first draw)
 function applyGeo(geo){
   if(!geo||!geo.g||!geo.g.length) return;
+  _geoN++;
   var GEO={}, GOVN={}, meta={govId:{},govSlug:{},areaId:{},areaSlug:{},kind:{},govLL:{},areaLL:{},areaEn:{}};
   geo.g.forEach(function(g){ GEO[g[1]]=[]; GOVN[g[1]]=[g[2]||g[1], g[2]||g[1]]; meta.govId[g[1]]=g[0]; meta.govSlug[g[1]]=g[3]; meta.kind[g[1]]={}; if(g[4]!=null&&g[5]!=null) meta.govLL[g[1]]=[+g[4],+g[5]] });
   var byId={}; geo.g.forEach(function(g){ byId[g[0]]=g[1] });
@@ -16612,7 +16614,14 @@ window.PWA=(function(){
 })();
 if(COUNTRY!=="SY"){ D.GEO={}; D.GOVN={} }   // the data line carries Syria's governorates; another country waits for its own (cache or bk_geo)
 applyGeoCache();
-function startLoads(){ var sp=window._sitePromise=loadSiteContent(); return Promise.all([loadListings(),loadCounts(),sp,loadAdSlots(),loadGeo()]) }
+// the full area list (~8,400 names, ~250 KB) is not waited for when the page already holds one (the built-in Syrian list or
+// this visitor's saved copy): the first full draw comes with the listings, and the page redraws once when the list lands —
+// unless the visitor is typing or has a menu open (the new list is used from the next draw on)
+function startLoads(){
+  var sp=window._sitePromise=loadSiteContent(), n0=_geoN, g=loadGeo(), waitGeo=!Object.keys(D.GEO||{}).length;
+  if(!waitGeo) g.then(function(){ var ae=document.activeElement;
+    if(_bootDrawn && _geoN!==n0 && safeToBackgroundRender() && !(ae && /^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)) && !document.querySelector(".chipsel-drop.on")) render() });
+  return Promise.all([loadListings(),loadCounts(),sp,loadAdSlots()].concat(waitGeo?[g]:[])) }
 _bootLoads = COUNTRIES ? startLoads() : refreshCountries().then(startLoads);   // first visit ever: learn the served countries first, so a visitor in Lebanon or Jordan opens on their own country
 if(COUNTRIES) refreshCountries();
 _bootLoads.then(function(){ _bootDrawn=true; render(); startAdRotation(); startAdCarouselRotation(); startBannerRotation(); startFeaturedPolling(); startListingsPolling(); setTimeout(maybeShowChooser, _openingActive?1500:400) });
