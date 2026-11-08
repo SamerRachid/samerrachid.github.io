@@ -825,6 +825,9 @@ html body .rs-bar.hu-rv,html body .rs-bar.hu-rv.hu-in{opacity:1!important;transf
    must not push it above the viewport (it was at top:-334px on the themed home page) */
 @media (max-width:640px){
   html body .chipsel-drop.on,html body .chipsel-drop.on.flip-up,html body .home-hero .chipsel-drop.on.flip-up{top:auto!important;bottom:0!important;max-height:72vh!important;height:auto!important}
+  /* while its search box has the keyboard up (.kb) the sheet hangs from the top of the visible area, above the keyboard
+     (owner 2026-11-07: typing in «المنطقة» hid the names and «تم» behind the keyboard; the rule above had cancelled app.html's .kb rule) */
+  html body .chipsel-drop.on.kb,html body .chipsel-drop.on.kb.flip-up,html body .home-hero .chipsel-drop.on.kb.flip-up{top:calc(var(--vvt,0px) + 8px)!important;bottom:auto!important;max-height:calc(var(--vvh,60vh) - 16px)!important;border-radius:16px!important;animation:none!important}
 }
 /* a hero bar re-drawn after a pick (softRenderHero) is marked .hu-still: its open list stays put instead of sliding in again */
 html body .sbar.hu-still .chipsel-drop.on{animation:none!important}   /* the list re-opened after a pick stays put instead of sliding up again */
@@ -852,7 +855,8 @@ html body .sbar.hu-still .chipsel-drop.on{animation:none!important}   /* the lis
   html body .hu-dim.out{animation:huDimOut .26s ease-in both}   /* keeps catching the tap that closed it: the sheet closes on pointerdown, the click follows */
   html body .rs-filters .rs-f:has(.chipsel-drop.on){position:relative;z-index:1300}
   html body .sbar .chipsel-drop.on{z-index:1300}
-  html body .rs-filters.on{animation:huPanelIn .3s cubic-bezier(.22,.8,.3,1) both}
+  /* backwards, not both: a transform kept after the slide-in made the panel the frame of its fixed lists, so they moved with the panel's scroll (72px off the top with the keyboard up) */
+  html body .rs-filters.on{animation:huPanelIn .3s cubic-bezier(.22,.8,.3,1) backwards}
   html body .rs-filters.on.out{animation:huPanelOut .24s ease-in both;pointer-events:none}
 }
 
