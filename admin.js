@@ -62,10 +62,12 @@ function permPicker(sel,cls){ sel=sel||[];
 // sidebar groups: one entry in the sidebar, sub-tabs rendered as a segmented bar on the page (the tab bodies stay keyed by the real tab)
 // the panel's sections (redesign 2026-10-16, Shopify-style): a section opens its last-visited page; its pages show under it
 // in the sidebar (desktop) or as a row of tabs (phone). Page keys are unchanged, so every link into a page still works.
-var ADM_GROUPS={g_listings:["listings","intake","reports","photos"],g_people:["users","agencies_adm","services_adm","reviews","house"],
-  g_msgs:["feedback","tickets","msgs","campaigns","outreach"],g_mkt:["placements","promopage","featured","ads","banners","engage","social","projects_adm"],
-  g_site:["mainpage","design","contact","guides"],g_settings:["settings","countries","geo","maps","types","intake_cfg","admins","audit","storage","danger"]};
-var ADM_GROUP_ALIAS={inbox:"g_msgs",promo:"g_mkt",system:"g_settings"};   // the old section keys (bell links, saved state)
+// 2026-11-07 (owner): requests sit with listings, campaigns + outreach with marketing, settings split into «الإعدادات»
+// (changed often) and «النظام» (admins, activity log, storage, backups, test accounts)
+var ADM_GROUPS={g_listings:["listings","intake","wanted_adm","reports","photos"],g_people:["users","agencies_adm","services_adm","reviews"],
+  g_msgs:["feedback","tickets","msgs"],g_mkt:["campaigns","outreach","social","placements","featured","ads","banners","promopage","engage","projects_adm"],
+  g_site:["mainpage","design","contact","guides"],g_settings:["settings","countries","intake_cfg","types","geo","maps"],g_system:["admins","audit","storage","danger","house"]};
+var ADM_GROUP_ALIAS={inbox:"g_msgs",promo:"g_mkt",system:"g_system"};   // the old section keys (bell links, saved state)
 function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab)>-1) return g } return null }
 function admNavOpen(){ try{ var v=JSON.parse(localStorage.getItem("bk_adm_navopen")||"[]"); return Array.isArray(v)?v:[] }catch(e){ return [] } }
 // the folding sidebar lines and the found-setting highlight (kept here so the site's CSS bundle is not rebuilt for the panel)
@@ -92,7 +94,7 @@ function admNorm(s){ return String(s||"").toLowerCase().replace(/[\u064B-\u0652\
 var ADM_FEATURES=[
  {tab:"social", k:"روج ترويج promo promote share منشور فيسبوك نص جاهز صورة إعلان reel ريل جدولة مستحق مجموعة", l:{ar:"الترويج الاجتماعي (نص ومعاينة وصورة وريل وجدولة)",en:"Social promote (text, preview, image, reel and scheduling)",de:"Social-Media-Werbung (Text, Vorschau, Bild, Reel, Planung)"}, w:{ar:"التسويق ← الترويج الاجتماعي، أو من أي إعلان حيّ ← زر «روّج»",en:"Marketing → Social promote, or from any live listing → “Promote”",de:"Marketing → Social-Media-Werbung, oder bei einer Anzeige → „Bewerben“"}},
  {tab:"featured", k:"تمييز مميز featured feature star نجمة", l:{ar:"تمييز إعلان / الإعلانات المميزة",en:"Feature a listing / featured listings",de:"Inserat hervorheben"}, w:{ar:"التسويق ← الترويج ← المميزة",en:"Marketing → Promotions → Featured",de:"Marketing → Hervorgehoben"}},
- {tab:"outreach", k:"مكاتب مستهدفة outreach pipeline واتساب رسالة نموذجية متابعة", l:{ar:"دفتر المكاتب المستهدفة (متابعة المكاتب)",en:"Agency outreach tracker",de:"Büro-Akquise"}, w:{ar:"الأعضاء ← المكاتب المستهدفة",en:"People → Agency outreach",de:"Mitglieder → Büro-Akquise"}},
+ {tab:"outreach", k:"مكاتب مستهدفة outreach pipeline واتساب رسالة نموذجية متابعة", l:{ar:"دفتر المكاتب المستهدفة (متابعة المكاتب)",en:"Agency outreach tracker",de:"Büro-Akquise"}, w:{ar:"التسويق ← المكاتب المستهدفة",en:"Marketing → Agency outreach",de:"Marketing → Büro-Akquise"}},
  {tab:"dashboard", k:"الزوار الآن زوار visitors now online متصلين رابط تتبع src", l:{ar:"الزوار الآن وروابط التتبّع",en:"Visitors now and campaign links",de:"Besucher jetzt und Kampagnenlinks"}, w:{ar:"نظرة عامة ← الرئيسية (البطاقات)",en:"Overview → Dashboard cards",de:"Übersicht → Dashboard"}},
  {tab:"mainpage", k:"خلفية رسم دمشق sketch background جوال فيديو صورة الخلفية", l:{ar:"نوع الخلفية والرسم (كمبيوتر/جوال)",en:"Hero background and drawing (desktop/phone)",de:"Hintergrund und Zeichnung"}, w:{ar:"الصفحة الرئيسية ← الخلفية والرسم",en:"Home page → Background and drawing",de:"Startseite → Hintergrund"}},
  {tab:"mainpage", k:"تأخير العنوان headline delay افتتاح opening حركة motion مؤشر cursor", l:{ar:"الحركة: مشهد الافتتاح وتأخير العنوان",en:"Motion: opening scene and headline delay",de:"Bewegung: Eröffnung und Verzögerung"}, w:{ar:"الصفحة الرئيسية ← الحركة والمسافات",en:"Home page → Motion and spacing",de:"Startseite → Bewegung und Abstände"}},
@@ -100,18 +102,18 @@ var ADM_FEATURES=[
  {tab:"mainpage", k:"مربعات إعلانية squares موضع الصف رأسي ارتفاع حجم المربع", l:{ar:"المربعات الإعلانية: الحجم وموضع الصف",en:"Ad squares: size and row position",de:"Werbekacheln: Größe und Position"}, w:{ar:"الصفحة الرئيسية ← المربعات الإعلانية",en:"Home page → Ad squares",de:"Startseite → Werbekacheln"}},
  {tab:"mainpage", k:"الأكثر مشاهدة most viewed popular عن عقارات سوريا نص تعريفي about seo ترتيب الأقسام sections order", l:{ar:"أقسام الرئيسية: الأكثر مشاهدة، عن عقارات سوريا، الترتيب",en:"Home sections: most viewed, about, ordering",de:"Startseiten-Abschnitte"}, w:{ar:"الصفحة الرئيسية ← قائمة الأقسام (الأسهم للترتيب، العين للإخفاء)",en:"Home page → sections list (arrows reorder, eye hides)",de:"Startseite → Abschnitte"}},
  {tab:"mainpage", k:"شعار logo حجم الشعار هيدر header", l:{ar:"الشعار في الهيدر (الشكل والحجم)",en:"Header logo (variant and size)",de:"Logo im Header"}, w:{ar:"الصفحة الرئيسية ← الحركة والمسافات ← الشعار",en:"Home page → Motion and spacing → Logo",de:"Startseite → Logo"}},
- {tab:"settings", k:"صيانة maintenance إغلاق الموقع قانوني شروط خصوصية terms privacy", l:{ar:"وضع الصيانة والنصوص القانونية",en:"Maintenance mode and legal texts",de:"Wartungsmodus und Rechtstexte"}, w:{ar:"الموقع ← النظام ← الإعدادات",en:"Website → System → Settings",de:"Website → System → Einstellungen"}},
- {tab:"settings", k:"تحقق verification واتساب تيليغرام بريد otp رمز قنوات", l:{ar:"قنوات التحقق (واتساب / تيليغرام / بريد) لكل دولة",en:"Verification channels (WhatsApp / Telegram / email) per country",de:"Verifizierungskanäle"}, w:{ar:"الموقع ← النظام ← الإعدادات ← التحقق",en:"Website → System → Settings → Verification",de:"System → Einstellungen"}},
- {tab:"house", k:"حسابات تجريبية test accounts اختبار", l:{ar:"الحسابات التجريبية (للاختبار الآمن)",en:"Test accounts (safe testing)",de:"Testkonten"}, w:{ar:"الأعضاء ← حسابات تجريبية",en:"People → Test accounts",de:"Mitglieder → Testkonten"}},
+ {tab:"settings", k:"صيانة maintenance إغلاق الموقع قانوني شروط خصوصية terms privacy", l:{ar:"وضع الصيانة والنصوص القانونية",en:"Maintenance mode and legal texts",de:"Wartungsmodus und Rechtstexte"}, w:{ar:"الإعدادات ← عام",en:"Settings → General",de:"Einstellungen → Allgemein"}},
+ {tab:"settings", k:"تحقق verification واتساب تيليغرام بريد otp رمز قنوات", l:{ar:"قنوات التحقق (واتساب / تيليغرام / بريد) لكل دولة",en:"Verification channels (WhatsApp / Telegram / email) per country",de:"Verifizierungskanäle"}, w:{ar:"الإعدادات ← عام ← التحقق",en:"Settings → General → Verification",de:"Einstellungen → Allgemein"}},
+ {tab:"house", k:"حسابات تجريبية test accounts اختبار", l:{ar:"الحسابات التجريبية (للاختبار الآمن)",en:"Test accounts (safe testing)",de:"Testkonten"}, w:{ar:"النظام ← حسابات تجريبية",en:"System → Test accounts",de:"System → Testkonten"}},
  {tab:"campaigns", k:"حملات رسائل تسويق جماعي contacts دفتر العناوين newsletter إشعار إعلان جديد", l:{ar:"الحملات ودفتر جهات الاتصال",en:"Campaigns and the contacts notebook",de:"Kampagnen und Kontakte"}, w:{ar:"التسويق ← الحملات",en:"Marketing → Campaigns",de:"Marketing → Kampagnen"}},
  {tab:"intake", k:"بوت واتساب intake استقبال إعلانات رسائل واردة مراجعة", l:{ar:"إعلانات البوت الواردة (واتساب/تيليغرام) ومراجعتها",en:"Bot intake (WhatsApp/Telegram) and review",de:"Bot-Eingang"}, w:{ar:"الإعلانات ← الوارد",en:"Listings → Intake",de:"Inserate → Eingang"}},
  {tab:"photos", k:"صور وسائط media storage مساحة حذف صور", l:{ar:"مكتبة الوسائط والمساحة",en:"Media library and storage",de:"Medien und Speicher"}, w:{ar:"الإعلانات ← مكتبة الوسائط",en:"Listings → Media",de:"Inserate → Medien"}},
- {tab:"geo", k:"مناطق محافظات geo areas governorates خريطة إحداثيات", l:{ar:"المحافظات والمناطق",en:"Governorates and areas",de:"Gouvernements und Gebiete"}, w:{ar:"الموقع ← المناطق",en:"Website → Areas",de:"Website → Gebiete"}},
+ {tab:"geo", k:"مناطق محافظات geo areas governorates خريطة إحداثيات", l:{ar:"المحافظات والمناطق",en:"Governorates and areas",de:"Gouvernements und Gebiete"}, w:{ar:"الإعدادات ← المناطق",en:"Settings → Areas",de:"Einstellungen → Gebiete"}},
  {tab:"design", k:"تصميم بطاقات ألوان خط design cards fonts", l:{ar:"تصميم البطاقات والخطوط",en:"Card design and fonts",de:"Kartendesign"}, w:{ar:"الموقع ← التصميم",en:"Website → Design",de:"Website → Design"}},
  {tab:"contact", k:"تواصل social فيسبوك إنستغرام رقم الهاتف بريد الموقع", l:{ar:"صفحة التواصل والروابط الاجتماعية",en:"Contact page and social links",de:"Kontakt und Social Links"}, w:{ar:"الموقع ← التواصل",en:"Website → Contact",de:"Website → Kontakt"}},
  {tab:"banners", k:"بانر banners لافتات", l:{ar:"البانرات",en:"Banners",de:"Banner"}, w:{ar:"التسويق ← الترويج ← البانرات",en:"Marketing → Promotions → Banners",de:"Marketing → Banner"}},
  {tab:"ads", k:"مربعات إعلانية مدفوعة ad slots رعاية sponsor", l:{ar:"المربعات الإعلانية (الإدارة والمحتوى)",en:"Ad squares (content and sponsors)",de:"Werbekacheln (Inhalt)"}, w:{ar:"التسويق ← الترويج ← المربعات",en:"Marketing → Promotions → Ad squares",de:"Marketing → Kacheln"}},
- {tab:"admins", k:"مشرفين صلاحيات admins permissions", l:{ar:"المشرفون والصلاحيات",en:"Admins and permissions",de:"Admins und Rechte"}, w:{ar:"الموقع ← النظام ← المشرفون",en:"Website → System → Admins",de:"System → Admins"}},
+ {tab:"admins", k:"مشرفين صلاحيات admins permissions", l:{ar:"المشرفون والصلاحيات",en:"Admins and permissions",de:"Admins und Rechte"}, w:{ar:"النظام ← المشرفون",en:"System → Admins",de:"System → Admins"}},
  {tab:"users", k:"أعضاء مستخدمين إخفاء الرقم hide phone توثيق عضو حظر", l:{ar:"الأعضاء: توثيق، إخفاء الرقم، حظر",en:"Members: verify, hide phone, block",de:"Mitglieder"}, w:{ar:"الأعضاء ← المستخدمون",en:"People → Users",de:"Mitglieder → Nutzer"}},
  {tab:"stats", k:"إحصائيات زوار statistics analytics مصادر", l:{ar:"زوّار وإحصائيات",en:"Visitors and statistics",de:"Besucher und Statistik"}, w:{ar:"نظرة عامة ← زوّار وإحصائيات",en:"Overview → Visitors",de:"Übersicht → Besucher"}}
 ];
@@ -974,8 +976,8 @@ function adminView(){
  // badges count only what waits for the admin (pending, unread, due) — never totals
  var BADGE={listings:td.pending_listings||s.pending||null, intake:td.intake_review||null, reports:s.openReports||null, wanted_adm:td.pending_wanted||null, users:td.verify_pending||null,
    feedback:s.openFeedback||null, tickets:openTk||null, msgs:ADM.alertsUnread||null, outreach:dueOut, social:(ADM._promoDue||[]).length||null};
- var TOP=[["dashboard",LBL.dashboard,AICO.dash],["g_listings",GX("navListings"),AICO.listings],["wanted_adm",LBL.wanted_adm,AICO.search],["g_people",t("navPeople"),AICO.users],
-   ["g_msgs",GX("navMsgs"),AICO.bell],["g_mkt",GX("navMarketing"),AICO.megaphone],["stats",LBL.stats,AICO.chart],["g_site",GX("navWebsite"),AICO.home2],["g_settings",GX("navSettings"),AICO.gear]];
+ var TOP=[["dashboard",LBL.dashboard,AICO.dash],["g_listings",GX("navListings"),AICO.listings],["g_people",t("navPeople"),AICO.users],
+   ["g_msgs",GX("navMsgs"),AICO.bell],["g_mkt",{ar:"التسويق",en:"Marketing",de:"Marketing"}[L]||"Marketing",AICO.megaphone],["stats",LBL.stats,AICO.chart],["g_site",GX("navWebsite"),AICO.home2],["g_settings",GX("navSettings"),AICO.gear],["g_system",{ar:"النظام",en:"System",de:"System"}[L]||"System",AICO.shield]];
  var secBadge=function(k){ if(!ADM_GROUPS[k]) return BADGE[k]||null; var n=0; ADM_GROUPS[k].forEach(function(p){ if(p!=="social"&&canTab(p)&&BADGE[p]) n+=+BADGE[p]||0 }); return n||null };   // owner 2026-11-07: «403» on marketing was the social to-do list
  // the panel search's page index: every page, with its section as "where"
  var NAV=TOP.map(function(x){ return {g:x[1], items:(ADM_GROUPS[x[0]]||[x[0]]).map(function(k){ return [k, LBL[k]||x[1], BADGE[k]||null, x[2], canTab(k)] })} });
@@ -991,13 +993,13 @@ function adminView(){
          :'<a class="atop'+(open?' on':'')+'" data-atab="'+x[0]+'"><span class="aicon">'+x[2]+'</span><span>'+x[1]+'</span>'+(b&&!open?'<span class="abadge2">'+b+'</span>':'')+'</a>')+
      (grp?'<div class="asub'+(unf?' open':'')+'">'+grp.filter(canTab).map(function(k){ return '<a class="'+(k===ADM.tab?'on':'')+'" data-atab="'+k+'"><span>'+LBL[k]+'</span>'+(BADGE[k]?'<span class="abadge2">'+BADGE[k]+'</span>':'')+'</a>' }).join("")+'</div>':'') }).join("");
  // phone: a bottom bar with the four daily places + «المزيد» (the rest, the language, night mode, the site, sign out)
- var botTab=function(k,label,icon){ var on=k===ADM.tab||k===curGroupKey, b=secBadge(k); return '<a class="'+(on?'on':'')+'" data-atab="'+k+'">'+icon+'<span>'+label+'</span>'+(b?'<i>'+b+'</i>':'')+'</a>' };
- var moreOn=["g_people","g_mkt","stats","g_site","g_settings"].indexOf(curGroupKey||ADM.tab)>-1;
+ var botTab=function(k,label,icon){ var on=k===ADM.tab||(k===curGroupKey&&ADM.tab!=="wanted_adm"), b=secBadge(k); return '<a class="'+(on?'on':'')+'" data-atab="'+k+'">'+icon+'<span>'+label+'</span>'+(b?'<i>'+b+'</i>':'')+'</a>' };
+ var moreOn=["g_people","g_mkt","stats","g_site","g_settings","g_system"].indexOf(curGroupKey||ADM.tab)>-1;
  var themeNow=admTheme();
  var bottomBar='<nav class="abot" aria-label="'+esc(GX("navMenu"))+'">'+botTab("dashboard",LBL.dashboard,AICO.dash)+botTab("g_listings",GX("navListings"),AICO.listings)+botTab("wanted_adm",GX("navRequestsShort"),AICO.search)+botTab("g_msgs",GX("navMsgs"),AICO.bell)+
    '<button type="button" id="aMoreBtn" class="'+(moreOn?'on':'')+'">'+AICO.more+'<span>'+GX("navMore")+'</span></button></nav>';
  var moreSheet='<div class="amore" id="aMore" hidden><div class="amore-in"><div class="amore-h"><b>'+GX("navMore")+'</b><button type="button" class="ab" id="aMoreX" aria-label="×">×</button></div>'+
-   '<div class="amore-list">'+TOP.filter(function(x){ return ["g_people","g_mkt","stats","g_site","g_settings"].indexOf(x[0])>-1 && canTab(x[0]) }).map(function(x){ var b=secBadge(x[0]); return '<a data-atab="'+x[0]+'"><span class="aicon">'+x[2]+'</span><span>'+x[1]+'</span>'+(b?'<span class="abadge2">'+b+'</span>':'')+'<span class="amore-chev">‹</span></a>' }).join("")+'</div>'+
+   '<div class="amore-list">'+TOP.filter(function(x){ return ["g_people","g_mkt","stats","g_site","g_settings","g_system"].indexOf(x[0])>-1 && canTab(x[0]) }).map(function(x){ var b=secBadge(x[0]); return '<a data-atab="'+x[0]+'"><span class="aicon">'+x[2]+'</span><span>'+x[1]+'</span>'+(b?'<span class="abadge2">'+b+'</span>':'')+'<span class="amore-chev">‹</span></a>' }).join("")+'</div>'+
    '<div class="amore-h2">'+GX("themeL")+'</div><div class="aseg" id="aThemeSeg">'+[["light",GX("themeLight")],["dark",GX("themeDark")],["",GX("themeAuto")]].map(function(o){ return '<button type="button" data-theme="'+o[0]+'" class="'+(themeNow===o[0]?'on':'')+'">'+o[1]+'</button>' }).join("")+'</div>'+
    '<div class="amore-h2">'+GX("aLang")+'</div><div class="aseg">'+["ar","en","de"].map(function(k){ return '<button type="button" data-alang="'+k+'" class="'+(k===L?'on':'')+'">'+D.I18N[k].name+'</button>' }).join("")+'</div>'+
    '<div class="amore-acts"><button type="button" class="ab" data-moreclick="adViewSite">'+AICO.eye+'<span>'+t("viewSiteAsUser")+'</span></button><button type="button" class="ab" data-moreclick="adOut">'+AICO.out+'<span>'+t("logout")+'</span></button></div>'+
@@ -1674,7 +1676,7 @@ function wireAdmin(){
     });
   }
   if(!ADM.range) ADM.range=7;
-  if((ADM.tab==="dashboard"||ADM.tab==="stats"||ADM.tab==="ads") && (!ADM._anLoaded || ADM._anRange!==ADM.range)){
+  if((ADM.tab==="dashboard"||ADM.tab==="stats"||ADM.tab==="ads") && (can("stats")||can("ads")) && (!ADM._anLoaded || ADM._anRange!==ADM.range)){
     ADM._anLoaded=true; ADM._anRange=ADM.range;
     syncVisitorsNow();
     rpcScoped("bk_admin_analytics",{p_token:ADM.token,p_days:ADM.range,p_country:admScope()}).then(function(r){ ADM.an=r; render() }).catch(function(e){ ADM.anErr=e.message||String(e); render() });
@@ -1738,7 +1740,7 @@ function wireAdmin(){
     ADM._storageReportLoaded=false; ADM._storageUsageLoaded=false; ADM.storageReport=null; ADM.storageUsage=null; render();
   };
   $$("[data-stopenl]").forEach(function(b){ b.onclick=function(){ ADM.lopen=+this.dataset.stopenl; admGo("listings") } });
-  if((ADM.tab==="dashboard"||ADM.tab==="stats"||ADM.tab==="storage") && !ADM._storageUsageLoaded){
+  if((ADM.tab==="dashboard"||ADM.tab==="stats"||ADM.tab==="storage") && (can("storage")||can("stats")) && !ADM._storageUsageLoaded){
     ADM._storageUsageLoaded=true;
     rpc("bk_admin_storage_usage",{p_token:ADM.token}).then(function(r){
       ADM.storageUsage=r||null; render()
@@ -3342,6 +3344,7 @@ function adminEngageBody(){
   return head+kpis+sec("featured",AICO.star)+sec("ad",AICO.ads)+sec("banner",AICO.banner);
 }
 function adminDashboardBody(s){
+  if(!can("stats") && !can("ads")) return adminDashboardLite(s);
   var an=ADM.an;
   var head=admScopeNote()+'<div class="dash-top">'+rangeTabs()+'<span class="hintx">'+(an?'':(ADM.anErr?ADM.anErr:t("loading")))+'</span></div>';
   if(!an) return head+'<div class="blk"><div class="in adashempty">'+t("loading")+'</div></div>';
@@ -3363,10 +3366,21 @@ function adminDashboardBody(s){
       '<div class="blk"><h3>'+GX("usersActH")+'</h3><div class="in">'+barList([{k:GX("act24"),n:an.users_activity.last_24h},{k:GX("act7"),n:an.users_activity.last_7d},{k:GX("act30"),n:an.users_activity.last_30d},{k:GX("actOld"),n:an.users_activity.older}],function(x){ return x.k },"n","var(--ok)")+'</div></div>'+
     '</div>'+
     '<div class="agrid2" style="margin-top:16px">'+healthStrip(an)+alerts+'</div>'+
-    '<div class="agrid2" style="margin-top:16px"><div id="visNowBlk">'+visitorsNowBlock()+'</div>'+
+    '<div class="agrid2" style="margin-top:16px">'+(can("stats")?'<div id="visNowBlk">'+visitorsNowBlock()+'</div>':'')+
       '<div class="blk"><h3>'+GX("srcH")+'</h3><div class="in"><div class="hintx" style="margin-bottom:8px">'+GX("srcHint")+'</div>'+(function(){ var s=(an.referrers||[]).filter(function(r){ return /^src:/.test(r.referrer||"") }).map(function(r){ return {k:r.referrer.slice(4), n:r.n} }); return s.length?barList(s,function(x){ return x.k },"n","#D97706"):'<div class="adashempty">'+GX("srcNone")+'</div>' })()+'</div></div></div>'+
-    '<div class="blk" style="margin-top:16px"><h3>'+t("storageUsageH")+'</h3><div class="in">'+storageUsageCardBody()+'</div></div>';
+    ((can("storage")||can("stats"))?'<div class="blk" style="margin-top:16px"><h3>'+t("storageUsageH")+'</h3><div class="in">'+storageUsageCardBody()+'</div></div>':'');
 }
+function adminDashboardLite(s){
+  var td=ADM.todo||{}, st=s||{}, W={ar:"ما ينتظرك",en:"Waiting for you",de:"Wartet auf Sie"}, N={ar:"لا شيء ينتظرك الآن ✓",en:"Nothing is waiting ✓",de:"Nichts wartet ✓"};
+  var rows=[["listings",GX("navAllListings"),td.pending_listings||st.pending],["intake",GX("navBotDrafts"),td.intake_review],["wanted_adm",GX("tWanted"),td.pending_wanted],
+    ["reports",t("reportsTab"),st.openReports],["users",t("usersTab"),td.verify_pending],["agencies_adm",GX("tAgencies"),td.pending_agencies],["feedback",t("feedbackTab"),st.openFeedback]]
+    .filter(function(r){ return canTab(r[0]) && +r[2]>0 });
+  var list=rows.length?'<div class="onlinelist">'+rows.map(function(r){ return '<a class="onlinerow" data-atab="'+r[0]+'"><span style="font-size:13.5px">'+esc(r[1])+'</span><b class="ltr" style="margin-inline-start:auto">'+fmtN(+r[2])+'</b></a>' }).join("")+'</div>'
+    :'<div class="adashempty">'+(N[L]||N.en)+'</div>';
+  var alerts=(ADM.alerts&&ADM.alerts.length)?'<div class="blk" style="margin-top:16px"><h3>'+t("recentAlertsH")+'</h3><div class="in"><div class="onlinelist">'+ADM.alerts.slice(0,8).map(function(n){
+      var lbl=n.title==="new_feedback"?t("newFeedbackAlert"):n.title==="new_report"?t("newReportAlert"):n.title;
+      return '<a class="onlinerow" data-goto="'+esc((n.link||"").replace("/#/admin:",""))+'"><span class="onlinedot" style="background:'+(n.is_read?"var(--light)":"var(--danger)")+'"></span><span style="font-size:13px">'+esc(lbl)+'</span><span class="ltr" style="margin-inline-start:auto;color:var(--light);font-size:11px">'+when(n.created_at)+'</span></a>' }).join("")+'</div></div></div>':'';
+  return admScopeNote()+'<div class="blk"><h3>'+(W[L]||W.en)+'</h3><div class="in">'+list+'</div></div>'+alerts }
 // "on the site now": members + guests whose tab pinged within 5 minutes (visitor_presence); polled with the alerts
 function visitorsNowBlock(){
   var v=ADM.vis;
@@ -3383,7 +3397,7 @@ function visitorsNowBlock(){
   return '<div class="blk"><h3>'+GX("visNowH")+' <span class="ltr" style="color:var(--grey);font-weight:400">('+fmtN(v?v.total:0)+')</span></h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+GX("visNowHint")+'</div>'+body+'</div></div>';
 }
 function syncVisitorsNow(){
-  if(!ADM.token) return;
+  if(!ADM.token || !can("stats")) return;
   rpcScoped("bk_admin_visitors_now",{p_token:ADM.token,p_country:admScope()}).then(function(r){
     ADM.vis=r||null;
     var b=document.getElementById("visNowBlk"); if(b) b.innerHTML=visitorsNowBlock();
