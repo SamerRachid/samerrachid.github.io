@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src https://coajrqynjrptujmzjjdh.supabase.co https://ipapi.co; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src https://coajrqynjrptujmzjjdh.supabase.co; base-uri 'none'; form-action 'none'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>حمّل تطبيق بلكون للأندرويد | بلكون</title>
 <meta name="description" content="تطبيق بلكون للأندرويد مجاناً، تحميل مباشر بكبسة واحدة: عقارات سوريا للبيع والإيجار من المالك مباشرة بكل المحافظات.">
@@ -28,80 +28,131 @@
 <meta name="twitter:title" content="حمّل تطبيق بلكون: عقارات سوريا بجيبك">
 <meta name="twitter:description" content="تطبيق أندرويد مجاني، تحميل مباشر بكبسة واحدة.">
 <meta name="twitter:image" content="https://balkoun.com/brand/og-android.jpg">
+<link rel="preload" as="image" href="/brand/app/home.webp">
 <link rel="stylesheet" href="/fonts/fonts.css">
 <style>
-:root{--navy:#14213D;--navy2:#0d1730;--gold:#C4881F;--gold2:#E2A93B;--sand:#e9dcc0;--ink:#c8d0e4;--line:#2c3a63}
+:root{--navy:#14213D;--navy2:#0b142b;--gold:#C4881F;--gold2:#E2A93B;--sand:#e9dcc0;--ink:#c3cbe0;--mute:#8f9bbd;--line:rgba(255,255,255,.09);--card:rgba(255,255,255,.045)}
 *{box-sizing:border-box;margin:0}
-html,body{min-height:100%}
-body{font-family:"Noto Kufi Arabic",system-ui,sans-serif;background:radial-gradient(900px 600px at 85% -10%,#22305a 0%,var(--navy) 55%,var(--navy2) 100%) fixed;color:#fff;
-  padding:calc(env(safe-area-inset-top,0px) + 28px) 16px calc(env(safe-area-inset-bottom,0px) + 32px);line-height:1.7}
-.wrap{max-width:460px;margin:0 auto;display:flex;flex-direction:column;gap:22px}
-.brand{display:flex;align-items:center;justify-content:center;gap:12px;text-decoration:none;color:var(--sand)}
-.brand img{width:44px;height:44px}
-.brand b{font-size:26px;font-weight:800}
-.hero{text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
-.ico{width:104px;height:104px;border-radius:24px;box-shadow:0 14px 34px rgba(0,0,0,.45)}
-h1{font-size:30px;font-weight:800;line-height:1.35;text-wrap:balance}
+html{scroll-behavior:smooth}
+body{font-family:"Noto Kufi Arabic",system-ui,sans-serif;color:#fff;line-height:1.7;min-height:100vh;background-color:var(--navy2);
+  background-image:radial-gradient(700px 520px at 50% 0%,rgba(226,169,59,.16),transparent 70%),linear-gradient(180deg,#1a2a4f 0%,var(--navy) 38%,var(--navy2) 100%);
+  padding:calc(env(safe-area-inset-top,0px) + 18px) 16px calc(env(safe-area-inset-bottom,0px) + 110px)}
+.wrap{max-width:480px;margin:0 auto;display:flex;flex-direction:column;gap:26px}
+.brand{display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none;color:var(--sand)}
+.brand img{width:36px;height:36px}
+.brand b{font-size:22px;font-weight:800}
+/* hero: three real screens of the app, the home screen in front */
+.stage{position:relative;height:340px;margin:4px auto 0;width:100%;max-width:400px}
+.stage::before{content:"";position:absolute;inset:18% 8% 4%;background:radial-gradient(closest-side,rgba(226,169,59,.38),transparent);filter:blur(10px)}
+.ph{position:absolute;top:0;width:150px;aspect-ratio:410/738;border-radius:28px;padding:6px;background:#070c18;box-shadow:0 24px 50px rgba(0,0,0,.55),0 0 0 1.5px rgba(255,255,255,.12)}
+.ph img{display:block;width:100%;height:100%;object-fit:cover;border-radius:22px}
+.stage .mid{left:50%;transform:translateX(-50%);top:2px;z-index:3;width:172px}
+.stage .l{left:16px;top:38px;transform:rotate(-9deg);z-index:1;opacity:.85}
+.stage .r{right:16px;top:38px;transform:rotate(9deg);z-index:2;opacity:.85}
+.hero{text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px;margin-top:-4px}
+.tag{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;border-radius:999px;background:rgba(226,169,59,.14);color:var(--gold2);font-size:13px;font-weight:700;border:1px solid rgba(226,169,59,.3)}
+h1{font-size:32px;font-weight:800;line-height:1.35;text-wrap:balance}
 h1 span{color:var(--gold2)}
 .sub{color:var(--ink);font-size:16px;font-weight:600}
-.go{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:62px;border-radius:999px;background:var(--gold);color:var(--navy);
-  font:800 21px/1.2 "Noto Kufi Arabic",system-ui,sans-serif;text-decoration:none;box-shadow:0 10px 26px rgba(196,136,31,.35);transition:transform .15s cubic-bezier(.2,.8,.3,1)}
+.cta{display:flex;flex-direction:column;gap:10px}
+.go{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;min-height:64px;border-radius:999px;
+  background:linear-gradient(180deg,#d69a2c,var(--gold));color:#0f1a33;font:800 21px/1.2 "Noto Kufi Arabic",system-ui,sans-serif;text-decoration:none;
+  box-shadow:0 12px 30px rgba(196,136,31,.38),inset 0 1px 0 rgba(255,255,255,.35);transition:transform .18s cubic-bezier(.2,.8,.3,1)}
 .go:active{transform:scale(.98)}
 .go:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .go svg{width:24px;height:24px;flex:none}
-.meta{text-align:center;color:#8f9bbd;font-size:13px;direction:rtl}
-.note{border:1px solid var(--line);border-radius:16px;padding:14px 16px;background:rgba(255,255,255,.04);font-size:15px;color:var(--ink)}
+.meta{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;color:var(--mute);font-size:13px}
+.meta span+span::before{content:"·";margin-inline-end:8px}
+.note{border:1px solid var(--line);border-radius:16px;padding:12px 16px;background:var(--card);font-size:15px;color:var(--ink)}
 .note b{color:#fff}
-.note[hidden]{display:none}
-.started{border-color:rgba(226,169,59,.55);color:#fff}
-.steps h2{font-size:17px;font-weight:800;margin-bottom:10px}
-.steps ol{padding-inline-start:22px;display:flex;flex-direction:column;gap:8px;color:var(--ink);font-size:15px}
-.steps li b{color:#fff}
-.why{list-style:none;padding:0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center}
-.why li{border:1px solid var(--line);border-radius:14px;padding:12px 6px;font-size:13px;color:var(--ink)}
-.why b{display:block;color:var(--gold2);font-size:15px}
+.note a{color:var(--gold2)}
+.started{border-color:rgba(226,169,59,.5);color:#fff}
+.feats{list-style:none;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.feats li{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;padding:14px 6px;border-radius:18px;background:var(--card);border:1px solid var(--line);font-size:13px;color:var(--ink)}
+.feats svg{width:26px;height:26px;color:var(--gold2);margin-bottom:2px}
+.feats b{color:#fff;font-size:15px}
+h2{font-size:20px;font-weight:800;text-align:center;margin-bottom:14px}
+.shots{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -16px;padding:4px 16px 12px;scrollbar-width:none}
+.shots::-webkit-scrollbar{display:none}
+.shots figure{flex:0 0 44%;max-width:190px;scroll-snap-align:center;display:flex;flex-direction:column;gap:8px;align-items:center}
+.shots .ph{position:static;width:100%;border-radius:24px;padding:5px}
+.shots .ph img{border-radius:19px}
+.shots figcaption{font-size:14px;color:var(--ink);font-weight:600;text-align:center}
+.steps{list-style:none;padding:0;display:flex;flex-direction:column;gap:12px;counter-reset:s}
+.steps li{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border-radius:18px;background:var(--card);border:1px solid var(--line);color:var(--ink);font-size:15px}
+.steps li::before{counter-increment:s;content:counter(s);flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--gold);color:#0f1a33;font-weight:800;font-size:16px;line-height:1}
+.steps b{color:#fff}
 .foot{text-align:center;font-size:14px}
 .foot a{color:var(--sand)}
+/* the download button stays at hand once the big one has scrolled away */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:9;padding:12px 16px calc(env(safe-area-inset-bottom,0px) + 12px);background:rgba(11,20,43,.9);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid var(--line);transform:translateY(110%);transition:transform .35s cubic-bezier(.2,.8,.3,1)}
+.bar.on{transform:none}
+.bar .go{max-width:480px;margin:0 auto;min-height:54px;font-size:18px}
+@media (max-width:360px){.stage{height:300px}.ph{width:132px}.stage .mid{width:152px}h1{font-size:28px}}
+@media (min-width:700px){.stage{height:420px}.ph{width:190px}.stage .mid{width:214px}h1{font-size:38px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
 <main class="wrap">
-  <a class="brand" href="/"><img src="/brand/mark.svg" alt="" width="44" height="44"><b>بلكون</b></a>
+  <a class="brand" href="/"><img src="/brand/mark.svg" alt="" width="36" height="36"><b>بلكون</b></a>
+
+  <div class="stage" aria-hidden="true">
+    <div class="ph l"><img src="/brand/app/listing.webp" alt="" width="410" height="738"></div>
+    <div class="ph r"><img src="/brand/app/map.webp" alt="" width="410" height="738"></div>
+    <div class="ph mid"><img src="/brand/app/home.webp" alt="" width="410" height="738"></div>
+  </div>
 
   <div class="hero">
-    <img class="ico" src="/brand/icon-192.png" alt="أيقونة تطبيق بلكون" width="104" height="104">
+    <span class="tag">تطبيق أندرويد · مجاني</span>
     <h1>حمّل تطبيق بلكون<br><span>عقارات سوريا</span> بجيبك</h1>
     <p class="sub">بيع وإيجار من المالك مباشرة · بكل المحافظات</p>
   </div>
 
-  <p class="note started" id="started" hidden>✓ <b>بلّش التحميل.</b> إذا ما بلّش، اكبس الزر.</p>
+  <p class="note started" id="started" hidden>✓ <b>بلّش التحميل.</b> إذا ما بلّش، اكبس الزر تحت.</p>
   <p class="note" id="inapp" hidden>إذا ما بلّش التحميل من جوّا فيسبوك أو ماسنجر: اكبس <b>⋮</b> فوق واختار <b>«فتح في المتصفح»</b> أو «Open in Chrome».</p>
-  <p class="note" id="ios" hidden>التطبيق هاد للأندرويد. على <b>آيفون</b> ضيف بلكون لشاشة موبايلك من <a href="/app/" style="color:var(--gold2)">هون</a>.</p>
-  <p class="note" id="desk" hidden>افتح هالرابط من <b>موبايل أندرويد</b> ليتحمّل التطبيق عليه، أو تصفّح الموقع على <a href="/" style="color:var(--gold2)">balkoun.com</a>.</p>
+  <p class="note" id="ios" hidden>التطبيق هاد للأندرويد. على <b>آيفون</b> ضيف بلكون لشاشة موبايلك من <a href="/app/">هون</a>.</p>
+  <p class="note" id="desk" hidden>افتح هالرابط من <b>موبايل أندرويد</b> ليتحمّل التطبيق عليه، أو تصفّح الموقع على <a href="/">balkoun.com</a>.</p>
 
-  <a class="go" id="dl" href="/downloads/balkoun.apk" download="balkoun.apk">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>
-    تحميل التطبيق · أندرويد
-  </a>
-  <p class="meta">مجاني · الإصدار 1.3 · حوالي 3 ميغا</p>
+  <div class="cta">
+    <a class="go" id="dl" href="/downloads/balkoun.apk" download="balkoun.apk">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>
+      تحميل التطبيق
+    </a>
+    <p class="meta"><span>مجاني</span><span>الإصدار 1.3</span><span>حوالي 3 ميغا</span></p>
+  </div>
 
-  <section class="note steps">
+  <ul class="feats">
+    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg><b>من المالك</b>مباشرة</li>
+    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><b>14 محافظة</b>كل سوريا</li>
+    <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12v8H4v-8"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H8a2.5 2.5 0 1 1 0-5c3 0 4 5 4 5zM12 7h4a2.5 2.5 0 1 0 0-5c-3 0-4 5-4 5z"/></svg><b>مجاني</b>بلا اشتراك</li>
+  </ul>
+
+  <section>
+    <h2>شو فيك تعمل بالتطبيق</h2>
+    <div class="shots">
+      <figure><div class="ph"><img src="/brand/app/home.webp" alt="شاشة التطبيق الرئيسية" width="410" height="738" loading="lazy"></div><figcaption>دوّر حسب المنطقة والسعر</figcaption></figure>
+      <figure><div class="ph"><img src="/brand/app/search.webp" alt="نتائج البحث" width="410" height="738" loading="lazy"></div><figcaption>كل العروض بمكان واحد</figcaption></figure>
+      <figure><div class="ph"><img src="/brand/app/listing.webp" alt="صفحة عقار" width="410" height="738" loading="lazy"></div><figcaption>صور وفيديو لكل عقار</figcaption></figure>
+      <figure><div class="ph"><img src="/brand/app/map.webp" alt="البحث على الخريطة" width="410" height="738" loading="lazy"></div><figcaption>شوف العقارات عالخريطة</figcaption></figure>
+    </div>
+  </section>
+
+  <section>
     <h2>التثبيت بـ 3 خطوات</h2>
-    <ol>
-      <li>اكبس <b>تحميل التطبيق</b> وانطر لحتى يخلص التحميل.</li>
-      <li>افتح الملف <b>balkoun.apk</b> من الإشعارات أو من «التنزيلات».</li>
-      <li>إذا سألك، اسمح <b>بتثبيت تطبيقات من هالمصدر</b>، وبعدين اكبس <b>تثبيت</b>.</li>
+    <ol class="steps">
+      <li><span>اكبس <b>تحميل التطبيق</b> وانطر لحتى يخلص التحميل.</span></li>
+      <li><span>افتح الملف <b>balkoun.apk</b> من الإشعارات أو من «التنزيلات».</span></li>
+      <li><span>إذا سألك، اسمح <b>بتثبيت تطبيقات من هالمصدر</b>، وبعدين اكبس <b>تثبيت</b>.</span></li>
     </ol>
   </section>
 
-  <ul class="why">
-    <li><b>مجاني</b>بلا اشتراك</li>
-    <li><b>من المالك</b>مباشرة</li>
-    <li><b>14 محافظة</b>كل سوريا</li>
-  </ul>
-
   <p class="foot"><a href="/">تصفّح العقارات على balkoun.com</a></p>
 </main>
+<div class="bar" id="bar"><a class="go" id="dl2" href="/downloads/balkoun.apk" download="balkoun.apk">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 20h14"/></svg>
+  تحميل التطبيق · مجاني</a></div>
 <script src="/android/android.js"></script>
 </body>
 </html>

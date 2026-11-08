@@ -9,6 +9,9 @@
   if(ios) $("ios").hidden=false;
   else if(!android) $("desk").hidden=false;
   if(android && inApp) $("inapp").hidden=false;
+  // the bottom bar shows once the big button has scrolled out of sight
+  var bar=$("bar"), dl=$("dl");
+  if(window.IntersectionObserver && bar && dl) new IntersectionObserver(function(es){ bar.className="bar"+(es[0].isIntersecting?"":" on") }).observe(dl);
   // once per visit, never inside the Balkoun app itself and never for link-preview robots
   if(android && !insideApp && !bot && !/[?&]preview=1/.test(location.search)){
     var done=false; try{ done=sessionStorage.getItem("bk_apk_auto")==="1"; sessionStorage.setItem("bk_apk_auto","1") }catch(e){}
@@ -30,5 +33,5 @@
     // a saved session that is no longer valid: still a visit, sent without the member
     send(b, me ? function(){ var o=JSON.parse(b); o.p_user=null; o.p_token=null; send(JSON.stringify(o)) } : null) };
   log((location.pathname+location.search).slice(0,300),"android");
-  $("dl").addEventListener("click",function(){ log("/downloads/balkoun.apk","apk") });
+  ["dl","dl2"].forEach(function(id){ var a=$(id); if(a) a.addEventListener("click",function(){ log("/downloads/balkoun.apk","apk") }) });
 })();
