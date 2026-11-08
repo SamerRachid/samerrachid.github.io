@@ -67,6 +67,14 @@ var ADM_GROUPS={g_listings:["listings","intake","reports","photos"],g_people:["u
   g_site:["mainpage","design","contact","guides"],g_settings:["settings","countries","geo","maps","types","intake_cfg","admins","audit","storage","danger"]};
 var ADM_GROUP_ALIAS={inbox:"g_msgs",promo:"g_mkt",system:"g_settings"};   // the old section keys (bell links, saved state)
 function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab)>-1) return g } return null }
+function admNavOpen(){ try{ var v=JSON.parse(localStorage.getItem("bk_adm_navopen")||"[]"); return Array.isArray(v)?v:[] }catch(e){ return [] } }
+// the folding sidebar lines and the found-setting highlight (kept here so the site's CSS bundle is not rebuilt for the panel)
+function admNavCss(){ if(document.getElementById("admNavCss")) return; var st=document.createElement("style"); st.id="admNavCss";
+  st.textContent=".adm .asidebar a.agrp{cursor:pointer}.adm .asidebar a.agrp .agrp-chev{margin-inline-start:auto;display:inline-flex;align-items:center;opacity:.55;transform:rotate(90deg);transition:transform .2s}"+
+    "[dir=ltr] .adm .asidebar a.agrp .agrp-chev{transform:rotate(-90deg)}.adm .asidebar a.agrp.unf .agrp-chev{transform:none}.adm .asidebar a.agrp .abadge2+.agrp-chev{margin-inline-start:6px}"+
+    ".adm .asidebar a.agrp:focus-visible{outline:2px solid #C4881F;outline-offset:-2px}"+
+    ".adm .aset-flash{outline:2px solid #C4881F;outline-offset:4px;border-radius:8px;background:rgba(196,136,31,.10);transition:background .4s}";
+  document.head.appendChild(st) }
 // night mode (owner, 2026-10-16): "dark" / "light" / "" = follow the phone or computer
 function admTheme(){ try{ return localStorage.getItem("bk_adm_theme")||"" }catch(e){ return "" } }
 function admIsDark(){ var t0=admTheme(); if(t0) return t0==="dark"; try{ return !!(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches) }catch(e){ return false } }
@@ -107,8 +115,8 @@ var ADM_FEATURES=[
 ];
 function admNavIndex(NAV,SUB){
   var idx=[]; var li=L==="de"?"de":L==="en"?"en":"ar";
-  NAV.forEach(function(g){ g.items.forEach(function(it){ if(!it[4]) return; var d=GX_T["desc_"+it[0]]?GX("desc_"+it[0]):""; idx.push({tab:it[0], label:it[1], where:g.g, text:admNorm(it[1]+" "+g.g+" "+d+" "+it[0])}) }) });
-  Object.keys(SUB).forEach(function(k){ if(!canTab(k)) return; var gk=admGroupOf(k), gl=""; NAV.forEach(function(g){ g.items.forEach(function(it){ if(it[0]===gk) gl=g.g+" › "+it[1] }) }); var d=GX_T["desc_"+k]?GX("desc_"+k):""; idx.push({tab:k, label:SUB[k][0], where:gl, text:admNorm(SUB[k][0]+" "+gl+" "+d+" "+k)}) });
+  NAV.forEach(function(g){ g.items.forEach(function(it){ if(!it[4]) return; var d=GX_T["desc_"+it[0]]?GX("desc_"+it[0]):""; idx.push({tab:it[0], kind:"page", label:it[1], where:g.g, text:admNorm(it[1]+" "+g.g+" "+d+" "+it[0])}) }) });
+  Object.keys(SUB).forEach(function(k){ if(!canTab(k)) return; var gk=admGroupOf(k), gl=""; NAV.forEach(function(g){ g.items.forEach(function(it){ if(it[0]===gk) gl=g.g+" › "+it[1] }) }); var d=GX_T["desc_"+k]?GX("desc_"+k):""; idx.push({tab:k, kind:"page", label:SUB[k][0], where:gl, text:admNorm(SUB[k][0]+" "+gl+" "+d+" "+k)}) });
   ADM_FEATURES.forEach(function(f){ if(!canTab(f.tab)) return; idx.push({tab:f.tab, label:f.l[li]||f.l.en, where:f.w[li]||f.w.en, hint:f.w[li]||f.w.en, text:admNorm(f.k+" "+(f.l.ar||"")+" "+(f.l.en||"")+" "+(f.w.ar||"")+" "+(f.w.en||""))}) });
   return idx;
 }
@@ -130,7 +138,89 @@ function admDataHits(r){
     go:function(){ ADM.ikFilter="all"; ADM.ikOpen=String(d.id); admGo("intake") } }) });
   return out;
 }
-function admNavHits(q){ q=admNorm(q); if(!q) return []; var words=q.split(" ").filter(Boolean); return (ADM._navIndex||[]).filter(function(h){ return words.every(function(w){ return h.text.indexOf(w)>-1 }) }).slice(0,8) }
+// ── forgiving panel search (owner, 2026-11-07: "find settings even if the name is not written exactly") ──
+// words in any order, «ال/و/ب/ل» prefixes, Arabic digits, one or two wrong letters, a word still being typed;
+// with three or more words one may miss. Every label on the settings pages is in the index too, not only page names.
+function admFzN(s){ return admNorm(String(s||"").replace(/[٠-٩]/g,function(c){ return c.charCodeAt(0)-1632 }).replace(/[۰-۹]/g,function(c){ return c.charCodeAt(0)-1776 })).replace(/[·›←→\/,()\-:«»"'.|؟?!*،]+/g," ").replace(/\s+/g," ").trim() }
+function admFzStrip(w){ var s=w.replace(/^(وال|بال|فال|كال|لل|ال)/,""); return s.length>=2?s:w }
+function admFzWords(s){ return admFzN(s).split(" ").filter(Boolean).map(admFzStrip) }
+function admFzLev(a,b,lim){ if(Math.abs(a.length-b.length)>lim) return lim+1; var p=[],i,j; for(j=0;j<=b.length;j++) p[j]=j;
+  for(i=1;i<=a.length;i++){ var c=[i], best=i; for(j=1;j<=b.length;j++){ c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1)); if(c[j]<best) best=c[j] } if(best>lim) return lim+1; p=c } return p[b.length] }
+function admFzWord(w, words, text){
+  if(words.indexOf(w)>-1) return 4;
+  if(text.indexOf(w)>-1) return 3;                                                   // part of a word, or a word being typed
+  if(w.length<4) return 0;
+  var lim=w.length>=9?2:1, best=0;
+  words.forEach(function(tw){ if(best>=2) return;
+    if(tw.length>=3 && admFzLev(w,tw,lim)<=lim) best=2;                            // a wrong / missing / extra letter
+    else if(tw.length>w.length && admFzLev(w,tw.slice(0,w.length),1)<=1) best=1.5 }); // a slip while typing the start of a word
+  return best }
+function admFzScore(h, qw, qn){
+  if(!h._w){ h._w=admFzWords(h.text||""); h._t=" "+h._w.join(" ")+" " }
+  var got=0, sum=0, loose=false; qw.forEach(function(w){ var s=admFzWord(w,h._w,h._t); if(s>0){ got++; sum+=s; if(s<3) loose=true } else loose=true });
+  if(got<qw.length && !(qw.length>=3 && got>=qw.length-1)) return 0;
+  h._loose=loose; return sum + (admFzN(h.label).indexOf(qn)>-1?3:0) + (h.kind==="page"?1:0) }
+function admNavHits(q){ var qn=admFzN(q), qw=admFzWords(q); if(!qw.length) return [];
+  var pool=(ADM._navIndex||[]).concat(admSetIndex());
+  var hits=pool.map(function(h){ return {h:h, s:admFzScore(h,qw,qn)} }).filter(function(x){ return x.s>0 });
+  // close guesses (a wrong letter, a missing word) only show when nothing matches as typed
+  if(hits.some(function(x){ return !x.h._loose })) hits=hits.filter(function(x){ return !x.h._loose });
+  return hits.sort(function(a,b){ return b.s-a.s }).slice(0,12).map(function(x){ return x.h }) }
+// the settings labels: the plain settings pages are read once per session from the panel's own page builder (nothing is
+// sent and nothing is saved while reading); the site-editor pages add their labels the first time they are opened
+var ADM_SET_TABS=["settings","countries","maps","types","intake_cfg","storage","danger","promopage","featured"];
+var ADM_SET_SEL="h3,h4,label,legend,summary,.xcheck>span,.hs-l,.hs-h";
+function admSetLabels(root, tab, where, out, seen){
+  [].forEach.call(root.querySelectorAll(ADM_SET_SEL),function(el){
+    var tx=(el.textContent||"").replace(/\s+/g," ").replace(/[\s*:：]+$/,"").trim();
+    if(tx.length<3 || tx.length>70 || /^[\d\s.,$%+\-]+$/.test(tx)) return;
+    var b=el.closest(".blk"), h=b&&b.querySelector("h3"), sec=h&&h!==el?(h.textContent||"").replace(/\s+/g," ").trim().slice(0,40):"";
+    var key=tab+"|"+admFzN(tx); if(seen[key]) return; seen[key]=1;
+    out.push({tab:tab, kind:"set", label:tx, find:admFzN(tx), where:where+(sec?" › "+sec:""), text:tx+" "+sec+" "+where}) }) }
+function admSetIndex(){
+  if(!ADM.data) return [];
+  if(!ADM._setIdx || ADM._setIdxL!==L){ ADM._setIdx=admSetCrawl(); ADM._setIdxL=L }
+  var vis=ADM._setVisit||{}, extra=[]; Object.keys(vis).forEach(function(k){ if(canTab(k)) extra=extra.concat(vis[k]) });
+  return ADM._setIdx.filter(function(e){ return !vis[e.tab] }).concat(extra) }
+function admSetCrawl(){
+  var out=[], seen={}, keep={}, k0, subKeep=JSON.stringify(ADM._sub||{}), never=function(){ return new Promise(function(){}) };
+  var o={rpc:window.rpc, render:window.render, fetch:window.fetch, db:window.DB&&window.DB.rpc};
+  for(k0 in ADM) keep[k0]=ADM[k0];
+  try{
+    window.rpc=never; window.render=function(){}; window.fetch=never; if(window.DB) window.DB.rpc=never;
+    ADM_SET_TABS.forEach(function(k){ if(!canTab(k)) return; var html="";
+      try{ ADM.tab=k; html=adminView() }catch(e){ return }
+      var doc=new DOMParser().parseFromString(html,"text/html"), main=doc.querySelector(".acontent"); if(!main) return;
+      var h1=main.querySelector(".apage-h h1"), cr=main.querySelector(".apage-crumb"), pg=((cr?cr.textContent.trim()+" › ":"")+(h1?h1.textContent.trim():k)).replace(/^ › /,"");
+      [].forEach.call(main.querySelectorAll(".apage-h"),function(x){ x.remove() });
+      admSetLabels(main, k, pg, out, seen) });
+  }catch(e){}
+  finally{
+    for(k0 in ADM) if(!(k0 in keep)) delete ADM[k0];
+    for(k0 in keep) ADM[k0]=keep[k0];
+    try{ ADM._sub=JSON.parse(subKeep) }catch(e){}
+    window.rpc=o.rpc; window.render=o.render; window.fetch=o.fetch; if(window.DB) window.DB.rpc=o.db;
+    try{ sessionStorage.setItem("bk_adm_tab",ADM.tab) }catch(e){} }   // adminView() saved each page it drew as the one to reopen
+  return out }
+// the search box is focused: load (read only) what the general settings page needs, the same call that page makes, so its
+// labels are searchable before it was ever opened; the index is read again when it arrives (other pages: once visited)
+function admSetWarm(){ if(ADM._setWarm || !ADM.token) return; ADM._setWarm=true;
+  if(canTab("settings") && !ADM._settingsLoaded){ ADM._settingsLoaded=true;
+    var done=function(v){ ADM.settings=v; delete ADM._setIdx; if(ADM.tab==="settings") render() };
+    rpc("bk_admin_get_settings",{p_token:ADM.token}).then(function(r){ done(r||{require_approval:true}) }).catch(function(e){ done({require_approval:true,_error:e.message||"error"}) }) } }
+// after a page is drawn: its labels join the index (the site editor's pages are not read in advance)
+function admSetVisit(){ var main=$(".acontent"); if(!main || !ADM.tab || (ADM_SET_TABS.indexOf(ADM.tab)<0 && !HS_TABS[ADM.tab])) return;
+  var h1=main.querySelector(".apage-h h1"), out=[]; admSetLabels(main, ADM.tab, h1?h1.textContent.trim():ADM.tab, out, {});
+  ADM._setVisit=ADM._setVisit||{}; ADM._setVisit[ADM.tab]=out }
+// a picked setting: open its page, unfold its card, bring the label into view and light it up
+function admSetFind(h, tries){ var main=$(".acontent"); tries=tries||0;
+  var el=main && [].filter.call(main.querySelectorAll(ADM_SET_SEL),function(x){ return admFzN((x.textContent||"").replace(/[\s*:：]+$/,"")) === h.find })[0];
+  if(!el){ if(tries<25) setTimeout(function(){ admSetFind(h, tries+1) },120); return }
+  var b=el.closest(".blk.folded"); if(b){ b.classList.remove("folded");
+    var blks=[].slice.call(main.querySelectorAll(".blk.afoldable")), i=blks.indexOf(b), key="bk_adm_fold_"+ADM.tab;   // admSectionize's numbering
+    if(i>-1){ try{ var folds=JSON.parse(localStorage.getItem(key)||"{}")||{}; folds[i]=0; localStorage.setItem(key,JSON.stringify(folds)) }catch(e){} } }
+  var tgt=el.closest(".fl,.xcheck,.blk>h3")||el; tgt.scrollIntoView({block:"center",behavior:"smooth"});
+  tgt.classList.add("aset-flash"); setTimeout(function(){ tgt.classList.remove("aset-flash") },2600) }
 function admGo(tab){ if(!tab) return; if(!canTab(tab)){ admToast(GX("noPermTab"),"bad"); return } tab=admResolveTab(tab); if(tab!==ADM.tab && admDirty() && !confirm(GX("hsDiscardConfirm"))) return; if(tab!==ADM.tab) ADM._show={}; ADM.tab=tab; window._admMobileDetail=false; render(); try{ window.scrollTo(0,0) }catch(e){} }
 // "راسل": one direct message to one person on WhatsApp / Telegram / email, from the users list or the contacts list
 // "المكتب": create or edit a member's agency page from the panel (name, contacts, coverage, specialties, logo)
@@ -893,9 +983,11 @@ function adminView(){
  TOP.forEach(function(x){ if(x[0]===curGroupKey) curGroup=x[1] });
  var subBar = curGroupKey ? '<div class="asubtabs">'+ADM_GROUPS[curGroupKey].filter(canTab).map(function(k){ return '<button type="button" class="'+(k===ADM.tab?'on':'')+'" data-atab="'+k+'">'+LBL[k]+(BADGE[k]?'<span class="abadge2">'+BADGE[k]+'</span>':'')+'</button>' }).join("")+'</div>' : '';
  var sideHtml=TOP.filter(function(x){ return canTab(x[0]) }).map(function(x){ var grp=ADM_GROUPS[x[0]], open=x[0]===ADM.tab||x[0]===curGroupKey, b=secBadge(x[0]);
+   var unf=grp && (open || admNavOpen().indexOf(x[0])>-1);
    return (x[0]==="g_settings"?'<div class="asidebar-sp"></div>':'')+
-     '<a class="atop'+(open?' on':'')+'" data-atab="'+x[0]+'"><span class="aicon">'+x[2]+'</span><span>'+x[1]+'</span>'+(b&&!open?'<span class="abadge2">'+b+'</span>':'')+'</a>'+
-     (grp?'<div class="asub'+(open?' open':'')+'">'+grp.filter(canTab).map(function(k){ return '<a class="'+(k===ADM.tab?'on':'')+'" data-atab="'+k+'"><span>'+LBL[k]+'</span>'+(BADGE[k]?'<span class="abadge2">'+BADGE[k]+'</span>':'')+'</a>' }).join("")+'</div>':'') }).join("");
+     (grp?'<a class="atop agrp'+(open?' on':'')+(unf?' unf':'')+'" data-agrp="'+x[0]+'" role="button" aria-expanded="'+(unf?'true':'false')+'" tabindex="0"><span class="aicon">'+x[2]+'</span><span>'+x[1]+'</span>'+(b?'<span class="abadge2"'+(unf?' hidden':'')+'>'+b+'</span>':'')+'<span class="agrp-chev" aria-hidden="true"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></a>'
+         :'<a class="atop'+(open?' on':'')+'" data-atab="'+x[0]+'"><span class="aicon">'+x[2]+'</span><span>'+x[1]+'</span>'+(b&&!open?'<span class="abadge2">'+b+'</span>':'')+'</a>')+
+     (grp?'<div class="asub'+(unf?' open':'')+'">'+grp.filter(canTab).map(function(k){ return '<a class="'+(k===ADM.tab?'on':'')+'" data-atab="'+k+'"><span>'+LBL[k]+'</span>'+(BADGE[k]?'<span class="abadge2">'+BADGE[k]+'</span>':'')+'</a>' }).join("")+'</div>':'') }).join("");
  // phone: a bottom bar with the four daily places + «المزيد» (the rest, the language, night mode, the site, sign out)
  var botTab=function(k,label,icon){ var on=k===ADM.tab||k===curGroupKey, b=secBadge(k); return '<a class="'+(on?'on':'')+'" data-atab="'+k+'">'+icon+'<span>'+label+'</span>'+(b?'<i>'+b+'</i>':'')+'</a>' };
  var moreOn=["g_people","g_mkt","stats","g_site","g_settings"].indexOf(curGroupKey||ADM.tab)>-1;
@@ -1089,7 +1181,7 @@ async function adminLoad(){
   ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._anLoaded=false; ADM._uactLoaded=false; ADM._delUsersLoaded=false; ADM.delUsers=null; ADM._ldelLoaded=false; ADM.ldel=null; ADM._ldupLoaded=false; ADM.ldup=null; ADM.ldupN=null; ADM._lstatsLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._promosLoaded=false;
   ADM._storageUsageLoaded=false;
   ["_adminsLoaded","_agLoaded","_geoLoaded","_ikLoaded","_meLoaded","_mediaUsedLoaded","_photosLoaded","_pjLoaded","_ticketsLoaded","_vfLoaded","_wLoaded"].forEach(function(k){ ADM[k]=false }); ADM._mediaLoadedCats={};   // every page re-fetches on refresh, not only the shared data
-  ADM.dangerUnlocked=false;
+  ADM.dangerUnlocked=false; delete ADM._setIdx; ADM._setWarm=false;
   ADM.restoreUnlocked=false; ADM.restoreFileInfo=""; ADM.restoreData=null;
   try{
     var gen=ADM._gen||0, fresh=await rpc("bk_admin_data",{p_token:ADM.token,p_country:admScope()});
@@ -1350,6 +1442,13 @@ function wireAdmin(){
     render();
     try{ window.scrollTo({top:0,behavior:"instant"}) }catch(e2){ try{ window.scrollTo(0,0) }catch(e3){} }
   } });
+  $$("#aSidebar [data-agrp]").forEach(function(a){ var flip=function(){ var g=a.dataset.agrp, sub=a.nextElementSibling, on=!a.classList.contains("unf");
+      if(a.classList.contains("on") && !on) return;   // the open page's section stays open
+      a.classList.toggle("unf",on); a.setAttribute("aria-expanded",on?"true":"false"); if(sub&&sub.classList.contains("asub")) sub.classList.toggle("open",on);
+      var b=a.querySelector(".abadge2"); if(b) b.hidden=on;
+      var list=admNavOpen().filter(function(x){ return x!==g }); if(on) list.push(g); try{ localStorage.setItem("bk_adm_navopen",JSON.stringify(list)) }catch(e){} };
+    a.onclick=function(e){ e.preventDefault(); flip() };
+    a.onkeydown=function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); flip() } } });
   if($("#aSidebarToggle")) $("#aSidebarToggle").onclick=function(e){
     e.stopPropagation(); var sb=$("#aSidebar"); if(sb) sb.classList.toggle("on");
   };
@@ -1380,8 +1479,9 @@ function wireAdmin(){
   if($("#aSearchBtn")) $("#aSearchBtn").onclick=function(e){ e.stopPropagation(); var hd=this.closest(".adm-top"); if(!hd) return; hd.classList.toggle("qopen"); var qi=$("#aNavQ"); if(qi&&hd.classList.contains("qopen")) qi.focus() };
   var nq=$("#aNavQ"); if(nq){ var hitsBox=$("#aNavHits"), hitSel=0;
     // panel pages first, then what the data search found (bk_admin_search: read only), each kind under its own heading
-    var allHits=function(q){ var pages=admNavHits(q).map(function(h){ h.grp=GX("aSrchPages"); return h }), r=(ADM._sres&&ADM._sres.q===q)?ADM._sres.r:null;
-      return pages.concat(r?admDataHits(r):[]) };
+    var allHits=function(q){ var nav=admNavHits(q), r=(ADM._sres&&ADM._sres.q===q)?ADM._sres.r:null, setG={ar:"الإعدادات",en:"Settings",de:"Einstellungen"}[L]||"Settings";
+      var pages=nav.filter(function(h){ return h.kind!=="set" }).map(function(h){ h.grp=GX("aSrchPages"); return h }), sets=nav.filter(function(h){ return h.kind==="set" }).map(function(h){ h.grp=setG; return h });
+      return pages.concat(sets, r?admDataHits(r):[]) };
     var drawHits=function(){ var q=nq.value.trim(), hits=allHits(q); hitSel=0; if(!hitsBox) return; if(!q){ hitsBox.hidden=true; hitsBox.innerHTML=""; return }
       var busy=q.length>=2&&!(ADM._sres&&ADM._sres.q===q), lastG=null, html="";
       hits.forEach(function(h,i){ if(h.grp!==lastG){ html+='<div class="anav-grp">'+esc(h.grp)+'</div>'; lastG=h.grp }
@@ -1389,12 +1489,12 @@ function wireAdmin(){
       hitsBox.hidden=false; hitsBox.innerHTML = (html||(busy?'':'<div class="anav-none">'+GX("aNavNone")+'</div>'))+(busy?'<div class="anav-none">'+GX("aSrchBusy")+'</div>':'');
       $$("#aNavHits [data-hit]").forEach(function(b){ b.onmousedown=function(e){ e.preventDefault(); pick(+b.dataset.hit) } }) };
     var pick=function(i){ var hits=allHits(nq.value.trim()), h=hits[i]; if(!h) return; nq.value=""; if(hitsBox){ hitsBox.hidden=true }
-      if(h.go){ h.go(); return } admGo(h.tab); if(h.hint) setTimeout(function(){ admToast(h.hint) },350) };
+      if(h.go){ h.go(); return } admGo(h.tab); if(h.kind==="set") setTimeout(function(){ admSetFind(h) },150); else if(h.hint) setTimeout(function(){ admToast(h.hint) },350) };
     var runSearch=function(){ var raw=nq.value.trim(); clearTimeout(ADM._sT); if(raw.length<2) return;
       ADM._sT=setTimeout(function(){ rpc("bk_admin_search",{p_token:ADM.token,p_q:raw,p_country:admScope()}).then(function(r){ ADM._sres={q:raw,r:r||{}}; if(nq.value.trim()===raw&&hitsBox&&!hitsBox.hidden) drawHits() }).catch(function(){ ADM._sres={q:raw,r:{}}; if(nq.value.trim()===raw) drawHits() }) },300) };
     // the results list shows pages and data together, so the sidebar stays as it is while typing (redesign 2026-10-16)
     nq.oninput=function(){ drawHits(); runSearch() };
-    nq.onfocus=function(){ if(nq.value.trim()) drawHits() }; nq.onblur=function(){ setTimeout(function(){ if(hitsBox) hitsBox.hidden=true },150) };
+    nq.onfocus=function(){ admSetWarm(); if(nq.value.trim()) drawHits() }; nq.onblur=function(){ setTimeout(function(){ if(hitsBox) hitsBox.hidden=true },150) };
     nq.onkeydown=function(e){ var n=$$("#aNavHits [data-hit]").length; if(e.key==="ArrowDown"&&n){ e.preventDefault(); hitSel=(hitSel+1)%n } else if(e.key==="ArrowUp"&&n){ e.preventDefault(); hitSel=(hitSel-1+n)%n } else if(e.key==="Enter"){ e.preventDefault(); if(n) pick(hitSel); else { var a=$("#aSidebar a[data-atab]:not([hidden])"); if(a) a.click() } return } else if(e.key==="Escape"){ nq.value=""; nq.oninput(); return } else return;
       $$("#aNavHits [data-hit]").forEach(function(b,i){ b.classList.toggle("on",i===hitSel) }) } }
   if($("#aLang")) $("#aLang").onchange=function(){ L=this.value; try{localStorage.setItem("balkoun_lang",L)}catch(err){} render() };
@@ -1402,7 +1502,7 @@ function wireAdmin(){
   if($("#aCountry")) $("#aCountry").onchange=function(){ admPickCountry(this.value) }
   $$("[data-cgo]").forEach(function(b){ b.onclick=function(){ var a=b.dataset.cgo.split(":"); admPickCountry(a[0],a[1]==="undefined"?null:a[1]); scrollTo(0,0) } });   // the switch card + the countries page tiles, on every page;
   if($("#acbarSel")) $("#acbarSel").onchange=function(){ admPickCountry(this.value, ADM.tab); scrollTo(0,0) };
-  admSectionize(); admTablesToCards();
+  admSectionize(); admTablesToCards(); admSetVisit(); admNavCss();
 
   var act=async function(fn,args){
     try{ await rpc(fn,args); await adminLoad(); admToast(t("savedOk")) }
