@@ -71,7 +71,9 @@ function admNavOpen(){ try{ var v=JSON.parse(localStorage.getItem("bk_adm_navope
 // the folding sidebar lines and the found-setting highlight (kept here so the site's CSS bundle is not rebuilt for the panel)
 function admNavCss(){ if(document.getElementById("admNavCss")) return; var st=document.createElement("style"); st.id="admNavCss";
   st.textContent=".adm .asidebar a.agrp{cursor:pointer}.adm .asidebar a.agrp .agrp-chev{margin-inline-start:auto;display:inline-flex;align-items:center;opacity:.55;transform:rotate(90deg);transition:transform .2s}"+
-    "[dir=ltr] .adm .asidebar a.agrp .agrp-chev{transform:rotate(-90deg)}.adm .asidebar a.agrp.unf .agrp-chev{transform:none}.adm .asidebar a.agrp .abadge2+.agrp-chev{margin-inline-start:6px}"+
+    "[dir=ltr] .adm .asidebar a.agrp .agrp-chev{transform:rotate(-90deg)}.adm .asidebar a.agrp.unf .agrp-chev{transform:none}"+
+    ".adm .asidebar a.agrp{display:flex;align-items:center;min-width:0}.adm .asidebar a.agrp>span:nth-of-type(2){flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}"+
+    ".adm .asidebar a.agrp>.aicon,.adm .asidebar a.agrp>.abadge2{flex:none}.adm .asidebar a.agrp>.agrp-chev{flex:none;margin-inline-start:4px}"+
     ".adm .asidebar a.agrp:focus-visible{outline:2px solid #C4881F;outline-offset:-2px}"+
     ".adm .aset-flash{outline:2px solid #C4881F;outline-offset:4px;border-radius:8px;background:rgba(196,136,31,.10);transition:background .4s}";
   document.head.appendChild(st) }
@@ -974,7 +976,7 @@ function adminView(){
    feedback:s.openFeedback||null, tickets:openTk||null, msgs:ADM.alertsUnread||null, outreach:dueOut, social:(ADM._promoDue||[]).length||null};
  var TOP=[["dashboard",LBL.dashboard,AICO.dash],["g_listings",GX("navListings"),AICO.listings],["wanted_adm",LBL.wanted_adm,AICO.search],["g_people",t("navPeople"),AICO.users],
    ["g_msgs",GX("navMsgs"),AICO.bell],["g_mkt",GX("navMarketing"),AICO.megaphone],["stats",LBL.stats,AICO.chart],["g_site",GX("navWebsite"),AICO.home2],["g_settings",GX("navSettings"),AICO.gear]];
- var secBadge=function(k){ if(!ADM_GROUPS[k]) return BADGE[k]||null; var n=0; ADM_GROUPS[k].forEach(function(p){ if(canTab(p)&&BADGE[p]) n+=+BADGE[p]||0 }); return n||null };
+ var secBadge=function(k){ if(!ADM_GROUPS[k]) return BADGE[k]||null; var n=0; ADM_GROUPS[k].forEach(function(p){ if(p!=="social"&&canTab(p)&&BADGE[p]) n+=+BADGE[p]||0 }); return n||null };   // owner 2026-11-07: «403» on marketing was the social to-do list
  // the panel search's page index: every page, with its section as "where"
  var NAV=TOP.map(function(x){ return {g:x[1], items:(ADM_GROUPS[x[0]]||[x[0]]).map(function(k){ return [k, LBL[k]||x[1], BADGE[k]||null, x[2], canTab(k)] })} });
  ADM._navIndex=admNavIndex(NAV,{});
