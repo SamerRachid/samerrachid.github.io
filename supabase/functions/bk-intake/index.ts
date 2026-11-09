@@ -284,8 +284,11 @@ async function waDownload(mediaId: string, maxBytes = MAX_PHOTO_BYTES): Promise<
   const bytes = new Uint8Array(await r.arrayBuffer());
   return { bytes, size: bytes.length, mime: meta.mime_type || "" };
 }
-async function reply(source: string, chat: string, text: string) {
+async function reply(source: string, chat: string, text: string, opts: { force?: boolean } = {}) {
   try {
+    if (source === "whatsapp" && !opts.force && await rpc<boolean>("bk_intake_held", { p_chat_id: chat }).catch(() => false)) {
+      await log(null, chat, "info", "held_reply_blocked", { text: String(text || "").slice(0, 120) }); return;
+    }
     if (source === "telegram") await tg("sendMessage", { chat_id: chat, text, disable_web_page_preview: false });
     // both a WAHA-received chat and a Meta-received chat come through as source==="whatsapp" (there's no
     // separate DB-level channel for it — same as Telegram already juggles one bot for several purposes);
@@ -313,9 +316,22 @@ const HOWTO = {
     return `📝 *Send the photos and write in one message:*\n• property type (apartment, house, land, shop…)\n• for sale or for rent\n• *governorate and area*\n• size and number of rooms${sy ? "\n• deed type" : ""}\n• price (for rent: monthly or yearly)\n\n*Example:*\n"Apartment for sale in ${guideArea(cc, "en")}, 150 m², 3 rooms${sy ? ", green deed" : ""}, 80 thousand dollars"`; },
 };
 let GUIDE_CONTACT = "";   // the team's number (extras.intake_contact_phone), refreshed on every incoming message
+// the welcome greets the person by name (owner, 2026-11-09): the member's first name, else the WhatsApp/Telegram
+// profile name when it looks like a person's name; nothing when neither fits («~», «🌹🌹», «Real Estate 2024»)
+const NOT_NAME = /^(مكتب|عقارات|عقاري|عقارية|العقارية|العقاري|شركة|مؤسسة|مجموعة|بلكون|وسيط|سمسار|ادارة|إدارة|real|estate|realestate|realty|office|company|group|properties|property|homes|admin|balkoun|broker|agency|mr|mrs|ms|dr|eng|the)$/i;
+function greetName(raw: unknown): string {
+  const r = String(raw || "");
+  if (!r.trim() || /[\d٠-٩]/.test(r)) return "";
+  const words = r.normalize("NFC").replace(/[^\p{L}\s'-]/gu, " ").replace(/\s+/g, " ").trim().split(" ").filter(Boolean);
+  if (!words.length || words.length > 3 || words.some((w) => NOT_NAME.test(w))) return "";
+  let n = words[0];
+  if (/^(أبو|ابو|أم|ام|abu|abou|um|umm)$/i.test(n)) { if (!words[1]) return ""; n += " " + words[1]; }   // «أبو محمد» stays whole
+  if (n.length < 2 || n.length > 20 || (/[\u0600-\u06FF]/.test(n) && /[A-Za-z]/.test(n))) return "";
+  return /^[a-z]/.test(n) ? n.charAt(0).toUpperCase() + n.slice(1) : n;
+}
 const GUIDE = {
-  ar: (cc?: string | null) => `أهلاً بك في بلكون 👋\nأنا مساعد آلي يعمل بالذكاء الاصطناعي، أنشر إعلان عقارك من هنا.\nأستقبل فقط تفاصيل العقار وصوره.\n\n${HOWTO.ar(cc)}\n\nالأوامر:\n• جديد: لبدء إعلان جديد\n• نعم: لنشر الإعلان بعد الملخص\n• إضافة: لإضافة صور أو فيديو أو معلومات للإعلان\n• تصحيح: لتعديل معلومة\n• إلغاء: لإلغاء الإعلان\n• رقم إعلانك (مثل SY10460): لتعديله أو إضافة صور أو حذفه\n• مساعدة: لكل الأوامر${GUIDE_CONTACT ? `\n\nلأي استفسار آخر: ${ltr(GUIDE_CONTACT)}` : ""}`,
-  en: (cc?: string | null) => `Welcome to Balkoun 👋\nI am an AI assistant: I publish your property listing from here.\nI only take property details and photos.\n\n${HOWTO.en(cc)}\n\nCommands:\n• new: start a new listing\n• yes: publish after the summary\n• add: add photos, a video or details\n• correct: change a detail\n• cancel: cancel the listing\n• your listing number (e.g. SY10460): edit it, add photos or delete it\n• help: all commands${GUIDE_CONTACT ? `\n\nAnything else: ${ltr(GUIDE_CONTACT)}` : ""}`,
+  ar: (cc?: string | null, name?: string) => `أهلاً بك${name ? " يا " + name : ""} في بلكون 👋\nأنا مساعد آلي يعمل بالذكاء الاصطناعي، أنشر إعلان عقارك من هنا.\nأستقبل فقط تفاصيل العقار وصوره.\n\n${HOWTO.ar(cc)}\n\nالأوامر:\n• جديد: لبدء إعلان جديد\n• نعم: لنشر الإعلان بعد الملخص\n• إضافة: لإضافة صور أو فيديو أو معلومات للإعلان\n• تصحيح: لتعديل معلومة\n• إلغاء: لإلغاء الإعلان\n• رقم إعلانك (مثل SY10460): لتعديله أو إضافة صور أو حذفه\n• مساعدة: لكل الأوامر${GUIDE_CONTACT ? `\n\nلأي استفسار آخر: ${ltr(GUIDE_CONTACT)}` : ""}`,
+  en: (cc?: string | null, name?: string) => `Welcome to Balkoun${name ? ", " + name : ""} 👋\nI am an AI assistant: I publish your property listing from here.\nI only take property details and photos.\n\n${HOWTO.en(cc)}\n\nCommands:\n• new: start a new listing\n• yes: publish after the summary\n• add: add photos, a video or details\n• correct: change a detail\n• cancel: cancel the listing\n• your listing number (e.g. SY10460): edit it, add photos or delete it\n• help: all commands${GUIDE_CONTACT ? `\n\nAnything else: ${ltr(GUIDE_CONTACT)}` : ""}`,
 };
 const HELP = {
   ar: (cc?: string | null) => `أهلاً بك في بلكون 👋\nأنشر إعلان عقارك من هنا برسالة واحدة.\n\n${HOWTO.ar(cc)}\n\nأقرأ الرسالة وأرسل لك ملخص الإعلان، ثم تختار:\n• نعم ← أنشره وأرسل لك رابطه\n• لا ← ألغيه\n• تصحيح ← ثم اكتب التصحيح، مثل: «السعر 75 ألف»\n• إضافة ← ثم أرسل صوراً أو فيديو أو معلومات إضافية\nإذا نقصت معلومة أسألك عنها مرة واحدة، واكتب «تخطي» إن أردت النشر من دونها.\n\nبعد النشر:\n• لإعلان جديد اكتب «جديد» ثم أرسل تفاصيله وصوره\n• للتعديل أو الحذف أو إضافة صور لاحقاً أرسل رقم الإعلان (مثل SY10281) وأفتحه لك\n\nمساعدة ← هذا الشرح\n\nتفضّل 🙂`,
@@ -324,7 +340,7 @@ const HELP = {
 const T = {
   ar: {
     guide: GUIDE.ar,
-    welcome: (_name: string) => GUIDE.ar(null),
+    welcome: (name: string) => GUIDE.ar(null, greetName(name)),
     gotFirst: `استلمت ✅ سأقرأ الإعلان بعد وصول كل الصور خلال دقيقة ونصف، أو اكتب «تم» لأقرأه الآن.`,
     gotMore: `تمام ✅ سأحدّث الإعلان خلال دقيقة ونصف، أو اكتب «تم» الآن.`,
     unknown: `مرحباً 👋 هذه القناة مخصّصة للمكاتب المعتمدة في بلكون لنشر إعلاناتها تلقائياً.\nللانضمام: سجّل مكتبك على balkoun.com/agencyform ثم اطلب تفعيل النشر بالرسائل.`,
@@ -438,7 +454,7 @@ const T = {
   },
   en: {
     guide: GUIDE.en,
-    welcome: (_name: string) => GUIDE.en(null),
+    welcome: (name: string) => GUIDE.en(null, greetName(name)),
     gotFirst: `Received ✅ I will read the listing once all photos are in, within a minute and a half, or write "done" to read it now.`,
     gotMore: `OK ✅ I will update the listing in a minute and a half, or write "done" now.`,
     unknown: `Hello 👋 This channel is for approved Balkoun agencies to publish listings automatically.\nTo join: register your agency at balkoun.com/agencyform and ask for message posting.`,
@@ -1643,7 +1659,7 @@ function welcomeText(r: any, c: Cfg, part: "whatsapp" | "email" | "telegram" | "
   // (2026-10-16) with no text of the admin's own, the WhatsApp / Telegram welcome IS the bot's main menu
   if (!c["intake_welcome_" + part + "_" + lang] && (part === "whatsapp" || part === "telegram")) {
     GUIDE_CONTACT = String(c.intake_contact_phone || "").trim();
-    return (part === "telegram" ? (lang === "en" ? "Account linked ✅\n" : "تم ربط حسابك ✅\n") : "") + GUIDE[lang](null);
+    return (part === "telegram" ? (lang === "en" ? "Account linked ✅\n" : "تم ربط حسابك ✅\n") : "") + GUIDE[lang](null, greetName(r.contact_name));
   }
   const raw = String(c["intake_welcome_" + part + "_" + lang] || WELCOME_DEFAULT[lang][part] || "");
   const wa = String(c.intake_wa_display || "").trim();
@@ -1722,6 +1738,7 @@ let _ticking = false;
 async function tick(): Promise<number> {
   if (_ticking) return 0; _ticking = true;
   try {
+    try { await rpc("bk_intake_hold_expire", {}); } catch (e) { console.error("hold_expire", errStr(e)); }
     const due = await rpc<any[]>("bk_intake_due", { p_wait_s: null });
     for (const d of due || []) {
       try { await readDraft(d.id); }
@@ -1902,7 +1919,7 @@ const captionIsText = (t: string) => { const s = String(t || "").trim(); return 
 async function sendGuide(m: Incoming, c: Cfg) {
   const s = await rpc<any>("bk_intake_sender", { p_source: m.source, p_chat_id: m.chat });
   const lang = c.intake_reply_lang === "en" ? "en" : (s?.lang === "en" ? "en" : "ar");
-  await reply(m.source, m.chat, tx(lang).guide(s?.country_code || null));
+  await reply(m.source, m.chat, tx(lang).guide(s?.country_code || null, greetName(s?.user_name) || greetName(m.senderName)));
   await log(null, m.chat, "info", "guide_sent", { source: m.source });
 }
 async function safeRead(m: Incoming, draftId: number, tt: any) {
@@ -2056,7 +2073,8 @@ async function handleIncoming(m: Incoming) {
   // silent and the owner answers by hand on Balkoun's WhatsApp (nothing is read, stored or replied)
   if (m.source === "whatsapp") {
     const q = await rpc<any>("bk_intake_quiet", { p_chat_id: m.chat }).catch(() => null);
-    if (q?.quiet) { await log(null, m.chat, "info", "quiet", { reason: q.reason, kind: m.kind }); return; }
+    if (q?.quiet && q.reason === "admin" && await heldCollect(m, c)) return;
+    if (q?.quiet && q.reason !== "admin") { await log(null, m.chat, "info", "quiet", { reason: q.reason, kind: m.kind }); return; }
   }
   // pairing: /start <code> (Telegram) or "ربط <code>" / "link <code>"
   const pairMatch = (m.text || "").trim().match(/^(?:\/start|ربط|link|pair)\s+([A-Za-z0-9-]{4,40})$/i);
@@ -2243,7 +2261,7 @@ async function handleIncoming(m: Incoming) {
     return;
   }
   // content — first listing ever from this chat: the how-to goes out once, before anything else
-  if (r.is_new && !r.guided && !r.sender?.is_admin) { await reply(m.source, m.chat, tt.guide(r.country_code || r.sender?.country_code || null)); await log(r.draft_id, m.chat, "info", "guide_sent", { source: m.source }); }
+  if (r.is_new && !r.guided && !r.sender?.is_admin) { await reply(m.source, m.chat, tt.guide(r.country_code || r.sender?.country_code || null, greetName(r.sender?.user_name) || greetName(m.senderName))); await log(r.draft_id, m.chat, "info", "guide_sent", { source: m.source }); }
   if (r.expired_prev) await reply(m.source, m.chat, tt.expiredPrev(String(r.expired_prev.title || "")));
   if (m.kind === "photo" && m.fetchMedia && r.draft_id) {
     const mx = cfgInt(c.intake_max_photos, 12);
@@ -2395,6 +2413,119 @@ async function routeWhatsApp(req: Request): Promise<Response> {
   await Promise.race([all, delay(15_000)]);
   return json({ ok: true });
 }
+// ── the owner takes a chat over (2026-11-09) ──
+// «admin on» typed in a chat on Balkoun's WhatsApp (phone or WhatsApp Desktop): the bot stops answering that number and
+// only collects what the person sends into one draft (status 'held'); «admin post» publishes it live and sends the
+// person the link; «admin off» (or extras.intake_admin_hold_hours, default 24) hands the chat back — an unpublished
+// held draft then waits in the panel as «بانتظارك». Nothing is ever published without the owner.
+const OWNER_CMD = /^admin (on|off|post)$/;
+async function wahaJidPhone(jid: string, alts: unknown[]): Promise<string | null> {
+  let j = String(jid || "");
+  if (j.endsWith("@lid")) {
+    const alt = alts.map((a) => String(a || "")).find((a) => a.endsWith("@c.us") || a.endsWith("@s.whatsapp.net")) || "";
+    if (alt) j = alt;
+    else if (ENV.wahaUrl && ENV.wahaKey) {
+      try {
+        const r = await fetch(ENV.wahaUrl.replace(/\/$/, "") + "/api/default/lids/" + encodeURIComponent(j.replace(/@lid$/, "")), { headers: { "X-Api-Key": ENV.wahaKey } });
+        const x = await r.json().catch(() => ({}));
+        if (x?.pn) j = String(x.pn);
+      } catch { /* logged by the caller */ }
+    }
+  }
+  j = j.replace(/@s\.whatsapp\.net$/, "@c.us");
+  return j.endsWith("@c.us") && /^\d{6,15}@c\.us$/.test(j) ? "+" + j.replace(/@c\.us$/, "") : null;
+}
+async function ownerAlert(title: string, body: string) {
+  try { await rpc("bk_notify_push", { p_event: "intake", p_title: title, p_body: body, p_link: SITE + "/admin", p_cc: null }); background(notifyFlush()); }
+  catch (e) { console.error("ownerAlert", errStr(e)); }
+}
+async function ownerCommand(p: any) {
+  const cmd = latinDigits(String(p.body || "")).trim().toLowerCase().replace(/\s+/g, " ").match(OWNER_CMD);
+  if (!cmd) return;
+  const mid = String(p.id?._serialized || p.id || "");
+  if (mid) {   // a webhook retried by WAHA runs the command once
+    const { data: seen } = await sb.from("intake_log").select("id").eq("event", "admin_cmd").eq("detail->>msg", mid).limit(1);
+    if (seen && seen.length) return;
+  }
+  const k = p._data?.key || {};
+  const chat = await wahaJidPhone(String(p.to || k.remoteJid || ""), [k.remoteJidAlt, k.participantPn, p._data?.to?._serialized, p._data?.id?.remote]);
+  if (!chat) { await log(null, "waha:" + String(p.to || ""), "warn", "admin_cmd_nochat", { cmd: cmd[1], to: p.to, keys: Object.keys(k) }); return; }
+  await log(null, chat, "info", "admin_cmd", { cmd: cmd[1], msg: mid || null });
+  if (cmd[1] === "post") { await adminPost(chat); return; }
+  const r = await rpc<any>("bk_intake_hold_set", { p_chat_id: chat, p_on: cmd[1] === "on", p_by: "command", p_hours: null }).catch((e) => ({ error: errStr(e) }));
+  if (r?.error) { await log(null, chat, "error", "admin_cmd_failed", { cmd: cmd[1], error: r.error }); await ownerAlert("⚠️ لم يُنفَّذ أمر admin " + cmd[1], chat + " — " + r.error); }
+}
+async function adminPost(chat: string) {
+  await delay(4000);   // photos sent just before the command are still being stored
+  const take = await rpc<any>("bk_intake_hold_take", { p_chat_id: chat }).catch((e) => ({ error: errStr(e) }));
+  if (!take?.ok) {
+    await log(null, chat, "warn", "admin_post_none", take || {});
+    await ownerAlert("⚠️ admin post: لا يوجد ما يُنشر", take?.error === "nohold"
+      ? `${chat}: المحادثة ليست مع المشرف. اكتب admin on أولاً ثم دع الشخص يرسل التفاصيل والصور.`
+      : `${chat}: لم يصل من الشخص نص أو صور بعد admin on.`);
+    return;
+  }
+  const id = +take.draft_id;
+  try { await readDraft(id, { quiet: true }); }
+  catch (e) {
+    await rpc("bk_intake_set", { p_draft: id, p_patch: { status: "review", error: "admin post: " + errStr(e) } });
+    await log(id, chat, "error", "admin_post_failed", { step: "read", error: errStr(e) });
+    await ownerAlert("⚠️ admin post: لم تنجح قراءة الإعلان", `المسوّدة #${id} (${chat}) تنتظرك في اللوحة ← المسوّدات.`);
+    return;
+  }
+  let d = await rpc<any>("bk_intake_get", { p_draft: id });
+  for (let i = 0; i < 2 && d?.status === "collecting"; i++) {
+    await delay(3000);
+    if (await rpc<any>("bk_intake_claim", { p_draft: id })) { await readDraft(id, { quiet: true }).catch(() => null); d = await rpc<any>("bk_intake_get", { p_draft: id }); }
+  }
+  if (!d || ["ready", "needs_info"].indexOf(d.status) < 0) {
+    if (d && d.status !== "review") await rpc("bk_intake_set", { p_draft: id, p_patch: { status: "review", error: "admin post: " + (d.status || "?") } });
+    await log(id, chat, "warn", "admin_post_failed", { step: "read", status: d?.status });
+    await ownerAlert("⚠️ admin post: الرسالة لا تبدو إعلاناً", `المسوّدة #${id} (${chat}) تنتظرك في اللوحة ← المسوّدات لتراجعها.`);
+    return;
+  }
+  const r = await publishDraft(id, "live", { quiet: true });
+  if (r?.ok) {
+    await reply("whatsapp", chat, tx(d.user_lang === "en" ? "en" : "ar").published(r.ref, r.url), { force: true });
+    await log(id, chat, "info", "admin_post", { ref: r.ref, listing_id: r.listing_id, missing: d.missing || [] });
+    return;
+  }
+  const why: Record<string, string> = { noagency: "اختر صاحب الإعلان (عضو أو مكتب)", nouser: "صاحب الإعلان محظور أو غير موجود", nogov: "المحافظة غير معروفة", badtype: "نوع العقار غير معروف" };
+  await ownerAlert("⚠️ admin post: لم يُنشر الإعلان", `المسوّدة #${id} (${chat}): ${why[r?.error] || r?.error || "خطأ"}. أكملها من اللوحة ← المسوّدات ثم «انشر مباشرة».`);
+}
+// a message from a chat the owner holds: kept in the hold's draft, never answered
+async function heldCollect(m: Incoming, c: Cfg): Promise<boolean> {
+  if (m.kind === "audio" || (m.kind === "video" && !m.fetchMedia)) { await log(null, m.chat, "info", "held_skip", { kind: m.kind }); if (!(m.text || "").trim()) return true; m.kind = "text"; m.media = null; m.fetchMedia = undefined; }
+  if ((m.kind === "photo" || m.kind === "video") && m.text && !captionIsText(m.text)) m.text = null;
+  let loc: { lat: number; lng: number } | null = null;
+  if (m.kind === "text" && m.text && /(goo\.gl|google\.|geo:)/i.test(m.text)) {
+    const ll = await mapLinkCoords(m.text).catch(() => null);
+    if (ll) { const rest = m.text.replace(MAP_URL_RE, " ").replace(/\s+/g, " ").trim(); if (rest.length < 3) { m.kind = "location"; m.media = ll; m.text = null; } else loc = ll; }
+  }
+  const put = (ext: string, kind: string, text: string | null, media: any) => rpc<any>("bk_intake_hold_collect", { p_chat_id: m.chat, p_external_id: ext, p_kind: kind, p_text: text, p_media: media, p_payload: m.payload, p_sender_name: m.senderName });
+  const r = await put(m.externalId, m.kind, m.text, m.media ?? null).catch((e) => ({ error: errStr(e) }));
+  if (r?.error === "nohold") return false;
+  if (!r?.ok) { if (!r?.duplicate) await log(null, m.chat, "warn", "held_collect_failed", r || {}); return true; }
+  if (loc) await put(m.externalId + ":loc", "location", null, loc).catch(() => null);
+  if (m.kind === "photo" && m.fetchMedia) {
+    const mx = cfgInt(c.intake_max_photos, 12);
+    if ((r.photo_count || 0) >= mx || (m.size && m.size > MAX_PHOTO_BYTES)) await log(r.draft_id, m.chat, "info", "held_photo_skipped", { count: r.photo_count, size: m.size || null });
+    else {
+      try { const f = await m.fetchMedia(); await storePhoto(r.draft_id, f.bytes, f.mime || (m.media && m.media.mime) || "", (r.photo_count || 0) + 1, sendOrder(m)); }
+      catch (e) { await log(r.draft_id, m.chat, "warn", "photo_failed", { error: errStr(e), held: true }); }
+    }
+  }
+  if (m.kind === "video" && m.fetchMedia) {
+    const maxMb = cfgInt(c.intake_video_max_mb, 50), maxS = cfgInt(c.intake_video_max_s, 180), maxN = cfgInt(c.intake_max_videos, 1);
+    if (maxN <= 0 || (m.media?.duration && m.media.duration > maxS) || (m.size && m.size > maxMb * 1024 * 1024)) await log(r.draft_id, m.chat, "info", "held_video_skipped", { size: m.size || null });
+    else {
+      try { const f = await m.fetchMedia(); if (f.bytes.length > maxMb * 1024 * 1024) throw new Error("too_big"); await storeVideo(r.draft_id, f.bytes, m.media?.mime || f.mime || "video/mp4", m.media?.duration, await videoPoster(m)); }
+      catch (e) { await log(r.draft_id, m.chat, "warn", "video_failed", { error: errStr(e), held: true }); }
+    }
+  }
+  await log(r.draft_id, m.chat, "info", "held_collect", { kind: m.kind });
+  return true;
+}
 // incoming messages from the self-hosted WAHA gateway (Syrian numbers, the same session wahaSend() already
 // uses for OTP) — a separate route from routeWhatsApp() above because the payload shape, auth, and even
 // what "the sender" looks like are completely different from Meta's webhook. Reuses source:"whatsapp" for
@@ -2406,9 +2537,15 @@ async function routeWahaIncoming(req: Request): Promise<Response> {
   const sig = req.headers.get("x-webhook-hmac") || "";
   if (!sig || !timingEqual(sig, await hmacHex(ENV.wahaWebhookSecret, raw, "SHA-512"))) return json({ error: "bad signature" }, 401);
   const body = JSON.parse(raw || "{}");
-  if (body.event !== "message") return json({ ok: true });   // ignore message.ack, state.change, etc.
+  if (body.event !== "message" && body.event !== "message.any") return json({ ok: true });   // ignore message.ack, state.change, etc.
   const p = body.payload || {};
-  if (p.fromMe) return json({ ok: true });   // our own OTP/reply/campaign sends echoed back
+  // «message.any» repeats every incoming message (already handled under «message»); from it only what was sent from
+  // Balkoun's own WhatsApp is looked at — the owner's «admin on|off|post». Our own OTP/reply/campaign sends match nothing.
+  if (p.fromMe) {
+    if (body.event === "message.any") { const w = ownerCommand(p); background(w); await Promise.race([w, delay(10_000)]); }
+    return json({ ok: true });
+  }
+  if (body.event !== "message") return json({ ok: true });
   let from = String(p.from || "");
   // Newer WhatsApp/WAHA builds hide the phone behind a LID ("1234…@lid"). WAHA exposes the real number
   // either inline (_data.key.senderPn / remoteJidAlt) or through GET /api/{session}/lids/{lid} → { pn }.
@@ -2576,7 +2713,7 @@ async function routeAdmin(req: Request): Promise<Response> {
       r = await fetch(ENV.wahaUrl.replace(/\/$/, "") + "/api/sessions/default", {
         method: "PUT",
         headers: { "X-Api-Key": ENV.wahaKey, "Content-Type": "application/json" },
-        body: JSON.stringify({ name: "default", config: { webhooks: [{ url: FN_URL + "/waha", events: ["message"], hmac: { key: ENV.wahaWebhookSecret } }] } }),
+        body: JSON.stringify({ name: "default", config: { webhooks: [{ url: FN_URL + "/waha", events: ["message", "message.any"], hmac: { key: ENV.wahaWebhookSecret } }] } }),
       });
     } catch (e) { return json({ error: "network: " + errStr(e) }, 502); }
     const j = await r.json().catch(() => ({}));

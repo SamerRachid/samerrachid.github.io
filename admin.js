@@ -4320,8 +4320,8 @@ function wireAdminCampaigns(){
 }
 
 /* ── Message intake page: connections, settings, drafts, log. Data: bk_admin_intake; actions through the bk-intake Edge Function. ── */
-var IK_STATUS={collecting:"ik_collecting",reading:"ik_reading",ready:"ik_ready",needs_info:"ik_needs_info",review:"ik_review",published:"ik_published",cancelled:"ik_cancelled",failed:"ik_failed"};
-var IK_PILL={collecting:"pending",reading:"pending",ready:"live",needs_info:"pending",review:"expired",published:"live",cancelled:"expired",failed:"expired"};
+var IK_STATUS={collecting:"ik_collecting",reading:"ik_reading",ready:"ik_ready",needs_info:"ik_needs_info",review:"ik_review",held:"ik_held",published:"ik_published",cancelled:"ik_cancelled",failed:"ik_failed"};
+var IK_PILL={collecting:"pending",reading:"pending",ready:"live",needs_info:"pending",review:"expired",held:"pending",published:"live",cancelled:"expired",failed:"expired"};
 function ikPill(st){ return '<span class="st st-'+(IK_PILL[st]||"pending")+'">'+GX(IK_STATUS[st]||st)+'</span>' }
 function ikSrc(x){ return x.source==="telegram"?"Telegram":x.source==="whatsapp"?"WhatsApp":GX("ik_web") }
 async function intakeAdmin(action, extra){
@@ -4423,8 +4423,8 @@ function admWireMore(){ if(window._moreWired) return; window._moreWired=true;
 function adminIntakeBody(mode){
   var d=ADM.ik; if(!d) return '<div class="blk"><div class="in adashempty">'+(ADM.ikErr?'<span style="color:var(--danger)">'+esc(ADM.ikErr)+'</span>':t("loading"))+'</div></div>';
   var cfg=d.cfg||{}, c=d.counts||{}, st=ADM.ikStatus, f=ADM.ikFilter||"all", fnUrl=CONFIG.supabaseUrl+"/functions/v1/bk-intake";
-  var list=(d.drafts||[]).filter(function(x){ return f==="all" ? x.status!=="cancelled" : f==="attention" ? (x.status==="review"||x.status==="failed") : f==="open" ? ["collecting","reading","ready","needs_info"].indexOf(x.status)>-1 : x.status===f });
-  var stats='<div class="astat ikstats">'+[[GX("ik_st_open"),(+c.collecting||0)+(+c.ready||0)],[GX("ik_st_attention"),(+c.review||0)+(+c.failed||0)],[GX("ik_st_published"),+c.published||0],[GX("ik_st_today"),+c.today||0],[GX("ik_st_cost"),"$"+(+c.cost_month||0).toFixed(2)]].map(function(s){ return '<div class="astat"><b class="ltr">'+s[1]+'</b><span>'+s[0]+'</span></div>' }).join("")+'</div>';
+  var list=(d.drafts||[]).filter(function(x){ return f==="all" ? x.status!=="cancelled" : f==="attention" ? (x.status==="review"||x.status==="failed") : f==="open" ? ["collecting","reading","ready","needs_info","held"].indexOf(x.status)>-1 : x.status===f });
+  var stats='<div class="astat ikstats">'+[[GX("ik_st_open"),(+c.collecting||0)+(+c.ready||0)+(+c.held||0)],[GX("ik_st_attention"),(+c.review||0)+(+c.failed||0)],[GX("ik_st_published"),+c.published||0],[GX("ik_st_today"),+c.today||0],[GX("ik_st_cost"),"$"+(+c.cost_month||0).toFixed(2)]].map(function(s){ return '<div class="astat"><b class="ltr">'+s[1]+'</b><span>'+s[0]+'</span></div>' }).join("")+'</div>';
   var row=function(name,state,acts){ return '<div class="ikc"><b>'+name+'</b><div>'+state+'</div><div class="eacts">'+(acts||'')+'</div></div>' };
   var ok=function(s){ return '<span class="ikok">✓ '+s+'</span>' }, warn=function(s){ return '<span class="ikwarn">! '+s+'</span>' }, off=function(s){ return '<span class="ikoff">○ '+s+'</span>' };
   var chats=cfg.intake_admin_chats||{}; var nChats=(chats.telegram||[]).length+(chats.whatsapp||[]).length;
@@ -4535,7 +4535,10 @@ function wireAdminIntake(){
   var saveDraft=async function(id){ var c=collect(id); if(!c) return; var patch={fields:c.fields}; if(c.owner!==undefined) Object.assign(patch, ikOwnerPatch(c.owner)); await rpc("bk_admin_intake_set",{p_token:ADM.token,p_id:+id,p_patch:patch}) };
   $$("[data-iksave]").forEach(function(b){ b.onclick=async function(){ var id=this.dataset.iksave, m=$("#ikMsg"+id); busy(this,true); try{ await saveDraft(id); admToast(GX("ik_saved")); reload() }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } } });
   $$("[data-ikread]").forEach(function(b){ b.onclick=async function(){ var id=this.dataset.ikread, m=$("#ikMsg"+id); busy(this,true); if(m){ m.style.color="var(--grey)"; m.textContent=GX("qfBusy") } try{ await saveDraft(id); await intakeAdmin("read",{draft_id:+id,quiet:true}); reload() }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } } });
-  $$("[data-ikpub]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.ikpub.split(":"), m=$("#ikMsg"+p[0]); busy(this,true); if(m){ m.style.color="var(--grey)"; m.textContent=GX("qfBusy") }
+  $$("[data-ikpub]").forEach(function(b){ b.onclick=async function(){ var p=this.dataset.ikpub.split(":"), m=$("#ikMsg"+p[0]);
+    // no owner picked (a name typed but not clicked in the list clears itself): say so instead of a failed publish (2026-11-09)
+    var c0=collect(p[0]); if(c0 && c0.owner===""){ if(m){ m.style.color="var(--danger)"; m.textContent=GX("ik_ownerPick") } var q=$('[data-ikownq="'+p[0]+'"]'); if(q) q.focus(); return }
+    busy(this,true); if(m){ m.style.color="var(--grey)"; m.textContent=GX("qfBusy") }
     try{ await saveDraft(p[0]); var r=await intakeAdmin("publish",{draft_id:+p[0],status:p[1]}); admToast(GX("ik_pubDone").replace("{r}",r.ref||"")); syncAdminTodo(); reload() }catch(e){ if(m){ m.style.color="var(--danger)"; m.textContent=e.message||"error" } busy(this,false) } } });
   // bulk actions over the ticked drafts
   ADM.ikSel=ADM.ikSel||{};
