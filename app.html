@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-SYaYdwfKmSJ31alE6GObS62fYcx+jAcaFTycN2oFJkU=' 'sha256-QBrY6GgK+qZ1mjWDQN/Ujvsy1SDGooQuBTDnNGklx7o=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-SYaYdwfKmSJ31alE6GObS62fYcx+jAcaFTycN2oFJkU=' 'sha256-ynJXEnkOU0Ao2/4gYhtUMCFg1Vh3s8MkJ0vHFSwWWWI=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -2844,7 +2844,48 @@ html.maint-on{overflow:hidden}
 .ikphotos{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.ikphotos img{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
 .ikfields{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:6px}.ikfields .fl{margin:0}.ikfields .fl label{font-size:11.5px}.ikfields .fl.wide{grid-column:1/-1}.ikfields textarea{min-height:90px}
 .ikdetail .xactions select{max-width:260px}
-.iklog{display:flex;flex-direction:column}.iklog-r{display:grid;grid-template-columns:150px 150px 50px 1fr;gap:10px;padding:6px 18px;border-bottom:1px solid var(--line);font-size:12px;color:var(--grey)}.iklog-r b{color:var(--ink)}.iklog-r.lvl-error b{color:var(--danger)}.iklog-r.lvl-warn b{color:var(--warn)}
+.iklog{display:flex;flex-direction:column}.iklog-r{display:grid;grid-template-columns:150px 150px 50px 1fr;gap:10px;padding:6px 18px;border-bottom:1px solid var(--line);font-size:12px;color:var(--grey)}.iklog-r b{color:var(--ink)}
+/* the bot page in tabs (2026-11-09): status bar, takeover box, chats held by the admin, welcome cards */
+.adm .iktop .in{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px}
+.iktabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.iktabs button{border:1px solid var(--p-line,var(--line));background:#fff;border-radius:8px;padding:0 12px;height:32px;font:550 13px var(--f);color:var(--p-ink,var(--ink));cursor:pointer}
+.iktabs button:hover{background:var(--p-hover,#F3F4F7)}
+.iktabs button.on{background:var(--p-dark,var(--navy));border-color:var(--p-dark,var(--navy));color:#fff}
+html.adm-dark .iktabs button{background:hsla(222,27%,13%,1);color:#C9D6F2;border-color:hsla(225,14%,22%,1)}
+html.adm-dark .iktabs button.on{background:var(--gold);border-color:var(--gold);color:#1A1206}
+@media (max-width:700px){.iktabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -14px 12px;padding:0 14px 2px}.iktabs button{flex:none;height:36px;border-radius:999px}}
+.iklog-r{grid-template-columns:140px minmax(0,1.3fr) 50px minmax(0,1fr)}
+.iklog-r span{overflow-wrap:anywhere}
+.blk h3 .xcheck{font-size:12.5px}
+.ikcmds{line-height:1.9;background:transparent;border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.ikholds{display:flex;flex-direction:column;gap:8px}
+.ikhold{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.ikhold .ab{margin-inline-start:auto}
+.ikwcard{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:12px}
+.ikwcard>b{display:block;margin-bottom:6px}
+/* a price per m² / per dunam (2026-11-09): the unit word smaller than the figure */
+.pu-l{font-size:.62em;font-weight:600}.lprice .big .pu-l{font-size:.5em}
+.adm .blk .in.ikchat{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:0;padding:0!important;min-height:520px}
+.ikc-list{border-inline-end:1px solid var(--line);display:flex;flex-direction:column;min-width:0}
+.ikc-list>input{margin:10px;width:auto}
+#ikChatList{overflow-y:auto;max-height:620px}
+.ikc-row{display:grid;grid-template-columns:minmax(0,1fr);min-width:0;gap:3px;width:100%;text-align:start;border:0;border-top:1px solid var(--line);background:transparent;padding:10px 12px;cursor:pointer;font:inherit;color:inherit}
+.ikc-row:hover{background:rgba(127,127,127,.07)}.ikc-row.on{background:rgba(196,136,31,.13)}
+.ikc-top{display:flex;justify-content:space-between;gap:8px}.ikc-top b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ikc-mid{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--grey)}.ikc-last{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}.ikc-top,.ikc-mid{min-width:0}
+.ikc-who{justify-self:start;font-size:11px}
+.ikc-thread{display:flex;flex-direction:column;min-width:0;padding:10px 14px;gap:8px}
+.ikc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.adm .ikc-head .ikc-back{display:none}
+.ikc-msgs{flex:1;overflow-y:auto;max-height:470px;display:flex;flex-direction:column;gap:6px;padding:4px 2px}
+.ikc-msg{max-width:78%;padding:7px 10px;border-radius:10px;background:rgba(127,127,127,.10);align-self:flex-start;display:grid;gap:3px;font-size:13.5px;line-height:1.55;overflow-wrap:anywhere}
+.ikc-msg small{font-size:11px;color:var(--grey)}
+.ikc-msg.ikc-bot{align-self:flex-end;border:1px dashed var(--line);background:transparent}
+.ikc-msg.ikc-owner{align-self:flex-end;background:rgba(196,136,31,.16)}
+.ikc-img{max-width:240px;max-height:240px;border-radius:8px;display:block}
+.ikc-reply{display:flex;gap:8px;align-items:flex-end}.ikc-reply textarea{flex:1;min-height:44px;resize:vertical}
+@media (max-width:800px){.adm .blk .in.ikchat{grid-template-columns:1fr}.ikc-list{border-inline-end:0}.ikchat.has-sel .ikc-list{display:none}.ikchat:not(.has-sel) .ikc-thread{display:none}.adm .ikc-head .ikc-back{display:inline-flex}.ikc-msg{max-width:90%}}
+@media (max-width:700px){.iklog-r{grid-template-columns:1fr 1fr;row-gap:2px}.iktop .ab{margin-inline-start:0!important}}.iklog-r.lvl-error b{color:var(--danger)}.iklog-r.lvl-warn b{color:var(--warn)}
 @media(max-width:900px){.ikdetail .ikcols{grid-template-columns:1fr}.iklog-r{grid-template-columns:1fr 1fr}.ikc{grid-template-columns:1fr;gap:4px}}
 .agcontact .agown{border-color:var(--gold);color:var(--gold-dk);font-weight:700}
 /* one account page: side navigation, sections */
@@ -5063,7 +5104,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202611090438">
+</style><link rel="stylesheet" href="/theme-hu.css?v=202611090515">
 <body>
 <div id="bootSplash" aria-hidden="true"></div>
 <div id="app" role="main"><!--seo-home--><div class="seo-home" id="seoHome"><h1>عقارات سوريا للبيع والإيجار، من المالك مباشرة</h1><p>شقق وبيوت وأراضٍ في كل محافظات سوريا، مع حالة الطابو في كل إعلان وبدون عمولة.</p><h2>سوق العقارات في سوريا، بمكان واحد وبلغة واضحة</h2><p>بلكون موقع عقاري سوري يجمع الشقق والبيوت والفلل والأراضي والمحلات للبيع والإيجار في كل المحافظات: دمشق وريفها، حلب، حمص، حماة، اللاذقية، طرطوس، درعا، السويداء، دير الزور، الحسكة، الرقة، إدلب والقنيطرة. كل إعلان يحمل حالة الطابو (أخضر، حكم محكمة، أسهم أو غيرها) ومتوسط سعر المتر في منطقته خلال الشهر الأخير، لتعرف إن كان السعر معقولاً قبل أن تتصل.</p><p>ينشر المالكون والمكاتب العقارية إعلاناتهم مجاناً وبلا عمولة، بالصور أو بالفيديو، ويتواصل المشتري أو المستأجر معهم مباشرة بالهاتف أو واتساب. وللسوريين في المهجر: تصفّح بالعربية أو الإنجليزية أو الألمانية، أسعار بالدولار، ودليل عملي للشراء من الخارج ونقل الملكية.</p>
@@ -5753,7 +5794,12 @@ function rentLbl(p){ return GX("rentP_"+(RENT_PERIODS.indexOf(p)>-1?p:"yearly"))
 var RENT_PERIODS=["monthly","quarterly","semiannual","yearly","weekly","daily"], SHORT_STAY=["hotelapt","chalet"];   // a day / a week: these types only
 function periodLbl(p){ return p==="quarterly"||p==="semiannual" ? GX("period_"+p) : t("period"+p.charAt(0).toUpperCase()+p.slice(1)) }
 function rentPeriodOpts(sel,hotel){ return RENT_PERIODS.filter(function(p){ return hotel || (p!=="weekly"&&p!=="daily") || p===sel }).map(function(p){ return '<option value="'+p+'"'+(p===sel?" selected":"")+'>'+periodLbl(p)+'</option>' }).join("") }
+// a sale priced per m² / per dunam (owner, 2026-11-08): the figure the seller gave, in the listing's currency
+function puOn(x){ return !!(x && x.pu && x.puv>0 && x.d!=="rent" && +x.p>0) }
+function puMoney(x){ return (x.pl>0&&x.pcur) ? Number(x.puv).toLocaleString("en")+" "+curLabel(x.pcur,L) : "$"+Number(x.puv).toLocaleString("en") }
+function puTotal(x,short){ return GX("pu_total").replace("{p}",'<span class="ltr">'+(short?moneyShortIn(x.p,lcur(x)):money(x.p,x))+'</span>') }
 function priceBlock(x,big){
+  if(puOn(x)) return '<span class="ltr">'+puMoney(x)+'</span> <span class="pu-l">'+GX(x.pu==="m2"?"pu_m2":"pu_dunam")+'</span>';
   var cut = x.orig && x.orig > x.p;
   var pct = cut ? Math.round((1 - x.p/x.orig)*100) : 0;
   return '<span class="ltr">'+money(x.p,x)+'</span>'+(big?'':priceConv(x))+
@@ -6039,7 +6085,7 @@ function wireDrawer(){
   if($("#hpill")) $("#hpill").onclick=function(e){ e.stopPropagation(); mdwOpen() };
   $("#mdwX").onclick=mdwClose; $("#mdwBg").onclick=mdwClose;
   if($("#appInstallGo")) $("#appInstallGo").onclick=function(){ if(window.PWA) PWA.install() };
-  if(window.PWA){ var isec=$("#mdwInstallSec"); if(isec){ var ib=$("#mdwInstall"); if(ib) ib.onclick=function(){ mdwClose(); if(PWA.hasApp()) PWA.shareApp(); else PWA.install() } } }
+  if(window.PWA){ var isec=$("#mdwInstallSec"); if(isec){ var ib=$("#mdwInstall"); if(ib) ib.onclick=function(){ mdwClose(); if(PWA.hasApp()) PWA.shareApp(); else if(/android|samsung|huawei|miui/.test(PWA.platform()) && !/BalkounApp/i.test(navigator.userAgent)) location.href="/android/"; else PWA.install() } } }
   if(!window._mdwEsc){ window._mdwEsc=true; document.addEventListener("keydown",function(e){ if(e.key==="Escape") mdwClose() }) }
   if($("#mdIn")) $("#mdIn").onclick=function(){ mdwClose(); var b=$("#bIn"); if(b) b.click() };
   // the account shortcuts go straight to their pages (the hidden header menu they used to click is not wired on the theme)
@@ -6781,7 +6827,7 @@ function card(x,i,isListView){
 
  var title = ar ? typeName+' '+m2Txt(x)+' '+GX("lIn")+' '+aN(x.a)
                : typeName+m2Txt(x,", ")+' '+GX("lIn")+' '+aN(x.a);
- var perm2 = (x.d!=="rent" && x.m2 && +x.p>0) ? '<span class="cpm"><span class="ltr">'+moneyShortIn(x.p/x.m2,lcur(x))+'</span>/'+t("sqm")+'</span>' : (x.d==="rent"?'<span class="cpm">'+rentLbl(x.rentalPeriod)+'</span>':'');
+ var perm2 = puOn(x) ? '<span class="cpm">'+puTotal(x,1)+'</span>' : (x.d!=="rent" && x.m2 && +x.p>0) ? '<span class="cpm"><span class="ltr">'+moneyShortIn(x.p/x.m2,lcur(x))+'</span>/'+t("sqm")+'</span>' : (x.d==="rent"?'<span class="cpm">'+rentLbl(x.rentalPeriod)+'</span>':'');
  var deedPill = (x.d!=="rent" && D.TABU[x.tb]) ? '<span class="cpill'+(strongDeed(x.tb)?' green':'')+'">'+(strongDeed(x.tb)?'<span class="tabu-green">'+D.TABU[x.tb][li()]+'</span>':D.TABU[x.tb][li()])+'</span>' : '';
  // who posted: an agency shows its name (and logo when allowed) + ✓, a broker shows "broker", everyone else "owner"
  var poster = x.oag ? '<span class="cpill agency">'+(x.clogo&&x.oav?'<img src="'+x.oav+'" alt="">':'')+esc(x.oagName||x.who||GX("acctAgency"))+(x.oagVer?' ✓':'')+'</span>'
@@ -7349,7 +7395,7 @@ function listing(id){
  var side='<aside class="lside">'+
   '<div class="lprice">'+
    '<div class="big">'+priceBlock(x,1)+(x.negot?' <span class="negot">'+t("negot")+'</span>':'')+'</div>'+
-   '<div class="sub">'+(isRent?rentLbl(x.rentalPeriod):(x.p>0&&x.m2>0?'<span class="ltr">'+moneyIn(x.p/x.m2,lcur(x))+'</span> '+t("perm"):''))+'</div>'+
+   '<div class="sub">'+(isRent?rentLbl(x.rentalPeriod):puOn(x)?puTotal(x):(x.p>0&&x.m2>0?'<span class="ltr">'+moneyIn(x.p/x.m2,lcur(x))+'</span> '+t("perm"):''))+'</div>'+
    origPriceLine(x)+
    priceContextHtml(x)+
    '<div class="lowner">'+avatar(x.oav,ownerName,48)+'<div>'+
@@ -7653,7 +7699,7 @@ function editView(){
    // the property type too (owner, 2026-11-02): a type the admin has since switched off still shows as the current one
    '<div class="fl"><label>'+t("ptype")+'</label><select id="eType">'+Object.keys(D.TYPES).concat(D.TYPES[x.t]||!x.t?[]:[x.t]).map(function(k){ return '<option value="'+k+'"'+(x.t===k?" selected":"")+'>'+(D.TYPES[k]?D.TYPES[k][li()]:k)+'</option>' }).join("")+'</select></div>')+
   '<div class="row"><div class="fl"><label>'+t("price")+'</label>'+
-   '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+(x.pl>0&&x.pcur?x.pl:(x.p==null?"":x.p))+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur",(x.pl>0&&x.pcur)?x.pcur:"USD")+'</div>'+perPickHtml("eper")+'<div class="hintx" id="epm"></div>'+
+   '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+(puOn(x)?x.puv:(x.pl>0&&x.pcur?x.pl:(x.p==null?"":x.p)))+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur",(x.pl>0&&x.pcur)?x.pcur:"USD")+'</div>'+perPickHtml("eper",puOn(x)?x.pu:"whole")+'<div class="hintx" id="epm"></div>'+
    (x.orig&&x.orig>x.p?'<div class="hintx">'+t("wasPrice")+' <span class="ltr">'+money(x.orig)+'</span></div>':'')+
    '</div>'+
   '<div class="fl"><label class="req">'+t("areaM")+'</label><input type="number" id="eArea" value="'+(x.m2||"")+'" autocomplete="off"></div></div>'+
@@ -9324,7 +9370,7 @@ function toUsdFrom(v, cur){ v=+v||0; cur=(cur||"USD").toUpperCase(); if(cur==="U
 // the size before saving (owner 2026-11-05: «سعر المتر 275$» was published as a $275 apartment). Sale only; the dunam
 // pill shows for land. The saved price is always the whole price, as the bot saves it.
 var PRICE_MIN = { sale: 500, rent: 10 };   // USD; below this the form refuses (owner 2026-11-05: $1 / $15 / $123 prices)
-function perPickHtml(name){ return '<div class="pick perpick" id="'+name+'Box">'+["whole","m2","dunam"].map(function(k){ return '<label class="per-'+k+'"><input type="radio" name="'+name+'" value="'+k+'"'+(k==="whole"?" checked":"")+'><span>'+GX("per_"+k)+'</span></label>' }).join("")+'</div>' }
+function perPickHtml(name,sel){ sel=sel||"whole"; return '<div class="pick perpick" id="'+name+'Box">'+["whole","m2","dunam"].map(function(k){ return '<label class="per-'+k+'"><input type="radio" name="'+name+'" value="'+k+'"'+(k===sel?" checked":"")+'><span>'+GX("per_"+k)+'</span></label>' }).join("")+'</div>' }
 function perOf(name){ return (($('input[name='+name+']:checked')||{}).value)||"whole" }
 function priceTotal(raw, per, m2){ raw=+raw||0; m2=+m2||0; if(!raw) return 0; return per==="m2" ? Math.round(raw*m2) : per==="dunam" ? Math.round(raw*m2/1000) : raw }
 // rent or a type change: back to «للعقار كاملاً»; the dunam pill only for land
@@ -11731,8 +11777,9 @@ function wire(){
      var patch={};
      // always set price_usd (even to null): the server only clears a field when its key is present in the
      // patch at all, so leaving the key out when the field is cleared (the old behaviour) silently kept the old price
-     if(v("ePrice").trim()){ patch.price_usd=toUsdFrom(eTot, v("ecur")); var ec=(v("ecur")||"USD").toUpperCase(); patch.price_local = ec!=="USD" ? eTot : null; patch.price_cur = ec!=="USD" ? ec : null; }
-     else { patch.price_usd=null; patch.price_local=null; patch.price_cur=null; }
+     if(v("ePrice").trim()){ patch.price_usd=toUsdFrom(eTot, v("ecur")); var ec=(v("ecur")||"USD").toUpperCase(); patch.price_local = ec!=="USD" ? eTot : null; patch.price_cur = ec!=="USD" ? ec : null;
+       patch.price_unit = ePer!=="whole" ? ePer : null; patch.price_unit_value = ePer!=="whole" ? parseFloat(v("ePrice")) : null; }
+     else { patch.price_usd=null; patch.price_local=null; patch.price_cur=null; patch.price_unit=null; patch.price_unit_value=null; }
      if(v("eArea"))  patch.area_m2=+v("eArea");
      patch.rooms = v("eRooms")?+v("eRooms"):null;
      patch.baths = v("eBaths")?+v("eBaths"):null;
@@ -12808,6 +12855,7 @@ function fromRow(r){
     days:Math.max(0,Math.round((Date.now()-new Date(r.created_at))/86400000)),
     createdAt:r.created_at||null,
     uid:r.user_id||null, orig:r.orig_price||null, status:r.status||'live', pl:(r.price_local!=null?+r.price_local:null), pcur:r.price_cur||null,
+    pu:(r.price_unit==="m2"||r.price_unit==="dunam")?r.price_unit:null, puv:(+r.price_unit_value>0?+r.price_unit_value:null),
     ocity:r.owner_city||null, ocountry:r.owner_country||null, oav:r.owner_avatar||null, clogo:!!r.owner_card_logo,
     aid:r.area_id||null,
     olevel:r.owner_level||"member", closedAt:r.closed_at||null, oJoined:r.owner_created_at||null,
@@ -13312,6 +13360,9 @@ async function savePost(){
       governorate_id: g.data.id,
       area_id: (a.data&&a.data[0])?a.data[0].id:null,
       price_usd: ppRaw ? toUsdFrom(ppRaw, val("pcur")) : null,   // empty → "السعر عند التواصل"
+      // a per-m² / per-dunam figure is kept as typed, next to the total (shown as «170$ للمتر», «الإجمالي ≈ …»)
+      price_unit: ppRaw && ($('input[name=dl]:checked')||{}).value!=="rent" && perOf("pper")!=="whole" ? perOf("pper") : null,
+      price_unit_value: ppRaw && ($('input[name=dl]:checked')||{}).value!=="rent" && perOf("pper")!=="whole" ? parseFloat(val("pp")) : null,
       price_local: ppRaw && (val("pcur")||"USD").toUpperCase()!=="USD" ? ppRaw : null,   // the poster's own figure, kept verbatim
       price_cur: ppRaw && (val("pcur")||"USD").toUpperCase()!=="USD" ? (val("pcur")||"").toUpperCase() : null,
       area_m2: Math.round((parseFloat(val("pm2"))||0) * (parseInt(val("pUnit"),10)||1)) || null,   // empty (a rental may leave it out) → null; the DB refuses 0
@@ -15175,6 +15226,8 @@ var GX_T={
   priceReqMsg:{ar:"السعر إلزامي: اكتب السعر قبل الحفظ",en:"A price is required: enter it before saving",de:"Preis ist Pflicht: bitte vor dem Speichern eintragen"},
   per_whole:{ar:"للعقار كاملاً",en:"Whole property",de:"Gesamtpreis",fr:"Prix total"}, per_m2:{ar:"للمتر",en:"Per m²",de:"Pro m²",fr:"Par m²"}, per_dunam:{ar:"للدونم",en:"Per dunam",de:"Pro Dunam",fr:"Par dounam"},
   per_dunamShort:{ar:"للدونم",en:"per dunam",de:"pro Dunam",fr:"par dounam"},
+  pu_m2:{ar:"للمتر",en:"per m²",de:"pro m²",fr:"par m²"}, pu_dunam:{ar:"للدونم",en:"per dunam",de:"pro Dunam",fr:"par dounam"},
+  pu_total:{ar:"الإجمالي ≈ {p}",en:"Total ≈ {p}",de:"Gesamt ≈ {p}",fr:"Total ≈ {p}"},
   per_total:{ar:"السعر الإجمالي: {p}",en:"Total price: {p}",de:"Gesamtpreis: {p}",fr:"Prix total : {p}"},
   per_needSize:{ar:"اكتب المساحة ليُحسب السعر الإجمالي",en:"Enter the size to work out the total price",de:"Fläche eingeben, um den Gesamtpreis zu berechnen",fr:"Saisissez la surface pour calculer le prix total"},
   per_lowWarn:{ar:"السعر صغير جداً لهذه المساحة — إذا كان سعر المتر اختر «للمتر»",en:"Very low for this size — if it is the price per m², choose «Per m²»",de:"Sehr niedrig für diese Fläche — falls es der m²-Preis ist, «Pro m²» wählen",fr:"Très bas pour cette surface — si c'est le prix au m², choisissez «Par m²»"},
@@ -16823,7 +16876,8 @@ window.PWA=(function(){
   document.addEventListener("visibilitychange", function(){ if(document.hidden){ _hiddenAt=Date.now(); return } if(_hiddenAt && Date.now()-_hiddenAt>60*1000){ _hiddenAt=0; try{ refreshListingsOnNavigate(); loadSiteContent(); loadGeo(); if(typeof syncFeaturedFromServer==="function") syncFeaturedFromServer() }catch(e){} } });
   window.addEventListener("pageshow", function(e){ if(e.persisted){ try{ refreshListingsOnNavigate(); loadSiteContent(); loadGeo() }catch(x){} } });
   window.addEventListener("offline", function(){ toast(GX("pwaOffline")) });
-  function shareApp(){ var u=location.origin+"/app";
+  // the link people get is the /android page (owner, 2026-11-09): it downloads the APK on Android, sends iPhone to /app
+  function shareApp(){ var u=location.origin+"/android/";
     if(navigator.share){ navigator.share({title:GX("pwaBannerT"), url:u}).catch(function(){}); return }
     try{ navigator.clipboard.writeText(u).then(function(){ toast(GX("pwaLinkCopied")) }) }catch(e){ prompt("", u) } }
   return { hasApp:hasApp, shareApp:shareApp, installable:installable, install:install, standalone:standalone, ios:iosSafari, platform:platform, stepsHtml:stepsHtml, canPrompt:function(){ return !!deferred }, syncBar:syncBar };

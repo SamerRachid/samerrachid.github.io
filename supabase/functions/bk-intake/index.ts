@@ -874,7 +874,9 @@ function freeRead(tax: any, text: string, homeGovs: string[] = []): { fields: Re
   const home = homeGovs.map((n) => findGov(tax, n)?.ar).filter(Boolean);
   const r = q.read(text, null, learned, home) || { fields: {} };
   const f: Record<string, any> = { ...(r.fields || {}) };
-  delete f.priceFromUnit;
+  // a price given per m² / per dunam: the total is the price, the figure and its unit are kept for the listing (2026-11-09)
+  if (f.priceFromUnit && (f.priceUnit === "m2" || f.priceUnit === "dunam") && +f.priceUnitValue > 0) { f.price_unit = f.priceUnit; f.price_unit_value = +f.priceUnitValue; }
+  delete f.priceFromUnit; delete f.priceUnit; delete f.priceUnitValue;
   const facts = ["deal", "property_type", "governorate", "price", "area_m2"].filter((k) => f[k] != null).length;
   // someone looking for a place, not offering one («مطلوب شقة», «أبحث عن بيت», «بدي شقة بالمزة»)
   const t0 = norm(latinDigits(text)).slice(0, 80);
@@ -2660,7 +2662,7 @@ async function routeAdmin(req: Request): Promise<Response> {
   const uid = await adminUid(b?.token); if (!uid) return json({ error: "unauthorised" }, 401);
   const a = String(b.action || "");
   // each action needs the admin permission that owns it (2026-10-18); read/publish check the draft through bk_admin_intake_can
-  const NEED: Record<string, string[]> = { status: ["intake", "bot_cfg"], tick: ["intake", "bot_cfg"], setup_telegram: ["bot_cfg"], waha_setup_webhook: ["bot_cfg"], test_claude: ["bot_cfg", "intake"], test_photo: ["bot_cfg", "intake"], admin_code: ["bot_cfg"], video_poster: ["listings_edit", "ads", "homepage", "projects", "storage"] };
+  const NEED: Record<string, string[]> = { status: ["intake", "bot_cfg"], tick: ["intake", "bot_cfg"], setup_telegram: ["bot_cfg"], waha_setup_webhook: ["bot_cfg"], test_claude: ["bot_cfg", "intake"], test_photo: ["bot_cfg", "intake"], admin_code: ["bot_cfg"], chats: ["intake"], chat: ["intake"], chat_media: ["intake"], chat_send: ["intake"], chat_hold: ["intake"], video_poster: ["listings_edit", "ads", "homepage", "projects", "storage"] };
   if (NEED[a]) { let ok = false; try { ok = !!(await rpc<boolean>("bk_admin_can", { p_token: b.token, p_perms: NEED[a] })); } catch { ok = false; } if (!ok) return json({ error: "forbidden: missing permission " + NEED[a].join("|") }, 403); }
   if (a === "status") {
     const out: any = { urls: { telegram: FN_URL + "/telegram", whatsapp: FN_URL + "/whatsapp" }, telegram: { configured: !!ENV.tg }, whatsapp: { configured: !!(ENV.waToken && ENV.waPhone && ENV.waSecret), verify_set: !!ENV.waVerify }, anthropic: { configured: !!ENV.anthropic }, tick_secret: !!ENV.tick };
@@ -2802,8 +2804,81 @@ async function routeAdmin(req: Request): Promise<Response> {
     try { const r = await fetch(SITE + (b.path || "/assets/home/raouche-m.jpg")); const bytes = new Uint8Array(await r.arrayBuffer()); const t0 = Date.now(); const out = await processPhoto(bytes, await wmCfg()); return json({ ok: true, ms: Date.now() - t0, in: bytes.length, full: out.full.length, thumb: out.thumb.length, w: out.w, h: out.h }); }
     catch (e) { return json({ error: errStr(e) }, 500); }
   }
+  // ── the panel's «المحادثات» tab (owner, 2026-11-09): Balkoun's WhatsApp chats read live from WAHA, nothing stored ──
+  if (a === "chats" || a === "chat" || a === "chat_media" || a === "chat_send" || a === "chat_hold") {
+    if (!ENV.wahaUrl || !ENV.wahaKey) return json({ error: "waha not configured" }, 503);
+    const id = String(b.chat_id || "");
+    if (a !== "chats" && !CHAT_ID.test(id)) return json({ error: "chat_id" }, 400);
+    try {
+      const map = await lidMap();
+      if (a === "chats") {
+        const rows = await waha("/api/default/chats/overview?limit=" + Math.min(Math.max(+b.limit || 40, 1), 100));
+        const { data: hs } = await sb.from("intake_hold").select("chat_id").gt("until", new Date().toISOString());
+        const held = new Set((hs || []).map((h: any) => String(h.chat_id).replace(/\D/g, "")));
+        const list = (Array.isArray(rows) ? rows : []).filter((c: any) => CHAT_ID.test(String(c.id))).map((c: any) => {
+          const lm = c.lastMessage || {}, phone = chatPhone(String(c.id), map);
+          return { id: c.id, name: c.name || "", phone, held: !!phone && held.has(phone.replace(/\D/g, "")), unread: +(c._chat?.unreadCount || 0),
+                   at: lm.timestamp || c._chat?.timestamp || null, last: cleanBody(lm.body).slice(0, 120), media: !!lm.hasMedia, fromMe: !!lm.fromMe };
+        });
+        return json({ ok: true, chats: list });
+      }
+      const phone = chatPhone(id, map);
+      if (a === "chat") {
+        const rows = await waha(`/api/default/chats/${encodeURIComponent(id)}/messages?limit=${Math.min(Math.max(+b.limit || 40, 1), 100)}&downloadMedia=false`);
+        // messages the panel sent are labelled «أنت»; the API sends them like the bot's own, so their ids are logged
+        const { data: said } = phone ? await sb.from("intake_log").select("detail").eq("event", "panel_said").eq("chat_id", phone).order("created_at", { ascending: false }).limit(200) : { data: [] };
+        const mine = new Set((said || []).map((x: any) => String(x.detail?.msg || "")));
+        const msgs = (Array.isArray(rows) ? rows : []).map((m: any) => {
+          const mid = String(m.id?._serialized || m.id || ""), type = String(m._data?.type || (m.hasMedia ? "media" : "chat"));
+          const lat = Number(m.location?.latitude ?? m._data?.lat), lng = Number(m.location?.longitude ?? m._data?.lng);
+          return { id: mid, at: m.timestamp || null, by: !m.fromMe ? "them" : (m.source === "app" || mine.has(mid)) ? "owner" : "bot",
+                   type, body: type === "location" ? "" : cleanBody(m.body).slice(0, 4000), media: !!m.hasMedia,
+                   loc: type === "location" && isFinite(lat) && isFinite(lng) ? { lat, lng } : null };
+        }).sort((x: any, y: any) => (x.at || 0) - (y.at || 0));
+        let held = false; if (phone) held = !!(await rpc<boolean>("bk_intake_held", { p_chat_id: phone }).catch(() => false));
+        return json({ ok: true, id, phone, held, messages: msgs });
+      }
+      if (a === "chat_media") {
+        const mid = String(b.msg_id || ""); if (!mid || mid.length > 200) return json({ error: "msg_id" }, 400);
+        const one = await waha(`/api/default/chats/${encodeURIComponent(id)}/messages/${encodeURIComponent(mid)}?downloadMedia=true`);
+        const url = one?.media?.url, mime = String(one?.media?.mimetype || "");
+        if (!url || !/^image\//.test(mime)) return json({ error: "no image" }, 404);
+        const r = await fetch(url, { headers: { "X-Api-Key": ENV.wahaKey! }, signal: AbortSignal.timeout(20_000) });
+        const bytes = new Uint8Array(await r.arrayBuffer()); if (bytes.length > 6 * 1024 * 1024) return json({ error: "too big" }, 413);
+        return json({ ok: true, mime, b64: toB64(bytes) });
+      }
+      if (a === "chat_hold") {
+        if (!phone) return json({ error: "no number for this chat" }, 409);
+        return json(await rpc<any>("bk_intake_hold_set", { p_chat_id: phone, p_on: !!b.on, p_by: "panel", p_hours: null }));
+      }
+      // chat_send: the bot steps aside first (like «admin on»), then the text goes out from Balkoun's number
+      const text = String(b.text || "").trim().slice(0, 4000); if (!text) return json({ error: "text" }, 400);
+      if (phone) await rpc("bk_intake_hold_set", { p_chat_id: phone, p_on: true, p_by: "panel", p_hours: null });
+      const sent = await waha("/api/sendText", { method: "POST", body: JSON.stringify({ session: "default", chatId: id, text }) });
+      const msg = String(sent?.id?._serialized || sent?.id || "");
+      await log(null, phone || "waha:" + id, "info", "panel_said", { msg, text: text.slice(0, 300) });
+      return json({ ok: true, held: !!phone, msg });
+    } catch (e) { return json({ error: errStr(e) }, 502); }
+  }
   return json({ error: "bad action" }, 400);
 }
+const CHAT_ID = /^\d{5,20}@(c\.us|lid)$/;
+async function waha(path: string, init: RequestInit = {}): Promise<any> {
+  const r = await fetch(ENV.wahaUrl!.replace(/\/$/, "") + path, { ...init, headers: { "X-Api-Key": ENV.wahaKey!, "Content-Type": "application/json" }, signal: AbortSignal.timeout(20_000) });
+  if (!r.ok) throw new Error("waha " + r.status);
+  return r.json();
+}
+let _lids: { at: number; map: Record<string, string> } | null = null;
+async function lidMap(): Promise<Record<string, string>> {
+  if (_lids && Date.now() - _lids.at < 60_000) return _lids.map;
+  const map: Record<string, string> = {};
+  try { for (const x of (await waha("/api/default/lids?limit=2000")) || []) if (x?.lid && x?.pn) map[String(x.lid)] = "+" + String(x.pn).replace(/@.*$/, ""); } catch { /* numbers stay unknown */ }
+  _lids = { at: Date.now(), map }; return map;
+}
+const chatPhone = (id: string, map: Record<string, string>) => /@c\.us$/.test(id) ? "+" + id.replace(/@c\.us$/, "") : (map[id] || null);
+// WAHA puts a base64 thumbnail in the body of some media messages: never shown as text
+const cleanBody = (b: unknown) => { const s0 = String(b ?? ""); return s0.length > 200 && /^[A-Za-z0-9+/=\s]+$/.test(s0.slice(0, 400)) ? "" : s0; };
+function toB64(bytes: Uint8Array): string { let out = ""; for (let i = 0; i < bytes.length; i += 0x8000) out += String.fromCharCode(...bytes.subarray(i, i + 0x8000)); return btoa(out); }
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });

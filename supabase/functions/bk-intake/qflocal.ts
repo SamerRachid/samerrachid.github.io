@@ -165,7 +165,7 @@ function qfLocalRead(raw, geo, learned, home){
     // no currency written and an amount no dollar price reaches (5 مليون بالشهر, 150 مليون للبيع): Syrian pounds
     if(!p0.cur && !curAll && ((f.deal==="rent" && f.price>=50000) || (f.deal!=="rent" && f.price>=10000000))) f.currency="SYP" }
   if(f.price==null && pUnit && f.area_m2 && f.deal!=="rent"){ var tot=Math.round(pUnit.v*(pUnit.perD?f.area_m2/1000:f.area_m2));
-    if(tot>=500){ f.price=tot; f.currency=pUnit.cur||curAll||"USD"; f.priceFromUnit=true } }
+    if(tot>=500){ f.price=tot; f.currency=pUnit.cur||curAll||"USD"; f.priceFromUnit=true; f.priceUnit=pUnit.perD?"dunam":"m2"; f.priceUnitValue=pUnit.v } }
   // rent paid ahead: «دفع ست شهور», «دفعة 6 اشهر», «سلف سنه»
   var adv=new RegExp(" (?:دفع|دفعه|سلف|مقدم|الدفع) ?"+wn+"? ?(شهر|شهور|اشهر|سنه)"+W).exec(t)||/ (?:دفع|دفعه|سلف) (سنه) /.exec(t);
   if(f.deal==="rent" && adv){ var an=adv[2]?adv[1]:null, au=adv[2]||adv[1]; f.advance_months = au==="سنه" ? 12 : (an?num(an):1) }

@@ -103,6 +103,8 @@ const money = (v) => v == null ? "" : "$" + Number(v).toLocaleString("en");
 // the listing's own currency, as its seller chose it (owner, 2026-10-23)
 const CUR_LBL = { SYP: { ar: "ل.س", en: "SYP" }, LBP: { ar: "ل.ل", en: "LBP" }, JOD: { ar: "د.أ", en: "JOD" }, TRY: { ar: "ل.ت", en: "TRY" }, EUR: { ar: "€", en: "€" } };
 const moneyL = (l, lang) => (l && l.price_local > 0 && l.price_cur) ? Number(l.price_local).toLocaleString("en") + " " + ((CUR_LBL[l.price_cur] || {})[lang === "ar" ? "ar" : "en"] || l.price_cur) : money(l && l.price_usd);
+const PU = { ar: { m2: "للمتر", dunam: "للدونم" }, en: { m2: "per m²", dunam: "per dunam" }, de: { m2: "pro m²", dunam: "pro Dunam" }, fr: { m2: "par m²", dunam: "par dounam" } };
+const PU_TOT = { ar: "الإجمالي ≈", en: "total ≈", de: "gesamt ≈", fr: "total ≈" };
 const POR = { ar: "السعر عند التواصل", en: "Price on request", de: "Preis auf Anfrage", fr: "Prix sur demande" };
 const has = (v) => v !== null && v !== undefined && v !== "";
 const ltr = (s) => `<span class="ltr">${esc(s)}</span>`;
@@ -268,7 +270,11 @@ function summaryLine(l, lang, typeLabel, dealLabel, place, tabuLabel) {
   if (has(l.floor)) bits.push(Number(l.floor) === 0 ? Z.ground : Z.floor(ltr(l.floor)));
   if (has(l.year_built)) bits.push(Z.built(ltr(l.year_built)));
   if (tabuLabel && l.deal !== "rent") bits.push(Z.deed(esc(tabuLabel)));
-  if (has(l.price_usd)) { bits.push(Z.price(ltr(moneyL(l, lang)))); const v = ppm(l); if (v && l.deal !== "rent") bits.push(Z.ppm(ltr(fmtUsd(v)))); }
+  // a sale priced per m² / per dunam (2026-11-08): «170$ للمتر (الإجمالي ≈ 102,000$)»
+  if (has(l.price_usd) && l.deal !== "rent" && (l.price_unit === "m2" || l.price_unit === "dunam") && Number(l.price_unit_value) > 0) {
+    const uv = (l.price_local > 0 && l.price_cur) ? Number(l.price_unit_value).toLocaleString("en") + " " + ((CUR_LBL[l.price_cur] || {})[lang === "ar" ? "ar" : "en"] || l.price_cur) : money(l.price_unit_value);
+    bits.push(Z.price(`${ltr(uv)} ${PU[lang] ? PU[lang][l.price_unit] : PU.en[l.price_unit]} (${PU_TOT[lang] || PU_TOT.en} ${ltr(moneyL(l, lang))})`));
+  } else if (has(l.price_usd)) { bits.push(Z.price(ltr(moneyL(l, lang)))); const v = ppm(l); if (v && l.deal !== "rent") bits.push(Z.ppm(ltr(fmtUsd(v)))); }
   if (l.by_owner) bits.push(Z.owner);
   if (l.price_negotiable) bits.push(Z.neg);
   const sep = lang === "ar" ? "، " : ", ", head = `${esc(typeLabel)} ${esc(dealLabel)}${place ? " " + esc(W.inPlace(place)) : ""}`;

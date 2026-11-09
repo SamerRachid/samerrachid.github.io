@@ -4433,6 +4433,7 @@ function adminIntakeBody(mode){
      '<div class="ikconn">'+
       row("Telegram", st.telegram.configured ? (st.telegram.ok ? ok(GX("ik_tgOk").replace("{b}","@"+esc((st.telegram.me&&st.telegram.me.username)||cfg.intake_bot||"")))+(st.telegram.webhook&&st.telegram.webhook.last_error_message?'<small style="color:var(--danger)">'+esc(st.telegram.webhook.last_error_message)+'</small>':'') : warn(GX("ik_tgNoHook"))) : off(GX("ik_tgOff")), st.telegram.configured ? '<button type="button" class="ab ok" id="ikSetupTg">'+GX("ik_tgSetup")+'</button>' : '')+
       row("WhatsApp", (st.whatsapp.configured ? (st.whatsapp.ok ? ok(GX("ik_waOk").replace("{n}",esc((st.whatsapp.phone&&st.whatsapp.phone.display_phone_number)||""))) : warn(GX("ik_waErr"))) : off(GX("ik_waOff")))+'<small>'+GX("ik_waHook")+' <b class="ltr" style="user-select:all">'+fnUrl+'/whatsapp</b></small>', '<button type="button" class="ab" data-ecopy="'+fnUrl+'/whatsapp">'+GX("engCopy")+'</button>')+
+      (st.waha&&st.waha.configured ? row(GX("ikt_waha"), st.waha.ok ? ok(GX("ikt_wahaOk")) : warn(GX("ikt_wahaBad").replace("{s}",esc(st.waha.status||st.waha.error||"?"))), '') : '')+
       row("Claude", st.anthropic.configured ? ok(GX("ik_clOk")) : off(GX("ik_clOff")), '')+
      '</div><div class="hintx" style="margin-top:10px">'+GX("ik_secretsHint")+'</div>')+
     '<div class="ikown"><b>'+GX("ik_ownerH")+'</b><div class="hintx">'+GX("ik_ownerHint")+'</div>'+
@@ -4445,26 +4446,39 @@ function adminIntakeBody(mode){
   var txt=function(k,lbl){ return '<div class="fl"><label>'+lbl+'</label><input data-ikc="'+k+'" data-ikt="str" class="ltr" value="'+escOnce(cfg[k]||"")+'" data-allow-autofill></div>' };
   var chk=function(k,lbl){ return '<label class="xcheck"><input type="checkbox" data-ikc="'+k+'" data-ikt="bool"'+(cfg[k]!==false&&cfg[k]!=="false"?' checked':'')+'><span>'+lbl+'</span></label>' };
   var ta=function(k,lbl){ return '<div class="fl"><label>'+lbl+'</label><textarea data-ikc="'+k+'" data-ikt="str" rows="6" data-allow-autofill placeholder="'+esc(GX("ik_welcomePH"))+'">'+escOnce(cfg[k]||"")+'</textarea></div>' };
-  var settings='<div class="blk"><h3>'+GX("ik_setH")+'</h3><div class="in" id="ikCfg">'+
-    '<div class="chkgrid">'+chk("intake_enabled",GX("ik_on"))+chk("intake_telegram_on","Telegram")+chk("intake_whatsapp_on","WhatsApp")+chk("intake_keep_text",GX("ik_keepText"))+'</div>'+
-    '<div class="hintx">'+GX("ik_keepTextHint")+'</div>'+
-    '<div class="row3">'+num("intake_wait_s",GX("ik_wait"),90,20,900)+num("intake_max_photos",GX("ik_maxPhotos"),12,1,30)+num("intake_daily_limit",GX("ik_daily"),30,1,500)+'</div>'+
-    '<div class="row3">'+num("intake_max_videos",GX("ik_maxVideos"),1,0,5)+num("intake_video_max_mb",GX("ik_videoMb"),50,5,100)+num("intake_video_max_s",GX("ik_videoSec"),180,10,600)+'</div><div class="hintx">'+GX("ik_videoHint")+'</div>'+
+  // the bot page in tabs (owner, 2026-11-09): each tab is one form with its own «حفظ»; saving merges into extras
+  var save='<div class="xactions"><button type="button" class="ab ok" id="ikCfgSave">'+t("save")+'</button><span class="xmsg" id="ikCfgMsg"></span></div>';
+  var tabBlk=function(title,hint,inner){ return '<div class="blk"><h3>'+title+'</h3><div class="in" id="ikCfg">'+(hint?'<div class="hintx" style="margin-bottom:10px">'+hint+'</div>':'')+inner+save+'</div></div>' };
+  var holds=ADM.ikHolds||[];
+  var holdRows = !ADM.ikHoldsLoaded ? '<div class="hintx">'+t("loading")+'</div>' : !holds.length ? '<div class="hintx">'+GX("ikt_holdNone")+'</div>' :
+    '<div class="ikholds">'+holds.map(function(h){ return '<div class="ikhold"><b>'+esc(h.name||h.chat_id)+'</b> <span class="ltr hintx">'+esc(h.chat_id)+'</span>'+
+      '<span class="hintx">'+GX("ikt_holdSince").replace("{t}",'<span class="ltr">'+when(h.since)+'</span>').replace("{u}",'<span class="ltr">'+when(h.until)+'</span>')+(h.messages?' · '+h.messages+' '+GX("ik_msgs"):'')+'</span>'+
+      '<button type="button" class="ab" data-ikrelease="'+esc(h.chat_id)+'">'+GX("ikt_release")+'</button></div>' }).join("")+'</div>';
+  var tRun=tabBlk(GX("ikt_run"),"",
+    '<div class="chkgrid">'+chk("intake_enabled",GX("ik_on"))+chk("intake_telegram_on","Telegram")+chk("intake_whatsapp_on","WhatsApp")+'</div>'+
+    '<h4 style="margin:18px 0 6px">'+GX("ikt_takeH")+'</h4><div class="hintx ikcmds">'+GX("ikt_takeHint")+'</div>'+
+    '<div class="row3">'+num("intake_admin_hold_hours",GX("ikt_holdHours"),24,1,168)+'</div>'+
+    '<h4 style="margin:18px 0 6px">'+GX("ikt_holdsH")+' <span class="n">'+holds.length+'</span></h4>'+holdRows);
+  var mode0=cfg.intake_read_mode||"free";
+  var tRead=tabBlk(GX("ikt_read"),"",
     '<div class="row">'+sel("intake_read_mode",GX("ik_readMode"),[["free",GX("ik_readFree")],["mix",GX("ik_readMix")],["ai",GX("ik_readAi")]])+'</div><div class="hintx">'+GX("ik_readHint")+'</div>'+
-    '<div class="row3">'+sel("intake_model",GX("ik_model"),[["claude-haiku-4-5-20251001","Claude Haiku 4.5"],["claude-sonnet-5","Claude Sonnet 5"],["claude-opus-5","Claude Opus 5"]])+num("intake_price_in",GX("ik_priceIn"),1,0,100,0.01)+num("intake_price_out",GX("ik_priceOut"),5,0,500,0.01)+'</div>'+
-    '<div class="row3">'+sel("intake_reply_lang",GX("ik_lang"),[["ar","العربية"],["en","English"]])+txt("intake_wa_display",GX("ik_waDisplay"))+txt("intake_contact_phone",GX("ik_contactPhone"))+'</div>'+
-    '<div class="row">'+txt("intake_contact_email",GX("ik_contactEmail"))+'</div>'+
+    '<div class="row3" id="ikAiRow"'+(mode0==="free"?' style="display:none"':'')+'>'+sel("intake_model",GX("ik_model"),[["claude-haiku-4-5-20251001","Claude Haiku 4.5"],["claude-sonnet-5","Claude Sonnet 5"],["claude-opus-5","Claude Opus 5"]])+num("intake_price_in",GX("ik_priceIn"),1,0,100,0.01)+num("intake_price_out",GX("ik_priceOut"),5,0,500,0.01)+'</div>'+
+    '<div class="chkgrid" style="margin-top:12px">'+chk("intake_keep_text",GX("ik_keepText"))+'</div><div class="hintx">'+GX("ik_keepTextHint")+'</div>'+
     '<h4 style="margin:18px 0 6px">'+GX("ik_qfH")+'</h4>'+
     '<div class="row"><div class="fl"><div class="chkgrid">'+chk("intake_qf_on",GX("ik_qfOn"))+'</div></div>'+sel("intake_qf_mode",GX("ik_qfMode"),[["free",GX("ik_qfFree")],["ai",GX("ik_qfAi")]])+'</div>'+
-    '<div class="hintx">'+GX("ik_qfHint")+'</div>'+
-    '<h4 style="margin:18px 0 6px">'+GX("ik_welcomeH")+'</h4><div class="hintx">'+GX("ik_welcomeHint")+'</div>'+
-    '<div class="chkgrid">'+chk("intake_welcome_on",GX("ik_welcomeOn"))+'</div>'+
-    '<div class="row">'+ta("intake_welcome_whatsapp_ar",GX("ik_welcomeWa")+" · AR")+ta("intake_welcome_whatsapp_en",GX("ik_welcomeWa")+" · EN")+'</div>'+
-    '<div class="row">'+txt("intake_welcome_email_subject_ar",GX("ik_welcomeSubj")+" · AR")+txt("intake_welcome_email_subject_en",GX("ik_welcomeSubj")+" · EN")+'</div>'+
-    '<div class="row">'+ta("intake_welcome_email_ar",GX("ik_welcomeEmail")+" · AR")+ta("intake_welcome_email_en",GX("ik_welcomeEmail")+" · EN")+'</div>'+
-    '<div class="row">'+ta("intake_welcome_telegram_ar",GX("ik_welcomeTg")+" · AR")+ta("intake_welcome_telegram_en",GX("ik_welcomeTg")+" · EN")+'</div>'+
-    '<div class="xactions"><button type="button" class="ab ok" id="ikCfgSave">'+t("save")+'</button><span class="xmsg" id="ikCfgMsg"></span></div>'+
-  '</div></div>';
+    '<div class="hintx">'+GX("ik_qfHint")+'</div>');
+  var tLimits=tabBlk(GX("ikt_limits"),"",
+    '<div class="row3">'+num("intake_wait_s",GX("ik_wait"),90,20,900)+num("intake_max_photos",GX("ik_maxPhotos"),12,1,30)+num("intake_daily_limit",GX("ik_daily"),30,1,500)+'</div>'+
+    '<div class="row3">'+num("intake_max_videos",GX("ik_maxVideos"),1,0,5)+num("intake_video_max_mb",GX("ik_videoMb"),50,5,100)+num("intake_video_max_s",GX("ik_videoSec"),180,10,600)+'</div><div class="hintx">'+GX("ik_videoHint")+'</div>');
+  var wcard=function(title,parts){ return '<div class="ikwcard"><b>'+title+'</b>'+parts+'</div>' };
+  var tWelcome=tabBlk(GX("ikt_welcome"),GX("ik_welcomeHint"),
+    '<div class="row3">'+sel("intake_reply_lang",GX("ik_lang"),[["ar","العربية"],["en","English"]])+txt("intake_wa_display",GX("ik_waDisplay"))+txt("intake_contact_phone",GX("ik_contactPhone"))+'</div>'+
+    '<div class="row">'+txt("intake_contact_email",GX("ik_contactEmail"))+'</div>'+
+    '<div class="chkgrid" style="margin-top:8px">'+chk("intake_welcome_on",GX("ik_welcomeOn"))+'</div>'+
+    wcard("WhatsApp",'<div class="row">'+ta("intake_welcome_whatsapp_ar","العربية")+ta("intake_welcome_whatsapp_en","English")+'</div>')+
+    wcard("Telegram",'<div class="row">'+ta("intake_welcome_telegram_ar","العربية")+ta("intake_welcome_telegram_en","English")+'</div>')+
+    wcard(GX("ikt_email"),'<div class="row">'+txt("intake_welcome_email_subject_ar",GX("ik_welcomeSubj")+" · العربية")+txt("intake_welcome_email_subject_en",GX("ik_welcomeSubj")+" · English")+'</div>'+
+      '<div class="row">'+ta("intake_welcome_email_ar","العربية")+ta("intake_welcome_email_en","English")+'</div>'));
   var nchk=function(k,lbl){ return '<label class="xcheck"><input type="checkbox" data-ikc="'+k+'" data-ikt="bool"'+(GSX(k,true)!==false?' checked':'')+'><span>'+lbl+'</span></label>' };
   var nnum=function(k,lbl,ph){ return '<div class="fl"><label>'+lbl+'</label><input type="number" min="0" max="23" data-ikc="'+k+'" data-ikt="num" value="'+(GSX(k,"")===""?"":GSX(k,""))+'" placeholder="'+ph+'" data-allow-autofill></div>' };
   var tzs=[["America/Toronto","كندا (تورونتو)"],["Asia/Damascus","سوريا (دمشق)"],["Asia/Beirut","لبنان"],["Asia/Amman","الأردن"],["Asia/Dubai","الإمارات"],["Europe/Berlin","ألمانيا"]];
@@ -4494,12 +4508,164 @@ function adminIntakeBody(mode){
   var drafts='<div class="blk"><h3>'+GX("ik_draftsH")+' <span class="n">'+list.length+'</span></h3><div class="in eng-in">'+
     '<div class="ikfilters">'+filters.map(function(x){ return '<button type="button" class="ab'+(x[0]===f?' on':'')+'" data-ikf-filter="'+x[0]+'">'+x[1]+'</button>' }).join("")+'<button type="button" class="ab" id="ikReload" style="margin-inline-start:auto">'+AICO.refresh+'</button></div>'+
     (list.length ? bulk+'<div class="elist">'+list.slice(0,admShown("ikmore")).map(ikRow).join("")+'</div>'+admMoreBtn(list.length,admShown("ikmore"),'ikmore') : '<div class="adashempty">'+GX("ik_none")+'</div>')+'</div></div>';
-  var logs='<div class="blk"><h3>'+GX("ik_logH")+'</h3><div class="in eng-in"><div class="iklog">'+(d.log||[]).slice(0,40).map(function(l){ return '<div class="iklog-r lvl-'+esc(l.level||"info")+'"><span class="ltr">'+when(l.created_at)+'</span><b>'+esc(l.event)+'</b><i>'+(l.draft_id?'#'+l.draft_id:'')+'</i><span>'+esc(JSON.stringify(l.detail||{})).slice(0,160)+'</span></div>' }).join("")+'</div></div></div>';
+  var logErr=!!ADM.ikLogErr, logList=(d.log||[]).filter(function(l){ return !logErr || l.level==="error" || l.level==="warn" }).slice(0,60);
+  var logs='<div class="blk"><h3>'+GX("ik_logH")+'<label class="xcheck" style="margin-inline-start:auto;font-weight:400"><input type="checkbox" id="ikLogErr"'+(logErr?' checked':'')+'><span>'+GX("ikt_logErr")+'</span></label></h3><div class="in eng-in"><div class="iklog">'+
+    (logList.length?logList.map(function(l){ var dt=l.detail||{}, say=ikLogSay(l);
+      return '<div class="iklog-r lvl-'+esc(l.level||"info")+'"><span class="ltr">'+when(l.created_at)+' '+String(new Date(l.created_at).toTimeString()).slice(0,5)+'</span><b'+(say?' title="'+esc(l.event)+'"':'')+'>'+esc(say||l.event)+'</b><i>'+(l.draft_id?'#'+l.draft_id:'')+'</i><span><span class="ltr">'+esc(l.chat_id||"")+'</span>'+(say?'':' '+esc(JSON.stringify(dt)).slice(0,160))+'</span></div>' }).join(""):'<div class="adashempty">'+GX("ikt_logNone")+'</div>')+'</div></div></div>';
   // redesign (2026-10-16): the daily work (numbers + drafts) is under Listings; the bot's setup (connection, admin
   // alerts, settings, log) is its own page under Settings
-  if(mode==="cfg") return conn+notify+settings+logs;
+  if(mode==="cfg"){
+    var on=cfg.intake_enabled!==false&&cfg.intake_enabled!=="false", ws=cfg.intake_waha_state||{};
+    var pill=function(cls,txt0){ return '<span class="st st-'+cls+'">'+txt0+'</span>' };
+    var bar='<div class="blk iktop"><div class="in">'+
+      pill(on?"live":"hidden",on?GX("ikt_botOn"):GX("ikt_botOff"))+
+      (ws.status?pill(ws.ok?"live":"expired","WhatsApp: "+(ws.ok?GX("ikt_conn"):esc(ws.status))):'')+
+      (st&&st.telegram&&st.telegram.configured?pill(st.telegram.ok?"live":"expired","Telegram: "+(st.telegram.ok?GX("ikt_conn"):GX("ikt_notConn"))):'')+
+      (holds.length?pill("pending",GX("ikt_holdsN").replace("{n}",holds.length)):'')+
+      '<span class="hintx">'+GX("ikt_today").replace("{n}",+c.today||0)+' · '+GX("ik_readMode")+': '+GX(mode0==="mix"?"ik_readMix":mode0==="ai"?"ik_readAi":"ik_readFree").split(/[—:(]/)[0].trim()+'</span>'+
+      '<button type="button" class="ab'+(on?' bad':' ok')+'" id="ikPower" style="margin-inline-start:auto">'+(on?GX("ikt_stop"):GX("ikt_start"))+'</button>'+
+    '</div></div>';
+    var TABS=[["chats",GX("ikt_chats")],["run",GX("ikt_run")],["read",GX("ikt_read")],["limits",GX("ikt_limits")],["welcome",GX("ikt_welcome")],["notify",GX("ikt_notify")],["conn",GX("ikt_connT")],["log",GX("ik_logH")]];
+    var cur=ADM.ikTab; if(!TABS.some(function(x){ return x[0]===cur })) cur="chats";
+    var tabsHtml='<div class="iktabs">'+TABS.map(function(x){ return '<button type="button" class="'+(x[0]===cur?'on':'')+'" data-iktab="'+x[0]+'">'+x[1]+'</button>' }).join("")+'</div>';
+    var body0={chats:'<div class="blk"><div class="in ikchat'+(ADM.ikChatSel?' has-sel':'')+'"><div class="ikc-list"><input id="ikChatQ" placeholder="'+esc(GX("ikt_chatQ"))+'" value="'+esc(ADM.ikChatQ||"")+'" data-allow-autofill><div id="ikChatList">'+ikChatListHtml()+'</div></div><div class="ikc-thread" id="ikThread">'+ikThreadHtml()+'</div></div></div>',run:tRun,read:tRead,limits:tLimits,welcome:tWelcome,notify:notify,conn:conn,log:logs}[cur];
+    return bar+tabsHtml+body0;
+  }
   return stats+drafts }
+// ── «المحادثات» (owner, 2026-11-09): Balkoun's WhatsApp chats, read live through the bot (bk-intake admin actions chats /
+// chat / chat_media / chat_send / chat_hold); nothing is stored. Sending a reply hands the chat to the admin first. ──
+function ikHm(ts){ if(!ts) return ""; var d=new Date(ts*1000), now=new Date(); var hm=("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);
+  return d.toDateString()===now.toDateString() ? hm : d.toLocaleDateString(L==="ar"?"ar-SY":L,{day:"numeric",month:"short"})+" "+hm }
+function ikChatListHtml(){ var C=ADM.ikChats;
+  if(!C) return '<div class="hintx">'+t("loading")+'</div>';
+  if(C.error) return '<div class="hintx" style="color:var(--danger)">'+esc(C.error)+'</div>';
+  var q=ikFold(ADM.ikChatQ||""), list=(C.chats||[]).filter(function(c){ return !q || ikFold((c.name||"")+" "+(c.phone||"")).indexOf(q)>-1 });
+  if(!list.length) return '<div class="hintx">'+GX("ikt_chatNone")+'</div>';
+  return list.map(function(c){ return '<button type="button" class="ikc-row'+(c.id===ADM.ikChatSel?' on':'')+'" data-ikchat="'+esc(c.id)+'">'+
+    '<span class="ikc-top"><b><bdi>'+esc(c.name||c.phone||"؟")+'</bdi></b><span class="ltr hintx">'+ikHm(c.at)+'</span></span>'+
+    '<span class="ikc-mid"><span class="ikc-last">'+(c.fromMe?'↩ ':'')+(c.media&&!c.last?'📷 ':'')+esc(c.last||"")+'</span>'+(c.unread?'<span class="abadge2">'+c.unread+'</span>':'')+'</span>'+
+    '<span class="ikc-who st st-'+(c.held?'pending':'live')+'">'+GX(c.held?"ikt_withAdmin":"ikt_withBot")+'</span></button>' }).join("") }
+function ikThreadHtml(){ var T=ADM.ikThread, id=ADM.ikChatSel;
+  if(!id) return '<div class="adashempty">'+GX("ikt_pick")+'</div>';
+  var c=((ADM.ikChats||{}).chats||[]).filter(function(x){ return x.id===id })[0]||{};
+  if(!T||T.id!==id) return '<div class="hintx">'+t("loading")+'</div>';
+  if(T.error) return '<div class="hintx" style="color:var(--danger)">'+esc(T.error)+'</div>';
+  var head='<div class="ikc-head"><button type="button" class="ab ikc-back" data-ikchatback aria-label="'+esc(t("back")||"back")+'">'+(L==="ar"?"→":"←")+'</button><b><bdi>'+esc(c.name||T.phone||"")+'</bdi></b><span class="ltr hintx">'+esc(T.phone||"")+'</span>'+
+    '<span class="st st-'+(T.held?'pending':'live')+'">'+GX(T.held?"ikt_withAdmin":"ikt_withBot")+'</span>'+
+    (T.phone?'<button type="button" class="ab'+(T.held?'':' ok')+'" data-ikchathold="'+(T.held?0:1)+'" style="margin-inline-start:auto">'+GX(T.held?"ikt_release":"ikt_take")+'</button>':'')+'</div>';
+  var msgs=(T.messages||[]).map(function(m){ var who=m.by==="them"?"":m.by==="bot"?GX("ikt_byBot"):GX("ikt_byYou"), body="";
+    if(m.loc) body='<a class="elink" target="_blank" rel="noopener" href="https://www.google.com/maps?q='+(+m.loc.lat)+','+(+m.loc.lng)+'">📍 '+GX("ikt_loc")+'</a>';
+    else if(m.media && (ADM.ikImgs||{})[m.id]) body='<img class="ikc-img" src="'+ADM.ikImgs[m.id]+'" alt="">';
+    else if(m.media) body='<button type="button" class="ab" data-ikimg="'+esc(m.id)+'">'+(m.type==="image"?'📷 '+GX("ikt_showImg"):'📎 '+GX("ikt_media").replace("{t}",esc(m.type)))+'</button>';
+    var txt0=m.body?'<div class="ikc-txt">'+esc(m.body).replace(/\n/g,"<br>")+'</div>':'';
+    return '<div class="ikc-msg ikc-'+m.by+'">'+(who?'<small>'+who+'</small>':'')+body+txt0+'<small class="ltr">'+ikHm(m.at)+'</small></div>' }).join("");
+  return head+'<div class="ikc-msgs" id="ikMsgs">'+(msgs||'<div class="hintx">'+GX("ikt_chatEmpty")+'</div>')+'</div>'+
+    '<div class="ikc-reply"><textarea id="ikReply" rows="2" placeholder="'+esc(GX("ikt_replyPH"))+'" data-allow-autofill>'+escOnce(ADM.ikReplyText||"")+'</textarea><button type="button" class="ab ok" id="ikReplySend">'+GX("ikt_send")+'</button></div>'+
+    '<div class="hintx">'+GX(T.phone?"ikt_replyHint":"ikt_replyNoNum")+'</div>' }
+// the WhatsApp server answers in a few seconds: only the newest answer is painted (an older poll never overwrites a newer state)
+async function ikChatsLoad(){ var seq=ADM._ikLSeq=(ADM._ikLSeq||0)+1; var out; try{ var r=await intakeAdmin("chats",{limit:40}); out={chats:r.chats||[]} }catch(e){ out={error:e.message||"error"} } if(seq!==ADM._ikLSeq) return; if(out.error&&ADM.ikChats&&ADM.ikChats.chats) return; ADM.ikChats=out; ikChatsPaint(false) }
+async function ikThreadLoad(){ var id=ADM.ikChatSel; if(!id) return; var seq=ADM._ikTSeq=(ADM._ikTSeq||0)+1; var out; try{ var r=await intakeAdmin("chat",{chat_id:id,limit:40}); out=Object.assign({id:id},r) }catch(e){ out={id:id,error:e.message||"error"} } if(seq!==ADM._ikTSeq||ADM.ikChatSel!==id) return; ADM.ikThread=out; ikChatsPaint(true) }
+// repaint the two panes only: the page around them (and a reply being typed) stays as it is
+function ikChatsPaint(thread){ var l=$("#ikChatList"); if(!l) return; l.innerHTML=ikChatListHtml();
+  if(thread){ var th=$("#ikThread"), keep=($("#ikReply")||{}).value, had=document.activeElement&&document.activeElement.id==="ikReply"; if(th){ var box=$("#ikMsgs"), atEnd=!box||box.scrollTop+box.clientHeight>=box.scrollHeight-40; th.innerHTML=ikThreadHtml(); var r0=$("#ikReply"); if(r0&&keep!=null) r0.value=keep; if(had&&r0) r0.focus(); var nb=$("#ikMsgs"); if(nb&&atEnd) nb.scrollTop=nb.scrollHeight } }
+  var ch=document.querySelector(".ikchat"); if(ch) ch.classList.toggle("has-sel",!!ADM.ikChatSel);
+  ikChatsWire() }
+function ikChatsWire(){
+  $$("[data-ikchat]").forEach(function(b){ b.onclick=function(){ ADM.ikChatSel=this.dataset.ikchat; ADM.ikThread=null; ADM.ikReplyText=""; ikChatsPaint(true); ikThreadLoad() } });
+  var back=$("[data-ikchatback]"); if(back) back.onclick=function(){ ADM.ikChatSel=null; ADM.ikThread=null; ikChatsPaint(true) };
+  var q=$("#ikChatQ"); if(q) q.oninput=function(){ ADM.ikChatQ=this.value; var l=$("#ikChatList"); if(l){ l.innerHTML=ikChatListHtml(); ikChatsWire() } };
+  var rp=$("#ikReply"); if(rp) rp.oninput=function(){ ADM.ikReplyText=this.value };
+  $$("[data-ikimg]").forEach(function(b){ b.onclick=async function(){ var mid=this.dataset.ikimg; this.disabled=true; this.textContent=t("loading");
+    try{ var r=await intakeAdmin("chat_media",{chat_id:ADM.ikChatSel,msg_id:mid}); ADM.ikImgs=ADM.ikImgs||{}; ADM.ikImgs[mid]="data:"+r.mime+";base64,"+r.b64; ikChatsPaint(true) }
+    catch(e){ this.textContent=e.message||"error" } } });
+  var hb=$("[data-ikchathold]"); if(hb) hb.onclick=async function(){ var on=this.dataset.ikchathold==="1"; this.disabled=true;
+    try{ await intakeAdmin("chat_hold",{chat_id:ADM.ikChatSel,on:on}); admToast(GX(on?"ikt_taken":"ikt_released")); ADM.ikHoldsLoaded=false;
+      ADM._ikTSeq=(ADM._ikTSeq||0)+1; ADM._ikLSeq=(ADM._ikLSeq||0)+1;   // a poll already on its way carries the old state
+      if(ADM.ikThread) ADM.ikThread.held=on; var sel=ADM.ikChatSel; ((ADM.ikChats||{}).chats||[]).forEach(function(c){ if(c.id===sel) c.held=on }); ikChatsPaint(true) }
+    catch(e){ admToast(e.message||"error","bad"); this.disabled=false } };
+  var sb0=$("#ikReplySend"); if(sb0) sb0.onclick=async function(){ var txt=(($("#ikReply")||{}).value||"").trim(); if(!txt) return; this.disabled=true;
+    try{ await intakeAdmin("chat_send",{chat_id:ADM.ikChatSel,text:txt}); ADM.ikReplyText=""; var r0=$("#ikReply"); if(r0) r0.value=""; admToast(GX("ikt_sent")); setTimeout(function(){ ikThreadLoad(); ikChatsLoad() },1500) }
+    catch(e){ admToast(e.message||"error","bad") } this.disabled=false };
+}
+Object.assign(GX_T,{
+  ikt_chats:{ar:"المحادثات",en:"Chats",de:"Chats"}, ikt_chatQ:{ar:"ابحث بالاسم أو الرقم…",en:"Search by name or number…",de:"Nach Name oder Nummer suchen…"},
+  ikt_chatNone:{ar:"لا توجد محادثات.",en:"No chats.",de:"Keine Chats."}, ikt_pick:{ar:"اختر محادثة من القائمة",en:"Pick a chat from the list",de:"Chat aus der Liste wählen"},
+  ikt_withBot:{ar:"البوت",en:"Bot",de:"Bot"}, ikt_withAdmin:{ar:"المشرف",en:"Admin",de:"Admin"},
+  ikt_take:{ar:"تولَّ المحادثة",en:"Take over",de:"Übernehmen"}, ikt_taken:{ar:"المحادثة معك الآن، والبوت ساكت مع هذا الرقم",en:"The chat is yours now; the bot is quiet for this number",de:"Der Chat gehört Ihnen; der Bot schweigt"},
+  ikt_byBot:{ar:"البوت",en:"Bot",de:"Bot"}, ikt_byYou:{ar:"أنت",en:"You",de:"Sie"}, ikt_loc:{ar:"موقع على الخريطة",en:"Location on the map",de:"Standort"},
+  ikt_showImg:{ar:"عرض الصورة",en:"Show the photo",de:"Foto zeigen"}, ikt_media:{ar:"ملف ({t})",en:"File ({t})",de:"Datei ({t})"},
+  ikt_chatEmpty:{ar:"لا رسائل.",en:"No messages.",de:"Keine Nachrichten."}, ikt_replyPH:{ar:"اكتب ردّك…",en:"Write your reply…",de:"Antwort schreiben…"}, ikt_send:{ar:"إرسال",en:"Send",de:"Senden"},
+  ikt_sent:{ar:"أُرسلت الرسالة",en:"Message sent",de:"Nachricht gesendet"},
+  ikt_replyHint:{ar:"عند الإرسال تصبح المحادثة معك ويسكت البوت مع هذا الرقم، حتى تضغط «أرجِع البوت» أو تكتب admin off.",en:"Sending makes the chat yours and quiets the bot for this number until you press «Hand back to the bot» or type admin off.",de:"Beim Senden übernehmen Sie den Chat; der Bot schweigt, bis Sie ihn zurückgeben oder admin off schreiben."},
+  ikt_replyNoNum:{ar:"لم يُعرف رقم هذه المحادثة، فلن يسكت البوت تلقائياً عند الرد منها.",en:"This chat's number is unknown, so the bot is not quieted when you reply here.",de:"Nummer unbekannt: der Bot wird beim Antworten nicht stummgeschaltet."}
+});
+// the bot's log in plain words (owner, 2026-11-09); an event without a sentence shows its code and details
+var IK_LOG_SAY={read_free:"ikl_readFree",read_mix_ai:"ikl_readMix",read:"ikl_read",published:"ikl_published",publish_failed:"ikl_pubFailed",guide_sent:"ikl_guide",
+  admin_on:"ikl_adminOn",admin_off:"ikl_adminOff",admin_post:"ikl_adminPost",admin_cmd:"ikl_adminCmd",held_collect:"ikl_held",held_reply_blocked:"ikl_heldBlocked",
+  quiet:"ikl_quiet",triage:"ikl_triage",draft_open:"ikl_draftOpen",new_by_sender:"ikl_newSender",photo_attached:"ikl_photo",admin_edit:"ikl_adminEdit",admin_delete:"ikl_adminDelete",
+  reminded:"ikl_reminded",expired:"ikl_expired",expired_to_review:"ikl_toReview",unknown_reply:"ikl_unknown",cover_set:"ikl_cover",waha_down:"ikl_wahaDown",waha_up:"ikl_wahaUp",
+  reply_failed:"ikl_replyFailed",read_failed:"ikl_readFailed",photo_failed:"ikl_photoFailed",admin_post_none:"ikl_postNone",confirm_by_words:"ikl_confirmWords",area_from_text:"ikl_areaText"};
+function ikLogSay(l){ var k=IK_LOG_SAY[l.event]; if(!k) return ""; var dt=l.detail||{};
+  var x=GX(k); if(l.event==="admin_cmd") x=x.replace("{c}",dt.cmd||""); if(l.event==="admin_post"||l.event==="published") x=x.replace("{r}",dt.ref||""); if(l.event==="quiet") x=x.replace("{r}",GX(dt.reason==="member"?"ikl_qMember":"ikl_qDirect"));
+  return x.replace("{r}","").replace("{c}","") }
+Object.assign(GX_T,{
+  ikt_run:{ar:"التشغيل والتدخّل",en:"On/off and takeover",de:"Betrieb und Übernahme"}, ikt_read:{ar:"قراءة الإعلانات",en:"Reading listings",de:"Inserate lesen"},
+  ikt_limits:{ar:"الحدود",en:"Limits",de:"Grenzen"}, ikt_welcome:{ar:"رسائل الترحيب",en:"Welcome messages",de:"Willkommensnachrichten"},
+  ikt_notify:{ar:"إشعاراتي",en:"My alerts",de:"Meine Hinweise"}, ikt_connT:{ar:"الاتصال والاختبار",en:"Connection and test",de:"Verbindung und Test"},
+  ikt_email:{ar:"البريد الإلكتروني",en:"Email",de:"E-Mail"},
+  ikt_botOn:{ar:"البوت يعمل",en:"Bot is on",de:"Bot läuft"}, ikt_botOff:{ar:"البوت متوقف",en:"Bot is off",de:"Bot ist aus"},
+  ikt_conn:{ar:"متصل",en:"connected",de:"verbunden"}, ikt_notConn:{ar:"غير متصل",en:"not connected",de:"nicht verbunden"},
+  ikt_holdsN:{ar:"{n} محادثة مع المشرف",en:"{n} chat(s) with the admin",de:"{n} Chat(s) beim Admin"}, ikt_today:{ar:"اليوم: {n} إعلان",en:"Today: {n} listings",de:"Heute: {n} Inserate"},
+  ikt_stop:{ar:"إيقاف البوت",en:"Stop the bot",de:"Bot stoppen"}, ikt_start:{ar:"تشغيل البوت",en:"Start the bot",de:"Bot starten"},
+  ikt_stopAsk:{ar:"إيقاف البوت يعني أنه لن يرد على أحد في واتساب وتيليغرام حتى تشغّله من جديد. متابعة؟",en:"Stopping the bot means it answers no one on WhatsApp and Telegram until you start it again. Continue?",de:"Der Bot antwortet dann niemandem mehr auf WhatsApp und Telegram, bis Sie ihn wieder starten. Weiter?"},
+  ikt_takeH:{ar:"التدخّل في محادثة",en:"Taking over a chat",de:"Einen Chat übernehmen"},
+  ikt_takeHint:{ar:"من واتساب بلكون (الهاتف أو الكمبيوتر) اكتب داخل محادثة الشخص:<br><b class=\"ltr\">admin on</b> — يسكت البوت مع هذا الرقم فقط ويجمع ما يرسله في مسوّدة.<br><b class=\"ltr\">admin post</b> — ينشر المسوّدة مباشرة ويرسل للشخص رابط إعلانه.<br><b class=\"ltr\">admin off</b> — يرجع البوت للعمل مع هذا الرقم.<br>المحادثات الأخرى لا تتأثر.",
+    en:"On Balkoun's WhatsApp (phone or computer), type inside the person's chat:<br><b class=\"ltr\">admin on</b> — the bot goes quiet for this number only and collects what they send into a draft.<br><b class=\"ltr\">admin post</b> — publishes the draft live and sends them the link.<br><b class=\"ltr\">admin off</b> — hands the chat back to the bot.<br>Other chats are not affected.",
+    de:"Im WhatsApp von Balkoun (Handy oder Computer) im Chat der Person schreiben:<br><b class=\"ltr\">admin on</b> — der Bot schweigt nur für diese Nummer und sammelt alles in einem Entwurf.<br><b class=\"ltr\">admin post</b> — veröffentlicht den Entwurf und schickt den Link.<br><b class=\"ltr\">admin off</b> — gibt den Chat an den Bot zurück.<br>Andere Chats sind nicht betroffen."},
+  ikt_holdHours:{ar:"يرجع البوت وحده بعد (ساعات) إذا نسيت admin off",en:"The bot returns by itself after (hours) if you forget admin off",de:"Der Bot kehrt nach (Stunden) selbst zurück, falls admin off vergessen wird"},
+  ikt_holdsH:{ar:"محادثات معك الآن",en:"Chats with you now",de:"Chats gerade bei Ihnen"}, ikt_holdNone:{ar:"لا توجد محادثة مع المشرف الآن.",en:"No chat is with the admin now.",de:"Gerade kein Chat beim Admin."},
+  ikt_holdSince:{ar:"منذ {t} · حتى {u}",en:"since {t} · until {u}",de:"seit {t} · bis {u}"}, ikt_release:{ar:"أرجِع البوت",en:"Hand back to the bot",de:"An den Bot zurückgeben"},
+  ikt_released:{ar:"رجع البوت لهذه المحادثة",en:"The bot has this chat again",de:"Der Bot hat den Chat wieder"},
+  ikt_waha:{ar:"واتساب بلكون (الخادم)",en:"Balkoun WhatsApp (server)",de:"Balkoun-WhatsApp (Server)"}, ikt_wahaOk:{ar:"متصل ويستقبل الرسائل",en:"Connected and receiving",de:"Verbunden und empfangsbereit"},
+  ikt_wahaBad:{ar:"غير متصل ({s}). افتح لوحة الخادم وأعد ربط الرقم.",en:"Not connected ({s}). Open the server dashboard and relink the number.",de:"Nicht verbunden ({s}). Server öffnen und Nummer neu verbinden."},
+  ikt_logErr:{ar:"الأخطاء والتنبيهات فقط",en:"Errors and warnings only",de:"Nur Fehler und Warnungen"}, ikt_logNone:{ar:"لا شيء هنا.",en:"Nothing here.",de:"Nichts hier."},
+  ikl_readFree:{ar:"قرأ إعلاناً مجاناً",en:"Read a listing (free)",de:"Inserat gelesen (kostenlos)"}, ikl_readMix:{ar:"قرأ إعلاناً بالذكاء الاصطناعي (مختلط)",en:"Read a listing with AI (mixed)",de:"Mit KI gelesen (gemischt)"},
+  ikl_read:{ar:"انتهت القراءة",en:"Reading done",de:"Lesen fertig"}, ikl_published:{ar:"نُشر إعلان {r}",en:"Published {r}",de:"Veröffentlicht {r}"},
+  ikl_pubFailed:{ar:"لم يُنشر الإعلان",en:"Not published",de:"Nicht veröffentlicht"}, ikl_guide:{ar:"أرسل رسالة الترحيب",en:"Sent the welcome",de:"Willkommen gesendet"},
+  ikl_adminOn:{ar:"المشرف تولّى المحادثة",en:"The admin took over the chat",de:"Admin hat übernommen"}, ikl_adminOff:{ar:"رجع البوت للمحادثة",en:"The bot has the chat again",de:"Bot wieder zuständig"},
+  ikl_adminPost:{ar:"نُشر بأمر admin post {r}",en:"Published by admin post {r}",de:"Per admin post veröffentlicht {r}"}, ikl_adminCmd:{ar:"أمر المشرف: admin {c}",en:"Admin command: admin {c}",de:"Admin-Befehl: admin {c}"},
+  ikl_held:{ar:"حفظ رسالة بصمت (المحادثة مع المشرف)",en:"Kept a message quietly (chat with the admin)",de:"Nachricht still gespeichert (beim Admin)"},
+  ikl_heldBlocked:{ar:"منع رداً لأن المحادثة مع المشرف",en:"Held back a reply (chat with the admin)",de:"Antwort zurückgehalten (beim Admin)"},
+  ikl_quiet:{ar:"لم يرد: {r}",en:"Did not answer: {r}",de:"Nicht geantwortet: {r}"}, ikl_qMember:{ar:"العضو مضبوط على «البوت لا يرد»",en:"member set to «bot silent»",de:"Mitglied auf «Bot stumm»"},
+  ikl_qDirect:{ar:"راسلته الإدارة مباشرة مؤخراً",en:"the team wrote to them directly",de:"Team schrieb direkt"},
+  ikl_triage:{ar:"صنّف رسالة",en:"Sorted a message",de:"Nachricht eingeordnet"}, ikl_draftOpen:{ar:"فتح مسوّدة جديدة",en:"Opened a new draft",de:"Neuer Entwurf"},
+  ikl_newSender:{ar:"شخص جديد راسل البوت",en:"A new person wrote to the bot",de:"Neue Person schrieb"}, ikl_photo:{ar:"أُضيفت صورة",en:"Photo added",de:"Foto hinzugefügt"},
+  ikl_adminEdit:{ar:"عُدّلت من اللوحة",en:"Edited in the panel",de:"Im Panel bearbeitet"}, ikl_adminDelete:{ar:"حُذفت من اللوحة",en:"Deleted in the panel",de:"Im Panel gelöscht"},
+  ikl_reminded:{ar:"أرسل تذكيراً بالموافقة",en:"Sent a reminder",de:"Erinnerung gesendet"}, ikl_expired:{ar:"انتهت مسوّدة لم تكتمل",en:"An unfinished draft expired",de:"Entwurf abgelaufen"},
+  ikl_toReview:{ar:"أُحيلت إليك (لم يؤكد المرسل خلال 3 أيام)",en:"Sent to you (no confirmation in 3 days)",de:"An Sie (3 Tage ohne Bestätigung)"},
+  ikl_unknown:{ar:"رد على رقم غير مسجل",en:"Answered an unregistered number",de:"Unbekannte Nummer beantwortet"}, ikl_cover:{ar:"غيّر صورة الغلاف",en:"Changed the cover photo",de:"Titelbild geändert"},
+  ikl_wahaDown:{ar:"انقطع اتصال واتساب بلكون",en:"Balkoun WhatsApp went down",de:"Balkoun-WhatsApp getrennt"}, ikl_wahaUp:{ar:"عاد اتصال واتساب بلكون",en:"Balkoun WhatsApp is back",de:"Balkoun-WhatsApp wieder da"},
+  ikl_replyFailed:{ar:"لم يصل رد البوت",en:"A bot reply failed",de:"Antwort fehlgeschlagen"}, ikl_readFailed:{ar:"فشلت القراءة",en:"Reading failed",de:"Lesen fehlgeschlagen"},
+  ikl_photoFailed:{ar:"لم تُحفظ صورة",en:"A photo was not saved",de:"Foto nicht gespeichert"}, ikl_postNone:{ar:"admin post: لا يوجد ما يُنشر",en:"admin post: nothing to publish",de:"admin post: nichts zu veröffentlichen"},
+  ikl_confirmWords:{ar:"فهم الموافقة من كلام المرسل",en:"Understood a yes in the sender's words",de:"Zustimmung erkannt"}, ikl_areaText:{ar:"عرف المنطقة من النص",en:"Found the area in the text",de:"Gebiet aus Text erkannt"}
+});
 function wireAdminIntake(){
+  if(ADM.tab==="intake_cfg" && !ADM._ikHoldsBusy && !ADM.ikHoldsLoaded){ ADM._ikHoldsBusy=true;
+    rpc("bk_admin_intake_holds",{p_token:ADM.token}).then(function(r){ ADM.ikHolds=r||[]; ADM.ikHoldsLoaded=true; ADM._ikHoldsBusy=false; render() }).catch(function(){ ADM.ikHolds=[]; ADM.ikHoldsLoaded=true; ADM._ikHoldsBusy=false; render() }) }
+  $$("[data-iktab]").forEach(function(b){ b.onclick=function(){ ADM.ikTab=this.dataset.iktab; render() } });
+  if($("#ikChatList")){ if(!ADM.ikChats) ikChatsLoad(); if(ADM.ikChatSel && (!ADM.ikThread||ADM.ikThread.id!==ADM.ikChatSel)) ikThreadLoad(); ikChatsWire();
+    if(!ADM._ikChatTimer) ADM._ikChatTimer=setInterval(function(){ if(!$("#ikChatList")){ clearInterval(ADM._ikChatTimer); ADM._ikChatTimer=null; return }
+      // light on the WhatsApp server (1 GB, it also carries the bot): the open chat every 20 s, the list every minute
+      if(document.visibilityState!=="visible") return; ADM._ikTick=(ADM._ikTick||0)+1; if(ADM._ikTick%3===0) ikChatsLoad(); if(ADM.ikChatSel) ikThreadLoad() },20000) }
+  if($("#ikLogErr")) $("#ikLogErr").onchange=function(){ ADM.ikLogErr=this.checked; render() };
+  var rm=$('#ikCfg [data-ikc="intake_read_mode"]'); if(rm) rm.onchange=function(){ var r0=$("#ikAiRow"); if(r0) r0.style.display=this.value==="free"?"none":"" };
+  if($("#ikPower")) $("#ikPower").onclick=async function(){ var on=((ADM.ik||{}).cfg||{}).intake_enabled; on=on!==false&&on!=="false";
+    if(on && !confirm(GX("ikt_stopAsk"))) return; this.disabled=true;
+    try{ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:{intake_enabled:!on}},p_country:"SY"}); admToast(on?GX("ikt_botOff"):GX("ikt_botOn")); ADM._ikLoaded=false; render() }
+    catch(e){ admToast(e.message||"error","bad"); this.disabled=false } };
+  $$("[data-ikrelease]").forEach(function(b){ b.onclick=async function(){ this.disabled=true;
+    try{ await rpc("bk_admin_intake_hold",{p_token:ADM.token,p_chat_id:this.dataset.ikrelease,p_on:false}); admToast(GX("ikt_released")); ADM.ikHoldsLoaded=false; ADM._ikLoaded=false; render() }
+    catch(e){ admToast(e.message||"error","bad"); this.disabled=false } } });
   if(!ADM._ikLoaded){ ADM._ikLoaded=true; ADM.ikErr=null;
     rpcScoped("bk_admin_intake",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.ik=r||{}; render() }).catch(function(e){ ADM.ik=null; ADM.ikErr=e.message||"error"; render() });
     if(!ADM.ikStatus) intakeAdmin("status").then(function(r){ ADM.ikStatus=r; render() }).catch(function(e){ ADM.ikStatus={error:e.message||"error"}; render() }) }
