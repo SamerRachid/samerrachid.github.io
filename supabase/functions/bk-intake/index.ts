@@ -42,6 +42,7 @@
 // photo size / count gates before download, no raw upload of undecodable files, token-redacted errors, country scope
 // for restricted admins, 'already published' handled, per-model Claude request body, lazy image library.
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { makeQfReader } from "./qflocal.ts";
 
 declare const EdgeRuntime: { waitUntil(p: Promise<unknown>): void } | undefined;
 
@@ -831,6 +832,63 @@ async function askClaude(model: string, system: string, taxText: string, user: s
   }
   throw lastErr || new Error("claude: failed");
 }
+// ── how a listing is read (panel «طريقة قراءة الإعلانات», extras.intake_read_mode; owner 2026-11-08 chose «مجاني»):
+//   free = the free reader below only (no model, no cost); mix = the free reader first, the model only when it misses the
+//   deal, the type or the governorate; ai = the model as before
+type ReadMode = "free" | "mix" | "ai";
+const readMode = (c: Cfg): ReadMode => (["free", "mix", "ai"].includes(c.intake_read_mode) ? c.intake_read_mode : "free");
+const NO_USAGE: Usage = { in: 0, out: 0, cache_write: 0, cache_read: 0 };
+let _qf: { at: number; cc: string; read: any } | null = null;
+// the reader works on names (governorate → its area names), like the site; rebuilt each minute in case the place list changed
+function qfReaderFor(tax: any) {
+  const cc = tax?.country?.code || "SY";
+  if (_qf && _qf.cc === cc && Date.now() - _qf.at < 60_000) return _qf;
+  const pair = (xs: any[]) => Object.fromEntries((xs || []).map((x: any) => [x.code, [x.ar, x.en || x.ar]]));
+  const GEO: Record<string, string[]> = {};
+  for (const g of tax.governorates || []) GEO[g.ar] = [...new Set((g.areas || []).map((a: any) => String(a[1])))] as string[];
+  const D = { GEO, TYPES: pair(tax.types), TABU: pair(tax.deeds), COND: pair(tax.conditions), LANDC: pair(tax.land_conditions), AMEN: { ar: tax.amenities || [] }, LANDAMEN: { ar: tax.land_amenities || [] } };
+  _qf = { at: Date.now(), cc, read: makeQfReader(D) };
+  return _qf;
+}
+// one free read, shaped like the model's answer (listing_fields) so settle() and everything after it work unchanged
+function freeRead(tax: any, text: string, homeGovs: string[] = []): { fields: Record<string, any>; usage: Usage } {
+  const q = qfReaderFor(tax);
+  const gOf = (id: number) => (tax.governorates || []).find((g: any) => g.id === id);
+  const learned = (_places?.rows || []).map((p: any) => { const g = gOf(p.governorate_id); const a = g ? (g.areas || []).find((x: any) => x[0] === p.area_id) : null; return g && a ? [p.phrase, g.ar, a[1]] : null; }).filter(Boolean);
+  const home = homeGovs.map((n) => findGov(tax, n)?.ar).filter(Boolean);
+  const r = q.read(text, null, learned, home) || { fields: {} };
+  const f: Record<string, any> = { ...(r.fields || {}) };
+  delete f.priceFromUnit;
+  const facts = ["deal", "property_type", "governorate", "price", "area_m2"].filter((k) => f[k] != null).length;
+  // someone looking for a place, not offering one («مطلوب شقة», «أبحث عن بيت», «بدي شقة بالمزة»)
+  const t0 = norm(latinDigits(text)).slice(0, 80);
+  const wanted = /^(مطلوب|ابحث عن|نبحث عن|عم دور|عم ندور|ادور علي|بدور علي|looking for)/.test(t0) ||
+    /^(بدي|بدنا|اريد|نريد|حابب)\s+(اشتري|استاجر|استئجار|شراء|شقه|بيت|منزل|ارض|محل|فيلا|مزرعه)/.test(t0);
+  f.intent = wanted ? "wanted" : facts ? "listing" : "other";
+  f.confidence = facts >= 2 ? 0.9 : facts === 1 ? 0.6 : 0.3;
+  // «للبيع شقتين في حماة…», «3 محلات للإيجار»: several units offered together at the start = one listing «شقة عدد 2»
+  // (a count later in the text, «كل طابق 3 شقق», describes the building, not the offer)
+  const WN: Record<string, number> = { "ثلاث": 3, "تلات": 3, "ثلاثه": 3, "تلاته": 3, "اربع": 4, "اربعه": 4, "خمس": 5, "خمسه": 5 };
+  const lc = t0.slice(0, 40).match(/^(?:(?:للبيع|للايجار|للاجار|بيع|ايجار|اجار)\s+)?(?:(شقتين|شقتان|محلين|محلان|بيتين|منزلين|فيلتين|مكتبين)|(\d{1,2}|ثلاث|تلات|ثلاثه|تلاته|اربع|اربعه|خمس|خمسه)\s+(?:شقق|محلات|محال|بيوت|منازل|فيلات|مكاتب))(?:\s|$)/);
+  f.listings_count = lc ? (lc[1] ? 2 : (WN[lc[2]] || Math.min(20, Math.max(1, Number(lc[2]) || 1)))) : 1;
+  // no model to write a title and a description: the title from the facts («شقة 150 م² في المزة»), the description is the
+  // sender's own words (as with «keep the sender's text» on)
+  const ty = (tax.types || []).find((x: any) => x.code === f.property_type);
+  if (ty) f.title = ty.ar + (f.area_m2 ? ` ${f.area_m2} م²` : "") + (f.area ? ` في ${f.area}` : f.governorate ? ` في ${f.governorate}` : "");
+  f.description = keepSenderText(text);
+  return { fields: f, usage: { ...NO_USAGE } };
+}
+// the read itself, by the panel's mode; «mix» asks the model only when the free reader could not place the deal / type / governorate
+async function readListing(c: Cfg, tax: any, text: string, aiTax: () => string, aiUser: string, homeGovs: string[] = []): Promise<{ fields: Record<string, any>; usage: Usage; via: string }> {
+  const mode = readMode(c);
+  if (mode !== "ai") {
+    const fr = freeRead(tax, text, homeGovs);
+    const short = !fr.fields.deal || !fr.fields.property_type || !fr.fields.governorate;
+    if (mode === "free" || !short || fr.fields.intent === "wanted") return { ...fr, via: "free" };
+  }
+  const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, aiTax(), aiUser);
+  return { ...r, via: mode === "mix" ? "mix_ai" : "ai" };
+}
 const costOf = (u: Usage, c: Cfg) => ((u.in - u.cache_write - u.cache_read) + u.cache_write * 1.25 + u.cache_read * 0.1) * (+c.intake_price_in || 1) / 1e6 + u.out * (+c.intake_price_out || 5) / 1e6;
 // an area written as «جديدة الوادي/جديدة الشيباني» has two names for one place (owner, 2026-10-21): each name after the
 // split is added as its own entry with the same id, so finding, scanning and the «is it written in the message» checks
@@ -1333,7 +1391,9 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   try {
     const govSet = govsForRead(tax, rawText, d);
     await refreshPlaces(tax.country.code);
-    const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax, govSet), user);
+    const homeGovs = (Array.isArray(d.agency_govs) && d.agency_govs.length ? d.agency_govs : Array.isArray(d.user_agency_govs) ? d.user_agency_govs : []) as string[];
+    const r = await readListing(c, tax, memberNo ? rawText.replace(MEMBER_NO, " ") : rawText, () => taxonomyText(tax, govSet), user, homeGovs);
+    if (r.via !== "ai") await log(draftId, d.chat_id, "info", "read_" + r.via, {});
     usage = r.usage; raw = r.fields; const s = settle(r.fields, tax, rawText); fields = s.fields; missing = s.missing; cost = costOf(usage, c);
     // the sender already said «تخطي»: only what cannot be skipped is still asked for
     if ((d.fields || {}).skip_ok === "1") { fields.skip_ok = "1"; missing = missing.filter((k) => hardMissing().includes(k)); }
@@ -1448,7 +1508,7 @@ async function readDraft(draftId: number, opts: { quiet?: boolean } = {}) {
   // publishes before the sender's «نعم». The only exception: a «نعم» that arrived while the bot was still reading.
   const sum = err ? null : summary(fields, tax, photos, lang, videos) + (attributed ? "\n" + t.attributed(attributed) : "") + (suggested ? "\n" + t.suggested(suggested) : "") +
     (status === "review" ? "" : (missing.length ? t.missing(missing.map(missLabel).join("، ")) : t.confirmLine));
-  const saved = await rpc<any>("bk_intake_save_read", { p_draft: draftId, p_fields: fields, p_missing: missing, p_summary: sum, p_status: status, p_model: c.intake_model || null, p_in: usage.in, p_out: usage.out, p_cost: cost, p_error: err });
+  const saved = await rpc<any>("bk_intake_save_read", { p_draft: draftId, p_fields: fields, p_missing: missing, p_summary: sum, p_status: status, p_model: usage.in ? (c.intake_model || null) : "free", p_in: usage.in, p_out: usage.out, p_cost: cost, p_error: err });
   if (saved?.skipped) return saved;                                              // cancelled or changed while reading: say nothing
   if (saved?.status === "collecting") { scheduleTick(); return saved; }         // more arrived (or a retry is due) → read again later
   if (saved?.status === "ready" && !d.by_admin && d.source !== "web" && saved?.fields?.auto_confirm === "1") {
@@ -1793,7 +1853,15 @@ async function fixPublished(m: Incoming, r: any, tt: any) {
     const rawText = latinDigits(d.raw_text || "");
     const user = `Sender: ${d.sender_name || "?"}\n\nMESSAGE:\n${rawText.slice(0, 6000)}\n\nCORRECTION FROM THE SENDER (overrides the message above where they differ):\n${latinDigits(fix)}`;
     await refreshPlaces(tax.country.code);
-    const res = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax, govsForRead(tax, rawText, d)), user);
+    let res: { fields: Record<string, any> };
+    if (readMode(c) === "ai") res = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax, govsForRead(tax, rawText, d)), user);
+    else {   // free / mix: the correction alone is read («السعر 75 ألف», «الطابق الثالث»); what it does not state stays as published
+      const fx = freeRead(tax, latinDigits(fix)).fields; const keep: Record<string, any> = {};
+      for (const k of FIX_KEYS) if (fx[k] != null && fx[k] !== "") keep[k] = fx[k];
+      if (keep.price != null && fx.currency) keep.currency = fx.currency;
+      if (keep.area && !fx.governorate) { const pg = (d.fields || {}).governorate; if (pg) keep.governorate = pg; else delete keep.area; }
+      res = { fields: { ...(d.fields || {}), ...keep } };
+    }
     const s = settle(res.fields, tax, rawText + "\n" + fix); const nf = s.fields;
     for (const w of areaGuards(nf, s.missing, res.fields, rawText + "\n" + fix, tax)) await log(d.id, m.chat, "warn", w.event, w.detail);
     const prev = (d.fields || {}) as Record<string, any>; const f2 = { ...prev }; const changed: string[] = [];
@@ -1963,6 +2031,12 @@ async function triageText(text: string, st: any, c: Cfg): Promise<{ kind: string
   if (score >= 3) return { kind: "property", clear: true, ai: false };   // plainly a listing: no AI needed
   const ctx = st?.open ? `CONTEXT: the member has an open listing (status ${st.open.status}${st.open.type ? ", " + st.open.type : ""}${st.open.deal ? ", " + st.open.deal : ""}${st.open.area ? ", " + st.open.area : ""}); the bot ${st.open.status === "needs_info" ? "asked them for: " + (st.open.missing || []).join(", ") : st.open.area_wait === "1" ? "asked which area" : "is waiting for more details or a confirmation"}.`
     : `CONTEXT: no listing is open right now.${st?.last ? " Their last listing is " + (st.last.listing_status || st.last.status) + "." : ""}`;
+  if (readMode(c) === "free") {   // no model: a question about the listing's state, a greeting / thanks, or property details
+    const t0 = norm(latinDigits(text));
+    if (score < 2 && /(وين صار|شو صار|ايمت|امتى|متى|ليش ما|لسا ما|لسه ما|ما انتشر|ما نزل|انتشر|نزل الاعلان|حاله الاعلان|وضع الاعلان|رقم الاعلان|رابط الاعلان|status)/.test(t0)) return { kind: "status", clear: false, ai: false };
+    if (/^(السلام عليكم|سلام عليكم|سلام|مرحبا|مرحبه|اهلا|هلا|شكرا|يسلمو|يعطيك العافيه|الله يعطيك العافيه|تسلم|صباح الخير|مساء الخير|hi|hello|thanks)[\s!.؟?]*$/.test(t0)) return { kind: "chat", clear: false, ai: false };
+    return { kind: "property", clear: score >= 2, ai: false };
+  }
   try {
     const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", TRIAGE_SYSTEM, "-", ctx + "\n\nMESSAGE:\n" + text, { tool: TRIAGE_TOOL, toolName: "triage" });
     const k = ["property", "status", "chat", "other"].includes(r.fields.kind) ? r.fields.kind : "property";
@@ -2560,7 +2634,8 @@ async function routeAdmin(req: Request): Promise<Response> {
     try {
       const text = latinDigits(String(b.text || "").slice(0, 6000));
       await refreshPlaces(tax.country.code);
-      const r = await askClaude(c.intake_model || "claude-haiku-4-5-20251001", SYSTEM, taxonomyText(tax, govsForRead(tax, text, {})), "MESSAGE:\n" + text); const s = settle(r.fields, tax, text);
+      // the panel's test reads the way the bot does (the panel's reading mode)
+      const r = await readListing(c, tax, text, () => taxonomyText(tax, govsForRead(tax, text, {})), "MESSAGE:\n" + text); const s = settle(r.fields, tax, text);
       const warnings = areaGuards(s.fields, s.missing, r.fields, text, tax);   // the same rules the real read enforces
       { const w = govGuard(s.fields, s.missing, text, tax); if (w) warnings.push(w); }
       { const gh = govFromText(s.fields, s.missing, text, tax); if (gh) warnings.push(gh); }
