@@ -4450,6 +4450,7 @@ function adminIntakeBody(mode){
     '<div class="hintx">'+GX("ik_keepTextHint")+'</div>'+
     '<div class="row3">'+num("intake_wait_s",GX("ik_wait"),90,20,900)+num("intake_max_photos",GX("ik_maxPhotos"),12,1,30)+num("intake_daily_limit",GX("ik_daily"),30,1,500)+'</div>'+
     '<div class="row3">'+num("intake_max_videos",GX("ik_maxVideos"),1,0,5)+num("intake_video_max_mb",GX("ik_videoMb"),50,5,100)+num("intake_video_max_s",GX("ik_videoSec"),180,10,600)+'</div><div class="hintx">'+GX("ik_videoHint")+'</div>'+
+    '<div class="row">'+sel("intake_read_mode",GX("ik_readMode"),[["free",GX("ik_readFree")],["mix",GX("ik_readMix")],["ai",GX("ik_readAi")]])+'</div><div class="hintx">'+GX("ik_readHint")+'</div>'+
     '<div class="row3">'+sel("intake_model",GX("ik_model"),[["claude-haiku-4-5-20251001","Claude Haiku 4.5"],["claude-sonnet-5","Claude Sonnet 5"],["claude-opus-5","Claude Opus 5"]])+num("intake_price_in",GX("ik_priceIn"),1,0,100,0.01)+num("intake_price_out",GX("ik_priceOut"),5,0,500,0.01)+'</div>'+
     '<div class="row3">'+sel("intake_reply_lang",GX("ik_lang"),[["ar","العربية"],["en","English"]])+txt("intake_wa_display",GX("ik_waDisplay"))+txt("intake_contact_phone",GX("ik_contactPhone"))+'</div>'+
     '<div class="row">'+txt("intake_contact_email",GX("ik_contactEmail"))+'</div>'+
