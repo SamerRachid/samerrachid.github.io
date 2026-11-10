@@ -686,7 +686,12 @@ function rentLbl(p){ return GX("rentP_"+(RENT_PERIODS.indexOf(p)>-1?p:"yearly"))
 var RENT_PERIODS=["monthly","quarterly","semiannual","yearly","weekly","daily"], SHORT_STAY=["hotelapt","chalet"];   // a day / a week: these types only
 function periodLbl(p){ return p==="quarterly"||p==="semiannual" ? GX("period_"+p) : t("period"+p.charAt(0).toUpperCase()+p.slice(1)) }
 function rentPeriodOpts(sel,hotel){ return RENT_PERIODS.filter(function(p){ return hotel || (p!=="weekly"&&p!=="daily") || p===sel }).map(function(p){ return '<option value="'+p+'"'+(p===sel?" selected":"")+'>'+periodLbl(p)+'</option>' }).join("") }
+// a sale priced per m² / per dunam (owner, 2026-11-08): the figure the seller gave, in the listing's currency
+function puOn(x){ return !!(x && x.pu && x.puv>0 && x.d!=="rent" && +x.p>0) }
+function puMoney(x){ return (x.pl>0&&x.pcur) ? Number(x.puv).toLocaleString("en")+" "+curLabel(x.pcur,L) : "$"+Number(x.puv).toLocaleString("en") }
+function puTotal(x,short){ return GX("pu_total").replace("{p}",'<span class="ltr">'+(short?moneyShortIn(x.p,lcur(x)):money(x.p,x))+'</span>') }
 function priceBlock(x,big){
+  if(puOn(x)) return '<span class="ltr">'+puMoney(x)+'</span> <span class="pu-l">'+GX(x.pu==="m2"?"pu_m2":"pu_dunam")+'</span>';
   var cut = x.orig && x.orig > x.p;
   var pct = cut ? Math.round((1 - x.p/x.orig)*100) : 0;
   return '<span class="ltr">'+money(x.p,x)+'</span>'+(big?'':priceConv(x))+
@@ -972,7 +977,7 @@ function wireDrawer(){
   if($("#hpill")) $("#hpill").onclick=function(e){ e.stopPropagation(); mdwOpen() };
   $("#mdwX").onclick=mdwClose; $("#mdwBg").onclick=mdwClose;
   if($("#appInstallGo")) $("#appInstallGo").onclick=function(){ if(window.PWA) PWA.install() };
-  if(window.PWA){ var isec=$("#mdwInstallSec"); if(isec){ var ib=$("#mdwInstall"); if(ib) ib.onclick=function(){ mdwClose(); if(PWA.hasApp()) PWA.shareApp(); else PWA.install() } } }
+  if(window.PWA){ var isec=$("#mdwInstallSec"); if(isec){ var ib=$("#mdwInstall"); if(ib) ib.onclick=function(){ mdwClose(); if(PWA.hasApp()) PWA.shareApp(); else if(/android|samsung|huawei|miui/.test(PWA.platform()) && !/BalkounApp/i.test(navigator.userAgent)) location.href="/android/"; else PWA.install() } } }
   if(!window._mdwEsc){ window._mdwEsc=true; document.addEventListener("keydown",function(e){ if(e.key==="Escape") mdwClose() }) }
   if($("#mdIn")) $("#mdIn").onclick=function(){ mdwClose(); var b=$("#bIn"); if(b) b.click() };
   // the account shortcuts go straight to their pages (the hidden header menu they used to click is not wired on the theme)
@@ -1714,7 +1719,7 @@ function card(x,i,isListView){
 
  var title = ar ? typeName+' '+m2Txt(x)+' '+GX("lIn")+' '+aN(x.a)
                : typeName+m2Txt(x,", ")+' '+GX("lIn")+' '+aN(x.a);
- var perm2 = (x.d!=="rent" && x.m2 && +x.p>0) ? '<span class="cpm"><span class="ltr">'+moneyShortIn(x.p/x.m2,lcur(x))+'</span>/'+t("sqm")+'</span>' : (x.d==="rent"?'<span class="cpm">'+rentLbl(x.rentalPeriod)+'</span>':'');
+ var perm2 = puOn(x) ? '<span class="cpm">'+puTotal(x,1)+'</span>' : (x.d!=="rent" && x.m2 && +x.p>0) ? '<span class="cpm"><span class="ltr">'+moneyShortIn(x.p/x.m2,lcur(x))+'</span>/'+t("sqm")+'</span>' : (x.d==="rent"?'<span class="cpm">'+rentLbl(x.rentalPeriod)+'</span>':'');
  var deedPill = (x.d!=="rent" && D.TABU[x.tb]) ? '<span class="cpill'+(strongDeed(x.tb)?' green':'')+'">'+(strongDeed(x.tb)?'<span class="tabu-green">'+D.TABU[x.tb][li()]+'</span>':D.TABU[x.tb][li()])+'</span>' : '';
  // who posted: an agency shows its name (and logo when allowed) + ✓, a broker shows "broker", everyone else "owner"
  var poster = x.oag ? '<span class="cpill agency">'+(x.clogo&&x.oav?'<img src="'+x.oav+'" alt="">':'')+esc(x.oagName||x.who||GX("acctAgency"))+(x.oagVer?' ✓':'')+'</span>'
@@ -2282,7 +2287,7 @@ function listing(id){
  var side='<aside class="lside">'+
   '<div class="lprice">'+
    '<div class="big">'+priceBlock(x,1)+(x.negot?' <span class="negot">'+t("negot")+'</span>':'')+'</div>'+
-   '<div class="sub">'+(isRent?rentLbl(x.rentalPeriod):(x.p>0&&x.m2>0?'<span class="ltr">'+moneyIn(x.p/x.m2,lcur(x))+'</span> '+t("perm"):''))+'</div>'+
+   '<div class="sub">'+(isRent?rentLbl(x.rentalPeriod):puOn(x)?puTotal(x):(x.p>0&&x.m2>0?'<span class="ltr">'+moneyIn(x.p/x.m2,lcur(x))+'</span> '+t("perm"):''))+'</div>'+
    origPriceLine(x)+
    priceContextHtml(x)+
    '<div class="lowner">'+avatar(x.oav,ownerName,48)+'<div>'+
@@ -2586,7 +2591,7 @@ function editView(){
    // the property type too (owner, 2026-11-02): a type the admin has since switched off still shows as the current one
    '<div class="fl"><label>'+t("ptype")+'</label><select id="eType">'+Object.keys(D.TYPES).concat(D.TYPES[x.t]||!x.t?[]:[x.t]).map(function(k){ return '<option value="'+k+'"'+(x.t===k?" selected":"")+'>'+(D.TYPES[k]?D.TYPES[k][li()]:k)+'</option>' }).join("")+'</select></div>')+
   '<div class="row"><div class="fl"><label>'+t("price")+'</label>'+
-   '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+(x.pl>0&&x.pcur?x.pl:(x.p==null?"":x.p))+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur",(x.pl>0&&x.pcur)?x.pcur:"USD")+'</div>'+perPickHtml("eper")+'<div class="hintx" id="epm"></div>'+
+   '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+(puOn(x)?x.puv:(x.pl>0&&x.pcur?x.pl:(x.p==null?"":x.p)))+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur",(x.pl>0&&x.pcur)?x.pcur:"USD")+'</div>'+perPickHtml("eper",puOn(x)?x.pu:"whole")+'<div class="hintx" id="epm"></div>'+
    (x.orig&&x.orig>x.p?'<div class="hintx">'+t("wasPrice")+' <span class="ltr">'+money(x.orig)+'</span></div>':'')+
    '</div>'+
   '<div class="fl"><label class="req">'+t("areaM")+'</label><input type="number" id="eArea" value="'+(x.m2||"")+'" autocomplete="off"></div></div>'+
@@ -4257,7 +4262,7 @@ function toUsdFrom(v, cur){ v=+v||0; cur=(cur||"USD").toUpperCase(); if(cur==="U
 // the size before saving (owner 2026-11-05: «سعر المتر 275$» was published as a $275 apartment). Sale only; the dunam
 // pill shows for land. The saved price is always the whole price, as the bot saves it.
 var PRICE_MIN = { sale: 500, rent: 10 };   // USD; below this the form refuses (owner 2026-11-05: $1 / $15 / $123 prices)
-function perPickHtml(name){ return '<div class="pick perpick" id="'+name+'Box">'+["whole","m2","dunam"].map(function(k){ return '<label class="per-'+k+'"><input type="radio" name="'+name+'" value="'+k+'"'+(k==="whole"?" checked":"")+'><span>'+GX("per_"+k)+'</span></label>' }).join("")+'</div>' }
+function perPickHtml(name,sel){ sel=sel||"whole"; return '<div class="pick perpick" id="'+name+'Box">'+["whole","m2","dunam"].map(function(k){ return '<label class="per-'+k+'"><input type="radio" name="'+name+'" value="'+k+'"'+(k===sel?" checked":"")+'><span>'+GX("per_"+k)+'</span></label>' }).join("")+'</div>' }
 function perOf(name){ return (($('input[name='+name+']:checked')||{}).value)||"whole" }
 function priceTotal(raw, per, m2){ raw=+raw||0; m2=+m2||0; if(!raw) return 0; return per==="m2" ? Math.round(raw*m2) : per==="dunam" ? Math.round(raw*m2/1000) : raw }
 // rent or a type change: back to «للعقار كاملاً»; the dunam pill only for land
@@ -6610,7 +6615,10 @@ function wire(){
    if(ADM.token&&!ADM.data) adminLoad(); };
  if($("#edt")) $("#edt").onclick=async function(){
    var id=VIEW.split(":")[1];
-   var _er=D.LIST.filter(function(l){return String(l.id)===String(id)})[0];
+   // own hidden/rejected/sold listings are only in MYLIST (the page itself found them there), never in the public D.LIST
+   var byId=function(l){return String(l.id)===String(id)};
+   var _er=(MYLIST||[]).filter(byId)[0] || D.LIST.filter(byId)[0];
+   if(!_er){ try{ await loadMyListings() }catch(x){} _er=(MYLIST||[]).filter(byId)[0] }
    EDIT={id:id,row:_er&&Object.assign({},_er),msg:"",photos:[],lat:(_er&&_er.lat)||null,lng:(_er&&_er.lng)||null,locTouched:false};
    VIEW="edit"; scrollTo(0,0); render();
    try{ var r=await rpc("bk_photos",{p_listing:+id}); EDIT.photos=r||[]; editMediaRedraw() }catch(e){} };
@@ -6664,8 +6672,9 @@ function wire(){
      var patch={};
      // always set price_usd (even to null): the server only clears a field when its key is present in the
      // patch at all, so leaving the key out when the field is cleared (the old behaviour) silently kept the old price
-     if(v("ePrice").trim()){ patch.price_usd=toUsdFrom(eTot, v("ecur")); var ec=(v("ecur")||"USD").toUpperCase(); patch.price_local = ec!=="USD" ? eTot : null; patch.price_cur = ec!=="USD" ? ec : null; }
-     else { patch.price_usd=null; patch.price_local=null; patch.price_cur=null; }
+     if(v("ePrice").trim()){ patch.price_usd=toUsdFrom(eTot, v("ecur")); var ec=(v("ecur")||"USD").toUpperCase(); patch.price_local = ec!=="USD" ? eTot : null; patch.price_cur = ec!=="USD" ? ec : null;
+       patch.price_unit = ePer!=="whole" ? ePer : null; patch.price_unit_value = ePer!=="whole" ? parseFloat(v("ePrice")) : null; }
+     else { patch.price_usd=null; patch.price_local=null; patch.price_cur=null; patch.price_unit=null; patch.price_unit_value=null; }
      if(v("eArea"))  patch.area_m2=+v("eArea");
      patch.rooms = v("eRooms")?+v("eRooms"):null;
      patch.baths = v("eBaths")?+v("eBaths"):null;
@@ -7741,6 +7750,7 @@ function fromRow(r){
     days:Math.max(0,Math.round((Date.now()-new Date(r.created_at))/86400000)),
     createdAt:r.created_at||null,
     uid:r.user_id||null, orig:r.orig_price||null, status:r.status||'live', pl:(r.price_local!=null?+r.price_local:null), pcur:r.price_cur||null,
+    pu:(r.price_unit==="m2"||r.price_unit==="dunam")?r.price_unit:null, puv:(+r.price_unit_value>0?+r.price_unit_value:null),
     ocity:r.owner_city||null, ocountry:r.owner_country||null, oav:r.owner_avatar||null, clogo:!!r.owner_card_logo,
     aid:r.area_id||null,
     olevel:r.owner_level||"member", closedAt:r.closed_at||null, oJoined:r.owner_created_at||null,
@@ -8245,6 +8255,9 @@ async function savePost(){
       governorate_id: g.data.id,
       area_id: (a.data&&a.data[0])?a.data[0].id:null,
       price_usd: ppRaw ? toUsdFrom(ppRaw, val("pcur")) : null,   // empty → "السعر عند التواصل"
+      // a per-m² / per-dunam figure is kept as typed, next to the total (shown as «170$ للمتر», «الإجمالي ≈ …»)
+      price_unit: ppRaw && ($('input[name=dl]:checked')||{}).value!=="rent" && perOf("pper")!=="whole" ? perOf("pper") : null,
+      price_unit_value: ppRaw && ($('input[name=dl]:checked')||{}).value!=="rent" && perOf("pper")!=="whole" ? parseFloat(val("pp")) : null,
       price_local: ppRaw && (val("pcur")||"USD").toUpperCase()!=="USD" ? ppRaw : null,   // the poster's own figure, kept verbatim
       price_cur: ppRaw && (val("pcur")||"USD").toUpperCase()!=="USD" ? (val("pcur")||"").toUpperCase() : null,
       area_m2: Math.round((parseFloat(val("pm2"))||0) * (parseInt(val("pUnit"),10)||1)) || null,   // empty (a rental may leave it out) → null; the DB refuses 0
@@ -10079,6 +10092,8 @@ var GX_T={
   priceReqMsg:{ar:"السعر إلزامي: اكتب السعر قبل الحفظ",en:"A price is required: enter it before saving"},
   per_whole:{ar:"للعقار كاملاً",en:"Whole property",fr:"Prix total"}, per_m2:{ar:"للمتر",en:"Per m²",fr:"Par m²"}, per_dunam:{ar:"للدونم",en:"Per dunam",fr:"Par dounam"},
   per_dunamShort:{ar:"للدونم",en:"per dunam",fr:"par dounam"},
+  pu_m2:{ar:"للمتر",en:"per m²",fr:"par m²"}, pu_dunam:{ar:"للدونم",en:"per dunam",fr:"par dounam"},
+  pu_total:{ar:"الإجمالي ≈ {p}",en:"Total ≈ {p}",fr:"Total ≈ {p}"},
   per_total:{ar:"السعر الإجمالي: {p}",en:"Total price: {p}",fr:"Prix total : {p}"},
   per_needSize:{ar:"اكتب المساحة ليُحسب السعر الإجمالي",en:"Enter the size to work out the total price",fr:"Saisissez la surface pour calculer le prix total"},
   per_lowWarn:{ar:"السعر صغير جداً لهذه المساحة — إذا كان سعر المتر اختر «للمتر»",en:"Very low for this size — if it is the price per m², choose «Per m²»",fr:"Très bas pour cette surface — si c'est le prix au m², choisissez «Par m²»"},
@@ -10517,7 +10532,7 @@ var GX_T={
   ik_readHint:{ar:"«مختلط» يستعمل الذكاء الاصطناعي فقط عندما لا يجد القارئ المجاني نوع العقار أو البيع/الإيجار أو المحافظة. في «مجاني» يسأل البوت المرسل عمّا ينقص.",en:"Mixed calls the AI only when the free reader cannot find the type, sale/rent or the governorate. In Free the bot asks the sender for whatever is missing."},
   ik_qfH:{ar:"مربع «املأ الإعلان من رسالة» في صفحة «أضف إعلانك»",en:"The “fill from a message” box on the post page"}, ik_qfOn:{ar:"إظهار المربع",en:"Show the box"}, ik_qfMode:{ar:"طريقة القراءة",en:"How it reads"}, ik_qfFree:{ar:"مجاني — داخل المتصفح بلا كلفة",en:"Free — in the browser, no cost"}, ik_qfAi:{ar:"ذكاء اصطناعي — نموذج البوت (مدفوع)",en:"AI — the bot's model (paid)"}, ik_qfHint:{ar:"في الطريقتين تنتقل الرسالة كما هي إلى خانة الوصف، وتُملأ باقي الحقول منها. البوت على واتساب وتيليغرام لا يتأثر.",en:"Either way the message goes into the description as written and the other fields are filled from it. The WhatsApp/Telegram bot is not affected."}, ik_keepText:{ar:"الوصف = نص المرسل كما كتبه",en:"Description = the sender's own text"},
   ik_keepTextHint:{ar:"مفعّل: يُنشر الإعلان بنص المرسل نفسه بعد حذف أرقام الهواتف والروابط وعلامات #. معطّل: يعيد الذكاء الاصطناعي صياغة الوصف.",en:"On: the listing is published with the sender's text (phone numbers, links and # marks removed). Off: the AI rewrites the description."}, ik_noPhoto:{ar:"بلا صور",en:"No photos"},
-  ik_collecting:{ar:"قيد التجميع",en:"Collecting"}, ik_reading:{ar:"قيد القراءة",en:"Reading"}, ik_ready:{ar:"بانتظار موافقة المرسل",en:"Awaiting sender's OK"}, ik_needs_info:{ar:"ينقص معلومات",en:"Missing details"}, ik_review:{ar:"بانتظارك",en:"Needs you"}, ik_published:{ar:"منشور",en:"Published"}, ik_cancelled:{ar:"ملغى",en:"Cancelled"}, ik_failed:{ar:"فشل",en:"Failed"}, ik_web:{ar:"الموقع",en:"Website"},
+  ik_collecting:{ar:"قيد التجميع",en:"Collecting"}, ik_reading:{ar:"قيد القراءة",en:"Reading"}, ik_ready:{ar:"بانتظار موافقة المرسل",en:"Awaiting sender's OK"}, ik_needs_info:{ar:"ينقص معلومات",en:"Missing details"}, ik_review:{ar:"بانتظارك",en:"Needs you"},ik_held:{ar:"مع المشرف",en:"With the admin"}, ik_published:{ar:"منشور",en:"Published"}, ik_cancelled:{ar:"ملغى",en:"Cancelled"}, ik_failed:{ar:"فشل",en:"Failed"}, ik_web:{ar:"الموقع",en:"Website"},
   ik_st_open:{ar:"قيد التجميع أو بانتظار المرسل",en:"Collecting or awaiting sender"}, ik_st_attention:{ar:"بانتظارك",en:"Need you"}, ik_st_published:{ar:"منشورة",en:"Published"}, ik_st_today:{ar:"آخر 24 ساعة",en:"Last 24 hours"}, ik_st_cost:{ar:"تكلفة القراءة هذا الشهر",en:"Reading cost this month"},
   ik_connH:{ar:"الربط",en:"Connections"},
   ik_tgOk:{ar:"البوت {b} متصل ويستقبل الرسائل",en:"Bot {b} is connected and receiving"}, ik_tgNoHook:{ar:"المفتاح موجود، اضغط «ربط البوت» لتوجيه الرسائل إلى الموقع",en:"Key present — press “Connect bot” to route messages here"}, ik_tgOff:{ar:"لم يُلصَق مفتاح البوت بعد (TELEGRAM_BOT_TOKEN)",en:"Bot key not pasted yet (TELEGRAM_BOT_TOKEN)"}, ik_tgSetup:{ar:"ربط البوت",en:"Connect bot"},
@@ -10569,7 +10584,7 @@ var GX_T={
   wShare:{ar:"مشاركة الطلب",en:"Share this request"}, agShare:{ar:"مشاركة المكتب",en:"Share this office",fr:"Partager l'agence"},
   autoDescTail:{ar:"للتفاصيل والاستفسار تواصل مع المعلن مباشرة عبر بلكون.",en:"For details, contact the advertiser directly through Balkoun."},
   promoPhotoFail:{ar:"تعذّر تحميل صورة الإعلان. جرّب صورة أخرى من القائمة أو ارفع صورة.",en:"The listing photo could not be loaded. Try another photo or upload one."},
-  ik_ownerUnset:{ar:"لم يُحدَّد صاحب الإعلان بعد",en:"No owner set yet"}, ik_ownerMember:{ar:"عضو",en:"member"}, ik_selected:{ar:"محدد",en:"selected"}, ik_bulkGov:{ar:"المحافظة للمحدد…",en:"Governorate for selected…"}, ik_apply:{ar:"طبّق",en:"Apply"},
+  ik_ownerPick:{ar:"اختر صاحب الإعلان أولاً: اكتب الاسم ثم اضغط عليه في القائمة",en:"Pick the owner first: type the name, then click it in the list"},ik_ownerUnset:{ar:"لم يُحدَّد صاحب الإعلان بعد",en:"No owner set yet"}, ik_ownerMember:{ar:"عضو",en:"member"}, ik_selected:{ar:"محدد",en:"selected"}, ik_bulkGov:{ar:"المحافظة للمحدد…",en:"Governorate for selected…"}, ik_apply:{ar:"طبّق",en:"Apply"},
   ik_bulkDone:{ar:"تم على {n} مسودة",en:"Done on {n} draft(s)"}, ik_publishing:{ar:"جارٍ النشر",en:"Publishing"}, ik_bulkPubQ:{ar:"نشر {n} مسودة؟ ما ينقصه بيان يُرفض ويظهر في القائمة.",en:"Publish {n} drafts? Any that lacks a required field is refused and listed."}, ik_bulkCancelQ:{ar:"إلغاء {n} مسودة؟",en:"Cancel {n} drafts?"},
   ik_missing:{ar:"ناقص",en:"Missing"}, ik_m_deal:{ar:"بيع/إيجار",en:"sale/rent"}, ik_m_property_type:{ar:"النوع",en:"type"}, ik_m_governorate:{ar:"المحافظة",en:"governorate"}, ik_m_area:{ar:"المنطقة",en:"area"}, ik_m_price:{ar:"السعر",en:"price"}, ik_m_area_m2:{ar:"المساحة",en:"size"}, ik_m_tabu:{ar:"الطابو",en:"deed"}, ik_m_photos:{ar:"صورة",en:"photo"},
   ik_e_nogov:{ar:"المحافظة ناقصة",en:"governorate missing"}, ik_e_noprice:{ar:"السعر ناقص",en:"price missing"}, ik_e_noarea:{ar:"المساحة ناقصة",en:"size missing"}, ik_e_noagency:{ar:"لا عضو/مكتب مرتبط",en:"no member/agency attached"}, ik_e_nophone:{ar:"لا رقم هاتف",en:"no phone"}, ik_e_already:{ar:"منشور مسبقاً",en:"already published"}, ik_e_badtype:{ar:"نوع العقار غير صالح",en:"bad property type"},
@@ -11728,7 +11743,8 @@ window.PWA=(function(){
   document.addEventListener("visibilitychange", function(){ if(document.hidden){ _hiddenAt=Date.now(); return } if(_hiddenAt && Date.now()-_hiddenAt>60*1000){ _hiddenAt=0; try{ refreshListingsOnNavigate(); loadSiteContent(); loadGeo(); if(typeof syncFeaturedFromServer==="function") syncFeaturedFromServer() }catch(e){} } });
   window.addEventListener("pageshow", function(e){ if(e.persisted){ try{ refreshListingsOnNavigate(); loadSiteContent(); loadGeo() }catch(x){} } });
   window.addEventListener("offline", function(){ toast(GX("pwaOffline")) });
-  function shareApp(){ var u=location.origin+"/app";
+  // the link people get is the /android page (owner, 2026-11-09): it downloads the APK on Android, sends iPhone to /app
+  function shareApp(){ var u=location.origin+"/android/";
     if(navigator.share){ navigator.share({title:GX("pwaBannerT"), url:u}).catch(function(){}); return }
     try{ navigator.clipboard.writeText(u).then(function(){ toast(GX("pwaLinkCopied")) }) }catch(e){ prompt("", u) } }
   return { hasApp:hasApp, shareApp:shareApp, installable:installable, install:install, standalone:standalone, ios:iosSafari, platform:platform, stepsHtml:stepsHtml, canPrompt:function(){ return !!deferred }, syncBar:syncBar };

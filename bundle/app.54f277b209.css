@@ -2697,7 +2697,48 @@ html.maint-on{overflow:hidden}
 .ikphotos{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.ikphotos img{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}
 .ikfields{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:6px}.ikfields .fl{margin:0}.ikfields .fl label{font-size:11.5px}.ikfields .fl.wide{grid-column:1/-1}.ikfields textarea{min-height:90px}
 .ikdetail .xactions select{max-width:260px}
-.iklog{display:flex;flex-direction:column}.iklog-r{display:grid;grid-template-columns:150px 150px 50px 1fr;gap:10px;padding:6px 18px;border-bottom:1px solid var(--line);font-size:12px;color:var(--grey)}.iklog-r b{color:var(--ink)}.iklog-r.lvl-error b{color:var(--danger)}.iklog-r.lvl-warn b{color:var(--warn)}
+.iklog{display:flex;flex-direction:column}.iklog-r{display:grid;grid-template-columns:150px 150px 50px 1fr;gap:10px;padding:6px 18px;border-bottom:1px solid var(--line);font-size:12px;color:var(--grey)}.iklog-r b{color:var(--ink)}
+/* the bot page in tabs (2026-11-09): status bar, takeover box, chats held by the admin, welcome cards */
+.adm .iktop .in{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:8px}
+.iktabs{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 12px}
+.iktabs button{border:1px solid var(--p-line,var(--line));background:#fff;border-radius:8px;padding:0 12px;height:32px;font:550 13px var(--f);color:var(--p-ink,var(--ink));cursor:pointer}
+.iktabs button:hover{background:var(--p-hover,#F3F4F7)}
+.iktabs button.on{background:var(--p-dark,var(--navy));border-color:var(--p-dark,var(--navy));color:#fff}
+html.adm-dark .iktabs button{background:hsla(222,27%,13%,1);color:#C9D6F2;border-color:hsla(225,14%,22%,1)}
+html.adm-dark .iktabs button.on{background:var(--gold);border-color:var(--gold);color:#1A1206}
+@media (max-width:700px){.iktabs{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -14px 12px;padding:0 14px 2px}.iktabs button{flex:none;height:36px;border-radius:999px}}
+.iklog-r{grid-template-columns:140px minmax(0,1.3fr) 50px minmax(0,1fr)}
+.iklog-r span{overflow-wrap:anywhere}
+.blk h3 .xcheck{font-size:12.5px}
+.ikcmds{line-height:1.9;background:transparent;border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.ikholds{display:flex;flex-direction:column;gap:8px}
+.ikhold{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.ikhold .ab{margin-inline-start:auto}
+.ikwcard{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:12px}
+.ikwcard>b{display:block;margin-bottom:6px}
+/* a price per m² / per dunam (2026-11-09): the unit word smaller than the figure */
+.pu-l{font-size:.62em;font-weight:600}.lprice .big .pu-l{font-size:.5em}
+.adm .blk .in.ikchat{display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:0;padding:0!important;min-height:520px}
+.ikc-list{border-inline-end:1px solid var(--line);display:flex;flex-direction:column;min-width:0}
+.ikc-list>input{margin:10px;width:auto}
+#ikChatList{overflow-y:auto;max-height:620px}
+.ikc-row{display:grid;grid-template-columns:minmax(0,1fr);min-width:0;gap:3px;width:100%;text-align:start;border:0;border-top:1px solid var(--line);background:transparent;padding:10px 12px;cursor:pointer;font:inherit;color:inherit}
+.ikc-row:hover{background:rgba(127,127,127,.07)}.ikc-row.on{background:rgba(196,136,31,.13)}
+.ikc-top{display:flex;justify-content:space-between;gap:8px}.ikc-top b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ikc-mid{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;color:var(--grey)}.ikc-last{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}.ikc-top,.ikc-mid{min-width:0}
+.ikc-who{justify-self:start;font-size:11px}
+.ikc-thread{display:flex;flex-direction:column;min-width:0;padding:10px 14px;gap:8px}
+.ikc-head{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.adm .ikc-head .ikc-back{display:none}
+.ikc-msgs{flex:1;overflow-y:auto;max-height:470px;display:flex;flex-direction:column;gap:6px;padding:4px 2px}
+.ikc-msg{max-width:78%;padding:7px 10px;border-radius:10px;background:rgba(127,127,127,.10);align-self:flex-start;display:grid;gap:3px;font-size:13.5px;line-height:1.55;overflow-wrap:anywhere}
+.ikc-msg small{font-size:11px;color:var(--grey)}
+.ikc-msg.ikc-bot{align-self:flex-end;border:1px dashed var(--line);background:transparent}
+.ikc-msg.ikc-owner{align-self:flex-end;background:rgba(196,136,31,.16)}
+.ikc-img{max-width:240px;max-height:240px;border-radius:8px;display:block}
+.ikc-reply{display:flex;gap:8px;align-items:flex-end}.ikc-reply textarea{flex:1;min-height:44px;resize:vertical}
+@media (max-width:800px){.adm .blk .in.ikchat{grid-template-columns:1fr}.ikc-list{border-inline-end:0}.ikchat.has-sel .ikc-list{display:none}.ikchat:not(.has-sel) .ikc-thread{display:none}.adm .ikc-head .ikc-back{display:inline-flex}.ikc-msg{max-width:90%}}
+@media (max-width:700px){.iklog-r{grid-template-columns:1fr 1fr;row-gap:2px}.iktop .ab{margin-inline-start:0!important}}.iklog-r.lvl-error b{color:var(--danger)}.iklog-r.lvl-warn b{color:var(--warn)}
 @media(max-width:900px){.ikdetail .ikcols{grid-template-columns:1fr}.iklog-r{grid-template-columns:1fr 1fr}.ikc{grid-template-columns:1fr;gap:4px}}
 .agcontact .agown{border-color:var(--gold);color:var(--gold-dk);font-weight:700}
 /* one account page: side navigation, sections */
