@@ -154,8 +154,9 @@ async function wmCfg(): Promise<Wm> {
   try {
     const { data } = await sb.from("site_content").select("extras").eq("id", 1).maybeSingle();
     const x = (data?.extras || {}) as Record<string, any>;
-    return { on: x.wm_on !== false && x.wm_on !== "false", pos: x.wm_pos || "br", size: Math.min(40, Math.max(6, +x.wm_size || 14)), op: Math.min(1, Math.max(0.2, (+x.wm_opacity || 70) / 100)) };
-  } catch { return { on: true, pos: "br", size: 14, op: 0.7 }; }
+    const pos = x.wm_pos || "c", mid = pos === "c";   // "c" = BALKOUN.COM through the middle, size = its width in % of the photo
+    return { on: x.wm_on !== false && x.wm_on !== "false", pos, size: Math.min(90, Math.max(6, +x.wm_size || (mid ? 86 : 14))), op: Math.min(1, Math.max(0.2, (+x.wm_opacity || (mid ? 40 : 70)) / 100)) };
+  } catch { return { on: true, pos: "c", size: 86, op: 0.4 }; }
 }
 
 // ───────────────────────────── messengers ─────────────────────────────
@@ -573,22 +574,30 @@ const tx = (lang: string) => (lang === "en" ? T.en : T.ar);
 type IS = typeof import("https://deno.land/x/imagescript@1.3.0/mod.ts");
 let _is: Promise<IS> | null = null;
 const imgLib = () => (_is ??= import("https://deno.land/x/imagescript@1.3.0/mod.ts"));
-let _wm: any = null;
-async function wmImage() {
-  if (_wm) return _wm;
+// wm.png = corner mark (BALKOUN), wm-c.png = centre mark (BALKOUN.COM); both rendered by balkoun-ds/.ds-sync/_wm_png*.mjs
+const _wm: Record<string, any> = {};
+async function wmImage(file: string) {
+  if (_wm[file]) return _wm[file];
   try {
     const { Image } = await imgLib();
-    const r = await fetch(SITE + "/brand/wm.png");
+    const r = await fetch(SITE + "/brand/" + file);
     if (!r.ok) return null;
-    _wm = await Image.decode(new Uint8Array(await r.arrayBuffer()));
-    return _wm;
-  } catch (e) { console.error("wm.png", errStr(e)); return null; }
+    _wm[file] = await Image.decode(new Uint8Array(await r.arrayBuffer()));
+    return _wm[file];
+  } catch (e) { console.error(file, errStr(e)); return null; }
 }
 async function stamp(img: any, wm: Wm) {
   if (!wm.on) return;
-  const base = await wmImage(); if (!base) return;
+  const mid = wm.pos === "c";
+  const base = await wmImage(mid ? "wm-c.png" : "wm.png"); if (!base) return;
   const { Image } = await imgLib();
   const W = img.width, H = img.height;
+  if (mid) {   // the PNG has a 24px margin around 1264px of drawing, so the drawing itself ends up wm.size % wide
+    const s = base.clone().resize(Math.max(60, Math.round(W * (wm.size / 100) * 1312 / 1264)), Image.RESIZE_AUTO);
+    s.opacity(wm.op);
+    img.composite(s, Math.round((W - s.width) / 2), Math.round((H - s.height) / 2));
+    return;
+  }
   const wmW = Math.max(60, Math.round(W * (wm.size / 100) * 1.44));
   const s = base.clone().resize(wmW, Image.RESIZE_AUTO);
   s.opacity(wm.op);

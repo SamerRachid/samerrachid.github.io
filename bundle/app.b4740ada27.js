@@ -686,7 +686,12 @@ function rentLbl(p){ return GX("rentP_"+(RENT_PERIODS.indexOf(p)>-1?p:"yearly"))
 var RENT_PERIODS=["monthly","quarterly","semiannual","yearly","weekly","daily"], SHORT_STAY=["hotelapt","chalet"];   // a day / a week: these types only
 function periodLbl(p){ return p==="quarterly"||p==="semiannual" ? GX("period_"+p) : t("period"+p.charAt(0).toUpperCase()+p.slice(1)) }
 function rentPeriodOpts(sel,hotel){ return RENT_PERIODS.filter(function(p){ return hotel || (p!=="weekly"&&p!=="daily") || p===sel }).map(function(p){ return '<option value="'+p+'"'+(p===sel?" selected":"")+'>'+periodLbl(p)+'</option>' }).join("") }
+// a sale priced per m² / per dunam (owner, 2026-11-08): the figure the seller gave, in the listing's currency
+function puOn(x){ return !!(x && x.pu && x.puv>0 && x.d!=="rent" && +x.p>0) }
+function puMoney(x){ return (x.pl>0&&x.pcur) ? Number(x.puv).toLocaleString("en")+" "+curLabel(x.pcur,L) : "$"+Number(x.puv).toLocaleString("en") }
+function puTotal(x,short){ return GX("pu_total").replace("{p}",'<span class="ltr">'+(short?moneyShortIn(x.p,lcur(x)):money(x.p,x))+'</span>') }
 function priceBlock(x,big){
+  if(puOn(x)) return '<span class="ltr">'+puMoney(x)+'</span> <span class="pu-l">'+GX(x.pu==="m2"?"pu_m2":"pu_dunam")+'</span>';
   var cut = x.orig && x.orig > x.p;
   var pct = cut ? Math.round((1 - x.p/x.orig)*100) : 0;
   return '<span class="ltr">'+money(x.p,x)+'</span>'+(big?'':priceConv(x))+
@@ -972,7 +977,7 @@ function wireDrawer(){
   if($("#hpill")) $("#hpill").onclick=function(e){ e.stopPropagation(); mdwOpen() };
   $("#mdwX").onclick=mdwClose; $("#mdwBg").onclick=mdwClose;
   if($("#appInstallGo")) $("#appInstallGo").onclick=function(){ if(window.PWA) PWA.install() };
-  if(window.PWA){ var isec=$("#mdwInstallSec"); if(isec){ var ib=$("#mdwInstall"); if(ib) ib.onclick=function(){ mdwClose(); if(PWA.hasApp()) PWA.shareApp(); else PWA.install() } } }
+  if(window.PWA){ var isec=$("#mdwInstallSec"); if(isec){ var ib=$("#mdwInstall"); if(ib) ib.onclick=function(){ mdwClose(); if(PWA.hasApp()) PWA.shareApp(); else if(/android|samsung|huawei|miui/.test(PWA.platform()) && !/BalkounApp/i.test(navigator.userAgent)) location.href="/android/"; else PWA.install() } } }
   if(!window._mdwEsc){ window._mdwEsc=true; document.addEventListener("keydown",function(e){ if(e.key==="Escape") mdwClose() }) }
   if($("#mdIn")) $("#mdIn").onclick=function(){ mdwClose(); var b=$("#bIn"); if(b) b.click() };
   // the account shortcuts go straight to their pages (the hidden header menu they used to click is not wired on the theme)
@@ -1714,7 +1719,7 @@ function card(x,i,isListView){
 
  var title = ar ? typeName+' '+m2Txt(x)+' '+GX("lIn")+' '+aN(x.a)
                : typeName+m2Txt(x,", ")+' '+GX("lIn")+' '+aN(x.a);
- var perm2 = (x.d!=="rent" && x.m2 && +x.p>0) ? '<span class="cpm"><span class="ltr">'+moneyShortIn(x.p/x.m2,lcur(x))+'</span>/'+t("sqm")+'</span>' : (x.d==="rent"?'<span class="cpm">'+rentLbl(x.rentalPeriod)+'</span>':'');
+ var perm2 = puOn(x) ? '<span class="cpm">'+puTotal(x,1)+'</span>' : (x.d!=="rent" && x.m2 && +x.p>0) ? '<span class="cpm"><span class="ltr">'+moneyShortIn(x.p/x.m2,lcur(x))+'</span>/'+t("sqm")+'</span>' : (x.d==="rent"?'<span class="cpm">'+rentLbl(x.rentalPeriod)+'</span>':'');
  var deedPill = (x.d!=="rent" && D.TABU[x.tb]) ? '<span class="cpill'+(strongDeed(x.tb)?' green':'')+'">'+(strongDeed(x.tb)?'<span class="tabu-green">'+D.TABU[x.tb][li()]+'</span>':D.TABU[x.tb][li()])+'</span>' : '';
  // who posted: an agency shows its name (and logo when allowed) + ✓, a broker shows "broker", everyone else "owner"
  var poster = x.oag ? '<span class="cpill agency">'+(x.clogo&&x.oav?'<img src="'+x.oav+'" alt="">':'')+esc(x.oagName||x.who||GX("acctAgency"))+(x.oagVer?' ✓':'')+'</span>'
@@ -2282,7 +2287,7 @@ function listing(id){
  var side='<aside class="lside">'+
   '<div class="lprice">'+
    '<div class="big">'+priceBlock(x,1)+(x.negot?' <span class="negot">'+t("negot")+'</span>':'')+'</div>'+
-   '<div class="sub">'+(isRent?rentLbl(x.rentalPeriod):(x.p>0&&x.m2>0?'<span class="ltr">'+moneyIn(x.p/x.m2,lcur(x))+'</span> '+t("perm"):''))+'</div>'+
+   '<div class="sub">'+(isRent?rentLbl(x.rentalPeriod):puOn(x)?puTotal(x):(x.p>0&&x.m2>0?'<span class="ltr">'+moneyIn(x.p/x.m2,lcur(x))+'</span> '+t("perm"):''))+'</div>'+
    origPriceLine(x)+
    priceContextHtml(x)+
    '<div class="lowner">'+avatar(x.oav,ownerName,48)+'<div>'+
@@ -2586,7 +2591,7 @@ function editView(){
    // the property type too (owner, 2026-11-02): a type the admin has since switched off still shows as the current one
    '<div class="fl"><label>'+t("ptype")+'</label><select id="eType">'+Object.keys(D.TYPES).concat(D.TYPES[x.t]||!x.t?[]:[x.t]).map(function(k){ return '<option value="'+k+'"'+(x.t===k?" selected":"")+'>'+(D.TYPES[k]?D.TYPES[k][li()]:k)+'</option>' }).join("")+'</select></div>')+
   '<div class="row"><div class="fl"><label>'+t("price")+'</label>'+
-   '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+(x.pl>0&&x.pcur?x.pl:(x.p==null?"":x.p))+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur",(x.pl>0&&x.pcur)?x.pcur:"USD")+'</div>'+perPickHtml("eper")+'<div class="hintx" id="epm"></div>'+
+   '<div style="display:flex;gap:8px"><input type="number" id="ePrice" value="'+(puOn(x)?x.puv:(x.pl>0&&x.pcur?x.pl:(x.p==null?"":x.p)))+'" autocomplete="off" style="flex:1">'+curSelHtml("ecur",(x.pl>0&&x.pcur)?x.pcur:"USD")+'</div>'+perPickHtml("eper",puOn(x)?x.pu:"whole")+'<div class="hintx" id="epm"></div>'+
    (x.orig&&x.orig>x.p?'<div class="hintx">'+t("wasPrice")+' <span class="ltr">'+money(x.orig)+'</span></div>':'')+
    '</div>'+
   '<div class="fl"><label class="req">'+t("areaM")+'</label><input type="number" id="eArea" value="'+(x.m2||"")+'" autocomplete="off"></div></div>'+
@@ -4257,7 +4262,7 @@ function toUsdFrom(v, cur){ v=+v||0; cur=(cur||"USD").toUpperCase(); if(cur==="U
 // the size before saving (owner 2026-11-05: «سعر المتر 275$» was published as a $275 apartment). Sale only; the dunam
 // pill shows for land. The saved price is always the whole price, as the bot saves it.
 var PRICE_MIN = { sale: 500, rent: 10 };   // USD; below this the form refuses (owner 2026-11-05: $1 / $15 / $123 prices)
-function perPickHtml(name){ return '<div class="pick perpick" id="'+name+'Box">'+["whole","m2","dunam"].map(function(k){ return '<label class="per-'+k+'"><input type="radio" name="'+name+'" value="'+k+'"'+(k==="whole"?" checked":"")+'><span>'+GX("per_"+k)+'</span></label>' }).join("")+'</div>' }
+function perPickHtml(name,sel){ sel=sel||"whole"; return '<div class="pick perpick" id="'+name+'Box">'+["whole","m2","dunam"].map(function(k){ return '<label class="per-'+k+'"><input type="radio" name="'+name+'" value="'+k+'"'+(k===sel?" checked":"")+'><span>'+GX("per_"+k)+'</span></label>' }).join("")+'</div>' }
 function perOf(name){ return (($('input[name='+name+']:checked')||{}).value)||"whole" }
 function priceTotal(raw, per, m2){ raw=+raw||0; m2=+m2||0; if(!raw) return 0; return per==="m2" ? Math.round(raw*m2) : per==="dunam" ? Math.round(raw*m2/1000) : raw }
 // rent or a type change: back to «للعقار كاملاً»; the dunam pill only for land
@@ -6610,7 +6615,10 @@ function wire(){
    if(ADM.token&&!ADM.data) adminLoad(); };
  if($("#edt")) $("#edt").onclick=async function(){
    var id=VIEW.split(":")[1];
-   var _er=D.LIST.filter(function(l){return String(l.id)===String(id)})[0];
+   // own hidden/rejected/sold listings are only in MYLIST (the page itself found them there), never in the public D.LIST
+   var byId=function(l){return String(l.id)===String(id)};
+   var _er=(MYLIST||[]).filter(byId)[0] || D.LIST.filter(byId)[0];
+   if(!_er){ try{ await loadMyListings() }catch(x){} _er=(MYLIST||[]).filter(byId)[0] }
    EDIT={id:id,row:_er&&Object.assign({},_er),msg:"",photos:[],lat:(_er&&_er.lat)||null,lng:(_er&&_er.lng)||null,locTouched:false};
    VIEW="edit"; scrollTo(0,0); render();
    try{ var r=await rpc("bk_photos",{p_listing:+id}); EDIT.photos=r||[]; editMediaRedraw() }catch(e){} };
@@ -6664,8 +6672,9 @@ function wire(){
      var patch={};
      // always set price_usd (even to null): the server only clears a field when its key is present in the
      // patch at all, so leaving the key out when the field is cleared (the old behaviour) silently kept the old price
-     if(v("ePrice").trim()){ patch.price_usd=toUsdFrom(eTot, v("ecur")); var ec=(v("ecur")||"USD").toUpperCase(); patch.price_local = ec!=="USD" ? eTot : null; patch.price_cur = ec!=="USD" ? ec : null; }
-     else { patch.price_usd=null; patch.price_local=null; patch.price_cur=null; }
+     if(v("ePrice").trim()){ patch.price_usd=toUsdFrom(eTot, v("ecur")); var ec=(v("ecur")||"USD").toUpperCase(); patch.price_local = ec!=="USD" ? eTot : null; patch.price_cur = ec!=="USD" ? ec : null;
+       patch.price_unit = ePer!=="whole" ? ePer : null; patch.price_unit_value = ePer!=="whole" ? parseFloat(v("ePrice")) : null; }
+     else { patch.price_usd=null; patch.price_local=null; patch.price_cur=null; patch.price_unit=null; patch.price_unit_value=null; }
      if(v("eArea"))  patch.area_m2=+v("eArea");
      patch.rooms = v("eRooms")?+v("eRooms"):null;
      patch.baths = v("eBaths")?+v("eBaths"):null;
@@ -7319,10 +7328,13 @@ function readFile(f){
   });
 }
 
-function wmCfg(){ return { on:SX("wm_on",true)!==false, pos:SX("wm_pos","br")||"br", size:Math.min(40,Math.max(6,+SX("wm_size",14)||14)), op:Math.min(1,Math.max(.2,(+SX("wm_opacity",70)||70)/100)), video:SX("wm_video",true)!==false, lock:SX("wm_lock",true)!==false } }
+// pos "c" = BALKOUN.COM across the middle of the photo (size = its width in % of the photo); the corners keep the small mark
+function wmCfg(){ var pos=SX("wm_pos","c")||"c", mid=pos==="c";
+  return { on:SX("wm_on",true)!==false, pos:pos, size:Math.min(90,Math.max(6,+SX("wm_size",mid?86:14)||(mid?86:14))), op:Math.min(1,Math.max(.2,(+SX("wm_opacity",mid?40:70)||(mid?40:70))/100)), video:SX("wm_video",true)!==false, lock:SX("wm_lock",true)!==false } }
 // the brand mark and the word BALKOUN drawn into a canvas corner (the mark's own 100-unit geometry, scaled)
 function wmStamp(ctx,W,H){
   var c=wmCfg(); if(!c.on) return;
+  if(c.pos==="c") return wmStampMid(ctx,W,H,c);
   var mk=Math.max(22, Math.round(W*c.size/100*0.36)), m=Math.round(Math.max(8, W*0.03)), fontPx=Math.max(9, Math.round(mk*0.5));
   ctx.save(); ctx.globalAlpha=c.op; ctx.font="800 "+fontPx+"px Arial, Helvetica, sans-serif"; ctx.textBaseline="middle"; ctx.textAlign="left";
   var txt="BALKOUN", ls=Math.round(fontPx*0.14); if("letterSpacing" in ctx) ctx.letterSpacing=ls+"px";
@@ -7336,7 +7348,22 @@ function wmStamp(ctx,W,H){
   if(("letterSpacing" in ctx)){ ctx.fillText(txt, x+mk+gap, y+mk/2) } else { var cx=x+mk+gap; for(var i=0;i<txt.length;i++){ ctx.fillText(txt[i],cx,y+mk/2); cx+=ctx.measureText(txt[i]).width+ls } }
   ctx.restore();
 }
-function wmOverlayHtml(){ var c=wmCfg(); return c.video ? '<span class="wm-ov wm-'+c.pos+'" aria-hidden="true">'+brandMark()+'<b>BALKOUN</b></span>' : '' }
+// the mark and BALKOUN.COM in one line through the centre; the line is c.size % of the photo's width
+function wmStampMid(ctx,W,H,c){
+  var txt="BALKOUN.COM", fit=function(fp){ ctx.font="800 "+fp+"px Arial, Helvetica, sans-serif"; if("letterSpacing" in ctx) ctx.letterSpacing=Math.round(fp*0.14)+"px";
+    return ctx.measureText(txt).width+(("letterSpacing" in ctx)?0:Math.round(fp*0.14)*txt.length) };
+  var k=W*c.size/100/(100+35+fit(50)), mk=Math.max(22,Math.round(100*k)), fontPx=Math.max(9,Math.round(50*k)), tw=fit(fontPx), gap=Math.round(35*k), totalW=mk+gap+tw;
+  var x=Math.round((W-totalW)/2), y=Math.round((H-mk)/2), u=mk/100, ls=Math.round(fontPx*0.14);
+  ctx.save(); ctx.globalAlpha=c.op; fit(fontPx); ctx.textBaseline="middle"; ctx.textAlign="left";
+  ctx.shadowColor="rgba(0,0,0,.55)"; ctx.shadowBlur=Math.max(3, mk*0.25);
+  ctx.lineWidth=7*u; ctx.strokeStyle="#fff"; ctx.strokeRect(x+19*u,y+19*u,62*u,62*u);
+  ctx.lineWidth=9*u; ctx.strokeStyle="#C4881F"; ctx.beginPath(); ctx.moveTo(x+50*u,y+5*u); ctx.lineTo(x+95*u,y+50*u); ctx.lineTo(x+50*u,y+95*u); ctx.lineTo(x+5*u,y+50*u); ctx.closePath(); ctx.stroke();
+  ctx.fillStyle="#fff"; ctx.fillRect(x+42.5*u,y+42.5*u,15*u,15*u);
+  if(("letterSpacing" in ctx)){ ctx.fillText(txt, x+mk+gap, y+mk/2) } else { var cx=x+mk+gap; for(var i=0;i<txt.length;i++){ ctx.fillText(txt[i],cx,y+mk/2); cx+=ctx.measureText(txt[i]).width+ls } }
+  ctx.restore();
+}
+function wmOverlayHtml(){ var c=wmCfg(); if(!c.video) return ''; var mid=c.pos==="c";
+  return '<span class="wm-ov wm-'+c.pos+'" aria-hidden="true"'+(mid?' style="opacity:'+c.op+'"':'')+'>'+brandMark()+'<b>'+(mid?'BALKOUN.COM':'BALKOUN')+'</b></span>' }
 // nofullscreen: the lightbox is already a full view with its own ×. Chrome's native fullscreen button (Android) hands the
 // video to the browser's own fullscreen mode, whose "drag from the top to exit" toast sits over the control bar with no
 // usable way out. Chromium honours the token; Safari ignores controlsList entirely, so iPhone is untouched. Kept in one
@@ -7741,6 +7768,7 @@ function fromRow(r){
     days:Math.max(0,Math.round((Date.now()-new Date(r.created_at))/86400000)),
     createdAt:r.created_at||null,
     uid:r.user_id||null, orig:r.orig_price||null, status:r.status||'live', pl:(r.price_local!=null?+r.price_local:null), pcur:r.price_cur||null,
+    pu:(r.price_unit==="m2"||r.price_unit==="dunam")?r.price_unit:null, puv:(+r.price_unit_value>0?+r.price_unit_value:null),
     ocity:r.owner_city||null, ocountry:r.owner_country||null, oav:r.owner_avatar||null, clogo:!!r.owner_card_logo,
     aid:r.area_id||null,
     olevel:r.owner_level||"member", closedAt:r.closed_at||null, oJoined:r.owner_created_at||null,
@@ -8245,6 +8273,9 @@ async function savePost(){
       governorate_id: g.data.id,
       area_id: (a.data&&a.data[0])?a.data[0].id:null,
       price_usd: ppRaw ? toUsdFrom(ppRaw, val("pcur")) : null,   // empty → "السعر عند التواصل"
+      // a per-m² / per-dunam figure is kept as typed, next to the total (shown as «170$ للمتر», «الإجمالي ≈ …»)
+      price_unit: ppRaw && ($('input[name=dl]:checked')||{}).value!=="rent" && perOf("pper")!=="whole" ? perOf("pper") : null,
+      price_unit_value: ppRaw && ($('input[name=dl]:checked')||{}).value!=="rent" && perOf("pper")!=="whole" ? parseFloat(val("pp")) : null,
       price_local: ppRaw && (val("pcur")||"USD").toUpperCase()!=="USD" ? ppRaw : null,   // the poster's own figure, kept verbatim
       price_cur: ppRaw && (val("pcur")||"USD").toUpperCase()!=="USD" ? (val("pcur")||"").toUpperCase() : null,
       area_m2: Math.round((parseFloat(val("pm2"))||0) * (parseInt(val("pUnit"),10)||1)) || null,   // empty (a rental may leave it out) → null; the DB refuses 0
@@ -10079,6 +10110,8 @@ var GX_T={
   priceReqMsg:{ar:"السعر إلزامي: اكتب السعر قبل الحفظ",en:"A price is required: enter it before saving"},
   per_whole:{ar:"للعقار كاملاً",en:"Whole property",fr:"Prix total"}, per_m2:{ar:"للمتر",en:"Per m²",fr:"Par m²"}, per_dunam:{ar:"للدونم",en:"Per dunam",fr:"Par dounam"},
   per_dunamShort:{ar:"للدونم",en:"per dunam",fr:"par dounam"},
+  pu_m2:{ar:"للمتر",en:"per m²",fr:"par m²"}, pu_dunam:{ar:"للدونم",en:"per dunam",fr:"par dounam"},
+  pu_total:{ar:"الإجمالي ≈ {p}",en:"Total ≈ {p}",fr:"Total ≈ {p}"},
   per_total:{ar:"السعر الإجمالي: {p}",en:"Total price: {p}",fr:"Prix total : {p}"},
   per_needSize:{ar:"اكتب المساحة ليُحسب السعر الإجمالي",en:"Enter the size to work out the total price",fr:"Saisissez la surface pour calculer le prix total"},
   per_lowWarn:{ar:"السعر صغير جداً لهذه المساحة — إذا كان سعر المتر اختر «للمتر»",en:"Very low for this size — if it is the price per m², choose «Per m²»",fr:"Très bas pour cette surface — si c'est le prix au m², choisissez «Par m²»"},
@@ -11728,7 +11761,8 @@ window.PWA=(function(){
   document.addEventListener("visibilitychange", function(){ if(document.hidden){ _hiddenAt=Date.now(); return } if(_hiddenAt && Date.now()-_hiddenAt>60*1000){ _hiddenAt=0; try{ refreshListingsOnNavigate(); loadSiteContent(); loadGeo(); if(typeof syncFeaturedFromServer==="function") syncFeaturedFromServer() }catch(e){} } });
   window.addEventListener("pageshow", function(e){ if(e.persisted){ try{ refreshListingsOnNavigate(); loadSiteContent(); loadGeo() }catch(x){} } });
   window.addEventListener("offline", function(){ toast(GX("pwaOffline")) });
-  function shareApp(){ var u=location.origin+"/app";
+  // the link people get is the /android page (owner, 2026-11-09): it downloads the APK on Android, sends iPhone to /app
+  function shareApp(){ var u=location.origin+"/android/";
     if(navigator.share){ navigator.share({title:GX("pwaBannerT"), url:u}).catch(function(){}); return }
     try{ navigator.clipboard.writeText(u).then(function(){ toast(GX("pwaLinkCopied")) }) }catch(e){ prompt("", u) } }
   return { hasApp:hasApp, shareApp:shareApp, installable:installable, install:install, standalone:standalone, ios:iosSafari, platform:platform, stepsHtml:stepsHtml, canPrompt:function(){ return !!deferred }, syncBar:syncBar };

@@ -6615,7 +6615,10 @@ function wire(){
    if(ADM.token&&!ADM.data) adminLoad(); };
  if($("#edt")) $("#edt").onclick=async function(){
    var id=VIEW.split(":")[1];
-   var _er=D.LIST.filter(function(l){return String(l.id)===String(id)})[0];
+   // own hidden/rejected/sold listings are only in MYLIST (the page itself found them there), never in the public D.LIST
+   var byId=function(l){return String(l.id)===String(id)};
+   var _er=(MYLIST||[]).filter(byId)[0] || D.LIST.filter(byId)[0];
+   if(!_er){ try{ await loadMyListings() }catch(x){} _er=(MYLIST||[]).filter(byId)[0] }
    EDIT={id:id,row:_er&&Object.assign({},_er),msg:"",photos:[],lat:(_er&&_er.lat)||null,lng:(_er&&_er.lng)||null,locTouched:false};
    VIEW="edit"; scrollTo(0,0); render();
    try{ var r=await rpc("bk_photos",{p_listing:+id}); EDIT.photos=r||[]; editMediaRedraw() }catch(e){} };
@@ -7325,10 +7328,13 @@ function readFile(f){
   });
 }
 
-function wmCfg(){ return { on:SX("wm_on",true)!==false, pos:SX("wm_pos","br")||"br", size:Math.min(40,Math.max(6,+SX("wm_size",14)||14)), op:Math.min(1,Math.max(.2,(+SX("wm_opacity",70)||70)/100)), video:SX("wm_video",true)!==false, lock:SX("wm_lock",true)!==false } }
+// pos "c" = BALKOUN.COM across the middle of the photo (size = its width in % of the photo); the corners keep the small mark
+function wmCfg(){ var pos=SX("wm_pos","c")||"c", mid=pos==="c";
+  return { on:SX("wm_on",true)!==false, pos:pos, size:Math.min(90,Math.max(6,+SX("wm_size",mid?86:14)||(mid?86:14))), op:Math.min(1,Math.max(.2,(+SX("wm_opacity",mid?40:70)||(mid?40:70))/100)), video:SX("wm_video",true)!==false, lock:SX("wm_lock",true)!==false } }
 // the brand mark and the word BALKOUN drawn into a canvas corner (the mark's own 100-unit geometry, scaled)
 function wmStamp(ctx,W,H){
   var c=wmCfg(); if(!c.on) return;
+  if(c.pos==="c") return wmStampMid(ctx,W,H,c);
   var mk=Math.max(22, Math.round(W*c.size/100*0.36)), m=Math.round(Math.max(8, W*0.03)), fontPx=Math.max(9, Math.round(mk*0.5));
   ctx.save(); ctx.globalAlpha=c.op; ctx.font="800 "+fontPx+"px Arial, Helvetica, sans-serif"; ctx.textBaseline="middle"; ctx.textAlign="left";
   var txt="BALKOUN", ls=Math.round(fontPx*0.14); if("letterSpacing" in ctx) ctx.letterSpacing=ls+"px";
@@ -7342,7 +7348,22 @@ function wmStamp(ctx,W,H){
   if(("letterSpacing" in ctx)){ ctx.fillText(txt, x+mk+gap, y+mk/2) } else { var cx=x+mk+gap; for(var i=0;i<txt.length;i++){ ctx.fillText(txt[i],cx,y+mk/2); cx+=ctx.measureText(txt[i]).width+ls } }
   ctx.restore();
 }
-function wmOverlayHtml(){ var c=wmCfg(); return c.video ? '<span class="wm-ov wm-'+c.pos+'" aria-hidden="true">'+brandMark()+'<b>BALKOUN</b></span>' : '' }
+// the mark and BALKOUN.COM in one line through the centre; the line is c.size % of the photo's width
+function wmStampMid(ctx,W,H,c){
+  var txt="BALKOUN.COM", fit=function(fp){ ctx.font="800 "+fp+"px Arial, Helvetica, sans-serif"; if("letterSpacing" in ctx) ctx.letterSpacing=Math.round(fp*0.14)+"px";
+    return ctx.measureText(txt).width+(("letterSpacing" in ctx)?0:Math.round(fp*0.14)*txt.length) };
+  var k=W*c.size/100/(100+35+fit(50)), mk=Math.max(22,Math.round(100*k)), fontPx=Math.max(9,Math.round(50*k)), tw=fit(fontPx), gap=Math.round(35*k), totalW=mk+gap+tw;
+  var x=Math.round((W-totalW)/2), y=Math.round((H-mk)/2), u=mk/100, ls=Math.round(fontPx*0.14);
+  ctx.save(); ctx.globalAlpha=c.op; fit(fontPx); ctx.textBaseline="middle"; ctx.textAlign="left";
+  ctx.shadowColor="rgba(0,0,0,.55)"; ctx.shadowBlur=Math.max(3, mk*0.25);
+  ctx.lineWidth=7*u; ctx.strokeStyle="#fff"; ctx.strokeRect(x+19*u,y+19*u,62*u,62*u);
+  ctx.lineWidth=9*u; ctx.strokeStyle="#C4881F"; ctx.beginPath(); ctx.moveTo(x+50*u,y+5*u); ctx.lineTo(x+95*u,y+50*u); ctx.lineTo(x+50*u,y+95*u); ctx.lineTo(x+5*u,y+50*u); ctx.closePath(); ctx.stroke();
+  ctx.fillStyle="#fff"; ctx.fillRect(x+42.5*u,y+42.5*u,15*u,15*u);
+  if(("letterSpacing" in ctx)){ ctx.fillText(txt, x+mk+gap, y+mk/2) } else { var cx=x+mk+gap; for(var i=0;i<txt.length;i++){ ctx.fillText(txt[i],cx,y+mk/2); cx+=ctx.measureText(txt[i]).width+ls } }
+  ctx.restore();
+}
+function wmOverlayHtml(){ var c=wmCfg(); if(!c.video) return ''; var mid=c.pos==="c";
+  return '<span class="wm-ov wm-'+c.pos+'" aria-hidden="true"'+(mid?' style="opacity:'+c.op+'"':'')+'>'+brandMark()+'<b>'+(mid?'BALKOUN.COM':'BALKOUN')+'</b></span>' }
 // nofullscreen: the lightbox is already a full view with its own ×. Chrome's native fullscreen button (Android) hands the
 // video to the browser's own fullscreen mode, whose "drag from the top to exit" toast sits over the control bar with no
 // usable way out. Chromium honours the token; Safari ignores controlsList entirely, so iPhone is untouched. Kept in one
