@@ -357,7 +357,7 @@ var FR_GX={
   pjCalc:"Calculez votre mensualité", pjCalcP:"Choisissez une unité et un plan, ou saisissez un prix.", pjCalcUnit:"Unité", pjCalcPlan:"Plan", pjCalcPrice:"Prix (USD)", pjCustom:"Autre prix", pjLead:"Demander une offre", pjLeadSoon:"Manifester votre intérêt", pjLeadP:"Laissez votre numéro : le promoteur ou l'équipe Balkoun vous rappelle avec les détails et le plan de paiement.", pjName:"Nom", pjNote:"Remarque (facultatif)", pjSend:"Envoyer la demande", pjSent:"Envoyé. Nous vous contacterons bientôt.", pjDev:"Promoteur", pjDevPage:"Page du promoteur", pjEmpty:"Aucun projet correspondant pour l'instant.", pjSecEyebrow:"Projets neufs", pjSecH:"Achetez à crédit, directement auprès du promoteur.", pjSecSub:"Projets en construction et prêts, avec des plans de paiement et des prix clairs à la source.", pjSeeAll:"Voir tous les projets", pjLocation:"Emplacement", pjAbout:"À propos du projet", pjContact:"Contacter le promoteur", tProjects:"Projets",
   auBrandH:"Votre prochain chez-vous commence au balcon.", auBrandP:"Un seul compte pour enregistrer des annonces, publier vos offres et parler directement aux propriétaires et agences.", auB1:"Propriété vérifiée avant publication", auB2:"Aucune commission acheteur", auB3:"Contact direct sur WhatsApp", auTerms:"Conditions de publication", auNoAcct:"Pas encore de compte ?", auHaveAcct:"Déjà membre ?", mdWelcome:"Bienvenue sur Balkoun", mdWelcomeP:"Connectez-vous pour enregistrer des annonces et gérer vos offres.", mdMyAccount:"Mon compte",
   navLegalBoth:"Conseil juridique et démarches", soonBothT:"Conseil juridique et démarches immobilières", soonBothIntro:"Deux services en préparation sur Balkoun, bientôt disponibles :", soonLegalP:"Un conseil juridique fiable avant chaque étape : contrats de vente et de location, titres de propriété, procurations et litiges.", soonLegalTxP:"Vos démarches immobilières prises en charge : mutation, notaire et suivi auprès des administrations.", soonTeam:"Ces services sont assurés par des avocats professionnels agréés et des mandataires licenciés.",
-  agDir:"Agences immobilières", agDirShort:"Agences", agDirP:"Choisissez une agence qui connaît votre quartier maison par maison. Chaque agence ici a été vérifiée par l'équipe Balkoun.", agRegister:"Inscrire votre agence", agEditBtn:"Modifier le profil de l'agence", agSearchPH:"Agence ou quartier…", agAllGov:"Tous les gouvernorats", agAllSpec:"Toutes les spécialités", spec_sale:"Ventes", spec_rent:"Locations", spec_commercial:"Commercial", spec_land:"Terrains", agVerified:"Vérifiée", agLive:"{n} annonces en ligne", agEmpty:"Aucune agence correspondante pour l'instant.", agEmptyCta:"Soyez la première agence de ce quartier sur Balkoun.", agAreasServed:"Quartiers couverts", agCall:"Appeler", agWa:"WhatsApp", agEmail:"E-mail", agWeb:"Site web", agListingsH:"Les annonces de l'agence", agNoListings:"Aucune annonce en ligne pour le moment.", agMemberPage:"Page du membre et avis", agSince:"Sur Balkoun depuis {y}",
+  agDir:"Agences immobilières", agDirShort:"Agences", agDirP:"Choisissez une agence qui connaît votre quartier maison par maison. Chaque agence ici a été vérifiée par l'équipe Balkoun.", agRegister:"Inscrire votre agence", agEditBtn:"Modifier le profil de l'agence", agSearchPH:"Agence ou quartier…", agAllGov:"Tous les gouvernorats", agAllSpec:"Toutes les spécialités", spec_sale:"Ventes", spec_rent:"Locations", spec_commercial:"Commercial", spec_land:"Terrains", agVerified:"Vérifiée", agNoDesc:"Pas encore de description", agNoArea:"Zone non précisée", agLive:"{n} annonces en ligne", agEmpty:"Aucune agence correspondante pour l'instant.", agEmptyCta:"Soyez la première agence de ce quartier sur Balkoun.", agAreasServed:"Quartiers couverts", agCall:"Appeler", agWa:"WhatsApp", agEmail:"E-mail", agWeb:"Site web", agListingsH:"Les annonces de l'agence", agNoListings:"Aucune annonce en ligne pour le moment.", agMemberPage:"Page du membre et avis", agSince:"Sur Balkoun depuis {y}",
   agFormT:"Profil de l'agence", agFormP:"Complétez le profil de votre agence pour apparaître dans l'annuaire après validation par l'équipe Balkoun.", agLogoHint:"La photo de votre compte sert de logo ; modifiez-la dans", agAccountP:"Vous êtes une agence ? Inscrivez-la pour que les chercheurs de votre quartier vous trouvent dans l'annuaire.", f_agName:"Nom de l'agence", f_agDesc:"À propos de l'agence", f_agPhone:"Téléphone de l'agence", f_agWa:"WhatsApp", f_agEmail:"E-mail", f_agWeb:"Site web", f_agAddress:"Adresse", f_agGovs:"Gouvernorats couverts", f_agAreas:"Quartiers", f_agSpecs:"Spécialités", agSaved:"Enregistré. L'équipe Balkoun examinera et validera l'agence bientôt.", agSavedOk:"Enregistré.", st_pending:"En attente de validation", st_approved:"Approuvée et listée", st_rejected:"Refusée", st_hidden:"Masquée", tAgencies:"Agences",
   navLegal:"Consultations juridiques", navLegalTx:"Démarches juridiques", soon:"Bientôt", mdServices:"Services", soonAsk:"Demandez-nous sur WhatsApp", soonOk:"OK", altResH:"Rien ne correspond ici — annonces similaires ailleurs", altResH2:"Rien ne correspond — voici les dernières annonces", altResBtn:"Afficher toutes les annonces", allAreas:"Tous les quartiers", city:"Ville", area:"Quartier", village:"Village",
   price:"Prix", anyPrice:"Tout prix", from:"De", to:"À", done:"OK", upTo:"Jusqu'à", andUp:"et plus", map:"Carte", cSince:"il y a {d} jours", lAllPhotos:"Toutes les photos", lIn:"à", byOwner:"Directement du propriétaire", lgProp:"Le bien", lgLoc:"Emplacement", lgRent:"Conditions de location", adsH:"Annonces en vedette", sponsored:"Sponsorisé", featured:"En vedette",
@@ -4516,13 +4516,15 @@ async function loadAgencies(){ if(!DB){ AGENCIES=[]; return } try{ var r=await D
 async function loadAgency(id){ if(!DB){ AGENCY={missing:true,id:id}; return } try{ var r=await DB.rpc("bk_agency_get",{p_id:+id}); AGENCY=(r&&r.data)||{missing:true,id:id} }catch(e){ AGENCY={missing:true,id:id} } }
 async function loadMyAgency(){ if(!DB||!USER){ MYAGENCY=false; return } try{ var r=await DB.rpc("bk_agency_mine",{p_token:USER.token||null}); MYAGENCY=(r&&r.data)||false }catch(e){ MYAGENCY=false } }
 function agStatusPill(st){ var m={pending:["pending","st_pending"],approved:["live","st_approved"],rejected:["expired","st_rejected"],hidden:["expired","st_hidden"]}[st]||["pending","st_pending"]; return '<span class="st st-'+m[0]+'">'+GX(m[1])+'</span>' }
+// the letter in a logo-less agency's circle comes from its own name, not from «مكتب …» / «ال…» (most cards showed م or ا)
+function agIni(n){ var w=String(n||"").trim().split(/\s+/), i=0; while(i<w.length-1 && /^(مكتب|مكاتب|مؤسسة|شركة|عقارات)$/.test(w[i])) i++; return (w[i]||"").replace(/^ال(?=..)/,"")||n }
 function agCard(a){
   var ar=L==="ar", areas=(a.area_names||[]).slice(0,3).map(aN), more=(a.area_names||[]).length-3;
   return '<div class="agcard" data-agopen="'+a.id+'" role="link" tabindex="0">'+
-    '<div class="aghead">'+avatar(a.logo_url,a.name,56,"aglogo")+'<div class="agname"><b>'+esc(a.name)+(a.verified?' <span class="vbadge">✓ '+GX("agVerified")+'</span>':'')+'</b>'+
+    '<div class="aghead">'+avatar(a.logo_url,agIni(a.name),56,"aglogo")+'<div class="agname"><b>'+esc(a.name)+'</b>'+(a.verified?'<span class="vbadge">✓ '+GX("agVerified")+'</span>':'')+
       '<span class="agspecs">'+(a.specialties||[]).map(function(k){ return '<i>'+agSpecLabel(k)+'</i>' }).join("")+'</span></div></div>'+
-    (a.description?'<p class="agdesc">'+esc(a.description).slice(0,150)+(a.description.length>150?"…":"")+'</p>':'')+
-    '<div class="agareas">'+MI.map+'<span>'+((a.gov_names||[]).map(gN).join(ar?"، ":", ")||"—")+(areas.length?' · '+areas.join(ar?"، ":", ")+(more>0?' <b>+'+more+'</b>':''):'')+'</span></div>'+
+    (a.description?'<p class="agdesc">'+esc(a.description).slice(0,150)+(a.description.length>150?"…":"")+'</p>':'<p class="agdesc empty">'+GX("agNoDesc")+'</p>')+
+    '<div class="agareas'+(!(a.gov_names||[]).length&&!areas.length?' empty':'')+'">'+MI.map+'<span>'+(!(a.gov_names||[]).length&&!areas.length?GX("agNoArea"):((a.gov_names||[]).map(gN).join(ar?"، ":", ")||"—")+(areas.length?' · '+areas.join(ar?"، ":", ")+(more>0?' <b>+'+more+'</b>':''):''))+'</span></div>'+
     '<div class="agfoot"><span class="agcount">'+GX("agLive").replace("{n}",'<b class="ltr">'+(a.live||0)+'</b>')+'</span>'+
       '<span class="agacts">'+(a.hide_phone?'<a class="agbtn" data-aginq="'+a.id+'" data-aguser="'+esc(a.user_id||"")+'" data-stop title="'+esc(GX("hpMessageAg"))+'">'+MI.msgs+'</a>':'')+((a.whatsapp||a.phone)?'<a class="agbtn wa" href="https://wa.me/'+esc(String(a.whatsapp||a.phone).replace(/\D/g,""))+'" target="_blank" rel="noopener" data-stop>'+MI.msgs+'</a>':'')+(a.phone?'<a class="agbtn" href="tel:'+esc(a.phone)+'" data-stop>'+MI.phone+'</a>':'')+'</span></div></div>' }
 function agenciesPage(){
@@ -6533,6 +6535,7 @@ function wire(){
    if($("#gPrev")) $("#gPrev").onclick=function(){ set(GI-1) };
    if($("#gNext")) $("#gNext").onclick=function(){ set(GI+1) };
    $$("#gth [data-i]").forEach(function(im){ im.onclick=function(){ set(+im.dataset.i) } });
+   [$("#gvideo"),$("#vlbVideo")].forEach(function(v){ if(v&&v.readyState>=1) wmFitOv(v) });   // metadata already in (cached): the loadedmetadata listener has missed it
    var gv=$("#gvideo"); if(gv){ var gs=window._gvState; if(gs && gs.url===gv.getAttribute("src")){ try{ gv.currentTime=gs.t||0 }catch(e){} if(!gs.paused && !VLB_OPEN) gv.play().catch(function(){}) }
      var recV=function(){ window._gvState={url:gv.getAttribute("src"),t:gv.currentTime,paused:gv.paused} }; ["timeupdate","pause","play","seeked"].forEach(function(ev){ gv.addEventListener(ev,recV) }) }
    // swipe through photos on touch screens (gallery and lightbox); a swipe must not also count as a tap
@@ -7328,7 +7331,8 @@ function readFile(f){
   });
 }
 
-// pos "c" = BALKOUN.COM across the middle of the photo (size = its width in % of the photo); the corners keep the small mark
+// pos "c" = BALKOUN.COM across the middle of the photo (size = its width in % of the photo's shorter side, so a card that crops a
+// wide photo to its centre still shows the whole line); the corners keep the small mark
 function wmCfg(){ var pos=SX("wm_pos","c")||"c", mid=pos==="c";
   return { on:SX("wm_on",true)!==false, pos:pos, size:Math.min(90,Math.max(6,+SX("wm_size",mid?86:14)||(mid?86:14))), op:Math.min(1,Math.max(.2,(+SX("wm_opacity",mid?40:70)||(mid?40:70))/100)), video:SX("wm_video",true)!==false, lock:SX("wm_lock",true)!==false } }
 // the brand mark and the word BALKOUN drawn into a canvas corner (the mark's own 100-unit geometry, scaled)
@@ -7348,11 +7352,11 @@ function wmStamp(ctx,W,H){
   if(("letterSpacing" in ctx)){ ctx.fillText(txt, x+mk+gap, y+mk/2) } else { var cx=x+mk+gap; for(var i=0;i<txt.length;i++){ ctx.fillText(txt[i],cx,y+mk/2); cx+=ctx.measureText(txt[i]).width+ls } }
   ctx.restore();
 }
-// the mark and BALKOUN.COM in one line through the centre; the line is c.size % of the photo's width
+// the mark and BALKOUN.COM in one line through the centre; the line is c.size % of the photo's shorter side
 function wmStampMid(ctx,W,H,c){
   var txt="BALKOUN.COM", fit=function(fp){ ctx.font="800 "+fp+"px Arial, Helvetica, sans-serif"; if("letterSpacing" in ctx) ctx.letterSpacing=Math.round(fp*0.14)+"px";
     return ctx.measureText(txt).width+(("letterSpacing" in ctx)?0:Math.round(fp*0.14)*txt.length) };
-  var k=W*c.size/100/(100+35+fit(50)), mk=Math.max(22,Math.round(100*k)), fontPx=Math.max(9,Math.round(50*k)), tw=fit(fontPx), gap=Math.round(35*k), totalW=mk+gap+tw;
+  var k=Math.min(W,H)*c.size/100/(100+35+fit(50)), mk=Math.max(22,Math.round(100*k)), fontPx=Math.max(9,Math.round(50*k)), tw=fit(fontPx), gap=Math.round(35*k), totalW=mk+gap+tw;
   var x=Math.round((W-totalW)/2), y=Math.round((H-mk)/2), u=mk/100, ls=Math.round(fontPx*0.14);
   ctx.save(); ctx.globalAlpha=c.op; fit(fontPx); ctx.textBaseline="middle"; ctx.textAlign="left";
   ctx.shadowColor="rgba(0,0,0,.55)"; ctx.shadowBlur=Math.max(3, mk*0.25);
@@ -7364,6 +7368,14 @@ function wmStampMid(ctx,W,H,c){
 }
 function wmOverlayHtml(){ var c=wmCfg(); if(!c.video) return ''; var mid=c.pos==="c";
   return '<span class="wm-ov wm-'+c.pos+'" aria-hidden="true"'+(mid?' style="opacity:'+c.op+'"':'')+'>'+brandMark()+'<b>'+(mid?'BALKOUN.COM':'BALKOUN')+'</b></span>' }
+// the centre line over a video is sized to the picture the player really shows (contain leaves bars around a tall video),
+// c.size % of that picture's shorter side, the same as the stamp on the photos
+function wmFitOv(v){ var o=v&&v.nextElementSibling; if(!o||!o.classList||!o.classList.contains("wm-c")||!v.videoWidth) return;
+  var w=v.clientWidth, h=v.clientHeight; if(!w||!h) return;
+  var s=(getComputedStyle(v).objectFit==="cover"?Math.max:Math.min)(w/v.videoWidth,h/v.videoHeight), t=Math.min(w,v.videoWidth*s,h,v.videoHeight*s)*wmCfg().size/100;
+  o.style.fontSize=""; var f=parseFloat(getComputedStyle(o).fontSize), ow=o.offsetWidth; if(f&&ow) o.style.fontSize=(f*t/ow).toFixed(2)+"px" }
+document.addEventListener("loadedmetadata",function(e){ if(e.target.tagName==="VIDEO") wmFitOv(e.target) },true);
+addEventListener("resize",function(){ document.querySelectorAll("video").forEach(wmFitOv) });
 // nofullscreen: the lightbox is already a full view with its own ×. Chrome's native fullscreen button (Android) hands the
 // video to the browser's own fullscreen mode, whose "drag from the top to exit" toast sits over the control bar with no
 // usable way out. Chromium honours the token; Safari ignores controlsList entirely, so iPhone is untouched. Kept in one
@@ -10321,7 +10333,7 @@ var GX_T={
   agRegister:{ar:"سجّل مكتبك",en:"Register your agency"}, agEditBtn:{ar:"تعديل بيانات المكتب",en:"Edit agency profile"},
   agSearchPH:{ar:"ابحث باسم المكتب أو المنطقة…",en:"Search by agency or area…"}, agAllGov:{ar:"كل المحافظات",en:"All governorates"}, agAllSpec:{ar:"كل التخصصات",en:"All specialties"},
   spec_sale:{ar:"بيع",en:"Sales"}, spec_rent:{ar:"إيجار",en:"Rentals"}, spec_commercial:{ar:"تجاري",en:"Commercial"}, spec_land:{ar:"أراضٍ",en:"Land"},
-  agVerified:{ar:"مكتب موثّق",en:"Verified"}, agLive:{ar:"{n} إعلان حيّ",en:"{n} live listings"},
+  agVerified:{ar:"مكتب موثّق",en:"Verified"}, agNoDesc:{ar:"لم يُضِف المكتب وصفاً بعد",en:"No description yet"}, agNoArea:{ar:"لم تُحدَّد المنطقة",en:"Area not set"}, agLive:{ar:"{n} إعلان حيّ",en:"{n} live listings"},
   agEmpty:{ar:"لا مكاتب مطابقة بعد.",en:"No matching agencies yet."}, agEmptyCta:{ar:"كن أول مكتب في هذه المنطقة على بلكون.",en:"Be the first agency for this area on Balkoun."},
   agAreasServed:{ar:"المناطق التي يخدمها المكتب",en:"Areas served"}, agCall:{ar:"اتصال",en:"Call"}, agWa:{ar:"واتساب",en:"WhatsApp"}, agEmail:{ar:"بريد",en:"Email"}, agWeb:{ar:"الموقع",en:"Website"},
   agListingsH:{ar:"إعلانات المكتب",en:"The agency's listings"}, agNoListings:{ar:"لا إعلانات حيّة حالياً.",en:"No live listings at the moment."},
