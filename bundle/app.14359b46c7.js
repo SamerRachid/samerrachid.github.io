@@ -6533,6 +6533,7 @@ function wire(){
    if($("#gPrev")) $("#gPrev").onclick=function(){ set(GI-1) };
    if($("#gNext")) $("#gNext").onclick=function(){ set(GI+1) };
    $$("#gth [data-i]").forEach(function(im){ im.onclick=function(){ set(+im.dataset.i) } });
+   [$("#gvideo"),$("#vlbVideo")].forEach(function(v){ if(v&&v.readyState>=1) wmFitOv(v) });   // metadata already in (cached): the loadedmetadata listener has missed it
    var gv=$("#gvideo"); if(gv){ var gs=window._gvState; if(gs && gs.url===gv.getAttribute("src")){ try{ gv.currentTime=gs.t||0 }catch(e){} if(!gs.paused && !VLB_OPEN) gv.play().catch(function(){}) }
      var recV=function(){ window._gvState={url:gv.getAttribute("src"),t:gv.currentTime,paused:gv.paused} }; ["timeupdate","pause","play","seeked"].forEach(function(ev){ gv.addEventListener(ev,recV) }) }
    // swipe through photos on touch screens (gallery and lightbox); a swipe must not also count as a tap
@@ -7328,7 +7329,8 @@ function readFile(f){
   });
 }
 
-// pos "c" = BALKOUN.COM across the middle of the photo (size = its width in % of the photo); the corners keep the small mark
+// pos "c" = BALKOUN.COM across the middle of the photo (size = its width in % of the photo's shorter side, so a card that crops a
+// wide photo to its centre still shows the whole line); the corners keep the small mark
 function wmCfg(){ var pos=SX("wm_pos","c")||"c", mid=pos==="c";
   return { on:SX("wm_on",true)!==false, pos:pos, size:Math.min(90,Math.max(6,+SX("wm_size",mid?86:14)||(mid?86:14))), op:Math.min(1,Math.max(.2,(+SX("wm_opacity",mid?40:70)||(mid?40:70))/100)), video:SX("wm_video",true)!==false, lock:SX("wm_lock",true)!==false } }
 // the brand mark and the word BALKOUN drawn into a canvas corner (the mark's own 100-unit geometry, scaled)
@@ -7348,11 +7350,11 @@ function wmStamp(ctx,W,H){
   if(("letterSpacing" in ctx)){ ctx.fillText(txt, x+mk+gap, y+mk/2) } else { var cx=x+mk+gap; for(var i=0;i<txt.length;i++){ ctx.fillText(txt[i],cx,y+mk/2); cx+=ctx.measureText(txt[i]).width+ls } }
   ctx.restore();
 }
-// the mark and BALKOUN.COM in one line through the centre; the line is c.size % of the photo's width
+// the mark and BALKOUN.COM in one line through the centre; the line is c.size % of the photo's shorter side
 function wmStampMid(ctx,W,H,c){
   var txt="BALKOUN.COM", fit=function(fp){ ctx.font="800 "+fp+"px Arial, Helvetica, sans-serif"; if("letterSpacing" in ctx) ctx.letterSpacing=Math.round(fp*0.14)+"px";
     return ctx.measureText(txt).width+(("letterSpacing" in ctx)?0:Math.round(fp*0.14)*txt.length) };
-  var k=W*c.size/100/(100+35+fit(50)), mk=Math.max(22,Math.round(100*k)), fontPx=Math.max(9,Math.round(50*k)), tw=fit(fontPx), gap=Math.round(35*k), totalW=mk+gap+tw;
+  var k=Math.min(W,H)*c.size/100/(100+35+fit(50)), mk=Math.max(22,Math.round(100*k)), fontPx=Math.max(9,Math.round(50*k)), tw=fit(fontPx), gap=Math.round(35*k), totalW=mk+gap+tw;
   var x=Math.round((W-totalW)/2), y=Math.round((H-mk)/2), u=mk/100, ls=Math.round(fontPx*0.14);
   ctx.save(); ctx.globalAlpha=c.op; fit(fontPx); ctx.textBaseline="middle"; ctx.textAlign="left";
   ctx.shadowColor="rgba(0,0,0,.55)"; ctx.shadowBlur=Math.max(3, mk*0.25);
@@ -7364,6 +7366,14 @@ function wmStampMid(ctx,W,H,c){
 }
 function wmOverlayHtml(){ var c=wmCfg(); if(!c.video) return ''; var mid=c.pos==="c";
   return '<span class="wm-ov wm-'+c.pos+'" aria-hidden="true"'+(mid?' style="opacity:'+c.op+'"':'')+'>'+brandMark()+'<b>'+(mid?'BALKOUN.COM':'BALKOUN')+'</b></span>' }
+// the centre line over a video is sized to the picture the player really shows (contain leaves bars around a tall video),
+// c.size % of that picture's shorter side, the same as the stamp on the photos
+function wmFitOv(v){ var o=v&&v.nextElementSibling; if(!o||!o.classList||!o.classList.contains("wm-c")||!v.videoWidth) return;
+  var w=v.clientWidth, h=v.clientHeight; if(!w||!h) return;
+  var s=(getComputedStyle(v).objectFit==="cover"?Math.max:Math.min)(w/v.videoWidth,h/v.videoHeight), t=Math.min(w,v.videoWidth*s,h,v.videoHeight*s)*wmCfg().size/100;
+  o.style.fontSize=""; var f=parseFloat(getComputedStyle(o).fontSize), ow=o.offsetWidth; if(f&&ow) o.style.fontSize=(f*t/ow).toFixed(2)+"px" }
+document.addEventListener("loadedmetadata",function(e){ if(e.target.tagName==="VIDEO") wmFitOv(e.target) },true);
+addEventListener("resize",function(){ document.querySelectorAll("video").forEach(wmFitOv) });
 // nofullscreen: the lightbox is already a full view with its own ×. Chrome's native fullscreen button (Android) hands the
 // video to the browser's own fullscreen mode, whose "drag from the top to exit" toast sits over the control bar with no
 // usable way out. Chromium honours the token; Safari ignores controlsList entirely, so iPhone is untouched. Kept in one

@@ -592,8 +592,9 @@ async function stamp(img: any, wm: Wm) {
   const base = await wmImage(mid ? "wm-c.png" : "wm.png"); if (!base) return;
   const { Image } = await imgLib();
   const W = img.width, H = img.height;
-  if (mid) {   // the PNG has a 24px margin around 1264px of drawing, so the drawing itself ends up wm.size % wide
-    const s = base.clone().resize(Math.max(60, Math.round(W * (wm.size / 100) * 1312 / 1264)), Image.RESIZE_AUTO);
+  if (mid) {   // the PNG has a 24px margin around 1264px of drawing, so the drawing itself ends up wm.size % of the shorter side
+    // (a search card crops a wide photo to its centre; sized on the width, the line's ends were cut off there)
+    const s = base.clone().resize(Math.max(60, Math.round(Math.min(W, H) * (wm.size / 100) * 1312 / 1264)), Image.RESIZE_AUTO);
     s.opacity(wm.op);
     img.composite(s, Math.round((W - s.width) / 2), Math.round((H - s.height) / 2));
     return;
