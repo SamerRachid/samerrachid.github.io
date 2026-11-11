@@ -528,6 +528,8 @@ window.__BK_LANG={lang:"de",t:{"D":[[["I18N"],"de",{"buy": "Kaufen","rent": "Mie
 [["spec_commercial"],"de","Gewerbe",0],
 [["spec_land"],"de","Grundstücke",0],
 [["agVerified"],"de","Verifiziert",0],
+[["agNoDesc"],"de","Noch keine Beschreibung",0],
+[["agNoArea"],"de","Gebiet nicht angegeben",0],
 [["agLive"],"de","{n} aktive Anzeigen",0],
 [["agEmpty"],"de","Noch keine passenden Büros.",0],
 [["agEmptyCta"],"de","Seien Sie das erste Büro für dieses Gebiet auf Balkoun.",0],

@@ -9056,7 +9056,7 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
     types:function(){ return HSON("types") ? '<div class="wrap"><section class="sec" id="typesSec"><div class="eyebrow">'+HT("types_eyebrow",HX("pickE"))+'</div><h2>'+HT("types_h",t("pickH"))+'</h2>'+typeList()+'</section></div>' : "" },
     trust:function(){ return HSON("trust") ? homeTrustHtml() : "" },
     expl:function(){ var map=SX("expl_map_enabled",true)!==false; return HSON("expl") ? '<div class="wrap"><section class="sec" id="explSec"><div class="expl'+(map?'':' nomap')+'"><div><div class="eyebrow">'+HT("expl_eyebrow",HX("govE"))+'</div><h2>'+HT("expl_h",t("govH"))+'</h2><div class="sub">'+HT("expl_sub",COUNTRY==="SY"?t("govS"):govSubAuto())+'</div><div class="govs">'+
-       Object.keys(D.GEO).map(function(g){return '<a data-go="search" data-gov="'+g+'">'+gN(g)+'<span class="ltr">'+D.GEO[g].length+'</span></a>'}).join("")+'</div></div>'+(map?(COUNTRY==="SY"?syriaMapHtml():countryMapHtml()):'')+'</div></section></div>' : "" },
+       Object.keys(D.GEO).map(function(g){return '<a data-go="search" data-gov="'+g+'">'+gN(g)+govCnt(g)+'</a>'}).join("")+'</div></div>'+(map?(COUNTRY==="SY"?syriaMapHtml():countryMapHtml()):'')+'</div></section></div>' : "" },
     band:function(){ return (USER || !HSON("band")) ? "" : '<div class="wrap"><div class="band frame'+(bandImgHtml()?'':' noimg')+'" id="bandSec"><div class="band-tx"><div class="eyebrow">'+HT("band_eyebrow",HX("ownE"))+'</div><h2>'+HT("band_h",t("bandH"))+'</h2><p>'+HT("band_p",t("bandP"))+'</p><div class="bandlist">'+
        '<span>'+HT("band_b1",t("b1"))+'</span><span>'+HT("band_b2",t("b2"))+'</span><span>'+HT("band_b3",t("b3"))+'</span></div>'+
        '<a class="gold" data-go="post" style="text-decoration:none">'+HT("band_btn",t("bandBtn"))+'</a></div>'+
@@ -9068,18 +9068,23 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
 }
 // the most viewed live listings (views come with the public listing rows); hides itself until a few listings have been seen
 function homePopularHtml(){
-  var n=Math.max(4, Math.min(12, +SX("popular_n",8)||8));
+  var n=Math.round(Math.max(3, Math.min(12, +SX("popular_n",9)||9))/3)*3;   // the cards sit three to a row, so 8 showed two rows and a gap (owner 2026-11-10)
   var list=srvOn() ? srvList(SRV.home,"pop|"+COUNTRY,{minViews:1},"views",12,/^home$/).slice(0,n) : D.LIST.filter(function(x){ return (x.status||"live")==="live" && (+x.vw||0)>0 }).sort(function(a,b){ return (+b.vw||0)-(+a.vw||0) }).slice(0,n);
   if(list.length<3) return "";
+  list=list.slice(0,list.length-list.length%3);
   return '<div class="wrap"><section class="sec" id="popularSec"><div class="eyebrow">'+HT("popular_eyebrow",HX("popE"))+'</div><h2>'+HT("popular_h",HX("popH"))+'</h2><div class="sub">'+HT("popular_sub",HX("popS"))+'</div>'+
     '<div class="res">'+list.map(function(x,i){ return card(x,i,false) }).join("")+'</div></section></div>' }
+// a governorate tile's live listing count («394 إعلاناً»); a governorate without listings shows its name only (owner 2026-11-10, choice ب)
+function govCnt(g){ var n=+((CNT.byGov||{})[g])||0; if(!n) return "";
+  var r=n%100, w=L==="ar"?(n===1?"إعلان":n===2?"إعلانان":(r>=3&&r<=10)?"إعلانات":(r>=11||n<100)?"إعلاناً":"إعلان"):L==="de"?(n===1?"Inserat":"Inserate"):L==="fr"?(n===1?"annonce":"annonces"):(n===1?"listing":"listings");
+  return '<span class="gcnt"><span class="ltr">'+n+'</span> '+w+'</span>' }
 // a short, honest text about the market the site serves (what search engines and first-time visitors both need to read), with the governorates as links
 function homeAboutHtml(){
   var govs=Object.keys(D.GEO).filter(function(g){ return D.GEO[g].length });
   var p=HT("about_p",HX(COUNTRY==="SY"?"aboutP":"aboutP_x"));
   return '<div class="wrap"><section class="sec aboutsec" id="aboutSec"><div class="eyebrow">'+HT("about_eyebrow",HX("aboutE"))+'</div><h2>'+HT("about_h",HX(COUNTRY==="SY"?"aboutH":"aboutH_x"))+'</h2>'+
     '<div class="aboutcols"><div class="aboutp">'+p.split(/\n+/).map(function(x){ return x.trim()?'<p>'+x+'</p>':'' }).join("")+'</div>'+
-    '<div class="aboutlinks"><div class="govs">'+govs.map(function(g){ return '<a data-go="search" data-gov="'+g+'">'+gN(g)+'<span class="ltr">'+D.GEO[g].length+'</span></a>' }).join("")+'</div>'+
+    '<div class="aboutlinks"><div class="govs">'+govs.map(function(g){ return '<a data-go="search" data-gov="'+g+'">'+gN(g)+govCnt(g)+'</a>' }).join("")+'</div>'+
     '<div class="aboutmore"><a class="gh" data-go="agencies">'+GX("agDirShort")+'</a>'+(COUNTRY==="SY"?'<a class="gh" href="'+(L==="ar"?"":"/"+L)+'/guides/">'+GX("guidesAll")+'</a>':'')+'<a class="gh" data-go="post">'+t("bandBtn")+'</a></div></div></div></section></div>' }
 function homeCollectionsHtml(){
   var cards=[["damascene","c1","c1s","دمشق"],["orchards","c2","c2s","دمشق"],["latakia","c3","c3s","اللاذقية"],["bloudan","c4","c4s","ريف دمشق"]];

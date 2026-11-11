@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-SYaYdwfKmSJ31alE6GObS62fYcx+jAcaFTycN2oFJkU=' 'sha256-nzW+pdGKjPsCMXC6TzraY5glEN+FwzRyixBGe17Cozw=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-SYaYdwfKmSJ31alE6GObS62fYcx+jAcaFTycN2oFJkU=' 'sha256-O2Dz8LgSjybE2ofxgFlBdEEkAI3COUJHnAxIcbAoDpw=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -353,6 +353,7 @@ html.js .rv.in{opacity:1;transform:none}
 .qfteaser-wrap{position:relative;margin:26px 0 0}
 .qfteaser{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid var(--gold);border-radius:14px;padding-block:16px;padding-inline-start:20px;padding-inline-end:44px;box-shadow:0 2px 12px rgba(196,136,31,.1);cursor:pointer;text-decoration:none;color:inherit}
 .qfteaser-ico{flex:none;width:44px;height:44px;border-radius:50%;background:var(--gold-w);color:var(--gold);display:grid;place-items:center}
+.qfteaser-ico .bmark{width:28px;height:28px;display:block}   /* the header's mark (mark.svg's navy lines vanished on the dark theme, owner 2026-11-10) */
 .qfteaser-tx{flex:1;min-width:0}
 .qfteaser-tx b{display:block;font-size:15px;color:var(--navy)}
 .qfteaser-tx small{display:block;font-size:13px;color:var(--grey);margin-top:2px;line-height:1.5}
@@ -1061,7 +1062,13 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
 .aboutsec .aboutp p{font-size:15.5px;line-height:1.95;color:var(--ink);margin:0 0 12px}
 .home-hero .aboutsec{padding-top:8px}
 .aboutsec .aboutlinks .govs{display:flex;flex-wrap:wrap;gap:8px}
-.aboutsec .aboutmore{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.aboutsec .aboutmore{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.aboutsec .aboutmore a.gh{display:inline-flex;align-items:center;gap:8px;width:auto;flex:none;padding:10px 18px;border-radius:999px;border:1px solid var(--gold);background:transparent;color:var(--gold);font-weight:700;font-size:14px;text-decoration:none;margin:0}
+.aboutsec .aboutmore a.gh::after{content:"←";font-size:15px;line-height:1}
+html[dir=ltr] .aboutsec .aboutmore a.gh::after{content:"→"}
+.aboutsec .aboutmore a.gh:last-child{background:var(--gold);color:#14213D}
+.govs a .gcnt{font-size:12.5px;white-space:nowrap;opacity:.85}
+html body .aboutsec .aboutlinks .govs a{flex-direction:column;align-items:flex-start;justify-content:center;gap:2px}   /* four narrow tiles a row: the count goes under the name */
 @media(max-width:860px){.aboutsec .aboutcols{grid-template-columns:1fr;gap:16px}.aboutsec .aboutp p{font-size:14.5px;line-height:1.85}}
 /* ── crawlable home content written by scripts/generate-pages.mjs (see the seo-home markers inside #app); the first render replaces it. With scripts
    on, it is hidden from the eye and a navy splash shows while the page is parsed (no "other page" flashing by) ── */
@@ -5111,7 +5118,7 @@ html.adm-dark .adm .hs-tile{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .hs-tile-ic{background:hsla(39,39%,17%,1);color:hsla(38,79%,72%,1)}
 html.adm-dark .adm .hs-ver>i{background:hsla(220,8%,26%,1)}
 /* ADM-DARK:END */
-</style><link rel="stylesheet" href="/theme-hu.css?v=202611101759">
+</style><link rel="stylesheet" href="/theme-hu.css?v=202611102116">
 <body>
 <div id="bootSplash" aria-hidden="true"></div>
 <div id="app" role="main"><!--seo-home--><div class="seo-home" id="seoHome"><h1>عقارات سوريا للبيع والإيجار، من المالك مباشرة</h1><p>شقق وبيوت وأراضٍ في كل محافظات سوريا، مع حالة الطابو في كل إعلان وبدون عمولة.</p><h2>سوق العقارات في سوريا، بمكان واحد وبلغة واضحة</h2><p>بلكون موقع عقاري سوري يجمع الشقق والبيوت والفلل والأراضي والمحلات للبيع والإيجار في كل المحافظات: دمشق وريفها، حلب، حمص، حماة، اللاذقية، طرطوس، درعا، السويداء، دير الزور، الحسكة، الرقة، إدلب والقنيطرة. كل إعلان يحمل حالة الطابو (أخضر، حكم محكمة، أسهم أو غيرها) ومتوسط سعر المتر في منطقته خلال الشهر الأخير، لتعرف إن كان السعر معقولاً قبل أن تتصل.</p><p>ينشر المالكون والمكاتب العقارية إعلاناتهم مجاناً وبلا عمولة، بالصور أو بالفيديو، ويتواصل المشتري أو المستأجر معهم مباشرة بالهاتف أو واتساب. وللسوريين في المهجر: تصفّح بالعربية أو الإنجليزية أو الألمانية، أسعار بالدولار، ودليل عملي للشراء من الخارج ونقل الملكية.</p>
@@ -7405,7 +7412,7 @@ function listing(id){
    '<div class="sub">'+(isRent?rentLbl(x.rentalPeriod):puOn(x)?puTotal(x):(x.p>0&&x.m2>0?'<span class="ltr">'+moneyIn(x.p/x.m2,lcur(x))+'</span> '+t("perm"):''))+'</div>'+
    origPriceLine(x)+
    priceContextHtml(x)+
-   '<div class="lowner">'+avatar(x.oav,ownerName,48)+'<div>'+
+   '<div class="lowner">'+avatar(x.oav,x.oag?agIni(ownerName):ownerName,48)+'<div>'+
     (x.oag?'<a class="nm" data-agopen="'+x.oag+'" style="cursor:pointer">'+esc(ownerName)+posterBadge+'</a>'
      :x.uid?'<a class="nm" data-byuser="'+x.uid+'" data-name="'+(x.who||"")+'" style="cursor:pointer">'+ownerName+posterBadge+'</a>'
           :'<b class="nm">'+ownerName+posterBadge+'</b>')+
@@ -7521,7 +7528,7 @@ function postMsgLinks(){
 }
 function postMsgCardHtml(){
   var l=postMsgLinks(); if(!l.wa&&!l.tg) return "";
-  return '<div class="wrap"><a class="qfteaser pm-card" data-go="postmsg"><span class="qfteaser-ico"><img src="/brand/mark.svg" alt="" style="width:26px;height:26px"></span>'+
+  return '<div class="wrap"><a class="qfteaser pm-card" data-go="postmsg"><span class="qfteaser-ico">'+brandMark()+'</span>'+
     '<span class="qfteaser-tx"><b>'+GX("pmCardT")+'</b><small>'+GX("pmCardP")+'</small></span><span class="qfteaser-cta">'+GX("pmCardBtn")+'</span></a></div>';
 }
 function postMsgPage(){
@@ -9671,7 +9678,7 @@ function agencyPage(id){
   BYUSER=BYUSER||{}; BYUSER.id=a.user_id;   // the rate box targets the account behind the agency
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a data-go="agencies">'+GX("agDirShort")+'</a><i>›</i>'+esc(a.name)+'</div></div>'+
    '<div class="wrap agprof">'+
-    '<div class="profcard"><div class="profhead">'+avatar(a.logo_url,a.name,86,"big")+'<div class="profmeta"><h1>'+esc(a.name)+' <span class="vbadge">'+(a.verified?'✓ ':'')+GX("acctAgency")+'</span></h1>'+
+    '<div class="profcard"><div class="profhead">'+avatar(a.logo_url,agIni(a.name),86,"big")+'<div class="profmeta"><h1>'+esc(a.name)+' <span class="vbadge">'+(a.verified?'✓ ':'')+GX("acctAgency")+'</span></h1>'+
       (a.contact_person?'<div class="pl agperson">'+GX("agPersonL")+': <b>'+esc(a.contact_person)+'</b></div>':'')+
       (rv.count?'<div class="ratingline"><span class="starsbig">'+stars(rv.avg)+'</span><b class="ltr">'+rv.avg+'</b><span class="ltr">('+rv.count+')</span></div>':'<div class="ratingline" style="color:var(--light)">'+t("noReviews")+'</div>')+
       '<div class="agspecs big">'+(a.specialties||[]).map(function(k){ return '<i>'+agSpecLabel(k)+'</i>' }).join("")+'</div>'+
@@ -10007,6 +10014,7 @@ function qfLocalRead(raw, geo, learned, home){
   var dm=[["rent",rentRe],["sale",saleRe],["share",shareRe]].map(function(p){ var m=p[1].exec(t); return m?{v:p[0],i:m.index}:null }).filter(Boolean).sort(function(a,b){ return a.i-b.i });
   if(dm.length) f.deal=dm[0].v;
   // property type: the earliest type word wins (the message names the property before its features)
+  // «مكتب البراء للخدمات العقارية» is the poster's own office, not an office for sale (owner 2026-11-10)
   var T=[["hotelapt",/ (شقه|شقق) (مفروشه )?فندقيه/],["duplex",/ (شقه )?دوبل(ي)?كس/],["terrace",/ (شقه|طابق) (تراس|سطح)| روف |^ تراس /],
     ["studio",/ (ا)?ستوديو /],["suite",/ سويت /],["floor",/ طابق كامل /],["building",/ (بناء كامل|بنايه|عماره|بناء مؤلف|بناء من) /],
     ["villa",/ (فيلا|فيله|فيلل|فلل|فله) /],["arab",/ (بيت|منزل|دار) (عربي|شامي)| حوش | ارض ديار /],["chalet",/ شاليه /],["clinic",/ عياده /],
@@ -10014,7 +10022,7 @@ function qfLocalRead(raw, geo, learned, home){
     ["hotel",/ (فندق|منشاه سياحيه) /],["workshop",/ (ورشه|معمل صغير) /],["factory",/ (معمل|مصنع) /],["warehouse",/ (مستودع|هنكار) /],
     ["basement",/ قبو (تجاري|صناعي) /],["shop",/ (محل|محلات|دكان|محلين) /],["farm",/ مزرعه /],
     ["agri",/ (ارض|قطعه ارض) زراعيه /],["resid",/ (ارض|قطعه ارض) سكنيه /],["comm",/ (ارض|قطعه ارض) تجاريه /],["indust",/ (ارض|قطعه ارض) صناعيه /],["tourist",/ (ارض|قطعه ارض) سياحيه /],
-    ["mahdar",/ محضر /],["plot",/ (ارض|قطعه ارض|مقسم) /],["office",/ (مكتب|مكاتب|مكتبين)(?! (عقاري|العقار|عقاريه|الصلح|المحامي|عقار))/],
+    ["mahdar",/ محضر /],["plot",/ (ارض|قطعه ارض|مقسم) /],["office",/ (مكتب|مكاتب|مكتبين)(?! (عقاري|العقار|عقاريه|الصلح|المحامي|عقار))(?! [^ ]+ ?[^ ]* (للخدمات|للعقارات|للتسويق|للوساطه|العقاري|العقاريه|عقاري|عقاريه) )/],
     ["apartment",/ (شقه|شقق|شقتين) /],["house",/ (منزل|بيت) /]];
   T=T.filter(function(p){ return !D.TYPES||D.TYPES[p[0]] });
   var pt=first(T,true); if(pt) f.property_type=pt;
@@ -14200,7 +14208,7 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
     types:function(){ return HSON("types") ? '<div class="wrap"><section class="sec" id="typesSec"><div class="eyebrow">'+HT("types_eyebrow",HX("pickE"))+'</div><h2>'+HT("types_h",t("pickH"))+'</h2>'+typeList()+'</section></div>' : "" },
     trust:function(){ return HSON("trust") ? homeTrustHtml() : "" },
     expl:function(){ var map=SX("expl_map_enabled",true)!==false; return HSON("expl") ? '<div class="wrap"><section class="sec" id="explSec"><div class="expl'+(map?'':' nomap')+'"><div><div class="eyebrow">'+HT("expl_eyebrow",HX("govE"))+'</div><h2>'+HT("expl_h",t("govH"))+'</h2><div class="sub">'+HT("expl_sub",COUNTRY==="SY"?t("govS"):govSubAuto())+'</div><div class="govs">'+
-       Object.keys(D.GEO).map(function(g){return '<a data-go="search" data-gov="'+g+'">'+gN(g)+'<span class="ltr">'+D.GEO[g].length+'</span></a>'}).join("")+'</div></div>'+(map?(COUNTRY==="SY"?syriaMapHtml():countryMapHtml()):'')+'</div></section></div>' : "" },
+       Object.keys(D.GEO).map(function(g){return '<a data-go="search" data-gov="'+g+'">'+gN(g)+govCnt(g)+'</a>'}).join("")+'</div></div>'+(map?(COUNTRY==="SY"?syriaMapHtml():countryMapHtml()):'')+'</div></section></div>' : "" },
     band:function(){ return (USER || !HSON("band")) ? "" : '<div class="wrap"><div class="band frame'+(bandImgHtml()?'':' noimg')+'" id="bandSec"><div class="band-tx"><div class="eyebrow">'+HT("band_eyebrow",HX("ownE"))+'</div><h2>'+HT("band_h",t("bandH"))+'</h2><p>'+HT("band_p",t("bandP"))+'</p><div class="bandlist">'+
        '<span>'+HT("band_b1",t("b1"))+'</span><span>'+HT("band_b2",t("b2"))+'</span><span>'+HT("band_b3",t("b3"))+'</span></div>'+
        '<a class="gold" data-go="post" style="text-decoration:none">'+HT("band_btn",t("bandBtn"))+'</a></div>'+
@@ -14212,18 +14220,23 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
 }
 // the most viewed live listings (views come with the public listing rows); hides itself until a few listings have been seen
 function homePopularHtml(){
-  var n=Math.max(4, Math.min(12, +SX("popular_n",8)||8));
+  var n=Math.round(Math.max(3, Math.min(12, +SX("popular_n",9)||9))/3)*3;   // the cards sit three to a row, so 8 showed two rows and a gap (owner 2026-11-10)
   var list=srvOn() ? srvList(SRV.home,"pop|"+COUNTRY,{minViews:1},"views",12,/^home$/).slice(0,n) : D.LIST.filter(function(x){ return (x.status||"live")==="live" && (+x.vw||0)>0 }).sort(function(a,b){ return (+b.vw||0)-(+a.vw||0) }).slice(0,n);
   if(list.length<3) return "";
+  list=list.slice(0,list.length-list.length%3);
   return '<div class="wrap"><section class="sec" id="popularSec"><div class="eyebrow">'+HT("popular_eyebrow",HX("popE"))+'</div><h2>'+HT("popular_h",HX("popH"))+'</h2><div class="sub">'+HT("popular_sub",HX("popS"))+'</div>'+
     '<div class="res">'+list.map(function(x,i){ return card(x,i,false) }).join("")+'</div></section></div>' }
+// a governorate tile's live listing count («394 إعلاناً»); a governorate without listings shows its name only (owner 2026-11-10, choice ب)
+function govCnt(g){ var n=+((CNT.byGov||{})[g])||0; if(!n) return "";
+  var r=n%100, w=L==="ar"?(n===1?"إعلان":n===2?"إعلانان":(r>=3&&r<=10)?"إعلانات":(r>=11||n<100)?"إعلاناً":"إعلان"):L==="de"?(n===1?"Inserat":"Inserate"):L==="fr"?(n===1?"annonce":"annonces"):(n===1?"listing":"listings");
+  return '<span class="gcnt"><span class="ltr">'+n+'</span> '+w+'</span>' }
 // a short, honest text about the market the site serves (what search engines and first-time visitors both need to read), with the governorates as links
 function homeAboutHtml(){
   var govs=Object.keys(D.GEO).filter(function(g){ return D.GEO[g].length });
   var p=HT("about_p",HX(COUNTRY==="SY"?"aboutP":"aboutP_x"));
   return '<div class="wrap"><section class="sec aboutsec" id="aboutSec"><div class="eyebrow">'+HT("about_eyebrow",HX("aboutE"))+'</div><h2>'+HT("about_h",HX(COUNTRY==="SY"?"aboutH":"aboutH_x"))+'</h2>'+
     '<div class="aboutcols"><div class="aboutp">'+p.split(/\n+/).map(function(x){ return x.trim()?'<p>'+x+'</p>':'' }).join("")+'</div>'+
-    '<div class="aboutlinks"><div class="govs">'+govs.map(function(g){ return '<a data-go="search" data-gov="'+g+'">'+gN(g)+'<span class="ltr">'+D.GEO[g].length+'</span></a>' }).join("")+'</div>'+
+    '<div class="aboutlinks"><div class="govs">'+govs.map(function(g){ return '<a data-go="search" data-gov="'+g+'">'+gN(g)+govCnt(g)+'</a>' }).join("")+'</div>'+
     '<div class="aboutmore"><a class="gh" data-go="agencies">'+GX("agDirShort")+'</a>'+(COUNTRY==="SY"?'<a class="gh" href="'+(L==="ar"?"":"/"+L)+'/guides/">'+GX("guidesAll")+'</a>':'')+'<a class="gh" data-go="post">'+t("bandBtn")+'</a></div></div></div></section></div>' }
 function homeCollectionsHtml(){
   var cards=[["damascene","c1","c1s","دمشق"],["orchards","c2","c2s","دمشق"],["latakia","c3","c3s","اللاذقية"],["bloudan","c4","c4s","ريف دمشق"]];

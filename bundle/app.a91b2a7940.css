@@ -914,7 +914,13 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
 .aboutsec .aboutp p{font-size:15.5px;line-height:1.95;color:var(--ink);margin:0 0 12px}
 .home-hero .aboutsec{padding-top:8px}
 .aboutsec .aboutlinks .govs{display:flex;flex-wrap:wrap;gap:8px}
-.aboutsec .aboutmore{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.aboutsec .aboutmore{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.aboutsec .aboutmore a.gh{display:inline-flex;align-items:center;gap:8px;width:auto;flex:none;padding:10px 18px;border-radius:999px;border:1px solid var(--gold);background:transparent;color:var(--gold);font-weight:700;font-size:14px;text-decoration:none;margin:0}
+.aboutsec .aboutmore a.gh::after{content:"←";font-size:15px;line-height:1}
+html[dir=ltr] .aboutsec .aboutmore a.gh::after{content:"→"}
+.aboutsec .aboutmore a.gh:last-child{background:var(--gold);color:#14213D}
+.govs a .gcnt{font-size:12.5px;white-space:nowrap;opacity:.85}
+html body .aboutsec .aboutlinks .govs a{flex-direction:column;align-items:flex-start;justify-content:center;gap:2px}   /* four narrow tiles a row: the count goes under the name */
 @media(max-width:860px){.aboutsec .aboutcols{grid-template-columns:1fr;gap:16px}.aboutsec .aboutp p{font-size:14.5px;line-height:1.85}}
 /* ── crawlable home content written by scripts/generate-pages.mjs (see the seo-home markers inside #app); the first render replaces it. With scripts
    on, it is hidden from the eye and a navy splash shows while the page is parsed (no "other page" flashing by) ── */
@@ -3349,6 +3355,12 @@ html[lang=fr] .htools a.gold{white-space:nowrap}
 .agspecs{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}.agspecs i{font-style:normal;font-size:11px;font-weight:700;background:var(--gold-w);color:#6B5518;border-radius:999px;padding:2px 8px}
 .agspecs.big{margin:4px 0 6px}.agspecs.big i{font-size:12px;padding:3px 10px}
 .agdesc{margin:0;font-size:13.5px;color:var(--grey);line-height:1.7}
+/* agency directory (not the services directory, which shares .agcard): badge on its own line, 2-line description, muted empty states;
+   side by side (700px+) every part gets a fixed height so all cards match and their parts line up */
+.agdir:not(.svcdir) .agdesc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.agdir:not(.svcdir) .vbadge{display:table;margin-top:6px}
+.agdesc.empty,.agareas.empty{opacity:.6}
+@media(min-width:700px){.agdir:not(.svcdir) .aghead{min-height:118px;align-items:flex-start}.agdir:not(.svcdir) .agname b{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.agdir:not(.svcdir) .agdesc{min-height:3.4em}.agdir:not(.svcdir) .agareas span{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}}
 .agareas{display:flex;gap:6px;align-items:flex-start;font-size:13px;color:var(--ink)}.agareas .mi{flex:none;color:var(--gold-dk);display:inline-flex}.agareas b{color:var(--gold-dk)}
 .agfoot{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:10px;border-top:1px solid var(--line);font-size:13px;color:var(--grey)}
 .agacts{display:flex;gap:6px}.agbtn{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--page);color:var(--navy)}.agbtn.wa{background:#E8F7EE;color:#1D9E5A}.agbtn .mi{display:grid;place-items:center}

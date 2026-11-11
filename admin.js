@@ -2925,7 +2925,7 @@ function hsInspHome(){
   } else if(sd==="feat"){
     H.push(fSwitch(hsT("showSec"),"x:home_feat_on",true,true), fHint(hsT("featHint")), fSecTexts("feat",HX("featE"),HX("featH"),HX("featS")), fGo(hsT("go_featured"),"featured"));
   } else if(sd==="popular"){
-    H.push(fSwitch(hsT("showSec"),"x:home_popular_on",true,true), fHint(hsT("popHint")), fNum(hsT("f_popN"),"x:popular_n",4,12,1,8,true), fHint(hsT("textsHint")), fSecTexts("popular",HX("popE"),HX("popH"),HX("popS")));
+    H.push(fSwitch(hsT("showSec"),"x:home_popular_on",true,true), fHint(hsT("popHint")), fNum(hsT("f_popN"),"x:popular_n",3,12,3,9,true), fHint(hsT("textsHint")), fSecTexts("popular",HX("popE"),HX("popH"),HX("popS")));
   } else if(sd==="about"){
     H.push(fSwitch(hsT("showSec"),"x:home_about_on",true,true), fHint(hsT("aboutHint")), fHint(hsT("textsHint")), fText(hsT("f_eyebrow"),"x:about_eyebrow",HX("aboutE")), fText(hsT("f_h"),"x:about_h",HX(COUNTRY==="SY"?"aboutH":"aboutH_x")), fArea(hsT("f_p"),"x:about_p",HX(COUNTRY==="SY"?"aboutP":"aboutP_x")));
   } else if(sd==="colls"){
