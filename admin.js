@@ -5876,8 +5876,9 @@ function wireServicesAdm(){ var S=saState(), D=S.data; if(!D) return;
   $$("[data-saset]").forEach(function(b){ b.onclick=async function(){ try{ await save(+this.dataset.saset,{status:this.dataset.st}); admToast(t("savedOk")); saLoad() }catch(e){ alert(e.message) } } });
   $$("[data-saver]").forEach(function(c){ c.onchange=async function(){ try{ await save(+this.dataset.saver,{verified:this.checked}); saLoad() }catch(e){ alert(e.message) } } });
   $$("[data-safd]").forEach(function(i){ i.onchange=async function(){ var d=+this.value||0; try{ await save(+this.dataset.safd,{featured_days:d}); admToast(t("savedOk")); saLoad() }catch(e){ alert(e.message) } } });
-  var openForm=function(p){ S.form={name:p?p.name:"",contact_person:p?p.contact_person:"",phone:p?p.phone:"",whatsapp:p?p.whatsapp:"",description:p?p.description:"",cats:p?(p.cats||[]).slice():[],gov_names:p?(p.gov_names||[]).slice():[],
-    area_names:p?(p.area_names||[]).join("، "):"",logo_url:p?p.logo_url:"",photos:p&&Array.isArray(p.photos)?p.photos.slice():[]} };
+  // rows arrive escaped (escDeep): the form holds the plain text, or «&» and quotes are saved back as «&amp;» / «&quot;»
+  var openForm=function(p){ S.form={name:p?unesc(p.name):"",contact_person:p?unesc(p.contact_person):"",phone:p?unesc(p.phone):"",whatsapp:p?unesc(p.whatsapp):"",description:p?unesc(p.description):"",cats:p?(p.cats||[]).map(unesc):[],gov_names:p?(p.gov_names||[]).map(unesc):[],
+    area_names:p?(p.area_names||[]).map(unesc).join("، "):"",logo_url:p?unesc(p.logo_url):"",photos:p&&Array.isArray(p.photos)?p.photos.map(unesc):[]} };
   $$("[data-saedit]").forEach(function(b){ b.onclick=function(){ var id=+this.dataset.saedit; if(S.edit===id){ S.edit=null; render(); return } var x=(D.providers||[]).filter(function(y){ return y.row.id===id })[0]; S.edit=id; openForm(x&&x.row); render() } });
   if($("#saNew")) $("#saNew").onclick=function(){ S.edit="new"; openForm(null); render() };
   $$("[data-sarevhide]").forEach(function(b){ b.onclick=async function(){ try{ await rpc("bk_admin_service_review_hide",{p_token:ADM.token,p_id:+this.dataset.sarevhide,p_hidden:this.dataset.h==="1"}); admToast(t("savedOk")); saLoad() }catch(e){ alert(e.message) } } });

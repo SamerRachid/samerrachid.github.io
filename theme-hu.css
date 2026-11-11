@@ -1440,6 +1440,169 @@ html body .svc-ph button{position:absolute;top:-7px;inset-inline-end:-7px;width:
 html body .svc-phadd{width:96px;height:72px;border:1px dashed rgba(202,144,81,.6);border-radius:8px;display:grid;place-items:center;align-content:center;gap:2px;color:var(--gold);font-size:22px;cursor:pointer;line-height:1}
 html body .svc-phadd span{font-size:11.5px}
 
+/* ===== services: the provider's page and the «سجّل خدمتك» form, rearranged (2026-11-10) =====
+   one card language for both: navy-2 card, 1px line, radius 12, at least 18px between any text/button and its card edge */
+html body .svp-card{background:var(--navy-2);border:1px solid var(--line);border-radius:12px;color:#fff;min-width:0;box-sizing:border-box}
+html body .svp-card h2{font-size:18px;font-weight:700;margin:0;color:#fff}
+html body .wrap.svcprof{max-width:1320px;margin-inline:auto;padding-top:26px;padding-bottom:64px}
+html body .svp-grid{display:grid;grid-template-columns:minmax(0,1fr) 340px;grid-template-areas:"head side" "body side";gap:20px;align-items:start}
+html body .svp-head{grid-area:head;padding:26px 28px}
+html body .svp-side{grid-area:side;padding:22px;position:sticky;top:16px;display:grid;gap:12px}
+html body .svp-body{grid-area:body;display:grid;gap:20px;min-width:0}
+html body .svp-id{display:flex;align-items:center;gap:20px}
+html body .svp-id .ava{flex:none;box-shadow:none;border:1px solid rgba(202,144,81,.45)}
+html body .svp-id div.ava{background:var(--gold-w)!important;color:var(--gold-dk)!important;font-weight:800;display:grid;place-items:center}
+html body .svp-idt{min-width:0;display:grid;gap:10px}
+html body .svp-name{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px}
+html body .svp-name h1{font-size:26px;line-height:1.3;font-weight:800;margin:0;color:#fff;overflow-wrap:anywhere}
+html body .svp-rate{display:flex;align-items:center;gap:6px;font-size:14px;color:#D5DCE8}
+html body .svp-rate .starsbig{color:var(--gold);font-size:15px}
+html body .svp-rate.none{color:var(--muted);font-size:13.5px}
+html body .svp-idt .agspecs{display:flex;flex-wrap:wrap;gap:6px;margin:0}
+html body .svp-idt .agspecs i{font-style:normal;font-size:13px;padding:4px 11px}
+html body .svp-facts{display:grid;margin:22px 0 0;border-top:1px solid var(--line)}
+html body .svp-facts:empty{display:none}
+html body .svp-facts>div{display:grid;grid-template-columns:130px minmax(0,1fr);gap:16px;padding:13px 0;border-bottom:1px solid var(--line)}
+html body .svp-facts>div:last-child{border-bottom:0;padding-bottom:0}
+html body .svp-facts dt{color:var(--muted);font-size:13.5px;line-height:1.9}
+html body .svp-facts dd{margin:0;color:#fff;font-size:15px;line-height:1.7;overflow-wrap:anywhere}
+html body .svp-side h2{font-size:16px}
+html body .svp-acts{display:grid;gap:10px}
+html body .svp-acts:empty{display:none}
+html body .svp-btn{display:flex;align-items:center;justify-content:center;gap:9px;min-height:50px;padding:10px 16px;box-sizing:border-box;border-radius:8px;border:1px solid var(--line);background:transparent;color:#fff;font:inherit;font-size:15.5px;font-weight:700;line-height:1.3;text-decoration:none;text-align:center;cursor:pointer;transition:background .2s,border-color .2s,color .2s,transform .15s}
+html body .svp-btn svg,html body .svp-btn .mi{width:20px;height:20px;flex:none}
+html body .svp-btn.wa{background:#17824A;border-color:#17824A;color:#fff}
+html body .svp-btn.wa:hover{background:#1A9353;border-color:#1A9353}
+html body .svp-btn.call{border-color:var(--gold);color:var(--gold-dk)}
+html body .svp-btn.call:hover{background:var(--gold-w)}
+html body .svp-btn.ghost{min-height:44px;font-size:14.5px;font-weight:600;color:#D5DCE8}
+html body .svp-btn.ghost:hover{border-color:rgba(255,255,255,.35);color:#fff}
+html body .svp-btn:active{transform:scale(.98)}
+html body .svp-btn:focus-visible{outline:2px solid var(--gold-dk);outline-offset:2px}
+html body .svp-tel{text-align:center;font-size:17px;font-weight:700;letter-spacing:.5px;color:#fff;font-variant-numeric:tabular-nums}
+html body .svp-fine{margin:4px 0 0;padding-top:12px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px;line-height:1.7}
+html body .svp-sec{padding:22px 24px;display:grid;gap:16px}
+html body .svp-about p{margin:0;color:#D5DCE8;font-size:15px;line-height:1.9;white-space:pre-line;overflow-wrap:anywhere}
+html body .svp-sech{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 14px}
+html body .svp-empty{display:grid;justify-items:center;gap:8px;padding:22px 14px;border:1px dashed var(--line);border-radius:10px;color:var(--muted);font-size:14px;line-height:1.7;text-align:center}
+html body .svp-estars{color:rgba(255,255,255,.22);font-size:22px;letter-spacing:3px;line-height:1}
+html body .svcprof .svc-photos{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+html body .svc-photos a{display:block;border-radius:10px}
+html body .svcprof .svc-rev{background:var(--navy);padding:14px 16px}
+html body .svc-revh{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+html body .svc-revh b{font-size:14.5px}
+html body .svc-revh small{margin-inline-start:auto}
+html body .svcprof .svc-rform{margin-top:0;padding:16px}
+html body .svc-rform.signin{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;color:#D5DCE8;font-size:14.5px}
+html body .svc-rform.signin .svp-btn{min-height:44px;font-size:14.5px}
+html body .svc-rform .starpick{display:flex;gap:4px}
+html body .svc-rform .starpick button{width:44px;height:44px;padding:0;border:0;border-radius:8px;background:transparent;font-size:30px;line-height:1;color:rgba(255,255,255,.25);cursor:pointer}
+html body .svc-rform .starpick button.on{color:var(--gold)}
+html body .svc-rform .starpick button:focus-visible{outline:2px solid var(--gold-dk);outline-offset:2px}
+html body .svc-rform textarea:focus{border-color:var(--gold);outline:none;box-shadow:0 0 0 3px rgba(202,144,81,.2)}
+html body .svp-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+html body .svp-row .gold,html body .svj-save .gold{background:var(--gold);color:var(--navy);border:0;border-radius:8px;font:inherit;font-weight:700;cursor:pointer}
+html body .svp-row .gold{min-height:44px;padding:8px 22px;font-size:14.5px}
+html body .svp-row .gold:disabled,html body .svj-save .gold:disabled{opacity:.6;cursor:default}
+html body .svcprof .xmsg,html body .svcjoin .xmsg{color:#FFB0A3;font-size:13.5px;line-height:1.6}
+/* the form */
+html body .wrap.svcjoin{max-width:1240px;margin-inline:auto;padding-top:28px;padding-bottom:72px}
+html body .svj-top{margin-bottom:22px;max-width:760px}
+html body .svcjoin .svj-top h1{font-size:30px;line-height:1.3;margin:0 0 8px}
+html body .svcjoin .svj-top .svc-lead{margin:0;font-size:15px;line-height:1.8;text-wrap:balance}
+html body .svj-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:20px;align-items:start}
+html body .svj-main{display:grid;gap:16px;min-width:0}
+html body .svj-side{display:grid;gap:14px;position:sticky;top:16px;min-width:0}
+html body .svj-sec{padding:24px 26px;display:grid;gap:20px}
+html body .svj-h{display:flex;align-items:flex-start;gap:12px}
+html body .svj-h i{flex:none;width:30px;height:30px;box-sizing:border-box;border-radius:50%;border:1px solid rgba(202,144,81,.6);color:var(--gold-dk);display:grid;place-items:center;font-style:normal;font-size:14px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+html body .svj-h h2{line-height:30px}
+html body .svj-h p{margin:2px 0 0;color:var(--muted);font-size:13.5px;line-height:1.7}
+html body .svcjoin .fl{margin:0;min-width:0}
+html body .svcjoin .fl>label{color:#D5DCE8;font-size:14px;margin-bottom:7px}
+html body .svcjoin .fl input:not([type=file]),html body .svcjoin .fl textarea{min-height:48px;padding:11px 13px;font-size:16px;box-sizing:border-box}
+html body .svcjoin .fl textarea{min-height:132px;line-height:1.8;resize:vertical}
+html body .svj-fields{display:grid;gap:16px;min-width:0}
+html body .svj-two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+html body .svj-biz{display:grid;grid-template-columns:auto minmax(0,1fr);gap:26px;align-items:start}
+html body .svj-logo{display:grid;justify-items:center;gap:10px;width:150px;text-align:center}
+html body .svcjoin .svc-logo{width:96px;height:96px;box-sizing:border-box;border-radius:50%;border:1px dashed rgba(202,144,81,.6);display:grid;place-items:center;color:var(--gold);cursor:pointer;overflow:hidden;background:rgba(202,144,81,.06)}
+html body .svcjoin .svc-logo.has{border-style:solid;border-color:var(--line)}
+html body .svcjoin .svc-logo img{width:100%;height:100%;border-radius:0;object-fit:cover}
+html body .svcjoin .svc-logo svg{width:30px;height:30px}
+html body .svj-logot{display:grid;justify-items:center;gap:6px}
+html body .svj-logot small{color:var(--muted);font-size:12.5px;line-height:1.5}
+html body .svcjoin .svc-upbtn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:6px 16px;box-sizing:border-box;border:1px solid var(--gold);border-radius:8px;background:transparent;color:var(--gold-dk);font-size:14px;font-weight:700;line-height:1.3}
+html body .svcjoin .svc-upbtn:hover{background:var(--gold-w)}
+html body .svcjoin .svc-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+html body .svcjoin .svc-pick.govs{grid-template-columns:repeat(auto-fill,minmax(128px,1fr))}
+html body .svcjoin .svc-pick button{display:flex;align-items:center;gap:9px;min-height:46px;padding:8px 12px;box-sizing:border-box;border-radius:8px;border:1px solid var(--line);background:var(--navy);color:#D5DCE8;font:inherit;font-size:14.5px;font-weight:400;line-height:1.4;text-align:start;cursor:pointer;transition:border-color .2s,background .2s}
+html body .svcjoin .svc-pick button::before{content:"";flex:none;width:18px;height:18px;box-sizing:border-box;border-radius:5px;border:1.5px solid rgba(255,255,255,.35);background:center/12px 12px no-repeat}
+html body .svcjoin .svc-pick button:hover{border-color:rgba(202,144,81,.6)}
+html body .svcjoin .svc-pick button.on{background:var(--gold-w);border-color:var(--gold);color:#fff;font-weight:700}
+html body .svcjoin .svc-pick button.on::before{background-color:var(--gold);border-color:var(--gold);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2311213F' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12.5l4.2 4L19 7'/%3E%3C/svg%3E")}
+html body .svcjoin .svc-pick button:focus-visible{outline:2px solid var(--gold-dk);outline-offset:2px}
+html body .svcjoin .svc-ups{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;align-items:stretch}
+html body .svcjoin .svc-ph{display:block}
+html body .svcjoin .svc-ph img{width:100%;height:auto;aspect-ratio:4/3}
+html body .svcjoin .svc-ph button{top:6px;inset-inline-end:6px;width:32px;height:32px;padding:0;font-size:18px;background:rgba(10,18,36,.82);border:1px solid rgba(255,255,255,.3)}
+html body .svcjoin .svc-phadd{width:auto;height:auto;aspect-ratio:4/3;box-sizing:border-box;font-size:26px;gap:4px;background:rgba(202,144,81,.06)}
+html body .svcjoin .svc-phadd span{font-size:12.5px}
+html body .svcjoin #svUpMsg{display:block;margin-top:8px}
+html body .svcjoin #svUpMsg:empty,html body .svcjoin #svLogoMsg:empty{display:none}
+html body .svj-save{display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding-top:4px}
+html body .svj-save .gold{min-height:52px;min-width:240px;padding:10px 28px;font-size:16px}
+html body .svj-card{padding:18px 20px;display:grid;gap:10px}
+html body .svj-card p{margin:0;color:#D5DCE8;font-size:14px;line-height:1.75}
+html body .svj-card h3{margin:0;font-size:15.5px;font-weight:700;color:#fff}
+html body .svj-st{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;font-size:14.5px;font-weight:700}
+html body .svj-st .st{font-size:13px!important;padding:4px 12px!important;border-radius:6px!important;border:1px solid transparent}
+html body .svj-st .st-live{background:rgba(46,163,107,.16)!important;border-color:rgba(46,163,107,.45)!important;color:#7FD9A8!important}
+html body .svj-st .st-pending{background:rgba(202,144,81,.14)!important;border-color:rgba(202,144,81,.45)!important;color:var(--gold-dk)!important}
+html body .svj-st .st-expired{background:rgba(224,96,80,.14)!important;border-color:rgba(224,96,80,.45)!important;color:#FFB0A3!important}
+html body .svj-next ul{margin:0;padding:0;list-style:none;display:grid;gap:9px}
+html body .svj-next li{position:relative;padding-inline-start:20px;color:#D5DCE8;font-size:14px;line-height:1.7}
+html body .svj-next li::before{content:"";position:absolute;inset-inline-start:2px;top:.62em;width:7px;height:7px;border-radius:50%;background:var(--gold)}
+html body .svj-help .svp-btn{color:#7FD9A8;border-color:rgba(46,163,107,.45)}
+html body .svj-help .svp-btn:hover{color:#A5E8C4;border-color:rgba(46,163,107,.8)}
+@media (min-width:1500px){html body .wrap.svcprof,html body .wrap.svcjoin{padding-inline:60px}}
+@media (max-width:980px){
+  html body .svp-grid{grid-template-columns:minmax(0,1fr);grid-template-areas:"head" "side" "body"}
+  html body .svp-side{position:static}
+  html body .svp-acts{grid-template-columns:1fr 1fr}
+  html body .svp-acts>:only-child{grid-column:1/-1}
+  /* the form first; only the card's status stays above it */
+  html body .svj-grid{grid-template-columns:minmax(0,1fr);gap:16px}
+  html body .svj-side{display:contents}
+  html body .svj-status{order:-1}
+  html body .svj-next,html body .svj-help{order:1}
+}
+@media (max-width:640px){
+  html body .wrap.svcprof{padding-top:16px;padding-bottom:48px}
+  html body .svp-grid,html body .svp-body{gap:14px}
+  html body .svp-head{padding:20px 18px}
+  html body .svp-id{gap:14px;align-items:flex-start}
+  html body .svp-id .ava{width:72px!important;height:72px!important;font-size:30px!important}
+  html body .svp-name h1{font-size:21px}
+  html body .svp-side,html body .svp-sec{padding:18px}
+  html body .svp-facts>div{grid-template-columns:96px minmax(0,1fr);gap:12px}
+  html body .wrap.svcjoin{padding-top:18px;padding-bottom:56px}
+  html body .svcjoin .svj-top h1{font-size:24px}
+  html body .svj-sec{padding:20px 18px;gap:16px}
+  html body .svj-biz{grid-template-columns:minmax(0,1fr);gap:18px}
+  html body .svj-logo{width:auto;grid-template-columns:auto minmax(0,1fr);justify-items:start;align-items:center;gap:16px;text-align:start}
+  html body .svj-logot{justify-items:start}
+  html body .svcjoin .svc-pick,html body .svcjoin .svc-pick.govs{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+  html body .svcjoin .svc-pick button{font-size:13.5px;padding:8px 10px;gap:8px;min-height:54px}
+  html body .svcprof .svc-photos{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px}
+  html body .svcjoin .svc-pick.govs button{min-height:46px}
+  html body .svcjoin .svc-ups{grid-template-columns:repeat(3,minmax(0,1fr))}
+  html body .svj-save .gold{width:100%;min-width:0}
+  html body .svj-card{padding:18px}
+}
+@media (max-width:420px){html body .svj-two{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){html body .svp-btn,html body .svcjoin .svc-pick button{transition:none}html body .svp-btn:active{transform:none}}
+
 /* /app: the Android app file (until Google Play) */
 html body .apppg-apk{margin-top:22px;padding:18px;border:1px solid rgba(202,144,81,.45);border-radius:12px;background:rgba(202,144,81,.06);display:grid;gap:8px;text-align:start}
 html body .apppg-apk b{font-size:17px}html body .apppg-apk p{color:var(--muted);margin:0}

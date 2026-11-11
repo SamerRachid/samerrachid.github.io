@@ -800,7 +800,7 @@ function levelBadge(lv){
 }
 function stars(v){
   v=Math.round((v||0)*2)/2; var out="";
-  for(var i=1;i<=5;i++) out += (v>=i?"★":(v>=i-0.5?"⯹":"☆"));
+  for(var i=1;i<=5;i++) out += (v>=i?"★":(v>=i-0.5?'<i class="hstar">★</i>':"☆"));
   return out;
 }
 function capitalize(s){ return s?s.charAt(0).toUpperCase()+s.slice(1):"" }
@@ -1049,7 +1049,7 @@ function header(){
   '</div></div></header>'+mdrawer()+wa+
   // no floating post button on the post form itself, nor on a listing page where the
   // fixed call / WhatsApp bar owns the bottom edge on phones
-  ((VIEW==="post" || VIEW==="edit" || VIEW==="search" || VIEW==="mapsearch" || VIEW.indexOf("listing:")===0) ? '' : '<a class="mobfab" data-go="post" aria-label="'+t("post")+'">+ '+t("post")+'</a>')}
+  ((VIEW==="post" || VIEW==="edit" || VIEW==="servicejoin" || VIEW==="search" || VIEW==="mapsearch" || VIEW.indexOf("listing:")===0 || VIEW.indexOf("service:")===0) ? '' : '<a class="mobfab" data-go="post" aria-label="'+t("post")+'">+ '+t("post")+'</a>')}
 function footer(){
  // theme hu (2026-10-29): three titled columns — the governorates in two sub-columns, the site's pages, the legal pages
  var H={govs:L==="ar"?"المحافظات":L==="de"?"Gouvernements":L==="fr"?"Gouvernorats":"Governorates", legal:L==="ar"?"قانوني":L==="de"?"Rechtliches":L==="fr"?"Légal":"Legal"};
@@ -2290,7 +2290,7 @@ function listing(id){
    '<div class="sub">'+(isRent?rentLbl(x.rentalPeriod):puOn(x)?puTotal(x):(x.p>0&&x.m2>0?'<span class="ltr">'+moneyIn(x.p/x.m2,lcur(x))+'</span> '+t("perm"):''))+'</div>'+
    origPriceLine(x)+
    priceContextHtml(x)+
-   '<div class="lowner">'+avatar(x.oav,ownerName,48)+'<div>'+
+   '<div class="lowner">'+avatar(x.oav,x.oag?agIni(ownerName):ownerName,48)+'<div>'+
     (x.oag?'<a class="nm" data-agopen="'+x.oag+'" style="cursor:pointer">'+esc(ownerName)+posterBadge+'</a>'
      :x.uid?'<a class="nm" data-byuser="'+x.uid+'" data-name="'+(x.who||"")+'" style="cursor:pointer">'+ownerName+posterBadge+'</a>'
           :'<b class="nm">'+ownerName+posterBadge+'</b>')+
@@ -2406,7 +2406,7 @@ function postMsgLinks(){
 }
 function postMsgCardHtml(){
   var l=postMsgLinks(); if(!l.wa&&!l.tg) return "";
-  return '<div class="wrap"><a class="qfteaser pm-card" data-go="postmsg"><span class="qfteaser-ico"><img src="/brand/mark.svg" alt="" style="width:26px;height:26px"></span>'+
+  return '<div class="wrap"><a class="qfteaser pm-card" data-go="postmsg"><span class="qfteaser-ico">'+brandMark()+'</span>'+
     '<span class="qfteaser-tx"><b>'+GX("pmCardT")+'</b><small>'+GX("pmCardP")+'</small></span><span class="qfteaser-cta">'+GX("pmCardBtn")+'</span></a></div>';
 }
 function postMsgPage(){
@@ -4556,7 +4556,7 @@ function agencyPage(id){
   BYUSER=BYUSER||{}; BYUSER.id=a.user_id;   // the rate box targets the account behind the agency
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a data-go="agencies">'+GX("agDirShort")+'</a><i>›</i>'+esc(a.name)+'</div></div>'+
    '<div class="wrap agprof">'+
-    '<div class="profcard"><div class="profhead">'+avatar(a.logo_url,a.name,86,"big")+'<div class="profmeta"><h1>'+esc(a.name)+' <span class="vbadge">'+(a.verified?'✓ ':'')+GX("acctAgency")+'</span></h1>'+
+    '<div class="profcard"><div class="profhead">'+avatar(a.logo_url,agIni(a.name),86,"big")+'<div class="profmeta"><h1>'+esc(a.name)+' <span class="vbadge">'+(a.verified?'✓ ':'')+GX("acctAgency")+'</span></h1>'+
       (a.contact_person?'<div class="pl agperson">'+GX("agPersonL")+': <b>'+esc(a.contact_person)+'</b></div>':'')+
       (rv.count?'<div class="ratingline"><span class="starsbig">'+stars(rv.avg)+'</span><b class="ltr">'+rv.avg+'</b><span class="ltr">('+rv.count+')</span></div>':'<div class="ratingline" style="color:var(--light)">'+t("noReviews")+'</div>')+
       '<div class="agspecs big">'+(a.specialties||[]).map(function(k){ return '<i>'+agSpecLabel(k)+'</i>' }).join("")+'</div>'+
@@ -4739,25 +4739,25 @@ async function loadMyService(){ if(!DB||!USER){ SVMINE=null; return } try{ var r
 function svcCatName(slug){ var c=((SVC&&SVC.cats)||[]).filter(function(x){ return x.slug===slug })[0]; return c?(L==="ar"?c.name_ar:(c.name_en||c.name_ar)):slug }
 function svcWa(p){ return String(p.whatsapp||p.phone||"").replace(/\D/g,"").replace(/^00/,"").replace(/^0(?=9)/,"963") }
 // the Balkoun team on WhatsApp, for a provider who prefers to send his details or has a question (owner 2026-10-30)
-function svcTeamWa(cls){ var n=String(CONFIG.whatsapp||"").replace(/\D/g,""); return n?'<a class="'+cls+'" href="https://wa.me/'+n+'?text='+encodeURIComponent(GX("svcTeamMsg"))+'" target="_blank" rel="noopener">'+MI.msgs+'<span>'+GX("svcTeamWa")+'</span></a>':'' }
+function svcTeamWa(cls,key){ var n=String(CONFIG.whatsapp||"").replace(/\D/g,""); return n?'<a class="'+cls+'" href="https://wa.me/'+n+'?text='+encodeURIComponent(GX("svcTeamMsg"))+'" target="_blank" rel="noopener">'+MI.msgs+'<span>'+GX(key||"svcTeamWa")+'</span></a>':'' }
 // on a listing page: «تحتاج خدمات لهذا العقار؟» with the trades that have providers in the listing's governorate (hidden when none)
 function svcForListing(x){ if(SVC===null){ loadServices().then(function(){ if(VIEW.indexOf("listing:")===0) render() }); return '' }
   var g=x.g, by={}; ((SVC&&SVC.providers)||[]).forEach(function(p){ if((p.gov_names||[]).indexOf(g)<0) return; (p.cats||[]).forEach(function(k){ by[k]=(by[k]||0)+1 }) });
   var cats=((SVC&&SVC.cats)||[]).filter(function(c){ return by[c.slug] }); if(!cats.length) return '';
   return '<section class="lsec svc-inlisting"><h2>'+GX("svcInListing")+'</h2><p>'+GX("svcInListingP").replace("{g}",gN(g))+'</p><div class="svc-pick">'+cats.slice(0,10).map(function(c){
-    return '<a href="/services/'+esc(c.slug)+'?g='+encodeURIComponent(g)+'" data-svgo="'+esc(c.slug)+'" data-svgov="'+esc(g)+'">'+esc(L==="ar"?c.name_ar:(c.name_en||c.name_ar))+' <span class="ltr">'+by[c.slug]+'</span></a>' }).join("")+'</div></section>' }
+    return '<a href="/services/'+escOnce(c.slug)+'?g='+encodeURIComponent(g)+'" data-svgo="'+escOnce(c.slug)+'" data-svgov="'+escOnce(g)+'">'+escOnce(L==="ar"?c.name_ar:(c.name_en||c.name_ar))+' <span class="ltr">'+by[c.slug]+'</span></a>' }).join("")+'</div></section>' }
 if(!window._svGoWired){ window._svGoWired=true; document.addEventListener("click",function(e){ var a=e.target.closest&&e.target.closest("[data-svgo]"); if(!a) return; e.preventDefault(); SVF={cat:a.dataset.svgo,g:a.dataset.svgov||"",q:""}; VIEW="services"; scrollTo(0,0); render() }) }
 function svcCard(p){ var ar=L==="ar", wa=svcWa(p), tel=String(p.phone||"").replace(/[^\d+]/g,"");
   return '<div class="agcard'+(p.featured?' svc-feat':'')+'" data-svopen="'+p.id+'" role="link" tabindex="0">'+
     (p.featured?'<span class="svc-ftag">'+GX("svcFeatured")+'</span>':'')+
-    '<div class="aghead">'+avatar(p.logo_url,p.name,56,"aglogo")+'<div class="agname"><b>'+esc(p.name)+(p.verified?' <span class="vbadge">✓ '+GX("svcVerified")+'</span>':'')+'</b>'+
-      '<span class="agspecs">'+(p.cats||[]).slice(0,3).map(function(k){ return '<i>'+esc(svcCatName(k))+'</i>' }).join("")+((p.cats||[]).length>3?'<i>+'+((p.cats||[]).length-3)+'</i>':'')+'</span></div></div>'+
+    '<div class="aghead">'+avatar(p.logo_url,p.name,56,"aglogo")+'<div class="agname"><b>'+escOnce(p.name)+(p.verified?' <span class="vbadge">✓ '+GX("svcVerified")+'</span>':'')+'</b>'+
+      '<span class="agspecs">'+(p.cats||[]).slice(0,3).map(function(k){ return '<i>'+escOnce(svcCatName(k))+'</i>' }).join("")+((p.cats||[]).length>3?'<i>+'+((p.cats||[]).length-3)+'</i>':'')+'</span></div></div>'+
     (p.reviews?'<div class="svc-rate"><span class="starsbig">'+stars(p.rating)+'</span><b class="ltr">'+p.rating+'</b><span class="ltr">('+p.reviews+')</span></div>':'')+
-    (p.description?'<p class="agdesc">'+esc(p.description).slice(0,150)+(p.description.length>150?"…":"")+'</p>':'')+
+    (p.description?'<p class="agdesc">'+esc(unesc(p.description).slice(0,150))+(unesc(p.description).length>150?"…":"")+'</p>':'')+
     '<div class="agareas">'+MI.map+'<span>'+((p.gov_names||[]).map(gN).join(ar?"، ":", ")||"—")+'</span></div>'+
-    '<div class="agfoot"><span class="agcount">'+(p.contact_person?esc(p.contact_person):'')+'</span><span class="agacts">'+
-      (wa?'<a class="agbtn wa" href="https://wa.me/'+esc(wa)+'?text='+encodeURIComponent(GX("svcWaMsg"))+'" target="_blank" rel="noopener" data-stop title="WhatsApp">'+MI.msgs+'</a>':'')+
-      (tel?'<a class="agbtn" href="tel:'+esc(tel)+'" data-stop title="'+esc(GX("agCall"))+'">'+MI.phone+'</a>':'')+'</span></div></div>' }
+    '<div class="agfoot"><span class="agcount">'+(p.contact_person?escOnce(p.contact_person):'')+'</span><span class="agacts">'+
+      (wa?'<a class="agbtn wa" href="https://wa.me/'+escOnce(wa)+'?text='+encodeURIComponent(GX("svcWaMsg"))+'" target="_blank" rel="noopener" data-stop title="WhatsApp">'+MI.msgs+'</a>':'')+
+      (tel?'<a class="agbtn" href="tel:'+escOnce(tel)+'" data-stop title="'+esc(GX("agCall"))+'">'+MI.phone+'</a>':'')+'</span></div></div>' }
 function servicesPage(){
   if(SVC===null) loadServices().then(render);
   var cats=(SVC&&SVC.cats)||[], govs=Object.keys(D.GEO);
@@ -4767,9 +4767,9 @@ function servicesPage(){
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("svcNav")+'</div></div>'+
    '<div class="wrap agdir svcdir">'+
     '<div class="ag-hero"><div><div class="eyebrow">'+GX("svcEyebrow")+'</div><h1>'+GX("svcTitle")+'</h1><p>'+GX("svcLead")+'</p></div><div class="svc-hacts"><a class="gold" href="/services/join" data-go="servicejoin">'+GX("svcJoin")+'</a>'+svcTeamWa("svc-teamwa")+'</div></div>'+
-    '<div class="svc-cats">'+cats.map(function(c){ return '<button type="button" class="svc-cat'+(SVF.cat===c.slug?' on':'')+'" data-svcat="'+esc(c.slug)+'"><b>'+esc(L==="ar"?c.name_ar:(c.name_en||c.name_ar))+'</b><span class="ltr">'+(count[c.slug]||0)+'</span></button>' }).join("")+'</div>'+
+    '<div class="svc-cats">'+cats.map(function(c){ return '<button type="button" class="svc-cat'+(SVF.cat===c.slug?' on':'')+'" data-svcat="'+escOnce(c.slug)+'"><b>'+escOnce(L==="ar"?c.name_ar:(c.name_en||c.name_ar))+'</b><span class="ltr">'+(count[c.slug]||0)+'</span></button>' }).join("")+'</div>'+
     '<div class="ag-filters"><input id="svQ" data-allow-autofill placeholder="'+esc(GX("svcSearchPH"))+'" value="'+esc(SVF.q)+'">'+
-     '<div class="ag-pills"><button type="button" class="'+(SVF.g?"":"on")+'" data-svg="">'+GX("agAllGov")+'</button>'+govs.map(function(g){ return '<button type="button" class="'+(SVF.g===g?"on":"")+'" data-svg="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
+     '<div class="ag-pills"><button type="button" class="'+(SVF.g?"":"on")+'" data-svg="">'+GX("agAllGov")+'</button>'+govs.map(function(g){ return '<button type="button" class="'+(SVF.g===g?"on":"")+'" data-svg="'+escOnce(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
     (SVC===null ? '<div class="resempty"><b>'+t("loading")+'</b></div>' : rows.length ? '<div class="ag-grid">'+rows.map(svcCard).join("")+'</div>' :
       '<div class="resempty">'+LICON.search+'<b>'+GX(SVF.cat||SVF.g||SVF.q?"svcEmptyF":"svcEmpty")+'</b><span>'+GX("svcEmptyCta")+'</span><a class="gold" href="/services/join" data-go="servicejoin" style="margin-top:12px;text-decoration:none">'+GX("svcJoin")+'</a></div>')+
    '</div>' }
@@ -4777,62 +4777,79 @@ function servicePage(id){
   if(SVC===null){ loadServices().then(render); return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>' }
   var p=(SVC.providers||[]).filter(function(x){ return String(x.id)===String(id) })[0];
   if(!p) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:18px">'+t("notFound")+'</b><div style="margin-top:18px"><a class="btn-n" href="/services" data-go="services">'+GX("svcNav")+'</a></div></div></div>';
-  var wa=svcWa(p), tel=String(p.phone||"").replace(/[^\d+]/g,""), photos=Array.isArray(p.photos)?p.photos:[];
-  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a href="/services" data-go="services">'+GX("svcNav")+'</a><i>›</i>'+esc(p.name)+'</div></div>'+
-   '<div class="wrap agprof svcprof">'+
-    '<div class="profcard"><div class="profhead">'+avatar(p.logo_url,p.name,86,"big")+'<div class="profmeta"><h1>'+esc(p.name)+(p.verified?' <span class="vbadge">✓ '+GX("svcVerified")+'</span>':'')+'</h1>'+
-      (p.contact_person?'<div class="pl agperson">'+GX("agPersonL")+': <b>'+esc(p.contact_person)+'</b></div>':'')+
-      (p.reviews?'<div class="ratingline"><span class="starsbig">'+stars(p.rating)+'</span><b class="ltr">'+p.rating+'</b><span class="ltr">('+p.reviews+')</span></div>':'<div class="ratingline" style="color:var(--light)">'+t("noReviews")+'</div>')+
-      '<div class="agspecs big">'+(p.cats||[]).map(function(k){ return '<i>'+esc(svcCatName(k))+'</i>' }).join("")+'</div>'+
-      '<div class="pl">'+((p.gov_names||[]).map(gN).join(L==="ar"?"، ":", ")||"")+((p.area_names||[]).length?' · '+p.area_names.map(esc).join(L==="ar"?"، ":", "):'')+'</div>'+
-      (p.description?'<p class="bio">'+esc(p.description)+'</p>':'')+'</div></div>'+
-     '<div class="agcontact">'+(wa?'<a class="btn-n wa" href="https://wa.me/'+esc(wa)+'?text='+encodeURIComponent(GX("svcWaMsg"))+'" target="_blank" rel="noopener">'+MI.msgs+GX("agWa")+'</a>':'')+
-       (tel?'<a class="btn-n" href="tel:'+esc(tel)+'">'+MI.phone+GX("agCall")+'</a>':'')+'</div>'+
+  var wa=svcWa(p), tel=String(p.phone||"").replace(/[^\d+]/g,""), photos=Array.isArray(p.photos)?p.photos:[], sep=L==="ar"?"، ":", ", own=USER&&p.user_id&&USER.id===p.user_id;
+  var fact=function(l,v){ return v?'<div><dt>'+l+'</dt><dd>'+v+'</dd></div>':'' };
+  // the card: who he is and what he does · a contact box that stays beside it on wide screens · then his words, his work, the reviews
+  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a href="/services" data-go="services">'+GX("svcNav")+'</a><i>›</i><bdi>'+escOnce(p.name)+'</bdi></div></div>'+
+   '<div class="wrap svcprof"><div class="svp-grid">'+
+    '<section class="svp-card svp-head"><div class="svp-id">'+avatar(p.logo_url,p.name,96,"big")+'<div class="svp-idt"><div class="svp-name"><h1><bdi>'+escOnce(p.name)+'</bdi></h1>'+(p.verified?'<span class="vbadge">✓ '+GX("svcVerified")+'</span>':'')+'</div>'+
+      (p.reviews?'<div class="svp-rate"><span class="starsbig">'+stars(p.rating)+'</span><b class="ltr">'+p.rating+'</b><span class="ltr">('+p.reviews+')</span></div>':'<div class="svp-rate none">'+t("noReviews")+'</div>')+
+      '<div class="agspecs big">'+(p.cats||[]).map(function(k){ return '<i>'+escOnce(svcCatName(k))+'</i>' }).join("")+'</div></div></div>'+
+      '<dl class="svp-facts">'+fact(GX("agPersonL"),p.contact_person?'<bdi>'+escOnce(p.contact_person)+'</bdi>':"")+fact(GX("lfGov"),(p.gov_names||[]).map(gN).join(sep))+fact(GX("f_agAreas"),(p.area_names||[]).map(function(a){ return '<bdi>'+escOnce(a)+'</bdi>' }).join(sep))+'</dl>'+
+    '</section>'+
+    '<aside class="svp-card svp-side"><h2>'+GX("svcContactH")+'</h2><div class="svp-acts">'+
+       (wa?'<a class="svp-btn wa" href="https://wa.me/'+escOnce(wa)+'?text='+encodeURIComponent(GX("svcWaMsg"))+'" target="_blank" rel="noopener">'+LICON.wa+'<span>'+GX("agWa")+'</span></a>':'')+
+       (tel?'<a class="svp-btn call" href="tel:'+escOnce(tel)+'">'+LICON.phone+'<span>'+GX("agCall")+'</span></a>':'')+'</div>'+
+      (tel?'<div class="svp-tel ltr" dir="ltr">'+escOnce(tel)+'</div>':'')+
+      '<button type="button" class="svp-btn ghost" data-svshare="'+p.id+'" data-svname="'+escOnce(p.name)+'">'+LICON.share+'<span>'+GX("svcShare")+'</span></button>'+
+      (own?'<a class="svp-btn ghost" href="/services/join" data-go="servicejoin">'+GX("svcEditMine")+'</a>':'')+
+      '<p class="svp-fine">'+GX("svcNote")+'</p></aside>'+
+    '<div class="svp-body">'+
+     (p.description?'<section class="svp-card svp-sec svp-about"><h2>'+GX("svcAboutH")+'</h2><p><bdi>'+escOnce(p.description)+'</bdi></p></section>':'')+
+     (photos.length?'<section class="svp-card svp-sec"><h2>'+GX("svcWork")+'</h2><div class="svc-photos">'+photos.slice(0,12).map(function(u){ return '<a href="'+esc(safeUrl(String(u)))+'" target="_blank" rel="noopener"><img src="'+esc(safeUrl(String(u)))+'" alt="" loading="lazy"></a>' }).join("")+'</div></section>':'')+
+     svcReviewsHtml(p)+
     '</div>'+
-    (photos.length?'<h2 style="font-size:18px;font-weight:700;margin:22px 0 12px">'+GX("svcWork")+'</h2><div class="svc-photos">'+photos.slice(0,12).map(function(u){ return '<a href="'+esc(safeUrl(String(u)))+'" target="_blank" rel="noopener"><img src="'+esc(safeUrl(String(u)))+'" alt="" loading="lazy"></a>' }).join("")+'</div>':'')+
-    svcReviewsHtml(p)+
-    '<p class="svc-note">'+GX("svcNote")+'</p>'+
-   '</div>' }
+   '</div></div>' }
 // the reviews under a provider: the list, and the member's own stars + text (not on his own card)
 var SVREV={}, SVRF={stars:0,body:""};
 function svcReviewsHtml(p){
   if(SVREV[p.id]===undefined){ SVREV[p.id]=null; if(DB) DB.rpc("bk_service_reviews",{p_id:+p.id}).then(function(r){ SVREV[p.id]=(r&&r.data)||[]; render() },function(){ SVREV[p.id]=[]; render() }) }
   var list=SVREV[p.id]||[], mine=USER?list.filter(function(r){ return r.user_id===USER.id })[0]:null, own=USER&&p.user_id&&USER.id===p.user_id;
   if(mine&&!SVRF.touched){ SVRF.stars=mine.stars; SVRF.body=mine.body||"" }
-  var form = own ? '' : !USER ? '<div class="svc-rform"><span>'+GX("svcRateSignin")+'</span> <button type="button" class="btn-n" id="svRevIn">'+t("loginSignupCombo")+'</button></div>' :
-    '<div class="svc-rform"><b>'+GX(mine?"svcRateEdit":"svcRateT")+'</b><div class="starpick" id="svStars">'+[1,2,3,4,5].map(function(n){ return '<span data-svstar="'+n+'" class="'+(n<=SVRF.stars?"on":"")+'">★</span>' }).join("")+'</div>'+
-      '<textarea id="svRevBody" rows="3" maxlength="600" placeholder="'+esc(GX("svcRatePH"))+'">'+esc(SVRF.body)+'</textarea><div class="xactions"><button type="button" class="gold" id="svRevSend" data-svp="'+p.id+'">'+GX("svcRateSend")+'</button><span class="xmsg" id="svRevMsg"></span></div></div>';
-  return '<h2 style="font-size:18px;font-weight:700;margin:26px 0 12px">'+GX("svcReviewsH")+(p.reviews?' <span class="ltr" style="color:var(--grey);font-weight:500">('+p.reviews+')</span>':'')+'</h2>'+
-    (SVREV[p.id]===null?'<div class="hintx">'+t("loading")+'</div>':list.length?'<div class="svc-revs">'+list.map(function(r){ return '<div class="svc-rev"><div><span class="starsbig">'+stars(r.stars)+'</span> <b>'+esc(r.name||"")+'</b> <small>'+new Date(r.at).toLocaleDateString(L==="ar"?"ar-u-nu-latn":L)+'</small></div>'+(r.body?'<p>'+esc(r.body)+'</p>':'')+'</div>' }).join("")+'</div>':'<div class="hintx">'+GX("svcNoReviews")+'</div>')+form }
+  var form = own ? '' : !USER ? '<div class="svc-rform signin"><span>'+GX("svcRateSignin")+'</span><button type="button" class="svp-btn call" id="svRevIn">'+t("loginSignupCombo")+'</button></div>' :
+    '<div class="svc-rform"><b>'+GX(mine?"svcRateEdit":"svcRateT")+'</b><div class="starpick" id="svStars">'+[1,2,3,4,5].map(function(n){ return '<button type="button" data-svstar="'+n+'" class="'+(n<=SVRF.stars?"on":"")+'" aria-label="'+n+' / 5">★</button>' }).join("")+'</div>'+
+      '<textarea id="svRevBody" rows="3" maxlength="600" placeholder="'+esc(GX("svcRatePH"))+'">'+esc(SVRF.body)+'</textarea><div class="svp-row"><button type="button" class="gold" id="svRevSend" data-svp="'+p.id+'">'+GX("svcRateSend")+'</button><span class="xmsg" id="svRevMsg" role="status"></span></div></div>';
+  return '<section class="svp-card svp-sec svp-reviews"><div class="svp-sech"><h2>'+GX("svcReviewsH")+'</h2>'+(p.reviews?'<div class="svp-rate"><span class="starsbig">'+stars(p.rating)+'</span><b class="ltr">'+p.rating+'</b><span class="ltr">('+p.reviews+')</span></div>':'')+'</div>'+
+    (SVREV[p.id]===null?'<div class="svp-empty">'+t("loading")+'</div>':list.length?'<div class="svc-revs">'+list.map(function(r){ return '<div class="svc-rev"><div class="svc-revh"><b><bdi>'+escOnce(r.name||"")+'</bdi></b><span class="starsbig">'+stars(r.stars)+'</span><small>'+new Date(r.at).toLocaleDateString(L==="ar"?"ar-SY-u-nu-latn":L,{day:"numeric",month:"short",year:"numeric"})+'</small></div>'+(r.body?'<p><bdi>'+escOnce(r.body)+'</bdi></p>':'')+'</div>' }).join("")+'</div>':'<div class="svp-empty"><span class="svp-estars" aria-hidden="true">★★★★★</span><span>'+GX("svcNoReviews")+'</span></div>')+form+'</section>' }
 function serviceJoinPage(){
   if(!USER) return gate();
   if(SVMINE===undefined){ loadMyService().then(render); return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>' }
   if(SVC===null) loadServices().then(render);
-  var m=SVMINE||{}, f=SVFORM||(SVFORM={name:m.name||"",contact_person:m.contact_person||fullName(USER)||"",phone:m.phone||USER.phone||"",whatsapp:m.whatsapp||USER.phone||"",description:m.description||"",cats:(m.cats||[]).slice(),gov_names:(m.gov_names||[]).slice(),area_names:(m.area_names||[]).join("، "),logo_url:m.logo_url||"",photos:Array.isArray(m.photos)?m.photos.slice():[]});
-  var cats=(SVC&&SVC.cats)||[], fl=function(id,label,val,type,ph){ return '<div class="fl"><label for="'+id+'">'+label+'</label><input id="'+id+'" data-svf="'+id.slice(3)+'" type="'+(type||"text")+'"'+(type==="tel"?' dir="ltr"':'')+' value="'+esc(val||"")+'"'+(ph?' placeholder="'+esc(ph)+'"':'')+'></div>' };
-  var st=m.status?'<div class="svc-status">'+GX("svcStatus")+' '+agStatusPill(m.status)+'</div>':'';
+  var m=SVMINE||{}, f=SVFORM||(SVFORM={name:unesc(m.name),contact_person:unesc(m.contact_person)||fullName(USER)||"",phone:unesc(m.phone)||USER.phone||"",whatsapp:unesc(m.whatsapp)||USER.phone||"",description:unesc(m.description),cats:(m.cats||[]).map(unesc),gov_names:(m.gov_names||[]).map(unesc),area_names:(m.area_names||[]).map(unesc).join("، "),logo_url:unesc(m.logo_url),photos:Array.isArray(m.photos)?m.photos.map(unesc):[]});
+  var cats=(SVC&&SVC.cats)||[], fl=function(id,label,val,type,ph){ return '<div class="fl"><label for="'+id+'">'+label+'</label><input id="'+id+'" data-svf="'+id.slice(3)+'" type="'+(type||"text")+'"'+(type==="tel"?' dir="ltr" inputmode="tel" autocomplete="tel"':'')+' value="'+esc(val||"")+'"'+(ph?' placeholder="'+escOnce(ph)+'"':'')+'></div>' };
+  var pick=function(k,v,on,label){ return '<button type="button" class="'+(on?"on":"")+'" aria-pressed="'+(on?"true":"false")+'" data-svpick="'+k+'" data-v="'+esc(v)+'">'+label+'</button>' };
+  // five short steps in the order a tradesman thinks: who, how to reach, what, where, then the proof
+  var sec=function(n,title,hint,body){ return '<section class="svp-card svj-sec"><div class="svj-h"><i>'+n+'</i><div><h2>'+title+'</h2>'+(hint?'<p>'+hint+'</p>':'')+'</div></div>'+body+'</section>' };
+  var side=(m.status?'<div class="svp-card svj-card svj-status"><div class="svj-st"><span>'+GX("svcStatus")+'</span>'+agStatusPill(m.status)+'</div><p>'+GX("svcEditReview")+'</p>'+
+      (m.id&&m.status==="approved"?'<a class="svp-btn ghost" href="/services/'+m.id+'" data-svopen="'+m.id+'">'+GX("svcViewCard")+'</a>':'')+'</div>':'')+
+    '<div class="svp-card svj-card svj-next"><h3>'+GX("svcNextH")+'</h3><ul><li>'+GX("svcNext1")+'</li><li>'+GX("svcNext2")+'</li><li>'+GX("svcNext3")+'</li></ul></div>'+
+    '<div class="svp-card svj-card svj-help"><p>'+GX("svcHelp")+'</p>'+svcTeamWa("svp-btn ghost","svcHelpWa")+'</div>';
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a href="/services" data-go="services">'+GX("svcNav")+'</a><i>›</i>'+GX("svcJoin")+'</div></div>'+
-   '<div class="wrap svcjoin" style="max-width:760px;padding:22px 18px 60px"><h1>'+GX(m.id?"svcEditT":"svcJoinT")+'</h1><p class="svc-lead">'+GX("svcJoinLead")+'</p>'+st+
-    (m.id?'<div class="hintx" style="margin-bottom:12px">'+GX("svcEditReview")+'</div>':'')+'<div class="svc-help">'+GX("svcHelp")+' '+svcTeamWa("svc-teamwa")+'</div>'+
-    '<div class="blk"><div class="in">'+fl("svfname",GX("svcFName"),f.name)+fl("svfcontact_person",GX("svcFPerson"),f.contact_person)+
-      '<div class="row">'+fl("svfwhatsapp",GX("svcFWa"),f.whatsapp,"tel","+9639…")+fl("svfphone",GX("svcFPhone"),f.phone,"tel","+9639…")+'</div>'+
-      '<div class="fl"><label>'+GX("svcFCats")+'</label><div class="svc-pick">'+cats.map(function(c){ return '<button type="button" class="'+(f.cats.indexOf(c.slug)>-1?"on":"")+'" data-svpick="cats" data-v="'+esc(c.slug)+'">'+esc(L==="ar"?c.name_ar:(c.name_en||c.name_ar))+'</button>' }).join("")+'</div></div>'+
-      '<div class="fl"><label>'+GX("svcFGovs")+'</label><div class="svc-pick">'+Object.keys(D.GEO).map(function(g){ return '<button type="button" class="'+(f.gov_names.indexOf(g)>-1?"on":"")+'" data-svpick="gov_names" data-v="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
-      fl("svfarea_names",GX("svcFAreas"),f.area_names,"text",GX("svcFAreasPH"))+
-      '<div class="fl"><label>'+GX("svcFLogo")+'</label><div class="svc-up"><span class="svc-logo">'+(f.logo_url?'<img src="'+esc(safeUrl(String(f.logo_url)))+'" alt="">':avatar(null,f.name||"?",56,"aglogo"))+'</span>'+
-        '<label class="btn-n svc-upbtn">'+GX(f.logo_url?"svcChange":"svcAddLogo")+'<input type="file" accept="image/*" id="svLogoFile" hidden></label></div></div>'+
-      '<div class="fl"><label>'+GX("svcFPhotos")+'</label><div class="svc-up svc-ups">'+(f.photos||[]).map(function(u,i){ return '<span class="svc-ph"><img src="'+esc(safeUrl(String(u)))+'" alt=""><button type="button" data-svphdel="'+i+'" aria-label="×">×</button></span>' }).join("")+
-        ((f.photos||[]).length<8?'<label class="svc-phadd">+<span>'+GX("svcAddPhoto")+'</span><input type="file" accept="image/*" multiple id="svPhotoFile" hidden></label>':'')+'</div><span class="xmsg" id="svUpMsg"></span></div>'+
-      '<div class="fl"><label for="svfdescription">'+GX("svcFDesc")+'</label><textarea id="svfdescription" data-svf="description" rows="5" maxlength="1500" placeholder="'+esc(GX("svcFDescPH"))+'">'+esc(f.description)+'</textarea></div>'+
-      '<div class="hintx">'+GX("svcFHint2")+'</div>'+
-      '<div class="xactions"><button type="button" class="gold" id="svSave">'+GX(m.id?"svcSaveEdit":"svcSend")+'</button><span class="xmsg" id="svMsg"></span></div>'+
-    '</div></div></div>' }
+   '<div class="wrap svcjoin"><div class="svj-top"><h1>'+GX(m.id?"svcEditT":"svcJoinT")+'</h1><p class="svc-lead">'+GX("svcJoinLead")+'</p></div>'+
+    '<div class="svj-grid"><div class="svj-main">'+
+     sec(1,GX("svcS1"),"",'<div class="svj-biz"><div class="svj-logo"><label class="svc-logo'+(f.logo_url?' has':'')+'" for="svLogoFile" aria-label="'+esc(GX("svcFLogo"))+'">'+(f.logo_url?'<img src="'+esc(safeUrl(String(f.logo_url)))+'" alt="">':LICON.cam)+'</label>'+
+        '<div class="svj-logot"><label class="svc-upbtn">'+GX(f.logo_url?"svcChange":"svcAddLogo")+'<input type="file" accept="image/*" id="svLogoFile" hidden></label><small>'+GX("svcFLogo")+'</small><span class="xmsg" id="svLogoMsg" role="status"></span></div></div>'+
+       '<div class="svj-fields">'+fl("svfname",GX("svcFName"),f.name)+fl("svfcontact_person",GX("svcFPerson"),f.contact_person)+'</div></div>')+
+     sec(2,GX("svcS2"),GX("svcFHintPhone"),'<div class="svj-two">'+fl("svfwhatsapp",GX("svcFWa"),f.whatsapp,"tel","+9639…")+fl("svfphone",GX("svcFPhone"),f.phone,"tel","+9639…")+'</div>')+
+     sec(3,GX("svcS3"),GX("svcS3h"),'<div class="svc-pick" role="group" aria-label="'+esc(GX("svcS3"))+'">'+cats.map(function(c){ return pick("cats",c.slug,f.cats.indexOf(c.slug)>-1,escOnce(L==="ar"?c.name_ar:(c.name_en||c.name_ar))) }).join("")+'</div>')+
+     sec(4,GX("svcS4"),"",'<div class="svj-fields"><div class="fl"><label id="svGovL">'+GX("svcFGovL")+'</label><div class="svc-pick govs" role="group" aria-labelledby="svGovL">'+Object.keys(D.GEO).map(function(g){ return pick("gov_names",g,f.gov_names.indexOf(g)>-1,gN(g)) }).join("")+'</div></div>'+
+       fl("svfarea_names",GX("svcFAreas"),f.area_names,"text",GX("svcFAreasPH"))+'</div>')+
+     sec(5,GX("svcS5"),GX("svcFHintPhotos"),'<div class="svj-fields"><div class="fl"><label>'+GX("svcFPhotos")+'</label><div class="svc-up svc-ups">'+(f.photos||[]).map(function(u,i){ return '<span class="svc-ph"><img src="'+esc(safeUrl(String(u)))+'" alt=""><button type="button" data-svphdel="'+i+'" aria-label="×">×</button></span>' }).join("")+
+        ((f.photos||[]).length<8?'<label class="svc-phadd">+<span>'+GX("svcAddPhoto")+'</span><input type="file" accept="image/*" multiple id="svPhotoFile" hidden></label>':'')+'</div><span class="xmsg" id="svUpMsg" role="status"></span></div>'+
+       '<div class="fl"><label for="svfdescription">'+GX("svcFDesc")+'</label><textarea id="svfdescription" data-svf="description" rows="5" maxlength="1500" placeholder="'+esc(GX("svcFDescPH"))+'">'+esc(f.description)+'</textarea></div></div>')+
+     '<div class="svj-save"><button type="button" class="gold" id="svSave">'+GX(m.id?"svcSaveEdit":"svcSend")+'</button><span class="xmsg" id="svMsg" role="status"></span></div>'+
+    '</div><aside class="svj-side">'+side+'</aside></div></div>' }
 function wireServices(){
   if(VIEW==="services"){
     var q=$("#svQ"); if(q) q.oninput=function(){ SVF.q=this.value; clearTimeout(window._svT); window._svT=setTimeout(function(){ var pos=q.selectionStart; render(); var n=$("#svQ"); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos) }catch(e){} } },220) };
     $$("[data-svg]").forEach(function(b){ b.onclick=function(){ SVF.g=this.dataset.svg; render() } });
     $$("[data-svcat]").forEach(function(b){ b.onclick=function(){ SVF.cat=SVF.cat===this.dataset.svcat?"":this.dataset.svcat; render() } });
   }
+  if(!window._svShareWired){ window._svShareWired=true; document.addEventListener("click",function(e){ var sh=e.target.closest&&e.target.closest("[data-svshare]"); if(!sh) return; e.preventDefault();
+    var u=location.origin+"/services/"+sh.dataset.svshare, nm=sh.dataset.svname||CONFIG.brand;
+    if(navigator.share){ navigator.share({title:nm,text:nm+" — "+CONFIG.brand,url:u}).catch(function(){}); return }
+    var done=function(){ var sp=sh.querySelector("span"); if(sp){ sp.textContent=t("copied"); setTimeout(function(){ sp.textContent=GX("svcShare") },2500) } };
+    try{ navigator.clipboard.writeText(u).then(done,function(){ prompt(GX("svcShare"), u) }) }catch(x){ prompt(GX("svcShare"), u) } }) }
   $$("[data-svopen]").forEach(function(a){ a.onclick=function(e){ if(e.target.closest("[data-stop]")) return; e.preventDefault(); VIEW="service:"+this.dataset.svopen; scrollTo(0,0); render() } });
   if(VIEW.indexOf("service:")===0){
     $$("[data-svstar]").forEach(function(sp){ sp.onclick=function(){ SVRF.stars=+this.dataset.svstar; SVRF.touched=true; $$("[data-svstar]").forEach(function(x){ x.classList.toggle("on",+x.dataset.svstar<=SVRF.stars) }) } });
@@ -4841,31 +4858,31 @@ function wireServices(){
     if($("#svRevSend")) $("#svRevSend").onclick=async function(){ var m=$("#svRevMsg"), id=+this.dataset.svp, btn=this; if(!SVRF.stars){ m.textContent=GX("svcRateNeedStars"); return }
       btn.disabled=true; try{ var r=await DB.rpc("bk_service_review",{p_token:USER.token,p_id:id,p_stars:SVRF.stars,p_body:SVRF.body}); var d=(r&&r.data)||{}; if(r&&r.error) throw r.error;
         if(d.error){ m.textContent=GX("svcRateErr_"+d.error)||d.error; btn.disabled=false; return }
-        delete SVREV[id]; SVRF={stars:0,body:""}; SVC=null; await loadServices(); render(); var mm=$("#svRevMsg"); if(mm){ mm.style.color="var(--ok)"; mm.textContent=GX("svcRateThanks") } }
+        delete SVREV[id]; SVRF={stars:0,body:""}; SVC=null; await loadServices(); render(); var mm=$("#svRevMsg"); if(mm){ mm.style.color="#7FD9A8"; mm.textContent=GX("svcRateThanks") } }
       catch(e){ m.textContent=e.message||String(e); btn.disabled=false } };
   }
   if(VIEW==="servicejoin"&&SVFORM){
     $$("[data-svf]").forEach(function(i){ i.oninput=function(){ SVFORM[this.dataset.svf]=this.value } });
     var svUp=async function(file,big){ var raw=await readFile(file), img=await shrink(raw,big?1600:600,big?0.85:0.85), path="avatars/"+USER.id+"-svc-"+Date.now()+"-"+Math.random().toString(36).slice(2,7)+".jpg";
       var up=await storageUpload(path,img,{contentType:"image/jpeg"}); if(up.error) throw new Error(up.error.message); return DB.storage.from("photos").getPublicUrl(path).data.publicUrl };
-    var upMsg=function(t2,bad){ var m=$("#svUpMsg"); if(m){ m.style.color=bad?"var(--danger)":"var(--grey)"; m.textContent=t2 } };
-    if($("#svLogoFile")) $("#svLogoFile").onchange=async function(){ var f=(this.files||[])[0]; this.value=""; if(!f||!/^image\//.test(f.type)) return; upMsg(t("uploading"));
-      try{ SVFORM.logo_url=await svUp(f,false); render() }catch(e){ upMsg(e.message||"error",true) } };
+    var upMsg=function(t2,bad,id){ var m=$(id||"#svUpMsg"); if(m){ m.style.color=bad?"":"var(--muted)"; m.textContent=t2 } };
+    if($("#svLogoFile")) $("#svLogoFile").onchange=async function(){ var f=(this.files||[])[0]; this.value=""; if(!f||!/^image\//.test(f.type)) return; upMsg(t("uploading"),false,"#svLogoMsg");
+      try{ SVFORM.logo_url=await svUp(f,false); render() }catch(e){ upMsg(e.message||"error",true,"#svLogoMsg") } };
     if($("#svPhotoFile")) $("#svPhotoFile").onchange=async function(){ var fs=[].slice.call(this.files||[]).filter(function(f){ return /^image\//.test(f.type) }); this.value=""; if(!fs.length) return; upMsg(t("uploading"));
       try{ for(var i=0;i<fs.length&&SVFORM.photos.length<8;i++){ SVFORM.photos.push(await svUp(fs[i],true)) } render() }catch(e){ upMsg(e.message||"error",true) } };
     $$("[data-svphdel]").forEach(function(b){ b.onclick=function(){ SVFORM.photos.splice(+this.dataset.svphdel,1); render() } });
-    $$("[data-svpick]").forEach(function(b){ b.onclick=function(){ var k=this.dataset.svpick, v=this.dataset.v, a=SVFORM[k], i=a.indexOf(v); if(i>-1) a.splice(i,1); else a.push(v); this.classList.toggle("on",i<0) } });
+    $$("[data-svpick]").forEach(function(b){ b.onclick=function(){ var k=this.dataset.svpick, v=this.dataset.v, a=SVFORM[k], i=a.indexOf(v); if(i>-1) a.splice(i,1); else a.push(v); this.classList.toggle("on",i<0); this.setAttribute("aria-pressed",i<0?"true":"false") } });
     if($("#svSave")) $("#svSave").onclick=async function(){ var btn=this, m=$("#svMsg"), f=SVFORM;
       var data={name:f.name,contact_person:f.contact_person,phone:f.phone,whatsapp:f.whatsapp,description:f.description,cats:f.cats,gov_names:f.gov_names,
         area_names:String(f.area_names||"").split(/[،,]/).map(function(x){ return x.trim() }).filter(Boolean).slice(0,30),country:COUNTRY,
         logo_url:f.logo_url||null,photos:f.photos||[]};
       if(!String(data.name).trim()){ m.textContent=GX("svcErr_noname"); return } if(!data.cats.length){ m.textContent=GX("svcErr_nocat"); return }
       if(!String(data.phone).trim()&&!String(data.whatsapp).trim()){ m.textContent=GX("svcErr_nophone"); return }
-      btn.disabled=true; m.textContent=t("saving");
+      btn.disabled=true; m.style.color="var(--muted)"; m.textContent=t("saving");
       try{ var r=await DB.rpc("bk_service_save",{p_token:USER.token,p_data:data}); if(r&&r.error) throw r.error; var d=(r&&r.data)||{};
-        if(d.error){ m.textContent=GX("svcErr_"+d.error)||d.error; btn.disabled=false; return }
-        SVMINE=d; SVFORM=null; SVC=null; m.textContent=""; render(); var mm=$("#svMsg"); if(mm){ mm.style.color="var(--ok)"; mm.textContent=GX(d.status==="approved"?"svcSavedLive":"svcSavedWait") } }
-      catch(e){ m.textContent=e.message||String(e); btn.disabled=false } };
+        if(d.error){ m.style.color=""; m.textContent=GX("svcErr_"+d.error)||d.error; btn.disabled=false; return }
+        SVMINE=d; SVFORM=null; SVC=null; m.textContent=""; render(); var mm=$("#svMsg"); if(mm){ mm.style.color="#7FD9A8"; mm.textContent=GX(d.status==="approved"?"svcSavedLive":"svcSavedWait") } }
+      catch(e){ m.style.color=""; m.textContent=e.message||String(e); btn.disabled=false } };
   }
 }
 function agencyFormPage(){ if(!USER) return gate(); ACC.agForm=true; return account() }
@@ -4892,6 +4909,7 @@ function qfLocalRead(raw, geo, learned, home){
   var dm=[["rent",rentRe],["sale",saleRe],["share",shareRe]].map(function(p){ var m=p[1].exec(t); return m?{v:p[0],i:m.index}:null }).filter(Boolean).sort(function(a,b){ return a.i-b.i });
   if(dm.length) f.deal=dm[0].v;
   // property type: the earliest type word wins (the message names the property before its features)
+  // «مكتب البراء للخدمات العقارية» is the poster's own office, not an office for sale (owner 2026-11-10)
   var T=[["hotelapt",/ (شقه|شقق) (مفروشه )?فندقيه/],["duplex",/ (شقه )?دوبل(ي)?كس/],["terrace",/ (شقه|طابق) (تراس|سطح)| روف |^ تراس /],
     ["studio",/ (ا)?ستوديو /],["suite",/ سويت /],["floor",/ طابق كامل /],["building",/ (بناء كامل|بنايه|عماره|بناء مؤلف|بناء من) /],
     ["villa",/ (فيلا|فيله|فيلل|فلل|فله) /],["arab",/ (بيت|منزل|دار) (عربي|شامي)| حوش | ارض ديار /],["chalet",/ شاليه /],["clinic",/ عياده /],
@@ -4899,7 +4917,7 @@ function qfLocalRead(raw, geo, learned, home){
     ["hotel",/ (فندق|منشاه سياحيه) /],["workshop",/ (ورشه|معمل صغير) /],["factory",/ (معمل|مصنع) /],["warehouse",/ (مستودع|هنكار) /],
     ["basement",/ قبو (تجاري|صناعي) /],["shop",/ (محل|محلات|دكان|محلين) /],["farm",/ مزرعه /],
     ["agri",/ (ارض|قطعه ارض) زراعيه /],["resid",/ (ارض|قطعه ارض) سكنيه /],["comm",/ (ارض|قطعه ارض) تجاريه /],["indust",/ (ارض|قطعه ارض) صناعيه /],["tourist",/ (ارض|قطعه ارض) سياحيه /],
-    ["mahdar",/ محضر /],["plot",/ (ارض|قطعه ارض|مقسم) /],["office",/ (مكتب|مكاتب|مكتبين)(?! (عقاري|العقار|عقاريه|الصلح|المحامي|عقار))/],
+    ["mahdar",/ محضر /],["plot",/ (ارض|قطعه ارض|مقسم) /],["office",/ (مكتب|مكاتب|مكتبين)(?! (عقاري|العقار|عقاريه|الصلح|المحامي|عقار))(?! [^ ]+ ?[^ ]* (للخدمات|للعقارات|للتسويق|للوساطه|العقاري|العقاريه|عقاري|عقاريه) )/],
     ["apartment",/ (شقه|شقق|شقتين) /],["house",/ (منزل|بيت) /]];
   T=T.filter(function(p){ return !D.TYPES||D.TYPES[p[0]] });
   var pt=first(T,true); if(pt) f.property_type=pt;
@@ -11201,6 +11219,12 @@ var GX_T={
   svcFDesc:{ar:"عن عملك",en:"About your work"}, svcFDescPH:{ar:"خبرتك، وما تقدّمه، وأوقات العمل…",en:"Experience, what you offer, hours…"},
   svcFHint:{ar:"رقمك يظهر للزوار ليتواصلوا معك. صور أعمالك يضيفها فريق بلكون بعد التواصل معك.",en:"Your number is shown so people can reach you. Photos of your work are added by the Balkoun team."},
   svcSend:{ar:"أرسل للمراجعة",en:"Send for review"}, svcSaveEdit:{ar:"احفظ التعديل",en:"Save changes"},
+  svcS1:{ar:"عملك",en:"Your business"}, svcS2:{ar:"أرقام التواصل",en:"Contact numbers"}, svcS3:{ar:"ماذا تعمل؟",en:"What do you do?"}, svcS3h:{ar:"اختر خدمة واحدة أو أكثر.",en:"Pick one or more."},
+  svcS4:{ar:"أين تعمل؟",en:"Where do you work?"}, svcFGovL:{ar:"المحافظات",en:"Governorates"}, svcS5:{ar:"الصور والتعريف",en:"Photos and description"},
+  svcFHintPhone:{ar:"رقمك يظهر للزوار ليتواصلوا معك.",en:"Your number is shown so people can reach you."}, svcFHintPhotos:{ar:"الصور الحقيقية من أعمالك تجعل الناس يثقون بك أكثر.",en:"Real photos of your work build trust."},
+  svcContactH:{ar:"تواصل مباشرة",en:"Contact directly"}, svcShare:{ar:"مشاركة",en:"Share"}, svcAboutH:{ar:"نبذة",en:"About"}, svcEditMine:{ar:"عدّل بطاقتك",en:"Edit your card"}, svcViewCard:{ar:"اعرض بطاقتك",en:"View your card"},
+  svcNextH:{ar:"ماذا بعد الإرسال؟",en:"What happens next?"}, svcNext1:{ar:"نراجع بطاقتك قبل أن تظهر.",en:"We review your card before it shows."}, svcNext2:{ar:"تظهر في دليل خدمات العقار.",en:"It appears in the home services directory."},
+  svcNext3:{ar:"يتواصل معك الناس مباشرة على واتساب أو بالاتصال.",en:"People contact you directly on WhatsApp or by phone."}, svcHelpWa:{ar:"تواصل معنا على واتساب",en:"Message us on WhatsApp"},
   svcSavedWait:{ar:"وصلتنا بطاقتك ✓ تظهر بعد المراجعة.",en:"Received ✓ It shows after review."}, svcSavedLive:{ar:"حُفظ التعديل ✓",en:"Saved ✓"},
   svcErr_noname:{ar:"اكتب اسم العمل.",en:"Enter the business name."}, svcErr_nocat:{ar:"اختر خدمة واحدة على الأقل.",en:"Pick at least one service."}, svcErr_nophone:{ar:"اكتب رقم واتساب أو رقم اتصال.",en:"Enter a WhatsApp or phone number."}, promoMine:{ar:"تريد وصولاً أسرع؟ روّج إعلانك على بلكون وفيسبوك وإنستغرام.",en:"Want more reach? Promote your listing on Balkoun, Facebook and Instagram."}, daNav:{ar:"حذف الحساب",en:"Delete account"}, daH:{ar:"حذف حسابك في بلكون",en:"Delete your Balkoun account"},
   daIntro:{ar:"تطبيق بلكون وموقع balkoun.com حساب واحد. هنا تعرف كيف تحذف حسابك، وما الذي يُحذف، وما الذي نحتفظ به ولماذا.",en:"The Balkoun app and balkoun.com share one account. Here is how to delete it, what is deleted, and what we keep and why."},

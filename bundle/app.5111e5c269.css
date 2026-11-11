@@ -206,6 +206,7 @@ html.js .rv.in{opacity:1;transform:none}
 .qfteaser-wrap{position:relative;margin:26px 0 0}
 .qfteaser{display:flex;align-items:center;gap:16px;background:#fff;border:1px solid var(--gold);border-radius:14px;padding-block:16px;padding-inline-start:20px;padding-inline-end:44px;box-shadow:0 2px 12px rgba(196,136,31,.1);cursor:pointer;text-decoration:none;color:inherit}
 .qfteaser-ico{flex:none;width:44px;height:44px;border-radius:50%;background:var(--gold-w);color:var(--gold);display:grid;place-items:center}
+.qfteaser-ico .bmark{width:28px;height:28px;display:block}   /* the header's mark (mark.svg's navy lines vanished on the dark theme, owner 2026-11-10) */
 .qfteaser-tx{flex:1;min-width:0}
 .qfteaser-tx b{display:block;font-size:15px;color:var(--navy)}
 .qfteaser-tx small{display:block;font-size:13px;color:var(--grey);margin-top:2px;line-height:1.5}
@@ -920,6 +921,7 @@ input[type="password"]::-webkit-strong-password-auto-fill-button{
 html[dir=ltr] .aboutsec .aboutmore a.gh::after{content:"→"}
 .aboutsec .aboutmore a.gh:last-child{background:var(--gold);color:#14213D}
 .govs a .gcnt{font-size:12.5px;white-space:nowrap;opacity:.85}
+html body .aboutsec .aboutlinks .govs a{flex-direction:column;align-items:flex-start;justify-content:center;gap:2px}   /* four narrow tiles a row: the count goes under the name */
 @media(max-width:860px){.aboutsec .aboutcols{grid-template-columns:1fr;gap:16px}.aboutsec .aboutp p{font-size:14.5px;line-height:1.85}}
 /* ── crawlable home content written by scripts/generate-pages.mjs (see the seo-home markers inside #app); the first render replaces it. With scripts
    on, it is hidden from the eye and a navy splash shows while the page is parsed (no "other page" flashing by) ── */
@@ -937,6 +939,9 @@ html[dir=ltr] .aboutsec .aboutmore a.gh::after{content:"→"}
 /* ── reviews / stars ── */
 .ratingline{display:flex;align-items:center;gap:8px;margin-top:5px;font-size:14px}
 .starsbig{color:var(--gold);font-size:17px;letter-spacing:1px}
+.hstar{font-style:normal;background:linear-gradient(to right,currentColor 50%,rgba(154,163,178,.5) 50%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+[dir=rtl] .hstar{background-image:linear-gradient(to left,currentColor 50%,rgba(154,163,178,.5) 50%)}
+[dir=rtl] .ltr .hstar,[dir=rtl] .ltr.hstar{background-image:linear-gradient(to right,currentColor 50%,rgba(154,163,178,.5) 50%)}
 .starpick{display:flex;gap:6px;font-size:26px;color:var(--line-2);cursor:pointer;user-select:none}
 .starpick span{transition:.12s;line-height:1}
 .starpick span.on{color:var(--gold)}
