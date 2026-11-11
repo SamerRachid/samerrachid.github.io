@@ -1899,3 +1899,68 @@ body::before{content:"";position:fixed;top:0;left:0;right:0;height:max(env(safe-
 .delacct p{color:#E6E8EE;line-height:1.8}
 .delacct a{color:var(--gold,#C4881F)}
 html body .delacct .da-go{display:inline-flex;align-items:center;height:46px;padding:0 22px;margin:6px 0 4px;border:0;border-radius:10px;background:var(--gold,#C4881F);color:#14213D;font:inherit;font-weight:700;cursor:pointer}
+
+/* ══ 2026-11-11 · five things learnt from dalelook.sy ══ */
+/* 1 · phones: the bottom bar (home · search · «أضف إعلانك» · saved · account); it takes the place of the floating «+ أضف إعلانك» */
+@media (max-width:860px){
+  html body .bnav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:end;position:fixed;left:0;right:0;bottom:0;z-index:1120;background:var(--navy-2);border-top:1px solid var(--line);padding:7px 6px calc(8px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)))}
+  html body .bnav a{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;padding:3px 0;color:rgba(255,255,255,.72);font-size:11px;font-weight:600;line-height:1.3;text-decoration:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  html body .bnav a span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  html body .bnav a svg{width:23px;height:23px;flex:none}
+  html body .bnav a.on{color:var(--gold-dk)}
+  html body .bnav a.bn-add{color:#fff}
+  html body .bnav a.bn-add i{display:grid;place-items:center;width:50px;height:50px;margin-top:-27px;border-radius:50%;background:var(--gold);color:var(--navy);border:4px solid var(--navy-2);box-shadow:0 6px 16px rgba(0,0,0,.35)}
+  html body .bnav a.bn-add i svg{width:24px;height:24px}
+  html body .bnav .bn-dot{position:absolute;top:1px;left:50%;margin-left:6px;width:9px;height:9px;border-radius:50%;background:#E5484D;border:2px solid var(--navy-2)}
+  html body .bnav a:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:8px}
+  /* room for it: the footer's last line, the install banner, the toast and the floating WhatsApp button */
+  html body .bnav ~ footer{padding-bottom:calc(96px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)))}
+  body.has-bnav .pwa-bar{bottom:calc(78px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)))}
+  body.has-bnav .pwa-toast{bottom:calc(80px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)))}
+  html body.has-bnav .wa-fab{bottom:calc(84px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)))}
+  /* it leaves while the menu, a picker sheet or the keyboard is up */
+  body.mdw-open .bnav,body.kb-on .bnav,body.hf2 .bnav{display:none!important}
+}
+@media (max-width:860px){ body:has(.chipsel-drop.on) .bnav{display:none!important} }
+
+/* 2 · search results: WhatsApp · call on the card */
+html body .rs-main .res .card.c2 .cacts{order:7;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;margin-top:6px}
+html body .cacts .cact{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;height:42px;padding:0 10px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.07);color:#fff;font:inherit;font-size:14px;font-weight:700;line-height:1;cursor:pointer}
+html body .cacts .cact.wa{background:#1FA855;border-color:#1FA855;color:#fff}
+html body .cacts .cact svg{width:18px;height:18px;flex:none}
+html body .cacts .cact span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+html body .cacts .cact:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+/* 4 · the currency question: a sheet from the bottom on phones, a centred box on wide screens */
+.curask{position:fixed;top:0;left:0;right:0;bottom:0;z-index:9200;display:flex;align-items:flex-end;justify-content:center;background:rgba(6,12,26,.62);overscroll-behavior:contain;animation:curaskIn .25s ease-out}
+.curask-box{width:100%;max-width:520px;background:var(--navy-2);border:1px solid var(--line);border-bottom:0;border-radius:18px 18px 0 0;padding:22px 20px calc(24px + max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px)));color:#fff;text-align:center;animation:curaskUp .3s cubic-bezier(.2,.7,.2,1)}
+html body .curask-box h3{margin:0 0 6px;font-size:18px;font-weight:800;line-height:1.5;color:#fff}
+html body .curask-box p{margin:0 0 16px;font-size:13px;line-height:1.6;color:var(--muted)}
+.curask-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+html body .curask-two button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;min-height:84px;padding:10px 8px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:#fff;font:inherit;font-size:15px;font-weight:700;line-height:1.4;cursor:pointer}
+html body .curask-two button b{font-size:22px;line-height:1.2;color:var(--gold-dk)}
+html body .curask-two button.on{border-color:var(--gold);background:rgba(202,144,81,.14)}
+html body .curask-two button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+@keyframes curaskIn{from{opacity:0}to{opacity:1}}
+@keyframes curaskUp{from{transform:translateY(24px)}to{transform:none}}
+@media (min-width:861px){ .curask{align-items:center} .curask-box{border-radius:18px;border-bottom:1px solid var(--line);padding-bottom:24px} }
+@media (prefers-reduced-motion:reduce){ .curask,.curask-box{animation:none} }
+
+/* 5 · follow an agency / a broker: the button inside the advertiser's box on the listing page, a chip on the agency page */
+html body .lowner{flex-wrap:wrap}
+html body .lowner>div:not(.folbox){flex:1 1 0;min-width:0}
+html body .lowner .folbox{flex:1 1 100%;display:grid;gap:6px;margin-top:6px}
+html body .folbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:46px;padding:0 14px;border-radius:10px;border:1px solid var(--gold);background:transparent;color:var(--gold-dk);font:inherit;font-size:15px;font-weight:700;line-height:1;cursor:pointer}
+html body .folbtn.on{background:rgba(202,144,81,.16);color:#fff}
+html body .folbtn svg{flex:none}
+html body .folbox small{font-size:12px;line-height:1.5;color:var(--muted);text-align:center}
+html body .folbtn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+html body .gh.folgh{border-color:var(--gold);color:var(--gold-dk)}
+/* the account page's lists (who I follow, who I blocked): a long name is cut with «…» instead of pushing the row off the screen */
+html body .blklist{grid-template-columns:minmax(0,1fr)}
+html body .blkrow b a{color:inherit}
+html body .gh.folgh.on{background:rgba(202,144,81,.16);color:#fff}
+/* the results without the side map (the default since 2026-11-11, owner): the cards share the whole row. The base rule caps a
+   column at card-size + 40px and starts the row at its edge, which left an empty strip at the row's end (112px at 1440, 258px at 1280).
+   Same number of cards per row as before; they only grow to fill it. */
+@media (min-width:901px){ html body .rs-body:not(.rs-hasmap) .res:not(.list-view){grid-template-columns:repeat(auto-fill,minmax(calc(var(--card-size,250px) + 40px),1fr));justify-content:stretch} }

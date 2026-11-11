@@ -648,7 +648,12 @@ function adminView(){
     '<div class="xactions"><button class="ab ok" id="scSypRateSave">'+t("save")+'</button><span class="xmsg" id="scSypRateMsg"></span></div>'+
    '</div></div>'
    : '<div class="blk" style="margin-top:16px"><h3>'+GX("cRates")+'</h3><div class="in"><div class="hintx">'+GX("ratesInCountries").replace("{c}",esc(countryName(countryOf(COUNTRY)||{})))+'</div>'+
-    (ADM.isSuper?'<button type="button" class="ab" data-goto="countries" style="margin-top:8px">'+GX("countriesTab")+' ↗</button>':'')+'</div></div>');
+    (ADM.isSuper?'<button type="button" class="ab" data-goto="countries" style="margin-top:8px">'+GX("countriesTab")+' ↗</button>':'')+'</div></div>')+
+   // «سؤال العملة»: the first-visit sheet (curAsk in app.html) shows only while this is on; saved for the country on screen (owner 2026-11-11, off for now)
+   '<div class="blk" style="margin-top:16px"><h3>'+GX("curAskAdmH")+'</h3><div class="in">'+
+    '<div class="hintx">'+GX("curAskAdmHint")+'</div>'+
+    '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:14px"><span>'+GX("curAskAdmL")+'</span><label class="xswitch"><input type="checkbox" id="scCurAsk"'+(SXb("cur_ask_on",false)?' checked':'')+'><i></i></label><span class="xmsg" id="scCurAskMsg"></span></div>'+
+   '</div></div>';
  }
 
  else if(ADM.tab==="msgs"){
@@ -2245,6 +2250,12 @@ function wireAdmin(){
     if(isNaN(rate)||rate<1) rate=13500;
     saveSiteContent({syp_rate:rate},"scSypRateMsg",this);
   };
+  if($("#scCurAsk")) $("#scCurAsk").onchange=async function(){ var el=this, on=el.checked; el.disabled=true;
+    try{ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:{cur_ask_on:on}},p_country:COUNTRY});
+      try{ var cur=SITE.extras; if(typeof cur==="string"){ try{ cur=JSON.parse(cur) }catch(e){ cur={} } } SITE.extras=Object.assign({},cur||{},{cur_ask_on:on}); localStorage.setItem(siteCacheKey(),JSON.stringify(SITE)) }catch(e){}
+      admToast(on?GX("curAskOnT"):GX("curAskOffT")) }
+    catch(e){ el.checked=!on; admToast(e.message||"error","bad") }
+    el.disabled=false };
 
   if($("#notifAll")) $("#notifAll").onchange=function(){
     var w=$("#notifTargetWrap"); if(w) w.style.display=this.checked?"none":""
@@ -2855,7 +2866,7 @@ function hsInspDesign(){
       fGrp(hsT("wmVideoH")), fSwitch(hsT("wmVideo"),"x:wm_video",true,true), fGrp(hsT("wmLockH")), fSwitch(hsT("wmLock"),"x:wm_lock",true,true), fHint(hsT("wmLockHint"))); }
   else if(sd==="welcome"){ var lg=hsLang(), WT=GX_T.notif_welcomeT||{}, WB=GX_T.notif_welcomeB||{};
     H.push(fSwitch(hsT("wlOn"),"x:welcome_on",true,true), fHint(hsT("wlHint")), fHint(hsT("textsHint")), fText(hsT("wlTitle"),"x:welcome_t",WT[lg]||WT.en||""), fArea(hsT("wlBody"),"x:welcome_b",WB[lg]||WB.en||"")); }
-  else if(sd==="results"){ H.push('<div class="row">'+fNum(GX("xPageSize"),"x:search_page_size",6,96,1,24,true)+fNum(GX("xSimilar"),"x:similar_count",0,24,1,12)+'</div>', fSwitch(hsT("rsMapDef"),"x:results_map_default",true,true), fSwitch(hsT("rsMarket"),"x:results_market_line",true,true), fHint(hsT("rsHint")), fSwitch(hsT("rsServer"),"x:server_search",false,false), fHint(hsT("rsServerHint"))); }
+  else if(sd==="results"){ H.push('<div class="row">'+fNum(GX("xPageSize"),"x:search_page_size",6,96,1,24,true)+fNum(GX("xSimilar"),"x:similar_count",0,24,1,12)+'</div>', fSwitch(hsT("rsMapDef"),"x:results_map_default",false,true), fSwitch(hsT("rsMarket"),"x:results_market_line",true,true), fHint(hsT("rsHint")), fSwitch(hsT("rsServer"),"x:server_search",false,false), fHint(hsT("rsServerHint"))); }
   else if(sd==="nav"){
     var bv=function(key,def){ var v=hsVal(key); return v===""?def:(v!==false&&v!=="false") };
     var row=function(i){ var hid=i.hide&&i.hide(); return '<div class="navrow'+(hid?' navrow-off':'')+'"><span class="navname">'+(MI[i.ico]||'')+i.lab()+(hid?' <small class="hintx" style="display:inline">'+GX("navAutoHidden")+'</small>':'')+'</span>'+
