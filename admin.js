@@ -653,6 +653,11 @@ function adminView(){
    '<div class="blk" style="margin-top:16px"><h3>'+GX("curAskAdmH")+'</h3><div class="in">'+
     '<div class="hintx">'+GX("curAskAdmHint")+'</div>'+
     '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:14px"><span>'+GX("curAskAdmL")+'</span><label class="xswitch"><input type="checkbox" id="scCurAsk"'+(SXb("cur_ask_on",false)?' checked':'')+'><i></i></label><span class="xmsg" id="scCurAskMsg"></span></div>'+
+   '</div></div>'+
+   // «الرقم على بلاطات المحافظات»: areas (the default) or live listings — read by govCnt() and the home map's pins (owner 2026-11-11)
+   '<div class="blk" style="margin-top:16px"><h3>'+GX("govCntH")+'</h3><div class="in">'+
+    '<div class="hintx">'+GX("govCntHint")+'</div>'+
+    '<div class="hs-seg" id="scGovCnt" style="margin-top:10px">'+[["areas",GX("govCntAreas")],["listings",GX("govCntListings")]].map(function(o){ return '<button type="button" data-govcnt="'+o[0]+'" class="'+(govCntMode()===o[0]?'on':'')+'">'+o[1]+'</button>' }).join("")+'</div>'+
    '</div></div>';
  }
 
@@ -2250,6 +2255,13 @@ function wireAdmin(){
     if(isNaN(rate)||rate<1) rate=13500;
     saveSiteContent({syp_rate:rate},"scSypRateMsg",this);
   };
+  $$("#scGovCnt [data-govcnt]").forEach(function(bt){ bt.onclick=async function(){ var v=this.dataset.govcnt, all=$$("#scGovCnt [data-govcnt]"); if(v===govCntMode()) return;
+    all.forEach(function(x){ x.disabled=true });
+    try{ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:{gov_tile_count:v}},p_country:COUNTRY});
+      try{ var cur=SITE.extras; if(typeof cur==="string"){ try{ cur=JSON.parse(cur) }catch(e){ cur={} } } SITE.extras=Object.assign({},cur||{},{gov_tile_count:v}); localStorage.setItem(siteCacheKey(),JSON.stringify(SITE)) }catch(e){}
+      all.forEach(function(x){ x.classList.toggle("on",x.dataset.govcnt===v) }); admToast(GX(v==="areas"?"govCntAreasT":"govCntListingsT")) }
+    catch(e){ admToast(e.message||"error","bad") }
+    all.forEach(function(x){ x.disabled=false }) } });
   if($("#scCurAsk")) $("#scCurAsk").onchange=async function(){ var el=this, on=el.checked; el.disabled=true;
     try{ await rpc("bk_admin_set_content",{p_token:ADM.token,p_patch:{extras:{cur_ask_on:on}},p_country:COUNTRY});
       try{ var cur=SITE.extras; if(typeof cur==="string"){ try{ cur=JSON.parse(cur) }catch(e){ cur={} } } SITE.extras=Object.assign({},cur||{},{cur_ask_on:on}); localStorage.setItem(siteCacheKey(),JSON.stringify(SITE)) }catch(e){}

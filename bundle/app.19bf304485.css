@@ -52,6 +52,7 @@ header{background:var(--navy);color:#fff}
 .gold{background:var(--gold);color:#1A1206;border:none;padding:8px 16px;font-size:13.5px;font-weight:600;border-radius:var(--r-s);cursor:pointer}
 .gold:hover{background:#D6952A}
 .mobfab{display:none}
+.bnav,.cacts{display:none}
 @media(max-width:860px){.hnav{display:none}}
 .crumb{background:#fff;border-bottom:1px solid var(--line);font-size:13px;color:var(--grey);padding:9px 0}
 .crumb a:hover{color:var(--navy);text-decoration:underline}.crumb span{margin-inline:6px;color:var(--line-2)}
@@ -939,6 +940,9 @@ html body .aboutsec .aboutlinks .govs a{flex-direction:column;align-items:flex-s
 /* ── reviews / stars ── */
 .ratingline{display:flex;align-items:center;gap:8px;margin-top:5px;font-size:14px}
 .starsbig{color:var(--gold);font-size:17px;letter-spacing:1px}
+.hstar{font-style:normal;background:linear-gradient(to right,currentColor 50%,rgba(154,163,178,.5) 50%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+[dir=rtl] .hstar{background-image:linear-gradient(to left,currentColor 50%,rgba(154,163,178,.5) 50%)}
+[dir=rtl] .ltr .hstar,[dir=rtl] .ltr.hstar{background-image:linear-gradient(to right,currentColor 50%,rgba(154,163,178,.5) 50%)}
 .starpick{display:flex;gap:6px;font-size:26px;color:var(--line-2);cursor:pointer;user-select:none}
 .starpick span{transition:.12s;line-height:1}
 .starpick span.on{color:var(--gold)}
@@ -3152,6 +3156,7 @@ header{padding-top:max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0p
 .gd-foot .gd-sp{flex:1}
 .cprice{flex-wrap:wrap;row-gap:2px}   /* a long local price: the price per m² goes to the next line instead of being cut */
 .pconv{display:block;font-size:12px;font-weight:500;color:var(--grey);margin-top:2px;letter-spacing:0}
+.pconv.pw{direction:rtl;unicode-bidi:isolate}.pconv .pw-c{margin-inline-start:.12em}
 .origp .pconv{display:inline;font-size:13.5px}
 .usrcbar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin:0 0 12px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card,#fff);font-size:13px}.usrcbar>b{margin-inline-end:4px}.usrcbar .hintx{flex-basis:100%}
 .usrcchip{display:inline-flex;gap:5px;align-items:center;padding:3px 10px;border-radius:999px;background:var(--gold-w,#F8EED9);color:var(--navy)}.usrcchip.dim{opacity:.6}
@@ -4947,6 +4952,7 @@ html.adm-dark .adm .abot .on{color:#C9D6F2}
 html.adm-dark .adm .amore-list{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .aseg{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .aseg button.on{background:var(--gold);color:#1A1206}
+html.adm-dark .adm .blk .hs-seg{background:hsla(222,27%,13%,1)}html.adm-dark .adm .blk .hs-seg button{color:#C9D6F2}html.adm-dark .adm .blk .hs-seg button.on{background:var(--gold);color:#1A1206}
 }html.adm-dark .adm .aoverdue,html.adm-dark .admdm-ov .aoverdue{background:hsla(41,39%,17%,1)}
 html.adm-dark .adm .aloaderr{background:hsla(6,39%,17%,1);color:hsla(4,71%,72%,1);border:1px solid hsla(222,20%,25%,1)}
 html.adm-dark .adm .admdm .ab.ok,html.adm-dark .admdm-ov .admdm .ab.ok{background:var(--p-dark,var(--gold));border-color:var(--p-dark,var(--gold));color:#1A1206}

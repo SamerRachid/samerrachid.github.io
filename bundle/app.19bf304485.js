@@ -409,6 +409,26 @@ function geoCacheKey(){ return COUNTRY==="SY" ? "balkoun_geo" : "balkoun_geo_"+C
 function curPrefGet(code){ try{ var m=JSON.parse(localStorage.getItem("balkoun_cur_by")||"{}"); return m[code]||null }catch(e){ return null } }          // the currency a visitor chose, remembered per country
 function curPrefSet(code,cur){ try{ var m=JSON.parse(localStorage.getItem("balkoun_cur_by")||"{}"); m[code]=cur; localStorage.setItem("balkoun_cur_by",JSON.stringify(m)); localStorage.setItem("balkoun_cur",cur) }catch(e){} }
 function localCur(){ var c=countryOf(COUNTRY); var l=((c&&c.currencies)||["USD","SYP"]).filter(function(x){ return x!=="USD" })[0]; return l||"SYP" }
+/* ── the currency question (owner 2026-11-11, seen on dalelook.sy): a visitor in a country with two currencies (Syria: dollar and
+   pound) is asked once, on the first visit, which one the prices should show in. The answer is kept per country (curPrefSet), like
+   the header switch; closing the sheet without choosing keeps the country's default and is not asked again. Not for a member (the
+   account carries the choice), a robot, a preview or the admin panel, and never over the opening curtain or an open window. ── */
+function curAskDue(){ try{
+    if(!SXb("cur_ask_on",false)) return false;   // the panel's switch (Settings → «سؤال العملة»); off: prices stay in the country's first currency (US dollars) unless the member's account says otherwise
+    if(IS_BOT||PREVIEW||USER||VIEW==="admin"||document.getElementById("curAsk")) return false;
+    var c=countryOf(COUNTRY), list=(c&&c.currencies)||[]; if(list.length<2||list.indexOf("USD")<0) return false;
+    return !curPrefGet(COUNTRY) && !localStorage.getItem("bk_cur_asked_"+COUNTRY) }catch(e){ return false } }
+function curAsk(tries){ if(!curAskDue()) return;
+  if(document.querySelector(".curtain:not(.done),.au.on,#lightbox,#vlb,.chipsel-drop.on")||document.body.classList.contains("mdw-open")||document.body.classList.contains("kb-on")){
+    if((tries||0)<6) window._curAskT=setTimeout(function(){ window._curAskT=null; curAsk((tries||0)+1) },4000); return }
+  var country=COUNTRY, loc=localCur(), opt=function(c){ return '<button type="button" data-curpick="'+c+'"'+(c===CUR?' class="on"':'')+'><b>'+(c==="USD"?"$":esc(curLabel(c,L)))+'</b><span>'+(GX_T["curN_"+c]?GX("curN_"+c):c)+'</span></button>' };
+  var d=document.createElement("div"); d.id="curAsk"; d.className="curask"; d.dir=rtlNow()?"rtl":"ltr"; d.setAttribute("role","dialog"); d.setAttribute("aria-modal","true"); d.setAttribute("aria-labelledby","curAskT");
+  d.innerHTML='<div class="curask-box"><h3 id="curAskT">'+GX("curAskT")+'</h3><p>'+GX("curAskP")+'</p><div class="curask-two">'+opt("USD")+opt(loc)+'</div></div>';
+  var done=function(c){ if(!d.parentNode) return; d.parentNode.removeChild(d); document.removeEventListener("keydown",key); try{ localStorage.setItem("bk_cur_asked_"+country,"1") }catch(e){}
+    if(c){ curPrefSet(country,c); if(c!==CUR&&country===COUNTRY){ CUR=c; render() } } };
+  var key=function(e){ if(e.key==="Escape") done(null) };
+  d.addEventListener("click",function(e){ var b=e.target.closest&&e.target.closest("[data-curpick]"); if(b) done(b.dataset.curpick); else if(e.target===d) done(null) });
+  document.addEventListener("keydown",key); document.body.appendChild(d) }
 // a price typed in the local currency, as the USD the filter keeps: not rounded to whole dollars, which turned 1,500 ل.س into
 // $0 (no filter) and 15,000 into $1 (shown as 13,500) — owner, 2026-10-27
 function usdFromLocal(v,rate){ return rate>0 ? Math.round(v/rate*1e4)/1e4 : v }
@@ -710,7 +730,12 @@ function lcur(x){ return (x&&x.pl>0&&x.pcur) ? x.pcur : "USD" }
 function moneyShortIn(v,cur){ if(!cur||cur==="USD") return moneyIn(v,cur); var n=Math.round(+v*curRate(cur)); var sh=n>=1e6?(Math.round(n/1e5)/10).toString().replace(/\.0$/,"")+"M":n>=1e4?Math.round(n/1000)+"K":n.toLocaleString("en"); return sh+" "+curLabel(cur,L) }
 function moneyIn(v,cur){ if(v==null||v===""||isNaN(+v)) return ""; if(!cur||cur==="USD") return "$"+Math.round(+v).toLocaleString("en"); return Math.round(+v*curRate(cur)).toLocaleString("en")+" "+curLabel(cur,L) }
 // small print under a price: the same price in the visitor's chosen currency, when the listing is in another one
-function priceConv(x){ if(!x||x.p==null||!(+x.p>0)||lcur(x)===CUR) return ""; return '<span class="pconv ltr">≈ '+money(x.p)+'</span>' }
+function priceConv(x){ if(!x||x.p==null||!(+x.p>0)||lcur(x)===CUR) return ""; var w=moneyWords(x.p); return '<span class="pconv ltr'+(w&&L==="ar"?' pw':'')+'">≈ '+(w||money(x.p))+'</span>' }
+// a long local figure in words for that «≈» line (owner 2026-11-11): 7,087,500,000 ل.س → 7.09 مليار ل.س, 270,000,000 → 270 مليون.
+// Only this converted estimate is shortened: a price its seller typed in local money stays to the last digit (money(v,x)).
+function moneyWords(v){ if(CUR==="USD"||v==null||isNaN(+v)) return ""; var n=Math.round(+v*curRate()); if(!(n>=1e6)) return "";
+  var m=Math.round(n/1e5)/10, b=m>=1000, num=b?Math.round(n/1e7)/100:m;
+  return num.toLocaleString("en",{maximumFractionDigits:2})+" "+GX(b?"mwB":"mwM")+' <span class="pw-c">'+curLabel(CUR,L)+'</span>' }
 // two keys (owner, 2026-10-26): 1 = the poster sees his listings' views, 2 = visitors see them too; 2 works only while 1 is on
 function statsOwnerOn(){ var v=SX("listing_stats_owner",false); return v===true||v==="true" }
 function statsPublicOn(){ return statsOwnerOn() && SX("listing_stats_public",true)!==false }
@@ -800,7 +825,7 @@ function levelBadge(lv){
 }
 function stars(v){
   v=Math.round((v||0)*2)/2; var out="";
-  for(var i=1;i<=5;i++) out += (v>=i?"★":(v>=i-0.5?"⯹":"☆"));
+  for(var i=1;i<=5;i++) out += (v>=i?"★":(v>=i-0.5?'<i class="hstar">★</i>':"☆"));
   return out;
 }
 function capitalize(s){ return s?s.charAt(0).toUpperCase()+s.slice(1):"" }
@@ -1049,7 +1074,30 @@ function header(){
   '</div></div></header>'+mdrawer()+wa+
   // no floating post button on the post form itself, nor on a listing page where the
   // fixed call / WhatsApp bar owns the bottom edge on phones
-  ((VIEW==="post" || VIEW==="edit" || VIEW==="search" || VIEW==="mapsearch" || VIEW.indexOf("listing:")===0) ? '' : '<a class="mobfab" data-go="post" aria-label="'+t("post")+'">+ '+t("post")+'</a>')}
+  ((VIEW==="post" || VIEW==="edit" || VIEW==="servicejoin" || VIEW==="search" || VIEW==="mapsearch" || VIEW==="admin" || VIEW.indexOf("listing:")===0 || VIEW.indexOf("service:")===0) ? '' : bottomNav())}
+// phones: a fixed bar at the bottom — home, search, «أضف إعلانك» in the centre, saved, account (owner 2026-11-11, seen on dalelook.sy).
+// It replaces the floating «+ أضف إعلانك» and stays off the same views: the forms, the search page and the map (their own bar sits
+// there), a listing / service page (call · WhatsApp bar). Hidden above 860px, where the header carries all of this.
+var BN_ICO=(function(){ var w=function(p,sw){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="'+(sw||1.8)+'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>' };
+  return { home:w('<path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>'), search:w('<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>'), plus:w('<path d="M12 5v14M5 12h14"/>',2.4),
+    heart:w('<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.4A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>'), user:w('<circle cx="12" cy="8.5" r="3.6"/><path d="M5 20a7 7 0 0 1 14 0"/>') } })();
+function bottomNav(){
+  var v=VIEW, on=function(k){ return k?' class="on" aria-current="page"':'' }, acc=v==="account"||v==="mine"||v==="msgs"||v==="searches";
+  return '<nav class="bnav" aria-label="'+GX("bnNav")+'">'+
+    '<a data-go="home"'+on(v==="home")+'>'+BN_ICO.home+'<span>'+t("home")+'</span></a>'+
+    '<a data-go="search">'+BN_ICO.search+'<span>'+GX("bnSearch")+'</span></a>'+
+    '<a data-go="post" class="bn-add"><i>'+BN_ICO.plus+'</i><span>'+GX("bnAdd")+'</span></a>'+
+    '<a data-bn="saved" role="button" tabindex="0"'+on(v==="saved")+'>'+BN_ICO.heart+'<span>'+GX("bnSaved")+'</span></a>'+
+    '<a data-bn="acct" role="button" tabindex="0"'+on(acc)+'>'+BN_ICO.user+(USER&&NOTIFS.unread?'<b class="bn-dot"></b>':'')+'<span>'+GX("bnAcct")+'</span></a>'+
+   '</nav>' }
+function bnavGo(k){ if(k==="saved"){ LOADED.saved=false; SAVEDFULL=[]; VIEW="saved" } else VIEW="account"; scrollTo(0,0); render() }
+if(!window._bnavBound){ window._bnavBound=true;
+  document.addEventListener("click",function(e){ var a=e.target.closest&&e.target.closest(".bnav [data-bn]"); if(!a) return; e.preventDefault();
+    var k=a.dataset.bn; if(!USER) return needLogin(k==="saved"?"needLoginSaved":null,function(){ bnavGo(k) }); bnavGo(k) });
+  // a text field in use: the bar leaves (in the app and on iPhone the keyboard would carry it up over the field)
+  document.addEventListener("focusin",function(e){ var el=e.target; if(el&&el.matches&&el.matches("textarea,[contenteditable],input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=button]):not([type=submit])")) document.body.classList.add("kb-on") });
+  document.addEventListener("focusout",function(){ document.body.classList.remove("kb-on") });
+}
 function footer(){
  // theme hu (2026-10-29): three titled columns — the governorates in two sub-columns, the site's pages, the legal pages
  var H={govs:L==="ar"?"المحافظات":L==="de"?"Gouvernements":L==="fr"?"Gouvernorats":"Governorates", legal:L==="ar"?"قانوني":L==="de"?"Rechtliches":L==="fr"?"Légal":"Legal"};
@@ -1238,7 +1286,7 @@ async function storageUpload(path, file, opts){   // same {data,error} shape sup
     return {data:{path:path}, error:null};
   }catch(e){ return {data:null, error:{message:(e&&e.message)||String(e)}} } }
 
-var MEMBER_FNS={bk_block_user:1,bk_my_blocks:1,bk_member_set_source:1,bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,bk_set_hide_phone:1,
+var MEMBER_FNS={bk_block_user:1,bk_my_blocks:1,bk_follow_user:1,bk_my_follows:1,bk_member_set_source:1,bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,bk_set_hide_phone:1,
   bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_my_listings:1,bk_own_delete:1,bk_delete_account:1,bk_my_rewards:1,bk_use_feature_credit:1,bk_set_account_type:1,
   bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_photo_order:1,bk_photo_set_poster:1,bk_own_phone_sync:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
   bk_search_del:1,bk_search_list:1,bk_search_save:1,bk_set_avatar:1,bk_set_bio:1,bk_set_currency:1,
@@ -1727,6 +1775,11 @@ function card(x,i,isListView){
    : (x.clogo && x.oav && !x.ow) ? '<span class="cpill agency"><img src="'+x.oav+'" alt="">'+(x.who||t("agent"))+'</span>' : '<span class="cpill soft">'+(x.ow?t("owner"):t("agent"))+'</span>';
  var since = '<span class="csince">'+(x.days>0?GX("cSince").replace("{d}",'<span class="ltr">'+x.days+'</span>'):GX("cToday"))+'</span>';
  var desc = isListView && x.ds && dsOf(x) ? '<p class="cdesc">'+dsOf(x)+'</p>' : '';
+ // search results: WhatsApp and call straight from the card (owner 2026-11-11, seen on dalelook.sy). Not on a sold / rented listing,
+ // and not when the advertiser hides the number: then only the listing page's request form reaches them. The number is not written
+ // into the page; the click looks the listing up (the listener below card()). Shown only in the search results (theme-hu.css).
+ var cacts = (!closed && !x.hidePhone && x.tel) ? '<div class="cacts">'+(x.wa?'<button type="button" class="cact wa" data-cact="wa" data-cid="'+x.id+'">'+I.wa+'<span>'+GX("cWa")+'</span></button>':'')+
+   '<button type="button" class="cact tel" data-cact="call" data-cid="'+x.id+'">'+I.phone+'<span>'+GX("cCall")+'</span></button></div>' : '';
 
  return '<a class="card c2'+(isListView?' c2-list':'')+(x.featured?' card-featured':'')+'"'+(x.featured?' style="--feat-bright:'+featBright+'%"':'')+' data-open="'+x.id+'">'+
   photo+
@@ -1736,7 +1789,22 @@ function card(x,i,isListView){
    '<div class="cloc">'+I.pin+'<span>'+[aN(x.a),gN(x.g)].filter(Boolean).join(ar?'، ':', ')+'</span></div>'+
    facts+desc+
    '<div class="cfoot"><div class="cf1">'+deedPill+poster+'</div><div class="cf2">'+since+'<span class="cref ltr">'+(x.ref||x.id)+'</span></div></div>'+
+   cacts+
   '</div></a>'}
+// the card's WhatsApp / call: the same counter (bk_contact) and the same greeting as the buttons on the listing page
+if(!window._cardActBound){ window._cardActBound=true;
+  document.addEventListener("click",function(e){
+    var b=e.target.closest&&e.target.closest(".cact"); if(!b) return;
+    e.preventDefault(); e.stopPropagation();
+    var id=String(b.dataset.cid), find=function(a){ return (a||[]).filter(function(l){ return String(l.id)===id })[0] }, x=find(D.LIST)||find(MYLIST)||find(SAVEDFULL);
+    if(!x||x.hidePhone||!x.tel) return;
+    var kind=b.dataset.cact==="wa"?"whatsapp":"call", dig=String(x.tel).replace(/\D/g,"");
+    if(!dig) return;
+    if(DB) DB.rpc("bk_contact",{p_listing:x.id,p_user:(USER&&USER.id)||null,p_kind:kind}).then(null,function(){});
+    if(kind==="call"){ location.href="tel:"+String(x.tel).replace(/\s/g,""); return }
+    var lbl=D.TYPES[x.t]?D.TYPES[x.t][li()]:"", ctx=lbl+" "+x.m2+" "+t("sqm")+" — "+aN(x.a)+(L==="ar"?"، ":", ")+gN(x.g)+" (BK-"+x.id+")";
+    window.open("https://wa.me/"+dig+"?text="+encodeURIComponent(t("waHi")+" "+ctx),"_blank") },true);
+}
 
 /* ── search ── */
 // Single source of truth for whether a listing matches the CURRENT
@@ -1814,7 +1882,9 @@ function passesFilter(x, skipField){
 }
 /* ═══ results page: sticky filter bar, active chips, a real title with the market line, cards beside a map with price pins ═══ */
 var RS={map:null,mapOn:null,pins:{}};
-function rsMapOn(){ if(RS.mapOn===null){ var st=null; try{ st=localStorage.getItem("balkoun_rsmap") }catch(e){} RS.mapOn = st===null ? SX("results_map_default",true)!==false : st==="1" } return RS.mapOn }
+// owner 2026-11-11: the side map stays closed until the visitor presses the map button; the press lasts for this visit only
+// (it used to open by default and remember the last state in balkoun_rsmap). The editor switch results_map_default is now off by default.
+function rsMapOn(){ if(RS.mapOn===null) RS.mapOn = SXb("results_map_default",false); return RS.mapOn }
 function rsResults(){
  if(srvOn()) return (SRV.q&&SRV.q.pins)||[];   // server mode: every hit of the open search, as map pins, in result order
  var r=D.LIST.filter(function(x){ return passesFilter(x,null) });
@@ -2061,7 +2131,7 @@ function rsWire(opts){
   if($("#vmGrid")) $("#vmGrid").onclick=function(){ VIEWMODE="grid"; try{localStorage.setItem("balkoun_viewmode","grid")}catch(e){} render() };
   if($("#vmList")) $("#vmList").onclick=function(){ VIEWMODE="list"; try{localStorage.setItem("balkoun_viewmode","list")}catch(e){} render() };
   $$("[data-pg]").forEach(function(e){ e.onclick=function(){ F.page=+this.dataset.pg; render(); var top=$(".rs-head"); if(top && top.scrollIntoView) top.scrollIntoView({behavior:"smooth",block:"start"}) } });
-  if($("#rsMapToggle")) $("#rsMapToggle").onclick=function(){ RS.mapOn=!rsMapOn(); try{ localStorage.setItem("balkoun_rsmap",RS.mapOn?"1":"0") }catch(e){} render() };
+  if($("#rsMapToggle")) $("#rsMapToggle").onclick=function(){ RS.mapOn=!rsMapOn(); render() };
   var openSheet=function(){ MOBILE_FILTERS_OPEN=true; var f=$("#rsFilters"); if(f) f.classList.add("on"); document.body.classList.add("rs-lock") };
   var closeSheet=function(cb){ MOBILE_FILTERS_OPEN=false; var f=$("#rsFilters"); huHide(f,function(){ document.body.classList.remove("rs-lock"); if(cb) cb() }) };
   document.body.classList.toggle("rs-lock", MOBILE_FILTERS_OPEN && window.innerWidth<=900);
@@ -2297,7 +2367,7 @@ function listing(id){
     (x.oag&&x.oagPerson?'<div class="sm">'+GX("agPersonL")+': <b>'+esc(x.oagPerson)+'</b></div>':'')+
     '<div class="sm">'+(x.oJoined?t("memberSince")+' <span class="ltr">'+new Date(x.oJoined).getFullYear()+'</span> · ':'')+
      (x.orCount?'<span class="ltr" style="color:var(--gold)">'+stars(x.orAvg)+'</span> <b class="ltr">'+x.orAvg+'</b> <span class="ltr">('+x.orCount+')</span>':t("noReviews"))+'</div>'+
-    '<div class="sm">'+t("replies")+'</div></div></div>'+
+    '<div class="sm">'+t("replies")+'</div></div>'+folBoxHtml(x)+'</div>'+
    // the owner hides their number (account switch): no phone / call / WhatsApp — a request form reaches them instead
    (x.hidePhone
      ? '<div class="hidephone-note">'+GX("hpNote")+'</div>'+
@@ -2914,6 +2984,39 @@ function blkListHtml(){ var l=BLK.list;
     (l===null?'<div class="hintx">'+t("loading")+'</div>':!l.length?'<div class="hintx">'+GX("blkNone")+'</div>':
      '<div class="blklist">'+l.map(function(x){ return '<div class="blkrow">'+avatar(x.avatar_url,x.name,32)+'<b>'+esc(x.name||t("owner"))+'</b>'+
        '<button type="button" class="gh" data-blk="'+esc(String(x.id))+'" data-name="'+esc(x.name||"")+'" data-on="1" style="margin:0;width:auto">'+GX("blkUndo")+'</button></div>' }).join("")+'</div>') }
+/* ── follow an agency or a broker (owner 2026-11-11, seen on dalelook.sy). FOL.ids: the members this member follows (kept per
+   account in localStorage, refreshed from bk_my_follows). The server puts a bell notification in the follower's account for
+   every new listing of someone they follow (trigger on a listing going live); no WhatsApp or other message is sent. ── */
+var FOL={uid:null,ids:[],list:null};
+var FOL_ICO='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>';
+function folSync(){ var u=(USER&&USER.id)||null; if(FOL.uid===u) return; FOL.uid=u; FOL.ids=[]; FOL.list=null; if(!u) return;
+  try{ FOL.ids=(JSON.parse(localStorage.getItem("bk_follows_"+u)||"[]")||[]).map(String) }catch(e){}
+  // straight to DB, not rpc(), like blkSync: a quiet background read must never sign anyone out on an expired session
+  if(!DB||!USER.token) return;
+  DB.rpc("bk_my_follows",{p_token:USER.token}).then(function(x){ var r=x&&x.data; if(!r||r.error||FOL.uid!==u) return; var was=FOL.ids.join(","); FOL.list=r.list||[]; folSet(FOL.list.map(function(y){ return y.id }));
+    if(was!==FOL.ids.join(",")||VIEW==="account") render() },function(){}) }
+function folSet(ids){ FOL.ids=(ids||[]).map(String); try{ localStorage.setItem("bk_follows_"+FOL.uid,JSON.stringify(FOL.ids)) }catch(e){} }
+function isFol(uid){ return !!uid && FOL.ids.indexOf(String(uid))>-1 }
+// listing page, inside the advertiser's box: the button and one line saying what following does
+function folBoxHtml(x){ if(!x||!x.uid||(USER&&String(x.uid)===String(USER.id))||!(x.oag||x.otype==="broker")) return ""; var on=isFol(x.uid);
+  return '<div class="folbox"><button type="button" class="folbtn'+(on?' on':'')+'" data-fol="'+esc(String(x.uid))+'" data-on="'+(on?1:0)+'" aria-pressed="'+(on?"true":"false")+'">'+FOL_ICO+'<span>'+(on?GX("folOn"):GX(x.oag?"folBtn":"folBtnB"))+'</span></button>'+
+    '<small>'+GX(on?"folNoteOn":"folNote")+'</small></div>' }
+// agency page: one more button in the contact row
+function folGhHtml(uid){ if(!uid||(USER&&String(uid)===String(USER.id))) return ""; var on=isFol(uid);
+  return '<button type="button" class="gh folgh'+(on?' on':'')+'" data-fol="'+esc(String(uid))+'" data-on="'+(on?1:0)+'" aria-pressed="'+(on?"true":"false")+'" title="'+esc(GX("folNote"))+'">'+FOL_ICO+'<span>'+(on?GX("folOn"):GX("folBtn"))+'</span></button>' }
+async function folToggle(uid,on){
+  if(!USER) return needLogin("needLoginFol",function(){ if(String(uid)!==String(USER.id)) folToggle(uid,true) });
+  try{ var r=await rpc("bk_follow_user",{p_user:uid,p_on:!!on}); if(!r||r.error) throw new Error((r&&r.error)||"error");
+    folSet(r.following||[]); rpc("bk_my_follows",{}).then(function(x){ if(x&&!x.error){ FOL.list=x.list||[]; render() } }).catch(function(){});
+    render() }
+  catch(e){ alert(String(e.message||e)) } }
+// account page: who one follows, each with «unfollow»
+function folListHtml(){ var l=FOL.list;
+  return '<div class="acs-sub" style="margin-top:8px">'+GX("folListH")+'</div><p class="hintx">'+GX("folListP")+'</p>'+
+    (l===null?'<div class="hintx">'+t("loading")+'</div>':!l.length?'<div class="hintx">'+GX("folNone")+'</div>':
+     '<div class="blklist">'+l.map(function(x){ var nm=escOnce(x.name||t("owner")); return '<div class="blkrow">'+avatar(x.avatar_url,unesc(x.name||""),32)+
+       (x.agency_id?'<b><a data-agopen="'+esc(String(x.agency_id))+'" style="cursor:pointer">'+nm+'</a></b>':'<b>'+nm+'</b>')+
+       '<button type="button" class="gh" data-fol="'+esc(String(x.id))+'" data-on="1" style="margin:0;width:auto">'+GX("folUndo")+'</button></div>' }).join("")+'</div>') }
 function reportModal(){
  if(!RPT.open) return "";
  if(!USER) return '<div class="au on" id="rptOv"><div class="aubox">'+
@@ -3108,6 +3211,8 @@ function notifText(n){
   if(n.title==="reply_feedback") return {title:t("notif_replyFeedback"), body:n.body||""};
   if(n.title==="reply_report")   return {title:t("notif_replyReport"),   body:n.body||""};
   if(n.title==="price_change")   return {title:t("notif_priceChange"),  body:n.body||""};
+  // a new listing from someone the member follows: the body is «name · ref» (bk_trg_listing_live_follows)
+  if(n.title==="follow_listing"){ var fb=String(n.body||""), fi=fb.lastIndexOf(" · "), fn=fi>-1?fb.slice(0,fi):fb; return {title:GX("notif_followT").replace("{n}",function(){ return fn }), body:fi>-1?fb.slice(fi+3):""} }
   if(n.title==="welcome")        return {title:SX("welcome_t_"+L,"")||GX("notif_welcomeT"), body:SX("welcome_b_"+L,"")||GX("notif_welcomeB")};
   return {title:n.title, body:n.body||""};
 }
@@ -3381,7 +3486,7 @@ function account(){
       '<div class="hintx">'+t("phoneWarn")+'</div>'+
       (ACC.phSync && ACC.phSync.n>0 && ACC.phSyncHide!==USER.phone ? '<div class="psync" id="psync"><span>'+GX("psyncQ").replace("{n}",'<b class="ltr">'+ACC.phSync.n+'</b>').replace("{p}",'<b class="ltr">'+esc(USER.phone)+'</b>')+'</span>'+
         '<div class="psync-a"><button type="button" class="btn-n" id="psyncGo" style="width:auto">'+GX("psyncGo")+'</button><button type="button" class="gh" id="psyncNo" style="margin:0;width:auto">'+GX("psyncNo")+'</button></div><span class="xmsg" id="psyncMsg"></span></div>' : '')+
-      blkListHtml()+
+      folListHtml()+blkListHtml()+
       (USER.role==="admin"?'':'<div class="acs-sub acdel-h">'+GX("accDelT")+'</div><p class="hintx">'+GX("accDelP")+'</p>'+
       '<div class="fl"><label>'+t("password")+'</label>'+pwField("delPass","off")+'</div>'+
       '<div class="xactions"><button type="button" class="gh acdel-btn" id="acDelete" style="width:auto;margin:0">'+GX("accDelBtn")+'</button><span class="xmsg" id="acDelMsg"></span></div>'), "")+
@@ -4566,7 +4671,7 @@ function agencyPage(id){
     '<div class="agcontact">'+(a.hide_phone?'<a class="btn-n" id="agInq" style="cursor:pointer">'+MI.msgs+GX("hpMessageAg")+'</a>':'')+(a.phone?'<a class="btn-n" href="tel:'+esc(a.phone)+'">'+MI.phone+GX("agCall")+'</a>':'')+(wa?'<a class="btn-n wa" href="https://wa.me/'+wa+'" target="_blank" rel="noopener">'+MI.msgs+GX("agWa")+'</a>':'')+
       (a.email?'<a class="gh" href="mailto:'+esc(a.email)+'">'+MI.mail+GX("agEmail")+'</a>':'')+(a.website&&safeUrl(a.website)?'<a class="gh" href="'+esc(safeUrl(a.website))+'" target="_blank" rel="noopener">'+MI.about+GX("agWeb")+'</a>':'')+
       '<a class="gh" href="/agency/'+a.id+'/" role="button" data-agshare="'+a.id+'" data-agname="'+esc(a.name||"")+'">'+LICON.share+'<span>'+GX("agShare")+'</span></a>'+
-      blkButtons(a.user_id,a.name,"gh")+
+      folGhHtml(a.user_id)+blkButtons(a.user_id,a.name,"gh")+
       (USER&&USER.id===a.user_id?'<a class="gh agown" data-go="agencyform">'+GX("accManage")+'</a>':'')+'</div>'+   // the owner: straight to the edit page (Telegram link card lives there)
     '</div>'+   // end of the profile card (2026-10-30: it was never closed, so the areas, the listings and the reviews sat inside its panel)
     ((a.gov_names||[]).length||(a.area_names||[]).length ? '<div class="blk" style="margin-top:16px"><h3>'+GX("agAreasServed")+'</h3><div class="in"><div class="agchips">'+
@@ -4739,25 +4844,25 @@ async function loadMyService(){ if(!DB||!USER){ SVMINE=null; return } try{ var r
 function svcCatName(slug){ var c=((SVC&&SVC.cats)||[]).filter(function(x){ return x.slug===slug })[0]; return c?(L==="ar"?c.name_ar:(c.name_en||c.name_ar)):slug }
 function svcWa(p){ return String(p.whatsapp||p.phone||"").replace(/\D/g,"").replace(/^00/,"").replace(/^0(?=9)/,"963") }
 // the Balkoun team on WhatsApp, for a provider who prefers to send his details or has a question (owner 2026-10-30)
-function svcTeamWa(cls){ var n=String(CONFIG.whatsapp||"").replace(/\D/g,""); return n?'<a class="'+cls+'" href="https://wa.me/'+n+'?text='+encodeURIComponent(GX("svcTeamMsg"))+'" target="_blank" rel="noopener">'+MI.msgs+'<span>'+GX("svcTeamWa")+'</span></a>':'' }
+function svcTeamWa(cls,key){ var n=String(CONFIG.whatsapp||"").replace(/\D/g,""); return n?'<a class="'+cls+'" href="https://wa.me/'+n+'?text='+encodeURIComponent(GX("svcTeamMsg"))+'" target="_blank" rel="noopener">'+MI.msgs+'<span>'+GX(key||"svcTeamWa")+'</span></a>':'' }
 // on a listing page: «تحتاج خدمات لهذا العقار؟» with the trades that have providers in the listing's governorate (hidden when none)
 function svcForListing(x){ if(SVC===null){ loadServices().then(function(){ if(VIEW.indexOf("listing:")===0) render() }); return '' }
   var g=x.g, by={}; ((SVC&&SVC.providers)||[]).forEach(function(p){ if((p.gov_names||[]).indexOf(g)<0) return; (p.cats||[]).forEach(function(k){ by[k]=(by[k]||0)+1 }) });
   var cats=((SVC&&SVC.cats)||[]).filter(function(c){ return by[c.slug] }); if(!cats.length) return '';
   return '<section class="lsec svc-inlisting"><h2>'+GX("svcInListing")+'</h2><p>'+GX("svcInListingP").replace("{g}",gN(g))+'</p><div class="svc-pick">'+cats.slice(0,10).map(function(c){
-    return '<a href="/services/'+esc(c.slug)+'?g='+encodeURIComponent(g)+'" data-svgo="'+esc(c.slug)+'" data-svgov="'+esc(g)+'">'+esc(L==="ar"?c.name_ar:(c.name_en||c.name_ar))+' <span class="ltr">'+by[c.slug]+'</span></a>' }).join("")+'</div></section>' }
+    return '<a href="/services/'+escOnce(c.slug)+'?g='+encodeURIComponent(g)+'" data-svgo="'+escOnce(c.slug)+'" data-svgov="'+escOnce(g)+'">'+escOnce(L==="ar"?c.name_ar:(c.name_en||c.name_ar))+' <span class="ltr">'+by[c.slug]+'</span></a>' }).join("")+'</div></section>' }
 if(!window._svGoWired){ window._svGoWired=true; document.addEventListener("click",function(e){ var a=e.target.closest&&e.target.closest("[data-svgo]"); if(!a) return; e.preventDefault(); SVF={cat:a.dataset.svgo,g:a.dataset.svgov||"",q:""}; VIEW="services"; scrollTo(0,0); render() }) }
 function svcCard(p){ var ar=L==="ar", wa=svcWa(p), tel=String(p.phone||"").replace(/[^\d+]/g,"");
   return '<div class="agcard'+(p.featured?' svc-feat':'')+'" data-svopen="'+p.id+'" role="link" tabindex="0">'+
     (p.featured?'<span class="svc-ftag">'+GX("svcFeatured")+'</span>':'')+
-    '<div class="aghead">'+avatar(p.logo_url,p.name,56,"aglogo")+'<div class="agname"><b>'+esc(p.name)+(p.verified?' <span class="vbadge">✓ '+GX("svcVerified")+'</span>':'')+'</b>'+
-      '<span class="agspecs">'+(p.cats||[]).slice(0,3).map(function(k){ return '<i>'+esc(svcCatName(k))+'</i>' }).join("")+((p.cats||[]).length>3?'<i>+'+((p.cats||[]).length-3)+'</i>':'')+'</span></div></div>'+
+    '<div class="aghead">'+avatar(p.logo_url,p.name,56,"aglogo")+'<div class="agname"><b>'+escOnce(p.name)+(p.verified?' <span class="vbadge">✓ '+GX("svcVerified")+'</span>':'')+'</b>'+
+      '<span class="agspecs">'+(p.cats||[]).slice(0,3).map(function(k){ return '<i>'+escOnce(svcCatName(k))+'</i>' }).join("")+((p.cats||[]).length>3?'<i>+'+((p.cats||[]).length-3)+'</i>':'')+'</span></div></div>'+
     (p.reviews?'<div class="svc-rate"><span class="starsbig">'+stars(p.rating)+'</span><b class="ltr">'+p.rating+'</b><span class="ltr">('+p.reviews+')</span></div>':'')+
-    (p.description?'<p class="agdesc">'+esc(p.description).slice(0,150)+(p.description.length>150?"…":"")+'</p>':'')+
+    (p.description?'<p class="agdesc">'+esc(unesc(p.description).slice(0,150))+(unesc(p.description).length>150?"…":"")+'</p>':'')+
     '<div class="agareas">'+MI.map+'<span>'+((p.gov_names||[]).map(gN).join(ar?"، ":", ")||"—")+'</span></div>'+
-    '<div class="agfoot"><span class="agcount">'+(p.contact_person?esc(p.contact_person):'')+'</span><span class="agacts">'+
-      (wa?'<a class="agbtn wa" href="https://wa.me/'+esc(wa)+'?text='+encodeURIComponent(GX("svcWaMsg"))+'" target="_blank" rel="noopener" data-stop title="WhatsApp">'+MI.msgs+'</a>':'')+
-      (tel?'<a class="agbtn" href="tel:'+esc(tel)+'" data-stop title="'+esc(GX("agCall"))+'">'+MI.phone+'</a>':'')+'</span></div></div>' }
+    '<div class="agfoot"><span class="agcount">'+(p.contact_person?escOnce(p.contact_person):'')+'</span><span class="agacts">'+
+      (wa?'<a class="agbtn wa" href="https://wa.me/'+escOnce(wa)+'?text='+encodeURIComponent(GX("svcWaMsg"))+'" target="_blank" rel="noopener" data-stop title="WhatsApp">'+MI.msgs+'</a>':'')+
+      (tel?'<a class="agbtn" href="tel:'+escOnce(tel)+'" data-stop title="'+esc(GX("agCall"))+'">'+MI.phone+'</a>':'')+'</span></div></div>' }
 function servicesPage(){
   if(SVC===null) loadServices().then(render);
   var cats=(SVC&&SVC.cats)||[], govs=Object.keys(D.GEO);
@@ -4767,9 +4872,9 @@ function servicesPage(){
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i>'+GX("svcNav")+'</div></div>'+
    '<div class="wrap agdir svcdir">'+
     '<div class="ag-hero"><div><div class="eyebrow">'+GX("svcEyebrow")+'</div><h1>'+GX("svcTitle")+'</h1><p>'+GX("svcLead")+'</p></div><div class="svc-hacts"><a class="gold" href="/services/join" data-go="servicejoin">'+GX("svcJoin")+'</a>'+svcTeamWa("svc-teamwa")+'</div></div>'+
-    '<div class="svc-cats">'+cats.map(function(c){ return '<button type="button" class="svc-cat'+(SVF.cat===c.slug?' on':'')+'" data-svcat="'+esc(c.slug)+'"><b>'+esc(L==="ar"?c.name_ar:(c.name_en||c.name_ar))+'</b><span class="ltr">'+(count[c.slug]||0)+'</span></button>' }).join("")+'</div>'+
+    '<div class="svc-cats">'+cats.map(function(c){ return '<button type="button" class="svc-cat'+(SVF.cat===c.slug?' on':'')+'" data-svcat="'+escOnce(c.slug)+'"><b>'+escOnce(L==="ar"?c.name_ar:(c.name_en||c.name_ar))+'</b><span class="ltr">'+(count[c.slug]||0)+'</span></button>' }).join("")+'</div>'+
     '<div class="ag-filters"><input id="svQ" data-allow-autofill placeholder="'+esc(GX("svcSearchPH"))+'" value="'+esc(SVF.q)+'">'+
-     '<div class="ag-pills"><button type="button" class="'+(SVF.g?"":"on")+'" data-svg="">'+GX("agAllGov")+'</button>'+govs.map(function(g){ return '<button type="button" class="'+(SVF.g===g?"on":"")+'" data-svg="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
+     '<div class="ag-pills"><button type="button" class="'+(SVF.g?"":"on")+'" data-svg="">'+GX("agAllGov")+'</button>'+govs.map(function(g){ return '<button type="button" class="'+(SVF.g===g?"on":"")+'" data-svg="'+escOnce(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
     (SVC===null ? '<div class="resempty"><b>'+t("loading")+'</b></div>' : rows.length ? '<div class="ag-grid">'+rows.map(svcCard).join("")+'</div>' :
       '<div class="resempty">'+LICON.search+'<b>'+GX(SVF.cat||SVF.g||SVF.q?"svcEmptyF":"svcEmpty")+'</b><span>'+GX("svcEmptyCta")+'</span><a class="gold" href="/services/join" data-go="servicejoin" style="margin-top:12px;text-decoration:none">'+GX("svcJoin")+'</a></div>')+
    '</div>' }
@@ -4777,62 +4882,79 @@ function servicePage(id){
   if(SVC===null){ loadServices().then(render); return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>' }
   var p=(SVC.providers||[]).filter(function(x){ return String(x.id)===String(id) })[0];
   if(!p) return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:18px">'+t("notFound")+'</b><div style="margin-top:18px"><a class="btn-n" href="/services" data-go="services">'+GX("svcNav")+'</a></div></div></div>';
-  var wa=svcWa(p), tel=String(p.phone||"").replace(/[^\d+]/g,""), photos=Array.isArray(p.photos)?p.photos:[];
-  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a href="/services" data-go="services">'+GX("svcNav")+'</a><i>›</i>'+esc(p.name)+'</div></div>'+
-   '<div class="wrap agprof svcprof">'+
-    '<div class="profcard"><div class="profhead">'+avatar(p.logo_url,p.name,86,"big")+'<div class="profmeta"><h1>'+esc(p.name)+(p.verified?' <span class="vbadge">✓ '+GX("svcVerified")+'</span>':'')+'</h1>'+
-      (p.contact_person?'<div class="pl agperson">'+GX("agPersonL")+': <b>'+esc(p.contact_person)+'</b></div>':'')+
-      (p.reviews?'<div class="ratingline"><span class="starsbig">'+stars(p.rating)+'</span><b class="ltr">'+p.rating+'</b><span class="ltr">('+p.reviews+')</span></div>':'<div class="ratingline" style="color:var(--light)">'+t("noReviews")+'</div>')+
-      '<div class="agspecs big">'+(p.cats||[]).map(function(k){ return '<i>'+esc(svcCatName(k))+'</i>' }).join("")+'</div>'+
-      '<div class="pl">'+((p.gov_names||[]).map(gN).join(L==="ar"?"، ":", ")||"")+((p.area_names||[]).length?' · '+p.area_names.map(esc).join(L==="ar"?"، ":", "):'')+'</div>'+
-      (p.description?'<p class="bio">'+esc(p.description)+'</p>':'')+'</div></div>'+
-     '<div class="agcontact">'+(wa?'<a class="btn-n wa" href="https://wa.me/'+esc(wa)+'?text='+encodeURIComponent(GX("svcWaMsg"))+'" target="_blank" rel="noopener">'+MI.msgs+GX("agWa")+'</a>':'')+
-       (tel?'<a class="btn-n" href="tel:'+esc(tel)+'">'+MI.phone+GX("agCall")+'</a>':'')+'</div>'+
+  var wa=svcWa(p), tel=String(p.phone||"").replace(/[^\d+]/g,""), photos=Array.isArray(p.photos)?p.photos:[], sep=L==="ar"?"، ":", ", own=USER&&p.user_id&&USER.id===p.user_id;
+  var fact=function(l,v){ return v?'<div><dt>'+l+'</dt><dd>'+v+'</dd></div>':'' };
+  // the card: who he is and what he does · a contact box that stays beside it on wide screens · then his words, his work, the reviews
+  return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a href="/services" data-go="services">'+GX("svcNav")+'</a><i>›</i><bdi>'+escOnce(p.name)+'</bdi></div></div>'+
+   '<div class="wrap svcprof"><div class="svp-grid">'+
+    '<section class="svp-card svp-head"><div class="svp-id">'+avatar(p.logo_url,p.name,96,"big")+'<div class="svp-idt"><div class="svp-name"><h1><bdi>'+escOnce(p.name)+'</bdi></h1>'+(p.verified?'<span class="vbadge">✓ '+GX("svcVerified")+'</span>':'')+'</div>'+
+      (p.reviews?'<div class="svp-rate"><span class="starsbig">'+stars(p.rating)+'</span><b class="ltr">'+p.rating+'</b><span class="ltr">('+p.reviews+')</span></div>':'<div class="svp-rate none">'+t("noReviews")+'</div>')+
+      '<div class="agspecs big">'+(p.cats||[]).map(function(k){ return '<i>'+escOnce(svcCatName(k))+'</i>' }).join("")+'</div></div></div>'+
+      '<dl class="svp-facts">'+fact(GX("agPersonL"),p.contact_person?'<bdi>'+escOnce(p.contact_person)+'</bdi>':"")+fact(GX("lfGov"),(p.gov_names||[]).map(gN).join(sep))+fact(GX("f_agAreas"),(p.area_names||[]).map(function(a){ return '<bdi>'+escOnce(a)+'</bdi>' }).join(sep))+'</dl>'+
+    '</section>'+
+    '<aside class="svp-card svp-side"><h2>'+GX("svcContactH")+'</h2><div class="svp-acts">'+
+       (wa?'<a class="svp-btn wa" href="https://wa.me/'+escOnce(wa)+'?text='+encodeURIComponent(GX("svcWaMsg"))+'" target="_blank" rel="noopener">'+LICON.wa+'<span>'+GX("agWa")+'</span></a>':'')+
+       (tel?'<a class="svp-btn call" href="tel:'+escOnce(tel)+'">'+LICON.phone+'<span>'+GX("agCall")+'</span></a>':'')+'</div>'+
+      (tel?'<div class="svp-tel ltr" dir="ltr">'+escOnce(tel)+'</div>':'')+
+      '<button type="button" class="svp-btn ghost" data-svshare="'+p.id+'" data-svname="'+escOnce(p.name)+'">'+LICON.share+'<span>'+GX("svcShare")+'</span></button>'+
+      (own?'<a class="svp-btn ghost" href="/services/join" data-go="servicejoin">'+GX("svcEditMine")+'</a>':'')+
+      '<p class="svp-fine">'+GX("svcNote")+'</p></aside>'+
+    '<div class="svp-body">'+
+     (p.description?'<section class="svp-card svp-sec svp-about"><h2>'+GX("svcAboutH")+'</h2><p><bdi>'+escOnce(p.description)+'</bdi></p></section>':'')+
+     (photos.length?'<section class="svp-card svp-sec"><h2>'+GX("svcWork")+'</h2><div class="svc-photos">'+photos.slice(0,12).map(function(u){ return '<a href="'+esc(safeUrl(String(u)))+'" target="_blank" rel="noopener"><img src="'+esc(safeUrl(String(u)))+'" alt="" loading="lazy"></a>' }).join("")+'</div></section>':'')+
+     svcReviewsHtml(p)+
     '</div>'+
-    (photos.length?'<h2 style="font-size:18px;font-weight:700;margin:22px 0 12px">'+GX("svcWork")+'</h2><div class="svc-photos">'+photos.slice(0,12).map(function(u){ return '<a href="'+esc(safeUrl(String(u)))+'" target="_blank" rel="noopener"><img src="'+esc(safeUrl(String(u)))+'" alt="" loading="lazy"></a>' }).join("")+'</div>':'')+
-    svcReviewsHtml(p)+
-    '<p class="svc-note">'+GX("svcNote")+'</p>'+
-   '</div>' }
+   '</div></div>' }
 // the reviews under a provider: the list, and the member's own stars + text (not on his own card)
 var SVREV={}, SVRF={stars:0,body:""};
 function svcReviewsHtml(p){
   if(SVREV[p.id]===undefined){ SVREV[p.id]=null; if(DB) DB.rpc("bk_service_reviews",{p_id:+p.id}).then(function(r){ SVREV[p.id]=(r&&r.data)||[]; render() },function(){ SVREV[p.id]=[]; render() }) }
   var list=SVREV[p.id]||[], mine=USER?list.filter(function(r){ return r.user_id===USER.id })[0]:null, own=USER&&p.user_id&&USER.id===p.user_id;
   if(mine&&!SVRF.touched){ SVRF.stars=mine.stars; SVRF.body=mine.body||"" }
-  var form = own ? '' : !USER ? '<div class="svc-rform"><span>'+GX("svcRateSignin")+'</span> <button type="button" class="btn-n" id="svRevIn">'+t("loginSignupCombo")+'</button></div>' :
-    '<div class="svc-rform"><b>'+GX(mine?"svcRateEdit":"svcRateT")+'</b><div class="starpick" id="svStars">'+[1,2,3,4,5].map(function(n){ return '<span data-svstar="'+n+'" class="'+(n<=SVRF.stars?"on":"")+'">★</span>' }).join("")+'</div>'+
-      '<textarea id="svRevBody" rows="3" maxlength="600" placeholder="'+esc(GX("svcRatePH"))+'">'+esc(SVRF.body)+'</textarea><div class="xactions"><button type="button" class="gold" id="svRevSend" data-svp="'+p.id+'">'+GX("svcRateSend")+'</button><span class="xmsg" id="svRevMsg"></span></div></div>';
-  return '<h2 style="font-size:18px;font-weight:700;margin:26px 0 12px">'+GX("svcReviewsH")+(p.reviews?' <span class="ltr" style="color:var(--grey);font-weight:500">('+p.reviews+')</span>':'')+'</h2>'+
-    (SVREV[p.id]===null?'<div class="hintx">'+t("loading")+'</div>':list.length?'<div class="svc-revs">'+list.map(function(r){ return '<div class="svc-rev"><div><span class="starsbig">'+stars(r.stars)+'</span> <b>'+esc(r.name||"")+'</b> <small>'+new Date(r.at).toLocaleDateString(L==="ar"?"ar-u-nu-latn":L)+'</small></div>'+(r.body?'<p>'+esc(r.body)+'</p>':'')+'</div>' }).join("")+'</div>':'<div class="hintx">'+GX("svcNoReviews")+'</div>')+form }
+  var form = own ? '' : !USER ? '<div class="svc-rform signin"><span>'+GX("svcRateSignin")+'</span><button type="button" class="svp-btn call" id="svRevIn">'+t("loginSignupCombo")+'</button></div>' :
+    '<div class="svc-rform"><b>'+GX(mine?"svcRateEdit":"svcRateT")+'</b><div class="starpick" id="svStars">'+[1,2,3,4,5].map(function(n){ return '<button type="button" data-svstar="'+n+'" class="'+(n<=SVRF.stars?"on":"")+'" aria-label="'+n+' / 5">★</button>' }).join("")+'</div>'+
+      '<textarea id="svRevBody" rows="3" maxlength="600" placeholder="'+esc(GX("svcRatePH"))+'">'+esc(SVRF.body)+'</textarea><div class="svp-row"><button type="button" class="gold" id="svRevSend" data-svp="'+p.id+'">'+GX("svcRateSend")+'</button><span class="xmsg" id="svRevMsg" role="status"></span></div></div>';
+  return '<section class="svp-card svp-sec svp-reviews"><div class="svp-sech"><h2>'+GX("svcReviewsH")+'</h2>'+(p.reviews?'<div class="svp-rate"><span class="starsbig">'+stars(p.rating)+'</span><b class="ltr">'+p.rating+'</b><span class="ltr">('+p.reviews+')</span></div>':'')+'</div>'+
+    (SVREV[p.id]===null?'<div class="svp-empty">'+t("loading")+'</div>':list.length?'<div class="svc-revs">'+list.map(function(r){ return '<div class="svc-rev"><div class="svc-revh"><b><bdi>'+escOnce(r.name||"")+'</bdi></b><span class="starsbig">'+stars(r.stars)+'</span><small>'+new Date(r.at).toLocaleDateString(L==="ar"?"ar-SY-u-nu-latn":L,{day:"numeric",month:"short",year:"numeric"})+'</small></div>'+(r.body?'<p><bdi>'+escOnce(r.body)+'</bdi></p>':'')+'</div>' }).join("")+'</div>':'<div class="svp-empty"><span class="svp-estars" aria-hidden="true">★★★★★</span><span>'+GX("svcNoReviews")+'</span></div>')+form+'</section>' }
 function serviceJoinPage(){
   if(!USER) return gate();
   if(SVMINE===undefined){ loadMyService().then(render); return '<div class="wrap" style="max-width:520px;padding:56px 18px 80px"><div class="done2"><b style="font-size:15px;color:var(--grey)">'+t("loading")+'</b></div></div>' }
   if(SVC===null) loadServices().then(render);
-  var m=SVMINE||{}, f=SVFORM||(SVFORM={name:m.name||"",contact_person:m.contact_person||fullName(USER)||"",phone:m.phone||USER.phone||"",whatsapp:m.whatsapp||USER.phone||"",description:m.description||"",cats:(m.cats||[]).slice(),gov_names:(m.gov_names||[]).slice(),area_names:(m.area_names||[]).join("، "),logo_url:m.logo_url||"",photos:Array.isArray(m.photos)?m.photos.slice():[]});
-  var cats=(SVC&&SVC.cats)||[], fl=function(id,label,val,type,ph){ return '<div class="fl"><label for="'+id+'">'+label+'</label><input id="'+id+'" data-svf="'+id.slice(3)+'" type="'+(type||"text")+'"'+(type==="tel"?' dir="ltr"':'')+' value="'+esc(val||"")+'"'+(ph?' placeholder="'+esc(ph)+'"':'')+'></div>' };
-  var st=m.status?'<div class="svc-status">'+GX("svcStatus")+' '+agStatusPill(m.status)+'</div>':'';
+  var m=SVMINE||{}, f=SVFORM||(SVFORM={name:unesc(m.name),contact_person:unesc(m.contact_person)||fullName(USER)||"",phone:unesc(m.phone)||USER.phone||"",whatsapp:unesc(m.whatsapp)||USER.phone||"",description:unesc(m.description),cats:(m.cats||[]).map(unesc),gov_names:(m.gov_names||[]).map(unesc),area_names:(m.area_names||[]).map(unesc).join("، "),logo_url:unesc(m.logo_url),photos:Array.isArray(m.photos)?m.photos.map(unesc):[]});
+  var cats=(SVC&&SVC.cats)||[], fl=function(id,label,val,type,ph){ return '<div class="fl"><label for="'+id+'">'+label+'</label><input id="'+id+'" data-svf="'+id.slice(3)+'" type="'+(type||"text")+'"'+(type==="tel"?' dir="ltr" inputmode="tel" autocomplete="tel"':'')+' value="'+esc(val||"")+'"'+(ph?' placeholder="'+escOnce(ph)+'"':'')+'></div>' };
+  var pick=function(k,v,on,label){ return '<button type="button" class="'+(on?"on":"")+'" aria-pressed="'+(on?"true":"false")+'" data-svpick="'+k+'" data-v="'+esc(v)+'">'+label+'</button>' };
+  // five short steps in the order a tradesman thinks: who, how to reach, what, where, then the proof
+  var sec=function(n,title,hint,body){ return '<section class="svp-card svj-sec"><div class="svj-h"><i>'+n+'</i><div><h2>'+title+'</h2>'+(hint?'<p>'+hint+'</p>':'')+'</div></div>'+body+'</section>' };
+  var side=(m.status?'<div class="svp-card svj-card svj-status"><div class="svj-st"><span>'+GX("svcStatus")+'</span>'+agStatusPill(m.status)+'</div><p>'+GX("svcEditReview")+'</p>'+
+      (m.id&&m.status==="approved"?'<a class="svp-btn ghost" href="/services/'+m.id+'" data-svopen="'+m.id+'">'+GX("svcViewCard")+'</a>':'')+'</div>':'')+
+    '<div class="svp-card svj-card svj-next"><h3>'+GX("svcNextH")+'</h3><ul><li>'+GX("svcNext1")+'</li><li>'+GX("svcNext2")+'</li><li>'+GX("svcNext3")+'</li></ul></div>'+
+    '<div class="svp-card svj-card svj-help"><p>'+GX("svcHelp")+'</p>'+svcTeamWa("svp-btn ghost","svcHelpWa")+'</div>';
   return '<div class="crumb"><div class="wrap"><a data-go="home">'+t("home")+'</a><i>›</i><a href="/services" data-go="services">'+GX("svcNav")+'</a><i>›</i>'+GX("svcJoin")+'</div></div>'+
-   '<div class="wrap svcjoin" style="max-width:760px;padding:22px 18px 60px"><h1>'+GX(m.id?"svcEditT":"svcJoinT")+'</h1><p class="svc-lead">'+GX("svcJoinLead")+'</p>'+st+
-    (m.id?'<div class="hintx" style="margin-bottom:12px">'+GX("svcEditReview")+'</div>':'')+'<div class="svc-help">'+GX("svcHelp")+' '+svcTeamWa("svc-teamwa")+'</div>'+
-    '<div class="blk"><div class="in">'+fl("svfname",GX("svcFName"),f.name)+fl("svfcontact_person",GX("svcFPerson"),f.contact_person)+
-      '<div class="row">'+fl("svfwhatsapp",GX("svcFWa"),f.whatsapp,"tel","+9639…")+fl("svfphone",GX("svcFPhone"),f.phone,"tel","+9639…")+'</div>'+
-      '<div class="fl"><label>'+GX("svcFCats")+'</label><div class="svc-pick">'+cats.map(function(c){ return '<button type="button" class="'+(f.cats.indexOf(c.slug)>-1?"on":"")+'" data-svpick="cats" data-v="'+esc(c.slug)+'">'+esc(L==="ar"?c.name_ar:(c.name_en||c.name_ar))+'</button>' }).join("")+'</div></div>'+
-      '<div class="fl"><label>'+GX("svcFGovs")+'</label><div class="svc-pick">'+Object.keys(D.GEO).map(function(g){ return '<button type="button" class="'+(f.gov_names.indexOf(g)>-1?"on":"")+'" data-svpick="gov_names" data-v="'+esc(g)+'">'+gN(g)+'</button>' }).join("")+'</div></div>'+
-      fl("svfarea_names",GX("svcFAreas"),f.area_names,"text",GX("svcFAreasPH"))+
-      '<div class="fl"><label>'+GX("svcFLogo")+'</label><div class="svc-up"><span class="svc-logo">'+(f.logo_url?'<img src="'+esc(safeUrl(String(f.logo_url)))+'" alt="">':avatar(null,f.name||"?",56,"aglogo"))+'</span>'+
-        '<label class="btn-n svc-upbtn">'+GX(f.logo_url?"svcChange":"svcAddLogo")+'<input type="file" accept="image/*" id="svLogoFile" hidden></label></div></div>'+
-      '<div class="fl"><label>'+GX("svcFPhotos")+'</label><div class="svc-up svc-ups">'+(f.photos||[]).map(function(u,i){ return '<span class="svc-ph"><img src="'+esc(safeUrl(String(u)))+'" alt=""><button type="button" data-svphdel="'+i+'" aria-label="×">×</button></span>' }).join("")+
-        ((f.photos||[]).length<8?'<label class="svc-phadd">+<span>'+GX("svcAddPhoto")+'</span><input type="file" accept="image/*" multiple id="svPhotoFile" hidden></label>':'')+'</div><span class="xmsg" id="svUpMsg"></span></div>'+
-      '<div class="fl"><label for="svfdescription">'+GX("svcFDesc")+'</label><textarea id="svfdescription" data-svf="description" rows="5" maxlength="1500" placeholder="'+esc(GX("svcFDescPH"))+'">'+esc(f.description)+'</textarea></div>'+
-      '<div class="hintx">'+GX("svcFHint2")+'</div>'+
-      '<div class="xactions"><button type="button" class="gold" id="svSave">'+GX(m.id?"svcSaveEdit":"svcSend")+'</button><span class="xmsg" id="svMsg"></span></div>'+
-    '</div></div></div>' }
+   '<div class="wrap svcjoin"><div class="svj-top"><h1>'+GX(m.id?"svcEditT":"svcJoinT")+'</h1><p class="svc-lead">'+GX("svcJoinLead")+'</p></div>'+
+    '<div class="svj-grid"><div class="svj-main">'+
+     sec(1,GX("svcS1"),"",'<div class="svj-biz"><div class="svj-logo"><label class="svc-logo'+(f.logo_url?' has':'')+'" for="svLogoFile" aria-label="'+esc(GX("svcFLogo"))+'">'+(f.logo_url?'<img src="'+esc(safeUrl(String(f.logo_url)))+'" alt="">':LICON.cam)+'</label>'+
+        '<div class="svj-logot"><label class="svc-upbtn">'+GX(f.logo_url?"svcChange":"svcAddLogo")+'<input type="file" accept="image/*" id="svLogoFile" hidden></label><small>'+GX("svcFLogo")+'</small><span class="xmsg" id="svLogoMsg" role="status"></span></div></div>'+
+       '<div class="svj-fields">'+fl("svfname",GX("svcFName"),f.name)+fl("svfcontact_person",GX("svcFPerson"),f.contact_person)+'</div></div>')+
+     sec(2,GX("svcS2"),GX("svcFHintPhone"),'<div class="svj-two">'+fl("svfwhatsapp",GX("svcFWa"),f.whatsapp,"tel","+9639…")+fl("svfphone",GX("svcFPhone"),f.phone,"tel","+9639…")+'</div>')+
+     sec(3,GX("svcS3"),GX("svcS3h"),'<div class="svc-pick" role="group" aria-label="'+esc(GX("svcS3"))+'">'+cats.map(function(c){ return pick("cats",c.slug,f.cats.indexOf(c.slug)>-1,escOnce(L==="ar"?c.name_ar:(c.name_en||c.name_ar))) }).join("")+'</div>')+
+     sec(4,GX("svcS4"),"",'<div class="svj-fields"><div class="fl"><label id="svGovL">'+GX("svcFGovL")+'</label><div class="svc-pick govs" role="group" aria-labelledby="svGovL">'+Object.keys(D.GEO).map(function(g){ return pick("gov_names",g,f.gov_names.indexOf(g)>-1,gN(g)) }).join("")+'</div></div>'+
+       fl("svfarea_names",GX("svcFAreas"),f.area_names,"text",GX("svcFAreasPH"))+'</div>')+
+     sec(5,GX("svcS5"),GX("svcFHintPhotos"),'<div class="svj-fields"><div class="fl"><label>'+GX("svcFPhotos")+'</label><div class="svc-up svc-ups">'+(f.photos||[]).map(function(u,i){ return '<span class="svc-ph"><img src="'+esc(safeUrl(String(u)))+'" alt=""><button type="button" data-svphdel="'+i+'" aria-label="×">×</button></span>' }).join("")+
+        ((f.photos||[]).length<8?'<label class="svc-phadd">+<span>'+GX("svcAddPhoto")+'</span><input type="file" accept="image/*" multiple id="svPhotoFile" hidden></label>':'')+'</div><span class="xmsg" id="svUpMsg" role="status"></span></div>'+
+       '<div class="fl"><label for="svfdescription">'+GX("svcFDesc")+'</label><textarea id="svfdescription" data-svf="description" rows="5" maxlength="1500" placeholder="'+esc(GX("svcFDescPH"))+'">'+esc(f.description)+'</textarea></div></div>')+
+     '<div class="svj-save"><button type="button" class="gold" id="svSave">'+GX(m.id?"svcSaveEdit":"svcSend")+'</button><span class="xmsg" id="svMsg" role="status"></span></div>'+
+    '</div><aside class="svj-side">'+side+'</aside></div></div>' }
 function wireServices(){
   if(VIEW==="services"){
     var q=$("#svQ"); if(q) q.oninput=function(){ SVF.q=this.value; clearTimeout(window._svT); window._svT=setTimeout(function(){ var pos=q.selectionStart; render(); var n=$("#svQ"); if(n){ n.focus(); try{ n.setSelectionRange(pos,pos) }catch(e){} } },220) };
     $$("[data-svg]").forEach(function(b){ b.onclick=function(){ SVF.g=this.dataset.svg; render() } });
     $$("[data-svcat]").forEach(function(b){ b.onclick=function(){ SVF.cat=SVF.cat===this.dataset.svcat?"":this.dataset.svcat; render() } });
   }
+  if(!window._svShareWired){ window._svShareWired=true; document.addEventListener("click",function(e){ var sh=e.target.closest&&e.target.closest("[data-svshare]"); if(!sh) return; e.preventDefault();
+    var u=location.origin+"/services/"+sh.dataset.svshare, nm=sh.dataset.svname||CONFIG.brand;
+    if(navigator.share){ navigator.share({title:nm,text:nm+" — "+CONFIG.brand,url:u}).catch(function(){}); return }
+    var done=function(){ var sp=sh.querySelector("span"); if(sp){ sp.textContent=t("copied"); setTimeout(function(){ sp.textContent=GX("svcShare") },2500) } };
+    try{ navigator.clipboard.writeText(u).then(done,function(){ prompt(GX("svcShare"), u) }) }catch(x){ prompt(GX("svcShare"), u) } }) }
   $$("[data-svopen]").forEach(function(a){ a.onclick=function(e){ if(e.target.closest("[data-stop]")) return; e.preventDefault(); VIEW="service:"+this.dataset.svopen; scrollTo(0,0); render() } });
   if(VIEW.indexOf("service:")===0){
     $$("[data-svstar]").forEach(function(sp){ sp.onclick=function(){ SVRF.stars=+this.dataset.svstar; SVRF.touched=true; $$("[data-svstar]").forEach(function(x){ x.classList.toggle("on",+x.dataset.svstar<=SVRF.stars) }) } });
@@ -4841,31 +4963,31 @@ function wireServices(){
     if($("#svRevSend")) $("#svRevSend").onclick=async function(){ var m=$("#svRevMsg"), id=+this.dataset.svp, btn=this; if(!SVRF.stars){ m.textContent=GX("svcRateNeedStars"); return }
       btn.disabled=true; try{ var r=await DB.rpc("bk_service_review",{p_token:USER.token,p_id:id,p_stars:SVRF.stars,p_body:SVRF.body}); var d=(r&&r.data)||{}; if(r&&r.error) throw r.error;
         if(d.error){ m.textContent=GX("svcRateErr_"+d.error)||d.error; btn.disabled=false; return }
-        delete SVREV[id]; SVRF={stars:0,body:""}; SVC=null; await loadServices(); render(); var mm=$("#svRevMsg"); if(mm){ mm.style.color="var(--ok)"; mm.textContent=GX("svcRateThanks") } }
+        delete SVREV[id]; SVRF={stars:0,body:""}; SVC=null; await loadServices(); render(); var mm=$("#svRevMsg"); if(mm){ mm.style.color="#7FD9A8"; mm.textContent=GX("svcRateThanks") } }
       catch(e){ m.textContent=e.message||String(e); btn.disabled=false } };
   }
   if(VIEW==="servicejoin"&&SVFORM){
     $$("[data-svf]").forEach(function(i){ i.oninput=function(){ SVFORM[this.dataset.svf]=this.value } });
     var svUp=async function(file,big){ var raw=await readFile(file), img=await shrink(raw,big?1600:600,big?0.85:0.85), path="avatars/"+USER.id+"-svc-"+Date.now()+"-"+Math.random().toString(36).slice(2,7)+".jpg";
       var up=await storageUpload(path,img,{contentType:"image/jpeg"}); if(up.error) throw new Error(up.error.message); return DB.storage.from("photos").getPublicUrl(path).data.publicUrl };
-    var upMsg=function(t2,bad){ var m=$("#svUpMsg"); if(m){ m.style.color=bad?"var(--danger)":"var(--grey)"; m.textContent=t2 } };
-    if($("#svLogoFile")) $("#svLogoFile").onchange=async function(){ var f=(this.files||[])[0]; this.value=""; if(!f||!/^image\//.test(f.type)) return; upMsg(t("uploading"));
-      try{ SVFORM.logo_url=await svUp(f,false); render() }catch(e){ upMsg(e.message||"error",true) } };
+    var upMsg=function(t2,bad,id){ var m=$(id||"#svUpMsg"); if(m){ m.style.color=bad?"":"var(--muted)"; m.textContent=t2 } };
+    if($("#svLogoFile")) $("#svLogoFile").onchange=async function(){ var f=(this.files||[])[0]; this.value=""; if(!f||!/^image\//.test(f.type)) return; upMsg(t("uploading"),false,"#svLogoMsg");
+      try{ SVFORM.logo_url=await svUp(f,false); render() }catch(e){ upMsg(e.message||"error",true,"#svLogoMsg") } };
     if($("#svPhotoFile")) $("#svPhotoFile").onchange=async function(){ var fs=[].slice.call(this.files||[]).filter(function(f){ return /^image\//.test(f.type) }); this.value=""; if(!fs.length) return; upMsg(t("uploading"));
       try{ for(var i=0;i<fs.length&&SVFORM.photos.length<8;i++){ SVFORM.photos.push(await svUp(fs[i],true)) } render() }catch(e){ upMsg(e.message||"error",true) } };
     $$("[data-svphdel]").forEach(function(b){ b.onclick=function(){ SVFORM.photos.splice(+this.dataset.svphdel,1); render() } });
-    $$("[data-svpick]").forEach(function(b){ b.onclick=function(){ var k=this.dataset.svpick, v=this.dataset.v, a=SVFORM[k], i=a.indexOf(v); if(i>-1) a.splice(i,1); else a.push(v); this.classList.toggle("on",i<0) } });
+    $$("[data-svpick]").forEach(function(b){ b.onclick=function(){ var k=this.dataset.svpick, v=this.dataset.v, a=SVFORM[k], i=a.indexOf(v); if(i>-1) a.splice(i,1); else a.push(v); this.classList.toggle("on",i<0); this.setAttribute("aria-pressed",i<0?"true":"false") } });
     if($("#svSave")) $("#svSave").onclick=async function(){ var btn=this, m=$("#svMsg"), f=SVFORM;
       var data={name:f.name,contact_person:f.contact_person,phone:f.phone,whatsapp:f.whatsapp,description:f.description,cats:f.cats,gov_names:f.gov_names,
         area_names:String(f.area_names||"").split(/[،,]/).map(function(x){ return x.trim() }).filter(Boolean).slice(0,30),country:COUNTRY,
         logo_url:f.logo_url||null,photos:f.photos||[]};
       if(!String(data.name).trim()){ m.textContent=GX("svcErr_noname"); return } if(!data.cats.length){ m.textContent=GX("svcErr_nocat"); return }
       if(!String(data.phone).trim()&&!String(data.whatsapp).trim()){ m.textContent=GX("svcErr_nophone"); return }
-      btn.disabled=true; m.textContent=t("saving");
+      btn.disabled=true; m.style.color="var(--muted)"; m.textContent=t("saving");
       try{ var r=await DB.rpc("bk_service_save",{p_token:USER.token,p_data:data}); if(r&&r.error) throw r.error; var d=(r&&r.data)||{};
-        if(d.error){ m.textContent=GX("svcErr_"+d.error)||d.error; btn.disabled=false; return }
-        SVMINE=d; SVFORM=null; SVC=null; m.textContent=""; render(); var mm=$("#svMsg"); if(mm){ mm.style.color="var(--ok)"; mm.textContent=GX(d.status==="approved"?"svcSavedLive":"svcSavedWait") } }
-      catch(e){ m.textContent=e.message||String(e); btn.disabled=false } };
+        if(d.error){ m.style.color=""; m.textContent=GX("svcErr_"+d.error)||d.error; btn.disabled=false; return }
+        SVMINE=d; SVFORM=null; SVC=null; m.textContent=""; render(); var mm=$("#svMsg"); if(mm){ mm.style.color="#7FD9A8"; mm.textContent=GX(d.status==="approved"?"svcSavedLive":"svcSavedWait") } }
+      catch(e){ m.style.color=""; m.textContent=e.message||String(e); btn.disabled=false } };
   }
 }
 function agencyFormPage(){ if(!USER) return gate(); ACC.agForm=true; return account() }
@@ -5939,7 +6061,7 @@ function huRevealResults(){ var res=$(".res"); if(!res) return; if(res.classList
   cards.forEach(function(c,i){ c.classList.add("hu-in"); setTimeout(function(){ c.style.removeProperty("transition-delay"); c.classList.add("hu-done") },1150+Math.min(i,8)*70) }) }
 // one layout pass for all the blocks (2026-10-31: a forced layout per block cost ~0.85 s on a mid phone at every page change)
 function huPageIn(){ if(window._huLastView===VIEW) return; window._huLastView=VIEW;
-  var els=[], again=false; $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.hero-outer,[id$=Modal],.modal")) return; if(e._huPaged||e.classList.contains("hu-page")) again=true; e.classList.remove("hu-page"); els.push([e,i]) });
+  var els=[], again=false; $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.bnav,.hero-outer,[id$=Modal],.modal")) return; if(e._huPaged||e.classList.contains("hu-page")) again=true; e.classList.remove("hu-page"); els.push([e,i]) });
   if(!els.length) return;
   // 2026-11-02 speed: a block drawn new starts its entrance without help; only a block kept from the last page (morphdom reuses
   // elements, _huPaged marks them) needs a layout between losing and regaining the class. That forced layout cost ~0.55 s on a mid phone
@@ -6800,6 +6922,7 @@ function wire(){
  if($("#daLogin")) $("#daLogin").onclick=function(){ AU.open=true; AU.mode="in"; render() };
  $$("[data-rptuser]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation(); var go=function(){ RPT={open:true,id:null,user:{id:b.dataset.rptuser,name:b.dataset.name||""},sent:false,msg:""}; render() }; if(!USER) return needLogin("needLoginRptU",go); go() } });
  $$("[data-blk]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation(); blkToggle(b.dataset.blk,b.dataset.name||"",b.dataset.on!=="1") } });
+ $$("[data-fol]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation(); folToggle(b.dataset.fol,b.dataset.on!=="1") } });
  if($("#rptX")) $("#rptX").onclick=function(){ RPT.open=false; render() };
  if($("#rptClose2")) $("#rptClose2").onclick=function(){ RPT.open=false; render() };
  if($("#rptOv")) $("#rptOv").onclick=function(ev){ if(ev.target.id==="rptOv"){RPT.open=false;render()} };
@@ -8892,7 +9015,7 @@ function adminBellHtml(){ if(!window.__admLoaded){ if(ADM.token) ensureAdminJs()
 function wireAdminBell(){ if(!window.__admLoaded) return; wireAdminBell() }
 
 function render(){
- blkSync();
+ blkSync(); folSync();
  var _ek=(VIEW==="edit")?editKeep():null;   // the edit page's typed, unsaved values, put back after the redraw
  syncHash();
  if(window.PWA && PWA.syncBar) try{ PWA.syncBar() }catch(e){}
@@ -8942,6 +9065,9 @@ function render(){
  huReveal();   // theme hu: every page reveals its blocks on scroll, as homeuae.ae does (titles 50px, content 30px, 1s ease-out)
  huPageIn(); rsMapAlign(); huRevealResults();
  document.body.classList.toggle("adm-mode", VIEW==="admin" && !!ADM.token);
+ document.body.classList.toggle("has-bnav", !!document.querySelector(".bnav"));
+ if(!window._curAskT && curAskDue()) window._curAskT=setTimeout(function(){ window._curAskT=null; curAsk(0) },2600);   // the currency question, a moment after the page is up
+ (function(){ var ae=document.activeElement; if(!ae||ae===document.body||!ae.matches||!ae.matches("input,textarea,[contenteditable]")) document.body.classList.remove("kb-on") })();
  (function(){ var tl=document.querySelector("link[href*=\"theme-hu.css\"]"); if(tl) tl.disabled=(VIEW==="admin"); $$(".wa-fab,.cta-add,.mm-bg,footer").forEach(function(e){ e.hidden=(VIEW==="admin") }) })();   /* the pieces that exist only for the theme (WhatsApp bubble, add button, drawer photo) would otherwise show unstyled, huge, in the panel */   // theme hu 2026-10-29: the admin panel keeps its own design (its windows reuse .fl/.blk and the --navy variable, which the theme recolours)
  applySiteExtras();
  updateHdr();
@@ -9056,7 +9182,7 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
     colls:function(){ return (COUNTRY==="SY" && HSON("colls")) ? homeCollectionsHtml() : "" },   // curated Syrian collections; other countries get theirs later
     types:function(){ return HSON("types") ? '<div class="wrap"><section class="sec" id="typesSec"><div class="eyebrow">'+HT("types_eyebrow",HX("pickE"))+'</div><h2>'+HT("types_h",t("pickH"))+'</h2>'+typeList()+'</section></div>' : "" },
     trust:function(){ return HSON("trust") ? homeTrustHtml() : "" },
-    expl:function(){ var map=SX("expl_map_enabled",true)!==false; return HSON("expl") ? '<div class="wrap"><section class="sec" id="explSec"><div class="expl'+(map?'':' nomap')+'"><div><div class="eyebrow">'+HT("expl_eyebrow",HX("govE"))+'</div><h2>'+HT("expl_h",t("govH"))+'</h2><div class="sub">'+HT("expl_sub",COUNTRY==="SY"?t("govS"):govSubAuto())+'</div><div class="govs">'+
+    expl:function(){ var map=SX("expl_map_enabled",true)!==false; return HSON("expl") ? '<div class="wrap"><section class="sec" id="explSec"><div class="expl'+(map?'':' nomap')+'"><div><div class="eyebrow">'+HT("expl_eyebrow",HX("govE"))+'</div><h2>'+HT("expl_h",t("govH"))+'</h2><div class="sub">'+HT("expl_sub",govSubAuto())+'</div><div class="govs">'+
        Object.keys(D.GEO).map(function(g){return '<a data-go="search" data-gov="'+g+'">'+gN(g)+govCnt(g)+'</a>'}).join("")+'</div></div>'+(map?(COUNTRY==="SY"?syriaMapHtml():countryMapHtml()):'')+'</div></section></div>' : "" },
     band:function(){ return (USER || !HSON("band")) ? "" : '<div class="wrap"><div class="band frame'+(bandImgHtml()?'':' noimg')+'" id="bandSec"><div class="band-tx"><div class="eyebrow">'+HT("band_eyebrow",HX("ownE"))+'</div><h2>'+HT("band_h",t("bandH"))+'</h2><p>'+HT("band_p",t("bandP"))+'</p><div class="bandlist">'+
        '<span>'+HT("band_b1",t("b1"))+'</span><span>'+HT("band_b2",t("b2"))+'</span><span>'+HT("band_b3",t("b3"))+'</span></div>'+
@@ -9075,8 +9201,15 @@ function homePopularHtml(){
   list=list.slice(0,list.length-list.length%3);
   return '<div class="wrap"><section class="sec" id="popularSec"><div class="eyebrow">'+HT("popular_eyebrow",HX("popE"))+'</div><h2>'+HT("popular_h",HX("popH"))+'</h2><div class="sub">'+HT("popular_sub",HX("popS"))+'</div>'+
     '<div class="res">'+list.map(function(x,i){ return card(x,i,false) }).join("")+'</div></section></div>' }
-// a governorate tile's live listing count («394 إعلاناً»); a governorate without listings shows its name only (owner 2026-11-10, choice ب)
-function govCnt(g){ var n=+((CNT.byGov||{})[g])||0; if(!n) return "";
+// the figure on a governorate tile of the home page (the home map's pins keep the live listings: «leave the map as it is», owner
+// 2026-11-11). Owner 2026-11-11: the number of AREAS the governorate has on the
+// site («162 منطقة»), unless the panel says listings (Settings → «الرقم على بلاطات المحافظات», extras.gov_tile_count = "listings"):
+// then the live listing count («394 إعلاناً», owner 2026-11-10 choice ب). A governorate with nothing to count shows its name only.
+function govCntMode(){ return SX("gov_tile_count","areas")==="listings" ? "listings" : "areas" }
+function govCntN(g){ return govCntMode()==="areas" ? ((D.GEO[g]||[]).length||0) : (+((CNT.byGov||{})[g])||0) }
+function govCnt(g){ var n=govCntN(g); if(!n) return "";
+  if(govCntMode()==="areas"){ var ra=n%100, wa=L==="ar"?(n===1?"منطقة":n===2?"منطقتان":(ra>=3&&ra<=10)?"مناطق":"منطقة"):L==="de"?(n===1?"Gebiet":"Gebiete"):L==="fr"?(n===1?"zone":"zones"):(n===1?"area":"areas");
+    return '<span class="gcnt"><span class="ltr">'+n+'</span> '+wa+'</span>' }
   var r=n%100, w=L==="ar"?(n===1?"إعلان":n===2?"إعلانان":(r>=3&&r<=10)?"إعلانات":(r>=11||n<100)?"إعلاناً":"إعلان"):L==="de"?(n===1?"Inserat":"Inserate"):L==="fr"?(n===1?"annonce":"annonces"):(n===1?"listing":"listings");
   return '<span class="gcnt"><span class="ltr">'+n+'</span> '+w+'</span>' }
 // a short, honest text about the market the site serves (what search engines and first-time visitors both need to read), with the governorates as links
@@ -11202,6 +11335,12 @@ var GX_T={
   svcFDesc:{ar:"عن عملك",en:"About your work"}, svcFDescPH:{ar:"خبرتك، وما تقدّمه، وأوقات العمل…",en:"Experience, what you offer, hours…"},
   svcFHint:{ar:"رقمك يظهر للزوار ليتواصلوا معك. صور أعمالك يضيفها فريق بلكون بعد التواصل معك.",en:"Your number is shown so people can reach you. Photos of your work are added by the Balkoun team."},
   svcSend:{ar:"أرسل للمراجعة",en:"Send for review"}, svcSaveEdit:{ar:"احفظ التعديل",en:"Save changes"},
+  svcS1:{ar:"عملك",en:"Your business"}, svcS2:{ar:"أرقام التواصل",en:"Contact numbers"}, svcS3:{ar:"ماذا تعمل؟",en:"What do you do?"}, svcS3h:{ar:"اختر خدمة واحدة أو أكثر.",en:"Pick one or more."},
+  svcS4:{ar:"أين تعمل؟",en:"Where do you work?"}, svcFGovL:{ar:"المحافظات",en:"Governorates"}, svcS5:{ar:"الصور والتعريف",en:"Photos and description"},
+  svcFHintPhone:{ar:"رقمك يظهر للزوار ليتواصلوا معك.",en:"Your number is shown so people can reach you."}, svcFHintPhotos:{ar:"الصور الحقيقية من أعمالك تجعل الناس يثقون بك أكثر.",en:"Real photos of your work build trust."},
+  svcContactH:{ar:"تواصل مباشرة",en:"Contact directly"}, svcShare:{ar:"مشاركة",en:"Share"}, svcAboutH:{ar:"نبذة",en:"About"}, svcEditMine:{ar:"عدّل بطاقتك",en:"Edit your card"}, svcViewCard:{ar:"اعرض بطاقتك",en:"View your card"},
+  svcNextH:{ar:"ماذا بعد الإرسال؟",en:"What happens next?"}, svcNext1:{ar:"نراجع بطاقتك قبل أن تظهر.",en:"We review your card before it shows."}, svcNext2:{ar:"تظهر في دليل خدمات العقار.",en:"It appears in the home services directory."},
+  svcNext3:{ar:"يتواصل معك الناس مباشرة على واتساب أو بالاتصال.",en:"People contact you directly on WhatsApp or by phone."}, svcHelpWa:{ar:"تواصل معنا على واتساب",en:"Message us on WhatsApp"},
   svcSavedWait:{ar:"وصلتنا بطاقتك ✓ تظهر بعد المراجعة.",en:"Received ✓ It shows after review."}, svcSavedLive:{ar:"حُفظ التعديل ✓",en:"Saved ✓"},
   svcErr_noname:{ar:"اكتب اسم العمل.",en:"Enter the business name."}, svcErr_nocat:{ar:"اختر خدمة واحدة على الأقل.",en:"Pick at least one service."}, svcErr_nophone:{ar:"اكتب رقم واتساب أو رقم اتصال.",en:"Enter a WhatsApp or phone number."}, promoMine:{ar:"تريد وصولاً أسرع؟ روّج إعلانك على بلكون وفيسبوك وإنستغرام.",en:"Want more reach? Promote your listing on Balkoun, Facebook and Instagram."}, daNav:{ar:"حذف الحساب",en:"Delete account"}, daH:{ar:"حذف حسابك في بلكون",en:"Delete your Balkoun account"},
   daIntro:{ar:"تطبيق بلكون وموقع balkoun.com حساب واحد. هنا تعرف كيف تحذف حسابك، وما الذي يُحذف، وما الذي نحتفظ به ولماذا.",en:"The Balkoun app and balkoun.com share one account. Here is how to delete it, what is deleted, and what we keep and why."},
@@ -11233,6 +11372,31 @@ var GX_T={
   blkDone:{ar:"لقد حظرت هذا المستخدم، وإعلاناته مخفية عنك.",en:"You blocked this user; their listings are hidden from you."},
   blkListH:{ar:"المستخدمون المحظورون",en:"Blocked users"}, blkListP:{ar:"إعلانات من تحظرهم لا تظهر لك.",en:"Listings from people you block are hidden from you."},
   blkNone:{ar:"لم تحظر أحداً.",en:"You have not blocked anyone."},
+  /* 2026-11-11: the phone bottom bar, WhatsApp / call on the search card, the price in words, the currency question, follow an agency */
+  bnNav:{ar:"التنقل السريع",en:"Quick navigation",fr:"Navigation rapide"}, bnSearch:{ar:"بحث",en:"Search",fr:"Recherche"}, bnAdd:{ar:"أضف إعلانك",en:"Post",fr:"Publier"},
+  bnSaved:{ar:"المحفوظات",en:"Saved",fr:"Favoris"}, bnAcct:{ar:"حسابي",en:"Account",fr:"Compte"},
+  needLoginSaved:{ar:"سجّل الدخول أو أنشئ حساباً لتحفظ العقارات وتعود إليها",en:"Log in or create an account to save properties and come back to them",fr:"Connectez-vous ou créez un compte pour enregistrer des biens"},
+  cWa:{ar:"واتساب",en:"WhatsApp",fr:"WhatsApp"}, cCall:{ar:"اتصال",en:"Call",fr:"Appeler"},
+  mwM:{ar:"مليون",en:"million",fr:"M"}, mwB:{ar:"مليار",en:"billion",fr:"Md"},
+  govCntH:{ar:"الرقم على بلاطات المحافظات",en:"The figure on the governorate tiles"},
+  govCntHint:{ar:"الرقم الظاهر بجانب اسم كل محافظة في الصفحة الرئيسية: عدد مناطق المحافظة في الموقع، أو عدد إعلاناتها الحيّة. دبابيس الخريطة تعرض دائماً عدد الإعلانات.",en:"The figure beside each governorate on the home page: the number of areas the governorate has on the site, or the number of its live listings. The map pins always show listings."},
+  govCntAreas:{ar:"عدد المناطق",en:"Number of areas"}, govCntListings:{ar:"عدد الإعلانات",en:"Number of listings"},
+  govCntAreasT:{ar:"البلاطات تعرض عدد المناطق",en:"The tiles show the number of areas"}, govCntListingsT:{ar:"البلاطات تعرض عدد الإعلانات",en:"The tiles show the number of listings"},
+  curAskAdmH:{ar:"سؤال العملة للزائر الجديد",en:"Currency question for new visitors"}, curAskAdmL:{ar:"إظهار سؤال العملة",en:"Show the currency question"},
+  curAskAdmHint:{ar:"عند التشغيل يُسأل الزائر غير المسجّل مرة واحدة: بأي عملة يريد رؤية الأسعار؟ عند الإيقاف لا يظهر السؤال، وتبقى الأسعار بالدولار للجميع إلا لمن غيّر العملة من إعدادات حسابه.",en:"When on, a signed-out visitor is asked once which currency prices should be shown in. When off, the question never appears and prices stay in US dollars for everyone, except a member who changed the currency in their account settings."},
+  curAskOnT:{ar:"سؤال العملة ظاهر للزوار",en:"The currency question is shown"}, curAskOffT:{ar:"سؤال العملة مخفي عن الزوار",en:"The currency question is hidden"},
+  curAskT:{ar:"بأي عملة تريد رؤية الأسعار؟",en:"Which currency should prices be shown in?",fr:"Dans quelle devise afficher les prix ?"},
+  curAskP:{ar:"نسألك مرة واحدة، ويمكنك تغييرها لاحقاً من القائمة.",en:"We ask once. You can change it later from the menu.",fr:"Demandé une seule fois. Modifiable ensuite dans le menu."},
+  curN_USD:{ar:"الدولار الأمريكي",en:"US dollar",fr:"Dollar américain"}, curN_SYP:{ar:"الليرة السورية",en:"Syrian pound",fr:"Livre syrienne"},
+  curN_LBP:{ar:"الليرة اللبنانية",en:"Lebanese pound",fr:"Livre libanaise"}, curN_IQD:{ar:"الدينار العراقي",en:"Iraqi dinar",fr:"Dinar irakien"},
+  folBtn:{ar:"تابِع هذا المكتب",en:"Follow this agency",fr:"Suivre cette agence"}, folBtnB:{ar:"تابِع هذا الوسيط",en:"Follow this broker",fr:"Suivre ce courtier"},
+  folOn:{ar:"تتابعه ✓",en:"Following ✓",fr:"Suivi ✓"}, folUndo:{ar:"إلغاء المتابعة",en:"Unfollow",fr:"Ne plus suivre"},
+  folNote:{ar:"يصلك تنبيه في حسابك عند كل إعلان جديد ينشره",en:"You get a notification in your account for every new listing they post",fr:"Vous recevez une notification dans votre compte à chaque nouvelle annonce"},
+  folNoteOn:{ar:"سيصلك تنبيه في حسابك عند كل إعلان جديد ينشره",en:"You will be notified in your account about every new listing they post",fr:"Vous serez averti dans votre compte de chaque nouvelle annonce"},
+  needLoginFol:{ar:"سجّل الدخول أو أنشئ حساباً لتتابع هذا المعلن ويصلك جديده",en:"Log in or create an account to follow this advertiser",fr:"Connectez-vous ou créez un compte pour suivre cet annonceur"},
+  folListH:{ar:"من أتابعهم",en:"Who I follow",fr:"Mes abonnements"}, folListP:{ar:"يصلك تنبيه في حسابك عند كل إعلان جديد ينشره من تتابعه.",en:"You are notified in your account whenever someone you follow posts a new listing.",fr:"Vous êtes averti dans votre compte dès qu'une personne suivie publie une annonce."},
+  folNone:{ar:"لا تتابع أحداً بعد.",en:"You are not following anyone yet.",fr:"Vous ne suivez encore personne."},
+  notif_followT:{ar:"إعلان جديد من {n}",en:"New listing from {n}",fr:"Nouvelle annonce de {n}"},
   promoMineApp:{ar:"تريد وصولاً أسرع؟ نروّج إعلانك بإعلان ممول على فيسبوك وإنستغرام.",en:"Want more reach? We run a sponsored ad for your listing on Facebook and Instagram."}, adCtaWa:{ar:"تواصل على واتساب",en:"Chat on WhatsApp"}, adCtaMore:{ar:"اعرف أكثر",en:"Learn more"}, featured:{ar:"مميز",en:"Featured"},
   adVideoTooBig:{ar:"الفيديو كبير جداً ({mb} MB). الحد الأقصى {max} MB — صدّره بدقة 720p أو أقل ومدة قصيرة، ثم أعد الرفع.",en:"This video is too large ({mb} MB). The limit is {max} MB — export it at 720p or smaller and keep it short, then upload again."},
   adVideoHint:{ar:"الفيديو: حتى {max} MB، يُفضّل 720p ومدة 10–20 ثانية",en:"Video: up to {max} MB, ideally 720p and 10–20 seconds"}

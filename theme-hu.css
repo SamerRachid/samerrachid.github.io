@@ -1964,3 +1964,5 @@ html body .gh.folgh.on{background:rgba(202,144,81,.16);color:#fff}
    column at card-size + 40px and starts the row at its edge, which left an empty strip at the row's end (112px at 1440, 258px at 1280).
    Same number of cards per row as before; they only grow to fill it. */
 @media (min-width:901px){ html body .rs-body:not(.rs-hasmap) .res:not(.list-view){grid-template-columns:repeat(auto-fill,minmax(calc(var(--card-size,250px) + 40px),1fr));justify-content:stretch} }
+/* phones, «تصفّح حسب المحافظة»: «ريف دمشق 340 منطقة» stays on one line like its neighbours (the areas figure is a little wider than the listings one was) */
+@media (max-width:860px){ html body .expl .govs a{padding-inline:11px!important;gap:6px} html body .expl .govs a .gcnt{font-size:12px!important} }
