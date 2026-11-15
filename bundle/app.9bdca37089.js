@@ -409,6 +409,26 @@ function geoCacheKey(){ return COUNTRY==="SY" ? "balkoun_geo" : "balkoun_geo_"+C
 function curPrefGet(code){ try{ var m=JSON.parse(localStorage.getItem("balkoun_cur_by")||"{}"); return m[code]||null }catch(e){ return null } }          // the currency a visitor chose, remembered per country
 function curPrefSet(code,cur){ try{ var m=JSON.parse(localStorage.getItem("balkoun_cur_by")||"{}"); m[code]=cur; localStorage.setItem("balkoun_cur_by",JSON.stringify(m)); localStorage.setItem("balkoun_cur",cur) }catch(e){} }
 function localCur(){ var c=countryOf(COUNTRY); var l=((c&&c.currencies)||["USD","SYP"]).filter(function(x){ return x!=="USD" })[0]; return l||"SYP" }
+/* ── the currency question (owner 2026-11-11, seen on dalelook.sy): a visitor in a country with two currencies (Syria: dollar and
+   pound) is asked once, on the first visit, which one the prices should show in. The answer is kept per country (curPrefSet), like
+   the header switch; closing the sheet without choosing keeps the country's default and is not asked again. Not for a member (the
+   account carries the choice), a robot, a preview or the admin panel, and never over the opening curtain or an open window. ── */
+function curAskDue(){ try{
+    if(!SXb("cur_ask_on",false)) return false;   // the panel's switch (Settings → «سؤال العملة»); off: prices stay in the country's first currency (US dollars) unless the member's account says otherwise
+    if(IS_BOT||PREVIEW||USER||VIEW==="admin"||document.getElementById("curAsk")) return false;
+    var c=countryOf(COUNTRY), list=(c&&c.currencies)||[]; if(list.length<2||list.indexOf("USD")<0) return false;
+    return !curPrefGet(COUNTRY) && !localStorage.getItem("bk_cur_asked_"+COUNTRY) }catch(e){ return false } }
+function curAsk(tries){ if(!curAskDue()) return;
+  if(document.querySelector(".curtain:not(.done),.au.on,#lightbox,#vlb,.chipsel-drop.on")||document.body.classList.contains("mdw-open")||document.body.classList.contains("kb-on")){
+    if((tries||0)<6) window._curAskT=setTimeout(function(){ window._curAskT=null; curAsk((tries||0)+1) },4000); return }
+  var country=COUNTRY, loc=localCur(), opt=function(c){ return '<button type="button" data-curpick="'+c+'"'+(c===CUR?' class="on"':'')+'><b>'+(c==="USD"?"$":esc(curLabel(c,L)))+'</b><span>'+(GX_T["curN_"+c]?GX("curN_"+c):c)+'</span></button>' };
+  var d=document.createElement("div"); d.id="curAsk"; d.className="curask"; d.dir=rtlNow()?"rtl":"ltr"; d.setAttribute("role","dialog"); d.setAttribute("aria-modal","true"); d.setAttribute("aria-labelledby","curAskT");
+  d.innerHTML='<div class="curask-box"><h3 id="curAskT">'+GX("curAskT")+'</h3><p>'+GX("curAskP")+'</p><div class="curask-two">'+opt("USD")+opt(loc)+'</div></div>';
+  var done=function(c){ if(!d.parentNode) return; d.parentNode.removeChild(d); document.removeEventListener("keydown",key); try{ localStorage.setItem("bk_cur_asked_"+country,"1") }catch(e){}
+    if(c){ curPrefSet(country,c); if(c!==CUR&&country===COUNTRY){ CUR=c; render() } } };
+  var key=function(e){ if(e.key==="Escape") done(null) };
+  d.addEventListener("click",function(e){ var b=e.target.closest&&e.target.closest("[data-curpick]"); if(b) done(b.dataset.curpick); else if(e.target===d) done(null) });
+  document.addEventListener("keydown",key); document.body.appendChild(d) }
 // a price typed in the local currency, as the USD the filter keeps: not rounded to whole dollars, which turned 1,500 ل.س into
 // $0 (no filter) and 15,000 into $1 (shown as 13,500) — owner, 2026-10-27
 function usdFromLocal(v,rate){ return rate>0 ? Math.round(v/rate*1e4)/1e4 : v }
@@ -710,7 +730,12 @@ function lcur(x){ return (x&&x.pl>0&&x.pcur) ? x.pcur : "USD" }
 function moneyShortIn(v,cur){ if(!cur||cur==="USD") return moneyIn(v,cur); var n=Math.round(+v*curRate(cur)); var sh=n>=1e6?(Math.round(n/1e5)/10).toString().replace(/\.0$/,"")+"M":n>=1e4?Math.round(n/1000)+"K":n.toLocaleString("en"); return sh+" "+curLabel(cur,L) }
 function moneyIn(v,cur){ if(v==null||v===""||isNaN(+v)) return ""; if(!cur||cur==="USD") return "$"+Math.round(+v).toLocaleString("en"); return Math.round(+v*curRate(cur)).toLocaleString("en")+" "+curLabel(cur,L) }
 // small print under a price: the same price in the visitor's chosen currency, when the listing is in another one
-function priceConv(x){ if(!x||x.p==null||!(+x.p>0)||lcur(x)===CUR) return ""; return '<span class="pconv ltr">≈ '+money(x.p)+'</span>' }
+function priceConv(x){ if(!x||x.p==null||!(+x.p>0)||lcur(x)===CUR) return ""; var w=moneyWords(x.p); return '<span class="pconv ltr'+(w&&L==="ar"?' pw':'')+'">≈ '+(w||money(x.p))+'</span>' }
+// a long local figure in words for that «≈» line (owner 2026-11-11): 7,087,500,000 ل.س → 7.09 مليار ل.س, 270,000,000 → 270 مليون.
+// Only this converted estimate is shortened: a price its seller typed in local money stays to the last digit (money(v,x)).
+function moneyWords(v){ if(CUR==="USD"||v==null||isNaN(+v)) return ""; var n=Math.round(+v*curRate()); if(!(n>=1e6)) return "";
+  var m=Math.round(n/1e5)/10, b=m>=1000, num=b?Math.round(n/1e7)/100:m;
+  return num.toLocaleString("en",{maximumFractionDigits:2})+" "+GX(b?"mwB":"mwM")+' <span class="pw-c">'+curLabel(CUR,L)+'</span>' }
 // two keys (owner, 2026-10-26): 1 = the poster sees his listings' views, 2 = visitors see them too; 2 works only while 1 is on
 function statsOwnerOn(){ var v=SX("listing_stats_owner",false); return v===true||v==="true" }
 function statsPublicOn(){ return statsOwnerOn() && SX("listing_stats_public",true)!==false }
@@ -925,7 +950,7 @@ function mdrawer(){
       '<div class="mm-shortcuts">'+[["mMine","mine","myAds"],["mSaved","saved","mySaved"],["mSearch","search","mySearch"],["mMsgs","msgs","myMessages"],["mSet","settings","settings"]].map(function(x){
         return '<a data-md="'+x[0]+'">'+mi(x[1])+t(x[2])+(x[0]==="mMsgs"&&NOTIFS.unread?'<em class="badge">'+(NOTIFS.unread>9?"9+":NOTIFS.unread)+'</em>':'')+'</a>' }).join("")+'</div></div></div>'
     : '<div class="mm-acct mm-box guest" style="--i:0"><div class="g"><span class="av">'+ICON_USER+'</span><div><b>'+GX("mdWelcome")+'</b><small>'+GX("mdWelcomeP")+'</small></div><button class="mdw-in" id="mdIn">'+t("loginSignupCombo")+'</button></div></div>';
-  var govs='<div class="mm-box" style="--i:1"><h4>'+GX("allAreas")+'</h4><div class="mm-govs">'+Object.keys(D.GEO).slice(0,8).map(function(g){ var gp=govPageUrl(g,"sale"); return '<a '+(gp?'href="'+gp+'"':'data-go="search" data-gov="'+g+'"')+'>'+gN(g)+'</a>' }).join("")+'<a href="'+cPre()+'/areas/" data-go="areas">'+GX("allAreas")+' ›</a></div></div>';
+  var govs='<div class="mm-box" style="--i:1"><h4>'+GX("allAreas")+'</h4><div class="mm-govs">'+Object.keys(D.GEO).slice(0,8).map(function(g){ var gp=govPageUrl(g,"sale"); return '<a '+(gp?'href="'+gp+'" ':'')+'data-go="search" data-gov="'+g+'" data-deal="sale">'+gN(g)+'</a>' }).join("")+'<a href="'+cPre()+'/areas/" data-go="areas">'+GX("allAreas")+' ›</a></div></div>';
   var install = (window.PWA&&!PREVIEW) ? '<div class="mm-box" id="mdwInstallSec" style="--i:2"><a class="mm-app" id="mdwInstall">'+mi("download")+'<span><b>'+GX(PWA.hasApp()?"pwaHasT":"pwaInstall")+'</b><small>'+GX(PWA.hasApp()?"pwaHasS":"pwaInstallSub")+'</small></span></a></div>' : '';
   var en=countryList().filter(function(c){ return c.enabled });
   var countries = en.length>1 ? '<div class="mm-seg">'+en.map(function(x){ return '<a class="'+(x.code===COUNTRY?'on':'')+'" data-cpick="'+x.code+'">'+flagSvg(x.code)+esc(countryName(x))+'</a>' }).join("")+'</div>' : '';
@@ -1049,7 +1074,30 @@ function header(){
   '</div></div></header>'+mdrawer()+wa+
   // no floating post button on the post form itself, nor on a listing page where the
   // fixed call / WhatsApp bar owns the bottom edge on phones
-  ((VIEW==="post" || VIEW==="edit" || VIEW==="servicejoin" || VIEW==="search" || VIEW==="mapsearch" || VIEW.indexOf("listing:")===0 || VIEW.indexOf("service:")===0) ? '' : '<a class="mobfab" data-go="post" aria-label="'+t("post")+'">+ '+t("post")+'</a>')}
+  ((VIEW==="post" || VIEW==="edit" || VIEW==="servicejoin" || VIEW==="search" || VIEW==="mapsearch" || VIEW==="admin" || VIEW.indexOf("listing:")===0 || VIEW.indexOf("service:")===0) ? '' : bottomNav())}
+// phones: a fixed bar at the bottom — home, search, «أضف إعلانك» in the centre, saved, account (owner 2026-11-11, seen on dalelook.sy).
+// It replaces the floating «+ أضف إعلانك» and stays off the same views: the forms, the search page and the map (their own bar sits
+// there), a listing / service page (call · WhatsApp bar). Hidden above 860px, where the header carries all of this.
+var BN_ICO=(function(){ var w=function(p,sw){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="'+(sw||1.8)+'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+p+'</svg>' };
+  return { home:w('<path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z"/>'), search:w('<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>'), plus:w('<path d="M12 5v14M5 12h14"/>',2.4),
+    heart:w('<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.4A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>'), user:w('<circle cx="12" cy="8.5" r="3.6"/><path d="M5 20a7 7 0 0 1 14 0"/>') } })();
+function bottomNav(){
+  var v=VIEW, on=function(k){ return k?' class="on" aria-current="page"':'' }, acc=v==="account"||v==="mine"||v==="msgs"||v==="searches";
+  return '<nav class="bnav" aria-label="'+GX("bnNav")+'">'+
+    '<a data-go="home"'+on(v==="home")+'>'+BN_ICO.home+'<span>'+t("home")+'</span></a>'+
+    '<a data-go="search">'+BN_ICO.search+'<span>'+GX("bnSearch")+'</span></a>'+
+    '<a data-go="post" class="bn-add"><i>'+BN_ICO.plus+'</i><span>'+GX("bnAdd")+'</span></a>'+
+    '<a data-bn="saved" role="button" tabindex="0"'+on(v==="saved")+'>'+BN_ICO.heart+'<span>'+GX("bnSaved")+'</span></a>'+
+    '<a data-bn="acct" role="button" tabindex="0"'+on(acc)+'>'+BN_ICO.user+(USER&&NOTIFS.unread?'<b class="bn-dot"></b>':'')+'<span>'+GX("bnAcct")+'</span></a>'+
+   '</nav>' }
+function bnavGo(k){ if(k==="saved"){ LOADED.saved=false; SAVEDFULL=[]; VIEW="saved" } else VIEW="account"; scrollTo(0,0); render() }
+if(!window._bnavBound){ window._bnavBound=true;
+  document.addEventListener("click",function(e){ var a=e.target.closest&&e.target.closest(".bnav [data-bn]"); if(!a) return; e.preventDefault();
+    var k=a.dataset.bn; if(!USER) return needLogin(k==="saved"?"needLoginSaved":null,function(){ bnavGo(k) }); bnavGo(k) });
+  // a text field in use: the bar leaves (in the app and on iPhone the keyboard would carry it up over the field)
+  document.addEventListener("focusin",function(e){ var el=e.target; if(el&&el.matches&&el.matches("textarea,[contenteditable],input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]):not([type=button]):not([type=submit])")) document.body.classList.add("kb-on") });
+  document.addEventListener("focusout",function(){ document.body.classList.remove("kb-on") });
+}
 function footer(){
  // theme hu (2026-10-29): three titled columns — the governorates in two sub-columns, the site's pages, the legal pages
  var H={govs:L==="ar"?"المحافظات":L==="de"?"Gouvernements":L==="fr"?"Gouvernorats":"Governorates", legal:L==="ar"?"قانوني":L==="de"?"Rechtliches":L==="fr"?"Légal":"Legal"};
@@ -1057,7 +1105,7 @@ function footer(){
   '<div class="fcol fcol-g"><h4>'+H.govs+'</h4><div class="fl2">'+
   Object.keys(D.GEO).slice(0,12).map(function(g){
     var gp=govPageUrl(g,"sale");
-    return '<a '+(gp?'href="'+gp+'"':'data-go="search" data-gov="'+g+'"')+'>'+
+    return '<a '+(gp?'href="'+gp+'" ':'')+'data-go="search" data-gov="'+g+'" data-deal="sale">'+
       (L==="ar"?"عقارات في ":L==="de"?"Immobilien in ":L==="fr"?"Immobilier à ":"Properties in ")+gN(g)+'</a>'}).join("")+
   '</div><a class="fall" href="'+cPre()+'/areas/">'+GX("allAreas")+' ›</a></div>'+
   '<div class="fcol"><h4 aria-level="2">'+esc(CONFIG.brand)+'</h4>'+
@@ -1238,7 +1286,7 @@ async function storageUpload(path, file, opts){   // same {data,error} shape sup
     return {data:{path:path}, error:null};
   }catch(e){ return {data:null, error:{message:(e&&e.message)||String(e)}} } }
 
-var MEMBER_FNS={bk_block_user:1,bk_my_blocks:1,bk_member_set_source:1,bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,bk_set_hide_phone:1,
+var MEMBER_FNS={bk_block_user:1,bk_my_blocks:1,bk_follow_user:1,bk_my_follows:1,bk_member_set_source:1,bk_member_channels:1,bk_member_consent:1,bk_agency_intake:1,bk_change_password:1,bk_change_phone:1,bk_edit:1,bk_heartbeat:1,bk_mark_notifications_read:1,bk_set_hide_phone:1,
   bk_me:1,bk_member_delete_message:1,bk_member_reply:1,bk_my_messages:1,bk_my_notifications:1,bk_my_listings:1,bk_own_delete:1,bk_delete_account:1,bk_my_rewards:1,bk_use_feature_credit:1,bk_set_account_type:1,
   bk_own_status:1,bk_photo_add:1,bk_photo_del:1,bk_photo_order:1,bk_photo_set_poster:1,bk_own_phone_sync:1,bk_review_set:1,bk_save:1,bk_saved:1,bk_saved_full:1,
   bk_search_del:1,bk_search_list:1,bk_search_save:1,bk_set_avatar:1,bk_set_bio:1,bk_set_currency:1,
@@ -1727,6 +1775,11 @@ function card(x,i,isListView){
    : (x.clogo && x.oav && !x.ow) ? '<span class="cpill agency"><img src="'+x.oav+'" alt="">'+(x.who||t("agent"))+'</span>' : '<span class="cpill soft">'+(x.ow?t("owner"):t("agent"))+'</span>';
  var since = '<span class="csince">'+(x.days>0?GX("cSince").replace("{d}",'<span class="ltr">'+x.days+'</span>'):GX("cToday"))+'</span>';
  var desc = isListView && x.ds && dsOf(x) ? '<p class="cdesc">'+dsOf(x)+'</p>' : '';
+ // search results: WhatsApp and call straight from the card (owner 2026-11-11, seen on dalelook.sy). Not on a sold / rented listing,
+ // and not when the advertiser hides the number: then only the listing page's request form reaches them. The number is not written
+ // into the page; the click looks the listing up (the listener below card()). Shown only in the search results (theme-hu.css).
+ var cacts = (!closed && !x.hidePhone && x.tel) ? '<div class="cacts">'+(x.wa?'<button type="button" class="cact wa" data-cact="wa" data-cid="'+x.id+'">'+I.wa+'<span>'+GX("cWa")+'</span></button>':'')+
+   '<button type="button" class="cact tel" data-cact="call" data-cid="'+x.id+'">'+I.phone+'<span>'+GX("cCall")+'</span></button></div>' : '';
 
  return '<a class="card c2'+(isListView?' c2-list':'')+(x.featured?' card-featured':'')+'"'+(x.featured?' style="--feat-bright:'+featBright+'%"':'')+' data-open="'+x.id+'">'+
   photo+
@@ -1736,7 +1789,22 @@ function card(x,i,isListView){
    '<div class="cloc">'+I.pin+'<span>'+[aN(x.a),gN(x.g)].filter(Boolean).join(ar?'، ':', ')+'</span></div>'+
    facts+desc+
    '<div class="cfoot"><div class="cf1">'+deedPill+poster+'</div><div class="cf2">'+since+'<span class="cref ltr">'+(x.ref||x.id)+'</span></div></div>'+
+   cacts+
   '</div></a>'}
+// the card's WhatsApp / call: the same counter (bk_contact) and the same greeting as the buttons on the listing page
+if(!window._cardActBound){ window._cardActBound=true;
+  document.addEventListener("click",function(e){
+    var b=e.target.closest&&e.target.closest(".cact"); if(!b) return;
+    e.preventDefault(); e.stopPropagation();
+    var id=String(b.dataset.cid), find=function(a){ return (a||[]).filter(function(l){ return String(l.id)===id })[0] }, x=find(D.LIST)||find(MYLIST)||find(SAVEDFULL);
+    if(!x||x.hidePhone||!x.tel) return;
+    var kind=b.dataset.cact==="wa"?"whatsapp":"call", dig=String(x.tel).replace(/\D/g,"");
+    if(!dig) return;
+    if(DB) DB.rpc("bk_contact",{p_listing:x.id,p_user:(USER&&USER.id)||null,p_kind:kind}).then(null,function(){});
+    if(kind==="call"){ location.href="tel:"+String(x.tel).replace(/\s/g,""); return }
+    var lbl=D.TYPES[x.t]?D.TYPES[x.t][li()]:"", ctx=lbl+" "+x.m2+" "+t("sqm")+" — "+aN(x.a)+(L==="ar"?"، ":", ")+gN(x.g)+" (BK-"+x.id+")";
+    window.open("https://wa.me/"+dig+"?text="+encodeURIComponent(t("waHi")+" "+ctx),"_blank") },true);
+}
 
 /* ── search ── */
 // Single source of truth for whether a listing matches the CURRENT
@@ -1814,7 +1882,9 @@ function passesFilter(x, skipField){
 }
 /* ═══ results page: sticky filter bar, active chips, a real title with the market line, cards beside a map with price pins ═══ */
 var RS={map:null,mapOn:null,pins:{}};
-function rsMapOn(){ if(RS.mapOn===null){ var st=null; try{ st=localStorage.getItem("balkoun_rsmap") }catch(e){} RS.mapOn = st===null ? SX("results_map_default",true)!==false : st==="1" } return RS.mapOn }
+// owner 2026-11-11: the side map stays closed until the visitor presses the map button; the press lasts for this visit only
+// (it used to open by default and remember the last state in balkoun_rsmap). The editor switch results_map_default is now off by default.
+function rsMapOn(){ if(RS.mapOn===null) RS.mapOn = SXb("results_map_default",false); return RS.mapOn }
 function rsResults(){
  if(srvOn()) return (SRV.q&&SRV.q.pins)||[];   // server mode: every hit of the open search, as map pins, in result order
  var r=D.LIST.filter(function(x){ return passesFilter(x,null) });
@@ -2061,7 +2131,7 @@ function rsWire(opts){
   if($("#vmGrid")) $("#vmGrid").onclick=function(){ VIEWMODE="grid"; try{localStorage.setItem("balkoun_viewmode","grid")}catch(e){} render() };
   if($("#vmList")) $("#vmList").onclick=function(){ VIEWMODE="list"; try{localStorage.setItem("balkoun_viewmode","list")}catch(e){} render() };
   $$("[data-pg]").forEach(function(e){ e.onclick=function(){ F.page=+this.dataset.pg; render(); var top=$(".rs-head"); if(top && top.scrollIntoView) top.scrollIntoView({behavior:"smooth",block:"start"}) } });
-  if($("#rsMapToggle")) $("#rsMapToggle").onclick=function(){ RS.mapOn=!rsMapOn(); try{ localStorage.setItem("balkoun_rsmap",RS.mapOn?"1":"0") }catch(e){} render() };
+  if($("#rsMapToggle")) $("#rsMapToggle").onclick=function(){ RS.mapOn=!rsMapOn(); render() };
   var openSheet=function(){ MOBILE_FILTERS_OPEN=true; var f=$("#rsFilters"); if(f) f.classList.add("on"); document.body.classList.add("rs-lock") };
   var closeSheet=function(cb){ MOBILE_FILTERS_OPEN=false; var f=$("#rsFilters"); huHide(f,function(){ document.body.classList.remove("rs-lock"); if(cb) cb() }) };
   document.body.classList.toggle("rs-lock", MOBILE_FILTERS_OPEN && window.innerWidth<=900);
@@ -2297,7 +2367,7 @@ function listing(id){
     (x.oag&&x.oagPerson?'<div class="sm">'+GX("agPersonL")+': <b>'+esc(x.oagPerson)+'</b></div>':'')+
     '<div class="sm">'+(x.oJoined?t("memberSince")+' <span class="ltr">'+new Date(x.oJoined).getFullYear()+'</span> · ':'')+
      (x.orCount?'<span class="ltr" style="color:var(--gold)">'+stars(x.orAvg)+'</span> <b class="ltr">'+x.orAvg+'</b> <span class="ltr">('+x.orCount+')</span>':t("noReviews"))+'</div>'+
-    '<div class="sm">'+t("replies")+'</div></div></div>'+
+    '<div class="sm">'+t("replies")+'</div></div>'+folBoxHtml(x)+'</div>'+
    // the owner hides their number (account switch): no phone / call / WhatsApp — a request form reaches them instead
    (x.hidePhone
      ? '<div class="hidephone-note">'+GX("hpNote")+'</div>'+
@@ -2914,6 +2984,39 @@ function blkListHtml(){ var l=BLK.list;
     (l===null?'<div class="hintx">'+t("loading")+'</div>':!l.length?'<div class="hintx">'+GX("blkNone")+'</div>':
      '<div class="blklist">'+l.map(function(x){ return '<div class="blkrow">'+avatar(x.avatar_url,x.name,32)+'<b>'+esc(x.name||t("owner"))+'</b>'+
        '<button type="button" class="gh" data-blk="'+esc(String(x.id))+'" data-name="'+esc(x.name||"")+'" data-on="1" style="margin:0;width:auto">'+GX("blkUndo")+'</button></div>' }).join("")+'</div>') }
+/* ── follow an agency or a broker (owner 2026-11-11, seen on dalelook.sy). FOL.ids: the members this member follows (kept per
+   account in localStorage, refreshed from bk_my_follows). The server puts a bell notification in the follower's account for
+   every new listing of someone they follow (trigger on a listing going live); no WhatsApp or other message is sent. ── */
+var FOL={uid:null,ids:[],list:null};
+var FOL_ICO='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>';
+function folSync(){ var u=(USER&&USER.id)||null; if(FOL.uid===u) return; FOL.uid=u; FOL.ids=[]; FOL.list=null; if(!u) return;
+  try{ FOL.ids=(JSON.parse(localStorage.getItem("bk_follows_"+u)||"[]")||[]).map(String) }catch(e){}
+  // straight to DB, not rpc(), like blkSync: a quiet background read must never sign anyone out on an expired session
+  if(!DB||!USER.token) return;
+  DB.rpc("bk_my_follows",{p_token:USER.token}).then(function(x){ var r=x&&x.data; if(!r||r.error||FOL.uid!==u) return; var was=FOL.ids.join(","); FOL.list=r.list||[]; folSet(FOL.list.map(function(y){ return y.id }));
+    if(was!==FOL.ids.join(",")||VIEW==="account") render() },function(){}) }
+function folSet(ids){ FOL.ids=(ids||[]).map(String); try{ localStorage.setItem("bk_follows_"+FOL.uid,JSON.stringify(FOL.ids)) }catch(e){} }
+function isFol(uid){ return !!uid && FOL.ids.indexOf(String(uid))>-1 }
+// listing page, inside the advertiser's box: the button and one line saying what following does
+function folBoxHtml(x){ if(!x||!x.uid||(USER&&String(x.uid)===String(USER.id))||!(x.oag||x.otype==="broker")) return ""; var on=isFol(x.uid);
+  return '<div class="folbox"><button type="button" class="folbtn'+(on?' on':'')+'" data-fol="'+esc(String(x.uid))+'" data-on="'+(on?1:0)+'" aria-pressed="'+(on?"true":"false")+'">'+FOL_ICO+'<span>'+(on?GX("folOn"):GX(x.oag?"folBtn":"folBtnB"))+'</span></button>'+
+    '<small>'+GX(on?"folNoteOn":"folNote")+'</small></div>' }
+// agency page: one more button in the contact row
+function folGhHtml(uid){ if(!uid||(USER&&String(uid)===String(USER.id))) return ""; var on=isFol(uid);
+  return '<button type="button" class="gh folgh'+(on?' on':'')+'" data-fol="'+esc(String(uid))+'" data-on="'+(on?1:0)+'" aria-pressed="'+(on?"true":"false")+'" title="'+esc(GX("folNote"))+'">'+FOL_ICO+'<span>'+(on?GX("folOn"):GX("folBtn"))+'</span></button>' }
+async function folToggle(uid,on){
+  if(!USER) return needLogin("needLoginFol",function(){ if(String(uid)!==String(USER.id)) folToggle(uid,true) });
+  try{ var r=await rpc("bk_follow_user",{p_user:uid,p_on:!!on}); if(!r||r.error) throw new Error((r&&r.error)||"error");
+    folSet(r.following||[]); rpc("bk_my_follows",{}).then(function(x){ if(x&&!x.error){ FOL.list=x.list||[]; render() } }).catch(function(){});
+    render() }
+  catch(e){ alert(String(e.message||e)) } }
+// account page: who one follows, each with «unfollow»
+function folListHtml(){ var l=FOL.list;
+  return '<div class="acs-sub" style="margin-top:8px">'+GX("folListH")+'</div><p class="hintx">'+GX("folListP")+'</p>'+
+    (l===null?'<div class="hintx">'+t("loading")+'</div>':!l.length?'<div class="hintx">'+GX("folNone")+'</div>':
+     '<div class="blklist">'+l.map(function(x){ var nm=escOnce(x.name||t("owner")); return '<div class="blkrow">'+avatar(x.avatar_url,unesc(x.name||""),32)+
+       (x.agency_id?'<b><a data-agopen="'+esc(String(x.agency_id))+'" style="cursor:pointer">'+nm+'</a></b>':'<b>'+nm+'</b>')+
+       '<button type="button" class="gh" data-fol="'+esc(String(x.id))+'" data-on="1" style="margin:0;width:auto">'+GX("folUndo")+'</button></div>' }).join("")+'</div>') }
 function reportModal(){
  if(!RPT.open) return "";
  if(!USER) return '<div class="au on" id="rptOv"><div class="aubox">'+
@@ -3108,6 +3211,8 @@ function notifText(n){
   if(n.title==="reply_feedback") return {title:t("notif_replyFeedback"), body:n.body||""};
   if(n.title==="reply_report")   return {title:t("notif_replyReport"),   body:n.body||""};
   if(n.title==="price_change")   return {title:t("notif_priceChange"),  body:n.body||""};
+  // a new listing from someone the member follows: the body is «name · ref» (bk_trg_listing_live_follows)
+  if(n.title==="follow_listing"){ var fb=String(n.body||""), fi=fb.lastIndexOf(" · "), fn=fi>-1?fb.slice(0,fi):fb; return {title:GX("notif_followT").replace("{n}",function(){ return fn }), body:fi>-1?fb.slice(fi+3):""} }
   if(n.title==="welcome")        return {title:SX("welcome_t_"+L,"")||GX("notif_welcomeT"), body:SX("welcome_b_"+L,"")||GX("notif_welcomeB")};
   return {title:n.title, body:n.body||""};
 }
@@ -3381,7 +3486,7 @@ function account(){
       '<div class="hintx">'+t("phoneWarn")+'</div>'+
       (ACC.phSync && ACC.phSync.n>0 && ACC.phSyncHide!==USER.phone ? '<div class="psync" id="psync"><span>'+GX("psyncQ").replace("{n}",'<b class="ltr">'+ACC.phSync.n+'</b>').replace("{p}",'<b class="ltr">'+esc(USER.phone)+'</b>')+'</span>'+
         '<div class="psync-a"><button type="button" class="btn-n" id="psyncGo" style="width:auto">'+GX("psyncGo")+'</button><button type="button" class="gh" id="psyncNo" style="margin:0;width:auto">'+GX("psyncNo")+'</button></div><span class="xmsg" id="psyncMsg"></span></div>' : '')+
-      blkListHtml()+
+      folListHtml()+blkListHtml()+
       (USER.role==="admin"?'':'<div class="acs-sub acdel-h">'+GX("accDelT")+'</div><p class="hintx">'+GX("accDelP")+'</p>'+
       '<div class="fl"><label>'+t("password")+'</label>'+pwField("delPass","off")+'</div>'+
       '<div class="xactions"><button type="button" class="gh acdel-btn" id="acDelete" style="width:auto;margin:0">'+GX("accDelBtn")+'</button><span class="xmsg" id="acDelMsg"></span></div>'), "")+
@@ -4566,7 +4671,7 @@ function agencyPage(id){
     '<div class="agcontact">'+(a.hide_phone?'<a class="btn-n" id="agInq" style="cursor:pointer">'+MI.msgs+GX("hpMessageAg")+'</a>':'')+(a.phone?'<a class="btn-n" href="tel:'+esc(a.phone)+'">'+MI.phone+GX("agCall")+'</a>':'')+(wa?'<a class="btn-n wa" href="https://wa.me/'+wa+'" target="_blank" rel="noopener">'+MI.msgs+GX("agWa")+'</a>':'')+
       (a.email?'<a class="gh" href="mailto:'+esc(a.email)+'">'+MI.mail+GX("agEmail")+'</a>':'')+(a.website&&safeUrl(a.website)?'<a class="gh" href="'+esc(safeUrl(a.website))+'" target="_blank" rel="noopener">'+MI.about+GX("agWeb")+'</a>':'')+
       '<a class="gh" href="/agency/'+a.id+'/" role="button" data-agshare="'+a.id+'" data-agname="'+esc(a.name||"")+'">'+LICON.share+'<span>'+GX("agShare")+'</span></a>'+
-      blkButtons(a.user_id,a.name,"gh")+
+      folGhHtml(a.user_id)+blkButtons(a.user_id,a.name,"gh")+
       (USER&&USER.id===a.user_id?'<a class="gh agown" data-go="agencyform">'+GX("accManage")+'</a>':'')+'</div>'+   // the owner: straight to the edit page (Telegram link card lives there)
     '</div>'+   // end of the profile card (2026-10-30: it was never closed, so the areas, the listings and the reviews sat inside its panel)
     ((a.gov_names||[]).length||(a.area_names||[]).length ? '<div class="blk" style="margin-top:16px"><h3>'+GX("agAreasServed")+'</h3><div class="in"><div class="agchips">'+
@@ -5956,7 +6061,7 @@ function huRevealResults(){ var res=$(".res"); if(!res) return; if(res.classList
   cards.forEach(function(c,i){ c.classList.add("hu-in"); setTimeout(function(){ c.style.removeProperty("transition-delay"); c.classList.add("hu-done") },1150+Math.min(i,8)*70) }) }
 // one layout pass for all the blocks (2026-10-31: a forced layout per block cost ~0.85 s on a mid phone at every page change)
 function huPageIn(){ if(window._huLastView===VIEW) return; window._huLastView=VIEW;
-  var els=[], again=false; $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.hero-outer,[id$=Modal],.modal")) return; if(e._huPaged||e.classList.contains("hu-page")) again=true; e.classList.remove("hu-page"); els.push([e,i]) });
+  var els=[], again=false; $$("#app > *").forEach(function(e,i){ if(e.matches("header,.mdw,.au,.wa-fab,.mobfab,.bnav,.hero-outer,[id$=Modal],.modal")) return; if(e._huPaged||e.classList.contains("hu-page")) again=true; e.classList.remove("hu-page"); els.push([e,i]) });
   if(!els.length) return;
   // 2026-11-02 speed: a block drawn new starts its entrance without help; only a block kept from the last page (morphdom reuses
   // elements, _huPaged marks them) needs a layout between losing and regaining the class. That forced layout cost ~0.55 s on a mid phone
@@ -6473,14 +6578,17 @@ function wire(){
  $$("[data-qfx]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation();
    try{ localStorage.setItem("balkoun_qf_dismissed","1") }catch(e){}
    var w=b.closest(".qfteaser-wrap"); if(w&&w.parentElement) w.parentElement.remove() } });
- $$("[data-go]").forEach(function(e){e.onclick=function(ev){ev.preventDefault();
+ // 2026-11-15: the page is patched in place (morphdom), so an element can lose its data-go and keep this handler - the menu's
+ // governorate chips did (drawn first without their page address): the click set VIEW to undefined, the redraw threw, and no
+ // button on the page worked again until a refresh (owner: the results' page numbers "did not accept"). No data-go = not ours.
+ $$("[data-go]").forEach(function(e){e.onclick=function(ev){ if(!e.dataset.go) return; ev.preventDefault();
    if(!editLeaveOk()) return;
    if(e.dataset.go==="post"){NEW={photos:[],lat:null,lng:null}}
    if(e.dataset.go==="agencies"){ AGF={g:"",spec:"",q:""} }   // the directory opens clean from the menu; a filter left by the AI bar or a search must not stick
    if(e.dataset.go==="mapsearch"){ MAPSEARCH.deal = F.deal==="rent" ? "rent" : "sale" }   // the map starts on the deal chosen in the search bar
    if(e.dataset.go==="mine"){LOADED.mine=false}
    if(e.dataset.go==="mine"){loadListings().then(render)}
-   if(e.dataset.gov){F.g=e.dataset.gov;F.a="";F.areas=[]}
+   if(e.dataset.gov){F.g=e.dataset.gov;F.govs=[];F.a="";F.areas=[];F.apick=[];F.page=1}   // one governorate, from its first page (a governorate left in the bar, or page 5 of the search before, must not stick)
    if(e.dataset.type){F.t=e.dataset.type; F.sec=secOf(e.dataset.type)}
    if(e.dataset.sec!==undefined&&e.dataset.go==='search'){F.sec=e.dataset.sec; F.t=''}
    if(e.dataset.deal){F.deal=e.dataset.deal}
@@ -6817,6 +6925,7 @@ function wire(){
  if($("#daLogin")) $("#daLogin").onclick=function(){ AU.open=true; AU.mode="in"; render() };
  $$("[data-rptuser]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation(); var go=function(){ RPT={open:true,id:null,user:{id:b.dataset.rptuser,name:b.dataset.name||""},sent:false,msg:""}; render() }; if(!USER) return needLogin("needLoginRptU",go); go() } });
  $$("[data-blk]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation(); blkToggle(b.dataset.blk,b.dataset.name||"",b.dataset.on!=="1") } });
+ $$("[data-fol]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation(); folToggle(b.dataset.fol,b.dataset.on!=="1") } });
  if($("#rptX")) $("#rptX").onclick=function(){ RPT.open=false; render() };
  if($("#rptClose2")) $("#rptClose2").onclick=function(){ RPT.open=false; render() };
  if($("#rptOv")) $("#rptOv").onclick=function(ev){ if(ev.target.id==="rptOv"){RPT.open=false;render()} };
@@ -8908,8 +9017,10 @@ function adminLoad(){ if(window.__admLoaded) return adminLoad(); return ensureAd
 function adminBellHtml(){ if(!window.__admLoaded){ if(ADM.token) ensureAdminJs().then(function(){ render() }).catch(function(){}); return "" } return adminBellHtml() }
 function wireAdminBell(){ if(!window.__admLoaded) return; wireAdminBell() }
 
+function huDataNames(el){ var n=[], at=el.attributes; for(var i=0;i<at.length;i++) if(at[i].name.indexOf("data-")===0) n.push(at[i].name); return n.sort().join(" ") }
 function render(){
- blkSync();
+ if(typeof VIEW!=="string" || !VIEW) VIEW=(typeof _lastRenderedView==="string" && _lastRenderedView) || "home";   // 2026-11-15: one bad click must never leave the page unable to draw
+ blkSync(); folSync();
  var _ek=(VIEW==="edit")?editKeep():null;   // the edit page's typed, unsaved values, put back after the redraw
  syncHash();
  if(window.PWA && PWA.syncBar) try{ PWA.syncBar() }catch(e){}
@@ -8939,6 +9050,7 @@ function render(){
    if(window.morphdom && app.firstElementChild && (!$("#seoHome") || (VIEW==="home" && $("#huHero"))) && !PREVIEW && (VIEW==="home" || (VIEW===window._huLastView && VIEW!=="admin"))){
      var tmp=document.createElement("div"); tmp.innerHTML=html;
      try{ morphdom(app,tmp,{childrenOnly:true,onBeforeElUpdated:function(a,b){ if(a.id==="sketchBox"||a.id==="dawnBox"||a.id==="rsMap") return false;
+       if(a.onclick && huDataNames(a)!==huDataNames(b)) a.onclick=null;   // 2026-11-15: wire() gives it the right one again right after
        // a block that has already revealed keeps its reveal state through the patch (no 50ms flicker), the results hook re-runs the motion when the set changes
        if(a.classList&&b.classList&&a.classList.contains("hu-enter")){ b.classList.add("hu-enter"); b.style.setProperty("--enter-d",a.style.getPropertyValue("--enter-d")) }   // an entrance under way survives a data render
        // the page entrance (huPageIn) survives a redraw too: data arriving at the same moment stripped .hu-page before the
@@ -8959,6 +9071,9 @@ function render(){
  huReveal();   // theme hu: every page reveals its blocks on scroll, as homeuae.ae does (titles 50px, content 30px, 1s ease-out)
  huPageIn(); rsMapAlign(); huRevealResults();
  document.body.classList.toggle("adm-mode", VIEW==="admin" && !!ADM.token);
+ document.body.classList.toggle("has-bnav", !!document.querySelector(".bnav"));
+ if(!window._curAskT && curAskDue()) window._curAskT=setTimeout(function(){ window._curAskT=null; curAsk(0) },2600);   // the currency question, a moment after the page is up
+ (function(){ var ae=document.activeElement; if(!ae||ae===document.body||!ae.matches||!ae.matches("input,textarea,[contenteditable]")) document.body.classList.remove("kb-on") })();
  (function(){ var tl=document.querySelector("link[href*=\"theme-hu.css\"]"); if(tl) tl.disabled=(VIEW==="admin"); $$(".wa-fab,.cta-add,.mm-bg,footer").forEach(function(e){ e.hidden=(VIEW==="admin") }) })();   /* the pieces that exist only for the theme (WhatsApp bubble, add button, drawer photo) would otherwise show unstyled, huge, in the panel */   // theme hu 2026-10-29: the admin panel keeps its own design (its windows reuse .fl/.blk and the --navy variable, which the theme recolours)
  applySiteExtras();
  updateHdr();
@@ -9073,7 +9188,7 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
     colls:function(){ return (COUNTRY==="SY" && HSON("colls")) ? homeCollectionsHtml() : "" },   // curated Syrian collections; other countries get theirs later
     types:function(){ return HSON("types") ? '<div class="wrap"><section class="sec" id="typesSec"><div class="eyebrow">'+HT("types_eyebrow",HX("pickE"))+'</div><h2>'+HT("types_h",t("pickH"))+'</h2>'+typeList()+'</section></div>' : "" },
     trust:function(){ return HSON("trust") ? homeTrustHtml() : "" },
-    expl:function(){ var map=SX("expl_map_enabled",true)!==false; return HSON("expl") ? '<div class="wrap"><section class="sec" id="explSec"><div class="expl'+(map?'':' nomap')+'"><div><div class="eyebrow">'+HT("expl_eyebrow",HX("govE"))+'</div><h2>'+HT("expl_h",t("govH"))+'</h2><div class="sub">'+HT("expl_sub",COUNTRY==="SY"?t("govS"):govSubAuto())+'</div><div class="govs">'+
+    expl:function(){ var map=SX("expl_map_enabled",true)!==false; return HSON("expl") ? '<div class="wrap"><section class="sec" id="explSec"><div class="expl'+(map?'':' nomap')+'"><div><div class="eyebrow">'+HT("expl_eyebrow",HX("govE"))+'</div><h2>'+HT("expl_h",t("govH"))+'</h2><div class="sub">'+HT("expl_sub",govSubAuto())+'</div><div class="govs">'+
        Object.keys(D.GEO).map(function(g){return '<a data-go="search" data-gov="'+g+'">'+gN(g)+govCnt(g)+'</a>'}).join("")+'</div></div>'+(map?(COUNTRY==="SY"?syriaMapHtml():countryMapHtml()):'')+'</div></section></div>' : "" },
     band:function(){ return (USER || !HSON("band")) ? "" : '<div class="wrap"><div class="band frame'+(bandImgHtml()?'':' noimg')+'" id="bandSec"><div class="band-tx"><div class="eyebrow">'+HT("band_eyebrow",HX("ownE"))+'</div><h2>'+HT("band_h",t("bandH"))+'</h2><p>'+HT("band_p",t("bandP"))+'</p><div class="bandlist">'+
        '<span>'+HT("band_b1",t("b1"))+'</span><span>'+HT("band_b2",t("b2"))+'</span><span>'+HT("band_b3",t("b3"))+'</span></div>'+
@@ -9092,8 +9207,15 @@ function homePopularHtml(){
   list=list.slice(0,list.length-list.length%3);
   return '<div class="wrap"><section class="sec" id="popularSec"><div class="eyebrow">'+HT("popular_eyebrow",HX("popE"))+'</div><h2>'+HT("popular_h",HX("popH"))+'</h2><div class="sub">'+HT("popular_sub",HX("popS"))+'</div>'+
     '<div class="res">'+list.map(function(x,i){ return card(x,i,false) }).join("")+'</div></section></div>' }
-// a governorate tile's live listing count («394 إعلاناً»); a governorate without listings shows its name only (owner 2026-11-10, choice ب)
-function govCnt(g){ var n=+((CNT.byGov||{})[g])||0; if(!n) return "";
+// the figure on a governorate tile of the home page (the home map's pins keep the live listings: «leave the map as it is», owner
+// 2026-11-11). Owner 2026-11-11: the number of AREAS the governorate has on the
+// site («162 منطقة»), unless the panel says listings (Settings → «الرقم على بلاطات المحافظات», extras.gov_tile_count = "listings"):
+// then the live listing count («394 إعلاناً», owner 2026-11-10 choice ب). A governorate with nothing to count shows its name only.
+function govCntMode(){ return SX("gov_tile_count","areas")==="listings" ? "listings" : "areas" }
+function govCntN(g){ return govCntMode()==="areas" ? ((D.GEO[g]||[]).length||0) : (+((CNT.byGov||{})[g])||0) }
+function govCnt(g){ var n=govCntN(g); if(!n) return "";
+  if(govCntMode()==="areas"){ var ra=n%100, wa=L==="ar"?(n===1?"منطقة":n===2?"منطقتان":(ra>=3&&ra<=10)?"مناطق":"منطقة"):L==="de"?(n===1?"Gebiet":"Gebiete"):L==="fr"?(n===1?"zone":"zones"):(n===1?"area":"areas");
+    return '<span class="gcnt"><span class="ltr">'+n+'</span> '+wa+'</span>' }
   var r=n%100, w=L==="ar"?(n===1?"إعلان":n===2?"إعلانان":(r>=3&&r<=10)?"إعلانات":(r>=11||n<100)?"إعلاناً":"إعلان"):L==="de"?(n===1?"Inserat":"Inserate"):L==="fr"?(n===1?"annonce":"annonces"):(n===1?"listing":"listings");
   return '<span class="gcnt"><span class="ltr">'+n+'</span> '+w+'</span>' }
 // a short, honest text about the market the site serves (what search engines and first-time visitors both need to read), with the governorates as links
@@ -11256,6 +11378,31 @@ var GX_T={
   blkDone:{ar:"لقد حظرت هذا المستخدم، وإعلاناته مخفية عنك.",en:"You blocked this user; their listings are hidden from you."},
   blkListH:{ar:"المستخدمون المحظورون",en:"Blocked users"}, blkListP:{ar:"إعلانات من تحظرهم لا تظهر لك.",en:"Listings from people you block are hidden from you."},
   blkNone:{ar:"لم تحظر أحداً.",en:"You have not blocked anyone."},
+  /* 2026-11-11: the phone bottom bar, WhatsApp / call on the search card, the price in words, the currency question, follow an agency */
+  bnNav:{ar:"التنقل السريع",en:"Quick navigation",fr:"Navigation rapide"}, bnSearch:{ar:"بحث",en:"Search",fr:"Recherche"}, bnAdd:{ar:"أضف إعلانك",en:"Post",fr:"Publier"},
+  bnSaved:{ar:"المحفوظات",en:"Saved",fr:"Favoris"}, bnAcct:{ar:"حسابي",en:"Account",fr:"Compte"},
+  needLoginSaved:{ar:"سجّل الدخول أو أنشئ حساباً لتحفظ العقارات وتعود إليها",en:"Log in or create an account to save properties and come back to them",fr:"Connectez-vous ou créez un compte pour enregistrer des biens"},
+  cWa:{ar:"واتساب",en:"WhatsApp",fr:"WhatsApp"}, cCall:{ar:"اتصال",en:"Call",fr:"Appeler"},
+  mwM:{ar:"مليون",en:"million",fr:"M"}, mwB:{ar:"مليار",en:"billion",fr:"Md"},
+  govCntH:{ar:"الرقم على بلاطات المحافظات",en:"The figure on the governorate tiles"},
+  govCntHint:{ar:"الرقم الظاهر بجانب اسم كل محافظة في الصفحة الرئيسية: عدد مناطق المحافظة في الموقع، أو عدد إعلاناتها الحيّة. دبابيس الخريطة تعرض دائماً عدد الإعلانات.",en:"The figure beside each governorate on the home page: the number of areas the governorate has on the site, or the number of its live listings. The map pins always show listings."},
+  govCntAreas:{ar:"عدد المناطق",en:"Number of areas"}, govCntListings:{ar:"عدد الإعلانات",en:"Number of listings"},
+  govCntAreasT:{ar:"البلاطات تعرض عدد المناطق",en:"The tiles show the number of areas"}, govCntListingsT:{ar:"البلاطات تعرض عدد الإعلانات",en:"The tiles show the number of listings"},
+  curAskAdmH:{ar:"سؤال العملة للزائر الجديد",en:"Currency question for new visitors"}, curAskAdmL:{ar:"إظهار سؤال العملة",en:"Show the currency question"},
+  curAskAdmHint:{ar:"عند التشغيل يُسأل الزائر غير المسجّل مرة واحدة: بأي عملة يريد رؤية الأسعار؟ عند الإيقاف لا يظهر السؤال، وتبقى الأسعار بالدولار للجميع إلا لمن غيّر العملة من إعدادات حسابه.",en:"When on, a signed-out visitor is asked once which currency prices should be shown in. When off, the question never appears and prices stay in US dollars for everyone, except a member who changed the currency in their account settings."},
+  curAskOnT:{ar:"سؤال العملة ظاهر للزوار",en:"The currency question is shown"}, curAskOffT:{ar:"سؤال العملة مخفي عن الزوار",en:"The currency question is hidden"},
+  curAskT:{ar:"بأي عملة تريد رؤية الأسعار؟",en:"Which currency should prices be shown in?",fr:"Dans quelle devise afficher les prix ?"},
+  curAskP:{ar:"نسألك مرة واحدة، ويمكنك تغييرها لاحقاً من القائمة.",en:"We ask once. You can change it later from the menu.",fr:"Demandé une seule fois. Modifiable ensuite dans le menu."},
+  curN_USD:{ar:"الدولار الأمريكي",en:"US dollar",fr:"Dollar américain"}, curN_SYP:{ar:"الليرة السورية",en:"Syrian pound",fr:"Livre syrienne"},
+  curN_LBP:{ar:"الليرة اللبنانية",en:"Lebanese pound",fr:"Livre libanaise"}, curN_IQD:{ar:"الدينار العراقي",en:"Iraqi dinar",fr:"Dinar irakien"},
+  folBtn:{ar:"تابِع هذا المكتب",en:"Follow this agency",fr:"Suivre cette agence"}, folBtnB:{ar:"تابِع هذا الوسيط",en:"Follow this broker",fr:"Suivre ce courtier"},
+  folOn:{ar:"تتابعه ✓",en:"Following ✓",fr:"Suivi ✓"}, folUndo:{ar:"إلغاء المتابعة",en:"Unfollow",fr:"Ne plus suivre"},
+  folNote:{ar:"يصلك تنبيه في حسابك عند كل إعلان جديد ينشره",en:"You get a notification in your account for every new listing they post",fr:"Vous recevez une notification dans votre compte à chaque nouvelle annonce"},
+  folNoteOn:{ar:"سيصلك تنبيه في حسابك عند كل إعلان جديد ينشره",en:"You will be notified in your account about every new listing they post",fr:"Vous serez averti dans votre compte de chaque nouvelle annonce"},
+  needLoginFol:{ar:"سجّل الدخول أو أنشئ حساباً لتتابع هذا المعلن ويصلك جديده",en:"Log in or create an account to follow this advertiser",fr:"Connectez-vous ou créez un compte pour suivre cet annonceur"},
+  folListH:{ar:"من أتابعهم",en:"Who I follow",fr:"Mes abonnements"}, folListP:{ar:"يصلك تنبيه في حسابك عند كل إعلان جديد ينشره من تتابعه.",en:"You are notified in your account whenever someone you follow posts a new listing.",fr:"Vous êtes averti dans votre compte dès qu'une personne suivie publie une annonce."},
+  folNone:{ar:"لا تتابع أحداً بعد.",en:"You are not following anyone yet.",fr:"Vous ne suivez encore personne."},
+  notif_followT:{ar:"إعلان جديد من {n}",en:"New listing from {n}",fr:"Nouvelle annonce de {n}"},
   promoMineApp:{ar:"تريد وصولاً أسرع؟ نروّج إعلانك بإعلان ممول على فيسبوك وإنستغرام.",en:"Want more reach? We run a sponsored ad for your listing on Facebook and Instagram."}, adCtaWa:{ar:"تواصل على واتساب",en:"Chat on WhatsApp"}, adCtaMore:{ar:"اعرف أكثر",en:"Learn more"}, featured:{ar:"مميز",en:"Featured"},
   adVideoTooBig:{ar:"الفيديو كبير جداً ({mb} MB). الحد الأقصى {max} MB — صدّره بدقة 720p أو أقل ومدة قصيرة، ثم أعد الرفع.",en:"This video is too large ({mb} MB). The limit is {max} MB — export it at 720p or smaller and keep it short, then upload again."},
   adVideoHint:{ar:"الفيديو: حتى {max} MB، يُفضّل 720p ومدة 10–20 ثانية",en:"Video: up to {max} MB, ideally 720p and 10–20 seconds"}
