@@ -1226,7 +1226,7 @@ footer{font-size:14px}
 .resempty b{color:var(--ink);font-size:16px}
 /* list view: photo at the start, everything else beside it, description included */
 .res.list-view{gap:14px}
-.res.list-view .card.c2{flex-direction:row;height:220px}
+.res.list-view .card.c2{flex-direction:row;height:auto;min-height:220px}   /* 2026-11-15: as tall as what it holds — a fixed 220px cut the title and the WhatsApp / Call row (owner) */
 .res.list-view .card.c2 .ph{width:min(36%,320px);flex:none;height:auto;aspect-ratio:auto}
 .res.list-view .card.c2 .cb{min-width:0;overflow:hidden}
 .res.list-view .card.c2 .ph img{height:100%;aspect-ratio:auto;position:absolute;inset:0}
@@ -4952,6 +4952,7 @@ html.adm-dark .adm .abot .on{color:#C9D6F2}
 html.adm-dark .adm .amore-list{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .aseg{background:hsla(222,27%,13%,1)}
 html.adm-dark .adm .aseg button.on{background:var(--gold);color:#1A1206}
+html.adm-dark .adm .blk .hs-seg{background:hsla(222,27%,13%,1)}html.adm-dark .adm .blk .hs-seg button{color:#C9D6F2}html.adm-dark .adm .blk .hs-seg button.on{background:var(--gold);color:#1A1206}
 }html.adm-dark .adm .aoverdue,html.adm-dark .admdm-ov .aoverdue{background:hsla(41,39%,17%,1)}
 html.adm-dark .adm .aloaderr{background:hsla(6,39%,17%,1);color:hsla(4,71%,72%,1);border:1px solid hsla(222,20%,25%,1)}
 html.adm-dark .adm .admdm .ab.ok,html.adm-dark .admdm-ov .admdm .ab.ok{background:var(--p-dark,var(--gold));border-color:var(--p-dark,var(--gold));color:#1A1206}

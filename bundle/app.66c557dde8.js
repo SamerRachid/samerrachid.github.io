@@ -950,7 +950,8 @@ function mdrawer(){
       '<div class="mm-shortcuts">'+[["mMine","mine","myAds"],["mSaved","saved","mySaved"],["mSearch","search","mySearch"],["mMsgs","msgs","myMessages"],["mSet","settings","settings"]].map(function(x){
         return '<a data-md="'+x[0]+'">'+mi(x[1])+t(x[2])+(x[0]==="mMsgs"&&NOTIFS.unread?'<em class="badge">'+(NOTIFS.unread>9?"9+":NOTIFS.unread)+'</em>':'')+'</a>' }).join("")+'</div></div></div>'
     : '<div class="mm-acct mm-box guest" style="--i:0"><div class="g"><span class="av">'+ICON_USER+'</span><div><b>'+GX("mdWelcome")+'</b><small>'+GX("mdWelcomeP")+'</small></div><button class="mdw-in" id="mdIn">'+t("loginSignupCombo")+'</button></div></div>';
-  var govs='<div class="mm-box" style="--i:1"><h4>'+GX("allAreas")+'</h4><div class="mm-govs">'+Object.keys(D.GEO).slice(0,8).map(function(g){ var gp=govPageUrl(g,"sale"); return '<a '+(gp?'href="'+gp+'"':'data-go="search" data-gov="'+g+'"')+'>'+gN(g)+'</a>' }).join("")+'<a href="'+cPre()+'/areas/" data-go="areas">'+GX("allAreas")+' ›</a></div></div>';
+  // 2026-11-15 (owner): the chips are governorates, so the heading says so («كل المناطق» above them was confusing); the last chip still opens all areas
+  var govs='<div class="mm-box" style="--i:1"><h4>'+(L==="ar"?"المحافظات":L==="de"?"Gouvernements":L==="fr"?"Gouvernorats":"Governorates")+'</h4><div class="mm-govs">'+Object.keys(D.GEO).slice(0,8).map(function(g){ var gp=govPageUrl(g,"sale"); return '<a '+(gp?'href="'+gp+'" ':'')+'data-go="search" data-gov="'+g+'" data-deal="sale">'+gN(g)+'</a>' }).join("")+'<a href="'+cPre()+'/areas/" data-go="areas">'+GX("allAreas")+' ›</a></div></div>';
   var install = (window.PWA&&!PREVIEW) ? '<div class="mm-box" id="mdwInstallSec" style="--i:2"><a class="mm-app" id="mdwInstall">'+mi("download")+'<span><b>'+GX(PWA.hasApp()?"pwaHasT":"pwaInstall")+'</b><small>'+GX(PWA.hasApp()?"pwaHasS":"pwaInstallSub")+'</small></span></a></div>' : '';
   var en=countryList().filter(function(c){ return c.enabled });
   var countries = en.length>1 ? '<div class="mm-seg">'+en.map(function(x){ return '<a class="'+(x.code===COUNTRY?'on':'')+'" data-cpick="'+x.code+'">'+flagSvg(x.code)+esc(countryName(x))+'</a>' }).join("")+'</div>' : '';
@@ -1105,7 +1106,7 @@ function footer(){
   '<div class="fcol fcol-g"><h4>'+H.govs+'</h4><div class="fl2">'+
   Object.keys(D.GEO).slice(0,12).map(function(g){
     var gp=govPageUrl(g,"sale");
-    return '<a '+(gp?'href="'+gp+'"':'data-go="search" data-gov="'+g+'"')+'>'+
+    return '<a '+(gp?'href="'+gp+'" ':'')+'data-go="search" data-gov="'+g+'" data-deal="sale">'+
       (L==="ar"?"عقارات في ":L==="de"?"Immobilien in ":L==="fr"?"Immobilier à ":"Properties in ")+gN(g)+'</a>'}).join("")+
   '</div><a class="fall" href="'+cPre()+'/areas/">'+GX("allAreas")+' ›</a></div>'+
   '<div class="fcol"><h4 aria-level="2">'+esc(CONFIG.brand)+'</h4>'+
@@ -6578,14 +6579,17 @@ function wire(){
  $$("[data-qfx]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation();
    try{ localStorage.setItem("balkoun_qf_dismissed","1") }catch(e){}
    var w=b.closest(".qfteaser-wrap"); if(w&&w.parentElement) w.parentElement.remove() } });
- $$("[data-go]").forEach(function(e){e.onclick=function(ev){ev.preventDefault();
+ // 2026-11-15: the page is patched in place (morphdom), so an element can lose its data-go and keep this handler - the menu's
+ // governorate chips did (drawn first without their page address): the click set VIEW to undefined, the redraw threw, and no
+ // button on the page worked again until a refresh (owner: the results' page numbers "did not accept"). No data-go = not ours.
+ $$("[data-go]").forEach(function(e){e.onclick=function(ev){ if(!e.dataset.go) return; ev.preventDefault();
    if(!editLeaveOk()) return;
    if(e.dataset.go==="post"){NEW={photos:[],lat:null,lng:null}}
    if(e.dataset.go==="agencies"){ AGF={g:"",spec:"",q:""} }   // the directory opens clean from the menu; a filter left by the AI bar or a search must not stick
    if(e.dataset.go==="mapsearch"){ MAPSEARCH.deal = F.deal==="rent" ? "rent" : "sale" }   // the map starts on the deal chosen in the search bar
    if(e.dataset.go==="mine"){LOADED.mine=false}
    if(e.dataset.go==="mine"){loadListings().then(render)}
-   if(e.dataset.gov){F.g=e.dataset.gov;F.a="";F.areas=[]}
+   if(e.dataset.gov){F.g=e.dataset.gov;F.govs=[];F.a="";F.areas=[];F.apick=[];F.page=1}   // one governorate, from its first page (a governorate left in the bar, or page 5 of the search before, must not stick)
    if(e.dataset.type){F.t=e.dataset.type; F.sec=secOf(e.dataset.type)}
    if(e.dataset.sec!==undefined&&e.dataset.go==='search'){F.sec=e.dataset.sec; F.t=''}
    if(e.dataset.deal){F.deal=e.dataset.deal}
@@ -9014,7 +9018,9 @@ function adminLoad(){ if(window.__admLoaded) return adminLoad(); return ensureAd
 function adminBellHtml(){ if(!window.__admLoaded){ if(ADM.token) ensureAdminJs().then(function(){ render() }).catch(function(){}); return "" } return adminBellHtml() }
 function wireAdminBell(){ if(!window.__admLoaded) return; wireAdminBell() }
 
+function huDataNames(el){ var n=[], at=el.attributes; for(var i=0;i<at.length;i++) if(at[i].name.indexOf("data-")===0) n.push(at[i].name); return n.sort().join(" ") }
 function render(){
+ if(typeof VIEW!=="string" || !VIEW) VIEW=(typeof _lastRenderedView==="string" && _lastRenderedView) || "home";   // 2026-11-15: one bad click must never leave the page unable to draw
  blkSync(); folSync();
  var _ek=(VIEW==="edit")?editKeep():null;   // the edit page's typed, unsaved values, put back after the redraw
  syncHash();
@@ -9045,6 +9051,7 @@ function render(){
    if(window.morphdom && app.firstElementChild && (!$("#seoHome") || (VIEW==="home" && $("#huHero"))) && !PREVIEW && (VIEW==="home" || (VIEW===window._huLastView && VIEW!=="admin"))){
      var tmp=document.createElement("div"); tmp.innerHTML=html;
      try{ morphdom(app,tmp,{childrenOnly:true,onBeforeElUpdated:function(a,b){ if(a.id==="sketchBox"||a.id==="dawnBox"||a.id==="rsMap") return false;
+       if(a.onclick && huDataNames(a)!==huDataNames(b)) a.onclick=null;   // 2026-11-15: wire() gives it the right one again right after
        // a block that has already revealed keeps its reveal state through the patch (no 50ms flicker), the results hook re-runs the motion when the set changes
        if(a.classList&&b.classList&&a.classList.contains("hu-enter")){ b.classList.add("hu-enter"); b.style.setProperty("--enter-d",a.style.getPropertyValue("--enter-d")) }   // an entrance under way survives a data render
        // the page entrance (huPageIn) survives a redraw too: data arriving at the same moment stripped .hu-page before the
@@ -9182,7 +9189,7 @@ function homeSectionsHtml(bannerAboveHtml,typeList,adsInHero){
     colls:function(){ return (COUNTRY==="SY" && HSON("colls")) ? homeCollectionsHtml() : "" },   // curated Syrian collections; other countries get theirs later
     types:function(){ return HSON("types") ? '<div class="wrap"><section class="sec" id="typesSec"><div class="eyebrow">'+HT("types_eyebrow",HX("pickE"))+'</div><h2>'+HT("types_h",t("pickH"))+'</h2>'+typeList()+'</section></div>' : "" },
     trust:function(){ return HSON("trust") ? homeTrustHtml() : "" },
-    expl:function(){ var map=SX("expl_map_enabled",true)!==false; return HSON("expl") ? '<div class="wrap"><section class="sec" id="explSec"><div class="expl'+(map?'':' nomap')+'"><div><div class="eyebrow">'+HT("expl_eyebrow",HX("govE"))+'</div><h2>'+HT("expl_h",t("govH"))+'</h2><div class="sub">'+HT("expl_sub",COUNTRY==="SY"?t("govS"):govSubAuto())+'</div><div class="govs">'+
+    expl:function(){ var map=SX("expl_map_enabled",true)!==false; return HSON("expl") ? '<div class="wrap"><section class="sec" id="explSec"><div class="expl'+(map?'':' nomap')+'"><div><div class="eyebrow">'+HT("expl_eyebrow",HX("govE"))+'</div><h2>'+HT("expl_h",t("govH"))+'</h2><div class="sub">'+HT("expl_sub",govSubAuto())+'</div><div class="govs">'+
        Object.keys(D.GEO).map(function(g){return '<a data-go="search" data-gov="'+g+'">'+gN(g)+govCnt(g)+'</a>'}).join("")+'</div></div>'+(map?(COUNTRY==="SY"?syriaMapHtml():countryMapHtml()):'')+'</div></section></div>' : "" },
     band:function(){ return (USER || !HSON("band")) ? "" : '<div class="wrap"><div class="band frame'+(bandImgHtml()?'':' noimg')+'" id="bandSec"><div class="band-tx"><div class="eyebrow">'+HT("band_eyebrow",HX("ownE"))+'</div><h2>'+HT("band_h",t("bandH"))+'</h2><p>'+HT("band_p",t("bandP"))+'</p><div class="bandlist">'+
        '<span>'+HT("band_b1",t("b1"))+'</span><span>'+HT("band_b2",t("b2"))+'</span><span>'+HT("band_b3",t("b3"))+'</span></div>'+
@@ -9201,8 +9208,15 @@ function homePopularHtml(){
   list=list.slice(0,list.length-list.length%3);
   return '<div class="wrap"><section class="sec" id="popularSec"><div class="eyebrow">'+HT("popular_eyebrow",HX("popE"))+'</div><h2>'+HT("popular_h",HX("popH"))+'</h2><div class="sub">'+HT("popular_sub",HX("popS"))+'</div>'+
     '<div class="res">'+list.map(function(x,i){ return card(x,i,false) }).join("")+'</div></section></div>' }
-// a governorate tile's live listing count («394 إعلاناً»); a governorate without listings shows its name only (owner 2026-11-10, choice ب)
-function govCnt(g){ var n=+((CNT.byGov||{})[g])||0; if(!n) return "";
+// the figure on a governorate tile of the home page (the home map's pins keep the live listings: «leave the map as it is», owner
+// 2026-11-11). Owner 2026-11-11: the number of AREAS the governorate has on the
+// site («162 منطقة»), unless the panel says listings (Settings → «الرقم على بلاطات المحافظات», extras.gov_tile_count = "listings"):
+// then the live listing count («394 إعلاناً», owner 2026-11-10 choice ب). A governorate with nothing to count shows its name only.
+function govCntMode(){ return SX("gov_tile_count","areas")==="listings" ? "listings" : "areas" }
+function govCntN(g){ return govCntMode()==="areas" ? ((D.GEO[g]||[]).length||0) : (+((CNT.byGov||{})[g])||0) }
+function govCnt(g){ var n=govCntN(g); if(!n) return "";
+  if(govCntMode()==="areas"){ var ra=n%100, wa=L==="ar"?(n===1?"منطقة":n===2?"منطقتان":(ra>=3&&ra<=10)?"مناطق":"منطقة"):L==="de"?(n===1?"Gebiet":"Gebiete"):L==="fr"?(n===1?"zone":"zones"):(n===1?"area":"areas");
+    return '<span class="gcnt"><span class="ltr">'+n+'</span> '+wa+'</span>' }
   var r=n%100, w=L==="ar"?(n===1?"إعلان":n===2?"إعلانان":(r>=3&&r<=10)?"إعلانات":(r>=11||n<100)?"إعلاناً":"إعلان"):L==="de"?(n===1?"Inserat":"Inserate"):L==="fr"?(n===1?"annonce":"annonces"):(n===1?"listing":"listings");
   return '<span class="gcnt"><span class="ltr">'+n+'</span> '+w+'</span>' }
 // a short, honest text about the market the site serves (what search engines and first-time visitors both need to read), with the governorates as links
@@ -11371,6 +11385,10 @@ var GX_T={
   needLoginSaved:{ar:"سجّل الدخول أو أنشئ حساباً لتحفظ العقارات وتعود إليها",en:"Log in or create an account to save properties and come back to them",fr:"Connectez-vous ou créez un compte pour enregistrer des biens"},
   cWa:{ar:"واتساب",en:"WhatsApp",fr:"WhatsApp"}, cCall:{ar:"اتصال",en:"Call",fr:"Appeler"},
   mwM:{ar:"مليون",en:"million",fr:"M"}, mwB:{ar:"مليار",en:"billion",fr:"Md"},
+  govCntH:{ar:"الرقم على بلاطات المحافظات",en:"The figure on the governorate tiles"},
+  govCntHint:{ar:"الرقم الظاهر بجانب اسم كل محافظة في الصفحة الرئيسية: عدد مناطق المحافظة في الموقع، أو عدد إعلاناتها الحيّة. دبابيس الخريطة تعرض دائماً عدد الإعلانات.",en:"The figure beside each governorate on the home page: the number of areas the governorate has on the site, or the number of its live listings. The map pins always show listings."},
+  govCntAreas:{ar:"عدد المناطق",en:"Number of areas"}, govCntListings:{ar:"عدد الإعلانات",en:"Number of listings"},
+  govCntAreasT:{ar:"البلاطات تعرض عدد المناطق",en:"The tiles show the number of areas"}, govCntListingsT:{ar:"البلاطات تعرض عدد الإعلانات",en:"The tiles show the number of listings"},
   curAskAdmH:{ar:"سؤال العملة للزائر الجديد",en:"Currency question for new visitors"}, curAskAdmL:{ar:"إظهار سؤال العملة",en:"Show the currency question"},
   curAskAdmHint:{ar:"عند التشغيل يُسأل الزائر غير المسجّل مرة واحدة: بأي عملة يريد رؤية الأسعار؟ عند الإيقاف لا يظهر السؤال، وتبقى الأسعار بالدولار للجميع إلا لمن غيّر العملة من إعدادات حسابه.",en:"When on, a signed-out visitor is asked once which currency prices should be shown in. When off, the question never appears and prices stay in US dollars for everyone, except a member who changed the currency in their account settings."},
   curAskOnT:{ar:"سؤال العملة ظاهر للزوار",en:"The currency question is shown"}, curAskOffT:{ar:"سؤال العملة مخفي عن الزوار",en:"The currency question is hidden"},
