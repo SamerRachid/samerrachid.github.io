@@ -1226,7 +1226,7 @@ footer{font-size:14px}
 .resempty b{color:var(--ink);font-size:16px}
 /* list view: photo at the start, everything else beside it, description included */
 .res.list-view{gap:14px}
-.res.list-view .card.c2{flex-direction:row;height:220px}
+.res.list-view .card.c2{flex-direction:row;height:auto;min-height:220px}   /* 2026-11-15: as tall as what it holds — a fixed 220px cut the title and the WhatsApp / Call row (owner) */
 .res.list-view .card.c2 .ph{width:min(36%,320px);flex:none;height:auto;aspect-ratio:auto}
 .res.list-view .card.c2 .cb{min-width:0;overflow:hidden}
 .res.list-view .card.c2 .ph img{height:100%;aspect-ratio:auto;position:absolute;inset:0}

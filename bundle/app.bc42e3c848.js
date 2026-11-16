@@ -950,7 +950,8 @@ function mdrawer(){
       '<div class="mm-shortcuts">'+[["mMine","mine","myAds"],["mSaved","saved","mySaved"],["mSearch","search","mySearch"],["mMsgs","msgs","myMessages"],["mSet","settings","settings"]].map(function(x){
         return '<a data-md="'+x[0]+'">'+mi(x[1])+t(x[2])+(x[0]==="mMsgs"&&NOTIFS.unread?'<em class="badge">'+(NOTIFS.unread>9?"9+":NOTIFS.unread)+'</em>':'')+'</a>' }).join("")+'</div></div></div>'
     : '<div class="mm-acct mm-box guest" style="--i:0"><div class="g"><span class="av">'+ICON_USER+'</span><div><b>'+GX("mdWelcome")+'</b><small>'+GX("mdWelcomeP")+'</small></div><button class="mdw-in" id="mdIn">'+t("loginSignupCombo")+'</button></div></div>';
-  var govs='<div class="mm-box" style="--i:1"><h4>'+GX("allAreas")+'</h4><div class="mm-govs">'+Object.keys(D.GEO).slice(0,8).map(function(g){ var gp=govPageUrl(g,"sale"); return '<a '+(gp?'href="'+gp+'"':'data-go="search" data-gov="'+g+'"')+'>'+gN(g)+'</a>' }).join("")+'<a href="'+cPre()+'/areas/" data-go="areas">'+GX("allAreas")+' ›</a></div></div>';
+  // 2026-11-15 (owner): the chips are governorates, so the heading says so («كل المناطق» above them was confusing); the last chip still opens all areas
+  var govs='<div class="mm-box" style="--i:1"><h4>'+(L==="ar"?"المحافظات":L==="de"?"Gouvernements":L==="fr"?"Gouvernorats":"Governorates")+'</h4><div class="mm-govs">'+Object.keys(D.GEO).slice(0,8).map(function(g){ var gp=govPageUrl(g,"sale"); return '<a '+(gp?'href="'+gp+'" ':'')+'data-go="search" data-gov="'+g+'" data-deal="sale">'+gN(g)+'</a>' }).join("")+'<a href="'+cPre()+'/areas/" data-go="areas">'+GX("allAreas")+' ›</a></div></div>';
   var install = (window.PWA&&!PREVIEW) ? '<div class="mm-box" id="mdwInstallSec" style="--i:2"><a class="mm-app" id="mdwInstall">'+mi("download")+'<span><b>'+GX(PWA.hasApp()?"pwaHasT":"pwaInstall")+'</b><small>'+GX(PWA.hasApp()?"pwaHasS":"pwaInstallSub")+'</small></span></a></div>' : '';
   var en=countryList().filter(function(c){ return c.enabled });
   var countries = en.length>1 ? '<div class="mm-seg">'+en.map(function(x){ return '<a class="'+(x.code===COUNTRY?'on':'')+'" data-cpick="'+x.code+'">'+flagSvg(x.code)+esc(countryName(x))+'</a>' }).join("")+'</div>' : '';
@@ -1105,7 +1106,7 @@ function footer(){
   '<div class="fcol fcol-g"><h4>'+H.govs+'</h4><div class="fl2">'+
   Object.keys(D.GEO).slice(0,12).map(function(g){
     var gp=govPageUrl(g,"sale");
-    return '<a '+(gp?'href="'+gp+'"':'data-go="search" data-gov="'+g+'"')+'>'+
+    return '<a '+(gp?'href="'+gp+'" ':'')+'data-go="search" data-gov="'+g+'" data-deal="sale">'+
       (L==="ar"?"عقارات في ":L==="de"?"Immobilien in ":L==="fr"?"Immobilier à ":"Properties in ")+gN(g)+'</a>'}).join("")+
   '</div><a class="fall" href="'+cPre()+'/areas/">'+GX("allAreas")+' ›</a></div>'+
   '<div class="fcol"><h4 aria-level="2">'+esc(CONFIG.brand)+'</h4>'+
@@ -2665,6 +2666,9 @@ function editView(){
    (x.orig&&x.orig>x.p?'<div class="hintx">'+t("wasPrice")+' <span class="ltr">'+money(x.orig)+'</span></div>':'')+
    '</div>'+
   '<div class="fl"><label class="req">'+t("areaM")+'</label><input type="number" id="eArea" value="'+(x.m2||"")+'" autocomplete="off"></div></div>'+
+  // 2026-11-15 (owner: «the edit page gets every option of the post page»): negotiable here, WhatsApp / owner under the
+  // phone row, year built beside the floor — the four the post form had and this page did not
+  '<div class="fl"><div class="chkgrid"><label><input type="checkbox" id="eNegot"'+(x.negot?" checked":"")+'> '+t("negot")+'</label></div></div>'+
   '<div class="row3">'+
   '<div class="fl"><label>'+t("kRooms")+'</label><input type="number" id="eRooms" value="'+(x.r||"")+'" autocomplete="off"></div>'+
   '<div class="fl"><label>'+t("kBaths")+'</label><input type="number" id="eBaths" value="'+(x.b||"")+'" autocomplete="off"></div>'+
@@ -2680,6 +2684,10 @@ function editView(){
     return '<div class="fl"><label>'+GX("eTelL")+'</label><div class="pw pw-fit">'+ccSelect("eCC", cur?ccOf(cur):phoneCC())+'<input id="eTelM" class="ltr" inputmode="tel" autocomplete="off" value="'+esc(cur?ccStrip(cur):"")+'"></div>'+
       '<div class="hintx">'+GX(x.hidePhone?"eTelHidden":"eTelHint")+'</div></div>' })())+
   '</div>'+
+  '<div class="fl"><div class="chkgrid">'+
+   // the admin edits someone else's listing, so the two labels speak about the advertiser, not «I»
+   '<label><input type="checkbox" id="eWaok"'+(x.waok!==false?" checked":"")+'> '+(EDIT.isAdmin?(L==="ar"?"يستقبل رسائل واتساب":L==="de"?"WhatsApp erwünscht":"Accepts WhatsApp"):t("waok"))+'</label>'+
+   '<label><input type="checkbox" id="eByOwner"'+(x.ow?" checked":"")+'> '+(EDIT.isAdmin?(L==="ar"?"المعلن هو المالك وليس مكتباً عقارياً":L==="de"?"Anbieter ist der Eigentümer":"Advertiser is the owner, not an agent"):t("iamowner"))+'</label></div></div>'+
   '<div class="fl"><label>'+t("mapLocL")+'</label>'+
    '<div class="hintx" style="margin:0 0 8px">'+t("mapLocHint")+'</div>'+
    (EDIT.lat ? '' : '<button type="button" class="gh" id="eMapToggle" style="margin:0;padding:8px 16px">'+t("addLocationBtn")+'</button>')+
@@ -2710,10 +2718,11 @@ function editView(){
    '</select><div class="hintx">'+GX("edOwnerHint")+'</div></div>'+
    '<div class="hintx">'+GX("edBasicsHint")+'</div></div></div>' : '')+
 '<div class="blk"><h3 aria-level="2"><span class="n">2</span>'+t("detH")+'</h3><div class="in">'+
-  (secOf(x.t)==="land" ? '' : '<div class="fl"><label>'+t("kFloor")+'</label><select id="eFloor">'+
+  (secOf(x.t)==="land" ? '' : '<div class="row"><div class="fl"><label>'+t("kFloor")+'</label><select id="eFloor">'+
    '<option value="">—</option>'+[-1,0].concat(Array.apply(null,{length:20}).map(function(_,n){return n+1}))
      .map(function(v){return '<option value="'+v+'"'+(String(v)===String(x.fl)?" selected":"")+'>'+floorLabel(v)+'</option>'}).join("")+
-   '</select></div>')+
+   '</select></div>'+
+   '<div class="fl"><label>'+t("kYear")+'</label><input type="number" id="eYear" value="'+(x.y||"")+'" autocomplete="off"></div></div>')+
   '<div class="fl"><label class="req">'+t("cond")+'</label><div class="pick">'+pk(secOf(x.t)==="land"&&D.LANDC?D.LANDC:D.COND,"ecd",x.cd)+'</div></div>'+
   (x.d==="rent" ? '' : '<div class="fl"><label>'+t("deed")+'</label><div class="pick">'+pk(D.TABU,"etb",x.tb)+'</div></div>') +
   (x.d==="rent" ? '<div class="fl"><div class="chkgrid">'+
@@ -6578,14 +6587,17 @@ function wire(){
  $$("[data-qfx]").forEach(function(b){ b.onclick=function(ev){ ev.preventDefault(); ev.stopPropagation();
    try{ localStorage.setItem("balkoun_qf_dismissed","1") }catch(e){}
    var w=b.closest(".qfteaser-wrap"); if(w&&w.parentElement) w.parentElement.remove() } });
- $$("[data-go]").forEach(function(e){e.onclick=function(ev){ev.preventDefault();
+ // 2026-11-15: the page is patched in place (morphdom), so an element can lose its data-go and keep this handler - the menu's
+ // governorate chips did (drawn first without their page address): the click set VIEW to undefined, the redraw threw, and no
+ // button on the page worked again until a refresh (owner: the results' page numbers "did not accept"). No data-go = not ours.
+ $$("[data-go]").forEach(function(e){e.onclick=function(ev){ if(!e.dataset.go) return; ev.preventDefault();
    if(!editLeaveOk()) return;
    if(e.dataset.go==="post"){NEW={photos:[],lat:null,lng:null}}
    if(e.dataset.go==="agencies"){ AGF={g:"",spec:"",q:""} }   // the directory opens clean from the menu; a filter left by the AI bar or a search must not stick
    if(e.dataset.go==="mapsearch"){ MAPSEARCH.deal = F.deal==="rent" ? "rent" : "sale" }   // the map starts on the deal chosen in the search bar
    if(e.dataset.go==="mine"){LOADED.mine=false}
    if(e.dataset.go==="mine"){loadListings().then(render)}
-   if(e.dataset.gov){F.g=e.dataset.gov;F.a="";F.areas=[]}
+   if(e.dataset.gov){F.g=e.dataset.gov;F.govs=[];F.a="";F.areas=[];F.apick=[];F.page=1}   // one governorate, from its first page (a governorate left in the bar, or page 5 of the search before, must not stick)
    if(e.dataset.type){F.t=e.dataset.type; F.sec=secOf(e.dataset.type)}
    if(e.dataset.sec!==undefined&&e.dataset.go==='search'){F.sec=e.dataset.sec; F.t=''}
    if(e.dataset.deal){F.deal=e.dataset.deal}
@@ -6806,6 +6818,10 @@ function wire(){
      patch.baths = v("eBaths")?+v("eBaths"):null;
      if($("#eLiving")) patch.living_rooms = v("eLiving")?+v("eLiving"):null;
      patch.floor = v("eFloor")===""?null:+v("eFloor");
+     if($("#eYear")) patch.year_built = parseInt(v("eYear"),10)||null;
+     if($("#eNegot")) patch.price_negotiable = !!$("#eNegot").checked;
+     if($("#eWaok")) patch.accepts_whatsapp = !!$("#eWaok").checked;
+     if($("#eByOwner")) patch.by_owner = !!$("#eByOwner").checked;
      if($("#ePower")) patch.power_hours = v("ePower")?+v("ePower"):null;
      if($("#eDir")) patch.direction = v("eDir")||null;
      if($('input[name=etb]:checked')) patch.tabu=$('input[name=etb]:checked').value;
@@ -7916,7 +7932,7 @@ function fromRow(r){
     rentalPeriod:r.rental_period||null, featured:!!r.is_featured,
     am:r.amenities||[],
     photos:null,
-    tel:r.contact_phone||"", wa:r.accepts_whatsapp!==false && !r.owner_hide_phone, hidePhone:!!r.owner_hide_phone, negot:r.price_negotiable!==false,
+    tel:r.contact_phone||"", waok:r.accepts_whatsapp!==false, wa:r.accepts_whatsapp!==false && !r.owner_hide_phone, hidePhone:!!r.owner_hide_phone, negot:r.price_negotiable!==false,
     cover:r.cover_url||null,
     who:r.contact_name||r.owner_name||"",
     ds:[txt,txt,txt]};
@@ -9014,7 +9030,9 @@ function adminLoad(){ if(window.__admLoaded) return adminLoad(); return ensureAd
 function adminBellHtml(){ if(!window.__admLoaded){ if(ADM.token) ensureAdminJs().then(function(){ render() }).catch(function(){}); return "" } return adminBellHtml() }
 function wireAdminBell(){ if(!window.__admLoaded) return; wireAdminBell() }
 
+function huDataNames(el){ var n=[], at=el.attributes; for(var i=0;i<at.length;i++) if(at[i].name.indexOf("data-")===0) n.push(at[i].name); return n.sort().join(" ") }
 function render(){
+ if(typeof VIEW!=="string" || !VIEW) VIEW=(typeof _lastRenderedView==="string" && _lastRenderedView) || "home";   // 2026-11-15: one bad click must never leave the page unable to draw
  blkSync(); folSync();
  var _ek=(VIEW==="edit")?editKeep():null;   // the edit page's typed, unsaved values, put back after the redraw
  syncHash();
@@ -9045,6 +9063,7 @@ function render(){
    if(window.morphdom && app.firstElementChild && (!$("#seoHome") || (VIEW==="home" && $("#huHero"))) && !PREVIEW && (VIEW==="home" || (VIEW===window._huLastView && VIEW!=="admin"))){
      var tmp=document.createElement("div"); tmp.innerHTML=html;
      try{ morphdom(app,tmp,{childrenOnly:true,onBeforeElUpdated:function(a,b){ if(a.id==="sketchBox"||a.id==="dawnBox"||a.id==="rsMap") return false;
+       if(a.onclick && huDataNames(a)!==huDataNames(b)) a.onclick=null;   // 2026-11-15: wire() gives it the right one again right after
        // a block that has already revealed keeps its reveal state through the patch (no 50ms flicker), the results hook re-runs the motion when the set changes
        if(a.classList&&b.classList&&a.classList.contains("hu-enter")){ b.classList.add("hu-enter"); b.style.setProperty("--enter-d",a.style.getPropertyValue("--enter-d")) }   // an entrance under way survives a data render
        // the page entrance (huPageIn) survives a redraw too: data arriving at the same moment stripped .hu-page before the

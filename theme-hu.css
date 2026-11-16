@@ -1008,6 +1008,10 @@ footer .fcol .fall{margin-top:8px;font-weight:700;color:#fff}
 @media (min-width:861px){ html body .home-hero .hero-outer.hu .sbar .stabs,html body .hero-outer.hu .sbar .stabs{margin-top:28px!important} }
 @media (max-width:860px){ html body .home-hero .hero-outer.hu .hero h1,html body .hero-outer.hu .hero h1{max-width:none!important;width:auto!important;white-space:nowrap;font-size:27px!important;line-height:34px!important;margin:0 0 16px!important} }
 @media (max-width:340px){ html body .home-hero .hero-outer.hu .hero h1,html body .hero-outer.hu .hero h1{font-size:24px!important;line-height:30px!important} }
+/* 2026-11-15 (owner said yes): the one-line rule above fits the Arabic headline; «Your next property, starts here.» and
+   «Ihre nächste Immobilie, beginnt hier.» are wider than a phone, ran off the screen and made the whole home page (and the
+   menu opened from it) 420 / 490px wide on a 390px phone. Left-to-right languages break into two even lines instead. */
+@media (max-width:860px){ html[dir="ltr"] body .home-hero .hero-outer.hu .hero h1,html[dir="ltr"] body .hero-outer.hu .hero h1{white-space:normal;text-wrap:balance;overflow-wrap:break-word} }
 /* home page order: the type tiles in 7 columns (14, 13 and 7 tiles fill their rows), the governorate chips in 4 */
 @media (min-width:1100px){ html body .typegrid{grid-template-columns:repeat(7,minmax(0,1fr))!important} }
 @media (min-width:861px){ html body .aboutlinks .govs{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important} }
@@ -1966,3 +1970,7 @@ html body .gh.folgh.on{background:rgba(202,144,81,.16);color:#fff}
 @media (min-width:901px){ html body .rs-body:not(.rs-hasmap) .res:not(.list-view){grid-template-columns:repeat(auto-fill,minmax(calc(var(--card-size,250px) + 40px),1fr));justify-content:stretch} }
 /* phones, «تصفّح حسب المحافظة»: «ريف دمشق 340 منطقة» stays on one line like its neighbours (the areas figure is a little wider than the listings one was) */
 @media (max-width:860px){ html body .expl .govs a{padding-inline:11px!important;gap:6px} html body .expl .govs a .gcnt{font-size:12px!important} }
+/* 2026-11-15: on the narrowest phones (Z Fold cover screen, 344px) the two tile columns grew with their text («Rural Damascus» +
+   «340 Gebiete») and stood 5px past the screen in German; the columns share the row evenly, and the count sits under the name
+   (side by side there is no room at 320px: a name broke in the middle of a word, «طرطو / س») */
+@media (max-width:359px){ html body .expl .govs{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:8px!important} html body .expl .govs a{flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:2px;padding:9px 11px!important;font-size:14px!important;line-height:1.35} html body .expl .govs a .gcnt{font-size:12px!important} }
