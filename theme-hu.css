@@ -1952,7 +1952,7 @@ html body .curask-two button:focus-visible{outline:2px solid var(--gold);outline
 
 /* 5 · follow an agency / a broker: the button inside the advertiser's box on the listing page, a chip on the agency page */
 html body .lowner{flex-wrap:wrap}
-html body .lowner>div:not(.folbox){flex:1 1 0;min-width:0}
+html body .lowner>div:not(.folbox):not(.ava){flex:1 1 0;min-width:0}   /* 2026-11-16: the initial-letter avatar is a div too and was stretched into an ellipse */
 html body .lowner .folbox{flex:1 1 100%;display:grid;gap:6px;margin-top:6px}
 html body .folbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:46px;padding:0 14px;border-radius:10px;border:1px solid var(--gold);background:transparent;color:var(--gold-dk);font:inherit;font-size:15px;font-weight:700;line-height:1;cursor:pointer}
 html body .folbtn.on{background:rgba(202,144,81,.16);color:#fff}
@@ -1974,3 +1974,30 @@ html body .gh.folgh.on{background:rgba(202,144,81,.16);color:#fff}
    «340 Gebiete») and stood 5px past the screen in German; the columns share the row evenly, and the count sits under the name
    (side by side there is no room at 320px: a name broke in the middle of a word, «طرطو / س») */
 @media (max-width:359px){ html body .expl .govs{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:8px!important} html body .expl .govs a{flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;gap:2px;padding:9px 11px!important;font-size:14px!important;line-height:1.35} html body .expl .govs a .gcnt{font-size:12px!important} }
+
+/* 2026-11-16 (owner): the advertiser's card and the contact buttons on the listing page.
+   Before: one navy bar as wide as the page, the buttons in a loose row under it, and an initial-letter avatar stretched into an
+   ellipse. Now: a compact card (round avatar beside the name) with the contact buttons standing beside it in two even columns, and
+   the save / share / report / block row under both; on a phone it stays one column. Every id (#ph #callBtn #wab #reqv #savl #shr
+   #rptOpen) is unchanged, the markup only gained the wrappers .lcontact and .lbtns. */
+html body .lcontact{width:100%;display:flex;flex-direction:column;gap:12px;margin-top:8px}
+html body .lcontact .lowner{margin:0;width:100%;box-sizing:border-box;display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:14px;row-gap:12px;align-items:center;align-content:center;padding:18px 20px}
+html body .lcontact .lowner>.ava{width:56px!important;height:56px!important;flex:none;display:grid;place-items:center;font-weight:800;line-height:1}
+html body .lcontact .lowner>div:not(.folbox){min-width:0}
+html body .lcontact .lowner .folbox{grid-column:1/-1;margin:0}
+html body .lcontact .lbtns{display:flex;flex-wrap:wrap;gap:10px;min-width:0}
+html body .lcontact .lbtns .hidephone-note{flex:1 1 100%;margin:0}
+html body .lcontact .lacts{margin:0;width:100%}
+html body .lcontact .lacts button span{white-space:normal;overflow:visible;text-overflow:clip;line-height:1.3;text-align:center}   /* a long label («الإبلاغ عن هذا الإعلان», «Report this listing») takes a second line instead of «…» */
+html body .lcontact>.hintx{margin:0}
+@media (min-width:861px){
+  html body .lcontact{display:grid;grid-template-columns:minmax(280px,38%) minmax(0,1fr);gap:16px 20px;max-width:940px;margin-top:10px;align-items:stretch}
+  html body .lcontact .lbtns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-content:center}
+  html body .lcontact .lbtns .lbtn{width:100%;flex:none;margin:0;min-height:52px;padding:0 12px;white-space:nowrap}
+  html body .lcontact .lbtns:not(:has(.hidephone-note))>:last-child:nth-child(odd){grid-column:1/-1}
+  html body .lcontact .lbtns .hidephone-note{grid-column:1/-1}
+  html body .lcontact .lacts{grid-column:1/-1;grid-template-columns:none!important;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:10px;justify-content:stretch}
+  html body .lcontact .lacts button{flex-direction:row;justify-content:center;gap:8px;padding:6px 10px;min-height:46px;font-size:13px}
+  html body .lcontact>.hintx{grid-column:1/-1}
+  html body .lside .lown{max-width:940px}
+}

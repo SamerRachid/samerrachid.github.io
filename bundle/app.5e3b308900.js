@@ -950,7 +950,8 @@ function mdrawer(){
       '<div class="mm-shortcuts">'+[["mMine","mine","myAds"],["mSaved","saved","mySaved"],["mSearch","search","mySearch"],["mMsgs","msgs","myMessages"],["mSet","settings","settings"]].map(function(x){
         return '<a data-md="'+x[0]+'">'+mi(x[1])+t(x[2])+(x[0]==="mMsgs"&&NOTIFS.unread?'<em class="badge">'+(NOTIFS.unread>9?"9+":NOTIFS.unread)+'</em>':'')+'</a>' }).join("")+'</div></div></div>'
     : '<div class="mm-acct mm-box guest" style="--i:0"><div class="g"><span class="av">'+ICON_USER+'</span><div><b>'+GX("mdWelcome")+'</b><small>'+GX("mdWelcomeP")+'</small></div><button class="mdw-in" id="mdIn">'+t("loginSignupCombo")+'</button></div></div>';
-  var govs='<div class="mm-box" style="--i:1"><h4>'+GX("allAreas")+'</h4><div class="mm-govs">'+Object.keys(D.GEO).slice(0,8).map(function(g){ var gp=govPageUrl(g,"sale"); return '<a '+(gp?'href="'+gp+'" ':'')+'data-go="search" data-gov="'+g+'" data-deal="sale">'+gN(g)+'</a>' }).join("")+'<a href="'+cPre()+'/areas/" data-go="areas">'+GX("allAreas")+' ›</a></div></div>';
+  // 2026-11-15 (owner): the chips are governorates, so the heading says so («كل المناطق» above them was confusing); the last chip still opens all areas
+  var govs='<div class="mm-box" style="--i:1"><h4>'+(L==="ar"?"المحافظات":L==="de"?"Gouvernements":L==="fr"?"Gouvernorats":"Governorates")+'</h4><div class="mm-govs">'+Object.keys(D.GEO).slice(0,8).map(function(g){ var gp=govPageUrl(g,"sale"); return '<a '+(gp?'href="'+gp+'" ':'')+'data-go="search" data-gov="'+g+'" data-deal="sale">'+gN(g)+'</a>' }).join("")+'<a href="'+cPre()+'/areas/" data-go="areas">'+GX("allAreas")+' ›</a></div></div>';
   var install = (window.PWA&&!PREVIEW) ? '<div class="mm-box" id="mdwInstallSec" style="--i:2"><a class="mm-app" id="mdwInstall">'+mi("download")+'<span><b>'+GX(PWA.hasApp()?"pwaHasT":"pwaInstall")+'</b><small>'+GX(PWA.hasApp()?"pwaHasS":"pwaInstallSub")+'</small></span></a></div>' : '';
   var en=countryList().filter(function(c){ return c.enabled });
   var countries = en.length>1 ? '<div class="mm-seg">'+en.map(function(x){ return '<a class="'+(x.code===COUNTRY?'on':'')+'" data-cpick="'+x.code+'">'+flagSvg(x.code)+esc(countryName(x))+'</a>' }).join("")+'</div>' : '';
@@ -2665,6 +2666,9 @@ function editView(){
    (x.orig&&x.orig>x.p?'<div class="hintx">'+t("wasPrice")+' <span class="ltr">'+money(x.orig)+'</span></div>':'')+
    '</div>'+
   '<div class="fl"><label class="req">'+t("areaM")+'</label><input type="number" id="eArea" value="'+(x.m2||"")+'" autocomplete="off"></div></div>'+
+  // 2026-11-15 (owner: «the edit page gets every option of the post page»): negotiable here, WhatsApp / owner under the
+  // phone row, year built beside the floor — the four the post form had and this page did not
+  '<div class="fl"><div class="chkgrid"><label><input type="checkbox" id="eNegot"'+(x.negot?" checked":"")+'> '+t("negot")+'</label></div></div>'+
   '<div class="row3">'+
   '<div class="fl"><label>'+t("kRooms")+'</label><input type="number" id="eRooms" value="'+(x.r||"")+'" autocomplete="off"></div>'+
   '<div class="fl"><label>'+t("kBaths")+'</label><input type="number" id="eBaths" value="'+(x.b||"")+'" autocomplete="off"></div>'+
@@ -2680,6 +2684,10 @@ function editView(){
     return '<div class="fl"><label>'+GX("eTelL")+'</label><div class="pw pw-fit">'+ccSelect("eCC", cur?ccOf(cur):phoneCC())+'<input id="eTelM" class="ltr" inputmode="tel" autocomplete="off" value="'+esc(cur?ccStrip(cur):"")+'"></div>'+
       '<div class="hintx">'+GX(x.hidePhone?"eTelHidden":"eTelHint")+'</div></div>' })())+
   '</div>'+
+  '<div class="fl"><div class="chkgrid">'+
+   // the admin edits someone else's listing, so the two labels speak about the advertiser, not «I»
+   '<label><input type="checkbox" id="eWaok"'+(x.waok!==false?" checked":"")+'> '+(EDIT.isAdmin?(L==="ar"?"يستقبل رسائل واتساب":L==="de"?"WhatsApp erwünscht":"Accepts WhatsApp"):t("waok"))+'</label>'+
+   '<label><input type="checkbox" id="eByOwner"'+(x.ow?" checked":"")+'> '+(EDIT.isAdmin?(L==="ar"?"المعلن هو المالك وليس مكتباً عقارياً":L==="de"?"Anbieter ist der Eigentümer":"Advertiser is the owner, not an agent"):t("iamowner"))+'</label></div></div>'+
   '<div class="fl"><label>'+t("mapLocL")+'</label>'+
    '<div class="hintx" style="margin:0 0 8px">'+t("mapLocHint")+'</div>'+
    (EDIT.lat ? '' : '<button type="button" class="gh" id="eMapToggle" style="margin:0;padding:8px 16px">'+t("addLocationBtn")+'</button>')+
@@ -2710,10 +2718,11 @@ function editView(){
    '</select><div class="hintx">'+GX("edOwnerHint")+'</div></div>'+
    '<div class="hintx">'+GX("edBasicsHint")+'</div></div></div>' : '')+
 '<div class="blk"><h3 aria-level="2"><span class="n">2</span>'+t("detH")+'</h3><div class="in">'+
-  (secOf(x.t)==="land" ? '' : '<div class="fl"><label>'+t("kFloor")+'</label><select id="eFloor">'+
+  (secOf(x.t)==="land" ? '' : '<div class="row"><div class="fl"><label>'+t("kFloor")+'</label><select id="eFloor">'+
    '<option value="">—</option>'+[-1,0].concat(Array.apply(null,{length:20}).map(function(_,n){return n+1}))
      .map(function(v){return '<option value="'+v+'"'+(String(v)===String(x.fl)?" selected":"")+'>'+floorLabel(v)+'</option>'}).join("")+
-   '</select></div>')+
+   '</select></div>'+
+   '<div class="fl"><label>'+t("kYear")+'</label><input type="number" id="eYear" value="'+(x.y||"")+'" autocomplete="off"></div></div>')+
   '<div class="fl"><label class="req">'+t("cond")+'</label><div class="pick">'+pk(secOf(x.t)==="land"&&D.LANDC?D.LANDC:D.COND,"ecd",x.cd)+'</div></div>'+
   (x.d==="rent" ? '' : '<div class="fl"><label>'+t("deed")+'</label><div class="pick">'+pk(D.TABU,"etb",x.tb)+'</div></div>') +
   (x.d==="rent" ? '<div class="fl"><div class="chkgrid">'+
@@ -5006,8 +5015,8 @@ function qfLocalRead(raw, geo, learned, home){
   var N=function(s){ return String(s||"").replace(/(?:ا|أ|إ)?(?:وتستراد|وتوستراد|توستراد|ستراد)/g,"اوتوستراد").toLowerCase().replace(/ڤ/g,"ف").replace(/[ً-ْـ]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي") };
   var t=" "+N(lat).replace(/[،؛؟٪«»؜​-‏]/g," ").replace(/(\D)\.|\.(\D)/g,"$1 $2").replace(/[^؀-ۿa-z0-9$.\/²%]+/g," ").replace(/\s+/g," ")+" ";   // one line, words and numbers only (Arabic commas and dots split words)
   t=t.replace(/(كسوه|اكساء)(?=سوبر|ديلوكس|جيد|ممتاز|ملكي|قديم)/g,"$1 ").replace(/سوبرديلوكس/g,"سوبر ديلوكس").replace(/سوبر(?=لوكس)/g,"سوبر ");   // hashtags glue words: «#كسوةسوبرديلوكس»
-  var f={}, has=function(re){ return re.test(t) }, NEAR=/(مقابل|قرب|قريب من|جانب|بجانب|خلف|بعد|امتداد|فوق|تحت|جنب|عند|ورا|شارع|مدخل|تجاه|ضمن|دخله|نزله|طلعه) ?$/, first=function(list,skipNear){ var best=null;
-    list.forEach(function(p){ var re=new RegExp(p[1].source,"g"), m; while((m=re.exec(t))){ if(skipNear&&NEAR.test(t.slice(Math.max(0,m.index-14),m.index+1))){ re.lastIndex=m.index+1; continue } if(!best||m.index<best.i) best={i:m.index,v:p[0]}; break } }); return best?best.v:null };
+  var f={}, has=function(re){ return re.test(t) }, NEAR=/(مقابل|قرب|قريب من|جانب|بجانب|خلف|بعد|امتداد|فوق|تحت|جنب|عند|ورا|شارع|مدخل|تجاه|ضمن|دخله|نزله|طلعه) ?$/, first=function(list,skipNear,txt){ var best=null, s=txt||t;
+    list.forEach(function(p){ var re=new RegExp(p[1].source,"g"), m; while((m=re.exec(s))){ if(skipNear&&NEAR.test(s.slice(Math.max(0,m.index-14),m.index+1))){ re.lastIndex=m.index+1; continue } if(!best||m.index<best.i) best={i:m.index,v:p[0]}; break } }); return best?best.v:null };
   var W="(?=[\\s.,:؛،)!؟]|$)";   // end of word
   // deal
   var rentRe=/ (لل|ل)?(ايجار|اجار|اجاره|تاجير|استئجار)|(^| )(شهري|بالشهر|سنوي|بالسنه|يومي|اسبوعي|ايجار شهري) /, saleRe=/ (لل|ل)?(بيع|مبيع|بسع) /, shareRe=/ (لل)?مشاركه /;
@@ -5025,7 +5034,15 @@ function qfLocalRead(raw, geo, learned, home){
     ["mahdar",/ محضر /],["plot",/ (ارض|قطعه ارض|مقسم) /],["office",/ (مكتب|مكاتب|مكتبين)(?! (عقاري|العقار|عقاريه|الصلح|المحامي|عقار))(?! [^ ]+ ?[^ ]* (للخدمات|للعقارات|للتسويق|للوساطه|العقاري|العقاريه|عقاري|عقاريه) )/],
     ["apartment",/ (شقه|شقق|شقتين) /],["house",/ (منزل|بيت) /]];
   T=T.filter(function(p){ return !D.TYPES||D.TYPES[p[0]] });
-  var pt=first(T,true); if(pt) f.property_type=pt;
+  // 2026-11-16 (SY10880: «عروض مكتب البراء ما بتخلص … للبيع شقة أرضية» was filed as an office): «مكتب X» that names the
+  // estate agency is not the property. It is the agency when the same name carries an agency word elsewhere in the
+  // message («مكتب البراء العقاري»), or when it follows «عروض / من / لدى / تحيات / إدارة» — but «مؤلف من مكتب وصالة» is the property.
+  var agN={}, agRe=/ مكتب ([^ ]+)(?: [^ ]+)? (للخدمات|للعقارات|للتسويق|للوساطه|العقاري|العقاريه|عقاري|عقاريه) /g, agM;
+  while((agM=agRe.exec(t))){ agN[agM[1]]=1; agRe.lastIndex=agM.index+1 }
+  var tTyp=t.replace(/ مكتب (?=([^ ]+) )/g,function(all,n,i){ var pre=t.slice(Math.max(0,i-22),i);
+    var byName=agN[n]===1, byLead=/(^| )(عروض|عروضات|من|لدي|لدينا|تحيات|اداره) ?$/.test(pre+" ") && !/(مؤلف|مولف|مكون|مؤلفه|مولفه|مكونه|يتالف|تتالف|عباره|مقسوم|مقسومه) من ?$/.test(pre+" ") && !/^(و|مع|عدد|\d)/.test(n);
+    return (byName||byLead) ? " #### " : all });
+  var pt=first(T,true,tTyp); if(pt) f.property_type=pt;
   // names in Balkoun's own lists that no rule here knows (a type, deed, finish or amenity the admin adds later): used only when
   // the rules found nothing, only as the exact whole name, 4+ letters, never a general word; two equal matches → nothing
   var GENW=/^(ارض|طابق|بيت|منزل|شقه|محل|مكتب|بناء|سكني|تجاري|زراعي|عقار|غرفه)$/;
@@ -6809,6 +6826,10 @@ function wire(){
      patch.baths = v("eBaths")?+v("eBaths"):null;
      if($("#eLiving")) patch.living_rooms = v("eLiving")?+v("eLiving"):null;
      patch.floor = v("eFloor")===""?null:+v("eFloor");
+     if($("#eYear")) patch.year_built = parseInt(v("eYear"),10)||null;
+     if($("#eNegot")) patch.price_negotiable = !!$("#eNegot").checked;
+     if($("#eWaok")) patch.accepts_whatsapp = !!$("#eWaok").checked;
+     if($("#eByOwner")) patch.by_owner = !!$("#eByOwner").checked;
      if($("#ePower")) patch.power_hours = v("ePower")?+v("ePower"):null;
      if($("#eDir")) patch.direction = v("eDir")||null;
      if($('input[name=etb]:checked')) patch.tabu=$('input[name=etb]:checked').value;
@@ -7919,7 +7940,7 @@ function fromRow(r){
     rentalPeriod:r.rental_period||null, featured:!!r.is_featured,
     am:r.amenities||[],
     photos:null,
-    tel:r.contact_phone||"", wa:r.accepts_whatsapp!==false && !r.owner_hide_phone, hidePhone:!!r.owner_hide_phone, negot:r.price_negotiable!==false,
+    tel:r.contact_phone||"", waok:r.accepts_whatsapp!==false, wa:r.accepts_whatsapp!==false && !r.owner_hide_phone, hidePhone:!!r.owner_hide_phone, negot:r.price_negotiable!==false,
     cover:r.cover_url||null,
     who:r.contact_name||r.owner_name||"",
     ds:[txt,txt,txt]};
