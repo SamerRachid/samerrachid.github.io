@@ -2361,7 +2361,9 @@ function listing(id){
    '<div class="sub">'+(isRent?rentLbl(x.rentalPeriod):puOn(x)?puTotal(x):(x.p>0&&x.m2>0?'<span class="ltr">'+moneyIn(x.p/x.m2,lcur(x))+'</span> '+t("perm"):''))+'</div>'+
    origPriceLine(x)+
    priceContextHtml(x)+
-   '<div class="lowner">'+avatar(x.oav,x.oag?agIni(ownerName):ownerName,48)+'<div>'+
+   // 2026-11-16 (owner): the advertiser's card and the contact buttons sit side by side on a computer (.lcontact, theme-hu.css);
+   // the buttons share one wrapper (.lbtns) so the card can stand beside them, the save / share / report row runs under both
+   '<div class="lcontact"><div class="lowner">'+avatar(x.oav,x.oag?agIni(ownerName):ownerName,56)+'<div>'+
     (x.oag?'<a class="nm" data-agopen="'+x.oag+'" style="cursor:pointer">'+esc(ownerName)+posterBadge+'</a>'
      :x.uid?'<a class="nm" data-byuser="'+x.uid+'" data-name="'+(x.who||"")+'" style="cursor:pointer">'+ownerName+posterBadge+'</a>'
           :'<b class="nm">'+ownerName+posterBadge+'</b>')+
@@ -2370,20 +2372,20 @@ function listing(id){
      (x.orCount?'<span class="ltr" style="color:var(--gold)">'+stars(x.orAvg)+'</span> <b class="ltr">'+x.orAvg+'</b> <span class="ltr">('+x.orCount+')</span>':t("noReviews"))+'</div>'+
     '<div class="sm">'+t("replies")+'</div></div>'+folBoxHtml(x)+'</div>'+
    // the owner hides their number (account switch): no phone / call / WhatsApp — a request form reaches them instead
-   (x.hidePhone
+   '<div class="lbtns">'+(x.hidePhone
      ? '<div class="hidephone-note">'+GX("hpNote")+'</div>'+
        '<button class="lbtn navy" id="reqv">'+I.cal+t("reqVisit")+'</button>'+
        '<button class="lbtn line" id="inqMsg">'+I.wa+GX("hpMessage")+'</button>'
      : '<button class="lbtn navy" id="ph">'+I.phone+t("showPhone")+'</button>'+
        (x.tel?'<a class="lbtn line" id="callBtn" href="tel:'+x.tel.replace(/\s/g,"")+'">'+I.phone+t("callBtn")+'</a>':'')+
        (x.wa?'<button class="lbtn wa" id="wab">'+I.wa+t("waMsg")+'</button>':'')+
-       '<button class="lbtn line" id="reqv">'+I.cal+t("reqVisit")+'</button>')+
+       '<button class="lbtn line" id="reqv">'+I.cal+t("reqVisit")+'</button>')+'</div>'+
    '<div class="lacts">'+
     '<button id="savl">'+I.heart+'<span>'+(SAVED.indexOf(String(x.id))>-1?t("savedL"):t("saveL"))+'</span></button>'+
     '<button id="shr">'+I.share+'<span>'+t("shareL")+'</span></button>'+
     '<button id="rptOpen" class="danger">'+I.flag+'<span>'+t("reportListing")+'</span></button>'+
     ((USER&&x.uid===USER.id)||!x.uid?'':'<button type="button" class="'+(isBlk(x.uid)?'':'danger')+'" data-blk="'+esc(String(x.uid))+'" data-name="'+esc(x.who||"")+'" data-on="'+(isBlk(x.uid)?1:0)+'">'+I.ban+'<span>'+(isBlk(x.uid)?GX("blkUndo"):GX("blkOwner"))+'</span></button>')+'</div>'+
-    (isBlk(x.uid)?'<div class="hintx" style="margin-top:6px">'+GX("blkDone")+'</div>':'')+
+    (isBlk(x.uid)?'<div class="hintx" style="margin-top:6px">'+GX("blkDone")+'</div>':'')+'</div>'+
    ((USER&&x.uid===USER.id)
      ? '<div class="lown"><button class="lbtn line" id="edt">'+t("editListing")+'</button>'+
        '<button class="lbtn line" id="mark">'+t("markSold")+'</button>'+
@@ -5015,8 +5017,8 @@ function qfLocalRead(raw, geo, learned, home){
   var N=function(s){ return String(s||"").replace(/(?:ا|أ|إ)?(?:وتستراد|وتوستراد|توستراد|ستراد)/g,"اوتوستراد").toLowerCase().replace(/ڤ/g,"ف").replace(/[ً-ْـ]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي") };
   var t=" "+N(lat).replace(/[،؛؟٪«»؜​-‏]/g," ").replace(/(\D)\.|\.(\D)/g,"$1 $2").replace(/[^؀-ۿa-z0-9$.\/²%]+/g," ").replace(/\s+/g," ")+" ";   // one line, words and numbers only (Arabic commas and dots split words)
   t=t.replace(/(كسوه|اكساء)(?=سوبر|ديلوكس|جيد|ممتاز|ملكي|قديم)/g,"$1 ").replace(/سوبرديلوكس/g,"سوبر ديلوكس").replace(/سوبر(?=لوكس)/g,"سوبر ");   // hashtags glue words: «#كسوةسوبرديلوكس»
-  var f={}, has=function(re){ return re.test(t) }, NEAR=/(مقابل|قرب|قريب من|جانب|بجانب|خلف|بعد|امتداد|فوق|تحت|جنب|عند|ورا|شارع|مدخل|تجاه|ضمن|دخله|نزله|طلعه) ?$/, first=function(list,skipNear){ var best=null;
-    list.forEach(function(p){ var re=new RegExp(p[1].source,"g"), m; while((m=re.exec(t))){ if(skipNear&&NEAR.test(t.slice(Math.max(0,m.index-14),m.index+1))){ re.lastIndex=m.index+1; continue } if(!best||m.index<best.i) best={i:m.index,v:p[0]}; break } }); return best?best.v:null };
+  var f={}, has=function(re){ return re.test(t) }, NEAR=/(مقابل|قرب|قريب من|جانب|بجانب|خلف|بعد|امتداد|فوق|تحت|جنب|عند|ورا|شارع|مدخل|تجاه|ضمن|دخله|نزله|طلعه) ?$/, first=function(list,skipNear,txt){ var best=null, s=txt||t;
+    list.forEach(function(p){ var re=new RegExp(p[1].source,"g"), m; while((m=re.exec(s))){ if(skipNear&&NEAR.test(s.slice(Math.max(0,m.index-14),m.index+1))){ re.lastIndex=m.index+1; continue } if(!best||m.index<best.i) best={i:m.index,v:p[0]}; break } }); return best?best.v:null };
   var W="(?=[\\s.,:؛،)!؟]|$)";   // end of word
   // deal
   var rentRe=/ (لل|ل)?(ايجار|اجار|اجاره|تاجير|استئجار)|(^| )(شهري|بالشهر|سنوي|بالسنه|يومي|اسبوعي|ايجار شهري) /, saleRe=/ (لل|ل)?(بيع|مبيع|بسع) /, shareRe=/ (لل)?مشاركه /;
@@ -5034,7 +5036,15 @@ function qfLocalRead(raw, geo, learned, home){
     ["mahdar",/ محضر /],["plot",/ (ارض|قطعه ارض|مقسم) /],["office",/ (مكتب|مكاتب|مكتبين)(?! (عقاري|العقار|عقاريه|الصلح|المحامي|عقار))(?! [^ ]+ ?[^ ]* (للخدمات|للعقارات|للتسويق|للوساطه|العقاري|العقاريه|عقاري|عقاريه) )/],
     ["apartment",/ (شقه|شقق|شقتين) /],["house",/ (منزل|بيت) /]];
   T=T.filter(function(p){ return !D.TYPES||D.TYPES[p[0]] });
-  var pt=first(T,true); if(pt) f.property_type=pt;
+  // 2026-11-16 (SY10880: «عروض مكتب البراء ما بتخلص … للبيع شقة أرضية» was filed as an office): «مكتب X» that names the
+  // estate agency is not the property. It is the agency when the same name carries an agency word elsewhere in the
+  // message («مكتب البراء العقاري»), or when it follows «عروض / من / لدى / تحيات / إدارة» — but «مؤلف من مكتب وصالة» is the property.
+  var agN={}, agRe=/ مكتب ([^ ]+)(?: [^ ]+)? (للخدمات|للعقارات|للتسويق|للوساطه|العقاري|العقاريه|عقاري|عقاريه) /g, agM;
+  while((agM=agRe.exec(t))){ agN[agM[1]]=1; agRe.lastIndex=agM.index+1 }
+  var tTyp=t.replace(/ مكتب (?=([^ ]+) )/g,function(all,n,i){ var pre=t.slice(Math.max(0,i-22),i);
+    var byName=agN[n]===1, byLead=/(^| )(عروض|عروضات|من|لدي|لدينا|تحيات|اداره) ?$/.test(pre+" ") && !/(مؤلف|مولف|مكون|مؤلفه|مولفه|مكونه|يتالف|تتالف|عباره|مقسوم|مقسومه) من ?$/.test(pre+" ") && !/^(و|مع|عدد|\d)/.test(n);
+    return (byName||byLead) ? " #### " : all });
+  var pt=first(T,true,tTyp); if(pt) f.property_type=pt;
   // names in Balkoun's own lists that no rule here knows (a type, deed, finish or amenity the admin adds later): used only when
   // the rules found nothing, only as the exact whole name, 4+ letters, never a general word; two equal matches → nothing
   var GENW=/^(ارض|طابق|بيت|منزل|شقه|محل|مكتب|بناء|سكني|تجاري|زراعي|عقار|غرفه)$/;
@@ -11930,6 +11940,11 @@ window.PWA=(function(){
     if(!installable() || hasApp() || window.innerWidth>860 || SX("pwa_banner",true)===false || !barView()) return;
     try{ var until=+localStorage.getItem("bk_pwa_snooze")||0; if(Date.now()<until) return }catch(e){}
     if(document.getElementById("pwaBar")) return;
+    /* 2026-11-18: on the home page the banner waits until the visitor has scrolled past the first screen: it sat on the
+       «اسأل AI» bar and on the promoted squares. Its week starts only when it really shows. */
+    if(VIEW==="home" && window.scrollY < window.innerHeight*0.8){
+      if(!window._pwaBarWait){ window._pwaBarWait=true; var onS=function(){ if(window.scrollY >= window.innerHeight*0.8){ window.removeEventListener("scroll",onS); window._pwaBarWait=false; bar() } }; window.addEventListener("scroll",onS,{passive:true}) }
+      return }
     try{ localStorage.setItem("bk_pwa_snooze", String(Date.now()+ (+SX("pwa_banner_days",7)||7)*86400000)) }catch(e){}   // at most once every N days (7 unless the panel says otherwise)
     var d=document.createElement("div"); d.className="pwa-bar"; d.id="pwaBar"; try{ document.body.classList.add("pwa-on") }catch(e){}
     d.innerHTML='<img src="/brand/icon-192.png" alt=""><div class="t"><b>'+GX("pwaBannerT")+'</b><small>'+GX("pwaInstallSub")+'</small></div><button type="button" class="go">'+GX("pwaBannerBtn")+'</button><button type="button" class="later" aria-label="'+GX("pwaLater")+'">✕</button>';
