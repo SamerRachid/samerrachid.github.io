@@ -1303,10 +1303,12 @@ function admPmOpen(id){
     var i=p.info; p.top=!(i.top&&i.top.active); p.home=false; if(i.home&&i.home.sponsor_name) p.client=i.home.sponsor_name; render() })
   .catch(function(e){ if(ADM.pm&&ADM.pm.id===+id){ ADM.pm.msg=pmErr(e); render() } });
 }
+function admPmNoPhoto(p){ if(!p || SXb("ad_allow_nophoto",false)) return false; var l=((ADM.data&&ADM.data.listings)||[]).filter(function(x){ return String(x.id)===String(p.id) })[0]; return !!(l && l.photos!=null && !(+l.photos>0)) }
 function admPmHtml(){
   var p=ADM.pm; if(!p) return ""; var i=p.info, lst=((ADM.data&&ADM.data.listings)||[]).filter(function(l){ return String(l.id)===String(p.id) })[0]||{};
   var ref=(i&&i.ref)||lst.ref||p.id, who=(i&&i.poster_name)||lst.poster_name||"";
   var sq=(i&&i.squares)||{}, full=sq.max!=null && sq.used>=sq.max && !(i&&i.home&&i.home.active);
+  var noPh=admPmNoPhoto(p); if(noPh) full=true;   /* a listing with no photo is not accepted in the squares (switch «قبول إعلان بلا صور», off by default) */
   var m=i&&i.member, canCredit=!!(m&&m.credits>0&&!m.active_listing_id&&!full);
   var line=function(lbl,o,kind){ var live=o&&(o.active||(o.until&&new Date(o.until)>new Date()));
     return '<div class="pm-st"><span>'+lbl+'</span>'+(o?pmState(o.from,o.until,o.active)+(o.source==="reward"?' <span class="chip gold">★ '+GX("rwSrcReward")+'</span>':'')+(o.code?' <b class="ltr" style="font-size:12px" data-ecopy="'+esc(o.code)+'">'+esc(o.code)+'</b>':'')+(live?' <button type="button" class="ab bad" data-pmend="'+kind+'"'+(p.busy?' disabled':'')+'>'+GX("pmEnd")+'</button>':''):'<span class="st st-expired">'+GX("pmNone")+'</span>')+'</div>' };
@@ -1316,7 +1318,7 @@ function admPmHtml(){
     '<div class="pm-sec">'+GX("pmApply")+'</div>'+
     '<div class="chkgrid"><label class="xcheck"><input type="checkbox" id="pmTop"'+(p.top?' checked':'')+'><span>'+GX("pmTop")+'</span></label>'+
     '<label class="xcheck"><input type="checkbox" id="pmHome"'+(p.home?' checked':'')+(full?' disabled':'')+'><span>'+GX("pmHome")+'</span></label></div>'+
-    '<div class="hintx"'+(full?' style="color:var(--danger)"':'')+'>'+(full?GX("pmSquaresFull").replace("{m}",sq.max):GX("pmSquares").replace("{u}",sq.used).replace("{m}",sq.max))+'</div>'+
+    '<div class="hintx"'+(full?' style="color:var(--danger)"':'')+'>'+(noPh?GX("pmNoPhoto"):full?GX("pmSquaresFull").replace("{m}",sq.max):GX("pmSquares").replace("{u}",sq.used).replace("{m}",sq.max))+'</div>'+
     (m?'<label class="xcheck"'+(canCredit?'':' style="opacity:.65"')+'><input type="checkbox" id="pmCredit"'+(p.credit?' checked':'')+(canCredit?'':' disabled')+'><span>'+(canCredit?GX("pmUseCredit").replace("{n}",m.credits).replace("{h}",m.hours):(m.active_listing_id?GX("pmCreditActive"):GX("pmCreditNone")))+'</span></label><div class="hintx">'+GX("pmCreditNote")+'</div>':'')+
     ((p.credit&&!p.top)?'':'<div class="row"><div class="fl"><label>'+t("featureStartL")+'</label><input type="date" id="pmFrom" value="'+esc(p.from)+'"></div><div class="fl"><label>'+t("featureDaysL")+'</label><input type="number" id="pmDays" min="1" max="365" value="'+esc(String(p.days))+'" data-allow-autofill></div></div>')+
     '<div class="fl"><label>'+GX("pmClient")+'</label><input type="text" id="pmClient" value="'+esc(p.client||"")+'" data-allow-autofill></div>'+
@@ -1348,6 +1350,7 @@ function wireAdmPm(){
   if(g("pmClient")) g("pmClient").oninput=function(){ p.client=this.value };
   var after=function(r){ p.info=r||p.info; p.codes={top:r&&r.code_top,home:r&&r.code_home}; p.busy=false; p.msg=""; p.top=false; p.home=false; p.credit=false; admPmRefresh(r); render() };
   if(g("pmApply")) g("pmApply").onclick=async function(){
+    if(p.home && admPmNoPhoto(p)){ p.home=false; p.credit=false; p.msg=GX("pmNoPhoto"); render(); return }
     if(!p.top&&!p.home){ p.msg=GX("pmErr_nothing"); render(); return }
     if(!(p.credit&&!p.top) && !(p.days>0&&p.from)){ p.msg=t("featureInvalidDates"); render(); return }
     p.busy=true; p.msg=""; render();
@@ -2812,7 +2815,7 @@ function hsInspAds(){
       '<div class="row">'+fNum(hsT("f_adMax"),"x:ad_max_squares",1,40,1,15)+'</div>', fHint(GX("pmHint").replace("{m}",+hsVal("x:ad_max_squares")||15)));
   } else if(sd==="look"){
     H.push(fGrp(GX("adColorsSub")), '<div class="row">'+fColor(t("adTextColorL"),"c:ad_text_color","#ffffff")+fColor(t("adShadeColorL"),"c:ad_shade_color","#090e1a")+'</div>', fSlider(GX("adShadeOpL"),"x:ad_shade_opacity",null,0,100,5,"%",100,true), fHint(GX("adShadeOpHint")),
-      fGrp(GX("adInfoSub")), fHint(hsT("dualHint")), fSwitch(GX("adShowPrice"),"x:ad_price_enabled",true,true), fSwitch(GX("adFeatRotate"),"x:ad_feat_rotate",true,true), fHint(GX("adFeatRotateHint")), fSwitch(t("adStyleIcons"),"c:ad_use_icons",true,true), fDual(t("adTextSizeL"),"c:ad_roominfo_size","x:ad_roominfo_size_m",7,20,1,true),
+      fGrp(GX("adInfoSub")), fHint(hsT("dualHint")), fSwitch(GX("adShowPrice"),"x:ad_price_enabled",true,true), fSwitch(GX("adRotate"),"x:ad_rotate",false,true), fHint(GX("adRotateHint")), fSwitch(GX("adFeatRotate"),"x:ad_feat_rotate",true,true), fHint(GX("adFeatRotateHint")), fSwitch(GX("adNoPhoto"),"x:ad_allow_nophoto",false,true), fHint(GX("adNoPhotoHint")), fSwitch(t("adStyleIcons"),"c:ad_use_icons",true,true), fDual(t("adTextSizeL"),"c:ad_roominfo_size","x:ad_roominfo_size_m",7,20,1,true),
       fSwitch(t("showAdLocation"),"c:ad_location_enabled",true,true), fDual(t("adTextSizeL")+" — "+t("adLocationH"),"c:ad_location_size","x:ad_location_size_m",7,20,1,true),
       fGrp(GX("adTagSub")), fSwitch(t("showAdTag"),"c:ad_tag_enabled",true,true), fHint(hsT("textsHint")), fText(t("adTagTextL"),"c:ad_tag",t("adTag")), fDual(t("adTextSizeL")+" — "+GX("adTagSub"),"c:ad_tag_size","x:ad_tag_size_m",7,20,1,true));
   } else if(sd==="perf"){

@@ -342,7 +342,7 @@ var FR_GX={
   vpOpen:"Changer l'image d'aperçu", vpUse:"Utiliser", vpTitle:"Image d'aperçu", vpSub:"Ce que l'on voit avant la lecture, sur les cartes et la page de l'annonce", vpTabV:"🎞️ De la vidéo", vpTabP:"🖼️ Une photo", vpHint:"Faites glisser le cadre doré ou touchez une image", vpBefore:"Actuelle", vpAfter:"Nouvelle", vpSave:"Enregistrer", vpUndo:"Annuler", vpSaving:"Enregistrement…", vpSaved:"Image d'aperçu enregistrée ✓", vpNoPhotos:"Cette annonce n'a pas encore de photos.", vpNote:"La vidéo ne change pas. L'image reçoit la marque Balkoun comme chaque photo.",
   pwaHasT:"L'application Balkoun est sur votre téléphone ✓", pwaHasS:"Partager le lien de l'application", pwaLinkCopied:"Lien de l'application copié",
   rentP_yearly:"Loyer annuel", rentP_monthly:"Loyer mensuel", rentP_weekly:"Loyer hebdomadaire", rentP_daily:"Loyer journalier",
-  adShowPrice:"Afficher le prix dans les carrés", adFeatRotate:"Faire défiler les photos des annonces en vedette dans les carrés", adFeatRotateHint:"Désactivé, un carré en vedette garde sa photo de couverture.",
+  adShowPrice:"Afficher le prix dans les carrés", adFeatRotate:"Faire défiler les photos des annonces en vedette dans les carrés", adFeatRotateHint:"Désactivé, un carré en vedette garde sa photo de couverture.", adRotate:"Faire défiler les photos dans les carrés", adRotateHint:"Désactivé, chaque carré garde sa photo de couverture : une seule image par carré, une page plus légère.", adNoPhoto:"Accepter une annonce sans photo dans les carrés", adNoPhotoHint:"Désactivé, une annonce sans photo n’apparaît jamais dans les carrés et ne peut pas y être promue.", pmNoPhoto:"Cette annonce n’a pas de photo : elle n’est pas acceptée dans les carrés.",
   phMakeCover:"À la une", phIsCover:"Couverture", phMakeCoverL:"En faire la photo de couverture", phEarlier:"Avancer la photo", phLater:"Reculer la photo", phOrderHint:"La première photo est la couverture. Réordonnez avec les flèches ou touchez «★ À la une» sur celle que vous voulez.",
   mdMenu:"Menu", mdClose:"Fermer", mdAccount:"Mon compte", mdSearch:"Recherche", mdDiscover:"Découvrir", mdSite:"Balkoun", mdPrefs:"Langue et devise", csDone:"OK", csClear:"Effacer",
   rsAll:"Biens", rsMore:"Plus", rsShow:"Afficher {n} annonces", rsAvg:"Prix moyen demandé", rsInArea:"dans le quartier", rsHideMap:"Masquer la carte", rsShowMap:"Carte", rsClearAll:"Tout effacer", rsFilters:"Filtres", rsSort:"Trier", rsOnMap:"{n} sur la carte", rsList:"Liste", newTag:"Nouveau",
@@ -2361,7 +2361,9 @@ function listing(id){
    '<div class="sub">'+(isRent?rentLbl(x.rentalPeriod):puOn(x)?puTotal(x):(x.p>0&&x.m2>0?'<span class="ltr">'+moneyIn(x.p/x.m2,lcur(x))+'</span> '+t("perm"):''))+'</div>'+
    origPriceLine(x)+
    priceContextHtml(x)+
-   '<div class="lowner">'+avatar(x.oav,x.oag?agIni(ownerName):ownerName,48)+'<div>'+
+   // 2026-11-16 (owner): the advertiser's card and the contact buttons sit side by side on a computer (.lcontact, theme-hu.css);
+   // the buttons share one wrapper (.lbtns) so the card can stand beside them, the save / share / report row runs under both
+   '<div class="lcontact"><div class="lowner">'+avatar(x.oav,x.oag?agIni(ownerName):ownerName,56)+'<div>'+
     (x.oag?'<a class="nm" data-agopen="'+x.oag+'" style="cursor:pointer">'+esc(ownerName)+posterBadge+'</a>'
      :x.uid?'<a class="nm" data-byuser="'+x.uid+'" data-name="'+(x.who||"")+'" style="cursor:pointer">'+ownerName+posterBadge+'</a>'
           :'<b class="nm">'+ownerName+posterBadge+'</b>')+
@@ -2370,20 +2372,20 @@ function listing(id){
      (x.orCount?'<span class="ltr" style="color:var(--gold)">'+stars(x.orAvg)+'</span> <b class="ltr">'+x.orAvg+'</b> <span class="ltr">('+x.orCount+')</span>':t("noReviews"))+'</div>'+
     '<div class="sm">'+t("replies")+'</div></div>'+folBoxHtml(x)+'</div>'+
    // the owner hides their number (account switch): no phone / call / WhatsApp — a request form reaches them instead
-   (x.hidePhone
+   '<div class="lbtns">'+(x.hidePhone
      ? '<div class="hidephone-note">'+GX("hpNote")+'</div>'+
        '<button class="lbtn navy" id="reqv">'+I.cal+t("reqVisit")+'</button>'+
        '<button class="lbtn line" id="inqMsg">'+I.wa+GX("hpMessage")+'</button>'
      : '<button class="lbtn navy" id="ph">'+I.phone+t("showPhone")+'</button>'+
        (x.tel?'<a class="lbtn line" id="callBtn" href="tel:'+x.tel.replace(/\s/g,"")+'">'+I.phone+t("callBtn")+'</a>':'')+
        (x.wa?'<button class="lbtn wa" id="wab">'+I.wa+t("waMsg")+'</button>':'')+
-       '<button class="lbtn line" id="reqv">'+I.cal+t("reqVisit")+'</button>')+
+       '<button class="lbtn line" id="reqv">'+I.cal+t("reqVisit")+'</button>')+'</div>'+
    '<div class="lacts">'+
     '<button id="savl">'+I.heart+'<span>'+(SAVED.indexOf(String(x.id))>-1?t("savedL"):t("saveL"))+'</span></button>'+
     '<button id="shr">'+I.share+'<span>'+t("shareL")+'</span></button>'+
     '<button id="rptOpen" class="danger">'+I.flag+'<span>'+t("reportListing")+'</span></button>'+
     ((USER&&x.uid===USER.id)||!x.uid?'':'<button type="button" class="'+(isBlk(x.uid)?'':'danger')+'" data-blk="'+esc(String(x.uid))+'" data-name="'+esc(x.who||"")+'" data-on="'+(isBlk(x.uid)?1:0)+'">'+I.ban+'<span>'+(isBlk(x.uid)?GX("blkUndo"):GX("blkOwner"))+'</span></button>')+'</div>'+
-    (isBlk(x.uid)?'<div class="hintx" style="margin-top:6px">'+GX("blkDone")+'</div>':'')+
+    (isBlk(x.uid)?'<div class="hintx" style="margin-top:6px">'+GX("blkDone")+'</div>':'')+'</div>'+
    ((USER&&x.uid===USER.id)
      ? '<div class="lown"><button class="lbtn line" id="edt">'+t("editListing")+'</button>'+
        '<button class="lbtn line" id="mark">'+t("markSold")+'</button>'+
@@ -3723,7 +3725,12 @@ function adSlotsRow(){
   // the row switch in the studio hides the paid/manual squares; featured listings (admin or free-feature reward) still
   // show, since that is the promise made to the poster — the row disappears only when there is nothing at all
   var slots = SX("ads_row_enabled",true)===false ? AD_SLOTS.filter(function(a){ return a.featured }) : AD_SLOTS;
+  /* owner, 2026-11-18: a listing with no photo is not accepted in the squares unless the panel switch says so (off by default) */
+  if(!SXb("ad_allow_nophoto",false)) slots = slots.filter(function(a){ return !(a.linked_listing_id && !(a.l_photos && a.l_photos.length)) });
   if(!slots.length) return "";
+  /* owner, 2026-11-18: by default a square keeps to its cover photo (one image per square, a lighter page); the panel switch
+     «تبديل الصور داخل المربعات» brings the cycling back, and the older switch still holds featured squares still */
+  var rotAll = SXb("ad_rotate",false), rotFeat = SXb("ad_feat_rotate",true);
   var showIcons = SITE.ad_use_icons!==false;
   var showTag = SITE.ad_tag_enabled!==false;
   var tagSize = SITE.ad_tag_size||9;
@@ -3750,6 +3757,7 @@ function adSlotsRow(){
    // a square tied to a listing shows it even when the listing has no photo yet: Balkoun's logo + price, type, place
    // (owner, 2026-10-23: a square for a photo-less listing showed empty)
    var lHasPh = !!(a.l_photos && a.l_photos.length);
+   var rot = rotAll && !(a.featured && !rotFeat);
    var isLinked = a.linked_listing_id && (lHasPh || a.l_type || a.l_deal || a.l_price!=null);
    var isVideoEmbed = !isLinked && a.video_embed_url;
    var isUploadedVideo = a.media_type==="video" && a.image_url;
@@ -3766,8 +3774,8 @@ function adSlotsRow(){
      if(a.l_rooms) specs.push('<bdi>'+(showIcons?ICON_BED+a.l_rooms:a.l_rooms+' '+t("rooms"))+'</bdi>');
      if(a.l_baths) specs.push('<bdi>'+(showIcons?ICON_BATH+a.l_baths:a.l_baths+' '+t("baths"))+'</bdi>');
      var l2=[tyName, showLoc?spot:""].filter(Boolean).join(" · ");
-     media = (lHasPh ? '<img class="adslot-rotimg" src="'+a.l_photos[0]+'" data-photos="'+
-       encodeURIComponent(JSON.stringify(a.l_photos))+'" data-idx="0" alt="'+esc([tyName, place].filter(Boolean).join(" · "))+'" loading="lazy">'
+     media = (lHasPh ? '<img class="adslot-rotimg" src="'+a.l_photos[0]+'"'+(rot ? ' data-photos="'+
+       encodeURIComponent(JSON.stringify(a.l_photos))+'" data-idx="0"' : '')+' alt="'+esc([tyName, place].filter(Boolean).join(" · "))+'" loading="lazy">'
        : '<div class="nophoto adslot-noph"><img src="/brand/logo-light-s.png" alt="بلكون" loading="lazy"></div>')+
        (a.l_deal ? '<span class="adslot-deal'+(a.l_deal==="rent"?' rent':'')+'" style="color:'+textColor+'">'+esc(a.l_deal==="rent"?t("forrent"):t("forsale"))+'</span>' : '')+
        '<div class="adslot-info" style="'+tShadow+'color:'+textColor+';'+
@@ -3784,8 +3792,8 @@ function adSlotsRow(){
    } else if(isUploadedVideo){
      media = overlayTop+overlayBottom+'<video data-src="'+a.image_url+'" muted loop playsinline preload="none"></video>';
    } else if(manualImgs){
-     media = overlayTop+overlayBottom+'<img class="adslot-rotimg" src="'+manualImgs[0]+'" data-photos="'+
-       encodeURIComponent(JSON.stringify(manualImgs))+'" data-idx="0" alt="'+((a.label||"").replace(/"/g,"&quot;"))+'" loading="lazy">';
+     media = overlayTop+overlayBottom+'<img class="adslot-rotimg" src="'+manualImgs[0]+'"'+(rot ? ' data-photos="'+
+       encodeURIComponent(JSON.stringify(manualImgs))+'" data-idx="0"' : '')+' alt="'+((a.label||"").replace(/"/g,"&quot;"))+'" loading="lazy">';
    } else if(a.image_url){
      media = overlayTop+overlayBottom+'<img src="'+a.image_url+'" alt="'+((a.label||"").replace(/"/g,"&quot;"))+'" loading="lazy">';
    } else {
@@ -10343,6 +10351,11 @@ var GX_T={
   adShowPrice:{ar:"إظهار السعر في المربعات",en:"Show the price in the squares"},
   adFeatRotate:{ar:"تبديل صور الإعلانات المميزة في المربعات",en:"Cycle the photos of featured listings in the squares"},
   adFeatRotateHint:{ar:"عند الإيقاف يبقى في مربع الإعلان المميز صورة الغلاف فقط.",en:"When off, a featured square keeps to its cover photo."},
+  adRotate:{ar:"تبديل الصور داخل المربعات",en:"Cycle the photos inside the squares"},
+  adRotateHint:{ar:"عند الإيقاف يبقى في كل مربع صورة الغلاف فقط: صورة واحدة لكل مربع، والصفحة أخف وأسرع.",en:"When off, every square keeps to its cover photo: one image per square, a lighter and faster page."},
+  adNoPhoto:{ar:"قبول إعلان بلا صور في المربعات",en:"Accept a listing with no photos in the squares"},
+  adNoPhotoHint:{ar:"عند الإيقاف لا يظهر في المربعات أي إعلان بلا صورة، ولا يُقبل ترويجه في مربع حتى تُضاف له صورة.",en:"When off, a listing with no photo never shows in the squares and cannot be promoted to a square until it has one."},
+  pmNoPhoto:{ar:"هذا الإعلان بلا صور، فلا يُقبل في المربعات. أضف له صورة، أو فعّل «قبول إعلان بلا صور في المربعات» من إعدادات المربعات.",en:"This listing has no photos, so it is not accepted in the squares. Add a photo, or turn on “Accept a listing with no photos in the squares” in the squares settings."},
   phMakeCover:{ar:"غلاف",en:"Cover"}, phIsCover:{ar:"الغلاف",en:"Cover"}, phMakeCoverL:{ar:"اجعلها صورة الغلاف",en:"Make this the cover photo"},
   phEarlier:{ar:"تقديم الصورة",en:"Move earlier"}, phLater:{ar:"تأخير الصورة",en:"Move later"},
   phOrderHint:{ar:"الصورة الأولى هي الغلاف. رتّب الصور بالأسهم أو اضغط «★ غلاف» على الصورة التي تريدها.",en:"The first photo is the cover. Reorder with the arrows or tap «★ Cover» on the one you want."}, photoMaxHit:{ar:"الحد {n} صورة لكل إعلان؛ أُخذت الصور الأولى فقط.",en:"The limit is {n} photos per listing; only the first ones were taken."},
@@ -11938,6 +11951,11 @@ window.PWA=(function(){
     if(!installable() || hasApp() || window.innerWidth>860 || SX("pwa_banner",true)===false || !barView()) return;
     try{ var until=+localStorage.getItem("bk_pwa_snooze")||0; if(Date.now()<until) return }catch(e){}
     if(document.getElementById("pwaBar")) return;
+    /* 2026-11-18: on the home page the banner waits until the visitor has scrolled past the first screen: it sat on the
+       «اسأل AI» bar and on the promoted squares. Its week starts only when it really shows. */
+    if(VIEW==="home" && window.scrollY < window.innerHeight*0.8){
+      if(!window._pwaBarWait){ window._pwaBarWait=true; var onS=function(){ if(window.scrollY >= window.innerHeight*0.8){ window.removeEventListener("scroll",onS); window._pwaBarWait=false; bar() } }; window.addEventListener("scroll",onS,{passive:true}) }
+      return }
     try{ localStorage.setItem("bk_pwa_snooze", String(Date.now()+ (+SX("pwa_banner_days",7)||7)*86400000)) }catch(e){}   // at most once every N days (7 unless the panel says otherwise)
     var d=document.createElement("div"); d.className="pwa-bar"; d.id="pwaBar"; try{ document.body.classList.add("pwa-on") }catch(e){}
     d.innerHTML='<img src="/brand/icon-192.png" alt=""><div class="t"><b>'+GX("pwaBannerT")+'</b><small>'+GX("pwaInstallSub")+'</small></div><button type="button" class="go">'+GX("pwaBannerBtn")+'</button><button type="button" class="later" aria-label="'+GX("pwaLater")+'">✕</button>';
