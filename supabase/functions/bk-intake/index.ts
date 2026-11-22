@@ -608,13 +608,31 @@ async function stamp(img: any, wm: Wm) {
   img.composite(s, Math.max(0, x), Math.max(0, y));
 }
 // → full (≤1200px, q80) + thumb (≤400px, q72), both with the site's mark, like the browser does for the post form
-async function processPhoto(bytes: Uint8Array, wm: Wm): Promise<{ full: Uint8Array; thumb: Uint8Array; w: number; h: number }> {
+// a fingerprint of what the photo shows (difference hash, 64 bits as 16 hex digits): the same picture sent twice — even once
+// in HD and once in normal quality — gives the same or a nearly equal fingerprint, a different room does not (2026-11-22:
+// a 35-photo album came in twice and the listing kept doubles)
+function dHash(img: any): string {
+  const s = img.clone().resize(9, 8);
+  let bits = "";
+  for (let y = 1; y <= 8; y++) {
+    let prev = -1;
+    for (let x = 1; x <= 9; x++) {
+      const [r, g, b] = s.getRGBAAt(x, y); const l = r * 299 + g * 587 + b * 114;
+      if (prev >= 0) bits += l > prev ? "1" : "0";
+      prev = l;
+    }
+  }
+  let hex = ""; for (let i = 0; i < 64; i += 4) hex += parseInt(bits.slice(i, i + 4), 2).toString(16);
+  return hex;
+}
+async function processPhoto(bytes: Uint8Array, wm: Wm): Promise<{ full: Uint8Array; thumb: Uint8Array; w: number; h: number; dh: string | null }> {
   const { Image } = await imgLib();
   const img = await Image.decode(bytes);
   if (img.width > 1200) img.resize(1200, Image.RESIZE_AUTO);
+  let dh: string | null = null; try { dh = dHash(img); } catch { dh = null; }
   const thumb = img.clone(); if (thumb.width > 400) thumb.resize(400, Image.RESIZE_AUTO);
   await stamp(img, wm); await stamp(thumb, wm);
-  return { full: await img.encodeJPEG(80), thumb: await thumb.encodeJPEG(72), w: img.width, h: img.height };
+  return { full: await img.encodeJPEG(80), thumb: await thumb.encodeJPEG(72), w: img.width, h: img.height, dh };
 }
 async function upload(path: string, bytes: Uint8Array, contentType = "image/jpeg") {
   const { error } = await sb.storage.from(BUCKET).upload(path, bytes, { contentType, upsert: true });
@@ -637,14 +655,20 @@ function sendOrder(m: Incoming): { ts: number | null; seq: number | null } {
 async function storePhoto(draftId: number, bytes: Uint8Array, mime: string, n: number, order: { ts?: number | null; seq?: number | null } = {}) {
   if (bytes.length > MAX_DECODE_BYTES || !decodable(mime, bytes)) throw new Error("bad");
   const wm = await wmCfg();
-  let out: { full: Uint8Array; thumb: Uint8Array; w: number; h: number };
+  let out: { full: Uint8Array; thumb: Uint8Array; w: number; h: number; dh: string | null };
   try { out = await processPhoto(bytes, wm); }
   catch (e) { await log(draftId, null, "warn", "photo_undecodable", { error: errStr(e), bytes: bytes.length, mime }); throw new Error("bad"); }
   const stem = `intake/${draftId}/${Date.now()}-${n}-${randomCode(5).toLowerCase()}`;
   const pF = stem + ".jpg", pT = stem + "-t.jpg";
   await upload(pF, out.full); await upload(pT, out.thumb);
-  const res = await rpc<any>("bk_intake_add_photo", { p_draft: draftId, p_photo: { path: pF, url: publicUrl(pF), thumb_path: pT, thumb_url: publicUrl(pT), bytes: out.full.length, w: out.w, h: out.h, processed: true, ts: order.ts ?? null, seq: order.seq ?? null } });
-  if (res && res.ok === false) { await sb.storage.from(BUCKET).remove([pF, pT]); }   // over the cap after a race: nothing stays behind
+  // the database refuses a photo whose fingerprint matches one already in the draft (or swaps it in when it is the sharper copy)
+  const res = await rpc<any>("bk_intake_add_photo", { p_draft: draftId, p_photo: { path: pF, url: publicUrl(pF), thumb_path: pT, thumb_url: publicUrl(pT), bytes: out.full.length, w: out.w, h: out.h, processed: true, ts: order.ts ?? null, seq: order.seq ?? null, dh: out.dh } });
+  if (res && res.ok === false) { await sb.storage.from(BUCKET).remove([pF, pT]); }   // over the cap after a race, or a double: nothing stays behind
+  if (res && res.ok === false && res.reason === "dup") await log(draftId, null, "info", "photo_dup", { kept: res.kept || null });
+  if (res && res.replaced && res.replaced.path) {   // this copy was sharper: the weaker one it replaced goes
+    await sb.storage.from(BUCKET).remove([res.replaced.path, res.replaced.thumb_path].filter(Boolean));
+    await log(draftId, null, "info", "photo_dup_sharper", { dropped: res.replaced.path });
+  }
   return res;
 }
 
@@ -890,8 +914,11 @@ function freeRead(tax: any, text: string, homeGovs: string[] = []): { fields: Re
   const facts = ["deal", "property_type", "governorate", "price", "area_m2"].filter((k) => f[k] != null).length;
   // someone looking for a place, not offering one («مطلوب شقة», «أبحث عن بيت», «بدي شقة بالمزة»)
   const t0 = norm(latinDigits(text)).slice(0, 80);
+  // (2026-11-22: also anywhere in a short message — «… أنا أريد شراء بيت في جسر الشغور، أريد أن أعرف السعر»)
+  const tw = norm(latinDigits(text));
   const wanted = /^(مطلوب|ابحث عن|نبحث عن|عم دور|عم ندور|ادور علي|بدور علي|looking for)/.test(t0) ||
-    /^(بدي|بدنا|اريد|نريد|حابب)\s+(اشتري|استاجر|استئجار|شراء|شقه|بيت|منزل|ارض|محل|فيلا|مزرعه)/.test(t0);
+    /^(بدي|بدنا|اريد|نريد|حابب)\s+(اشتري|استاجر|استئجار|شراء|شقه|بيت|منزل|ارض|محل|فيلا|مزرعه)/.test(t0) ||
+    (tw.length < 400 && /(^|\s)(انا\s+)?(بدي|بدنا|اريد|نريد|حابب|ابحث عن|نبحث عن|بدور علي|عم دور علي)\s+(اشتري|استاجر|استئجار|شراء|اشتراء)(\s|$)/.test(tw));
   f.intent = wanted ? "wanted" : facts ? "listing" : "other";
   f.confidence = facts >= 2 ? 0.9 : facts === 1 ? 0.6 : 0.3;
   // «للبيع شقتين في حماة…», «3 محلات للإيجار»: several units offered together at the start = one listing «شقة عدد 2»
@@ -1116,10 +1143,14 @@ function areaGuards(fields: Record<string, any>, missing: string[], raw: Record<
 }
 // the sender's text as the listing description, verbatim (owner's rule: phone numbers stay) — only bot command words
 // on their own line and the membership number are dropped, and whitespace is tidied
+// (2026-11-22: kept whole up to 6000 characters — a villa's long description was cut in the middle at 1200 — and the
+// «3 \times 6» left by text copied from an AI chat is shown as «3 × 6»)
+const DESC_MAX = 6000;
 function keepSenderText(s: string): string {
   return String(s || "")
     .replace(/^\s*(تم|تمام|نعم|لا|جديد|done|yes|no|new)\s*$/gim, "")
-    .replace(/[ \t]+/g, " ").replace(/\s*\n\s*/g, "\n").replace(/\n{3,}/g, "\n\n").trim().slice(0, 1200);
+    .replace(/\s*\\times\s*/g, " × ").replace(/\\[()[\]]/g, "").replace(/\*\*(.+?)\*\*/g, "$1")
+    .replace(/[ \t]+/g, " ").replace(/\s*\n\s*/g, "\n").replace(/\n{3,}/g, "\n\n").trim().slice(0, DESC_MAX);
 }
 // "hide my number" (account switch, 2026-10-03): the owner's listings never show a phone, so the text they send through
 // the bot loses its phone numbers too (9+ digits with optional separators, Arabic-Indic digits included)
@@ -1181,7 +1212,7 @@ function settle(f: Record<string, any>, tax: any, rawText?: string) {
   }
   if (out.direction && !(tax.directions || []).some((d: any) => d.code === out.direction)) delete out.direction;
   if (out.contact_phone) { out.contact_phone = String(out.contact_phone).replace(/\D/g, ""); if (out.contact_phone.length < 8) delete out.contact_phone; }
-  if (typeof out.description === "string") out.description = out.description.replace(/\+?\d[\d\s-]{7,}\d/g, "").trim().slice(0, 1200);
+  if (typeof out.description === "string") out.description = out.description.replace(/\+?\d[\d\s-]{7,}\d/g, "").trim().slice(0, DESC_MAX);
   const missing: string[] = [];
   if (!["sale", "rent"].includes(out.deal)) missing.push("deal");
   if (!out.property_type) missing.push("property_type");
@@ -2253,7 +2284,11 @@ async function handleIncoming(m: Incoming) {
       try {
         const f = await m.fetchMedia();
         const res = await storeListingPhoto(r.attach_listing, f.bytes, f.mime || (m.media && m.media.mime) || "");
-        if (res && res.ok === false && res.reason === "max") await reply(m.source, m.chat, tt.photoMax(res.max || cfgInt(c.intake_max_photos, 12)));
+        if (res && res.ok === false && res.reason === "max") {   // said once per listing, not once per extra photo (2026-11-22)
+          let said = false;
+          try { const { data } = await sb.from("intake_log").select("id").eq("event", "listing_photo_max_said").eq("chat_id", m.chat).gte("created_at", new Date(Date.now() - 3600_000).toISOString()).limit(1); said = !!(data && data.length); } catch { /* say it */ }
+          if (!said) { await log(r.draft_id || null, m.chat, "info", "listing_photo_max_said", { listing: r.attach_listing }); await reply(m.source, m.chat, tt.photoMax(res.max || cfgInt(c.intake_max_photos, 12))); }
+        }
         else if (res?.ok && !r.replied_recently) await reply(m.source, m.chat, tt.attached(r.ref || ""));
       } catch (e) { await log(r.draft_id, m.chat, "warn", "photo_failed", { error: errStr(e), listing: r.attach_listing }); await reply(m.source, m.chat, tt.photoBad); }
     }
@@ -2277,13 +2312,19 @@ async function handleIncoming(m: Incoming) {
   if (r.expired_prev) await reply(m.source, m.chat, tt.expiredPrev(String(r.expired_prev.title || "")));
   if (m.kind === "photo" && m.fetchMedia && r.draft_id) {
     const mx = cfgInt(c.intake_max_photos, 12);
-    if ((r.photo_count || 0) >= mx) { await reply(m.source, m.chat, tt.photoMax(mx)); }
+    // «photo limit reached» is said once per listing: an album of 35 had sent it 15 times (2026-11-22)
+    const sayMaxOnce = async (n: number) => {
+      try { const { data } = await sb.from("intake_log").select("id").eq("draft_id", r.draft_id).eq("event", "photo_max_said").limit(1); if (data && data.length) return; } catch { /* say it */ }
+      await log(r.draft_id, m.chat, "info", "photo_max_said", { max: n });
+      await reply(m.source, m.chat, tt.photoMax(n));
+    };
+    if ((r.photo_count || 0) >= mx) { await sayMaxOnce(mx); }
     else if (m.size && m.size > MAX_PHOTO_BYTES) { await reply(m.source, m.chat, tt.photoBad); }
     else {
       try {
         const f = await m.fetchMedia();
         const res = await storePhoto(r.draft_id, f.bytes, f.mime || (m.media && m.media.mime) || "", (r.photo_count || 0) + 1, sendOrder(m));
-        if (res && res.ok === false && res.reason === "max") await reply(m.source, m.chat, tt.photoMax(res.max || mx));
+        if (res && res.ok === false && res.reason === "max") await sayMaxOnce(res.max || mx);
       } catch (e) {
         const msg = errStr(e);
         await log(r.draft_id, m.chat, "warn", "photo_failed", { error: msg, size: m.size || null });
