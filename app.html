@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-SYaYdwfKmSJ31alE6GObS62fYcx+jAcaFTycN2oFJkU=' 'sha256-mSUBx6/QNUWFXbr7l/muOfAJ+/yUXU8LDpDyqKx3Pvk=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-SYaYdwfKmSJ31alE6GObS62fYcx+jAcaFTycN2oFJkU=' 'sha256-xEpj0WU2Q3/NtLz8XoFDOfX+YXOEW5l0s5UieA0xt1s=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -10147,38 +10147,51 @@ function qfLocalRead(raw, geo, learned, home){
   home=(home||[]).filter(function(g){ return (geo||D.GEO)[g] });   // the poster's governorates, first = main
   geo=geo||D.GEO; learned=learned||QF_PLACES||[];
   var lat=String(raw||"").replace(/[٠-٩]/g,function(d){ return String(d.charCodeAt(0)-0x660) }).replace(/[۰-۹]/g,function(d){ return String(d.charCodeAt(0)-0x6f0) })
-    .replace(/(\d)[٬,](?=\d{3}\b)/g,"$1").replace(/٫/g,".");
+    .replace(/(\d)[٬,،](?=\d{3}\b)/g,"$1").replace(/٫/g,".").replace(/(\d)،(\d{1,2})(?!\d)/g,"$1.$2")
+    .replace(/(\d+(?:\.\d+)?) ?(?:متر|م)\s*\+\s*(?:(?:جنينه|جنينة|حديقه|حديقة|وجيبه|وجيبة|سقيفه|سقيفة) )?(\d+(?:\.\d+)?) ?(?:متر|م)(?![a-z؀-ۿ])/g,function(m,a,b){ return (+a + +b)+" متر" });   // 2026-11-08
   var N=function(s){ return String(s||"").replace(/(?:ا|أ|إ)?(?:وتستراد|وتوستراد|توستراد|ستراد)/g,"اوتوستراد").toLowerCase().replace(/ڤ/g,"ف").replace(/[ً-ْـ]/g,"").replace(/[أإآ]/g,"ا").replace(/ة/g,"ه").replace(/ى/g,"ي") };
   var t=" "+N(lat).replace(/[،؛؟٪«»؜​-‏]/g," ").replace(/(\D)\.|\.(\D)/g,"$1 $2").replace(/[^؀-ۿa-z0-9$.\/²%]+/g," ").replace(/\s+/g," ")+" ";   // one line, words and numbers only (Arabic commas and dots split words)
+  t=t.replace(/([ء-ي])\1{2,}/g,"$1");   // stretched words «سوبررر», «لقططططة» → «سوبر», «لقطة» (2026-11-22)
   t=t.replace(/(كسوه|اكساء)(?=سوبر|ديلوكس|جيد|ممتاز|ملكي|قديم)/g,"$1 ").replace(/سوبرديلوكس/g,"سوبر ديلوكس").replace(/سوبر(?=لوكس)/g,"سوبر ");   // hashtags glue words: «#كسوةسوبرديلوكس»
-  var f={}, has=function(re){ return re.test(t) }, NEAR=/(مقابل|قرب|قريب من|جانب|بجانب|خلف|بعد|امتداد|فوق|تحت|جنب|عند|ورا|شارع|مدخل|تجاه|ضمن|دخله|نزله|طلعه) ?$/, first=function(list,skipNear,txt){ var best=null, s=txt||t;
-    list.forEach(function(p){ var re=new RegExp(p[1].source,"g"), m; while((m=re.exec(s))){ if(skipNear&&NEAR.test(s.slice(Math.max(0,m.index-14),m.index+1))){ re.lastIndex=m.index+1; continue } if(!best||m.index<best.i) best={i:m.index,v:p[0]}; break } }); return best?best.v:null };
+  t=t.replace(/ (شقه|شقتين|شقتان)(?=[^ ]{3,} )/g," $1 ");
+  // «نص دلم» = half a دونم; «سعرالمتر» glued; «الغوطة الشرقية زبدين»: the region is the governorate, the village is the area (2026-11-08)
+  // 2026-11-22: «4غرف», «500مترا», «22الف» — a number glued to the word after it; «دولمين ونصف» = 2.5 دونم; «خمسة دونم» = 5 دونم
+  t=t.replace(/(\d)([ء-ي])/g,"$1 $2").replace(/ (دونمين|دولمين|دنمين|دلمين) /g," 2 دونم ").replace(/ دولم /g," دونم ");
+  var NW0={"واحد":1,"اثنين":2,"ثلاث":3,"ثلاثه":3,"تلات":3,"تلاته":3,"اربع":4,"اربعه":4,"خمس":5,"خمسه":5,"ست":6,"سته":6,"سبع":7,"سبعه":7,"ثمان":8,"ثماني":8,"ثمانيه":8,"تمن":8,"تمنيه":8,"تسع":9,"تسعه":9,"عشر":10,"عشره":10};
+  t=t.replace(new RegExp(" ("+Object.keys(NW0).join("|")+") ((?:ال)?(?:الف|الاف) )?(دونم|دونمات|دنم|دنمات|متر|امتار) ","g"),function(x,w,k,u){ return " "+NW0[w]+" "+(k?"الف ":"")+u+" " });
+  t=t.replace(/ (دلم|دنوم) /g," دونم ").replace(/سعرال(متر|دونم)/g,"سعر ال$1").replace(/ (بال|في ال|ال)?غوطه (ال)?(شرقيه|غربيه) /g," ريف دمشق ");
+  t=t.replace(/(الملكيه)?طابوا? ?(?=اخضر|زراعي|اسكان|نظامي)/g," طابو ").replace(/(\d)(سهم|اسهم)/g,"$1 $2").replace(/ طابو(\d)/g," طابو $1").replace(/\s+/g," ");   // 2026-11-08 (one space between words: an empty "word" would join names)   // «شقةالصناعة», «#شقةغربي الميدان» (2026-11-08)
+  var f={}, has=function(re){ return re.test(t) }, NEAR=/(مقابل|قرب|قريب من|جانب|بجانب|خلف|بعد|امتداد|فوق|تحت|جنب|عند|ورا|شارع|مدخل|تجاه|ضمن|دخله|نزله|طلعه) ?$/, first=function(list,skipNear,tx){ var best=null; tx=tx||t;
+    list.forEach(function(p){ var re=new RegExp(p[1].source,"g"), m; while((m=re.exec(tx))){ if(skipNear&&NEAR.test(tx.slice(Math.max(0,m.index-14),m.index+1))){ re.lastIndex=m.index+1; continue } if(!best||m.index<best.i) best={i:m.index,v:p[0]}; break } }); return best?best.v:null };
   var W="(?=[\\s.,:؛،)!؟]|$)";   // end of word
   // deal
-  var rentRe=/ (لل|ل)?(ايجار|اجار|اجاره|تاجير|استئجار)|(^| )(شهري|بالشهر|سنوي|بالسنه|يومي|اسبوعي|ايجار شهري) /, saleRe=/ (لل|ل)?(بيع|مبيع|بسع) /, shareRe=/ (لل)?مشاركه /;
+  var rentRe=/ (لل|ل|ال|بال)?(ايجار|اجار|اجاره|تاجير|استئجار)|(^| )(شهري|بالشهر|سنوي|بالسنه|يومي|اسبوعي|ايجار شهري|القيمه الشهريه|الاجره الشهريه) /, saleRe=/ (لل|ل)?(بيع|مبيع|بسع) /, shareRe=/ (لل)?مشاركه /;
   var dm=[["rent",rentRe],["sale",saleRe],["share",shareRe]].map(function(p){ var m=p[1].exec(t); return m?{v:p[0],i:m.index}:null }).filter(Boolean).sort(function(a,b){ return a.i-b.i });
   if(dm.length) f.deal=dm[0].v;
   // property type: the earliest type word wins (the message names the property before its features)
-  // «مكتب البراء للخدمات العقارية» is the poster's own office, not an office for sale (owner 2026-11-10)
-  var T=[["hotelapt",/ (شقه|شقق) (مفروشه )?فندقيه/],["duplex",/ (شقه )?دوبل(ي)?كس/],["terrace",/ (شقه|طابق) (تراس|سطح)| روف |^ تراس /],
-    ["studio",/ (ا)?ستوديو /],["suite",/ سويت /],["floor",/ طابق كامل /],["building",/ (بناء كامل|بنايه|عماره|بناء مؤلف|بناء من) /],
-    ["villa",/ (فيلا|فيله|فيلل|فلل|فله) /],["arab",/ (بيت|منزل|دار) (عربي|شامي)| حوش | ارض ديار /],["chalet",/ شاليه /],["clinic",/ عياده /],
+  var T=[["hotelapt",/ (شقه|شقق) (مفروشه )?فندقيه| مفروش(ه)? (لل?ايجار |للاجار )?(ال)?يومي /],["duplex",/ (شقه )?دوبل(ي)?كس/],["terrace",/ (شقه|طابق) (تراس|سطح)| روف |^ تراس /],
+    ["studio",/ (ا)?ستو?ديو /],["suite",/ سويت /],["floor",/ طابق كامل /],["building",/ (بناء كامل|بنايه|عماره|بناء مؤلف|بناء من) /],
+    ["villa",/ (فيلا|فيله|فيلل|فلل|فله|قصر|القصر) (?!(المؤتمرات|العدل|الشعب|الضيافه|الرئاسي|البلديه|الثقافه|العظم|الحير|النبلاء) )/],   /* «قصر» = a villa (2026-11-22) */["arab",/ (بيت|منزل|دار) (عربي|شامي)| حوش | ارض ديار /],["chalet",/ شاليه /],["clinic",/ عياده /],
     ["restaurant",/ مطعم /],["hall",/ (صاله|قاعه) (افراح|مناسبات|احتفالات) /],["showroom",/ (صاله عرض|معرض) /],["station",/ (كازيه|محطه وقود|بنزينه) /],
-    ["hotel",/ (فندق|منشاه سياحيه) /],["workshop",/ (ورشه|معمل صغير) /],["factory",/ (معمل|مصنع) /],["warehouse",/ (مستودع|هنكار) /],
-    ["basement",/ قبو (تجاري|صناعي) /],["shop",/ (محل|محلات|دكان|محلين) /],["farm",/ مزرعه /],
+    ["hotel",/ (فندق|منشاه سياحيه) /],["workshop",/ (ورشه|معمل صغير) /],["factory",/ (معمل|مصنع) /],["warehouse",/ (مستودع|هنكار) (?!(خارجي|صغير|ملحق|مونه|للمونه|تخزين) )/],   // «مستودع خارجي 3×6» in a villa is a feature (2026-11-22)
+    ["basement",/ قبو (تجاري|صناعي) /],["shop",/ (محل|محلات|دكان|محلين|صالون حلاقه|حلاقه نسائيه|كوافير|كافيه|كافيتريا|كافتيريا|مقهي) /],["farm",/ مزرعه /],
     ["agri",/ (ارض|قطعه ارض) زراعيه /],["resid",/ (ارض|قطعه ارض) سكنيه /],["comm",/ (ارض|قطعه ارض) تجاريه /],["indust",/ (ارض|قطعه ارض) صناعيه /],["tourist",/ (ارض|قطعه ارض) سياحيه /],
     ["mahdar",/ محضر /],["plot",/ (ارض|قطعه ارض|مقسم) /],["office",/ (مكتب|مكاتب|مكتبين)(?! (عقاري|العقار|عقاريه|الصلح|المحامي|عقار))(?! [^ ]+ ?[^ ]* (للخدمات|للعقارات|للتسويق|للوساطه|العقاري|العقاريه|عقاري|عقاريه) )/],
     ["apartment",/ (شقه|شقق|شقتين) /],["house",/ (منزل|بيت) /]];
   T=T.filter(function(p){ return !D.TYPES||D.TYPES[p[0]] });
-  // 2026-11-16 (SY10880: «عروض مكتب البراء ما بتخلص … للبيع شقة أرضية» was filed as an office): «مكتب X» that names the
-  // estate agency is not the property. It is the agency when the same name carries an agency word elsewhere in the
-  // message («مكتب البراء العقاري»), or when it follows «عروض / من / لدى / تحيات / إدارة» — but «مؤلف من مكتب وصالة» is the property.
+  // 2026-11-16 (site reader, ported to the bot 2026-11-22): «مكتب X» that names the estate agency is not the property — the
+  // same name carries an agency word elsewhere («مكتب البراء العقاري»), or it follows «عروض / من / لدى / تحيات / إدارة»
   var agN={}, agRe=/ مكتب ([^ ]+)(?: [^ ]+)? (للخدمات|للعقارات|للتسويق|للوساطه|العقاري|العقاريه|عقاري|عقاريه) /g, agM;
   while((agM=agRe.exec(t))){ agN[agM[1]]=1; agRe.lastIndex=agM.index+1 }
   var tTyp=t.replace(/ مكتب (?=([^ ]+) )/g,function(all,n,i){ var pre=t.slice(Math.max(0,i-22),i);
     var byName=agN[n]===1, byLead=/(^| )(عروض|عروضات|من|لدي|لدينا|تحيات|اداره) ?$/.test(pre+" ") && !/(مؤلف|مولف|مكون|مؤلفه|مولفه|مكونه|يتالف|تتالف|عباره|مقسوم|مقسومه) من ?$/.test(pre+" ") && !/^(و|مع|عدد|\d)/.test(n);
     return (byName||byLead) ? " #### " : all });
+  // «مع مستودع», «يوجد مستودع»: a feature of the property, not the property (no look-behind: old iPhones cannot read it)
+  tTyp=tTyp.replace(/ (مع|يوجد|ويوجد|فيه|فيها|وفيه|وفيها) (?=(مستودع|هنكار) )/g," $1 #");
   var pt=first(T,true,tTyp); if(pt) f.property_type=pt;
+  if(!f.property_type && / (للبيع|لبيع|للايجار|للاجار|للإيجار) قبو /.test(t)) f.property_type="apartment";   // «للبيع قبو بالمليحة»: a basement flat (2026-11-08)
+  // a plot whose deed or licence says what kind of land it is (2026-11-08)
+  if(f.property_type==="plot"){ var lk=first([["agri",/ (طابو زراعي|اراضي زراعيه|زراعي بريء) /.test(t)&&!/ (سكني|تنظيم|التنظيم|بالتنظيم) /.test(t)?/ /:/^$/],["tourist",/ (ترخيص سياحي|رخصه سياحيه|مرخصه سياحيا) /],["comm",/ (دونم|دنم|متر) تجاري /]].filter(function(p){ return !D.TYPES||D.TYPES[p[0]] })); if(lk) f.property_type=lk }
   // names in Balkoun's own lists that no rule here knows (a type, deed, finish or amenity the admin adds later): used only when
   // the rules found nothing, only as the exact whole name, 4+ letters, never a general word; two equal matches → nothing
   var GENW=/^(ارض|طابق|بيت|منزل|شقه|محل|مكتب|بناء|سكني|تجاري|زراعي|عقار|غرفه)$/;
@@ -10193,23 +10206,47 @@ function qfLocalRead(raw, geo, learned, home){
   // size
   var unitRe="(?:م2|م²|م ?مربع|متر ?مربع|مترمربع|متر|متار|امتار|م|دونم|دونمات|دنم|دنمات|هكتار)", szAll=[], m;
   var szRe=new RegExp("(\\d+(?:\\.\\d+)?) ?(الف )?(و ?نص |و ?نصف )?"+unitRe+W,"g");
-  var szT=t.replace(/ نصف? (دونم|دنم) /g," 0.5 دونم ").replace(/ (دونم|دنم) و ?نص(ف)? /g," 1.5 دونم ");
-  while((m=szRe.exec(szT))){ var u=m[0].replace(m[1],"").trim(), v=parseFloat(m[1]); if(m[2]) v*=1000; if(m[3]) v+=0.5; if(/(دونم|دنم)/.test(u)) v*=1000; else if(/هكتار/.test(u)) v*=10000;
-    var before=szT.slice(Math.max(0,m.index-16),m.index); szAll.push({v:Math.round(v),i:m.index,key:/(مساح|مسطح)/.test(before),side:/(واجه|بعد|تراس|حديق|برند|شرف|عرض|طول|عمق|ارتفاع|شارع|سطح|قبو|مستودع|محل|مدخل|الطابق)/.test(before)}) }
+  var szT=t.replace(/ (\d+(?:\.\d+)?) (دونم|دنم) و ?نص(ف)? /g,function(m,n){ return " "+(+n+0.5)+" دونم " }).replace(/ نصف? (دونم|دنم) /g," 0.5 دونم ").replace(/ (دونم|دنم) و ?نص(ف)? /g," 1.5 دونم ")
+    .replace(/ (ارض|مساحه|المساحه|مساحتها)( ارض)? (دونم|دنم) /g," $1$2 1 دونم ").replace(/ (دونم|دنم) كامل /g," 1 دونم ")
+    .replace(/ (\d+) (?:الي |بين )?(\d+) (?=(?:م2|م²|متر|م|متر مربع) )/g,function(m,a,b){ a=+a; b=+b; return (a>=20&&b>a&&b<=a*1.5)?" "+Math.round((a+b)/2)+" ":m });   // 2026-11-08
+  // a size that starts its own line («عشارع عام⏎٧٠ متر») is the property's size, whatever the line before ends with (2026-11-22)
+  var lineSz={}; String(lat).split(/\n/).forEach(function(ln){ var q=/^[^0-9؀-ۿ]*(\d+(?:\.\d+)?) ?(?:م2|م²|م|متر|مترا|متراً|امتار)(?![؀-ۿ])/.exec(N(ln).replace(/\s+/g," ").trim()); if(q) lineSz[parseFloat(q[1])]=1 });
+  while((m=szRe.exec(szT))){ var u=m[0].replace(m[1],"").trim(), v=parseFloat(m[1]), v0=v; if(m[2]) v*=1000; if(m[3]) v+=0.5; if(/(دونم|دنم)/.test(u)) v*=1000; else if(/هكتار/.test(u)) v*=10000;
+    var before=szT.slice(Math.max(0,m.index-16),m.index), side=/(واجه|بعد|تراس|حديق|برند|شرف|عرض|طول|عمق|ارتفاع|شارع|سطح|قبو|مستودع|محل|مدخل|الطابق)/.test(before);
+    if(side && (lineSz[v0] || /شارع (ال)?(عام|رئيسي|فرعي|نافذ|واسع|حيوي|تجاري) ?$/.test(before))) side=false;   // «على شارع عام 70 متر»: the street is described, the 70 m is the flat
+    szAll.push({v:Math.floor(v+1e-9),i:m.index,key:/(مساح|مسطح)/.test(before),side:side,du:/(دونم|دنم|هكتار)/.test(u),build:/(بناء|البناء|مبني|المبني|البيت|الفيلا|المنزل)/.test(before),land:/(ارض|الارض|اجمالي|الاجماليه|العقار)/.test(before)}) }
   var szK=szT.match(/(?:مساحه?|مسطح)(?:ها|ه|تها|تو)? ?(?:[:؛(]| حوالي| تقريبا| بحدود| الاجماليه| الطابق)? ?(\d+(?:\.\d+)?)/);
-  var sz=szAll.filter(function(x){ return x.key })[0]||(szK?{v:Math.round(parseFloat(szK[1]))}:null)||szAll.filter(function(x){ return !x.side })[0];
+  // a villa / farm / house on its own land: the land («على أرض 2700 م²», «المساحة الإجمالية») is the listing's size, the
+  // built part («مساحة البناء 710») is a detail (2026-11-22)
+  var villaish=/^(villa|farm|house|arab|chalet)$/.test(f.property_type||"");
+  var sz=(villaish&&szAll.filter(function(x){ return (x.land||x.du)&&!x.build&&!x.side })[0])||szAll.filter(function(x){ return x.key&&!x.build })[0]||szAll.filter(function(x){ return x.key })[0]||(szK?{v:Math.round(parseFloat(szK[1]))}:null)||szAll.filter(function(x){ return !x.side })[0];
   if(sz&&sz.v>=8&&sz.v<=2000000) f.area_m2=sz.v;
+  var perF=/ (?:مساحه )?(?:كل طابق|الطابق الواحد) ?(?:مساحته )?(\d+)/.exec(szT), nFl=/ (\d+) طوابق | عدد الطوابق (\d+) | (طابقين) /.exec(szT);
+  if(perF&&nFl&&f.area_m2==+perF[1]&&f.property_type&&f.property_type!=="apartment"&&!/ (بيع|يباع|تباع) كل طابق /.test(szT)){ var fl=nFl[3]?2:+(nFl[1]||nFl[2]); if(fl>=2&&fl<=30) f.area_m2*=fl }   // 2026-11-08
   // rooms / baths / living rooms
   var NUMW={"واحد":1,"وحده":1,"اثنين":2,"ثلاث":3,"ثلاثه":3,"تلات":3,"تلاته":3,"اربع":4,"اربعه":4,"خمس":5,"خمسه":5,"ست":6,"سته":6,"سبع":7,"سبعه":7,"ثمان":8,"ثماني":8,"تمن":8};
   var wn="(\\d{1,2}|"+Object.keys(NUMW).join("|")+")", num=function(s){ return /^\d+$/.test(s)?+s:NUMW[s] };
-  var rm=t.match(new RegExp(" و?"+wn+" (غرف|غرفه|اوض|غرف نوم|نوم)"+W));
-  if(rm) f.rooms=num(rm[1]); else if(/ و?(غرفتين|غرفتان|اوضتين) /.test(t)) f.rooms=2; else if(/ (غرفه|اوضه) و ?صالون /.test(t)) f.rooms=1;
+  var rm=t.replace(/ (ط|طابق|الطابق) (\d{1,2}) (?=(غرفه|غرف|اوضه) )/g," $1 $2 و ").match(new RegExp(" و?"+wn+" (غرف|غرفه|اوض|غرف نوم|نوم)"+W));
+  var rmc=/ (?:غرف|غرفه) (?:ال)?نوم (?:عدد|عددها)? ?(\d{1,2}) | عدد (?:ال)?غرف (?:ال)?نوم ?(\d{1,2}) | (?:غرف|غرفه) (?:عدد|عددها) ?(\d{1,2}) /.exec(t);   // «غرف نوم عدد 4» (2026-11-22)
+  if(rm) f.rooms=num(rm[1]); else if(rmc) f.rooms=+(rmc[1]||rmc[2]||rmc[3]); else if(/ و?(غرفتين|غرفتان|اوضتين) /.test(t)) f.rooms=2; else if(/ (غرفه|اوضه) و ?صالون /.test(t)) f.rooms=1;
   var bm=t.match(new RegExp(" و?"+wn+" (حمام|حمامات)"+W));
   var bm2=t.match(/ (?:حمام|حمامات) (?:عدد|عدد:|×|x) ?(\d)/);
-  if(bm) f.baths=num(bm[1]); else if(bm2) f.baths=+bm2[1]; else if(/ و?حمامين /.test(t)) f.baths=2; else if(/ (و|،)? ?حمام (و|،|مطبخ|موزع|ماستر|رئيسي)/.test(t)) f.baths=1;
+  // one «حمام و…» means one bathroom only when the message names a bathroom once: a villa that lists «حمامات خارجية»,
+  // «مع حمام ومدخل خاص», «دورات مياه…» in several places has many, not one (2026-11-22)
+  var bathN=(t.match(/ و?(حمام|حمامات|حمامين|دورات مياه|دوره مياه|تواليت|تواليتات) /g)||[]).length;
+  if(bm) f.baths=num(bm[1]); else if(bm2) f.baths=+bm2[1]; else if(/ و?حمامين /.test(t)) f.baths=2; else if(bathN<=1 && / (و|،)? ?حمام (و|،|مطبخ|موزع|ماستر|رئيسي)/.test(t)) f.baths=1;
   var lv=t.match(new RegExp(" و?"+wn+" (صالون|صالونات)"+W));
   if(lv) f.living_rooms=num(lv[1]); else if(/ و?صالونين /.test(t)) f.living_rooms=2; else if(/ و ?(صالون|صوفا|صوفه|قعده) /.test(t)) f.living_rooms=1;
-  if(f.rooms>20) delete f.rooms; if(f.baths>10) delete f.baths;
+  var flS=t.split(/ (?=(?:ال)?طابق (?:الارضي|الاول|الثاني|التاني|العلوي|السفلي|الاخير) )/);
+  if(flS.length>=3){ var rSum=0, rN=0; flS.slice(1).forEach(function(p){ p=" "+p.split(/ (?:الاتجاه|اتجاه|الملكيه|السعر|المساحه|الكسوه|اكساء) /)[0]+" ";
+      var r1=p.match(new RegExp(" و?"+wn+" (غرف|غرفه|اوض)"+W)); var r=r1?num(r1[1]):(/ (غرفتين|غرفتان) /.test(p)?2:(/ (غرفه|اوضه) /.test(p)?1:0)); if(r){ rSum+=r; rN++ } });
+    if(rN>=2 && rSum>(f.rooms||0)) f.rooms=rSum }
+  var rpf=t.match(new RegExp(" كل طابق "+wn+" (غرف|غرفه)"+W)), nfl=t.match(/ (\d{1,2}) طوابق /);
+  if(rpf&&nfl&&f.rooms===num(rpf[1])) f.rooms=num(rpf[1])*(+nfl[1]);   // 2026-11-08
+  if(f.rooms>40) delete f.rooms; if(f.baths>10) delete f.baths;
+  // how many floors the building / villa has: «عدد الأدوار: 3 أدوار», «بناء 5 طوابق» (2026-11-22)
+  var ftm=/ عدد (?:ال)?(?:ادوار|طوابق|الطوابق|الادوار) ?(\d{1,2}) | (\d{1,2}) (?:ادوار|طوابق) /.exec(t);
+  if(ftm){ var ftv=+(ftm[1]||ftm[2]); if(ftv>=2&&ftv<=40) f.floors_total=ftv }
   // floor ("ط" = طابق)
   var ORD={"ارضي":0,"الارضي":0,"اول":1,"الاول":1,"ثاني":2,"الثاني":2,"تاني":2,"ثالث":3,"الثالث":3,"تالت":3,"رابع":4,"الرابع":4,"خامس":5,"الخامس":5,"سادس":6,"السادس":6,"سابع":7,"السابع":7,"ثامن":8,"الثامن":8,"تاسع":9,"التاسع":9,"عاشر":10,"العاشر":10,"تسويه":-1,"قبو":-1};
   var fm=t.match(new RegExp(" (?:ب?الطابق|طابق|ط\\.?) ?(\\d{1,2}|"+Object.keys(ORD).join("|")+")"+W));
@@ -10218,26 +10255,32 @@ function qfLocalRead(raw, geo, learned, home){
   // «غرفة وصالون قبو»: the unit is the basement («والقبو», «بالقبو», «حصة بالقبو» are a share of it, not the floor)
   if(f.floor==null && / قبو /.test(t) && !/ (حصه|حصه في) قبو | قبو (تجاري|صناعي) /.test(t)) f.floor=-1;
   if(f.property_type==="house" && (f.floor>=1 || / مصعد /.test(t))) f.property_type="apartment";   // a «منزل» on an upper floor or with a lift is a flat (owner's rule)
+  // no type word but a floor, or rooms with a «صالون/منتفعات»: a flat (2026-11-08: «الطابق السادس … 3 غرف وصالون»)
+  if(!f.property_type && (f.floor>=1 || (f.floor==null && f.rooms!=null && / (صالون|منتفعات|منافع) /.test(t))) && !/ (ارض|اراضي|دونم|دنم|مزرعه|صاله|مصلحه|تجاري|تجاريه) /.test(t)) f.property_type="apartment";
   // deed
   var tb=null;
-  if(has(/حكم محكمه موصوف/)) tb="court_desc"; else if(has(/حكم محكمه/)) tb="court";
+  if(has(/حكم محكمه (اسهم )?موصوف/)) tb="court_desc"; else if(has(/حكم محكمه/)) tb="court";
   else if(has(/(طابو|سند) زراعي|سند 25|مشاع زراعي/)) tb="agri"; else if(has(/طابو اسكان|مؤسسه الاسكان/)) tb="housing";
   else if(has(/ اسهم من طابو| حصص سهميه/)) tb="shares";
-  else if(has(/طابو اخضر| طابو نظامي| 2400 سهم| الفين واربعمائه سهم| الفين و ?اربعمئه سهم/)) tb="green";
+  else if(has(/سجل مؤقت/)) tb="coop";
+  else if(has(/طابو اخضر| طابو نظامي| 2400 سهم| طابو 2400| الفين واربعمائه سهم| الفين و ?اربعمئه سهم/)) tb="green";
   else if(has(/تنازل جمعيه|جمعيه سكنيه|سجل مؤقت/)) tb="coop"; else if(has(/ (كاتب عدل|وكاله)/)) tb="poa";
   else if(has(/ (وضع يد|واضع يد)/)) tb="possession"; else if(has(/ (اسهم|\d+ سهم) /)) tb="shares"; else if(has(/ (بدون طابو|عقد عرفي)/)) tb="none";
   if(!tb) tb=byName(D.TABU,{green:1,shares:1,court:1,court_desc:1,possession:1,poa:1,agri:1,coop:1,housing:1,none:1});
+  if(!tb && / طابو /.test(t) && !/ نوع (ال)?طابو /.test(t)) tb="green";   // 2026-11-08
   if(tb) f.tabu=tb;
   // condition (repair wins over old; land has its own list)
   var land=/^(plot|agri|resid|comm|indust|tourist|farm|mahdar)$/.test(f.property_type||"");
   var cd=land ? first([["fenced",/ مسور/],["planted",/ مزروع/],["built",/ عليها (بناء|بيت|غرفه)/],["empty",/ ارض (فارغه|بيضاء)/]])
-    : (has(/ (بحاجه|يحتاج|بدها|بدو) ترميم/)?"repair" : first([["superdeluxe",/ (سوبر ديلوكس|سوبر سوبر|كسوه سوبر|اكساء سوبر|سوبر لوكس|(?:ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء|كسوتو) ممتازه? جدا|(?:ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء|كسوتو) ممتازه? كثير)/],["deluxe",/ (ديلوكس|كسوه ديلوكس|لوكس|(?:ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء|كسوتو) ممتازه?) /],
+    : (has(/ (بحاجه|يحتاج|بدها|بدو) ترميم/)?"repair" : first([["superdeluxe",/ (سوبر ديلوكس|سوبر سوبر|(?:كسوه|اكساء) (?:و ?فرش |والفرش )?سوبر|سوبر لوكس|(?:ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء|كسوتو) ممتازه? جدا|(?:ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء|كسوتو) ممتازه? كثير)/],["deluxe",/ (ديلوكس|كسوه ديلوكس|لوكس|(?:ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء|كسوتو) ممتازه?) /],
        ["shell",/ (علي العظم|عالعظم|ع العظم|علي العضم|عالعضم|عاالعضم|عضم|ع العضم) /],["finishing",/ (قيد الاكساء|تحت الاكساء|عم ينكسي|بمرحله الاكساء|قيد التشطيب)/],["stripped",/ (معفش|معفشه) /],
        ["damaged",/ (متضرر|متضرره) /],["old",/ (اكساء قديم|كسوه قديمه|اكساء عادي)/],["intact",/ (سليم|سليمه|جاهز للسكن|جاهزه للسكن|(ب?كسوه|كسوتها|ب?اكساء|ب?الكسوه|ب?الاكساء) (و ?فرش |والفرش )?(جيده|جيد|جيده جدا|نظيفه|حلوه|جديده|جديد)) /]]));
   if(!cd) cd=byName(land?D.LANDC:D.COND,land?{fenced:1,planted:1,built:1,empty:1}:{repair:1,superdeluxe:1,deluxe:1,shell:1,finishing:1,stripped:1,damaged:1,old:1,intact:1});
   if(cd&&(land?D.LANDC:D.COND)&&(land?D.LANDC:D.COND)[cd]) f.condition=cd;
   // «فاضي» = unfurnished
-  if(has(/ (غير مفروش|غير مفروشه|بدون فرش|بلا فرش|فاضي|فاضيه|فارغ|فارغه) /)) f.furnished=false; else if(has(/ (مفروش|مفروشه|بفرشه|بفرشها|مع الفرش) /)) f.furnished=true;
+  // «بيع مع فرشو الجديد», «كسوة وفرش سوبر» = furnished (2026-11-22)
+  if(has(/ (غير مفروش|غير مفروشه|بدون فرش|بلا فرش|بدون عفش|فاضي|فاضيه|فارغ|فارغه) /)) f.furnished=false;
+  else if(has(/ (مفروش|مفروشه|بفرشه|بفرشها|بفرشو|بعفشه|بعفشها|بعفشو|مع (ال)?فرش|مع فرشو|مع فرشها|مع فرشه|مع (ال)?عفش|مع عفشو|مع عفشها) | و?فرش (سوبر|ديلوكس|جديد|كامل|ممتاز|فخم|حديث|راقي)/)) f.furnished=true;
   // facing: «قبلي» is always a direction; the other words only after «اتجاه / واجهة»
   // the words after it, in any order and with "و"/"•" between them: north/south + east/west make a corner ("شرقي قبلي" = se)
   var DW="(قبلي|جنوبي|شمالي|شرقي|غربي)ه?", dctx=new RegExp(" (?:ب?الاتجاه|اتجاه|اتجاهها|الاتجاهات|اتجاهات|واجهه|الواجهه|واجهتها) ?(?:[:•] ?)?"+DW+"((?: ?[•و]? ?"+DW+"){0,3})").exec(t)||/ (قبلي)((?: (?:و ?)?(?:شرقي|غربي|شمالي)){0,2}) /.exec(t);
@@ -10248,9 +10291,12 @@ function qfLocalRead(raw, geo, learned, home){
   }
   // amenities (the Arabic labels; applyQuickFill maps them to the page language)
   var AM=land?[["سور",/ (سور|مسوره) /],["بئر ماء",/ (بئر|بير) /],["كهرباء واصلة",/ كهرباء واصله/],["ماء واصل",/ (ماء|مي|مياه) واصل/],["طريق معبّد",/ (طريق معبد|مزفت|زفت)/],["أرض مستوية",/ مستويه /],["داخل التنظيم",/ (داخل|ضمن) التنظيم/],["مفرزة",/ مفرز/],["إطلالة",/ (اطلاله|مطله|مطل) /],["قريبة من الطريق العام",/ (علي|عل|قريبه من|قرب) (الطريق|الشارع) العام/]]
-     :[["مصعد",/ (مصعد|اسانسير) /],["موقف سيارات",/ (موقف سيارات|كراج سياره|باركينغ|موقف خاص|(مكان|محل) (لصف|صف|ركن) (سياره|سيارات)|صف سياره|كراج خاص)/],["تدفئة مركزية",/ تدفئه مركزيه/],["خزّان مياه",/ (خزان|خزانات) /],["اشتراك مولّدة",/ (اشتراك موّلده|اشتراك مولده|امبيرات|امبير) /],["حارس",/ (حارس|ناطور) /],["إنترنت",/ (انترنت|نت) /],["باب أمان",/ (باب امان|باب حمايه|ابواب حمايه|باب مصفح)/],["شرفة",/ و?(شرفه|برندا|برنده|فرندا|فرنده|ورندا|بلكونه|بلكونات|شرفات|برندات|برندتين) /],["تكييف",/ (تكييف|مكيف|مكيفات|مكيفه) /],["طاقة بديلة",/ (طاقه شمسيه|طاقه بديله|الواح شمسيه|ليثيوم|طاقه) /]];
+     :[["مصعد",/ (مصعد|اسانسير) /],["موقف سيارات",/ (موقف سيارات|مواقف سيارات|مواقف|كراج سياره|كراج سيارات|مراب|كراج|باركنغ|باركينغ|موقف خاص|(مكان|محل) (لصف|صف|ركن) (سياره|سيارات)|صف سياره|كراج خاص)/],["تدفئة مركزية",/ (تدفئه مركزيه|شوفاج|شوفاجات|بالشوفاج|تدفئه شوفاج)/],["خزّان مياه",/ (خزان|خزانات|خزانين) (?!(ملابس|الملابس|حائط|جداري|خشب) )/],["اشتراك مولّدة",/ (اشتراك موّلده|اشتراك مولده|امبيرات|امبير) /],["حارس",/ (حارس|ناطور|ناظور) /],["إنترنت",/ (انترنت|نت) /],["باب أمان",/ (باب امان|باب حمايه|ابواب حمايه|باب مصفح)/],["شرفة",/ و?(شرفه|برندا|برنده|فرندا|فرنده|ورندا|بلكونه|بلكونات|شرفات|برندات|برندتين|تراسات) /],["تكييف",/ (تكييف|مكيف|مكيفات|مكيفه) /],["طاقة بديلة",/ (طاقه شمسيه|طاقه بديله|الواح شمسيه|ليثيوم|طاقه) /]];
   var tA=t.replace(/ و(?=[؀-ۿ]{3,})/g," ");
-  var am=AM.filter(function(p){ return p[1].test(t)||p[1].test(tA) }).map(function(p){ return p[0] });
+  // only what is there: «درج مؤسس لوضع مصعد», «مكان الطاقة الشمسية», «تأسيس تدفئة» is a provision, not the thing (2026-11-22)
+  var PREP=/(مؤسس|مؤسسه|تاسيس|لوضع|مكان|امكانيه|قابليه|قابل|جاهز ل|جاهزه ل|تمديد|تمديدات|يمكن|بدون|لا يوجد|ما في|مافي) [^ ]* ?[^ ]* ?[^ ]* ?$/;
+  var amHit=function(re,tx){ var g=new RegExp(re.source,"g"), mm; while((mm=g.exec(tx))){ if(!PREP.test(tx.slice(Math.max(0,mm.index-34),mm.index+1))) return true; g.lastIndex=mm.index+1 } return false };
+  var am=AM.filter(function(p){ return amHit(p[1],t)||amHit(p[1],tA) }).map(function(p){ return p[0] });
   var amList=((land?D.LANDAMEN:D.AMEN)||{}).ar||[], amKnown={}; AM.forEach(function(p){ amKnown[p[0]]=1 });
   amList.forEach(function(a){ if(amKnown[a]||am.indexOf(a)>-1) return; var L=lbl(a); if(L.length>=4&&!GENW.test(L)&&at(L)>-1) am.push(a) });   // an amenity added later, by its exact name
   if(am.length) f.amenities=am;
@@ -10262,27 +10308,33 @@ function qfLocalRead(raw, geo, learned, home){
   var HUN0={"مية":100,"ميه":100,"مئه":100,"مايه":100,"ميتين":200,"مئتين":200,"ميتان":200,"تلتمية":300,"تلاتمية":300,"ثلاثمية":300,"ثلاثمئه":300,"ثلثمئه":300,"اربعمية":400,"اربعمئه":400,"خمسمية":500,"خمسمئه":500,"خمسماىه":500,"ستمية":600,"ستمئه":600,"سبعمية":700,"سبعمئه":700,"تمنمية":800,"ثمانمئه":800,"ثمنمية":800,"تسعمية":900,"تسعمئه":900};
   var HUN={}; Object.keys(HUN0).forEach(function(k){ HUN[N(k)]=HUN0[k] });
   var wordsP=t.replace(new RegExp("(^| )و?("+Object.keys(HUN).join("|")+")(?= )","g"),function(x,s,w){ return s+"و"+HUN[w] })
-    .replace(/ مليونين /g," 2 مليون ").replace(/ مليون /g,function(x,i,s){ return /\d ?$/.test(s.slice(0,i))?x:" 1 مليون " }).replace(/ الفين /g," 2 الف ").replace(/ مليارين /g," 2 مليار ");
+    .replace(/ مليونين /g," 2 مليون ").replace(/ مليون /g,function(x,i,s){ return /\d ?$/.test(s.slice(0,i))?x:" 1 مليون " }).replace(/ الفين /g," 2 الف ").replace(/ مليارين /g," 2 مليار ")
+    .replace(/ (تالاف|تلاف|الآف) /g," الف ").replace(/(\d+(?:\.\d+)?) (مليون|مليار) (دولار|دولر|\$) و ?(نص|نصف)( (مليون|مليار))?/g,"$1 $2 و$4 $3")
+    .replace(/(\d+(?:\.\d+)?) مليون (دولار|دولر|\$) و ?(\d+) ?(الف)/g,"$1 مليون و$3 $4 $2");   // 2026-11-08
   while((m=pRe.exec(wordsP))){ if(!m[0].trim()) { pRe.lastIndex++; continue }
     var digits=m[1].replace(".",""); if(digits.length>=9 || /^0\d{8,}/.test(m[1])) continue;
     var after=wordsP.slice(m.index+m[0].length, m.index+m[0].length+10), bef=wordsP.slice(Math.max(0,m.index-22),m.index);
     if(/^ ?(م|متر|م2|م²|دونم|دنم|غرف|غرفه|حمام|سهم|طابق|امبير|ساعه|شهر|اشهر|سنه|سنوات|دقيقه|كم|%)/.test(after) && !m[3] && !m[2] && !m[9]) continue;
     if(!m[9]&&!m[2]&&/^ ?(م|متر|م2|دونم|دنم|هكتار)( |$)/.test(after)) continue;   // "240 ألف متر" is a size
-    var unitPrice=/(للمتر|بالمتر|المتر|للدونم|الدونم|بالدونم|الدنم|للدنم|بالدنم|للمتر المربع)/.test(after+" "+bef.slice(-10));   // "75 دولار للمتر", "سعر الدونم 2200": not the asking price
+    var after2=wordsP.slice(m.index+m[0].length, m.index+m[0].length+26).replace(/^ ?(امريكي|اميركي|فقط|تقريبا) /," ").slice(0,14);   // «10,500 دولار أمريكي للدونم الواحد» (2026-11-22)
+    var unitPrice=/(للمتر|بالمتر|المتر|للدونم|الدونم|بالدونم|الدنم|للدنم|بالدنم|للمتر المربع)/.test(after+" "+after2+" "+bef.slice(-10));   // "75 دولار للمتر", "سعر الدونم 2200": not the asking price
     var base=parseFloat(m[1]), mu=m[3]?mul[m[3]]:1, v=(m[3]&&base<1000)?base*mu:base;
     if(m[3]&&base<1000&&m[4]) v+= (/ربع/.test(m[4])?0.25:0.5)*mu;   // "مليونين ونص" = 2,500,000
     if(m[3]&&base<1000&&m[6]) v+= +m[6]*(m[8]?mul[m[8]]:(mu>=1e6?1e3:1));   // "مليون و200" = 1,200,000; "15 مليون و500 الف" = 15,500,000
     var c=m[9]||m[2]; var cur=c?(/(دولار|دولر|دلار|\$|usd)/.test(c)?"USD":"SYP"):null;
     var key=/(سعر|السعر|سعرو|سعرها|المطلوب|بسعر|الطلب|الثمن|بدل|💰)/.test(bef);
     if(!cur&&!key&&!m[3]) continue;
-    pr.push({v:Math.round(v),cur:cur,key:key,mu:!!m[3],unit:unitPrice,i:m.index}) }
+    pr.push({v:Math.round(v),cur:cur,key:key,mu:!!m[3],unit:unitPrice,perD:/(دونم|دنم)/.test(after+" "+(unitPrice?after2:"")+" "+bef.slice(-12)),i:m.index}) }
   var curAll=/(دولار|دولر|دلار|\$| usd)/.test(t)?"USD":(/ (ليره|ل\.?س|ل س|syp)/.test(t)?"SYP":null);
   pr.sort(function(a,b){ return a.unit-b.unit || (b.cur==="USD")-(a.cur==="USD") || (!!b.cur)-(!!a.cur) || b.key-a.key || b.mu-a.mu || a.i-b.i });
+  var pUnits=pr.filter(function(x){ return x.unit && x.v>0 }).sort(function(a,b){ return a.i-b.i }), pUnit=pUnits[pUnits.length-1];   // two unit prices: the later one corrects the first («سعر المتر 150$ … السعر 170$ المتر»)
   pr=pr.filter(function(x){ return !x.unit });
   var p0=pr.filter(function(x){ return x.v>=50 && (x.cur||x.mu||x.v>=1000) })[0];
   if(p0){ f.price=p0.v; f.currency=p0.cur||curAll||"USD";
     // no currency written and an amount no dollar price reaches (5 مليون بالشهر, 150 مليون للبيع): Syrian pounds
     if(!p0.cur && !curAll && ((f.deal==="rent" && f.price>=50000) || (f.deal!=="rent" && f.price>=10000000))) f.currency="SYP" }
+  if(f.price==null && pUnit && f.area_m2 && f.deal!=="rent"){ var tot=Math.round(pUnit.v*(pUnit.perD?f.area_m2/1000:f.area_m2));
+    if(tot>=500){ f.price=tot; f.currency=pUnit.cur||curAll||"USD"; f.priceFromUnit=true; f.priceUnit=pUnit.perD?"dunam":"m2"; f.priceUnitValue=pUnit.v } }
   // rent paid ahead: «دفع ست شهور», «دفعة 6 اشهر», «سلف سنه»
   var adv=new RegExp(" (?:دفع|دفعه|سلف|مقدم|الدفع) ?"+wn+"? ?(شهر|شهور|اشهر|سنه)"+W).exec(t)||/ (?:دفع|دفعه|سلف) (سنه) /.exec(t);
   if(f.deal==="rent" && adv){ var an=adv[2]?adv[1]:null, au=adv[2]||adv[1]; f.advance_months = au==="سنه" ? 12 : (an?num(an):1) }
@@ -10293,28 +10345,61 @@ function qfLocalRead(raw, geo, learned, home){
   govs.forEach(function(g){ gIdx[bare(g)]=g; (geo[g]||[]).forEach(function(a){ String(a).split("/").forEach(function(p){ var k=bare(p); if(k.length<3) return; (aIdx[k]=aIdx[k]||[]).push({g:g,a:a}); var ks=k.replace(/ /g,""); if(ks!==k && ks.length>=5) (aIdx[ks]=aIdx[ks]||[]).push({g:g,a:a});
         var kw=k.split(" "); if(kw.length===2&&/^(اوتوستراد|طريق)$/.test(kw[1])){ var rk=kw[1]+" "+kw[0]; (aIdx[rk]=aIdx[rk]||[]).push({g:g,a:a}) } }) }) });
   gIdx["شام"]="دمشق"; if(geo["حماة"]) gIdx["حماه"]="حماة";
-  var words=t.trim().split(" "), stripW=function(w){ return w.replace(/^(و|ف)?(بال|لل|ال|ب|ل)(?=..)/,"").replace(/^ال/,"") };
+  // other spellings of an area, as senders write them (2026-11-08): «القميرية», «الديرخبية», «المزة شرقية»
+  [["قميريه","دمشق","القيمرية"],["ديرخبيه","ريف دمشق","درخبية"],["مزه شرقيه","دمشق","مزة فيلات شرقية"],["مزه غربيه","دمشق","مزة فيلات غربية"],["ابن ساكر","دمشق","ابن عساكر"],["كروم مضايا","ريف دمشق","مضايا"],["شام جديده","دمشق","مشروع دمر"],["تنظيم شرق ميدان","دمشق","شرق الميدان"],   /* owner 2026-11-22: «تنظيم شرق الميدان» = the area «شرق الميدان» */["توسع دمر","دمشق","مشروع دمر"]].forEach(function(x){
+    if((geo[x[1]]||[]).indexOf(x[2])>-1 && !aIdx[x[0]]) aIdx[x[0]]=[{g:x[1],a:x[2]}] });
+  var words=t.trim().split(" "), stripW=function(w){ return w.replace(/^(و|ف)?(بال|لل|ال|بل(?=[^ ]{4})|ب|ل)(?=..)/,"").replace(/^ال/,"") };   // «بلميدان» = بالميدان (2026-11-08)
+  // a hashtag or a missing space glues an area to the word before/after it: split it there (2026-11-08)
+  var GH=/^(و|ف)?(ب|بال|في)?(دوار|شارع|حي|منطقه|شقه|بيت|منزل|ارض|محل|بعد|قبل|قرب|جانب|مقابل|خلف|عند|ساحه|طريق|اول|اخر|نزله|دخله|بلده|قريه|مدينه|مقسم|جامع|مشفي|مستشفي|كازيه|مول)$/,
+      GT=/^(عالشارع|علشارع|عالاوتستراد|علاوتستراد|عالطريق|علطريق|عالزفت|دخله|جانب|قرب|مقابل|حديقه|شارع|الشارع|العام|حي|حاره|[0-9]+)$/;
+  var isKey=function(p){ var k=stripW(p); return k.length>=4 && aIdx[k] ? k : null };
+  words=[].concat.apply([],words.map(function(w){ if(w.length<7 || aIdx[w.replace(/^ال/,"")] || isKey(w)) return [w];
+    for(var j=3;j<=w.length-4;j++){ var a=w.slice(0,j), b=w.slice(j);
+      if(GH.test(a)){ if(isKey(b)) return [a,b];
+        for(var q=4;q<=b.length-1;q++){ var b1=b.slice(0,q), b2=b.slice(q); if(isKey(b1)&&GT.test(b2)) return [a,b1,b2] } }
+      if(isKey(a)&&GT.test(b)) return [a,b] }
+    if(/^(بعد|قبل|قرب|جانب|بجانب|مقابل|خلف|عند)(مقسم|دوار|جامع|مشفي|مستشفي|ساحه|كازيه|مدرسه|مول|فندق)/.test(w)){ var m=/^(بعد|قبل|قرب|جانب|بجانب|مقابل|خلف|عند)(.+)$/.exec(w); return [m[1],m[2]] }
+    return [w] }));
   var gHits={}, aHits=[];
   for(var i=0;i<words.length;i++){
     for(var n=4;n>=1;n--){ if(i+n>words.length) continue;
       var seg=words.slice(i,i+n), k1=seg.map(function(w,j){ return j===0?stripW(w):w.replace(/^ال/,"") }).join(" "), k0=seg.map(function(w){ return w.replace(/^ال/,"") }).join(" ");
       var prev=words.slice(Math.max(0,i-2),i).join(" ");
-      [k0,k1].forEach(function(k){ if(gIdx[k]&&!(gIdx[k]==="دمشق"&&/ريف$/.test(prev))) gHits[gIdx[k]]=Math.min(gHits[gIdx[k]]||1e9,i);
+      // «إطلالة باتجاه دمشق», «تبعد عن حمص 10 كم», «طريق حلب»: a view or a distance, not where the property is (2026-11-22)
+      var govAway=/(^| )(و|ب|بال|ال)?(باتجاه|اتجاه|نحو|اطلاله|مطل|مطله|يطل|تطل|اطلالته|اطلالتها|طريق|اوتستراد|اوتوستراد)( علي| عن| مدينه| علي مدينه)?$/.test(prev) || /(^| )(طريق|اوتستراد|اوتوستراد) [^ ]+$/.test(prev);
+      [k0,k1].forEach(function(k){ if(gIdx[k]&&!govAway&&!(gIdx[k]==="دمشق"&&/ريف$/.test(prev))) gHits[gIdx[k]]=Math.min(gHits[gIdx[k]]||1e9,i);
         if(k==="ريف دمشق"||k==="ريف شام") gHits["ريف دمشق"]=Math.min(gHits["ريف دمشق"]||1e9,i) });
       var k=aIdx[k0]?k0:(aIdx[k1]?k1:(n>1&&aIdx[k0.replace(/ /g,"")]?k0.replace(/ /g,""):(n>1&&aIdx[k1.replace(/ /g,"")]?k1.replace(/ /g,""):null))); if(!k) continue;
       var prev3=words.slice(Math.max(0,i-3),i).join(" ");
-      var way=/(^| )(مكرو|ميكرو|خط|سرفيس|باص|كراج|قرب|قريب|قريبه|مقابل|تجاه|جانب|بجانب|خلف|بعد|جنب|عند|اوتستراد|دوار|جامع|مدرسه|مشفى|مستشفى|كنيسه|حديقه|فرن|صيدليه|ساحه|مفرق|موقف|كازيه|مول|فندق|مطعم|الى|نحو|باتجاه|مقسم)( من)?( [^ ]+)?$/.test(prev3) && !/(في|بحي|حي|منطقه|بمنطقه)$/.test(prev);
-      aHits.push({k:k,i:i,n:n,len:k.length,way:way,c:aIdx[k]}); }
+      var way=/(^| )(مكرو|ميكرو|خط|سرفيس|باص|كراج|قرب|قريب|قريبه|مقابل|تجاه|جانب|بجانب|خلف|بعد|جنب|عند|اوتستراد|دوار|جامع|مدرسه|مشفي|مستشفي|كنيسه|حديقه|فرن|صيدليه|ساحه|مفرق|موقف|كازيه|مول|فندق|مطعم|الى|الي|نحو|باتجاه|مقسم|اطلاله|مطل|مطله|يطل|تطل)( من)?( [^ ]+)?$/.test(prev3) && !/(^| )(في|بحي|حي|منطقه|بمنطقه)$/.test(prev);
+      if(words[i-1]==="دوار") way=false;   // «قرب دوار البيطرة»: a roundabout is named after its neighbourhood (2026-11-08)
+      aHits.push({k:k,i:i,n:n,len:k.length,way:way,c:aIdx[k],afterGov:!!gIdx[stripW(words[i-1]||"")]}); }
   }
   var gNamed=Object.keys(gHits).sort(function(a,b){ return gHits[a]-gHits[b] });
   if(/ ريف (حماه|حلب|ادلب|حمص|اللاذقيه|طرطوس|درعا) /.test(t) && gNamed.indexOf("ريف دمشق")>-1 && !/ ريف (دمشق|الشام) /.test(t)) gNamed.splice(gNamed.indexOf("ريف دمشق"),1);
-  var BLOCK={}; "كفر حفيان خريطه نموذجيه قسمين عرقوب بابان حارات سعر كسوه سهم قبو جامع شمسيه رئيسي جديده دوار حمام مشروع مزرعه فيلات مدرسه كبيره نادي جسر مزارع حاره جيد داخليه اسكان كورنيش صور طوال فسحه دور حره ابين ذهبيه وادي كروم ملعب جميله شهداء رشيد جنينه عفش عاليه صغيره عريض شماليه شجره سيده ناعم مطله عمر عليه عيون صنع باب حلوه معامل عباره كليه عماره معزوله ساحه سوق طريق شارع حديقه بساتين ابراج ادخار مضافه زراعه مدينه قريه بلده ضيعه مركز منطقه حي سكن جبل بحر نهر سهل تل".split(" ").forEach(function(w){ BLOCK[w]=1 });
+  var BLOCK={}; "قصر وحده طيبه ورود كفر حفيان خريطه نموذجيه قسمين عرقوب بابان حارات سعر كسوه سهم قبو جامع شمسيه رئيسي جديده دوار حمام مشروع مزرعه فيلات مدرسه كبيره نادي جسر مزارع حاره جيد داخليه اسكان كورنيش صور طوال فسحه دور حره ابين ذهبيه وادي كروم ملعب جميله شهداء رشيد جنينه عفش عاليه صغيره عريض شماليه شجره سيده ناعم مطله عمر عليه عيون صنع باب حلوه معامل عباره كليه عماره معزوله ساحه سوق طريق شارع حديقه بساتين ابراج ادخار مضافه زراعه مدينه قريه بلده ضيعه مركز منطقه حي سكن جبل بحر نهر سهل تل".split(" ").forEach(function(w){ BLOCK[w]=1 });
   var NEVER={"علي":1,"في":1,"من":1,"الي":1,"مع":1,"عن":1};   // «على» normalises to «علي»: a preposition, never a place
-  var IN=/(في|بحي|حي|منطقه|بمنطقه|المنطقه|الموقع|العنوان|بلده|قريه|ضاحيه|بضاحيه|ببلده|بقريه|مدينه|بمدينه)$/;
+  var IN=/(^| )(في|بحي|حي|منطقه|بمنطقه|المنطقه|الموقع|العنوان|العقاريه|بلده|قريه|ضاحيه|بضاحيه|ببلده|بقريه|مدينه|بمدينه)$/;
   aHits=aHits.filter(function(h){ return !NEVER[h.k] });
+  // «الكهرباء من شركة حوش بلاس», «مطابخ مؤسسة الميدان»: a company named after a place says nothing about where (2026-11-22)
+  aHits=aHits.filter(function(h){ return !/^(و)?(ب|ل|من)?(شركه|شركات|مؤسسه|مؤسسات|ماركه|براند|منتجات|معامل|مجموعه)$/.test(words[h.i-1]||"") });
+  // what the property looks out over («إطلالة باتجاه دمشق والمطار») is not where it is (2026-11-22)
+  var distHits=[];
+  aHits=aHits.filter(function(h){ var pv=words.slice(Math.max(0,h.i-5),h.i).join(" ");
+    if(h.learned) return true;
+    // the view word, then only «على / باتجاه» and words like «رائعة», then at most one more word («باتجاه دمشق والمطار»);
+    // «إطلالة على شارعين للبيع (البرناوي)» is not a view of البرناوي
+    if(/(^| )(و|ب|بال|ال)?(اطلاله|اطلالته|اطلالتها|اطلالات|مطل|مطله|يطل|تطل|باتجاه|نحو)(?: (?:علي|عل|ع|باتجاه|نحو|رائعه|جميله|مميزه|مفتوحه|كامله|ساحره|خلابه|بانوراميه|مباشره|بحريه|جبليه|خضراء))*(?: [^ ]+)?$/.test(pv)) return false;
+    // «تبعد 1.5 كم عن طريق صافيتا»: a distance from a place, not the place — but the governorate is that place's (2026-11-22)
+    if(/(تبعد|يبعد|بعد|بعيد|بعيده|مسافه)( [^ ]+){0,3} (عن|من)( طريق| مدينه| مركز)?$/.test(pv)){ distHits.push(h); return false }
+    return true });
+  // a name of two words or more must stand on one line in the message: «…خاصة بالقصر).⏎⏎الدور الأرضي» is not «قصر الدور» (2026-11-22)
+  var latL=N(lat).replace(/[ً-ْـ]/g,""), escR=function(s){ return s.replace(/[.*+?^${}()|[\]\\\/]/g,"\\$&") };
+  aHits=aHits.filter(function(h){ if(h.learned||h.n<2||h.k.indexOf(" ")<0) return true;
+    try { return new RegExp(h.k.split(" ").map(escR).join("[ \\t_‌،,\\-–]*(?:ال)?")).test(latL) } catch(e){ return true } });
   // «كسوة» is the finishing; «الكسوة» is also a town (ريف دمشق). It is the town only with «ال» and nothing describing a finish
   // after it: «بالكسوة», «في الكسوة», «الكسوة ريف دمشق» — never «كسوة ممتازة», «بكسوة جيدة», «الكسوة: سوبر ديلوكس», «كسوة 85%»
-  var FIN=/^(ممتاز|ممتازه|جيد|جيده|جديد|جديده|سوبر|ديلوكس|لوكس|قديم|قديمه|عادي|عاديه|نظيف|نظيفه|حلوه|ملكي|ملكيه|حديث|حديثه|خارجي|خارجيه|داخلي|داخليه|كامل|كامله|فخم|فخمه|راقي|راقيه|مميز|مميزه|بحاجه|نص|نصف|متوسط|متوسطه|عاليه|ممتاذه|علي|عل|ع|عالعظم|عالعضم|مكسي|مكسيه|مكسوه|او|vip|\d+%)$/;   // «الكسوة: على العظم أو مكسي» is the finishing
+  var FIN=/^(ممتاز|ممتازه|جيد|جيده|جديد|جديده|سوبر|ديلوكس|لوكس|قديم|قديمه|عادي|عاديه|نظيف|نظيفه|نضيف|نضيفه|منيح|منيحه|جاهز|جاهزه|مرتب|مرتبه|حلو|حلوه|ملكي|ملكيه|حديث|حديثه|خارجي|خارجيه|داخلي|داخليه|كامل|كامله|فخم|فخمه|راقي|راقيه|مميز|مميزه|بحاجه|نص|نصف|متوسط|متوسطه|عاليه|ممتاذه|علي|عل|ع|عالعظم|عالعضم|مكسي|مكسيه|مكسوه|او|vip|\d+%?)$/;   // «الكسوة: على العظم أو مكسي» is the finishing
   aHits=aHits.filter(function(h){ if(h.k!=="كسوه") return true;
     var w=words[h.i]||"", nx=(words[h.i+1]||"").replace(/^:/,""), nx2=words[h.i+2]||"";
     if(!/^(و)?(ب|في|ف)?ال?كسوه$/.test(w) || !/الكسوه$/.test(w)) return false;   // «كسوة» / «بكسوة» without «ال»: the finishing
@@ -10322,7 +10407,7 @@ function qfLocalRead(raw, geo, learned, home){
     h.kisTown=true; return true });
   // places the bot learned from earlier messages ("جامع المصطفى" → الصناعة): each part of a learned phrase, without its
   // «قرب / جانب / مقابل…», is looked for as whole words; a part made only of everyday words is ignored
-  if(learned.length){ var GEN=/^(اوتستراد|اوتوستراد|شارع|طريق|عام|رئيسي|كورنيش|جسر|دوار|ساحه|جامع|مسجد|مشفى|مستشفى|مدرسه|حديقه|سوق|مطعم|فرن|حي|منطقه|اول|اخر|الشارع|غربي|شرقي|شمالي|جنوبي|قديم|جديد|جديده|قديمه|نزله|دخله|حاره)$/;
+  if(learned.length){ var GEN=/^(اوتستراد|اوتوستراد|شارع|طريق|عام|رئيسي|كورنيش|جسر|دوار|ساحه|جامع|مسجد|مشفي|مستشفي|مدرسه|حديقه|سوق|مطعم|فرن|حي|منطقه|اول|اخر|الشارع|غربي|شرقي|شمالي|جنوبي|قديم|جديد|جديده|قديمه|نزله|دخله|حاره)$/;
     var bw=" "+words.map(function(w){ return w.replace(/^ال/,"") }).join(" ")+" ";
     var lc={};   // core → its area; a core learned for two different areas is dropped
     learned.forEach(function(L){ var g=L[1], a=L[2]; if(!geo[g]||(geo[g]||[]).indexOf(a)<0) return;
@@ -10339,15 +10424,15 @@ function qfLocalRead(raw, geo, learned, home){
         aHits.push({k:core,i:wi,n:cw.length,len:core.length,way:false,c:[{g:g,a:a}],learned:true}) }) }
   // «في / بـ» before a name = the property is in it (owner's rule, every area); «على» before a road = it is on that road
   aHits.forEach(function(h){ var pw=words[h.i-1]||"";
-    h.one=h.n===1; h.marked=!!h.kisTown || IN.test(words.slice(Math.max(0,h.i-1),h.i).join(" ")) || pw==="ب" || (!BLOCK[h.k] && /^(و)?(ب|بال|في)/.test(words[h.i]) && words[h.i].length>h.k.length+1);
+    h.one=h.n===1; var mk=!!h.kisTown || IN.test(words.slice(Math.max(0,h.i-1),h.i).join(" ")) || pw==="ب" || (!BLOCK[h.k] && /^(و)?(ب|بال|في)/.test(words[h.i]) && words[h.i].length>h.k.length+1); h.marked=mk||!!h.afterGov; h.agOnly=!mk&&!!h.afterGov;
     h.road=/^(طريق|شارع|اوتستراد|اوتوستراد|كورنيش|جسر|دوار) /.test(h.k);
     if(h.road && /^(علي|عل|ع|عالـ?)$/.test(pw)){ h.road=false; h.way=false; h.marked=true }
     if(h.road && h.marked && !h.one) h.road=false; });
   // a real neighbourhood beats a road named like an area («طريق المطار»), a landmark is a last resort, «في / حي / منطقة» before a name counts
-  var score=function(h){ return (h.way?-30:0) + (h.road?-45:0) + (h.marked?15:0) + (h.learned?12:0) + h.n*10 + Math.min(h.len,20) - h.i/50 };
+  var score=function(h){ return (h.way?-30:0) + (h.road?-45:0) + (h.marked?(h.agOnly?6:15):0) + (h.learned?-25:0) + h.n*10 + Math.min(h.len,20) - h.i/50 };
   aHits.sort(function(a,b){ return score(b)-score(a) });
   var near=function(g){ return g==="دمشق"?["دمشق","ريف دمشق"]:g==="ريف دمشق"?["ريف دمشق","دمشق"]:[g] };   // people write «دمشق» for places of its countryside
-  var pick=null;
+  var pick=null, covered=function(h){ return aHits.some(function(o){ return o!==h && !o.learned && o.n>1 && o.i<=h.i && h.i<o.i+o.n }) };
   for(var j=0;j<aHits.length&&!pick;j++){ var h=aHits[j];
     if(h.one && BLOCK[h.k] && !h.marked) continue;   // an area named like an everyday word ("مدرسة", "الكبيرة") counts only after «في / حي / منطقة»
     if(!h.one && !h.learned && !h.marked && h.k.split(" ").every(function(w){ return /^(مركز|وسط|مدينه|بلده|قريه|ضيعه|منطقه|حي)$/.test(w) })) continue;   // same for a name that only says «the centre / the town»: «8 كم عن مركز مدينة حمص» is not the area «مركز المدينة» (2026-11-04)
@@ -10360,17 +10445,19 @@ function qfLocalRead(raw, geo, learned, home){
     else if(!gNamed.length && h.c.length===1 && (!h.one || h.marked || (h.len>=5&&!BLOCK[h.k]))) pick=h.c[0];
     // a name found in several governorates and no governorate written («الميدان»): the one where most of Balkoun's
     // listings are, when the name is clearly the place (after «في / بـ / حي», or several words)
-    else if(!gNamed.length && h.c.length>1 && (!h.one || h.marked) && !BLOCK[h.k]){
-      var GP=["دمشق","ريف دمشق","حمص","حلب","حماة","اللاذقية","طرطوس","إدلب","درعا","السويداء","القنيطرة","دير الزور","الرقة","الحسكة"];
+    else if(!gNamed.length && h.c.length>1 && (!h.one || h.marked || (h.len>=5 && !h.way && !covered(h) && h.c.some(function(c){ return c.g==="دمشق"||c.g==="ريف دمشق" }))) && !BLOCK[h.k]){   // «تنظيم شرق الميدان»: a clear one-word Damascus name too, unless it is part of a longer name («كورنيش الميدان») (2026-11-08)
+      var GP=["دمشق","ريف دمشق","حلب","حمص","حماة","اللاذقية","طرطوس","إدلب","درعا","السويداء","القنيطرة","دير الزور","الرقة","الحسكة"];
       var byP=h.c.slice().sort(function(x,y){ var a=GP.indexOf(x.g), b=GP.indexOf(y.g); return (a<0?99:a)-(b<0?99:b) });
       pick=byP[0]; f.placeGuess=true }
   }
   if(pick){ f.governorate=pick.g; f.area=pick.a }
   else if(gNamed.length){ f.governorate=gNamed[0];
   }
+  else if(distHits.length){ var dg={}; distHits.forEach(function(h){ h.c.forEach(function(c){ dg[c.g]=1 }) }); var dgs=Object.keys(dg); if(dgs.length===1) f.governorate=dgs[0] }   // «تبعد 4 كم عن سلمية» → حماة, no area
   // nearest landmark / street, as the sender wrote it («عند جسر الميدان - خلف فلافل الجسر»): up to two short pieces
   var LMK=/^(?:و ?)?(عند|خلف|قرب|بالقرب من|قريب من|قريبه من|جانب|بجانب|مقابل|امام|شارع|بشارع|دخله|نزله|طلعه|بعد|علي (?:طريق|اوتستراد|اوتوستراد|الشارع|شارع|كورنيش|جسر|دوار|الحزام)|عل (?:طريق|اوتستراد|اوتوستراد|الشارع|شارع)|مفرق|تقاطع|دوار|ساحه) /;
-  var lm=[], LJUNK=/(خدمات|الخدمات|المدارس|مدارس|كل شي|جميع|المواصلات|السوق والمدارس|التواصل|الاتصال|درج|سكان)/;
+  // «شارع أمامي وشارع خلفي», «باربكيو قريب من المطبخ»: the property's own parts, not a landmark (2026-11-22)
+  var lm=[], LJUNK=/(خدمات|الخدمات|المدارس|مدارس|كل شي|جميع|المواصلات|السوق والمدارس|التواصل|الاتصال|درج|سكان|امامي|خلفي|شارعين|المطبخ|مطبخ|باربكيو|الباربكيو|المسبح|مسبح|الحمام|الصالون|السطح|الغرف|الغرفه|المجلس|الجلسه|التراس|الكراج)/;
   String(lat).split(/\n|[،,؛]| - | – /).forEach(function(seg){
     if(lm.length>=2) return;
     var clean=seg.replace(/[\u{1F000}-\u{1FFFF}☀-➿️#*•▪]/gu," ").replace(/\s+/g," ").trim().replace(/[.:]+$/,"").trim();
@@ -10387,6 +10474,12 @@ function qfLocalRead(raw, geo, learned, home){
       if(out.length>=2) lm.push(out.join(" ").replace(/[.:،,]+$/,"")); break } });
   lm=lm.filter(function(v,i){ return lm.indexOf(v)===i });
   if(lm.length) f.landmark=lm.join(" - ").slice(0,90);
+  // a «منزل» with a garden or its own entrance in the «فيلات» neighbourhoods is a villa (2026-11-08)
+  if(f.property_type==="house" && /فيلات/.test(f.area||"") && / (حديقه|حديقة|سويت|مدخل مستقل) /.test(t)) f.property_type="villa";
+  // no deal word: a dollar price no sale reaches (under 5,000 $), or rent paid ahead («سلف 6 أشهر») = rent (2026-11-22)
+  if(!f.deal && ((f.price!=null && f.currency==="USD" && f.price<5000 && !f.priceFromUnit && !land) || / (سلف|سلفه|مقدم) (\d+ )?(شهر|شهور|اشهر|سنه) /.test(t))) f.deal="rent";
+  if(!f.deal && f.price!=null && !/ (ايجار|اجار|للايجار|للاجار|استئجار|استثمار) /.test(t)) f.deal="sale";   // 2026-11-08
+  if(!f.deal && f.tabu && f.tabu!=="none" && !/ (ايجار|اجار|للايجار|للاجار|استئجار|استثمار) /.test(t)) f.deal="sale";   // a deed is only named when selling (2026-11-22)
   // what the reader could not find (same keys as the server read)
   var miss=[]; ["deal","property_type","governorate","price","area_m2"].forEach(function(k){ if(f[k]==null && !(k==="area_m2"&&f.deal==="rent")) miss.push(k) });   // a rental needs no size
   if(f.deal==="sale"&&!f.tabu&&!land) miss.push("tabu");
