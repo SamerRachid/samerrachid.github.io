@@ -78,6 +78,7 @@ function qfLocalRead(raw, geo, learned, home){
   var lineSz={}; String(lat).split(/\n/).forEach(function(ln){ var q=/^[^0-9؀-ۿ]*(\d+(?:\.\d+)?) ?(?:م2|م²|م|متر|مترا|متراً|امتار)(?![؀-ۿ])/.exec(N(ln).replace(/\s+/g," ").trim()); if(q) lineSz[parseFloat(q[1])]=1 });
   while((m=szRe.exec(szT))){ var u=m[0].replace(m[1],"").trim(), v=parseFloat(m[1]), v0=v; if(m[2]) v*=1000; if(m[3]) v+=0.5; if(/(دونم|دنم)/.test(u)) v*=1000; else if(/هكتار/.test(u)) v*=10000;
     var before=szT.slice(Math.max(0,m.index-16),m.index), side=/(واجه|بعد|تراس|حديق|برند|شرف|عرض|طول|عمق|ارتفاع|شارع|سطح|قبو|مستودع|محل|مدخل|الطابق)/.test(before);
+    if(side && !/(?:دونم|دنم|هكتار)/.test(u) && v0>=40 && !/(واجه|بعد|تراس|حديق|برند|شرف|عرض|طول|عمق|ارتفاع|سطح|قبو|مستودع|محل|مدخل|الطابق)/.test(before)) side=false;   // «شارع الروضة 90 متر»: no street is 90 m wide (2026-11-22)
     if(side && (lineSz[v0] || /شارع (ال)?(عام|رئيسي|فرعي|نافذ|واسع|حيوي|تجاري) ?$/.test(before))) side=false;   // «على شارع عام 70 متر»: the street is described, the 70 m is the flat
     szAll.push({v:Math.floor(v+1e-9),i:m.index,key:/(مساح|مسطح)/.test(before),side:side,du:/(دونم|دنم|هكتار)/.test(u),build:/(بناء|البناء|مبني|المبني|البيت|الفيلا|المنزل)/.test(before),land:/(ارض|الارض|اجمالي|الاجماليه|العقار)/.test(before)}) }
   var szK=szT.match(/(?:مساحه?|مسطح)(?:ها|ه|تها|تو)? ?(?:[:؛(]| حوالي| تقريبا| بحدود| الاجماليه| الطابق)? ?(\d+(?:\.\d+)?)/);
