@@ -222,7 +222,7 @@ function qfLocalRead(raw, geo, learned, home){
     for(var j=3;j<=w.length-4;j++){ var a=w.slice(0,j), b=w.slice(j);
       if(GH.test(a)){ if(isKey(b)) return [a,b];
         for(var q=4;q<=b.length-1;q++){ var b1=b.slice(0,q), b2=b.slice(q); if(isKey(b1)&&GT.test(b2)) return [a,b1,b2] } }
-      if(isKey(a)&&GT.test(b)) return [a,b] }
+      if(isKey(a)&&(GT.test(b)||/^ال[ء-ي]{3,}\d*$/.test(b))) return [a,b] }   // «الصناعةالجزيرة4»: an area glued to the next «ال…» word (2026-11-22)
     if(/^(بعد|قبل|قرب|جانب|بجانب|مقابل|خلف|عند)(مقسم|دوار|جامع|مشفي|مستشفي|ساحه|كازيه|مدرسه|مول|فندق)/.test(w)){ var m=/^(بعد|قبل|قرب|جانب|بجانب|مقابل|خلف|عند)(.+)$/.exec(w); return [m[1],m[2]] }
     return [w] }));
   var gHits={}, aHits=[];
@@ -255,6 +255,8 @@ function qfLocalRead(raw, geo, learned, home){
     // the view word, then only «على / باتجاه» and words like «رائعة», then at most one more word («باتجاه دمشق والمطار»);
     // «إطلالة على شارعين للبيع (البرناوي)» is not a view of البرناوي
     if(/(^| )(و|ب|بال|ال)?(اطلاله|اطلالته|اطلالتها|اطلالات|مطل|مطله|يطل|تطل|باتجاه|نحو)(?: (?:علي|عل|ع|باتجاه|نحو|رائعه|جميله|مميزه|مفتوحه|كامله|ساحره|خلابه|بانوراميه|مباشره|بحريه|جبليه|خضراء))*(?: [^ ]+)?$/.test(pv)) return false;
+    // «اتجاه قبلي مفتوح عشارع الزاهرة»: the street it faces, not where it is (2026-11-22)
+    if(/(^| )(مفتوح|مفتوحه|مكشوف|مكشوفه)( (علي|عل|ع))? ?(عشارع|علشارع|عالشارع|شارع|الشارع)$/.test(pv)) return false;
     // «تبعد 1.5 كم عن طريق صافيتا»: a distance from a place, not the place — but the governorate is that place's (2026-11-22)
     if(/(تبعد|يبعد|بعد|بعيد|بعيده|مسافه)( [^ ]+){0,3} (عن|من)( طريق| مدينه| مركز)?$/.test(pv)){ distHits.push(h); return false }
     return true });
@@ -338,6 +340,7 @@ function qfLocalRead(raw, geo, learned, home){
       var out=[]; for(var y=x;y<ow.length&&out.length<6;y++){ if(/\d/.test(ow[y])||/^(طابق|ط|الطابق|غرف|غرفه|مساحه|المساحه|السعر|سعر|للبيع|للايجار|للاجار|بسعر|طابو|كسوه|اكساء|بناء|البناء|بنايه|قبو|غرفه|غرفتين|منزل|شقه|مفروش|مفروشه|مخدم|مخدمه|في|مع|يوجد|فيه|فيها)$/.test(nw[y])) break; out.push(ow[y]) }
       if(out.length>=2) lm.push(out.join(" ").replace(/[.:،,]+$/,"")); break } });
   lm=lm.filter(function(v,i){ return lm.indexOf(v)===i });
+  lm=lm.filter(function(v){ return !/^(و ?)?(علي|عل|ع)? ?(ال)?شارع (ال)?(عام|رئيسي)$/.test(N(v).replace(/[^؀-ۿ ]/g,"").replace(/\s+/g," ").trim()) });   // «عل شارع العام» names no place (2026-11-22)
   if(lm.length) f.landmark=lm.join(" - ").slice(0,90);
   // a «منزل» with a garden or its own entrance in the «فيلات» neighbourhoods is a villa (2026-11-08)
   if(f.property_type==="house" && /فيلات/.test(f.area||"") && / (حديقه|حديقة|سويت|مدخل مستقل) /.test(t)) f.property_type="villa";

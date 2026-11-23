@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-SYaYdwfKmSJ31alE6GObS62fYcx+jAcaFTycN2oFJkU=' 'sha256-xEpj0WU2Q3/NtLz8XoFDOfX+YXOEW5l0s5UieA0xt1s=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
+<!DOCTYPE html><html lang="ar" dir="rtl"><head><meta charset="UTF-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GxZ+JNRZtA2BJBb5IWbM+RqmNQPnHanU4M4/X1DAe50=' 'sha256-SYaYdwfKmSJ31alE6GObS62fYcx+jAcaFTycN2oFJkU=' 'sha256-t4OB20yx6gTLkimePtWthJtNVMolrgJmKRWakOZevFo=' https://unpkg.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' blob: data: https:; connect-src 'self' blob: data: https://coajrqynjrptujmzjjdh.supabase.co wss://coajrqynjrptujmzjjdh.supabase.co https://get.geojs.io https://nominatim.openstreetmap.org; frame-src 'self' https://balkoun.com https://www.youtube.com https://youtube.com https://www.youtube-nocookie.com; worker-src 'self' blob:; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'"><script>document.documentElement.className+=" js"+(/BalkounApp\//.test(navigator.userAgent||"")?" inapp":"");/* first thing in the page, ES5 only: a script failure anywhere below is reported once, so a phone we cannot reproduce on tells us why the app never drew */
 (function(){ var sent=false; function rep(m,src,l,c){ if(sent) return; sent=true; try{ var x=new XMLHttpRequest(); x.open("POST","https://coajrqynjrptujmzjjdh.supabase.co/rest/v1/rpc/bk_client_error",true); x.setRequestHeader("Content-Type","application/json"); x.setRequestHeader("apikey","sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.setRequestHeader("Authorization","Bearer sb_publishable_RmwJTwdLt5P7eh4NtXhw3w_17WPpQ1t"); x.send(JSON.stringify({p_msg:String(m||"").slice(0,600),p_url:location.href.slice(0,300),p_src:String(src||"").slice(0,300),p_line:l||null,p_col:c||null,p_ua:navigator.userAgent.slice(0,300)})) }catch(e){} }
   window.addEventListener("error",function(e){ rep(e&&e.message, e&&e.filename, e&&e.lineno, e&&e.colno) });
   window.addEventListener("unhandledrejection",function(e){ var r=e&&e.reason; rep("unhandled: "+(r&&r.message||r), null, null, null) });
@@ -10357,7 +10357,7 @@ function qfLocalRead(raw, geo, learned, home){
     for(var j=3;j<=w.length-4;j++){ var a=w.slice(0,j), b=w.slice(j);
       if(GH.test(a)){ if(isKey(b)) return [a,b];
         for(var q=4;q<=b.length-1;q++){ var b1=b.slice(0,q), b2=b.slice(q); if(isKey(b1)&&GT.test(b2)) return [a,b1,b2] } }
-      if(isKey(a)&&GT.test(b)) return [a,b] }
+      if(isKey(a)&&(GT.test(b)||/^ال[ء-ي]{3,}\d*$/.test(b))) return [a,b] }   // «الصناعةالجزيرة4»: an area glued to the next «ال…» word (2026-11-22)
     if(/^(بعد|قبل|قرب|جانب|بجانب|مقابل|خلف|عند)(مقسم|دوار|جامع|مشفي|مستشفي|ساحه|كازيه|مدرسه|مول|فندق)/.test(w)){ var m=/^(بعد|قبل|قرب|جانب|بجانب|مقابل|خلف|عند)(.+)$/.exec(w); return [m[1],m[2]] }
     return [w] }));
   var gHits={}, aHits=[];
@@ -10390,6 +10390,8 @@ function qfLocalRead(raw, geo, learned, home){
     // the view word, then only «على / باتجاه» and words like «رائعة», then at most one more word («باتجاه دمشق والمطار»);
     // «إطلالة على شارعين للبيع (البرناوي)» is not a view of البرناوي
     if(/(^| )(و|ب|بال|ال)?(اطلاله|اطلالته|اطلالتها|اطلالات|مطل|مطله|يطل|تطل|باتجاه|نحو)(?: (?:علي|عل|ع|باتجاه|نحو|رائعه|جميله|مميزه|مفتوحه|كامله|ساحره|خلابه|بانوراميه|مباشره|بحريه|جبليه|خضراء))*(?: [^ ]+)?$/.test(pv)) return false;
+    // «اتجاه قبلي مفتوح عشارع الزاهرة»: the street it faces, not where it is (2026-11-22)
+    if(/(^| )(مفتوح|مفتوحه|مكشوف|مكشوفه)( (علي|عل|ع))? ?(عشارع|علشارع|عالشارع|شارع|الشارع)$/.test(pv)) return false;
     // «تبعد 1.5 كم عن طريق صافيتا»: a distance from a place, not the place — but the governorate is that place's (2026-11-22)
     if(/(تبعد|يبعد|بعد|بعيد|بعيده|مسافه)( [^ ]+){0,3} (عن|من)( طريق| مدينه| مركز)?$/.test(pv)){ distHits.push(h); return false }
     return true });
@@ -10473,6 +10475,7 @@ function qfLocalRead(raw, geo, learned, home){
       var out=[]; for(var y=x;y<ow.length&&out.length<6;y++){ if(/\d/.test(ow[y])||/^(طابق|ط|الطابق|غرف|غرفه|مساحه|المساحه|السعر|سعر|للبيع|للايجار|للاجار|بسعر|طابو|كسوه|اكساء|بناء|البناء|بنايه|قبو|غرفه|غرفتين|منزل|شقه|مفروش|مفروشه|مخدم|مخدمه|في|مع|يوجد|فيه|فيها)$/.test(nw[y])) break; out.push(ow[y]) }
       if(out.length>=2) lm.push(out.join(" ").replace(/[.:،,]+$/,"")); break } });
   lm=lm.filter(function(v,i){ return lm.indexOf(v)===i });
+  lm=lm.filter(function(v){ return !/^(و ?)?(علي|عل|ع)? ?(ال)?شارع (ال)?(عام|رئيسي)$/.test(N(v).replace(/[^؀-ۿ ]/g,"").replace(/\s+/g," ").trim()) });   // «عل شارع العام» names no place (2026-11-22)
   if(lm.length) f.landmark=lm.join(" - ").slice(0,90);
   // a «منزل» with a garden or its own entrance in the «فيلات» neighbourhoods is a villa (2026-11-08)
   if(f.property_type==="house" && /فيلات/.test(f.area||"") && / (حديقه|حديقة|سويت|مدخل مستقل) /.test(t)) f.property_type="villa";
