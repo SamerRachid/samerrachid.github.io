@@ -249,6 +249,9 @@ function qfLocalRead(raw, geo, learned, home){
   aHits=aHits.filter(function(h){ return !NEVER[h.k] });
   // «الكهرباء من شركة حوش بلاس», «مطابخ مؤسسة الميدان»: a company named after a place says nothing about where (2026-11-22)
   aHits=aHits.filter(function(h){ return !/^(و)?(ب|ل|من)?(شركه|شركات|مؤسسه|مؤسسات|ماركه|براند|منتجات|معامل|مجموعه)$/.test(words[h.i-1]||"") });
+  // «مقابل جامع أبو أيوب الأنصاري»: a word deep inside a mosque's name is a person, not the area — dropped only when another place is named (2026-11-23)
+  (function(){ var latS=N(lat).replace(/[ً-ْـ]/g,"").replace(/[ 	]+/g," "), inName=function(h){ if(h.learned) return false; for(var b=1;b<=3;b++){ var w0=stripW(words[h.i-b-1]||""); if(/^و?(جامع|مسجد|كنيسه|مقام|ضريح|مدرسه|مشفي|مستشفي)$/.test(w0)){ var mid=words.slice(h.i-b,h.i); if(latS.indexOf(words.slice(h.i-b-1,h.i+1).join(" "))<0) return false; return mid.length>=1 && !mid.some(function(w){ return /^(في|ب|بال|من|عند|قرب|جانب|مقابل|خلف|حي|منطقه)$/.test(w) }) } } return false };
+    var keep=aHits.filter(function(h){ return !inName(h) }); if(keep.length) aHits=keep })();
   // what the property looks out over («إطلالة باتجاه دمشق والمطار») is not where it is (2026-11-22)
   var distHits=[];
   aHits=aHits.filter(function(h){ var pv=words.slice(Math.max(0,h.i-5),h.i).join(" ");
@@ -338,7 +341,7 @@ function qfLocalRead(raw, geo, learned, home){
     var ow=clean.split(" "), nw=ow.map(function(w){ return N(w).replace(/[^؀-ۿ]/g,"") });
     for(var x=0;x<nw.length;x++){ var two=nw[x]+" "+(nw[x+1]||"");
       if(!LMK.test(two+" ") && !LMK.test(nw[x]+" ")) continue;
-      var out=[]; for(var y=x;y<ow.length&&out.length<6;y++){ if(/\d/.test(ow[y])||/^(طابق|ط|الطابق|غرف|غرفه|مساحه|المساحه|السعر|سعر|للبيع|للايجار|للاجار|بسعر|طابو|كسوه|اكساء|بناء|البناء|بنايه|قبو|غرفه|غرفتين|منزل|شقه|مفروش|مفروشه|مخدم|مخدمه|في|مع|يوجد|فيه|فيها)$/.test(nw[y])) break; out.push(ow[y]) }
+      var out=[]; for(var y=x;y<ow.length&&out.length<8;y++){ if(/\d/.test(ow[y])||(y>x&&/[()+]/.test(ow[y]))||/^(بيت|مؤلف|مؤلفه|يضمن|يمنح|يمنحه|مما|التي|الذي|كانت|طابق|ط|الطابق|غرف|غرفه|مساحه|المساحه|السعر|سعر|للبيع|للايجار|للاجار|بسعر|طابو|كسوه|اكساء|بناء|البناء|بنايه|قبو|غرفه|غرفتين|منزل|شقه|مفروش|مفروشه|مخدم|مخدمه|في|مع|يوجد|فيه|فيها)$/.test(nw[y])) break; out.push(ow[y]) }
       if(out.length>=2) lm.push(out.join(" ").replace(/[.:،,]+$/,"")); break } });
   lm=lm.filter(function(v,i){ return lm.indexOf(v)===i });
   lm=lm.filter(function(v){ return !/^(و ?)?(علي|عل|ع)? ?(ال)?شارع (ال)?(عام|رئيسي)$/.test(N(v).replace(/[^؀-ۿ ]/g,"").replace(/\s+/g," ").trim()) });   // «عل شارع العام» names no place (2026-11-22)
