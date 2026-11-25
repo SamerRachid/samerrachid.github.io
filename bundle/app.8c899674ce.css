@@ -2253,6 +2253,8 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .lpage{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
 .lpage.has-drawer{grid-template-columns:minmax(0,1fr) 360px}
 .lpage.has-drawer .ltbl th:nth-child(5),.lpage.has-drawer .ltbl td:nth-child(5),.lpage.has-drawer .ltbl th:nth-child(6),.lpage.has-drawer .ltbl td:nth-child(6){display:none}
+/* the two hidden columns kept their reserved widths (150 + 104 px) and squeezed «الإعلان» to ~90 px (0 at 1200 px wide): free them (2026-11-24) */
+.lpage.has-drawer .ltbl col:nth-child(5),.lpage.has-drawer .ltbl col:nth-child(6){width:0!important}
 .ltbl{background:#fff;border:1px solid #E3E6EC;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(20,33,61,.04)}
 .ltbl table{width:100%;border-collapse:collapse;table-layout:fixed}
 .ltbl th{background:#FAFBFD;text-align:start;font-weight:600;color:var(--grey);font-size:12px;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}

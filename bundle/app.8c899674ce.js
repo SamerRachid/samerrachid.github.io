@@ -5012,6 +5012,13 @@ function agencyFormPage(){ if(!USER) return gate(); ACC.agForm=true; return acco
 function intakeUrl(route){ return CONFIG.supabaseUrl+"/functions/v1/bk-intake/"+route }
 /* QF-LOCAL-START */
 var QF_PLACES=null;   // [[phrase, governorate, area]] the bot learned — loaded once, on the first «املأ الحقول»
+// owner 2026-11-23: a slow line used to leave the list empty for the whole visit («ساحة شمدين» not read on the first try):
+// an empty answer is never kept, a late one is waited for (up to 6 s), and the list is fetched again after 5 minutes
+var QF_PLACES_AT=0, _qfPlacesReq=null;
+function qfPlacesFresh(){
+  if(QF_PLACES&&QF_PLACES.length&&Date.now()-QF_PLACES_AT<300000) return Promise.resolve(QF_PLACES);
+  if(_qfPlacesReq) return _qfPlacesReq;
+  return _qfPlacesReq=qfLoadPlaces(6000).then(function(rows){ _qfPlacesReq=null; if(rows&&rows.length){ QF_PLACES=rows; QF_PLACES_AT=Date.now() } return QF_PLACES||rows||[] }) }
 /* ── free reader for the «املأ الحقول» box (owner 2026-11-01): reads a pasted listing message in the browser with rules
    and Balkoun's own place list — no server, no model, no cost. Answers in the same shape as the bk-intake /web read
    ({fields, missing}), so applyQuickFill() places both the same way. When a fact is unclear it is left empty, never guessed. ── */
@@ -5085,6 +5092,7 @@ function qfLocalRead(raw, geo, learned, home){
   var lineSz={}; String(lat).split(/\n/).forEach(function(ln){ var q=/^[^0-9؀-ۿ]*(\d+(?:\.\d+)?) ?(?:م2|م²|م|متر|مترا|متراً|امتار)(?![؀-ۿ])/.exec(N(ln).replace(/\s+/g," ").trim()); if(q) lineSz[parseFloat(q[1])]=1 });
   while((m=szRe.exec(szT))){ var u=m[0].replace(m[1],"").trim(), v=parseFloat(m[1]), v0=v; if(m[2]) v*=1000; if(m[3]) v+=0.5; if(/(دونم|دنم)/.test(u)) v*=1000; else if(/هكتار/.test(u)) v*=10000;
     var before=szT.slice(Math.max(0,m.index-16),m.index), side=/(واجه|بعد|تراس|حديق|برند|شرف|عرض|طول|عمق|ارتفاع|شارع|سطح|قبو|مستودع|محل|مدخل|الطابق)/.test(before);
+    if(side && !/(?:دونم|دنم|هكتار)/.test(u) && v0>=40 && !/(واجه|بعد|تراس|حديق|برند|شرف|عرض|طول|عمق|ارتفاع|سطح|قبو|مستودع|محل|مدخل|الطابق)/.test(before)) side=false;   // «شارع الروضة 90 متر»: no street is 90 m wide (2026-11-22)
     if(side && (lineSz[v0] || /شارع (ال)?(عام|رئيسي|فرعي|نافذ|واسع|حيوي|تجاري) ?$/.test(before))) side=false;   // «على شارع عام 70 متر»: the street is described, the 70 m is the flat
     szAll.push({v:Math.floor(v+1e-9),i:m.index,key:/(مساح|مسطح)/.test(before),side:side,du:/(دونم|دنم|هكتار)/.test(u),build:/(بناء|البناء|مبني|المبني|البيت|الفيلا|المنزل)/.test(before),land:/(ارض|الارض|اجمالي|الاجماليه|العقار)/.test(before)}) }
   var szK=szT.match(/(?:مساحه?|مسطح)(?:ها|ه|تها|تو)? ?(?:[:؛(]| حوالي| تقريبا| بحدود| الاجماليه| الطابق)? ?(\d+(?:\.\d+)?)/);
@@ -5255,6 +5263,9 @@ function qfLocalRead(raw, geo, learned, home){
   aHits=aHits.filter(function(h){ return !NEVER[h.k] });
   // «الكهرباء من شركة حوش بلاس», «مطابخ مؤسسة الميدان»: a company named after a place says nothing about where (2026-11-22)
   aHits=aHits.filter(function(h){ return !/^(و)?(ب|ل|من)?(شركه|شركات|مؤسسه|مؤسسات|ماركه|براند|منتجات|معامل|مجموعه)$/.test(words[h.i-1]||"") });
+  // «مقابل جامع أبو أيوب الأنصاري»: a word deep inside a mosque's name is a person, not the area — dropped only when another place is named (2026-11-23)
+  (function(){ var latS=N(lat).replace(/[ً-ْـ]/g,"").replace(/[ 	]+/g," "), inName=function(h){ if(h.learned) return false; for(var b=1;b<=3;b++){ var w0=stripW(words[h.i-b-1]||""); if(/^و?(جامع|مسجد|كنيسه|مقام|ضريح|مدرسه|مشفي|مستشفي)$/.test(w0)){ var mid=words.slice(h.i-b,h.i); if(latS.indexOf(words.slice(h.i-b-1,h.i+1).join(" "))<0) return false; return mid.length>=1 && !mid.some(function(w){ return /^(في|ب|بال|من|عند|قرب|جانب|مقابل|خلف|حي|منطقه)$/.test(w) }) } } return false };
+    var keep=aHits.filter(function(h){ return !inName(h) }); if(keep.length) aHits=keep })();
   // what the property looks out over («إطلالة باتجاه دمشق والمطار») is not where it is (2026-11-22)
   var distHits=[];
   aHits=aHits.filter(function(h){ var pv=words.slice(Math.max(0,h.i-5),h.i).join(" ");
@@ -5344,7 +5355,7 @@ function qfLocalRead(raw, geo, learned, home){
     var ow=clean.split(" "), nw=ow.map(function(w){ return N(w).replace(/[^؀-ۿ]/g,"") });
     for(var x=0;x<nw.length;x++){ var two=nw[x]+" "+(nw[x+1]||"");
       if(!LMK.test(two+" ") && !LMK.test(nw[x]+" ")) continue;
-      var out=[]; for(var y=x;y<ow.length&&out.length<6;y++){ if(/\d/.test(ow[y])||/^(طابق|ط|الطابق|غرف|غرفه|مساحه|المساحه|السعر|سعر|للبيع|للايجار|للاجار|بسعر|طابو|كسوه|اكساء|بناء|البناء|بنايه|قبو|غرفه|غرفتين|منزل|شقه|مفروش|مفروشه|مخدم|مخدمه|في|مع|يوجد|فيه|فيها)$/.test(nw[y])) break; out.push(ow[y]) }
+      var out=[]; for(var y=x;y<ow.length&&out.length<8;y++){ if(/\d/.test(ow[y])||(y>x&&/[()+]/.test(ow[y]))||/^(بيت|مؤلف|مؤلفه|يضمن|يمنح|يمنحه|مما|التي|الذي|كانت|طابق|ط|الطابق|غرف|غرفه|مساحه|المساحه|السعر|سعر|للبيع|للايجار|للاجار|بسعر|طابو|كسوه|اكساء|بناء|البناء|بنايه|قبو|غرفه|غرفتين|منزل|شقه|مفروش|مفروشه|مخدم|مخدمه|في|مع|يوجد|فيه|فيها)$/.test(nw[y])) break; out.push(ow[y]) }
       if(out.length>=2) lm.push(out.join(" ").replace(/[.:،,]+$/,"")); break } });
   lm=lm.filter(function(v,i){ return lm.indexOf(v)===i });
   lm=lm.filter(function(v){ return !/^(و ?)?(علي|عل|ع)? ?(ال)?شارع (ال)?(عام|رئيسي)$/.test(N(v).replace(/[^؀-ۿ ]/g,"").replace(/\s+/g," ").trim()) });   // «عل شارع العام» names no place (2026-11-22)
@@ -5371,8 +5382,8 @@ async function qfHomeGovs(){
   var c=kwNorm(USER&&USER.city||"").replace(/^ال/,""); if(c) Object.keys(D.GEO).forEach(function(g){ if(kwNorm(g).replace(/^ال/,"")===c && out.indexOf(g)<0) out.push(g) });
   return out }
 // the bot's learned places (bk_intake_places_public): fetched once; if it fails or is slow the reader works with the area list alone
-async function qfLoadPlaces(){
-  try{ var r=await Promise.race([DB.rpc("bk_intake_places_public",{p_country:COUNTRY}), new Promise(function(ok){ setTimeout(function(){ ok({error:"slow"}) },2500) })]);
+async function qfLoadPlaces(ms){
+  try{ var r=await Promise.race([DB.rpc("bk_intake_places_public",{p_country:COUNTRY}), new Promise(function(ok){ setTimeout(function(){ ok({error:"slow"}) },ms||2500) })]);
        return (r&&!r.error&&Array.isArray(r.data))?r.data:[] }catch(e){ return [] } }
 // owner 2026-11-03: a place the bot has learned is another name of its area in the area boxes too — «ساحة الميسات» typed in the
 // post form or the search finds «الميسات». Loaded once, when an area box is first used; until then the boxes match names only
@@ -5399,6 +5410,7 @@ function quickFillHtml(){
     '<div class="qfrow"><button type="button" class="gh" id="qfGo" style="margin:0;padding:9px 18px;width:auto">'+GX("qfBtn")+'</button><span class="qfmsg" id="qfMsg">'+esc(NEW.qfMsg||"")+'</span></div></div>' }
 function wireQuickFill(){
   var ta=$("#qfText"), b=$("#qfGo"); if(!ta||!b) return;
+  qfPlacesFresh();   // start loading the learned places now, not on the click (2026-11-23)
   ta.oninput=function(){ NEW.qfText=this.value; NEW.qfMsg="" };
   b.onclick=quickFillRun;
   if(SHARED_IN && !window._sharedDone) sharedIntake();
@@ -5415,7 +5427,7 @@ async function quickFillRun(){
       var r=await fetch(intakeUrl("web"),{method:"POST",headers:{"Content-Type":"application/json","apikey":CONFIG.supabaseKey,"Authorization":"Bearer "+CONFIG.supabaseKey},body:JSON.stringify({token:USER.token,text:text,country:COUNTRY})});
       j=null; try{ j=await r.json() }catch(e){ j={} }
       if(!r.ok||!j||j.error) throw new Error(j&&j.error==="no_key"?GX("qfNoKey"):j&&j.error==="limit"?GX("qfLimit"):j&&j.error==="unauthorised"?GX("qfLogin"):GX("qfFail"));
-    } else { if(QF_PLACES===null) QF_PLACES=await qfLoadPlaces(); j=qfLocalRead(text,null,QF_PLACES,await qfHomeGovs()) }   // free: read in the browser, the text never leaves the page
+    } else { j=qfLocalRead(text,null,await qfPlacesFresh(),await qfHomeGovs()) }   // free: read in the browser, the text never leaves the page
     var fl=j.fields||{}, kept=qfKeepText(text); if(kept.length>=20) fl.description=kept;   // the message itself, not a rewrite
     applyQuickFill(fl);
     var miss=(j.missing||[]).map(function(m){ return GX("qfm_"+m) });
