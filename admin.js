@@ -37,7 +37,7 @@ async function storageRestore(paths){
        if(j && j.error) return {data:null, error:{message:j.error}};
        return {data:{restored:j.restored||[], failed:j.failed||[]}, error:null} }
   catch(e){ return {data:null, error:e} } }
-var TAB_PERM={inquiries_adm:["notify","reports","feedback"],guides:"homepage",dashboard:"dashboard",stats:"stats",countries:"super",listings:["listings_view","listings_edit","listings_delete"],photos:["listings_view","listings_edit"],wanted_adm:"wanted",users:["users_view","users_edit","users_delete","verify","passwords"],agencies_adm:"agencies",reviews:"reviews",house:"login_as",outreach:"campaigns",engage:["engage","featured","ads"],placements:["engage","featured","ads"],promopage:["ads"],services_adm:"agencies",projects_adm:"projects",ads:"ads",featured:["featured","rewards"],banners:"homepage",mainpage:"homepage",design:"design",geo:"geo",types:"types",contact:"contact",reports:"reports",feedback:"feedback",tickets:"tickets",intake:"intake",intake_cfg:"bot_cfg",msgs:"notify",settings:"settings",storage:"storage",admins:"super",danger:"super",campaigns:"campaigns",social:["social","featured"],maps:"geo",audit:"audit"};
+var TAB_PERM={lperf:["stats","listings_view"],inquiries_adm:["notify","reports","feedback"],guides:"homepage",dashboard:"dashboard",stats:"stats",countries:"super",listings:["listings_view","listings_edit","listings_delete"],photos:["listings_view","listings_edit"],wanted_adm:"wanted",users:["users_view","users_edit","users_delete","verify","passwords"],agencies_adm:"agencies",reviews:"reviews",house:"login_as",outreach:"campaigns",engage:["engage","featured","ads"],placements:["engage","featured","ads"],promopage:["ads"],services_adm:"agencies",projects_adm:"projects",ads:"ads",featured:["featured","rewards"],banners:"homepage",mainpage:"homepage",design:"design",geo:"geo",types:"types",contact:"contact",reports:"reports",feedback:"feedback",tickets:"tickets",intake:"intake",intake_cfg:"bot_cfg",msgs:"notify",settings:"settings",storage:"storage",admins:"super",danger:"super",campaigns:"campaigns",social:["social","featured"],maps:"geo",audit:"audit"};
 // the permission list (2026-10-17): groups for the admins page, and ready-made roles. Super admins hold every permission.
 var ADM_PERMS=[["pg_content",["listings_view","listings_edit","listings_delete","wanted","intake","reports","reviews"]],
   ["pg_people",["users_view","users_edit","users_delete","passwords","verify","login_as","agencies"]],
@@ -66,7 +66,7 @@ function permPicker(sel,cls){ sel=sel||[];
 // (changed often) and «النظام» (admins, activity log, storage, backups, test accounts)
 var ADM_GROUPS={g_listings:["listings","intake","wanted_adm","reports","photos"],g_people:["users","agencies_adm","services_adm","reviews"],
   g_msgs:["inquiries_adm","feedback","tickets","msgs"],g_mkt:["campaigns","outreach","social","placements","featured","ads","banners","promopage","engage","projects_adm"],
-  g_site:["mainpage","design","contact","guides"],g_settings:["settings","countries","intake_cfg","types","geo","maps"],g_system:["admins","audit","storage","danger","house"]};
+  g_site:["mainpage","design","contact","guides"],g_settings:["settings","countries","intake_cfg","types","geo","maps"],g_system:["admins","audit","storage","danger","house"],g_stats:["stats","lperf"]};
 var ADM_GROUP_ALIAS={inbox:"g_msgs",promo:"g_mkt",system:"g_system"};   // the old section keys (bell links, saved state)
 function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab)>-1) return g } return null }
 function admNavOpen(){ try{ var v=JSON.parse(localStorage.getItem("bk_adm_navopen")||"[]"); return Array.isArray(v)?v:[] }catch(e){ return [] } }
@@ -535,6 +535,7 @@ function adminView(){
    GX("noTickets"), "bk_admin_ticket_delete");
  }
  else if(ADM.tab==="inquiries_adm"){ body = adminInquiriesBody(); }
+ else if(ADM.tab==="lperf"){ body = adminLperfBody(); }
  else if(ADM.tab==="feedback"){
   body = emailInbox("feedback", d.feedback||[], "msgFilterFeedback", "selFeedbackId",
    function(f,isSel){
@@ -980,7 +981,7 @@ function adminView(){
  var dueOut=(ADM.out||[]).filter(function(o){ return o.next_at&&new Date(o.next_at)<=new Date()&&o.stage!=="active"&&o.stage!=="declined" }).length||null;
  var LBL={dashboard:t("dashboardTab"), listings:GX("navAllListings"), intake:GX("navBotDrafts"), reports:t("reportsTab"), photos:GX("tMedia"),
    wanted_adm:GX("tWanted"), users:t("usersTab"), agencies_adm:GX("tAgencies"), reviews:t("reviewsTab"), house:GX("tHouse"),
-   inquiries_adm:admInqT("tab"), feedback:t("feedbackTab"), tickets:GX("ticketsTab"), msgs:t("msgsNotifTab"), campaigns:GX("tCampaigns"), outreach:GX("tOutreach"),
+   inquiries_adm:admInqT("tab"), lperf:admLpT("tab"), feedback:t("feedbackTab"), tickets:GX("ticketsTab"), msgs:t("msgsNotifTab"), campaigns:GX("tCampaigns"), outreach:GX("tOutreach"),
    featured:GX("tPromote"), ads:t("adsTab"), banners:GX("tBanners"), engage:GX("tEngage"), placements:GX("tPlacements"), promopage:GX("tPromoPage"), services_adm:GX("tServicesAdm"), social:GX("tSocial"), projects_adm:GX("tProjects"),
    stats:GX("navAnalytics"), guides:GX("tGuides"), mainpage:t("mainPageTab"), design:GX("tDesign"), contact:GX("tContact"),
    settings:GX("navGeneral"), intake_cfg:GX("navBot"), countries:GX("countriesTab"), geo:GX("geoTab"), maps:GX("tMaps"), types:GX("ptTab"), admins:t("adminsTab"), audit:GX("tAudit"), storage:GX("tStorage"), danger:t("dangerTab")};
@@ -988,7 +989,7 @@ function adminView(){
  var BADGE={listings:td.pending_listings||s.pending||null, intake:td.intake_review||null, reports:s.openReports||null, wanted_adm:td.pending_wanted||null, users:td.verify_pending||null,
    feedback:s.openFeedback||null, tickets:openTk||null, msgs:ADM.alertsUnread||null, outreach:dueOut, social:(ADM._promoDue||[]).length||null};
  var TOP=[["dashboard",LBL.dashboard,AICO.dash],["g_listings",GX("navListings"),AICO.listings],["g_people",t("navPeople"),AICO.users],
-   ["g_msgs",GX("navMsgs"),AICO.bell],["g_mkt",{ar:"التسويق",en:"Marketing",de:"Marketing"}[L]||"Marketing",AICO.megaphone],["stats",LBL.stats,AICO.chart],["g_site",GX("navWebsite"),AICO.home2],["g_settings",GX("navSettings"),AICO.gear],["g_system",{ar:"النظام",en:"System",de:"System"}[L]||"System",AICO.shield]];
+   ["g_msgs",GX("navMsgs"),AICO.bell],["g_mkt",{ar:"التسويق",en:"Marketing",de:"Marketing"}[L]||"Marketing",AICO.megaphone],["g_stats",LBL.stats,AICO.chart],["g_site",GX("navWebsite"),AICO.home2],["g_settings",GX("navSettings"),AICO.gear],["g_system",{ar:"النظام",en:"System",de:"System"}[L]||"System",AICO.shield]];
  var secBadge=function(k){ if(!ADM_GROUPS[k]) return BADGE[k]||null; var n=0; ADM_GROUPS[k].forEach(function(p){ if(p!=="social"&&canTab(p)&&BADGE[p]) n+=+BADGE[p]||0 }); return n||null };   // owner 2026-11-07: «403» on marketing was the social to-do list
  // the panel search's page index: every page, with its section as "where"
  var NAV=TOP.map(function(x){ return {g:x[1], items:(ADM_GROUPS[x[0]]||[x[0]]).map(function(k){ return [k, LBL[k]||x[1], BADGE[k]||null, x[2], canTab(k)] })} });
@@ -2362,7 +2363,8 @@ function wireAdmin(){
     var countEl=$("#aListCount");
     if(countEl) countEl.innerHTML = '<span class="ltr">'+visible+'</span> '+t("listingsTab");
   };
-  if(ADM.tab==="inquiries_adm") wireAdminInquiries();   // visit requests / messages between members (read only)
+  if(ADM.tab==="inquiries_adm") wireAdminInquiries();
+  if(ADM.tab==="lperf") wireAdminLperf();   // per-listing views and contact clicks   // visit requests / messages between members (read only)
   if(ADM.tab==="listings") wireAdminListings();   // the listings page wires its own search / filters / drawer / bulk bar
   if($("#aqU")){ var aqU=$("#aqU");
     aqU.oninput=function(){ var v=this.value, had=!!ADM.uQ; ADM.uQ=v.trim()?v:"";
@@ -4780,6 +4782,59 @@ function admStLabel(s){ return s==="hidden"?GX("st_hidden"):s==="rejected"?GX("s
 function admTypeName(l){ return D.TYPES[l.property_type]?D.TYPES[l.property_type][li()]:(l.property_type||"") }
 function admDealLabel(l){ return l.deal==="rent"?GX("lfForRent"):(Array.isArray(l.amenities)&&l.amenities.indexOf(SHARE_TAG)>-1)?GX("shareBadge"):GX("lfForSale") }
 function admListTitle(l){ return admTypeName(l)+' '+admDealLabel(l)+(l.area?' · '+esc(l.area):(l.gov?' · '+esc(l.gov):''))+(l.area_m2?' · <span class="ltr">'+(+l.area_m2).toLocaleString("en")+'</span> '+t("sqm"):'') }
+/* «أداء الإعلانات» (owner 2026-11-24): per listing, for a chosen period, the page views and each kind of contact click —
+   «إظهار الرقم», call, WhatsApp, visit request — and saves; every listing, ranked by any column, a page at a time from the
+   database (bk_admin_listing_perf). A row opens the listing in «كل الإعلانات» with its drawer. Read only. */
+function admLpT(k){ var T={
+  tab:{ar:"أداء الإعلانات",en:"Listing performance",de:"Anzeigen-Leistung"},
+  hint:{ar:"لكل إعلان: كم مرة انفتح، وكم واحد كبس «إظهار الرقم» أو اتصل أو فتح الواتساب أو طلب معاينة، وكم واحد حفظه، بالفترة اللي بتختارها. اكبس على عنوان أي عمود لترتّب حسبه.",en:"Per listing: views, «show number», calls, WhatsApp, visit requests and saves for the chosen period. Click a column title to sort by it.",de:"Pro Anzeige: Aufrufe, Nummer zeigen, Anrufe, WhatsApp, Besichtigungen und Merken im gewählten Zeitraum. Spaltentitel klicken zum Sortieren."},
+  views:{ar:"مشاهدات",en:"Views",de:"Aufrufe"}, reveal:{ar:"إظهار الرقم",en:"Show number",de:"Nummer"}, calls:{ar:"اتصال",en:"Calls",de:"Anrufe"},
+  whatsapp:{ar:"واتساب",en:"WhatsApp",de:"WhatsApp"}, visit:{ar:"طلب معاينة",en:"Visit req.",de:"Besichtigung"}, saves:{ar:"حفظ",en:"Saves",de:"Gemerkt"},
+  contacts:{ar:"كل التواصل",en:"All contacts",de:"Kontakte"}, all:{ar:"من الأول",en:"All time",de:"Gesamt"}, listing:{ar:"الإعلان",en:"Listing",de:"Anzeige"},
+  none:{ar:"ما في إعلانات بهالبحث.",en:"No listings match.",de:"Keine Treffer."}, err:{ar:"ما قدرت جيب الأرقام",en:"Could not load the numbers",de:"Konnte nicht laden"},
+  of:{ar:"إعلان",en:"listings",de:"Anzeigen"}};
+  var x=T[k]; return x?(x[L]||x.ar):k }
+function admLpKey(){ return JSON.stringify([ADM.lpDays==null?30:ADM.lpDays,(ADM.lpQ||"").trim(),ADM.lpSort||"views",admShown("lperf",50),admScope(),ADM._lpgRev||0]) }
+function adminLperfBody(){
+  var days=ADM.lpDays==null?30:ADM.lpDays, sort=ADM.lpSort||"views", P=ADM.lp||null, rows=(P&&P.rows)||[], tot=(P&&P.totals)||{};
+  var tabs='<div class="arange">'+[1,7,30,90,365,0].map(function(d){ return '<button type="button" class="'+(days===d?"on":"")+'" data-lpdays="'+d+'"><span class="rl">'+(d?GX("r"+d):admLpT("all"))+'</span><span class="rs">'+(d?GX("rs"+d):admLpT("all"))+'</span></button>' }).join("")+'</div>';
+  var cols=["views","reveal","calls","whatsapp","visit","saves"], n=function(v){ return '<span class="ltr">'+(+v||0).toLocaleString("en")+'</span>' };
+  var tiles='<div class="lp-tiles">'+cols.map(function(k){ return '<button type="button" class="lp-tile'+(sort===k?' on':'')+'" data-lpsort="'+k+'"><b>'+n(tot[k])+'</b><span>'+admLpT(k)+'</span></button>' }).join("")+'</div>';
+  var th=function(k){ return '<th><button type="button" class="lp-th'+(sort===k?' on':'')+'" data-lpsort="'+k+'">'+admLpT(k)+(sort===k?' ▼':'')+'</button></th>' };
+  var body=!P?'<tr><td colspan="7" class="lnone">'+t("loading")+'</td></tr>':P.error?'<tr><td colspan="7" class="lnone">'+admLpT("err")+' — '+esc(P.error)+'</td></tr>':!rows.length?'<tr><td colspan="7" class="lnone">'+admLpT("none")+'</td></tr>':
+    rows.map(function(l){ return '<tr class="lrow" data-lpopen="'+l.id+'" data-lpref="'+esc(l.ref||"")+'">'+
+      '<td><div class="lt">'+(l.cover?'<img src="'+esc(l.cover)+'" alt="" loading="lazy">':'<span class="lph">'+GX("lfNoPhotos")+'</span>')+'<div class="ltt"><b>'+scopeFlag(l.country_code)+admListTitle(l)+'</b><small><span class="ltr">'+esc(l.ref||l.id)+'</span> · '+admStLabel(l.status)+' · '+esc(l.agency_name||l.poster_name||"")+'</small></div></div></td>'+
+      cols.map(function(k){ return '<td class="lp-n'+(sort===k?' on':'')+'">'+n(l[k])+'</td>' }).join("")+'</tr>' }).join("");
+  return '<div class="hintx" style="margin-bottom:10px">'+admLpT("hint")+'</div>'+
+    '<div class="dash-top lp-range">'+tabs+'</div>'+tiles+
+    '<div class="lbar" style="margin-top:12px"><span class="lcnt"><b class="ltr">'+(P&&P.total!=null?P.total:"…")+'</b> '+admLpT("of")+'</span><label class="lq">'+AICO.search+'<input id="lpQ" dir="auto" value="'+esc(ADM.lpQ||"")+'" placeholder="'+t("searchPH")+'" autocomplete="off"></label></div>'+
+    '<div class="atable lp-table"><table><thead><tr><th>'+admLpT("listing")+'</th>'+cols.map(th).join("")+'</tr></thead><tbody>'+body+'</tbody></table></div>'+
+    (P&&!P.error?admMoreBtn(+P.total||0,admShown("lperf",50),"lperf",50):'') }
+function admLpCss(){ if(document.getElementById("admLpCss")) return; var st=document.createElement("style"); st.id="admLpCss";
+  st.textContent=".lp-tiles{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:12px}@media (max-width:760px){.lp-tiles{grid-template-columns:repeat(3,minmax(0,1fr))}}"+
+    ".lp-tile{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px;border:1px solid #E4E4E7;border-radius:10px;background:#fff;cursor:pointer;font:inherit;text-align:start}"+
+    ".lp-tile b{font-size:20px;font-weight:700;color:#14213D}.lp-tile>span{font-size:12px;color:#5B6371}.lp-tile.on{border-color:#14213D;box-shadow:inset 0 0 0 1px #14213D}"+
+    ".lp-table table{width:100%;border-collapse:collapse}.lp-table th,.lp-table td{padding:8px 10px;border-bottom:1px solid #E4E4E7;text-align:start;vertical-align:middle}"+
+    ".lp-table td.lp-n{font-variant-numeric:tabular-nums;font-size:14px;white-space:nowrap}.lp-table td.lp-n.on{font-weight:700;color:#14213D}.lp-table tr.lrow{cursor:pointer}.lp-table tr.lrow:hover td{background:#F8FAFC}"+
+    ".lp-th{background:none;border:0;padding:0;font:inherit;font-size:12px;font-weight:600;color:#5B6371;cursor:pointer;white-space:nowrap}.lp-th.on{color:#14213D}"+
+    ".lp-table .lt img,.lp-table .lt .lph{width:44px;height:34px}"+
+    ".adm .lp-tile b{font-size:20px;line-height:1.2}.adm .lp-range .arange{display:flex;flex-wrap:nowrap;overflow-x:auto;max-width:100%;scrollbar-width:none}.adm .lp-range .arange::-webkit-scrollbar{display:none}.adm .lp-range .arange button{flex:none;white-space:nowrap}"+
+    "html.adm-dark .lp-tile{background:#1C2433;border-color:#2C3648}html.adm-dark .lp-tile b,html.adm-dark .lp-th.on,html.adm-dark .lp-table td.lp-n.on{color:#E6E9EF}html.adm-dark .lp-tile.on{border-color:#C4881F;box-shadow:inset 0 0 0 1px #C4881F}"+
+    "html.adm-dark .lp-tile>span,html.adm-dark .lp-th{color:#9AA4B5}html.adm-dark .lp-table th,html.adm-dark .lp-table td{border-color:#2C3648}html.adm-dark .lp-table tr.lrow:hover td{background:#1C2433}";
+  document.head.appendChild(st) }
+function wireAdminLperf(){
+  admLpCss();
+  var k=admLpKey();
+  if((!ADM.lp||ADM.lp.key!==k) && ADM._lpReq!==k){ ADM._lpReq=k;
+    rpcScoped("bk_admin_listing_perf",{p_token:ADM.token,p_country:admScope(),p_days:ADM.lpDays==null?30:ADM.lpDays,p_q:(ADM.lpQ||"").trim()||null,p_sort:ADM.lpSort||"views",p_offset:0,p_limit:admShown("lperf",50)})
+      .then(function(r){ if(ADM._lpReq!==k) return; ADM._lpReq=null; ADM.lp=Object.assign({key:k},r||{}); var hadF=document.activeElement&&document.activeElement.id==="lpQ"; render(); if(hadF) admRefocus("lpQ") })
+      .catch(function(e){ if(ADM._lpReq!==k) return; ADM._lpReq=null; ADM.lp={key:k,error:e.message||String(e)}; render() }) }
+  $$("[data-lpdays]").forEach(function(b){ b.onclick=function(){ ADM.lpDays=+this.dataset.lpdays; render() } });
+  $$("[data-lpsort]").forEach(function(b){ b.onclick=function(){ ADM.lpSort=this.dataset.lpsort; render() } });
+  var q=$("#lpQ"); if(q) q.oninput=function(){ var v=this.value; clearTimeout(ADM._lpqT); ADM._lpqT=setTimeout(function(){ ADM.lpQ=v; render(); admRefocus("lpQ") },250) };
+  $$("[data-lpopen]").forEach(function(tr){ tr.onclick=function(){ var id=+this.dataset.lpopen, ref=this.dataset.lpref||String(id);
+    ADM.lf={q:ref,status:"",gov:"",type:"",who:"",src:"",sort:"new",view:""}; ADM.listUser=null; ADM.lopen=id; admGo("listings"); scrollTo(0,0) } });
+}
 /* «طلبات المعاينة» (owner 2026-11-24, step 3): every «طلب معاينة» / «رسالة» a visitor sent from a listing page, the replies the
    two sides wrote in «رسائلي», and how each one reached the other side (Telegram / WhatsApp: sent, skipped because it
    arrived on Telegram, or failed). Read only — the conversations belong to the members, so no reply / delete here. */
@@ -4917,7 +4972,7 @@ function adminListingsBody(d){
   var anyF=f.q||f.status||f.gov||f.type||f.who||f.src||f.view;
   ADM.lsel=ADM.lsel||{}; var vis={}; LL.forEach(function(l){ vis[l.id]=1 }); Object.keys(ADM.lsel).forEach(function(k){ if(!vis[k]) delete ADM.lsel[k] });
   var selIds=Object.keys(ADM.lsel).filter(function(k){ return ADM.lsel[k] }), nSel=selIds.length; ADM._lvis=LL.slice(0,admShown("lst")).map(function(l){ return l.id });
-  var open=ADM.lopen?(LL.filter(function(l){ return l.id===ADM.lopen })[0]||all.filter(function(l){ return l.id===ADM.lopen })[0]||admListingById(ADM.lopen)):null; if(!open) ADM.lopen=null;
+  var open=ADM.lopen?(LL.filter(function(l){ return l.id===ADM.lopen })[0]||all.filter(function(l){ return l.id===ADM.lopen })[0]||admListingById(ADM.lopen)):null; if(!open && !(srv && (!R.P || R.P.key!==admLpgKey()))) ADM.lopen=null;   // keep it while the page is still loading (opened from «أداء الإعلانات»)
   var rowHtml=function(l){ var sel=!!ADM.lsel[l.id];
     return '<tr class="lrow'+(sel?' sel':'')+(ADM.lopen===l.id?' open':'')+'" data-lrow="'+l.id+'">'+
       '<td class="lchk"><input type="checkbox" data-lsel="'+l.id+'"'+(sel?' checked':'')+' aria-label="select"></td>'+
@@ -5014,7 +5069,7 @@ function admListingDrawer(l,ls){
       '<dt>'+t("photos")+'</dt><dd class="ltr">'+(l.photos||0)+'</dd>'+
       '<dt>'+GX("lfCreated")+'</dt><dd><span class="ltr">'+admWhen(l.created_at)+'</span></dd>'+
     '</dl>'+
-    '<div class="ld-sec">'+GX("lfPerf")+' · '+GX("r"+(ADM.range||7))+'</div><div class="ld-perf"><div><b class="ltr">'+(ls.views!=null?ls.views:"…")+'</b><span>'+GX("colViews")+'</span></div><div><b class="ltr">'+(ls.contacts!=null?ls.contacts:"…")+'</b><span>'+GX("colContacts")+'</span></div><div><b class="ltr">'+(ls.saves!=null?ls.saves:"…")+'</b><span>'+GX("colSaves")+'</span></div></div>'+
+    '<div class="ld-sec">'+GX("lfPerf")+' · '+GX("r"+(ADM.range||7))+'</div><div class="ld-perf"><div><b class="ltr">'+(ls.views!=null?ls.views:"…")+'</b><span>'+GX("colViews")+'</span></div><div><b class="ltr">'+(ls.reveal!=null?ls.reveal:"…")+'</b><span>'+admLpT("reveal")+'</span></div><div><b class="ltr">'+(ls.calls!=null?ls.calls:"…")+'</b><span>'+admLpT("calls")+'</span></div><div><b class="ltr">'+(ls.whatsapp!=null?ls.whatsapp:"…")+'</b><span>'+admLpT("whatsapp")+'</span></div><div><b class="ltr">'+(ls.visit!=null?ls.visit:"…")+'</b><span>'+admLpT("visit")+'</span></div><div><b class="ltr">'+(ls.saves!=null?ls.saves:"…")+'</b><span>'+GX("colSaves")+'</span></div></div>'+
     '<div class="ld-sec">'+GX("lfSource")+'</div><dl class="ld-kv"><dt>'+GX("lfChannel")+'</dt><dd>'+(l.via?GX("lfViaBot")+' · '+(l.via==="telegram"?"Telegram":l.via==="whatsapp"?"WhatsApp":esc(l.via)):GX("lfViaSite"))+'</dd></dl>'+
     '<div class="ld-sp"></div>'+
   '</aside>';
