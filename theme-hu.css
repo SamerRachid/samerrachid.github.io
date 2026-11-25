@@ -45,7 +45,7 @@ body.mdw-open .wa-fab{display:none}
 .mm-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
 .mm-bg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(17,33,63,.55),rgba(17,33,63,.9) 55%,rgba(17,33,63,.97))}
 .mm-bg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.9}
-.mdw2 .mdw-top{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;padding:25px 60px 0;background:none}
+.mdw2 .mdw-top{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;padding:calc(25px + max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px))) 60px 0;background:none}
 .mdw2 .mdw-top .logo{color:#fff}
 .mdw-x{width:44px;height:44px;border:0;background:none;color:#fff;cursor:pointer;display:grid;place-items:center}
 .mdw-x svg{width:28px;height:28px}
@@ -77,8 +77,8 @@ body.mdw-open .wa-fab{display:none}
 .mm-acct .mdw-in{grid-column:1/-1;height:40px;border-radius:10px;font-size:14px;font-weight:700;background:var(--gold);color:var(--navy);border:0;cursor:pointer;transition:transform .3s,box-shadow .3s}
 .mm-acct .mdw-in:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(202,144,81,.3)}
 .mm-acctlink{color:var(--gold-dk);font-size:13px;font-weight:700;white-space:nowrap;cursor:pointer;text-decoration:none}
-.mm-shortcuts{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
-.mm-shortcuts a{display:flex;align-items:center;gap:8px;font-size:14.5px;min-height:38px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.05);text-decoration:none;color:#fff;cursor:pointer;transition:.3s;white-space:nowrap}
+.mm-shortcuts{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:6px}
+.mm-shortcuts a{display:flex;align-items:center;gap:8px;font-size:14.5px;min-height:38px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.05);text-decoration:none;color:#fff;cursor:pointer;transition:.3s;white-space:normal;line-height:1.35;min-width:0}   /* a long name wraps inside its box: «العقارات المحفوظة» ran off the phone screen (2026-11-25) */
 .mm-shortcuts a:hover{background:var(--gold-w);color:var(--gold)}
 .mm-shortcuts .mi{width:16px;height:16px;color:var(--gold);display:inline-flex}
 .mm-shortcuts .mi svg{width:16px;height:16px}
@@ -263,7 +263,7 @@ input,select,textarea{color-scheme:dark}
   .hero-outer.hu .sgo{grid-column:span 2;height:48px;border-radius:5px;font-size:14px}
   .hero-outer.hu .hnote{display:none}
   .hdots{bottom:12px}
-  .mdw2 .mdw-top{padding:20px 20px 0}
+  .mdw2 .mdw-top{padding:calc(20px + max(env(safe-area-inset-top,0px),var(--safe-area-inset-top,0px))) 20px 0}   /* the Android app: the logo sat under the clock bar (2026-11-25) */
   .mm-in{grid-template-columns:1fr;gap:0;padding:24px 20px 110px;display:flex;flex-direction:column}
   .mm-main,.mm-side{display:contents}
   .mm-acct{order:-2;margin-bottom:22px}
@@ -272,7 +272,7 @@ input,select,textarea{color-scheme:dark}
   .mm-group{order:0;margin-bottom:14px}
   .mm-link{font-size:13.5px;padding:8px 0;min-height:38px}
   .mm-side>.mm-box{order:3;margin-bottom:18px}
-  .mm-shortcuts{grid-template-columns:1fr 1fr}
+  .mm-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}
   .mm-shortcuts a{font-size:13.5px}
   .mm-foot{order:5}
   .mm-wa{margin:0;width:100%;justify-content:center}
@@ -435,7 +435,7 @@ body.home-hero.hero-in-view .mobfab{display:none}
   .mm-acct{display:block}
   .mm-acct .g{grid-template-columns:48px 1fr}
   .mm-acct .g .mdw-in{grid-column:1/-1;width:100%}
-  .mm-shortcuts{grid-template-columns:1fr 1fr}
+  .mm-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 
 /* ===== phase 2a: the search page on the dark theme (one 8px shape, dark controls, dark empty state) ===== */

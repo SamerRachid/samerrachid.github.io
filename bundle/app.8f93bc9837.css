@@ -2253,6 +2253,8 @@ button.hitem{cursor:pointer}button.hitem:hover{border-color:var(--navy)}
 .lpage{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;align-items:start}
 .lpage.has-drawer{grid-template-columns:minmax(0,1fr) 360px}
 .lpage.has-drawer .ltbl th:nth-child(5),.lpage.has-drawer .ltbl td:nth-child(5),.lpage.has-drawer .ltbl th:nth-child(6),.lpage.has-drawer .ltbl td:nth-child(6){display:none}
+/* the two hidden columns kept their reserved widths (150 + 104 px) and squeezed «الإعلان» to ~90 px (0 at 1200 px wide): free them (2026-11-24) */
+.lpage.has-drawer .ltbl col:nth-child(5),.lpage.has-drawer .ltbl col:nth-child(6){width:0!important}
 .ltbl{background:#fff;border:1px solid #E3E6EC;border-radius:12px;overflow:hidden;box-shadow:0 1px 2px rgba(20,33,61,.04)}
 .ltbl table{width:100%;border-collapse:collapse;table-layout:fixed}
 .ltbl th{background:#FAFBFD;text-align:start;font-weight:600;color:var(--grey);font-size:12px;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
@@ -3514,7 +3516,9 @@ body.nav-nonew .newtag,body.nav-nonew .mdw2-new{display:none}
      "Continue") and mis-hit taps (the checkbox tap landed on the currency select above it) */
   .aubox.au2{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);max-width:none;border-radius:22px 22px 0 0;max-height:94vh;max-height:94dvh;overflow:hidden}
   .au-brand{flex-direction:row;align-items:center;gap:12px;padding:14px 18px}.au-brand h3{font-size:15px;margin:0}.au-brand p,.au-brand ul{display:none}.au-brand .logo{font-size:18px}
-  .au-main{max-height:none;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.au2 .autop{padding:14px 18px 0}
+  .au-main{max-height:none;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+  /* the Android app: «كيف أسجّل؟ شاهد الشرح» sat under the phone's buttons and the sheet could not be pulled up (2026-11-25) */
+  .au2 .au-main{padding-bottom:max(env(safe-area-inset-bottom,0px),var(--safe-area-inset-bottom,0px))}.au2 .autop{padding:14px 18px 0}
   .au2 .aubody{padding-bottom:12px}.au2 .agree{padding:6px 0;margin:0}.au2 .agree input{width:22px;height:22px;margin-top:0}
   /* 16px stops iOS Safari from auto-zooming the sheet when a field is focused (pinch zoom stays allowed) */
   .au2 .auf input,.au2 .auf select{font-size:16px}.au2 .autabs{margin:12px 18px 4px}.au2 .aubody{padding:12px 18px 4px}.au-switch{padding:10px 18px calc(18px + env(safe-area-inset-bottom))}
