@@ -947,7 +947,7 @@ function mdrawer(){
   var site=grp("site").filter(function(i){ return i.k!=="agencies" });
   var acct = USER
     ? '<div class="mm-acct mm-box" style="--i:0"><div class="m">'+avatar(USER.avatar_url,USER.name,48,"av")+'<div><b>'+esc(fullName(USER))+'</b><small dir="ltr">'+esc(USER.phone||USER.email||"")+'</small></div>'+
-      '<div class="mm-shortcuts">'+[["mMine","mine","myAds"],["mSaved","saved","mySaved"],["mSearch","search","mySearch"],["mMsgs","msgs","myMessages"],["mSet","settings","settings"]].map(function(x){
+      '<div class="mm-shortcuts">'+[["mMine","mine","myAds"],["mSaved","saved","mySaved"],["mSearch","search","mySearch"],["mMsgs","msgs","myMessages"],["mSet","settings","settings"]].concat(mdIsAdmin()?[["mAdm","coll","adminPanel"]]:[]).map(function(x){
         return '<a data-md="'+x[0]+'">'+mi(x[1])+t(x[2])+(x[0]==="mMsgs"&&NOTIFS.unread?'<em class="badge">'+(NOTIFS.unread>9?"9+":NOTIFS.unread)+'</em>':'')+'</a>' }).join("")+'</div></div></div>'
     : '<div class="mm-acct mm-box guest" style="--i:0"><div class="g"><span class="av">'+ICON_USER+'</span><div><b>'+GX("mdWelcome")+'</b><small>'+GX("mdWelcomeP")+'</small></div><button class="mdw-in" id="mdIn">'+t("loginSignupCombo")+'</button></div></div>';
   // 2026-11-15 (owner): the chips are governorates, so the heading says so («كل المناطق» above them was confusing); the last chip still opens all areas
@@ -986,6 +986,7 @@ function soonOpen(k){
   document.addEventListener("keydown",function h(e){ if(e.key==="Escape"){ close(); document.removeEventListener("keydown",h) } });
 }
 function mdwOpen(){ var d=$("#mdw"); if(!d) return; closeAllMenus(); window._mmBg=true; var bi=d.querySelector(".mm-bg img[data-src]"); if(bi){ bi.src=bi.dataset.src; bi.removeAttribute("data-src") } d.classList.add("on"); document.body.classList.add("mdw-open") }
+function mdIsAdmin(){ if(USER&&USER.role==="admin") return true; try{ return !!localStorage.getItem("balkoun_adm") }catch(e){ return false } }   // an admin account, or a panel session on this device
 function mdwClose(){ var d=$("#mdw"); if(d) d.classList.remove("on"); document.body.classList.remove("mdw-open") }
 // the Android app's Back button asks this first (owner, 2026-10-23): an open window closes before the page goes back
 window.bkBack=function(){ try{
@@ -1007,7 +1008,8 @@ function wireDrawer(){
   if(!window._mdwEsc){ window._mdwEsc=true; document.addEventListener("keydown",function(e){ if(e.key==="Escape") mdwClose() }) }
   if($("#mdIn")) $("#mdIn").onclick=function(){ mdwClose(); var b=$("#bIn"); if(b) b.click() };
   // the account shortcuts go straight to their pages (the hidden header menu they used to click is not wired on the theme)
-  var MD_GO={mMine:function(){LOADED.mine=false;VIEW="mine"},mSaved:function(){LOADED.saved=false;SAVEDFULL=[];VIEW="saved"},mSearch:function(){LOADED.searches=false;SEARCHES=[];VIEW="searches"},mMsgs:function(){LOADED.msgs=false;MYMSGS={reports:[],feedback:[]};VIEW="msgs"},mSet:function(){VIEW="account"}};
+  // «لوحة الإدارة» (owner 2026-11-25): the app has no address bar to type /admin, so an admin account gets the panel here
+  var MD_GO={mAdm:function(){ VIEW="admin"; if(ADM.token&&!ADM.data) adminLoad() },mMine:function(){LOADED.mine=false;VIEW="mine"},mSaved:function(){LOADED.saved=false;SAVEDFULL=[];VIEW="saved"},mSearch:function(){LOADED.searches=false;SEARCHES=[];VIEW="searches"},mMsgs:function(){LOADED.msgs=false;MYMSGS={reports:[],feedback:[]};VIEW="msgs"},mSet:function(){VIEW="account"}};
   $$("[data-md]").forEach(function(a){ a.onclick=function(){ var md=this.dataset.md, el=$("#"+md); mdwClose(); if(MD_GO[md]){ MD_GO[md](); scrollTo(0,0); render(); return } if(el) el.click() } });
   $$("[data-mdcur]").forEach(function(a){ a.onclick=function(){ if(this.dataset.mdcur!==CUR){ var c=$("#cur"); if(c) c.click() } else mdwClose() } });
   $$("[data-cpick]").forEach(function(a){ a.onclick=function(e){ e.preventDefault(); var code=this.dataset.cpick; var m=$("#cMenu"); if(m) m.classList.remove("on"); mdwClose(); switchCountry(code) } });
