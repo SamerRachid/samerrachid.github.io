@@ -37,7 +37,7 @@ async function storageRestore(paths){
        if(j && j.error) return {data:null, error:{message:j.error}};
        return {data:{restored:j.restored||[], failed:j.failed||[]}, error:null} }
   catch(e){ return {data:null, error:e} } }
-var TAB_PERM={guides:"homepage",dashboard:"dashboard",stats:"stats",countries:"super",listings:["listings_view","listings_edit","listings_delete"],photos:["listings_view","listings_edit"],wanted_adm:"wanted",users:["users_view","users_edit","users_delete","verify","passwords"],agencies_adm:"agencies",reviews:"reviews",house:"login_as",outreach:"campaigns",engage:["engage","featured","ads"],placements:["engage","featured","ads"],promopage:["ads"],services_adm:"agencies",projects_adm:"projects",ads:"ads",featured:["featured","rewards"],banners:"homepage",mainpage:"homepage",design:"design",geo:"geo",types:"types",contact:"contact",reports:"reports",feedback:"feedback",tickets:"tickets",intake:"intake",intake_cfg:"bot_cfg",msgs:"notify",settings:"settings",storage:"storage",admins:"super",danger:"super",campaigns:"campaigns",social:["social","featured"],maps:"geo",audit:"audit"};
+var TAB_PERM={inquiries_adm:["notify","reports","feedback"],guides:"homepage",dashboard:"dashboard",stats:"stats",countries:"super",listings:["listings_view","listings_edit","listings_delete"],photos:["listings_view","listings_edit"],wanted_adm:"wanted",users:["users_view","users_edit","users_delete","verify","passwords"],agencies_adm:"agencies",reviews:"reviews",house:"login_as",outreach:"campaigns",engage:["engage","featured","ads"],placements:["engage","featured","ads"],promopage:["ads"],services_adm:"agencies",projects_adm:"projects",ads:"ads",featured:["featured","rewards"],banners:"homepage",mainpage:"homepage",design:"design",geo:"geo",types:"types",contact:"contact",reports:"reports",feedback:"feedback",tickets:"tickets",intake:"intake",intake_cfg:"bot_cfg",msgs:"notify",settings:"settings",storage:"storage",admins:"super",danger:"super",campaigns:"campaigns",social:["social","featured"],maps:"geo",audit:"audit"};
 // the permission list (2026-10-17): groups for the admins page, and ready-made roles. Super admins hold every permission.
 var ADM_PERMS=[["pg_content",["listings_view","listings_edit","listings_delete","wanted","intake","reports","reviews"]],
   ["pg_people",["users_view","users_edit","users_delete","passwords","verify","login_as","agencies"]],
@@ -65,7 +65,7 @@ function permPicker(sel,cls){ sel=sel||[];
 // 2026-11-07 (owner): requests sit with listings, campaigns + outreach with marketing, settings split into «الإعدادات»
 // (changed often) and «النظام» (admins, activity log, storage, backups, test accounts)
 var ADM_GROUPS={g_listings:["listings","intake","wanted_adm","reports","photos"],g_people:["users","agencies_adm","services_adm","reviews"],
-  g_msgs:["feedback","tickets","msgs"],g_mkt:["campaigns","outreach","social","placements","featured","ads","banners","promopage","engage","projects_adm"],
+  g_msgs:["inquiries_adm","feedback","tickets","msgs"],g_mkt:["campaigns","outreach","social","placements","featured","ads","banners","promopage","engage","projects_adm"],
   g_site:["mainpage","design","contact","guides"],g_settings:["settings","countries","intake_cfg","types","geo","maps"],g_system:["admins","audit","storage","danger","house"]};
 var ADM_GROUP_ALIAS={inbox:"g_msgs",promo:"g_mkt",system:"g_system"};   // the old section keys (bell links, saved state)
 function admGroupOf(tab){ for(var g in ADM_GROUPS){ if(ADM_GROUPS[g].indexOf(tab)>-1) return g } return null }
@@ -534,6 +534,7 @@ function adminView(){
       '<div style="display:flex;gap:8px;align-items:center"><button class="ab ok" data-tksave="'+x.id+'">'+GX("tkSave")+'</button><span class="xmsg" id="tkMsg'+x.id+'"></span>'+(x.done_at?'<span class="hintx">'+GX("tkDoneAt")+' '+when(x.done_at)+'</span>':'')+'</div>' },
    GX("noTickets"), "bk_admin_ticket_delete");
  }
+ else if(ADM.tab==="inquiries_adm"){ body = adminInquiriesBody(); }
  else if(ADM.tab==="feedback"){
   body = emailInbox("feedback", d.feedback||[], "msgFilterFeedback", "selFeedbackId",
    function(f,isSel){
@@ -979,7 +980,7 @@ function adminView(){
  var dueOut=(ADM.out||[]).filter(function(o){ return o.next_at&&new Date(o.next_at)<=new Date()&&o.stage!=="active"&&o.stage!=="declined" }).length||null;
  var LBL={dashboard:t("dashboardTab"), listings:GX("navAllListings"), intake:GX("navBotDrafts"), reports:t("reportsTab"), photos:GX("tMedia"),
    wanted_adm:GX("tWanted"), users:t("usersTab"), agencies_adm:GX("tAgencies"), reviews:t("reviewsTab"), house:GX("tHouse"),
-   feedback:t("feedbackTab"), tickets:GX("ticketsTab"), msgs:t("msgsNotifTab"), campaigns:GX("tCampaigns"), outreach:GX("tOutreach"),
+   inquiries_adm:admInqT("tab"), feedback:t("feedbackTab"), tickets:GX("ticketsTab"), msgs:t("msgsNotifTab"), campaigns:GX("tCampaigns"), outreach:GX("tOutreach"),
    featured:GX("tPromote"), ads:t("adsTab"), banners:GX("tBanners"), engage:GX("tEngage"), placements:GX("tPlacements"), promopage:GX("tPromoPage"), services_adm:GX("tServicesAdm"), social:GX("tSocial"), projects_adm:GX("tProjects"),
    stats:GX("navAnalytics"), guides:GX("tGuides"), mainpage:t("mainPageTab"), design:GX("tDesign"), contact:GX("tContact"),
    settings:GX("navGeneral"), intake_cfg:GX("navBot"), countries:GX("countriesTab"), geo:GX("geoTab"), maps:GX("tMaps"), types:GX("ptTab"), admins:t("adminsTab"), audit:GX("tAudit"), storage:GX("tStorage"), danger:t("dangerTab")};
@@ -1192,7 +1193,7 @@ function adminAgenciesBody(){
       '<thead><tr><th>'+GX("agColAgency")+'</th><th>'+GX("agColCoverage")+'</th><th>'+t("liveAds")+'</th><th>'+t("status")+'</th><th>'+GX("tIntake")+'</th><th>'+GX("colDate")+'</th></tr></thead>'+
       '<tbody>'+(rows||'<tr><td colspan="6" class="lnone">'+GX("lfNone")+'</td></tr>')+'</tbody></table></div>'+drawer+'</div>' }
 async function adminLoad(){
-  ADM._lpgRev=(ADM._lpgRev||0)+1;   // «كل الإعلانات» re-reads its page after any change (2026-11-24)
+  ADM._lpgRev=(ADM._lpgRev||0)+1; ADM._inqLoaded=false;   // «كل الإعلانات» re-reads its page after any change (2026-11-24)
   ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._anLoaded=false; ADM._uactLoaded=false; ADM._delUsersLoaded=false; ADM.delUsers=null; ADM._ldelLoaded=false; ADM.ldel=null; ADM._ldupLoaded=false; ADM.ldup=null; ADM.ldupN=null; ADM._lstatsLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._promosLoaded=false;
   ADM._storageUsageLoaded=false;
   ["_adminsLoaded","_agLoaded","_geoLoaded","_ikLoaded","_meLoaded","_mediaUsedLoaded","_photosLoaded","_pjLoaded","_ticketsLoaded","_vfLoaded","_wLoaded"].forEach(function(k){ ADM[k]=false }); ADM._mediaLoadedCats={};   // every page re-fetches on refresh, not only the shared data
@@ -2361,6 +2362,7 @@ function wireAdmin(){
     var countEl=$("#aListCount");
     if(countEl) countEl.innerHTML = '<span class="ltr">'+visible+'</span> '+t("listingsTab");
   };
+  if(ADM.tab==="inquiries_adm") wireAdminInquiries();   // visit requests / messages between members (read only)
   if(ADM.tab==="listings") wireAdminListings();   // the listings page wires its own search / filters / drawer / bulk bar
   if($("#aqU")){ var aqU=$("#aqU");
     aqU.oninput=function(){ var v=this.value, had=!!ADM.uQ; ADM.uQ=v.trim()?v:"";
@@ -4778,6 +4780,79 @@ function admStLabel(s){ return s==="hidden"?GX("st_hidden"):s==="rejected"?GX("s
 function admTypeName(l){ return D.TYPES[l.property_type]?D.TYPES[l.property_type][li()]:(l.property_type||"") }
 function admDealLabel(l){ return l.deal==="rent"?GX("lfForRent"):(Array.isArray(l.amenities)&&l.amenities.indexOf(SHARE_TAG)>-1)?GX("shareBadge"):GX("lfForSale") }
 function admListTitle(l){ return admTypeName(l)+' '+admDealLabel(l)+(l.area?' · '+esc(l.area):(l.gov?' · '+esc(l.gov):''))+(l.area_m2?' · <span class="ltr">'+(+l.area_m2).toLocaleString("en")+'</span> '+t("sqm"):'') }
+/* «طلبات المعاينة» (owner 2026-11-24, step 3): every «طلب معاينة» / «رسالة» a visitor sent from a listing page, the replies the
+   two sides wrote in «رسائلي», and how each one reached the other side (Telegram / WhatsApp: sent, skipped because it
+   arrived on Telegram, or failed). Read only — the conversations belong to the members, so no reply / delete here. */
+function admInqT(k){ var T={
+  tab:{ar:"طلبات المعاينة",en:"Visit requests",de:"Besichtigungen"},
+  hint:{ar:"كل طلب معاينة أو رسالة بعتها زائر من صفحة إعلان، والردود اللي كتبوها الطرفين بـ«رسائلي»، وكيف وصلت كل رسالة. للعرض فقط.",en:"Every visit request or message a visitor sent from a listing page, the replies both sides wrote in «My messages», and how each one was delivered. View only.",de:"Jede Anfrage von einer Anzeigenseite, die Antworten beider Seiten und wie jede Nachricht zugestellt wurde. Nur Ansicht."},
+  all:{ar:"الكل",en:"All",de:"Alle"}, fresh:{ar:"بلا رد",en:"No reply",de:"Ohne Antwort"}, replied:{ar:"تمّ الرد",en:"Replied",de:"Beantwortet"},
+  visit:{ar:"طلب معاينة",en:"Visit request",de:"Besichtigung"}, message:{ar:"رسالة",en:"Message",de:"Nachricht"},
+  from:{ar:"من",en:"From",de:"Von"}, to:{ar:"إلى",en:"To",de:"An"}, buyer:{ar:"المشتري",en:"Buyer",de:"Interessent"}, owner:{ar:"صاحب الإعلان",en:"Owner",de:"Inserent"},
+  guest:{ar:"زائر بدون حساب",en:"Guest (no account)",de:"Gast"}, none:{ar:"ما في طلبات معاينة لهلق.",en:"No visit requests yet.",de:"Noch keine Anfragen."},
+  pick:{ar:"اختار طلب من القائمة.",en:"Pick a request from the list.",de:"Anfrage auswählen."}, listing:{ar:"الإعلان",en:"Listing",de:"Anzeige"},
+  replies:{ar:"ردود",en:"replies",de:"Antworten"}, tg:{ar:"تلغرام",en:"Telegram",de:"Telegram"}, wa:{ar:"واتساب",en:"WhatsApp",de:"WhatsApp"},
+  ok:{ar:"وصلت",en:"sent",de:"gesendet"}, skip:{ar:"ما انبعتت (وصلت على تلغرام)",en:"skipped (arrived on Telegram)",de:"übersprungen (per Telegram)"},
+  fail:{ar:"فشلت",en:"failed",de:"fehlgeschlagen"}, wait:{ar:"بالدور",en:"queued",de:"wartet"}, nosend:{ar:"ما انبعتت لا واتساب ولا تلغرام (الجرس بالموقع بس)",en:"No WhatsApp / Telegram (site bell only)",de:"Nur Glocke auf der Website"},
+  shown:{ar:"آخر {n} من {t}",en:"Latest {n} of {t}",de:"Neueste {n} von {t}"}, err:{ar:"ما قدرت جيب الطلبات",en:"Could not load the requests",de:"Konnte nicht laden"}};
+  var x=T[k]; return x?(x[L]||x.ar):k }
+function admInqSent(list){ list=list||[]; if(!list.length) return '<div class="inq-sent"><span class="inq-chip">'+admInqT("nosend")+'</span></div>';
+  return '<div class="inq-sent">'+list.map(function(c){ var ch=c.channel==="telegram"?admInqT("tg"):c.channel==="whatsapp"?admInqT("wa"):esc(c.channel||"");
+    var st=c.status==="sent"?["ok","✓ "+admInqT("ok")]:c.status==="skipped_telegram"?["skip",admInqT("skip")]:c.status==="failed"?["bad","✕ "+admInqT("fail")]:["wait",admInqT("wait")];
+    return '<span class="inq-chip inq-'+st[0]+'" title="'+esc(c.error||"")+'">'+ch+': '+st[1]+'</span>' }).join("")+'</div>' }
+function adminInquiriesBody(){
+  var D0=ADM.inq; if(!D0) return '<div class="done2"><b>'+t("loading")+'</b></div>'; if(D0.error) return '<div class="done2"><b>'+admInqT("err")+'</b><div class="hintx">'+esc(D0.error)+'</div></div>';
+  var rows=D0.rows||[], f=ADM.inqF||"all";
+  var shown=rows.filter(function(r){ var n=(r.thread||[]).length; return f==="fresh"?!n:f==="replied"?n>0:true });
+  var sel=shown.filter(function(r){ return String(r.id)===String(ADM.inqSel) })[0]||shown[0]||null;
+  var who=function(nm,no){ return esc(nm||admInqT("guest"))+(no?' <small class="ltr">('+esc(no)+')</small>':'') };
+  var kindL=function(r){ return r.kind==="message"?admInqT("message"):admInqT("visit") };
+  var lastText=function(r){ var th=r.thread||[]; return th.length?th[th.length-1].body:r.message };
+  var rowHtml=function(r,on){ var n=(r.thread||[]).length;
+    return '<div class="inbox-row'+(on?' on':'')+(n?' solved':'')+'" data-inqrow="'+r.id+'" data-row-text="'+esc([r.listing_ref,r.from_name,r.from_phone,r.to_name,r.to_agency,r.to_phone,r.message].join(" "))+'">'+
+      '<div class="inbox-row-top">'+scopeFlag(r.country_code)+'<b>'+esc(r.from_name||admInqT("guest"))+' ← '+esc(r.to_agency||r.to_name||"")+'</b><span class="fbwhen">'+admWhen(r.last_at||r.created_at)+'</span></div>'+
+      '<div class="inbox-row-sub"><span class="ltr">'+esc(r.listing_ref||"")+'</span> · '+kindL(r)+' · '+esc(String(lastText(r)||"").slice(0,60))+'</div>'+
+      (n?'<span class="inbox-row-badge">'+admInqT("replied")+' · <span class="ltr">'+n+'</span> '+admInqT("replies")+'</span>':'')+'</div>' };
+  var bubble=function(side,name,body,at,sent){ return '<div class="inq-msg inq-'+side+'"><div class="inq-meta"><b>'+name+'</b> · <span class="ltr">'+admWhen(at)+'</span></div><div class="inq-body">'+esc(body||"")+'</div>'+admInqSent(sent)+'</div>' };
+  var detail=function(r){ var cc=String(r.country_code||"SY").toLowerCase(), href=(cc==="sy"?"":"/"+cc)+"/listing/"+r.listing_id;
+    var place=[D.TYPES[r.property_type]?D.TYPES[r.property_type][li()]:"",r.area||r.gov].filter(Boolean).join(" · ");
+    var buyer=admInqT("buyer")+': '+esc(r.from_name||admInqT("guest")), owner=admInqT("owner")+': '+esc(r.to_agency||r.to_name||"");
+    return '<div class="fbtop"><span class="fbkind">'+kindL(r)+'</span><span class="fbwhen">'+admWhen(r.created_at)+'</span></div>'+
+      (r.listing_id?'<div class="fbwho">'+admInqT("listing")+': <a href="'+href+'" target="_blank" rel="noopener" class="ltr" style="text-decoration:underline">'+esc(r.listing_ref||r.listing_id)+'</a>'+(place?' · '+esc(place):'')+(r.listing_status&&r.listing_status!=="live"?' · '+admStLabel(r.listing_status):'')+'</div>':'')+
+      '<div class="fbwho">'+admInqT("from")+': '+who(r.from_name,r.from_member_no)+(r.from_phone?' · <span class="ltr">'+esc(r.from_phone)+'</span>':'')+'</div>'+
+      '<div class="fbwho">'+admInqT("to")+': '+who(r.to_agency||r.to_name,r.to_member_no)+(r.to_agency&&r.to_name&&r.to_name!==r.to_agency?' <small>('+esc(r.to_name)+')</small>':'')+(r.to_phone?' · <span class="ltr">'+esc(r.to_phone)+'</span>':'')+'</div>'+
+      '<div class="inq-thread">'+bubble("buyer",buyer,r.message,r.created_at,r.sent)+
+        (r.thread||[]).map(function(m){ return m.sender==="owner"?bubble("owner",owner,m.body,m.created_at,m.sent):bubble("buyer",buyer,m.body,m.created_at,m.sent) }).join("")+'</div>' };
+  var cnt=function(k){ return rows.filter(function(r){ var n=(r.thread||[]).length; return k==="fresh"?!n:k==="replied"?n>0:true }).length };
+  return '<div class="hintx" style="margin-bottom:10px">'+admInqT("hint")+'</div>'+
+   '<div class="inbox'+(window._admMobileDetail?' inbox-mobiledetail':'')+'">'+
+    '<div class="inbox-list"><div class="msgfilters">'+["all","fresh","replied"].map(function(k){ return '<button class="mfbtn'+(f===k?" on":"")+'" data-inqf="'+k+'">'+admInqT(k)+' <span class="ltr">('+cnt(k)+')</span></button>' }).join("")+'</div>'+
+     '<input id="aqinq" dir="auto" placeholder="'+t("searchPH")+'" class="asearch" style="margin:10px 0">'+
+     (D0.total>rows.length?'<div class="hintx">'+admInqT("shown").replace("{n}",rows.length).replace("{t}",D0.total)+'</div>':'')+
+     '<div class="inbox-rows" id="inboxRowsinq">'+(shown.length?shown.map(function(r){ return rowHtml(r, sel&&sel.id===r.id) }).join(""):'<div class="done2"><b>'+admInqT("none")+'</b></div>')+'</div></div>'+
+    '<div class="inbox-detail">'+(sel?'<button class="ab inbox-back" data-inqback="1">‹ '+t("backToList")+'</button>'+detail(sel):'<div class="done2"><b>'+admInqT("pick")+'</b></div>')+'</div>'+
+   '</div>' }
+function admInqCss(){ if(document.getElementById("admInqCss")) return; var st=document.createElement("style"); st.id="admInqCss";
+  st.textContent=".inq-thread{display:flex;flex-direction:column;gap:10px;margin-top:14px}"+
+    ".inq-msg{max-width:86%;border-radius:12px;padding:10px 12px;border:1px solid #E4E4E7;background:#F7F8FA}"+
+    ".inq-msg.inq-buyer{align-self:flex-start}.inq-msg.inq-owner{align-self:flex-end;background:#EEF1F7;border-color:#D9DFEA}"+
+    ".inq-meta{font-size:12px;color:#5B6371;margin-bottom:4px}.inq-meta b{color:#22252A;font-weight:600}"+
+    ".inq-body{font-size:14px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:#22252A}"+
+    ".inq-sent{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}"+
+    ".inq-chip{font-size:11px;font-weight:600;border-radius:999px;padding:2px 8px;background:#EEF0F3;color:#5B6371}"+
+    ".inq-chip.inq-ok{background:#EAF5EF;color:#2E7D5B}.inq-chip.inq-bad{background:#FAECEA;color:#B3271E}.inq-chip.inq-wait{background:#FDF3E1;color:#8A6522}"+
+    "html.adm-dark .inq-msg{background:#1C2433;border-color:#2C3648}html.adm-dark .inq-msg.inq-owner{background:#22304A;border-color:#33425E}"+
+    "html.adm-dark .inq-meta{color:#9AA4B5}html.adm-dark .inq-meta b,html.adm-dark .inq-body{color:#E6E9EF}"+
+    "html.adm-dark .inq-chip{background:#2A3344;color:#AEB7C6}html.adm-dark .inq-chip.inq-ok{background:#16352A;color:#7FD1A8}html.adm-dark .inq-chip.inq-bad{background:#3A1E1C;color:#F0998F}html.adm-dark .inq-chip.inq-wait{background:#3A2F17;color:#E9C27A}";
+  document.head.appendChild(st) }
+function wireAdminInquiries(){
+  admInqCss();
+  if(!ADM._inqLoaded){ ADM._inqLoaded=true; rpcScoped("bk_admin_inquiries",{p_token:ADM.token,p_country:admScope(),p_limit:300}).then(function(r){ ADM.inq=r||{rows:[],total:0}; render() }).catch(function(e){ ADM.inq={error:e.message||String(e)}; render() }) }
+  $$("[data-inqrow]").forEach(function(e){ e.onclick=function(){ ADM.inqSel=this.dataset.inqrow; window._admMobileDetail=true; render() } });
+  $$("[data-inqf]").forEach(function(b){ b.onclick=function(){ ADM.inqF=this.dataset.inqf; ADM.inqSel=null; render() } });
+  $$("[data-inqback]").forEach(function(b){ b.onclick=function(){ window._admMobileDetail=false; render() } });
+  var q=$("#aqinq"); if(q) q.oninput=function(){ var v=this.value.trim(); $$("#inboxRowsinq [data-inqrow]").forEach(function(r){ r.style.display=(!v||admNormQ((r.dataset.rowText||"")+" "+r.textContent).indexOf(admNormQ(v))>-1)?"":"none" }) };
+}
 /* «كل الإعلانات» reads page by page from the database (owner 2026-11-24: the page said 500 while the site had 863 —
    bk_admin_data only sends its newest 500). Filters, search, sort and counts run in bk_admin_listings_page over every
    listing; «عرض المزيد» asks for a longer page. The deleted / duplicates views still use the loaded data. */
