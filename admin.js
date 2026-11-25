@@ -1192,6 +1192,7 @@ function adminAgenciesBody(){
       '<thead><tr><th>'+GX("agColAgency")+'</th><th>'+GX("agColCoverage")+'</th><th>'+t("liveAds")+'</th><th>'+t("status")+'</th><th>'+GX("tIntake")+'</th><th>'+GX("colDate")+'</th></tr></thead>'+
       '<tbody>'+(rows||'<tr><td colspan="6" class="lnone">'+GX("lfNone")+'</td></tr>')+'</tbody></table></div>'+drawer+'</div>' }
 async function adminLoad(){
+  ADM._lpgRev=(ADM._lpgRev||0)+1;   // «كل الإعلانات» re-reads its page after any change (2026-11-24)
   ADM._reviewsLoaded=false; ADM._cardLogosLoaded=false; ADM._storageReportLoaded=false; ADM._anLoaded=false; ADM._uactLoaded=false; ADM._delUsersLoaded=false; ADM.delUsers=null; ADM._ldelLoaded=false; ADM.ldel=null; ADM._ldupLoaded=false; ADM.ldup=null; ADM.ldupN=null; ADM._lstatsLoaded=false; ADM._statsLoaded=false; ADM._settingsLoaded=false; ADM._alertsLoaded=false; ADM._adSlotsLoaded=false; ADM._promosLoaded=false;
   ADM._storageUsageLoaded=false;
   ["_adminsLoaded","_agLoaded","_geoLoaded","_ikLoaded","_meLoaded","_mediaUsedLoaded","_photosLoaded","_pjLoaded","_ticketsLoaded","_vfLoaded","_wLoaded"].forEach(function(k){ ADM[k]=false }); ADM._mediaLoadedCats={};   // every page re-fetches on refresh, not only the shared data
@@ -1710,6 +1711,7 @@ function wireAdmin(){
     ADM._ldupLoaded=true; ADM.ldupErr=null;
     rpcScoped("bk_admin_duplicate_listings",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.ldup=r||[]; render() }).catch(function(e){ ADM.ldup=[]; ADM.ldupErr=e.message||String(e); render() });
   }
+  if(ADM.tab==="listings" && !(ADM.lf&&ADM.lf.view)) admLpgFetch();   // the list itself: one page from the database
   if(ADM.tab==="listings" && (!ADM._lstatsLoaded || ADM._lstatsRange!==ADM.range)){
     ADM._lstatsLoaded=true; ADM._lstatsRange=ADM.range;
     rpcScoped("bk_admin_listing_stats",{p_token:ADM.token,p_days:ADM.range,p_country:admScope()}).then(function(r){ var m={}; (r||[]).forEach(function(x){ m[x.id]=x }); ADM.lstats=m; render() }).catch(function(){});
@@ -4777,9 +4779,20 @@ function admStLabel(s){ return s==="hidden"?GX("st_hidden"):s==="rejected"?GX("s
 function admTypeName(l){ return D.TYPES[l.property_type]?D.TYPES[l.property_type][li()]:(l.property_type||"") }
 function admDealLabel(l){ return l.deal==="rent"?GX("lfForRent"):(Array.isArray(l.amenities)&&l.amenities.indexOf(SHARE_TAG)>-1)?GX("shareBadge"):GX("lfForSale") }
 function admListTitle(l){ return admTypeName(l)+' '+admDealLabel(l)+(l.area?' · '+esc(l.area):(l.gov?' · '+esc(l.gov):''))+(l.area_m2?' · <span class="ltr">'+(+l.area_m2).toLocaleString("en")+'</span> '+t("sqm"):'') }
+/* «كل الإعلانات» reads page by page from the database (owner 2026-11-24: the page said 500 while the site had 863 —
+   bk_admin_data only sends its newest 500). Filters, search, sort and counts run in bk_admin_listings_page over every
+   listing; «عرض المزيد» asks for a longer page. The deleted / duplicates views still use the loaded data. */
+function admLpgKey(){ var f=ADM.lf||{}; return JSON.stringify([admScope(),f.q||"",f.status||"",f.gov||"",f.type||"",f.who||"",f.src||"",f.sort||"new",(ADM.listUser&&ADM.listUser.id)||"",admShown("lst"),(f.sort==="views"||f.sort==="contacts")?(ADM.range||7):0,ADM._lpgRev||0]) }
+function admLpgFetch(){
+  var k=admLpgKey(); if((ADM.lpg&&ADM.lpg.key===k) || ADM._lpgReq===k) return; ADM._lpgReq=k; var f=ADM.lf||{};
+  rpcScoped("bk_admin_listings_page",{p_token:ADM.token,p_country:admScope(),p_f:{q:f.q||"",status:f.status||"",gov:f.gov||"",type:f.type||"",who:f.who||"",src:f.src||"",sort:f.sort||"new",user:(ADM.listUser&&ADM.listUser.id)||""},p_offset:0,p_limit:admShown("lst"),p_days:ADM.range||7})
+    .then(function(r){ if(ADM._lpgReq!==k) return; ADM._lpgReq=null; ADM.lpg=Object.assign({key:k},r||{}); render() })
+    .catch(function(e){ if(ADM._lpgReq!==k) return; ADM._lpgReq=null; ADM.lpg={key:k,err:e.message||String(e),rows:(ADM.lpg&&ADM.lpg.rows)||[],total:0,scope_total:0,facets:{}}; render() }) }
+function admListingById(id){ id=String(id); var a=((ADM.lpg&&ADM.lpg.rows)||[]).filter(function(l){ return String(l.id)===id })[0]; return a||((ADM.data&&ADM.data.listings)||[]).filter(function(l){ return String(l.id)===id })[0]||null }
 function admListingsFiltered(d){
   var all=(d.listings||[]); var f=ADM.lf=ADM.lf||{q:"",status:"",gov:"",type:"",who:"",src:"",sort:"new",view:""};
   if(ADM.lstatus){ f.status=ADM.lstatus; ADM.lstatus=null }                       // a bell / dashboard jump pre-filters by status
+  if(!f.view){ var P=ADM.lpg, rws=(P&&P.rows)||[]; return {all:rws, LL:rws, f:f, S:ADM.lstats||{}, P:P||null} }   // the database page (see admLpgFetch)
   if(ADM.listUser&&ADM.listUser.id) all=all.filter(function(l){ return l.poster_id===ADM.listUser.id });
   var q=admNormQ(f.q);
   var LL=all.filter(function(l){
@@ -4795,17 +4808,19 @@ function admListingsFiltered(d){
   return {all:all, LL:LL, f:f, S:S};
 }
 function adminListingsBody(d){
-  var R=admListingsFiltered(d), all=R.all, LL=R.LL, f=R.f, S=R.S;
+  var R=admListingsFiltered(d), all=R.all, LL=R.LL, f=R.f, S=R.S, srv=!f.view, P=R.P||{}, PF=P.facets||{};
   var uniq=function(fn){ var m={}; all.forEach(function(x){ var k=fn(x); if(k) m[k]=(m[k]||0)+1 }); return Object.keys(m).sort(function(a,b){ return m[b]-m[a] }).map(function(k){ return [k,k,m[k]] }) };
+  var fct=function(key){ return (PF[key]||[]).map(function(it){ return [it[0],it[0],it[1]] }) };   // [[value, count]] from the server → pill items
+  var allN=srv?(+P.scope_total||0):all.length, totN=srv?(+P.total||0):LL.length;
   var pill=function(key,label,items,cur,id){ return '<label class="lfc'+(cur?' on':'')+'"><span>'+label+':</span><select data-lf="'+key+'"'+(id?' id="'+id+'"':'')+'><option value="">'+GX("lfAll")+'</option>'+items.map(function(it){ return '<option value="'+esc(it[0])+'"'+(cur===it[0]?' selected':'')+'>'+esc(it[1])+(it[2]!=null?' ('+it[2]+')':'')+'</option>' }).join("")+'</select></label>' };
-  var stItems=["pending","live","hidden","rejected","sold","rented","expired","removed"].map(function(k){ var n=all.filter(function(l){ return l.status===k }).length; return n?[k,admStLabel(k),n]:null }).filter(Boolean);
-  var tyItems=uniq(function(l){ return l.property_type }).map(function(it){ return [it[0], D.TYPES[it[0]]?D.TYPES[it[0]][li()]:it[0], it[2]] });
+  var stItems=["pending","live","hidden","rejected","sold","rented","expired","removed"].map(function(k){ var n=srv?(+((PF.status||{})[k])||0):all.filter(function(l){ return l.status===k }).length; return n?[k,admStLabel(k),n]:null }).filter(Boolean);
+  var tyItems=(srv?fct("type"):uniq(function(l){ return l.property_type })).map(function(it){ return [it[0], D.TYPES[it[0]]?D.TYPES[it[0]][li()]:it[0], it[2]] });
   var sortItems=[["new",GX("sortNewest")],["views",GX("sortViews")],["contacts",GX("sortContacts")],["price",GX("lfSortPrice")]];
-  var pend=all.filter(function(l){ return l.status==="pending" }).length;
+  var pend=srv?(+P.pending||0):all.filter(function(l){ return l.status==="pending" }).length;
   var anyF=f.q||f.status||f.gov||f.type||f.who||f.src||f.view;
   ADM.lsel=ADM.lsel||{}; var vis={}; LL.forEach(function(l){ vis[l.id]=1 }); Object.keys(ADM.lsel).forEach(function(k){ if(!vis[k]) delete ADM.lsel[k] });
   var selIds=Object.keys(ADM.lsel).filter(function(k){ return ADM.lsel[k] }), nSel=selIds.length; ADM._lvis=LL.slice(0,admShown("lst")).map(function(l){ return l.id });
-  var open=ADM.lopen?(LL.filter(function(l){ return l.id===ADM.lopen })[0]||all.filter(function(l){ return l.id===ADM.lopen })[0]):null; if(!open) ADM.lopen=null;
+  var open=ADM.lopen?(LL.filter(function(l){ return l.id===ADM.lopen })[0]||all.filter(function(l){ return l.id===ADM.lopen })[0]||admListingById(ADM.lopen)):null; if(!open) ADM.lopen=null;
   var rowHtml=function(l){ var sel=!!ADM.lsel[l.id];
     return '<tr class="lrow'+(sel?' sel':'')+(ADM.lopen===l.id?' open':'')+'" data-lrow="'+l.id+'">'+
       '<td class="lchk"><input type="checkbox" data-lsel="'+l.id+'"'+(sel?' checked':'')+' aria-label="select"></td>'+
@@ -4815,9 +4830,9 @@ function adminListingsBody(d){
       '<td class="lprice">'+(l.price_usd!=null&&l.price_usd!==""&&!isNaN(+l.price_usd)?'<span class="ltr">'+admPrice(l.price_usd)+'</span>':'<small>'+GX("lfPOR")+'</small>')+'</td>'+
       '<td class="lwho">'+esc(l.agency_name||l.poster_name||"—")+(l.agency_name&&l.poster_name&&l.agency_name!==l.poster_name?'<small>'+esc(l.poster_name)+'</small>':(l.poster_phone?'<small class="ltr">'+esc(l.poster_phone)+'</small>':''))+'</td>'+
       '<td class="lwhen"><span class="ltr">'+admWhen(l.created_at)+'</span></td></tr>' };
-  var rows=LL.slice(0,admShown("lst")).map(rowHtml).join(""), moreHtml=admMoreBtn(LL.length,admShown("lst"),"lst");
+  var rows=LL.slice(0,admShown("lst")).map(rowHtml).join(""), moreHtml=admMoreBtn(totN,admShown("lst"),"lst");
   var thead='<tr><th><input type="checkbox" id="lselAll"'+(ADM._lvis.length&&nSel===ADM._lvis.length?' checked':'')+' aria-label="select all"></th><th>'+GX("colListing")+'</th><th>'+t("status")+'</th><th>'+GX("price")+'</th><th>'+GX("lfWho")+'</th><th>'+GX("colDate")+'</th></tr>';
-  var tbody=rows||'<tr><td colspan="6" class="lnone">'+GX("lfNone")+'</td></tr>', viewHint='', showBulk=true, cntN=LL.length;
+  var tbody=rows||'<tr><td colspan="6" class="lnone">'+(srv&&!R.P?t("loading"):srv&&P.err?esc(P.err):GX("lfNone"))+'</td></tr>', viewHint='', showBulk=true, cntN=totN;
   var q=admNormQ(f.q);
   if(f.view==="deleted"){
     // the deleted-listings log: who deleted each listing (owner / admin / with the account) and the reason given
@@ -4857,13 +4872,13 @@ function adminListingsBody(d){
           return '<tr class="ldgrp"><td colspan="6" style="background:rgba(120,130,150,.12);font-size:13px;padding:8px 12px"><b>'+GX("dupGroup")+' <span class="ltr">'+(i+1)+'</span></b> · <span class="ltr">'+c.length+'</span> · <small>'+lab+'</small></td></tr>'+c.map(function(id){ return rowHtml(byId[id]) }).join("") }).join("");
     viewHint='<div class="hintx" style="margin:0 0 10px">'+GX("dupHint")+'</div>'; moreHtml=admMoreBtn(clusters.length,admShown("ldup"),"ldup");
   }
-  return (ADM.listUser?'<div class="ulchip"><span>'+GX("uListChip").replace("{n}",esc(ADM.listUser.name||""))+' · <b class="ltr">'+all.length+'</b></span><button type="button" class="ab" id="ulClear">✕ '+GX("uListAll")+'</button></div>':'')+
-   '<div class="lbar"><span class="lcnt"><b class="ltr">'+cntN+'</b>'+(!f.view&&LL.length!==all.length?' / <span class="ltr">'+all.length+'</span>':'')+' '+(f.view==="deleted"?GX("lfDeletedV"):f.view==="dupes"?GX("dupGroup"):t("listingsTab"))+(pend&&!f.view?'<span class="lpend">· '+GX("lfPendingN").replace("{n}",pend)+'</span>':'')+'</span>'+
+  return (ADM.listUser?'<div class="ulchip"><span>'+GX("uListChip").replace("{n}",esc(ADM.listUser.name||""))+' · <b class="ltr">'+allN+'</b></span><button type="button" class="ab" id="ulClear">✕ '+GX("uListAll")+'</button></div>':'')+
+   '<div class="lbar"><span class="lcnt"><b class="ltr">'+cntN+'</b>'+(!f.view&&totN!==allN?' / <span class="ltr">'+allN+'</span>':'')+' '+(f.view==="deleted"?GX("lfDeletedV"):f.view==="dupes"?GX("dupGroup"):t("listingsTab"))+(pend&&!f.view?'<span class="lpend">· '+GX("lfPendingN").replace("{n}",pend)+'</span>':'')+'</span>'+
      '<label class="lq">'+AICO.search+'<input id="aqL" dir="auto" value="'+esc(f.q||"")+'" placeholder="'+t("searchPH")+'" autocomplete="off"></label>'+rangeTabs()+
      '<span title="'+esc(GX("countsOnHint"))+'" style="display:inline-flex;align-items:center;gap:8px;font-size:13px;white-space:nowrap">'+GX("countsOnL")+'<label class="xswitch"><input type="checkbox" id="lCountsOn"'+(SXb("listing_counts_on",true)?" checked":"")+'><i></i></label></span></div>'+
    '<div class="lfilters">'+pill("view",GX("lfView"),[["deleted",GX("lfDeletedV"),ADM.ldel?ADM.ldel.length:null],["dupes",GX("lfDupesV"),ADM.ldupN!=null?ADM.ldupN:null]],f.view)+
-     (f.view?'':pill("status",GX("lfStatus"),stItems,f.status,"afStatus")+pill("gov",GX("lfGov"),uniq(function(l){ return l.gov }),f.gov)+pill("type",GX("lfType"),tyItems,f.type)+pill("who",GX("lfWho"),uniq(function(l){ return l.agency_name||l.poster_name }),f.who)+
-     pill("src",GX("lfSrc"),[["bot",GX("lfBot"),all.filter(function(l){ return l.via }).length],["site",GX("lfSite"),all.filter(function(l){ return !l.via }).length]],f.src)+pill("sort",GX("lfSort"),sortItems,f.sort!=="new"?f.sort:""))+
+     (f.view?'':pill("status",GX("lfStatus"),stItems,f.status,"afStatus")+pill("gov",GX("lfGov"),srv?fct("gov"):uniq(function(l){ return l.gov }),f.gov)+pill("type",GX("lfType"),tyItems,f.type)+pill("who",GX("lfWho"),srv?fct("who"):uniq(function(l){ return l.agency_name||l.poster_name }),f.who)+
+     pill("src",GX("lfSrc"),[["bot",GX("lfBot"),srv?(+PF.bot||0):all.filter(function(l){ return l.via }).length],["site",GX("lfSite"),srv?(+PF.site||0):all.filter(function(l){ return !l.via }).length]],f.src)+pill("sort",GX("lfSort"),sortItems,f.sort!=="new"?f.sort:""))+
      (anyF?'<button type="button" class="lfclear" id="lfClear">'+GX("lfClear")+'</button>':'')+'</div>'+viewHint+
    '<div class="lpage'+(open?' has-drawer':'')+'"><div class="ltbl">'+
      (showBulk&&nSel?'<div class="lbulk"><span><b class="ltr">'+nSel+'</b> '+GX("lfSelected")+'</span><button type="button" class="lx" id="lselNone">✕ '+GX("lfUnsel")+'</button><span class="sp"></span>'+
