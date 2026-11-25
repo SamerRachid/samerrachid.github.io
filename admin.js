@@ -1300,13 +1300,14 @@ function adminPromoBody(){
 function admLoadPromos(){ return rpcScoped("bk_admin_list_promos",{p_token:ADM.token,p_country:admScope()}).then(function(r){ ADM.promos=r||{rows:[],squares:{}}; render() }).catch(function(e){ ADM.promos={rows:[],squares:{},error:e.message||"error"}; render() }) }
 function admPmOpen(id){
   ADM.pm={id:+id,info:null,top:false,home:false,from:new Date().toISOString().slice(0,10),days:7,client:"",credit:false,busy:false,msg:"",codes:null}; render();
+  admListingsEnsure([id]);   // its photo count / poster, when it is older than the loaded list
   rpc("bk_admin_promo_info",{p_token:ADM.token,p_listing:+id}).then(function(r){ var p=ADM.pm; if(!p||p.id!==+id) return; p.info=r||{};
     var i=p.info; p.top=!(i.top&&i.top.active); p.home=false; if(i.home&&i.home.sponsor_name) p.client=i.home.sponsor_name; render() })
   .catch(function(e){ if(ADM.pm&&ADM.pm.id===+id){ ADM.pm.msg=pmErr(e); render() } });
 }
-function admPmNoPhoto(p){ if(!p || SXb("ad_allow_nophoto",false)) return false; var l=((ADM.data&&ADM.data.listings)||[]).filter(function(x){ return String(x.id)===String(p.id) })[0]; return !!(l && l.photos!=null && !(+l.photos>0)) }
+function admPmNoPhoto(p){ if(!p || SXb("ad_allow_nophoto",false)) return false; var l=admListingById(p.id); return !!(l && l.photos!=null && !(+l.photos>0)) }
 function admPmHtml(){
-  var p=ADM.pm; if(!p) return ""; var i=p.info, lst=((ADM.data&&ADM.data.listings)||[]).filter(function(l){ return String(l.id)===String(p.id) })[0]||{};
+  var p=ADM.pm; if(!p) return ""; var i=p.info, lst=admListingById(p.id)||{};
   var ref=(i&&i.ref)||lst.ref||p.id, who=(i&&i.poster_name)||lst.poster_name||"";
   var sq=(i&&i.squares)||{}, full=sq.max!=null && sq.used>=sq.max && !(i&&i.home&&i.home.active);
   var noPh=admPmNoPhoto(p); if(noPh) full=true;   /* a listing with no photo is not accepted in the squares (switch «قبول إعلان بلا صور», off by default) */
@@ -1329,7 +1330,7 @@ function admPmHtml(){
 }
 function admPmRefresh(r){
   // after a change: the tab's table, the member balances, the drawer's star, the public squares and ad list
-  var p=ADM.pm, i=r||(p&&p.info); if(i&&ADM.data&&ADM.data.listings){ ADM.data.listings.forEach(function(l){ if(String(l.id)===String(i.id)) l.is_featured=!!(i.top&&i.top.active) }) }
+  var p=ADM.pm, i=r||(p&&p.info); if(i){ [].concat((ADM.data&&ADM.data.listings)||[],(ADM.lpg&&ADM.lpg.rows)||[],ADM.lcache?Object.keys(ADM.lcache).map(function(k){ return ADM.lcache[k] }):[]).forEach(function(l){ if(String(l.id)===String(i.id)) l.is_featured=!!(i.top&&i.top.active) }) }
   ADM._engDays=null;
   if(ADM.tab==="featured"){ if(can("featured")||can("social")) admLoadPromos(); if(can("rewards")) rpcScoped("bk_admin_rewards",{p_token:ADM.token,p_country:admScope()}).then(function(x){ ADM.rewards=x||{}; render() }).catch(function(){}) }
   try{ if(typeof syncFeaturedFromServer==="function") syncFeaturedFromServer() }catch(e){}
@@ -1912,7 +1913,7 @@ function wireAdmin(){
     if($("#engAddBtn")) $("#engAddBtn").onclick=function(){ ADM.engAdd=!ADM.engAdd; render() };
     if($("#engAddCancel")) $("#engAddCancel").onclick=function(){ ADM.engAdd=false; render() };
     if($("#engAddSave")) $("#engAddSave").onclick=async function(){ var m=$("#eaMsg"), kind=$("#eaKind").value, ref=($("#eaRef").value||"").trim(), refId=null;
-      if(/^\d+$/.test(ref)) refId=+ref; else if(ref){ var l=((ADM.data&&ADM.data.listings)||[]).filter(function(x){ return String(x.ref||"").toLowerCase()===ref.toLowerCase() })[0]; if(l) refId=+l.id }
+      if(/^\d+$/.test(ref)) refId=+ref; else if(ref){ try{ var lr=await admLq({ref:ref},1); if(lr.rows[0]) refId=+lr.rows[0].id }catch(e0){} }   // any listing, not only the newest 500
       var from=$("#eaFrom").value, to=$("#eaTo").value;
       try{ var r=await rpc("bk_admin_engage",{p_token:ADM.token,p_kind:kind,p_ref_id:refId,p_ref_text:ref||null,p_title:($("#eaTitle").value||ref||null),p_client:$("#eaClient").value||null,p_phone:$("#eaPhone").value||null,
           p_starts:from?new Date(from+"T00:00:00").toISOString():null,p_ends:to?new Date(to+"T23:59:59").toISOString():null,p_notes:$("#eaNotes").value||null,p_country:COUNTRY});
@@ -2141,7 +2142,7 @@ function wireAdmin(){
       // clean up every listing's photo folder in storage BEFORE the
       // database rows disappear — same gap as the single-listing
       // delete had, fixed here too
-      var idsToClean=(ADM.data&&ADM.data.listings||[]).map(function(l){return String(l.id)});
+      var idsToClean=[]; for(var off=0;;off+=500){ var pg=await admLq({},500,off); pg.rows.forEach(function(l){ idsToClean.push(String(l.id)) }); if(pg.rows.length<500) break }   // every listing's files, not only the newest 500 (a failed read stops here, before anything is deleted)
       for(var i=0;i<idsToClean.length;i++){ await trashListingFiles(idsToClean[i]); }
       var r = await rpc("bk_admin_reset_listings",{p_token:ADM.token, p_confirm:"DELETE ALL LISTINGS", p_country:admScope()});
       ADM.dangerUnlocked=false;
@@ -2200,15 +2201,11 @@ function wireAdmin(){
     if(!input||!drop||!hidden) return;
     // only listings that can appear on the site: live first, then pending (marked — a featured pending listing stays
     // invisible until it is approved); searchable by number, poster, area, governorate or type
-    var allListings=((ADM.data&&ADM.data.listings)||[]).filter(function(l){ return l.status==="live"||l.status==="pending" })
-      .sort(function(a,b){ return (a.status==="live"?0:1)-(b.status==="live"?0:1) || String(b.created_at||"").localeCompare(String(a.created_at||"")) });
-    var typeOf=function(l){ return (D.TYPES[l.property_type]||[])[li()]||l.property_type||"" };
-    var renderMatches=function(q){
-      var qq=(q||"").trim().toLowerCase();
-      var matches = !qq ? allListings.slice(0,30) : allListings.filter(function(l){
-        var hay=admNormQ([(l.ref||String(l.id)),l.poster_name,l.agency_name,l.area,l.gov,typeOf(l)].join(" "));
-        return hay.indexOf(admNormQ(qq))>-1;
-      }).slice(0,30);
+    // the database answers (live first, then pending), so every listing can be found, not only the newest 500
+    var typeOf=function(l){ return (D.TYPES[l.property_type]||[])[li()]||l.property_type||"" }, ftSeq=0, ftT=null;
+    var renderMatches=function(q){ var my=++ftSeq; clearTimeout(ftT);
+      ftT=setTimeout(function(){ admLq({statuses:["live","pending"],q:(q||"").trim(),sort:"livefirst"},30).then(function(r){ if(my===ftSeq) drawMatches(r.rows) }).catch(function(){ if(my===ftSeq) drawMatches([]) }) }, q?200:0) };
+    var drawMatches=function(matches){
       drop.innerHTML = matches.length ? matches.map(function(l){
         return '<div class="chipsel-opt" data-ftpicklisting="1" data-lid="'+l.id+'" data-lref="'+((l.ref||l.id)+"").replace(/"/g,"&quot;")+'" data-lname="'+((l.poster_name||"").replace(/"/g,"&quot;"))+'">'+
           (l.ref||l.id)+' — '+esc(l.agency_name||l.poster_name||"")+' · '+esc(typeOf(l))+(l.area?' · '+esc(l.area):'')+' ('+admPrice(l.price_usd)+')'+
@@ -2767,7 +2764,7 @@ function hsAdRow(id){ if(id==="new") return HS.adNew; var b=hsAdBase(id); return
 function hsAdSet(id,field,val){ if(id==="new"){ if(!HS.adNew) HS.adNew={id:"new",enabled:true}; HS.adNew[field]=val } else { (HS.adDraft[id]=HS.adDraft[id]||{})[field]=val } hsDirtyUI() }
 function hsAdList(){ var rows=(ADM.adSlots||[]).map(function(a){ return Object.assign({},a,HS.adDraft[a.id]||{}) }); if(HS.adNew) rows.push(Object.assign({id:"new",position:rows.length+1},HS.adNew)); return rows }
 function hsAdMode(a){ return a._mode||(a.linked_listing_id?"linked":a.video_embed_url?"video_embed":"upload") }
-function hsAdName(a,i){ var lst=a.linked_listing_id?((ADM.data&&ADM.data.listings||[]).filter(function(l){ return String(l.id)===String(a.linked_listing_id) })[0]):null; return a.label||a.sponsor_name||(lst&&lst.ref)||(a.linked_listing_id?"BK "+a.linked_listing_id:"")||(a.id==="new"?hsT("adNew"):"#"+(i+1)) }
+function hsAdName(a,i){ var lst=a.linked_listing_id?admListingById(a.linked_listing_id):null; if(a.linked_listing_id&&!lst) admListingsEnsure([a.linked_listing_id],function(){ try{ hsRenderOutline() }catch(e){} }); return a.label||a.sponsor_name||(lst&&lst.ref)||(a.linked_listing_id?"BK "+a.linked_listing_id:"")||(a.id==="new"?hsT("adNew"):"#"+(i+1)) }
 function hsAdPayload(a){
   var mode=hsAdMode(a), p={p_token:ADM.token,p_country:COUNTRY,p_id:a.id==="new"?null:+a.id,p_position:null,p_enabled:a.enabled!==false,p_label:a.label||"",p_image_url:null,p_link_url:null,p_media_type:"image",p_linked_listing_id:null,p_image_urls:[],p_video_embed_url:null,
     p_sponsor_name:a.sponsor_name||null,p_overlay_top:a.overlay_top||null,p_overlay_bottom:a.overlay_bottom||null,p_starts_at:a.starts_at||null,p_expires_at:a.expires_at||null};
@@ -2826,7 +2823,7 @@ function hsInspAds(){
     var id=sd.slice(3), a=hsAdRow(id); if(!a){ HS.sel="row"; return hsInspAds() }
     var idx=hsAdList().findIndex(function(x){ return String(x.id)===String(id) }); title=hsAdName(a,idx); var mode=hsAdMode(a);
     var imgs=(a.image_urls&&a.image_urls.length)?a.image_urls:(a.image_url?[a.image_url]:[]);
-    var lst=(ADM.data&&ADM.data.listings)||[];
+    var lnk=a.linked_listing_id?admListingById(a.linked_listing_id):null;
     H.push(fHint(hsT("adSaveHint")), fGrp(hsT("adInfo")), aSwitch(t("enabled"),"enabled",a.enabled!==false),
       '<div class="row">'+aText(t("adLabelL"),"label",a.label,"")+aText(t("adSponsorNameL"),"sponsor_name",a.sponsor_name,t("adSponsorNamePH"))+'</div>',
       fGrp(hsT("adMedia")),
@@ -2836,7 +2833,7 @@ function hsInspAds(){
         '<div class="fl"><label>'+t("adModeUpload")+'</label><div class="hs-up"><input type="file" accept="image/*,video/mp4,video/webm" multiple data-hsaup="1">'+(imgs.length?'<button type="button" class="ab" data-hsaclear="1">'+hsT("adClearMedia")+'</button>':'')+'</div><div class="hintx hs-upmsg"></div></div>',
         fHint(GX("adVideoHint").replace("{max}",adVideoMaxMb())+" "+t("adMultiUploadHint")), aText(t("adLinkUrlL"),"link_url",a.link_url,"https://..."));
     } else if(mode==="linked"){
-      H.push('<div class="fl"><label>'+t("adPickListingL")+'</label><select data-hsa="linked_listing_id" data-hst="str"><option value="">—</option>'+lst.map(function(l){ return '<option value="'+l.id+'"'+(String(l.id)===String(a.linked_listing_id||"")?' selected':'')+'>'+esc(String(l.ref||l.id))+' — '+esc(String(l.poster_name||""))+' ('+admPrice(l.price_usd)+')</option>' }).join("")+'</select></div>', fHint(t("adLinkedHint")));
+      H.push('<div class="fl"><label>'+t("adPickListingL")+'</label><input type="hidden" data-hsa="linked_listing_id" data-hst="str" id="hsLinkVal" value="'+esc(String(a.linked_listing_id||""))+'"><div style="display:flex;gap:6px"><div class="chipsel" style="flex:1"><input type="text" id="hsLinkQ" dir="auto" autocomplete="off" placeholder="'+esc(t("searchPH"))+'" value="'+esc(lnk?String(lnk.ref||lnk.id)+(lnk.poster_name?' — '+lnk.poster_name:''):(a.linked_listing_id?String(a.linked_listing_id):""))+'"><div class="chipsel-drop" id="hsLinkDrop"></div></div>'+(a.linked_listing_id?'<button type="button" class="ab" id="hsLinkClear" aria-label="clear">✕</button>':'')+'</div></div>', fHint(t("adLinkedHint")));
     } else {
       H.push(aText(t("adVideoUrlL"),"video_embed_url",a.video_embed_url,"https://www.youtube.com/watch?v=..."), fHint(t("adVideoEmbedHint")), aText(t("adVideoLinkL"),"link_url",a.link_url,"https://..."));
     }
@@ -3829,7 +3826,9 @@ function geoAdminBody(){
 var PT_SECS=[["homes","ptSecHomes"],["commercial","ptSecComm"],["land","ptSecLand"]];
 function ptRows(){ if(!ADM.ptRows){ ADM.ptRows=JSON.parse(JSON.stringify((typeof TYPE_ROWS!=="undefined"&&TYPE_ROWS)||typesDefault())) } return ADM.ptRows }
 function typesAdminBody(){
-  var rows=ptRows(), counts={}; ((ADM.data&&ADM.data.listings)||[]).forEach(function(l){ counts[l.property_type]=(counts[l.property_type]||0)+1 });
+  var rows=ptRows(), counts={};
+  if(ADM._ptCounts) ADM._ptCounts.forEach(function(it){ counts[it[0]]=it[1] });   // every listing, counted in the database
+  else if(!ADM._ptCountsReq){ ADM._ptCountsReq=true; admLq({nofacets:false},1).then(function(r){ ADM._ptCounts=(r.facets&&r.facets.type)||[]; render() }).catch(function(){ ADM._ptCountsReq=false }) }
   var secSel=function(v,i){ return '<select data-pt="sec:'+i+'">'+PT_SECS.map(function(s){ return '<option value="'+s[0]+'"'+(v===s[0]?' selected':'')+'>'+GX(s[1])+'</option>' }).join("")+'</select>' };
   var grid='display:grid;grid-template-columns:.8fr 1.2fr 1.1fr 1.1fr 1.1fr .9fr .5fr .4fr .5fr auto;gap:6px 8px;align-items:center;font-size:13.5px';
   return '<div class="blk"><h3>'+GX("ptH")+'</h3><div class="in"><div class="hintx" style="margin-bottom:10px">'+GX("ptHint")+'</div>'+
@@ -4788,7 +4787,30 @@ function admLpgFetch(){
   rpcScoped("bk_admin_listings_page",{p_token:ADM.token,p_country:admScope(),p_f:{q:f.q||"",status:f.status||"",gov:f.gov||"",type:f.type||"",who:f.who||"",src:f.src||"",sort:f.sort||"new",user:(ADM.listUser&&ADM.listUser.id)||""},p_offset:0,p_limit:admShown("lst"),p_days:ADM.range||7})
     .then(function(r){ if(ADM._lpgReq!==k) return; ADM._lpgReq=null; ADM.lpg=Object.assign({key:k},r||{}); render() })
     .catch(function(e){ if(ADM._lpgReq!==k) return; ADM._lpgReq=null; ADM.lpg={key:k,err:e.message||String(e),rows:(ADM.lpg&&ADM.lpg.rows)||[],total:0,scope_total:0,facets:{}}; render() }) }
-function admListingById(id){ id=String(id); var a=((ADM.lpg&&ADM.lpg.rows)||[]).filter(function(l){ return String(l.id)===id })[0]; return a||((ADM.data&&ADM.data.listings)||[]).filter(function(l){ return String(l.id)===id })[0]||null }
+function admListingById(id){ if(id==null||id==="") return null; id=String(id); var a=((ADM.lpg&&ADM.lpg.rows)||[]).filter(function(l){ return String(l.id)===id })[0]; return a||(ADM.lcache&&ADM.lcache[id])||((ADM.data&&ADM.data.listings)||[]).filter(function(l){ return String(l.id)===id })[0]||null }
+/* step 2 (2026-11-24): the panel's pickers (featured, home-page ad link, social, placements, engagements), the type counts
+   and «delete all» ask the database (bk_admin_listings_page) instead of bk_admin_data's newest-500 list. Every row that
+   comes back is kept in ADM.lcache so admListingById finds it. */
+function admLq(f, limit, offset){ return rpc("bk_admin_listings_page",{p_token:ADM.token,p_country:admScope(),p_f:Object.assign({nofacets:true},f||{}),p_offset:offset||0,p_limit:limit||30,p_days:ADM.range||7})
+  .then(function(r){ r=r||{}; ADM.lcache=ADM.lcache||{}; (r.rows||[]).forEach(function(l){ ADM.lcache[String(l.id)]=l }); r.rows=r.rows||[]; return r }) }
+function admListingsEnsure(ids, cb){ ADM._lcReq=ADM._lcReq||{}; var miss=(ids||[]).filter(function(id){ return id!=null&&id!==""&&!admListingById(id)&&!ADM._lcReq[String(id)] }).map(String);
+  if(!miss.length) return; miss.forEach(function(id){ ADM._lcReq[id]=1 });
+  admLq({ids:miss}, miss.length).then(function(){ (cb||render)() }).catch(function(){}) }
+function admRefocus(id){ var el=document.getElementById(id); if(!el) return; try{ el.removeAttribute("readonly"); el.focus(); el.setSelectionRange(el.value.length,el.value.length) }catch(e){} }
+// the home-page ad's «linked listing»: a search box over every listing (was a <select> of the newest 500); the picked id goes
+// into the hidden data-hsa field and a bubbling change event saves it through the inspector's own handler
+function hsLinkSearch(q){ if(!document.getElementById("hsLinkDrop")) return; var my=(window._hsLinkSeq=(window._hsLinkSeq||0)+1);
+  admLq({q:(q||"").trim(),sort:"livefirst"},30).then(function(r){ if(my!==window._hsLinkSeq) return; var d=document.getElementById("hsLinkDrop"); if(!d) return;
+    d.innerHTML=r.rows.length?r.rows.map(function(l){ return '<div class="chipsel-opt" data-hslinkpick="'+l.id+'">'+esc(String(l.ref||l.id))+' — '+esc(String(l.agency_name||l.poster_name||""))+' ('+admPrice(l.price_usd)+')'+(l.status!=="live"?' · '+admStLabel(l.status):'')+'</div>' }).join(""):'<div class="chipsel-empty">'+t("noResultsFor")+'</div>';
+    d.classList.add("on") }).catch(function(){}) }
+function hsLinkSet(id){ var h=document.getElementById("hsLinkVal"); if(!h) return; h.value=id==null?"":String(id); h.dispatchEvent(new Event("change",{bubbles:true})) }
+if(!window._hsLinkWired){ window._hsLinkWired=true;
+  document.addEventListener("input",function(e){ if(e.target&&e.target.id==="hsLinkQ"){ var v=e.target.value; clearTimeout(window._hsLinkT); window._hsLinkT=setTimeout(function(){ hsLinkSearch(v) },220) } });
+  document.addEventListener("focusin",function(e){ if(e.target&&e.target.id==="hsLinkQ") hsLinkSearch("") });
+  document.addEventListener("click",function(e){ var t0=e.target; if(!t0||!t0.closest) return; var o=t0.closest("[data-hslinkpick]");
+    if(o){ e.stopPropagation(); e.preventDefault(); hsLinkSet(o.dataset.hslinkpick); return }
+    if(t0.closest("#hsLinkClear")){ e.preventDefault(); hsLinkSet(""); return }
+    if(!t0.closest("#hsLinkQ")){ var d=document.getElementById("hsLinkDrop"); if(d) d.classList.remove("on") } }, true); }
 function admListingsFiltered(d){
   var all=(d.listings||[]); var f=ADM.lf=ADM.lf||{q:"",status:"",gov:"",type:"",who:"",src:"",sort:"new",view:""};
   if(ADM.lstatus){ f.status=ADM.lstatus; ADM.lstatus=null }                       // a bell / dashboard jump pre-filters by status
@@ -5113,7 +5135,7 @@ function wireAdminMaps(){
     }).catch(function(e){ admToast(e.message||"error","bad"); save.disabled=false });
   };
 }
-function adminSocialPicked(){ var id=ADM.social&&ADM.social.id; return id ? ((ADM.data&&ADM.data.listings)||[]).find(function(l){ return String(l.id)===String(id) })||null : null }
+function adminSocialPicked(){ var id=ADM.social&&ADM.social.id; if(!id) return null; var l=admListingById(id); if(!l) admListingsEnsure([id]); return l }
 function socialPhotoUrl(l){ var s=ADM.social||{}; if(s.customPhoto) return s.customPhoto; var ph=promoPhotos(l); return ph[s.photoIdx||0]||ph[0]||l.cover||"" }
 function socialDueFor(id){ return (ADM._promoDue||[]).filter(function(p){ return String(p.listing_id)===String(id) })[0]||null }
 function adminSocialBody(){
@@ -5126,9 +5148,12 @@ function adminSocialBody(){
       '<div class="fl" style="max-width:280px"><label>'+GX("socialDueHoursL")+'</label><input type="number" min="1" id="socialDueHours" value="'+esc(String(set.due_hours!=null?set.due_hours:24))+'"></div>'+
       PROMO_SRC.filter(function(o){ return o[0].indexOf("fb-")===0 }).map(function(o){ return '<div class="fl"><label>'+o[1]+'</label><input type="text" dir="ltr" data-socialgroupurl="'+o[0]+'" value="'+esc((set.group_urls||{})[o[0]]||"")+'" placeholder="https://facebook.com/groups/..."></div>' }).join("")+
       '<div class="ld-acts"><button type="button" class="ab ok" id="socialSettingsSave">'+t("save")+'</button></div></div>' : '';
-    var all=((ADM.data&&ADM.data.listings)||[]).filter(function(x){ return x.status==="live" });
-    var q=(s.q||"").trim().toLowerCase();
-    var allRows=(q?all.filter(function(x){ return admNormQ((x.ref||"")+" "+(x.gov||"")+" "+(x.area||"")).indexOf(admNormQ(q))>-1 }):all), rows=allRows.slice(0,admShown("social",24));
+    // live listings from the database, a page at a time (every listing, not only the newest 500)
+    var sKey=JSON.stringify([(s.q||"").trim(),admShown("social",24),admScope()]);
+    if((!ADM._soc||ADM._soc.key!==sKey) && ADM._socReq!==sKey){ ADM._socReq=sKey;
+      admLq({statuses:["live"],q:(s.q||"").trim()},admShown("social",24)).then(function(r){ if(ADM._socReq!==sKey) return; ADM._socReq=null; ADM._soc={key:sKey,rows:r.rows,total:+r.total||0}; var hadF=document.activeElement&&document.activeElement.id==="socialQ"; render(); if(hadF) admRefocus("socialQ") })
+        .catch(function(){ if(ADM._socReq===sKey){ ADM._socReq=null; ADM._soc={key:sKey,rows:[],total:0}; render() } }) }
+    var rows=(ADM._soc&&ADM._soc.rows)||[], allRows={length:(ADM._soc&&ADM._soc.total)||rows.length};
     return '<div class="ld-sec">📣 '+GX("tSocial")+'</div><div class="hintx" style="margin-bottom:10px">'+GX("socialPickHint")+'</div>'+
       settingsPanel+
       '<input id="socialQ" dir="auto" class="asearch" placeholder="'+esc(t("searchPH"))+'" value="'+esc(s.q||"")+'" style="max-width:420px;margin-bottom:12px">'+
@@ -5176,7 +5201,8 @@ function adminSocialBody(){
 }
 function wireAdminSocial(){
   var s=ADM.social; if(!s) return;
-  var q=$("#socialQ"); if(q) q.oninput=function(){ s.q=this.value; render() };
+  // typing kept only the first letter (the redraw took the focus away): wait for a pause, redraw, give the box its focus back
+  var q=$("#socialQ"); if(q) q.oninput=function(){ var v=this.value; clearTimeout(ADM._sqT); ADM._sqT=setTimeout(function(){ s.q=v; render(); admRefocus("socialQ") },220) };
   $$("[data-socialpick]").forEach(function(b){ b.onclick=function(){ ADM.social={id:this.dataset.socialpick,src:"fb-damas",tab:"text",fmt:"45"}; render() } });
   var back=$("#socialBack"); if(back) back.onclick=function(){ ADM.social={q:s.q,src:"fb-damas",tab:"text",fmt:"45"}; render() };
   var dh=$("#socialDueHours"), gs=$$("[data-socialgroupurl]"), ss=$("#socialSettingsSave");
@@ -5736,7 +5762,7 @@ function wirePlacements(){ var S=plcState();
   if($("#plcFLay")) $("#plcFLay").onchange=function(){ keepForm(); render() };
   if($("#plcFP")) $("#plcFP").onchange=function(){ keepForm(); S.form=Object.assign({},S.form,{p:this.value}); render() };
   if($("#plcFBook")) $("#plcFBook").onclick=async function(){ var m=$("#plcFMsg"), ref=(($("#plcFRef")||{}).value||"").trim(), btn=this;
-    var L=((ADM.data&&ADM.data.listings)||[]).filter(function(x){ return String(x.ref||"").toLowerCase()===ref.toLowerCase() && (x.status||"live")==="live" })[0];
+    var L=null; if(ref){ try{ var plr=await admLq({ref:ref,statuses:["live"]},1); L=plr.rows[0]||null }catch(e0){} }   // any live listing, not only the newest 500
     if(!L){ if(m) m.textContent=GX("plcNoListing"); return }
     var st=($("#plcFStart")||{}).value||S.sel, days=+(($("#plcFDays")||{}).value||7), gov=L.governorate_id||L.gov_id||null;
     var full=null; for(var i=0;i<days;i++){ if(plcUsed("featured",gov,plcAdd(st,i))>=plcCap("featured")){ full=plcAdd(st,i); break } }
